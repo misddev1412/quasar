@@ -3,15 +3,18 @@ import { config } from 'dotenv';
 
 config();
 
-export const typeormConfig = new DataSource({
+export default new DataSource({
   type: 'postgres',
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT || '5432'),
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || 'password',
   database: process.env.DB_DATABASE || 'quasar_db',
-  entities: ['src/**/*.entity.ts'],
-  migrations: ['src/database/migrations/*.ts'],
+  // Don't load entities for migration CLI to avoid import issues
+  entities: [],
+  migrations: ['src/database/migrations/*{.ts,.js}'],
   migrationsTableName: 'migrations',
+  migrationsRun: false,
   synchronize: false,
+  logging: process.env.NODE_ENV === 'development' ? true : ['error'],
 }); 

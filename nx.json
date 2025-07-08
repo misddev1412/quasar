@@ -9,7 +9,7 @@
   },
   "plugins": [
     {
-      "plugin": "@nx/next/plugin",
+      "plugin": "@nx/next",
       "options": {
         "startTargetName": "start",
         "buildTargetName": "build",
@@ -20,13 +20,13 @@
       }
     },
     {
-      "plugin": "@nx/playwright/plugin",
+      "plugin": "@nx/playwright",
       "options": {
         "targetName": "e2e"
       }
     },
     {
-      "plugin": "@nx/webpack/plugin",
+      "plugin": "@nx/webpack",
       "options": {
         "buildTargetName": "build",
         "serveTargetName": "serve",
@@ -36,7 +36,7 @@
       }
     },
     {
-      "plugin": "@nx/react/router-plugin",
+      "plugin": "@nx/react",
       "options": {
         "buildTargetName": "build",
         "devTargetName": "dev",
@@ -47,7 +47,7 @@
       }
     },
     {
-      "plugin": "@nx/rollup/plugin",
+      "plugin": "@nx/rollup",
       "options": {
         "buildTargetName": "build",
         "buildDepsTargetName": "build-deps",

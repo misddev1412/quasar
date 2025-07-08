@@ -1,0 +1,73 @@
+{
+  "common": {
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "create": "Tạo mới",
+    "update": "Cập nhật",
+    "submit": "Gửi",
+    "loading": "Đang tải...",
+    "search": "Tìm kiếm",
+    "filter": "Lọc",
+    "refresh": "Làm mới",
+    "confirm": "Xác nhận",
+    "yes": "Có",
+    "no": "Không",
+    "success": "Thành công",
+    "error": "Lỗi",
+    "warning": "Cảnh báo",
+    "info": "Thông tin",
+    "close": "Đóng",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "previous": "Trước"
+  },
+  "auth": {
+    "login": "Đăng nhập",
+    "logout": "Đăng xuất",
+    "register": "Đăng ký",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "remember_me": "Ghi nhớ đăng nhập",
+    "forgot_password": "Quên mật khẩu"
+  },
+  "client": {
+    "home": "Trang chủ",
+    "about": "Giới thiệu",
+    "contact": "Liên hệ",
+    "services": "Dịch vụ",
+    "products": "Sản phẩm",
+    "news": "Tin tức",
+    "support": "Hỗ trợ",
+    "faq": "Câu hỏi thường gặp"
+  },
+  "navigation": {
+    "home": "Trang chủ",
+    "about": "Giới thiệu",
+    "services": "Dịch vụ",
+    "contact": "Liên hệ",
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "profile": "Hồ sơ",
+    "settings": "Cài đặt"
+  },
+  "user": {
+    "profile": "Hồ sơ",
+    "settings": "Cài đặt",
+    "full_name": "Họ và tên",
+    "email": "Email",
+    "phone": "Số điện thoại"
+  },
+  "validation": {
+    "required": "Trường này là bắt buộc",
+    "email_invalid": "Email không hợp lệ",
+    "password_min_length": "Mật khẩu phải có ít nhất {min} ký tự"
+  },
+  "messages": {
+    "save_success": "Lưu thành công",
+    "operation_failed": "Thao tác thất bại",
+    "network_error": "Lỗi kết nối mạng",
+    "not_found": "Không tìm thấy"
+  }
+} 

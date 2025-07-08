@@ -1,0 +1,73 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "update": "Update",
+    "submit": "Submit",
+    "loading": "Loading...",
+    "search": "Search",
+    "filter": "Filter",
+    "refresh": "Refresh",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Information",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "remember_me": "Remember Me",
+    "forgot_password": "Forgot Password"
+  },
+  "client": {
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact",
+    "services": "Services",
+    "products": "Products",
+    "news": "News",
+    "support": "Support",
+    "faq": "Frequently Asked Questions"
+  },
+  "navigation": {
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "contact": "Contact",
+    "login": "Login",
+    "register": "Register",
+    "profile": "Profile",
+    "settings": "Settings"
+  },
+  "user": {
+    "profile": "Profile",
+    "settings": "Settings",
+    "full_name": "Full Name",
+    "email": "Email",
+    "phone": "Phone Number"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email_invalid": "Invalid email address",
+    "password_min_length": "Password must be at least {min} characters"
+  },
+  "messages": {
+    "save_success": "Saved successfully",
+    "operation_failed": "Operation failed",
+    "network_error": "Network connection error",
+    "not_found": "Not found"
+  }
+} 

@@ -7,6 +7,7 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
+        "cwd": "apps/backend",
         "command": "webpack-cli build",
         "args": ["--node-env=production"]
       },
@@ -33,7 +34,43 @@
           "buildTarget": "backend:build:production"
         }
       }
+    },
+    "migration:run": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/backend",
+        "command": "npx typeorm-ts-node-esm migration:run -d typeorm.config.ts"
+      }
+    },
+    "migration:show": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/backend",
+        "command": "npx typeorm-ts-node-esm migration:show -d typeorm.config.ts"
+      }
+    },
+    "migration:revert": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/backend",
+        "command": "npx typeorm-ts-node-esm migration:revert -d typeorm.config.ts"
+      }
+    },
+    "migration:generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/backend",
+        "command": "npx typeorm-ts-node-esm migration:generate -d typeorm.config.ts"
+      }
+    },
+    "db:test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/backend",
+        "command": "node -e \"console.log('Testing DB connection...'); const { Client } = require('pg'); const { config } = require('dotenv'); config(); const client = new Client({ host: process.env.DB_HOST || 'localhost', port: parseInt(process.env.DB_PORT || '5432'), user: process.env.DB_USERNAME || 'postgres', password: process.env.DB_PASSWORD || 'password', database: process.env.DB_DATABASE || 'quasar_db' }); client.connect().then(() => { console.log('✅ DB connection successful'); return client.query('SELECT version()'); }).then((result) => { console.log('PostgreSQL version:', result.rows[0].version); client.end(); }).catch((err) => { console.error('❌ DB connection failed:', err.message); process.exit(1); });\""
+      }
     }
   },
   "tags": []
 }
+

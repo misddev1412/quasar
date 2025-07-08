@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { UserModule } from '../modules/user/user.module';
 import { AdminModule } from '../modules/admin/admin.module';
 import { ClientModule } from '../modules/client/client.module';
+import { TranslationModule } from '../modules/translation/translation.module';
 import { AuthModule } from '../auth/auth.module';
 import { AppContext } from '../trpc/context';
 import databaseConfig from '../config/database.config';
@@ -23,12 +24,12 @@ import databaseConfig from '../config/database.config';
     }),
     AuthModule,
     TRPCModule.forRoot({
-      autoSchemaFile: './src/@generated',
       context: AppContext,
     }),
     UserModule,
     AdminModule,
     ClientModule,
+    TranslationModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppContext],

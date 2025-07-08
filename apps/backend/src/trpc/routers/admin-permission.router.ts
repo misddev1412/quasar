@@ -4,13 +4,33 @@ import { z } from 'zod';
 import { PermissionService } from '../../modules/user/services/permission.service';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../middlewares/admin-role.middleware';
-import { PermissionAction, PermissionScope } from '../../modules/user/entities/permission.entity';
-import { UserRole } from '../../modules/user/entities/user.entity';
+import { PermissionAction, PermissionScope, UserRole } from '@quasar/shared';
 
 // Zod schemas for validation
-const permissionActionSchema = z.enum([PermissionAction.CREATE, PermissionAction.READ, PermissionAction.UPDATE, PermissionAction.DELETE]);
-const permissionScopeSchema = z.enum([PermissionScope.OWN, PermissionScope.ANY]);
-const userRoleSchema = z.enum([UserRole.USER, UserRole.ADMIN, UserRole.SUPER_ADMIN]);
+const permissionActionSchema = z.enum([
+  PermissionAction.CREATE, 
+  PermissionAction.READ, 
+  PermissionAction.UPDATE, 
+  PermissionAction.DELETE,
+  PermissionAction.EXECUTE,
+  PermissionAction.APPROVE,
+  PermissionAction.REJECT,
+  PermissionAction.PUBLISH,
+  PermissionAction.ARCHIVE
+]);
+const permissionScopeSchema = z.enum([
+  PermissionScope.OWN, 
+  PermissionScope.DEPARTMENT,
+  PermissionScope.ORGANIZATION,
+  PermissionScope.ANY
+]);
+const userRoleSchema = z.enum([
+  UserRole.SUPER_ADMIN,
+  UserRole.ADMIN,
+  UserRole.MANAGER,
+  UserRole.USER,
+  UserRole.GUEST
+]);
 
 const createPermissionSchema = z.object({
   name: z.string().min(1),
@@ -63,7 +83,7 @@ const removePermissionFromRoleSchema = z.object({
 
 const permissionGrantSchema = z.object({
   role: userRoleSchema,
-  resource: z.string(),
+  resource: z.string().min(1),
   action: permissionActionSchema,
   scope: permissionScopeSchema,
   attributes: z.array(z.string()).optional(),
@@ -85,7 +105,16 @@ export class AdminPermissionRouter {
   async createPermission(
     @Input() createPermissionDto: z.infer<typeof createPermissionSchema>
   ): Promise<z.infer<typeof permissionResponseSchema>> {
-    return await this.permissionService.createPermission(createPermissionDto);
+    // Ensure all required fields are present for CreatePermissionDto
+    const permissionData = {
+      name: createPermissionDto.name,
+      resource: createPermissionDto.resource,
+      action: createPermissionDto.action,
+      scope: createPermissionDto.scope,
+      description: createPermissionDto.description,
+      attributes: createPermissionDto.attributes,
+    };
+    return await this.permissionService.createPermission(permissionData);
   }
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
@@ -185,7 +214,15 @@ export class AdminPermissionRouter {
   async grantPermissions(
     @Input() input: { grants: z.infer<typeof permissionGrantSchema>[] }
   ): Promise<void> {
-    await this.permissionService.grant(input.grants);
+    // Ensure all required fields are present for PermissionGrant
+    const grants = input.grants.map(grant => ({
+      role: grant.role,
+      resource: grant.resource,
+      action: grant.action,
+      scope: grant.scope,
+      attributes: grant.attributes,
+    }));
+    await this.permissionService.grant(grants);
   }
 
   // Utility: Check if a role has a specific permission

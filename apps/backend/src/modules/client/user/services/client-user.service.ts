@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from '../../../user/repositories/user.repository';
 import { AuthService } from '../../../../auth/auth.service';
-import { User, UserRole } from '../../../user/entities/user.entity';
+import { User } from '../../../user/entities/user.entity';
+import { UserRole } from '@quasar/shared';
 import { 
   ClientRegisterDto, 
   ClientLoginDto, 
@@ -31,7 +32,7 @@ export class ClientUserService {
       role: UserRole.USER, // Client users are always regular users
     };
 
-    const user = await this.userRepository.create(userData);
+    const user = await this.userRepository.createUser(userData);
     const userWithProfile = await this.userRepository.findWithProfile(user.id);
     const tokens = await this.authService.login(user);
     

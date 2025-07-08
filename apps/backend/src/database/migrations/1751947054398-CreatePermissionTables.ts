@@ -45,7 +45,7 @@ export class CreatePermissionTables1751947054398 implements MigrationInterface {
                 {
                     name: 'attributes',
                     type: 'text',
-                    array: true,
+                    isArray: true,
                     default: "ARRAY['*']"
                 },
                 {
@@ -117,7 +117,7 @@ export class CreatePermissionTables1751947054398 implements MigrationInterface {
         }), true);
 
         // Create unique index on role and permission_id
-        await queryRunner.createIndex('role_permissions', new Index('IDX_role_permission', ['role', 'permission_id'], { isUnique: true }));
+        await queryRunner.query('CREATE UNIQUE INDEX "IDX_role_permission" ON "role_permissions" ("role", "permission_id")');
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

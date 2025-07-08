@@ -11,6 +11,7 @@ export * from './lib/types/api.types';
 export * from './lib/types/database.types';
 export * from './lib/types/dto.types';
 export * from './lib/types/auth.types';
+export * from './types/translation.types';
 
 // Enums
 export * from './lib/enums/user.enums';

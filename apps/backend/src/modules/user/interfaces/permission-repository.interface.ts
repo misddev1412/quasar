@@ -1,6 +1,6 @@
-import { Permission, PermissionAction, PermissionScope } from '../entities/permission.entity';
+import { Permission } from '../entities/permission.entity';
 import { RolePermission } from '../entities/role-permission.entity';
-import { UserRole } from '../entities/user.entity';
+import { PermissionAction, PermissionScope, UserRole } from '@quasar/shared';
 
 export interface CreatePermissionDto {
   name: string;

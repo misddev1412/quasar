@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ContextOptions, TRPCContext } from 'nestjs-trpc';
-import { UserRole } from '../modules/user/entities/user.entity';
+import { UserRole } from '@quasar/shared';
 import { Permission } from '../modules/user/entities/permission.entity';
 import { PermissionRepository } from '../modules/user/repositories/permission.repository';
 

@@ -32,7 +32,7 @@ export interface UpdateUserProfileDto {
 }
 
 export interface IUserRepository {
-  create(createUserDto: CreateUserDto): Promise<User>;
+  createUser(createUserDto: CreateUserDto): Promise<User>;
   findAll(): Promise<User[]>;
   findById(id: string): Promise<User | null>;
   findByEmail(email: string): Promise<User | null>;

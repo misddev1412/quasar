@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TRPCError } from '@trpc/server';
 import { TRPCMiddleware, MiddlewareOptions, MiddlewareResponse } from 'nestjs-trpc';
 import { AuthenticatedContext } from '../context';
-import { PermissionAction, PermissionScope } from '../../modules/user/entities/permission.entity';
+import { PermissionAction, PermissionScope } from '@quasar/shared';
 import { PermissionService } from '../../modules/user/services/permission.service';
 
 export interface RequiredPermission {

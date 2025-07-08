@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PermissionService } from '../../modules/user/services/permission.service';
-import { PermissionAction, PermissionScope } from '../../modules/user/entities/permission.entity';
-import { UserRole } from '../../modules/user/entities/user.entity';
+import { PermissionAction, PermissionScope, UserRole } from '@quasar/shared';
 import { PermissionGrant } from '../../modules/user/services/permission.service';
 
 @Injectable()

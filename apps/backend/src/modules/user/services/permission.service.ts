@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PermissionRepository } from '../repositories/permission.repository';
-import { Permission, PermissionAction, PermissionScope } from '../entities/permission.entity';
+import { Permission } from '../entities/permission.entity';
 import { RolePermission } from '../entities/role-permission.entity';
-import { UserRole } from '../entities/user.entity';
+import { PermissionAction, PermissionScope, UserRole } from '@quasar/shared';
 import { 
   CreatePermissionDto, 
   UpdatePermissionDto,

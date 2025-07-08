@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { UserRepository } from '../../../user/repositories/user.repository';
 import { AuthService } from '../../../../auth/auth.service';
-import { User, UserRole } from '../../../user/entities/user.entity';
+import { User } from '../../../user/entities/user.entity';
+import { UserRole } from '@quasar/shared';
 import { 
   AdminCreateUserDto, 
   AdminUpdateUserDto, 
@@ -37,7 +38,7 @@ export class AdminUserService {
       role: createUserDto.role || UserRole.USER,
     };
 
-    const user = await this.userRepository.create(userData);
+    const user = await this.userRepository.createUser(userData);
     // Get the user with profile after creation
     const userWithProfile = await this.userRepository.findWithProfile(user.id);
     return this.toAdminUserResponse(userWithProfile || user);

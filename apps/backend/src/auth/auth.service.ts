@@ -1,7 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from '../modules/user/repositories/user.repository';
-import { User, UserRole } from '../modules/user/entities/user.entity';
+import { User } from '../modules/user/entities/user.entity';
+import { UserRole } from '@quasar/shared';
 import * as bcrypt from 'bcryptjs';
 
 export interface JwtPayload {

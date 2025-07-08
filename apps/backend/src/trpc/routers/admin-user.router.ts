@@ -4,10 +4,16 @@ import { z } from 'zod';
 import { AdminUserService } from '../../modules/admin/user/services/admin-user.service';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../middlewares/admin-role.middleware';
-import { UserRole } from '../../modules/user/entities/user.entity';
+import { UserRole } from '@quasar/shared';
 
 // Zod schemas for validation
-const userRoleSchema = z.enum([UserRole.USER, UserRole.ADMIN, UserRole.SUPER_ADMIN]);
+const userRoleSchema = z.enum([
+  UserRole.SUPER_ADMIN,
+  UserRole.ADMIN,
+  UserRole.MANAGER,
+  UserRole.USER,
+  UserRole.GUEST
+]);
 
 const adminCreateUserSchema = z.object({
   email: z.string().email(),

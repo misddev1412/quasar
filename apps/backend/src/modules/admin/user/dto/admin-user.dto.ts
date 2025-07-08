@@ -1,5 +1,5 @@
 import { IsEmail, IsString, IsBoolean, IsOptional, MinLength, IsDateString, IsEnum } from 'class-validator';
-import { UserRole } from '../../../user/entities/user.entity';
+import { UserRole } from '@quasar/shared';
 
 export class AdminCreateUserDto {
   @IsEmail()

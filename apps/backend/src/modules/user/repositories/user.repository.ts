@@ -22,7 +22,7 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
     super(userRepository);
   }
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
     const { firstName, lastName, phoneNumber, role, ...userData } = createUserDto;
     
     // Create user first
