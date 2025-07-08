@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User, UserRole } from '../entities/user.entity';
+import { BaseRepository, UserRole } from '@quasar/shared';
+import { User } from '../entities/user.entity';
 import { UserProfile } from '../entities/user-profile.entity';
 import { 
   IUserRepository, 
@@ -11,13 +12,15 @@ import {
 } from '../interfaces/user-repository.interface';
 
 @Injectable()
-export class UserRepository implements IUserRepository {
+export class UserRepository extends BaseRepository<User> implements IUserRepository {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(UserProfile)
     private readonly userProfileRepository: Repository<UserProfile>,
-  ) {}
+  ) {
+    super(userRepository);
+  }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { firstName, lastName, phoneNumber, role, ...userData } = createUserDto;
@@ -28,8 +31,8 @@ export class UserRepository implements IUserRepository {
       role: role ? (role as UserRole) : UserRole.USER
     };
     
-    const user = this.userRepository.create(userToCreate);
-    const savedUser = await this.userRepository.save(user);
+    const user = this.repository.create(userToCreate);
+    const savedUser = await this.repository.save(user);
     
     // Create profile
     const profile = this.userProfileRepository.create({
@@ -44,31 +47,25 @@ export class UserRepository implements IUserRepository {
   }
 
   async findAll(): Promise<User[]> {
-    return await this.userRepository.find({
+    return await this.repository.find({
       relations: ['profile']
     });
   }
 
-  async findById(id: string): Promise<User | null> {
-    return await this.userRepository.findOne({
-      where: { id }
-    });
-  }
-
   async findByEmail(email: string): Promise<User | null> {
-    return await this.userRepository.findOne({
+    return await this.repository.findOne({
       where: { email }
     });
   }
 
   async findByUsername(username: string): Promise<User | null> {
-    return await this.userRepository.findOne({
+    return await this.repository.findOne({
       where: { username }
     });
   }
 
   async findWithProfile(id: string): Promise<User | null> {
-    return await this.userRepository.findOne({
+    return await this.repository.findOne({
       where: { id },
       relations: ['profile']
     });
@@ -80,7 +77,7 @@ export class UserRepository implements IUserRepository {
       ...(updateUserDto.role && { role: updateUserDto.role as UserRole })
     };
     
-    await this.userRepository.update(id, updateData);
+    await this.repository.update(id, updateData);
     return await this.findById(id);
   }
 
@@ -97,10 +94,5 @@ export class UserRepository implements IUserRepository {
     return await this.userProfileRepository.findOne({
       where: { userId }
     });
-  }
-
-  async delete(id: string): Promise<boolean> {
-    const result = await this.userRepository.delete(id);
-    return result.affected > 0;
   }
 } 

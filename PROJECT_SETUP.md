@@ -93,16 +93,43 @@ yarn migration:create -- src/database/migrations/MigrationName
 - Yarn package manager
 - PostgreSQL database
 
-### Environment Variables
-Create `.env` files in `apps/backend/` with:
+### Environment Setup
+
+#### Option 1: Automatic Setup (Recommended)
+```bash
+# Run the setup script to create .env with secure defaults
+yarn env:setup
+```
+
+#### Option 2: Manual Setup
+```bash
+# Copy template to .env
+yarn env:copy
+
+# Edit .env file with your database credentials
+```
+
+The environment file should contain:
 ```env
 NODE_ENV=development
 PORT=3001
+HOST=localhost
+
+# Database Configuration
 DB_HOST=localhost
 DB_PORT=5432
 DB_USERNAME=postgres
 DB_PASSWORD=password
 DB_DATABASE=quasar_db
+
+# JWT Configuration (use yarn env:setup to auto-generate secure secret)
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_EXPIRES_IN=1h
+JWT_REFRESH_EXPIRES_IN=7d
+
+# CORS Configuration
+CORS_ORIGIN=http://localhost:3000,http://localhost:4200
+CORS_CREDENTIALS=true
 ```
 
 ### Running Applications
@@ -175,12 +202,52 @@ apps/admin/public/assets/        # Admin app static assets
 ✅ Environment Configuration
 ✅ Package Manager: Yarn
 
-## 🔄 Next Steps
+## 🔄 Quick Start
 
-1. Set up your PostgreSQL database
-2. Copy `.env.template` to `.env` and configure your database credentials
-3. Run migrations: `yarn migration:run`
-4. Start developing your applications!
+1. **Set up your PostgreSQL database**
+   ```bash
+   # Install PostgreSQL (if not already installed)
+   # macOS: brew install postgresql
+   # Ubuntu: sudo apt-get install postgresql
+   
+   # Start PostgreSQL service
+   # macOS: brew services start postgresql
+   # Ubuntu: sudo systemctl start postgresql
+   
+   # Create database
+   createdb quasar_db
+   ```
+
+2. **Configure environment**
+   ```bash
+   # Automatic setup (recommended)
+   yarn env:setup
+   
+   # OR manual setup
+   yarn env:copy
+   # Then edit apps/backend/.env with your credentials
+   ```
+
+3. **Run database migrations**
+   ```bash
+   yarn migration:run
+   ```
+
+4. **Seed default permissions** 
+   ```bash
+   yarn seed:permissions
+   ```
+
+5. **Start development servers**
+   ```bash
+   # Start all applications
+   nx run-many -t serve
+   
+   # OR start individually
+   nx serve backend    # http://localhost:3001
+   nx serve client     # http://localhost:3000  
+   nx serve admin      # http://localhost:4200
+   ```
 
 ## 📚 Additional Resources
 

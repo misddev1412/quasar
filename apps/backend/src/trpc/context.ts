@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ContextOptions, TRPCContext } from 'nestjs-trpc';
 import { UserRole } from '../modules/user/entities/user.entity';
+import { Permission } from '../modules/user/entities/permission.entity';
+import { PermissionRepository } from '../modules/user/repositories/permission.repository';
 
 export interface AuthUser {
   id: string;
@@ -9,6 +11,7 @@ export interface AuthUser {
   username: string;
   role: UserRole;
   isActive: boolean;
+  permissions: Permission[];
 }
 
 export interface AuthenticatedContext extends Record<string, unknown> {
@@ -19,7 +22,10 @@ export interface AuthenticatedContext extends Record<string, unknown> {
 
 @Injectable()
 export class AppContext implements TRPCContext {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly permissionRepository: PermissionRepository,
+  ) {}
 
   async create(opts: ContextOptions): Promise<AuthenticatedContext> {
     const { req, res } = opts;
@@ -33,13 +39,17 @@ export class AppContext implements TRPCContext {
         const token = authHeader.substring(7);
         const payload = await this.jwtService.verifyAsync(token);
         
-        // Create user object from JWT payload
+        // Load user permissions based on role
+        const permissions = await this.permissionRepository.findPermissionsByRole(payload.role);
+        
+        // Create user object from JWT payload with permissions
         user = {
           id: payload.sub,
           email: payload.email,
           username: payload.username,
           role: payload.role,
           isActive: payload.isActive,
+          permissions,
         };
       } catch (error) {
         // Invalid token - user remains undefined

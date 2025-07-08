@@ -27,6 +27,10 @@ out/
 .env.production.local
 .env.*.local
 
+# Allow environment templates
+!.env.example
+!env.template
+
 # Logs
 npm-debug.log*
 yarn-debug.log*

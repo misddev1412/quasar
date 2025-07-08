@@ -1,0 +1,22 @@
+{
+  "name": "@quasar/shared",
+  "version": "1.0.0",
+  "description": "Shared library for Quasar application containing base entities, repositories, types, and utilities",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "private": true,
+  "scripts": {
+    "build": "nx build shared",
+    "test": "nx test shared"
+  },
+  "keywords": ["nestjs", "shared", "library", "base", "entities", "repositories"],
+  "author": "Quasar Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "@nestjs/common": "^10.0.0",
+    "typeorm": "^0.3.0",
+    "class-transformer": "^0.5.0",
+    "class-validator": "^0.14.0"
+  },
+  "tags": ["type:lib", "scope:shared"]
+} 

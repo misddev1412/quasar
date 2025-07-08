@@ -1,11 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
+import { BaseEntity } from '@quasar/shared';
 import { User } from './user.entity';
 
 @Entity('user_profiles')
-export class UserProfile {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class UserProfile extends BaseEntity {
   @Column({ name: 'first_name' })
   firstName: string;
 
@@ -35,12 +33,6 @@ export class UserProfile {
 
   @Column({ name: 'postal_code', nullable: true })
   postalCode: string;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
 
   @Column({ name: 'user_id' })
   userId: string;

@@ -3,7 +3,12 @@
     "migration:generate": "cd apps/backend && npx typeorm migration:generate -d typeorm.config.ts",
     "migration:run": "cd apps/backend && npx typeorm migration:run -d typeorm.config.ts",
     "migration:revert": "cd apps/backend && npx typeorm migration:revert -d typeorm.config.ts",
-    "migration:create": "cd apps/backend && npx typeorm migration:create"
+    "migration:create": "cd apps/backend && npx typeorm migration:create",
+    "env:setup": "cd apps/backend && ./scripts/setup-env.sh",
+    "env:copy": "cd apps/backend && cp env.template .env",
+    "seed:permissions": "cd apps/backend && npx ts-node --project tsconfig.scripts.json src/scripts/seed-permissions.ts",
+    "seed:permissions:force": "cd apps/backend && npx ts-node --project tsconfig.scripts.json src/scripts/seed-permissions.ts seed",
+    "seed:permissions:reseed": "cd apps/backend && npx ts-node --project tsconfig.scripts.json src/scripts/seed-permissions.ts reseed"
   },
   "devDependencies": {
     "@babel/core": "^7.14.5",
@@ -46,9 +51,11 @@
     "rollup": "^4.14.0",
     "sass": "1.62.1",
     "tailwindcss": "^4.1.11",
+    "ts-node": "^10.9.2",
     "tslib": "^2.3.0",
     "typescript": "^5.8.3",
-    "webpack-cli": "^5.1.4"
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.0",

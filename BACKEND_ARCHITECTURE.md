@@ -328,6 +328,140 @@ nx test backend
 nx build backend
 ```
 
+## 🔐 Permission System
+
+### Architecture Overview
+
+The backend implements a comprehensive role-based permission system with:
+- **Fine-grained access control** using permissions
+- **Resource-based permissions** (user, user-profile, permission, role-permission)  
+- **Scope-based access** (OWN for user's resources, ANY for all resources)
+- **Attribute-level filtering** (control which fields users can access)
+
+### Permission Entities
+
+```typescript
+@Entity('permissions')
+export class Permission {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ type: 'enum', enum: UserRole })
+  role: UserRole;
+
+  @Column()
+  action: string; // CREATE, READ, UPDATE, DELETE
+
+  @Column()
+  scope: string; // OWN, ANY
+
+  @Column()
+  resource: string; // user, user-profile, permission, role-permission
+
+  @Column('text', { array: true })
+  attributes: string[]; // ['*'] or specific fields ['id', 'username']
+}
+
+@Entity('role_permissions')
+export class RolePermission {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ type: 'enum', enum: UserRole })
+  role: UserRole;
+
+  @Column()
+  permissionId: string;
+
+  @ManyToOne(() => Permission)
+  @JoinColumn({ name: 'permissionId' })
+  permission: Permission;
+}
+```
+
+### Permission Service
+
+```typescript
+// Check permissions with AccessControl-style API
+const canCreateUser = await permissionService
+  .can(UserRole.ADMIN)
+  .createAny('user');
+
+const canUpdateOwnProfile = await permissionService
+  .can(UserRole.USER)
+  .updateOwn('user-profile');
+
+// Get filtered attributes for field-level access
+const allowedFields = await permissionService
+  .getFilteredAttributes(UserRole.USER, 'user', 'READ', 'OWN');
+// Returns: ['id', 'username', 'email']
+```
+
+### tRPC Permission Middleware
+
+```typescript
+// Using convenience middleware classes
+export const userRouter = router({
+  getAllUsers: protectedProcedure
+    .use(CanReadAny('user'))
+    .query(({ ctx }) => userService.findAll()),
+
+  updateProfile: protectedProcedure
+    .use(CanUpdateOwn('user-profile'))
+    .input(updateProfileSchema)
+    .mutation(({ ctx, input }) => 
+      userService.updateProfile(ctx.user.id, input)
+    ),
+
+  deleteUser: protectedProcedure
+    .use(RequirePermission('user', 'DELETE', 'ANY'))
+    .input(z.object({ userId: z.string() }))
+    .mutation(({ input }) => userService.delete(input.userId)),
+});
+```
+
+### Default Permission Structure
+
+| Role | Resource | Permissions |
+|------|----------|-------------|
+| **USER** | user | READ/UPDATE OWN (restricted attributes) |
+| **USER** | user-profile | READ/UPDATE OWN |
+| **ADMIN** | user | Full CRUD ANY |
+| **ADMIN** | user-profile | Full CRUD ANY |
+| **ADMIN** | permission | READ ANY |
+| **SUPER_ADMIN** | permission | Full CRUD ANY |
+| **SUPER_ADMIN** | role-permission | Full CRUD ANY |
+
+### Permission Seeding
+
+```bash
+# Seed default permissions (recommended)
+yarn seed:permissions
+
+# Force re-seed all permissions
+yarn seed:permissions:reseed
+```
+
+### Admin Permission Management
+
+```typescript
+// Admin can manage permissions via tRPC
+await trpc.admin.permission.assignToRole.mutate({
+  role: 'ADMIN',
+  resource: 'user',
+  action: 'CREATE', 
+  scope: 'ANY',
+  attributes: ['*']
+});
+
+await trpc.admin.permission.removeFromRole.mutate({
+  role: 'USER',
+  resource: 'user',
+  action: 'DELETE',
+  scope: 'ANY'
+});
+```
+
 ## 🎯 Architecture Benefits
 
 1. **Separation of Concerns**: Authentication data separate from profile data
@@ -336,5 +470,7 @@ nx build backend
 4. **Scalability**: Can implement different caching strategies for auth vs profile data
 5. **Compliance**: Easier to implement data privacy requirements (GDPR, etc.)
 6. **Database Normalization**: Proper relational structure with foreign key constraints
+7. **Fine-grained Authorization**: Comprehensive permission system with role-based access control
+8. **Flexible Permissions**: Support for resource-level, scope-level, and attribute-level access control
 
-This architecture provides clear separation of concerns, proper authentication/authorization, and scalable patterns for both admin and client applications with optimal database design. 
+This architecture provides clear separation of concerns, proper authentication/authorization, scalable patterns for both admin and client applications, and comprehensive permission management with optimal database design. 
