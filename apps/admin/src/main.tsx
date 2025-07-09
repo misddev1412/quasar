@@ -1,6 +1,9 @@
 import { StrictMode } from 'react';
 import * as ReactDOM from 'react-dom/client';
 
+// Import Quasar Design System CSS
+import '@shared/styles/css/index.css';
+
 // Initialize i18n
 import './i18n';
 

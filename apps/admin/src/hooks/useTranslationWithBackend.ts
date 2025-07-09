@@ -81,13 +81,16 @@ export const useTranslationWithBackend = (): UseTranslationWithBackendResult => 
     try {
       const translation = t(key, { ...options, defaultValue: undefined });
       
+      // Ensure we return a string
+      const result = typeof translation === 'string' ? translation : String(translation);
+      
       // If translation is the same as key, it means no translation found
-      if (translation === key) {
+      if (result === key) {
         // Return the key as fallback
         return key;
       }
       
-      return translation;
+      return result;
     } catch (err) {
       console.warn(`Translation error for key "${key}":`, err);
       return key;

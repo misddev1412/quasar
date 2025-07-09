@@ -1,0 +1,361 @@
+/* Base Form Styles */
+
+/* Form container */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+/* Form groups */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.form-group.horizontal {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+/* Labels */
+label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.label-required::after {
+  content: " *";
+  color: var(--color-error-500);
+}
+
+/* Input styles */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+textarea,
+select {
+  appearance: none;
+  background-color: var(--color-background-primary);
+  border: var(--border-input-default);
+  border-radius: var(--border-radius-md);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  padding: var(--spacing-3) var(--spacing-4);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  width: 100%;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="search"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="datetime-local"]:focus,
+textarea:focus,
+select:focus {
+  border: var(--border-input-focus);
+  box-shadow: var(--shadow-input-focus);
+  outline: none;
+}
+
+input[type="text"]:disabled,
+input[type="email"]:disabled,
+input[type="password"]:disabled,
+input[type="number"]:disabled,
+input[type="tel"]:disabled,
+input[type="url"]:disabled,
+input[type="search"]:disabled,
+input[type="date"]:disabled,
+input[type="time"]:disabled,
+input[type="datetime-local"]:disabled,
+textarea:disabled,
+select:disabled {
+  background-color: var(--color-background-secondary);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Error states */
+.input-error,
+input.error,
+textarea.error,
+select.error {
+  border: var(--border-input-error);
+}
+
+.input-error:focus,
+input.error:focus,
+textarea.error:focus,
+select.error:focus {
+  box-shadow: var(--shadow-input-error);
+}
+
+/* Input sizes */
+.input-sm {
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-2) var(--spacing-3);
+}
+
+.input-lg {
+  font-size: var(--font-size-lg);
+  padding: var(--spacing-4) var(--spacing-5);
+}
+
+/* Textarea specific */
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Select specific */
+select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right var(--spacing-3) center;
+  background-repeat: no-repeat;
+  background-size: 16px 12px;
+  padding-right: var(--spacing-10);
+}
+
+/* Checkbox and radio styles */
+input[type="checkbox"],
+input[type="radio"] {
+  appearance: none;
+  background-color: var(--color-background-primary);
+  border: var(--border-input-default);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-primary-500);
+  cursor: pointer;
+  height: 1rem;
+  width: 1rem;
+  position: relative;
+}
+
+input[type="radio"] {
+  border-radius: var(--border-radius-full);
+}
+
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+  background-color: var(--color-primary-500);
+  border-color: var(--color-primary-500);
+}
+
+input[type="checkbox"]:checked::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m13.854 3.646-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 9.586l6.646-6.64a.5.5 0 0 1 .708.708z'/%3e%3c/svg%3e");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+input[type="radio"]:checked::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  background-color: white;
+  border-radius: var(--border-radius-full);
+}
+
+/* Button styles */
+button,
+.btn {
+  appearance: none;
+  background-color: var(--color-primary-500);
+  border: var(--border-button-default) var(--color-primary-500);
+  border-radius: var(--border-radius-md);
+  color: white;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
+  padding: var(--spacing-3) var(--spacing-4);
+  text-decoration: none;
+  transition: all 0.15s ease-in-out;
+  user-select: none;
+  white-space: nowrap;
+}
+
+button:hover,
+.btn:hover {
+  background-color: var(--color-primary-600);
+  border-color: var(--color-primary-600);
+  box-shadow: var(--shadow-button-hover);
+}
+
+button:active,
+.btn:active {
+  background-color: var(--color-primary-700);
+  border-color: var(--color-primary-700);
+  box-shadow: var(--shadow-button-active);
+  transform: translateY(1px);
+}
+
+button:focus,
+.btn:focus {
+  box-shadow: var(--shadow-button-focus);
+  outline: none;
+}
+
+button:disabled,
+.btn:disabled {
+  background-color: var(--color-neutral-200);
+  border-color: var(--color-neutral-200);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Button variants */
+.btn-secondary {
+  background-color: var(--color-secondary-500);
+  border-color: var(--color-secondary-500);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-secondary-600);
+  border-color: var(--color-secondary-600);
+}
+
+.btn-secondary:active {
+  background-color: var(--color-secondary-700);
+  border-color: var(--color-secondary-700);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border-color: var(--color-primary-500);
+  color: var(--color-primary-500);
+}
+
+.btn-outline:hover {
+  background-color: var(--color-primary-50);
+  border-color: var(--color-primary-600);
+  color: var(--color-primary-600);
+}
+
+.btn-outline:active {
+  background-color: var(--color-primary-100);
+  border-color: var(--color-primary-700);
+  color: var(--color-primary-700);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--color-primary-500);
+}
+
+.btn-ghost:hover {
+  background-color: var(--color-primary-50);
+  color: var(--color-primary-600);
+}
+
+.btn-ghost:active {
+  background-color: var(--color-primary-100);
+  color: var(--color-primary-700);
+}
+
+.btn-danger {
+  background-color: var(--color-error-500);
+  border-color: var(--color-error-500);
+}
+
+.btn-danger:hover {
+  background-color: var(--color-error-600);
+  border-color: var(--color-error-600);
+}
+
+.btn-danger:active {
+  background-color: var(--color-error-700);
+  border-color: var(--color-error-700);
+}
+
+/* Button sizes */
+.btn-sm {
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-2) var(--spacing-3);
+}
+
+.btn-lg {
+  font-size: var(--font-size-lg);
+  padding: var(--spacing-4) var(--spacing-6);
+}
+
+.btn-xl {
+  font-size: var(--font-size-xl);
+  padding: var(--spacing-5) var(--spacing-8);
+}
+
+/* Button with icon */
+.btn-icon {
+  gap: var(--spacing-2);
+}
+
+.btn-icon-only {
+  padding: var(--spacing-3);
+}
+
+/* Form validation messages */
+.form-error {
+  color: var(--color-error-600);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-1);
+}
+
+.form-help {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-1);
+}
+
+.form-success {
+  color: var(--color-success-600);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-1);
+}
+
+/* Fieldset and legend */
+fieldset {
+  border: var(--border-card-default);
+  border-radius: var(--border-radius-lg);
+  margin: 0 0 var(--spacing-4) 0;
+  padding: var(--spacing-4);
+}
+
+legend {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  padding: 0 var(--spacing-2);
+} 

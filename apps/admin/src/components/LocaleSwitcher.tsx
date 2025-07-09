@@ -1,5 +1,5 @@
 import React from 'react';
-import { SupportedLocale } from '@quasar/shared';
+import { SupportedLocale } from '@shared';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 import { getSupportedLocales } from '../i18n';
 

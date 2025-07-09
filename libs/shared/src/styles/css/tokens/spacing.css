@@ -1,0 +1,70 @@
+/* Spacing Design Tokens - CSS Custom Properties */
+:root {
+  /* Base Spacing Scale */
+  --spacing-0: 0rem;
+  --spacing-px: 0.0625rem;  /* 1px */
+  --spacing-0\.5: 0.125rem; /* 2px */
+  --spacing-1: 0.25rem;     /* 4px */
+  --spacing-1\.5: 0.375rem; /* 6px */
+  --spacing-2: 0.5rem;      /* 8px */
+  --spacing-2\.5: 0.625rem; /* 10px */
+  --spacing-3: 0.75rem;     /* 12px */
+  --spacing-3\.5: 0.875rem; /* 14px */
+  --spacing-4: 1rem;        /* 16px */
+  --spacing-5: 1.25rem;     /* 20px */
+  --spacing-6: 1.5rem;      /* 24px */
+  --spacing-7: 1.75rem;     /* 28px */
+  --spacing-8: 2rem;        /* 32px */
+  --spacing-9: 2.25rem;     /* 36px */
+  --spacing-10: 2.5rem;     /* 40px */
+  --spacing-11: 2.75rem;    /* 44px */
+  --spacing-12: 3rem;       /* 48px */
+  --spacing-14: 3.5rem;     /* 56px */
+  --spacing-16: 4rem;       /* 64px */
+  --spacing-20: 5rem;       /* 80px */
+  --spacing-24: 6rem;       /* 96px */
+  --spacing-28: 7rem;       /* 112px */
+  --spacing-32: 8rem;       /* 128px */
+  --spacing-36: 9rem;       /* 144px */
+  --spacing-40: 10rem;      /* 160px */
+  --spacing-44: 11rem;      /* 176px */
+  --spacing-48: 12rem;      /* 192px */
+  --spacing-52: 13rem;      /* 208px */
+  --spacing-56: 14rem;      /* 224px */
+  --spacing-60: 15rem;      /* 240px */
+  --spacing-64: 16rem;      /* 256px */
+  --spacing-72: 18rem;      /* 288px */
+  --spacing-80: 20rem;      /* 320px */
+  --spacing-96: 24rem;      /* 384px */
+
+  /* Semantic Spacing */
+  --spacing-component-xs: var(--spacing-1);
+  --spacing-component-sm: var(--spacing-2);
+  --spacing-component-md: var(--spacing-4);
+  --spacing-component-lg: var(--spacing-6);
+  --spacing-component-xl: var(--spacing-8);
+
+  --spacing-layout-xs: var(--spacing-4);
+  --spacing-layout-sm: var(--spacing-6);
+  --spacing-layout-md: var(--spacing-8);
+  --spacing-layout-lg: var(--spacing-12);
+  --spacing-layout-xl: var(--spacing-16);
+  --spacing-layout-2xl: var(--spacing-24);
+
+  --spacing-section-xs: var(--spacing-8);
+  --spacing-section-sm: var(--spacing-12);
+  --spacing-section-md: var(--spacing-16);
+  --spacing-section-lg: var(--spacing-24);
+  --spacing-section-xl: var(--spacing-32);
+
+  /* Container Spacing */
+  --container-padding-mobile: var(--spacing-4);
+  --container-padding-tablet: var(--spacing-6);
+  --container-padding-desktop: var(--spacing-8);
+
+  --container-max-width-sm: 640px;
+  --container-max-width-md: 768px;
+  --container-max-width-lg: 1024px;
+  --container-max-width-xl: 1280px;
+  --container-max-width-2xl: 1536px;
+} 

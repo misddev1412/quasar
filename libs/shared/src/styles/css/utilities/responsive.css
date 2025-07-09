@@ -1,0 +1,325 @@
+/* Responsive Utilities */
+
+/* Show/Hide utilities for different breakpoints */
+
+/* Mobile first: show by default, hide on larger screens */
+.show-xs {
+  display: block;
+}
+
+@media (min-width: 640px) {
+  .show-xs {
+    display: none;
+  }
+}
+
+.show-sm {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .show-sm {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  .show-sm {
+    display: none;
+  }
+}
+
+.show-md {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .show-md {
+    display: block;
+  }
+}
+
+@media (min-width: 1024px) {
+  .show-md {
+    display: none;
+  }
+}
+
+.show-lg {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .show-lg {
+    display: block;
+  }
+}
+
+@media (min-width: 1280px) {
+  .show-lg {
+    display: none;
+  }
+}
+
+.show-xl {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .show-xl {
+    display: block;
+  }
+}
+
+@media (min-width: 1536px) {
+  .show-xl {
+    display: none;
+  }
+}
+
+.show-2xl {
+  display: none;
+}
+
+@media (min-width: 1536px) {
+  .show-2xl {
+    display: block;
+  }
+}
+
+/* Hide utilities */
+.hide-xs {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .hide-xs {
+    display: block;
+  }
+}
+
+.hide-sm {
+  display: block;
+}
+
+@media (min-width: 640px) and (max-width: 767.98px) {
+  .hide-sm {
+    display: none;
+  }
+}
+
+.hide-md {
+  display: block;
+}
+
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .hide-md {
+    display: none;
+  }
+}
+
+.hide-lg {
+  display: block;
+}
+
+@media (min-width: 1024px) and (max-width: 1279.98px) {
+  .hide-lg {
+    display: none;
+  }
+}
+
+.hide-xl {
+  display: block;
+}
+
+@media (min-width: 1280px) and (max-width: 1535.98px) {
+  .hide-xl {
+    display: none;
+  }
+}
+
+.hide-2xl {
+  display: block;
+}
+
+@media (min-width: 1536px) {
+  .hide-2xl {
+    display: none;
+  }
+}
+
+/* Show from breakpoint up */
+.show-sm-up {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .show-sm-up {
+    display: block;
+  }
+}
+
+.show-md-up {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .show-md-up {
+    display: block;
+  }
+}
+
+.show-lg-up {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .show-lg-up {
+    display: block;
+  }
+}
+
+.show-xl-up {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .show-xl-up {
+    display: block;
+  }
+}
+
+.show-2xl-up {
+  display: none;
+}
+
+@media (min-width: 1536px) {
+  .show-2xl-up {
+    display: block;
+  }
+}
+
+/* Hide from breakpoint up */
+.hide-sm-up {
+  display: block;
+}
+
+@media (min-width: 640px) {
+  .hide-sm-up {
+    display: none;
+  }
+}
+
+.hide-md-up {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .hide-md-up {
+    display: none;
+  }
+}
+
+.hide-lg-up {
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .hide-lg-up {
+    display: none;
+  }
+}
+
+.hide-xl-up {
+  display: block;
+}
+
+@media (min-width: 1280px) {
+  .hide-xl-up {
+    display: none;
+  }
+}
+
+.hide-2xl-up {
+  display: block;
+}
+
+@media (min-width: 1536px) {
+  .hide-2xl-up {
+    display: none;
+  }
+}
+
+/* Responsive text alignment */
+@media (min-width: 640px) {
+  .sm\:text-left {
+    text-align: left;
+  }
+  
+  .sm\:text-center {
+    text-align: center;
+  }
+  
+  .sm\:text-right {
+    text-align: right;
+  }
+}
+
+@media (min-width: 768px) {
+  .md\:text-left {
+    text-align: left;
+  }
+  
+  .md\:text-center {
+    text-align: center;
+  }
+  
+  .md\:text-right {
+    text-align: right;
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:text-left {
+    text-align: left;
+  }
+  
+  .lg\:text-center {
+    text-align: center;
+  }
+  
+  .lg\:text-right {
+    text-align: right;
+  }
+}
+
+/* Responsive flex direction */
+@media (min-width: 640px) {
+  .sm\:flex-row {
+    flex-direction: row;
+  }
+  
+  .sm\:flex-col {
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 768px) {
+  .md\:flex-row {
+    flex-direction: row;
+  }
+  
+  .md\:flex-col {
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:flex-row {
+    flex-direction: row;
+  }
+  
+  .lg\:flex-col {
+    flex-direction: column;
+  }
+} 

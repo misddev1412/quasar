@@ -9,4 +9,6 @@ export const appRouter = router({
   // The actual router generation is handled by the NestJS-tRPC module
 });
 
-export type AppRouter = typeof appRouter; 
+// For nestjs-trpc, the actual router structure is generated at runtime
+// Use a permissive type that allows access to all router endpoints
+export type AppRouter = Record<string, any>; 

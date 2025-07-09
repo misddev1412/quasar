@@ -156,7 +156,7 @@ export abstract class BaseService<T extends BaseEntity> {
         this.logger.warn(`Entity with ID ${id} not found for soft deletion`);
       }
       return deleted;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Failed to soft delete entity ${id}: ${error.message}`, error.stack);
       throw error;
     }

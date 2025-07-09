@@ -1,0 +1,37 @@
+/* Shadow Design Tokens - CSS Custom Properties */
+:root {
+  /* Base Shadows */
+  --shadow-none: none;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+
+  /* Semantic Shadows */
+  --shadow-card-flat: var(--shadow-none);
+  --shadow-card-raised: var(--shadow-sm);
+  --shadow-card-floating: var(--shadow-base);
+  --shadow-card-elevated: var(--shadow-md);
+  --shadow-card-overlay: var(--shadow-lg);
+  --shadow-card-modal: var(--shadow-xl);
+
+  --shadow-focus-ring: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  --shadow-focus-ring-offset: 0 0 0 2px #ffffff, 0 0 0 4px rgba(59, 130, 246, 0.1);
+
+  --shadow-button-default: var(--shadow-sm);
+  --shadow-button-hover: var(--shadow-base);
+  --shadow-button-active: var(--shadow-inner);
+  --shadow-button-focus: 0 0 0 3px rgba(59, 130, 246, 0.1);
+
+  --shadow-input-default: var(--shadow-inner);
+  --shadow-input-focus: 0 0 0 1px rgba(59, 130, 246, 0.5), 0 0 0 3px rgba(59, 130, 246, 0.1);
+  --shadow-input-error: 0 0 0 1px rgba(239, 68, 68, 0.5), 0 0 0 3px rgba(239, 68, 68, 0.1);
+
+  --shadow-dropdown: var(--shadow-lg);
+  --shadow-tooltip: var(--shadow-md);
+  --shadow-navbar: var(--shadow-sm);
+  --shadow-sidebar: var(--shadow-base);
+} 

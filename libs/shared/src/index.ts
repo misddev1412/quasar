@@ -23,4 +23,7 @@ export * from './classes/pagination.dto';
 export * from './classes/base-service.abstract';
 
 // Error Code System Types
-export * from './types/error-codes.types'; 
+export * from './types/error-codes.types';
+
+// Styles and Design System
+export * from './styles'; 
