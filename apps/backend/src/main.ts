@@ -8,7 +8,6 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { GlobalExceptionFilter } from './modules/shared/filters/global-exception.filter';
-import { TrpcRouter } from './trpc/trpc.router';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -35,10 +34,6 @@ async function bootstrap() {
   // Apply global filters and pipes
   app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  
-  // Apply TRPC middleware
-  const trpc = app.get(TrpcRouter);
-  await trpc.applyMiddleware(app);
   
   const port = process.env.PORT || 3001;
   await app.listen(port);

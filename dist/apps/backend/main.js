@@ -36,6 +36,7 @@ const app_service_1 = __webpack_require__(10);
 const user_module_1 = __webpack_require__(11);
 const translation_module_1 = __webpack_require__(74);
 const auth_module_1 = __webpack_require__(63);
+const shared_module_1 = __webpack_require__(69);
 const context_1 = __webpack_require__(61);
 const database_config_1 = tslib_1.__importDefault(__webpack_require__(81));
 const user_entity_1 = __webpack_require__(12);
@@ -45,6 +46,7 @@ const role_entity_1 = __webpack_require__(40);
 const user_role_entity_1 = __webpack_require__(39);
 const role_permission_entity_1 = __webpack_require__(41);
 const translation_entity_1 = __webpack_require__(75);
+const error_formatter_1 = __webpack_require__(82);
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -74,37 +76,17 @@ exports.AppModule = AppModule = tslib_1.__decorate([
             auth_module_1.AuthModule,
             nestjs_trpc_1.TRPCModule.forRoot({
                 context: context_1.AppContext,
-                trpcOptions: {
-                    router: undefined, // Will be set by TRPCModule
-                    createContext: undefined, // Will be set by TRPCModule
-                    onError: ({ error, type, path, input, ctx, req }) => {
-                        console.error(`[TRPC] Error in ${type} ${path}:`, error);
-                    },
-                },
-                expressOptions: {
-                    createHandler: {
-                        responseMeta: ({ ctx, errors }) => {
-                            const error = errors[0];
-                            if (!error) {
-                                return {};
-                            }
-                            const errorCause = error.cause;
-                            const httpStatus = errorCause?.httpStatus || 500;
-                            return {
-                                status: httpStatus,
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                            };
-                        },
-                    },
-                },
+                errorFormatter: (0, error_formatter_1.createErrorFormatter)('TRPCModule.forRoot'),
             }),
+            shared_module_1.SharedModule,
             user_module_1.UserModule,
             translation_module_1.TranslationModule,
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService, context_1.AppContext],
+        providers: [
+            app_service_1.AppService,
+            context_1.AppContext,
+        ],
     })
 ], AppModule);
 
@@ -3051,6 +3033,23 @@ let ResponseService = ResponseService_1 = class ResponseService {
         });
         return this.createTrpcResponse(code, status, undefined, [errorInfo]);
     }
+    /**
+     * Create a tRPC validation error response for Zod validation failures
+     */
+    createTrpcValidationError(fieldErrors, options) {
+        const badRequest = {
+            '@type': 'BadRequest',
+            fieldViolations: fieldErrors.map(({ field, message }) => ({
+                field,
+                description: message
+            }))
+        };
+        this.logger.error('Validation Error:', {
+            fieldErrors,
+            requestId: options?.requestId
+        });
+        return this.createTrpcResponse(_shared_1.ApiStatusCodes.BAD_REQUEST, 'BAD_REQUEST', undefined, [badRequest]);
+    }
     // ================================================================
     // SUCCESS RESPONSE METHODS
     // ================================================================
@@ -3191,7 +3190,7 @@ let ResponseService = ResponseService_1 = class ResponseService {
             operationCode,
             errorLevelCode
         });
-        // Prepare our standardized error format that will be used by the errorFormatter
+        // Prepare our standardized error format that will be used by the filter
         const errorData = {
             code: httpStatus,
             status: code,
@@ -6232,76 +6231,40 @@ exports["default"] = (0, config_1.registerAs)('database', () => ({
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.TrpcRouter = void 0;
-const tslib_1 = __webpack_require__(5);
-const common_1 = __webpack_require__(2);
-const trpcExpress = tslib_1.__importStar(__webpack_require__(83));
-const trpc_1 = __webpack_require__(84);
-const admin_user_router_1 = __webpack_require__(54);
-const client_user_router_1 = __webpack_require__(59);
-const admin_permission_router_1 = __webpack_require__(62);
-const translation_router_1 = __webpack_require__(80);
-let TrpcRouter = class TrpcRouter {
-    constructor() {
-        // Merge all routers
-        this.appRouter = (0, trpc_1.router)({
-            adminUser: admin_user_router_1.adminUserRouter,
-            clientUser: client_user_router_1.clientUserRouter,
-            adminPermission: admin_permission_router_1.adminPermissionRouter,
-            translation: translation_router_1.translationRouter
-        });
-    }
-    // Apply middleware to expose the tRPC API
-    async applyMiddleware(app) {
-        app.use('/trpc', trpcExpress.createExpressMiddleware({
-            router: this.appRouter,
-            createContext: ({ req, res }) => ({ req, res })
-        }));
-    }
-};
-exports.TrpcRouter = TrpcRouter;
-exports.TrpcRouter = TrpcRouter = tslib_1.__decorate([
-    (0, common_1.Injectable)()
-], TrpcRouter);
-
-
-/***/ }),
-/* 83 */
-/***/ ((module) => {
-
-module.exports = require("@trpc/server/adapters/express");
-
-/***/ }),
-/* 84 */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.protectedProcedure = exports.procedure = exports.router = void 0;
-const server_1 = __webpack_require__(52);
-// Initialize tRPC with context
-const t = server_1.initTRPC.context().create({
-    errorFormatter: ({ shape, error }) => {
+exports.createErrorFormatter = void 0;
+const zod_error_formatter_1 = __webpack_require__(83);
+/**
+ * Shared error formatter for tRPC
+ * Can be used in both initTRPC.create() and TRPCModule.forRoot()
+ */
+const createErrorFormatter = (source = 'unknown') => {
+    return ({ shape, error }) => {
         // Get the error data from the cause if available (from our ResponseService)
         const errorCause = error.cause;
-        // Default values
-        let code = errorCause?.httpStatus || 500;
-        let status = error.code || 'INTERNAL_SERVER_ERROR';
-        let errors = [{
+        // Check if this is a ZodError and format it properly
+        if ((0, zod_error_formatter_1.isZodError)(errorCause)) {
+            const formattedError = (0, zod_error_formatter_1.formatZodError)(errorCause);
+            return formattedError;
+        }
+        // Check if error.cause is ZodError (in case it's nested)
+        if (error.cause && (0, zod_error_formatter_1.isZodError)(error.cause)) {
+            const formattedError = (0, zod_error_formatter_1.formatZodError)(error.cause);
+            return formattedError;
+        }
+        // If we have pre-formatted error data from our ResponseService, use it directly
+        if (errorCause?.errorData) {
+            return errorCause.errorData;
+        }
+        // Fallback for errors not created by ResponseService
+        const code = errorCause?.httpStatus || 500;
+        const status = error.code || 'INTERNAL_SERVER_ERROR';
+        const errors = [{
                 '@type': 'ErrorInfo',
                 reason: error.code || 'INTERNAL_SERVER_ERROR',
                 domain: 'quasar.com',
                 metadata: shape.data || {}
             }];
-        // If we have pre-formatted error data from our ResponseService, use it
-        if (errorCause?.errorData) {
-            const errorData = errorCause.errorData;
-            code = errorData.code || code;
-            status = errorData.status || status;
-            errors = errorData.errors || errors;
-        }
-        // Return standardized format
-        return {
+        const result = {
             code,
             status,
             message: error.message,
@@ -6309,26 +6272,104 @@ const t = server_1.initTRPC.context().create({
             timestamp: new Date().toISOString(),
             ...(process.env.NODE_ENV !== 'production' && { stack: error.stack })
         };
-    },
-});
-// Export router and procedure helpers
-exports.router = t.router;
-exports.procedure = t.procedure;
-// Protected procedure that requires authentication
-exports.protectedProcedure = t.procedure.use(({ ctx, next }) => {
-    if (!ctx.user) {
-        throw new server_1.TRPCError({
-            code: 'UNAUTHORIZED',
-            message: 'You must be logged in to access this resource',
-        });
-    }
-    return next({
-        ctx: {
-            ...ctx,
-            user: ctx.user, // user is guaranteed to be defined
-        },
+        console.log(`Fallback result (${source}):`, result);
+        return result;
+    };
+};
+exports.createErrorFormatter = createErrorFormatter;
+
+
+/***/ }),
+/* 83 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.formatZodError = formatZodError;
+exports.isZodError = isZodError;
+const zod_1 = __webpack_require__(55);
+const _shared_1 = __webpack_require__(14);
+/**
+ * Formats ZodError into a standardized API error response
+ */
+function formatZodError(error) {
+    const fieldViolations = error.issues.map((issue) => {
+        const field = issue.path.join('.');
+        let message = issue.message;
+        // Create more user-friendly messages based on error type
+        switch (issue.code) {
+            case 'invalid_type':
+                if (issue.expected === 'string' && issue.received === 'undefined') {
+                    message = `${field} is required`;
+                }
+                else {
+                    message = `${field} must be ${getEnglishType(issue.expected)}, received ${getEnglishType(issue.received)}`;
+                }
+                break;
+            case 'too_small':
+                if (issue.type === 'string') {
+                    message = `${field} must be at least ${issue.minimum} characters`;
+                }
+                else {
+                    message = `${field} is too small. Minimum: ${issue.minimum}`;
+                }
+                break;
+            case 'too_big':
+                if (issue.type === 'string') {
+                    message = `${field} must not exceed ${issue.maximum} characters`;
+                }
+                else {
+                    message = `${field} is too large. Maximum: ${issue.maximum}`;
+                }
+                break;
+            case 'invalid_string':
+                if (issue.validation === 'email') {
+                    message = `${field} must be a valid email address`;
+                }
+                else {
+                    message = `${field} is invalid`;
+                }
+                break;
+            default:
+                message = issue.message;
+        }
+        return {
+            field,
+            description: message,
+        };
     });
-});
+    return {
+        code: _shared_1.ApiStatusCodes.BAD_REQUEST,
+        status: 'BAD_REQUEST',
+        message: 'Invalid input data',
+        errors: [{
+                '@type': 'BadRequest',
+                fieldViolations,
+            }],
+        timestamp: new Date().toISOString(),
+    };
+}
+/**
+ * Helper function to get English type names
+ */
+function getEnglishType(type) {
+    const typeMap = {
+        string: 'string',
+        number: 'number',
+        boolean: 'boolean',
+        array: 'array',
+        object: 'object',
+        undefined: 'undefined',
+        null: 'null',
+    };
+    return typeMap[type] || type;
+}
+/**
+ * Checks if an error is a ZodError
+ */
+function isZodError(error) {
+    return error instanceof zod_1.ZodError || (error && error.name === 'ZodError');
+}
 
 
 /***/ })
@@ -6374,7 +6415,6 @@ const common_1 = __webpack_require__(2);
 const core_1 = __webpack_require__(3);
 const app_module_1 = __webpack_require__(4);
 const global_exception_filter_1 = __webpack_require__(73);
-const trpc_router_1 = __webpack_require__(82);
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     // Enable CORS for frontend apps
@@ -6397,9 +6437,6 @@ async function bootstrap() {
     // Apply global filters and pipes
     app.useGlobalFilters(new global_exception_filter_1.GlobalExceptionFilter());
     app.useGlobalPipes(new common_1.ValidationPipe({ transform: true }));
-    // Apply TRPC middleware
-    const trpc = app.get(trpc_router_1.TrpcRouter);
-    await trpc.applyMiddleware(app);
     const port = process.env.PORT || 3001;
     await app.listen(port);
     common_1.Logger.log(`🚀 Application is running on: http://localhost:${port}`);

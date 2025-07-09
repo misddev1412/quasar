@@ -88,6 +88,34 @@ export class ResponseService {
     );
   }
 
+  /**
+   * Create a tRPC validation error response for Zod validation failures
+   */
+  createTrpcValidationError(
+    fieldErrors: Array<{ field: string; message: string }>,
+    options?: { requestId?: string }
+  ): TrpcApiResponse {
+    const badRequest: ApiBadRequest = {
+      '@type': 'BadRequest',
+      fieldViolations: fieldErrors.map(({ field, message }) => ({
+        field,
+        description: message
+      }))
+    };
+
+    this.logger.error('Validation Error:', {
+      fieldErrors,
+      requestId: options?.requestId
+    });
+
+    return this.createTrpcResponse(
+      ApiStatusCodes.BAD_REQUEST,
+      'BAD_REQUEST',
+      undefined,
+      [badRequest]
+    );
+  }
+
   // ================================================================
   // SUCCESS RESPONSE METHODS
   // ================================================================
@@ -299,7 +327,7 @@ export class ResponseService {
       errorLevelCode
     });
 
-    // Prepare our standardized error format that will be used by the errorFormatter
+    // Prepare our standardized error format that will be used by the filter
     const errorData = {
       code: httpStatus,
       status: code,

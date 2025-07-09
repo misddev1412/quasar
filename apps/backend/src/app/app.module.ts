@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { UserModule } from '../modules/user/user.module';
 import { TranslationModule } from '../modules/translation/translation.module';
 import { AuthModule } from '../auth/auth.module';
+import { SharedModule } from '../modules/shared/shared.module';
 import { AppContext } from '../trpc/context';
 import databaseConfig from '../config/database.config';
 import { User } from '../modules/user/entities/user.entity';
@@ -16,7 +17,7 @@ import { Role } from '../modules/user/entities/role.entity';
 import { UserRole } from '../modules/user/entities/user-role.entity';
 import { RolePermission } from '../modules/user/entities/role-permission.entity';
 import { Translation } from '../modules/translation/entities/translation.entity';
-import * as trpcExpress from '@trpc/server/adapters/express';
+import { createErrorFormatter } from '../trpc/error-formatter';
 
 @Module({
   imports: [
@@ -43,38 +44,16 @@ import * as trpcExpress from '@trpc/server/adapters/express';
     AuthModule,
     TRPCModule.forRoot({
       context: AppContext,
-      trpcOptions: {
-        router: undefined, // Will be set by TRPCModule
-        createContext: undefined, // Will be set by TRPCModule
-        onError: ({ error, type, path, input, ctx, req }) => {
-          console.error(`[TRPC] Error in ${type} ${path}:`, error);
-        },
-      },
-      expressOptions: {
-        createHandler: {
-          responseMeta: ({ ctx, errors }) => {
-            const error = errors[0];
-            if (!error) {
-              return {};
-            }
-            
-            const errorCause = error.cause as any;
-            const httpStatus = errorCause?.httpStatus || 500;
-            
-            return {
-              status: httpStatus,
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            };
-          },
-        },
-      },
+      errorFormatter: createErrorFormatter('TRPCModule.forRoot'),
     }),
+    SharedModule,
     UserModule,
     TranslationModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AppContext],
+  providers: [
+    AppService, 
+    AppContext,
+  ],
 })
 export class AppModule {}
