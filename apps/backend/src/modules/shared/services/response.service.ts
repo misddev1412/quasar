@@ -272,7 +272,7 @@ export class ResponseService {
     // Map error level to HTTP status
     let httpStatus = 500;
     let code: string = 'INTERNAL_SERVER_ERROR';
-
+    
     if (errorLevelCode === ErrorLevelCode.NOT_FOUND) {
       httpStatus = 404;
       code = 'NOT_FOUND';
@@ -288,6 +288,9 @@ export class ResponseService {
     } else if (errorLevelCode === ErrorLevelCode.BUSINESS_LOGIC_ERROR) {
       httpStatus = 422;
       code = 'UNPROCESSABLE_CONTENT';
+    } else if (errorLevelCode === ErrorLevelCode.TOKEN_ERROR) {
+      httpStatus = 401;
+      code = 'UNAUTHORIZED';
     }
 
     this.logger.error(`TRPC Error [${httpStatus}]: ${message}`, {
@@ -300,11 +303,13 @@ export class ResponseService {
     const errorData = {
       code: httpStatus,
       status: code,
+      message: message,
       errors: [{
         '@type': 'ErrorInfo',
         reason: code,
         domain: this.domain
-      }]
+      }],
+      timestamp: new Date().toISOString()
     };
 
     return new TRPCError({

@@ -7,30 +7,31 @@ const t = initTRPC.context<AuthenticatedContext>().create({
   errorFormatter: ({ shape, error }) => {
     // Get the error data from the cause if available (from our ResponseService)
     const errorCause = error.cause as any;
-    const errorData = errorCause?.errorData;
     
-    if (errorData) {
-      // Use our pre-formatted error data
-      return {
-        ...errorData,
-        message: error.message,
-        timestamp: new Date().toISOString(),
-        ...(process.env.NODE_ENV !== 'production' && { stack: error.stack })
-      };
+    // Default values
+    let code = errorCause?.httpStatus || 500;
+    let status = error.code || 'INTERNAL_SERVER_ERROR';
+    let errors = [{
+      '@type': 'ErrorInfo',
+      reason: error.code || 'INTERNAL_SERVER_ERROR',
+      domain: 'quasar.com',
+      metadata: shape.data || {}
+    }];
+    
+    // If we have pre-formatted error data from our ResponseService, use it
+    if (errorCause?.errorData) {
+      const errorData = errorCause.errorData;
+      code = errorData.code || code;
+      status = errorData.status || status;
+      errors = errorData.errors || errors;
     }
     
-    // Otherwise, format it ourselves
-    const httpStatus = errorCause?.httpStatus || 500;
+    // Return standardized format
     return {
-      code: httpStatus,
-      status: error.code,
+      code,
+      status,
       message: error.message,
-      errors: [{
-        '@type': 'ErrorInfo',
-        reason: error.code,
-        domain: 'quasar.com',
-        metadata: shape.data || {}
-      }],
+      errors,
       timestamp: new Date().toISOString(),
       ...(process.env.NODE_ENV !== 'production' && { stack: error.stack })
     };

@@ -12,6 +12,7 @@ import { PermissionRepository } from '../user/repositories/permission.repository
 import { Permission } from '../user/entities/permission.entity';
 import { RolePermission } from '../user/entities/role-permission.entity';
 import { Role } from '../user/entities/role.entity';
+import { GlobalExceptionFilter } from './filters/global-exception.filter';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { Role } from '../user/entities/role.entity';
     CanCreateOwn,
     CanCreateAny,
     CanReadAny,
+    GlobalExceptionFilter,
   ],
   exports: [
     AuthMiddleware,
@@ -40,6 +42,7 @@ import { Role } from '../user/entities/role.entity';
     CanCreateOwn,
     CanCreateAny,
     CanReadAny,
+    GlobalExceptionFilter,
   ],
 })
 export class SharedModule {} 

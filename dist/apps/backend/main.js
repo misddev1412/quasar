@@ -34,17 +34,17 @@ const nestjs_trpc_1 = __webpack_require__(8);
 const app_controller_1 = __webpack_require__(9);
 const app_service_1 = __webpack_require__(10);
 const user_module_1 = __webpack_require__(11);
-const translation_module_1 = __webpack_require__(73);
+const translation_module_1 = __webpack_require__(74);
 const auth_module_1 = __webpack_require__(63);
 const context_1 = __webpack_require__(61);
-const database_config_1 = tslib_1.__importDefault(__webpack_require__(80));
+const database_config_1 = tslib_1.__importDefault(__webpack_require__(81));
 const user_entity_1 = __webpack_require__(12);
 const user_profile_entity_1 = __webpack_require__(38);
 const permission_entity_1 = __webpack_require__(42);
 const role_entity_1 = __webpack_require__(40);
 const user_role_entity_1 = __webpack_require__(39);
 const role_permission_entity_1 = __webpack_require__(41);
-const translation_entity_1 = __webpack_require__(74);
+const translation_entity_1 = __webpack_require__(75);
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -74,6 +74,31 @@ exports.AppModule = AppModule = tslib_1.__decorate([
             auth_module_1.AuthModule,
             nestjs_trpc_1.TRPCModule.forRoot({
                 context: context_1.AppContext,
+                trpcOptions: {
+                    router: undefined, // Will be set by TRPCModule
+                    createContext: undefined, // Will be set by TRPCModule
+                    onError: ({ error, type, path, input, ctx, req }) => {
+                        console.error(`[TRPC] Error in ${type} ${path}:`, error);
+                    },
+                },
+                expressOptions: {
+                    createHandler: {
+                        responseMeta: ({ ctx, errors }) => {
+                            const error = errors[0];
+                            if (!error) {
+                                return {};
+                            }
+                            const errorCause = error.cause;
+                            const httpStatus = errorCause?.httpStatus || 500;
+                            return {
+                                status: httpStatus,
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                            };
+                        },
+                    },
+                },
             }),
             user_module_1.UserModule,
             translation_module_1.TranslationModule,
@@ -3157,6 +3182,10 @@ let ResponseService = ResponseService_1 = class ResponseService {
             httpStatus = 422;
             code = 'UNPROCESSABLE_CONTENT';
         }
+        else if (errorLevelCode === error_codes_enums_1.ErrorLevelCode.TOKEN_ERROR) {
+            httpStatus = 401;
+            code = 'UNAUTHORIZED';
+        }
         this.logger.error(`TRPC Error [${httpStatus}]: ${message}`, {
             moduleCode,
             operationCode,
@@ -3166,11 +3195,13 @@ let ResponseService = ResponseService_1 = class ResponseService {
         const errorData = {
             code: httpStatus,
             status: code,
+            message: message,
             errors: [{
                     '@type': 'ErrorInfo',
                     reason: code,
                     domain: this.domain
-                }]
+                }],
+            timestamp: new Date().toISOString()
         };
         return new server_1.TRPCError({
             code: code,
@@ -4683,6 +4714,7 @@ const permission_repository_1 = __webpack_require__(44);
 const permission_entity_1 = __webpack_require__(42);
 const role_permission_entity_1 = __webpack_require__(41);
 const role_entity_1 = __webpack_require__(40);
+const global_exception_filter_1 = __webpack_require__(73);
 let SharedModule = class SharedModule {
 };
 exports.SharedModule = SharedModule;
@@ -4703,6 +4735,7 @@ exports.SharedModule = SharedModule = tslib_1.__decorate([
             permission_middleware_1.CanCreateOwn,
             permission_middleware_1.CanCreateAny,
             permission_middleware_1.CanReadAny,
+            global_exception_filter_1.GlobalExceptionFilter,
         ],
         exports: [
             auth_middleware_1.AuthMiddleware,
@@ -4714,6 +4747,7 @@ exports.SharedModule = SharedModule = tslib_1.__decorate([
             permission_middleware_1.CanCreateOwn,
             permission_middleware_1.CanCreateAny,
             permission_middleware_1.CanReadAny,
+            global_exception_filter_1.GlobalExceptionFilter,
         ],
     })
 ], SharedModule);
@@ -5537,15 +5571,130 @@ exports.errorRegistry = ErrorRegistry.getInstance();
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
+var GlobalExceptionFilter_1;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.GlobalExceptionFilter = void 0;
+const tslib_1 = __webpack_require__(5);
+const common_1 = __webpack_require__(2);
+const server_1 = __webpack_require__(52);
+let GlobalExceptionFilter = GlobalExceptionFilter_1 = class GlobalExceptionFilter {
+    constructor() {
+        this.logger = new common_1.Logger(GlobalExceptionFilter_1.name);
+    }
+    catch(exception, host) {
+        const ctx = host.switchToHttp();
+        const response = ctx.getResponse();
+        const request = ctx.getRequest();
+        // Default status and error info
+        let status = common_1.HttpStatus.INTERNAL_SERVER_ERROR;
+        let errorCode = 'INTERNAL_SERVER_ERROR';
+        let message = 'Internal server error';
+        // Extract error details based on exception type
+        if (exception instanceof common_1.HttpException) {
+            status = exception.getStatus();
+            const errorResponse = exception.getResponse();
+            message = typeof errorResponse === 'object' && 'message' in errorResponse
+                ? String(errorResponse['message'])
+                : String(errorResponse);
+            errorCode = this.mapHttpStatusToErrorCode(status);
+        }
+        else if (exception instanceof server_1.TRPCError) {
+            // Handle TRPC errors
+            const cause = exception.cause || {};
+            status = cause.httpStatus || this.mapTRPCErrorCodeToStatus(exception.code);
+            message = exception.message;
+            errorCode = exception.code;
+            // If we have pre-formatted error data from our ResponseService, use it
+            if (cause.errorData) {
+                const errorData = cause.errorData;
+                return response.status(status).json({
+                    code: errorData.code || status,
+                    status: errorData.status || errorCode,
+                    message: message,
+                    errors: errorData.errors || [{
+                            '@type': 'ErrorInfo',
+                            reason: errorCode,
+                            domain: 'quasar.com',
+                        }],
+                    timestamp: new Date().toISOString(),
+                    ...(process.env.NODE_ENV !== 'production' && { stack: exception.stack }),
+                });
+            }
+        }
+        else if (exception instanceof Error) {
+            message = exception.message;
+        }
+        // Log the error
+        this.logger.error(`Exception: ${message}`, exception instanceof Error ? exception.stack : undefined);
+        // Return standardized error response
+        response.status(status).json({
+            code: status,
+            status: errorCode,
+            message: message,
+            errors: [{
+                    '@type': 'ErrorInfo',
+                    reason: errorCode,
+                    domain: 'quasar.com',
+                }],
+            timestamp: new Date().toISOString(),
+            ...(process.env.NODE_ENV !== 'production' && {
+                stack: exception instanceof Error ? exception.stack : undefined
+            }),
+        });
+    }
+    mapHttpStatusToErrorCode(status) {
+        switch (status) {
+            case common_1.HttpStatus.BAD_REQUEST: return 'BAD_REQUEST';
+            case common_1.HttpStatus.UNAUTHORIZED: return 'UNAUTHORIZED';
+            case common_1.HttpStatus.FORBIDDEN: return 'FORBIDDEN';
+            case common_1.HttpStatus.NOT_FOUND: return 'NOT_FOUND';
+            case common_1.HttpStatus.CONFLICT: return 'CONFLICT';
+            case common_1.HttpStatus.UNPROCESSABLE_ENTITY: return 'UNPROCESSABLE_ENTITY';
+            case common_1.HttpStatus.TOO_MANY_REQUESTS: return 'TOO_MANY_REQUESTS';
+            case common_1.HttpStatus.INTERNAL_SERVER_ERROR: return 'INTERNAL_SERVER_ERROR';
+            case common_1.HttpStatus.BAD_GATEWAY: return 'BAD_GATEWAY';
+            case common_1.HttpStatus.SERVICE_UNAVAILABLE: return 'SERVICE_UNAVAILABLE';
+            case common_1.HttpStatus.GATEWAY_TIMEOUT: return 'GATEWAY_TIMEOUT';
+            default: return 'INTERNAL_SERVER_ERROR';
+        }
+    }
+    mapTRPCErrorCodeToStatus(code) {
+        switch (code) {
+            case 'BAD_REQUEST': return common_1.HttpStatus.BAD_REQUEST;
+            case 'UNAUTHORIZED': return common_1.HttpStatus.UNAUTHORIZED;
+            case 'FORBIDDEN': return common_1.HttpStatus.FORBIDDEN;
+            case 'NOT_FOUND': return common_1.HttpStatus.NOT_FOUND;
+            case 'TIMEOUT': return common_1.HttpStatus.GATEWAY_TIMEOUT;
+            case 'CONFLICT': return common_1.HttpStatus.CONFLICT;
+            case 'PRECONDITION_FAILED': return common_1.HttpStatus.PRECONDITION_FAILED;
+            case 'PAYLOAD_TOO_LARGE': return common_1.HttpStatus.PAYLOAD_TOO_LARGE;
+            case 'METHOD_NOT_SUPPORTED': return common_1.HttpStatus.METHOD_NOT_ALLOWED;
+            case 'UNPROCESSABLE_CONTENT': return common_1.HttpStatus.UNPROCESSABLE_ENTITY;
+            case 'INTERNAL_SERVER_ERROR':
+            default: return common_1.HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+    }
+};
+exports.GlobalExceptionFilter = GlobalExceptionFilter;
+exports.GlobalExceptionFilter = GlobalExceptionFilter = GlobalExceptionFilter_1 = tslib_1.__decorate([
+    (0, common_1.Catch)()
+], GlobalExceptionFilter);
+
+
+/***/ }),
+/* 74 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TranslationModule = void 0;
 const tslib_1 = __webpack_require__(5);
 const common_1 = __webpack_require__(2);
 const typeorm_1 = __webpack_require__(7);
-const translation_entity_1 = __webpack_require__(74);
-const translation_repository_1 = __webpack_require__(75);
-const translation_service_1 = __webpack_require__(76);
-const translation_router_1 = __webpack_require__(79);
+const translation_entity_1 = __webpack_require__(75);
+const translation_repository_1 = __webpack_require__(76);
+const translation_service_1 = __webpack_require__(77);
+const translation_router_1 = __webpack_require__(80);
 const shared_module_1 = __webpack_require__(69);
 let TranslationModule = class TranslationModule {
 };
@@ -5571,7 +5720,7 @@ exports.TranslationModule = TranslationModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5610,7 +5759,7 @@ exports.Translation = Translation = tslib_1.__decorate([
 
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5622,7 +5771,7 @@ const common_1 = __webpack_require__(2);
 const typeorm_1 = __webpack_require__(7);
 const typeorm_2 = __webpack_require__(13);
 const _shared_1 = __webpack_require__(14);
-const translation_entity_1 = __webpack_require__(74);
+const translation_entity_1 = __webpack_require__(75);
 let TranslationRepository = class TranslationRepository extends _shared_1.BaseRepository {
     constructor(repository) {
         super(repository);
@@ -5674,7 +5823,7 @@ exports.TranslationRepository = TranslationRepository = tslib_1.__decorate([
 
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5684,9 +5833,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TranslationService = void 0;
 const tslib_1 = __webpack_require__(5);
 const common_1 = __webpack_require__(2);
-const fs_1 = __webpack_require__(77);
-const path_1 = __webpack_require__(78);
-const translation_repository_1 = __webpack_require__(75);
+const fs_1 = __webpack_require__(78);
+const path_1 = __webpack_require__(79);
+const translation_repository_1 = __webpack_require__(76);
 let TranslationService = TranslationService_1 = class TranslationService {
     constructor(translationRepository) {
         this.translationRepository = translationRepository;
@@ -5838,19 +5987,19 @@ exports.TranslationService = TranslationService = TranslationService_1 = tslib_1
 
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ ((module) => {
 
 module.exports = require("fs");
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ ((module) => {
 
 module.exports = require("path");
 
 /***/ }),
-/* 79 */
+/* 80 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5861,7 +6010,7 @@ const tslib_1 = __webpack_require__(5);
 const common_1 = __webpack_require__(2);
 const nestjs_trpc_1 = __webpack_require__(8);
 const zod_1 = __webpack_require__(55);
-const translation_service_1 = __webpack_require__(76);
+const translation_service_1 = __webpack_require__(77);
 const response_service_1 = __webpack_require__(51);
 const auth_middleware_1 = __webpack_require__(56);
 const admin_role_middleware_1 = __webpack_require__(57);
@@ -6054,7 +6203,7 @@ exports.TranslationRouter = TranslationRouter = tslib_1.__decorate([
 
 
 /***/ }),
-/* 80 */
+/* 81 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -6075,6 +6224,111 @@ exports["default"] = (0, config_1.registerAs)('database', () => ({
     logging: process.env.NODE_ENV === 'development' ? ['query', 'error'] : ['error'],
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 }));
+
+
+/***/ }),
+/* 82 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TrpcRouter = void 0;
+const tslib_1 = __webpack_require__(5);
+const common_1 = __webpack_require__(2);
+const trpcExpress = tslib_1.__importStar(__webpack_require__(83));
+const trpc_1 = __webpack_require__(84);
+const admin_user_router_1 = __webpack_require__(54);
+const client_user_router_1 = __webpack_require__(59);
+const admin_permission_router_1 = __webpack_require__(62);
+const translation_router_1 = __webpack_require__(80);
+let TrpcRouter = class TrpcRouter {
+    constructor() {
+        // Merge all routers
+        this.appRouter = (0, trpc_1.router)({
+            adminUser: admin_user_router_1.adminUserRouter,
+            clientUser: client_user_router_1.clientUserRouter,
+            adminPermission: admin_permission_router_1.adminPermissionRouter,
+            translation: translation_router_1.translationRouter
+        });
+    }
+    // Apply middleware to expose the tRPC API
+    async applyMiddleware(app) {
+        app.use('/trpc', trpcExpress.createExpressMiddleware({
+            router: this.appRouter,
+            createContext: ({ req, res }) => ({ req, res })
+        }));
+    }
+};
+exports.TrpcRouter = TrpcRouter;
+exports.TrpcRouter = TrpcRouter = tslib_1.__decorate([
+    (0, common_1.Injectable)()
+], TrpcRouter);
+
+
+/***/ }),
+/* 83 */
+/***/ ((module) => {
+
+module.exports = require("@trpc/server/adapters/express");
+
+/***/ }),
+/* 84 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.protectedProcedure = exports.procedure = exports.router = void 0;
+const server_1 = __webpack_require__(52);
+// Initialize tRPC with context
+const t = server_1.initTRPC.context().create({
+    errorFormatter: ({ shape, error }) => {
+        // Get the error data from the cause if available (from our ResponseService)
+        const errorCause = error.cause;
+        // Default values
+        let code = errorCause?.httpStatus || 500;
+        let status = error.code || 'INTERNAL_SERVER_ERROR';
+        let errors = [{
+                '@type': 'ErrorInfo',
+                reason: error.code || 'INTERNAL_SERVER_ERROR',
+                domain: 'quasar.com',
+                metadata: shape.data || {}
+            }];
+        // If we have pre-formatted error data from our ResponseService, use it
+        if (errorCause?.errorData) {
+            const errorData = errorCause.errorData;
+            code = errorData.code || code;
+            status = errorData.status || status;
+            errors = errorData.errors || errors;
+        }
+        // Return standardized format
+        return {
+            code,
+            status,
+            message: error.message,
+            errors,
+            timestamp: new Date().toISOString(),
+            ...(process.env.NODE_ENV !== 'production' && { stack: error.stack })
+        };
+    },
+});
+// Export router and procedure helpers
+exports.router = t.router;
+exports.procedure = t.procedure;
+// Protected procedure that requires authentication
+exports.protectedProcedure = t.procedure.use(({ ctx, next }) => {
+    if (!ctx.user) {
+        throw new server_1.TRPCError({
+            code: 'UNAUTHORIZED',
+            message: 'You must be logged in to access this resource',
+        });
+    }
+    return next({
+        ctx: {
+            ...ctx,
+            user: ctx.user, // user is guaranteed to be defined
+        },
+    });
+});
 
 
 /***/ })
@@ -6119,6 +6373,8 @@ __webpack_require__(1);
 const common_1 = __webpack_require__(2);
 const core_1 = __webpack_require__(3);
 const app_module_1 = __webpack_require__(4);
+const global_exception_filter_1 = __webpack_require__(73);
+const trpc_router_1 = __webpack_require__(82);
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     // Enable CORS for frontend apps
@@ -6133,22 +6389,20 @@ async function bootstrap() {
     // Add middleware to handle content-type for tRPC requests
     app.use('/api/trpc', (req, res, next) => {
         // If no content-type is set and it's a POST request, set it to application/json
-        if (req.method === 'POST' && !req.headers['content-type']) {
+        if (!req.headers['content-type'] && req.method === 'POST') {
             req.headers['content-type'] = 'application/json';
         }
         next();
     });
-    // Global validation pipe
-    app.useGlobalPipes(new common_1.ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        transform: true,
-    }));
-    const globalPrefix = 'api';
-    app.setGlobalPrefix(globalPrefix);
-    const port = process.env.PORT || 3000;
+    // Apply global filters and pipes
+    app.useGlobalFilters(new global_exception_filter_1.GlobalExceptionFilter());
+    app.useGlobalPipes(new common_1.ValidationPipe({ transform: true }));
+    // Apply TRPC middleware
+    const trpc = app.get(trpc_router_1.TrpcRouter);
+    await trpc.applyMiddleware(app);
+    const port = process.env.PORT || 3001;
     await app.listen(port);
-    common_1.Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
+    common_1.Logger.log(`🚀 Application is running on: http://localhost:${port}`);
 }
 bootstrap();
 

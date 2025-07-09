@@ -16,6 +16,7 @@ import { Role } from '../modules/user/entities/role.entity';
 import { UserRole } from '../modules/user/entities/user-role.entity';
 import { RolePermission } from '../modules/user/entities/role-permission.entity';
 import { Translation } from '../modules/translation/entities/translation.entity';
+import * as trpcExpress from '@trpc/server/adapters/express';
 
 @Module({
   imports: [
@@ -42,6 +43,33 @@ import { Translation } from '../modules/translation/entities/translation.entity'
     AuthModule,
     TRPCModule.forRoot({
       context: AppContext,
+      trpcOptions: {
+        router: undefined, // Will be set by TRPCModule
+        createContext: undefined, // Will be set by TRPCModule
+        onError: ({ error, type, path, input, ctx, req }) => {
+          console.error(`[TRPC] Error in ${type} ${path}:`, error);
+        },
+      },
+      expressOptions: {
+        createHandler: {
+          responseMeta: ({ ctx, errors }) => {
+            const error = errors[0];
+            if (!error) {
+              return {};
+            }
+            
+            const errorCause = error.cause as any;
+            const httpStatus = errorCause?.httpStatus || 500;
+            
+            return {
+              status: httpStatus,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            };
+          },
+        },
+      },
     }),
     UserModule,
     TranslationModule,
