@@ -3,15 +3,49 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { UserProfile } from './entities/user-profile.entity';
 import { Permission } from './entities/permission.entity';
+import { Role } from './entities/role.entity';
+import { UserRole } from './entities/user-role.entity';
 import { RolePermission } from './entities/role-permission.entity';
 import { UserRepository } from './repositories/user.repository';
 import { PermissionRepository } from './repositories/permission.repository';
-import { PermissionService } from './services/permission.service';
+import { AdminPermissionService } from './services/admin/admin-permission.service';
+import { PermissionCheckerService } from '../shared/services/permission-checker.service';
+import { AdminUserService } from './services/admin/admin-user.service';
+import { ClientUserService } from './services/client/client-user.service';
+import { AdminUserRouter } from '../../trpc/routers/admin-user.router';
+import { ClientUserRouter } from '../../trpc/routers/client-user.router';
+import { AdminPermissionRouter } from '../../trpc/routers/admin-permission.router';
+import { AuthModule } from '../../auth/auth.module';
+import { SharedModule } from '../shared/shared.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, UserProfile, Permission, RolePermission])],
+  imports: [
+    TypeOrmModule.forFeature([User, UserProfile, Permission, Role, UserRole, RolePermission]),
+    AuthModule,
+    SharedModule,
+  ],
   controllers: [],
-  providers: [UserRepository, PermissionRepository, PermissionService],
-  exports: [UserRepository, PermissionRepository, PermissionService],
+  providers: [
+    UserRepository, 
+    PermissionRepository, 
+    PermissionCheckerService,
+    AdminPermissionService,
+    AdminUserService,
+    ClientUserService,
+    AdminUserRouter,
+    ClientUserRouter,
+    AdminPermissionRouter,
+  ],
+  exports: [
+    UserRepository, 
+    PermissionRepository, 
+    PermissionCheckerService,
+    AdminPermissionService,
+    AdminUserService,
+    ClientUserService,
+    AdminUserRouter,
+    ClientUserRouter,
+    AdminPermissionRouter,
+  ],
 })
 export class UserModule {} 

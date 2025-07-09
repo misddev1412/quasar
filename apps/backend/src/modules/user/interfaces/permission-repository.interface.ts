@@ -1,6 +1,6 @@
 import { Permission } from '../entities/permission.entity';
 import { RolePermission } from '../entities/role-permission.entity';
-import { PermissionAction, PermissionScope, UserRole } from '@quasar/shared';
+import { PermissionAction, PermissionScope, UserRole } from '@shared';
 
 export interface CreatePermissionDto {
   name: string;
@@ -22,7 +22,7 @@ export interface UpdatePermissionDto {
 }
 
 export interface CreateRolePermissionDto {
-  role: UserRole;
+  roleId: string;
   permissionId: string;
 }
 
@@ -44,11 +44,11 @@ export interface IPermissionRepository {
 
   // Role Permission management
   assignPermissionToRole(createRolePermissionDto: CreateRolePermissionDto): Promise<RolePermission>;
-  removePermissionFromRole(role: UserRole, permissionId: string): Promise<boolean>;
-  findPermissionsByRole(role: UserRole): Promise<Permission[]>;
-  findRolePermissions(role: UserRole): Promise<RolePermission[]>;
+  removePermissionFromRole(roleId: string, permissionId: string): Promise<boolean>;
+  findPermissionsByRole(roleId: string): Promise<Permission[]>;
+  findRolePermissions(roleId: string): Promise<RolePermission[]>;
   
   // Permission checking
-  hasPermission(role: UserRole, resource: string, action: PermissionAction, scope: PermissionScope): Promise<boolean>;
-  getPermission(role: UserRole, resource: string, action: PermissionAction, scope: PermissionScope): Promise<Permission | null>;
+  hasPermission(roleId: string, resource: string, action: PermissionAction, scope: PermissionScope): Promise<boolean>;
+  getPermission(roleId: string, resource: string, action: PermissionAction, scope: PermissionScope): Promise<Permission | null>;
 } 

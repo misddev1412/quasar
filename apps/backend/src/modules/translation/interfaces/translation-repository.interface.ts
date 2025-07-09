@@ -1,4 +1,4 @@
-import { IBaseRepository } from '@quasar/shared';
+import { IBaseRepository } from '@shared';
 import { Translation } from '../entities/translation.entity';
 
 export interface TranslationRepositoryInterface extends IBaseRepository<Translation> {

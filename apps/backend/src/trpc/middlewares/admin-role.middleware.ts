@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TRPCError } from '@trpc/server';
 import { TRPCMiddleware, MiddlewareOptions, MiddlewareResponse } from 'nestjs-trpc';
 import { AuthenticatedContext } from '../context';
-import { UserRole } from '@quasar/shared';
+import { UserRole } from '@shared';
 
 @Injectable()
 export class AdminRoleMiddleware implements TRPCMiddleware {

@@ -121,7 +121,7 @@ export interface FieldValidation {
 }
 
 /**
- * Pagination DTO
+ * Pagination DTO interface
  */
 export interface IPaginationDto {
   page: number;

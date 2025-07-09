@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { trpc } from '../utils/trpc';
-import { SupportedLocale } from '@quasar/shared';
+import { SupportedLocale } from '@shared';
 
 interface UseTranslationWithBackendResult {
   t: (key: string, options?: any) => string;

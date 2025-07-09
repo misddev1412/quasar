@@ -1,8 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { ClientUserService } from '../../modules/client/user/services/client-user.service';
+import { ClientUserService } from '../../modules/user/services/client/client-user.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
+import { UserInjectionMiddleware } from '../middlewares/user-injection.middleware';
+import { UserRole } from '@shared';
+import { apiResponseSchema } from '../schemas/response.schemas';
 
 // Zod schemas for validation
 const clientRegisterSchema = z.object({
@@ -65,80 +69,165 @@ const refreshTokenSchema = z.object({
   refreshToken: z.string(),
 });
 
+
+
 @Injectable()
 export class ClientUserRouter {
   constructor(
     @Inject(ClientUserService)
     private readonly clientUserService: ClientUserService,
+    @Inject(ResponseService)
+    private readonly responseHandler: ResponseService,
   ) {}
 
   @Mutation({
     input: clientRegisterSchema,
-    output: clientAuthResponseSchema,
+    output: apiResponseSchema,
   })
   async register(
     @Input() registerDto: z.infer<typeof clientRegisterSchema>
-  ): Promise<z.infer<typeof clientAuthResponseSchema>> {
-    // Ensure required fields are present for ClientRegisterDto
-    const clientRegisterDto = {
-      email: registerDto.email,
-      username: registerDto.username,
-      firstName: registerDto.firstName,
-      lastName: registerDto.lastName,
-      password: registerDto.password,
-      phoneNumber: registerDto.phoneNumber,
-    };
-    return await this.clientUserService.register(clientRegisterDto);
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      // Ensure required fields are present for ClientRegisterDto
+      const clientRegisterDto = {
+        email: registerDto.email,
+        username: registerDto.username,
+        firstName: registerDto.firstName,
+        lastName: registerDto.lastName,
+        password: registerDto.password,
+        phoneNumber: registerDto.phoneNumber,
+      };
+      
+      const result = await this.clientUserService.register(clientRegisterDto);
+      return this.responseHandler.createSuccessResponse(
+        null,
+        null,
+        null,
+        'User registered successfully',
+        result
+      );
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        null,
+        null,
+        null,
+        error.message || 'Failed to register user'
+      );
+    }
   }
 
   @Mutation({
     input: clientLoginSchema,
-    output: clientAuthResponseSchema,
+    output: apiResponseSchema,
   })
   async login(
     @Input() loginDto: z.infer<typeof clientLoginSchema>
-  ): Promise<z.infer<typeof clientAuthResponseSchema>> {
-    // Ensure required fields are present for ClientLoginDto
-    const clientLoginDto = {
-      email: loginDto.email,
-      password: loginDto.password,
-    };
-    return await this.clientUserService.login(clientLoginDto);
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      // Ensure required fields are present for ClientLoginDto
+      const clientLoginDto = {
+        email: loginDto.email,
+        password: loginDto.password,
+      };
+      
+      const result = await this.clientUserService.login(clientLoginDto);
+      return this.responseHandler.createSuccessResponse(
+        null,
+        null,
+        null,
+        'User logged in successfully',
+        result
+      );
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        null,
+        null,
+        null,
+        error.message || 'Login failed'
+      );
+    }
   }
 
-  @UseMiddlewares(AuthMiddleware)
+  @UseMiddlewares(AuthMiddleware, UserInjectionMiddleware)
   @Query({
-    output: clientUserResponseSchema,
+    output: apiResponseSchema,
   })
   async getProfile(
-    // Context would be injected here in a real nestjs-trpc setup
-    // For now, we'll need to get the user ID from the request context
-  ): Promise<z.infer<typeof clientUserResponseSchema>> {
-    // This would typically get the user ID from the authenticated context
-    // For now, we'll throw an error indicating this needs proper context implementation
-    throw new Error('Profile endpoint requires authenticated context implementation');
+    @Input() userId: string
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const result = await this.clientUserService.getProfile(userId);
+      return this.responseHandler.createSuccessResponse(
+        null,
+        null,
+        null,
+        'Profile retrieved successfully',
+        result
+      );
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        null,
+        null,
+        null,
+        error.message || 'Failed to retrieve profile'
+      );
+    }
   }
 
-  @UseMiddlewares(AuthMiddleware)
+  @UseMiddlewares(AuthMiddleware, UserInjectionMiddleware)
   @Mutation({
     input: clientUpdateProfileSchema,
-    output: clientUserResponseSchema,
+    output: apiResponseSchema,
   })
   async updateProfile(
-    @Input() updateProfileDto: z.infer<typeof clientUpdateProfileSchema>
-  ): Promise<z.infer<typeof clientUserResponseSchema>> {
-    // This would typically get the user ID from the authenticated context
-    // For now, we'll throw an error indicating this needs proper context implementation
-    throw new Error('Update profile endpoint requires authenticated context implementation');
+    @Input() updateProfileDto: z.infer<typeof clientUpdateProfileSchema>,
+    @Input() userId: string
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const result = await this.clientUserService.updateProfile(
+        userId,
+        updateProfileDto
+      );
+      return this.responseHandler.createSuccessResponse(
+        null,
+        null,
+        null,
+        'Profile updated successfully',
+        result
+      );
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        null,
+        null,
+        null,
+        error.message || 'Failed to update profile'
+      );
+    }
   }
 
   @Mutation({
     input: refreshTokenSchema,
-    output: clientAuthResponseSchema,
+    output: apiResponseSchema,
   })
   async refreshToken(
     @Input() input: z.infer<typeof refreshTokenSchema>
-  ): Promise<z.infer<typeof clientAuthResponseSchema>> {
-    return await this.clientUserService.refreshToken(input.refreshToken);
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const result = await this.clientUserService.refreshToken(input.refreshToken);
+      return this.responseHandler.createSuccessResponse(
+        null,
+        null,
+        null,
+        'Token refreshed successfully',
+        result
+      );
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        null,
+        null,
+        null,
+        error.message || 'Token refresh failed'
+      );
+    }
   }
 } 

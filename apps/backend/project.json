@@ -39,29 +39,77 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "apps/backend",
-        "command": "npx typeorm-ts-node-esm migration:run -d typeorm.config.ts"
+        "command": "npx typeorm-ts-node-commonjs migration:run -d migration-data-source.ts"
       }
     },
     "migration:show": {
       "executor": "nx:run-commands",
       "options": {
         "cwd": "apps/backend",
-        "command": "npx typeorm-ts-node-esm migration:show -d typeorm.config.ts"
+        "command": "npx typeorm-ts-node-commonjs migration:show -d migration-data-source.ts"
       }
     },
     "migration:revert": {
       "executor": "nx:run-commands",
       "options": {
         "cwd": "apps/backend",
-        "command": "npx typeorm-ts-node-esm migration:revert -d typeorm.config.ts"
+        "command": "npx typeorm-ts-node-commonjs migration:revert -d migration-data-source.ts"
       }
     },
     "migration:generate": {
       "executor": "nx:run-commands",
       "options": {
         "cwd": "apps/backend",
-        "command": "npx typeorm-ts-node-esm migration:generate -d typeorm.config.ts"
+        "command": "npx typeorm-ts-node-commonjs migration:generate -d migration-data-source.ts"
       }
+    },
+    "seed": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/backend",
+        "command": "npx ts-node --project tsconfig.scripts.json src/database/seeders/main.seeder.ts seedIfEmpty"
+      },
+      "description": "Seed permissions only if database is empty"
+    },
+    "seed:force": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/backend",
+        "command": "npx ts-node --project tsconfig.scripts.json src/database/seeders/main.seeder.ts permissions"
+      },
+      "description": "Force seed permissions (may create duplicates)"
+    },
+    "seed:roles": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/backend",
+        "command": "npx ts-node --project tsconfig.scripts.json src/database/seeders/main.seeder.ts roles"
+      },
+      "description": "Seed roles only"
+    },
+    "seed:reseed": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/backend",
+        "command": "npx ts-node --project tsconfig.scripts.json src/database/seeders/main.seeder.ts permissions:reseed"
+      },
+      "description": "Reseed permissions (may create duplicates)"
+    },
+    "seed:clear": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/backend",
+        "command": "npx ts-node --project tsconfig.scripts.json src/database/seeders/main.seeder.ts permissions:clear"
+      },
+      "description": "Clear all data and reseed (destructive operation)"
+    },
+    "seed:all": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/backend",
+        "command": "npx ts-node --project tsconfig.scripts.json src/database/seeders/main.seeder.ts all"
+      },
+      "description": "Run all available seeders"
     },
     "db:test": {
       "executor": "nx:run-commands",

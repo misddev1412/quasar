@@ -1,71 +1,136 @@
-import { 
-  PrimaryGeneratedColumn, 
-  CreateDateColumn, 
-  UpdateDateColumn, 
+import {
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
   VersionColumn,
+  Column,
   BeforeInsert,
-  BeforeUpdate
+  BeforeUpdate,
 } from 'typeorm';
 
 export abstract class BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @CreateDateColumn({ 
+  @CreateDateColumn({
     name: 'created_at',
     type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP'
+    default: () => 'CURRENT_TIMESTAMP',
   })
   createdAt: Date;
 
-  @UpdateDateColumn({ 
+  @UpdateDateColumn({
     name: 'updated_at',
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP'
+    onUpdate: 'CURRENT_TIMESTAMP',
   })
   updatedAt: Date;
 
-  @VersionColumn({ 
+  @VersionColumn({
     name: 'version',
-    default: 1 
+    default: 1,
   })
   version: number;
 
-  // Audit fields - optional, can be used when needed
+  @Column({
+    name: 'created_by',
+    type: 'uuid',
+    nullable: true,
+  })
   createdBy?: string;
+
+  @Column({
+    name: 'updated_by',
+    type: 'uuid',
+    nullable: true,
+  })
   updatedBy?: string;
 
+  // Lifecycle hooks
   @BeforeInsert()
-  updateDateCreation() {
-    this.createdAt = new Date();
-    this.updatedAt = new Date();
+  setCreatedAt() {
+    const now = new Date();
+    this.createdAt = now;
+    this.updatedAt = now;
   }
 
   @BeforeUpdate()
-  updateDateUpdate() {
+  setUpdatedAt() {
     this.updatedAt = new Date();
   }
 
-  // Helper method to check if entity is new (not persisted yet)
+  // Helper methods
   isNew(): boolean {
     return !this.id;
   }
 
-  // Helper method to get entity age in milliseconds
   getAge(): number {
     return Date.now() - this.createdAt.getTime();
   }
 
-  // Helper method to check if entity was recently created (within given minutes)
-  isRecentlyCreated(minutes: number = 5): boolean {
+  wasRecentlyCreated(minutes: number = 5): boolean {
     const ageInMinutes = this.getAge() / (1000 * 60);
     return ageInMinutes <= minutes;
   }
 
-  // Helper method to check if entity was recently updated (within given minutes)
-  isRecentlyUpdated(minutes: number = 5): boolean {
-    const updateAgeInMinutes = (Date.now() - this.updatedAt.getTime()) / (1000 * 60);
-    return updateAgeInMinutes <= minutes;
+  wasRecentlyUpdated(minutes: number = 5): boolean {
+    const ageInMinutes = (Date.now() - this.updatedAt.getTime()) / (1000 * 60);
+    return ageInMinutes <= minutes;
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+      version: this.version,
+      createdBy: this.createdBy,
+      updatedBy: this.updatedBy,
+    };
+  }
+}
+
+export abstract class SoftDeletableEntity extends BaseEntity {
+  @DeleteDateColumn({
+    name: 'deleted_at',
+    type: 'timestamp',
+    nullable: true,
+  })
+  deletedAt?: Date;
+
+  @Column({
+    name: 'deleted_by',
+    type: 'uuid',
+    nullable: true,
+  })
+  deletedBy?: string;
+
+  // Soft delete methods
+  softDelete(deletedBy?: string): void {
+    this.deletedAt = new Date();
+    this.deletedBy = deletedBy;
+  }
+
+  restore(): void {
+    this.deletedAt = undefined;
+    this.deletedBy = undefined;
+  }
+
+  isDeleted(): boolean {
+    return !!this.deletedAt;
+  }
+
+  isActive(): boolean {
+    return !this.isDeleted();
+  }
+
+  override toJSON() {
+    return {
+      ...super.toJSON(),
+      deletedAt: this.deletedAt,
+      deletedBy: this.deletedBy,
+    };
   }
 } 

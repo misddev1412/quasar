@@ -5,18 +5,29 @@ import { User } from '../../modules/user/entities/user.entity';
 import { UserProfile } from '../../modules/user/entities/user-profile.entity';
 import { Permission } from '../../modules/user/entities/permission.entity';
 import { RolePermission } from '../../modules/user/entities/role-permission.entity';
+import { Role } from '../../modules/user/entities/role.entity';
+import { UserRole } from '../../modules/user/entities/user-role.entity';
 import { PermissionRepository } from '../../modules/user/repositories/permission.repository';
-import { PermissionService } from '../../modules/user/services/permission.service';
+import { AdminPermissionService } from '../../modules/user/services/admin/admin-permission.service';
+import { PermissionCheckerService } from '@backend/modules/shared/services/permission-checker.service';
 import { PermissionSeeder } from './permission.seeder';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forFeature([User, UserProfile, Permission, RolePermission]),
+    TypeOrmModule.forFeature([
+      User, 
+      UserProfile, 
+      Permission, 
+      RolePermission, 
+      Role, 
+      UserRole
+    ]),
   ],
   providers: [
     PermissionRepository,
-    PermissionService,
+    PermissionCheckerService,
+    AdminPermissionService,
     PermissionSeeder,
   ],
   exports: [PermissionSeeder],

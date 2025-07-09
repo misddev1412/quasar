@@ -1,25 +1,26 @@
 // Base entities
-export * from './lib/entities/base.entity';
+export * from './entities/base.entity';
 
 // Repository interfaces and abstracts
-export * from './lib/repositories/base-repository.interface';
-export * from './lib/repositories/base-repository.abstract';
+export * from './repositories/base-repository.interface';
+export * from './repositories/base-repository.abstract';
 
 // Types
-export * from './lib/types/common.types';
-export * from './lib/types/api.types';
-export * from './lib/types/database.types';
-export * from './lib/types/dto.types';
-export * from './lib/types/auth.types';
+export * from './types/common.types';
+export * from './types/api.types';
+export * from './types/database.types';
+export * from './types/dto.types';
+export * from './types/auth.types';
 export * from './types/translation.types';
+export * from './types/api-response.types';
 
-// Enums
-export * from './lib/enums/user.enums';
-export * from './lib/enums/permission.enums';
-export * from './lib/enums/common.enums';
-export * from './lib/enums/status.enums';
+// Enums (all enums from index)
+export * from './enums';
 
 // Classes
-export * from './lib/classes/api-response.class';
-export * from './lib/classes/pagination.dto';
-export * from './lib/classes/base-service.abstract'; 
+export * from './classes/api-response.class';
+export * from './classes/pagination.dto';
+export * from './classes/base-service.abstract';
+
+// Error Code System Types
+export * from './types/error-codes.types'; 

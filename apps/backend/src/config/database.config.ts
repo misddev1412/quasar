@@ -9,7 +9,10 @@ export default registerAs('database', (): TypeOrmModuleOptions => ({
   password: process.env.DB_PASSWORD || 'password',
   database: process.env.DB_DATABASE || 'quasar_db',
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  synchronize: process.env.NODE_ENV === 'development',
+  synchronize: false, // Always false for production safety
   migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
   migrationsTableName: 'migrations',
+  migrationsRun: false,
+  logging: process.env.NODE_ENV === 'development' ? ['query', 'error'] : ['error'],
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 })); 

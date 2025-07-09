@@ -1,5 +1,5 @@
 import { Entity, Column, Index } from 'typeorm';
-import { BaseEntity } from '@quasar/shared';
+import { BaseEntity } from '@shared';
 
 @Entity('translations')
 @Index(['key', 'locale'], { unique: true })

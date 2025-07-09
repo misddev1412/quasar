@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BaseRepository, UserRole } from '@quasar/shared';
+import { BaseRepository, UserRole } from '@shared';
 import { User } from '../entities/user.entity';
 import { UserProfile } from '../entities/user-profile.entity';
 import { 
@@ -68,6 +68,13 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
     return await this.repository.findOne({
       where: { id },
       relations: ['profile']
+    });
+  }
+
+  async findWithRoles(id: string): Promise<User | null> {
+    return await this.repository.findOne({
+      where: { id },
+      relations: ['userRoles', 'userRoles.role']
     });
   }
 

@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { TRPCError } from '@trpc/server';
 import { TRPCMiddleware, MiddlewareOptions, MiddlewareResponse } from 'nestjs-trpc';
 import { AuthenticatedContext } from '../context';
-import { PermissionAction, PermissionScope } from '@quasar/shared';
-import { PermissionService } from '../../modules/user/services/permission.service';
+import { PermissionAction, PermissionScope } from '@shared';
+import { PermissionCheckerService } from '@backend/modules/shared/services/permission-checker.service';
 
 export interface RequiredPermission {
   resource: string;
@@ -14,7 +14,7 @@ export interface RequiredPermission {
 export function RequirePermission(permission: RequiredPermission) {
   @Injectable()
   class PermissionMiddleware implements TRPCMiddleware {
-    constructor(private readonly permissionService: PermissionService) {}
+    constructor(private readonly permissionChecker: PermissionCheckerService) {}
 
     async use(opts: MiddlewareOptions<AuthenticatedContext>): Promise<MiddlewareResponse> {
       const { ctx, next } = opts;
@@ -28,7 +28,7 @@ export function RequirePermission(permission: RequiredPermission) {
       }
 
       // Check if user has the required permission
-      const checker = this.permissionService.can(ctx.user.role);
+      const checker = this.permissionChecker.can(ctx.user.role);
       let permissionCheck;
       
       if (permission.action === PermissionAction.CREATE && permission.scope === PermissionScope.OWN) {
@@ -77,7 +77,7 @@ export function RequirePermission(permission: RequiredPermission) {
 // Convenient permission middleware for common use cases
 @Injectable()
 export class CanCreateOwn implements TRPCMiddleware {
-  constructor(private readonly permissionService: PermissionService) {}
+  constructor(private readonly permissionChecker: PermissionCheckerService) {}
 
   private resource: string;
 
@@ -96,7 +96,7 @@ export class CanCreateOwn implements TRPCMiddleware {
       });
     }
 
-    const permissionCheck = await this.permissionService
+    const permissionCheck = await this.permissionChecker
       .can(ctx.user.role)
       .createOwn(this.resource);
 
@@ -119,7 +119,7 @@ export class CanCreateOwn implements TRPCMiddleware {
 
 @Injectable()
 export class CanCreateAny implements TRPCMiddleware {
-  constructor(private readonly permissionService: PermissionService) {}
+  constructor(private readonly permissionChecker: PermissionCheckerService) {}
 
   private resource: string;
 
@@ -138,7 +138,7 @@ export class CanCreateAny implements TRPCMiddleware {
       });
     }
 
-    const permissionCheck = await this.permissionService
+    const permissionCheck = await this.permissionChecker
       .can(ctx.user.role)
       .createAny(this.resource);
 
@@ -161,7 +161,7 @@ export class CanCreateAny implements TRPCMiddleware {
 
 @Injectable()
 export class CanReadAny implements TRPCMiddleware {
-  constructor(private readonly permissionService: PermissionService) {}
+  constructor(private readonly permissionChecker: PermissionCheckerService) {}
 
   private resource: string;
 
@@ -180,7 +180,7 @@ export class CanReadAny implements TRPCMiddleware {
       });
     }
 
-    const permissionCheck = await this.permissionService
+    const permissionCheck = await this.permissionChecker
       .can(ctx.user.role)
       .readAny(this.resource);
 
@@ -203,7 +203,7 @@ export class CanReadAny implements TRPCMiddleware {
 
 @Injectable()
 export class CanUpdateOwn implements TRPCMiddleware {
-  constructor(private readonly permissionService: PermissionService) {}
+  constructor(private readonly permissionChecker: PermissionCheckerService) {}
 
   private resource: string;
 
@@ -222,7 +222,7 @@ export class CanUpdateOwn implements TRPCMiddleware {
       });
     }
 
-    const permissionCheck = await this.permissionService
+    const permissionCheck = await this.permissionChecker
       .can(ctx.user.role)
       .updateOwn(this.resource);
 
@@ -245,7 +245,7 @@ export class CanUpdateOwn implements TRPCMiddleware {
 
 @Injectable()
 export class CanDeleteAny implements TRPCMiddleware {
-  constructor(private readonly permissionService: PermissionService) {}
+  constructor(private readonly permissionChecker: PermissionCheckerService) {}
 
   private resource: string;
 
@@ -264,7 +264,7 @@ export class CanDeleteAny implements TRPCMiddleware {
       });
     }
 
-    const permissionCheck = await this.permissionService
+    const permissionCheck = await this.permissionChecker
       .can(ctx.user.role)
       .deleteAny(this.resource);
 

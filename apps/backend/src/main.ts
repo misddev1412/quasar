@@ -3,6 +3,7 @@
  * This is only a minimal backend to get started.
  */
 
+import 'reflect-metadata';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
@@ -18,6 +19,15 @@ async function bootstrap() {
       'http://localhost:4000', // Alternative ports
     ],
     credentials: true,
+  });
+  
+  // Add middleware to handle content-type for tRPC requests
+  app.use('/api/trpc', (req, res, next) => {
+    // If no content-type is set and it's a POST request, set it to application/json
+    if (req.method === 'POST' && !req.headers['content-type']) {
+      req.headers['content-type'] = 'application/json';
+    }
+    next();
   });
   
   // Global validation pipe

@@ -6,6 +6,8 @@ import { PassportModule } from '@nestjs/passport';
 import { User } from '../modules/user/entities/user.entity';
 import { UserProfile } from '../modules/user/entities/user-profile.entity';
 import { Permission } from '../modules/user/entities/permission.entity';
+import { Role } from '../modules/user/entities/role.entity';
+import { UserRole } from '../modules/user/entities/user-role.entity';
 import { RolePermission } from '../modules/user/entities/role-permission.entity';
 import { UserRepository } from '../modules/user/repositories/user.repository';
 import { PermissionRepository } from '../modules/user/repositories/permission.repository';
@@ -27,7 +29,7 @@ const jwtModule = JwtModule.registerAsync({
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserProfile, Permission, RolePermission]),
+    TypeOrmModule.forFeature([User, UserProfile, Permission, Role, UserRole, RolePermission]),
     PassportModule,
     jwtModule,
   ],

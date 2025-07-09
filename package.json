@@ -1,14 +1,14 @@
 {
   "scripts": {
-    "migration:generate": "cd apps/backend && npx typeorm migration:generate -d typeorm.config.ts",
-    "migration:run": "cd apps/backend && npx typeorm migration:run -d typeorm.config.ts",
-    "migration:revert": "cd apps/backend && npx typeorm migration:revert -d typeorm.config.ts",
-    "migration:create": "cd apps/backend && npx typeorm migration:create",
+    "migration:generate": "cd apps/backend && npx typeorm-ts-node-commonjs migration:generate -d migration-data-source.ts",
+    "migration:run": "cd apps/backend && npx typeorm-ts-node-commonjs migration:run -d migration-data-source.ts",
+    "migration:revert": "cd apps/backend && npx typeorm-ts-node-commonjs migration:revert -d migration-data-source.ts",
+    "migration:show": "cd apps/backend && npx typeorm-ts-node-commonjs migration:show -d migration-data-source.ts",
+    "migration:create": "cd apps/backend && npx typeorm-ts-node-commonjs migration:create",
     "env:setup": "cd apps/backend && ./scripts/setup-env.sh",
     "env:copy": "cd apps/backend && cp env.template .env",
-    "seed:permissions": "cd apps/backend && npx ts-node --project tsconfig.scripts.json src/scripts/seed-permissions.ts",
-    "seed:permissions:force": "cd apps/backend && npx ts-node --project tsconfig.scripts.json src/scripts/seed-permissions.ts seed",
-    "seed:permissions:reseed": "cd apps/backend && npx ts-node --project tsconfig.scripts.json src/scripts/seed-permissions.ts reseed"
+    "seed": "cd apps/backend && npx ts-node --project tsconfig.scripts.json src/database/seeders/main.seeder.ts",
+    "seed:help": "cd apps/backend && npx ts-node --project tsconfig.scripts.json src/database/seeders/main.seeder.ts --help"
   },
   "devDependencies": {
     "@babel/core": "^7.14.5",

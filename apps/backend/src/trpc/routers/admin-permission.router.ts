@@ -1,10 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { PermissionService } from '../../modules/user/services/permission.service';
+import { AdminPermissionService } from '../../modules/user/services/admin/admin-permission.service';
+import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../middlewares/admin-role.middleware';
-import { PermissionAction, PermissionScope, UserRole } from '@quasar/shared';
+import { PermissionAction, PermissionScope, UserRole } from '@shared';
+import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
+import { MessageLevelCode } from '@shared/enums/message-codes.enums';
+import { apiResponseSchema } from '../schemas/response.schemas';
 
 // Zod schemas for validation
 const permissionActionSchema = z.enum([
@@ -89,118 +93,196 @@ const permissionGrantSchema = z.object({
   attributes: z.array(z.string()).optional(),
 });
 
+
+
 @Injectable()
 export class AdminPermissionRouter {
   constructor(
-    @Inject(PermissionService)
-    private readonly permissionService: PermissionService,
+    @Inject(AdminPermissionService)
+    private readonly permissionService: AdminPermissionService,
+    @Inject(ResponseService)
+    private readonly responseHandler: ResponseService,
   ) {}
 
   // Permission CRUD operations
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Mutation({
     input: createPermissionSchema,
-    output: permissionResponseSchema,
+    output: apiResponseSchema,
   })
   async createPermission(
     @Input() createPermissionDto: z.infer<typeof createPermissionSchema>
-  ): Promise<z.infer<typeof permissionResponseSchema>> {
-    // Ensure all required fields are present for CreatePermissionDto
-    const permissionData = {
-      name: createPermissionDto.name,
-      resource: createPermissionDto.resource,
-      action: createPermissionDto.action,
-      scope: createPermissionDto.scope,
-      description: createPermissionDto.description,
-      attributes: createPermissionDto.attributes,
-    };
-    return await this.permissionService.createPermission(permissionData);
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      // Ensure all required fields are present for CreatePermissionDto
+      const permissionData = {
+        name: createPermissionDto.name,
+        resource: createPermissionDto.resource,
+        action: createPermissionDto.action,
+        scope: createPermissionDto.scope,
+        description: createPermissionDto.description,
+        attributes: createPermissionDto.attributes,
+      };
+      
+      const permission = await this.permissionService.createPermission(permissionData);
+      return this.responseHandler.createCreatedResponse(ModuleCode.PERMISSION, 'permission', permission);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.PERMISSION,
+        OperationCode.CREATE,
+        ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+        error.message || 'Failed to create permission'
+      );
+    }
   }
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
     input: permissionFilterSchema,
-    output: z.array(permissionResponseSchema),
+    output: apiResponseSchema,
   })
   async getAllPermissions(
     @Input() filter: z.infer<typeof permissionFilterSchema>
-  ): Promise<z.infer<typeof permissionResponseSchema>[]> {
-    return await this.permissionService.getAllPermissions(filter);
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const permissions = await this.permissionService.getAllPermissions(filter);
+      return this.responseHandler.createReadResponse(ModuleCode.PERMISSION, 'permissions', permissions);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.PERMISSION,
+        OperationCode.READ,
+        ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+        error.message || 'Failed to retrieve permissions'
+      );
+    }
   }
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
     input: z.object({ id: z.string() }),
-    output: permissionResponseSchema,
+    output: apiResponseSchema,
   })
   async getPermissionById(
     @Input() input: { id: string }
-  ): Promise<z.infer<typeof permissionResponseSchema>> {
-    return await this.permissionService.getPermissionById(input.id);
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const permission = await this.permissionService.getPermissionById(input.id);
+      return this.responseHandler.createReadResponse(ModuleCode.PERMISSION, 'permission', permission);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.PERMISSION,
+        OperationCode.READ,
+        ErrorLevelCode.NOT_FOUND,
+        error.message || 'Permission not found'
+      );
+    }
   }
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Mutation({
     input: z.object({ id: z.string() }).merge(updatePermissionSchema),
-    output: permissionResponseSchema,
+    output: apiResponseSchema,
   })
   async updatePermission(
     @Input() input: { id: string } & z.infer<typeof updatePermissionSchema>
-  ): Promise<z.infer<typeof permissionResponseSchema>> {
-    const { id, ...updateDto } = input;
-    return await this.permissionService.updatePermission(id, updateDto);
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const { id, ...updateDto } = input;
+      const permission = await this.permissionService.updatePermission(id, updateDto);
+      return this.responseHandler.createUpdatedResponse(ModuleCode.PERMISSION, 'permission', permission);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.PERMISSION,
+        OperationCode.UPDATE,
+        ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+        error.message || 'Failed to update permission'
+      );
+    }
   }
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Mutation({
     input: z.object({ id: z.string() }),
-    output: z.void(),
+    output: apiResponseSchema,
   })
   async deletePermission(
     @Input() input: { id: string }
-  ): Promise<void> {
-    await this.permissionService.deletePermission(input.id);
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      await this.permissionService.deletePermission(input.id);
+      return this.responseHandler.createDeletedResponse(ModuleCode.PERMISSION, 'permission');
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.PERMISSION,
+        OperationCode.DELETE,
+        ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+        error.message || 'Failed to delete permission'
+      );
+    }
   }
 
   // Role Permission management
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Mutation({
     input: assignPermissionToRoleSchema,
-    output: z.object({
-      id: z.string(),
-      role: userRoleSchema,
-      permissionId: z.string(),
-      isActive: z.boolean(),
-      createdAt: z.date(),
-      updatedAt: z.date(),
-    }),
+    output: apiResponseSchema,
   })
   async assignPermissionToRole(
     @Input() input: z.infer<typeof assignPermissionToRoleSchema>
-  ) {
-    return await this.permissionService.assignPermissionToRole(input.role, input.permissionId);
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const result = await this.permissionService.assignPermissionToRole(input.role, input.permissionId);
+      return this.responseHandler.createCreatedResponse(ModuleCode.PERMISSION, 'role permission', result);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.PERMISSION,
+        OperationCode.CREATE,
+        ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+        error.message || 'Failed to assign permission to role'
+      );
+    }
   }
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Mutation({
     input: removePermissionFromRoleSchema,
-    output: z.void(),
+    output: apiResponseSchema,
   })
   async removePermissionFromRole(
     @Input() input: z.infer<typeof removePermissionFromRoleSchema>
-  ): Promise<void> {
-    await this.permissionService.removePermissionFromRole(input.role, input.permissionId);
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      await this.permissionService.removePermissionFromRole(input.role, input.permissionId);
+      return this.responseHandler.createDeletedResponse(ModuleCode.PERMISSION, 'role permission');
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.PERMISSION,
+        OperationCode.DELETE,
+        ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+        error.message || 'Failed to remove permission from role'
+      );
+    }
   }
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
     input: z.object({ role: userRoleSchema }),
-    output: z.array(permissionResponseSchema),
+    output: apiResponseSchema,
   })
   async getRolePermissions(
     @Input() input: { role: UserRole }
-  ): Promise<z.infer<typeof permissionResponseSchema>[]> {
-    return await this.permissionService.getRolePermissions(input.role);
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const permissions = await this.permissionService.getRolePermissions(input.role);
+      return this.responseHandler.createReadResponse(ModuleCode.PERMISSION, 'role permissions', permissions);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.PERMISSION,
+        OperationCode.READ,
+        ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+        error.message || 'Failed to retrieve role permissions'
+      );
+    }
   }
 
   // Grant permissions in AccessControl style
@@ -209,20 +291,36 @@ export class AdminPermissionRouter {
     input: z.object({
       grants: z.array(permissionGrantSchema),
     }),
-    output: z.void(),
+    output: apiResponseSchema,
   })
   async grantPermissions(
     @Input() input: { grants: z.infer<typeof permissionGrantSchema>[] }
-  ): Promise<void> {
-    // Ensure all required fields are present for PermissionGrant
-    const grants = input.grants.map(grant => ({
-      role: grant.role,
-      resource: grant.resource,
-      action: grant.action,
-      scope: grant.scope,
-      attributes: grant.attributes,
-    }));
-    await this.permissionService.grant(grants);
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      // Ensure all required fields are present for PermissionGrant
+      const grants = input.grants.map(grant => ({
+        role: grant.role,
+        resource: grant.resource,
+        action: grant.action,
+        scope: grant.scope,
+        attributes: grant.attributes,
+      }));
+      
+      await this.permissionService.grant(grants);
+      return this.responseHandler.createSuccessResponse(
+        ModuleCode.PERMISSION,
+        OperationCode.CREATE,
+        MessageLevelCode.SUCCESS,
+        'Permissions granted successfully'
+      );
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.PERMISSION,
+        OperationCode.CREATE,
+        ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+        error.message || 'Failed to grant permissions'
+      );
+    }
   }
 
   // Utility: Check if a role has a specific permission
@@ -234,11 +332,7 @@ export class AdminPermissionRouter {
       action: permissionActionSchema,
       scope: permissionScopeSchema,
     }),
-    output: z.object({
-      granted: z.boolean(),
-      attributes: z.array(z.string()),
-      permission: permissionResponseSchema.optional(),
-    }),
+    output: apiResponseSchema,
   })
   async checkPermission(
     @Input() input: {
@@ -247,34 +341,45 @@ export class AdminPermissionRouter {
       action: PermissionAction;
       scope: PermissionScope;
     }
-  ) {
-    const checker = this.permissionService.can(input.role);
-    let permissionCheck;
-    
-    if (input.action === PermissionAction.CREATE && input.scope === PermissionScope.OWN) {
-      permissionCheck = await checker.createOwn(input.resource);
-    } else if (input.action === PermissionAction.CREATE && input.scope === PermissionScope.ANY) {
-      permissionCheck = await checker.createAny(input.resource);
-    } else if (input.action === PermissionAction.READ && input.scope === PermissionScope.OWN) {
-      permissionCheck = await checker.readOwn(input.resource);
-    } else if (input.action === PermissionAction.READ && input.scope === PermissionScope.ANY) {
-      permissionCheck = await checker.readAny(input.resource);
-    } else if (input.action === PermissionAction.UPDATE && input.scope === PermissionScope.OWN) {
-      permissionCheck = await checker.updateOwn(input.resource);
-    } else if (input.action === PermissionAction.UPDATE && input.scope === PermissionScope.ANY) {
-      permissionCheck = await checker.updateAny(input.resource);
-    } else if (input.action === PermissionAction.DELETE && input.scope === PermissionScope.OWN) {
-      permissionCheck = await checker.deleteOwn(input.resource);
-    } else if (input.action === PermissionAction.DELETE && input.scope === PermissionScope.ANY) {
-      permissionCheck = await checker.deleteAny(input.resource);
-    } else {
-      throw new Error('Invalid permission action or scope');
-    }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const checker = this.permissionService.can(input.role);
+      let permissionCheck;
+      
+      if (input.action === PermissionAction.CREATE && input.scope === PermissionScope.OWN) {
+        permissionCheck = await checker.createOwn(input.resource);
+      } else if (input.action === PermissionAction.CREATE && input.scope === PermissionScope.ANY) {
+        permissionCheck = await checker.createAny(input.resource);
+      } else if (input.action === PermissionAction.READ && input.scope === PermissionScope.OWN) {
+        permissionCheck = await checker.readOwn(input.resource);
+      } else if (input.action === PermissionAction.READ && input.scope === PermissionScope.ANY) {
+        permissionCheck = await checker.readAny(input.resource);
+      } else if (input.action === PermissionAction.UPDATE && input.scope === PermissionScope.OWN) {
+        permissionCheck = await checker.updateOwn(input.resource);
+      } else if (input.action === PermissionAction.UPDATE && input.scope === PermissionScope.ANY) {
+        permissionCheck = await checker.updateAny(input.resource);
+      } else if (input.action === PermissionAction.DELETE && input.scope === PermissionScope.OWN) {
+        permissionCheck = await checker.deleteOwn(input.resource);
+      } else if (input.action === PermissionAction.DELETE && input.scope === PermissionScope.ANY) {
+        permissionCheck = await checker.deleteAny(input.resource);
+      } else {
+        throw new Error('Invalid permission action or scope');
+      }
 
-    return {
-      granted: permissionCheck.granted,
-      attributes: permissionCheck.attributes,
-      permission: permissionCheck.permission,
-    };
+      const result = {
+        granted: permissionCheck.granted,
+        attributes: permissionCheck.attributes,
+        permission: permissionCheck.permission,
+      };
+      
+      return this.responseHandler.createReadResponse(ModuleCode.PERMISSION, 'permission check', result);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.PERMISSION,
+        OperationCode.READ,
+        ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+        error.message || 'Failed to check permission'
+      );
+    }
   }
 } 

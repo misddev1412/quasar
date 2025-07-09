@@ -1,17 +1,34 @@
 {
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
+    "outDir": "../../dist/scripts",
     "module": "commonjs",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
+    "target": "es2021",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "target": "es2021",
-    "types": ["node"]
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "noEmit": false,
+    "moduleResolution": "node",
+    "baseUrl": "../../",
+    "paths": {
+      "@quasar/shared": ["libs/shared/src/index.ts"],
+      "ui": ["libs/ui/src/index.ts"]
+    }
   },
   "ts-node": {
-    "esm": false,
-    "experimentalSpecifierResolution": "node"
+    "require": ["tsconfig-paths/register"]
   },
-  "include": ["src/**/*.ts"]
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
 } 

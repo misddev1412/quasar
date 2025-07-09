@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BaseRepository } from '@quasar/shared';
+import { BaseRepository } from '@shared';
 import { Translation } from '../entities/translation.entity';
 import { TranslationRepositoryInterface } from '../interfaces/translation-repository.interface';
 

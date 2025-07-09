@@ -3,7 +3,7 @@ import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { TranslationRepository } from '../repositories/translation.repository';
 import { Translation } from '../entities/translation.entity';
-import { SupportedLocale, TranslationMap, LocaleTranslations } from '@quasar/shared';
+import { SupportedLocale, TranslationMap, LocaleTranslations } from '@shared';
 
 @Injectable()
 export class TranslationService {

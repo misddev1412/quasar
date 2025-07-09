@@ -1,4 +1,4 @@
-import { SortOrder } from '../enums';
+import { SortOrder } from '../enums/common.enums';
 
 /**
  * Generic ID type - can be string or number
@@ -12,6 +12,16 @@ export interface PaginationParams {
   page: number;
   limit: number;
   offset?: number;
+}
+
+/**
+ * Pagination options for repository queries
+ */
+export interface PaginationOptions {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: SortOrder;
 }
 
 /**
@@ -32,6 +42,21 @@ export interface PaginationMeta {
 export interface PaginatedResponse<T> {
   data: T[];
   meta: PaginationMeta;
+}
+
+/**
+ * Paginated result for repository methods
+ */
+export interface PaginatedResult<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
+  };
 }
 
 /**

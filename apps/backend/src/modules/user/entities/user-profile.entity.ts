@@ -1,5 +1,5 @@
 import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
-import { BaseEntity } from '@quasar/shared';
+import { BaseEntity } from '@shared';
 import { User } from './user.entity';
 
 @Entity('user_profiles')

@@ -1,5 +1,5 @@
 import { Entity, Column, OneToMany } from 'typeorm';
-import { BaseEntity, PermissionAction, PermissionScope } from '@quasar/shared';
+import { BaseEntity, PermissionAction, PermissionScope } from '@shared';
 import { RolePermission } from './role-permission.entity';
 
 @Entity('permissions')
@@ -28,7 +28,7 @@ export class Permission extends BaseEntity {
   @Column({ type: 'text', array: true, default: ['*'] })
   attributes: string[];
 
-  @Column({ default: true })
+  @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
   @OneToMany(() => RolePermission, rolePermission => rolePermission.permission)

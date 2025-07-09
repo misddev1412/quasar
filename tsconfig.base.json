@@ -16,7 +16,15 @@
     "baseUrl": ".",
     "paths": {
       "ui": ["libs/ui/src/index.ts"],
-      "@quasar/shared": ["libs/shared/src/index.ts"]
+      "@shared": ["libs/shared/src/index.ts"],
+      "@shared/enums/*": ["libs/shared/src/enums/*"],
+      "@shared/types/*": ["libs/shared/src/types/*"],
+      "@shared/classes/*": ["libs/shared/src/classes/*"],
+      "@shared/entities/*": ["libs/shared/src/entities/*"],
+      "@shared/repositories/*": ["libs/shared/src/repositories/*"],
+      "@backend/modules/*": ["apps/backend/src/modules/*"],
+      "@backend/trpc/*": ["apps/backend/src/trpc/*"],
+      "@backend/config/*": ["apps/backend/src/config/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]

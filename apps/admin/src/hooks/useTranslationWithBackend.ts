@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { trpc } from '../utils/trpc';
-import { SupportedLocale } from '@quasar/shared';
+import { SupportedLocale } from '@shared';
 import { getCurrentLocale } from '../i18n';
 
 interface UseTranslationWithBackendResult {

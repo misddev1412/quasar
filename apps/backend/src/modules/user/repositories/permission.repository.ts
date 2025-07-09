@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BaseRepository, PermissionAction, PermissionScope, UserRole } from '@quasar/shared';
+import { BaseRepository, PermissionAction, PermissionScope, UserRole } from '@shared';
 import { Permission } from '../entities/permission.entity';
 import { RolePermission } from '../entities/role-permission.entity';
 import { 
@@ -81,7 +81,7 @@ export class PermissionRepository extends BaseRepository<Permission> implements 
     // Check if the role-permission relationship already exists
     const existing = await this.rolePermissionRepository.findOne({
       where: { 
-        role: createRolePermissionDto.role,
+        roleId: createRolePermissionDto.roleId,
         permissionId: createRolePermissionDto.permissionId
       }
     });
@@ -99,18 +99,18 @@ export class PermissionRepository extends BaseRepository<Permission> implements 
     return await this.rolePermissionRepository.save(rolePermission);
   }
 
-  async removePermissionFromRole(role: UserRole, permissionId: string): Promise<boolean> {
+  async removePermissionFromRole(roleId: string, permissionId: string): Promise<boolean> {
     const result = await this.rolePermissionRepository.delete({
-      role,
+      roleId,
       permissionId
     });
     return result.affected > 0;
   }
 
-  async findPermissionsByRole(role: UserRole): Promise<Permission[]> {
+  async findPermissionsByRole(roleId: string): Promise<Permission[]> {
     const rolePermissions = await this.rolePermissionRepository.find({
       where: { 
-        role,
+        roleId,
         isActive: true
       },
       relations: ['permission']
@@ -121,10 +121,10 @@ export class PermissionRepository extends BaseRepository<Permission> implements 
       .filter(permission => permission.isActive);
   }
 
-  async findRolePermissions(role: UserRole): Promise<RolePermission[]> {
+  async findRolePermissions(roleId: string): Promise<RolePermission[]> {
     return await this.rolePermissionRepository.find({
       where: { 
-        role,
+        roleId,
         isActive: true
       },
       relations: ['permission']
@@ -133,17 +133,17 @@ export class PermissionRepository extends BaseRepository<Permission> implements 
 
   // Permission checking
   async hasPermission(
-    role: UserRole, 
+    roleId: string, 
     resource: string, 
     action: PermissionAction, 
     scope: PermissionScope
   ): Promise<boolean> {
-    const permission = await this.getPermission(role, resource, action, scope);
+    const permission = await this.getPermission(roleId, resource, action, scope);
     return permission !== null;
   }
 
   async getPermission(
-    role: UserRole, 
+    roleId: string, 
     resource: string, 
     action: PermissionAction, 
     scope: PermissionScope
@@ -151,7 +151,7 @@ export class PermissionRepository extends BaseRepository<Permission> implements 
     const rolePermission = await this.rolePermissionRepository
       .createQueryBuilder('rp')
       .innerJoin('rp.permission', 'permission')
-      .where('rp.role = :role', { role })
+      .where('rp.roleId = :roleId', { roleId })
       .andWhere('rp.isActive = :isActive', { isActive: true })
       .andWhere('permission.resource = :resource', { resource })
       .andWhere('permission.action = :action', { action })

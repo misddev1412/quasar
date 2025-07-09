@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from '../modules/user/repositories/user.repository';
 import { User } from '../modules/user/entities/user.entity';
-import { UserRole } from '@quasar/shared';
+import { UserRole } from '@shared';
 import * as bcrypt from 'bcryptjs';
 
 export interface JwtPayload {
@@ -27,10 +27,16 @@ export class AuthService {
   }
 
   async login(user: User) {
+    // Get user with roles
+    const userWithRoles = await this.userRepository.findWithRoles(user.id);
+    
+    // Get primary role (first active role or default to USER)
+    const primaryRole = userWithRoles?.userRoles?.find(ur => ur.isActive)?.role?.code || UserRole.USER;
+    
     const payload: JwtPayload = { 
       email: user.email, 
       sub: user.id, 
-      role: user.role 
+      role: primaryRole 
     };
     
     return {
