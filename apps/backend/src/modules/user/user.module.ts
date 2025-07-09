@@ -12,9 +12,8 @@ import { AdminPermissionService } from './services/admin/admin-permission.servic
 import { PermissionCheckerService } from '../shared/services/permission-checker.service';
 import { AdminUserService } from './services/admin/admin-user.service';
 import { ClientUserService } from './services/client/client-user.service';
-import { AdminUserRouter } from '../../trpc/routers/admin-user.router';
-import { ClientUserRouter } from '../../trpc/routers/client-user.router';
-import { AdminPermissionRouter } from '../../trpc/routers/admin-permission.router';
+import { AdminUserRouter, AdminPermissionRouter } from '../../trpc/routers/admin';
+import { ClientUserRouter } from '../../trpc/routers/client';
 import { AuthModule } from '../../auth/auth.module';
 import { SharedModule } from '../shared/shared.module';
 

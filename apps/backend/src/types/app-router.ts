@@ -1,7 +1,6 @@
 import { router } from '../trpc/trpc';
-import { AdminUserRouter } from '../trpc/routers/admin-user.router';
-import { ClientUserRouter } from '../trpc/routers/client-user.router';
-import { AdminPermissionRouter } from '../trpc/routers/admin-permission.router';
+import { AdminUserRouter, AdminPermissionRouter } from '../trpc/routers/admin';
+import { ClientUserRouter } from '../trpc/routers/client';
 import { TranslationRouter } from '../trpc/routers/translation.router';
 
 // This creates the combined app router

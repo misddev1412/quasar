@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { AdminUserService } from '../../modules/user/services/admin/admin-user.service';
+import { AdminUserService } from '../../../modules/user/services/admin/admin-user.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { AuthMiddleware } from '../middlewares/auth.middleware';
-import { AdminRoleMiddleware } from '../middlewares/admin-role.middleware';
+import { AuthMiddleware } from '../../middlewares/auth.middleware';
+import { AdminRoleMiddleware } from '../../middlewares/admin-role.middleware';
 import { UserRole } from '@shared';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
-import { apiResponseSchema, paginatedResponseSchema } from '../schemas/response.schemas';
+import { apiResponseSchema, paginatedResponseSchema } from '../../schemas/response.schemas';
 
 // Zod schemas for validation
 const userRoleSchema = z.enum([

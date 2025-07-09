@@ -34,19 +34,19 @@ const nestjs_trpc_1 = __webpack_require__(8);
 const app_controller_1 = __webpack_require__(9);
 const app_service_1 = __webpack_require__(10);
 const user_module_1 = __webpack_require__(11);
-const translation_module_1 = __webpack_require__(74);
-const auth_module_1 = __webpack_require__(63);
-const shared_module_1 = __webpack_require__(69);
-const context_1 = __webpack_require__(61);
-const database_config_1 = tslib_1.__importDefault(__webpack_require__(81));
+const translation_module_1 = __webpack_require__(76);
+const auth_module_1 = __webpack_require__(65);
+const shared_module_1 = __webpack_require__(71);
+const context_1 = __webpack_require__(64);
+const database_config_1 = tslib_1.__importDefault(__webpack_require__(83));
 const user_entity_1 = __webpack_require__(12);
 const user_profile_entity_1 = __webpack_require__(38);
 const permission_entity_1 = __webpack_require__(42);
 const role_entity_1 = __webpack_require__(40);
 const user_role_entity_1 = __webpack_require__(39);
 const role_permission_entity_1 = __webpack_require__(41);
-const translation_entity_1 = __webpack_require__(75);
-const error_formatter_1 = __webpack_require__(82);
+const translation_entity_1 = __webpack_require__(77);
+const error_formatter_1 = __webpack_require__(84);
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -189,11 +189,10 @@ const admin_permission_service_1 = __webpack_require__(45);
 const permission_checker_service_1 = __webpack_require__(46);
 const admin_user_service_1 = __webpack_require__(47);
 const client_user_service_1 = __webpack_require__(53);
-const admin_user_router_1 = __webpack_require__(54);
-const client_user_router_1 = __webpack_require__(59);
-const admin_permission_router_1 = __webpack_require__(62);
-const auth_module_1 = __webpack_require__(63);
-const shared_module_1 = __webpack_require__(69);
+const admin_1 = __webpack_require__(54);
+const client_1 = __webpack_require__(61);
+const auth_module_1 = __webpack_require__(65);
+const shared_module_1 = __webpack_require__(71);
 let UserModule = class UserModule {
 };
 exports.UserModule = UserModule;
@@ -212,9 +211,9 @@ exports.UserModule = UserModule = tslib_1.__decorate([
             admin_permission_service_1.AdminPermissionService,
             admin_user_service_1.AdminUserService,
             client_user_service_1.ClientUserService,
-            admin_user_router_1.AdminUserRouter,
-            client_user_router_1.ClientUserRouter,
-            admin_permission_router_1.AdminPermissionRouter,
+            admin_1.AdminUserRouter,
+            client_1.ClientUserRouter,
+            admin_1.AdminPermissionRouter,
         ],
         exports: [
             user_repository_1.UserRepository,
@@ -223,9 +222,9 @@ exports.UserModule = UserModule = tslib_1.__decorate([
             admin_permission_service_1.AdminPermissionService,
             admin_user_service_1.AdminUserService,
             client_user_service_1.ClientUserService,
-            admin_user_router_1.AdminUserRouter,
-            client_user_router_1.ClientUserRouter,
-            admin_permission_router_1.AdminPermissionRouter,
+            admin_1.AdminUserRouter,
+            client_1.ClientUserRouter,
+            admin_1.AdminPermissionRouter,
         ],
     })
 ], UserModule);
@@ -3427,737 +3426,16 @@ exports.ClientUserService = ClientUserService = tslib_1.__decorate([
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.AdminUserRouter = void 0;
-const tslib_1 = __webpack_require__(5);
-const common_1 = __webpack_require__(2);
-const nestjs_trpc_1 = __webpack_require__(8);
-const zod_1 = __webpack_require__(55);
-const admin_user_service_1 = __webpack_require__(47);
-const response_service_1 = __webpack_require__(51);
-const auth_middleware_1 = __webpack_require__(56);
-const admin_role_middleware_1 = __webpack_require__(57);
-const _shared_1 = __webpack_require__(14);
-const response_schemas_1 = __webpack_require__(58);
-// Zod schemas for validation
-const userRoleSchema = zod_1.z.enum([
-    _shared_1.UserRole.SUPER_ADMIN,
-    _shared_1.UserRole.ADMIN,
-    _shared_1.UserRole.MANAGER,
-    _shared_1.UserRole.USER,
-    _shared_1.UserRole.GUEST
-]);
-const adminCreateUserSchema = zod_1.z.object({
-    email: zod_1.z.string().email(),
-    username: zod_1.z.string().min(3),
-    firstName: zod_1.z.string().min(2),
-    lastName: zod_1.z.string().min(2),
-    password: zod_1.z.string().min(8),
-    phoneNumber: zod_1.z.string().optional(),
-    isActive: zod_1.z.boolean().optional(),
-    role: userRoleSchema.optional(),
-});
-const adminUpdateUserSchema = zod_1.z.object({
-    email: zod_1.z.string().email().optional(),
-    username: zod_1.z.string().optional(),
-    isActive: zod_1.z.boolean().optional(),
-    role: userRoleSchema.optional(),
-});
-const userProfileSchema = zod_1.z.object({
-    id: zod_1.z.string(),
-    firstName: zod_1.z.string(),
-    lastName: zod_1.z.string(),
-    phoneNumber: zod_1.z.string().optional(),
-    dateOfBirth: zod_1.z.date().optional(),
-    avatar: zod_1.z.string().optional(),
-    bio: zod_1.z.string().optional(),
-    address: zod_1.z.string().optional(),
-    city: zod_1.z.string().optional(),
-    country: zod_1.z.string().optional(),
-    postalCode: zod_1.z.string().optional(),
-});
-const adminUserResponseSchema = zod_1.z.object({
-    id: zod_1.z.string(),
-    email: zod_1.z.string(),
-    username: zod_1.z.string(),
-    isActive: zod_1.z.boolean(),
-    role: userRoleSchema,
-    createdAt: zod_1.z.date(),
-    updatedAt: zod_1.z.date(),
-    profile: userProfileSchema.optional(),
-});
-const getAllUsersQuerySchema = zod_1.z.object({
-    page: zod_1.z.number().min(1).default(1),
-    limit: zod_1.z.number().min(1).max(100).default(10),
-    search: zod_1.z.string().optional(),
-    role: userRoleSchema.optional(),
-    isActive: zod_1.z.boolean().optional(),
-});
-const getUsersResponseSchema = zod_1.z.object({
-    users: zod_1.z.array(adminUserResponseSchema),
-    total: zod_1.z.number(),
-    page: zod_1.z.number(),
-    limit: zod_1.z.number(),
-});
-let AdminUserRouter = class AdminUserRouter {
-    constructor(adminUserService, responseHandler) {
-        this.adminUserService = adminUserService;
-        this.responseHandler = responseHandler;
-    }
-    async createUser(createUserDto) {
-        try {
-            // Ensure required fields are present for AdminCreateUserDto
-            const adminCreateDto = {
-                email: createUserDto.email,
-                username: createUserDto.username,
-                firstName: createUserDto.firstName,
-                lastName: createUserDto.lastName,
-                password: createUserDto.password,
-                phoneNumber: createUserDto.phoneNumber,
-                isActive: createUserDto.isActive,
-                role: createUserDto.role,
-            };
-            const user = await this.adminUserService.createUser(adminCreateDto);
-            return this.responseHandler.createTrpcSuccess(user);
-        }
-        catch (error) {
-            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
-            1, // OperationCode.CREATE
-            30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
-            error.message || 'Failed to create user');
-        }
-    }
-    async getAllUsers(query) {
-        try {
-            // Ensure required fields are present for AdminUserFilters
-            const filters = {
-                page: query.page || 1,
-                limit: query.limit || 10,
-                search: query.search,
-                role: query.role,
-                isActive: query.isActive,
-            };
-            const result = await this.adminUserService.getAllUsers(filters);
-            return this.responseHandler.createTrpcResponse(200, 'OK', result);
-        }
-        catch (error) {
-            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
-            2, // OperationCode.READ
-            10, // ErrorLevelCode.SERVER_ERROR
-            error.message || 'Failed to retrieve users');
-        }
-    }
-    async getUserById(input) {
-        try {
-            const user = await this.adminUserService.getUserById(input.id);
-            return this.responseHandler.createTrpcSuccess(user);
-        }
-        catch (error) {
-            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
-            2, // OperationCode.READ
-            4, // ErrorLevelCode.NOT_FOUND
-            error.message || 'User not found');
-        }
-    }
-    async updateUser(input) {
-        try {
-            const { id, ...updateDto } = input;
-            const user = await this.adminUserService.updateUser(id, updateDto);
-            return this.responseHandler.createTrpcSuccess(user);
-        }
-        catch (error) {
-            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
-            3, // OperationCode.UPDATE
-            30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
-            error.message || 'Failed to update user');
-        }
-    }
-    async deleteUser(input) {
-        try {
-            await this.adminUserService.deleteUser(input.id);
-            return this.responseHandler.createTrpcResponse(200, 'OK', { deleted: true });
-        }
-        catch (error) {
-            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
-            4, // OperationCode.DELETE
-            30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
-            error.message || 'Failed to delete user');
-        }
-    }
-    async updateUserStatus(input) {
-        try {
-            const user = await this.adminUserService.updateUserStatus(input.id, input.isActive);
-            return this.responseHandler.createTrpcSuccess(user);
-        }
-        catch (error) {
-            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
-            3, // OperationCode.UPDATE
-            30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
-            error.message || 'Failed to update user status');
-        }
-    }
-};
-exports.AdminUserRouter = AdminUserRouter;
-tslib_1.__decorate([
-    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware, admin_role_middleware_1.AdminRoleMiddleware),
-    (0, nestjs_trpc_1.Mutation)({
-        input: adminCreateUserSchema,
-        output: response_schemas_1.apiResponseSchema,
-    }),
-    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [typeof (_c = typeof zod_1.z !== "undefined" && zod_1.z.infer) === "function" ? _c : Object]),
-    tslib_1.__metadata("design:returntype", typeof (_d = typeof Promise !== "undefined" && Promise) === "function" ? _d : Object)
-], AdminUserRouter.prototype, "createUser", null);
-tslib_1.__decorate([
-    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware, admin_role_middleware_1.AdminRoleMiddleware),
-    (0, nestjs_trpc_1.Query)({
-        input: getAllUsersQuerySchema,
-        output: response_schemas_1.paginatedResponseSchema,
-    }),
-    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [typeof (_e = typeof zod_1.z !== "undefined" && zod_1.z.infer) === "function" ? _e : Object]),
-    tslib_1.__metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
-], AdminUserRouter.prototype, "getAllUsers", null);
-tslib_1.__decorate([
-    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware, admin_role_middleware_1.AdminRoleMiddleware),
-    (0, nestjs_trpc_1.Query)({
-        input: zod_1.z.object({ id: zod_1.z.string() }),
-        output: response_schemas_1.apiResponseSchema,
-    }),
-    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [Object]),
-    tslib_1.__metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
-], AdminUserRouter.prototype, "getUserById", null);
-tslib_1.__decorate([
-    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware, admin_role_middleware_1.AdminRoleMiddleware),
-    (0, nestjs_trpc_1.Mutation)({
-        input: zod_1.z.object({ id: zod_1.z.string() }).merge(adminUpdateUserSchema),
-        output: response_schemas_1.apiResponseSchema,
-    }),
-    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [Object]),
-    tslib_1.__metadata("design:returntype", typeof (_h = typeof Promise !== "undefined" && Promise) === "function" ? _h : Object)
-], AdminUserRouter.prototype, "updateUser", null);
-tslib_1.__decorate([
-    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware, admin_role_middleware_1.AdminRoleMiddleware),
-    (0, nestjs_trpc_1.Mutation)({
-        input: zod_1.z.object({ id: zod_1.z.string() }),
-        output: response_schemas_1.apiResponseSchema,
-    }),
-    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [Object]),
-    tslib_1.__metadata("design:returntype", typeof (_j = typeof Promise !== "undefined" && Promise) === "function" ? _j : Object)
-], AdminUserRouter.prototype, "deleteUser", null);
-tslib_1.__decorate([
-    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware, admin_role_middleware_1.AdminRoleMiddleware),
-    (0, nestjs_trpc_1.Mutation)({
-        input: zod_1.z.object({
-            id: zod_1.z.string(),
-            isActive: zod_1.z.boolean(),
-        }),
-        output: response_schemas_1.apiResponseSchema,
-    }),
-    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [Object]),
-    tslib_1.__metadata("design:returntype", typeof (_k = typeof Promise !== "undefined" && Promise) === "function" ? _k : Object)
-], AdminUserRouter.prototype, "updateUserStatus", null);
-exports.AdminUserRouter = AdminUserRouter = tslib_1.__decorate([
-    (0, nestjs_trpc_1.Router)({ alias: 'adminUser' }),
-    (0, common_1.Injectable)(),
-    tslib_1.__param(0, (0, common_1.Inject)(admin_user_service_1.AdminUserService)),
-    tslib_1.__param(1, (0, common_1.Inject)(response_service_1.ResponseService)),
-    tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof admin_user_service_1.AdminUserService !== "undefined" && admin_user_service_1.AdminUserService) === "function" ? _a : Object, typeof (_b = typeof response_service_1.ResponseService !== "undefined" && response_service_1.ResponseService) === "function" ? _b : Object])
-], AdminUserRouter);
+exports.AdminUserRouter = exports.AdminPermissionRouter = void 0;
+var permission_router_1 = __webpack_require__(55);
+Object.defineProperty(exports, "AdminPermissionRouter", ({ enumerable: true, get: function () { return permission_router_1.AdminPermissionRouter; } }));
+var user_router_1 = __webpack_require__(60);
+Object.defineProperty(exports, "AdminUserRouter", ({ enumerable: true, get: function () { return user_router_1.AdminUserRouter; } }));
 
 
 /***/ }),
 /* 55 */
-/***/ ((module) => {
-
-module.exports = require("zod");
-
-/***/ }),
-/* 56 */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.AuthMiddleware = void 0;
-const tslib_1 = __webpack_require__(5);
-const common_1 = __webpack_require__(2);
-const server_1 = __webpack_require__(52);
-let AuthMiddleware = class AuthMiddleware {
-    async use(opts) {
-        const { ctx, next } = opts;
-        if (!ctx.user) {
-            throw new server_1.TRPCError({
-                code: 'UNAUTHORIZED',
-                message: 'Authentication required',
-            });
-        }
-        return next({
-            ctx: {
-                ...ctx,
-                user: ctx.user, // Ensure user is non-nullable in subsequent procedures
-            },
-        });
-    }
-};
-exports.AuthMiddleware = AuthMiddleware;
-exports.AuthMiddleware = AuthMiddleware = tslib_1.__decorate([
-    (0, common_1.Injectable)()
-], AuthMiddleware);
-
-
-/***/ }),
-/* 57 */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.AdminRoleMiddleware = void 0;
-const tslib_1 = __webpack_require__(5);
-const common_1 = __webpack_require__(2);
-const server_1 = __webpack_require__(52);
-const _shared_1 = __webpack_require__(14);
-let AdminRoleMiddleware = class AdminRoleMiddleware {
-    async use(opts) {
-        const { ctx, next } = opts;
-        // This middleware should be used after AuthMiddleware, so user should exist
-        if (!ctx.user) {
-            throw new server_1.TRPCError({
-                code: 'UNAUTHORIZED',
-                message: 'Authentication required',
-            });
-        }
-        // Check if user has admin privileges
-        if (ctx.user.role !== _shared_1.UserRole.ADMIN && ctx.user.role !== _shared_1.UserRole.SUPER_ADMIN) {
-            throw new server_1.TRPCError({
-                code: 'FORBIDDEN',
-                message: 'Admin access required',
-            });
-        }
-        return next({
-            ctx: {
-                ...ctx,
-                user: ctx.user,
-            },
-        });
-    }
-};
-exports.AdminRoleMiddleware = AdminRoleMiddleware;
-exports.AdminRoleMiddleware = AdminRoleMiddleware = tslib_1.__decorate([
-    (0, common_1.Injectable)()
-], AdminRoleMiddleware);
-
-
-/***/ }),
-/* 58 */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.voidResponseSchema = exports.authResponseSchema = exports.paginatedResponseSchema = exports.apiResponseSchema = void 0;
-const zod_1 = __webpack_require__(55);
-/**
- * Standard API response schema for all tRPC endpoints
- * Provides consistent response structure across the application
- */
-exports.apiResponseSchema = zod_1.z.object({
-    code: zod_1.z.number(),
-    status: zod_1.z.string(),
-    data: zod_1.z.any().optional(),
-    errors: zod_1.z.array(zod_1.z.object({
-        '@type': zod_1.z.string(),
-        reason: zod_1.z.string(),
-        domain: zod_1.z.string(),
-        metadata: zod_1.z.record(zod_1.z.string()).optional(),
-    })).optional(),
-    timestamp: zod_1.z.string(),
-});
-/**
- * Paginated response schema for list endpoints
- */
-exports.paginatedResponseSchema = zod_1.z.object({
-    code: zod_1.z.number(),
-    status: zod_1.z.string(),
-    data: zod_1.z.object({
-        items: zod_1.z.array(zod_1.z.any()),
-        total: zod_1.z.number(),
-        page: zod_1.z.number(),
-        limit: zod_1.z.number(),
-        totalPages: zod_1.z.number(),
-    }),
-    errors: zod_1.z.array(zod_1.z.object({
-        '@type': zod_1.z.string(),
-        reason: zod_1.z.string(),
-        domain: zod_1.z.string(),
-        metadata: zod_1.z.record(zod_1.z.string()).optional(),
-    })).optional(),
-    timestamp: zod_1.z.string(),
-});
-/**
- * Response schema for authentication endpoints
- */
-exports.authResponseSchema = zod_1.z.object({
-    code: zod_1.z.number(),
-    status: zod_1.z.string(),
-    data: zod_1.z.object({
-        user: zod_1.z.any(),
-        accessToken: zod_1.z.string(),
-        refreshToken: zod_1.z.string().optional(),
-        expiresIn: zod_1.z.number().optional(),
-    }),
-    errors: zod_1.z.array(zod_1.z.object({
-        '@type': zod_1.z.string(),
-        reason: zod_1.z.string(),
-        domain: zod_1.z.string(),
-        metadata: zod_1.z.record(zod_1.z.string()).optional(),
-    })).optional(),
-    timestamp: zod_1.z.string(),
-});
-/**
- * Response schema for endpoints that don't return data
- */
-exports.voidResponseSchema = zod_1.z.object({
-    code: zod_1.z.number(),
-    status: zod_1.z.string(),
-    errors: zod_1.z.array(zod_1.z.object({
-        '@type': zod_1.z.string(),
-        reason: zod_1.z.string(),
-        domain: zod_1.z.string(),
-        metadata: zod_1.z.record(zod_1.z.string()).optional(),
-    })).optional(),
-    timestamp: zod_1.z.string(),
-});
-
-
-/***/ }),
-/* 59 */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ClientUserRouter = void 0;
-const tslib_1 = __webpack_require__(5);
-const common_1 = __webpack_require__(2);
-const nestjs_trpc_1 = __webpack_require__(8);
-const zod_1 = __webpack_require__(55);
-const client_user_service_1 = __webpack_require__(53);
-const response_service_1 = __webpack_require__(51);
-const auth_middleware_1 = __webpack_require__(56);
-const user_injection_middleware_1 = __webpack_require__(60);
-const response_schemas_1 = __webpack_require__(58);
-const context_1 = __webpack_require__(61);
-// Zod schemas for validation
-const clientRegisterSchema = zod_1.z.object({
-    email: zod_1.z.string().email(),
-    username: zod_1.z.string().min(3),
-    firstName: zod_1.z.string().min(2),
-    lastName: zod_1.z.string().min(2),
-    password: zod_1.z.string().min(8),
-    phoneNumber: zod_1.z.string().optional(),
-});
-const clientLoginSchema = zod_1.z.object({
-    email: zod_1.z.string().email(),
-    password: zod_1.z.string(),
-});
-const clientUpdateProfileSchema = zod_1.z.object({
-    firstName: zod_1.z.string().optional(),
-    lastName: zod_1.z.string().optional(),
-    phoneNumber: zod_1.z.string().optional(),
-    dateOfBirth: zod_1.z.string().optional(),
-    avatar: zod_1.z.string().optional(),
-    bio: zod_1.z.string().optional(),
-    address: zod_1.z.string().optional(),
-    city: zod_1.z.string().optional(),
-    country: zod_1.z.string().optional(),
-    postalCode: zod_1.z.string().optional(),
-});
-const clientUserProfileSchema = zod_1.z.object({
-    id: zod_1.z.string(),
-    firstName: zod_1.z.string(),
-    lastName: zod_1.z.string(),
-    phoneNumber: zod_1.z.string().optional(),
-    dateOfBirth: zod_1.z.date().optional(),
-    avatar: zod_1.z.string().optional(),
-    bio: zod_1.z.string().optional(),
-    address: zod_1.z.string().optional(),
-    city: zod_1.z.string().optional(),
-    country: zod_1.z.string().optional(),
-    postalCode: zod_1.z.string().optional(),
-});
-const clientUserResponseSchema = zod_1.z.object({
-    id: zod_1.z.string(),
-    email: zod_1.z.string(),
-    username: zod_1.z.string(),
-    createdAt: zod_1.z.date(),
-    updatedAt: zod_1.z.date(),
-    profile: clientUserProfileSchema.optional(),
-});
-const clientAuthResponseSchema = zod_1.z.object({
-    user: clientUserResponseSchema,
-    accessToken: zod_1.z.string(),
-    refreshToken: zod_1.z.string().optional(),
-});
-const refreshTokenSchema = zod_1.z.object({
-    refreshToken: zod_1.z.string(),
-});
-let ClientUserRouter = class ClientUserRouter {
-    constructor(clientUserService, responseHandler) {
-        this.clientUserService = clientUserService;
-        this.responseHandler = responseHandler;
-    }
-    async register(registerDto) {
-        try {
-            // Ensure required fields are present for ClientRegisterDto
-            const clientRegisterDto = {
-                email: registerDto.email,
-                username: registerDto.username,
-                firstName: registerDto.firstName,
-                lastName: registerDto.lastName,
-                password: registerDto.password,
-                phoneNumber: registerDto.phoneNumber,
-            };
-            const result = await this.clientUserService.register(clientRegisterDto);
-            return this.responseHandler.createTrpcSuccess(result);
-        }
-        catch (error) {
-            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
-            6, // OperationCode.REGISTER
-            1, // ErrorLevelCode.VALIDATION
-            error.message || 'Failed to register user');
-        }
-    }
-    async login(loginDto) {
-        try {
-            // Ensure required fields are present for ClientLoginDto
-            const clientLoginDto = {
-                email: loginDto.email,
-                password: loginDto.password,
-            };
-            const result = await this.clientUserService.login(clientLoginDto);
-            return this.responseHandler.createTrpcSuccess(result);
-        }
-        catch (error) {
-            // Use proper error codes for consistent formatting
-            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
-            5, // OperationCode.LOGIN
-            41, // ErrorLevelCode.AUTHENTICATION_ERROR
-            error.message || 'Login failed');
-        }
-    }
-    async getProfile({ user }) {
-        try {
-            if (!user?.id) {
-                throw new Error('User not authenticated');
-            }
-            const profile = await this.clientUserService.getProfile(user.id);
-            return this.responseHandler.createTrpcSuccess(profile);
-        }
-        catch (error) {
-            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
-            2, // OperationCode.READ
-            4, // ErrorLevelCode.NOT_FOUND
-            error.message || 'Failed to retrieve profile');
-        }
-    }
-    async updateProfile(updateProfileDto, userId) {
-        try {
-            const result = await this.clientUserService.updateProfile(userId, updateProfileDto);
-            return this.responseHandler.createTrpcSuccess(result);
-        }
-        catch (error) {
-            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
-            3, // OperationCode.UPDATE
-            30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
-            error.message || 'Failed to update profile');
-        }
-    }
-    async refreshToken(input) {
-        try {
-            const result = await this.clientUserService.refreshToken(input.refreshToken);
-            return this.responseHandler.createTrpcSuccess(result);
-        }
-        catch (error) {
-            throw this.responseHandler.createTRPCError(11, // ModuleCode.AUTH
-            7, // OperationCode.REFRESH
-            42, // ErrorLevelCode.TOKEN_ERROR
-            error.message || 'Token refresh failed');
-        }
-    }
-};
-exports.ClientUserRouter = ClientUserRouter;
-tslib_1.__decorate([
-    (0, nestjs_trpc_1.Mutation)({
-        input: clientRegisterSchema,
-        output: response_schemas_1.apiResponseSchema,
-    }),
-    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [typeof (_c = typeof zod_1.z !== "undefined" && zod_1.z.infer) === "function" ? _c : Object]),
-    tslib_1.__metadata("design:returntype", typeof (_d = typeof Promise !== "undefined" && Promise) === "function" ? _d : Object)
-], ClientUserRouter.prototype, "register", null);
-tslib_1.__decorate([
-    (0, nestjs_trpc_1.Mutation)({
-        input: clientLoginSchema,
-        output: response_schemas_1.apiResponseSchema,
-    }),
-    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [typeof (_e = typeof zod_1.z !== "undefined" && zod_1.z.infer) === "function" ? _e : Object]),
-    tslib_1.__metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
-], ClientUserRouter.prototype, "login", null);
-tslib_1.__decorate([
-    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware),
-    (0, nestjs_trpc_1.Query)({
-        output: response_schemas_1.apiResponseSchema,
-    }),
-    tslib_1.__param(0, (0, nestjs_trpc_1.Ctx)()),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [typeof (_g = typeof context_1.AuthenticatedContext !== "undefined" && context_1.AuthenticatedContext) === "function" ? _g : Object]),
-    tslib_1.__metadata("design:returntype", typeof (_h = typeof Promise !== "undefined" && Promise) === "function" ? _h : Object)
-], ClientUserRouter.prototype, "getProfile", null);
-tslib_1.__decorate([
-    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware, user_injection_middleware_1.UserInjectionMiddleware),
-    (0, nestjs_trpc_1.Mutation)({
-        input: clientUpdateProfileSchema,
-        output: response_schemas_1.apiResponseSchema,
-    }),
-    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
-    tslib_1.__param(1, (0, nestjs_trpc_1.Input)()),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [typeof (_j = typeof zod_1.z !== "undefined" && zod_1.z.infer) === "function" ? _j : Object, String]),
-    tslib_1.__metadata("design:returntype", typeof (_k = typeof Promise !== "undefined" && Promise) === "function" ? _k : Object)
-], ClientUserRouter.prototype, "updateProfile", null);
-tslib_1.__decorate([
-    (0, nestjs_trpc_1.Mutation)({
-        input: refreshTokenSchema,
-        output: response_schemas_1.apiResponseSchema,
-    }),
-    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
-    tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [typeof (_l = typeof zod_1.z !== "undefined" && zod_1.z.infer) === "function" ? _l : Object]),
-    tslib_1.__metadata("design:returntype", typeof (_m = typeof Promise !== "undefined" && Promise) === "function" ? _m : Object)
-], ClientUserRouter.prototype, "refreshToken", null);
-exports.ClientUserRouter = ClientUserRouter = tslib_1.__decorate([
-    (0, nestjs_trpc_1.Router)({ alias: 'clientUser' }),
-    (0, common_1.Injectable)(),
-    tslib_1.__param(0, (0, common_1.Inject)(client_user_service_1.ClientUserService)),
-    tslib_1.__param(1, (0, common_1.Inject)(response_service_1.ResponseService)),
-    tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof client_user_service_1.ClientUserService !== "undefined" && client_user_service_1.ClientUserService) === "function" ? _a : Object, typeof (_b = typeof response_service_1.ResponseService !== "undefined" && response_service_1.ResponseService) === "function" ? _b : Object])
-], ClientUserRouter);
-
-
-/***/ }),
-/* 60 */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.UserInjectionMiddleware = void 0;
-const tslib_1 = __webpack_require__(5);
-const common_1 = __webpack_require__(2);
-const server_1 = __webpack_require__(52);
-/**
- * Middleware that injects authenticated user information into procedure parameters
- * Must be used after AuthMiddleware
- */
-let UserInjectionMiddleware = class UserInjectionMiddleware {
-    async use(opts) {
-        const { ctx, next } = opts;
-        // This middleware should be used after AuthMiddleware, so user should exist
-        if (!ctx.user) {
-            throw new server_1.TRPCError({
-                code: 'UNAUTHORIZED',
-                message: 'Authentication required',
-            });
-        }
-        return next({
-            ctx: {
-                ...ctx,
-                user: ctx.user,
-                // Add additional user info to context for easy access
-                userId: ctx.user.id,
-                userRole: ctx.user.role,
-                userEmail: ctx.user.email,
-            },
-        });
-    }
-};
-exports.UserInjectionMiddleware = UserInjectionMiddleware;
-exports.UserInjectionMiddleware = UserInjectionMiddleware = tslib_1.__decorate([
-    (0, common_1.Injectable)()
-], UserInjectionMiddleware);
-
-
-/***/ }),
-/* 61 */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-var _a, _b;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.AppContext = void 0;
-const tslib_1 = __webpack_require__(5);
-const common_1 = __webpack_require__(2);
-const jwt_1 = __webpack_require__(49);
-const permission_repository_1 = __webpack_require__(44);
-let AppContext = class AppContext {
-    constructor(jwtService, permissionRepository) {
-        this.jwtService = jwtService;
-        this.permissionRepository = permissionRepository;
-    }
-    async create(opts) {
-        const { req, res } = opts;
-        // Extract JWT token from Authorization header
-        const authHeader = req.headers.authorization;
-        let user;
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-            try {
-                const token = authHeader.substring(7);
-                const payload = await this.jwtService.verifyAsync(token);
-                // Load user permissions based on role
-                const permissions = await this.permissionRepository.findPermissionsByRole(payload.role);
-                // Create user object from JWT payload with permissions
-                user = {
-                    id: payload.sub,
-                    email: payload.email,
-                    username: payload.username,
-                    role: payload.role,
-                    isActive: payload.isActive,
-                    permissions,
-                };
-            }
-            catch (error) {
-                // Invalid token - user remains undefined
-                console.warn('Invalid JWT token:', error.message);
-            }
-        }
-        return {
-            user,
-            req,
-            res,
-        };
-    }
-};
-exports.AppContext = AppContext;
-exports.AppContext = AppContext = tslib_1.__decorate([
-    (0, common_1.Injectable)(),
-    tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _a : Object, typeof (_b = typeof permission_repository_1.PermissionRepository !== "undefined" && permission_repository_1.PermissionRepository) === "function" ? _b : Object])
-], AppContext);
-
-
-/***/ }),
-/* 62 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -4167,15 +3445,15 @@ exports.AdminPermissionRouter = void 0;
 const tslib_1 = __webpack_require__(5);
 const common_1 = __webpack_require__(2);
 const nestjs_trpc_1 = __webpack_require__(8);
-const zod_1 = __webpack_require__(55);
+const zod_1 = __webpack_require__(56);
 const admin_permission_service_1 = __webpack_require__(45);
 const response_service_1 = __webpack_require__(51);
-const auth_middleware_1 = __webpack_require__(56);
-const admin_role_middleware_1 = __webpack_require__(57);
+const auth_middleware_1 = __webpack_require__(57);
+const admin_role_middleware_1 = __webpack_require__(58);
 const _shared_1 = __webpack_require__(14);
 const error_codes_enums_1 = __webpack_require__(30);
 const message_codes_enums_1 = __webpack_require__(31);
-const response_schemas_1 = __webpack_require__(58);
+const response_schemas_1 = __webpack_require__(59);
 // Zod schemas for validation
 const permissionActionSchema = zod_1.z.enum([
     _shared_1.PermissionAction.CREATE,
@@ -4530,7 +3808,752 @@ exports.AdminPermissionRouter = AdminPermissionRouter = tslib_1.__decorate([
 
 
 /***/ }),
+/* 56 */
+/***/ ((module) => {
+
+module.exports = require("zod");
+
+/***/ }),
+/* 57 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AuthMiddleware = void 0;
+const tslib_1 = __webpack_require__(5);
+const common_1 = __webpack_require__(2);
+const server_1 = __webpack_require__(52);
+let AuthMiddleware = class AuthMiddleware {
+    async use(opts) {
+        const { ctx, next } = opts;
+        if (!ctx.user) {
+            throw new server_1.TRPCError({
+                code: 'UNAUTHORIZED',
+                message: 'Authentication required',
+            });
+        }
+        return next({
+            ctx: {
+                ...ctx,
+                user: ctx.user, // Ensure user is non-nullable in subsequent procedures
+            },
+        });
+    }
+};
+exports.AuthMiddleware = AuthMiddleware;
+exports.AuthMiddleware = AuthMiddleware = tslib_1.__decorate([
+    (0, common_1.Injectable)()
+], AuthMiddleware);
+
+
+/***/ }),
+/* 58 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AdminRoleMiddleware = void 0;
+const tslib_1 = __webpack_require__(5);
+const common_1 = __webpack_require__(2);
+const server_1 = __webpack_require__(52);
+const _shared_1 = __webpack_require__(14);
+let AdminRoleMiddleware = class AdminRoleMiddleware {
+    async use(opts) {
+        const { ctx, next } = opts;
+        // This middleware should be used after AuthMiddleware, so user should exist
+        if (!ctx.user) {
+            throw new server_1.TRPCError({
+                code: 'UNAUTHORIZED',
+                message: 'Authentication required',
+            });
+        }
+        // Check if user has admin privileges
+        if (ctx.user.role !== _shared_1.UserRole.ADMIN && ctx.user.role !== _shared_1.UserRole.SUPER_ADMIN) {
+            throw new server_1.TRPCError({
+                code: 'FORBIDDEN',
+                message: 'Admin access required',
+            });
+        }
+        return next({
+            ctx: {
+                ...ctx,
+                user: ctx.user,
+            },
+        });
+    }
+};
+exports.AdminRoleMiddleware = AdminRoleMiddleware;
+exports.AdminRoleMiddleware = AdminRoleMiddleware = tslib_1.__decorate([
+    (0, common_1.Injectable)()
+], AdminRoleMiddleware);
+
+
+/***/ }),
+/* 59 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.voidResponseSchema = exports.authResponseSchema = exports.paginatedResponseSchema = exports.apiResponseSchema = void 0;
+const zod_1 = __webpack_require__(56);
+/**
+ * Standard API response schema for all tRPC endpoints
+ * Provides consistent response structure across the application
+ */
+exports.apiResponseSchema = zod_1.z.object({
+    code: zod_1.z.number(),
+    status: zod_1.z.string(),
+    data: zod_1.z.any().optional(),
+    errors: zod_1.z.array(zod_1.z.object({
+        '@type': zod_1.z.string(),
+        reason: zod_1.z.string(),
+        domain: zod_1.z.string(),
+        metadata: zod_1.z.record(zod_1.z.string()).optional(),
+    })).optional(),
+    timestamp: zod_1.z.string(),
+});
+/**
+ * Paginated response schema for list endpoints
+ */
+exports.paginatedResponseSchema = zod_1.z.object({
+    code: zod_1.z.number(),
+    status: zod_1.z.string(),
+    data: zod_1.z.object({
+        items: zod_1.z.array(zod_1.z.any()),
+        total: zod_1.z.number(),
+        page: zod_1.z.number(),
+        limit: zod_1.z.number(),
+        totalPages: zod_1.z.number(),
+    }),
+    errors: zod_1.z.array(zod_1.z.object({
+        '@type': zod_1.z.string(),
+        reason: zod_1.z.string(),
+        domain: zod_1.z.string(),
+        metadata: zod_1.z.record(zod_1.z.string()).optional(),
+    })).optional(),
+    timestamp: zod_1.z.string(),
+});
+/**
+ * Response schema for authentication endpoints
+ */
+exports.authResponseSchema = zod_1.z.object({
+    code: zod_1.z.number(),
+    status: zod_1.z.string(),
+    data: zod_1.z.object({
+        user: zod_1.z.any(),
+        accessToken: zod_1.z.string(),
+        refreshToken: zod_1.z.string().optional(),
+        expiresIn: zod_1.z.number().optional(),
+    }),
+    errors: zod_1.z.array(zod_1.z.object({
+        '@type': zod_1.z.string(),
+        reason: zod_1.z.string(),
+        domain: zod_1.z.string(),
+        metadata: zod_1.z.record(zod_1.z.string()).optional(),
+    })).optional(),
+    timestamp: zod_1.z.string(),
+});
+/**
+ * Response schema for endpoints that don't return data
+ */
+exports.voidResponseSchema = zod_1.z.object({
+    code: zod_1.z.number(),
+    status: zod_1.z.string(),
+    errors: zod_1.z.array(zod_1.z.object({
+        '@type': zod_1.z.string(),
+        reason: zod_1.z.string(),
+        domain: zod_1.z.string(),
+        metadata: zod_1.z.record(zod_1.z.string()).optional(),
+    })).optional(),
+    timestamp: zod_1.z.string(),
+});
+
+
+/***/ }),
+/* 60 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AdminUserRouter = void 0;
+const tslib_1 = __webpack_require__(5);
+const common_1 = __webpack_require__(2);
+const nestjs_trpc_1 = __webpack_require__(8);
+const zod_1 = __webpack_require__(56);
+const admin_user_service_1 = __webpack_require__(47);
+const response_service_1 = __webpack_require__(51);
+const auth_middleware_1 = __webpack_require__(57);
+const admin_role_middleware_1 = __webpack_require__(58);
+const _shared_1 = __webpack_require__(14);
+const response_schemas_1 = __webpack_require__(59);
+// Zod schemas for validation
+const userRoleSchema = zod_1.z.enum([
+    _shared_1.UserRole.SUPER_ADMIN,
+    _shared_1.UserRole.ADMIN,
+    _shared_1.UserRole.MANAGER,
+    _shared_1.UserRole.USER,
+    _shared_1.UserRole.GUEST
+]);
+const adminCreateUserSchema = zod_1.z.object({
+    email: zod_1.z.string().email(),
+    username: zod_1.z.string().min(3),
+    firstName: zod_1.z.string().min(2),
+    lastName: zod_1.z.string().min(2),
+    password: zod_1.z.string().min(8),
+    phoneNumber: zod_1.z.string().optional(),
+    isActive: zod_1.z.boolean().optional(),
+    role: userRoleSchema.optional(),
+});
+const adminUpdateUserSchema = zod_1.z.object({
+    email: zod_1.z.string().email().optional(),
+    username: zod_1.z.string().optional(),
+    isActive: zod_1.z.boolean().optional(),
+    role: userRoleSchema.optional(),
+});
+const userProfileSchema = zod_1.z.object({
+    id: zod_1.z.string(),
+    firstName: zod_1.z.string(),
+    lastName: zod_1.z.string(),
+    phoneNumber: zod_1.z.string().optional(),
+    dateOfBirth: zod_1.z.date().optional(),
+    avatar: zod_1.z.string().optional(),
+    bio: zod_1.z.string().optional(),
+    address: zod_1.z.string().optional(),
+    city: zod_1.z.string().optional(),
+    country: zod_1.z.string().optional(),
+    postalCode: zod_1.z.string().optional(),
+});
+const adminUserResponseSchema = zod_1.z.object({
+    id: zod_1.z.string(),
+    email: zod_1.z.string(),
+    username: zod_1.z.string(),
+    isActive: zod_1.z.boolean(),
+    role: userRoleSchema,
+    createdAt: zod_1.z.date(),
+    updatedAt: zod_1.z.date(),
+    profile: userProfileSchema.optional(),
+});
+const getAllUsersQuerySchema = zod_1.z.object({
+    page: zod_1.z.number().min(1).default(1),
+    limit: zod_1.z.number().min(1).max(100).default(10),
+    search: zod_1.z.string().optional(),
+    role: userRoleSchema.optional(),
+    isActive: zod_1.z.boolean().optional(),
+});
+const getUsersResponseSchema = zod_1.z.object({
+    users: zod_1.z.array(adminUserResponseSchema),
+    total: zod_1.z.number(),
+    page: zod_1.z.number(),
+    limit: zod_1.z.number(),
+});
+let AdminUserRouter = class AdminUserRouter {
+    constructor(adminUserService, responseHandler) {
+        this.adminUserService = adminUserService;
+        this.responseHandler = responseHandler;
+    }
+    async createUser(createUserDto) {
+        try {
+            // Ensure required fields are present for AdminCreateUserDto
+            const adminCreateDto = {
+                email: createUserDto.email,
+                username: createUserDto.username,
+                firstName: createUserDto.firstName,
+                lastName: createUserDto.lastName,
+                password: createUserDto.password,
+                phoneNumber: createUserDto.phoneNumber,
+                isActive: createUserDto.isActive,
+                role: createUserDto.role,
+            };
+            const user = await this.adminUserService.createUser(adminCreateDto);
+            return this.responseHandler.createTrpcSuccess(user);
+        }
+        catch (error) {
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            1, // OperationCode.CREATE
+            30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+            error.message || 'Failed to create user');
+        }
+    }
+    async getAllUsers(query) {
+        try {
+            // Ensure required fields are present for AdminUserFilters
+            const filters = {
+                page: query.page || 1,
+                limit: query.limit || 10,
+                search: query.search,
+                role: query.role,
+                isActive: query.isActive,
+            };
+            const result = await this.adminUserService.getAllUsers(filters);
+            return this.responseHandler.createTrpcResponse(200, 'OK', result);
+        }
+        catch (error) {
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            2, // OperationCode.READ
+            10, // ErrorLevelCode.SERVER_ERROR
+            error.message || 'Failed to retrieve users');
+        }
+    }
+    async getUserById(input) {
+        try {
+            const user = await this.adminUserService.getUserById(input.id);
+            return this.responseHandler.createTrpcSuccess(user);
+        }
+        catch (error) {
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            2, // OperationCode.READ
+            4, // ErrorLevelCode.NOT_FOUND
+            error.message || 'User not found');
+        }
+    }
+    async updateUser(input) {
+        try {
+            const { id, ...updateDto } = input;
+            const user = await this.adminUserService.updateUser(id, updateDto);
+            return this.responseHandler.createTrpcSuccess(user);
+        }
+        catch (error) {
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            3, // OperationCode.UPDATE
+            30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+            error.message || 'Failed to update user');
+        }
+    }
+    async deleteUser(input) {
+        try {
+            await this.adminUserService.deleteUser(input.id);
+            return this.responseHandler.createTrpcResponse(200, 'OK', { deleted: true });
+        }
+        catch (error) {
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            4, // OperationCode.DELETE
+            30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+            error.message || 'Failed to delete user');
+        }
+    }
+    async updateUserStatus(input) {
+        try {
+            const user = await this.adminUserService.updateUserStatus(input.id, input.isActive);
+            return this.responseHandler.createTrpcSuccess(user);
+        }
+        catch (error) {
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            3, // OperationCode.UPDATE
+            30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+            error.message || 'Failed to update user status');
+        }
+    }
+};
+exports.AdminUserRouter = AdminUserRouter;
+tslib_1.__decorate([
+    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware, admin_role_middleware_1.AdminRoleMiddleware),
+    (0, nestjs_trpc_1.Mutation)({
+        input: adminCreateUserSchema,
+        output: response_schemas_1.apiResponseSchema,
+    }),
+    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [typeof (_c = typeof zod_1.z !== "undefined" && zod_1.z.infer) === "function" ? _c : Object]),
+    tslib_1.__metadata("design:returntype", typeof (_d = typeof Promise !== "undefined" && Promise) === "function" ? _d : Object)
+], AdminUserRouter.prototype, "createUser", null);
+tslib_1.__decorate([
+    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware, admin_role_middleware_1.AdminRoleMiddleware),
+    (0, nestjs_trpc_1.Query)({
+        input: getAllUsersQuerySchema,
+        output: response_schemas_1.paginatedResponseSchema,
+    }),
+    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [typeof (_e = typeof zod_1.z !== "undefined" && zod_1.z.infer) === "function" ? _e : Object]),
+    tslib_1.__metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
+], AdminUserRouter.prototype, "getAllUsers", null);
+tslib_1.__decorate([
+    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware, admin_role_middleware_1.AdminRoleMiddleware),
+    (0, nestjs_trpc_1.Query)({
+        input: zod_1.z.object({ id: zod_1.z.string() }),
+        output: response_schemas_1.apiResponseSchema,
+    }),
+    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [Object]),
+    tslib_1.__metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
+], AdminUserRouter.prototype, "getUserById", null);
+tslib_1.__decorate([
+    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware, admin_role_middleware_1.AdminRoleMiddleware),
+    (0, nestjs_trpc_1.Mutation)({
+        input: zod_1.z.object({ id: zod_1.z.string() }).merge(adminUpdateUserSchema),
+        output: response_schemas_1.apiResponseSchema,
+    }),
+    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [Object]),
+    tslib_1.__metadata("design:returntype", typeof (_h = typeof Promise !== "undefined" && Promise) === "function" ? _h : Object)
+], AdminUserRouter.prototype, "updateUser", null);
+tslib_1.__decorate([
+    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware, admin_role_middleware_1.AdminRoleMiddleware),
+    (0, nestjs_trpc_1.Mutation)({
+        input: zod_1.z.object({ id: zod_1.z.string() }),
+        output: response_schemas_1.apiResponseSchema,
+    }),
+    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [Object]),
+    tslib_1.__metadata("design:returntype", typeof (_j = typeof Promise !== "undefined" && Promise) === "function" ? _j : Object)
+], AdminUserRouter.prototype, "deleteUser", null);
+tslib_1.__decorate([
+    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware, admin_role_middleware_1.AdminRoleMiddleware),
+    (0, nestjs_trpc_1.Mutation)({
+        input: zod_1.z.object({
+            id: zod_1.z.string(),
+            isActive: zod_1.z.boolean(),
+        }),
+        output: response_schemas_1.apiResponseSchema,
+    }),
+    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [Object]),
+    tslib_1.__metadata("design:returntype", typeof (_k = typeof Promise !== "undefined" && Promise) === "function" ? _k : Object)
+], AdminUserRouter.prototype, "updateUserStatus", null);
+exports.AdminUserRouter = AdminUserRouter = tslib_1.__decorate([
+    (0, nestjs_trpc_1.Router)({ alias: 'adminUser' }),
+    (0, common_1.Injectable)(),
+    tslib_1.__param(0, (0, common_1.Inject)(admin_user_service_1.AdminUserService)),
+    tslib_1.__param(1, (0, common_1.Inject)(response_service_1.ResponseService)),
+    tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof admin_user_service_1.AdminUserService !== "undefined" && admin_user_service_1.AdminUserService) === "function" ? _a : Object, typeof (_b = typeof response_service_1.ResponseService !== "undefined" && response_service_1.ResponseService) === "function" ? _b : Object])
+], AdminUserRouter);
+
+
+/***/ }),
+/* 61 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ClientUserRouter = void 0;
+var user_router_1 = __webpack_require__(62);
+Object.defineProperty(exports, "ClientUserRouter", ({ enumerable: true, get: function () { return user_router_1.ClientUserRouter; } }));
+
+
+/***/ }),
+/* 62 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ClientUserRouter = void 0;
+const tslib_1 = __webpack_require__(5);
+const common_1 = __webpack_require__(2);
+const nestjs_trpc_1 = __webpack_require__(8);
+const zod_1 = __webpack_require__(56);
+const client_user_service_1 = __webpack_require__(53);
+const response_service_1 = __webpack_require__(51);
+const auth_middleware_1 = __webpack_require__(57);
+const user_injection_middleware_1 = __webpack_require__(63);
+const response_schemas_1 = __webpack_require__(59);
+const context_1 = __webpack_require__(64);
+// Zod schemas for validation
+const clientRegisterSchema = zod_1.z.object({
+    email: zod_1.z.string().email(),
+    username: zod_1.z.string().min(3),
+    firstName: zod_1.z.string().min(2),
+    lastName: zod_1.z.string().min(2),
+    password: zod_1.z.string().min(8),
+    phoneNumber: zod_1.z.string().optional(),
+});
+const clientLoginSchema = zod_1.z.object({
+    email: zod_1.z.string().email(),
+    password: zod_1.z.string(),
+});
+const clientUpdateProfileSchema = zod_1.z.object({
+    firstName: zod_1.z.string().optional(),
+    lastName: zod_1.z.string().optional(),
+    phoneNumber: zod_1.z.string().optional(),
+    dateOfBirth: zod_1.z.string().optional(),
+    avatar: zod_1.z.string().optional(),
+    bio: zod_1.z.string().optional(),
+    address: zod_1.z.string().optional(),
+    city: zod_1.z.string().optional(),
+    country: zod_1.z.string().optional(),
+    postalCode: zod_1.z.string().optional(),
+});
+const clientUserProfileSchema = zod_1.z.object({
+    id: zod_1.z.string(),
+    firstName: zod_1.z.string(),
+    lastName: zod_1.z.string(),
+    phoneNumber: zod_1.z.string().optional(),
+    dateOfBirth: zod_1.z.date().optional(),
+    avatar: zod_1.z.string().optional(),
+    bio: zod_1.z.string().optional(),
+    address: zod_1.z.string().optional(),
+    city: zod_1.z.string().optional(),
+    country: zod_1.z.string().optional(),
+    postalCode: zod_1.z.string().optional(),
+});
+const clientUserResponseSchema = zod_1.z.object({
+    id: zod_1.z.string(),
+    email: zod_1.z.string(),
+    username: zod_1.z.string(),
+    createdAt: zod_1.z.date(),
+    updatedAt: zod_1.z.date(),
+    profile: clientUserProfileSchema.optional(),
+});
+const clientAuthResponseSchema = zod_1.z.object({
+    user: clientUserResponseSchema,
+    accessToken: zod_1.z.string(),
+    refreshToken: zod_1.z.string().optional(),
+});
+const refreshTokenSchema = zod_1.z.object({
+    refreshToken: zod_1.z.string(),
+});
+let ClientUserRouter = class ClientUserRouter {
+    constructor(clientUserService, responseHandler) {
+        this.clientUserService = clientUserService;
+        this.responseHandler = responseHandler;
+    }
+    async register(registerDto) {
+        try {
+            // Ensure required fields are present for ClientRegisterDto
+            const clientRegisterDto = {
+                email: registerDto.email,
+                username: registerDto.username,
+                firstName: registerDto.firstName,
+                lastName: registerDto.lastName,
+                password: registerDto.password,
+                phoneNumber: registerDto.phoneNumber,
+            };
+            const result = await this.clientUserService.register(clientRegisterDto);
+            return this.responseHandler.createTrpcSuccess(result);
+        }
+        catch (error) {
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            6, // OperationCode.REGISTER
+            1, // ErrorLevelCode.VALIDATION
+            error.message || 'Failed to register user');
+        }
+    }
+    async login(loginDto) {
+        try {
+            // Ensure required fields are present for ClientLoginDto
+            const clientLoginDto = {
+                email: loginDto.email,
+                password: loginDto.password,
+            };
+            const result = await this.clientUserService.login(clientLoginDto);
+            return this.responseHandler.createTrpcSuccess(result);
+        }
+        catch (error) {
+            // Use proper error codes for consistent formatting
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            5, // OperationCode.LOGIN
+            41, // ErrorLevelCode.AUTHENTICATION_ERROR
+            error.message || 'Login failed');
+        }
+    }
+    async getProfile({ user }) {
+        try {
+            if (!user?.id) {
+                throw new Error('User not authenticated');
+            }
+            const profile = await this.clientUserService.getProfile(user.id);
+            return this.responseHandler.createTrpcSuccess(profile);
+        }
+        catch (error) {
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            2, // OperationCode.READ
+            4, // ErrorLevelCode.NOT_FOUND
+            error.message || 'Failed to retrieve profile');
+        }
+    }
+    async updateProfile(updateProfileDto, userId) {
+        try {
+            const result = await this.clientUserService.updateProfile(userId, updateProfileDto);
+            return this.responseHandler.createTrpcSuccess(result);
+        }
+        catch (error) {
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            3, // OperationCode.UPDATE
+            30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+            error.message || 'Failed to update profile');
+        }
+    }
+    async refreshToken(input) {
+        try {
+            const result = await this.clientUserService.refreshToken(input.refreshToken);
+            return this.responseHandler.createTrpcSuccess(result);
+        }
+        catch (error) {
+            throw this.responseHandler.createTRPCError(11, // ModuleCode.AUTH
+            7, // OperationCode.REFRESH
+            42, // ErrorLevelCode.TOKEN_ERROR
+            error.message || 'Token refresh failed');
+        }
+    }
+};
+exports.ClientUserRouter = ClientUserRouter;
+tslib_1.__decorate([
+    (0, nestjs_trpc_1.Mutation)({
+        input: clientRegisterSchema,
+        output: response_schemas_1.apiResponseSchema,
+    }),
+    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [typeof (_c = typeof zod_1.z !== "undefined" && zod_1.z.infer) === "function" ? _c : Object]),
+    tslib_1.__metadata("design:returntype", typeof (_d = typeof Promise !== "undefined" && Promise) === "function" ? _d : Object)
+], ClientUserRouter.prototype, "register", null);
+tslib_1.__decorate([
+    (0, nestjs_trpc_1.Mutation)({
+        input: clientLoginSchema,
+        output: response_schemas_1.apiResponseSchema,
+    }),
+    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [typeof (_e = typeof zod_1.z !== "undefined" && zod_1.z.infer) === "function" ? _e : Object]),
+    tslib_1.__metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
+], ClientUserRouter.prototype, "login", null);
+tslib_1.__decorate([
+    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware),
+    (0, nestjs_trpc_1.Query)({
+        output: response_schemas_1.apiResponseSchema,
+    }),
+    tslib_1.__param(0, (0, nestjs_trpc_1.Ctx)()),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [typeof (_g = typeof context_1.AuthenticatedContext !== "undefined" && context_1.AuthenticatedContext) === "function" ? _g : Object]),
+    tslib_1.__metadata("design:returntype", typeof (_h = typeof Promise !== "undefined" && Promise) === "function" ? _h : Object)
+], ClientUserRouter.prototype, "getProfile", null);
+tslib_1.__decorate([
+    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware, user_injection_middleware_1.UserInjectionMiddleware),
+    (0, nestjs_trpc_1.Mutation)({
+        input: clientUpdateProfileSchema,
+        output: response_schemas_1.apiResponseSchema,
+    }),
+    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
+    tslib_1.__param(1, (0, nestjs_trpc_1.Input)()),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [typeof (_j = typeof zod_1.z !== "undefined" && zod_1.z.infer) === "function" ? _j : Object, String]),
+    tslib_1.__metadata("design:returntype", typeof (_k = typeof Promise !== "undefined" && Promise) === "function" ? _k : Object)
+], ClientUserRouter.prototype, "updateProfile", null);
+tslib_1.__decorate([
+    (0, nestjs_trpc_1.Mutation)({
+        input: refreshTokenSchema,
+        output: response_schemas_1.apiResponseSchema,
+    }),
+    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
+    tslib_1.__metadata("design:type", Function),
+    tslib_1.__metadata("design:paramtypes", [typeof (_l = typeof zod_1.z !== "undefined" && zod_1.z.infer) === "function" ? _l : Object]),
+    tslib_1.__metadata("design:returntype", typeof (_m = typeof Promise !== "undefined" && Promise) === "function" ? _m : Object)
+], ClientUserRouter.prototype, "refreshToken", null);
+exports.ClientUserRouter = ClientUserRouter = tslib_1.__decorate([
+    (0, nestjs_trpc_1.Router)({ alias: 'clientUser' }),
+    (0, common_1.Injectable)(),
+    tslib_1.__param(0, (0, common_1.Inject)(client_user_service_1.ClientUserService)),
+    tslib_1.__param(1, (0, common_1.Inject)(response_service_1.ResponseService)),
+    tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof client_user_service_1.ClientUserService !== "undefined" && client_user_service_1.ClientUserService) === "function" ? _a : Object, typeof (_b = typeof response_service_1.ResponseService !== "undefined" && response_service_1.ResponseService) === "function" ? _b : Object])
+], ClientUserRouter);
+
+
+/***/ }),
 /* 63 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.UserInjectionMiddleware = void 0;
+const tslib_1 = __webpack_require__(5);
+const common_1 = __webpack_require__(2);
+const server_1 = __webpack_require__(52);
+/**
+ * Middleware that injects authenticated user information into procedure parameters
+ * Must be used after AuthMiddleware
+ */
+let UserInjectionMiddleware = class UserInjectionMiddleware {
+    async use(opts) {
+        const { ctx, next } = opts;
+        // This middleware should be used after AuthMiddleware, so user should exist
+        if (!ctx.user) {
+            throw new server_1.TRPCError({
+                code: 'UNAUTHORIZED',
+                message: 'Authentication required',
+            });
+        }
+        return next({
+            ctx: {
+                ...ctx,
+                user: ctx.user,
+                // Add additional user info to context for easy access
+                userId: ctx.user.id,
+                userRole: ctx.user.role,
+                userEmail: ctx.user.email,
+            },
+        });
+    }
+};
+exports.UserInjectionMiddleware = UserInjectionMiddleware;
+exports.UserInjectionMiddleware = UserInjectionMiddleware = tslib_1.__decorate([
+    (0, common_1.Injectable)()
+], UserInjectionMiddleware);
+
+
+/***/ }),
+/* 64 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AppContext = void 0;
+const tslib_1 = __webpack_require__(5);
+const common_1 = __webpack_require__(2);
+const jwt_1 = __webpack_require__(49);
+const permission_repository_1 = __webpack_require__(44);
+let AppContext = class AppContext {
+    constructor(jwtService, permissionRepository) {
+        this.jwtService = jwtService;
+        this.permissionRepository = permissionRepository;
+    }
+    async create(opts) {
+        const { req, res } = opts;
+        // Extract JWT token from Authorization header
+        const authHeader = req.headers.authorization;
+        let user;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            try {
+                const token = authHeader.substring(7);
+                const payload = await this.jwtService.verifyAsync(token);
+                // Load user permissions based on role
+                const permissions = await this.permissionRepository.findPermissionsByRole(payload.role);
+                // Create user object from JWT payload with permissions
+                user = {
+                    id: payload.sub,
+                    email: payload.email,
+                    username: payload.username,
+                    role: payload.role,
+                    isActive: payload.isActive,
+                    permissions,
+                };
+            }
+            catch (error) {
+                // Invalid token - user remains undefined
+                console.warn('Invalid JWT token:', error.message);
+            }
+        }
+        return {
+            user,
+            req,
+            res,
+        };
+    }
+};
+exports.AppContext = AppContext;
+exports.AppContext = AppContext = tslib_1.__decorate([
+    (0, common_1.Injectable)(),
+    tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _a : Object, typeof (_b = typeof permission_repository_1.PermissionRepository !== "undefined" && permission_repository_1.PermissionRepository) === "function" ? _b : Object])
+], AppContext);
+
+
+/***/ }),
+/* 65 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -4541,7 +4564,7 @@ const common_1 = __webpack_require__(2);
 const jwt_1 = __webpack_require__(49);
 const config_1 = __webpack_require__(6);
 const typeorm_1 = __webpack_require__(7);
-const passport_1 = __webpack_require__(64);
+const passport_1 = __webpack_require__(66);
 const user_entity_1 = __webpack_require__(12);
 const user_profile_entity_1 = __webpack_require__(38);
 const permission_entity_1 = __webpack_require__(42);
@@ -4551,9 +4574,9 @@ const role_permission_entity_1 = __webpack_require__(41);
 const user_repository_1 = __webpack_require__(43);
 const permission_repository_1 = __webpack_require__(44);
 const auth_service_1 = __webpack_require__(48);
-const jwt_strategy_1 = __webpack_require__(65);
-const roles_guard_1 = __webpack_require__(67);
-const jwt_auth_guard_1 = __webpack_require__(68);
+const jwt_strategy_1 = __webpack_require__(67);
+const roles_guard_1 = __webpack_require__(69);
+const jwt_auth_guard_1 = __webpack_require__(70);
 const jwtModule = jwt_1.JwtModule.registerAsync({
     imports: [config_1.ConfigModule],
     useFactory: async (configService) => ({
@@ -4588,13 +4611,13 @@ exports.AuthModule = AuthModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 64 */
+/* 66 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/passport");
 
 /***/ }),
-/* 65 */
+/* 67 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -4602,8 +4625,8 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JwtStrategy = void 0;
 const tslib_1 = __webpack_require__(5);
-const passport_jwt_1 = __webpack_require__(66);
-const passport_1 = __webpack_require__(64);
+const passport_jwt_1 = __webpack_require__(68);
+const passport_1 = __webpack_require__(66);
 const common_1 = __webpack_require__(2);
 const config_1 = __webpack_require__(6);
 let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy) {
@@ -4630,13 +4653,13 @@ exports.JwtStrategy = JwtStrategy = tslib_1.__decorate([
 
 
 /***/ }),
-/* 66 */
+/* 68 */
 /***/ ((module) => {
 
 module.exports = require("passport-jwt");
 
 /***/ }),
-/* 67 */
+/* 69 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -4674,7 +4697,7 @@ exports.Roles = Roles;
 
 
 /***/ }),
-/* 68 */
+/* 70 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -4682,7 +4705,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JwtAuthGuard = void 0;
 const tslib_1 = __webpack_require__(5);
 const common_1 = __webpack_require__(2);
-const passport_1 = __webpack_require__(64);
+const passport_1 = __webpack_require__(66);
 let JwtAuthGuard = class JwtAuthGuard extends (0, passport_1.AuthGuard)('jwt') {
 };
 exports.JwtAuthGuard = JwtAuthGuard;
@@ -4692,7 +4715,7 @@ exports.JwtAuthGuard = JwtAuthGuard = tslib_1.__decorate([
 
 
 /***/ }),
-/* 69 */
+/* 71 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -4701,19 +4724,19 @@ exports.SharedModule = void 0;
 const tslib_1 = __webpack_require__(5);
 const common_1 = __webpack_require__(2);
 const typeorm_1 = __webpack_require__(7);
-const auth_middleware_1 = __webpack_require__(56);
-const admin_role_middleware_1 = __webpack_require__(57);
-const user_injection_middleware_1 = __webpack_require__(60);
-const permission_middleware_1 = __webpack_require__(70);
-const auth_module_1 = __webpack_require__(63);
+const auth_middleware_1 = __webpack_require__(57);
+const admin_role_middleware_1 = __webpack_require__(58);
+const user_injection_middleware_1 = __webpack_require__(63);
+const permission_middleware_1 = __webpack_require__(72);
+const auth_module_1 = __webpack_require__(65);
 const permission_checker_service_1 = __webpack_require__(46);
 const response_service_1 = __webpack_require__(51);
-const error_registry_service_1 = __webpack_require__(71);
+const error_registry_service_1 = __webpack_require__(73);
 const permission_repository_1 = __webpack_require__(44);
 const permission_entity_1 = __webpack_require__(42);
 const role_permission_entity_1 = __webpack_require__(41);
 const role_entity_1 = __webpack_require__(40);
-const global_exception_filter_1 = __webpack_require__(73);
+const global_exception_filter_1 = __webpack_require__(75);
 let SharedModule = class SharedModule {
 };
 exports.SharedModule = SharedModule;
@@ -4753,7 +4776,7 @@ exports.SharedModule = SharedModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 70 */
+/* 72 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5034,7 +5057,7 @@ exports.CanDeleteAny = CanDeleteAny = tslib_1.__decorate([
 
 
 /***/ }),
-/* 71 */
+/* 73 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5042,7 +5065,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ErrorRegistryService = void 0;
 const tslib_1 = __webpack_require__(5);
 const common_1 = __webpack_require__(2);
-const error_registry_1 = __webpack_require__(72);
+const error_registry_1 = __webpack_require__(74);
 /**
  * Error Registry Service
  * NestJS service wrapper for error registry
@@ -5154,7 +5177,7 @@ exports.ErrorRegistryService = ErrorRegistryService = tslib_1.__decorate([
 
 
 /***/ }),
-/* 72 */
+/* 74 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5566,7 +5589,7 @@ exports.errorRegistry = ErrorRegistry.getInstance();
 
 
 /***/ }),
-/* 73 */
+/* 75 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5681,7 +5704,7 @@ exports.GlobalExceptionFilter = GlobalExceptionFilter = GlobalExceptionFilter_1 
 
 
 /***/ }),
-/* 74 */
+/* 76 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5690,11 +5713,11 @@ exports.TranslationModule = void 0;
 const tslib_1 = __webpack_require__(5);
 const common_1 = __webpack_require__(2);
 const typeorm_1 = __webpack_require__(7);
-const translation_entity_1 = __webpack_require__(75);
-const translation_repository_1 = __webpack_require__(76);
-const translation_service_1 = __webpack_require__(77);
-const translation_router_1 = __webpack_require__(80);
-const shared_module_1 = __webpack_require__(69);
+const translation_entity_1 = __webpack_require__(77);
+const translation_repository_1 = __webpack_require__(78);
+const translation_service_1 = __webpack_require__(79);
+const translation_router_1 = __webpack_require__(82);
+const shared_module_1 = __webpack_require__(71);
 let TranslationModule = class TranslationModule {
 };
 exports.TranslationModule = TranslationModule;
@@ -5719,7 +5742,7 @@ exports.TranslationModule = TranslationModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 75 */
+/* 77 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5758,7 +5781,7 @@ exports.Translation = Translation = tslib_1.__decorate([
 
 
 /***/ }),
-/* 76 */
+/* 78 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5770,7 +5793,7 @@ const common_1 = __webpack_require__(2);
 const typeorm_1 = __webpack_require__(7);
 const typeorm_2 = __webpack_require__(13);
 const _shared_1 = __webpack_require__(14);
-const translation_entity_1 = __webpack_require__(75);
+const translation_entity_1 = __webpack_require__(77);
 let TranslationRepository = class TranslationRepository extends _shared_1.BaseRepository {
     constructor(repository) {
         super(repository);
@@ -5822,7 +5845,7 @@ exports.TranslationRepository = TranslationRepository = tslib_1.__decorate([
 
 
 /***/ }),
-/* 77 */
+/* 79 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5832,9 +5855,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TranslationService = void 0;
 const tslib_1 = __webpack_require__(5);
 const common_1 = __webpack_require__(2);
-const fs_1 = __webpack_require__(78);
-const path_1 = __webpack_require__(79);
-const translation_repository_1 = __webpack_require__(76);
+const fs_1 = __webpack_require__(80);
+const path_1 = __webpack_require__(81);
+const translation_repository_1 = __webpack_require__(78);
 let TranslationService = TranslationService_1 = class TranslationService {
     constructor(translationRepository) {
         this.translationRepository = translationRepository;
@@ -5986,19 +6009,19 @@ exports.TranslationService = TranslationService = TranslationService_1 = tslib_1
 
 
 /***/ }),
-/* 78 */
+/* 80 */
 /***/ ((module) => {
 
 module.exports = require("fs");
 
 /***/ }),
-/* 79 */
+/* 81 */
 /***/ ((module) => {
 
 module.exports = require("path");
 
 /***/ }),
-/* 80 */
+/* 82 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -6008,14 +6031,14 @@ exports.TranslationRouter = void 0;
 const tslib_1 = __webpack_require__(5);
 const common_1 = __webpack_require__(2);
 const nestjs_trpc_1 = __webpack_require__(8);
-const zod_1 = __webpack_require__(55);
-const translation_service_1 = __webpack_require__(77);
+const zod_1 = __webpack_require__(56);
+const translation_service_1 = __webpack_require__(79);
 const response_service_1 = __webpack_require__(51);
-const auth_middleware_1 = __webpack_require__(56);
-const admin_role_middleware_1 = __webpack_require__(57);
+const auth_middleware_1 = __webpack_require__(57);
+const admin_role_middleware_1 = __webpack_require__(58);
 const _shared_1 = __webpack_require__(14);
 const error_codes_enums_1 = __webpack_require__(30);
-const response_schemas_1 = __webpack_require__(58);
+const response_schemas_1 = __webpack_require__(59);
 // Zod schemas for validation
 const supportedLocalesSchema = zod_1.z.enum(['vi', 'en']);
 const getTranslationsSchema = zod_1.z.object({
@@ -6202,7 +6225,7 @@ exports.TranslationRouter = TranslationRouter = tslib_1.__decorate([
 
 
 /***/ }),
-/* 81 */
+/* 83 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -6226,13 +6249,13 @@ exports["default"] = (0, config_1.registerAs)('database', () => ({
 
 
 /***/ }),
-/* 82 */
+/* 84 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createErrorFormatter = void 0;
-const zod_error_formatter_1 = __webpack_require__(83);
+const zod_error_formatter_1 = __webpack_require__(85);
 /**
  * Shared error formatter for tRPC
  * Can be used in both initTRPC.create() and TRPCModule.forRoot()
@@ -6280,14 +6303,14 @@ exports.createErrorFormatter = createErrorFormatter;
 
 
 /***/ }),
-/* 83 */
+/* 85 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.formatZodError = formatZodError;
 exports.isZodError = isZodError;
-const zod_1 = __webpack_require__(55);
+const zod_1 = __webpack_require__(56);
 const _shared_1 = __webpack_require__(14);
 /**
  * Formats ZodError into a standardized API error response
@@ -6414,7 +6437,7 @@ __webpack_require__(1);
 const common_1 = __webpack_require__(2);
 const core_1 = __webpack_require__(3);
 const app_module_1 = __webpack_require__(4);
-const global_exception_filter_1 = __webpack_require__(73);
+const global_exception_filter_1 = __webpack_require__(75);
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     // Enable CORS for frontend apps
