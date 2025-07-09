@@ -34,10 +34,17 @@ const nestjs_trpc_1 = __webpack_require__(8);
 const app_controller_1 = __webpack_require__(9);
 const app_service_1 = __webpack_require__(10);
 const user_module_1 = __webpack_require__(11);
-const translation_module_1 = __webpack_require__(72);
-const auth_module_1 = __webpack_require__(62);
-const context_1 = __webpack_require__(79);
+const translation_module_1 = __webpack_require__(73);
+const auth_module_1 = __webpack_require__(63);
+const context_1 = __webpack_require__(61);
 const database_config_1 = tslib_1.__importDefault(__webpack_require__(80));
+const user_entity_1 = __webpack_require__(12);
+const user_profile_entity_1 = __webpack_require__(38);
+const permission_entity_1 = __webpack_require__(42);
+const role_entity_1 = __webpack_require__(40);
+const user_role_entity_1 = __webpack_require__(39);
+const role_permission_entity_1 = __webpack_require__(41);
+const translation_entity_1 = __webpack_require__(74);
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -50,7 +57,19 @@ exports.AppModule = AppModule = tslib_1.__decorate([
             }),
             typeorm_1.TypeOrmModule.forRootAsync({
                 inject: [config_1.ConfigService],
-                useFactory: (configService) => configService.get('database'),
+                useFactory: (configService) => ({
+                    ...configService.get('database'),
+                    entities: [
+                        user_entity_1.User,
+                        user_profile_entity_1.UserProfile,
+                        permission_entity_1.Permission,
+                        role_entity_1.Role,
+                        user_role_entity_1.UserRole,
+                        role_permission_entity_1.RolePermission,
+                        translation_entity_1.Translation
+                    ],
+                    autoLoadEntities: true
+                }),
             }),
             auth_module_1.AuthModule,
             nestjs_trpc_1.TRPCModule.forRoot({
@@ -165,9 +184,9 @@ const admin_user_service_1 = __webpack_require__(47);
 const client_user_service_1 = __webpack_require__(53);
 const admin_user_router_1 = __webpack_require__(54);
 const client_user_router_1 = __webpack_require__(59);
-const admin_permission_router_1 = __webpack_require__(61);
-const auth_module_1 = __webpack_require__(62);
-const shared_module_1 = __webpack_require__(68);
+const admin_permission_router_1 = __webpack_require__(62);
+const auth_module_1 = __webpack_require__(63);
+const shared_module_1 = __webpack_require__(69);
 let UserModule = class UserModule {
 };
 exports.UserModule = UserModule;
@@ -770,7 +789,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
  * Based on industry standards and best practices
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.GoogleApiStatusCodes = exports.GoogleApiErrorReasons = exports.ApiErrorReasons = exports.ApiStatusCodes = void 0;
+exports.ApiErrorReasons = exports.ApiStatusCodes = void 0;
 /**
  * Standard API status codes
  */
@@ -822,8 +841,6 @@ var ApiErrorReasons;
     ApiErrorReasons["RATE_LIMIT_EXCEEDED"] = "RATE_LIMIT_EXCEEDED";
     ApiErrorReasons["UNSUPPORTED_MEDIA_TYPE"] = "UNSUPPORTED_MEDIA_TYPE";
 })(ApiErrorReasons || (exports.ApiErrorReasons = ApiErrorReasons = {}));
-exports.GoogleApiErrorReasons = ApiErrorReasons;
-exports.GoogleApiStatusCodes = ApiStatusCodes;
 
 
 /***/ }),
@@ -2723,7 +2740,7 @@ let AdminUserService = class AdminUserService {
     async createUser(createUserDto) {
         const existingUser = await this.userRepository.findByEmail(createUserDto.email);
         if (existingUser) {
-            throw this.responseHandler.createConflictError(null, null, 'User with this email already exists');
+            throw this.responseHandler.createError(_shared_1.ApiStatusCodes.CONFLICT, 'User with this email already exists', 'CONFLICT');
         }
         try {
             const hashedPassword = await this.authService.hashPassword(createUserDto.password);
@@ -2742,7 +2759,7 @@ let AdminUserService = class AdminUserService {
             if (error.code && error.code.includes('10')) {
                 throw error; // Re-throw our structured errors
             }
-            throw this.responseHandler.createDatabaseError(null, null, error);
+            throw this.responseHandler.createError(_shared_1.ApiStatusCodes.INTERNAL_SERVER_ERROR, 'Failed to create user', 'INTERNAL_SERVER_ERROR');
         }
     }
     async getAllUsers(filters) {
@@ -2783,19 +2800,19 @@ let AdminUserService = class AdminUserService {
     async getUserById(id) {
         const user = await this.userRepository.findWithProfile(id);
         if (!user) {
-            throw this.responseHandler.createNotFoundError(null, null, 'User');
+            throw this.responseHandler.createError(_shared_1.ApiStatusCodes.NOT_FOUND, 'User not found', 'NOT_FOUND');
         }
         return this.toAdminUserResponse(user);
     }
     async updateUser(id, updateUserDto) {
         const user = await this.userRepository.findById(id);
         if (!user) {
-            throw this.responseHandler.createNotFoundError(null, null, 'User');
+            throw this.responseHandler.createError(_shared_1.ApiStatusCodes.NOT_FOUND, 'User not found', 'NOT_FOUND');
         }
         try {
             const updatedUser = await this.userRepository.update(id, updateUserDto);
             if (!updatedUser) {
-                throw this.responseHandler.createNotFoundError(null, null, 'User');
+                throw this.responseHandler.createError(_shared_1.ApiStatusCodes.NOT_FOUND, 'User not found', 'NOT_FOUND');
             }
             // Get user with profile after update
             const userWithProfile = await this.userRepository.findWithProfile(id);
@@ -2805,25 +2822,25 @@ let AdminUserService = class AdminUserService {
             if (error.code && error.code.includes('10')) {
                 throw error; // Re-throw our structured errors
             }
-            throw this.responseHandler.createDatabaseError(null, null, error);
+            throw this.responseHandler.createError(_shared_1.ApiStatusCodes.INTERNAL_SERVER_ERROR, 'Failed to update user', 'INTERNAL_SERVER_ERROR');
         }
     }
     async deleteUser(id) {
         const user = await this.userRepository.findById(id);
         if (!user) {
-            throw this.responseHandler.createNotFoundError(null, null, 'User');
+            throw this.responseHandler.createError(_shared_1.ApiStatusCodes.NOT_FOUND, 'User not found', 'NOT_FOUND');
         }
         try {
             const deleted = await this.userRepository.delete(id);
             if (!deleted) {
-                throw this.responseHandler.createNotFoundError(null, null, 'User');
+                throw this.responseHandler.createError(_shared_1.ApiStatusCodes.NOT_FOUND, 'User not found', 'NOT_FOUND');
             }
         }
         catch (error) {
             if (error.code && error.code.includes('10')) {
                 throw error; // Re-throw our structured errors
             }
-            throw this.responseHandler.createDatabaseError(null, null, error);
+            throw this.responseHandler.createError(_shared_1.ApiStatusCodes.INTERNAL_SERVER_ERROR, 'Failed to delete user', 'INTERNAL_SERVER_ERROR');
         }
     }
     async updateUserStatus(id, isActive) {
@@ -2970,7 +2987,44 @@ const error_codes_enums_1 = __webpack_require__(30);
 let ResponseService = ResponseService_1 = class ResponseService {
     constructor() {
         this.logger = new common_1.Logger(ResponseService_1.name);
-        this.domain = 'quasar.com';
+        this.domain = 'quasar.com'; // Domain for error responses
+    }
+    // ================================================================
+    // tRPC RESPONSE METHODS
+    // ================================================================
+    /**
+     * Create a standardized tRPC API response
+     */
+    createTrpcResponse(code, status, data, errors) {
+        return {
+            code,
+            status,
+            data,
+            errors,
+            timestamp: new Date().toISOString(),
+        };
+    }
+    /**
+     * Create a standardized tRPC success response
+     */
+    createTrpcSuccess(data) {
+        return this.createTrpcResponse(_shared_1.ApiStatusCodes.OK, 'OK', data);
+    }
+    /**
+     * Create a standardized tRPC error response
+     */
+    createTrpcError(code, status, message, errorReason = _shared_1.ApiErrorReasons.INTERNAL_ERROR) {
+        const errorInfo = {
+            '@type': 'ErrorInfo',
+            reason: errorReason,
+            domain: this.domain
+        };
+        this.logger.error(`API Error [${code}]: ${message}`, {
+            code,
+            status,
+            errorInfo
+        });
+        return this.createTrpcResponse(code, status, undefined, [errorInfo]);
     }
     // ================================================================
     // SUCCESS RESPONSE METHODS
@@ -3029,7 +3083,7 @@ let ResponseService = ResponseService_1 = class ResponseService {
      */
     createValidationError(fieldErrors, options) {
         const badRequest = {
-            '@type': 'type.googleapis.com/google.rpc.BadRequest',
+            '@type': 'BadRequest',
             fieldViolations: fieldErrors.map(({ field, message }) => ({
                 field,
                 description: message
@@ -3045,197 +3099,90 @@ let ResponseService = ResponseService_1 = class ResponseService {
      */
     createNotFound(message = 'Resource not found') {
         const errorInfo = {
-            '@type': 'type.googleapis.com/google.rpc.ErrorInfo',
+            '@type': 'ErrorInfo',
             reason: _shared_1.ApiErrorReasons.RESOURCE_NOT_FOUND,
             domain: this.domain
         };
         return this.createError(_shared_1.ApiStatusCodes.NOT_FOUND, message, 'NOT_FOUND', [errorInfo]);
     }
     /**
-     * Create unauthorized error
-     */
-    createUnauthorized(message = 'Authentication required') {
-        const errorInfo = {
-            '@type': 'type.googleapis.com/google.rpc.ErrorInfo',
-            reason: _shared_1.ApiErrorReasons.UNAUTHENTICATED,
-            domain: this.domain
-        };
-        return this.createError(_shared_1.ApiStatusCodes.UNAUTHORIZED, message, 'UNAUTHORIZED', [errorInfo]);
-    }
-    /**
      * Create forbidden error
      */
     createForbidden(message = 'Access forbidden') {
         const errorInfo = {
-            '@type': 'type.googleapis.com/google.rpc.ErrorInfo',
+            '@type': 'ErrorInfo',
             reason: _shared_1.ApiErrorReasons.PERMISSION_DENIED,
             domain: this.domain
         };
         return this.createError(_shared_1.ApiStatusCodes.FORBIDDEN, message, 'FORBIDDEN', [errorInfo]);
     }
     /**
-     * Create conflict error
-     */
-    createConflict(message = 'Resource already exists') {
-        const errorInfo = {
-            '@type': 'type.googleapis.com/google.rpc.ErrorInfo',
-            reason: _shared_1.ApiErrorReasons.RESOURCE_ALREADY_EXISTS,
-            domain: this.domain
-        };
-        return this.createError(_shared_1.ApiStatusCodes.CONFLICT, message, 'CONFLICT', [errorInfo]);
-    }
-    /**
      * Create internal server error
      */
     createInternalError(message = 'Internal server error') {
         const errorInfo = {
-            '@type': 'type.googleapis.com/google.rpc.ErrorInfo',
+            '@type': 'ErrorInfo',
             reason: _shared_1.ApiErrorReasons.INTERNAL_ERROR,
             domain: this.domain
         };
         return this.createError(_shared_1.ApiStatusCodes.INTERNAL_SERVER_ERROR, message, 'INTERNAL_SERVER_ERROR', [errorInfo]);
     }
     // ================================================================
-    // TRPC ERROR HANDLING
+    // TRPC ERROR HELPERS
     // ================================================================
     /**
-     * Convert tRPC error to API response format
+     * Create a TRPC error
      */
-    formatTRPCError(error) {
-        const { code, message } = error;
-        const statusMapping = this.mapTRPCCodeToStatus(code);
-        const errorInfo = {
-            '@type': 'type.googleapis.com/google.rpc.ErrorInfo',
-            reason: statusMapping.reason,
-            domain: this.domain
+    createTRPCError(moduleCode, operationCode, errorLevelCode, message) {
+        // Map error level to HTTP status
+        let httpStatus = 500;
+        let code = 'INTERNAL_SERVER_ERROR';
+        if (errorLevelCode === error_codes_enums_1.ErrorLevelCode.NOT_FOUND) {
+            httpStatus = 404;
+            code = 'NOT_FOUND';
+        }
+        else if (errorLevelCode === error_codes_enums_1.ErrorLevelCode.VALIDATION) {
+            httpStatus = 400;
+            code = 'BAD_REQUEST';
+        }
+        else if (errorLevelCode === error_codes_enums_1.ErrorLevelCode.AUTHORIZATION) {
+            httpStatus = 403;
+            code = 'FORBIDDEN';
+        }
+        else if (errorLevelCode === error_codes_enums_1.ErrorLevelCode.AUTHENTICATION_ERROR) {
+            httpStatus = 401;
+            code = 'UNAUTHORIZED';
+        }
+        else if (errorLevelCode === error_codes_enums_1.ErrorLevelCode.BUSINESS_LOGIC_ERROR) {
+            httpStatus = 422;
+            code = 'UNPROCESSABLE_CONTENT';
+        }
+        this.logger.error(`TRPC Error [${httpStatus}]: ${message}`, {
+            moduleCode,
+            operationCode,
+            errorLevelCode
+        });
+        // Prepare our standardized error format that will be used by the errorFormatter
+        const errorData = {
+            code: httpStatus,
+            status: code,
+            errors: [{
+                    '@type': 'ErrorInfo',
+                    reason: code,
+                    domain: this.domain
+                }]
         };
-        return this.createError(statusMapping.httpCode, message, statusMapping.status, [errorInfo]);
-    }
-    /**
-     * Create tRPC error with simple parameters
-     */
-    createSimpleTRPCError(code, message, cause) {
         return new server_1.TRPCError({
-            code: code, // tRPC's type constraint
+            code: code,
             message,
-            cause
+            cause: { httpStatus, errorData }
         });
     }
-    // ================================================================
-    // BACKWARD COMPATIBILITY METHODS
-    // ================================================================
     /**
-     * Create not found error - backward compatible
+     * Create a TRPC error with standardized error codes
      */
-    createNotFoundError(moduleCode, operationCode, resource, context) {
-        const message = resource ? `${resource} not found` : 'Resource not found';
-        const apiResponse = this.createNotFound(message);
-        return this.createSimpleTRPCError('NOT_FOUND', message, apiResponse);
-    }
-    /**
-     * Create conflict error - backward compatible
-     */
-    createConflictError(moduleCode, operationCode, message, context) {
-        const errorMessage = message || 'Resource already exists';
-        const apiResponse = this.createConflict(errorMessage);
-        return this.createSimpleTRPCError('CONFLICT', errorMessage, apiResponse);
-    }
-    /**
-     * Create unauthorized error - backward compatible
-     */
-    createUnauthorizedError(moduleCode, operationCode, context) {
-        const message = 'Unauthorized access';
-        const apiResponse = this.createUnauthorized(message);
-        return this.createSimpleTRPCError('UNAUTHORIZED', message, apiResponse);
-    }
-    /**
-     * Create forbidden error - backward compatible
-     */
-    createForbiddenError(moduleCode, operationCode, context) {
-        const message = 'Access forbidden';
-        const apiResponse = this.createForbidden(message);
-        return this.createSimpleTRPCError('FORBIDDEN', message, apiResponse);
-    }
-    /**
-     * Create database error - backward compatible
-     */
-    createDatabaseError(moduleCode, operationCode, error, context) {
-        const message = process.env.NODE_ENV === 'development'
-            ? error?.message || 'Database operation failed'
-            : 'Database operation failed';
-        const apiResponse = this.createInternalError(message);
-        return this.createSimpleTRPCError('INTERNAL_SERVER_ERROR', message, apiResponse);
-    }
-    /**
-     * Create business logic error - backward compatible
-     */
-    createBusinessLogicError(moduleCode, operationCode, message, context) {
-        const errorMessage = message || 'Business logic error';
-        const apiResponse = this.createError(_shared_1.ApiStatusCodes.BAD_REQUEST, errorMessage, 'BAD_REQUEST');
-        return this.createSimpleTRPCError('BAD_REQUEST', errorMessage, apiResponse);
-    }
-    /**
-     * Create validation error - backward compatible
-     */
-    createValidationTRPCError(moduleCode, operationCode, errors, context) {
-        const fieldErrors = errors || [];
-        const message = fieldErrors.length > 0
-            ? `Validation failed: ${fieldErrors.map(e => `${e.field}: ${e.message}`).join(', ')}`
-            : 'Validation failed';
-        const apiResponse = this.createValidationError(fieldErrors);
-        return this.createSimpleTRPCError('BAD_REQUEST', message, apiResponse);
-    }
-    /**
-     * Create generic tRPC error with error level code - backward compatible
-     */
-    createTRPCErrorWithCodes(moduleCode, operationCode, errorLevelCode, message, context) {
-        const errorMessage = message || 'An error occurred';
-        let trpcCode = 'INTERNAL_SERVER_ERROR';
-        let apiResponse;
-        // Map common error levels to tRPC codes
-        if (errorLevelCode !== undefined && errorLevelCode !== null) {
-            switch (errorLevelCode) {
-                case error_codes_enums_1.ErrorLevelCode.VALIDATION:
-                    trpcCode = 'BAD_REQUEST';
-                    apiResponse = this.createError(_shared_1.ApiStatusCodes.BAD_REQUEST, errorMessage, 'BAD_REQUEST');
-                    break;
-                case error_codes_enums_1.ErrorLevelCode.NOT_FOUND:
-                    trpcCode = 'NOT_FOUND';
-                    apiResponse = this.createNotFound(errorMessage);
-                    break;
-                case error_codes_enums_1.ErrorLevelCode.AUTHORIZATION:
-                case error_codes_enums_1.ErrorLevelCode.AUTHENTICATION_ERROR:
-                case error_codes_enums_1.ErrorLevelCode.TOKEN_ERROR:
-                    trpcCode = 'UNAUTHORIZED';
-                    apiResponse = this.createUnauthorized(errorMessage);
-                    break;
-                case error_codes_enums_1.ErrorLevelCode.FORBIDDEN:
-                    trpcCode = 'FORBIDDEN';
-                    apiResponse = this.createForbidden(errorMessage);
-                    break;
-                case error_codes_enums_1.ErrorLevelCode.CONFLICT:
-                    trpcCode = 'CONFLICT';
-                    apiResponse = this.createConflict(errorMessage);
-                    break;
-                case error_codes_enums_1.ErrorLevelCode.BUSINESS_LOGIC_ERROR:
-                    trpcCode = 'BAD_REQUEST';
-                    apiResponse = this.createError(_shared_1.ApiStatusCodes.BAD_REQUEST, errorMessage, 'BAD_REQUEST');
-                    break;
-                default:
-                    apiResponse = this.createInternalError(errorMessage);
-                    break;
-            }
-        }
-        else {
-            apiResponse = this.createInternalError(errorMessage);
-        }
-        return this.createSimpleTRPCError(trpcCode, errorMessage, apiResponse);
-    }
-    /**
-     * Create generic tRPC error - backward compatible (legacy method name)
-     */
-    createTRPCError(moduleCode, operationCode, errorLevelCode, message, context) {
-        return this.createTRPCErrorWithCodes(moduleCode, operationCode, errorLevelCode, message, context);
+    createTRPCErrorWithCodes(moduleCode, operationCode, errorLevelCode, message) {
+        return this.createTRPCError(moduleCode, operationCode, errorLevelCode, message);
     }
     // ================================================================
     // SUCCESS RESPONSE METHODS FOR CRUD OPERATIONS (BACKWARD COMPATIBLE)
@@ -3244,82 +3191,31 @@ let ResponseService = ResponseService_1 = class ResponseService {
      * Create success response for CREATE operations - backward compatible
      */
     createCreatedResponse(moduleCode, resource, data, context) {
-        return this.createSuccess(data, { requestId: context?.requestId });
+        return this.createTrpcSuccess(data);
     }
     /**
      * Create success response for READ operations - backward compatible
      */
     createReadResponse(moduleCode, resource, data, context) {
-        return this.createSuccess(data, { requestId: context?.requestId });
+        return this.createTrpcSuccess(data);
     }
     /**
      * Create success response for UPDATE operations - backward compatible
      */
     createUpdatedResponse(moduleCode, resource, data, context) {
-        return this.createSuccess(data, { requestId: context?.requestId });
+        return this.createTrpcSuccess(data);
     }
     /**
      * Create success response for DELETE operations - backward compatible
      */
-    createDeletedResponse(moduleCode, resource, data, context) {
-        return this.createSuccess(data, { requestId: context?.requestId });
+    createDeletedResponse(moduleCode, resource, context) {
+        return this.createTrpcResponse(_shared_1.ApiStatusCodes.OK, 'OK', { deleted: true });
     }
     /**
      * Create success response for general operations - backward compatible
      */
     createSuccessResponse(moduleCode, operationCode, messageLevelCode, message, data, context) {
-        return this.createSuccess(data, { requestId: context?.requestId });
-    }
-    // ================================================================
-    // HELPER METHODS
-    // ================================================================
-    mapTRPCCodeToStatus(trpcCode) {
-        switch (trpcCode) {
-            case 'UNAUTHORIZED':
-                return {
-                    httpCode: _shared_1.ApiStatusCodes.UNAUTHORIZED,
-                    status: 'UNAUTHORIZED',
-                    reason: _shared_1.ApiErrorReasons.UNAUTHENTICATED
-                };
-            case 'FORBIDDEN':
-                return {
-                    httpCode: _shared_1.ApiStatusCodes.FORBIDDEN,
-                    status: 'FORBIDDEN',
-                    reason: _shared_1.ApiErrorReasons.PERMISSION_DENIED
-                };
-            case 'NOT_FOUND':
-                return {
-                    httpCode: _shared_1.ApiStatusCodes.NOT_FOUND,
-                    status: 'NOT_FOUND',
-                    reason: _shared_1.ApiErrorReasons.RESOURCE_NOT_FOUND
-                };
-            case 'CONFLICT':
-                return {
-                    httpCode: _shared_1.ApiStatusCodes.CONFLICT,
-                    status: 'CONFLICT',
-                    reason: _shared_1.ApiErrorReasons.RESOURCE_ALREADY_EXISTS
-                };
-            case 'UNSUPPORTED_MEDIA_TYPE':
-                return {
-                    httpCode: _shared_1.ApiStatusCodes.BAD_REQUEST,
-                    status: 'BAD_REQUEST',
-                    reason: _shared_1.ApiErrorReasons.UNSUPPORTED_MEDIA_TYPE
-                };
-            case 'BAD_REQUEST':
-            case 'PARSE_ERROR':
-            default:
-                return {
-                    httpCode: _shared_1.ApiStatusCodes.BAD_REQUEST,
-                    status: 'BAD_REQUEST',
-                    reason: _shared_1.ApiErrorReasons.INVALID_REQUEST
-                };
-            case 'INTERNAL_SERVER_ERROR':
-                return {
-                    httpCode: _shared_1.ApiStatusCodes.INTERNAL_SERVER_ERROR,
-                    status: 'INTERNAL_SERVER_ERROR',
-                    reason: _shared_1.ApiErrorReasons.INTERNAL_ERROR
-                };
-        }
+        return this.createTrpcSuccess(data);
     }
 };
 exports.ResponseService = ResponseService;
@@ -3358,9 +3254,7 @@ let ClientUserService = class ClientUserService {
     async register(registerDto) {
         const existingUser = await this.userRepository.findByEmail(registerDto.email);
         if (existingUser) {
-            throw this.responseHandler.createConflictError(null, // moduleCode not needed
-            null, // operationCode not needed
-            'User with this email already exists');
+            throw this.responseHandler.createError(_shared_1.ApiStatusCodes.CONFLICT, 'User with this email already exists', 'CONFLICT');
         }
         try {
             const hashedPassword = await this.authService.hashPassword(registerDto.password);
@@ -3382,17 +3276,13 @@ let ClientUserService = class ClientUserService {
             if (error.code && error.code.includes('10')) {
                 throw error; // Re-throw our structured errors
             }
-            throw this.responseHandler.createDatabaseError(null, // moduleCode not needed
-            null, // operationCode not needed
-            error);
+            throw this.responseHandler.createError(_shared_1.ApiStatusCodes.INTERNAL_SERVER_ERROR, 'Failed to register', 'INTERNAL_SERVER_ERROR');
         }
     }
     async login(loginDto) {
         const user = await this.authService.validateUser(loginDto.email, loginDto.password);
         if (!user) {
-            throw this.responseHandler.createUnauthorizedError(null, // moduleCode not needed
-            null // operationCode not needed
-            );
+            throw this.responseHandler.createError(_shared_1.ApiStatusCodes.UNAUTHORIZED, 'Invalid credentials', 'UNAUTHORIZED');
         }
         if (!user.isActive) {
             throw this.responseHandler.createTRPCErrorWithCodes(null, // moduleCode not needed
@@ -3412,26 +3302,20 @@ let ClientUserService = class ClientUserService {
             if (error.code && error.code.includes('10')) {
                 throw error; // Re-throw our structured errors
             }
-            throw this.responseHandler.createDatabaseError(null, // moduleCode not needed
-            null, // operationCode not needed
-            error);
+            throw this.responseHandler.createError(_shared_1.ApiStatusCodes.INTERNAL_SERVER_ERROR, 'Failed to login', 'INTERNAL_SERVER_ERROR');
         }
     }
     async getProfile(userId) {
         const user = await this.userRepository.findWithProfile(userId);
         if (!user) {
-            throw this.responseHandler.createNotFoundError(null, // moduleCode not needed
-            null, // operationCode not needed
-            'User');
+            throw this.responseHandler.createError(_shared_1.ApiStatusCodes.NOT_FOUND, 'User not found', 'NOT_FOUND');
         }
         return this.toClientUserResponse(user);
     }
     async updateProfile(userId, updateProfileDto) {
         const user = await this.userRepository.findById(userId);
         if (!user) {
-            throw this.responseHandler.createNotFoundError(null, // moduleCode not needed
-            null, // operationCode not needed
-            'User');
+            throw this.responseHandler.createError(_shared_1.ApiStatusCodes.NOT_FOUND, 'User not found', 'NOT_FOUND');
         }
         try {
             // Convert string dateOfBirth to Date if provided
@@ -3442,9 +3326,7 @@ let ClientUserService = class ClientUserService {
             // Update the user profile using the profile update method
             const updatedProfile = await this.userRepository.updateProfile(userId, profileData);
             if (!updatedProfile) {
-                throw this.responseHandler.createNotFoundError(null, // moduleCode not needed
-                null, // operationCode not needed
-                'User profile');
+                throw this.responseHandler.createError(_shared_1.ApiStatusCodes.NOT_FOUND, 'User profile not found', 'NOT_FOUND');
             }
             // Get the updated user with profile
             const userWithProfile = await this.userRepository.findWithProfile(userId);
@@ -3454,9 +3336,7 @@ let ClientUserService = class ClientUserService {
             if (error.code && error.code.includes('10')) {
                 throw error; // Re-throw our structured errors
             }
-            throw this.responseHandler.createDatabaseError(null, // moduleCode not needed
-            null, // operationCode not needed
-            error);
+            throw this.responseHandler.createError(_shared_1.ApiStatusCodes.INTERNAL_SERVER_ERROR, 'Failed to update profile', 'INTERNAL_SERVER_ERROR');
         }
     }
     async refreshToken(refreshToken) {
@@ -3465,9 +3345,7 @@ let ClientUserService = class ClientUserService {
             const payload = await this.authService.verifyToken(tokens.accessToken);
             const user = await this.userRepository.findWithProfile(payload.sub);
             if (!user) {
-                throw this.responseHandler.createNotFoundError(null, // moduleCode not needed
-                null, // operationCode not needed
-                'User');
+                throw this.responseHandler.createError(_shared_1.ApiStatusCodes.NOT_FOUND, 'User not found', 'NOT_FOUND');
             }
             return {
                 user: this.toClientUserResponse(user),
@@ -3531,7 +3409,6 @@ const response_service_1 = __webpack_require__(51);
 const auth_middleware_1 = __webpack_require__(56);
 const admin_role_middleware_1 = __webpack_require__(57);
 const _shared_1 = __webpack_require__(14);
-const error_codes_enums_1 = __webpack_require__(30);
 const response_schemas_1 = __webpack_require__(58);
 // Zod schemas for validation
 const userRoleSchema = zod_1.z.enum([
@@ -3612,10 +3489,13 @@ let AdminUserRouter = class AdminUserRouter {
                 role: createUserDto.role,
             };
             const user = await this.adminUserService.createUser(adminCreateDto);
-            return this.responseHandler.createCreatedResponse(null, 'user', user);
+            return this.responseHandler.createTrpcSuccess(user);
         }
         catch (error) {
-            throw this.responseHandler.createTRPCErrorWithCodes(null, null, error_codes_enums_1.ErrorLevelCode.BUSINESS_LOGIC_ERROR, error.message || 'Failed to create user');
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            1, // OperationCode.CREATE
+            30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+            error.message || 'Failed to create user');
         }
     }
     async getAllUsers(query) {
@@ -3629,47 +3509,62 @@ let AdminUserRouter = class AdminUserRouter {
                 isActive: query.isActive,
             };
             const result = await this.adminUserService.getAllUsers(filters);
-            return this.responseHandler.createReadResponse(null, 'users', result);
+            return this.responseHandler.createTrpcResponse(200, 'OK', result);
         }
         catch (error) {
-            throw this.responseHandler.createTRPCErrorWithCodes(null, null, error_codes_enums_1.ErrorLevelCode.BUSINESS_LOGIC_ERROR, error.message || 'Failed to retrieve users');
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            2, // OperationCode.READ
+            10, // ErrorLevelCode.SERVER_ERROR
+            error.message || 'Failed to retrieve users');
         }
     }
     async getUserById(input) {
         try {
             const user = await this.adminUserService.getUserById(input.id);
-            return this.responseHandler.createReadResponse(null, 'user', user);
+            return this.responseHandler.createTrpcSuccess(user);
         }
         catch (error) {
-            throw this.responseHandler.createTRPCErrorWithCodes(null, null, error_codes_enums_1.ErrorLevelCode.NOT_FOUND, error.message || 'User not found');
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            2, // OperationCode.READ
+            4, // ErrorLevelCode.NOT_FOUND
+            error.message || 'User not found');
         }
     }
     async updateUser(input) {
         try {
             const { id, ...updateDto } = input;
             const user = await this.adminUserService.updateUser(id, updateDto);
-            return this.responseHandler.createUpdatedResponse(null, 'user', user);
+            return this.responseHandler.createTrpcSuccess(user);
         }
         catch (error) {
-            throw this.responseHandler.createTRPCErrorWithCodes(null, null, error_codes_enums_1.ErrorLevelCode.BUSINESS_LOGIC_ERROR, error.message || 'Failed to update user');
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            3, // OperationCode.UPDATE
+            30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+            error.message || 'Failed to update user');
         }
     }
     async deleteUser(input) {
         try {
             await this.adminUserService.deleteUser(input.id);
-            return this.responseHandler.createDeletedResponse(null, 'user');
+            return this.responseHandler.createTrpcResponse(200, 'OK', { deleted: true });
         }
         catch (error) {
-            throw this.responseHandler.createTRPCErrorWithCodes(null, null, error_codes_enums_1.ErrorLevelCode.BUSINESS_LOGIC_ERROR, error.message || 'Failed to delete user');
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            4, // OperationCode.DELETE
+            30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+            error.message || 'Failed to delete user');
         }
     }
     async updateUserStatus(input) {
         try {
             const user = await this.adminUserService.updateUserStatus(input.id, input.isActive);
-            return this.responseHandler.createUpdatedResponse(null, 'user status', user);
+            return this.responseHandler.createTrpcSuccess(user);
         }
         catch (error) {
-            throw this.responseHandler.createTRPCErrorWithCodes(null, null, error_codes_enums_1.ErrorLevelCode.BUSINESS_LOGIC_ERROR, error.message || 'Failed to update user status');
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            3, // OperationCode.UPDATE
+            30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+            error.message || 'Failed to update user status');
         }
     }
 };
@@ -3744,6 +3639,7 @@ tslib_1.__decorate([
     tslib_1.__metadata("design:returntype", typeof (_k = typeof Promise !== "undefined" && Promise) === "function" ? _k : Object)
 ], AdminUserRouter.prototype, "updateUserStatus", null);
 exports.AdminUserRouter = AdminUserRouter = tslib_1.__decorate([
+    (0, nestjs_trpc_1.Router)({ alias: 'adminUser' }),
     (0, common_1.Injectable)(),
     tslib_1.__param(0, (0, common_1.Inject)(admin_user_service_1.AdminUserService)),
     tslib_1.__param(1, (0, common_1.Inject)(response_service_1.ResponseService)),
@@ -3845,18 +3741,23 @@ const zod_1 = __webpack_require__(55);
  * Provides consistent response structure across the application
  */
 exports.apiResponseSchema = zod_1.z.object({
-    success: zod_1.z.boolean(),
+    code: zod_1.z.number(),
+    status: zod_1.z.string(),
     data: zod_1.z.any().optional(),
-    message: zod_1.z.string().optional(),
-    messageCode: zod_1.z.string().optional(),
-    errorCode: zod_1.z.string().optional(),
-    timestamp: zod_1.z.date(),
+    errors: zod_1.z.array(zod_1.z.object({
+        '@type': zod_1.z.string(),
+        reason: zod_1.z.string(),
+        domain: zod_1.z.string(),
+        metadata: zod_1.z.record(zod_1.z.string()).optional(),
+    })).optional(),
+    timestamp: zod_1.z.string(),
 });
 /**
  * Paginated response schema for list endpoints
  */
 exports.paginatedResponseSchema = zod_1.z.object({
-    success: zod_1.z.boolean(),
+    code: zod_1.z.number(),
+    status: zod_1.z.string(),
     data: zod_1.z.object({
         items: zod_1.z.array(zod_1.z.any()),
         total: zod_1.z.number(),
@@ -3864,36 +3765,47 @@ exports.paginatedResponseSchema = zod_1.z.object({
         limit: zod_1.z.number(),
         totalPages: zod_1.z.number(),
     }),
-    message: zod_1.z.string().optional(),
-    messageCode: zod_1.z.string().optional(),
-    errorCode: zod_1.z.string().optional(),
-    timestamp: zod_1.z.date(),
+    errors: zod_1.z.array(zod_1.z.object({
+        '@type': zod_1.z.string(),
+        reason: zod_1.z.string(),
+        domain: zod_1.z.string(),
+        metadata: zod_1.z.record(zod_1.z.string()).optional(),
+    })).optional(),
+    timestamp: zod_1.z.string(),
 });
 /**
  * Response schema for authentication endpoints
  */
 exports.authResponseSchema = zod_1.z.object({
-    success: zod_1.z.boolean(),
+    code: zod_1.z.number(),
+    status: zod_1.z.string(),
     data: zod_1.z.object({
         user: zod_1.z.any(),
         accessToken: zod_1.z.string(),
         refreshToken: zod_1.z.string().optional(),
         expiresIn: zod_1.z.number().optional(),
     }),
-    message: zod_1.z.string().optional(),
-    messageCode: zod_1.z.string().optional(),
-    errorCode: zod_1.z.string().optional(),
-    timestamp: zod_1.z.date(),
+    errors: zod_1.z.array(zod_1.z.object({
+        '@type': zod_1.z.string(),
+        reason: zod_1.z.string(),
+        domain: zod_1.z.string(),
+        metadata: zod_1.z.record(zod_1.z.string()).optional(),
+    })).optional(),
+    timestamp: zod_1.z.string(),
 });
 /**
  * Response schema for endpoints that don't return data
  */
 exports.voidResponseSchema = zod_1.z.object({
-    success: zod_1.z.boolean(),
-    message: zod_1.z.string().optional(),
-    messageCode: zod_1.z.string().optional(),
-    errorCode: zod_1.z.string().optional(),
-    timestamp: zod_1.z.date(),
+    code: zod_1.z.number(),
+    status: zod_1.z.string(),
+    errors: zod_1.z.array(zod_1.z.object({
+        '@type': zod_1.z.string(),
+        reason: zod_1.z.string(),
+        domain: zod_1.z.string(),
+        metadata: zod_1.z.record(zod_1.z.string()).optional(),
+    })).optional(),
+    timestamp: zod_1.z.string(),
 });
 
 
@@ -3902,7 +3814,7 @@ exports.voidResponseSchema = zod_1.z.object({
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
-var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ClientUserRouter = void 0;
 const tslib_1 = __webpack_require__(5);
@@ -3914,6 +3826,7 @@ const response_service_1 = __webpack_require__(51);
 const auth_middleware_1 = __webpack_require__(56);
 const user_injection_middleware_1 = __webpack_require__(60);
 const response_schemas_1 = __webpack_require__(58);
+const context_1 = __webpack_require__(61);
 // Zod schemas for validation
 const clientRegisterSchema = zod_1.z.object({
     email: zod_1.z.string().email(),
@@ -3985,10 +3898,13 @@ let ClientUserRouter = class ClientUserRouter {
                 phoneNumber: registerDto.phoneNumber,
             };
             const result = await this.clientUserService.register(clientRegisterDto);
-            return this.responseHandler.createSuccessResponse(null, null, null, 'User registered successfully', result);
+            return this.responseHandler.createTrpcSuccess(result);
         }
         catch (error) {
-            throw this.responseHandler.createTRPCError(null, null, null, error.message || 'Failed to register user');
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            6, // OperationCode.REGISTER
+            1, // ErrorLevelCode.VALIDATION
+            error.message || 'Failed to register user');
         }
     }
     async login(loginDto) {
@@ -3999,37 +3915,53 @@ let ClientUserRouter = class ClientUserRouter {
                 password: loginDto.password,
             };
             const result = await this.clientUserService.login(clientLoginDto);
-            return this.responseHandler.createSuccessResponse(null, null, null, 'User logged in successfully', result);
+            return this.responseHandler.createTrpcSuccess(result);
         }
         catch (error) {
-            throw this.responseHandler.createTRPCError(null, null, null, error.message || 'Login failed');
+            // Use proper error codes for consistent formatting
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            5, // OperationCode.LOGIN
+            41, // ErrorLevelCode.AUTHENTICATION_ERROR
+            error.message || 'Login failed');
         }
     }
-    async getProfile(userId) {
+    async getProfile({ user }) {
         try {
-            const result = await this.clientUserService.getProfile(userId);
-            return this.responseHandler.createSuccessResponse(null, null, null, 'Profile retrieved successfully', result);
+            if (!user?.id) {
+                throw new Error('User not authenticated');
+            }
+            const profile = await this.clientUserService.getProfile(user.id);
+            return this.responseHandler.createTrpcSuccess(profile);
         }
         catch (error) {
-            throw this.responseHandler.createTRPCError(null, null, null, error.message || 'Failed to retrieve profile');
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            2, // OperationCode.READ
+            4, // ErrorLevelCode.NOT_FOUND
+            error.message || 'Failed to retrieve profile');
         }
     }
     async updateProfile(updateProfileDto, userId) {
         try {
             const result = await this.clientUserService.updateProfile(userId, updateProfileDto);
-            return this.responseHandler.createSuccessResponse(null, null, null, 'Profile updated successfully', result);
+            return this.responseHandler.createTrpcSuccess(result);
         }
         catch (error) {
-            throw this.responseHandler.createTRPCError(null, null, null, error.message || 'Failed to update profile');
+            throw this.responseHandler.createTRPCError(10, // ModuleCode.USER
+            3, // OperationCode.UPDATE
+            30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+            error.message || 'Failed to update profile');
         }
     }
     async refreshToken(input) {
         try {
             const result = await this.clientUserService.refreshToken(input.refreshToken);
-            return this.responseHandler.createSuccessResponse(null, null, null, 'Token refreshed successfully', result);
+            return this.responseHandler.createTrpcSuccess(result);
         }
         catch (error) {
-            throw this.responseHandler.createTRPCError(null, null, null, error.message || 'Token refresh failed');
+            throw this.responseHandler.createTRPCError(11, // ModuleCode.AUTH
+            7, // OperationCode.REFRESH
+            42, // ErrorLevelCode.TOKEN_ERROR
+            error.message || 'Token refresh failed');
         }
     }
 };
@@ -4055,14 +3987,14 @@ tslib_1.__decorate([
     tslib_1.__metadata("design:returntype", typeof (_f = typeof Promise !== "undefined" && Promise) === "function" ? _f : Object)
 ], ClientUserRouter.prototype, "login", null);
 tslib_1.__decorate([
-    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware, user_injection_middleware_1.UserInjectionMiddleware),
+    (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware),
     (0, nestjs_trpc_1.Query)({
         output: response_schemas_1.apiResponseSchema,
     }),
-    tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
+    tslib_1.__param(0, (0, nestjs_trpc_1.Ctx)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [String]),
-    tslib_1.__metadata("design:returntype", typeof (_g = typeof Promise !== "undefined" && Promise) === "function" ? _g : Object)
+    tslib_1.__metadata("design:paramtypes", [typeof (_g = typeof context_1.AuthenticatedContext !== "undefined" && context_1.AuthenticatedContext) === "function" ? _g : Object]),
+    tslib_1.__metadata("design:returntype", typeof (_h = typeof Promise !== "undefined" && Promise) === "function" ? _h : Object)
 ], ClientUserRouter.prototype, "getProfile", null);
 tslib_1.__decorate([
     (0, nestjs_trpc_1.UseMiddlewares)(auth_middleware_1.AuthMiddleware, user_injection_middleware_1.UserInjectionMiddleware),
@@ -4073,8 +4005,8 @@ tslib_1.__decorate([
     tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
     tslib_1.__param(1, (0, nestjs_trpc_1.Input)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [typeof (_h = typeof zod_1.z !== "undefined" && zod_1.z.infer) === "function" ? _h : Object, String]),
-    tslib_1.__metadata("design:returntype", typeof (_j = typeof Promise !== "undefined" && Promise) === "function" ? _j : Object)
+    tslib_1.__metadata("design:paramtypes", [typeof (_j = typeof zod_1.z !== "undefined" && zod_1.z.infer) === "function" ? _j : Object, String]),
+    tslib_1.__metadata("design:returntype", typeof (_k = typeof Promise !== "undefined" && Promise) === "function" ? _k : Object)
 ], ClientUserRouter.prototype, "updateProfile", null);
 tslib_1.__decorate([
     (0, nestjs_trpc_1.Mutation)({
@@ -4083,10 +4015,11 @@ tslib_1.__decorate([
     }),
     tslib_1.__param(0, (0, nestjs_trpc_1.Input)()),
     tslib_1.__metadata("design:type", Function),
-    tslib_1.__metadata("design:paramtypes", [typeof (_k = typeof zod_1.z !== "undefined" && zod_1.z.infer) === "function" ? _k : Object]),
-    tslib_1.__metadata("design:returntype", typeof (_l = typeof Promise !== "undefined" && Promise) === "function" ? _l : Object)
+    tslib_1.__metadata("design:paramtypes", [typeof (_l = typeof zod_1.z !== "undefined" && zod_1.z.infer) === "function" ? _l : Object]),
+    tslib_1.__metadata("design:returntype", typeof (_m = typeof Promise !== "undefined" && Promise) === "function" ? _m : Object)
 ], ClientUserRouter.prototype, "refreshToken", null);
 exports.ClientUserRouter = ClientUserRouter = tslib_1.__decorate([
+    (0, nestjs_trpc_1.Router)({ alias: 'clientUser' }),
     (0, common_1.Injectable)(),
     tslib_1.__param(0, (0, common_1.Inject)(client_user_service_1.ClientUserService)),
     tslib_1.__param(1, (0, common_1.Inject)(response_service_1.ResponseService)),
@@ -4138,6 +4071,63 @@ exports.UserInjectionMiddleware = UserInjectionMiddleware = tslib_1.__decorate([
 
 /***/ }),
 /* 61 */
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+var _a, _b;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AppContext = void 0;
+const tslib_1 = __webpack_require__(5);
+const common_1 = __webpack_require__(2);
+const jwt_1 = __webpack_require__(49);
+const permission_repository_1 = __webpack_require__(44);
+let AppContext = class AppContext {
+    constructor(jwtService, permissionRepository) {
+        this.jwtService = jwtService;
+        this.permissionRepository = permissionRepository;
+    }
+    async create(opts) {
+        const { req, res } = opts;
+        // Extract JWT token from Authorization header
+        const authHeader = req.headers.authorization;
+        let user;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            try {
+                const token = authHeader.substring(7);
+                const payload = await this.jwtService.verifyAsync(token);
+                // Load user permissions based on role
+                const permissions = await this.permissionRepository.findPermissionsByRole(payload.role);
+                // Create user object from JWT payload with permissions
+                user = {
+                    id: payload.sub,
+                    email: payload.email,
+                    username: payload.username,
+                    role: payload.role,
+                    isActive: payload.isActive,
+                    permissions,
+                };
+            }
+            catch (error) {
+                // Invalid token - user remains undefined
+                console.warn('Invalid JWT token:', error.message);
+            }
+        }
+        return {
+            user,
+            req,
+            res,
+        };
+    }
+};
+exports.AppContext = AppContext;
+exports.AppContext = AppContext = tslib_1.__decorate([
+    (0, common_1.Injectable)(),
+    tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _a : Object, typeof (_b = typeof permission_repository_1.PermissionRepository !== "undefined" && permission_repository_1.PermissionRepository) === "function" ? _b : Object])
+], AppContext);
+
+
+/***/ }),
+/* 62 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -4249,7 +4239,7 @@ let AdminPermissionRouter = class AdminPermissionRouter {
                 attributes: createPermissionDto.attributes,
             };
             const permission = await this.permissionService.createPermission(permissionData);
-            return this.responseHandler.createCreatedResponse(error_codes_enums_1.ModuleCode.PERMISSION, 'permission', permission);
+            return this.responseHandler.createTrpcSuccess(permission);
         }
         catch (error) {
             throw this.responseHandler.createTRPCError(error_codes_enums_1.ModuleCode.PERMISSION, error_codes_enums_1.OperationCode.CREATE, error_codes_enums_1.ErrorLevelCode.BUSINESS_LOGIC_ERROR, error.message || 'Failed to create permission');
@@ -4258,7 +4248,7 @@ let AdminPermissionRouter = class AdminPermissionRouter {
     async getAllPermissions(filter) {
         try {
             const permissions = await this.permissionService.getAllPermissions(filter);
-            return this.responseHandler.createReadResponse(error_codes_enums_1.ModuleCode.PERMISSION, 'permissions', permissions);
+            return this.responseHandler.createTrpcSuccess(permissions);
         }
         catch (error) {
             throw this.responseHandler.createTRPCError(error_codes_enums_1.ModuleCode.PERMISSION, error_codes_enums_1.OperationCode.READ, error_codes_enums_1.ErrorLevelCode.BUSINESS_LOGIC_ERROR, error.message || 'Failed to retrieve permissions');
@@ -4267,7 +4257,7 @@ let AdminPermissionRouter = class AdminPermissionRouter {
     async getPermissionById(input) {
         try {
             const permission = await this.permissionService.getPermissionById(input.id);
-            return this.responseHandler.createReadResponse(error_codes_enums_1.ModuleCode.PERMISSION, 'permission', permission);
+            return this.responseHandler.createTrpcSuccess(permission);
         }
         catch (error) {
             throw this.responseHandler.createTRPCError(error_codes_enums_1.ModuleCode.PERMISSION, error_codes_enums_1.OperationCode.READ, error_codes_enums_1.ErrorLevelCode.NOT_FOUND, error.message || 'Permission not found');
@@ -4277,7 +4267,7 @@ let AdminPermissionRouter = class AdminPermissionRouter {
         try {
             const { id, ...updateDto } = input;
             const permission = await this.permissionService.updatePermission(id, updateDto);
-            return this.responseHandler.createUpdatedResponse(error_codes_enums_1.ModuleCode.PERMISSION, 'permission', permission);
+            return this.responseHandler.createTrpcSuccess(permission);
         }
         catch (error) {
             throw this.responseHandler.createTRPCError(error_codes_enums_1.ModuleCode.PERMISSION, error_codes_enums_1.OperationCode.UPDATE, error_codes_enums_1.ErrorLevelCode.BUSINESS_LOGIC_ERROR, error.message || 'Failed to update permission');
@@ -4286,7 +4276,7 @@ let AdminPermissionRouter = class AdminPermissionRouter {
     async deletePermission(input) {
         try {
             await this.permissionService.deletePermission(input.id);
-            return this.responseHandler.createDeletedResponse(error_codes_enums_1.ModuleCode.PERMISSION, 'permission');
+            return this.responseHandler.createTrpcResponse(200, 'OK', { deleted: true });
         }
         catch (error) {
             throw this.responseHandler.createTRPCError(error_codes_enums_1.ModuleCode.PERMISSION, error_codes_enums_1.OperationCode.DELETE, error_codes_enums_1.ErrorLevelCode.BUSINESS_LOGIC_ERROR, error.message || 'Failed to delete permission');
@@ -4296,7 +4286,7 @@ let AdminPermissionRouter = class AdminPermissionRouter {
     async assignPermissionToRole(input) {
         try {
             const result = await this.permissionService.assignPermissionToRole(input.role, input.permissionId);
-            return this.responseHandler.createCreatedResponse(error_codes_enums_1.ModuleCode.PERMISSION, 'role permission', result);
+            return this.responseHandler.createTrpcSuccess(result);
         }
         catch (error) {
             throw this.responseHandler.createTRPCError(error_codes_enums_1.ModuleCode.PERMISSION, error_codes_enums_1.OperationCode.CREATE, error_codes_enums_1.ErrorLevelCode.BUSINESS_LOGIC_ERROR, error.message || 'Failed to assign permission to role');
@@ -4501,6 +4491,7 @@ tslib_1.__decorate([
     tslib_1.__metadata("design:returntype", typeof (_r = typeof Promise !== "undefined" && Promise) === "function" ? _r : Object)
 ], AdminPermissionRouter.prototype, "checkPermission", null);
 exports.AdminPermissionRouter = AdminPermissionRouter = tslib_1.__decorate([
+    (0, nestjs_trpc_1.Router)({ alias: 'adminPermission' }),
     (0, common_1.Injectable)(),
     tslib_1.__param(0, (0, common_1.Inject)(admin_permission_service_1.AdminPermissionService)),
     tslib_1.__param(1, (0, common_1.Inject)(response_service_1.ResponseService)),
@@ -4509,7 +4500,7 @@ exports.AdminPermissionRouter = AdminPermissionRouter = tslib_1.__decorate([
 
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -4520,7 +4511,7 @@ const common_1 = __webpack_require__(2);
 const jwt_1 = __webpack_require__(49);
 const config_1 = __webpack_require__(6);
 const typeorm_1 = __webpack_require__(7);
-const passport_1 = __webpack_require__(63);
+const passport_1 = __webpack_require__(64);
 const user_entity_1 = __webpack_require__(12);
 const user_profile_entity_1 = __webpack_require__(38);
 const permission_entity_1 = __webpack_require__(42);
@@ -4530,9 +4521,9 @@ const role_permission_entity_1 = __webpack_require__(41);
 const user_repository_1 = __webpack_require__(43);
 const permission_repository_1 = __webpack_require__(44);
 const auth_service_1 = __webpack_require__(48);
-const jwt_strategy_1 = __webpack_require__(64);
-const roles_guard_1 = __webpack_require__(66);
-const jwt_auth_guard_1 = __webpack_require__(67);
+const jwt_strategy_1 = __webpack_require__(65);
+const roles_guard_1 = __webpack_require__(67);
+const jwt_auth_guard_1 = __webpack_require__(68);
 const jwtModule = jwt_1.JwtModule.registerAsync({
     imports: [config_1.ConfigModule],
     useFactory: async (configService) => ({
@@ -4567,13 +4558,13 @@ exports.AuthModule = AuthModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/passport");
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -4581,8 +4572,8 @@ var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JwtStrategy = void 0;
 const tslib_1 = __webpack_require__(5);
-const passport_jwt_1 = __webpack_require__(65);
-const passport_1 = __webpack_require__(63);
+const passport_jwt_1 = __webpack_require__(66);
+const passport_1 = __webpack_require__(64);
 const common_1 = __webpack_require__(2);
 const config_1 = __webpack_require__(6);
 let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy) {
@@ -4609,13 +4600,13 @@ exports.JwtStrategy = JwtStrategy = tslib_1.__decorate([
 
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ ((module) => {
 
 module.exports = require("passport-jwt");
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -4653,7 +4644,7 @@ exports.Roles = Roles;
 
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -4661,7 +4652,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.JwtAuthGuard = void 0;
 const tslib_1 = __webpack_require__(5);
 const common_1 = __webpack_require__(2);
-const passport_1 = __webpack_require__(63);
+const passport_1 = __webpack_require__(64);
 let JwtAuthGuard = class JwtAuthGuard extends (0, passport_1.AuthGuard)('jwt') {
 };
 exports.JwtAuthGuard = JwtAuthGuard;
@@ -4671,7 +4662,7 @@ exports.JwtAuthGuard = JwtAuthGuard = tslib_1.__decorate([
 
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -4682,11 +4673,12 @@ const common_1 = __webpack_require__(2);
 const typeorm_1 = __webpack_require__(7);
 const auth_middleware_1 = __webpack_require__(56);
 const admin_role_middleware_1 = __webpack_require__(57);
-const permission_middleware_1 = __webpack_require__(69);
-const auth_module_1 = __webpack_require__(62);
+const user_injection_middleware_1 = __webpack_require__(60);
+const permission_middleware_1 = __webpack_require__(70);
+const auth_module_1 = __webpack_require__(63);
 const permission_checker_service_1 = __webpack_require__(46);
 const response_service_1 = __webpack_require__(51);
-const error_registry_service_1 = __webpack_require__(70);
+const error_registry_service_1 = __webpack_require__(71);
 const permission_repository_1 = __webpack_require__(44);
 const permission_entity_1 = __webpack_require__(42);
 const role_permission_entity_1 = __webpack_require__(41);
@@ -4703,6 +4695,7 @@ exports.SharedModule = SharedModule = tslib_1.__decorate([
         providers: [
             auth_middleware_1.AuthMiddleware,
             admin_role_middleware_1.AdminRoleMiddleware,
+            user_injection_middleware_1.UserInjectionMiddleware,
             permission_repository_1.PermissionRepository,
             permission_checker_service_1.PermissionCheckerService,
             response_service_1.ResponseService,
@@ -4714,6 +4707,7 @@ exports.SharedModule = SharedModule = tslib_1.__decorate([
         exports: [
             auth_middleware_1.AuthMiddleware,
             admin_role_middleware_1.AdminRoleMiddleware,
+            user_injection_middleware_1.UserInjectionMiddleware,
             permission_checker_service_1.PermissionCheckerService,
             response_service_1.ResponseService,
             error_registry_service_1.ErrorRegistryService,
@@ -4726,7 +4720,7 @@ exports.SharedModule = SharedModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5007,7 +5001,7 @@ exports.CanDeleteAny = CanDeleteAny = tslib_1.__decorate([
 
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5015,7 +5009,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ErrorRegistryService = void 0;
 const tslib_1 = __webpack_require__(5);
 const common_1 = __webpack_require__(2);
-const error_registry_1 = __webpack_require__(71);
+const error_registry_1 = __webpack_require__(72);
 /**
  * Error Registry Service
  * NestJS service wrapper for error registry
@@ -5127,7 +5121,7 @@ exports.ErrorRegistryService = ErrorRegistryService = tslib_1.__decorate([
 
 
 /***/ }),
-/* 71 */
+/* 72 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5539,7 +5533,7 @@ exports.errorRegistry = ErrorRegistry.getInstance();
 
 
 /***/ }),
-/* 72 */
+/* 73 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5548,11 +5542,11 @@ exports.TranslationModule = void 0;
 const tslib_1 = __webpack_require__(5);
 const common_1 = __webpack_require__(2);
 const typeorm_1 = __webpack_require__(7);
-const translation_entity_1 = __webpack_require__(73);
-const translation_repository_1 = __webpack_require__(74);
-const translation_service_1 = __webpack_require__(75);
-const translation_router_1 = __webpack_require__(78);
-const shared_module_1 = __webpack_require__(68);
+const translation_entity_1 = __webpack_require__(74);
+const translation_repository_1 = __webpack_require__(75);
+const translation_service_1 = __webpack_require__(76);
+const translation_router_1 = __webpack_require__(79);
+const shared_module_1 = __webpack_require__(69);
 let TranslationModule = class TranslationModule {
 };
 exports.TranslationModule = TranslationModule;
@@ -5577,7 +5571,7 @@ exports.TranslationModule = TranslationModule = tslib_1.__decorate([
 
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5616,7 +5610,7 @@ exports.Translation = Translation = tslib_1.__decorate([
 
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5628,7 +5622,7 @@ const common_1 = __webpack_require__(2);
 const typeorm_1 = __webpack_require__(7);
 const typeorm_2 = __webpack_require__(13);
 const _shared_1 = __webpack_require__(14);
-const translation_entity_1 = __webpack_require__(73);
+const translation_entity_1 = __webpack_require__(74);
 let TranslationRepository = class TranslationRepository extends _shared_1.BaseRepository {
     constructor(repository) {
         super(repository);
@@ -5680,7 +5674,7 @@ exports.TranslationRepository = TranslationRepository = tslib_1.__decorate([
 
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5690,9 +5684,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TranslationService = void 0;
 const tslib_1 = __webpack_require__(5);
 const common_1 = __webpack_require__(2);
-const fs_1 = __webpack_require__(76);
-const path_1 = __webpack_require__(77);
-const translation_repository_1 = __webpack_require__(74);
+const fs_1 = __webpack_require__(77);
+const path_1 = __webpack_require__(78);
+const translation_repository_1 = __webpack_require__(75);
 let TranslationService = TranslationService_1 = class TranslationService {
     constructor(translationRepository) {
         this.translationRepository = translationRepository;
@@ -5844,19 +5838,19 @@ exports.TranslationService = TranslationService = TranslationService_1 = tslib_1
 
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ ((module) => {
 
 module.exports = require("fs");
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ ((module) => {
 
 module.exports = require("path");
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
@@ -5867,7 +5861,7 @@ const tslib_1 = __webpack_require__(5);
 const common_1 = __webpack_require__(2);
 const nestjs_trpc_1 = __webpack_require__(8);
 const zod_1 = __webpack_require__(55);
-const translation_service_1 = __webpack_require__(75);
+const translation_service_1 = __webpack_require__(76);
 const response_service_1 = __webpack_require__(51);
 const auth_middleware_1 = __webpack_require__(56);
 const admin_role_middleware_1 = __webpack_require__(57);
@@ -5961,7 +5955,7 @@ let TranslationRouter = class TranslationRouter {
         try {
             const success = await this.translationService.deleteTranslation(input.key, input.locale);
             if (!success) {
-                throw this.responseHandler.createNotFoundError(error_codes_enums_1.ModuleCode.TRANSLATION, error_codes_enums_1.OperationCode.DELETE, 'Translation');
+                throw this.responseHandler.createError(_shared_1.ApiStatusCodes.NOT_FOUND, 'Translation not found', 'NOT_FOUND');
             }
             return this.responseHandler.createDeletedResponse(error_codes_enums_1.ModuleCode.TRANSLATION, 'translation');
         }
@@ -6051,68 +6045,12 @@ tslib_1.__decorate([
     tslib_1.__metadata("design:returntype", typeof (_p = typeof Promise !== "undefined" && Promise) === "function" ? _p : Object)
 ], TranslationRouter.prototype, "clearCache", null);
 exports.TranslationRouter = TranslationRouter = tslib_1.__decorate([
+    (0, nestjs_trpc_1.Router)({ alias: 'translation' }),
     (0, common_1.Injectable)(),
     tslib_1.__param(0, (0, common_1.Inject)(translation_service_1.TranslationService)),
     tslib_1.__param(1, (0, common_1.Inject)(response_service_1.ResponseService)),
     tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof translation_service_1.TranslationService !== "undefined" && translation_service_1.TranslationService) === "function" ? _a : Object, typeof (_b = typeof response_service_1.ResponseService !== "undefined" && response_service_1.ResponseService) === "function" ? _b : Object])
 ], TranslationRouter);
-
-
-/***/ }),
-/* 79 */
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-
-var _a, _b;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.AppContext = void 0;
-const tslib_1 = __webpack_require__(5);
-const common_1 = __webpack_require__(2);
-const jwt_1 = __webpack_require__(49);
-const permission_repository_1 = __webpack_require__(44);
-let AppContext = class AppContext {
-    constructor(jwtService, permissionRepository) {
-        this.jwtService = jwtService;
-        this.permissionRepository = permissionRepository;
-    }
-    async create(opts) {
-        const { req, res } = opts;
-        // Extract JWT token from Authorization header
-        const authHeader = req.headers.authorization;
-        let user;
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-            try {
-                const token = authHeader.substring(7);
-                const payload = await this.jwtService.verifyAsync(token);
-                // Load user permissions based on role
-                const permissions = await this.permissionRepository.findPermissionsByRole(payload.role);
-                // Create user object from JWT payload with permissions
-                user = {
-                    id: payload.sub,
-                    email: payload.email,
-                    username: payload.username,
-                    role: payload.role,
-                    isActive: payload.isActive,
-                    permissions,
-                };
-            }
-            catch (error) {
-                // Invalid token - user remains undefined
-                console.warn('Invalid JWT token:', error.message);
-            }
-        }
-        return {
-            user,
-            req,
-            res,
-        };
-    }
-};
-exports.AppContext = AppContext;
-exports.AppContext = AppContext = tslib_1.__decorate([
-    (0, common_1.Injectable)(),
-    tslib_1.__metadata("design:paramtypes", [typeof (_a = typeof jwt_1.JwtService !== "undefined" && jwt_1.JwtService) === "function" ? _a : Object, typeof (_b = typeof permission_repository_1.PermissionRepository !== "undefined" && permission_repository_1.PermissionRepository) === "function" ? _b : Object])
-], AppContext);
 
 
 /***/ }),
@@ -6218,3 +6156,4 @@ bootstrap();
 
 /******/ })()
 ;
+//# sourceMappingURL=main.js.map

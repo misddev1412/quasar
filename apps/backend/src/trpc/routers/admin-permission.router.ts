@@ -95,6 +95,7 @@ const permissionGrantSchema = z.object({
 
 
 
+@Router({ alias: 'adminPermission' })
 @Injectable()
 export class AdminPermissionRouter {
   constructor(
@@ -125,7 +126,7 @@ export class AdminPermissionRouter {
       };
       
       const permission = await this.permissionService.createPermission(permissionData);
-      return this.responseHandler.createCreatedResponse(ModuleCode.PERMISSION, 'permission', permission);
+      return this.responseHandler.createTrpcSuccess(permission);
     } catch (error) {
       throw this.responseHandler.createTRPCError(
         ModuleCode.PERMISSION,
@@ -146,7 +147,7 @@ export class AdminPermissionRouter {
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const permissions = await this.permissionService.getAllPermissions(filter);
-      return this.responseHandler.createReadResponse(ModuleCode.PERMISSION, 'permissions', permissions);
+      return this.responseHandler.createTrpcSuccess(permissions);
     } catch (error) {
       throw this.responseHandler.createTRPCError(
         ModuleCode.PERMISSION,
@@ -167,7 +168,7 @@ export class AdminPermissionRouter {
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const permission = await this.permissionService.getPermissionById(input.id);
-      return this.responseHandler.createReadResponse(ModuleCode.PERMISSION, 'permission', permission);
+      return this.responseHandler.createTrpcSuccess(permission);
     } catch (error) {
       throw this.responseHandler.createTRPCError(
         ModuleCode.PERMISSION,
@@ -189,7 +190,7 @@ export class AdminPermissionRouter {
     try {
       const { id, ...updateDto } = input;
       const permission = await this.permissionService.updatePermission(id, updateDto);
-      return this.responseHandler.createUpdatedResponse(ModuleCode.PERMISSION, 'permission', permission);
+      return this.responseHandler.createTrpcSuccess(permission);
     } catch (error) {
       throw this.responseHandler.createTRPCError(
         ModuleCode.PERMISSION,
@@ -210,7 +211,7 @@ export class AdminPermissionRouter {
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       await this.permissionService.deletePermission(input.id);
-      return this.responseHandler.createDeletedResponse(ModuleCode.PERMISSION, 'permission');
+      return this.responseHandler.createTrpcResponse(200, 'OK', { deleted: true });
     } catch (error) {
       throw this.responseHandler.createTRPCError(
         ModuleCode.PERMISSION,
@@ -232,7 +233,7 @@ export class AdminPermissionRouter {
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const result = await this.permissionService.assignPermissionToRole(input.role, input.permissionId);
-      return this.responseHandler.createCreatedResponse(ModuleCode.PERMISSION, 'role permission', result);
+      return this.responseHandler.createTrpcSuccess(result);
     } catch (error) {
       throw this.responseHandler.createTRPCError(
         ModuleCode.PERMISSION,

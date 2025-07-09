@@ -1,16 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { TRPCError } from '@trpc/server';
-import { 
-  ApiErrorResponse,
-  ApiSuccessResponse,
-  ApiListResponse,
-  ApiErrorInfo,
+import {
   ApiLocalizedMessage,
+  ApiPreconditionFailure,
+  ApiSuccessResponse,
+  ApiErrorResponse,
+  ApiErrorInfo,
   ApiBadRequest,
-  ApiErrorReasons,
-  ApiStatusCodes,
+  TrpcApiResponse,
   ModuleCode,
-  OperationCode
+  OperationCode,
+  ApiListResponse,
+  ApiErrorReasons,
+  ApiStatusCodes
 } from '@shared';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
 import { MessageLevelCode } from '@shared/enums/message-codes.enums';
@@ -22,7 +24,69 @@ import { MessageLevelCode } from '@shared/enums/message-codes.enums';
 @Injectable()
 export class ResponseService {
   private readonly logger = new Logger(ResponseService.name);
-  private readonly domain = 'quasar.com';
+  private readonly domain = 'quasar.com'; // Domain for error responses
+
+  // ================================================================
+  // tRPC RESPONSE METHODS
+  // ================================================================
+
+  /**
+   * Create a standardized tRPC API response
+   */
+  createTrpcResponse<T>(
+    code: number,
+    status: string,
+    data?: T,
+    errors?: Array<ApiErrorInfo | ApiLocalizedMessage | ApiBadRequest>
+  ): TrpcApiResponse<T> {
+    return {
+      code,
+      status,
+      data,
+      errors,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Create a standardized tRPC success response
+   */
+  createTrpcSuccess<T>(data: T): TrpcApiResponse<T> {
+    return this.createTrpcResponse(
+      ApiStatusCodes.OK,
+      'OK',
+      data
+    );
+  }
+
+  /**
+   * Create a standardized tRPC error response
+   */
+  createTrpcError(
+    code: number,
+    status: string,
+    message: string,
+    errorReason: ApiErrorReasons = ApiErrorReasons.INTERNAL_ERROR
+  ): TrpcApiResponse {
+    const errorInfo: ApiErrorInfo = {
+      '@type': 'ErrorInfo',
+      reason: errorReason,
+      domain: this.domain
+    };
+
+    this.logger.error(`API Error [${code}]: ${message}`, {
+      code,
+      status,
+      errorInfo
+    });
+
+    return this.createTrpcResponse(
+      code,
+      status,
+      undefined,
+      [errorInfo]
+    );
+  }
 
   // ================================================================
   // SUCCESS RESPONSE METHODS
@@ -118,7 +182,7 @@ export class ResponseService {
     options?: { requestId?: string }
   ): ApiErrorResponse {
     const badRequest: ApiBadRequest = {
-      '@type': 'type.googleapis.com/google.rpc.BadRequest',
+      '@type': 'BadRequest',
       fieldViolations: fieldErrors.map(({ field, message }) => ({
         field,
         description: message
@@ -143,7 +207,7 @@ export class ResponseService {
    */
   createNotFound(message: string = 'Resource not found'): ApiErrorResponse {
     const errorInfo: ApiErrorInfo = {
-      '@type': 'type.googleapis.com/google.rpc.ErrorInfo',
+      '@type': 'ErrorInfo',
       reason: ApiErrorReasons.RESOURCE_NOT_FOUND,
       domain: this.domain
     };
@@ -157,29 +221,11 @@ export class ResponseService {
   }
 
   /**
-   * Create unauthorized error
-   */
-  createUnauthorized(message: string = 'Authentication required'): ApiErrorResponse {
-    const errorInfo: ApiErrorInfo = {
-      '@type': 'type.googleapis.com/google.rpc.ErrorInfo',
-      reason: ApiErrorReasons.UNAUTHENTICATED,
-      domain: this.domain
-    };
-
-    return this.createError(
-      ApiStatusCodes.UNAUTHORIZED,
-      message,
-      'UNAUTHORIZED',
-      [errorInfo]
-    );
-  }
-
-  /**
    * Create forbidden error
    */
   createForbidden(message: string = 'Access forbidden'): ApiErrorResponse {
     const errorInfo: ApiErrorInfo = {
-      '@type': 'type.googleapis.com/google.rpc.ErrorInfo',
+      '@type': 'ErrorInfo',
       reason: ApiErrorReasons.PERMISSION_DENIED,
       domain: this.domain
     };
@@ -193,29 +239,11 @@ export class ResponseService {
   }
 
   /**
-   * Create conflict error
-   */
-  createConflict(message: string = 'Resource already exists'): ApiErrorResponse {
-    const errorInfo: ApiErrorInfo = {
-      '@type': 'type.googleapis.com/google.rpc.ErrorInfo',
-      reason: ApiErrorReasons.RESOURCE_ALREADY_EXISTS,
-      domain: this.domain
-    };
-
-    return this.createError(
-      ApiStatusCodes.CONFLICT,
-      message,
-      'CONFLICT',
-      [errorInfo]
-    );
-  }
-
-  /**
    * Create internal server error
    */
   createInternalError(message: string = 'Internal server error'): ApiErrorResponse {
     const errorInfo: ApiErrorInfo = {
-      '@type': 'type.googleapis.com/google.rpc.ErrorInfo',
+      '@type': 'ErrorInfo',
       reason: ApiErrorReasons.INTERNAL_ERROR,
       domain: this.domain
     };
@@ -229,220 +257,73 @@ export class ResponseService {
   }
 
   // ================================================================
-  // TRPC ERROR HANDLING
+  // TRPC ERROR HELPERS
   // ================================================================
 
   /**
-   * Convert tRPC error to API response format
+   * Create a TRPC error
    */
-  formatTRPCError(error: TRPCError): ApiErrorResponse {
-    const { code, message } = error;
-    const statusMapping = this.mapTRPCCodeToStatus(code);
-    
-    const errorInfo: ApiErrorInfo = {
-      '@type': 'type.googleapis.com/google.rpc.ErrorInfo',
-      reason: statusMapping.reason,
-      domain: this.domain
-    };
-    
-    return this.createError(
-      statusMapping.httpCode,
-      message,
-      statusMapping.status,
-      [errorInfo]
-    );
-  }
-
-  /**
-   * Create tRPC error with simple parameters
-   */
-  private createSimpleTRPCError(
-    code: string,
-    message: string,
-    cause?: unknown
+  createTRPCError(
+    moduleCode: ModuleCode | null,
+    operationCode: OperationCode | null,
+    errorLevelCode: ErrorLevelCode | null,
+    message: string
   ): TRPCError {
+    // Map error level to HTTP status
+    let httpStatus = 500;
+    let code: string = 'INTERNAL_SERVER_ERROR';
+
+    if (errorLevelCode === ErrorLevelCode.NOT_FOUND) {
+      httpStatus = 404;
+      code = 'NOT_FOUND';
+    } else if (errorLevelCode === ErrorLevelCode.VALIDATION) {
+      httpStatus = 400;
+      code = 'BAD_REQUEST';
+    } else if (errorLevelCode === ErrorLevelCode.AUTHORIZATION) {
+      httpStatus = 403;
+      code = 'FORBIDDEN';
+    } else if (errorLevelCode === ErrorLevelCode.AUTHENTICATION_ERROR) {
+      httpStatus = 401;
+      code = 'UNAUTHORIZED';
+    } else if (errorLevelCode === ErrorLevelCode.BUSINESS_LOGIC_ERROR) {
+      httpStatus = 422;
+      code = 'UNPROCESSABLE_CONTENT';
+    }
+
+    this.logger.error(`TRPC Error [${httpStatus}]: ${message}`, {
+      moduleCode,
+      operationCode,
+      errorLevelCode
+    });
+
+    // Prepare our standardized error format that will be used by the errorFormatter
+    const errorData = {
+      code: httpStatus,
+      status: code,
+      errors: [{
+        '@type': 'ErrorInfo',
+        reason: code,
+        domain: this.domain
+      }]
+    };
+
     return new TRPCError({
-      code: code as any, // tRPC's type constraint
+      code: code as any,
       message,
-      cause
+      cause: { httpStatus, errorData }
     });
   }
 
-  // ================================================================
-  // BACKWARD COMPATIBILITY METHODS
-  // ================================================================
-
   /**
-   * Create not found error - backward compatible
-   */
-  createNotFoundError(
-    moduleCode?: ModuleCode | null,
-    operationCode?: OperationCode | null,
-    resource?: string,
-    context?: { requestId?: string }
-  ): TRPCError {
-    const message = resource ? `${resource} not found` : 'Resource not found';
-    const apiResponse = this.createNotFound(message);
-    return this.createSimpleTRPCError('NOT_FOUND', message, apiResponse);
-  }
-
-  /**
-   * Create conflict error - backward compatible
-   */
-  createConflictError(
-    moduleCode?: ModuleCode | null,
-    operationCode?: OperationCode | null,
-    message?: string,
-    context?: { requestId?: string }
-  ): TRPCError {
-    const errorMessage = message || 'Resource already exists';
-    const apiResponse = this.createConflict(errorMessage);
-    return this.createSimpleTRPCError('CONFLICT', errorMessage, apiResponse);
-  }
-
-  /**
-   * Create unauthorized error - backward compatible
-   */
-  createUnauthorizedError(
-    moduleCode?: ModuleCode | null,
-    operationCode?: OperationCode | null,
-    context?: { requestId?: string }
-  ): TRPCError {
-    const message = 'Unauthorized access';
-    const apiResponse = this.createUnauthorized(message);
-    return this.createSimpleTRPCError('UNAUTHORIZED', message, apiResponse);
-  }
-
-  /**
-   * Create forbidden error - backward compatible
-   */
-  createForbiddenError(
-    moduleCode?: ModuleCode | null,
-    operationCode?: OperationCode | null,
-    context?: { requestId?: string }
-  ): TRPCError {
-    const message = 'Access forbidden';
-    const apiResponse = this.createForbidden(message);
-    return this.createSimpleTRPCError('FORBIDDEN', message, apiResponse);
-  }
-
-  /**
-   * Create database error - backward compatible
-   */
-  createDatabaseError(
-    moduleCode?: ModuleCode | null,
-    operationCode?: OperationCode | null,
-    error?: Error,
-    context?: { requestId?: string }
-  ): TRPCError {
-    const message = process.env.NODE_ENV === 'development' 
-      ? error?.message || 'Database operation failed'
-      : 'Database operation failed';
-    const apiResponse = this.createInternalError(message);
-    return this.createSimpleTRPCError('INTERNAL_SERVER_ERROR', message, apiResponse);
-  }
-
-  /**
-   * Create business logic error - backward compatible
-   */
-  createBusinessLogicError(
-    moduleCode?: ModuleCode | null,
-    operationCode?: OperationCode | null,
-    message?: string,
-    context?: { requestId?: string }
-  ): TRPCError {
-    const errorMessage = message || 'Business logic error';
-    const apiResponse = this.createError(
-      ApiStatusCodes.BAD_REQUEST,
-      errorMessage,
-      'BAD_REQUEST'
-    );
-    return this.createSimpleTRPCError('BAD_REQUEST', errorMessage, apiResponse);
-  }
-
-  /**
-   * Create validation error - backward compatible
-   */
-  createValidationTRPCError(
-    moduleCode?: ModuleCode | null,
-    operationCode?: OperationCode | null,
-    errors?: Array<{ field: string; message: string }>,
-    context?: { requestId?: string }
-  ): TRPCError {
-    const fieldErrors = errors || [];
-    const message = fieldErrors.length > 0 
-      ? `Validation failed: ${fieldErrors.map(e => `${e.field}: ${e.message}`).join(', ')}`
-      : 'Validation failed';
-    
-    const apiResponse = this.createValidationError(fieldErrors);
-    return this.createSimpleTRPCError('BAD_REQUEST', message, apiResponse);
-  }
-
-  /**
-   * Create generic tRPC error with error level code - backward compatible
+   * Create a TRPC error with standardized error codes
    */
   createTRPCErrorWithCodes(
-    moduleCode?: ModuleCode | null,
-    operationCode?: OperationCode | null,
-    errorLevelCode?: ErrorLevelCode,
-    message?: string,
-    context?: { requestId?: string }
+    moduleCode: ModuleCode | null,
+    operationCode: OperationCode | null,
+    errorLevelCode: ErrorLevelCode | null,
+    message: string
   ): TRPCError {
-    const errorMessage = message || 'An error occurred';
-    let trpcCode = 'INTERNAL_SERVER_ERROR';
-    let apiResponse: ApiErrorResponse;
-    
-    // Map common error levels to tRPC codes
-    if (errorLevelCode !== undefined && errorLevelCode !== null) {
-      switch (errorLevelCode) {
-        case ErrorLevelCode.VALIDATION:
-          trpcCode = 'BAD_REQUEST';
-          apiResponse = this.createError(ApiStatusCodes.BAD_REQUEST, errorMessage, 'BAD_REQUEST');
-          break;
-        case ErrorLevelCode.NOT_FOUND:
-          trpcCode = 'NOT_FOUND';
-          apiResponse = this.createNotFound(errorMessage);
-          break;
-        case ErrorLevelCode.AUTHORIZATION:
-        case ErrorLevelCode.AUTHENTICATION_ERROR:
-        case ErrorLevelCode.TOKEN_ERROR:
-          trpcCode = 'UNAUTHORIZED';
-          apiResponse = this.createUnauthorized(errorMessage);
-          break;
-        case ErrorLevelCode.FORBIDDEN:
-          trpcCode = 'FORBIDDEN';
-          apiResponse = this.createForbidden(errorMessage);
-          break;
-        case ErrorLevelCode.CONFLICT:
-          trpcCode = 'CONFLICT';
-          apiResponse = this.createConflict(errorMessage);
-          break;
-        case ErrorLevelCode.BUSINESS_LOGIC_ERROR:
-          trpcCode = 'BAD_REQUEST';
-          apiResponse = this.createError(ApiStatusCodes.BAD_REQUEST, errorMessage, 'BAD_REQUEST');
-          break;
-        default:
-          apiResponse = this.createInternalError(errorMessage);
-          break;
-      }
-    } else {
-      apiResponse = this.createInternalError(errorMessage);
-    }
-    
-    return this.createSimpleTRPCError(trpcCode, errorMessage, apiResponse);
-  }
-
-  /**
-   * Create generic tRPC error - backward compatible (legacy method name)
-   */
-  createTRPCError(
-    moduleCode?: ModuleCode | null,
-    operationCode?: OperationCode | null,
-    errorLevelCode?: ErrorLevelCode,
-    message?: string,
-    context?: { requestId?: string }
-  ): TRPCError {
-    return this.createTRPCErrorWithCodes(moduleCode, operationCode, errorLevelCode, message, context);
+    return this.createTRPCError(moduleCode, operationCode, errorLevelCode, message);
   }
 
   // ================================================================
@@ -457,8 +338,8 @@ export class ResponseService {
     resource?: string,
     data?: T,
     context?: { requestId?: string }
-  ): ApiSuccessResponse<T> {
-    return this.createSuccess(data, { requestId: context?.requestId });
+  ): TrpcApiResponse<T> {
+    return this.createTrpcSuccess(data);
   }
 
   /**
@@ -469,8 +350,8 @@ export class ResponseService {
     resource?: string,
     data?: T,
     context?: { requestId?: string }
-  ): ApiSuccessResponse<T> {
-    return this.createSuccess(data, { requestId: context?.requestId });
+  ): TrpcApiResponse<T> {
+    return this.createTrpcSuccess(data);
   }
 
   /**
@@ -481,20 +362,23 @@ export class ResponseService {
     resource?: string,
     data?: T,
     context?: { requestId?: string }
-  ): ApiSuccessResponse<T> {
-    return this.createSuccess(data, { requestId: context?.requestId });
+  ): TrpcApiResponse<T> {
+    return this.createTrpcSuccess(data);
   }
 
   /**
    * Create success response for DELETE operations - backward compatible
    */
-  createDeletedResponse<T = unknown>(
+  createDeletedResponse(
     moduleCode?: ModuleCode | null,
     resource?: string,
-    data?: T,
     context?: { requestId?: string }
-  ): ApiSuccessResponse<T> {
-    return this.createSuccess(data, { requestId: context?.requestId });
+  ): TrpcApiResponse {
+    return this.createTrpcResponse(
+      ApiStatusCodes.OK,
+      'OK',
+      { deleted: true }
+    );
   }
 
   /**
@@ -507,64 +391,7 @@ export class ResponseService {
     message?: string,
     data?: T,
     context?: { requestId?: string }
-  ): ApiSuccessResponse<T> {
-    return this.createSuccess(data, { requestId: context?.requestId });
-  }
-
-  // ================================================================
-  // HELPER METHODS
-  // ================================================================
-
-  private mapTRPCCodeToStatus(trpcCode: string): {
-    httpCode: number;
-    status: string;
-    reason: ApiErrorReasons;
-  } {
-    switch (trpcCode) {
-      case 'UNAUTHORIZED':
-        return {
-          httpCode: ApiStatusCodes.UNAUTHORIZED,
-          status: 'UNAUTHORIZED',
-          reason: ApiErrorReasons.UNAUTHENTICATED
-        };
-      case 'FORBIDDEN':
-        return {
-          httpCode: ApiStatusCodes.FORBIDDEN,
-          status: 'FORBIDDEN',
-          reason: ApiErrorReasons.PERMISSION_DENIED
-        };
-      case 'NOT_FOUND':
-        return {
-          httpCode: ApiStatusCodes.NOT_FOUND,
-          status: 'NOT_FOUND',
-          reason: ApiErrorReasons.RESOURCE_NOT_FOUND
-        };
-      case 'CONFLICT':
-        return {
-          httpCode: ApiStatusCodes.CONFLICT,
-          status: 'CONFLICT',
-          reason: ApiErrorReasons.RESOURCE_ALREADY_EXISTS
-        };
-      case 'UNSUPPORTED_MEDIA_TYPE':
-        return {
-          httpCode: ApiStatusCodes.BAD_REQUEST,
-          status: 'BAD_REQUEST',
-          reason: ApiErrorReasons.UNSUPPORTED_MEDIA_TYPE
-        };
-      case 'BAD_REQUEST':
-      case 'PARSE_ERROR':
-      default:
-        return {
-          httpCode: ApiStatusCodes.BAD_REQUEST,
-          status: 'BAD_REQUEST',
-          reason: ApiErrorReasons.INVALID_REQUEST
-        };
-      case 'INTERNAL_SERVER_ERROR':
-        return {
-          httpCode: ApiStatusCodes.INTERNAL_SERVER_ERROR,
-          status: 'INTERNAL_SERVER_ERROR',
-          reason: ApiErrorReasons.INTERNAL_ERROR
-        };
-    }
+  ): TrpcApiResponse<T> {
+    return this.createTrpcSuccess(data);
   }
 } 

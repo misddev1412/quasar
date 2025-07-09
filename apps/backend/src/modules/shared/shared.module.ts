@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthMiddleware } from '../../trpc/middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../../trpc/middlewares/admin-role.middleware';
+import { UserInjectionMiddleware } from '../../trpc/middlewares/user-injection.middleware';
 import { CanCreateOwn, CanCreateAny, CanReadAny } from '../../trpc/middlewares/permission.middleware';
 import { AuthModule } from '../../auth/auth.module';
 import { PermissionCheckerService } from './services/permission-checker.service';
@@ -20,6 +21,7 @@ import { Role } from '../user/entities/role.entity';
   providers: [
     AuthMiddleware,
     AdminRoleMiddleware,
+    UserInjectionMiddleware,
     PermissionRepository,
     PermissionCheckerService,
     ResponseService,
@@ -31,6 +33,7 @@ import { Role } from '../user/entities/role.entity';
   exports: [
     AuthMiddleware,
     AdminRoleMiddleware,
+    UserInjectionMiddleware,
     PermissionCheckerService,
     ResponseService,
     ErrorRegistryService,

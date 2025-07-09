@@ -5,7 +5,7 @@ import { TranslationService } from '../../modules/translation/services/translati
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../middlewares/admin-role.middleware';
-import { MessageLevelCode } from '@shared';
+import { ApiStatusCodes, MessageLevelCode } from '@shared';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
 import { apiResponseSchema } from '../schemas/response.schemas';
 
@@ -41,6 +41,7 @@ const deleteTranslationSchema = z.object({
   locale: supportedLocalesSchema,
 });
 
+@Router({ alias: 'translation' })
 @Injectable()
 export class TranslationRouter {
   constructor(
@@ -217,10 +218,10 @@ export class TranslationRouter {
       );
       
       if (!success) {
-        throw this.responseHandler.createNotFoundError(
-          ModuleCode.TRANSLATION,
-          OperationCode.DELETE,
-          'Translation'
+        throw this.responseHandler.createError(
+          ApiStatusCodes.NOT_FOUND,
+          'Translation not found',
+          'NOT_FOUND'
         );
       }
       

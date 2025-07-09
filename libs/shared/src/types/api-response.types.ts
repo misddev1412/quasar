@@ -8,7 +8,7 @@
  * Provides machine-readable error identification
  */
 export interface ApiErrorInfo {
-  '@type': 'type.googleapis.com/google.rpc.ErrorInfo';
+  '@type': string;
   reason: string; // UPPER_SNAKE_CASE error reason
   domain: string; // Service domain (e.g., 'user.quasar.com')
   metadata?: Record<string, string>; // Additional context
@@ -19,7 +19,7 @@ export interface ApiErrorInfo {
  * For user-facing error messages
  */
 export interface ApiLocalizedMessage {
-  '@type': 'type.googleapis.com/google.rpc.LocalizedMessage';
+  '@type': string;
   locale: string; // IETF BCP-47 language tag (e.g., 'en-US')
   message: string; // Localized error message
 }
@@ -29,7 +29,7 @@ export interface ApiLocalizedMessage {
  * For field-specific validation errors
  */
 export interface ApiBadRequest {
-  '@type': 'type.googleapis.com/google.rpc.BadRequest';
+  '@type': string;
   fieldViolations: Array<{
     field: string; // Field path (e.g., 'user.email')
     description: string; // Description of the violation
@@ -41,7 +41,7 @@ export interface ApiBadRequest {
  * For business logic constraint violations
  */
 export interface ApiPreconditionFailure {
-  '@type': 'type.googleapis.com/google.rpc.PreconditionFailure';
+  '@type': string;
   violations: Array<{
     type: string; // Type of violation
     subject: string; // Subject that failed
@@ -109,7 +109,7 @@ export enum ApiErrorReasons {
  * API status for RPC-style responses
  */
 export interface ApiStatus {
-  code: number; // gRPC-style status code
+  code: number; // Status code
   message: string; // Error message
   details?: Array<ApiErrorInfo | ApiLocalizedMessage | ApiBadRequest | ApiPreconditionFailure>;
 }
@@ -173,17 +173,16 @@ export interface ApiOperationResponse {
   };
 }
 
-// ===== LEGACY COMPATIBILITY TYPES =====
-
-// Re-export with legacy names for backward compatibility
-export type GoogleApiErrorResponse = ApiErrorResponse;
-export type GoogleApiSuccessResponse<T = any> = ApiSuccessResponse<T>;
-export type GoogleApiListResponse<T = any> = ApiListResponse<T>;
-export type GoogleApiErrorInfo = ApiErrorInfo;
-export type GoogleApiLocalizedMessage = ApiLocalizedMessage;
-export const GoogleApiErrorReasons = ApiErrorReasons;
-export const GoogleApiStatusCodes = ApiStatusCodes;
-export type GoogleApiStatus = ApiStatus;
+/**
+ * Standardized tRPC response format
+ */
+export interface TrpcApiResponse<T = any> {
+  code: number;
+  status: string;
+  data?: T;
+  errors?: Array<ApiErrorInfo | ApiLocalizedMessage | ApiBadRequest | ApiPreconditionFailure>;
+  timestamp: string;
+}
 
 // Import existing types for compatibility
 export type {

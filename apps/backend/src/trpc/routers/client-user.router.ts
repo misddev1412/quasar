@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
+import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ClientUserService } from '../../modules/user/services/client/client-user.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
@@ -7,6 +7,7 @@ import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { UserInjectionMiddleware } from '../middlewares/user-injection.middleware';
 import { UserRole } from '@shared';
 import { apiResponseSchema } from '../schemas/response.schemas';
+import { AuthenticatedContext } from '../context';
 
 // Zod schemas for validation
 const clientRegisterSchema = z.object({
@@ -71,6 +72,7 @@ const refreshTokenSchema = z.object({
 
 
 
+@Router({ alias: 'clientUser' })
 @Injectable()
 export class ClientUserRouter {
   constructor(
@@ -99,18 +101,12 @@ export class ClientUserRouter {
       };
       
       const result = await this.clientUserService.register(clientRegisterDto);
-      return this.responseHandler.createSuccessResponse(
-        null,
-        null,
-        null,
-        'User registered successfully',
-        result
-      );
+      return this.responseHandler.createTrpcSuccess(result);
     } catch (error) {
       throw this.responseHandler.createTRPCError(
-        null,
-        null,
-        null,
+        10, // ModuleCode.USER
+        6,  // OperationCode.REGISTER
+        1,  // ErrorLevelCode.VALIDATION
         error.message || 'Failed to register user'
       );
     }
@@ -131,44 +127,37 @@ export class ClientUserRouter {
       };
       
       const result = await this.clientUserService.login(clientLoginDto);
-      return this.responseHandler.createSuccessResponse(
-        null,
-        null,
-        null,
-        'User logged in successfully',
-        result
-      );
+      return this.responseHandler.createTrpcSuccess(result);
     } catch (error) {
+      // Use proper error codes for consistent formatting
       throw this.responseHandler.createTRPCError(
-        null,
-        null,
-        null,
+        10, // ModuleCode.USER
+        5,  // OperationCode.LOGIN
+        41, // ErrorLevelCode.AUTHENTICATION_ERROR
         error.message || 'Login failed'
       );
     }
   }
 
-  @UseMiddlewares(AuthMiddleware, UserInjectionMiddleware)
+  @UseMiddlewares(AuthMiddleware)
   @Query({
     output: apiResponseSchema,
   })
   async getProfile(
-    @Input() userId: string
+    @Ctx() { user }: AuthenticatedContext
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const result = await this.clientUserService.getProfile(userId);
-      return this.responseHandler.createSuccessResponse(
-        null,
-        null,
-        null,
-        'Profile retrieved successfully',
-        result
-      );
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+      
+      const profile = await this.clientUserService.getProfile(user.id);
+      return this.responseHandler.createTrpcSuccess(profile);
     } catch (error) {
       throw this.responseHandler.createTRPCError(
-        null,
-        null,
-        null,
+        10, // ModuleCode.USER
+        2,  // OperationCode.READ
+        4,  // ErrorLevelCode.NOT_FOUND
         error.message || 'Failed to retrieve profile'
       );
     }
@@ -188,18 +177,12 @@ export class ClientUserRouter {
         userId,
         updateProfileDto
       );
-      return this.responseHandler.createSuccessResponse(
-        null,
-        null,
-        null,
-        'Profile updated successfully',
-        result
-      );
+      return this.responseHandler.createTrpcSuccess(result);
     } catch (error) {
       throw this.responseHandler.createTRPCError(
-        null,
-        null,
-        null,
+        10, // ModuleCode.USER
+        3,  // OperationCode.UPDATE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
         error.message || 'Failed to update profile'
       );
     }
@@ -214,18 +197,12 @@ export class ClientUserRouter {
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const result = await this.clientUserService.refreshToken(input.refreshToken);
-      return this.responseHandler.createSuccessResponse(
-        null,
-        null,
-        null,
-        'Token refreshed successfully',
-        result
-      );
+      return this.responseHandler.createTrpcSuccess(result);
     } catch (error) {
       throw this.responseHandler.createTRPCError(
-        null,
-        null,
-        null,
+        11, // ModuleCode.AUTH
+        7,  // OperationCode.REFRESH
+        42, // ErrorLevelCode.TOKEN_ERROR
         error.message || 'Token refresh failed'
       );
     }

@@ -5,19 +5,24 @@ import { z } from 'zod';
  * Provides consistent response structure across the application
  */
 export const apiResponseSchema = z.object({
-  success: z.boolean(),
+  code: z.number(),
+  status: z.string(),
   data: z.any().optional(),
-  message: z.string().optional(),
-  messageCode: z.string().optional(),
-  errorCode: z.string().optional(),
-  timestamp: z.date(),
+  errors: z.array(z.object({
+    '@type': z.string(),
+    reason: z.string(),
+    domain: z.string(),
+    metadata: z.record(z.string()).optional(),
+  })).optional(),
+  timestamp: z.string(),
 });
 
 /**
  * Paginated response schema for list endpoints
  */
 export const paginatedResponseSchema = z.object({
-  success: z.boolean(),
+  code: z.number(),
+  status: z.string(),
   data: z.object({
     items: z.array(z.any()),
     total: z.number(),
@@ -25,38 +30,49 @@ export const paginatedResponseSchema = z.object({
     limit: z.number(),
     totalPages: z.number(),
   }),
-  message: z.string().optional(),
-  messageCode: z.string().optional(),
-  errorCode: z.string().optional(),
-  timestamp: z.date(),
+  errors: z.array(z.object({
+    '@type': z.string(),
+    reason: z.string(),
+    domain: z.string(),
+    metadata: z.record(z.string()).optional(),
+  })).optional(),
+  timestamp: z.string(),
 });
 
 /**
  * Response schema for authentication endpoints
  */
 export const authResponseSchema = z.object({
-  success: z.boolean(),
+  code: z.number(),
+  status: z.string(),
   data: z.object({
     user: z.any(),
     accessToken: z.string(),
     refreshToken: z.string().optional(),
     expiresIn: z.number().optional(),
   }),
-  message: z.string().optional(),
-  messageCode: z.string().optional(),
-  errorCode: z.string().optional(),
-  timestamp: z.date(),
+  errors: z.array(z.object({
+    '@type': z.string(),
+    reason: z.string(),
+    domain: z.string(),
+    metadata: z.record(z.string()).optional(),
+  })).optional(),
+  timestamp: z.string(),
 });
 
 /**
  * Response schema for endpoints that don't return data
  */
 export const voidResponseSchema = z.object({
-  success: z.boolean(),
-  message: z.string().optional(),
-  messageCode: z.string().optional(),
-  errorCode: z.string().optional(),
-  timestamp: z.date(),
+  code: z.number(),
+  status: z.string(),
+  errors: z.array(z.object({
+    '@type': z.string(),
+    reason: z.string(),
+    domain: z.string(),
+    metadata: z.record(z.string()).optional(),
+  })).optional(),
+  timestamp: z.string(),
 });
 
 /**

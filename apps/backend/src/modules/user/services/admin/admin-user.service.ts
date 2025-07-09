@@ -3,7 +3,7 @@ import { UserRepository } from '../../repositories/user.repository';
 import { AuthService } from '../../../../auth/auth.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { User } from '../../entities/user.entity';
-import { UserRole } from '@shared';
+import { ApiStatusCodes, UserRole } from '@shared';
 import { 
   AdminCreateUserDto, 
   AdminUpdateUserDto, 
@@ -29,10 +29,10 @@ export class AdminUserService {
   async createUser(createUserDto: AdminCreateUserDto): Promise<AdminUserResponseDto> {
     const existingUser = await this.userRepository.findByEmail(createUserDto.email);
     if (existingUser) {
-      throw this.responseHandler.createConflictError(
-        null,
-        null,
-        'User with this email already exists'
+      throw this.responseHandler.createError(
+        ApiStatusCodes.CONFLICT,
+        'User with this email already exists',
+        'CONFLICT'
       );
     }
 
@@ -54,10 +54,10 @@ export class AdminUserService {
       if (error.code && error.code.includes('10')) {
         throw error; // Re-throw our structured errors
       }
-      throw this.responseHandler.createDatabaseError(
-        null,
-        null,
-        error as Error
+      throw this.responseHandler.createError(
+        ApiStatusCodes.INTERNAL_SERVER_ERROR,
+        'Failed to create user',
+        'INTERNAL_SERVER_ERROR'
       );
     }
   }
@@ -113,10 +113,10 @@ export class AdminUserService {
   async getUserById(id: string): Promise<AdminUserResponseDto> {
     const user = await this.userRepository.findWithProfile(id);
     if (!user) {
-      throw this.responseHandler.createNotFoundError(
-        null,
-        null,
-        'User'
+      throw this.responseHandler.createError(
+        ApiStatusCodes.NOT_FOUND,
+        'User not found',
+        'NOT_FOUND'
       );
     }
     return this.toAdminUserResponse(user);
@@ -125,20 +125,20 @@ export class AdminUserService {
   async updateUser(id: string, updateUserDto: AdminUpdateUserDto): Promise<AdminUserResponseDto> {
     const user = await this.userRepository.findById(id);
     if (!user) {
-      throw this.responseHandler.createNotFoundError(
-        null,
-        null,
-        'User'
+      throw this.responseHandler.createError(
+        ApiStatusCodes.NOT_FOUND,
+        'User not found',
+        'NOT_FOUND'
       );
     }
 
     try {
       const updatedUser = await this.userRepository.update(id, updateUserDto);
       if (!updatedUser) {
-        throw this.responseHandler.createNotFoundError(
-          null,
-          null,
-          'User'
+        throw this.responseHandler.createError(
+          ApiStatusCodes.NOT_FOUND,
+          'User not found',
+          'NOT_FOUND'
         );
       }
       
@@ -149,10 +149,10 @@ export class AdminUserService {
       if (error.code && error.code.includes('10')) {
         throw error; // Re-throw our structured errors
       }
-      throw this.responseHandler.createDatabaseError(
-        null,
-        null,
-        error as Error
+      throw this.responseHandler.createError(
+        ApiStatusCodes.INTERNAL_SERVER_ERROR,
+        'Failed to update user',
+        'INTERNAL_SERVER_ERROR'
       );
     }
   }
@@ -160,30 +160,30 @@ export class AdminUserService {
   async deleteUser(id: string): Promise<void> {
     const user = await this.userRepository.findById(id);
     if (!user) {
-      throw this.responseHandler.createNotFoundError(
-        null,
-        null,
-        'User'
+      throw this.responseHandler.createError(
+        ApiStatusCodes.NOT_FOUND,
+        'User not found',
+        'NOT_FOUND'
       );
     }
 
     try {
       const deleted = await this.userRepository.delete(id);
       if (!deleted) {
-        throw this.responseHandler.createNotFoundError(
-          null,
-          null,
-          'User'
+        throw this.responseHandler.createError(
+          ApiStatusCodes.NOT_FOUND,
+          'User not found',
+          'NOT_FOUND'
         );
       }
     } catch (error) {
       if (error.code && error.code.includes('10')) {
         throw error; // Re-throw our structured errors
       }
-      throw this.responseHandler.createDatabaseError(
-        null,
-        null,
-        error as Error
+      throw this.responseHandler.createError(
+        ApiStatusCodes.INTERNAL_SERVER_ERROR,
+        'Failed to delete user',
+        'INTERNAL_SERVER_ERROR'
       );
     }
   }

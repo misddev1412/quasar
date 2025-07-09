@@ -9,6 +9,13 @@ import { TranslationModule } from '../modules/translation/translation.module';
 import { AuthModule } from '../auth/auth.module';
 import { AppContext } from '../trpc/context';
 import databaseConfig from '../config/database.config';
+import { User } from '../modules/user/entities/user.entity';
+import { UserProfile } from '../modules/user/entities/user-profile.entity';
+import { Permission } from '../modules/user/entities/permission.entity';
+import { Role } from '../modules/user/entities/role.entity';
+import { UserRole } from '../modules/user/entities/user-role.entity';
+import { RolePermission } from '../modules/user/entities/role-permission.entity';
+import { Translation } from '../modules/translation/entities/translation.entity';
 
 @Module({
   imports: [
@@ -18,7 +25,19 @@ import databaseConfig from '../config/database.config';
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => configService.get('database'),
+      useFactory: (configService: ConfigService) => ({
+        ...configService.get('database'),
+        entities: [
+          User, 
+          UserProfile, 
+          Permission, 
+          Role, 
+          UserRole, 
+          RolePermission,
+          Translation
+        ],
+        autoLoadEntities: true
+      }),
     }),
     AuthModule,
     TRPCModule.forRoot({

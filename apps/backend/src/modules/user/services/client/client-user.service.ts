@@ -3,7 +3,7 @@ import { UserRepository } from '../../repositories/user.repository';
 import { AuthService } from '../../../../auth/auth.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { User } from '../../entities/user.entity';
-import { UserRole } from '@shared';
+import { ApiStatusCodes, UserRole } from '@shared';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
 import { 
   ClientRegisterDto, 
@@ -24,10 +24,10 @@ export class ClientUserService {
   async register(registerDto: ClientRegisterDto): Promise<ClientAuthResponseDto> {
     const existingUser = await this.userRepository.findByEmail(registerDto.email);
     if (existingUser) {
-      throw this.responseHandler.createConflictError(
-        null, // moduleCode not needed
-        null, // operationCode not needed
-        'User with this email already exists'
+      throw this.responseHandler.createError(
+        ApiStatusCodes.CONFLICT,
+        'User with this email already exists',
+        'CONFLICT'
       );
     }
 
@@ -53,10 +53,10 @@ export class ClientUserService {
       if (error.code && error.code.includes('10')) {
         throw error; // Re-throw our structured errors
       }
-      throw this.responseHandler.createDatabaseError(
-        null, // moduleCode not needed
-        null, // operationCode not needed
-        error as Error
+      throw this.responseHandler.createError(
+        ApiStatusCodes.INTERNAL_SERVER_ERROR,
+        'Failed to register',
+        'INTERNAL_SERVER_ERROR'
       );
     }
   }
@@ -64,9 +64,10 @@ export class ClientUserService {
   async login(loginDto: ClientLoginDto): Promise<ClientAuthResponseDto> {
     const user = await this.authService.validateUser(loginDto.email, loginDto.password);
     if (!user) {
-      throw this.responseHandler.createUnauthorizedError(
-        null, // moduleCode not needed
-        null  // operationCode not needed
+      throw this.responseHandler.createError(
+        ApiStatusCodes.UNAUTHORIZED,
+        'Invalid credentials',
+        'UNAUTHORIZED'
       );
     }
 
@@ -92,10 +93,10 @@ export class ClientUserService {
       if (error.code && error.code.includes('10')) {
         throw error; // Re-throw our structured errors
       }
-      throw this.responseHandler.createDatabaseError(
-        null, // moduleCode not needed
-        null, // operationCode not needed
-        error as Error
+      throw this.responseHandler.createError(
+        ApiStatusCodes.INTERNAL_SERVER_ERROR,
+        'Failed to login',
+        'INTERNAL_SERVER_ERROR'
       );
     }
   }
@@ -103,10 +104,10 @@ export class ClientUserService {
   async getProfile(userId: string): Promise<ClientUserResponseDto> {
     const user = await this.userRepository.findWithProfile(userId);
     if (!user) {
-      throw this.responseHandler.createNotFoundError(
-        null, // moduleCode not needed
-        null, // operationCode not needed
-        'User'
+      throw this.responseHandler.createError(
+        ApiStatusCodes.NOT_FOUND,
+        'User not found',
+        'NOT_FOUND'
       );
     }
     return this.toClientUserResponse(user);
@@ -115,10 +116,10 @@ export class ClientUserService {
   async updateProfile(userId: string, updateProfileDto: ClientUpdateProfileDto): Promise<ClientUserResponseDto> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      throw this.responseHandler.createNotFoundError(
-        null, // moduleCode not needed
-        null, // operationCode not needed
-        'User'
+      throw this.responseHandler.createError(
+        ApiStatusCodes.NOT_FOUND,
+        'User not found',
+        'NOT_FOUND'
       );
     }
 
@@ -132,10 +133,10 @@ export class ClientUserService {
       // Update the user profile using the profile update method
       const updatedProfile = await this.userRepository.updateProfile(userId, profileData);
       if (!updatedProfile) {
-        throw this.responseHandler.createNotFoundError(
-          null, // moduleCode not needed
-          null, // operationCode not needed
-          'User profile'
+        throw this.responseHandler.createError(
+          ApiStatusCodes.NOT_FOUND,
+          'User profile not found',
+          'NOT_FOUND'
         );
       }
       
@@ -146,10 +147,10 @@ export class ClientUserService {
       if (error.code && error.code.includes('10')) {
         throw error; // Re-throw our structured errors
       }
-      throw this.responseHandler.createDatabaseError(
-        null, // moduleCode not needed
-        null, // operationCode not needed
-        error as Error
+      throw this.responseHandler.createError(
+        ApiStatusCodes.INTERNAL_SERVER_ERROR,
+        'Failed to update profile',
+        'INTERNAL_SERVER_ERROR'
       );
     }
   }
@@ -161,10 +162,10 @@ export class ClientUserService {
       
       const user = await this.userRepository.findWithProfile(payload.sub);
       if (!user) {
-        throw this.responseHandler.createNotFoundError(
-          null, // moduleCode not needed
-          null, // operationCode not needed
-          'User'
+        throw this.responseHandler.createError(
+          ApiStatusCodes.NOT_FOUND,
+          'User not found',
+          'NOT_FOUND'
         );
       }
 

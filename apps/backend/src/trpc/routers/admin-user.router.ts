@@ -76,6 +76,7 @@ const getUsersResponseSchema = z.object({
   limit: z.number(),
 });
 
+@Router({ alias: 'adminUser' })
 @Injectable()
 export class AdminUserRouter {
   constructor(
@@ -107,12 +108,12 @@ export class AdminUserRouter {
       };
       
       const user = await this.adminUserService.createUser(adminCreateDto);
-      return this.responseHandler.createCreatedResponse(null, 'user', user);
+      return this.responseHandler.createTrpcSuccess(user);
     } catch (error) {
-      throw this.responseHandler.createTRPCErrorWithCodes(
-        null,
-        null, 
-        ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+      throw this.responseHandler.createTRPCError(
+        10, // ModuleCode.USER
+        1,  // OperationCode.CREATE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
         error.message || 'Failed to create user'
       );
     }
@@ -137,12 +138,16 @@ export class AdminUserRouter {
       };
       
       const result = await this.adminUserService.getAllUsers(filters);
-      return this.responseHandler.createReadResponse(null, 'users', result);
+      return this.responseHandler.createTrpcResponse(
+        200,
+        'OK',
+        result
+      );
     } catch (error) {
-      throw this.responseHandler.createTRPCErrorWithCodes(
-        null,
-        null,
-        ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+      throw this.responseHandler.createTRPCError(
+        10, // ModuleCode.USER
+        2,  // OperationCode.READ
+        10, // ErrorLevelCode.SERVER_ERROR
         error.message || 'Failed to retrieve users'
       );
     }
@@ -158,12 +163,12 @@ export class AdminUserRouter {
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const user = await this.adminUserService.getUserById(input.id);
-      return this.responseHandler.createReadResponse(null, 'user', user);
+      return this.responseHandler.createTrpcSuccess(user);
     } catch (error) {
-      throw this.responseHandler.createTRPCErrorWithCodes(
-        null,
-        null,
-        ErrorLevelCode.NOT_FOUND,
+      throw this.responseHandler.createTRPCError(
+        10, // ModuleCode.USER
+        2,  // OperationCode.READ
+        4,  // ErrorLevelCode.NOT_FOUND
         error.message || 'User not found'
       );
     }
@@ -180,12 +185,12 @@ export class AdminUserRouter {
     try {
       const { id, ...updateDto } = input;
       const user = await this.adminUserService.updateUser(id, updateDto);
-      return this.responseHandler.createUpdatedResponse(null, 'user', user);
+      return this.responseHandler.createTrpcSuccess(user);
     } catch (error) {
-      throw this.responseHandler.createTRPCErrorWithCodes(
-        null,
-        null,
-        ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+      throw this.responseHandler.createTRPCError(
+        10, // ModuleCode.USER
+        3,  // OperationCode.UPDATE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
         error.message || 'Failed to update user'
       );
     }
@@ -201,12 +206,16 @@ export class AdminUserRouter {
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       await this.adminUserService.deleteUser(input.id);
-      return this.responseHandler.createDeletedResponse(null, 'user');
+      return this.responseHandler.createTrpcResponse(
+        200,
+        'OK',
+        { deleted: true }
+      );
     } catch (error) {
-      throw this.responseHandler.createTRPCErrorWithCodes(
-        null,
-        null,
-        ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+      throw this.responseHandler.createTRPCError(
+        10, // ModuleCode.USER
+        4,  // OperationCode.DELETE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
         error.message || 'Failed to delete user'
       );
     }
@@ -225,12 +234,12 @@ export class AdminUserRouter {
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const user = await this.adminUserService.updateUserStatus(input.id, input.isActive);
-      return this.responseHandler.createUpdatedResponse(null, 'user status', user);
+      return this.responseHandler.createTrpcSuccess(user);
     } catch (error) {
-      throw this.responseHandler.createTRPCErrorWithCodes(
-        null,
-        null,
-        ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+      throw this.responseHandler.createTRPCError(
+        10, // ModuleCode.USER
+        3,  // OperationCode.UPDATE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
         error.message || 'Failed to update user status'
       );
     }
