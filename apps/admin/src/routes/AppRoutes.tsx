@@ -6,14 +6,16 @@ import NotFound from '../pages/NotFound';
 import LoginPage from '../pages/auth/login';
 import { useAuth, withAuth } from '../context/AuthContext';
 import AppLayout from '../components/layout/AppLayout';
+import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 
 // Protected routes with authentication and layout
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
+  const { t } = useTranslationWithBackend();
 
   // Show loading state while checking authentication
   if (isLoading) {
-    return <div className="flex items-center justify-center h-screen">加载中...</div>;
+    return <div className="flex items-center justify-center h-screen">{t('common.loading')}</div>;
   }
   
   // Redirect to login if not authenticated

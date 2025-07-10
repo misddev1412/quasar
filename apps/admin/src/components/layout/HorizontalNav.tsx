@@ -13,11 +13,13 @@ import {
   X
 } from 'lucide-react';
 import Logo from './Logo';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 interface MenuItem {
   icon: React.ReactNode;
   label: string;
   path: string;
+  translationKey: string;
 }
 
 export const HorizontalNav: React.FC = () => {
@@ -25,41 +27,48 @@ export const HorizontalNav: React.FC = () => {
   const { primaryColor } = theme;
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t } = useTranslationWithBackend();
 
   const menuItems: MenuItem[] = [
     {
       icon: <LayoutDashboard size={18} />,
-      label: '仪表盘',
+      label: t('navigation.dashboard'),
+      translationKey: 'navigation.dashboard',
       path: '/'
     },
     {
       icon: <Users size={18} />,
-      label: '用户管理',
+      label: t('admin.user_management'),
+      translationKey: 'admin.user_management',
       path: '/users'
     },
     {
       icon: <FileText size={18} />,
-      label: 'SEO管理',
+      label: t('admin.seo_management'),
+      translationKey: 'admin.seo_management',
       path: '/seo'
     },
     {
       icon: <Globe size={18} />,
-      label: '翻译',
+      label: t('admin.translations'),
+      translationKey: 'admin.translations',
       path: '/translations'
     },
     {
       icon: <Settings size={18} />,
-      label: '设置',
+      label: t('navigation.settings'),
+      translationKey: 'navigation.settings',
       path: '/settings'
     },
     {
       icon: <HelpCircle size={18} />,
-      label: '帮助',
+      label: t('navigation.help'),
+      translationKey: 'navigation.help',
       path: '/help'
     }
   ];
 
-  // 检查路由是否活跃
+  // Check if route is active
   const isActiveRoute = (path: string): boolean => {
     if (path === '/') {
       return location.pathname === '/';
@@ -73,12 +82,12 @@ export const HorizontalNav: React.FC = () => {
 
   return (
     <div className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 h-16 flex items-center justify-between px-4 md:px-6">
-      {/* Logo部分 */}
+      {/* Logo section */}
       <div className="flex items-center">
         <Logo collapsed={false} />
       </div>
       
-      {/* 桌面导航 - 大屏幕 */}
+      {/* Desktop navigation - large screens */}
       <nav className="hidden md:block flex-1 ml-4">
         <ul className="flex items-center space-x-1">
           {menuItems.map((item, index) => {
@@ -108,21 +117,21 @@ export const HorizontalNav: React.FC = () => {
         </ul>
       </nav>
 
-      {/* 移动端菜单按钮 */}
+      {/* Mobile menu button */}
       <button 
         className="md:hidden p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400"
         onClick={toggleMobileMenu}
-        aria-label="打开导航菜单"
+        aria-label={t('navigation.open_menu')}
       >
         {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      {/* 移动端导航菜单 */}
+      {/* Mobile navigation menu */}
       {mobileMenuOpen && (
         <div className="md:hidden fixed inset-0 z-50 bg-neutral-900/50 backdrop-blur-sm">
           <div className="fixed right-0 top-0 h-full w-64 bg-white dark:bg-neutral-900 shadow-lg p-4 overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="font-bold text-lg text-neutral-900 dark:text-white">菜单</h2>
+              <h2 className="font-bold text-lg text-neutral-900 dark:text-white">{t('common.menu')}</h2>
               <button 
                 onClick={toggleMobileMenu}
                 className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800"

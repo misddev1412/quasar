@@ -30,7 +30,12 @@
     "none": "Không có",
     "select": "Chọn",
     "clear": "Xóa",
-    "reset": "Đặt lại"
+    "reset": "Đặt lại",
+    "menu": "Menu",
+    "copyright": "Quasar Admin © {year} Bản quyền đã được bảo hộ",
+    "need_help": "Cần trợ giúp? Liên hệ quản trị viên",
+    "contact_admin": "Liên hệ quản trị viên",
+    "forgot_password": "Quên mật khẩu?"
   },
   "auth": {
     "login": "Đăng nhập",
@@ -40,7 +45,13 @@
     "password": "Mật khẩu",
     "remember_me": "Ghi nhớ đăng nhập",
     "login_required": "Vui lòng đăng nhập",
-    "invalid_credentials": "Thông tin đăng nhập không chính xác"
+    "invalid_credentials": "Thông tin đăng nhập không chính xác",
+    "admin_login": "Đăng nhập quản trị",
+    "enter_credentials": "Vui lòng nhập thông tin đăng nhập để tiếp tục sử dụng hệ thống",
+    "login_failed": "Đăng nhập thất bại, vui lòng kiểm tra email và mật khẩu",
+    "error_occurred": "Đã xảy ra lỗi, vui lòng thử lại sau",
+    "login_error": "Lỗi đăng nhập:",
+    "admin_platform": "Nền tảng quản trị Quasar"
   },
   "user": {
     "profile": "Hồ sơ",
@@ -73,7 +84,10 @@
     "manage_permissions": "Quản lý quyền",
     "system_config": "Cấu hình hệ thống",
     "translations": "Quản lý bản dịch",
-    "locale_settings": "Cài đặt ngôn ngữ"
+    "locale_settings": "Cài đặt ngôn ngữ",
+    "seo_management": "Quản lý SEO",
+    "user_management": "Quản lý người dùng",
+    "help": "Trợ giúp"
   },
   "navigation": {
     "home": "Trang chủ",
@@ -82,7 +96,8 @@
     "settings": "Cài đặt",
     "help": "Trợ giúp",
     "documentation": "Tài liệu",
-    "logout": "Đăng xuất"
+    "logout": "Đăng xuất",
+    "open_menu": "Mở menu điều hướng"
   },
   "validation": {
     "required": "Trường này là bắt buộc",
@@ -103,5 +118,10 @@
     "access_denied": "Không có quyền truy cập",
     "confirm_delete": "Bạn có chắc chắn muốn xóa?",
     "unsaved_changes": "Có thay đổi chưa được lưu. Bạn có muốn tiếp tục?"
+  },
+  "features": {
+    "enterprise_security": "Bảo mật cấp doanh nghiệp",
+    "efficient_management": "Trải nghiệm quản lý hiệu quả và trực quan",
+    "data_analysis": "Phân tích và trực quan hóa dữ liệu toàn diện"
   }
 } 

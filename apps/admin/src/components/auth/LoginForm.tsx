@@ -2,6 +2,7 @@ import React, { useState, FormEvent } from 'react';
 import { FormInput } from '../common/FormInput';
 import { Button } from '../common/Button';
 import { MailIcon, LockIcon, AlertIcon } from '../common/Icons';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => Promise<void>;
@@ -17,6 +18,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const { t } = useTranslationWithBackend();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -25,15 +27,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
   const forgotPasswordLink = (
     <a href="#" className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
-      忘记密码?
+      {t('common.forgot_password')}
     </a>
   );
 
   return (
     <div className="max-w-md mx-auto w-full">
       <div className="mb-10">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center">管理员登录</h2>
-        <p className="text-gray-600 dark:text-gray-300 mt-2 text-center">请输入您的凭据以继续使用系统</p>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center">{t('auth.admin_login')}</h2>
+        <p className="text-gray-600 dark:text-gray-300 mt-2 text-center">{t('auth.enter_credentials')}</p>
       </div>
       
       {/* Error Message */}
@@ -56,7 +58,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         <FormInput 
           id="email"
           type="email"
-          label="电子邮件"
+          label={t('auth.email')}
           placeholder="your.email@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -69,7 +71,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         <FormInput 
           id="password"
           type="password"
-          label="密码"
+          label={t('auth.password')}
           placeholder="••••••••"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -90,7 +92,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"
           />
           <label htmlFor="remember_me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-            记住我
+            {t('auth.remember_me')}
           </label>
         </div>
         
@@ -101,14 +103,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           isLoading={isSubmitting}
           fullWidth
         >
-          登录
+          {t('auth.login')}
         </Button>
       </form>
       
       {/* Support Link */}
       <div className="mt-8">
         <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-          需要帮助? <a href="#" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">联系管理员</a>
+          {t('common.need_help')} <a href="#" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">{t('common.contact_admin')}</a>
         </p>
       </div>
     </div>

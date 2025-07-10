@@ -30,7 +30,12 @@
     "none": "None",
     "select": "Select",
     "clear": "Clear",
-    "reset": "Reset"
+    "reset": "Reset",
+    "menu": "Menu",
+    "copyright": "Quasar Admin © {year} All Rights Reserved",
+    "need_help": "Need help? Contact administrator",
+    "contact_admin": "Contact administrator",
+    "forgot_password": "Forgot password?"
   },
   "auth": {
     "login": "Login",
@@ -40,7 +45,13 @@
     "password": "Password",
     "remember_me": "Remember Me",
     "login_required": "Please login",
-    "invalid_credentials": "Invalid credentials"
+    "invalid_credentials": "Invalid credentials",
+    "admin_login": "Admin Login",
+    "enter_credentials": "Please enter your credentials to continue using the system",
+    "login_failed": "Login failed, please check your email and password",
+    "error_occurred": "An error occurred, please try again later",
+    "login_error": "Login error:",
+    "admin_platform": "Quasar Admin Platform"
   },
   "user": {
     "profile": "Profile",
@@ -73,7 +84,10 @@
     "manage_permissions": "Manage Permissions",
     "system_config": "System Configuration",
     "translations": "Manage Translations",
-    "locale_settings": "Language Settings"
+    "locale_settings": "Language Settings",
+    "seo_management": "SEO Management",
+    "user_management": "User Management",
+    "help": "Help"
   },
   "navigation": {
     "home": "Home",
@@ -82,7 +96,8 @@
     "settings": "Settings",
     "help": "Help",
     "documentation": "Documentation",
-    "logout": "Logout"
+    "logout": "Logout",
+    "open_menu": "Open navigation menu"
   },
   "validation": {
     "required": "This field is required",
@@ -103,5 +118,10 @@
     "access_denied": "Access denied",
     "confirm_delete": "Are you sure you want to delete?",
     "unsaved_changes": "You have unsaved changes. Do you want to continue?"
+  },
+  "features": {
+    "enterprise_security": "Enterprise-grade security",
+    "efficient_management": "Efficient and intuitive management experience",
+    "data_analysis": "Comprehensive data analysis and visualization"
   }
 } 

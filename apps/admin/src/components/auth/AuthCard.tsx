@@ -1,6 +1,7 @@
 import React from 'react';
 import { FeatureItem } from '../common/FeatureItem';
 import { ShieldIcon, BoltIcon, ChartIcon } from '../common/Icons';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 interface AuthCardProps {
   title?: string;
@@ -8,9 +9,12 @@ interface AuthCardProps {
 }
 
 export const AuthCard: React.FC<AuthCardProps> = ({
-  title = "Quasar 管理平台",
+  title,
   children
 }) => {
+  const { t } = useTranslationWithBackend();
+  const currentYear = new Date().getFullYear();
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-blue-950 flex flex-col items-center justify-center p-4">
       {/* Auth Container */}
@@ -31,23 +35,23 @@ export const AuthCard: React.FC<AuthCardProps> = ({
                 <span className="text-white text-2xl font-bold">Q</span>
               </div>
             </div>
-            <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">{title}</h1>
-            <p className="text-blue-100 text-lg mb-8">强大的后台管理系统，简化您的工作流程，提高效率</p>
+            <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">{title || t('auth.admin_platform')}</h1>
+            <p className="text-blue-100 text-lg mb-8">{t('auth.enter_credentials')}</p>
           </div>
           
           {/* Feature List */}
           <div className="space-y-6 relative z-10">
             <FeatureItem 
               icon={<ShieldIcon className="h-6 w-6 text-blue-100" />} 
-              text="企业级安全保障" 
+              text={t('features.enterprise_security')} 
             />
             <FeatureItem 
               icon={<BoltIcon className="h-6 w-6 text-blue-100" />} 
-              text="高效直观的管理体验" 
+              text={t('features.efficient_management')} 
             />
             <FeatureItem 
               icon={<ChartIcon className="h-6 w-6 text-blue-100" />} 
-              text="全面的数据分析与可视化" 
+              text={t('features.data_analysis')} 
             />
           </div>
         </div>
@@ -58,7 +62,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({
           
           {/* Footer */}
           <footer className="mt-10 text-center text-xs text-gray-500 dark:text-gray-400">
-            Quasar Admin © {new Date().getFullYear()} 版权所有
+            {t('common.copyright', { year: currentYear })}
           </footer>
         </div>
       </div>
