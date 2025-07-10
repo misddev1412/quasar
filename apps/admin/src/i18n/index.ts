@@ -17,7 +17,7 @@ const resources = {
 };
 
 const supportedLngs: SupportedLocale[] = ['vi', 'en'];
-const fallbackLng: SupportedLocale = 'vi';
+const fallbackLng: SupportedLocale = 'en';
 
 i18n
   .use(LanguageDetector)

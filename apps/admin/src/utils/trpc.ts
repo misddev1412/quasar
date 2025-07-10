@@ -1,4 +1,4 @@
-import { createTRPCNext } from '@trpc/next';
+import { createTRPCReact, createTRPCProxyClient } from '@trpc/react-query';
 import { httpBatchLink } from '@trpc/client';
 import type { AppRouter } from '../../../backend/src/types/app-router';
 
@@ -25,30 +25,21 @@ function getBaseUrl() {
   }
   
   // Assume localhost
-  return `http://localhost:3001`; // Backend port
+  return `http://localhost:3000`; // Backend port
 }
 
-export const trpc = createTRPCNext<AppRouter>({
-  config(opts) {
-    return {
-      links: [
-        httpBatchLink({
-          url: `${getBaseUrl()}/trpc`,
-          
-          // Include authorization header with JWT token
-          async headers() {
-            const token = getAuthToken();
-            return {
-              authorization: token ? `Bearer ${token}` : '',
-            };
-          },
-        }),
-      ],
-    };
-  },
-  
-  /**
-   * @see https://trpc.io/docs/v11/ssr
-   */
-  ssr: false,
+// For use in React components with hooks
+export const trpc = createTRPCReact<AppRouter>();
+
+// Create a vanilla client for non-React contexts (services, utilities)
+export const trpcClient = createTRPCProxyClient<AppRouter>({
+  links: [
+    httpBatchLink({
+      url: `${getBaseUrl()}/api/trpc`,
+      headers() {
+        const token = getAuthToken();
+        return token ? { Authorization: `Bearer ${token}` } : {};
+      },
+    }),
+  ],
 }); 

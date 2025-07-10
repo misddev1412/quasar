@@ -1,13 +1,55 @@
-// Uncomment this line to use CSS modules
-// import styles from './app.module.scss';
-import NxWelcome from './nx-welcome';
-import DesignSystemDemo from '../components/DesignSystemDemo';
+import React from 'react';
+import { LayoutProvider } from '../contexts/LayoutContext';
+import { ThemeProvider as CustomThemeProvider } from '../context/ThemeContext';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
+import AppRoutes from '../routes/AppRoutes';
+import { ThemeProvider as MUIThemeProvider, CssBaseline } from '@mui/material';
+import { createTheme } from '@mui/material/styles';
+import { AuthProvider } from '../context/AuthContext';
 
 export function App() {
+  // 创建 MUI 主题
+  const muiTheme = createTheme({
+    // 全局 MUI 主题配置
+    palette: {
+      primary: {
+        main: '#2563eb',
+        light: '#3b82f6',
+        dark: '#1d4ed8',
+      },
+      secondary: {
+        main: '#0ea5e9',
+        light: '#38bdf8',
+        dark: '#0369a1',
+      },
+    },
+    components: {
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: '8px',
+          },
+        },
+      },
+    },
+  });
+
   return (
-    <div>
-      <DesignSystemDemo />
-    </div>
+    <HelmetProvider>
+      <Router>
+        <MUIThemeProvider theme={muiTheme}>
+          <CssBaseline />
+          <CustomThemeProvider>
+            <LayoutProvider>
+              <AuthProvider>
+                <AppRoutes />
+              </AuthProvider>
+            </LayoutProvider>
+          </CustomThemeProvider>
+        </MUIThemeProvider>
+      </Router>
+    </HelmetProvider>
   );
 }
 

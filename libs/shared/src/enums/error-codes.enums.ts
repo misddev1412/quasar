@@ -19,6 +19,7 @@ export enum ModuleCode {
   AUTH = 11,              // Authentication System
   PERMISSION = 12,        // Permission & Role Management
   TRANSLATION = 13,       // Translation/i18n System
+  SEO = 14,               // SEO Management System
   
   // E-commerce (20-29)
   PRODUCT = 20,           // Product Management

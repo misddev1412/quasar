@@ -1,8 +1,18 @@
-/* Import Quasar Design System */
-/* CSS imported in main.tsx */
+/* Quasar Admin Styles */
 
+/* Import Tailwind CSS */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Admin-specific styles can be added here */
+/* Import shared CSS from Design System */
+/* This is separately imported in main.tsx */
+
+/* Admin-specific styles */
+@layer components {
+  /* Custom component styles can go here */
+}
+
+@layer utilities {
+  /* Custom utilities can go here */
+}

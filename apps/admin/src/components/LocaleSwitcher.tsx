@@ -15,7 +15,12 @@ const localeNames: Record<SupportedLocale, string> = {
 const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({ className = '' }) => {
   const { getCurrentLocale, changeLanguage, isLoading } = useTranslationWithBackend();
   const currentLocale = getCurrentLocale();
-  const supportedLocales = getSupportedLocales();
+  const supportedLocales = getSupportedLocales().sort((a, b) => {
+    // Sort English first
+    if (a === 'en') return -1;
+    if (b === 'en') return 1;
+    return 0;
+  });
 
   const handleLocaleChange = async (locale: SupportedLocale) => {
     if (locale !== currentLocale && !isLoading) {
@@ -36,7 +41,11 @@ const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({ className = '' }) => {
         className="px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
       >
         {supportedLocales.map((locale) => (
-          <option key={locale} value={locale}>
+          <option 
+            key={locale} 
+            value={locale}
+            style={{ fontWeight: locale === 'en' ? 'bold' : 'normal' }}
+          >
             {localeNames[locale]}
           </option>
         ))}

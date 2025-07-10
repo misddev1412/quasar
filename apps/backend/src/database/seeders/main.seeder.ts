@@ -9,6 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
 import { SeederModule } from './seeder.module';
 import { PermissionSeeder } from './permission.seeder';
+import { SeoSeeder } from './seo.seeder';
 import databaseConfig from '../../config/database.config';
 
 @Module({
@@ -25,6 +26,7 @@ class MainSeederApp {}
 interface SeederFlags {
   permissions?: boolean;
   roles?: boolean;
+  seo?: boolean;
   all?: boolean;
   force?: boolean;
   clear?: boolean;
@@ -46,6 +48,9 @@ function parseFlags(): SeederFlags {
       case '--roles':
       case '-r':
         flags.roles = true;
+        break;
+      case '--seo':
+        flags.seo = true;
         break;
       case '--all':
       case '-a':
@@ -83,6 +88,7 @@ function showHelp() {
   console.log('🏷️  Flags:');
   console.log('  --permissions, -p    Seed permissions');
   console.log('  --roles, -r          Seed roles only');
+  console.log('  --seo                Seed SEO data');
   console.log('  --all, -a            Run all seeders');
   console.log('  --force, -f          Force seed (may create duplicates)');
   console.log('  --clear, -c          Clear all data and reseed (destructive)');
@@ -93,6 +99,7 @@ function showHelp() {
   console.log('💡 Examples:');
   console.log('  yarn seed                    # Safe seed (default)');
   console.log('  yarn seed --permissions      # Seed permissions (safe)');
+  console.log('  yarn seed --seo              # Seed SEO data (safe)');
   console.log('  yarn seed --permissions --force');
   console.log('  yarn seed --roles            # Seed roles only');
   console.log('  yarn seed --all              # Run all seeders');
@@ -122,21 +129,26 @@ async function bootstrap() {
     });
 
     const permissionSeeder = app.get(PermissionSeeder);
+    const seoSeeder = app.get(SeoSeeder);
 
     // Determine what to run based on flags
     if (flags.clear) {
       console.log('🗑️  Running clear and reseed (destructive)...\n');
       console.log('⚠️  This will delete all existing permissions and roles!\n');
-      if (flags.permissions || (!flags.roles && !flags.all)) {
+      if (flags.permissions || (!flags.roles && !flags.all && !flags.seo)) {
         await permissionSeeder.clearAndReseed();
       }
     } else if (flags.all) {
       console.log('🌱 Running all seeders...\n');
       await permissionSeeder.seedIfEmpty();
+      await seoSeeder.seed();
       // Add other seeders here when available
     } else if (flags.roles) {
       console.log('🎭 Seeding roles only...\n');
       await permissionSeeder.seedRoles();
+    } else if (flags.seo) {
+      console.log('🔍 Seeding SEO data...\n');
+      await seoSeeder.seed();
     } else if (flags.permissions) {
       if (flags.force) {
         console.log('📋 Force seeding permissions (may create duplicates)...\n');
@@ -153,6 +165,7 @@ async function bootstrap() {
       console.log('🔍 Running safe seed (only if database empty)...\n');
       console.log('💡 Use --help to see all available options\n');
       await permissionSeeder.seedIfEmpty();
+      await seoSeeder.seed();
     }
 
     console.log('\n🎉 Database seeding completed successfully!');
@@ -182,4 +195,4 @@ if (require.main === module) {
   bootstrap();
 }
 
-export { MainSeederApp, bootstrap }; 
+export { MainSeederApp, bootstrap };

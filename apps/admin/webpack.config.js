@@ -6,6 +6,11 @@ module.exports = {
   output: {
     path: join(__dirname, '../../dist/apps/admin'),
   },
+  resolve: {
+    alias: {
+      '@admin': join(__dirname, 'src'),
+    },
+  },
   devServer: {
     port: 4200,
     historyApiFallback: {

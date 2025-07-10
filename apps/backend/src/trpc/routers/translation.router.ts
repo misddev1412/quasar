@@ -43,7 +43,7 @@ const deleteTranslationSchema = z.object({
 
 @Router({ alias: 'translation' })
 @Injectable()
-export class TranslationRouter {
+export class TranslationRouter  {
   constructor(
     @Inject(TranslationService)
     private readonly translationService: TranslationService,

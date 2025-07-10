@@ -13,6 +13,7 @@ export * from './types/dto.types';
 export * from './types/auth.types';
 export * from './types/translation.types';
 export * from './types/api-response.types';
+export * from './types/seo.types';
 
 // Enums (all enums from index)
 export * from './enums';
@@ -26,4 +27,10 @@ export * from './classes/base-service.abstract';
 export * from './types/error-codes.types';
 
 // Styles and Design System
-export * from './styles'; 
+export * from './styles';
+
+// API clients
+export * from './api/seo.api';
+
+// Hooks
+export * from './hooks/useSeo'; 

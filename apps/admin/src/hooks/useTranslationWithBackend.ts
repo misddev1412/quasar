@@ -23,7 +23,7 @@ export const useTranslationWithBackend = (): UseTranslationWithBackendResult => 
   
   // Get translations from backend
   const { data: backendTranslations, isLoading: isFetching, error: fetchError } = 
-    trpc.getTranslations.useQuery(
+    trpc.translation.getTranslations.useQuery(
       { locale: currentLocale },
       {
         enabled: ready && !!currentLocale,

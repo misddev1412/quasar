@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from '../modules/user/user.module';
 import { TranslationModule } from '../modules/translation/translation.module';
+import { SEOModule } from '../modules/seo/seo.module';
 import { AuthModule } from '../auth/auth.module';
 import { SharedModule } from '../modules/shared/shared.module';
 import { AppContext } from '../trpc/context';
@@ -17,6 +18,7 @@ import { Role } from '../modules/user/entities/role.entity';
 import { UserRole } from '../modules/user/entities/user-role.entity';
 import { RolePermission } from '../modules/user/entities/role-permission.entity';
 import { Translation } from '../modules/translation/entities/translation.entity';
+import { SEOEntity } from '../modules/seo/entities/seo.entity';
 import { createErrorFormatter } from '../trpc/error-formatter';
 
 @Module({
@@ -36,7 +38,8 @@ import { createErrorFormatter } from '../trpc/error-formatter';
           Role, 
           UserRole, 
           RolePermission,
-          Translation
+          Translation,
+          SEOEntity
         ],
         autoLoadEntities: true
       }),
@@ -49,6 +52,7 @@ import { createErrorFormatter } from '../trpc/error-formatter';
     SharedModule,
     UserModule,
     TranslationModule,
+    SEOModule,
   ],
   controllers: [AppController],
   providers: [
