@@ -3,8 +3,11 @@ import * as ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchLink } from '@trpc/client';
 
-// Import Quasar Design System CSS
+// We will rely on Tailwind's preflight for CSS resets and base styles.
 import '@shared/styles/css/index.css';
+
+// Import admin-specific styles, including Tailwind
+import './styles.scss';
 
 // Set default locale to English
 import './setDefaultLocale';
