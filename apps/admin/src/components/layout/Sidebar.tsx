@@ -726,22 +726,62 @@ const Sidebar: React.FC = () => {
         justifyContent: 'space-between',
         padding: sidebarCollapsed ? 0 : 2,
         height: '64px', 
+        position: 'relative'
       }}>
         <Logo collapsed={sidebarCollapsed} />
         {!sidebarCollapsed && (
           <Tooltip title="收起侧边栏">
-            <IconButton onClick={toggleSidebar} size="small" sx={{ 
-              color: 'text.secondary',
-              '&:hover': {
-                color: 'primary.main',
-                backgroundColor: 'action.hover',
-              }
-            }}>
+            <IconButton 
+              onClick={toggleSidebar} 
+              size="small" 
+              sx={{ 
+                color: 'text.secondary',
+                backgroundColor: theme => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)',
+                '&:hover': {
+                  color: 'primary.main',
+                  backgroundColor: 'action.hover',
+                },
+                width: 32,
+                height: 32,
+                position: 'absolute',
+                right: 16,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                border: theme => `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[300]}`,
+                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+              }}
+            >
               <ChevronLeftIcon />
             </IconButton>
           </Tooltip>
         )}
       </Box>
+
+      {/* 移动展开按钮到Logo下方的单独行 */}
+      {sidebarCollapsed && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 1 }}>
+          <Tooltip title="展开侧边栏" placement="right">
+            <IconButton 
+              onClick={toggleSidebar} 
+              sx={{
+                color: 'text.primary',
+                backgroundColor: theme => theme.palette.background.paper,
+                border: theme => `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[300]}`,
+                borderRadius: '50%',
+                width: 36,
+                height: 36,
+                '&:hover': {
+                  color: 'primary.main',
+                  backgroundColor: theme => theme.palette.mode === 'dark' ? alpha(theme.palette.primary.main, 0.1) : theme.palette.grey[100],
+                },
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              }}
+            >
+              <ChevronRightIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      )}
 
       <Divider />
       

@@ -1,171 +1,187 @@
 import React, { useState } from 'react';
 import { useSettings, SettingData } from '../../hooks/useSettings';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { Toggle } from '../common/Toggle';
 
 interface CreateSettingFormProps {
   onClose: () => void;
 }
 
+// 定义设置类型联合类型
+type SettingType = 'string' | 'number' | 'boolean' | 'json' | 'array';
+
 export const CreateSettingForm: React.FC<CreateSettingFormProps> = ({ onClose }) => {
   const { createSetting } = useSettings();
-  const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslationWithBackend();
+  
   const [formData, setFormData] = useState<Partial<SettingData>>({
     key: '',
     value: '',
-    type: 'string',
-    group: '',
-    isPublic: false,
+    type: 'string' as SettingType, // 使用明确的类型断言
     description: '',
+    group: '',
+    isPublic: false
   });
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    // 确保type值为有效的SettingType类型
+    const typeValue = e.target.value as SettingType;
+    setFormData(prev => ({ ...prev, type: typeValue }));
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     
-    if (name === 'isPublic') {
-      setFormData(prev => ({
-        ...prev,
-        [name]: (e.target as HTMLInputElement).checked,
-      }));
+    if (name === 'type') {
+      // 对type字段使用专门的处理函数
+      handleTypeChange(e as React.ChangeEvent<HTMLSelectElement>);
     } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value,
-      }));
+      const val = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+      setFormData(prev => ({ ...prev, [name]: val }));
     }
+  };
+
+  const togglePublic = () => {
+    setFormData(prev => ({ ...prev, isPublic: !prev.isPublic }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
-    if (!formData.key) {
-      setError('键名是必填的');
+    if (!formData.key?.trim()) {
+      setError(t('settings.error_key_required', '键名是必填的'));
       return;
     }
     
     setIsLoading(true);
-    setError(null);
-    
     try {
       await createSetting(formData);
       onClose();
-    } catch (err) {
-      setError('创建设置失败');
-      console.error(err);
+    } catch (error: any) {
+      setError(error?.message || t('settings.error_create', '创建设置失败'));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="key" className="block text-sm font-medium text-gray-700">
-          键名 <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          id="key"
-          name="key"
-          value={formData.key}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-          required
-        />
-      </div>
-      
-      <div>
-        <label htmlFor="value" className="block text-sm font-medium text-gray-700">
-          值
-        </label>
-        <input
-          type="text"
-          id="value"
-          name="value"
-          value={formData.value || ''}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-        />
-      </div>
-      
-      <div>
-        <label htmlFor="type" className="block text-sm font-medium text-gray-700">
-          类型
-        </label>
-        <select
-          id="type"
-          name="type"
-          value={formData.type}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-        >
-          <option value="string">文本 (string)</option>
-          <option value="number">数字 (number)</option>
-          <option value="boolean">布尔值 (boolean)</option>
-          <option value="json">JSON 对象</option>
-          <option value="array">数组</option>
-        </select>
-      </div>
-      
-      <div>
-        <label htmlFor="group" className="block text-sm font-medium text-gray-700">
-          分组
-        </label>
-        <input
-          type="text"
-          id="group"
-          name="group"
-          value={formData.group || ''}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-        />
-      </div>
-      
-      <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-          描述
-        </label>
-        <textarea
-          id="description"
-          name="description"
-          value={formData.description || ''}
-          onChange={handleChange}
-          rows={3}
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-        />
-      </div>
-      
-      <div className="flex items-center">
-        <input
-          type="checkbox"
-          id="isPublic"
-          name="isPublic"
-          checked={formData.isPublic}
-          onChange={handleChange}
-          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-        />
-        <label htmlFor="isPublic" className="ml-2 block text-sm text-gray-700">
-          公开设置（客户端可访问）
-        </label>
-      </div>
-      
+    <form onSubmit={handleSubmit}>
       {error && (
-        <div className="text-red-600 text-sm">{error}</div>
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
       )}
       
-      <div className="flex justify-end space-x-3 mt-6">
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="key" className="block text-sm font-medium text-gray-700 mb-1">
+            {t('settings.form.key', '键名')} <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            name="key"
+            id="key"
+            value={formData.key || ''}
+            onChange={handleChange}
+            className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            required
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="value" className="block text-sm font-medium text-gray-700 mb-1">
+            {t('settings.form.value', '值')}
+          </label>
+          <input
+            type="text"
+            name="value"
+            id="value"
+            value={formData.value || ''}
+            onChange={handleChange}
+            className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
+            {t('settings.form.type', '类型')}
+          </label>
+          <select
+            name="type"
+            id="type"
+            value={formData.type || 'string'}
+            onChange={handleChange}
+            className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          >
+            <option value="string">{t('settings.form.type_string', '字符串')}</option>
+            <option value="number">{t('settings.form.type_number', '数字')}</option>
+            <option value="boolean">{t('settings.form.type_boolean', '布尔值')}</option>
+            <option value="json">{t('settings.form.type_json', 'JSON')}</option>
+            <option value="array">{t('settings.form.type_array', '数组')}</option>
+          </select>
+        </div>
+        
+        <div>
+          <label htmlFor="group" className="block text-sm font-medium text-gray-700 mb-1">
+            {t('settings.form.group', '分组')}
+          </label>
+          <input
+            type="text"
+            name="group"
+            id="group"
+            value={formData.group || ''}
+            onChange={handleChange}
+            className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder={t('settings.form.group_placeholder', '例如：基本设置, 高级设置')}
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+            {t('settings.form.description', '描述')}
+          </label>
+          <textarea
+            name="description"
+            id="description"
+            rows={3}
+            value={formData.description || ''}
+            onChange={handleChange}
+            className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          ></textarea>
+        </div>
+        
+        <div className="flex items-center py-2">
+          <div className="flex items-center">
+            <Toggle
+              checked={!!formData.isPublic}
+              onChange={togglePublic}
+              disabled={isLoading}
+            />
+            <span className="ml-3 text-sm font-medium text-gray-700">
+              {t('settings.form.is_public', '公开（对所有用户可见）')}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="mt-6 flex justify-end space-x-3">
         <button
           type="button"
           onClick={onClose}
-          className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+          className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          disabled={isLoading}
         >
-          取消
+          {t('common.cancel', '取消')}
         </button>
         <button
           type="submit"
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm disabled:opacity-50"
           disabled={isLoading}
-          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
         >
-          {isLoading ? '创建中...' : '创建设置'}
+          {isLoading ? t('settings.form.creating', '创建中...') : t('settings.form.create', '创建')}
         </button>
       </div>
     </form>

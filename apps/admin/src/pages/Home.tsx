@@ -9,6 +9,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import DescriptionIcon from '@mui/icons-material/Description';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import BaseLayout from '../components/layout/BaseLayout';
 
 // Define the static SEO data for the home page
 const homeSeoData: SeoData = {
@@ -70,13 +71,10 @@ export const HomePage: React.FC = () => {
   ];
 
   return (
-    <div className="w-full p-4 sm:p-6">
-      {/* 页面标题 */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-1">{t('dashboard.title')}</h1>
-        <p className="text-gray-500">{t('dashboard.welcome_back')}</p>
-      </div>
-
+    <BaseLayout
+      title={t('dashboard.title')}
+      description={t('dashboard.welcome_back')}
+    >
       {/* 统计卡片 - 使用tailwind网格布局 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {stats.map((stat, index) => (
@@ -144,7 +142,7 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </BaseLayout>
   );
 };
 

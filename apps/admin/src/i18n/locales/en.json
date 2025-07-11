@@ -200,7 +200,23 @@
     "add_setting": "Add Setting",
     "categories": "Setting Categories",
     "all_settings": "All Settings",
-    "create_new_setting": "Create New Setting"
+    "create_new_setting": "Create New Setting",
+    "form": {
+      "key": "Key",
+      "value": "Value",
+      "type": "Type",
+      "group": "Group",
+      "description": "Description",
+      "is_public": "Public (visible to all users)",
+      "group_placeholder": "Example: Basic Settings, Advanced Settings",
+      "type_string": "String",
+      "type_number": "Number",
+      "type_boolean": "Boolean",
+      "type_json": "JSON",
+      "type_array": "Array",
+      "create": "Create Setting",
+      "creating": "Creating..."
+    }
   },
   "design": {
     "colors": "Colors",

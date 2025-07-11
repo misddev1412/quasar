@@ -200,7 +200,23 @@
     "add_setting": "Thêm cài đặt",
     "categories": "Danh mục cài đặt",
     "all_settings": "Tất cả cài đặt",
-    "create_new_setting": "Tạo cài đặt mới"
+    "create_new_setting": "Tạo cài đặt mới",
+    "form": {
+      "key": "Tên khóa",
+      "value": "Giá trị",
+      "type": "Kiểu dữ liệu",
+      "group": "Nhóm",
+      "description": "Mô tả",
+      "is_public": "Công khai (hiển thị cho tất cả người dùng)",
+      "group_placeholder": "Ví dụ: Cài đặt cơ bản, Cài đặt nâng cao",
+      "type_string": "Chuỗi",
+      "type_number": "Số",
+      "type_boolean": "Boolean",
+      "type_json": "JSON",
+      "type_array": "Mảng",
+      "create": "Tạo cài đặt",
+      "creating": "Đang tạo..."
+    }
   },
   "design": {
     "colors": "Màu sắc",
