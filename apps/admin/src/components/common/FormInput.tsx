@@ -4,9 +4,9 @@ interface FormInputProps {
   id: string;
   type: string;
   label: string;
-  placeholder: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   icon?: React.ReactNode;
   required?: boolean;
   error?: string;
@@ -15,7 +15,7 @@ interface FormInputProps {
   className?: string;
 }
 
-export const FormInput: React.FC<FormInputProps> = ({
+export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
   id,
   type,
   label,
@@ -28,6 +28,7 @@ export const FormInput: React.FC<FormInputProps> = ({
   rightElement,
   autoComplete,
   className = '',
+  ...rest
 }) => {
   return (
     <div className="space-y-2">
@@ -63,6 +64,7 @@ export const FormInput: React.FC<FormInputProps> = ({
               ? 'text-error placeholder-red-300 dark:placeholder-red-500'
               : 'text-theme-primary placeholder-theme-muted'
           } themed-input`}
+          {...rest}
         />
       </div>
       {error && <p className="mt-1 text-sm text-error">{error}</p>}

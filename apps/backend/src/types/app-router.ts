@@ -144,6 +144,26 @@ export const appRouter = router({
     }),
   }),
   
+  adminUser: router({
+    getProfile: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+    updateProfile: procedure
+      .input(z.any()) // Using z.any() for simplicity on the client-side type definition
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+    updatePassword: procedure
+      .input(z.any()) // Using z.any() for simplicity on the client-side type definition
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+  }),
+
   // Add adminSeo router to match the actual server implementation
   adminSeo: router({
     getAll: procedure

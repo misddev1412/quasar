@@ -94,6 +94,16 @@ export class AdminUpdateUserProfileDto {
   postalCode?: string;
 }
 
+export class AdminUpdatePasswordDto {
+  @IsString()
+  @MinLength(6)
+  oldPassword: string;
+
+  @IsString()
+  @MinLength(6)
+  newPassword: string;
+}
+
 export class AdminUserResponseDto {
   id: string;
   email: string;

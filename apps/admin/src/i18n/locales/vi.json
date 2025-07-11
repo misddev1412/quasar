@@ -102,7 +102,10 @@
     "last_name": "Họ",
     "phone": "Số điện thoại",
     "email": "Email",
-    "address": "Địa chỉ"
+    "address": "Địa chỉ",
+    "current_password": "Mật khẩu hiện tại",
+    "new_password": "Mật khẩu mới",
+    "confirm_new_password": "Xác nhận mật khẩu mới"
   },
   "admin": {
     "dashboard": "Bảng điều khiển",
@@ -249,6 +252,10 @@
     "boolean_toggle_failed_desc": "Không thể chuyển đổi cài đặt.",
     "public_toggle_success_desc": "Chế độ hiển thị đã được cập nhật.",
     "public_toggle_failed_desc": "Không thể cập nhật chế độ hiển thị.",
+    "language_settings": "Cài đặt ngôn ngữ",
+    "choose_display_language": "Chọn ngôn ngữ hiển thị ưa thích của bạn.",
+    "theme_preference": "Tùy chọn chủ đề",
+    "choose_light_or_dark_mode": "Chọn giữa chế độ sáng và tối.",
     "form": {
       "key": "Tên khóa",
       "value": "Giá trị",
@@ -354,6 +361,19 @@
     "flexible_content": "Nội dung linh hoạt",
     "grid_layout": "Bố cục lưới",
     "grid_content": "Nội dung lưới"
+  },
+  "profile": {
+    "user_profile": "Hồ sơ người dùng",
+    "profile_updated_successfully": "Cập nhật hồ sơ thành công",
+    "your_profile_has_been_updated": "Hồ sơ của bạn đã được cập nhật.",
+    "failed_to_update_profile": "Cập nhật hồ sơ thất bại",
+    "manage_your_profile_information": "Quản lý thông tin hồ sơ của bạn, bao gồm tên, email và mật khẩu.",
+    "update_profile": "Cập nhật hồ sơ",
+    "update_password": "Cập nhật mật khẩu",
+    "preference_settings": "Cài đặt ưu tiên",
+    "password_updated_successfully": "Cập nhật mật khẩu thành công",
+    "your_password_has_been_updated": "Mật khẩu của bạn đã được cập nhật thành công.",
+    "failed_to_update_password": "Cập nhật mật khẩu thất bại"
   },
   "seo": {
     "manager_title": "Quản lý SEO",

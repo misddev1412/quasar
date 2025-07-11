@@ -102,7 +102,10 @@
     "last_name": "Last Name",
     "phone": "Phone Number",
     "email": "Email",
-    "address": "Address"
+    "address": "Address",
+    "current_password": "Current Password",
+    "new_password": "New Password",
+    "confirm_new_password": "Confirm New Password"
   },
   "admin": {
     "dashboard": "Dashboard",
@@ -249,6 +252,10 @@
     "boolean_toggle_failed_desc": "Could not toggle the setting.",
     "public_toggle_success_desc": "Visibility has been updated.",
     "public_toggle_failed_desc": "Could not update visibility.",
+    "language_settings": "Language Settings",
+    "choose_display_language": "Choose your preferred display language.",
+    "theme_preference": "Theme Preference",
+    "choose_light_or_dark_mode": "Choose between light and dark mode.",
     "form": {
       "key": "Key",
       "value": "Value",
@@ -354,6 +361,19 @@
     "flexible_content": "Flexible Content",
     "grid_layout": "Grid Layout",
     "grid_content": "Grid Content"
+  },
+  "profile": {
+    "user_profile": "User Profile",
+    "profile_updated_successfully": "Profile updated successfully",
+    "your_profile_has_been_updated": "Your profile has been updated.",
+    "failed_to_update_profile": "Failed to update profile",
+    "manage_your_profile_information": "Manage your profile information, including your name, email, and password.",
+    "update_profile": "Update Profile",
+    "update_password": "Update Password",
+    "preference_settings": "Preference Settings",
+    "password_updated_successfully": "Password updated successfully",
+    "your_password_has_been_updated": "Your password has been successfully updated.",
+    "failed_to_update_password": "Failed to update password"
   },
   "seo": {
     "manager_title": "SEO Management",

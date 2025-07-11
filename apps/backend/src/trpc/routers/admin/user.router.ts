@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
+import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { AdminUserService } from '../../../modules/user/services/admin/admin-user.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
@@ -8,6 +8,10 @@ import { AdminRoleMiddleware } from '../../middlewares/admin-role.middleware';
 import { UserRole } from '@shared';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
 import { apiResponseSchema, paginatedResponseSchema } from '../../schemas/response.schemas';
+import { AuthenticatedContext } from '../../context';
+import {
+  AdminUpdatePasswordDto,
+} from '@backend/modules/user/dto/admin/admin-user.dto';
 
 // Zod schemas for validation
 const userRoleSchema = z.enum([
@@ -34,6 +38,24 @@ const adminUpdateUserSchema = z.object({
   username: z.string().optional(),
   isActive: z.boolean().optional(),
   role: userRoleSchema.optional(),
+});
+
+const adminUpdateUserProfileSchema = z.object({
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  phoneNumber: z.string().optional(),
+  dateOfBirth: z.string().optional(),
+  avatar: z.string().optional(),
+  bio: z.string().optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  country: z.string().optional(),
+  postalCode: z.string().optional(),
+});
+
+const adminUpdatePasswordSchema = z.object({
+  oldPassword: z.string(),
+  newPassword: z.string(),
 });
 
 const userProfileSchema = z.object({
@@ -241,6 +263,74 @@ export class AdminUserRouter {
         3,  // OperationCode.UPDATE
         30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
         error.message || 'Failed to update user status'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware)
+  @Query({
+    output: apiResponseSchema,
+  })
+  async getProfile(
+    @Ctx() ctx: AuthenticatedContext,
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const userProfile = await this.adminUserService.getUserById(ctx.user.id);
+      return this.responseHandler.createTrpcSuccess(userProfile);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        10, // ModuleCode.USER
+        2,  // OperationCode.READ
+        4,  // ErrorLevelCode.NOT_FOUND,
+        error.message || 'User profile not found'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware)
+  @Mutation({
+    input: adminUpdateUserProfileSchema,
+    output: apiResponseSchema,
+  })
+  async updateProfile(
+    @Ctx() ctx: AuthenticatedContext,
+    @Input() updateDto: z.infer<typeof adminUpdateUserProfileSchema>
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const updatedUser = await this.adminUserService.updateUserProfile(ctx.user.id, updateDto);
+      return this.responseHandler.createTrpcSuccess(updatedUser);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        10, // ModuleCode.USER
+        3,  // OperationCode.UPDATE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+        error.message || 'Failed to update user profile'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware)
+  @Mutation({
+    input: adminUpdatePasswordSchema,
+    output: apiResponseSchema,
+  })
+  async updatePassword(
+    @Ctx() ctx: AuthenticatedContext,
+    @Input() updateDto: AdminUpdatePasswordDto
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const result = await this.adminUserService.updateUserPassword(
+        ctx.user.id,
+        updateDto.oldPassword,
+        updateDto.newPassword,
+      );
+      return this.responseHandler.createTrpcSuccess(result);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        10,
+        3,
+        30,
+        error.message || 'Failed to update password'
       );
     }
   }

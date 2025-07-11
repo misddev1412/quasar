@@ -147,7 +147,7 @@ const SeoGroupCard: React.FC<{
       <h2 className="text-lg font-medium text-gray-900 mb-4">{t(`seo.groups.${title}`, title)}</h2>
       <div className="space-y-4">
         {seoList.map((seo) => (
-          <SeoItem key={seo.id} seo={seo} onUpdate={(id, data) => onUpdate({ id, ...data })} onDelete={(id) => onDelete({ id })} />
+          <SeoItem key={seo.id} seo={seo} onUpdate={(id, data) => onUpdate({ id, data } as any)} onDelete={(id) => onDelete({ id })} />
         ))}
       </div>
     </div>

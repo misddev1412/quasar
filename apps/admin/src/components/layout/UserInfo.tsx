@@ -16,6 +16,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { Link } from 'react-router-dom';
 
 interface UserInfoProps {
   collapsed?: boolean;
@@ -144,14 +145,14 @@ const UserInfo: React.FC<UserInfoProps> = ({ collapsed = false }) => {
           },
         }}
       >
-        <MenuItem onClick={handleClose}>
+        <MenuItem component={Link} to="/profile" onClick={handleClose}>
           <ListItemIcon>
             <AccountCircleIcon fontSize="small" />
           </ListItemIcon>
           个人资料
         </MenuItem>
 
-        <MenuItem onClick={handleClose}>
+        <MenuItem component={Link} to="/settings" onClick={handleClose}>
           <ListItemIcon>
             <SettingsIcon fontSize="small" />
           </ListItemIcon>

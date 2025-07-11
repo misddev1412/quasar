@@ -7,6 +7,7 @@ import ForgotPasswordPage from '../pages/auth/forgot-password';
 import NotFound from '../pages/NotFound';
 import SeoPage from '../pages/seo';
 import SettingsPage from '../pages/settings';
+import UserProfilePage from '../pages/profile';
 import AppLayout from '../components/layout/AppLayout';
 
 interface ProtectedRouteProps {
@@ -38,7 +39,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/" element={<ProtectedRoute element={<Home />} />} />
       <Route path="/seo" element={<ProtectedRoute element={<SeoPage />} />} />
       <Route path="/settings" element={<ProtectedRoute element={<SettingsPage />} />} />
-      
+      <Route path="/profile" element={<ProtectedRoute element={<UserProfilePage />} />} />
+
       {/* 404路由 */}
       <Route path="*" element={<NotFound />} />
     </Routes>

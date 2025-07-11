@@ -7,7 +7,8 @@ import { ApiStatusCodes, UserRole } from '@shared';
 import { 
   AdminCreateUserDto, 
   AdminUpdateUserDto, 
-  AdminUserResponseDto 
+  AdminUserResponseDto,
+  AdminUpdateUserProfileDto
 } from '../../dto/admin/admin-user.dto';
 
 export interface AdminUserFilters {
@@ -157,6 +158,43 @@ export class AdminUserService {
     }
   }
 
+  async updateUserProfile(id: string, updateProfileDto: AdminUpdateUserProfileDto): Promise<AdminUserResponseDto> {
+    const user = await this.userRepository.findWithProfile(id);
+    if (!user) {
+      throw this.responseHandler.createError(
+        ApiStatusCodes.NOT_FOUND,
+        'User not found',
+        'NOT_FOUND'
+      );
+    }
+
+    try {
+      const profileUpdateData = {
+        ...updateProfileDto,
+        ...(updateProfileDto.dateOfBirth && { dateOfBirth: new Date(updateProfileDto.dateOfBirth) }),
+      };
+      await this.userRepository.updateProfile(id, profileUpdateData);
+      const updatedUser = await this.userRepository.findWithProfile(id);
+      if (!updatedUser) {
+        throw this.responseHandler.createError(
+          ApiStatusCodes.NOT_FOUND,
+          'User could not be found after profile update',
+          'NOT_FOUND'
+        );
+      }
+      return this.toAdminUserResponse(updatedUser);
+    } catch (error) {
+      if (error.code && error.code.includes('10')) {
+        throw error; // Re-throw our structured errors
+      }
+      throw this.responseHandler.createError(
+        ApiStatusCodes.INTERNAL_SERVER_ERROR,
+        'Failed to update user profile',
+        'INTERNAL_SERVER_ERROR'
+      );
+    }
+  }
+
   async deleteUser(id: string): Promise<void> {
     const user = await this.userRepository.findById(id);
     if (!user) {
@@ -190,6 +228,23 @@ export class AdminUserService {
 
   async updateUserStatus(id: string, isActive: boolean): Promise<AdminUserResponseDto> {
     return await this.updateUser(id, { isActive });
+  }
+
+  async updateUserPassword(userId: string, oldPass: string, newPass: string): Promise<boolean> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const isPasswordMatching = await user.comparePassword(oldPass);
+    if (!isPasswordMatching) {
+      throw new Error('Invalid old password');
+    }
+
+    user.password = newPass;
+    await this.userRepository.save(user);
+
+    return true;
   }
 
   private toAdminUserResponse(user: User): AdminUserResponseDto {
