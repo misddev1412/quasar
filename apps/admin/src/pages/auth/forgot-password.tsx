@@ -81,7 +81,7 @@ export function ForgotPasswordPage() {
   }, [isDarkMode, theme]);
 
   // 处理忘记密码请求
-  const handleForgotPassword = async (email: string) => {
+  const handleForgotPassword = async (email: string): Promise<void> => {
     setError('');
     setIsLoading(true);
 
@@ -94,12 +94,10 @@ export function ForgotPasswordPage() {
       // 模拟API调用延迟
       await new Promise((resolve) => setTimeout(resolve, 1000));
       
-      // 这里返回true表示邮件发送成功
-      return true;
+      // 不返回值
     } catch (err) {
       setError(t('auth.forgot_password_error'));
       console.error('Forgot password error:', err);
-      return false;
     } finally {
       setIsLoading(false);
     }

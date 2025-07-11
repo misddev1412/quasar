@@ -3,7 +3,7 @@ import { LayoutProvider } from '../contexts/LayoutContext';
 import { ThemeProvider as CustomThemeProvider } from '../context/ThemeContext';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
-import AppRoutes from '../routes/AppRoutes';
+import { AppRoutes } from '../routes/AppRoutes';
 import { ThemeProvider as MUIThemeProvider, CssBaseline } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import { AuthProvider } from '../context/AuthContext';
