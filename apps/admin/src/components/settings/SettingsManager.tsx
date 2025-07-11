@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { useSettings, SettingData, GroupedSettings } from '../../hooks/useSettings';
-import { cn } from '../../lib/utils';
+import { useSettings, SettingData } from '../../hooks/useSettings';
 import { CreateSettingForm } from './CreateSettingForm';
+import cn from 'classnames';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 interface SettingItemProps {
   setting: SettingData;
@@ -9,12 +10,13 @@ interface SettingItemProps {
 }
 
 const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
-  const [value, setValue] = useState(setting.value || '');
   const [isEditing, setIsEditing] = useState(false);
+  const [value, setValue] = useState(setting.value || '');
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslationWithBackend();
 
   const handleUpdate = async () => {
-    if (!setting.id || value === setting.value) return;
+    if (value === setting.value) return;
     
     setIsLoading(true);
     try {
@@ -39,7 +41,7 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
               className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
             />
             <span className="ml-2 text-sm text-gray-600">
-              {value === 'true' ? '启用' : '禁用'}
+              {value === 'true' ? t('common.enabled', '启用') : t('common.disabled', '禁用')}
             </span>
           </div>
         );
@@ -86,7 +88,7 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
         <div className="flex items-center">
           {setting.isPublic && (
             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 mr-2">
-              公开
+              {t('common.public', '公开')}
             </span>
           )}
           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
@@ -108,14 +110,14 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
                 className="px-3 py-1 text-sm text-gray-700 hover:text-gray-900"
                 disabled={isLoading}
               >
-                取消
+                {t('common.cancel', '取消')}
               </button>
               <button
                 onClick={handleUpdate}
                 className="px-3 py-1 text-sm bg-primary-600 text-white rounded hover:bg-primary-700 disabled:opacity-50"
                 disabled={isLoading || value === setting.value}
               >
-                {isLoading ? '保存中...' : '保存'}
+                {isLoading ? t('common.saving', '保存中...') : t('common.save', '保存')}
               </button>
             </div>
           </div>
@@ -124,17 +126,17 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
             <div className="text-sm text-gray-800 truncate max-w-md">
               {setting.type === 'boolean' ? (
                 <span className={setting.value === 'true' ? 'text-green-600' : 'text-red-600'}>
-                  {setting.value === 'true' ? '启用' : '禁用'}
+                  {setting.value === 'true' ? t('common.enabled', '启用') : t('common.disabled', '禁用')}
                 </span>
               ) : (
-                setting.value || <span className="text-gray-400 italic">空</span>
+                setting.value || <span className="text-gray-400 italic">{t('common.empty', '空')}</span>
               )}
             </div>
             <button
               onClick={() => setIsEditing(true)}
               className="text-sm text-primary-600 hover:text-primary-700"
             >
-              编辑
+              {t('common.edit', '编辑')}
             </button>
           </div>
         )}
@@ -147,6 +149,7 @@ export const SettingsManager: React.FC = () => {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const { groupedSettings, isLoading, updateSetting } = useSettings();
+  const { t } = useTranslationWithBackend();
 
   if (isLoading) {
     return (
@@ -161,19 +164,19 @@ export const SettingsManager: React.FC = () => {
   return (
     <div className="container mx-auto py-6 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">系统设置</h1>
+        <h1 className="text-2xl font-bold">{t('admin.system_settings', '系统设置')}</h1>
         <button
           onClick={() => setIsCreateModalOpen(true)}
           className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
         >
-          添加设置
+          {t('settings.add_setting', '添加设置')}
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* 侧边栏：设置分组 */}
         <div className="bg-white rounded-lg shadow p-4 h-fit lg:sticky lg:top-20">
-          <h2 className="font-medium text-lg mb-4">设置分类</h2>
+          <h2 className="font-medium text-lg mb-4">{t('settings.categories', '设置分类')}</h2>
           <nav className="space-y-1">
             <button
               onClick={() => setSelectedGroup(null)}
@@ -184,7 +187,7 @@ export const SettingsManager: React.FC = () => {
                   : "text-gray-700 hover:bg-gray-50"
               )}
             >
-              所有设置
+              {t('settings.all_settings', '所有设置')}
             </button>
             {groups.map((group) => (
               <button
@@ -243,7 +246,7 @@ export const SettingsManager: React.FC = () => {
       {isCreateModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h2 className="text-xl font-bold mb-4">创建新设置</h2>
+            <h2 className="text-xl font-bold mb-4">{t('settings.create_new_setting', '创建新设置')}</h2>
             <CreateSettingForm onClose={() => setIsCreateModalOpen(false)} />
           </div>
         </div>

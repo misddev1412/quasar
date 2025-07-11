@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SupportedLocale } from '@shared';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 import { getSupportedLocales } from '../i18n';
@@ -19,6 +19,8 @@ const localeFlags: Record<SupportedLocale, string> = {
   vi: '🇻🇳'
 };
 
+const LOCALE_STORAGE_KEY = 'quasar_locale';
+
 const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({ 
   className = '',
   selectClassName = ''
@@ -33,10 +35,22 @@ const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({
     return 0;
   });
 
+  // Load locale from localStorage on component mount
+  useEffect(() => {
+    const savedLocale = localStorage.getItem(LOCALE_STORAGE_KEY) as SupportedLocale | null;
+    if (savedLocale && supportedLocales.includes(savedLocale) && savedLocale !== currentLocale) {
+      changeLanguage(savedLocale).catch(error => {
+        console.error('Failed to load saved language:', error);
+      });
+    }
+  }, []);
+
   const handleLocaleChange = async (locale: SupportedLocale) => {
     if (locale !== currentLocale && !isLoading) {
       try {
         await changeLanguage(locale);
+        // Save to localStorage after successful change
+        localStorage.setItem(LOCALE_STORAGE_KEY, locale);
       } catch (error) {
         console.error('Failed to change language:', error);
       }

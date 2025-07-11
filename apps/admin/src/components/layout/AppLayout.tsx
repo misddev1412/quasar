@@ -14,6 +14,7 @@ import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useNavigate } from 'react-router-dom';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 // 快速操作按钮容器
 const QuickActionsFab = styled('div')({
@@ -55,6 +56,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { type } = config;
   const navigate = useNavigate();
   const [quickActionsOpen, setQuickActionsOpen] = useState(false);
+  const { t } = useTranslationWithBackend();
   
   // 滚动触发器，当页面滚动超过100px时触发
   const trigger = useScrollTrigger({
@@ -74,7 +76,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const quickActions = [
     {
       icon: <PersonAddIcon />,
-      name: '添加新用户',
+      name: t('admin.add_new_user', '添加新用户'),
       action: () => {
         navigate('/users/new');
         setQuickActionsOpen(false);
@@ -82,7 +84,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     },
     {
       icon: <PostAddIcon />,
-      name: '新建SEO条目',
+      name: t('admin.create_seo_entry', '新建SEO条目'),
       action: () => {
         navigate('/seo/new');
         setQuickActionsOpen(false);
@@ -90,7 +92,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     },
     {
       icon: <LanguageOutlinedIcon />,
-      name: '添加翻译',
+      name: t('admin.add_translation', '添加翻译'),
       action: () => {
         navigate('/translations/new');
         setQuickActionsOpen(false);
@@ -102,7 +104,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const renderQuickActions = () => (
     <QuickActionsFab>
       <StyledSpeedDial
-        ariaLabel="快速操作"
+        ariaLabel={t('navigation.quick_actions', '快速操作')}
         icon={<SpeedDialIcon openIcon={<CloseIcon />} />}
         onClose={() => setQuickActionsOpen(false)}
         onOpen={() => setQuickActionsOpen(true)}
@@ -146,7 +148,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         <Fab
           color="secondary"
           size="small"
-          aria-label="返回顶部"
+          aria-label={t('navigation.back_to_top', '返回顶部')}
           onClick={scrollToTop}
           sx={{
             opacity: 0.8,

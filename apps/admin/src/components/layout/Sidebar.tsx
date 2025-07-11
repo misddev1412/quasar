@@ -55,6 +55,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import AddIcon from '@mui/icons-material/Add';
 // 移除了不再需要的图标导入
 import { styled } from '@mui/material/styles';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 interface SubMenuItem {
   icon: React.ReactNode;
@@ -244,7 +245,7 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { sidebarCollapsed } = config;
-  const muiTheme = useMuiTheme();
+  const { t } = useTranslationWithBackend();
   const { logout } = useAuth();
   
   // 处理登出
@@ -261,60 +262,58 @@ const Sidebar: React.FC = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchAnchorEl, setSearchAnchorEl] = useState<null | HTMLElement>(null);
   
-  // 移除了快速操作相关状态和选项
-
   // 菜单分组
   const menuGroups: MenuGroup[] = [
     {
-      title: '概览',
+      title: t('navigation.overview', '概览'),
       items: [
         {
           icon: <DashboardIcon />,
-          label: '仪表盘',
+          label: t('navigation.dashboard', '仪表盘'),
           path: '/'
         }
       ]
     },
     {
-      title: '内容管理',
+      title: t('navigation.content_management', '内容管理'),
       items: [
         {
           icon: <PeopleIcon />,
-          label: '用户管理',
+          label: t('admin.user_management', '用户管理'),
           path: '/users',
           badge: 2,
           subItems: [
             {
               icon: <PermIdentityIcon />,
-              label: '用户列表',
+              label: t('admin.user_list', '用户列表'),
               path: '/users/list',
               badge: 2
             },
             {
               icon: <ManageAccountsIcon />,
-              label: '角色管理',
+              label: t('admin.manage_roles', '角色管理'),
               path: '/users/roles'
             },
             {
               icon: <SecurityIcon />,
-              label: '权限设置',
+              label: t('admin.manage_permissions', '权限设置'),
               path: '/users/permissions'
             }
           ]
         },
         {
           icon: <DescriptionIcon />,
-          label: 'SEO管理',
+          label: t('admin.seo_management', 'SEO管理'),
           path: '/seo',
           subItems: [
             {
               icon: <ViewListIcon />,
-              label: 'SEO列表',
+              label: t('admin.seo_list', 'SEO列表'),
               path: '/seo/list'
             },
             {
               icon: <BarChartIcon />,
-              label: 'SEO分析',
+              label: t('admin.seo_analytics', 'SEO分析'),
               path: '/seo/analytics'
             }
           ]
@@ -322,38 +321,38 @@ const Sidebar: React.FC = () => {
       ]
     },
     {
-      title: '通信',
+      title: t('navigation.communication', '通信'),
       items: [
         {
           icon: <NotificationsIcon />,
-          label: '通知',
+          label: t('navigation.notifications', '通知'),
           path: '/notifications',
           badge: 5
         },
         {
           icon: <ChatIcon />,
-          label: '消息',
+          label: t('navigation.messages', '消息'),
           path: '/messages',
           badge: 3
         },
         {
           icon: <LanguageIcon />,
-          label: '翻译',
+          label: t('admin.translations', '翻译'),
           path: '/translations'
         }
       ]
     },
     {
-      title: '系统',
+      title: t('navigation.system', '系统'),
       items: [
         {
           icon: <SettingsIcon />,
-          label: '设置',
+          label: t('navigation.settings', '设置'),
           path: '/settings'
         },
         {
           icon: <HelpIcon />,
-          label: '帮助',
+          label: t('navigation.help', '帮助'),
           path: '/help'
         }
       ]

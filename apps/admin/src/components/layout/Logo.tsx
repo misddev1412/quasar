@@ -1,37 +1,42 @@
 import React from 'react';
+import { Box, Typography, styled } from '@mui/material';
 import { useTheme } from '../../context/ThemeContext';
-import { Box, Typography, useTheme as useMuiTheme } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
-interface LogoProps {
-  collapsed?: boolean;
-}
-
-// 自定义Logo容器
+// Styled components for the logo
 const LogoContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  padding: theme.spacing(2),
-  height: 64,
-  overflow: 'hidden',
-  borderBottom: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200]}`,
+  transition: 'all 0.3s ease',
 }));
 
-// Logo图标样式
 const LogoIcon = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   width: 36,
   height: 36,
-  borderRadius: theme.shape.borderRadius,
-  boxShadow: '0 2px 10px 0 rgba(0, 0, 0, 0.2)',
-  background: `linear-gradient(135deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 50%, ${theme.palette.primary.dark} 100%)`,
+  borderRadius: 8,
+  backgroundImage: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+  boxShadow: '0px 4px 10px rgba(37, 99, 235, 0.3)',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '0px 6px 15px rgba(37, 99, 235, 0.4)',
+  }
 }));
 
-const Logo: React.FC<LogoProps> = ({ collapsed = false }) => {
+interface LogoProps {
+  collapsed?: boolean;
+  onClick?: () => void;
+}
+
+const Logo: React.FC<LogoProps> = ({
+  collapsed = false,
+  onClick
+}) => {
   const { isDarkMode } = useTheme();
-  const muiTheme = useMuiTheme();
+  const { t } = useTranslationWithBackend();
 
   return (
     <LogoContainer
@@ -67,7 +72,7 @@ const Logo: React.FC<LogoProps> = ({ collapsed = false }) => {
               textOverflow: 'ellipsis',
             }}
           >
-            Quasar
+            {t('common.brand_name', 'Quasar')}
           </Typography>
           <Typography 
             variant="caption" 
@@ -80,7 +85,7 @@ const Logo: React.FC<LogoProps> = ({ collapsed = false }) => {
               display: 'block'
             }}
           >
-            Admin Dashboard
+            {t('common.admin_dashboard', 'Admin Dashboard')}
           </Typography>
         </Box>
       )}
