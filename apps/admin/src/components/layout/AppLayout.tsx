@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLayout } from '../../contexts/LayoutContext';
 import { useTheme } from '../../context/ThemeContext';
 import Sidebar from './Sidebar';
@@ -6,75 +6,193 @@ import Header from './Header';
 import Footer from './Footer';
 import Content from './Content';
 import HorizontalNav from './HorizontalNav';
-import { Box, Paper } from '@mui/material';
+import { Box, SpeedDial, SpeedDialAction, SpeedDialIcon, Fab, Zoom, useScrollTrigger } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import PostAddIcon from '@mui/icons-material/PostAdd';
+import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
+import CloseIcon from '@mui/icons-material/Close';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { useNavigate } from 'react-router-dom';
+
+// 快速操作按钮容器
+const QuickActionsFab = styled('div')({
+  position: 'fixed',
+  bottom: '30px',
+  right: '30px',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-end',
+  zIndex: 1200
+});
+
+// 返回顶部按钮容器
+const BackToTopButton = styled('div')({
+  position: 'fixed',
+  bottom: '100px',
+  right: '30px',
+  zIndex: 1200
+});
+
+// 速度拨号样式
+const StyledSpeedDial = styled(SpeedDial)({
+  '& .MuiFab-root': {
+    width: '48px',
+    height: '48px',
+  },
+  position: 'absolute',
+  right: 0,
+  bottom: 0
+});
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
-// 创建更专业的背景样式
-const ProfessionalBackground = styled(Box)(({ theme }) => ({
-  background: theme.palette.mode === 'dark' 
-    ? `linear-gradient(180deg, ${theme.palette.grey[900]} 0%, ${theme.palette.grey[800]} 100%)`
-    : `linear-gradient(180deg, ${theme.palette.background.default} 0%, ${theme.palette.grey[100]} 100%)`,
-  minHeight: '100vh',
-  display: 'flex',
-  flexDirection: 'column',
-}));
-
-const MainContainer = styled(Paper)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  flexGrow: 1,
-  margin: theme.spacing(1.5),
-  borderRadius: `${Number(theme.shape.borderRadius) * 1.5}px`,
-  overflow: 'hidden',
-  boxShadow: '0 4px 20px 0 rgba(0, 0, 0, 0.05)',
-  border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200]}`,
-}));
-
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { config } = useLayout();
   const { isDarkMode } = useTheme();
   const { type } = config;
+  const navigate = useNavigate();
+  const [quickActionsOpen, setQuickActionsOpen] = useState(false);
+  
+  // 滚动触发器，当页面滚动超过100px时触发
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 100,
+  });
+
+  // 滚动到顶部的函数
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  // 快速操作选项
+  const quickActions = [
+    {
+      icon: <PersonAddIcon />,
+      name: '添加新用户',
+      action: () => {
+        navigate('/users/new');
+        setQuickActionsOpen(false);
+      }
+    },
+    {
+      icon: <PostAddIcon />,
+      name: '新建SEO条目',
+      action: () => {
+        navigate('/seo/new');
+        setQuickActionsOpen(false);
+      }
+    },
+    {
+      icon: <LanguageOutlinedIcon />,
+      name: '添加翻译',
+      action: () => {
+        navigate('/translations/new');
+        setQuickActionsOpen(false);
+      }
+    }
+  ];
+
+  // 快速操作悬浮按钮
+  const renderQuickActions = () => (
+    <QuickActionsFab>
+      <StyledSpeedDial
+        ariaLabel="快速操作"
+        icon={<SpeedDialIcon openIcon={<CloseIcon />} />}
+        onClose={() => setQuickActionsOpen(false)}
+        onOpen={() => setQuickActionsOpen(true)}
+        open={quickActionsOpen}
+        direction="up"
+        FabProps={{
+          size: 'medium',
+          sx: {
+            bgcolor: 'primary.main',
+            '&:hover': {
+              bgcolor: 'primary.dark',
+            }
+          }
+        }}
+      >
+        {quickActions.map((action) => (
+          <SpeedDialAction
+            key={action.name}
+            icon={action.icon}
+            tooltipTitle={action.name}
+            tooltipOpen
+            onClick={action.action}
+            FabProps={{
+              sx: {
+                bgcolor: theme => theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[50],
+                '&:hover': {
+                  bgcolor: theme => theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[200],
+                }
+              }
+            }}
+          />
+        ))}
+      </StyledSpeedDial>
+    </QuickActionsFab>
+  );
+
+  // 返回顶部按钮
+  const renderBackToTop = () => (
+    <BackToTopButton>
+      <Zoom in={trigger}>
+        <Fab
+          color="secondary"
+          size="small"
+          aria-label="返回顶部"
+          onClick={scrollToTop}
+          sx={{
+            opacity: 0.8,
+            '&:hover': {
+              opacity: 1,
+            },
+          }}
+        >
+          <KeyboardArrowUpIcon />
+        </Fab>
+      </Zoom>
+    </BackToTopButton>
+  );
 
   return (
-    <ProfessionalBackground className={isDarkMode ? 'dark' : ''}>
-      <MainContainer elevation={0}>
-        <Box sx={{ 
-          display: 'flex', 
-          flexGrow: 1, 
-          overflow: 'hidden',
-          bgcolor: isDarkMode ? 'grey.900' : 'background.paper'
-        }}>
-          {/* 垂直布局的侧边栏 */}
-          {type === 'vertical' && <Sidebar />}
+    <div className={`min-h-screen flex flex-col w-full ${isDarkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+      <div className="flex flex-grow w-full overflow-hidden">
+        {/* 垂直布局的侧边栏 */}
+        {type === 'vertical' && <Sidebar />}
+        
+        {/* 主内容区域 */}
+        <div className={`
+          flex flex-col flex-grow w-full overflow-hidden
+          ${type === 'vertical' ? 'border-l' : ''}
+          ${isDarkMode ? 'border-gray-800' : 'border-gray-200'}
+        `}>
+          {/* 水平布局的顶部导航 */}
+          {type === 'horizontal' && <HorizontalNav />}
           
-          {/* 主内容区域 */}
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            flexGrow: 1, 
-            overflow: 'hidden',
-            borderLeft: type === 'vertical' ? 1 : 0,
-            borderColor: isDarkMode ? 'grey.800' : 'grey.200'
-          }}>
-            {/* 水平布局的顶部导航 */}
-            {type === 'horizontal' && <HorizontalNav />}
-            
-            {/* 顶部栏 */}
-            <Header />
-            
-            {/* 内容区域 */}
-            <Content>{children}</Content>
-            
-            {/* 底部 */}
-            <Footer />
-          </Box>
-        </Box>
-      </MainContainer>
-    </ProfessionalBackground>
+          {/* 顶部栏 */}
+          <Header />
+          
+          {/* 内容区域 */}
+          <Content>{children}</Content>
+          
+          {/* 底部 */}
+          <Footer />
+        </div>
+      </div>
+      
+      {/* 返回顶部按钮 */}
+      {renderBackToTop()}
+      
+      {/* 渲染快速操作按钮 - 在屏幕右下角 */}
+      {renderQuickActions()}
+    </div>
   );
 };
 

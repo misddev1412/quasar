@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSeo, SeoData } from '../hooks/useSeo';
 import { trpc } from '../utils/trpc';
+import { BaseApiResponse } from '@shared/types/api.types';
 
 interface SeoFormData {
   title: string;
@@ -10,12 +11,7 @@ interface SeoFormData {
   isActive?: boolean;
 }
 
-interface ApiResponse<T> {
-  data: T;
-  message: string;
-  statusCode: number;
-  success: boolean;
-}
+// 删除本地定义的 ApiResponse 接口，使用共享库的 BaseApiResponse
 
 export function SeoDemo() {
   const [searchPath, setSearchPath] = useState<string>('/');

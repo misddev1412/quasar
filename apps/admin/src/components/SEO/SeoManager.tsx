@@ -3,16 +3,10 @@ import { trpc } from '../../utils/trpc';
 import { SeoData } from '../../hooks/useSeo';
 import { useForm } from 'react-hook-form';
 import { cn } from '../../lib/utils';
+import { BaseApiResponse } from '@shared/types/api.types';
 
 interface SeoFormData extends SeoData {
   // Additional fields can be added here
-}
-
-interface ApiResponse<T> {
-  data: T;
-  message: string;
-  statusCode: number;
-  success: boolean;
 }
 
 export const SeoManager: React.FC = () => {
@@ -78,7 +72,7 @@ export const SeoManager: React.FC = () => {
   };
 
   const seos = seosData && typeof seosData === 'object' && 'data' in seosData 
-    ? (seosData as unknown as ApiResponse<SeoData[]>).data 
+    ? (seosData as unknown as BaseApiResponse<SeoData[]>).data 
     : [];
 
   return (

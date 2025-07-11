@@ -1,19 +1,17 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import AuthCard from '../../components/auth/AuthCard';
 import LoginForm from '../../components/auth/LoginForm';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { useLoginForm } from '../../hooks/useLoginForm';
 
 export function LoginPage() {
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const auth = useAuth();
   const { isDarkMode, theme } = useTheme();
-  const navigate = useNavigate();
   const { t } = useTranslationWithBackend();
-
+  const { error, isSubmitting, handleLogin } = useLoginForm({ auth });
+  
   // 应用登录页特定样式
   useEffect(() => {
     const bodyEl = document.body;
@@ -83,32 +81,11 @@ export function LoginPage() {
     };
   }, [isDarkMode, theme]);
 
-  // 处理登录
-  const handleLogin = async (email: string, password: string) => {
-    setError('');
-    setIsLoading(true);
-
-    try {
-      const result = await login(email, password);
-      if (result.success) {
-        navigate('/');
-      } else {
-        // 显示API返回的具体错误信息
-        setError(result.errorMessage || t('auth.login_failed'));
-      }
-    } catch (err) {
-      setError(t('auth.error_occurred'));
-      console.error(t('auth.login_error'), err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <AuthCard title={t('auth.admin_platform')}>
-      <LoginForm 
+      <LoginForm
         onSubmit={handleLogin}
-        isSubmitting={isLoading}
+        isSubmitting={isSubmitting}
         error={error}
       />
     </AuthCard>

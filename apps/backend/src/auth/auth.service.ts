@@ -9,6 +9,8 @@ export interface JwtPayload {
   email: string;
   sub: string;
   role: UserRole;
+  username?: string;
+  isActive?: boolean;
 }
 
 @Injectable()
@@ -35,8 +37,10 @@ export class AuthService {
     
     const payload: JwtPayload = { 
       email: user.email, 
-      sub: user.id, 
-      role: primaryRole 
+      sub: user.id, // 确保sub是用户ID而不是角色
+      username: user.username,
+      role: primaryRole,
+      isActive: user.isActive
     };
     
     return {
@@ -63,7 +67,9 @@ export class AuthService {
       const newPayload: JwtPayload = { 
         email: payload.email, 
         sub: payload.sub, 
-        role: payload.role 
+        username: payload.username,
+        role: payload.role,
+        isActive: payload.isActive 
       };
       
       return {

@@ -44,6 +44,8 @@ const Search = styled('div')(({ theme }) => ({
     width: 'auto',
   },
   transition: 'all 0.2s',
+  display: 'flex', // 确保内部元素正确对齐
+  alignItems: 'center', // 垂直居中
 }));
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
@@ -55,6 +57,7 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   color: theme.palette.text.secondary,
+  zIndex: 1, // 确保图标显示在输入框上方
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
@@ -208,8 +211,10 @@ const Header: React.FC = () => {
           
           <Divider orientation="vertical" flexItem sx={{ mx: 0.5, height: '24px', alignSelf: 'center' }} />
           
-          {/* 语言切换器 */}
-          <LocaleSwitcher />
+          {/* 语言切换器 - 增加宽度 */}
+          <Box sx={{ minWidth: 120 }}>
+            <LocaleSwitcher selectClassName="w-full" />
+          </Box>
           
           {/* 通知 */}
           <Tooltip title="通知">

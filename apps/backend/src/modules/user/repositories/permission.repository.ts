@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { BaseRepository, PermissionAction, PermissionScope, UserRole } from '@shared';
 import { Permission } from '../entities/permission.entity';
 import { RolePermission } from '../entities/role-permission.entity';
+import { Role } from '../entities/role.entity';
 import { 
   IPermissionRepository, 
   CreatePermissionDto, 
@@ -19,6 +20,8 @@ export class PermissionRepository extends BaseRepository<Permission> implements 
     private readonly permissionRepository: Repository<Permission>,
     @InjectRepository(RolePermission)
     private readonly rolePermissionRepository: Repository<RolePermission>,
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
   ) {
     super(permissionRepository);
   }
@@ -107,7 +110,30 @@ export class PermissionRepository extends BaseRepository<Permission> implements 
     return result.affected > 0;
   }
 
-  async findPermissionsByRole(roleId: string): Promise<Permission[]> {
+  /**
+   * 查找角色的所有权限
+   * @param roleOrCode 角色ID或角色代码
+   * @returns 权限列表
+   */
+  async findPermissionsByRole(roleOrCode: string): Promise<Permission[]> {
+    let roleId = roleOrCode;
+    
+    // 检查输入是否为角色代码而不是UUID
+    if (Object.values(UserRole).includes(roleOrCode as UserRole)) {
+      // 如果是角色代码，先查找对应角色的ID
+      const role = await this.roleRepository.findOne({
+        where: { code: roleOrCode as UserRole }
+      });
+      
+      if (!role) {
+        console.warn(`找不到角色代码为 ${roleOrCode} 的角色`);
+        return [];
+      }
+      
+      roleId = role.id;
+    }
+
+    // 使用角色ID查询权限
     const rolePermissions = await this.rolePermissionRepository.find({
       where: { 
         roleId,
@@ -142,12 +168,37 @@ export class PermissionRepository extends BaseRepository<Permission> implements 
     return permission !== null;
   }
 
+  /**
+   * 获取特定权限
+   * @param roleOrCode 角色ID或角色代码
+   * @param resource 资源
+   * @param action 操作
+   * @param scope 范围
+   * @returns 权限对象或null
+   */
   async getPermission(
-    roleId: string, 
+    roleOrCode: string, 
     resource: string, 
     action: PermissionAction, 
     scope: PermissionScope
   ): Promise<Permission | null> {
+    let roleId = roleOrCode;
+    
+    // 检查输入是否为角色代码而不是UUID
+    if (Object.values(UserRole).includes(roleOrCode as UserRole)) {
+      // 如果是角色代码，先查找对应角色的ID
+      const role = await this.roleRepository.findOne({
+        where: { code: roleOrCode as UserRole }
+      });
+      
+      if (!role) {
+        console.warn(`找不到角色代码为 ${roleOrCode} 的角色`);
+        return null;
+      }
+      
+      roleId = role.id;
+    }
+
     const rolePermission = await this.rolePermissionRepository
       .createQueryBuilder('rp')
       .innerJoin('rp.permission', 'permission')

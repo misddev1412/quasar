@@ -14,6 +14,11 @@ const localeNames: Record<SupportedLocale, string> = {
   en: 'English'
 };
 
+const localeFlags: Record<SupportedLocale, string> = {
+  en: '🇬🇧',
+  vi: '🇻🇳'
+};
+
 const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({ 
   className = '',
   selectClassName = ''
@@ -45,12 +50,12 @@ const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({
   };
 
   return (
-    <div className={`locale-switcher ${className}`}>
+    <div className={`locale-switcher w-full ${className}`}>
       <select
         value={currentLocale}
         onChange={(e) => handleLocaleChange(e.target.value as SupportedLocale)}
         disabled={isLoading}
-        className={`px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 disabled:opacity-50 ${getSelectStyle()} ${selectClassName}`}
+        className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 disabled:opacity-50 ${getSelectStyle()} ${selectClassName}`}
         style={{
           textShadow: isDarkMode ? '0 1px 2px rgba(0,0,0,0.2)' : 'none'
         }}
@@ -65,7 +70,7 @@ const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({
               color: isDarkMode ? '#e5e7eb' : '#1f2937'
             }}
           >
-            {localeNames[locale]}
+            {localeFlags[locale]} {localeNames[locale]}
           </option>
         ))}
       </select>

@@ -4,24 +4,29 @@ import { SeoData } from '../../hooks/useSeo';
 
 interface WithSeoProps {
   seoData?: SeoData;
+  defaultSeo?: Partial<SeoData>;
 }
 
 /**
- * Higher-order component to add SEO to any component
- * @param WrappedComponent The component to wrap with SEO
- * @param defaultSeoData Optional default SEO data
+ * 高阶组件，为任何组件添加SEO功能
+ * @param WrappedComponent 需要包装SEO的组件
+ * @param defaultSeoData 可选的默认SEO数据
  */
 export const withSeo = <P extends object>(
   WrappedComponent: React.ComponentType<P>,
   defaultSeoData?: SeoData
 ) => {
-  const WithSeo: React.FC<P & WithSeoProps> = ({ seoData, ...props }) => {
-    // Use provided seoData or default
-    const finalSeoData = seoData || defaultSeoData;
+  const WithSeo: React.FC<P & WithSeoProps> = ({ seoData, defaultSeo, ...props }) => {
+    // 使用提供的seoData或默认值
+    const finalDefaultSeo = defaultSeo || defaultSeoData;
     
     return (
       <>
-        {finalSeoData && <SeoHead data={finalSeoData} />}
+        <SeoHead 
+          data={seoData} 
+          defaultSeo={finalDefaultSeo}
+          path={seoData?.path || finalDefaultSeo?.path} 
+        />
         <WrappedComponent {...props as P} />
       </>
     );

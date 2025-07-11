@@ -10,6 +10,7 @@ import { Module } from '@nestjs/common';
 import { SeederModule } from './seeder.module';
 import { PermissionSeeder } from './permission.seeder';
 import { SeoSeeder } from './seo.seeder';
+import { AdminSeeder } from './admin.seeder';
 import databaseConfig from '../../config/database.config';
 
 @Module({
@@ -27,6 +28,7 @@ interface SeederFlags {
   permissions?: boolean;
   roles?: boolean;
   seo?: boolean;
+  admin?: boolean;
   all?: boolean;
   force?: boolean;
   clear?: boolean;
@@ -51,6 +53,10 @@ function parseFlags(): SeederFlags {
         break;
       case '--seo':
         flags.seo = true;
+        break;
+      case '--admin':
+      case '-A':
+        flags.admin = true;
         break;
       case '--all':
       case '-a':
@@ -89,6 +95,7 @@ function showHelp() {
   console.log('  --permissions, -p    Seed permissions');
   console.log('  --roles, -r          Seed roles only');
   console.log('  --seo                Seed SEO data');
+  console.log('  --admin, -A          Seed root admin account');
   console.log('  --all, -a            Run all seeders');
   console.log('  --force, -f          Force seed (may create duplicates)');
   console.log('  --clear, -c          Clear all data and reseed (destructive)');
@@ -100,6 +107,7 @@ function showHelp() {
   console.log('  yarn seed                    # Safe seed (default)');
   console.log('  yarn seed --permissions      # Seed permissions (safe)');
   console.log('  yarn seed --seo              # Seed SEO data (safe)');
+  console.log('  yarn seed --admin            # Seed root admin account (safe)');
   console.log('  yarn seed --permissions --force');
   console.log('  yarn seed --roles            # Seed roles only');
   console.log('  yarn seed --all              # Run all seeders');
@@ -130,6 +138,7 @@ async function bootstrap() {
 
     const permissionSeeder = app.get(PermissionSeeder);
     const seoSeeder = app.get(SeoSeeder);
+    const adminSeeder = app.get(AdminSeeder);
 
     // Determine what to run based on flags
     if (flags.clear) {
@@ -142,6 +151,7 @@ async function bootstrap() {
       console.log('🌱 Running all seeders...\n');
       await permissionSeeder.seedIfEmpty();
       await seoSeeder.seed();
+      await adminSeeder.seedIfEmpty();
       // Add other seeders here when available
     } else if (flags.roles) {
       console.log('🎭 Seeding roles only...\n');
@@ -149,6 +159,9 @@ async function bootstrap() {
     } else if (flags.seo) {
       console.log('🔍 Seeding SEO data...\n');
       await seoSeeder.seed();
+    } else if (flags.admin) {
+      console.log('🔑 Seeding root admin account...\n');
+      await adminSeeder.seedIfEmpty();
     } else if (flags.permissions) {
       if (flags.force) {
         console.log('📋 Force seeding permissions (may create duplicates)...\n');
@@ -166,6 +179,7 @@ async function bootstrap() {
       console.log('💡 Use --help to see all available options\n');
       await permissionSeeder.seedIfEmpty();
       await seoSeeder.seed();
+      await adminSeeder.seedIfEmpty();
     }
 
     console.log('\n🎉 Database seeding completed successfully!');

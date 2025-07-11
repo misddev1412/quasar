@@ -1,174 +1,41 @@
-import { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { trpc } from '../utils/trpc';
+import { createContext, useContext, ReactNode } from 'react';
+import { UseAuthReturn, useAuth as useAuthHook } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { TrpcApiResponse } from '@shared';
 
-interface User {
-  id: string;
-  email: string;
-  username: string;
-}
+export type { UseAuthReturn };
 
-interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<{success: boolean, errorMessage?: string}>;
-  logout: () => void;
-  refreshToken: () => Promise<boolean>;
-}
+// 创建一个默认值为undefined的上下文
+const AuthContext = createContext<UseAuthReturn | undefined>(undefined);
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const TOKEN_KEY = 'admin_access_token';
-const REFRESH_TOKEN_KEY = 'admin_refresh_token';
-const USER_KEY = 'admin_user';
-
+/**
+ * 身份验证提供者组件，包装应用程序并提供身份验证上下文
+ */
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
+  const auth = useAuthHook();
   
-  const loginMutation = trpc.adminAuth.login.useMutation();
-  const refreshMutation = trpc.adminAuth.refresh.useMutation();
-
-  // Check if user is authenticated on mount
-  useEffect(() => {
-    const initAuth = async () => {
-      try {
-        const storedUser = localStorage.getItem(USER_KEY);
-        const accessToken = localStorage.getItem(TOKEN_KEY);
-        
-        if (storedUser && accessToken) {
-          setUser(JSON.parse(storedUser));
-        } else {
-          const refreshed = await refreshToken();
-          if (!refreshed) {
-            // Clear any stored data if refresh failed
-            localStorage.removeItem(USER_KEY);
-            localStorage.removeItem(TOKEN_KEY);
-            localStorage.removeItem(REFRESH_TOKEN_KEY);
-            navigate('/auth/login');
-          }
-        }
-      } catch (error) {
-        console.error('Auth initialization error:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    initAuth();
-  }, []);
-
-  const login = async (email: string, password: string): Promise<{success: boolean, errorMessage?: string}> => {
-    setIsLoading(true);
-    try {
-      const result = await loginMutation.mutateAsync({ email, password }) as TrpcApiResponse;
-      
-      if (result.code === 200 && result.data) {
-        const userData = result.data.user as User;
-        const accessToken = result.data.accessToken as string;
-        const refreshToken = result.data.refreshToken as string;
-        
-        localStorage.setItem(TOKEN_KEY, accessToken);
-        localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-        localStorage.setItem(USER_KEY, JSON.stringify(userData));
-        
-        setUser(userData);
-        return { success: true };
-      }
-      // 使用状态作为错误消息或提供默认消息
-      return { success: false, errorMessage: result.status || 'Login failed' };
-    } catch (error: any) {
-      console.error('Login error:', error);
-      
-      // 尝试从错误中提取API错误信息
-      let errorMessage = 'Login failed';
-      
-      if (error.shape?.data) {
-        const errorData = Array.isArray(error.shape.data) 
-          ? error.shape.data[0]?.error 
-          : error.shape.data?.error;
-          
-        if (errorData) {
-          errorMessage = errorData.message || errorMessage;
-        }
-      }
-      
-      return { success: false, errorMessage };
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const refreshToken = async (): Promise<boolean> => {
-    const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
-    
-    if (!storedRefreshToken) {
-      return false;
-    }
-    
-    try {
-      const result = await refreshMutation.mutateAsync({ 
-        refreshToken: storedRefreshToken 
-      }) as TrpcApiResponse;
-      
-      if (result.code === 200 && result.data) {
-        const accessToken = result.data.accessToken as string;
-        const refreshToken = result.data.refreshToken as string;
-        
-        localStorage.setItem(TOKEN_KEY, accessToken);
-        localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-        
-        // User data doesn't change on refresh
-        const storedUser = localStorage.getItem(USER_KEY);
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        }
-        
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('Token refresh error:', error);
-      return false;
-    }
-  };
-
-  const logout = () => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-    setUser(null);
-    navigate('/auth/login');
-  };
-
   return (
-    <AuthContext.Provider 
-      value={{ 
-        user, 
-        isAuthenticated: !!user, 
-        isLoading, 
-        login, 
-        logout,
-        refreshToken 
-      }}
-    >
+    <AuthContext.Provider value={auth}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
+/**
+ * 使用身份验证上下文的自定义Hook
+ */
+export const useAuth = (): UseAuthReturn => {
   const context = useContext(AuthContext);
+  
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth必须在AuthProvider内部使用');
   }
+  
   return context;
 };
 
-// Auth guard HOC
+/**
+ * 身份验证保护HOC，包装需要身份验证的组件
+ */
 export const withAuth = <P extends object>(
   Component: React.ComponentType<P>
 ): React.FC<P> => {
@@ -176,16 +43,20 @@ export const withAuth = <P extends object>(
     const { isAuthenticated, isLoading } = useAuth();
     const navigate = useNavigate();
 
-    useEffect(() => {
-      if (!isLoading && !isAuthenticated) {
-        navigate('/auth/login');
-      }
-    }, [isLoading, isAuthenticated, navigate]);
-
-    if (isLoading) {
-      return <div>Loading...</div>;
+    // 如果用户未登录且页面已加载，则重定向到登录页面
+    if (!isLoading && !isAuthenticated) {
+      navigate('/auth/login');
+      return null;
     }
 
+    // 如果页面正在加载，可以显示加载状态
+    if (isLoading) {
+      return <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+      </div>;
+    }
+
+    // 渲染被保护的组件
     return isAuthenticated ? <Component {...props} /> : null;
   };
 }; 

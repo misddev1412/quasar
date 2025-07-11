@@ -1,10 +1,10 @@
 import React, { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { FormInput } from '../common/FormInput';
-import { Button } from '../common/Button';
-import { MailIcon, LockIcon, AlertIcon } from '../common/Icons';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useTheme } from '../../context/ThemeContext';
+import { FormInput } from '@admin/components/common/FormInput';
+import { Button } from '@admin/components/common/Button';
+import { MailIcon, LockIcon, AlertIcon } from '@admin/components/common/Icons';
+import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
+import { useTheme } from '../context/ThemeContext';
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => Promise<void>;

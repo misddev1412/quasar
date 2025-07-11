@@ -8,6 +8,33 @@
 /* Import shared CSS from Design System */
 /* This is separately imported in main.tsx */
 
+/* Global Layout Styles */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Force full width on all containers */
+.MuiContainer-root,
+.MuiGrid-root,
+.MuiBox-root {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.MuiGrid-container {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
 /* Theme CSS Variables */
 :root {
   /* 默认变量，会被ThemeContext中的值覆盖 */

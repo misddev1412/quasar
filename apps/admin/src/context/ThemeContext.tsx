@@ -98,8 +98,8 @@ const applyThemeToCssVariables = (theme: ThemeConfig, isDark: boolean) => {
 };
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // 用户主题偏好配置
-  const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>('system');
+  // 用户主题偏好配置 - 默认为light而不是system
+  const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>('light');
   
   // Load theme config from localStorage
   const [theme, setThemeState] = useState<ThemeConfig>(() => {
@@ -166,7 +166,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return mode === 'dark';
   };
 
-  // Load dark mode preference from localStorage
+  // Load dark mode preference from localStorage, default to light mode
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const storedMode = localStorage.getItem('adminThemeMode');
@@ -174,7 +174,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setThemeMode(storedMode as 'light' | 'dark' | 'system');
         return calculateIsDarkMode(storedMode as 'light' | 'dark' | 'system');
       } else {
-        return getSystemThemePreference();
+        // 设置默认为浅色模式
+        localStorage.setItem('adminThemeMode', 'light');
+        return false;
       }
     }
     return false;
@@ -200,8 +202,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const shouldBeDark = calculateIsDarkMode(storedMode as 'light' | 'dark' | 'system');
         setIsDarkMode(shouldBeDark);
       } else {
-        setThemeMode('system');
-        setIsDarkMode(getSystemThemePreference());
+        // 设置默认为浅色模式
+        setThemeMode('light');
+        setIsDarkMode(false);
+        localStorage.setItem('adminThemeMode', 'light');
       }
       
       // 应用初始主题变量
@@ -237,22 +241,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [isDarkMode, themeMode]);
 
-  // Check for system preference changes
+  // 强制初始渲染为浅色模式
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      
-      const handleChange = (e: MediaQueryListEvent) => {
-        // Only update if the user is using system preference
-        if (themeMode === 'system') {
-          setIsDarkMode(e.matches);
-        }
-      };
-      
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
+    setIsDarkMode(false);
+    setThemeMode('light');
+    localStorage.setItem('adminThemeMode', 'light');
+    
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
     }
-  }, [themeMode]);
+  }, []);
 
   const setTheme = (newTheme: Partial<ThemeConfig>) => {
     setThemeState((prevTheme) => ({

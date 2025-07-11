@@ -1,24 +1,29 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useSeo, SeoData } from '../../hooks/useSeo';
 
 interface SeoHeadProps {
   path?: string;
   data?: SeoData;
+  defaultSeo?: Partial<SeoData>;
 }
 
-export const SeoHead: React.FC<SeoHeadProps> = ({ path, data }) => {
-  const { seo, isLoading, error } = useSeo();
-  
-  // Use provided data or data from hook
-  const seoData = data || seo;
+export const SeoHead: React.FC<SeoHeadProps> = ({ path, data, defaultSeo }) => {
+  // 如果提供了完整的data，则直接使用它，否则从useSeo获取
+  const { 
+    seo = null,
+    isLoading
+  } = data ? { seo: data, isLoading: false } : useSeo({
+    path,
+    defaultSeo
+  });
   
   if (isLoading) {
     return null;
   }
   
-  if (error || !seoData) {
-    // Fallback SEO
+  if (!seo) {
+    // 默认SEO回退方案
     return (
       <Helmet>
         <title>Quasar Admin</title>
@@ -29,33 +34,42 @@ export const SeoHead: React.FC<SeoHeadProps> = ({ path, data }) => {
   
   return (
     <Helmet>
-      {seoData.title && <title>{seoData.title}</title>}
-      {seoData.description && <meta name="description" content={seoData.description} />}
-      {seoData.keywords && <meta name="keywords" content={seoData.keywords} />}
+      {seo.title && <title>{seo.title}</title>}
+      {seo.description && <meta name="description" content={seo.description} />}
+      {seo.keywords && <meta name="keywords" content={seo.keywords} />}
       
       {/* Open Graph */}
-      {(seoData.ogTitle || seoData.title) && 
-        <meta property="og:title" content={seoData.ogTitle || seoData.title} />}
-      {(seoData.ogDescription || seoData.description) && 
-        <meta property="og:description" content={seoData.ogDescription || seoData.description} />}
-      {seoData.ogImage && <meta property="og:image" content={seoData.ogImage} />}
-      {seoData.ogUrl && <meta property="og:url" content={seoData.ogUrl} />}
-      {seoData.ogType && <meta property="og:type" content={seoData.ogType} />}
+      {(seo.ogTitle || seo.title) && 
+        <meta property="og:title" content={seo.ogTitle || seo.title} />}
+      {(seo.ogDescription || seo.description) && 
+        <meta property="og:description" content={seo.ogDescription || seo.description} />}
+      {seo.ogImage && <meta property="og:image" content={seo.ogImage} />}
+      {seo.ogUrl && <meta property="og:url" content={seo.ogUrl} />}
+      {seo.ogType && <meta property="og:type" content={seo.ogType} />}
       
       {/* Twitter */}
-      {seoData.twitterCard && <meta name="twitter:card" content={seoData.twitterCard} />}
-      {(seoData.twitterTitle || seoData.ogTitle || seoData.title) && 
-        <meta name="twitter:title" content={seoData.twitterTitle || seoData.ogTitle || seoData.title} />}
-      {(seoData.twitterDescription || seoData.ogDescription || seoData.description) && 
-        <meta name="twitter:description" content={seoData.twitterDescription || seoData.ogDescription || seoData.description} />}
-      {(seoData.twitterImage || seoData.ogImage) && 
-        <meta name="twitter:image" content={seoData.twitterImage || seoData.ogImage} />}
+      {seo.twitterCard && <meta name="twitter:card" content={seo.twitterCard} />}
+      {(seo.twitterTitle || seo.ogTitle || seo.title) && 
+        <meta name="twitter:title" content={seo.twitterTitle || seo.ogTitle || seo.title} />}
+      {(seo.twitterDescription || seo.ogDescription || seo.description) && 
+        <meta name="twitter:description" content={seo.twitterDescription || seo.ogDescription || seo.description} />}
+      {(seo.twitterImage || seo.ogImage) && 
+        <meta name="twitter:image" content={seo.twitterImage || seo.ogImage} />}
       
       {/* Canonical URL */}
-      {seoData.canonicalUrl && <link rel="canonical" href={seoData.canonicalUrl} />}
+      {seo.canonicalUrl && <link rel="canonical" href={seo.canonicalUrl} />}
       
       {/* Locale */}
-      {seoData.locale && <meta property="og:locale" content={seoData.locale} />}
+      {seo.locale && <meta property="og:locale" content={seo.locale} />}
+      
+      {/* 渲染additionalMetaTags（如果有的话） */}
+      {seo.additionalMetaTags && Object.entries(seo.additionalMetaTags).map(([name, content]) => {
+        // 根据名称决定是渲染为普通meta标签还是og标签
+        if (name.startsWith('og:')) {
+          return <meta key={name} property={name} content={content} />;
+        }
+        return <meta key={name} name={name} content={content} />;
+      })}
     </Helmet>
   );
 };

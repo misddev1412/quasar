@@ -1,63 +1,61 @@
-import React, { useState, FormEvent } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { FormInput } from '../common/FormInput';
 import { Button } from '../common/Button';
 import { MailIcon, LockIcon, AlertIcon } from '../common/Icons';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useTheme } from '../../context/ThemeContext';
+import { useStyleUtils } from '../../utils/styleUtils';
 
-interface LoginFormProps {
-  onSubmit: (email: string, password: string) => Promise<void>;
-  isSubmitting?: boolean;
+// 仅表示UI所需的props
+interface LoginFormUIProps {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+  passwordError?: string;
+  isSubmitting: boolean;
   error?: string;
+  onEmailChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onPasswordChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onRememberMeChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSubmit: (e: React.FormEvent) => Promise<void>;
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({
-  onSubmit,
-  isSubmitting = false,
-  error
+// 纯UI组件，不包含业务逻辑
+export const LoginFormUI: React.FC<LoginFormUIProps> = ({
+  email,
+  password,
+  rememberMe,
+  passwordError,
+  isSubmitting,
+  error,
+  onEmailChange,
+  onPasswordChange,
+  onRememberMeChange,
+  onSubmit
 }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
   const { t } = useTranslationWithBackend();
-  const { isDarkMode } = useTheme();
+  const { getTextColorClass, getButtonClass } = useStyleUtils();
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    
-    // 密码验证
-    if (password.length < 6) {
-      setPasswordError(t('auth.password_min_length') || '密码长度必须至少为6个字符');
-      return;
-    }
-    
-    setPasswordError('');
-    await onSubmit(email, password);
-  };
-
+  // 获取忘记密码链接
   const forgotPasswordLink = (
-    <Link to="/auth/forgot-password" className={`text-sm font-medium ${isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-primary-700 hover:text-primary-800'} transition-colors duration-200`}>
+    <Link 
+      to="/auth/forgot-password" 
+      className={`text-sm font-medium ${getTextColorClass('text-slate-400 hover:text-slate-300', 'text-primary-700 hover:text-primary-800')} transition-colors duration-200`}
+    >
       {t('common.forgot_password')}
     </Link>
   );
-
-  // 获取按钮样式类名
-  const getButtonClassName = () => {
-    return `mt-2 btn-primary ${isDarkMode 
-      ? 'bg-gradient-to-r from-primary-500 to-primary-700' 
-      : 'bg-gradient-to-r from-primary-700 to-primary-900 shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40'}`;
-  };
 
   return (
     <div className="w-full">
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-theme-primary text-center">{t('auth.admin_login')}</h2>
-        <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-700'} mt-2 text-center`}>{t('auth.enter_credentials')}</p>
+        <p className={`${getTextColorClass('text-gray-400', 'text-gray-700')} mt-2 text-center`}>
+          {t('auth.enter_credentials')}
+        </p>
       </div>
       
-      {/* 错误信息 - 使用更醒目的样式 */}
+      {/* 错误信息 */}
       {error && (
         <div className="mb-6 p-4 rounded-lg bg-red-50 border-l-4 border-red-600 text-red-800 shadow-lg animate-pulse-slow transition-all duration-300">
           <div className="flex items-center">
@@ -72,8 +70,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         </div>
       )}
       
-      {/* 表单 */}
-      <form onSubmit={handleSubmit} className="space-y-6">
+      {/* 登录表单 */}
+      <form onSubmit={onSubmit} className="space-y-6">
         {/* 邮箱输入 */}
         <FormInput 
           id="email"
@@ -81,8 +79,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           label={t('auth.email')}
           placeholder="your.email@example.com"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          icon={<MailIcon className={`h-5 w-5 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`} />}
+          onChange={onEmailChange}
+          icon={<MailIcon className="h-5 w-5" />}
           required
           autoComplete="email"
           className="form-input"
@@ -95,13 +93,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           label={t('auth.password')}
           placeholder="••••••••"
           value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-            if (e.target.value.length >= 6) {
-              setPasswordError('');
-            }
-          }}
-          icon={<LockIcon className={`h-5 w-5 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`} />}
+          onChange={onPasswordChange}
+          icon={<LockIcon className="h-5 w-5" />}
           rightElement={forgotPasswordLink}
           required
           autoComplete="current-password"
@@ -116,10 +109,13 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             name="remember_me"
             type="checkbox"
             checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
-            className={`h-4 w-4 rounded border-slate-300 ${isDarkMode ? 'text-primary-500' : 'text-primary-600'} focus:ring-primary-500`}
+            onChange={onRememberMeChange}
+            className={`h-4 w-4 rounded border-slate-300 focus:ring-primary-500`}
           />
-          <label htmlFor="remember_me" className={`ml-2 block text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+          <label 
+            htmlFor="remember_me" 
+            className={`ml-2 block text-sm ${getTextColorClass()}`}
+          >
             {t('auth.remember_me')}
           </label>
         </div>
@@ -130,7 +126,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           variant="primary"
           isLoading={isSubmitting}
           fullWidth
-          className={getButtonClassName()}
+          className={`mt-2 btn-primary ${getButtonClass('primary')}`}
         >
           {t('auth.login')}
         </Button>
@@ -138,11 +134,71 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       
       {/* 支持链接 */}
       <div className="mt-8">
-        <p className={`text-center text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
-          {t('common.need_help')} <a href="#" className={`font-medium ${isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-primary-700 hover:text-primary-800'} transition-colors duration-200`}>{t('common.contact_admin')}</a>
+        <p className={`text-center text-sm ${getTextColorClass()}`}>
+          {t('common.need_help')} <a href="#" className={`font-medium ${getTextColorClass('text-slate-400 hover:text-slate-300', 'text-primary-700 hover:text-primary-800')} transition-colors duration-200`}>{t('common.contact_admin')}</a>
         </p>
       </div>
     </div>
+  );
+};
+
+// 业务逻辑组件props
+interface LoginFormProps {
+  onSubmit: (email: string, password: string) => Promise<void>;
+  isSubmitting?: boolean;
+  error?: string;
+}
+
+// 业务逻辑组件，连接UI和数据
+export const LoginForm: React.FC<LoginFormProps> = ({
+  onSubmit,
+  isSubmitting = false,
+  error
+}) => {
+  const { t } = useTranslationWithBackend();
+  
+  // 使用表单状态管理
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [passwordError, setPasswordError] = React.useState('');
+  const [rememberMe, setRememberMe] = React.useState(false);
+
+  // 处理表单提交
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // 密码验证
+    if (password.length < 6) {
+      setPasswordError(t('auth.password_min_length') || '密码长度必须至少为6个字符');
+      return;
+    }
+    
+    setPasswordError('');
+    await onSubmit(email, password);
+  };
+
+  // 处理密码变更，自动清除错误
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+    if (e.target.value.length >= 6) {
+      setPasswordError('');
+    }
+  };
+
+  // 渲染UI组件
+  return (
+    <LoginFormUI
+      email={email}
+      password={password}
+      rememberMe={rememberMe}
+      passwordError={passwordError}
+      isSubmitting={isSubmitting}
+      error={error}
+      onEmailChange={(e) => setEmail(e.target.value)}
+      onPasswordChange={handlePasswordChange}
+      onRememberMeChange={(e) => setRememberMe(e.target.checked)}
+      onSubmit={handleSubmit}
+    />
   );
 };
 

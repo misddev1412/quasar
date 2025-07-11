@@ -10,9 +10,10 @@ import { UserRole } from '../../modules/user/entities/user-role.entity';
 import { SEOEntity } from '../../modules/seo/entities/seo.entity';
 import { PermissionRepository } from '../../modules/user/repositories/permission.repository';
 import { AdminPermissionService } from '../../modules/user/services/admin/admin-permission.service';
-import { PermissionCheckerService } from '@backend/modules/shared/services/permission-checker.service';
+import { PermissionCheckerService } from '../../modules/shared/services/permission-checker.service';
 import { PermissionSeeder } from './permission.seeder';
 import { SeoSeeder } from './seo.seeder';
+import { AdminSeeder } from './admin.seeder';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { SeoSeeder } from './seo.seeder';
     AdminPermissionService,
     PermissionSeeder,
     SeoSeeder,
+    AdminSeeder,
   ],
-  exports: [PermissionSeeder, SeoSeeder],
+  exports: [PermissionSeeder, SeoSeeder, AdminSeeder],
 })
 export class SeederModule {} 

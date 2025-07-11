@@ -4,6 +4,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Logo from './Logo';
+import UserInfo from './UserInfo';
 import {
   Drawer,
   List,
@@ -27,10 +28,7 @@ import {
   ClickAwayListener,
   MenuList,
   MenuItem,
-  SpeedDial,
-  SpeedDialAction,
-  SpeedDialIcon,
-  Fab
+  // 已移除不再使用的MUI组件导入
 } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
@@ -55,10 +53,7 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import SearchIcon from '@mui/icons-material/Search';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import AddIcon from '@mui/icons-material/Add';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import PostAddIcon from '@mui/icons-material/PostAdd';
-import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
-import CloseIcon from '@mui/icons-material/Close';
+// 移除了不再需要的图标导入
 import { styled } from '@mui/material/styles';
 
 interface SubMenuItem {
@@ -88,12 +83,7 @@ interface SearchResult {
   group?: string;
 }
 
-// 新增快速操作项接口
-interface QuickAction {
-  icon: React.ReactNode;
-  name: string;
-  action: () => void;
-}
+// 已移除快速操作项接口
 
 // 自定义侧边栏样式
 const StyledDrawer = styled(Drawer)(({ theme }) => ({
@@ -144,22 +134,8 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
         ? `rgba(38, 99, 235, 0.3)` 
         : theme.palette.primary.light,
     },
-    color: theme.palette.primary.main,
+    color: theme.palette.common.white,
   },
-}));
-
-const UserProfileBox = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  bottom: 0,
-  width: '100%',
-  padding: theme.spacing(2),
-  borderTop: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200]}`,
-  backgroundColor: theme.palette.mode === 'dark' ? 
-    'rgba(0, 0, 0, 0.15)' : 
-    'rgba(255, 255, 255, 0.8)',
-  backdropFilter: 'blur(5px)',
-  display: 'flex',
-  alignItems: 'center',
 }));
 
 // 徽章组件
@@ -260,13 +236,7 @@ const SearchResultGroup = styled(Typography)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-// 快速操作按钮容器
-const QuickActionsFab = styled(Box)(({ theme }) => ({
-  position: 'fixed',
-  right: 20,
-  bottom: 20,
-  zIndex: 1200,
-}));
+// 已移除快速操作按钮容器样式
 
 const Sidebar: React.FC = () => {
   const { config, toggleSidebar } = useLayout();
@@ -291,43 +261,7 @@ const Sidebar: React.FC = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchAnchorEl, setSearchAnchorEl] = useState<null | HTMLElement>(null);
   
-  // 快速操作相关状态
-  const [quickActionsOpen, setQuickActionsOpen] = useState(false);
-  
-  // 模拟用户数据 - 实际应用中应从认证上下文获取
-  const user = {
-    name: '张三',
-    role: '管理员',
-    avatar: 'https://mui.com/static/images/avatar/1.jpg'
-  };
-  
-  // 快速操作选项
-  const quickActions: QuickAction[] = [
-    {
-      icon: <PersonAddIcon />,
-      name: '添加新用户',
-      action: () => {
-        navigate('/users/new');
-        setQuickActionsOpen(false);
-      }
-    },
-    {
-      icon: <PostAddIcon />,
-      name: '新建SEO条目',
-      action: () => {
-        navigate('/seo/new');
-        setQuickActionsOpen(false);
-      }
-    },
-    {
-      icon: <LanguageOutlinedIcon />,
-      name: '添加翻译',
-      action: () => {
-        navigate('/translations/new');
-        setQuickActionsOpen(false);
-      }
-    }
-  ];
+  // 移除了快速操作相关状态和选项
 
   // 菜单分组
   const menuGroups: MenuGroup[] = [
@@ -567,12 +501,12 @@ const Sidebar: React.FC = () => {
                   px: 2.5,
                 }}
               >
-                <ListItemIcon
+                                    <ListItemIcon
                   sx={{
                     minWidth: 0,
                     mr: sidebarCollapsed ? 'auto' : 3,
                     justifyContent: 'center',
-                    color: isActive ? 'primary.main' : 'text.secondary',
+                    color: isActive ? 'common.white' : 'text.secondary',
                   }}
                 >
                   {badgeContent > 0 ? (
@@ -591,7 +525,7 @@ const Sidebar: React.FC = () => {
                       }}
                       sx={{ 
                         opacity: sidebarCollapsed ? 0 : 1,
-                        color: isActive ? 'primary.main' : 'text.primary',
+                        color: isActive ? 'common.white' : 'text.primary',
                       }} 
                     />
                     {isExpanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
@@ -615,7 +549,7 @@ const Sidebar: React.FC = () => {
                       minWidth: 0,
                       mr: sidebarCollapsed ? 'auto' : 3,
                       justifyContent: 'center',
-                      color: isActive ? 'primary.main' : 'text.secondary',
+                      color: isActive ? 'common.white' : 'text.secondary',
                     }}
                   >
                     {badgeContent > 0 ? (
@@ -633,7 +567,7 @@ const Sidebar: React.FC = () => {
                       }}
                       sx={{ 
                         opacity: sidebarCollapsed ? 0 : 1,
-                        color: isActive ? 'primary.main' : 'text.primary',
+                        color: isActive ? 'common.white' : 'text.primary',
                       }} 
                     />
                   )}
@@ -669,7 +603,7 @@ const Sidebar: React.FC = () => {
                           minWidth: 0,
                           mr: 2,
                           justifyContent: 'center',
-                          color: isSubItemActive ? 'primary.main' : 'text.secondary',
+                          color: isSubItemActive ? 'common.white' : 'text.secondary',
                           fontSize: '0.875rem',
                         }}
                       >
@@ -686,7 +620,7 @@ const Sidebar: React.FC = () => {
                           fontWeight: isSubItemActive ? 'medium' : 'normal',
                         }}
                         sx={{ 
-                          color: isSubItemActive ? 'primary.main' : 'text.primary',
+                          color: isSubItemActive ? 'common.white' : 'text.primary',
                         }} 
                       />
                     </StyledListItemButton>
@@ -719,7 +653,7 @@ const Sidebar: React.FC = () => {
                   sx={{
                     minWidth: 0,
                     justifyContent: 'center',
-                    color: isActiveRoute(subItem.path) ? 'primary.main' : 'text.secondary',
+                    color: isActiveRoute(subItem.path) ? 'common.white' : 'text.secondary',
                   }}
                 >
                   {subItem.badge ? (
@@ -944,99 +878,12 @@ const Sidebar: React.FC = () => {
         ))}
       </Box>
 
-      {/* 用户资料区域 */}
-      <UserProfileBox>
-        {sidebarCollapsed ? (
-          <Tooltip title={user.name} placement="right">
-            <Avatar 
-              src={user.avatar} 
-              alt={user.name}
-              sx={{ 
-                width: 40, 
-                height: 40,
-                mx: 'auto',
-                border: theme => `2px solid ${theme.palette.primary.main}`,
-              }}
-            />
-          </Tooltip>
-        ) : (
-          <>
-            <Avatar 
-              src={user.avatar} 
-              alt={user.name}
-              sx={{ 
-                width: 40, 
-                height: 40,
-                mr: 2,
-                border: theme => `2px solid ${theme.palette.primary.main}`,
-              }}
-            />
-            <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
-              <Typography variant="subtitle2" noWrap sx={{ fontWeight: 'medium' }}>
-                {user.name}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" noWrap>
-                {user.role}
-              </Typography>
-            </Box>
-            <Tooltip title="退出登录">
-              <IconButton 
-                size="small"
-                sx={{ 
-                  color: 'text.secondary',
-                  '&:hover': { color: 'error.main' }
-                }}
-                onClick={handleLogout}
-              >
-                <LogoutIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </>
-        )}
-      </UserProfileBox>
+      {/* 用户资料区域 - 使用新的UserInfo组件 */}
+      <UserInfo collapsed={sidebarCollapsed} />
     </Box>
   );
 
-  // 快速操作悬浮按钮
-  const renderQuickActions = () => (
-    <QuickActionsFab>
-      <SpeedDial
-        ariaLabel="快速操作"
-        icon={<SpeedDialIcon openIcon={<CloseIcon />} />}
-        onClose={() => setQuickActionsOpen(false)}
-        onOpen={() => setQuickActionsOpen(true)}
-        open={quickActionsOpen}
-        direction="up"
-        FabProps={{
-          sx: {
-            bgcolor: 'primary.main',
-            '&:hover': {
-              bgcolor: 'primary.dark',
-            },
-          },
-          size: 'medium'
-        }}
-      >
-        {quickActions.map((action) => (
-          <SpeedDialAction
-            key={action.name}
-            icon={action.icon}
-            tooltipTitle={action.name}
-            tooltipOpen
-            onClick={action.action}
-            FabProps={{
-              sx: {
-                bgcolor: theme => theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[50],
-                '&:hover': {
-                  bgcolor: theme => theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[200],
-                },
-              }
-            }}
-          />
-        ))}
-      </SpeedDial>
-    </QuickActionsFab>
-  );
+  // 已移除快速操作悬浮按钮的渲染函数
 
   // 根据收缩状态渲染不同宽度的侧边栏
   return (
@@ -1056,8 +903,6 @@ const Sidebar: React.FC = () => {
           {drawer}
         </StyledDrawer>
       )}
-      {/* 渲染快速操作按钮 */}
-      {renderQuickActions()}
     </>
   );
 };

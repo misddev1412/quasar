@@ -13,11 +13,7 @@
     "strict": false,
     "noEmit": false,
     "moduleResolution": "node",
-    "baseUrl": "../../",
-    "paths": {
-      "@quasar/shared": ["libs/shared/src/index.ts"],
-      "ui": ["libs/ui/src/index.ts"]
-    }
+    "baseUrl": "../../"
   },
   "ts-node": {
     "require": ["tsconfig-paths/register"]
