@@ -8,11 +8,14 @@ import {
   BeforeInsert,
   BeforeUpdate,
 } from 'typeorm';
+import { Expose } from 'class-transformer';
 
 export abstract class BaseEntity {
+  @Expose()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Expose()
   @CreateDateColumn({
     name: 'created_at',
     type: 'timestamp',
@@ -20,6 +23,7 @@ export abstract class BaseEntity {
   })
   createdAt: Date;
 
+  @Expose()
   @UpdateDateColumn({
     name: 'updated_at',
     type: 'timestamp',
@@ -28,12 +32,14 @@ export abstract class BaseEntity {
   })
   updatedAt: Date;
 
+  @Expose()
   @VersionColumn({
     name: 'version',
     default: 1,
   })
   version: number;
 
+  @Expose()
   @Column({
     name: 'created_by',
     type: 'uuid',
@@ -41,6 +47,7 @@ export abstract class BaseEntity {
   })
   createdBy?: string;
 
+  @Expose()
   @Column({
     name: 'updated_by',
     type: 'uuid',
@@ -79,20 +86,10 @@ export abstract class BaseEntity {
     const ageInMinutes = (Date.now() - this.updatedAt.getTime()) / (1000 * 60);
     return ageInMinutes <= minutes;
   }
-
-  toJSON() {
-    return {
-      id: this.id,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
-      version: this.version,
-      createdBy: this.createdBy,
-      updatedBy: this.updatedBy,
-    };
-  }
 }
 
 export abstract class SoftDeletableEntity extends BaseEntity {
+  @Expose()
   @DeleteDateColumn({
     name: 'deleted_at',
     type: 'timestamp',
@@ -100,6 +97,7 @@ export abstract class SoftDeletableEntity extends BaseEntity {
   })
   deletedAt?: Date;
 
+  @Expose()
   @Column({
     name: 'deleted_by',
     type: 'uuid',
@@ -124,13 +122,5 @@ export abstract class SoftDeletableEntity extends BaseEntity {
 
   isActive(): boolean {
     return !this.isDeleted();
-  }
-
-  override toJSON() {
-    return {
-      ...super.toJSON(),
-      deletedAt: this.deletedAt,
-      deletedBy: this.deletedBy,
-    };
   }
 } 

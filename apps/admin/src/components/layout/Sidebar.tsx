@@ -305,18 +305,6 @@ const Sidebar: React.FC = () => {
           icon: <DescriptionIcon />,
           label: t('admin.seo_management', 'SEO管理'),
           path: '/seo',
-          subItems: [
-            {
-              icon: <ViewListIcon />,
-              label: t('admin.seo_list', 'SEO列表'),
-              path: '/seo/list'
-            },
-            {
-              icon: <BarChartIcon />,
-              label: t('admin.seo_analytics', 'SEO分析'),
-              path: '/seo/analytics'
-            }
-          ]
         }
       ]
     },

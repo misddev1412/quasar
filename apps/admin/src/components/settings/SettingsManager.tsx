@@ -4,11 +4,13 @@ import { CreateSettingForm } from './CreateSettingForm';
 import cn from 'classnames';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { Toggle } from '../common/Toggle';
+import { useToast } from '../../context/ToastContext';
+import { Button } from '../common/Button';
 
 // 设置项卡片组件
 interface SettingItemProps {
   setting: SettingData;
-  onUpdate: (id: string, value: string) => Promise<void>;
+  onUpdate: (id: string, data: Partial<Omit<SettingData, 'id'>>) => Promise<void>;
 }
 
 const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
@@ -16,16 +18,19 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
   const [value, setValue] = useState(setting.value || '');
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslationWithBackend();
+  const { addToast } = useToast();
 
   const handleUpdate = async () => {
     if (value === setting.value) return;
     
     setIsLoading(true);
     try {
-      await onUpdate(setting.id, value);
+      await onUpdate(setting.id, { value });
+      addToast({ type: 'success', title: t('settings.update_success_title', '更新成功'), description: t('settings.update_success_desc', '设置项已成功更新。') });
       setIsEditing(false);
     } catch (error) {
       console.error('Failed to update setting:', error);
+      addToast({ type: 'error', title: t('settings.update_failed_title', '更新失败'), description: t('settings.update_failed_desc', '无法更新设置项，请稍后重试。') });
     } finally {
       setIsLoading(false);
     }
@@ -36,7 +41,28 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
     setValue(newValue);
     // 布尔值设置自动保存
     if (setting.type === 'boolean') {
-      onUpdate(setting.id, newValue).catch(console.error);
+      onUpdate(setting.id, { value: newValue })
+        .then(() => {
+          addToast({ type: 'success', title: t('settings.update_success_title', '更新成功'), description: t('settings.boolean_toggle_success_desc', '设置已切换。') });
+        })
+        .catch((error) => {
+          console.error(error)
+          addToast({ type: 'error', title: t('settings.update_failed_title', '更新失败'), description: t('settings.boolean_toggle_failed_desc', '无法切换设置。') });
+          // Revert state on failure
+          setValue(value);
+        });
+    }
+  };
+
+  const togglePublic = async () => {
+    try {
+      await onUpdate(setting.id, { isPublic: !setting.isPublic });
+      addToast({ type: 'success', title: t('settings.update_success_title', '更新成功'), description: t('settings.public_toggle_success_desc', '可见性已更新。') });
+    } catch (error) {
+      console.error('Failed to update isPublic status:', error);
+      addToast({ type: 'error', title: t('settings.update_failed_title', '更新失败'), description: t('settings.public_toggle_failed_desc', '无法更新可见性。') });
+      // Note: we don't revert state here as we don't have the old state readily available without a small refactor.
+      // The UI will be out of sync with the backend state if the call fails.
     }
   };
 
@@ -87,23 +113,13 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-4 hover:shadow-md transition-shadow duration-300">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-4 hover:shadow-md transition-shadow duration-300 align-middle">
       <div className="flex justify-between items-start mb-3">
         <div>
-          <h3 className="text-sm font-medium text-gray-900">{setting.key}</h3>
+          <h3 className="text-sm font-medium text-gray-900">{t(`settings.keys.${setting.key}`, setting.key)}</h3>
           {setting.description && (
-            <p className="text-xs text-gray-500 mt-1">{setting.description}</p>
+            <p className="text-xs text-gray-500 mt-1">{t(`settings.descriptions.${setting.key}`, setting.description)}</p>
           )}
-        </div>
-        <div className="flex items-center space-x-2">
-          {setting.isPublic && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-              {t('common.public', '公开')}
-            </span>
-          )}
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-            {setting.type}
-          </span>
         </div>
       </div>
 
@@ -112,23 +128,26 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
           <div className="space-y-3">
             {renderInput()}
             <div className="flex justify-end space-x-2">
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => {
                   setValue(setting.value || '');
                   setIsEditing(false);
                 }}
-                className="px-3 py-1.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded"
                 disabled={isLoading}
               >
                 {t('common.cancel', '取消')}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
                 onClick={handleUpdate}
-                className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 shadow-sm"
-                disabled={isLoading || value === setting.value}
+                isLoading={isLoading}
+                disabled={value === setting.value}
               >
-                {isLoading ? t('common.saving', '保存中...') : t('common.save', '保存')}
-              </button>
+                {t('common.save', '保存')}
+              </Button>
             </div>
           </div>
         ) : (
@@ -152,14 +171,27 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
                 </span>
               )}
             </div>
-            {setting.type !== 'boolean' && (
-              <button
+            <div className="flex items-center space-x-2">
+              <Toggle
+                checked={setting.isPublic}
+                onChange={togglePublic}
+                size="sm"
+              />
+              {setting.type !== 'boolean' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="!p-1"
                 onClick={() => setIsEditing(true)}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium px-3 py-1 rounded hover:bg-blue-50"
+                aria-label={t('common.edit', '编辑')}
               >
-                {t('common.edit', '编辑')}
-              </button>
-            )}
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                  <path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" />
+                </svg>
+              </Button>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -171,12 +203,13 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
 const SettingGroupCard: React.FC<{
   title: string;
   settings: any[];
-  onUpdate: (id: string, value: string) => Promise<void>;
+  onUpdate: (id: string, data: Partial<Omit<SettingData, 'id'>>) => Promise<void>;
 }> = ({ title, settings, onUpdate }) => {
+  const { t } = useTranslationWithBackend();
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-100 p-5 mb-6">
       <div className="flex items-center mb-4">
-        <h2 className="text-lg font-medium text-gray-900">{title}</h2>
+        <h2 className="text-lg font-medium text-gray-900">{t(`settings.groups.${title}`, title)}</h2>
         <div className="ml-3 h-px bg-gray-200 flex-grow"></div>
       </div>
       <div className="space-y-4">
@@ -200,6 +233,41 @@ const CategorySidebar: React.FC<{
 }> = ({ groups, selectedGroup, onSelectGroup }) => {
   const { t } = useTranslationWithBackend();
   
+  const ICONS: { [key: string]: React.ReactNode } = {
+    all: (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+      </svg>
+    ),
+    general: (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    ),
+    appearance: (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+      </svg>
+    ),
+    pagination: (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+      </svg>
+    ),
+    other: (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+      </svg>
+    ),
+  };
+
+  const getIcon = (groupKey: string | null) => {
+    const key = groupKey === null ? 'all' : groupKey;
+    return ICONS[key] || ICONS['general'];
+  };
+  
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-100 p-5 h-fit lg:sticky lg:top-20">
       <h2 className="font-medium text-lg mb-4 pb-2 border-b border-gray-100">{t('settings.categories', '设置分类')}</h2>
@@ -207,26 +275,28 @@ const CategorySidebar: React.FC<{
         <button
           onClick={() => onSelectGroup(null)}
           className={cn(
-            "w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors",
+            "w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center",
             selectedGroup === null
-              ? "bg-blue-50 text-blue-700"
-              : "text-gray-700 hover:bg-gray-50"
+              ? "bg-blue-600 text-white"
+              : "text-gray-700 hover:bg-blue-600 hover:text-white"
           )}
         >
-          {t('settings.all_settings', '所有设置')}
+          {getIcon(null)}
+          <span>{t('settings.all_settings', '所有设置')}</span>
         </button>
         {groups.map((group) => (
           <button
             key={group}
             onClick={() => onSelectGroup(group)}
             className={cn(
-              "w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors",
+              "w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center",
               selectedGroup === group
-                ? "bg-blue-50 text-blue-700"
-                : "text-gray-700 hover:bg-gray-50"
+                ? "bg-blue-600 text-white"
+                : "text-gray-700 hover:bg-blue-600 hover:text-white"
             )}
           >
-            {group}
+            {getIcon(group)}
+            <span>{t(`settings.groups.${group}`, group)}</span>
           </button>
         ))}
       </nav>
@@ -248,15 +318,17 @@ const EmptyState: React.FC<{ onCreateClick: () => void }> = ({ onCreateClick }) 
       </div>
       <h3 className="text-xl font-medium text-gray-900 mb-2">{t('settings.no_settings', '暂无设置')}</h3>
       <p className="text-gray-500 mb-6">{t('settings.empty_state_message', '您尚未创建任何系统设置，点击下方按钮添加第一个设置。')}</p>
-      <button
+      <Button
+        variant="primary"
         onClick={onCreateClick}
-        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm inline-flex items-center"
+        startIcon={
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+          </svg>
+        }
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-        </svg>
         {t('settings.add_setting', '添加设置')}
-      </button>
+      </Button>
     </div>
   );
 };
@@ -301,23 +373,23 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
 
   // 模拟数据 - 当真实数据为空时使用
   const placeholderSettings = {
-    "基本设置": [
+    "general": [
       {
         id: "placeholder1",
         key: "site_name",
         value: "Quasar Admin",
         type: "string",
-        description: "网站名称",
-        group: "基本设置",
+        description: "The name of the website",
+        group: "general",
         isPublic: true
       },
       {
         id: "placeholder2",
         key: "site_description",
-        value: "专业的后台管理系统",
+        value: "A professional admin management system",
         type: "string",
-        description: "网站描述",
-        group: "基本设置",
+        description: "The description of the website",
+        group: "general",
         isPublic: true
       },
       {
@@ -325,19 +397,19 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
         key: "maintenance_mode",
         value: "false",
         type: "boolean",
-        description: "维护模式",
-        group: "基本设置",
+        description: "Enable or disable maintenance mode",
+        group: "general",
         isPublic: false
       }
     ],
-    "其他": [
+    "other": [
       {
         id: "placeholder4",
         key: "contact_email",
         value: "admin@quasar.com",
         type: "string",
-        description: "联系邮箱",
-        group: "其他",
+        description: "The contact email for the admin",
+        group: "other",
         isPublic: true
       },
       {
@@ -345,8 +417,8 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
         key: "default_pagination",
         value: "10",
         type: "number",
-        description: "默认分页数量",
-        group: "其他",
+        description: "The default number of items per page for pagination",
+        group: "other",
         isPublic: false
       }
     ]
@@ -428,15 +500,16 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
           >
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">{t('settings.create_new_setting', '创建新设置')}</h2>
-              <button 
+              <Button 
+                variant="ghost"
                 onClick={handleCloseModal}
-                className="text-gray-400 hover:text-gray-600 focus:outline-none rounded-full p-1 hover:bg-gray-100 transition-colors"
+                className="!p-1.5 text-gray-400 hover:text-gray-600"
                 aria-label={t('common.close', '关闭')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
-              </button>
+              </Button>
             </div>
             <CreateSettingForm onClose={handleCloseModal} />
           </div>

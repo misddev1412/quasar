@@ -201,6 +201,54 @@
     "categories": "Danh mục cài đặt",
     "all_settings": "Tất cả cài đặt",
     "create_new_setting": "Tạo cài đặt mới",
+    "no_settings": "Chưa có cài đặt",
+    "empty_state_message": "Bạn chưa tạo bất kỳ cài đặt hệ thống nào. Nhấp vào nút bên dưới để thêm cài đặt đầu tiên của bạn.",
+    "no_real_data": "Hiện đang hiển thị dữ liệu mẫu. Bạn có thể nhấp vào nút 'Thêm cài đặt' để tạo cài đặt hệ thống thực.",
+    "groups": {
+      "general": "Chung",
+      "other": "Khác",
+      "pagination": "Phân trang",
+      "appearance": "Giao diện"
+    },
+    "placeholders": {
+      "site_name_desc": "Tên trang web",
+      "site_desc": "Mô tả trang web",
+      "maintenance_mode_desc": "Chế độ bảo trì",
+      "contact_email_desc": "Email liên hệ",
+      "default_pagination_desc": "Số lượng phân trang mặc định"
+    },
+    "keys": {
+      "admin.items_per_page": "Số mục mỗi trang",
+      "admin.sidebar_collapsed": "Thu gọn thanh bên",
+      "admin.theme": "Chủ đề quản trị",
+      "site.description": "Mô tả trang web",
+      "site.name": "Tên trang web",
+      "site.favicon": "Favicon trang web",
+      "site.logo": "Logo trang web",
+      "maintenance_mode": "Chế độ bảo trì",
+      "contact_email": "Email liên hệ",
+      "default_pagination": "Phân trang mặc định"
+    },
+    "descriptions": {
+      "admin.items_per_page": "Số lượng mục hiển thị trên mỗi trang",
+      "admin.sidebar_collapsed": "Thanh bên có được thu gọn theo mặc định hay không",
+      "admin.theme": "Chủ đề trực quan cho bảng điều khiển quản trị",
+      "site.description": "Mô tả ngắn về trang web",
+      "site.name": "Tên của trang web",
+      "site.favicon": "Đường dẫn đến favicon của trang web (tệp .ico)",
+      "site.logo": "Đường dẫn đến hình ảnh logo của trang web",
+      "maintenance_mode": "Bật hoặc tắt chế độ bảo trì",
+      "contact_email": "Email liên hệ cho quản trị viên",
+      "default_pagination": "Số lượng mục mặc định trên mỗi trang để phân trang"
+    },
+    "update_success_title": "Cập nhật thành công",
+    "update_success_desc": "Cài đặt đã được cập nhật thành công.",
+    "update_failed_title": "Cập nhật thất bại",
+    "update_failed_desc": "Không thể cập nhật cài đặt. Vui lòng thử lại sau.",
+    "boolean_toggle_success_desc": "Cài đặt đã được chuyển đổi.",
+    "boolean_toggle_failed_desc": "Không thể chuyển đổi cài đặt.",
+    "public_toggle_success_desc": "Chế độ hiển thị đã được cập nhật.",
+    "public_toggle_failed_desc": "Không thể cập nhật chế độ hiển thị.",
     "form": {
       "key": "Tên khóa",
       "value": "Giá trị",
@@ -306,5 +354,44 @@
     "flexible_content": "Nội dung linh hoạt",
     "grid_layout": "Bố cục lưới",
     "grid_content": "Nội dung lưới"
+  },
+  "seo": {
+    "manager_title": "Quản lý SEO",
+    "add_rule": "Thêm luật SEO",
+    "create_new_rule": "Tạo luật SEO mới",
+    "categories": "Phân loại",
+    "all_rules": "Tất cả các luật",
+    "no_rules": "Không tìm thấy luật SEO nào",
+    "empty_state_message": "Bạn chưa tạo luật SEO nào. Nhấp vào nút để thêm luật đầu tiên.",
+    "fields": {
+      "title": "Tiêu đề",
+      "path": "Đường dẫn",
+      "description": "Mô tả",
+      "keywords": "Từ khóa",
+      "group": "Nhóm",
+      "additionalMetaTags": "Thẻ Meta bổ sung",
+      "active": "Kích hoạt"
+    },
+    "placeholders": {
+      "json_format": "Nhập chuỗi định dạng JSON"
+    },
+    "groups": {
+      "general": "Chung",
+      "blog": "Blog",
+      "product": "Sản phẩm"
+    },
+    "create_success_title": "Tạo thành công",
+    "create_success_desc": "Một luật SEO mới đã được thêm vào.",
+    "create_failed_title": "Tạo thất bại",
+    "create_failed_desc": "Không thể tạo luật SEO. Vui lòng kiểm tra lại thông tin đã nhập.",
+    "update_success_title": "Cập nhật thành công",
+    "update_success_desc": "Luật SEO đã được cập nhật.",
+    "update_failed_title": "Cập nhật thất bại",
+    "update_failed_desc": "Không thể cập nhật luật SEO.",
+    "delete_success_title": "Xóa thành công",
+    "delete_success_desc": "Luật SEO đã được xóa.",
+    "delete_failed_title": "Xóa thất bại",
+    "delete_failed_desc": "Không thể xóa luật SEO.",
+    "delete_confirm": "Bạn có chắc chắn muốn xóa luật SEO này không?"
   }
 } 

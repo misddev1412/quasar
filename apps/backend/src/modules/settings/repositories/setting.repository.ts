@@ -62,7 +62,14 @@ export class SettingRepository extends BaseRepository<SettingEntity> implements 
     });
   }
 
+  /**
+   * @deprecated use findAll instead
+   */
   async find(): Promise<SettingEntity[]> {
+    return this.findAll();
+  }
+
+  async findAll(): Promise<SettingEntity[]> {
     return this.repository.find({
       where: {
         deletedAt: null

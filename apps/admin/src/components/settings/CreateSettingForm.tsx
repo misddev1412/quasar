@@ -154,16 +154,14 @@ export const CreateSettingForm: React.FC<CreateSettingFormProps> = ({ onClose })
         </div>
         
         <div className="flex items-center py-2">
-          <div className="flex items-center">
-            <Toggle
-              checked={!!formData.isPublic}
-              onChange={togglePublic}
-              disabled={isLoading}
-            />
-            <span className="ml-3 text-sm font-medium text-gray-700">
-              {t('settings.form.is_public', '公开（对所有用户可见）')}
-            </span>
-          </div>
+          <Toggle
+            checked={!!formData.isPublic}
+            onChange={togglePublic}
+            disabled={isLoading}
+          />
+          <span className="ml-3 text-sm font-medium text-gray-700">
+            {t('settings.form.is_public', '公开（对所有用户可见）')}
+          </span>
         </div>
       </div>
       

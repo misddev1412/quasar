@@ -201,6 +201,54 @@
     "categories": "Setting Categories",
     "all_settings": "All Settings",
     "create_new_setting": "Create New Setting",
+    "no_settings": "No Settings Yet",
+    "empty_state_message": "You haven't created any system settings yet. Click the button below to add your first setting.",
+    "no_real_data": "Currently displaying sample data. You can click the 'Add Setting' button to create real system settings.",
+    "groups": {
+      "general": "General",
+      "other": "Other",
+      "pagination": "Pagination",
+      "appearance": "Appearance"
+    },
+    "placeholders": {
+      "site_name_desc": "Site Name",
+      "site_desc": "Site Description",
+      "maintenance_mode_desc": "Maintenance Mode",
+      "contact_email_desc": "Contact Email",
+      "default_pagination_desc": "Default Pagination Count"
+    },
+    "keys": {
+      "admin.items_per_page": "Items Per Page",
+      "admin.sidebar_collapsed": "Sidebar Collapsed",
+      "admin.theme": "Admin Theme",
+      "site.description": "Site Description",
+      "site.name": "Site Name",
+      "site.favicon": "Site Favicon",
+      "site.logo": "Site Logo",
+      "maintenance_mode": "Maintenance Mode",
+      "contact_email": "Contact Email",
+      "default_pagination": "Default Pagination"
+    },
+    "descriptions": {
+      "admin.items_per_page": "Number of items to display per page",
+      "admin.sidebar_collapsed": "Whether the sidebar is collapsed by default",
+      "admin.theme": "The visual theme for the admin dashboard",
+      "site.description": "A short description of the site",
+      "site.name": "The name of the website",
+      "site.favicon": "Path to the site's favicon (.ico file)",
+      "site.logo": "Path to the site's logo image",
+      "maintenance_mode": "Enable or disable maintenance mode",
+      "contact_email": "The contact email for the admin",
+      "default_pagination": "The default number of items per page for pagination"
+    },
+    "update_success_title": "Update Successful",
+    "update_success_desc": "The setting has been successfully updated.",
+    "update_failed_title": "Update Failed",
+    "update_failed_desc": "Could not update the setting. Please try again later.",
+    "boolean_toggle_success_desc": "The setting has been toggled.",
+    "boolean_toggle_failed_desc": "Could not toggle the setting.",
+    "public_toggle_success_desc": "Visibility has been updated.",
+    "public_toggle_failed_desc": "Could not update visibility.",
     "form": {
       "key": "Key",
       "value": "Value",
@@ -306,5 +354,44 @@
     "flexible_content": "Flexible Content",
     "grid_layout": "Grid Layout",
     "grid_content": "Grid Content"
+  },
+  "seo": {
+    "manager_title": "SEO Management",
+    "add_rule": "Add SEO Rule",
+    "create_new_rule": "Create New SEO Rule",
+    "categories": "Categories",
+    "all_rules": "All Rules",
+    "no_rules": "No SEO Rules Found",
+    "empty_state_message": "You haven't created any SEO rules yet. Click the button to add your first one.",
+    "fields": {
+      "title": "Title",
+      "path": "Path",
+      "description": "Description",
+      "keywords": "Keywords",
+      "group": "Group",
+      "additionalMetaTags": "Additional Meta Tags",
+      "active": "Active"
+    },
+    "placeholders": {
+      "json_format": "Enter a JSON formatted string"
+    },
+    "groups": {
+      "general": "General",
+      "blog": "Blog",
+      "product": "Product"
+    },
+    "create_success_title": "Creation Successful",
+    "create_success_desc": "A new SEO rule has been added.",
+    "create_failed_title": "Creation Failed",
+    "create_failed_desc": "Could not create the SEO rule. Please check your input.",
+    "update_success_title": "Update Successful",
+    "update_success_desc": "The SEO rule has been updated.",
+    "update_failed_title": "Update Failed",
+    "update_failed_desc": "Could not update the SEO rule.",
+    "delete_success_title": "Deletion Successful",
+    "delete_success_desc": "The SEO rule has been deleted.",
+    "delete_failed_title": "Deletion Failed",
+    "delete_failed_desc": "Could not delete the SEO rule.",
+    "delete_confirm": "Are you sure you want to delete this SEO rule?"
   }
 } 

@@ -1,4 +1,5 @@
 import React from 'react';
+import cn from 'classnames';
 
 interface ToggleProps {
   checked: boolean;
@@ -7,39 +8,61 @@ interface ToggleProps {
   size?: 'sm' | 'md';
 }
 
-export const Toggle: React.FC<ToggleProps> = ({ 
-  checked, 
-  onChange, 
-  disabled = false, 
-  size = 'md' 
+export const Toggle: React.FC<ToggleProps> = ({
+  checked,
+  onChange,
+  disabled = false,
+  size = 'md',
 }) => {
   const sizeClasses = {
     sm: {
-      container: 'w-8 h-4',
-      dot: 'w-3 h-3 translate-x-4'
+      container: 'w-9 h-5',
+      dot: 'w-3.5 h-3.5', // 14px
+      translate: 'translate-x-[18px]', // 18px
+      position: 'top-[2px] left-[2px]', // 2px
     },
     md: {
       container: 'w-11 h-6',
-      dot: 'w-4 h-4 translate-x-5'
+      dot: 'w-5 h-5',
+      translate: 'translate-x-5',
+      position: 'top-0.5 left-0.5',
+    },
+  };
+
+  const s = sizeClasses[size];
+
+  const handleChange = () => {
+    if (!disabled) {
+      onChange();
     }
   };
-  
+
   return (
-    <div className="relative inline-block">
-      <input
-        type="checkbox"
-        className="sr-only"
-        checked={checked}
-        onChange={onChange}
-        disabled={disabled}
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={handleChange}
+      disabled={disabled}
+      className={cn(
+        'relative inline-flex flex-shrink-0 items-center justify-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+        s.container,
+        { 'bg-blue-600': checked, 'bg-gray-200': !checked },
+        {
+          'cursor-pointer': !disabled,
+          'cursor-not-allowed opacity-50': disabled,
+        }
+      )}
+    >
+      <span className="sr-only">Use setting</span>
+      <span
+        aria-hidden="true"
+        className={cn(
+          'pointer-events-none absolute left-0 inline-block transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out',
+          s.dot,
+          { [s.translate]: checked, 'translate-x-0.5': !checked }
+        )}
       />
-      <div 
-        className={`block ${checked ? 'bg-blue-600' : 'bg-gray-300'} ${sizeClasses[size].container} rounded-full transition-colors duration-300 cursor-pointer ${disabled ? 'opacity-50' : ''}`}
-        onClick={!disabled ? onChange : undefined}
-      ></div>
-      <div 
-        className={`dot absolute left-1 top-1 ${checked ? sizeClasses[size].dot : 'translate-x-0'} bg-white rounded-full transition-transform duration-300`}
-      ></div>
-    </div>
+    </button>
   );
-}; 
+};

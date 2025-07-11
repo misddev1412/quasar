@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import { Button } from '../common/Button';
 
 interface ActionButton {
   label: string;
@@ -50,20 +51,15 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({
         {actions.length > 0 && (
           <div className="flex flex-wrap gap-3 justify-end">
             {actions.map((action, index) => (
-              <button
+              <Button
                 key={index}
                 onClick={action.onClick}
-                className={`
-                  px-4 py-2 rounded-md flex items-center gap-2 transition-colors
-                  ${action.primary 
-                    ? 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500' 
-                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200 focus:ring-gray-300'}
-                  focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-sm
-                `}
+                variant={action.primary ? 'primary' : 'secondary'}
+                size="sm"
+                startIcon={action.icon}
               >
-                {action.icon && <span>{action.icon}</span>}
-                <span>{action.label}</span>
-              </button>
+                {action.label}
+              </Button>
             ))}
           </div>
         )}

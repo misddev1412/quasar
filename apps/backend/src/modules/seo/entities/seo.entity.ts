@@ -16,6 +16,9 @@ export class SEOEntity extends SoftDeletableEntity {
   @Column({ length: 255 })
   path: string;
 
+  @Column({ length: 255, default: 'general' })
+  group: string;
+
   @Column({ default: true })
   active: boolean;
 

@@ -1,23 +1,28 @@
 import { z } from 'zod';
 
-// Create SEO DTO
-export const createSeoSchema = z.object({
-  title: z.string().min(1).max(255),
-  description: z.string().max(500).optional(),
-  keywords: z.string().max(255).optional(),
-  path: z.string().min(1).max(255),
-  isActive: z.boolean().default(true),
-  additionalMetaTags: z.record(z.string()).optional(),
+const SeoBaseSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(255),
+  description: z.string().max(500).optional().nullable(),
+  keywords: z.string().max(255).optional().nullable(),
+  path: z.string().min(1, 'Path is required').max(255),
+  group: z.string().max(255).optional().default('general'),
+  active: z.boolean().default(true),
+  additionalMetaTags: z.record(z.string()).optional().nullable(),
 });
 
-export type CreateSeoDto = z.infer<typeof createSeoSchema>;
+export const CreateSeoDto = SeoBaseSchema;
+export type CreateSeoDto = z.infer<typeof CreateSeoDto>;
 
-// Update SEO DTO
-export const updateSeoSchema = createSeoSchema.partial().extend({
-  id: z.string().uuid(),
+export const UpdateSeoDto = SeoBaseSchema.partial();
+export type UpdateSeoDto = z.infer<typeof UpdateSeoDto>;
+
+export const SeoDtoSchema = SeoBaseSchema.extend({
+  id: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  deletedAt: z.date().nullable(),
 });
-
-export type UpdateSeoDto = z.infer<typeof updateSeoSchema>;
+export type SeoDto = z.infer<typeof SeoDtoSchema>;
 
 // Get SEO By Path DTO
 export const getSeoByPathSchema = z.object({
