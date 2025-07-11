@@ -14,8 +14,8 @@ const LogoIcon = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  width: 36,
-  height: 36,
+  width: 29,
+  height: 29,
   borderRadius: 8,
   backgroundImage: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
   boxShadow: '0px 4px 10px rgba(37, 99, 235, 0.3)',
@@ -52,7 +52,7 @@ const Logo: React.FC<LogoProps> = ({
           sx={{
             fontWeight: 'bold',
             color: 'white',
-            fontSize: '1.25rem',
+            fontSize: '1rem',
           }}
         >
           Q

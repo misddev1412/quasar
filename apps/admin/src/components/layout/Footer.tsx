@@ -1,11 +1,13 @@
 import React from 'react';
 import { useLayout } from '../../contexts/LayoutContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const Footer: React.FC = () => {
   const { config } = useLayout();
   const { isDarkMode } = useTheme();
   const { sidebarCollapsed, type } = config;
+  const { t } = useTranslation();
   
   const currentYear = new Date().getFullYear();
 
@@ -17,7 +19,7 @@ const Footer: React.FC = () => {
     `}>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
         <p>
-          &copy; {currentYear} Quasar Admin. 保留所有权利。
+          &copy; {currentYear} Quasar Admin. {t('footer.allRightsReserved')}
         </p>
         
         <div className="flex space-x-6">
@@ -25,19 +27,19 @@ const Footer: React.FC = () => {
             href="#" 
             className={`hover:text-blue-500 transition-colors duration-200 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           >
-            条款
+            {t('footer.terms')}
           </a>
           <a 
             href="#" 
             className={`hover:text-blue-500 transition-colors duration-200 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           >
-            隐私
+            {t('footer.privacy')}
           </a>
           <a 
             href="#" 
             className={`hover:text-blue-500 transition-colors duration-200 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
           >
-            帮助
+            {t('footer.help')}
           </a>
         </div>
       </div>

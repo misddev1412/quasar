@@ -44,6 +44,23 @@
     "saving": "Đang lưu...",
     "empty": "Trống"
   },
+  "header": {
+    "search": "Tìm kiếm...",
+    "toggleToHorizontal": "Chuyển sang điều hướng ngang",
+    "toggleToVertical": "Chuyển sang điều hướng dọc",
+    "documentation": "Tài liệu",
+    "help": "Trợ giúp",
+    "switchToLightMode": "Chuyển sang chế độ sáng",
+    "switchToDarkMode": "Chuyển sang chế độ tối",
+    "notifications": "Thông báo",
+    "userSettings": "Cài đặt người dùng"
+  },
+  "footer": {
+    "allRightsReserved": "Tất cả quyền được bảo lưu.",
+    "terms": "Điều khoản",
+    "privacy": "Riêng tư",
+    "help": "Trợ giúp"
+  },
   "auth": {
     "login": "Đăng nhập",
     "logout": "Đăng xuất",

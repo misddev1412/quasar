@@ -44,6 +44,23 @@
     "saving": "Saving...",
     "empty": "Empty"
   },
+  "header": {
+    "search": "Search...",
+    "toggleToHorizontal": "Switch to horizontal navigation",
+    "toggleToVertical": "Switch to vertical navigation",
+    "documentation": "Documentation",
+    "help": "Help",
+    "switchToLightMode": "Switch to light mode",
+    "switchToDarkMode": "Switch to dark mode",
+    "notifications": "Notifications",
+    "userSettings": "User settings"
+  },
+  "footer": {
+    "allRightsReserved": "All rights reserved.",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "help": "Help"
+  },
   "auth": {
     "login": "Login",
     "logout": "Logout",

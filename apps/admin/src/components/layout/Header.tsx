@@ -26,11 +26,12 @@ import PersonIcon from '@mui/icons-material/Person';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LocaleSwitcher from '../LocaleSwitcher';
+import { useTranslation } from 'react-i18next';
 
-// 优化搜索框样式
+// Optimized search box style
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
-  borderRadius: theme.shape.borderRadius,
+  borderRadius: `${Number(theme.shape.borderRadius) * 2}px`, // Convert to number and multiply by 2
   backgroundColor: alpha(theme.palette.common.white, 0.08),
   border: `1px solid ${alpha(theme.palette.common.white, 0.1)}`,
   '&:hover': {
@@ -44,8 +45,8 @@ const Search = styled('div')(({ theme }) => ({
     width: 'auto',
   },
   transition: 'all 0.2s',
-  display: 'flex', // 确保内部元素正确对齐
-  alignItems: 'center', // 垂直居中
+  display: 'flex', // Ensure internal elements are properly aligned
+  alignItems: 'center', // Vertical centering
 }));
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
@@ -57,7 +58,7 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   color: theme.palette.text.secondary,
-  zIndex: 1, // 确保图标显示在输入框上方
+  zIndex: 1, // Ensure icon is displayed above the input field
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
@@ -74,7 +75,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-// 优化头像样式
+// Optimized avatar style
 const StyledAvatar = styled(Avatar)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   color: theme.palette.primary.contrastText,
@@ -84,22 +85,27 @@ const StyledAvatar = styled(Avatar)(({ theme }) => ({
   }
 }));
 
-// 优化图标按钮
+// Optimized icon buttons
 const ActionButton = styled(IconButton)(({ theme }) => ({
   color: theme.palette.text.secondary,
   backgroundColor: 'transparent',
   transition: 'all 0.2s',
+  borderRadius: '50%', // Perfectly round
   '&:hover': {
     backgroundColor: alpha(theme.palette.primary.main, 0.08),
     color: theme.palette.primary.main,
   }
 }));
 
-// 新增暗黑模式切换按钮样式
+// New dark mode toggle button style
 const ThemeToggleButton = styled(Box)(({ theme }) => ({
-  width: '34px',
-  height: '34px',
-  borderRadius: '17px',
+  width: '36px', 
+  height: '36px', 
+  minWidth: '36px', // Ensure minimum width
+  minHeight: '36px', // Ensure minimum height
+  maxWidth: '36px', // Ensure maximum width
+  maxHeight: '36px', // Ensure maximum height
+  borderRadius: '50%', 
   backgroundColor: theme.palette.mode === 'dark' ? alpha(theme.palette.primary.main, 0.2) : alpha(theme.palette.grey[300], 0.5),
   display: 'flex',
   alignItems: 'center',
@@ -107,6 +113,8 @@ const ThemeToggleButton = styled(Box)(({ theme }) => ({
   position: 'relative',
   cursor: 'pointer',
   overflow: 'hidden',
+  flexShrink: 0, // Prevent compression
+  flexGrow: 0, // Prevent stretching
   boxShadow: theme.palette.mode === 'dark' 
     ? `0 0 8px 2px ${alpha(theme.palette.primary.main, 0.3)}` 
     : `0 2px 5px 0px ${alpha(theme.palette.grey[500], 0.2)}`,
@@ -123,6 +131,7 @@ const Header: React.FC = () => {
   const { config, toggleLayoutType } = useLayout();
   const { isDarkMode, toggleDarkMode } = useTheme();
   const muiTheme = useMuiTheme();
+  const { t } = useTranslation();
 
   return (
     <AppBar 
@@ -136,51 +145,66 @@ const Header: React.FC = () => {
       }}
     >
       <Toolbar sx={{ minHeight: '64px' }}>
-        {/* 左侧区域 */}
-        <Tooltip title={`切换到${config.type === 'vertical' ? '水平' : '垂直'}导航`}>
+        {/* Left section */}
+        <Tooltip title={t(config.type === 'vertical' ? 'header.toggleToHorizontal' : 'header.toggleToVertical')}>
           <ActionButton
             edge="start"
             color="inherit"
             aria-label="toggle layout"
             onClick={toggleLayoutType}
             size="small"
+            sx={{ borderRadius: '50%' }} // Ensure perfectly round
           >
             {config.type === 'vertical' ? <ViewSidebarIcon fontSize="small" /> : <ViewComfyIcon fontSize="small" />}
           </ActionButton>
         </Tooltip>
 
-        {/* 搜索框 */}
+        {/* Search box */}
         <Search sx={{ display: { xs: 'none', md: 'flex' } }}>
           <SearchIconWrapper>
             <SearchIcon fontSize="small" />
           </SearchIconWrapper>
           <StyledInputBase
-            placeholder="搜索..."
+            placeholder={t('header.search')}
             inputProps={{ 'aria-label': 'search' }}
           />
         </Search>
 
         <Box sx={{ flexGrow: 1 }} />
 
-        {/* 右侧区域 */}
+        {/* Right section */}
         <Stack direction="row" spacing={1} alignItems="center">
-          {/* 文档按钮 */}
-          <Tooltip title="文档">
-            <ActionButton size="small">
+          {/* Documentation button */}
+          <Tooltip title={t('header.documentation')}>
+            <ActionButton size="small" sx={{ borderRadius: '50%' }}>
               <MenuBookIcon fontSize="small" />
             </ActionButton>
           </Tooltip>
           
-          {/* 帮助按钮 */}
-          <Tooltip title="帮助">
-            <ActionButton size="small">
+          {/* Help button */}
+          <Tooltip title={t('header.help')}>
+            <ActionButton size="small" sx={{ borderRadius: '50%' }}>
               <HelpOutlineIcon fontSize="small" />
             </ActionButton>
           </Tooltip>
           
-          {/* 暗黑模式切换 - 新样式 */}
-          <Tooltip title={isDarkMode ? "切换到亮色模式" : "切换到暗色模式"}>
-            <ThemeToggleButton onClick={toggleDarkMode}>
+          {/* Dark mode toggle - new style */}
+          <Tooltip title={isDarkMode ? t('header.switchToLightMode') : t('header.switchToDarkMode')}>
+            <ThemeToggleButton 
+              onClick={toggleDarkMode} 
+              sx={{ 
+                width: '36px !important', 
+                height: '36px !important',
+                minWidth: '36px !important',
+                minHeight: '36px !important',
+                maxWidth: '36px !important',
+                maxHeight: '36px !important',
+                borderRadius: '50% !important',
+                aspectRatio: '1 / 1', // Force aspect ratio 1:1
+                flexShrink: 0,
+                flexGrow: 0
+              }}
+            >
               {isDarkMode ? (
                 <Brightness7Icon 
                   fontSize="small" 
@@ -211,22 +235,22 @@ const Header: React.FC = () => {
           
           <Divider orientation="vertical" flexItem sx={{ mx: 0.5, height: '24px', alignSelf: 'center' }} />
           
-          {/* 语言切换器 - 增加宽度 */}
+          {/* Language switcher - increased width */}
           <Box sx={{ minWidth: 120 }}>
             <LocaleSwitcher selectClassName="w-full" />
           </Box>
           
-          {/* 通知 */}
-          <Tooltip title="通知">
-            <ActionButton size="small">
+          {/* Notifications */}
+          <Tooltip title={t('header.notifications')}>
+            <ActionButton size="small" sx={{ borderRadius: '50%' }}>
               <Badge badgeContent={3} color="error">
                 <NotificationsIcon fontSize="small" />
               </Badge>
             </ActionButton>
           </Tooltip>
           
-          {/* 用户头像 */}
-          <Tooltip title="用户配置">
+          {/* User avatar */}
+          <Tooltip title={t('header.userSettings')}>
             <StyledAvatar sx={{ width: 32, height: 32, cursor: 'pointer' }}>
               <PersonIcon fontSize="small" />
             </StyledAvatar>
