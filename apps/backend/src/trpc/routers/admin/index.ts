@@ -1,4 +1,4 @@
-export { AdminPermissionRouter } from './permission.router';
 export { AdminUserRouter } from './user.router';
+export { AdminPermissionRouter } from './permission.router';
 export { AdminSeoRouter } from './seo.router';
-export { AdminAuthRouter } from './auth.router'; 
+export { AdminSettingsRouter } from './settings.router'; 

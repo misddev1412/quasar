@@ -203,6 +203,83 @@ export const appRouter = router({
       }),
   }),
 
+  // Admin Settings router
+  adminSettings: router({
+    getAll: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+    
+    getById: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+    
+    getByKey: procedure
+      .input(z.object({ key: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+    
+    getByGroup: procedure
+      .input(z.object({ group: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+    
+    create: procedure
+      .input(z.object({
+        key: z.string(),
+        value: z.string().optional(),
+        type: z.enum(['string', 'number', 'boolean', 'json', 'array']).default('string'),
+        group: z.string().optional(),
+        isPublic: z.boolean().default(false),
+        description: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+    
+    update: procedure
+      .input(z.object({
+        id: z.string(),
+        value: z.string().optional(),
+        type: z.enum(['string', 'number', 'boolean', 'json', 'array']).optional(),
+        group: z.string().optional(),
+        isPublic: z.boolean().optional(),
+        description: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+    
+    bulkUpdate: procedure
+      .input(z.object({
+        settings: z.array(z.object({
+          key: z.string(),
+          value: z.string().optional(),
+        }))
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+    
+    delete: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+  }),
+
   // Admin Auth router
   adminAuth: router({
     login: procedure

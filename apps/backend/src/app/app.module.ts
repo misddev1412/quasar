@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { UserModule } from '../modules/user/user.module';
 import { TranslationModule } from '../modules/translation/translation.module';
 import { SEOModule } from '../modules/seo/seo.module';
+import { SettingsModule } from '../modules/settings/settings.module';
 import { AuthModule } from '../auth/auth.module';
 import { SharedModule } from '../modules/shared/shared.module';
 import { AppContext } from '../trpc/context';
@@ -19,6 +20,7 @@ import { UserRole } from '../modules/user/entities/user-role.entity';
 import { RolePermission } from '../modules/user/entities/role-permission.entity';
 import { Translation } from '../modules/translation/entities/translation.entity';
 import { SEOEntity } from '../modules/seo/entities/seo.entity';
+import { SettingEntity } from '../modules/settings/entities/setting.entity';
 import { createErrorFormatter } from '../trpc/error-formatter';
 import { AdminAuthRouter } from '../trpc/routers/admin/auth.router';
 
@@ -40,7 +42,8 @@ import { AdminAuthRouter } from '../trpc/routers/admin/auth.router';
           UserRole, 
           RolePermission,
           Translation,
-          SEOEntity
+          SEOEntity,
+          SettingEntity
         ],
         autoLoadEntities: true
       }),
@@ -54,6 +57,7 @@ import { AdminAuthRouter } from '../trpc/routers/admin/auth.router';
     UserModule,
     TranslationModule,
     SEOModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [

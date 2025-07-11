@@ -20,6 +20,7 @@ export enum ModuleCode {
   PERMISSION = 12,        // Permission & Role Management
   TRANSLATION = 13,       // Translation/i18n System
   SEO = 14,               // SEO Management System
+  SETTINGS = 15,          // Settings Management System
   
   // E-commerce (20-29)
   PRODUCT = 20,           // Product Management

@@ -8,12 +8,14 @@ import { RolePermission } from '../../modules/user/entities/role-permission.enti
 import { Role } from '../../modules/user/entities/role.entity';
 import { UserRole } from '../../modules/user/entities/user-role.entity';
 import { SEOEntity } from '../../modules/seo/entities/seo.entity';
+import { SettingEntity } from '../../modules/settings/entities/setting.entity';
 import { PermissionRepository } from '../../modules/user/repositories/permission.repository';
 import { AdminPermissionService } from '../../modules/user/services/admin/admin-permission.service';
 import { PermissionCheckerService } from '../../modules/shared/services/permission-checker.service';
 import { PermissionSeeder } from './permission.seeder';
 import { SeoSeeder } from './seo.seeder';
 import { AdminSeeder } from './admin.seeder';
+import { SettingsSeeder } from './settings.seeder';
 
 @Module({
   imports: [
@@ -25,7 +27,8 @@ import { AdminSeeder } from './admin.seeder';
       RolePermission, 
       Role, 
       UserRole,
-      SEOEntity
+      SEOEntity,
+      SettingEntity
     ]),
   ],
   providers: [
@@ -35,7 +38,8 @@ import { AdminSeeder } from './admin.seeder';
     PermissionSeeder,
     SeoSeeder,
     AdminSeeder,
+    SettingsSeeder
   ],
-  exports: [PermissionSeeder, SeoSeeder, AdminSeeder],
+  exports: [PermissionSeeder, SeoSeeder, AdminSeeder, SettingsSeeder],
 })
 export class SeederModule {} 
