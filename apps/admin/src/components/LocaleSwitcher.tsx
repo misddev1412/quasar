@@ -2,9 +2,11 @@ import React from 'react';
 import { SupportedLocale } from '@shared';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 import { getSupportedLocales } from '../i18n';
+import { useTheme } from '../context/ThemeContext';
 
 interface LocaleSwitcherProps {
   className?: string;
+  selectClassName?: string;
 }
 
 const localeNames: Record<SupportedLocale, string> = {
@@ -12,8 +14,12 @@ const localeNames: Record<SupportedLocale, string> = {
   en: 'English'
 };
 
-const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({ className = '' }) => {
+const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({ 
+  className = '',
+  selectClassName = ''
+}) => {
   const { getCurrentLocale, changeLanguage, isLoading } = useTranslationWithBackend();
+  const { isDarkMode } = useTheme();
   const currentLocale = getCurrentLocale();
   const supportedLocales = getSupportedLocales().sort((a, b) => {
     // Sort English first
@@ -32,26 +38,39 @@ const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({ className = '' }) => {
     }
   };
 
+  const getSelectStyle = () => {
+    return isDarkMode 
+      ? 'bg-gray-800 border-gray-700 text-gray-200 focus:ring-primary-500 focus:border-primary-500'
+      : 'bg-white border-gray-300 text-gray-800 focus:ring-primary-500 focus:border-primary-500';
+  };
+
   return (
     <div className={`locale-switcher ${className}`}>
       <select
         value={currentLocale}
         onChange={(e) => handleLocaleChange(e.target.value as SupportedLocale)}
         disabled={isLoading}
-        className="px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+        className={`px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 disabled:opacity-50 ${getSelectStyle()} ${selectClassName}`}
+        style={{
+          textShadow: isDarkMode ? '0 1px 2px rgba(0,0,0,0.2)' : 'none'
+        }}
       >
         {supportedLocales.map((locale) => (
           <option 
             key={locale} 
             value={locale}
-            style={{ fontWeight: locale === 'en' ? 'bold' : 'normal' }}
+            style={{ 
+              fontWeight: locale === 'en' ? 'bold' : 'normal',
+              backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+              color: isDarkMode ? '#e5e7eb' : '#1f2937'
+            }}
           >
             {localeNames[locale]}
           </option>
         ))}
       </select>
       {isLoading && (
-        <span className="ml-2 text-sm text-gray-500">
+        <span className={`ml-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
           Loading...
         </span>
       )}

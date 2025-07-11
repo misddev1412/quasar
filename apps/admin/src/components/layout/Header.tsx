@@ -92,6 +92,30 @@ const ActionButton = styled(IconButton)(({ theme }) => ({
   }
 }));
 
+// 新增暗黑模式切换按钮样式
+const ThemeToggleButton = styled(Box)(({ theme }) => ({
+  width: '34px',
+  height: '34px',
+  borderRadius: '17px',
+  backgroundColor: theme.palette.mode === 'dark' ? alpha(theme.palette.primary.main, 0.2) : alpha(theme.palette.grey[300], 0.5),
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  position: 'relative',
+  cursor: 'pointer',
+  overflow: 'hidden',
+  boxShadow: theme.palette.mode === 'dark' 
+    ? `0 0 8px 2px ${alpha(theme.palette.primary.main, 0.3)}` 
+    : `0 2px 5px 0px ${alpha(theme.palette.grey[500], 0.2)}`,
+  transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+  '&:hover': {
+    transform: 'scale(1.05)',
+    boxShadow: theme.palette.mode === 'dark' 
+      ? `0 0 12px 3px ${alpha(theme.palette.primary.main, 0.4)}` 
+      : `0 2px 8px 0px ${alpha(theme.palette.grey[500], 0.3)}`,
+  }
+}));
+
 const Header: React.FC = () => {
   const { config, toggleLayoutType } = useLayout();
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -151,11 +175,35 @@ const Header: React.FC = () => {
             </ActionButton>
           </Tooltip>
           
-          {/* 暗黑模式切换 */}
+          {/* 暗黑模式切换 - 新样式 */}
           <Tooltip title={isDarkMode ? "切换到亮色模式" : "切换到暗色模式"}>
-            <ActionButton onClick={toggleDarkMode} size="small">
-              {isDarkMode ? <Brightness7Icon fontSize="small" /> : <Brightness4Icon fontSize="small" />}
-            </ActionButton>
+            <ThemeToggleButton onClick={toggleDarkMode}>
+              {isDarkMode ? (
+                <Brightness7Icon 
+                  fontSize="small" 
+                  sx={{ 
+                    color: 'primary.light', 
+                    animation: 'fadeIn 0.5s', 
+                    '@keyframes fadeIn': {
+                      '0%': { opacity: 0, transform: 'scale(0.5) rotate(-20deg)' },
+                      '100%': { opacity: 1, transform: 'scale(1) rotate(0)' }
+                    }
+                  }} 
+                />
+              ) : (
+                <Brightness4Icon 
+                  fontSize="small" 
+                  sx={{ 
+                    color: 'text.primary', 
+                    animation: 'fadeIn 0.5s',
+                    '@keyframes fadeIn': {
+                      '0%': { opacity: 0, transform: 'scale(0.5) rotate(20deg)' },
+                      '100%': { opacity: 1, transform: 'scale(1) rotate(0)' }
+                    }
+                  }} 
+                />
+              )}
+            </ThemeToggleButton>
           </Tooltip>
           
           <Divider orientation="vertical" flexItem sx={{ mx: 0.5, height: '24px', alignSelf: 'center' }} />

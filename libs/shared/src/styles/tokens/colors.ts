@@ -115,47 +115,110 @@ export const colors = {
 export const semanticColors = {
   // Text colors
   text: {
-    primary: colors.neutral[900],
-    secondary: colors.neutral[600],
-    tertiary: colors.neutral[500],
-    inverse: colors.neutral[50],
-    disabled: colors.neutral[400],
+    primary: {
+      light: colors.neutral[900],
+      dark: colors.neutral[50]
+    },
+    secondary: {
+      light: colors.neutral[600],
+      dark: colors.neutral[300]
+    },
+    tertiary: {
+      light: colors.neutral[500],
+      dark: colors.neutral[400]
+    },
+    inverse: {
+      light: colors.neutral[50],
+      dark: colors.neutral[900]
+    },
+    disabled: {
+      light: colors.neutral[400],
+      dark: colors.neutral[600]
+    },
   },
 
   // Background colors
   background: {
-    primary: '#ffffff',
-    secondary: colors.neutral[50],
-    tertiary: colors.neutral[100],
-    inverse: colors.neutral[900],
+    primary: {
+      light: '#ffffff',
+      dark: colors.neutral[900]
+    },
+    secondary: {
+      light: colors.neutral[50],
+      dark: colors.neutral[800]
+    },
+    tertiary: {
+      light: colors.neutral[100],
+      dark: colors.neutral[700]
+    },
+    inverse: {
+      light: colors.neutral[900],
+      dark: '#ffffff'
+    },
     overlay: 'rgba(0, 0, 0, 0.5)',
   },
 
   // Border colors
   border: {
-    default: colors.neutral[200],
-    focus: colors.primary[500],
-    error: colors.error[500],
-    success: colors.success[500],
-    warning: colors.warning[500],
+    default: {
+      light: colors.neutral[200],
+      dark: colors.neutral[700]
+    },
+    focus: {
+      light: colors.primary[500],
+      dark: colors.primary[400]
+    },
+    error: {
+      light: colors.error[500],
+      dark: colors.error[400]
+    },
+    success: {
+      light: colors.success[500],
+      dark: colors.success[400]
+    },
+    warning: {
+      light: colors.warning[500],
+      dark: colors.warning[400]
+    },
   },
 
   // State colors
   state: {
     hover: {
-      primary: colors.primary[600],
-      secondary: colors.neutral[100],
+      primary: {
+        light: colors.primary[600],
+        dark: colors.primary[400]
+      },
+      secondary: {
+        light: colors.neutral[100],
+        dark: colors.neutral[700]
+      },
     },
     active: {
-      primary: colors.primary[700],
-      secondary: colors.neutral[200],
+      primary: {
+        light: colors.primary[700],
+        dark: colors.primary[300]
+      },
+      secondary: {
+        light: colors.neutral[200],
+        dark: colors.neutral[600]
+      },
     },
     focus: {
-      ring: colors.primary[500],
+      ring: {
+        light: colors.primary[500],
+        dark: colors.primary[400]
+      },
     },
     disabled: {
-      background: colors.neutral[100],
-      text: colors.neutral[400],
+      background: {
+        light: colors.neutral[100],
+        dark: colors.neutral[800]
+      },
+      text: {
+        light: colors.neutral[400],
+        dark: colors.neutral[600]
+      },
     },
   },
 } as const;

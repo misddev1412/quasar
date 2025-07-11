@@ -20,6 +20,7 @@ import { RolePermission } from '../modules/user/entities/role-permission.entity'
 import { Translation } from '../modules/translation/entities/translation.entity';
 import { SEOEntity } from '../modules/seo/entities/seo.entity';
 import { createErrorFormatter } from '../trpc/error-formatter';
+import { AdminAuthRouter } from '../trpc/routers/admin/auth.router';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { createErrorFormatter } from '../trpc/error-formatter';
   providers: [
     AppService, 
     AppContext,
+    AdminAuthRouter,
   ],
 })
 export class AppModule {}

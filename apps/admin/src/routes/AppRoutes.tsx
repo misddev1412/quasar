@@ -1,60 +1,39 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import HomePage from '../pages/Home';
-import SeoPage from '../pages/seo';
-import NotFound from '../pages/NotFound';
-import LoginPage from '../pages/auth/login';
-import { useAuth, withAuth } from '../context/AuthContext';
-import AppLayout from '../components/layout/AppLayout';
-import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
+import { withSeo } from '../components/SEO/withSeo';
+import { AuthProvider } from '../context/AuthContext';
 
-// Protected routes with authentication and layout
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
-  const { t } = useTranslationWithBackend();
+// Lazy loaded components
+const LoginPage = lazy(() => import('../pages/auth/login'));
+const ForgotPasswordPage = lazy(() => import('../pages/auth/forgot-password'));
+const HomePage = lazy(() => import('../pages/Home'));
+const NotFoundPage = lazy(() => import('../pages/NotFound'));
 
-  // Show loading state while checking authentication
-  if (isLoading) {
-    return <div className="flex items-center justify-center h-screen">{t('common.loading')}</div>;
-  }
-  
-  // Redirect to login if not authenticated
-  if (!isAuthenticated) {
-    return <Navigate to="/auth/login" replace />;
-  }
+// SEO enhanced components
+const SeoLoginPage = withSeo(LoginPage, { title: 'Admin Login', description: 'Login to Quasar Admin Panel', path: '/auth/login' });
+const SeoForgotPasswordPage = withSeo(ForgotPasswordPage, { title: 'Forgot Password', description: 'Reset your password for Quasar Admin Panel', path: '/auth/forgot-password' });
+const SeoHomePage = withSeo(HomePage, { title: 'Admin Dashboard', description: 'Quasar Admin Dashboard', path: '/' });
+const SeoNotFoundPage = withSeo(NotFoundPage, { title: '404 - Not Found', description: 'Page not found', path: '/404' });
 
-  // Render the children inside the app layout
-  return <AppLayout>{children}</AppLayout>;
-};
-
-/**
- * AppRoutes - Central routing configuration for the admin application
- */
 export const AppRoutes = () => {
   return (
-    <Routes>
-      {/* Public routes */}
-      <Route path="/auth/login" element={<LoginPage />} />
-      
-      {/* Protected routes */}
-      <Route path="/" element={
-        <ProtectedRoute>
-          <HomePage />
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/seo" element={
-        <ProtectedRoute>
-          <SeoPage />
-        </ProtectedRoute>
-      } />
-      
-      {/* Add more protected routes here */}
-      
-      {/* 404 route - must be last */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthProvider>
+        <Routes>
+          {/* Auth routes */}
+          <Route path="/auth/login" element={<SeoLoginPage />} />
+          <Route path="/auth/forgot-password" element={<SeoForgotPasswordPage />} />
+          
+          {/* Protected routes */}
+          <Route path="/" element={<SeoHomePage />} />
+          
+          {/* Redirects */}
+          <Route path="/auth" element={<Navigate to="/auth/login" replace />} />
+          
+          {/* 404 route */}
+          <Route path="*" element={<SeoNotFoundPage />} />
+        </Routes>
+      </AuthProvider>
+    </Suspense>
   );
-};
-
-export default AppRoutes; 
+}; 

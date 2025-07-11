@@ -1,17 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import AuthCard from '../../components/auth/AuthCard';
-import LoginForm from '../../components/auth/LoginForm';
+import ForgotPasswordForm from '../../components/auth/ForgotPasswordForm';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { trpc } from '../../utils/trpc';
 
-export function LoginPage() {
+export function ForgotPasswordPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
   const { isDarkMode, theme } = useTheme();
-  const navigate = useNavigate();
   const { t } = useTranslationWithBackend();
 
   // 应用登录页特定样式
@@ -83,31 +80,35 @@ export function LoginPage() {
     };
   }, [isDarkMode, theme]);
 
-  // 处理登录
-  const handleLogin = async (email: string, password: string) => {
+  // 处理忘记密码请求
+  const handleForgotPassword = async (email: string) => {
     setError('');
     setIsLoading(true);
 
     try {
-      const result = await login(email, password);
-      if (result.success) {
-        navigate('/');
-      } else {
-        // 显示API返回的具体错误信息
-        setError(result.errorMessage || t('auth.login_failed'));
-      }
+      // 注意：这里应该连接到后端的忘记密码API
+      // 暂时模拟一个成功的请求
+      // 实际实现时应该使用类似于：
+      // const result = await someApiMutation.mutateAsync({ email });
+      
+      // 模拟API调用延迟
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      
+      // 这里返回true表示邮件发送成功
+      return true;
     } catch (err) {
-      setError(t('auth.error_occurred'));
-      console.error(t('auth.login_error'), err);
+      setError(t('auth.forgot_password_error'));
+      console.error('Forgot password error:', err);
+      return false;
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <AuthCard title={t('auth.admin_platform')}>
-      <LoginForm 
-        onSubmit={handleLogin}
+    <AuthCard title={t('auth.forgot_password')}>
+      <ForgotPasswordForm 
+        onSubmit={handleForgotPassword}
         isSubmitting={isLoading}
         error={error}
       />
@@ -115,4 +116,4 @@ export function LoginPage() {
   );
 }
 
-export default LoginPage; 
+export default ForgotPasswordPage; 

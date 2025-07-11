@@ -12,6 +12,7 @@ interface FormInputProps {
   error?: string;
   rightElement?: React.ReactNode;
   autoComplete?: string;
+  className?: string;
 }
 
 export const FormInput: React.FC<FormInputProps> = ({
@@ -26,16 +27,21 @@ export const FormInput: React.FC<FormInputProps> = ({
   error,
   rightElement,
   autoComplete,
+  className = '',
 }) => {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label htmlFor={id} className="block text-sm font-medium text-theme-primary">
           {label}
         </label>
         {rightElement && rightElement}
       </div>
-      <div className="relative flex items-center border border-gray-300 dark:border-gray-700 rounded-lg focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500 dark:focus-within:border-blue-500 bg-white dark:bg-gray-800/50 overflow-hidden">
+      <div className={`relative flex items-center bg-theme-surface rounded-lg overflow-hidden ${
+        error 
+          ? 'border border-error focus-within:ring-1 focus-within:ring-error'
+          : 'border border-theme-border focus-within:ring-1 focus-within:ring-primary focus-within:border-primary'
+      } ${className}`}>
         {/* Icon container with fixed width */}
         {icon && (
           <div className="flex-shrink-0 w-12 flex justify-center items-center">
@@ -52,12 +58,14 @@ export const FormInput: React.FC<FormInputProps> = ({
           required={required}
           autoComplete={autoComplete}
           placeholder={placeholder}
-          className={`w-full py-3 pr-4 border-0 outline-none focus:ring-0 focus:outline-none bg-transparent dark:text-white dark:placeholder-gray-400 ${
-            error ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'
-          }`}
+          className={`w-full py-3 pr-4 border-0 outline-none focus:ring-0 focus:outline-none bg-transparent ${
+            error 
+              ? 'text-error placeholder-red-300 dark:placeholder-red-500'
+              : 'text-theme-primary placeholder-theme-muted'
+          } themed-input`}
         />
       </div>
-      {error && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {error && <p className="mt-1 text-sm text-error">{error}</p>}
     </div>
   );
 };

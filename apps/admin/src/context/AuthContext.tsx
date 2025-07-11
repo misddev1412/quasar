@@ -13,7 +13,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{success: boolean, errorMessage?: string}>;
   logout: () => void;
   refreshToken: () => Promise<boolean>;
 }
@@ -61,7 +61,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     initAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{success: boolean, errorMessage?: string}> => {
     setIsLoading(true);
     try {
       const result = await loginMutation.mutateAsync({ email, password }) as TrpcApiResponse;
@@ -76,12 +76,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         localStorage.setItem(USER_KEY, JSON.stringify(userData));
         
         setUser(userData);
-        return true;
+        return { success: true };
       }
-      return false;
-    } catch (error) {
+      // 使用状态作为错误消息或提供默认消息
+      return { success: false, errorMessage: result.status || 'Login failed' };
+    } catch (error: any) {
       console.error('Login error:', error);
-      return false;
+      
+      // 尝试从错误中提取API错误信息
+      let errorMessage = 'Login failed';
+      
+      if (error.shape?.data) {
+        const errorData = Array.isArray(error.shape.data) 
+          ? error.shape.data[0]?.error 
+          : error.shape.data?.error;
+          
+        if (errorData) {
+          errorMessage = errorData.message || errorMessage;
+        }
+      }
+      
+      return { success: false, errorMessage };
     } finally {
       setIsLoading(false);
     }

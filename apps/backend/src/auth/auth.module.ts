@@ -15,6 +15,8 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RolesGuard } from './guards/roles.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { AdminAuthRouter } from '../trpc/routers/admin/auth.router';
+import { SharedModule } from '../modules/shared/shared.module';
 
 const jwtModule = JwtModule.registerAsync({
   imports: [ConfigModule],
@@ -32,6 +34,7 @@ const jwtModule = JwtModule.registerAsync({
     TypeOrmModule.forFeature([User, UserProfile, Permission, Role, UserRole, RolePermission]),
     PassportModule,
     jwtModule,
+    SharedModule,
   ],
   providers: [
     AuthService,
@@ -40,7 +43,16 @@ const jwtModule = JwtModule.registerAsync({
     JwtStrategy,
     RolesGuard,
     JwtAuthGuard,
+    AdminAuthRouter,
   ],
-  exports: [AuthService, UserRepository, PermissionRepository, jwtModule, JwtAuthGuard, RolesGuard],
+  exports: [
+    AuthService, 
+    UserRepository, 
+    PermissionRepository, 
+    jwtModule, 
+    JwtAuthGuard, 
+    RolesGuard,
+    AdminAuthRouter
+  ],
 })
 export class AuthModule {} 
