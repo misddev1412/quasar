@@ -3,6 +3,8 @@ import { FormInput } from '../common/FormInput';
 import { Button } from '../common/Button';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { AdminUpdateUserProfileDto } from '../../../../backend/src/modules/user/dto/admin/admin-user.dto';
+import { User, Phone, Calendar, Image, Home, Building, MapPin, Hash, FileText } from 'lucide-react';
+import TextareaInput from '../common/TextareaInput';
 
 interface ProfileFormUIProps {
   formData: AdminUpdateUserProfileDto;
@@ -23,9 +25,12 @@ export const ProfileFormUI: React.FC<ProfileFormUIProps> = ({
   const createChangeHandler = (fieldName: keyof AdminUpdateUserProfileDto) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     onFieldChange(fieldName, e.target.value);
   };
+  const iconProps = {
+    className: "w-5 h-5 text-gray-400",
+  }
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full">
       <form onSubmit={onSubmit} className="space-y-6">
         {error && (
           <div className="p-4 rounded-md bg-red-50 border border-red-200 text-red-800">
@@ -41,6 +46,7 @@ export const ProfileFormUI: React.FC<ProfileFormUIProps> = ({
             placeholder={t('profile.first_name_placeholder')}
             value={formData.firstName || ''}
             onChange={createChangeHandler('firstName')}
+            icon={<User {...iconProps} />}
           />
           <FormInput
             id="lastName"
@@ -49,6 +55,7 @@ export const ProfileFormUI: React.FC<ProfileFormUIProps> = ({
             placeholder={t('profile.last_name_placeholder')}
             value={formData.lastName || ''}
             onChange={createChangeHandler('lastName')}
+            icon={<User {...iconProps} />}
           />
         </div>
 
@@ -59,6 +66,7 @@ export const ProfileFormUI: React.FC<ProfileFormUIProps> = ({
           placeholder={t('profile.phone_number_placeholder')}
           value={formData.phoneNumber || ''}
           onChange={createChangeHandler('phoneNumber')}
+          icon={<Phone {...iconProps} />}
         />
 
         <FormInput
@@ -68,6 +76,7 @@ export const ProfileFormUI: React.FC<ProfileFormUIProps> = ({
           placeholder=""
           value={formData.dateOfBirth ? new Date(formData.dateOfBirth).toISOString().split('T')[0] : ''}
           onChange={createChangeHandler('dateOfBirth')}
+          icon={<Calendar {...iconProps} />}
         />
         
         <FormInput
@@ -77,21 +86,18 @@ export const ProfileFormUI: React.FC<ProfileFormUIProps> = ({
           placeholder={t('profile.avatar_url_placeholder')}
           value={formData.avatar || ''}
           onChange={createChangeHandler('avatar')}
+          icon={<Image {...iconProps} />}
         />
 
-        <div>
-          <label htmlFor="bio" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            {t('profile.bio')}
-          </label>
-          <textarea
-            id="bio"
-            name="bio"
-            rows={4}
-            className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-            value={formData.bio || ''}
-            onChange={createChangeHandler('bio')}
-          />
-        </div>
+        <TextareaInput
+          id="bio"
+          label={t('profile.bio')}
+          value={formData.bio || ''}
+          onChange={createChangeHandler('bio')}
+          placeholder={t('profile.bio_placeholder')}
+          disabled={isSubmitting}
+          icon={<FileText {...iconProps} />}
+        />
 
         <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white border-t pt-6">{t('profile.address_information')}</h3>
         
@@ -102,6 +108,7 @@ export const ProfileFormUI: React.FC<ProfileFormUIProps> = ({
           placeholder={t('profile.address_placeholder')}
           value={formData.address || ''}
           onChange={createChangeHandler('address')}
+          icon={<Home {...iconProps} />}
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -112,6 +119,7 @@ export const ProfileFormUI: React.FC<ProfileFormUIProps> = ({
             placeholder={t('profile.city_placeholder')}
             value={formData.city || ''}
             onChange={createChangeHandler('city')}
+            icon={<Building {...iconProps} />}
           />
           <FormInput
             id="country"
@@ -120,6 +128,7 @@ export const ProfileFormUI: React.FC<ProfileFormUIProps> = ({
             placeholder={t('profile.country_placeholder')}
             value={formData.country || ''}
             onChange={createChangeHandler('country')}
+            icon={<MapPin {...iconProps} />}
           />
         </div>
         
@@ -130,11 +139,12 @@ export const ProfileFormUI: React.FC<ProfileFormUIProps> = ({
             placeholder={t('profile.postal_code_placeholder')}
             value={formData.postalCode || ''}
             onChange={createChangeHandler('postalCode')}
+            icon={<Hash {...iconProps} />}
           />
 
-        <div className="flex justify-end">
+        <div className="flex justify-end pt-4">
           <Button type="submit" variant="primary" isLoading={isSubmitting}>
-            {t('common.save_changes')}
+            {t('profile.save_changes')}
           </Button>
         </div>
       </form>

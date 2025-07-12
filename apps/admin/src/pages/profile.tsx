@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 import ProfileForm from '../components/user/ProfileForm';
 import { AdminUpdatePasswordDto, AdminUpdateUserProfileDto, AdminUserResponseDto } from '../../../backend/src/modules/user/dto/admin/admin-user.dto';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
@@ -8,11 +9,18 @@ import BaseLayout from '../components/layout/BaseLayout';
 import Tabs from '../components/common/Tabs';
 import UpdatePasswordForm from '../components/user/UpdatePasswordForm';
 import PreferenceSettings from '../components/user/PreferenceSettings';
+import { User, Lock, Settings } from 'lucide-react';
 
 const UserProfilePage = () => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
   const trpcContext = trpc.useContext();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const activeTab = parseInt(searchParams.get('tab') || '0', 10);
+  const handleTabChange = (index: number) => {
+    setSearchParams({ tab: String(index) });
+  };
 
   const { data: profileData, isLoading, error } = trpc.adminUser.getProfile.useQuery(undefined, {
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -66,6 +74,7 @@ const UserProfilePage = () => {
   const tabs = [
     {
       label: t('profile.update_profile'),
+      icon: <User />,
       content: (
         <ProfileForm 
           initialData={initialData} 
@@ -77,6 +86,7 @@ const UserProfilePage = () => {
     },
     {
       label: t('profile.update_password'),
+      icon: <Lock />,
       content: (
         <UpdatePasswordForm
           onSubmit={handlePasswordSubmit}
@@ -87,6 +97,7 @@ const UserProfilePage = () => {
     },
     {
       label: t('profile.preference_settings'),
+      icon: <Settings />,
       content: <PreferenceSettings />,
     },
   ];
@@ -108,7 +119,7 @@ const UserProfilePage = () => {
       );
     }
     
-    return <Tabs tabs={tabs} />;
+    return <Tabs tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />;
   }
 
   return (
@@ -116,9 +127,7 @@ const UserProfilePage = () => {
       title={t('profile.user_profile')}
       description={t('profile.manage_your_profile_information')}
     >
-      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
-        {renderContent()}
-      </div>
+      {renderContent()}
     </BaseLayout>
   );
 };

@@ -105,7 +105,16 @@
     "address": "Địa chỉ",
     "current_password": "Mật khẩu hiện tại",
     "new_password": "Mật khẩu mới",
-    "confirm_new_password": "Xác nhận mật khẩu mới"
+    "confirm_new_password": "Xác nhận mật khẩu mới",
+    "password_requirements": "Yêu cầu mật khẩu",
+    "password_strength": {
+      "title": "Độ mạnh mật khẩu",
+      "very_weak": "Rất yếu",
+      "weak": "Yếu",
+      "medium": "Trung bình",
+      "strong": "Mạnh",
+      "very_strong": "Rất mạnh"
+    }
   },
   "admin": {
     "dashboard": "Bảng điều khiển",
@@ -177,9 +186,13 @@
   "validation": {
     "required": "Trường này là bắt buộc",
     "email_invalid": "Địa chỉ email không hợp lệ",
-    "password_min_length": "Mật khẩu phải có ít nhất {min} ký tự",
+    "password_min_length": "Mật khẩu phải có ít nhất {{min}} ký tự",
     "passwords_not_match": "Mật khẩu không khớp",
-    "phone_invalid": "Số điện thoại không hợp lệ"
+    "phone_invalid": "Số điện thoại không hợp lệ",
+    "password_one_lowercase": "Phải chứa ít nhất một chữ cái viết thường",
+    "password_one_uppercase": "Phải chứa ít nhất một chữ cái viết hoa",
+    "password_one_number": "Phải chứa ít nhất một chữ số",
+    "password_one_special": "Phải chứa ít nhất một ký tự đặc biệt"
   },
   "messages": {
     "save_success": "Lưu thành công",
@@ -192,7 +205,11 @@
     "not_found": "Không tìm thấy",
     "access_denied": "Truy cập bị từ chối",
     "confirm_delete": "Bạn có chắc chắn muốn xóa không?",
-    "unsaved_changes": "Bạn có thay đổi chưa được lưu. Bạn có muốn tiếp tục không?"
+    "unsaved_changes": "Bạn có thay đổi chưa được lưu. Bạn có muốn tiếp tục không?",
+    "network_error_title": "Lỗi Mạng",
+    "network_error_desc": "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng của bạn.",
+    "invalid_response_title": "Phản Hồi Máy Chủ Không Hợp Lệ",
+    "invalid_response_desc": "Máy chủ đã trả về một phản hồi không đúng định dạng. Điều này có thể do lỗi ở phía máy chủ."
   },
   "features": {
     "enterprise_security": "Bảo mật cấp doanh nghiệp",
@@ -373,7 +390,28 @@
     "preference_settings": "Cài đặt ưu tiên",
     "password_updated_successfully": "Cập nhật mật khẩu thành công",
     "your_password_has_been_updated": "Mật khẩu của bạn đã được cập nhật thành công.",
-    "failed_to_update_password": "Cập nhật mật khẩu thất bại"
+    "failed_to_update_password": "Cập nhật mật khẩu thất bại",
+    "first_name": "Tên",
+    "first_name_placeholder": "Nhập tên của bạn",
+    "last_name": "Họ",
+    "last_name_placeholder": "Nhập họ của bạn",
+    "phone_number": "Số điện thoại",
+    "phone_number_placeholder": "Nhập số điện thoại của bạn",
+    "date_of_birth": "Ngày sinh",
+    "avatar_url": "URL ảnh đại diện",
+    "avatar_url_placeholder": "Nhập URL ảnh đại diện của bạn",
+    "bio": "Tiểu sử",
+    "address_information": "Thông tin địa chỉ",
+    "address": "Địa chỉ",
+    "address_placeholder": "Nhập địa chỉ của bạn",
+    "city": "Thành phố",
+    "city_placeholder": "Nhập thành phố của bạn",
+    "country": "Quốc gia",
+    "country_placeholder": "Nhập quốc gia của bạn",
+    "postal_code": "Mã bưu điện",
+    "postal_code_placeholder": "Nhập mã bưu điện của bạn",
+    "save_changes": "Lưu thay đổi",
+    "bio_placeholder": "Hãy cho chúng tôi biết thêm về bạn..."
   },
   "seo": {
     "manager_title": "Quản lý SEO",

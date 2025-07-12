@@ -16,7 +16,7 @@ import './setDefaultLocale';
 import './i18n';
 
 import App from './app/app';
-import { trpc } from './utils/trpc';
+import { trpc, createTrpcClient } from './utils/trpc';
 
 // Create a query client
 const queryClient = new QueryClient({
@@ -27,21 +27,8 @@ const queryClient = new QueryClient({
   },
 });
 
-// Create the tRPC client
-const trpcClient = trpc.createClient({
-  links: [
-    httpBatchLink({
-      url: 'http://localhost:3000/trpc',
-      // Include authorization header if you have auth
-      headers() {
-        const token = localStorage.getItem('admin_access_token');
-        return {
-          authorization: token ? `Bearer ${token}` : '',
-        };
-      },
-    }),
-  ],
-});
+// Create the tRPC client using the new factory function
+const trpcClient = createTrpcClient({});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

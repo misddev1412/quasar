@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import * as Toast from '@radix-ui/react-toast';
+import { appEvents } from '../lib/event-emitter';
 
 type ToastMessage = {
   id: string;
@@ -29,6 +30,18 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const id = Date.now().toString();
     setToasts((prevToasts) => [...prevToasts, { id, ...toast }]);
   }, []);
+
+  useEffect(() => {
+    const handleShowToast = (toast: Omit<ToastMessage, 'id'>) => {
+      addToast(toast);
+    };
+
+    appEvents.on('show-toast', handleShowToast);
+
+    return () => {
+      appEvents.off('show-toast', handleShowToast);
+    };
+  }, [addToast]);
 
   const removeToast = (id: string) => {
     setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));

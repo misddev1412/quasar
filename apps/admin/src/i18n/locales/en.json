@@ -105,7 +105,16 @@
     "address": "Address",
     "current_password": "Current Password",
     "new_password": "New Password",
-    "confirm_new_password": "Confirm New Password"
+    "confirm_new_password": "Confirm New Password",
+    "password_requirements": "Password requirements",
+    "password_strength": {
+      "title": "Password strength",
+      "very_weak": "Very Weak",
+      "weak": "Weak",
+      "medium": "Medium",
+      "strong": "Strong",
+      "very_strong": "Very Strong"
+    }
   },
   "admin": {
     "dashboard": "Dashboard",
@@ -177,9 +186,13 @@
   "validation": {
     "required": "This field is required",
     "email_invalid": "Invalid email address",
-    "password_min_length": "Password must be at least {min} characters",
+    "password_min_length": "Password must be at least {{min}} characters",
     "passwords_not_match": "Passwords do not match",
-    "phone_invalid": "Invalid phone number"
+    "phone_invalid": "Invalid phone number",
+    "password_one_lowercase": "Must contain at least one lowercase letter",
+    "password_one_uppercase": "Must contain at least one uppercase letter",
+    "password_one_number": "Must contain at least one number",
+    "password_one_special": "Must contain at least one special character"
   },
   "messages": {
     "save_success": "Saved successfully",
@@ -192,7 +205,11 @@
     "not_found": "Not found",
     "access_denied": "Access denied",
     "confirm_delete": "Are you sure you want to delete?",
-    "unsaved_changes": "You have unsaved changes. Do you want to continue?"
+    "unsaved_changes": "You have unsaved changes. Do you want to continue?",
+    "network_error_title": "Network Error",
+    "network_error_desc": "Could not connect to the server. Please check your network connection.",
+    "invalid_response_title": "Invalid Server Response",
+    "invalid_response_desc": "The server returned a malformed response. This might be due to a server-side error."
   },
   "features": {
     "enterprise_security": "Enterprise-grade security",
@@ -373,7 +390,28 @@
     "preference_settings": "Preference Settings",
     "password_updated_successfully": "Password updated successfully",
     "your_password_has_been_updated": "Your password has been successfully updated.",
-    "failed_to_update_password": "Failed to update password"
+    "failed_to_update_password": "Failed to update password",
+    "first_name": "First Name",
+    "first_name_placeholder": "Enter your first name",
+    "last_name": "Last Name",
+    "last_name_placeholder": "Enter your last name",
+    "phone_number": "Phone Number",
+    "phone_number_placeholder": "Enter your phone number",
+    "date_of_birth": "Date of Birth",
+    "avatar_url": "Avatar URL",
+    "avatar_url_placeholder": "Enter your avatar URL",
+    "bio": "Bio",
+    "address_information": "Address Information",
+    "address": "Address",
+    "address_placeholder": "Enter your address",
+    "city": "City",
+    "city_placeholder": "Enter your city",
+    "country": "Country",
+    "country_placeholder": "Enter your country",
+    "postal_code": "Postal Code",
+    "postal_code_placeholder": "Enter your postal code",
+    "save_changes": "Save Changes",
+    "bio_placeholder": "Tell us more about yourself..."
   },
   "seo": {
     "manager_title": "SEO Management",

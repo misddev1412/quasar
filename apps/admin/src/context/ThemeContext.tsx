@@ -5,7 +5,7 @@ interface ExtendedThemeContextType extends ThemeContextType {
   isDarkMode: boolean;
   toggleDarkMode: () => void;
   currentMode: 'light' | 'dark';
-  applyThemeMode: (mode: 'light' | 'dark' | 'system') => void;
+  applyThemeMode: (mode: 'light' | 'dark') => void;
 }
 
 const ThemeContext = createContext<ExtendedThemeContextType | undefined>(undefined);
@@ -43,6 +43,32 @@ const removeThemeTransitionCSS = () => {
     const style = document.getElementById('theme-transition-style');
     if (style) {
       style.remove();
+    }
+  }
+};
+
+// 覆盖任何系统首选项媒体查询样式
+const addSystemPreferenceOverride = () => {
+  if (typeof document !== 'undefined') {
+    // 仅在不存在时添加样式标签
+    if (!document.getElementById('system-preference-override')) {
+      const style = document.createElement('style');
+      style.id = 'system-preference-override';
+      style.innerHTML = `
+        /* 覆盖系统暗色模式首选项 */
+        @media (prefers-color-scheme: dark) {
+          :root:not(.dark) {
+            color-scheme: light;
+          }
+        }
+        
+        @media (prefers-color-scheme: light) {
+          :root.dark {
+            color-scheme: dark;
+          }
+        }
+      `;
+      document.head.appendChild(style);
     }
   }
 };
@@ -98,9 +124,6 @@ const applyThemeToCssVariables = (theme: ThemeConfig, isDark: boolean) => {
 };
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // 用户主题偏好配置 - 默认为light而不是system
-  const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>('light');
-  
   // Load theme config from localStorage
   const [theme, setThemeState] = useState<ThemeConfig>(() => {
     if (typeof window !== 'undefined') {
@@ -150,34 +173,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return defaultThemeConfig;
   });
 
-  // 获取系统当前主题偏好
-  const getSystemThemePreference = (): boolean => {
-    if (typeof window !== 'undefined') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return false;
-  };
-  
-  // 根据themeMode和系统偏好计算实际isDarkMode值
-  const calculateIsDarkMode = (mode: 'light' | 'dark' | 'system'): boolean => {
-    if (mode === 'system') {
-      return getSystemThemePreference();
-    }
-    return mode === 'dark';
-  };
-
   // Load dark mode preference from localStorage, default to light mode
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
       const storedMode = localStorage.getItem('adminThemeMode');
-      if (storedMode) {
-        setThemeMode(storedMode as 'light' | 'dark' | 'system');
-        return calculateIsDarkMode(storedMode as 'light' | 'dark' | 'system');
-      } else {
-        // 设置默认为浅色模式
-        localStorage.setItem('adminThemeMode', 'light');
-        return false;
-      }
+      return storedMode === 'dark';
     }
     return false;
   });
@@ -195,28 +195,32 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Initial theme setup on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const storedMode = localStorage.getItem('adminThemeMode');
+      // 添加覆盖系统首选项的样式
+      addSystemPreferenceOverride();
       
-      if (storedMode) {
-        setThemeMode(storedMode as 'light' | 'dark' | 'system');
-        const shouldBeDark = calculateIsDarkMode(storedMode as 'light' | 'dark' | 'system');
-        setIsDarkMode(shouldBeDark);
+      const shouldBeDark = localStorage.getItem('adminThemeMode') === 'dark';
+      
+      // 立即更新文档类，不等待状态更新
+      if (shouldBeDark) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
       } else {
-        // 设置默认为浅色模式
-        setThemeMode('light');
-        setIsDarkMode(false);
-        localStorage.setItem('adminThemeMode', 'light');
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
       }
       
+      setIsDarkMode(shouldBeDark);
+      
       // 应用初始主题变量
-      applyThemeToCssVariables(theme, isDarkMode);
+      applyThemeToCssVariables(theme, shouldBeDark);
     }
   }, []);
 
   // Update localStorage and document class when dark mode changes
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('adminThemeMode', themeMode);
+      const currentMode = isDarkMode ? 'dark' : 'light';
+      localStorage.setItem('adminThemeMode', currentMode);
       
       // Add transition effect before changing theme
       addThemeTransitionCSS();
@@ -230,7 +234,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         document.documentElement.classList.add('light');
       }
       
-      console.log(`Theme mode: ${themeMode}, Dark mode is: ${isDarkMode ? "enabled" : "disabled"}`);
+      console.log(`Dark mode is: ${isDarkMode ? "enabled" : "disabled"}`);
       
       // Remove transition effect after theme change completes
       const timer = setTimeout(() => {
@@ -239,37 +243,21 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       
       return () => clearTimeout(timer);
     }
-  }, [isDarkMode, themeMode]);
-
-  // 强制初始渲染为浅色模式
-  useEffect(() => {
-    setIsDarkMode(false);
-    setThemeMode('light');
-    localStorage.setItem('adminThemeMode', 'light');
-    
-    if (typeof document !== 'undefined') {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-    }
-  }, []);
+  }, [isDarkMode]);
 
   const setTheme = (newTheme: Partial<ThemeConfig>) => {
     setThemeState((prevTheme) => ({
       ...prevTheme,
-      ...newTheme
+      ...newTheme,
     }));
   };
 
   const toggleDarkMode = () => {
-    const newMode = isDarkMode ? 'light' : 'dark';
-    setThemeMode(newMode);
-    setIsDarkMode(!isDarkMode);
+    setIsDarkMode(prev => !prev);
   };
-  
-  // 新增：手动设置主题模式（浅色/深色/系统）
-  const applyThemeMode = (mode: 'light' | 'dark' | 'system') => {
-    setThemeMode(mode);
-    setIsDarkMode(calculateIsDarkMode(mode));
+
+  const applyThemeMode = (mode: 'light' | 'dark') => {
+    setIsDarkMode(mode === 'dark');
   };
 
   const value: ExtendedThemeContextType = {
@@ -281,9 +269,5 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     applyThemeMode
   };
 
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }; 

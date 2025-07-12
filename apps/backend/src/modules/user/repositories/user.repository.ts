@@ -84,8 +84,7 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
       ...(updateUserDto.role && { role: updateUserDto.role as UserRole })
     };
     
-    await this.repository.update(id, updateData);
-    return await this.findById(id);
+    return super.update(id, updateData);
   }
 
   async updateProfile(userId: string, updateProfileDto: UpdateUserProfileDto): Promise<UserProfile | null> {
