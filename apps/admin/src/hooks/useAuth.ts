@@ -7,6 +7,8 @@ interface User {
   id: string;
   email: string;
   username: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any; // Allow other profile properties
 }
 
 interface AuthState {
@@ -41,6 +43,40 @@ export function useAuth(): UseAuthReturn {
   const navigate = useNavigate();
   const loginMutation = trpc.adminAuth.login.useMutation();
   const refreshMutation = trpc.adminAuth.refresh.useMutation();
+  const { data: profileData, refetch: refetchProfile } = trpc.adminUser.getProfile.useQuery(
+    undefined,
+    {
+      enabled: !!authState.isAuthenticated,
+      retry: false,
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  /**
+   * Update user state and local storage
+   */
+  const updateUserState = useCallback((user: User | null) => {
+    if (user) {
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(USER_KEY);
+    }
+    setAuthState(prev => ({ ...prev, user }));
+  }, []);
+
+  // Effect to update user state when profile data is fetched
+  useEffect(() => {
+    const response = profileData as TrpcApiResponse<User> | undefined;
+    if (response?.data) {
+      const currentUser = authState.user;
+      const newProfile = response.data;
+
+      // Avoid unnecessary updates if user data is the same
+      if (JSON.stringify(currentUser) !== JSON.stringify(newProfile)) {
+        updateUserState(newProfile);
+      }
+    }
+  }, [profileData, authState.user, updateUserState]);
 
   /**
    * 从本地存储中恢复身份验证状态
@@ -57,6 +93,7 @@ export function useAuth(): UseAuthReturn {
           isAuthenticated: true,
           isLoading: false
         }));
+        // The `enabled` flag in useQuery will trigger a fetch.
         return true;
       }
       
@@ -116,6 +153,7 @@ export function useAuth(): UseAuthReturn {
           isLoading: false
         });
         
+        // The `enabled` flag in useQuery will trigger a fetch, no need to call refetch manually.
         return { success: true };
       }
       
@@ -165,15 +203,13 @@ export function useAuth(): UseAuthReturn {
         localStorage.setItem(TOKEN_KEY, accessToken);
         localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
         
-        // 用户数据在刷新时通常不会改变
-        const storedUser = localStorage.getItem(USER_KEY);
-        if (storedUser) {
-          setAuthState({
-            user: JSON.parse(storedUser),
-            isAuthenticated: true,
-            isLoading: false
-          });
-        }
+        // After refreshing, we are authenticated, but we don't have new user data.
+        // The profile query will run automatically because isAuthenticated is now true.
+        setAuthState(prev => ({
+          ...prev,
+          isAuthenticated: true,
+          isLoading: false
+        }));
         
         return true;
       }

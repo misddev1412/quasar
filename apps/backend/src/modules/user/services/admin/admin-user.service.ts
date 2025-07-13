@@ -10,6 +10,7 @@ import {
   AdminUserResponseDto,
   AdminUpdateUserProfileDto
 } from '../../dto/admin/admin-user.dto';
+import { PaginatedDto } from '@shared/classes/pagination.dto';
 
 export interface AdminUserFilters {
   page: number;
@@ -63,12 +64,7 @@ export class AdminUserService {
     }
   }
 
-  async getAllUsers(filters: AdminUserFilters): Promise<{ 
-    users: AdminUserResponseDto[]; 
-    total: number; 
-    page: number; 
-    limit: number; 
-  }> {
+  async getAllUsers(filters: AdminUserFilters): Promise<PaginatedDto<AdminUserResponseDto>> {
     // This would typically use a more sophisticated query with pagination
     // For now, we'll use a simple approach
     const users = await this.userRepository.findAll();
@@ -99,15 +95,17 @@ export class AdminUserService {
     }
 
     const total = filteredUsers.length;
+    const totalPages = Math.ceil(total / filters.limit);
     const startIndex = (filters.page - 1) * filters.limit;
     const endIndex = startIndex + filters.limit;
     const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
 
     return {
-      users: paginatedUsers.map(user => this.toAdminUserResponse(user)),
+      items: paginatedUsers.map(user => this.toAdminUserResponse(user)),
       total,
       page: filters.page,
       limit: filters.limit,
+      totalPages,
     };
   }
 

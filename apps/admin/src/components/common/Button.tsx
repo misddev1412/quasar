@@ -1,15 +1,10 @@
 import React from 'react';
 import { useTheme } from '../../context/ThemeContext';
 
-interface ButtonProps {
-  type?: 'button' | 'submit' | 'reset';
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
-  disabled?: boolean;
-  onClick?: () => void;
-  className?: string;
-  children: React.ReactNode;
   fullWidth?: boolean;
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
@@ -34,6 +29,7 @@ export const Button: React.FC<ButtonProps> = ({
   fullWidth = false,
   startIcon,
   endIcon,
+  ...props
 }) => {
   const { isDarkMode, currentMode } = useTheme();
 
@@ -112,6 +108,7 @@ export const Button: React.FC<ButtonProps> = ({
       } ${getVariantClasses()} ${sizeClasses[size]} ${getShadowClass()} ${
         disabled || isLoading ? 'opacity-70 cursor-not-allowed' : getAnimationClass()
       } ${className}`}
+      {...props}
     >
       {isLoading && <Spinner className="animate-spin -ml-1 mr-2 h-5 w-5" />}
       {!isLoading && startIcon && <span className="mr-2">{startIcon}</span>}

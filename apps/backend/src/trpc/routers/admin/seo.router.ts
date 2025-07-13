@@ -31,6 +31,18 @@ export class AdminSeoRouter {
   }
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({ path: z.string() }),
+    output: apiResponseSchema,
+  })
+  async getByPath(
+    @Input() input: { path: string }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    const seo = await this.seoService.findByPath(input.path);
+    return this.responseService.createReadResponse(14, 'seo', seo);
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Mutation({
     input: CreateSeoDto,
     output: apiResponseSchema,

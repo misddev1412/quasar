@@ -8,6 +8,8 @@ import NotFound from '../pages/NotFound';
 import SeoPage from '../pages/seo';
 import SettingsPage from '../pages/settings';
 import UserProfilePage from '../pages/profile';
+import UserListPage from '../pages/users';
+import RolesPage from '../pages/roles';
 import AppLayout from '../components/layout/AppLayout';
 
 interface ProtectedRouteProps {
@@ -40,6 +42,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/seo" element={<ProtectedRoute element={<SeoPage />} />} />
       <Route path="/settings" element={<ProtectedRoute element={<SettingsPage />} />} />
       <Route path="/profile" element={<ProtectedRoute element={<UserProfilePage />} />} />
+      <Route path="/users" element={<ProtectedRoute element={<UserListPage />} />} />
+      <Route path="/roles" element={<ProtectedRoute element={<RolesPage />} />} />
 
       {/* 404路由 */}
       <Route path="*" element={<NotFound />} />

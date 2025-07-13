@@ -1,6 +1,50 @@
 import { router, procedure } from '../trpc/trpc';
 import { z } from 'zod';
-import { apiResponseSchema } from '../trpc/schemas/response.schemas';
+import { apiResponseSchema, paginatedResponseSchema } from '../trpc/schemas/response.schemas';
+
+// Zod schemas for validation
+const userRoleSchema = z.enum([
+  'SUPER_ADMIN',
+  'ADMIN',
+  'MANAGER',
+  'USER',
+  'GUEST'
+]);
+
+const userProfileSchema = z.object({
+  id: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  phoneNumber: z.string().optional(),
+  dateOfBirth: z.date().optional(),
+  avatar: z.string().optional(),
+  bio: z.string().optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  country: z.string().optional(),
+  postalCode: z.string().optional(),
+});
+
+const adminUserResponseSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  username: z.string(),
+  isActive: z.boolean(),
+  role: userRoleSchema,
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  profile: userProfileSchema.optional(),
+});
+
+const getUsersResponseSchema = apiResponseSchema.extend({
+  data: z.object({
+    users: z.array(adminUserResponseSchema),
+    total: z.number(),
+    page: z.number(),
+    limit: z.number(),
+  }),
+});
+
 
 // This creates the combined app router
 export const appRouter = router({
@@ -145,6 +189,18 @@ export const appRouter = router({
   }),
   
   adminUser: router({
+    getAllUsers: procedure
+      .input(z.object({
+        page: z.number().min(1).optional().default(1),
+        limit: z.number().min(1).max(100).optional().default(10),
+        search: z.string().optional(),
+        role: userRoleSchema.optional(),
+        isActive: z.boolean().optional(),
+      }))
+      .output(getUsersResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
     getProfile: procedure
       .output(apiResponseSchema)
       .query(() => {

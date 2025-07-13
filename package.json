@@ -64,6 +64,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@headlessui/react": "^2.2.4",
     "@hookform/resolvers": "^5.1.1",
     "@mui/icons-material": "^7.2.0",
     "@mui/material": "^7.2.0",
@@ -73,6 +74,7 @@
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/swagger": "^11.2.0",
     "@nestjs/typeorm": "^11.0.0",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-checkbox": "^1.1.1",
@@ -112,6 +114,7 @@
     "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.60.0",
     "react-i18next": "^15.6.0",
+    "react-icons": "^5.5.0",
     "react-router-dom": "^7.6.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",

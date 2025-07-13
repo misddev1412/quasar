@@ -253,15 +253,14 @@ const Sidebar: React.FC = () => {
     logout();
   };
   
-  // 追踪打开的子菜单
-  const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
-  
   // 搜索相关状态
   const [searchValue, setSearchValue] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchAnchorEl, setSearchAnchorEl] = useState<null | HTMLElement>(null);
   
+  const [menuCollapseState, setMenuCollapseState] = useState<Record<string, boolean>>({});
+
   // 菜单分组
   const menuGroups: MenuGroup[] = [
     {
@@ -280,13 +279,13 @@ const Sidebar: React.FC = () => {
         {
           icon: <PeopleIcon />,
           label: t('admin.user_management', '用户管理'),
-          path: '/users',
+          path: '/users-management',
           badge: 2,
           subItems: [
             {
               icon: <PermIdentityIcon />,
               label: t('admin.user_list', '用户列表'),
-              path: '/users/list',
+              path: '/users',
               badge: 2
             },
             {
@@ -428,24 +427,26 @@ const Sidebar: React.FC = () => {
     return location.pathname.startsWith(path);
   };
 
-  // 处理子菜单展开/折叠
-  const handleToggleSubMenu = (path: string) => {
-    if (openSubMenu === path) {
-      setOpenSubMenu(null);
-    } else {
-      setOpenSubMenu(path);
+  // 检查是否应该展开子菜单
+  const isSubmenuExpanded = (item: MenuItem): boolean => {
+    if (!item.subItems) return false;
+  
+    const manualState = menuCollapseState[item.path];
+    if (manualState !== undefined) {
+      return manualState;
     }
+  
+    // 默认行为：如果子菜单是激活的，就展开
+    return item.subItems.some(subItem => isActiveRoute(subItem.path));
   };
 
-  // 检查是否应该展开子菜单
-  const shouldExpandSubmenu = (item: MenuItem): boolean => {
-    if (!item.subItems) return false;
-    
-    // 如果路径匹配子项，应该展开
-    const hasActiveChild = item.subItems.some(subItem => isActiveRoute(subItem.path));
-    
-    // 如果手动展开或有活动的子项，则展开
-    return openSubMenu === item.path || hasActiveChild;
+  // 处理子菜单展开/折叠
+  const handleToggleSubMenu = (item: MenuItem) => {
+    const isExpanded = isSubmenuExpanded(item);
+    setMenuCollapseState(prevState => ({
+      ...prevState,
+      [item.path]: !isExpanded
+    }));
   };
 
   // 计算子菜单未读消息总数
@@ -471,7 +472,7 @@ const Sidebar: React.FC = () => {
   const renderMenuItem = (item: MenuItem, index: number) => {
     const isActive = isActiveRoute(item.path);
     const hasSubItems = item.subItems && item.subItems.length > 0;
-    const isExpanded = shouldExpandSubmenu(item);
+    const isExpanded = isSubmenuExpanded(item);
     const badgeContent = hasSubItems ? getSubItemsTotalBadge(item.subItems) : item.badge;
     
     return (
@@ -480,7 +481,7 @@ const Sidebar: React.FC = () => {
           {hasSubItems ? (
             <Tooltip title={sidebarCollapsed ? item.label : ''} placement="right">
               <StyledListItemButton
-                onClick={() => !sidebarCollapsed && handleToggleSubMenu(item.path)}
+                onClick={() => !sidebarCollapsed && handleToggleSubMenu(item)}
                 selected={isActive && !item.subItems}
                 sx={{
                   minHeight: 48,

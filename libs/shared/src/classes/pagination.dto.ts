@@ -1,6 +1,7 @@
 import { Type, Transform } from 'class-transformer';
 import { IsOptional, IsInt, Min, Max, IsString, IsEnum } from 'class-validator';
 import { SortOrder } from '../enums/common.enums';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class PaginationDto {
   @IsOptional()
@@ -117,4 +118,21 @@ export class PaginatedResponseDto<T> {
     const meta = new PaginationMetaDto(total, page, limit);
     return new PaginatedResponseDto(data, meta);
   }
+}
+
+export class PaginatedDto<T> {
+  @ApiProperty({ isArray: true })
+  readonly items: T[];
+
+  @ApiProperty({ type: () => Number })
+  readonly total: number;
+
+  @ApiProperty({ type: () => Number })
+  readonly page: number;
+
+  @ApiProperty({ type: () => Number })
+  readonly limit: number;
+
+  @ApiProperty({ type: () => Number })
+  readonly totalPages: number;
 } 
