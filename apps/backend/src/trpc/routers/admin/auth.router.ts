@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Router, Mutation, Input } from 'nestjs-trpc';
+import { Router, Mutation, Query, Input, UseMiddlewares, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { AuthService } from '../../../auth/auth.service';
 import { UserRepository } from '../../../modules/user/repositories/user.repository';
@@ -7,6 +7,8 @@ import { ResponseService } from '../../../modules/shared/services/response.servi
 import { apiResponseSchema } from '../../schemas/response.schemas';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
 import { UserRole } from '@shared';
+import { AuthMiddleware } from '../../middlewares/auth.middleware';
+import { AuthenticatedContext } from '../../context';
 
 // Zod schemas for validation
 const loginSchema = z.object({
@@ -99,7 +101,7 @@ export class AdminAuthRouter {
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const tokens = await this.authService.refreshToken(input.refreshToken);
-      
+
       return this.responseHandler.createTrpcResponse(
         200,
         'Token refreshed successfully',
@@ -114,4 +116,64 @@ export class AdminAuthRouter {
       );
     }
   }
-} 
+
+  @UseMiddlewares(AuthMiddleware)
+  @Query({
+    output: apiResponseSchema
+  })
+  async me(
+    @Ctx() ctx: AuthenticatedContext
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      // Get user from database to ensure they still exist and are active
+      const user = await this.userRepository.findById(ctx.user.id);
+      if (!user || !user.isActive) {
+        throw this.responseHandler.createTRPCError(
+          20, // ModuleCode.AUTH
+          3,  // OperationCode.VERIFY
+          ErrorLevelCode.AUTHORIZATION,
+          'User not found or inactive'
+        );
+      }
+
+      // Check if the user still has admin role
+      const userWithRoles = await this.userRepository.findWithRoles(user.id);
+      const hasAdminRole = userWithRoles?.userRoles?.some(ur =>
+        ur.isActive && [UserRole.SUPER_ADMIN, UserRole.ADMIN].includes(ur.role?.code as UserRole)
+      );
+
+      if (!hasAdminRole) {
+        throw this.responseHandler.createTRPCError(
+          20, // ModuleCode.AUTH
+          3,  // OperationCode.VERIFY
+          ErrorLevelCode.FORBIDDEN,
+          'Admin access revoked'
+        );
+      }
+
+      // Return basic user info
+      return this.responseHandler.createTrpcResponse(
+        200,
+        'User authenticated',
+        {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          role: ctx.user.role,
+          isActive: user.isActive
+        }
+      );
+    } catch (error) {
+      if (error.code) {
+        throw error; // If it's already a TRPC error
+      }
+
+      throw this.responseHandler.createTRPCError(
+        20, // ModuleCode.AUTH
+        3,  // OperationCode.VERIFY
+        ErrorLevelCode.SERVER_ERROR,
+        error.message || 'Authentication verification failed'
+      );
+    }
+  }
+}

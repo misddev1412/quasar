@@ -1,19 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLayout } from '../../contexts/LayoutContext';
 import { useTheme } from '../../context/ThemeContext';
-import { 
-  AppBar, 
-  Toolbar, 
-  IconButton, 
-  InputBase, 
-  Badge, 
-  Avatar, 
-  Box, 
+import { useAuth } from '../../context/AuthContext';
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  InputBase,
+  Badge,
+  Avatar,
+  Box,
   Typography,
   Stack,
   Tooltip,
   Divider,
-  useTheme as useMuiTheme
+  useTheme as useMuiTheme,
+  Menu,
+  MenuItem,
+  ListItemIcon
 } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
@@ -25,8 +29,12 @@ import ViewSidebarIcon from '@mui/icons-material/ViewSidebar';
 import PersonIcon from '@mui/icons-material/Person';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import SettingsIcon from '@mui/icons-material/Settings';
+import LogoutIcon from '@mui/icons-material/Logout';
 import LocaleSwitcher from '../LocaleSwitcher';
 import { useTranslation } from 'react-i18next';
+import { Link, useNavigate } from 'react-router-dom';
 
 // Optimized search box style
 const Search = styled('div')(({ theme }) => ({
@@ -130,8 +138,36 @@ const ThemeToggleButton = styled(Box)(({ theme }) => ({
 const Header: React.FC = () => {
   const { config, toggleLayoutType } = useLayout();
   const { isDarkMode, toggleDarkMode } = useTheme();
+  const { user, logout } = useAuth();
   const muiTheme = useMuiTheme();
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  // User dropdown menu state
+  const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
+  const isUserMenuOpen = Boolean(userMenuAnchor);
+
+  // Handle user menu open
+  const handleUserMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setUserMenuAnchor(event.currentTarget);
+  };
+
+  // Handle user menu close
+  const handleUserMenuClose = () => {
+    setUserMenuAnchor(null);
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    handleUserMenuClose();
+    logout();
+  };
+
+  // Handle navigation
+  const handleNavigation = (path: string) => {
+    handleUserMenuClose();
+    navigate(path);
+  };
 
   return (
     <AppBar 
@@ -249,12 +285,83 @@ const Header: React.FC = () => {
             </ActionButton>
           </Tooltip>
           
-          {/* User avatar */}
-          <Tooltip title={t('header.userSettings')}>
-            <StyledAvatar sx={{ width: 32, height: 32, cursor: 'pointer' }}>
+          {/* User avatar with dropdown */}
+          <Tooltip title={user?.username || user?.email || t('header.userSettings')}>
+            <StyledAvatar
+              sx={{ width: 32, height: 32, cursor: 'pointer' }}
+              onClick={handleUserMenuClick}
+              aria-controls={isUserMenuOpen ? 'user-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={isUserMenuOpen ? 'true' : undefined}
+            >
               <PersonIcon fontSize="small" />
             </StyledAvatar>
           </Tooltip>
+
+          {/* User dropdown menu */}
+          <Menu
+            id="user-menu"
+            anchorEl={userMenuAnchor}
+            open={isUserMenuOpen}
+            onClose={handleUserMenuClose}
+            onClick={handleUserMenuClose}
+            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            PaperProps={{
+              elevation: 3,
+              sx: {
+                overflow: 'visible',
+                mt: 1.5,
+                width: 200,
+                '&:before': {
+                  content: '""',
+                  display: 'block',
+                  position: 'absolute',
+                  top: 0,
+                  right: 14,
+                  width: 10,
+                  height: 10,
+                  bgcolor: 'background.paper',
+                  transform: 'translateY(-50%) rotate(45deg)',
+                  zIndex: 0,
+                },
+              },
+            }}
+          >
+            {/* Profile */}
+            <MenuItem onClick={() => handleNavigation('/profile')}>
+              <ListItemIcon>
+                <AccountCircleIcon fontSize="small" />
+              </ListItemIcon>
+              {t('navigation.profile')}
+            </MenuItem>
+
+            {/* Settings */}
+            <MenuItem onClick={() => handleNavigation('/settings')}>
+              <ListItemIcon>
+                <SettingsIcon fontSize="small" />
+              </ListItemIcon>
+              {t('navigation.settings')}
+            </MenuItem>
+
+            {/* Help */}
+            <MenuItem onClick={() => handleNavigation('/help')}>
+              <ListItemIcon>
+                <HelpOutlineIcon fontSize="small" />
+              </ListItemIcon>
+              {t('navigation.help')}
+            </MenuItem>
+
+            <Divider />
+
+            {/* Logout */}
+            <MenuItem onClick={handleLogout}>
+              <ListItemIcon>
+                <LogoutIcon fontSize="small" />
+              </ListItemIcon>
+              {t('navigation.logout')}
+            </MenuItem>
+          </Menu>
         </Stack>
       </Toolbar>
     </AppBar>

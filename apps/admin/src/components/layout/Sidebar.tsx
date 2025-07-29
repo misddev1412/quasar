@@ -126,30 +126,52 @@ const StyledMiniDrawer = styled(Drawer)(({ theme }) => ({
 const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
   borderRadius: '8px',
   margin: '4px 8px',
+  transition: theme.transitions.create(['background-color', 'box-shadow', 'border-color'], {
+    duration: theme.transitions.duration.short,
+  }),
   '&.Mui-selected': {
-    backgroundColor: theme.palette.mode === 'dark' 
-      ? `rgba(38, 99, 235, 0.2)` 
-      : theme.palette.primary.light,
+    backgroundColor: theme.palette.mode === 'dark'
+      ? `rgba(59, 130, 246, 0.15)`
+      : `rgba(59, 130, 246, 0.1)`,
+    boxShadow: theme.palette.mode === 'dark'
+      ? '0 0 0 1px rgba(59, 130, 246, 0.3)'
+      : '0 0 0 1px rgba(59, 130, 246, 0.2)',
     '&:hover': {
-      backgroundColor: theme.palette.mode === 'dark' 
-        ? `rgba(38, 99, 235, 0.3)` 
-        : theme.palette.primary.light,
+      backgroundColor: theme.palette.mode === 'dark'
+        ? `rgba(59, 130, 246, 0.2)`
+        : `rgba(59, 130, 246, 0.15)`,
+      boxShadow: theme.palette.mode === 'dark'
+        ? '0 0 0 1px rgba(59, 130, 246, 0.4)'
+        : '0 0 0 1px rgba(59, 130, 246, 0.3)',
     },
-    color: theme.palette.common.white,
+    color: theme.palette.mode === 'dark'
+      ? theme.palette.common.white
+      : theme.palette.primary.main,
   },
+  '&:hover': {
+    backgroundColor: theme.palette.mode === 'dark'
+      ? 'rgba(255, 255, 255, 0.05)'
+      : 'rgba(0, 0, 0, 0.04)',
+  }
 }));
 
 // 徽章组件
 const MenuBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
-    right: -3,
-    top: 6,
-    border: `2px solid ${theme.palette.background.paper}`,
+    right: -2,
+    top: 4,
+    border: `1.5px solid ${theme.palette.background.paper}`,
     padding: '0 4px',
     backgroundColor: theme.palette.error.main,
     color: theme.palette.error.contrastText,
-    fontWeight: 'bold',
-    fontSize: '0.6rem',
+    fontWeight: '600',
+    fontSize: '0.65rem',
+    minWidth: '18px',
+    height: '18px',
+    borderRadius: '9px',
+    boxShadow: theme.palette.mode === 'dark'
+      ? '0 2px 4px rgba(0, 0, 0, 0.3)'
+      : '0 2px 4px rgba(0, 0, 0, 0.15)',
   },
 }));
 
@@ -474,27 +496,59 @@ const Sidebar: React.FC = () => {
     const hasSubItems = item.subItems && item.subItems.length > 0;
     const isExpanded = isSubmenuExpanded(item);
     const badgeContent = hasSubItems ? getSubItemsTotalBadge(item.subItems) : item.badge;
+
+    // Check if any sub-item is active (for parent highlighting in collapsed mode)
+    const hasActiveSubItem = hasSubItems && item.subItems.some(subItem => isActiveRoute(subItem.path));
+    const shouldHighlightParent = sidebarCollapsed && hasActiveSubItem;
     
     return (
       <React.Fragment key={index}>
-        <ListItem disablePadding sx={{ display: 'block', mb: hasSubItems ? 0 : 0.5 }}>
+        <ListItem disablePadding sx={{
+          display: 'block',
+          mb: hasSubItems && sidebarCollapsed ? 0.5 : (hasSubItems ? 0 : 0.5)
+        }}>
           {hasSubItems ? (
             <Tooltip title={sidebarCollapsed ? item.label : ''} placement="right">
               <StyledListItemButton
                 onClick={() => !sidebarCollapsed && handleToggleSubMenu(item)}
-                selected={isActive && !item.subItems}
+                selected={isActive || shouldHighlightParent}
                 sx={{
                   minHeight: 48,
                   justifyContent: sidebarCollapsed ? 'center' : 'initial',
-                  px: 2.5,
+                  px: sidebarCollapsed ? 1 : 2.5,
+                  display: 'flex',
+                  alignItems: 'center',
+                  position: 'relative',
+                  // Enhanced indicator for parent with active sub-items in collapsed mode
+                  ...(sidebarCollapsed && hasActiveSubItem && {
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: '3px',
+                      backgroundColor: 'primary.main',
+                      borderRadius: '0 2px 2px 0',
+                      zIndex: 1,
+                    }
+                  })
                 }}
               >
-                                    <ListItemIcon
+                <ListItemIcon
                   sx={{
                     minWidth: 0,
-                    mr: sidebarCollapsed ? 'auto' : 3,
+                    mr: sidebarCollapsed ? 0 : 3,
                     justifyContent: 'center',
-                    color: isActive ? 'common.white' : 'text.secondary',
+                    alignItems: 'center',
+                    display: 'flex',
+                    width: sidebarCollapsed ? '100%' : 'auto',
+                    color: (isActive || shouldHighlightParent)
+                      ? theme => theme.palette.mode === 'dark' ? 'common.white' : 'primary.main'
+                      : 'text.secondary',
+                    '& .MuiSvgIcon-root': {
+                      fontSize: '1.25rem',
+                    },
                   }}
                 >
                   {badgeContent > 0 ? (
@@ -509,12 +563,14 @@ const Sidebar: React.FC = () => {
                       primary={item.label} 
                       primaryTypographyProps={{
                         fontSize: 14,
-                        fontWeight: isActive ? 'medium' : 'normal',
+                        fontWeight: (isActive || shouldHighlightParent) ? 'medium' : 'normal',
                       }}
-                      sx={{ 
+                      sx={{
                         opacity: sidebarCollapsed ? 0 : 1,
-                        color: isActive ? 'common.white' : 'text.primary',
-                      }} 
+                        color: (isActive || shouldHighlightParent)
+                          ? theme => theme.palette.mode === 'dark' ? 'common.white' : 'primary.main'
+                          : 'text.primary',
+                      }}
                     />
                     {isExpanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
                   </>
@@ -529,15 +585,25 @@ const Sidebar: React.FC = () => {
                   sx={{
                     minHeight: 48,
                     justifyContent: sidebarCollapsed ? 'center' : 'initial',
-                    px: 2.5,
+                    px: sidebarCollapsed ? 1 : 2.5,
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
                   <ListItemIcon
                     sx={{
                       minWidth: 0,
-                      mr: sidebarCollapsed ? 'auto' : 3,
+                      mr: sidebarCollapsed ? 0 : 3,
                       justifyContent: 'center',
-                      color: isActive ? 'common.white' : 'text.secondary',
+                      alignItems: 'center',
+                      display: 'flex',
+                      width: sidebarCollapsed ? '100%' : 'auto',
+                      color: isActive
+                        ? theme => theme.palette.mode === 'dark' ? 'common.white' : 'primary.main'
+                        : 'text.secondary',
+                      '& .MuiSvgIcon-root': {
+                        fontSize: '1.25rem',
+                      },
                     }}
                   >
                     {badgeContent > 0 ? (
@@ -555,7 +621,9 @@ const Sidebar: React.FC = () => {
                       }}
                       sx={{ 
                         opacity: sidebarCollapsed ? 0 : 1,
-                        color: isActive ? 'common.white' : 'text.primary',
+                        color: isActive
+                          ? theme => theme.palette.mode === 'dark' ? 'common.white' : 'primary.main'
+                          : 'text.primary',
                       }} 
                     />
                   )}
@@ -591,7 +659,9 @@ const Sidebar: React.FC = () => {
                           minWidth: 0,
                           mr: 2,
                           justifyContent: 'center',
-                          color: isSubItemActive ? 'common.white' : 'text.secondary',
+                          color: isSubItemActive
+                            ? theme => theme.palette.mode === 'dark' ? 'common.white' : 'primary.main'
+                            : 'text.secondary',
                           fontSize: '0.875rem',
                         }}
                       >
@@ -607,9 +677,11 @@ const Sidebar: React.FC = () => {
                           fontSize: 13,
                           fontWeight: isSubItemActive ? 'medium' : 'normal',
                         }}
-                        sx={{ 
-                          color: isSubItemActive ? 'common.white' : 'text.primary',
-                        }} 
+                        sx={{
+                          color: isSubItemActive
+                            ? theme => theme.palette.mode === 'dark' ? 'common.white' : 'primary.main'
+                            : 'text.primary',
+                        }}
                       />
                     </StyledListItemButton>
                   </Link>
@@ -619,41 +691,107 @@ const Sidebar: React.FC = () => {
           </Collapse>
         )}
         
-        {/* 如果侧边栏折叠状态下有子菜单，则在悬停时显示子菜单 */}
-        {hasSubItems && sidebarCollapsed && item.subItems.map((subItem, subIndex) => (
-          <Tooltip 
-            key={subIndex}
-            title={subItem.label} 
-            placement="right"
-          >
-            <Link 
-              to={subItem.path} 
-              style={{ textDecoration: 'none', color: 'inherit' }}
-            >
-              <StyledListItemButton
-                sx={{
-                  justifyContent: 'center',
-                  minHeight: 36,
-                  mt: subIndex === 0 ? 0 : 0.5,
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    justifyContent: 'center',
-                    color: isActiveRoute(subItem.path) ? 'common.white' : 'text.secondary',
-                  }}
+        {/* Professional sub-menu display in collapsed state */}
+        {hasSubItems && sidebarCollapsed && (
+          <Box sx={{
+            mt: 0.5,
+            mb: 1,
+            position: 'relative',
+          }}>
+            {item.subItems.map((subItem, subIndex) => {
+              const isSubItemActive = isActiveRoute(subItem.path);
+
+              return (
+                <Tooltip
+                  key={subIndex}
+                  title={subItem.label}
+                  placement="right"
+                  arrow
                 >
-                  {subItem.badge ? (
-                    <MenuBadge badgeContent={subItem.badge} color="error">
-                      {subItem.icon}
-                    </MenuBadge>
-                  ) : subItem.icon}
-                </ListItemIcon>
-              </StyledListItemButton>
-            </Link>
-          </Tooltip>
-        ))}
+                  <Link
+                    to={subItem.path}
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                  >
+                    <StyledListItemButton
+                      selected={isSubItemActive}
+                      sx={{
+                        justifyContent: 'center',
+                        minHeight: 36,
+                        mt: subIndex === 0 ? 0 : 0.5,
+                        mx: 1,
+                        px: 0.5,
+                        position: 'relative',
+                        borderRadius: '6px',
+                        // Professional visual distinction for sub-items
+                        border: theme => `1px solid ${
+                          isSubItemActive
+                            ? 'transparent'
+                            : theme.palette.mode === 'dark'
+                              ? 'rgba(255, 255, 255, 0.08)'
+                              : 'rgba(0, 0, 0, 0.08)'
+                        }`,
+                        backgroundColor: theme =>
+                          isSubItemActive
+                            ? undefined // Let StyledListItemButton handle selected state
+                            : theme.palette.mode === 'dark'
+                              ? 'rgba(255, 255, 255, 0.02)'
+                              : 'rgba(0, 0, 0, 0.02)',
+                        // Subtle left border indicator
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          left: 0,
+                          top: '20%',
+                          bottom: '20%',
+                          width: '2px',
+                          backgroundColor: isSubItemActive
+                            ? 'primary.main'
+                            : theme => theme.palette.mode === 'dark'
+                              ? 'rgba(255, 255, 255, 0.15)'
+                              : 'rgba(0, 0, 0, 0.15)',
+                          borderRadius: '0 1px 1px 0',
+                          opacity: isSubItemActive ? 1 : 0.6,
+                        },
+                        '&:hover': {
+                          backgroundColor: theme =>
+                            theme.palette.mode === 'dark'
+                              ? 'rgba(255, 255, 255, 0.05)'
+                              : 'rgba(0, 0, 0, 0.05)',
+                          '&::before': {
+                            opacity: 1,
+                          }
+                        }
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 0,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          display: 'flex',
+                          width: '100%',
+                          color: isSubItemActive
+                            ? theme => theme.palette.mode === 'dark' ? 'common.white' : 'primary.main'
+                            : 'text.secondary',
+                          '& .MuiSvgIcon-root': {
+                            fontSize: '1.1rem',
+                            opacity: isSubItemActive ? 1 : 0.8,
+                          },
+                        }}
+                      >
+                        {subItem.badge ? (
+                          <MenuBadge badgeContent={subItem.badge} color="error">
+                            {subItem.icon}
+                          </MenuBadge>
+                        ) : subItem.icon}
+                      </ListItemIcon>
+                    </StyledListItemButton>
+                  </Link>
+                </Tooltip>
+              );
+            })}
+          </Box>
+        )}
       </React.Fragment>
     );
   };
@@ -750,8 +888,8 @@ const Sidebar: React.FC = () => {
       {sidebarCollapsed && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 1 }}>
           <Tooltip title="展开侧边栏" placement="right">
-            <IconButton 
-              onClick={toggleSidebar} 
+            <IconButton
+              onClick={toggleSidebar}
               sx={{
                 color: 'text.primary',
                 backgroundColor: theme => theme.palette.background.paper,
@@ -759,6 +897,9 @@ const Sidebar: React.FC = () => {
                 borderRadius: '50%',
                 width: 36,
                 height: 36,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 '&:hover': {
                   color: 'primary.main',
                   backgroundColor: theme => theme.palette.mode === 'dark' ? alpha(theme.palette.primary.main, 0.1) : theme.palette.grey[100],
@@ -822,6 +963,11 @@ const Sidebar: React.FC = () => {
               sx={{
                 backgroundColor: theme => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)',
                 color: theme => theme.palette.mode === 'dark' ? theme.palette.grey[400] : theme.palette.grey[700],
+                width: 36,
+                height: 36,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 '&:hover': {
                   backgroundColor: theme => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
                 },
@@ -843,6 +989,11 @@ const Sidebar: React.FC = () => {
               sx={{
                 backgroundColor: theme => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)',
                 color: theme => theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.main,
+                width: 36,
+                height: 36,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 '&:hover': {
                   backgroundColor: theme => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)',
                 },

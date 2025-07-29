@@ -1,18 +1,66 @@
 import clsx from 'clsx';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { Button } from './Button';
 import { Card } from './Card';
 import { Loading } from './Loading';
 
-// Pagination component
+// Enhanced Icons for Table
+const SortIcon = ({ direction, isActive }: { direction?: 'asc' | 'desc'; isActive: boolean }) => (
+  <div className="flex flex-col ml-2">
+    <svg
+      className={clsx(
+        'w-3 h-3 transition-colors duration-200',
+        isActive && direction === 'asc'
+          ? 'text-blue-600 dark:text-blue-400'
+          : 'text-gray-400 dark:text-gray-500'
+      )}
+      fill="currentColor"
+      viewBox="0 0 20 20"
+    >
+      <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+    </svg>
+    <svg
+      className={clsx(
+        'w-3 h-3 -mt-1 transition-colors duration-200',
+        isActive && direction === 'desc'
+          ? 'text-blue-600 dark:text-blue-400'
+          : 'text-gray-400 dark:text-gray-500'
+      )}
+      fill="currentColor"
+      viewBox="0 0 20 20"
+    >
+      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+    </svg>
+  </div>
+);
+
+const SearchIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  </svg>
+);
+
+const FilterIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.707A1 1 0 013 7V4z" />
+  </svg>
+);
+
+// Enhanced Pagination component
 const Pagination = ({
   currentPage,
   totalPages,
+  totalItems,
+  itemsPerPage,
   onPageChange,
+  onItemsPerPageChange,
 }: {
   currentPage: number;
   totalPages: number;
+  totalItems?: number;
+  itemsPerPage?: number;
   onPageChange: (page: number) => void;
+  onItemsPerPageChange?: (itemsPerPage: number) => void;
 }) => {
   const handlePrevious = () => {
     if (currentPage > 1) {
@@ -26,48 +74,106 @@ const Pagination = ({
     }
   };
 
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      const startPage = Math.max(1, currentPage - 2);
+      const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+      if (startPage > 1) {
+        pages.push(1);
+        if (startPage > 2) pages.push('...');
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  };
+
+  const startItem = totalItems ? (currentPage - 1) * (itemsPerPage || 10) + 1 : 0;
+  const endItem = totalItems ? Math.min(currentPage * (itemsPerPage || 10), totalItems) : 0;
+
   return (
-    <div className="flex items-center justify-between px-4 py-3 sm:px-6">
-      <div className="flex-1 flex justify-between sm:hidden">
-        <Button onClick={handlePrevious} disabled={currentPage === 1}>
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">
+      {/* Items per page selector */}
+      {onItemsPerPageChange && (
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-700 dark:text-gray-300">Show</span>
+          <select
+            value={itemsPerPage}
+            onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+            className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </select>
+          <span className="text-sm text-gray-700 dark:text-gray-300">per page</span>
+        </div>
+      )}
+
+      {/* Page info */}
+      {totalItems && (
+        <div className="text-sm text-gray-700 dark:text-gray-300">
+          Showing <span className="font-medium">{startItem}</span> to{' '}
+          <span className="font-medium">{endItem}</span> of{' '}
+          <span className="font-medium">{totalItems}</span> results
+        </div>
+      )}
+
+      {/* Page navigation */}
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handlePrevious}
+          disabled={currentPage === 1}
+          className="px-3 py-2"
+        >
           Previous
         </Button>
-        <Button onClick={handleNext} disabled={currentPage === totalPages}>
+
+        {getPageNumbers().map((page, index) => (
+          <React.Fragment key={index}>
+            {page === '...' ? (
+              <span className="px-3 py-2 text-gray-500">...</span>
+            ) : (
+              <Button
+                variant={currentPage === page ? 'primary' : 'ghost'}
+                size="sm"
+                onClick={() => onPageChange(page as number)}
+                className="px-3 py-2 min-w-[40px]"
+              >
+                {page}
+              </Button>
+            )}
+          </React.Fragment>
+        ))}
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleNext}
+          disabled={currentPage === totalPages}
+          className="px-3 py-2"
+        >
           Next
         </Button>
-      </div>
-      <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm text-gray-700 dark:text-gray-300">
-            Page <span className="font-medium">{currentPage}</span> of{' '}
-            <span className="font-medium">{totalPages}</span>
-          </p>
-        </div>
-        <div>
-          <nav
-            className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-            aria-label="Pagination"
-          >
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePrevious}
-              disabled={currentPage === 1}
-              className="rounded-r-none"
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleNext}
-              disabled={currentPage === totalPages}
-              className="rounded-l-none"
-            >
-              Next
-            </Button>
-          </nav>
-        </div>
       </div>
     </div>
   );
@@ -87,6 +193,102 @@ export interface Column<T> {
   isSortable?: boolean;
 }
 
+// Enhanced Search and Filter component
+const TableToolbar = ({
+  searchValue,
+  onSearchChange,
+  onFilterClick,
+  selectedCount,
+  onBulkAction,
+  showSearch = true,
+  showFilter = true,
+  bulkActions = [],
+}: {
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  onFilterClick?: () => void;
+  selectedCount?: number;
+  onBulkAction?: (action: string) => void;
+  showSearch?: boolean;
+  showFilter?: boolean;
+  bulkActions?: Array<{ label: string; value: string; variant?: 'primary' | 'danger' }>;
+}) => {
+  return (
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center gap-4 flex-1">
+        {/* Search */}
+        {showSearch && onSearchChange && (
+          <div className="relative flex-1 max-w-md">
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchValue || ''}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+            />
+          </div>
+        )}
+
+        {/* Filter */}
+        {showFilter && onFilterClick && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onFilterClick}
+            startIcon={<FilterIcon className="w-4 h-4" />}
+          >
+            Filter
+          </Button>
+        )}
+      </div>
+
+      {/* Bulk Actions */}
+      {selectedCount && selectedCount > 0 && bulkActions.length > 0 && (
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-gray-700 dark:text-gray-300">
+            {selectedCount} selected
+          </span>
+          <div className="flex gap-2">
+            {bulkActions.map((action) => (
+              <Button
+                key={action.value}
+                variant={action.variant || 'outline'}
+                size="sm"
+                onClick={() => onBulkAction?.(action.value)}
+              >
+                {action.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Skeleton Loading component
+const TableSkeleton = ({ columns, rows = 5 }: { columns: number; rows?: number }) => (
+  <div className="animate-pulse">
+    <div className="bg-gray-50 dark:bg-gray-800 px-6 py-4">
+      <div className="flex gap-4">
+        {Array.from({ length: columns }).map((_, i) => (
+          <div key={i} className="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1" />
+        ))}
+      </div>
+    </div>
+    {Array.from({ length: rows }).map((_, rowIndex) => (
+      <div key={rowIndex} className="border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+        <div className="flex gap-4">
+          {Array.from({ length: columns }).map((_, colIndex) => (
+            <div key={colIndex} className="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1" />
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 export interface TableProps<T> {
   data: T[];
   columns: Column<T>[];
@@ -94,15 +296,32 @@ export interface TableProps<T> {
   pagination?: {
     currentPage: number;
     totalPages: number;
+    totalItems?: number;
+    itemsPerPage?: number;
     onPageChange: (page: number) => void;
+    onItemsPerPageChange?: (itemsPerPage: number) => void;
   };
   emptyMessage?: string;
+  emptyAction?: {
+    label: string;
+    onClick: () => void;
+  };
   className?: string;
   onRowClick?: (item: T) => void;
   sortDescriptor?: SortDescriptor<T>;
   onSortChange?: (descriptor: SortDescriptor<T>) => void;
   selectedIds?: Set<string | number>;
   onSelectionChange?: (selectedIds: Set<string | number>) => void;
+  // Enhanced features
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  onFilterClick?: () => void;
+  showSearch?: boolean;
+  showFilter?: boolean;
+  bulkActions?: Array<{ label: string; value: string; variant?: 'primary' | 'danger' }>;
+  onBulkAction?: (action: string) => void;
+  stickyHeader?: boolean;
+  maxHeight?: string;
 }
 
 export function Table<T extends { id: string | number }>({
@@ -111,14 +330,25 @@ export function Table<T extends { id: string | number }>({
   isLoading,
   pagination,
   emptyMessage = 'No data available',
+  emptyAction,
   className,
   onRowClick,
   sortDescriptor,
   onSortChange,
   selectedIds,
   onSelectionChange,
+  searchValue,
+  onSearchChange,
+  onFilterClick,
+  showSearch = true,
+  showFilter = true,
+  bulkActions = [],
+  onBulkAction,
+  stickyHeader = true,
+  maxHeight = '70vh',
 }: TableProps<T>) {
   const selectAllCheckboxRef = useRef<HTMLInputElement>(null);
+  const [hoveredRow, setHoveredRow] = useState<string | number | null>(null);
 
   const renderCell = (item: T, column: Column<T>, index: number) => {
     if (typeof column.accessor === 'function') {
@@ -168,7 +398,7 @@ export function Table<T extends { id: string | number }>({
     onSelectionChange?.(newSelectedIds);
   };
 
-  const handleSort = (columnAccessor: keyof T) => {
+  const handleSort = useCallback((columnAccessor: keyof T) => {
     if (!onSortChange) return;
 
     const newDirection =
@@ -178,141 +408,228 @@ export function Table<T extends { id: string | number }>({
         : 'asc';
 
     onSortChange({ columnAccessor, direction: newDirection });
-  };
+  }, [onSortChange, sortDescriptor]);
 
-  const handleKeyDown = (
+  const handleKeyDown = useCallback((
     event: React.KeyboardEvent<HTMLTableRowElement>,
     item: T
   ) => {
     if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
       onRowClick?.(item);
     }
-  };
+  }, [onRowClick]);
 
+  const handleRowHover = useCallback((itemId: string | number | null) => {
+    setHoveredRow(itemId);
+  }, []);
+
+  // Enhanced row styling
+  const getRowClassName = useCallback((item: T) => {
+    const isSelected = selectedIds?.has(item.id);
+    const isHovered = hoveredRow === item.id;
+
+    return clsx(
+      'group transition-all duration-200 ease-in-out',
+      onRowClick && 'cursor-pointer',
+      {
+        // Selected state
+        'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500': isSelected,
+        // Hover state
+        'hover:bg-gray-50 dark:hover:bg-gray-800/50': onRowClick && !isSelected,
+        'hover:bg-blue-100 dark:hover:bg-blue-900/30': onRowClick && isSelected,
+        // Default state
+        'bg-white dark:bg-gray-900': !isSelected && !isHovered,
+        // Transform on hover for better interaction feedback
+        'hover:shadow-sm': onRowClick,
+      }
+    );
+  }, [selectedIds, hoveredRow, onRowClick]);
+
+  // Enhanced loading state with skeleton
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center p-4">
-        <Loading />
-      </div>
+      <Card className={clsx(className)}>
+        {(showSearch || showFilter) && (
+          <TableToolbar
+            searchValue={searchValue}
+            onSearchChange={onSearchChange}
+            onFilterClick={onFilterClick}
+            showSearch={showSearch}
+            showFilter={showFilter}
+            bulkActions={[]}
+          />
+        )}
+        <TableSkeleton columns={columns.length + (onSelectionChange ? 1 : 0)} />
+      </Card>
     );
   }
 
+  // Enhanced empty state
   if (!data || data.length === 0) {
     return (
-      <Card className="text-center p-8">
-        <p>{emptyMessage}</p>
+      <Card className={clsx(className)}>
+        {(showSearch || showFilter) && (
+          <TableToolbar
+            searchValue={searchValue}
+            onSearchChange={onSearchChange}
+            onFilterClick={onFilterClick}
+            showSearch={showSearch}
+            showFilter={showFilter}
+            bulkActions={[]}
+          />
+        )}
+        <div className="text-center py-16 px-6">
+          <div className="mx-auto w-24 h-24 mb-6 text-gray-300 dark:text-gray-600">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-full h-full">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+            No data found
+          </h3>
+          <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
+            {emptyMessage}
+          </p>
+          {emptyAction && (
+            <Button onClick={emptyAction.onClick} variant="primary">
+              {emptyAction.label}
+            </Button>
+          )}
+        </div>
       </Card>
     );
   }
 
   return (
-    <Card className={clsx(className)}>
-      <div className="overflow-x-auto overflow-y-auto" style={{ height: '70vh' }}>
+    <Card className={clsx('overflow-hidden', className)}>
+      {/* Enhanced Toolbar */}
+      {(showSearch || showFilter || (selectedIds && selectedIds.size > 0)) && (
+        <TableToolbar
+          searchValue={searchValue}
+          onSearchChange={onSearchChange}
+          onFilterClick={onFilterClick}
+          selectedCount={selectedIds?.size}
+          onBulkAction={onBulkAction}
+          showSearch={showSearch}
+          showFilter={showFilter}
+          bulkActions={bulkActions}
+        />
+      )}
+
+      {/* Table Container */}
+      <div
+        className="overflow-x-auto overflow-y-auto"
+        style={{ maxHeight: maxHeight }}
+      >
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-800 sticky top-0 z-10">
-            <tr>
+          {/* Enhanced Header */}
+          <thead className={clsx(
+            'bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700',
+            stickyHeader && 'sticky top-0 z-20'
+          )}>
+            <tr className="border-b border-gray-200 dark:border-gray-600">
               {isSelectable && (
-                <th scope="col" className="p-4">
-                  <div className="flex items-center">
+                <th scope="col" className="relative w-12 px-6 py-4">
+                  <div className="flex items-center justify-center">
                     <input
                       id="checkbox-all"
                       type="checkbox"
                       ref={selectAllCheckboxRef}
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                      className="w-4 h-4 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 transition-colors duration-200"
                       checked={
                         allItemIdsOnPage.size > 0 &&
                         selectedIdsOnPage.size === allItemIdsOnPage.size
                       }
                       onChange={(e) => handleSelectAll(e.target.checked)}
+                      aria-label="Select all rows"
                     />
-                    <label htmlFor="checkbox-all" className="sr-only">
-                      checkbox
-                    </label>
                   </div>
                 </th>
               )}
-              {columns.map((col) => (
-                <th
-                  key={col.header}
-                  scope="col"
-                  className={clsx(
-                    'px-6 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 tracking-wide',
-                    col.isSortable &&
-                      onSortChange &&
-                      typeof col.accessor === 'string' &&
-                      'cursor-pointer select-none'
-                  )}
-                  onClick={() =>
-                    col.isSortable &&
-                    onSortChange &&
-                    typeof col.accessor === 'string' &&
-                    handleSort(col.accessor as keyof T)
-                  }
-                >
-                  <div className="flex items-center">
-                    <span>{col.header}</span>
-                    {sortDescriptor &&
-                      typeof col.accessor === 'string' &&
-                      sortDescriptor.columnAccessor === col.accessor && (
-                        <span className="ml-1">
-                          {sortDescriptor.direction === 'asc' ? '▲' : '▼'}
-                        </span>
+              {columns.map((col) => {
+                const isSortable = col.isSortable && onSortChange && typeof col.accessor === 'string';
+                const isCurrentSort = sortDescriptor && typeof col.accessor === 'string' && sortDescriptor.columnAccessor === col.accessor;
+
+                return (
+                  <th
+                    key={col.header}
+                    scope="col"
+                    className={clsx(
+                      'px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider',
+                      isSortable && 'cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200',
+                      col.className
+                    )}
+                    onClick={() => isSortable && handleSort(col.accessor as keyof T)}
+                    role={isSortable ? 'button' : undefined}
+                    tabIndex={isSortable ? 0 : undefined}
+                    onKeyDown={(e) => {
+                      if (isSortable && (e.key === 'Enter' || e.key === ' ')) {
+                        e.preventDefault();
+                        handleSort(col.accessor as keyof T);
+                      }
+                    }}
+                    aria-sort={
+                      isCurrentSort
+                        ? sortDescriptor.direction === 'asc' ? 'ascending' : 'descending'
+                        : isSortable ? 'none' : undefined
+                    }
+                  >
+                    <div className="flex items-center justify-between group">
+                      <span className="font-medium">{col.header}</span>
+                      {isSortable && (
+                        <SortIcon
+                          direction={isCurrentSort ? sortDescriptor.direction : undefined}
+                          isActive={!!isCurrentSort}
+                        />
                       )}
-                  </div>
-                </th>
-              ))}
+                    </div>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
+          {/* Enhanced Body */}
+          <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
             {data.map((item, index) => (
               <tr
                 key={item.id}
                 onClick={() => onRowClick?.(item)}
                 onKeyDown={(e) => handleKeyDown(e, item)}
+                onMouseEnter={() => handleRowHover(item.id)}
+                onMouseLeave={() => handleRowHover(null)}
                 tabIndex={onRowClick ? 0 : undefined}
-                className={clsx(
-                  'transition-colors duration-150 ease-in-out',
-                  onRowClick && 'cursor-pointer',
-                  {
-                    'bg-sky-100 dark:bg-sky-900/50': selectedIds?.has(item.id),
-                    'odd:bg-white even:bg-gray-50/50 dark:odd:bg-gray-900 dark:even:bg-gray-800/50':
-                      !selectedIds?.has(item.id),
-                    'hover:bg-sky-200/70 dark:hover:bg-sky-800/60':
-                      onRowClick && selectedIds?.has(item.id),
-                    'hover:bg-gray-100 dark:hover:bg-gray-800':
-                      onRowClick && !selectedIds?.has(item.id),
-                  }
-                )}
+                className={getRowClassName(item)}
+                role={onRowClick ? 'button' : undefined}
+                aria-selected={selectedIds?.has(item.id)}
               >
                 {isSelectable && (
-                  <td className="w-4 p-4">
-                    <div className="flex items-center">
+                  <td className="relative w-12 px-6 py-4">
+                    <div className="flex items-center justify-center">
                       <input
                         id={`checkbox-${item.id}`}
                         type="checkbox"
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                        className="w-4 h-4 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 transition-colors duration-200"
                         checked={selectedIds?.has(item.id) ?? false}
                         onChange={(e) => handleRowSelect(item, e.target.checked)}
                         onClick={(e) => e.stopPropagation()}
+                        aria-label={`Select row ${index + 1}`}
                       />
-                      <label
-                        htmlFor={`checkbox-${item.id}`}
-                        className="sr-only"
-                      >
-                        checkbox
-                      </label>
                     </div>
                   </td>
                 )}
-                {columns.map((col) => (
+                {columns.map((col, colIndex) => (
                   <td
                     key={`${item.id}-${col.header}`}
                     className={clsx(
-                      'px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200',
+                      'px-6 py-4 text-sm text-gray-900 dark:text-gray-100',
+                      colIndex === 0 && 'font-medium', // First column is typically more important
                       col.className
                     )}
                   >
-                    {renderCell(item, col, index)}
+                    <div className="flex items-center">
+                      {renderCell(item, col, index)}
+                    </div>
                   </td>
                 ))}
               </tr>
@@ -320,11 +637,11 @@ export function Table<T extends { id: string | number }>({
           </tbody>
         </table>
       </div>
+
+      {/* Enhanced Pagination */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="border-t border-gray-200 dark:border-gray-700">
-          <Pagination {...pagination} />
-        </div>
+        <Pagination {...pagination} />
       )}
     </Card>
   );
-} 
+}

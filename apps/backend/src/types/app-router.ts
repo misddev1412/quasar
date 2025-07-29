@@ -367,13 +367,19 @@ export const appRouter = router({
       .mutation(() => {
         return {} as any;
       }),
-    
+
     refresh: procedure
       .input(z.object({
         refreshToken: z.string()
       }))
       .output(apiResponseSchema)
       .mutation(() => {
+        return {} as any;
+      }),
+
+    me: procedure
+      .output(apiResponseSchema)
+      .query(() => {
         return {} as any;
       }),
   }),

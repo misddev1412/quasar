@@ -21,6 +21,7 @@ interface AuthActions {
   login: (email: string, password: string) => Promise<{success: boolean, errorMessage?: string}>;
   logout: () => void;
   refreshToken: () => Promise<boolean>;
+  verifyAuth: () => Promise<boolean>;
 }
 
 export interface UseAuthReturn extends AuthState, AuthActions {}
@@ -43,14 +44,44 @@ export function useAuth(): UseAuthReturn {
   const navigate = useNavigate();
   const loginMutation = trpc.adminAuth.login.useMutation();
   const refreshMutation = trpc.adminAuth.refresh.useMutation();
-  const { data: profileData, refetch: refetchProfile } = trpc.adminUser.getProfile.useQuery(
+
+  // Use /me endpoint for continuous authentication verification
+  // Note: Using type assertion as a temporary workaround for tRPC type inference
+  const { data: meData, refetch: refetchMe, error: meError } = (trpc.adminAuth as any).me.useQuery(
     undefined,
     {
       enabled: !!authState.isAuthenticated,
       retry: false,
+      refetchOnWindowFocus: true, // Check auth status when window gains focus
+      refetchInterval: 5 * 60 * 1000, // Check every 5 minutes
+      staleTime: 2 * 60 * 1000, // Consider data stale after 2 minutes
+    }
+  );
+
+  // Keep the profile query for when we need full profile data
+  const { data: profileData, refetch: refetchProfile } = trpc.adminUser.getProfile.useQuery(
+    undefined,
+    {
+      enabled: false, // Only fetch when explicitly needed
+      retry: false,
       refetchOnWindowFocus: false,
     }
   );
+
+  /**
+   * 清除所有身份验证数据
+   */
+  const clearAuthData = useCallback(() => {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+
+    setAuthState({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false
+    });
+  }, []);
 
   /**
    * Update user state and local storage
@@ -64,7 +95,31 @@ export function useAuth(): UseAuthReturn {
     setAuthState(prev => ({ ...prev, user }));
   }, []);
 
-  // Effect to update user state when profile data is fetched
+  // Effect to handle /me endpoint response for authentication verification
+  useEffect(() => {
+    const response = meData as TrpcApiResponse<User> | undefined;
+    if (response?.data) {
+      const currentUser = authState.user;
+      const newUserData = response.data;
+
+      // Update user state with fresh data from /me endpoint
+      if (JSON.stringify(currentUser) !== JSON.stringify(newUserData)) {
+        updateUserState(newUserData);
+      }
+    }
+  }, [meData, authState.user, updateUserState]);
+
+  // Effect to handle authentication errors from /me endpoint
+  useEffect(() => {
+    if (meError && authState.isAuthenticated) {
+      console.error('Authentication verification failed:', meError);
+      // If /me endpoint fails, user is no longer authenticated
+      clearAuthData();
+      navigate('/auth/login');
+    }
+  }, [meError, authState.isAuthenticated, clearAuthData, navigate]);
+
+  // Effect to update user state when profile data is fetched (for full profile)
   useEffect(() => {
     const response = profileData as TrpcApiResponse<User> | undefined;
     if (response?.data) {
@@ -110,22 +165,7 @@ export function useAuth(): UseAuthReturn {
       clearAuthData();
       return false;
     }
-  }, []);
-
-  /**
-   * 清除所有身份验证数据
-   */
-  const clearAuthData = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-    
-    setAuthState({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false
-    });
-  }, []);
+  }, [clearAuthData]);
 
   /**
    * 登录操作
@@ -152,8 +192,8 @@ export function useAuth(): UseAuthReturn {
           isAuthenticated: true,
           isLoading: false
         });
-        
-        // The `enabled` flag in useQuery will trigger a fetch, no need to call refetch manually.
+
+        // The `enabled` flag in useQuery will trigger a /me fetch to verify authentication
         return { success: true };
       }
       
@@ -203,8 +243,7 @@ export function useAuth(): UseAuthReturn {
         localStorage.setItem(TOKEN_KEY, accessToken);
         localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
         
-        // After refreshing, we are authenticated, but we don't have new user data.
-        // The profile query will run automatically because isAuthenticated is now true.
+        // After refreshing, we are authenticated, and the /me query will run automatically
         setAuthState(prev => ({
           ...prev,
           isAuthenticated: true,
@@ -224,6 +263,25 @@ export function useAuth(): UseAuthReturn {
   }, [refreshMutation]);
 
   /**
+   * 验证当前用户身份验证状态
+   */
+  const verifyAuth = useCallback(async () => {
+    if (!authState.isAuthenticated) {
+      return false;
+    }
+
+    try {
+      await refetchMe();
+      return true;
+    } catch (error) {
+      console.error('Authentication verification failed:', error);
+      clearAuthData();
+      navigate('/auth/login');
+      return false;
+    }
+  }, [authState.isAuthenticated, refetchMe, clearAuthData, navigate]);
+
+  /**
    * 登出操作
    */
   const logout = useCallback(() => {
@@ -240,6 +298,7 @@ export function useAuth(): UseAuthReturn {
     ...authState,
     login,
     logout,
-    refreshToken
+    refreshToken,
+    verifyAuth
   };
 } 
