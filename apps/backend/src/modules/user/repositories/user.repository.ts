@@ -4,12 +4,28 @@ import { Repository } from 'typeorm';
 import { BaseRepository, UserRole } from '@shared';
 import { User } from '../entities/user.entity';
 import { UserProfile } from '../entities/user-profile.entity';
-import { 
-  IUserRepository, 
-  CreateUserDto, 
-  UpdateUserDto, 
-  UpdateUserProfileDto 
+import {
+  IUserRepository,
+  CreateUserDto,
+  UpdateUserDto,
+  UpdateUserProfileDto
 } from '../interfaces/user-repository.interface';
+
+export interface UserFilters {
+  page: number;
+  limit: number;
+  search?: string;
+  role?: UserRole;
+  isActive?: boolean;
+}
+
+export interface PaginatedUsers {
+  items: User[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 @Injectable()
 export class UserRepository extends BaseRepository<User> implements IUserRepository {
@@ -91,14 +107,61 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
     const profile = await this.userProfileRepository.findOne({
       where: { userId }
     });
-    
+
     if (!profile) {
       return null;
     }
-    
+
     await this.userProfileRepository.update(profile.id, updateProfileDto);
     return await this.userProfileRepository.findOne({
       where: { userId }
     });
   }
-} 
+
+  async findUsersWithFilters(filters: UserFilters): Promise<PaginatedUsers> {
+    const queryBuilder = this.repository.createQueryBuilder('user')
+      .leftJoinAndSelect('user.profile', 'profile');
+
+    // Apply search filter
+    if (filters.search) {
+      const searchTerm = `%${filters.search.toLowerCase()}%`;
+      queryBuilder.andWhere(
+        '(LOWER(user.email) LIKE :search OR LOWER(user.username) LIKE :search OR LOWER(profile.firstName) LIKE :search OR LOWER(profile.lastName) LIKE :search)',
+        { search: searchTerm }
+      );
+    }
+
+    // Apply role filter (when role system is implemented)
+    // if (filters.role) {
+    //   queryBuilder.andWhere('user.role = :role', { role: filters.role });
+    // }
+
+    // Apply isActive filter
+    if (filters.isActive !== undefined) {
+      queryBuilder.andWhere('user.isActive = :isActive', { isActive: filters.isActive });
+    }
+
+    // Apply pagination
+    const skip = (filters.page - 1) * filters.limit;
+    queryBuilder
+      .skip(skip)
+      .take(filters.limit)
+      .orderBy('user.createdAt', 'DESC');
+
+    // Get total count for pagination
+    const total = await queryBuilder.getCount();
+
+    // Get paginated results
+    const items = await queryBuilder.getMany();
+
+    const totalPages = Math.ceil(total / filters.limit);
+
+    return {
+      items,
+      total,
+      page: filters.page,
+      limit: filters.limit,
+      totalPages,
+    };
+  }
+}

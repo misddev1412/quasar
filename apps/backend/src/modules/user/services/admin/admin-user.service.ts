@@ -65,47 +65,21 @@ export class AdminUserService {
   }
 
   async getAllUsers(filters: AdminUserFilters): Promise<PaginatedDto<AdminUserResponseDto>> {
-    // This would typically use a more sophisticated query with pagination
-    // For now, we'll use a simple approach
-    const users = await this.userRepository.findAll();
-    
-    let filteredUsers = users;
-    
-    if (filters.search) {
-      filteredUsers = filteredUsers.filter(user => {
-        const searchLower = filters.search.toLowerCase();
-        const emailMatch = user.email.toLowerCase().includes(searchLower);
-        const usernameMatch = user.username.toLowerCase().includes(searchLower);
-        // Only search in profile if it exists
-        const profileMatch = user.profile ? 
-          (user.profile.firstName?.toLowerCase().includes(searchLower) || 
-           user.profile.lastName?.toLowerCase().includes(searchLower)) : false;
-        
-        return emailMatch || usernameMatch || profileMatch;
-      });
-    }
-
-    // TODO: Implement role filtering with UserRole entity
-    // if (filters.role) {
-    //   filteredUsers = filteredUsers.filter(user => user.role === filters.role);
-    // }
-
-    if (filters.isActive !== undefined) {
-      filteredUsers = filteredUsers.filter(user => user.isActive === filters.isActive);
-    }
-
-    const total = filteredUsers.length;
-    const totalPages = Math.ceil(total / filters.limit);
-    const startIndex = (filters.page - 1) * filters.limit;
-    const endIndex = startIndex + filters.limit;
-    const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
-
-    return {
-      items: paginatedUsers.map(user => this.toAdminUserResponse(user)),
-      total,
+    // Use server-side filtering and pagination
+    const result = await this.userRepository.findUsersWithFilters({
       page: filters.page,
       limit: filters.limit,
-      totalPages,
+      search: filters.search,
+      role: filters.role,
+      isActive: filters.isActive,
+    });
+
+    return {
+      items: result.items.map(user => this.toAdminUserResponse(user)),
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
     };
   }
 

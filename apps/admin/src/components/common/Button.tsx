@@ -68,11 +68,11 @@ export const Button: React.FC<ButtonProps> = ({
     return classes[variant];
   };
 
-  // 尺寸类
+  // Explicit height classes to match input components exactly
   const sizeClasses = {
-    sm: 'py-2 px-3 text-sm',
-    md: 'py-3 px-4',
-    lg: 'py-4 px-6 text-lg',
+    sm: 'h-10 px-3 text-sm',      // 40px height (matches input sm)
+    md: 'h-11 px-4',              // 44px height (matches input md)
+    lg: 'h-12 px-6 text-lg',      // 48px height (matches input lg)
   };
 
   // 为登录页面添加自定义按钮动画效果

@@ -1,4 +1,5 @@
 import React from 'react';
+import clsx from 'clsx';
 
 interface FormInputProps {
   id: string;
@@ -14,6 +15,7 @@ interface FormInputProps {
   rightIcon?: React.ReactNode;
   autoComplete?: string;
   className?: string;
+  size?: 'sm' | 'md' | 'lg';
 }
 
 export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
@@ -30,8 +32,15 @@ export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
   rightIcon,
   autoComplete,
   className = '',
+  size = 'md',
   ...rest
 }) => {
+  // Explicit height classes for pixel-perfect consistency across all input types
+  const sizeClasses = {
+    sm: '!h-10',     // 40px height
+    md: '!h-11',     // 44px height
+    lg: '!h-12',     // 48px height
+  };
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -40,11 +49,15 @@ export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
         </label>
         {rightElement && rightElement}
       </div>
-      <div className={`relative flex items-center bg-white dark:bg-neutral-900 rounded-lg overflow-hidden ${
-        error 
+      <div className={clsx(
+        'relative flex items-center bg-white dark:bg-neutral-900 rounded-lg overflow-hidden',
+        // Ensure container height matches input height
+        sizeClasses[size],
+        error
           ? 'border border-error focus-within:ring-1 focus-within:ring-error'
-          : 'border border-neutral-300 dark:border-neutral-700 focus-within:ring-1 focus-within:ring-primary focus-within:border-primary'
-      } ${className}`}>
+          : 'border border-neutral-300 dark:border-neutral-700 focus-within:ring-1 focus-within:ring-primary focus-within:border-primary',
+        className
+      )}>
         {/* Icon container with fixed width */}
         {icon && (
           <div className="flex-shrink-0 w-12 flex justify-center items-center">
@@ -61,11 +74,31 @@ export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
           required={required}
           autoComplete={autoComplete}
           placeholder={placeholder}
-          className={`w-full py-3 border-0 outline-none focus:ring-0 focus:outline-none bg-transparent ${icon ? '' : 'pl-4'} ${rightIcon ? 'pr-12' : 'pr-4'} ${
-            error 
+          className={clsx(
+            'w-full border-0 outline-none focus:ring-0 focus:outline-none bg-transparent',
+            // Explicit sizing and spacing for pixel-perfect consistency
+            '!py-0 !box-border !text-sm !leading-normal',
+            icon ? '' : '!pl-4',
+            rightIcon ? '!pr-12' : '!pr-4',
+            sizeClasses[size],
+            error
               ? 'text-error placeholder-red-300 dark:placeholder-red-500'
               : 'text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 dark:placeholder-neutral-400'
-          } themed-input`}
+          )}
+          style={{
+            // Complete browser reset for consistent rendering
+            WebkitAppearance: 'none',
+            MozAppearance: 'none',
+            appearance: 'none',
+            lineHeight: '1.5',
+            fontSize: '14px',
+            fontFamily: 'inherit',
+            margin: 0,
+            padding: icon ? '0 48px 0 0' : rightIcon ? '0 48px 0 16px' : '0 16px 0 16px',
+            border: 'none',
+            background: 'transparent',
+            outline: 'none',
+          }}
           {...rest}
         />
         {rightIcon && (
