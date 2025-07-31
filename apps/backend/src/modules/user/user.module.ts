@@ -13,9 +13,11 @@ import { AdminPermissionService } from './services/admin/admin-permission.servic
 import { AdminRoleService } from './services/admin/admin-role.service';
 import { PermissionCheckerService } from '../shared/services/permission-checker.service';
 import { AdminUserService } from './services/admin/admin-user.service';
+import { AdminUserStatisticsService } from './services/admin/admin-user-statistics.service';
 import { ClientUserService } from './services/client/client-user.service';
 import { AdminUserRouter, AdminPermissionRouter } from '../../trpc/routers/admin';
 import { AdminRoleRouter } from '../../trpc/routers/admin/role.router';
+import { AdminUserStatisticsRouter } from '../../trpc/routers/admin/user-statistics.router';
 import { ClientUserRouter } from '../../trpc/routers/client';
 import { AuthModule } from '../../auth/auth.module';
 import { SharedModule } from '../shared/shared.module';
@@ -28,29 +30,33 @@ import { SharedModule } from '../shared/shared.module';
   ],
   controllers: [],
   providers: [
-    UserRepository, 
-    PermissionRepository, 
+    UserRepository,
+    PermissionRepository,
     RoleRepository,
     PermissionCheckerService,
     AdminPermissionService,
     AdminRoleService,
     AdminUserService,
+    AdminUserStatisticsService,
     ClientUserService,
     AdminUserRouter,
+    AdminUserStatisticsRouter,
     ClientUserRouter,
     AdminPermissionRouter,
     AdminRoleRouter,
   ],
   exports: [
-    UserRepository, 
-    PermissionRepository, 
+    UserRepository,
+    PermissionRepository,
     RoleRepository,
     PermissionCheckerService,
     AdminPermissionService,
     AdminRoleService,
     AdminUserService,
+    AdminUserStatisticsService,
     ClientUserService,
     AdminUserRouter,
+    AdminUserStatisticsRouter,
     ClientUserRouter,
     AdminPermissionRouter,
     AdminRoleRouter,

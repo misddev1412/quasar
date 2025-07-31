@@ -451,5 +451,64 @@
     "delete_failed_title": "Deletion Failed",
     "delete_failed_desc": "Could not delete the SEO rule.",
     "delete_confirm": "Are you sure you want to delete this SEO rule?"
+  },
+  "table": {
+    "search_placeholder": "Search...",
+    "no_data": "No data available",
+    "loading": "Loading table data...",
+    "empty_state": {
+      "title": "No data found",
+      "message": "No data available"
+    },
+    "pagination": {
+      "per_page_10": "10 per page",
+      "per_page_25": "25 per page",
+      "per_page_50": "50 per page",
+      "per_page_100": "100 per page",
+      "show": "Show",
+      "showing": "Showing",
+      "to": "to",
+      "of": "of",
+      "results": "results",
+      "previous": "Previous",
+      "next": "Next",
+      "first": "First",
+      "last": "Last",
+      "page": "Page",
+      "go_to_page": "Go to page {page}",
+      "go_to_previous_page": "Go to previous page",
+      "go_to_next_page": "Go to next page"
+    },
+    "selection": {
+      "select_all": "Select all {count} rows on this page",
+      "all_rows_selected": "All rows selected",
+      "some_rows_selected": "Some rows selected",
+      "no_rows_selected": "No rows selected",
+      "select_row": "Select row {index}: {name}"
+    },
+    "sorting": {
+      "sort_by": "Sort by {column}",
+      "sorted_ascending": "Sorted ascending",
+      "sorted_descending": "Sorted descending",
+      "sort_ascending": "Sort ascending",
+      "sort_descending": "Sort descending"
+    },
+    "toolbar": {
+      "search": "Search table data",
+      "filter": "Filter",
+      "open_filters": "Open filters",
+      "columns": "Columns",
+      "toggle_column_visibility": "Toggle column visibility"
+    },
+    "density": {
+      "compact": "Compact",
+      "normal": "Normal",
+      "comfortable": "Comfortable"
+    },
+    "accessibility": {
+      "table_region": "Data table",
+      "loading_table": "Loading table data",
+      "table_pagination": "Table pagination"
+    }
   }
-} 
+}

@@ -12,7 +12,7 @@ module.exports = {
     },
   },
   devServer: {
-    port: 4201,
+    port: process.env.PORT || 4200,
     historyApiFallback: {
       index: '/index.html',
       disableDotRule: true,

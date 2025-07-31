@@ -54,7 +54,8 @@
       "options": {
         "buildTarget": "admin:build",
         "hmr": true,
-        "liveReload": true
+        "liveReload": true,
+        "port": 4200
       },
       "configurations": {
         "development": {

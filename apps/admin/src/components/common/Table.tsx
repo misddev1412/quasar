@@ -2,6 +2,10 @@ import clsx from 'clsx';
 import React, { useEffect, useMemo, useRef, useState, useCallback, memo } from 'react';
 import { Button } from './Button';
 import { Card } from './Card';
+import { Dropdown } from './Dropdown';
+import { Select } from './Select';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { TABLE_CONFIG, getPageSizeOptions, type PageSizeOption } from '../../config/table.config';
 
 /**
  * Professional Table Component Icons
@@ -9,7 +13,7 @@ import { Card } from './Card';
  */
 
 /** Sort direction indicator with enhanced visual feedback */
-const SortIcon = memo(({ direction, isActive }: { direction?: 'asc' | 'desc'; isActive: boolean }) => (
+const SortIcon = memo(({ direction, isActive, t }: { direction?: 'asc' | 'desc'; isActive: boolean; t: (key: string) => string }) => (
   <div className="flex flex-col ml-2 transition-all duration-200" role="img" aria-hidden="true">
     <svg
       className={clsx(
@@ -20,7 +24,7 @@ const SortIcon = memo(({ direction, isActive }: { direction?: 'asc' | 'desc'; is
       )}
       fill="currentColor"
       viewBox="0 0 20 20"
-      aria-label={isActive && direction === 'asc' ? 'Sorted ascending' : 'Sort ascending'}
+      aria-label={isActive && direction === 'asc' ? t('table.sorting.sorted_ascending') : t('table.sorting.sort_ascending')}
     >
       <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
     </svg>
@@ -33,7 +37,7 @@ const SortIcon = memo(({ direction, isActive }: { direction?: 'asc' | 'desc'; is
       )}
       fill="currentColor"
       viewBox="0 0 20 20"
-      aria-label={isActive && direction === 'desc' ? 'Sorted descending' : 'Sort descending'}
+      aria-label={isActive && direction === 'desc' ? t('table.sorting.sorted_descending') : t('table.sorting.sort_descending')}
     >
       <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
     </svg>
@@ -73,6 +77,21 @@ const FilterIcon = memo(({ className }: { className?: string }) => (
 
 FilterIcon.displayName = 'FilterIcon';
 
+/** Column visibility icon with consistent styling */
+const ColumnVisibilityIcon = memo(({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+  </svg>
+));
+
+ColumnVisibilityIcon.displayName = 'ColumnVisibilityIcon';
+
 /** Empty state icon */
 const EmptyIcon = memo(({ className }: { className?: string }) => (
   <svg
@@ -99,6 +118,7 @@ interface PaginationProps {
   itemsPerPage?: number;
   onPageChange: (page: number) => void;
   onItemsPerPageChange?: (itemsPerPage: number) => void;
+  pageSizeOptions?: PageSizeOption[];
 }
 
 const Pagination = memo(({
@@ -108,7 +128,9 @@ const Pagination = memo(({
   itemsPerPage,
   onPageChange,
   onItemsPerPageChange,
+  pageSizeOptions,
 }: PaginationProps) => {
+  const { t } = useTranslationWithBackend();
   const handlePrevious = useCallback(() => {
     if (currentPage > 1) {
       onPageChange(currentPage - 1);
@@ -120,6 +142,13 @@ const Pagination = memo(({
       onPageChange(currentPage + 1);
     }
   }, [currentPage, totalPages, onPageChange]);
+
+  const handlePageSizeChange = useCallback((newPageSize: string) => {
+    const size = parseInt(newPageSize, 10);
+    if (onItemsPerPageChange && !isNaN(size)) {
+      onItemsPerPageChange(size);
+    }
+  }, [onItemsPerPageChange]);
 
   const getPageNumbers = useMemo(() => {
     const pages: (number | string)[] = [];
@@ -161,6 +190,15 @@ const Pagination = memo(({
     [currentPage, itemsPerPage, totalItems]
   );
 
+  // Page size options for the selector with translations
+  const translatedPageSizeOptions = useMemo(() => {
+    const options = getPageSizeOptions(pageSizeOptions);
+    return options.map(option => ({
+      value: option.value,
+      label: t(option.labelKey)
+    }));
+  }, [pageSizeOptions, t]);
+
   const handleItemsPerPageChange = useCallback((value: number) => {
     onItemsPerPageChange?.(value);
   }, [onItemsPerPageChange]);
@@ -168,50 +206,43 @@ const Pagination = memo(({
   return (
     <nav
       className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700"
-      aria-label="Table pagination"
+      aria-label={t('table.accessibility.table_pagination')}
     >
       {/* Items per page selector */}
       {onItemsPerPageChange && (
         <div className="flex items-center gap-2">
-          <label htmlFor="items-per-page" className="text-sm text-gray-700 dark:text-gray-300">
-            Show
-          </label>
-          <select
-            id="items-per-page"
-            value={itemsPerPage}
-            onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-            className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-            aria-label="Items per page"
-          >
-            <option value={10}>10</option>
-            <option value={25}>25</option>
-            <option value={50}>50</option>
-            <option value={100}>100</option>
-          </select>
-          <span className="text-sm text-gray-700 dark:text-gray-300">per page</span>
+          <span className="text-sm text-gray-700 dark:text-gray-300">{t('table.pagination.show')}</span>
+          <Select
+            value={String(itemsPerPage || TABLE_CONFIG.DEFAULT_PAGE_SIZE)}
+            onChange={handlePageSizeChange}
+            options={translatedPageSizeOptions}
+            size="sm"
+            className="w-auto min-w-[120px]"
+            aria-label={t('table.pagination.show')}
+          />
         </div>
       )}
 
       {/* Page info */}
-      {totalItems && (
+      {!!totalItems && (
         <div className="text-sm text-gray-700 dark:text-gray-300" role="status" aria-live="polite">
-          Showing <span className="font-medium">{startItem}</span> to{' '}
-          <span className="font-medium">{endItem}</span> of{' '}
-          <span className="font-medium">{totalItems}</span> results
+          {t('table.pagination.showing')} <span className="font-medium">{startItem}</span> {t('table.pagination.to')}{' '}
+          <span className="font-medium">{endItem}</span> {t('table.pagination.of')}{' '}
+          <span className="font-medium">{totalItems}</span> {t('table.pagination.results')}
         </div>
       )}
 
       {/* Page navigation */}
-      <div className="flex items-center gap-1" role="navigation" aria-label="Pagination">
+      <div className="flex items-center gap-1" role="navigation" aria-label={t('table.pagination.page')}>
         <Button
           variant="ghost"
           size="sm"
           onClick={handlePrevious}
           disabled={currentPage === 1}
           className="px-3"
-          aria-label="Go to previous page"
+          aria-label={t('table.pagination.go_to_previous_page')}
         >
-          Previous
+          {t('table.pagination.previous')}
         </Button>
 
         {getPageNumbers.map((page, index) => (
@@ -224,7 +255,7 @@ const Pagination = memo(({
                 size="sm"
                 onClick={() => onPageChange(page as number)}
                 className="px-3 min-w-[40px]"
-                aria-label={`Go to page ${page}`}
+                aria-label={t('table.pagination.go_to_page', { page })}
                 aria-current={currentPage === page ? 'page' : undefined}
               >
                 {page}
@@ -239,9 +270,9 @@ const Pagination = memo(({
           onClick={handleNext}
           disabled={currentPage === totalPages}
           className="px-3"
-          aria-label="Go to next page"
+          aria-label={t('table.pagination.go_to_next_page')}
         >
-          Next
+          {t('table.pagination.next')}
         </Button>
       </div>
     </nav>
@@ -262,6 +293,8 @@ export interface SortDescriptor<T> {
 }
 
 export interface Column<T> {
+  /** Unique column identifier for visibility control */
+  id?: string;
   /** Column header text */
   header: string;
   /** Data accessor - can be a key or render function */
@@ -276,6 +309,8 @@ export interface Column<T> {
   minWidth?: string;
   /** Column alignment */
   align?: 'left' | 'center' | 'right';
+  /** Whether this column can be hidden (default: true) */
+  hideable?: boolean;
 }
 
 export interface BulkAction {
@@ -291,7 +326,7 @@ export interface BulkAction {
 
 /**
  * Professional Table Toolbar Component
- * Features: Search, filters, bulk actions with enhanced UX
+ * Features: Search, filters, bulk actions, column visibility with enhanced UX
  */
 interface TableToolbarProps {
   searchValue?: string;
@@ -303,6 +338,11 @@ interface TableToolbarProps {
   showFilter?: boolean;
   bulkActions?: BulkAction[];
   searchPlaceholder?: string;
+  // Column visibility props
+  columns?: Array<{ id: string; header: string; hideable?: boolean }>;
+  visibleColumns?: Set<string>;
+  onColumnVisibilityChange?: (columnId: string, visible: boolean) => void;
+  showColumnVisibility?: boolean;
 }
 
 const TableToolbar = memo(({
@@ -314,8 +354,13 @@ const TableToolbar = memo(({
   showSearch = true,
   showFilter = true,
   bulkActions = [],
-  searchPlaceholder = "Search...",
+  searchPlaceholder,
+  columns = [],
+  visibleColumns,
+  onColumnVisibilityChange,
+  showColumnVisibility = true,
 }: TableToolbarProps) => {
+  const { t } = useTranslationWithBackend();
   // Local state for immediate UI updates
   const [localSearchValue, setLocalSearchValue] = useState(searchValue || '');
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -354,6 +399,26 @@ const TableToolbar = memo(({
     onBulkAction?.(actionValue);
   }, [onBulkAction]);
 
+  // Column visibility dropdown items
+  const columnVisibilityItems = useMemo(() => {
+    return columns
+      .filter(col => col.hideable !== false)
+      .map(col => ({
+        label: col.header,
+        onClick: () => onColumnVisibilityChange?.(col.id, !visibleColumns?.has(col.id)),
+        icon: (
+          <input
+            type="checkbox"
+            checked={visibleColumns?.has(col.id) ?? true}
+            onChange={() => {}} // Handled by onClick
+            className="w-4 h-4 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 transition-colors duration-200"
+            onClick={(e) => e.stopPropagation()}
+          />
+        ),
+        className: 'hover:bg-gray-50 dark:hover:bg-gray-700',
+      }));
+  }, [columns, visibleColumns, onColumnVisibilityChange]);
+
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-1 min-w-0 w-full sm:w-auto">
@@ -367,11 +432,11 @@ const TableToolbar = memo(({
             />
             <input
               type="text"
-              placeholder={searchPlaceholder}
+              placeholder={searchPlaceholder || t('table.search_placeholder')}
               value={localSearchValue}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="table-search-input w-full pl-11 pr-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 text-sm"
-              aria-label="Search table data"
+              className="table-search-input w-full h-10 pl-11 pr-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 text-sm"
+              aria-label={t('table.toolbar.search')}
             />
           </div>
         )}
@@ -384,36 +449,31 @@ const TableToolbar = memo(({
             onClick={onFilterClick}
             startIcon={<FilterIcon className="w-4 h-4" />}
             className="whitespace-nowrap flex-shrink-0 w-auto sm:w-auto"
-            aria-label="Open filters"
+            aria-label={t('table.toolbar.open_filters')}
           >
-            Filter
+            {t('table.toolbar.filter')}
           </Button>
         )}
-      </div>
 
-      {/* Enhanced Bulk Actions */}
-      {selectedCount && selectedCount > 0 && bulkActions.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 animate-in slide-in-from-right-2 duration-200 flex-shrink-0 w-full sm:w-auto">
-          <span className="text-sm text-gray-700 dark:text-gray-300 font-medium whitespace-nowrap">
-            {selectedCount} selected
-          </span>
-          <div className="flex flex-wrap gap-2">
-            {bulkActions.map((action) => (
+        {/* Column Visibility Selector */}
+        {showColumnVisibility && onColumnVisibilityChange && columnVisibilityItems.length > 0 && (
+          <Dropdown
+            button={
               <Button
-                key={action.value}
-                variant={action.variant || 'outline'}
+                variant="outline"
                 size="sm"
-                onClick={() => handleBulkActionClick(action.value)}
-                startIcon={action.icon}
-                className="whitespace-nowrap"
-                aria-label={`${action.label} ${selectedCount} selected items`}
+                startIcon={<ColumnVisibilityIcon className="w-4 h-4" />}
+                className="whitespace-nowrap flex-shrink-0 w-auto sm:w-auto"
+                aria-label={t('table.toolbar.toggle_column_visibility')}
               >
-                {action.label}
+                {t('table.toolbar.columns')}
               </Button>
-            ))}
-          </div>
-        </div>
-      )}
+            }
+            items={columnVisibilityItems}
+            menuClassName="w-56"
+          />
+        )}
+      </div>
     </div>
   );
 });
@@ -430,8 +490,11 @@ interface TableSkeletonProps {
   hasSelection?: boolean;
 }
 
-const TableSkeleton = memo(({ columns, rows = 5, hasSelection = false }: TableSkeletonProps) => (
-  <div className="animate-pulse" role="status" aria-label="Loading table data">
+const TableSkeleton = memo(({ columns, rows = 5, hasSelection = false }: TableSkeletonProps) => {
+  const { t } = useTranslationWithBackend();
+
+  return (
+  <div className="animate-pulse" role="status" aria-label={t('table.accessibility.loading_table')}>
     {/* Header skeleton */}
     <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
       <div className="flex gap-4">
@@ -467,9 +530,10 @@ const TableSkeleton = memo(({ columns, rows = 5, hasSelection = false }: TableSk
       </div>
     ))}
 
-    <span className="sr-only">Loading table data...</span>
+    <span className="sr-only">{t('table.loading')}</span>
   </div>
-));
+  );
+});
 
 TableSkeleton.displayName = 'TableSkeleton';
 
@@ -492,6 +556,7 @@ export interface TableProps<T> {
     itemsPerPage?: number;
     onPageChange: (page: number) => void;
     onItemsPerPageChange?: (itemsPerPage: number) => void;
+    pageSizeOptions?: PageSizeOption[];
   };
   /** Empty state message */
   emptyMessage?: string;
@@ -539,6 +604,14 @@ export interface TableProps<T> {
   enableRowHover?: boolean;
   /** Table density */
   density?: 'compact' | 'normal' | 'comfortable';
+  /** Column visibility control */
+  visibleColumns?: Set<string>;
+  /** Column visibility change handler */
+  onColumnVisibilityChange?: (columnId: string, visible: boolean) => void;
+  /** Show column visibility selector */
+  showColumnVisibility?: boolean;
+  /** Table identifier for preferences persistence */
+  tableId?: string;
 }
 
 /**
@@ -574,7 +647,7 @@ export function Table<T extends { id: string | number }>({
   columns,
   isLoading = false,
   pagination,
-  emptyMessage = 'No data available',
+  emptyMessage,
   emptyAction,
   className,
   onRowClick,
@@ -590,17 +663,47 @@ export function Table<T extends { id: string | number }>({
   bulkActions = [],
   onBulkAction,
   stickyHeader = true,
-  maxHeight = '70vh',
-  searchPlaceholder = "Search...",
+  maxHeight = TABLE_CONFIG.DEFAULT_MAX_HEIGHT,
+  searchPlaceholder,
   enableRowHover = true,
-  density = 'normal',
+  density = TABLE_CONFIG.DEFAULT_DENSITY,
+  visibleColumns,
+  onColumnVisibilityChange,
+  showColumnVisibility = true,
+  tableId,
 }: TableProps<T>) {
+  const { t } = useTranslationWithBackend();
   // Refs and state
   const selectAllCheckboxRef = useRef<HTMLInputElement>(null);
   const [hoveredRow, setHoveredRow] = useState<string | number | null>(null);
 
   // Memoized values
   const isSelectable = useMemo(() => !!onSelectionChange, [onSelectionChange]);
+
+  // Generate column IDs if not provided and filter visible columns
+  const columnsWithIds = useMemo(() => {
+    return columns.map((col, index) => ({
+      ...col,
+      id: col.id || `column-${index}`,
+    }));
+  }, [columns]);
+
+  // Filter visible columns based on visibility state
+  const visibleColumnsFiltered = useMemo(() => {
+    if (!visibleColumns || !onColumnVisibilityChange) {
+      return columnsWithIds;
+    }
+    return columnsWithIds.filter(col => visibleColumns.has(col.id));
+  }, [columnsWithIds, visibleColumns, onColumnVisibilityChange]);
+
+  // Prepare column data for toolbar
+  const toolbarColumns = useMemo(() => {
+    return columnsWithIds.map(col => ({
+      id: col.id,
+      header: col.header,
+      hideable: col.hideable,
+    }));
+  }, [columnsWithIds]);
 
   const densityClasses = useMemo(() => {
     switch (density) {
@@ -745,7 +848,7 @@ export function Table<T extends { id: string | number }>({
   if (isLoading) {
     return (
       <Card className={clsx('overflow-hidden', className)}>
-        {(onSearchChange || onFilterClick) && (
+        {(onSearchChange || onFilterClick || showColumnVisibility) && (
           <TableToolbar
             searchValue={searchValue}
             onSearchChange={onSearchChange}
@@ -754,12 +857,16 @@ export function Table<T extends { id: string | number }>({
             showFilter={showFilter}
             bulkActions={[]}
             searchPlaceholder={searchPlaceholder}
+            columns={toolbarColumns}
+            visibleColumns={visibleColumns}
+            onColumnVisibilityChange={onColumnVisibilityChange}
+            showColumnVisibility={showColumnVisibility}
           />
         )}
         <TableSkeleton
-          columns={columns.length}
+          columns={visibleColumnsFiltered.length}
           hasSelection={isSelectable}
-          rows={pagination?.itemsPerPage || 10}
+          rows={pagination?.itemsPerPage || TABLE_CONFIG.DEFAULT_PAGE_SIZE}
         />
       </Card>
     );
@@ -769,7 +876,7 @@ export function Table<T extends { id: string | number }>({
   if (!data || data.length === 0) {
     return (
       <Card className={clsx('overflow-hidden', className)}>
-        {(onSearchChange || onFilterClick) && (
+        {(onSearchChange || onFilterClick || showColumnVisibility) && (
           <TableToolbar
             searchValue={searchValue}
             onSearchChange={onSearchChange}
@@ -778,6 +885,10 @@ export function Table<T extends { id: string | number }>({
             showFilter={showFilter}
             bulkActions={[]}
             searchPlaceholder={searchPlaceholder}
+            columns={toolbarColumns}
+            visibleColumns={visibleColumns}
+            onColumnVisibilityChange={onColumnVisibilityChange}
+            showColumnVisibility={showColumnVisibility}
           />
         )}
         <div className="text-center py-20 px-6" role="status" aria-live="polite">
@@ -785,10 +896,10 @@ export function Table<T extends { id: string | number }>({
             <EmptyIcon className="w-full h-full" />
           </div>
           <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
-            No data found
+            {t('table.empty_state.title')}
           </h3>
           <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto leading-relaxed">
-            {emptyMessage}
+            {emptyMessage || t('table.empty_state.message')}
           </p>
           {emptyAction && (
             <Button
@@ -809,7 +920,7 @@ export function Table<T extends { id: string | number }>({
   return (
     <Card className={clsx('overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700', className)}>
       {/* Professional Toolbar */}
-      {(onSearchChange || onFilterClick || (selectedIds && selectedIds.size > 0)) && (
+      {(onSearchChange || onFilterClick || showColumnVisibility || (selectedIds && selectedIds.size > 0)) && (
         <TableToolbar
           searchValue={searchValue}
           onSearchChange={onSearchChange}
@@ -820,6 +931,10 @@ export function Table<T extends { id: string | number }>({
           showFilter={showFilter}
           bulkActions={bulkActions}
           searchPlaceholder={searchPlaceholder}
+          columns={toolbarColumns}
+          visibleColumns={visibleColumns}
+          onColumnVisibilityChange={onColumnVisibilityChange}
+          showColumnVisibility={showColumnVisibility}
         />
       )}
 
@@ -828,7 +943,7 @@ export function Table<T extends { id: string | number }>({
         className="overflow-x-auto overflow-y-auto"
         style={{ maxHeight: maxHeight }}
         role="region"
-        aria-label="Data table"
+        aria-label={t('table.accessibility.table_region')}
       >
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700" role="table">
           {/* Professional Header */}
@@ -850,20 +965,20 @@ export function Table<T extends { id: string | number }>({
                         selectedIdsOnPage.size === allItemIdsOnPage.size
                       }
                       onChange={(e) => handleSelectAll(e.target.checked)}
-                      aria-label={`Select all ${allItemIdsOnPage.size} rows on this page`}
+                      aria-label={t('table.selection.select_all', { count: allItemIdsOnPage.size })}
                       aria-describedby="select-all-description"
                     />
                     <span id="select-all-description" className="sr-only">
                       {selectedIdsOnPage.size === allItemIdsOnPage.size
-                        ? 'All rows selected'
+                        ? t('table.selection.all_rows_selected')
                         : selectedIdsOnPage.size > 0
-                        ? 'Some rows selected'
-                        : 'No rows selected'}
+                        ? t('table.selection.some_rows_selected')
+                        : t('table.selection.no_rows_selected')}
                     </span>
                   </div>
                 </th>
               )}
-              {columns.map((col, colIndex) => {
+              {visibleColumnsFiltered.map((col, colIndex) => {
                 const isSortable = col.isSortable && onSortChange && typeof col.accessor === 'string';
                 const isCurrentSort = sortDescriptor && typeof col.accessor === 'string' && sortDescriptor.columnAccessor === col.accessor;
 
@@ -897,7 +1012,7 @@ export function Table<T extends { id: string | number }>({
                         ? sortDescriptor.direction === 'asc' ? 'ascending' : 'descending'
                         : isSortable ? 'none' : undefined
                     }
-                    aria-label={isSortable ? `Sort by ${col.header}` : col.header}
+                    aria-label={isSortable ? t('table.sorting.sort_by', { column: col.header }) : col.header}
                   >
                     <div className={clsx(
                       "flex items-center group",
@@ -910,6 +1025,7 @@ export function Table<T extends { id: string | number }>({
                         <SortIcon
                           direction={isCurrentSort ? sortDescriptor.direction : undefined}
                           isActive={!!isCurrentSort}
+                          t={t}
                         />
                       )}
                     </div>
@@ -944,14 +1060,17 @@ export function Table<T extends { id: string | number }>({
                         checked={selectedIds?.has(item.id) ?? false}
                         onChange={(e) => handleRowSelect(item, e.target.checked)}
                         onClick={(e) => e.stopPropagation()}
-                        aria-label={`Select row ${index + 1}: ${typeof item.id === 'string' ? item.id : `Item ${item.id}`}`}
+                        aria-label={t('table.selection.select_row', {
+                          index: index + 1,
+                          name: typeof item.id === 'string' ? item.id : `Item ${item.id}`
+                        })}
                       />
                     </div>
                   </td>
                 )}
-                {columns.map((col, colIndex) => (
+                {visibleColumnsFiltered.map((col, colIndex) => (
                   <td
-                    key={`${item.id}-${col.header}-${colIndex}`}
+                    key={`${item.id}-${col.id}-${colIndex}`}
                     className={clsx(
                       densityClasses.cell,
                       'text-sm text-gray-900 dark:text-gray-100',
@@ -980,9 +1099,9 @@ export function Table<T extends { id: string | number }>({
         </table>
       </div>
 
-      {/* Professional Pagination */}
-      {pagination && pagination.totalPages > 1 && (
-        <Pagination {...pagination} />
+      {/* Professional Pagination - Show even with 1 page for page size selector */}
+      {pagination && (
+        <Pagination {...pagination} pageSizeOptions={pagination.pageSizeOptions} />
       )}
     </Card>
   );

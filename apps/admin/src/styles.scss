@@ -332,3 +332,15 @@ html, body {
   animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* Custom Date Input Styles - Hide native date picker icons */
+.date-input-custom::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none !important;
+}
+
+.date-input-custom::-webkit-inner-spin-button,
+.date-input-custom::-webkit-outer-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+

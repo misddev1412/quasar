@@ -6,5 +6,6 @@ export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000/api',
   appName: 'Quasar Admin',
-  version: '1.0.0'
-}; 
+  version: '1.0.0',
+  port: process.env.PORT || 4200
+};

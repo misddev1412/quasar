@@ -102,10 +102,10 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
         )}
       </div>
 
-      {/* Filter Controls Grid - Improved layout with consistent heights */}
+      {/* Filter Controls Grid - Enhanced alignment and consistent spacing */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         {/* Status Filter */}
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col justify-start items-stretch h-full">
           <Select
             id="status-filter"
             label="Status"
@@ -113,11 +113,13 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
             onChange={(value) => handleFilterChange('isActive', value)}
             options={USER_STATUS_OPTIONS}
             placeholder="Select status..."
+            size="md"
+            className="flex-1"
           />
         </div>
 
         {/* Role Filter */}
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col justify-start items-stretch h-full">
           <Select
             id="role-filter"
             label="Role"
@@ -125,11 +127,13 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
             onChange={(value) => handleFilterChange('role', value)}
             options={USER_ROLE_OPTIONS}
             placeholder="Select role..."
+            size="md"
+            className="flex-1"
           />
         </div>
 
         {/* Date From Filter */}
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col justify-start items-stretch h-full">
           <DateInput
             id="date-from"
             label="Registered From"
@@ -137,11 +141,13 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
             onChange={(value) => handleFilterChange('dateFrom', value)}
             max={filters.dateTo || today}
             min={oneYearAgo}
+            size="md"
+            className="flex-1"
           />
         </div>
 
         {/* Date To Filter */}
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col justify-start items-stretch h-full">
           <DateInput
             id="date-to"
             label="Registered To"
@@ -149,6 +155,8 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
             onChange={(value) => handleFilterChange('dateTo', value)}
             min={filters.dateFrom || oneYearAgo}
             max={today}
+            size="md"
+            className="flex-1"
           />
         </div>
       </div>

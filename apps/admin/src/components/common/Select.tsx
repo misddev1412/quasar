@@ -87,7 +87,7 @@ export const Select: React.FC<SelectProps> = ({
             }
           )}
           style={{
-            // Complete browser reset for consistent rendering
+            // Complete browser reset for consistent rendering - minimal inline styles
             WebkitAppearance: 'none',
             MozAppearance: 'none',
             appearance: 'none',
@@ -95,7 +95,6 @@ export const Select: React.FC<SelectProps> = ({
             fontSize: '14px',
             fontFamily: 'inherit',
             margin: 0,
-            padding: '0 48px 0 16px',
             border: 'none',
             background: 'transparent',
             outline: 'none',

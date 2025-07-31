@@ -8,6 +8,7 @@ import { UserModule } from '../modules/user/user.module';
 import { TranslationModule } from '../modules/translation/translation.module';
 import { SEOModule } from '../modules/seo/seo.module';
 import { SettingsModule } from '../modules/settings/settings.module';
+import { ChartModule } from '../modules/chart/chart.module';
 import { AuthModule } from '../auth/auth.module';
 import { SharedModule } from '../modules/shared/shared.module';
 import { AppContext } from '../trpc/context';
@@ -23,6 +24,8 @@ import { SEOEntity } from '../modules/seo/entities/seo.entity';
 import { SettingEntity } from '../modules/settings/entities/setting.entity';
 import { createErrorFormatter } from '../trpc/error-formatter';
 import { AdminAuthRouter } from '../trpc/routers/admin/auth.router';
+import { AdminUserStatisticsRouter } from '../trpc/routers/admin/user-statistics.router';
+import { AdminChartDataRouter } from '../trpc/routers/admin/chart-data.router';
 
 @Module({
   imports: [
@@ -58,12 +61,15 @@ import { AdminAuthRouter } from '../trpc/routers/admin/auth.router';
     TranslationModule,
     SEOModule,
     SettingsModule,
+    ChartModule,
   ],
   controllers: [AppController],
   providers: [
-    AppService, 
+    AppService,
     AppContext,
     AdminAuthRouter,
+    AdminUserStatisticsRouter,
+    AdminChartDataRouter,
   ],
 })
 export class AppModule {}

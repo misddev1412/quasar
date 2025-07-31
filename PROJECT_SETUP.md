@@ -245,8 +245,11 @@ apps/admin/public/assets/        # Admin app static assets
    
    # OR start individually
    nx serve backend    # http://localhost:3001
-   nx serve client     # http://localhost:3000  
-   nx serve admin      # http://localhost:4200
+   nx serve client     # http://localhost:3000
+   nx serve admin      # http://localhost:4200 (default)
+
+   # Admin app with custom port
+   PORT=3000 nx serve admin  # http://localhost:3000
    ```
 
 ## 📚 Additional Resources

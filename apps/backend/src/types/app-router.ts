@@ -227,21 +227,21 @@ export const appRouter = router({
       .query(() => {
         return {} as any;
       }),
-    
+
     getById: procedure
       .input(z.object({ id: z.string() }))
       .output(apiResponseSchema)
       .query(() => {
         return {} as any;
       }),
-    
+
     getByPath: procedure
       .input(z.object({ path: z.string() }))
       .output(apiResponseSchema)
       .query(() => {
         return {} as any;
       }),
-    
+
     create: procedure
       .input(z.object({
         title: z.string(),
@@ -255,7 +255,7 @@ export const appRouter = router({
       .mutation(() => {
         return {} as any;
       }),
-    
+
     update: procedure
       .input(z.object({
         id: z.string(),
@@ -275,6 +275,40 @@ export const appRouter = router({
       .input(z.object({ id: z.string() }))
       .output(apiResponseSchema)
       .mutation(() => {
+        return {} as any;
+      }),
+  }),
+
+  // Admin User Statistics router - Updated
+  adminUserStatistics: router({
+    getUserStatistics: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+  }),
+
+  // Admin Chart Data router
+  adminChartData: router({
+    getChartData: procedure
+      .input(z.object({
+        statisticId: z.string(),
+        chartType: z.enum(['line', 'bar', 'pie', 'area']),
+        period: z.enum(['7d', '30d', '90d', '1y', 'custom']),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getAvailableChartTypes: procedure
+      .input(z.object({
+        statisticId: z.string(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
         return {} as any;
       }),
   }),

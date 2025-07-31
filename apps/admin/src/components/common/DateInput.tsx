@@ -1,19 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
 
-// CSS to hide native date picker calendar icon
-const dateInputStyles = `
-  .date-input-custom::-webkit-calendar-picker-indicator {
-    display: none !important;
-    -webkit-appearance: none !important;
-  }
-  .date-input-custom::-webkit-inner-spin-button,
-  .date-input-custom::-webkit-outer-spin-button {
-    -webkit-appearance: none !important;
-    margin: 0 !important;
-  }
-`;
-
 interface DateInputProps {
   id?: string;
   label?: string;
@@ -56,9 +43,6 @@ export const DateInput: React.FC<DateInputProps> = ({
 
   return (
     <div className={clsx('space-y-2', className)}>
-      {/* Inject styles to hide native date picker icon */}
-      <style dangerouslySetInnerHTML={{ __html: dateInputStyles }} />
-
       {label && (
         <label
           htmlFor={id}
@@ -93,7 +77,7 @@ export const DateInput: React.FC<DateInputProps> = ({
           className={clsx(
             'w-full border-0 outline-none focus:ring-0 focus:outline-none bg-transparent',
             'text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 dark:placeholder-neutral-400',
-            // Explicit sizing and spacing for pixel-perfect consistency
+            // Explicit sizing and spacing for pixel-perfect consistency - matching Select component
             '!pl-4 !pr-12 !py-0 !box-border !text-sm !leading-normal',
             // Custom class to hide native date picker calendar icon
             'date-input-custom',
@@ -104,7 +88,7 @@ export const DateInput: React.FC<DateInputProps> = ({
             }
           )}
           style={{
-            // Complete browser reset for consistent rendering
+            // Complete browser reset for consistent rendering - minimal inline styles
             WebkitAppearance: 'none',
             MozAppearance: 'textfield',
             appearance: 'none',
@@ -112,7 +96,6 @@ export const DateInput: React.FC<DateInputProps> = ({
             fontSize: '14px',
             fontFamily: 'inherit',
             margin: 0,
-            padding: '0 48px 0 16px',
             border: 'none',
             background: 'transparent',
             outline: 'none',

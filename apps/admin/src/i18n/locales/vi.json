@@ -451,5 +451,64 @@
     "delete_failed_title": "Xóa thất bại",
     "delete_failed_desc": "Không thể xóa luật SEO.",
     "delete_confirm": "Bạn có chắc chắn muốn xóa luật SEO này không?"
+  },
+  "table": {
+    "search_placeholder": "Tìm kiếm...",
+    "no_data": "Không có dữ liệu",
+    "loading": "Đang tải dữ liệu bảng...",
+    "empty_state": {
+      "title": "Không tìm thấy dữ liệu",
+      "message": "Không có dữ liệu khả dụng"
+    },
+    "pagination": {
+      "per_page_10": "10 mỗi trang",
+      "per_page_25": "25 mỗi trang",
+      "per_page_50": "50 mỗi trang",
+      "per_page_100": "100 mỗi trang",
+      "show": "Hiển thị",
+      "showing": "Hiển thị",
+      "to": "đến",
+      "of": "trong tổng số",
+      "results": "kết quả",
+      "previous": "Trước",
+      "next": "Tiếp theo",
+      "first": "Đầu tiên",
+      "last": "Cuối cùng",
+      "page": "Trang",
+      "go_to_page": "Đi đến trang {page}",
+      "go_to_previous_page": "Đi đến trang trước",
+      "go_to_next_page": "Đi đến trang tiếp theo"
+    },
+    "selection": {
+      "select_all": "Chọn tất cả {count} hàng trên trang này",
+      "all_rows_selected": "Tất cả hàng đã được chọn",
+      "some_rows_selected": "Một số hàng đã được chọn",
+      "no_rows_selected": "Không có hàng nào được chọn",
+      "select_row": "Chọn hàng {index}: {name}"
+    },
+    "sorting": {
+      "sort_by": "Sắp xếp theo {column}",
+      "sorted_ascending": "Đã sắp xếp tăng dần",
+      "sorted_descending": "Đã sắp xếp giảm dần",
+      "sort_ascending": "Sắp xếp tăng dần",
+      "sort_descending": "Sắp xếp giảm dần"
+    },
+    "toolbar": {
+      "search": "Tìm kiếm dữ liệu bảng",
+      "filter": "Lọc",
+      "open_filters": "Mở bộ lọc",
+      "columns": "Cột",
+      "toggle_column_visibility": "Chuyển đổi hiển thị cột"
+    },
+    "density": {
+      "compact": "Gọn",
+      "normal": "Bình thường",
+      "comfortable": "Thoải mái"
+    },
+    "accessibility": {
+      "table_region": "Bảng dữ liệu",
+      "loading_table": "Đang tải dữ liệu bảng",
+      "table_pagination": "Phân trang bảng"
+    }
   }
-} 
+}

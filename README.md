@@ -42,7 +42,10 @@ yarn nx run backend:migration:run
 # Start development servers
 yarn nx serve backend  # Backend on http://localhost:3001
 yarn nx serve client   # Client app on http://localhost:4200
-yarn nx serve admin    # Admin app on http://localhost:4201
+yarn nx serve admin    # Admin app on http://localhost:4200 (default)
+
+# Or with custom port
+PORT=3000 yarn nx serve admin  # Admin app on http://localhost:3000
 ```
 
 ## 📡 tRPC API Architecture
