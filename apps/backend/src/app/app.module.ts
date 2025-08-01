@@ -27,6 +27,7 @@ import { SettingEntity } from '../modules/settings/entities/setting.entity';
 import { createErrorFormatter } from '../trpc/error-formatter';
 import { AdminAuthRouter } from '../trpc/routers/admin/auth.router';
 import { AdminUserStatisticsRouter } from '../trpc/routers/admin/user-statistics.router';
+import { AdminUserActivityRouter } from '../trpc/routers/admin/user-activity.router';
 import { AdminChartDataRouter } from '../trpc/routers/admin/chart-data.router';
 
 @Module({
@@ -73,6 +74,7 @@ import { AdminChartDataRouter } from '../trpc/routers/admin/chart-data.router';
     AppContext,
     AdminAuthRouter,
     AdminUserStatisticsRouter,
+    AdminUserActivityRouter,
     AdminChartDataRouter,
   ],
 })

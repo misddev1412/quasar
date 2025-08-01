@@ -1,5 +1,6 @@
 export { AdminUserRouter } from './user.router';
 export { AdminUserStatisticsRouter } from './user-statistics.router';
+export { AdminUserActivityRouter } from './user-activity.router';
 export { AdminPermissionRouter } from './permission.router';
 export { AdminRoleRouter } from './role.router';
 export { AdminSeoRouter } from './seo.router';

@@ -497,6 +497,7 @@
       "search": "Search table data",
       "filter": "Filter",
       "open_filters": "Open filters",
+      "close_filters": "Close filters",
       "columns": "Columns",
       "toggle_column_visibility": "Toggle column visibility"
     },

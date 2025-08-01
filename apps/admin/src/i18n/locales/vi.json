@@ -497,6 +497,7 @@
       "search": "Tìm kiếm dữ liệu bảng",
       "filter": "Lọc",
       "open_filters": "Mở bộ lọc",
+      "close_filters": "Đóng bộ lọc",
       "columns": "Cột",
       "toggle_column_visibility": "Chuyển đổi hiển thị cột"
     },

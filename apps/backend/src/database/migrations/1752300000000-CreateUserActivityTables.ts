@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table, Index, ForeignKey } from "typeorm";
+import { MigrationInterface, QueryRunner, Table, TableIndex, TableForeignKey } from "typeorm";
 
 export class CreateUserActivityTables1752300000000 implements MigrationInterface {
 
@@ -260,25 +260,46 @@ export class CreateUserActivityTables1752300000000 implements MigrationInterface
         }), true);
 
         // Create indexes for user_activities
-        await queryRunner.createIndex('user_activities', new Index('IDX_user_activities_user_id_activity_type', ['user_id', 'activity_type']));
-        await queryRunner.createIndex('user_activities', new Index('IDX_user_activities_user_id_created_at', ['user_id', 'created_at']));
-        await queryRunner.createIndex('user_activities', new Index('IDX_user_activities_activity_type_created_at', ['activity_type', 'created_at']));
-        await queryRunner.createIndex('user_activities', new Index('IDX_user_activities_session_id', ['session_id']));
+        await queryRunner.createIndex('user_activities', new TableIndex({
+            name: 'IDX_user_activities_user_id_activity_type',
+            columnNames: ['user_id', 'activity_type']
+        }));
+        await queryRunner.createIndex('user_activities', new TableIndex({
+            name: 'IDX_user_activities_user_id_created_at',
+            columnNames: ['user_id', 'created_at']
+        }));
+        await queryRunner.createIndex('user_activities', new TableIndex({
+            name: 'IDX_user_activities_activity_type_created_at',
+            columnNames: ['activity_type', 'created_at']
+        }));
+        await queryRunner.createIndex('user_activities', new TableIndex({
+            name: 'IDX_user_activities_session_id',
+            columnNames: ['session_id']
+        }));
 
         // Create indexes for user_sessions
-        await queryRunner.createIndex('user_sessions', new Index('IDX_user_sessions_user_id_status', ['user_id', 'status']));
-        await queryRunner.createIndex('user_sessions', new Index('IDX_user_sessions_user_id_created_at', ['user_id', 'created_at']));
-        await queryRunner.createIndex('user_sessions', new Index('IDX_user_sessions_expires_at', ['expires_at']));
+        await queryRunner.createIndex('user_sessions', new TableIndex({
+            name: 'IDX_user_sessions_user_id_status',
+            columnNames: ['user_id', 'status']
+        }));
+        await queryRunner.createIndex('user_sessions', new TableIndex({
+            name: 'IDX_user_sessions_user_id_created_at',
+            columnNames: ['user_id', 'created_at']
+        }));
+        await queryRunner.createIndex('user_sessions', new TableIndex({
+            name: 'IDX_user_sessions_expires_at',
+            columnNames: ['expires_at']
+        }));
 
         // Create foreign key constraints
-        await queryRunner.createForeignKey('user_activities', new ForeignKey({
+        await queryRunner.createForeignKey('user_activities', new TableForeignKey({
             columnNames: ['user_id'],
             referencedTableName: 'users',
             referencedColumnNames: ['id'],
             onDelete: 'CASCADE'
         }));
 
-        await queryRunner.createForeignKey('user_sessions', new ForeignKey({
+        await queryRunner.createForeignKey('user_sessions', new TableForeignKey({
             columnNames: ['user_id'],
             referencedTableName: 'users',
             referencedColumnNames: ['id'],

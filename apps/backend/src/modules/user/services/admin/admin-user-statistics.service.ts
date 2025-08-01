@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../../repositories/user.repository';
+import { UserSessionRepository } from '../../repositories/user-session.repository';
+import { UserActivityRepository } from '../../repositories/user-activity.repository';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
+import { SessionStatus } from '../../entities/user-session.entity';
+import { ActivityType } from '../../entities/user-activity.entity';
 
 export interface UserStatistics {
   totalUsers: number;
@@ -10,6 +14,10 @@ export interface UserStatistics {
   newUsersLastMonth: number;
   usersWithProfiles: number;
   usersWithoutProfiles: number;
+  currentlyActiveUsers: number;
+  recentlyActiveUsers: number;
+  totalSessions: number;
+  activeSessions: number;
 }
 
 export interface UserStatisticsWithTrends {
@@ -41,12 +49,22 @@ export interface UserStatisticsWithTrends {
     value: number;
     percentage: number;
   };
+  currentlyActiveUsers: {
+    value: number;
+    description: string;
+  };
+  recentActivity: {
+    value: number;
+    description: string;
+  };
 }
 
 @Injectable()
 export class AdminUserStatisticsService {
   constructor(
     private readonly userRepository: UserRepository,
+    private readonly userSessionRepository: UserSessionRepository,
+    private readonly userActivityRepository: UserActivityRepository,
     private readonly responseHandler: ResponseService,
   ) {}
 
@@ -70,6 +88,10 @@ export class AdminUserStatisticsService {
     const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
 
+    // Activity tracking boundaries
+    const last15Minutes = new Date(now.getTime() - 15 * 60 * 1000); // Currently active threshold
+    const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000); // Recently active threshold
+
     // Execute all queries in parallel for better performance
     const [
       totalUsers,
@@ -79,6 +101,10 @@ export class AdminUserStatisticsService {
       newUsersLastMonth,
       usersWithProfiles,
       usersWithoutProfiles,
+      currentlyActiveUsers,
+      recentlyActiveUsers,
+      totalSessions,
+      activeSessions,
     ] = await Promise.all([
       // Total users
       this.userRepository.count(),
@@ -112,6 +138,27 @@ export class AdminUserStatisticsService {
         .leftJoin('user.profile', 'profile')
         .where('profile.id IS NULL')
         .getCount(),
+
+      // Currently active users (active sessions in last 15 minutes)
+      this.userSessionRepository.createQueryBuilder('session')
+        .select('COUNT(DISTINCT session.userId)', 'count')
+        .where('session.status = :status', { status: SessionStatus.ACTIVE })
+        .andWhere('session.lastActivityAt >= :last15Minutes', { last15Minutes })
+        .getRawOne(),
+
+      // Recently active users (activity in last 24 hours)
+      this.userActivityRepository.createQueryBuilder('activity')
+        .select('COUNT(DISTINCT activity.userId)', 'count')
+        .where('activity.createdAt >= :last24Hours', { last24Hours })
+        .getRawOne(),
+
+      // Total sessions
+      this.userSessionRepository.count(),
+
+      // Active sessions
+      this.userSessionRepository.count({
+        where: { status: SessionStatus.ACTIVE }
+      }),
     ]);
 
     return {
@@ -122,6 +169,10 @@ export class AdminUserStatisticsService {
       newUsersLastMonth,
       usersWithProfiles,
       usersWithoutProfiles,
+      currentlyActiveUsers: parseInt(currentlyActiveUsers.count) || 0,
+      recentlyActiveUsers: parseInt(recentlyActiveUsers.count) || 0,
+      totalSessions,
+      activeSessions,
     };
   }
 
@@ -154,6 +205,14 @@ export class AdminUserStatisticsService {
       usersWithProfiles: {
         value: rawStats.usersWithProfiles,
         percentage: profileCompletionPercentage,
+      },
+      currentlyActiveUsers: {
+        value: rawStats.currentlyActiveUsers,
+        description: 'Active in last 15 minutes',
+      },
+      recentActivity: {
+        value: rawStats.recentlyActiveUsers,
+        description: 'Active in last 24 hours',
       },
     };
   }

@@ -12,6 +12,7 @@ import { PermissionSeeder } from './permission.seeder';
 import { SeoSeeder } from './seo.seeder';
 import { AdminSeeder } from './admin.seeder';
 import { SettingsSeeder } from './settings.seeder';
+import { UserActivitySeeder } from './user-activity.seeder';
 import databaseConfig from '../../config/database.config';
 
 @Module({
@@ -36,13 +37,15 @@ export async function bootstrap() {
     const seoSeeder = app.get(SeoSeeder);
     const adminSeeder = app.get(AdminSeeder);
     const settingsSeeder = app.get(SettingsSeeder);
-    
-    // Run seeders
+    const userActivitySeeder = app.get(UserActivitySeeder);
+
+    // Run seeders in order (permissions and admin first, then user activities)
     await permissionSeeder.seed();
     await seoSeeder.seed();
     await adminSeeder.seed();
     await settingsSeeder.seed();
-    
+    await userActivitySeeder.seed();
+
     console.log('All seeders completed successfully');
   } catch (error) {
     console.error('Error during seeding:', error);

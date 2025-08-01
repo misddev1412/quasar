@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -22,6 +22,7 @@ import { RolesGuard } from './guards/roles.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AdminAuthRouter } from '../trpc/routers/admin/auth.router';
 import { SharedModule } from '../modules/shared/shared.module';
+import { UserModule } from '../modules/user/user.module';
 
 const jwtModule = JwtModule.registerAsync({
   imports: [ConfigModule],
@@ -40,25 +41,19 @@ const jwtModule = JwtModule.registerAsync({
     PassportModule,
     jwtModule,
     SharedModule,
+    forwardRef(() => UserModule),
   ],
   providers: [
     AuthService,
-    UserRepository,
-    PermissionRepository,
-    UserActivityRepository,
-    UserSessionRepository,
-    UserActivityTrackingService,
     JwtStrategy,
     RolesGuard,
     JwtAuthGuard,
     AdminAuthRouter,
   ],
   exports: [
-    AuthService, 
-    UserRepository, 
-    PermissionRepository, 
-    jwtModule, 
-    JwtAuthGuard, 
+    AuthService,
+    jwtModule,
+    JwtAuthGuard,
     RolesGuard,
     AdminAuthRouter
   ],

@@ -7,6 +7,8 @@ import { Permission } from '../../modules/user/entities/permission.entity';
 import { RolePermission } from '../../modules/user/entities/role-permission.entity';
 import { Role } from '../../modules/user/entities/role.entity';
 import { UserRole } from '../../modules/user/entities/user-role.entity';
+import { UserActivity } from '../../modules/user/entities/user-activity.entity';
+import { UserSession } from '../../modules/user/entities/user-session.entity';
 import { SEOEntity } from '../../modules/seo/entities/seo.entity';
 import { SettingEntity } from '../../modules/settings/entities/setting.entity';
 import { PermissionRepository } from '../../modules/user/repositories/permission.repository';
@@ -16,17 +18,20 @@ import { PermissionSeeder } from './permission.seeder';
 import { SeoSeeder } from './seo.seeder';
 import { AdminSeeder } from './admin.seeder';
 import { SettingsSeeder } from './settings.seeder';
+import { UserActivitySeeder } from './user-activity.seeder';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forFeature([
-      User, 
-      UserProfile, 
-      Permission, 
-      RolePermission, 
-      Role, 
+      User,
+      UserProfile,
+      Permission,
+      RolePermission,
+      Role,
       UserRole,
+      UserActivity,
+      UserSession,
       SEOEntity,
       SettingEntity
     ]),
@@ -38,8 +43,9 @@ import { SettingsSeeder } from './settings.seeder';
     PermissionSeeder,
     SeoSeeder,
     AdminSeeder,
-    SettingsSeeder
+    SettingsSeeder,
+    UserActivitySeeder
   ],
-  exports: [PermissionSeeder, SeoSeeder, AdminSeeder, SettingsSeeder],
+  exports: [PermissionSeeder, SeoSeeder, AdminSeeder, SettingsSeeder, UserActivitySeeder],
 })
 export class SeederModule {} 

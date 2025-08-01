@@ -332,6 +332,7 @@ interface TableToolbarProps {
   searchValue?: string;
   onSearchChange?: (value: string) => void;
   onFilterClick?: () => void;
+  isFilterActive?: boolean;
   selectedCount?: number;
   onBulkAction?: (action: string) => void;
   showSearch?: boolean;
@@ -349,6 +350,7 @@ const TableToolbar = memo(({
   searchValue,
   onSearchChange,
   onFilterClick,
+  isFilterActive = false,
   selectedCount,
   onBulkAction,
   showSearch = true,
@@ -444,12 +446,16 @@ const TableToolbar = memo(({
         {/* Enhanced Filter */}
         {showFilter && onFilterClick && (
           <Button
-            variant="outline"
+            variant={isFilterActive ? "primary" : "outline"}
             size="sm"
             onClick={onFilterClick}
-            startIcon={<FilterIcon className="w-4 h-4" />}
-            className="whitespace-nowrap flex-shrink-0 w-auto sm:w-auto"
-            aria-label={t('table.toolbar.open_filters')}
+            startIcon={<FilterIcon className={`w-4 h-4 ${isFilterActive ? 'text-white' : ''}`} />}
+            className={`whitespace-nowrap flex-shrink-0 w-auto sm:w-auto transition-all duration-200 ${
+              isFilterActive
+                ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-md'
+                : ''
+            }`}
+            aria-label={isFilterActive ? t('table.toolbar.close_filters') : t('table.toolbar.open_filters')}
           >
             {t('table.toolbar.filter')}
           </Button>
@@ -586,6 +592,8 @@ export interface TableProps<T> {
   onSearchChange?: (value: string) => void;
   /** Filter button click handler */
   onFilterClick?: () => void;
+  /** Whether the filter panel is currently active/expanded */
+  isFilterActive?: boolean;
   /** Show search input */
   showSearch?: boolean;
   /** Show filter button */
@@ -658,6 +666,7 @@ export function Table<T extends { id: string | number }>({
   searchValue,
   onSearchChange,
   onFilterClick,
+  isFilterActive = false,
   showSearch = true,
   showFilter = true,
   bulkActions = [],
@@ -925,6 +934,7 @@ export function Table<T extends { id: string | number }>({
           searchValue={searchValue}
           onSearchChange={onSearchChange}
           onFilterClick={onFilterClick}
+          isFilterActive={isFilterActive}
           selectedCount={selectedIds?.size}
           onBulkAction={onBulkAction}
           showSearch={showSearch}

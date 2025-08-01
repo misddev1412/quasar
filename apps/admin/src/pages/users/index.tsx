@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiPlus, FiMoreVertical, FiUsers, FiUserCheck, FiUserPlus, FiUser } from 'react-icons/fi';
+import { FiPlus, FiMoreVertical, FiUsers, FiUserCheck, FiUserPlus, FiUser, FiActivity, FiClock } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { Dropdown } from '../../components/common/Dropdown';
@@ -360,6 +360,22 @@ const UserListPage = () => {
         icon: <FiUser className="w-5 h-5" />,
         enableChart: true,
       },
+      {
+        id: 'currently-active',
+        title: 'Currently Active',
+        value: stats.currentlyActiveUsers?.value || 0,
+        icon: <FiActivity className="w-5 h-5" />,
+        description: stats.currentlyActiveUsers?.description || 'Active in last 15 minutes',
+        enableChart: false,
+      },
+      {
+        id: 'recent-activity',
+        title: 'Recent Activity',
+        value: stats.recentActivity?.value || 0,
+        icon: <FiClock className="w-5 h-5" />,
+        description: stats.recentActivity?.description || 'Active in last 24 hours',
+        enableChart: false,
+      },
     ];
   }, [statisticsData]);
 
@@ -518,6 +534,13 @@ const UserListPage = () => {
   return (
     <BaseLayout title="User Management" description="Manage all users in the system" actions={actions}>
       <div className="space-y-6">
+        {/* Statistics Cards */}
+        <StatisticsGrid
+          statistics={statisticsCards}
+          isLoading={statisticsLoading}
+          skeletonCount={6}
+        />
+
         {/* Filter Panel */}
         {showFilters && (
           <UserFilters
@@ -528,13 +551,6 @@ const UserListPage = () => {
           />
         )}
 
-        {/* Statistics Cards */}
-        <StatisticsGrid
-          statistics={statisticsCards}
-          isLoading={statisticsLoading}
-          skeletonCount={4}
-        />
-
         {/* Enhanced Users Table */}
         <Table<User>
           tableId="users-table"
@@ -543,6 +559,7 @@ const UserListPage = () => {
           searchValue={searchValue}
           onSearchChange={setSearchValue}
           onFilterClick={handleFilterToggle}
+          isFilterActive={showFilters}
           searchPlaceholder="Search users by name, email, or username..."
           // Column visibility features
           visibleColumns={visibleColumns}
