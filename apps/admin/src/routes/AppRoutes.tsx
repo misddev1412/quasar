@@ -11,6 +11,7 @@ import SettingsPage from '../pages/settings';
 import UserProfilePage from '../pages/profile';
 import UserListPage from '../pages/users';
 import RolesPage from '../pages/roles';
+import DateInputTest from '../pages/test/DateInputTest';
 import AppLayout from '../components/layout/AppLayout';
 
 // 优化 ProtectedRoute 支持 children 形式，避免不必要的 profile 拉取
@@ -48,6 +49,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/profile" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute><UserListPage /></ProtectedRoute>} />
       <Route path="/roles" element={<ProtectedRoute><RolesPage /></ProtectedRoute>} />
+      <Route path="/test/date-input" element={<ProtectedRoute><DateInputTest /></ProtectedRoute>} />
       {/* 404页面，不需要认证 */}
       <Route path="*" element={<NotFound />} />
     </Routes>

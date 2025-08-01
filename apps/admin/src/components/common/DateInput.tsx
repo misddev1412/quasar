@@ -79,7 +79,7 @@ export const DateInput: React.FC<DateInputProps> = ({
             'text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 dark:placeholder-neutral-400',
             // Explicit sizing and spacing for pixel-perfect consistency - matching Select component
             '!pl-4 !pr-12 !py-0 !box-border !text-sm !leading-normal',
-            // Custom class to hide native date picker calendar icon
+            // Custom class to position native date picker calendar icon
             'date-input-custom',
             sizeClasses[size],
             {
@@ -102,8 +102,8 @@ export const DateInput: React.FC<DateInputProps> = ({
           }}
         />
 
-        {/* Calendar icon */}
-        <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+        {/* Calendar icon - positioned behind the native calendar picker */}
+        <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none z-0">
           <svg
             className="w-4 h-4 text-neutral-500 dark:text-neutral-400"
             fill="none"

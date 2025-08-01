@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Checkbox } from './common/Checkbox';
 
 const DesignSystemDemo: React.FC = () => {
   const [activeTab, setActiveTab] = useState('colors');
@@ -8,6 +9,7 @@ const DesignSystemDemo: React.FC = () => {
     message: '',
     category: 'general',
     notifications: false,
+    marketing: false,
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -334,18 +336,45 @@ const DesignSystemDemo: React.FC = () => {
                       />
                     </div>
 
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id="notifications"
-                        name="notifications"
-                        checked={formData.notifications}
-                        onChange={handleInputChange}
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
-                      />
-                      <label htmlFor="notifications" className="ml-2 block text-sm text-neutral-700">
-                        Send me email notifications
-                      </label>
+                    <div className="space-y-4">
+                      {/* Enhanced Native Checkbox */}
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="notifications"
+                          name="notifications"
+                          checked={formData.notifications}
+                          onChange={handleInputChange}
+                          className="enhanced-checkbox h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
+                        />
+                        <label htmlFor="notifications" className="ml-2 block text-sm text-neutral-700 dark:text-neutral-300">
+                          Send me email notifications (Enhanced Native)
+                        </label>
+                      </div>
+
+                      {/* Radix UI Checkbox Component */}
+                      <div className="flex items-center">
+                        <Checkbox
+                          id="marketing"
+                          checked={formData.marketing || false}
+                          onCheckedChange={(checked) => setFormData(prev => ({ ...prev, marketing: checked as boolean }))}
+                        />
+                        <label htmlFor="marketing" className="ml-2 block text-sm text-neutral-700 dark:text-neutral-300">
+                          Receive marketing updates (Radix UI Component)
+                        </label>
+                      </div>
+
+                      {/* Disabled State Example */}
+                      <div className="flex items-center">
+                        <Checkbox
+                          id="disabled-example"
+                          checked={false}
+                          disabled
+                        />
+                        <label htmlFor="disabled-example" className="ml-2 block text-sm text-neutral-500 dark:text-neutral-500">
+                          Disabled checkbox example
+                        </label>
+                      </div>
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-3">
