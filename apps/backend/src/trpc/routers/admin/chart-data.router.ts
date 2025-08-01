@@ -1,11 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Router, Query, UseMiddlewares } from 'nestjs-trpc';
+import { Router, Query, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
-import { AdminChartDataService } from '../../../modules/chart/services/admin-chart-data.service';
+import { AdminChartDataService, ChartDataRequest } from '../../../modules/chart/services/admin-chart-data.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { AuthMiddleware } from '../../middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../../middlewares/admin-role.middleware';
 import { apiResponseSchema } from '../../schemas/response.schemas';
+import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
 
 // Zod schemas for chart data
 const chartTypeSchema = z.enum(['line', 'bar', 'pie', 'area']);
@@ -65,16 +66,16 @@ export class AdminChartDataRouter {
     output: apiResponseSchema,
   })
   async getChartData(
-    input: z.infer<typeof getChartDataInputSchema>
+    @Input() input: z.infer<typeof getChartDataInputSchema>
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const chartData = await this.adminChartDataService.getChartData(input);
+      const chartData = await this.adminChartDataService.getChartData(input as ChartDataRequest);
       return this.responseHandler.createTrpcSuccess(chartData);
     } catch (error) {
       throw this.responseHandler.createTRPCError(
-        16, // ModuleCode.CHART_DATA
-        2,  // OperationCode.READ
-        10, // ErrorLevelCode.SERVER_ERROR
+        ModuleCode.DASHBOARD, // Dashboard module for chart data
+        OperationCode.READ,   // Read operation
+        ErrorLevelCode.SERVER_ERROR, // Server error level
         error.message || 'Failed to retrieve chart data'
       );
     }
@@ -86,16 +87,16 @@ export class AdminChartDataRouter {
     output: apiResponseSchema,
   })
   async getAvailableChartTypes(
-    input: z.infer<typeof getAvailableChartTypesInputSchema>
+    @Input() input: z.infer<typeof getAvailableChartTypesInputSchema>
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const availableTypes = await this.adminChartDataService.getAvailableChartTypes(input.statisticId);
       return this.responseHandler.createTrpcSuccess(availableTypes);
     } catch (error) {
       throw this.responseHandler.createTRPCError(
-        16, // ModuleCode.CHART_DATA
-        2,  // OperationCode.READ
-        10, // ErrorLevelCode.SERVER_ERROR
+        ModuleCode.DASHBOARD, // Dashboard module for chart data
+        OperationCode.READ,   // Read operation
+        ErrorLevelCode.SERVER_ERROR, // Server error level
         error.message || 'Failed to retrieve available chart types'
       );
     }

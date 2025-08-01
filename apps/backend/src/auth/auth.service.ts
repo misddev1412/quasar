@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from '../modules/user/repositories/user.repository';
 import { User } from '../modules/user/entities/user.entity';
 import { UserRole } from '@shared';
+import { UserActivityTrackingService } from '../modules/user/services/user-activity-tracking.service';
 import * as bcrypt from 'bcryptjs';
 
 export interface JwtPayload {
@@ -18,6 +19,7 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private userRepository: UserRepository,
+    private activityTrackingService: UserActivityTrackingService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<User | null> {
@@ -28,24 +30,48 @@ export class AuthService {
     return null;
   }
 
-  async login(user: User) {
+  async login(user: User, sessionData?: { ipAddress?: string; userAgent?: string; isRememberMe?: boolean }) {
     // Get user with roles
     const userWithRoles = await this.userRepository.findWithRoles(user.id);
-    
+
     // Get primary role (first active role or default to USER)
     const primaryRole = userWithRoles?.userRoles?.find(ur => ur.isActive)?.role?.code || UserRole.USER;
-    
-    const payload: JwtPayload = { 
-      email: user.email, 
+
+    const payload: JwtPayload = {
+      email: user.email,
       sub: user.id, // 确保sub是用户ID而不是角色
       username: user.username,
       role: primaryRole,
       isActive: user.isActive
     };
-    
+
+    const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+
+    // Create session tracking
+    if (sessionData) {
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + (sessionData.isRememberMe ? 30 : 1)); // 30 days if remember me, 1 day otherwise
+
+      try {
+        await this.activityTrackingService.createSession({
+          userId: user.id,
+          sessionToken: accessToken,
+          refreshToken: refreshToken,
+          ipAddress: sessionData.ipAddress,
+          userAgent: sessionData.userAgent,
+          expiresAt: expiresAt,
+          isRememberMe: sessionData.isRememberMe || false,
+        });
+      } catch (error) {
+        // Don't fail login if session tracking fails
+        console.error('Failed to create session:', error);
+      }
+    }
+
     return {
-      accessToken: this.jwtService.sign(payload),
-      refreshToken: this.jwtService.sign(payload, { expiresIn: '7d' }),
+      accessToken,
+      refreshToken,
     };
   }
 

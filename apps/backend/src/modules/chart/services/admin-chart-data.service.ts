@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
+import { UserActivityRepository } from '../../user/repositories/user-activity.repository';
+import { UserSessionRepository } from '../../user/repositories/user-session.repository';
 import { subDays, subMonths, format, startOfDay, endOfDay } from 'date-fns';
 
 export interface ChartDataRequest {
@@ -40,6 +42,8 @@ export class AdminChartDataService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly userActivityRepository: UserActivityRepository,
+    private readonly userSessionRepository: UserSessionRepository,
   ) {}
 
   async getChartData(request: ChartDataRequest): Promise<ChartData> {
@@ -181,31 +185,36 @@ export class AdminChartDataService {
     chartType: string
   ): Promise<ChartDataPoint[] | PieChartDataPoint[]> {
     if (chartType === 'pie') {
-      const activeCount = await this.userRepository.count({ where: { isActive: true } });
-      const inactiveCount = await this.userRepository.count({ where: { isActive: false } });
+      // Get active sessions count vs total users
+      const activeSessionsCount = await this.userSessionRepository.getActiveSessionsCount();
+      const totalUsersCount = await this.userRepository.count();
+      const inactiveCount = totalUsersCount - activeSessionsCount;
 
       return [
-        { name: 'Active', value: activeCount, color: '#10B981' },
-        { name: 'Inactive', value: inactiveCount, color: '#EF4444' },
+        { name: 'Currently Active', value: activeSessionsCount, color: '#10B981' },
+        { name: 'Inactive', value: Math.max(0, inactiveCount), color: '#EF4444' },
       ];
     }
 
-    // Generate mock data for active users over time
+    // Get real active users data over time based on user activities
     const days = Math.ceil((dateRange.end.getTime() - dateRange.start.getTime()) / (1000 * 60 * 60 * 24));
     const data: ChartDataPoint[] = [];
 
     for (let i = 0; i <= days; i++) {
       const date = new Date(dateRange.start);
       date.setDate(date.getDate() + i);
-      
-      // Mock active users data (in real implementation, you'd track user activity)
-      const baseCount = await this.userRepository.count({ where: { isActive: true } });
-      const variation = Math.floor(Math.random() * 20) - 10; // ±10 variation
-      
+
+      // Get next day for range query
+      const nextDate = new Date(date);
+      nextDate.setDate(nextDate.getDate() + 1);
+
+      // Count unique active users for this day based on activities
+      const activeUsersCount = await this.userActivityRepository.getActiveUsersCount(date, nextDate);
+
       data.push({
         date: date.toISOString(),
-        value: Math.max(0, baseCount + variation),
-        label: `Active users on ${format(date, 'MMM dd')}`,
+        value: activeUsersCount,
+        label: `${activeUsersCount} active users on ${format(date, 'MMM dd')}`,
       });
     }
 

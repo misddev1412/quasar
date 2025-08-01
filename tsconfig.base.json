@@ -35,6 +35,7 @@
       "@admin/routes/*": ["apps/admin/src/routes/*"],
       "@admin/services/*": ["apps/admin/src/services/*"],
       "@admin/styles/*": ["apps/admin/src/styles/*"],
+      "@admin/types/*": ["apps/admin/src/types/*"],
       "@admin/utils/*": ["apps/admin/src/utils/*"],
       "@admin/lib/*": ["apps/admin/src/lib/*"]
     }

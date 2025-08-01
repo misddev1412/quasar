@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChartContainerProps } from '@admin/types/chart.types';
+import { ChartContainerProps, ChartDataPoint, PieChartDataPoint } from '@admin/types/chart.types';
 import { LineChartComponent } from './LineChart';
 import { BarChartComponent } from './BarChart';
 import { PieChartComponent } from './PieChart';
@@ -61,26 +61,67 @@ export const ChartContainer: React.FC<ChartContainerProps> = ({
     );
   }
 
+  // Type guards to check data types
+  const isChartDataPoint = (item: any): item is ChartDataPoint => {
+    return item && typeof item.date === 'string' && typeof item.value === 'number';
+  };
+
+  const isPieChartDataPoint = (item: any): item is PieChartDataPoint => {
+    return item && typeof item.name === 'string' && typeof item.value === 'number';
+  };
+
   // Render the appropriate chart component based on type
   const renderChart = () => {
-    const commonProps = {
-      data: data.data,
-      height,
-      title: data.title,
-    };
+    const { data: chartData, type, title } = data;
 
-    switch (data.type) {
+    switch (type) {
       case 'line':
-        return <LineChartComponent {...commonProps} />;
+        if (chartData.length > 0 && isChartDataPoint(chartData[0])) {
+          return (
+            <LineChartComponent
+              data={chartData as ChartDataPoint[]}
+              height={height}
+              title={title}
+            />
+          );
+        }
+        break;
       case 'bar':
-        return <BarChartComponent {...commonProps} />;
+        if (chartData.length > 0 && isChartDataPoint(chartData[0])) {
+          return (
+            <BarChartComponent
+              data={chartData as ChartDataPoint[]}
+              height={height}
+              title={title}
+            />
+          );
+        }
+        break;
       case 'pie':
-        return <PieChartComponent {...commonProps} />;
+        if (chartData.length > 0 && isPieChartDataPoint(chartData[0])) {
+          return (
+            <PieChartComponent
+              data={chartData as PieChartDataPoint[]}
+              height={height}
+              title={title}
+            />
+          );
+        }
+        break;
       case 'area':
-        return <AreaChartComponent {...commonProps} />;
+        if (chartData.length > 0 && isChartDataPoint(chartData[0])) {
+          return (
+            <AreaChartComponent
+              data={chartData as ChartDataPoint[]}
+              height={height}
+              title={title}
+            />
+          );
+        }
+        break;
       default:
         return (
-          <div 
+          <div
             className="flex items-center justify-center bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800"
             style={{ height }}
           >
@@ -89,12 +130,29 @@ export const ChartContainer: React.FC<ChartContainerProps> = ({
                 Unsupported Chart Type
               </p>
               <p className="text-yellow-500 dark:text-yellow-300 text-sm mt-1">
-                Chart type "{data.type}" is not supported
+                Chart type "{type}" is not supported
               </p>
             </div>
           </div>
         );
     }
+
+    // Fallback for data type mismatch
+    return (
+      <div
+        className="flex items-center justify-center bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800"
+        style={{ height }}
+      >
+        <div className="text-center">
+          <p className="text-red-600 dark:text-red-400 font-medium">
+            Data Type Mismatch
+          </p>
+          <p className="text-red-500 dark:text-red-300 text-sm mt-1">
+            Chart data format doesn't match the selected chart type
+          </p>
+        </div>
+      </div>
+    );
   };
 
   return (

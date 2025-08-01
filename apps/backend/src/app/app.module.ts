@@ -19,6 +19,8 @@ import { Permission } from '../modules/user/entities/permission.entity';
 import { Role } from '../modules/user/entities/role.entity';
 import { UserRole } from '../modules/user/entities/user-role.entity';
 import { RolePermission } from '../modules/user/entities/role-permission.entity';
+import { UserActivity } from '../modules/user/entities/user-activity.entity';
+import { UserSession } from '../modules/user/entities/user-session.entity';
 import { Translation } from '../modules/translation/entities/translation.entity';
 import { SEOEntity } from '../modules/seo/entities/seo.entity';
 import { SettingEntity } from '../modules/settings/entities/setting.entity';
@@ -38,12 +40,14 @@ import { AdminChartDataRouter } from '../trpc/routers/admin/chart-data.router';
       useFactory: (configService: ConfigService) => ({
         ...configService.get('database'),
         entities: [
-          User, 
-          UserProfile, 
-          Permission, 
-          Role, 
-          UserRole, 
+          User,
+          UserProfile,
+          Permission,
+          Role,
+          UserRole,
           RolePermission,
+          UserActivity,
+          UserSession,
           Translation,
           SEOEntity,
           SettingEntity

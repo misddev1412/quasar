@@ -66,7 +66,8 @@ export interface ChartDataRequest {
 }
 
 export interface ChartDataResponse {
-  success: boolean;
+  code: number;
+  status: string;
   data: ChartData;
-  message?: string;
+  timestamp: string;
 }
