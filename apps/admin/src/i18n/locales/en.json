@@ -30,6 +30,8 @@
     "none": "None",
     "select": "Select",
     "clear": "Clear",
+    "clear_all": "Clear All",
+    "options": "options",
     "reset": "Reset",
     "menu": "Menu",
     "copyright": "Quasar Admin © {year} All Rights Reserved",
@@ -451,6 +453,21 @@
     "delete_failed_title": "Deletion Failed",
     "delete_failed_desc": "Could not delete the SEO rule.",
     "delete_confirm": "Are you sure you want to delete this SEO rule?"
+  },
+  "filters": {
+    "quick_filters": {
+      "title": "Quick Filters",
+      "today": "Today",
+      "this_week": "This Week",
+      "this_month": "This Month",
+      "last_7_days": "Last 7 Days",
+      "last_30_days": "Last 30 Days",
+      "last_year": "Last Year",
+      "groups": {
+        "current": "Current Period",
+        "recent": "Recent Period"
+      }
+    }
   },
   "table": {
     "search_placeholder": "Search...",

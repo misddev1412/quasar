@@ -30,6 +30,8 @@
     "none": "Không có",
     "select": "Chọn",
     "clear": "Xóa",
+    "clear_all": "Xóa tất cả",
+    "options": "tùy chọn",
     "reset": "Đặt lại",
     "menu": "Menu",
     "copyright": "Quasar Admin © {year} Tất cả các quyền được bảo lưu",
@@ -451,6 +453,21 @@
     "delete_failed_title": "Xóa thất bại",
     "delete_failed_desc": "Không thể xóa luật SEO.",
     "delete_confirm": "Bạn có chắc chắn muốn xóa luật SEO này không?"
+  },
+  "filters": {
+    "quick_filters": {
+      "title": "Bộ lọc nhanh",
+      "today": "Hôm nay",
+      "this_week": "Tuần này",
+      "this_month": "Tháng này",
+      "last_7_days": "7 ngày qua",
+      "last_30_days": "30 ngày qua",
+      "last_year": "1 năm qua",
+      "groups": {
+        "current": "Thời gian hiện tại",
+        "recent": "Thời gian gần đây"
+      }
+    }
   },
   "table": {
     "search_placeholder": "Tìm kiếm...",

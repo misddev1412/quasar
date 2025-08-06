@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiX, FiFilter } from 'react-icons/fi';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import { Select, SelectOption } from '../common/Select';
 import { DateInput } from '../common/DateInput';
 import { UserFiltersType, UserRole } from '../../types/user';
+import { QuickDateFilters } from './QuickDateFilters';
+import { QuickDateFiltersDropdown } from './QuickDateFiltersDropdown';
+import { QuickDateFiltersButtonGroup } from './QuickDateFiltersButtonGroup';
+import { getQuickFilterDateRange, QuickFilterKey } from '../../utils/dateUtils';
 
 interface UserFiltersProps {
   filters: UserFiltersType;
   onFiltersChange: (filters: UserFiltersType) => void;
   onClearFilters: () => void;
   activeFilterCount: number;
+  quickFilterLayout?: 'compact' | 'dropdown' | 'button-group' | 'expanded';
 }
 
 const USER_STATUS_OPTIONS: SelectOption[] = [
@@ -33,7 +38,18 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
   onFiltersChange,
   onClearFilters,
   activeFilterCount,
+  quickFilterLayout = 'dropdown',
 }) => {
+  // Track active quick filter
+  const [activeQuickFilter, setActiveQuickFilter] = useState<QuickFilterKey | null>(null);
+
+  // Clear quick filter when filters are cleared externally
+  useEffect(() => {
+    if (!filters.dateFrom && !filters.dateTo && activeQuickFilter) {
+      setActiveQuickFilter(null);
+    }
+  }, [filters.dateFrom, filters.dateTo, activeQuickFilter]);
+
   const handleFilterChange = (key: keyof UserFiltersType, value: string) => {
     const newFilters = { ...filters };
     
@@ -61,6 +77,35 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
     }
     
     onFiltersChange(newFilters);
+  };
+
+  // Handle quick filter selection
+  const handleQuickFilterSelect = (filterKey: QuickFilterKey) => {
+    const dateRange = getQuickFilterDateRange(filterKey);
+    const newFilters = {
+      ...filters,
+      dateFrom: dateRange.dateFrom,
+      dateTo: dateRange.dateTo,
+    };
+
+    setActiveQuickFilter(filterKey);
+    onFiltersChange(newFilters);
+  };
+
+  // Handle quick filter clear
+  const handleQuickFilterClear = () => {
+    const newFilters = { ...filters };
+    delete newFilters.dateFrom;
+    delete newFilters.dateTo;
+
+    setActiveQuickFilter(null);
+    onFiltersChange(newFilters);
+  };
+
+  // Handle manual date change (clear quick filter when user manually changes dates)
+  const handleDateChange = (key: 'dateFrom' | 'dateTo', value: string) => {
+    setActiveQuickFilter(null); // Clear quick filter when manually changing dates
+    handleFilterChange(key, value);
   };
 
   const formatDate = (date: Date): string => {
@@ -102,6 +147,35 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
         )}
       </div>
 
+      {/* Quick Date Filters */}
+      {quickFilterLayout === 'dropdown' && (
+        <QuickDateFiltersDropdown
+          activeFilter={activeQuickFilter}
+          onFilterSelect={handleQuickFilterSelect}
+          onClearFilter={handleQuickFilterClear}
+          className="mb-4"
+        />
+      )}
+
+      {quickFilterLayout === 'button-group' && (
+        <QuickDateFiltersButtonGroup
+          activeFilter={activeQuickFilter}
+          onFilterSelect={handleQuickFilterSelect}
+          onClearFilter={handleQuickFilterClear}
+          className="mb-4"
+        />
+      )}
+
+      {(quickFilterLayout === 'compact' || quickFilterLayout === 'expanded') && (
+        <QuickDateFilters
+          activeFilter={activeQuickFilter}
+          onFilterSelect={handleQuickFilterSelect}
+          onClearFilter={handleQuickFilterClear}
+          className="mb-4"
+          compact={quickFilterLayout === 'compact'}
+        />
+      )}
+
       {/* Filter Controls Grid - Enhanced alignment and consistent spacing */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         {/* Status Filter */}
@@ -138,7 +212,7 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
             id="date-from"
             label="Registered From"
             value={filters.dateFrom || ''}
-            onChange={(value) => handleFilterChange('dateFrom', value)}
+            onChange={(value) => handleDateChange('dateFrom', value)}
             max={filters.dateTo || today}
             min={oneYearAgo}
             size="md"
@@ -152,7 +226,7 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
             id="date-to"
             label="Registered To"
             value={filters.dateTo || ''}
-            onChange={(value) => handleFilterChange('dateTo', value)}
+            onChange={(value) => handleDateChange('dateTo', value)}
             min={filters.dateFrom || oneYearAgo}
             max={today}
             size="md"
@@ -196,8 +270,8 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
                 Date: {filters.dateFrom || '...'} to {filters.dateTo || '...'}
                 <button
                   onClick={() => {
-                    handleFilterChange('dateFrom', '');
-                    handleFilterChange('dateTo', '');
+                    handleDateChange('dateFrom', '');
+                    handleDateChange('dateTo', '');
                   }}
                   className="ml-1 hover:text-amber-900 dark:hover:text-amber-100 transition-colors rounded-full p-0.5 hover:bg-amber-100 dark:hover:bg-amber-800/50"
                   aria-label="Remove date range filter"
