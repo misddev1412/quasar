@@ -1,0 +1,111 @@
+/* CountrySelector dropdown positioning and styling fixes */
+
+/* Ensure dropdown container allows overflow */
+.country-selector-container {
+  position: relative;
+  overflow: visible !important;
+}
+
+/* Ensure dropdown appears correctly */
+.country-selector-dropdown {
+  position: absolute !important;
+  z-index: 100 !important;
+  min-width: 320px !important;
+}
+
+/* Ensure proper stacking context for the dropdown */
+.country-selector-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Override any parent overflow hidden that might clip the dropdown */
+.country-selector-container [data-headlessui-state~="open"] {
+  overflow: visible !important;
+}
+
+/* Smooth animations for dropdown */
+.country-selector-dropdown {
+  transform-origin: top left;
+  transition: all 0.15s ease-out;
+}
+
+.country-selector-dropdown[data-headlessui-state~="open"] {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.country-selector-dropdown[data-headlessui-state~="closed"] {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* Ensure flag images load properly */
+.country-flag {
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+}
+
+.dark .country-flag {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+/* Improve search input styling */
+.country-search-input {
+  transition: all 0.15s ease-in-out;
+}
+
+.country-search-input:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Better hover states for country options */
+.country-option {
+  transition: background-color 0.1s ease-in-out;
+}
+
+.country-option:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark .country-option:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Ensure proper text truncation */
+.country-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Ensure proper stacking context */
+.country-selector-container * {
+  position: relative;
+}
+
+.country-selector-dropdown {
+  /* Ensure dropdown is always visible */
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .country-selector-dropdown {
+    width: 280px !important;
+    max-width: calc(100vw - 32px) !important;
+  }
+}
+
+/* Ensure dropdown appears above modals and other overlays */
+.country-selector-dropdown {
+  z-index: 9999 !important;
+}
+
+/* Fix for potential transform issues */
+.country-selector-container {
+  transform: none !important;
+}

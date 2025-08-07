@@ -26,4 +26,5 @@ export interface UserFiltersType {
   isActive?: boolean;
   dateFrom?: string;
   dateTo?: string;
+  isVerified?: boolean;
 }

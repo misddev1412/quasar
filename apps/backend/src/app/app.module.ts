@@ -26,6 +26,7 @@ import { SEOEntity } from '../modules/seo/entities/seo.entity';
 import { SettingEntity } from '../modules/settings/entities/setting.entity';
 import { createErrorFormatter } from '../trpc/error-formatter';
 import { AdminAuthRouter } from '../trpc/routers/admin/auth.router';
+import { AdminUserRouter } from '../trpc/routers/admin/user.router';
 import { AdminUserStatisticsRouter } from '../trpc/routers/admin/user-statistics.router';
 import { AdminUserActivityRouter } from '../trpc/routers/admin/user-activity.router';
 import { AdminChartDataRouter } from '../trpc/routers/admin/chart-data.router';
@@ -73,6 +74,7 @@ import { AdminChartDataRouter } from '../trpc/routers/admin/chart-data.router';
     AppService,
     AppContext,
     AdminAuthRouter,
+    AdminUserRouter,
     AdminUserStatisticsRouter,
     AdminUserActivityRouter,
     AdminChartDataRouter,

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FiX, FiFilter } from 'react-icons/fi';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
@@ -8,14 +9,16 @@ import { UserFiltersType, UserRole } from '../../types/user';
 import { QuickDateFilters } from './QuickDateFilters';
 import { QuickDateFiltersDropdown } from './QuickDateFiltersDropdown';
 import { QuickDateFiltersButtonGroup } from './QuickDateFiltersButtonGroup';
-import { getQuickFilterDateRange, QuickFilterKey } from '../../utils/dateUtils';
+import { ComprehensiveQuickFilters } from './ComprehensiveQuickFilters';
+import { getQuickFilterDateRange, QuickFilterKey, QUICK_FILTER_OPTIONS } from '../../utils/dateUtils';
+import { QUICK_DATE_FILTER_CATEGORIES } from '../../utils/filterUtils';
 
 interface UserFiltersProps {
   filters: UserFiltersType;
   onFiltersChange: (filters: UserFiltersType) => void;
   onClearFilters: () => void;
   activeFilterCount: number;
-  quickFilterLayout?: 'compact' | 'dropdown' | 'button-group' | 'expanded';
+  quickFilterLayout?: 'compact' | 'dropdown' | 'button-group' | 'expanded' | 'date-focused';
 }
 
 const USER_STATUS_OPTIONS: SelectOption[] = [
@@ -38,15 +41,31 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
   onFiltersChange,
   onClearFilters,
   activeFilterCount,
-  quickFilterLayout = 'dropdown',
+  quickFilterLayout = 'date-focused',
 }) => {
-  // Track active quick filter
+  const { t } = useTranslation();
+
+  // Track active quick filter (date-focused only)
   const [activeQuickFilter, setActiveQuickFilter] = useState<QuickFilterKey | null>(null);
 
-  // Clear quick filter when filters are cleared externally
+  // Clear quick filter when date filters are cleared externally
   useEffect(() => {
     if (!filters.dateFrom && !filters.dateTo && activeQuickFilter) {
       setActiveQuickFilter(null);
+    }
+  }, [filters.dateFrom, filters.dateTo, activeQuickFilter]);
+
+  // Detect if current date filters match any quick filter option
+  useEffect(() => {
+    if (filters.dateFrom && filters.dateTo && !activeQuickFilter) {
+      // Check if current date range matches any quick filter
+      for (const option of QUICK_FILTER_OPTIONS) {
+        const quickRange = getQuickFilterDateRange(option.key);
+        if (quickRange.dateFrom === filters.dateFrom && quickRange.dateTo === filters.dateTo) {
+          setActiveQuickFilter(option.key);
+          break;
+        }
+      }
     }
   }, [filters.dateFrom, filters.dateTo, activeQuickFilter]);
 
@@ -79,7 +98,7 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
     onFiltersChange(newFilters);
   };
 
-  // Handle quick filter selection
+  // Handle quick filter selection (date-focused)
   const handleQuickFilterSelect = (filterKey: QuickFilterKey) => {
     const dateRange = getQuickFilterDateRange(filterKey);
     const newFilters = {
@@ -92,7 +111,7 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
     onFiltersChange(newFilters);
   };
 
-  // Handle quick filter clear
+  // Handle quick filter clear (date-focused)
   const handleQuickFilterClear = () => {
     const newFilters = { ...filters };
     delete newFilters.dateFrom;
@@ -148,6 +167,19 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
       </div>
 
       {/* Quick Date Filters */}
+      {quickFilterLayout === 'date-focused' && (
+        <ComprehensiveQuickFilters
+          activeFilter={activeQuickFilter}
+          onFilterSelect={(filterKey) => handleQuickFilterSelect(filterKey as QuickFilterKey)}
+          onClearFilter={handleQuickFilterClear}
+          className="mb-4"
+          mode="date-only"
+          categories={QUICK_DATE_FILTER_CATEGORIES}
+          title={t('filters.quick_filters.registration_date_title')}
+          subtitle={t('filters.quick_filters.date_subtitle')}
+        />
+      )}
+
       {quickFilterLayout === 'dropdown' && (
         <QuickDateFiltersDropdown
           activeFilter={activeQuickFilter}

@@ -40,7 +40,7 @@ const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onTabChange }) => {
           ))}
         </nav>
       </div>
-      <div className="pt-8">
+      <div className="pt-3">
         <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md dark:bg-gray-800">
           {tabs[activeTab] && tabs[activeTab].content}
         </div>

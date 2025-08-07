@@ -104,11 +104,25 @@
     "last_name": "Họ",
     "phone": "Số điện thoại",
     "email": "Email",
+    "email_address": "Địa chỉ Email",
+    "username": "Tên đăng nhập",
+    "password": "Mật khẩu",
+    "user_role": "Vai trò người dùng",
+    "account_active": "Tài khoản hoạt động",
     "address": "Địa chỉ",
     "current_password": "Mật khẩu hiện tại",
     "new_password": "Mật khẩu mới",
     "confirm_new_password": "Xác nhận mật khẩu mới",
     "password_requirements": "Yêu cầu mật khẩu",
+    "email_notifications": "Thông báo Email",
+    "sms_notifications": "Thông báo SMS",
+    "marketing_emails": "Email tiếp thị",
+    "roles": {
+      "user": "Người dùng",
+      "manager": "Quản lý",
+      "admin": "Quản trị viên",
+      "super_admin": "Quản trị viên cấp cao"
+    },
     "password_strength": {
       "title": "Độ mạnh mật khẩu",
       "very_weak": "Rất yếu",
@@ -116,6 +130,38 @@
       "medium": "Trung bình",
       "strong": "Mạnh",
       "very_strong": "Rất mạnh"
+    }
+  },
+  "form": {
+    "sections": {
+      "basic_information": "Thông tin cơ bản",
+      "basic_information_description": "Nhập thông tin cơ bản và liên hệ của người dùng.",
+      "security": "Bảo mật",
+      "security_description": "Thiết lập thông tin đăng nhập và cấp độ truy cập của người dùng.",
+      "notification_settings": "Cài đặt thông báo",
+      "notification_settings_description": "Cấu hình cách người dùng nhận thông báo."
+    },
+    "tabs": {
+      "general_information": "Thông tin chung",
+      "preferences": "Tùy chọn"
+    },
+    "placeholders": {
+      "enter_first_name": "Nhập tên",
+      "enter_last_name": "Nhập họ",
+      "enter_username": "Nhập tên đăng nhập",
+      "enter_email_address": "Nhập địa chỉ email",
+      "enter_phone_number_optional": "Nhập số điện thoại (tùy chọn)",
+      "enter_password": "Nhập mật khẩu",
+      "select_user_role": "Chọn vai trò người dùng"
+    },
+    "descriptions": {
+      "username_requirements": "Tên đăng nhập chỉ có thể chứa chữ cái, số, dấu gạch dưới và dấu gạch ngang.",
+      "password_requirements": "Mật khẩu phải có ít nhất 8 ký tự với chữ hoa, chữ thường và số.",
+      "user_role_description": "Xác định cấp độ truy cập và quyền hạn của người dùng.",
+      "account_active_description": "Tài khoản người dùng có hoạt động và có thể đăng nhập hay không.",
+      "email_notifications_description": "Nhận thông báo qua email.",
+      "sms_notifications_description": "Nhận thông báo qua SMS (yêu cầu số điện thoại).",
+      "marketing_emails_description": "Nhận email tiếp thị và khuyến mãi."
     }
   },
   "admin": {
@@ -140,6 +186,12 @@
     "seo_list": "Danh sách SEO",
     "seo_analytics": "Phân tích SEO",
     "add_new_user": "Thêm người dùng mới",
+    "create_new_user": "Tạo người dùng mới",
+    "create_user_description": "Thêm người dùng mới vào hệ thống với thông tin cơ bản và tùy chọn của họ.",
+    "back_to_users": "Quay lại danh sách người dùng",
+    "user_information": "Thông tin người dùng",
+    "user_information_description": "Điền thông tin chi tiết bên dưới để tạo tài khoản người dùng mới.",
+    "create_user": "Tạo người dùng",
     "create_seo_entry": "Tạo mục SEO mới",
     "add_translation": "Thêm bản dịch",
     "system_settings": "Cài đặt hệ thống"
@@ -187,20 +239,33 @@
   },
   "validation": {
     "required": "Trường này là bắt buộc",
-    "email_invalid": "Địa chỉ email không hợp lệ",
-    "password_min_length": "Mật khẩu phải có ít nhất {{min}} ký tự",
+    "email_invalid": "Vui lòng nhập địa chỉ email hợp lệ",
+    "username_min_length": "Tên đăng nhập phải có ít nhất 3 ký tự",
+    "username_max_length": "Tên đăng nhập không được vượt quá 50 ký tự",
+    "username_invalid_chars": "Tên đăng nhập chỉ có thể chứa chữ cái, số, dấu gạch dưới và dấu gạch ngang",
+    "password_min_length": "Mật khẩu phải có ít nhất 8 ký tự",
+    "password_requirements": "Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường và một số",
+    "first_name_min_length": "Tên phải có ít nhất 2 ký tự",
+    "first_name_max_length": "Tên không được vượt quá 50 ký tự",
+    "last_name_min_length": "Họ phải có ít nhất 2 ký tự",
+    "last_name_max_length": "Họ không được vượt quá 50 ký tự",
+    "phone_invalid": "Vui lòng nhập số điện thoại hợp lệ",
     "passwords_not_match": "Mật khẩu không khớp",
-    "phone_invalid": "Số điện thoại không hợp lệ",
     "password_one_lowercase": "Phải chứa ít nhất một chữ cái viết thường",
     "password_one_uppercase": "Phải chứa ít nhất một chữ cái viết hoa",
     "password_one_number": "Phải chứa ít nhất một chữ số",
-    "password_one_special": "Phải chứa ít nhất một ký tự đặc biệt"
+    "password_one_special": "Phải chứa ít nhất một ký tự đặc biệt",
+    "invalid_value": "Giá trị không hợp lệ"
   },
   "messages": {
     "save_success": "Lưu thành công",
     "delete_success": "Xóa thành công",
     "update_success": "Cập nhật thành công",
     "create_success": "Tạo thành công",
+    "user_created_successfully": "Tạo người dùng thành công",
+    "user_created_successfully_description": "Người dùng đã được tạo thành công.",
+    "failed_to_create_user": "Tạo người dùng thất bại",
+    "create_user_error_description": "Đã xảy ra lỗi không mong muốn khi tạo người dùng.",
     "operation_failed": "Thao tác thất bại",
     "network_error": "Lỗi kết nối mạng",
     "server_error": "Lỗi máy chủ",
@@ -457,16 +522,42 @@
   "filters": {
     "quick_filters": {
       "title": "Bộ lọc nhanh",
+      "registration_date_title": "Bộ lọc ngày đăng ký",
+      "subtitle": "Lọc người dùng theo ngày đăng ký và các tiêu chí khác",
+      "date_subtitle": "Truy cập nhanh các khoảng thời gian đăng ký phổ biến"
+    },
+    "categories": {
+      "current_period": "Thời gian hiện tại",
+      "recent_period": "Thời gian gần đây",
+      "user_status": "Trạng thái người dùng",
+      "user_roles": "Vai trò người dùng",
+      "email_verification": "Xác thực email"
+    },
+    "date": {
       "today": "Hôm nay",
       "this_week": "Tuần này",
       "this_month": "Tháng này",
       "last_7_days": "7 ngày qua",
       "last_30_days": "30 ngày qua",
-      "last_year": "1 năm qua",
-      "groups": {
-        "current": "Thời gian hiện tại",
-        "recent": "Thời gian gần đây"
-      }
+      "last_90_days": "90 ngày qua",
+      "last_year": "1 năm qua"
+    },
+    "status": {
+      "active": "Người dùng hoạt động",
+      "inactive": "Người dùng không hoạt động",
+      "all": "Tất cả người dùng"
+    },
+    "roles": {
+      "super_admin": "Quản trị viên cấp cao",
+      "admin": "Quản trị viên",
+      "manager": "Người quản lý",
+      "user": "Người dùng thường",
+      "guest": "Khách"
+    },
+    "verification": {
+      "verified": "Email đã xác thực",
+      "unverified": "Email chưa xác thực",
+      "pending": "Đang chờ xác thực"
     }
   },
   "table": {

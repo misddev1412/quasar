@@ -112,7 +112,15 @@ export const getQuickFilterDateRange = (filterType: string): DateRange => {
         dateFrom: formatDateForInput(last30Days),
         dateTo: formatDateForInput(getEndOfDay(now)),
       };
-      
+
+    case 'last_90_days':
+      const last90Days = new Date(today);
+      last90Days.setDate(today.getDate() - 89); // Include today, so -89 days
+      return {
+        dateFrom: formatDateForInput(last90Days),
+        dateTo: formatDateForInput(getEndOfDay(now)),
+      };
+
     case 'last_year':
       const lastYear = new Date(today);
       lastYear.setFullYear(today.getFullYear() - 1);
@@ -130,15 +138,16 @@ export const getQuickFilterDateRange = (filterType: string): DateRange => {
 };
 
 /**
- * Quick filter options configuration
+ * Quick filter options configuration for date ranges
  */
 export const QUICK_FILTER_OPTIONS = [
-  { key: 'today', translationKey: 'filters.quick_filters.today' },
-  { key: 'this_week', translationKey: 'filters.quick_filters.this_week' },
-  { key: 'this_month', translationKey: 'filters.quick_filters.this_month' },
-  { key: 'last_7_days', translationKey: 'filters.quick_filters.last_7_days' },
-  { key: 'last_30_days', translationKey: 'filters.quick_filters.last_30_days' },
-  { key: 'last_year', translationKey: 'filters.quick_filters.last_year' },
+  { key: 'today', translationKey: 'filters.date.today' },
+  { key: 'this_week', translationKey: 'filters.date.this_week' },
+  { key: 'this_month', translationKey: 'filters.date.this_month' },
+  { key: 'last_7_days', translationKey: 'filters.date.last_7_days' },
+  { key: 'last_30_days', translationKey: 'filters.date.last_30_days' },
+  { key: 'last_90_days', translationKey: 'filters.date.last_90_days' },
+  { key: 'last_year', translationKey: 'filters.date.last_year' },
 ] as const;
 
 export type QuickFilterKey = typeof QUICK_FILTER_OPTIONS[number]['key'];

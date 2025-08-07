@@ -10,6 +10,7 @@ import SeoPage from '../pages/seo';
 import SettingsPage from '../pages/settings';
 import UserProfilePage from '../pages/profile';
 import UserListPage from '../pages/users';
+import UserCreatePage from '../pages/users/create';
 import RolesPage from '../pages/roles';
 import DateInputTest from '../pages/test/DateInputTest';
 import AppLayout from '../components/layout/AppLayout';
@@ -48,6 +49,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute><UserListPage /></ProtectedRoute>} />
+      <Route path="/users/create" element={<ProtectedRoute><UserCreatePage /></ProtectedRoute>} />
       <Route path="/roles" element={<ProtectedRoute><RolesPage /></ProtectedRoute>} />
       <Route path="/test/date-input" element={<ProtectedRoute><DateInputTest /></ProtectedRoute>} />
       {/* 404页面，不需要认证 */}

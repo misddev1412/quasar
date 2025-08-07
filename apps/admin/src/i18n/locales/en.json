@@ -104,11 +104,25 @@
     "last_name": "Last Name",
     "phone": "Phone Number",
     "email": "Email",
+    "email_address": "Email Address",
+    "username": "Username",
+    "password": "Password",
+    "user_role": "User Role",
+    "account_active": "Account Active",
     "address": "Address",
     "current_password": "Current Password",
     "new_password": "New Password",
     "confirm_new_password": "Confirm New Password",
     "password_requirements": "Password requirements",
+    "email_notifications": "Email Notifications",
+    "sms_notifications": "SMS Notifications",
+    "marketing_emails": "Marketing Emails",
+    "roles": {
+      "user": "User",
+      "manager": "Manager",
+      "admin": "Admin",
+      "super_admin": "Super Admin"
+    },
     "password_strength": {
       "title": "Password strength",
       "very_weak": "Very Weak",
@@ -116,6 +130,38 @@
       "medium": "Medium",
       "strong": "Strong",
       "very_strong": "Very Strong"
+    }
+  },
+  "form": {
+    "sections": {
+      "basic_information": "Basic Information",
+      "basic_information_description": "Enter the user's basic details and contact information.",
+      "security": "Security",
+      "security_description": "Set up the user's login credentials and access level.",
+      "notification_settings": "Notification Settings",
+      "notification_settings_description": "Configure how the user receives notifications."
+    },
+    "tabs": {
+      "general_information": "General Information",
+      "preferences": "Preferences"
+    },
+    "placeholders": {
+      "enter_first_name": "Enter first name",
+      "enter_last_name": "Enter last name",
+      "enter_username": "Enter username",
+      "enter_email_address": "Enter email address",
+      "enter_phone_number_optional": "Enter phone number (optional)",
+      "enter_password": "Enter password",
+      "select_user_role": "Select user role"
+    },
+    "descriptions": {
+      "username_requirements": "Username can only contain letters, numbers, underscores, and hyphens.",
+      "password_requirements": "Password must be at least 8 characters with uppercase, lowercase, and numbers.",
+      "user_role_description": "Determines the user's access level and permissions.",
+      "account_active_description": "Whether the user account is active and can log in.",
+      "email_notifications_description": "Receive notifications via email.",
+      "sms_notifications_description": "Receive notifications via SMS (requires phone number).",
+      "marketing_emails_description": "Receive marketing and promotional emails."
     }
   },
   "admin": {
@@ -140,6 +186,12 @@
     "seo_list": "SEO List",
     "seo_analytics": "SEO Analytics",
     "add_new_user": "Add New User",
+    "create_new_user": "Create New User",
+    "create_user_description": "Add a new user to the system with their basic information and preferences.",
+    "back_to_users": "Back to Users",
+    "user_information": "User Information",
+    "user_information_description": "Fill in the details below to create a new user account.",
+    "create_user": "Create User",
     "create_seo_entry": "Create SEO Entry",
     "add_translation": "Add Translation",
     "system_settings": "System Settings"
@@ -187,20 +239,33 @@
   },
   "validation": {
     "required": "This field is required",
-    "email_invalid": "Invalid email address",
-    "password_min_length": "Password must be at least {{min}} characters",
+    "email_invalid": "Please enter a valid email address",
+    "username_min_length": "Username must be at least 3 characters",
+    "username_max_length": "Username must not exceed 50 characters",
+    "username_invalid_chars": "Username can only contain letters, numbers, underscores, and hyphens",
+    "password_min_length": "Password must be at least 8 characters",
+    "password_requirements": "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+    "first_name_min_length": "First name must be at least 2 characters",
+    "first_name_max_length": "First name must not exceed 50 characters",
+    "last_name_min_length": "Last name must be at least 2 characters",
+    "last_name_max_length": "Last name must not exceed 50 characters",
+    "phone_invalid": "Please enter a valid phone number",
     "passwords_not_match": "Passwords do not match",
-    "phone_invalid": "Invalid phone number",
     "password_one_lowercase": "Must contain at least one lowercase letter",
     "password_one_uppercase": "Must contain at least one uppercase letter",
     "password_one_number": "Must contain at least one number",
-    "password_one_special": "Must contain at least one special character"
+    "password_one_special": "Must contain at least one special character",
+    "invalid_value": "Invalid value"
   },
   "messages": {
     "save_success": "Saved successfully",
     "delete_success": "Deleted successfully",
     "update_success": "Updated successfully",
     "create_success": "Created successfully",
+    "user_created_successfully": "User Created Successfully",
+    "user_created_successfully_description": "User has been created successfully.",
+    "failed_to_create_user": "Failed to Create User",
+    "create_user_error_description": "An unexpected error occurred while creating the user.",
     "operation_failed": "Operation failed",
     "network_error": "Network connection error",
     "server_error": "Server error",
@@ -457,16 +522,42 @@
   "filters": {
     "quick_filters": {
       "title": "Quick Filters",
+      "registration_date_title": "Registration Date Filters",
+      "subtitle": "Filter users by registration date and other criteria",
+      "date_subtitle": "Quick access to common registration date ranges"
+    },
+    "categories": {
+      "current_period": "Current Period",
+      "recent_period": "Recent Period",
+      "user_status": "User Status",
+      "user_roles": "User Roles",
+      "email_verification": "Email Verification"
+    },
+    "date": {
       "today": "Today",
       "this_week": "This Week",
       "this_month": "This Month",
       "last_7_days": "Last 7 Days",
       "last_30_days": "Last 30 Days",
-      "last_year": "Last Year",
-      "groups": {
-        "current": "Current Period",
-        "recent": "Recent Period"
-      }
+      "last_90_days": "Last 90 Days",
+      "last_year": "Last Year"
+    },
+    "status": {
+      "active": "Active Users",
+      "inactive": "Inactive Users",
+      "all": "All Users"
+    },
+    "roles": {
+      "super_admin": "Super Admins",
+      "admin": "Administrators",
+      "manager": "Managers",
+      "user": "Regular Users",
+      "guest": "Guests"
+    },
+    "verification": {
+      "verified": "Email Verified",
+      "unverified": "Email Unverified",
+      "pending": "Verification Pending"
     }
   },
   "table": {

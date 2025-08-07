@@ -189,6 +189,22 @@ export const appRouter = router({
   }),
   
   adminUser: router({
+    createUser: procedure
+      .input(z.object({
+        email: z.string().email(),
+        username: z.string().min(3),
+        firstName: z.string().min(2),
+        lastName: z.string().min(2),
+        password: z.string().min(8),
+        phoneNumber: z.string().optional(),
+        isActive: z.boolean().optional(),
+        role: userRoleSchema.optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
     getAllUsers: procedure
       .input(z.object({
         page: z.number().min(1).optional().default(1),
@@ -197,10 +213,48 @@ export const appRouter = router({
         role: userRoleSchema.optional(),
         isActive: z.boolean().optional(),
       }))
-      .output(getUsersResponseSchema)
+      .output(paginatedResponseSchema)
       .query(() => {
         return {} as any;
       }),
+
+    getUserById: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    updateUser: procedure
+      .input(z.object({
+        id: z.string(),
+        email: z.string().email().optional(),
+        username: z.string().optional(),
+        isActive: z.boolean().optional(),
+        role: userRoleSchema.optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    deleteUser: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    updateUserStatus: procedure
+      .input(z.object({
+        id: z.string(),
+        isActive: z.boolean(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
     getProfile: procedure
       .output(apiResponseSchema)
       .query(() => {
@@ -286,6 +340,40 @@ export const appRouter = router({
       .query(() => {
         return {} as any;
       }),
+
+    getOverview: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getUserGrowth: procedure
+      .input(z.object({
+        period: z.enum(['daily', 'weekly', 'monthly']).default('daily'),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getRoleDistribution: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getActivityStats: procedure
+      .input(z.object({
+        period: z.enum(['daily', 'weekly', 'monthly']).default('daily'),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
   }),
 
   // Admin Chart Data router
@@ -307,6 +395,30 @@ export const appRouter = router({
       .input(z.object({
         statisticId: z.string(),
       }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+  }),
+
+  // Admin User Activity router
+  adminUserActivity: router({
+    getActivities: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(10),
+        userId: z.string().optional(),
+        action: z.string().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getActivityById: procedure
+      .input(z.object({ id: z.string() }))
       .output(apiResponseSchema)
       .query(() => {
         return {} as any;
@@ -389,6 +501,14 @@ export const appRouter = router({
         return {} as any;
       }),
   }),
+
+
+
+
+
+
+
+
 
   // Admin Auth router
   adminAuth: router({
