@@ -114,7 +114,7 @@ export const PhoneInputField: React.FC<PhoneInputFieldProps> = ({
         {rightElement && rightElement}
       </div>
 
-      <div className="relative">
+      <div className="relative" style={{ overflow: 'visible', zIndex: 10, isolation: 'isolate' }}>
         <div className={clsx(
           'flex items-stretch bg-white dark:bg-neutral-900 rounded-lg',
           // Ensure container height matches input height
@@ -123,7 +123,8 @@ export const PhoneInputField: React.FC<PhoneInputFieldProps> = ({
             ? 'border border-error focus-within:ring-1 focus-within:ring-error'
             : 'border border-neutral-300 dark:border-neutral-700 focus-within:ring-1 focus-within:ring-primary focus-within:border-primary',
           className
-        )}>
+        )}
+        style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
         {/* Icon container with fixed width */}
         {icon && (
           <div className="flex-shrink-0 w-12 flex justify-center items-center border-r border-neutral-200 dark:border-neutral-700">
@@ -132,8 +133,8 @@ export const PhoneInputField: React.FC<PhoneInputFieldProps> = ({
         )}
 
         {/* Country Selector */}
-        <div className="flex-shrink-0 relative">
-          <div className="rounded-l-lg overflow-hidden">
+        <div className="flex-shrink-0 relative" style={{ overflow: 'visible', zIndex: 20, isolation: 'isolate' }}>
+          <div className="rounded-l-lg" style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}>
             <CountrySelector
               value={selectedCountry}
               onChange={handleCountryChange}

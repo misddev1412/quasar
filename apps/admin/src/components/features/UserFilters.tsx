@@ -5,6 +5,7 @@ import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import { Select, SelectOption } from '../common/Select';
 import { DateInput } from '../common/DateInput';
+import { FormInput } from '../common/FormInput';
 import { UserFiltersType, UserRole } from '../../types/user';
 import { QuickDateFilters } from './QuickDateFilters';
 import { QuickDateFiltersDropdown } from './QuickDateFiltersDropdown';
@@ -34,6 +35,18 @@ const USER_ROLE_OPTIONS: SelectOption[] = [
   { value: UserRole.MANAGER, label: 'Manager' },
   { value: UserRole.USER, label: 'User' },
   { value: UserRole.GUEST, label: 'Guest' },
+];
+
+const USER_VERIFICATION_OPTIONS: SelectOption[] = [
+  { value: '', label: 'All Users' },
+  { value: 'true', label: 'Verified' },
+  { value: 'false', label: 'Unverified' },
+];
+
+const USER_PROFILE_OPTIONS: SelectOption[] = [
+  { value: '', label: 'All Users' },
+  { value: 'true', label: 'Has Profile' },
+  { value: 'false', label: 'No Profile' },
 ];
 
 export const UserFilters: React.FC<UserFiltersProps> = ({
@@ -122,8 +135,11 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
   };
 
   // Handle manual date change (clear quick filter when user manually changes dates)
-  const handleDateChange = (key: 'dateFrom' | 'dateTo', value: string) => {
-    setActiveQuickFilter(null); // Clear quick filter when manually changing dates
+  const handleDateChange = (key: 'dateFrom' | 'dateTo' | 'lastLoginFrom' | 'lastLoginTo' | 'createdFrom' | 'createdTo', value: string) => {
+    // Clear quick filter when manually changing registration dates
+    if (key === 'dateFrom' || key === 'dateTo' || key === 'createdFrom' || key === 'createdTo') {
+      setActiveQuickFilter(null);
+    }
     handleFilterChange(key, value);
   };
 
@@ -267,6 +283,124 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
         </div>
       </div>
 
+      {/* Additional Filters Grid - Second Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mt-4">
+        {/* Verification Status Filter */}
+        <div className="flex flex-col justify-start items-stretch h-full">
+          <Select
+            id="verification-filter"
+            label="Verification Status"
+            value={filters.isVerified !== undefined ? filters.isVerified.toString() : ''}
+            onChange={(value) => handleFilterChange('isVerified', value)}
+            options={USER_VERIFICATION_OPTIONS}
+            placeholder="Select verification..."
+            size="md"
+            className="flex-1"
+          />
+        </div>
+
+        {/* Profile Completion Filter */}
+        <div className="flex flex-col justify-start items-stretch h-full">
+          <Select
+            id="profile-filter"
+            label="Profile Status"
+            value={filters.hasProfile !== undefined ? filters.hasProfile.toString() : ''}
+            onChange={(value) => handleFilterChange('hasProfile', value)}
+            options={USER_PROFILE_OPTIONS}
+            placeholder="Select profile status..."
+            size="md"
+            className="flex-1"
+          />
+        </div>
+
+        {/* Email Domain Filter */}
+        <div className="flex flex-col justify-start items-stretch h-full">
+          <FormInput
+            id="email-filter"
+            type="text"
+            label="Email Domain"
+            value={filters.email || ''}
+            onChange={(e) => handleFilterChange('email', e.target.value)}
+            placeholder="e.g., @company.com"
+            size="md"
+            className="flex-1"
+          />
+        </div>
+
+        {/* Username Pattern Filter */}
+        <div className="flex flex-col justify-start items-stretch h-full">
+          <FormInput
+            id="username-filter"
+            type="text"
+            label="Username Pattern"
+            value={filters.username || ''}
+            onChange={(e) => handleFilterChange('username', e.target.value)}
+            placeholder="Username contains..."
+            size="md"
+            className="flex-1"
+          />
+        </div>
+      </div>
+
+      {/* Location Filters Grid - Third Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mt-4">
+        {/* Country Filter */}
+        <div className="flex flex-col justify-start items-stretch h-full">
+          <FormInput
+            id="country-filter"
+            type="text"
+            label="Country"
+            value={filters.country || ''}
+            onChange={(e) => handleFilterChange('country', e.target.value)}
+            placeholder="Country name..."
+            size="md"
+            className="flex-1"
+          />
+        </div>
+
+        {/* City Filter */}
+        <div className="flex flex-col justify-start items-stretch h-full">
+          <FormInput
+            id="city-filter"
+            type="text"
+            label="City"
+            value={filters.city || ''}
+            onChange={(e) => handleFilterChange('city', e.target.value)}
+            placeholder="City name..."
+            size="md"
+            className="flex-1"
+          />
+        </div>
+
+        {/* Last Login From Filter */}
+        <div className="flex flex-col justify-start items-stretch h-full">
+          <DateInput
+            id="last-login-from"
+            label="Last Login From"
+            value={filters.lastLoginFrom || ''}
+            onChange={(value) => handleDateChange('lastLoginFrom', value)}
+            max={filters.lastLoginTo || today}
+            min={oneYearAgo}
+            size="md"
+            className="flex-1"
+          />
+        </div>
+
+        {/* Last Login To Filter */}
+        <div className="flex flex-col justify-start items-stretch h-full">
+          <DateInput
+            id="last-login-to"
+            label="Last Login To"
+            value={filters.lastLoginTo || ''}
+            onChange={(value) => handleDateChange('lastLoginTo', value)}
+            min={filters.lastLoginFrom || oneYearAgo}
+            max={today}
+            size="md"
+            className="flex-1"
+          />
+        </div>
+      </div>
+
       {/* Filter Summary - Professional styling with improved visual hierarchy */}
       {activeFilterCount > 0 && (
         <div className="mt-6 pt-4 border-t border-neutral-200 dark:border-neutral-600">
@@ -307,6 +441,100 @@ export const UserFilters: React.FC<UserFiltersProps> = ({
                   }}
                   className="ml-1 hover:text-amber-900 dark:hover:text-amber-100 transition-colors rounded-full p-0.5 hover:bg-amber-100 dark:hover:bg-amber-800/50"
                   aria-label="Remove date range filter"
+                >
+                  <FiX className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+
+            {filters.isVerified !== undefined && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-700 transition-colors">
+                Verified: {filters.isVerified ? 'Yes' : 'No'}
+                <button
+                  onClick={() => handleFilterChange('isVerified', '')}
+                  className="ml-1 hover:text-blue-900 dark:hover:text-blue-100 transition-colors rounded-full p-0.5 hover:bg-blue-100 dark:hover:bg-blue-800/50"
+                  aria-label="Remove verification filter"
+                >
+                  <FiX className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+
+            {filters.hasProfile !== undefined && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700 transition-colors">
+                Profile: {filters.hasProfile ? 'Complete' : 'Incomplete'}
+                <button
+                  onClick={() => handleFilterChange('hasProfile', '')}
+                  className="ml-1 hover:text-indigo-900 dark:hover:text-indigo-100 transition-colors rounded-full p-0.5 hover:bg-indigo-100 dark:hover:bg-indigo-800/50"
+                  aria-label="Remove profile filter"
+                >
+                  <FiX className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+
+            {filters.email && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-pink-50 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300 border border-pink-200 dark:border-pink-700 transition-colors">
+                Email: {filters.email}
+                <button
+                  onClick={() => handleFilterChange('email', '')}
+                  className="ml-1 hover:text-pink-900 dark:hover:text-pink-100 transition-colors rounded-full p-0.5 hover:bg-pink-100 dark:hover:bg-pink-800/50"
+                  aria-label="Remove email filter"
+                >
+                  <FiX className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+
+            {filters.username && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-cyan-50 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-700 transition-colors">
+                Username: {filters.username}
+                <button
+                  onClick={() => handleFilterChange('username', '')}
+                  className="ml-1 hover:text-cyan-900 dark:hover:text-cyan-100 transition-colors rounded-full p-0.5 hover:bg-cyan-100 dark:hover:bg-cyan-800/50"
+                  aria-label="Remove username filter"
+                >
+                  <FiX className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+
+            {filters.country && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300 border border-teal-200 dark:border-teal-700 transition-colors">
+                Country: {filters.country}
+                <button
+                  onClick={() => handleFilterChange('country', '')}
+                  className="ml-1 hover:text-teal-900 dark:hover:text-teal-100 transition-colors rounded-full p-0.5 hover:bg-teal-100 dark:hover:bg-teal-800/50"
+                  aria-label="Remove country filter"
+                >
+                  <FiX className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+
+            {filters.city && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 border border-orange-200 dark:border-orange-700 transition-colors">
+                City: {filters.city}
+                <button
+                  onClick={() => handleFilterChange('city', '')}
+                  className="ml-1 hover:text-orange-900 dark:hover:text-orange-100 transition-colors rounded-full p-0.5 hover:bg-orange-100 dark:hover:bg-orange-800/50"
+                  aria-label="Remove city filter"
+                >
+                  <FiX className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+
+            {(filters.lastLoginFrom || filters.lastLoginTo) && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-200 dark:border-purple-700 transition-colors">
+                Last Login: {filters.lastLoginFrom || '...'} to {filters.lastLoginTo || '...'}
+                <button
+                  onClick={() => {
+                    handleDateChange('lastLoginFrom', '');
+                    handleDateChange('lastLoginTo', '');
+                  }}
+                  className="ml-1 hover:text-purple-900 dark:hover:text-purple-100 transition-colors rounded-full p-0.5 hover:bg-purple-100 dark:hover:bg-purple-800/50"
+                  aria-label="Remove last login filter"
                 >
                   <FiX className="w-3 h-3" />
                 </button>

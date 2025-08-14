@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FormInput } from '../common/FormInput';
 import { Button } from '../common/Button';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -74,7 +74,7 @@ export const ProfileFormUI: React.FC<ProfileFormUIProps> = ({
           type="date"
           label={t('profile.date_of_birth')}
           placeholder=""
-          value={formData.dateOfBirth ? new Date(formData.dateOfBirth).toISOString().split('T')[0] : ''}
+          value={formData.dateOfBirth || ''}
           onChange={createChangeHandler('dateOfBirth')}
           icon={<Calendar {...iconProps} />}
         />
@@ -157,6 +157,7 @@ interface ProfileFormProps {
   onSubmit: (data: AdminUpdateUserProfileDto) => Promise<void>;
   isSubmitting?: boolean;
   error?: string;
+  isLoading?: boolean;
 }
 
 export const ProfileForm: React.FC<ProfileFormProps> = ({
@@ -164,8 +165,17 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   onSubmit,
   isSubmitting = false,
   error,
+  isLoading = false,
 }) => {
-  const [formData, setFormData] = useState<AdminUpdateUserProfileDto>(initialData);
+  const [formData, setFormData] = useState<AdminUpdateUserProfileDto>({});
+
+  // Sync form data when initialData changes
+  useEffect(() => {
+    // Only update if initialData has actual data (not empty object)
+    if (initialData && Object.keys(initialData).length > 0) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
 
   const handleFieldChange = (fieldName: keyof AdminUpdateUserProfileDto, value: string) => {
     setFormData(prev => ({ ...prev, [fieldName]: value }));
@@ -175,6 +185,24 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
     e.preventDefault();
     await onSubmit(formData);
   };
+
+  // Show loading state while data is being fetched
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary-500"></div>
+      </div>
+    );
+  }
+
+  // Show loading state while data is being fetched
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary-500"></div>
+      </div>
+    );
+  }
 
   return (
     <ProfileFormUI

@@ -1,111 +1,623 @@
-/* CountrySelector dropdown positioning and styling fixes */
+/* React Select Country Selector Styles */
 
-/* Ensure dropdown container allows overflow */
-.country-selector-container {
+/* Ensure proper z-index for dropdown */
+.react-select-container {
   position: relative;
+  z-index: 10;
+  isolation: isolate;
+}
+
+/* Override react-select styles for better integration */
+.react-select__control {
+  border: 1px solid #d1d5db !important;
+  border-radius: 0.5rem !important;
+  background-color: transparent !important;
+  transition: all 0.2s ease-in-out !important;
+  box-shadow: none !important;
+  min-height: 44px !important;
+  /* Ensure control doesn't interfere with menu */
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.react-select__control:hover {
+  border-color: #9ca3af !important;
+}
+
+.react-select__control--is-focused {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 1px #3b82f6 !important;
+}
+
+.react-select__control--is-disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  background-color: #f9fafb !important;
+}
+
+/* Error state */
+.react-select-error .react-select__control {
+  border-color: #ef4444 !important;
+}
+
+.react-select-error .react-select__control:hover {
+  border-color: #ef4444 !important;
+}
+
+.react-select-error .react-select__control--is-focused {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px #ef4444 !important;
+}
+
+/* Menu positioning and styling */
+.react-select__menu {
+  z-index: 99999 !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  overflow: hidden !important;
+  background-color: white !important;
+  position: fixed !important;
+}
+
+.react-select__menu-list {
+  padding: 4px !important;
+  max-height: 300px !important;
+}
+
+/* Option styling */
+.react-select__option {
+  padding: 8px 12px !important;
+  border-radius: 0.375rem !important;
+  margin: 2px 0 !important;
+  cursor: pointer !important;
+  transition: background-color 0.1s ease-in-out !important;
+  pointer-events: auto !important;
+}
+
+.react-select__option--is-focused {
+  background-color: #f3f4f6 !important;
+  color: inherit !important;
+}
+
+.react-select__option--is-selected {
+  background-color: #3b82f6 !important;
+  color: white !important;
+}
+
+/* Input and placeholder styling */
+.react-select__input-container {
+  color: inherit !important;
+}
+
+.react-select__placeholder {
+  color: #9ca3af !important;
+}
+
+.react-select__single-value {
+  color: inherit !important;
+  position: static !important;
+  transform: none !important;
+  max-width: calc(100% - 8px) !important;
   overflow: visible !important;
 }
 
-/* Ensure dropdown appears correctly */
-.country-selector-dropdown {
-  position: absolute !important;
-  z-index: 100 !important;
-  min-width: 320px !important;
+.react-select__value-container {
+  padding: 8px 12px !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
-/* Ensure proper stacking context for the dropdown */
-.country-selector-container {
-  position: relative;
-  z-index: 1;
+/* Dropdown indicator */
+.react-select__dropdown-indicator {
+  color: #6b7280 !important;
+  padding: 8px !important;
+  transition: color 0.2s ease-in-out, transform 0.2s ease-in-out !important;
 }
 
-/* Override any parent overflow hidden that might clip the dropdown */
-.country-selector-container [data-headlessui-state~="open"] {
-  overflow: visible !important;
+.react-select__dropdown-indicator:hover {
+  color: #374151 !important;
 }
 
-/* Smooth animations for dropdown */
-.country-selector-dropdown {
-  transform-origin: top left;
-  transition: all 0.15s ease-out;
+.react-select__control--menu-is-open .react-select__dropdown-indicator {
+  transform: rotate(180deg) !important;
 }
 
-.country-selector-dropdown[data-headlessui-state~="open"] {
-  opacity: 1;
-  transform: scale(1);
+/* Remove indicator separator */
+.react-select__indicator-separator {
+  display: none !important;
 }
 
-.country-selector-dropdown[data-headlessui-state~="closed"] {
-  opacity: 0;
-  transform: scale(0.95);
+/* Dark mode styles */
+.dark .react-select__control {
+  border-color: #4b5563 !important;
+  background-color: transparent !important;
 }
 
-/* Ensure flag images load properly */
-.country-flag {
-  background-color: #f3f4f6;
-  border: 1px solid #e5e7eb;
+.dark .react-select__control:hover {
+  border-color: #6b7280 !important;
 }
 
-.dark .country-flag {
-  background-color: #374151;
-  border-color: #4b5563;
+.dark .react-select__control--is-focused {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 1px #60a5fa !important;
 }
 
-/* Improve search input styling */
-.country-search-input {
-  transition: all 0.15s ease-in-out;
+.dark .react-select__control--is-disabled {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
 }
 
-.country-search-input:focus {
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+.dark .react-select__menu {
+  background-color: #1f2937 !important;
+  border-color: #4b5563 !important;
 }
 
-/* Better hover states for country options */
-.country-option {
-  transition: background-color 0.1s ease-in-out;
+.dark .react-select__option--is-focused {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
 }
 
-.country-option:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+.dark .react-select__option--is-selected {
+  background-color: #3b82f6 !important;
+  color: white !important;
 }
 
-.dark .country-option:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+.dark .react-select__placeholder {
+  color: #6b7280 !important;
+}
+
+.dark .react-select__single-value {
+  color: #f9fafb !important;
+}
+
+.dark .react-select__dropdown-indicator {
+  color: #9ca3af !important;
+}
+
+.dark .react-select__dropdown-indicator:hover {
+  color: #d1d5db !important;
+}
+
+/* Error state in dark mode */
+.dark .react-select-error .react-select__control {
+  border-color: #ef4444 !important;
+}
+
+.dark .react-select-error .react-select__control:hover {
+  border-color: #ef4444 !important;
+}
+
+.dark .react-select-error .react-select__control--is-focused {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px #ef4444 !important;
+}
+
+/* Flag image styling */
+.react-select__option img,
+.react-select__single-value img {
+  flex-shrink: 0;
+  border-radius: 2px;
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark .react-select__option img,
+.dark .react-select__single-value img {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .react-select__menu {
+    width: calc(100vw - 32px) !important;
+    max-width: none !important;
+    left: 16px !important;
+    right: 16px !important;
+    max-height: 50vh !important;
+  }
+
+  .react-select__option {
+    padding: 12px 16px !important; /* Larger touch targets */
+  }
 }
 
 /* Ensure proper text truncation */
-.country-name {
+.react-select__option .country-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* Ensure proper stacking context */
-.country-selector-container * {
-  position: relative;
+/* Loading state */
+.react-select__loading-indicator {
+  color: #6b7280 !important;
 }
 
-.country-selector-dropdown {
-  /* Ensure dropdown is always visible */
-  visibility: visible !important;
-  opacity: 1 !important;
+.dark .react-select__loading-indicator {
+  color: #9ca3af !important;
+}
+
+/* Focus styles for accessibility */
+.react-select__control--is-focused {
+  outline: none !important;
+}
+
+/* Ensure menu appears above other elements */
+.react-select__menu-portal {
+  z-index: 99999 !important;
+  pointer-events: none !important;
+}
+
+.react-select__menu-portal .react-select__menu {
+  pointer-events: auto !important;
+}
+
+/* Custom scrollbar for menu list */
+.react-select__menu-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.react-select__menu-list::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 3px;
+}
+
+.react-select__menu-list::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.react-select__menu-list::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.dark .react-select__menu-list::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.dark .react-select__menu-list::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+.dark .react-select__menu-list::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Animation for dropdown */
+.react-select__menu {
+  animation: slideDown 0.15s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ensure proper height consistency */
+.react-select__value-container {
+  min-height: inherit !important;
+}
+
+.react-select__indicators {
+  height: inherit !important;
+}
+
+/* Fix for portal rendering */
+.react-select__menu-portal {
+  position: fixed !important;
+}
+
+/* Ensure dropdown is always visible and clickable */
+.react-select__menu {
+  min-width: 280px !important;
+  max-width: 400px !important;
+}
+
+/* Fix for viewport positioning */
+.react-select__menu-portal .react-select__menu {
   transform: none !important;
+  position: fixed !important;
 }
 
-/* Mobile responsive adjustments */
-@media (max-width: 640px) {
-  .country-selector-dropdown {
-    width: 280px !important;
+/* Ensure proper stacking context */
+.react-select-container .react-select__control {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.react-select-container .react-select__menu {
+  position: fixed !important;
+  z-index: 99999 !important;
+}
+
+/* Additional fixes for dropdown visibility and interaction */
+.react-select__menu-list {
+  pointer-events: auto !important;
+}
+
+.react-select__option {
+  pointer-events: auto !important;
+  user-select: none !important;
+}
+
+/* Ensure dropdown doesn't get cut off by parent containers */
+.react-select__menu-portal .react-select__menu {
+  width: auto !important;
+  min-width: 280px !important;
+  max-width: 400px !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+}
+
+/* Fix for mobile viewport issues */
+@media (max-width: 768px) {
+  .react-select__menu-portal .react-select__menu {
+    min-width: 250px !important;
     max-width: calc(100vw - 32px) !important;
   }
 }
 
-/* Ensure dropdown appears above modals and other overlays */
-.country-selector-dropdown {
-  z-index: 9999 !important;
+/* Ensure proper event handling */
+.react-select__control {
+  pointer-events: auto !important;
 }
 
-/* Fix for potential transform issues */
-.country-selector-container {
-  transform: none !important;
+.react-select__dropdown-indicator {
+  pointer-events: auto !important;
+}
+
+.react-select__value-container {
+  pointer-events: auto !important;
+}
+
+/* Fix for search input in dropdown */
+.react-select__input {
+  pointer-events: auto !important;
+}
+
+/* Style the built-in search input */
+.react-select__input-container {
+  padding: 2px 8px !important;
+}
+
+.react-select__input input {
+  font-size: 14px !important;
+  color: inherit !important;
+}
+
+.react-select__input input::placeholder {
+  color: #9ca3af !important;
+  opacity: 1 !important;
+}
+
+.dark .react-select__input input::placeholder {
+  color: #6b7280 !important;
+}
+
+/* Search highlighting styles */
+.react-select__option .search-highlight {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+  padding: 1px 2px !important;
+  border-radius: 2px !important;
+  font-weight: 500 !important;
+}
+
+.dark .react-select__option .search-highlight {
+  background-color: #451a03 !important;
+  color: #fbbf24 !important;
+}
+
+/* Enhanced option layout */
+.react-select__option {
+  padding: 10px 12px !important;
+  line-height: 1.4 !important;
+}
+
+.react-select__option .option-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.react-select__option .option-flag {
+  flex-shrink: 0;
+  width: 20px;
+  height: 12px;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark .react-select__option .option-flag {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.react-select__option .option-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.react-select__option .option-name {
+  font-weight: 500;
+  color: inherit;
+  margin-bottom: 2px;
+}
+
+.react-select__option .option-code {
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.dark .react-select__option .option-code {
+  color: #9ca3af;
+}
+
+.react-select__option .option-calling-code {
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.dark .react-select__option .option-calling-code {
+  color: #9ca3af;
+}
+
+/* No results message styling */
+.react-select__menu .no-results-message {
+  padding: 16px 12px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.dark .react-select__menu .no-results-message {
+  color: #9ca3af;
+}
+
+.react-select__menu .no-results-hint {
+  font-size: 12px;
+  margin-top: 4px;
+  opacity: 0.8;
+}
+
+/* Custom menu search input styling */
+.country-selector-search-header {
+  background-color: #f9fafb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  padding: 12px !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.dark .country-selector-search-header {
+  background-color: #1f2937 !important;
+  border-bottom-color: #374151 !important;
+}
+
+.country-selector-search-input {
+  width: 100% !important;
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 6px !important;
+  background-color: white !important;
+  color: #111827 !important;
+  outline: none !important;
+  transition: all 0.2s ease-in-out !important;
+  /* Ensure input is interactive */
+  pointer-events: auto !important;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+
+.country-selector-search-input:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+.dark .country-selector-search-input {
+  background-color: #1f2937 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+.dark .country-selector-search-input:focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
+}
+
+.country-selector-search-input::placeholder {
+  color: #9ca3af !important;
+}
+
+.dark .country-selector-search-input::placeholder {
+  color: #6b7280 !important;
+}
+
+/* Custom menu options styling */
+.country-selector-option {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 10px 16px !important;
+  cursor: pointer !important;
+  transition: background-color 0.15s ease-in-out !important;
+  border: none !important;
+  background: none !important;
+  /* Ensure options are clickable */
+  pointer-events: auto !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+.country-selector-option:hover {
+  background-color: #f3f4f6 !important;
+}
+
+.dark .country-selector-option:hover {
+  background-color: #374151 !important;
+}
+
+.country-selector-option-flag {
+  width: 20px !important;
+  height: 12px !important;
+  object-fit: cover !important;
+  border-radius: 2px !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  flex-shrink: 0 !important;
+}
+
+.dark .country-selector-option-flag {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.country-selector-option-details {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.country-selector-option-name {
+  font-weight: 500 !important;
+  color: #111827 !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+}
+
+.dark .country-selector-option-name {
+  color: #f9fafb !important;
+}
+
+.country-selector-option-code {
+  font-size: 11px !important;
+  color: #6b7280 !important;
+  margin-top: 2px !important;
+}
+
+.dark .country-selector-option-code {
+  color: #9ca3af !important;
+}
+
+.country-selector-option-calling-code {
+  font-size: 13px !important;
+  color: #6b7280 !important;
+  font-weight: 500 !important;
+  flex-shrink: 0 !important;
+}
+
+.dark .country-selector-option-calling-code {
+  color: #9ca3af !important;
 }

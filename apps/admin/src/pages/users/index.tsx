@@ -31,6 +31,17 @@ const validatePage = (page: string | null): number => {
   return pageNum > 0 ? pageNum : 1;
 };
 
+const validateDateString = (date: string | null): string | undefined => {
+  if (!date) return undefined;
+  // Basic date format validation (YYYY-MM-DD)
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  return dateRegex.test(date) ? date : undefined;
+};
+
+const validateString = (value: string | null): string | undefined => {
+  return value && value.trim() ? value.trim() : undefined;
+};
+
 const UserListPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -50,13 +61,59 @@ const UserListPage = () => {
   const [limit, setLimit] = useState(preferences.pageSize);
   const [searchValue, setSearchValue] = useState(() => searchParams.get('search') || '');
   const [debouncedSearchValue, setDebouncedSearchValue] = useState(() => searchParams.get('search') || '');
-  const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState<UserFiltersType>(() => ({
-    role: validateUserRole(searchParams.get('role')),
-    isActive: validateBoolean(searchParams.get('isActive')),
-    dateFrom: searchParams.get('dateFrom') || undefined,
-    dateTo: searchParams.get('dateTo') || undefined,
-  }));
+  // Initialize filters from URL parameters first
+  const [filters, setFilters] = useState<UserFiltersType>(() => {
+    const initialFilters = {
+      role: validateUserRole(searchParams.get('role')),
+      isActive: validateBoolean(searchParams.get('isActive')),
+      dateFrom: validateDateString(searchParams.get('dateFrom')) || validateDateString(searchParams.get('createdFrom')),
+      dateTo: validateDateString(searchParams.get('dateTo')) || validateDateString(searchParams.get('createdTo')),
+      isVerified: validateBoolean(searchParams.get('isVerified')),
+      // Additional expanded filters
+      email: validateString(searchParams.get('email')),
+      username: validateString(searchParams.get('username')),
+      hasProfile: validateBoolean(searchParams.get('hasProfile')),
+      country: validateString(searchParams.get('country')),
+      city: validateString(searchParams.get('city')),
+      lastLoginFrom: validateDateString(searchParams.get('lastLoginFrom')),
+      lastLoginTo: validateDateString(searchParams.get('lastLoginTo')),
+      createdFrom: validateDateString(searchParams.get('createdFrom')),
+      createdTo: validateDateString(searchParams.get('createdTo')),
+    };
+
+
+
+    return initialFilters;
+  });
+
+  // Initialize showFilters based on whether there are active filters from URL
+  const [showFilters, setShowFilters] = useState(() => {
+    const initialFilters = {
+      role: validateUserRole(searchParams.get('role')),
+      isActive: validateBoolean(searchParams.get('isActive')),
+      dateFrom: validateDateString(searchParams.get('dateFrom')) || validateDateString(searchParams.get('createdFrom')),
+      dateTo: validateDateString(searchParams.get('dateTo')) || validateDateString(searchParams.get('createdTo')),
+      isVerified: validateBoolean(searchParams.get('isVerified')),
+      email: validateString(searchParams.get('email')),
+      username: validateString(searchParams.get('username')),
+      hasProfile: validateBoolean(searchParams.get('hasProfile')),
+      country: validateString(searchParams.get('country')),
+      city: validateString(searchParams.get('city')),
+      lastLoginFrom: validateDateString(searchParams.get('lastLoginFrom')),
+      lastLoginTo: validateDateString(searchParams.get('lastLoginTo')),
+      createdFrom: validateDateString(searchParams.get('createdFrom')),
+      createdTo: validateDateString(searchParams.get('createdTo')),
+    };
+
+    // Show filters if there are any active filters from URL parameters
+    const hasActiveFilters = Object.values(initialFilters).some(value =>
+      value !== undefined && value !== null && value !== ''
+    );
+
+
+
+    return hasActiveFilters;
+  });
   const [sortBy, setSortBy] = useState(() => searchParams.get('sortBy') || 'createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(() =>
     searchParams.get('sortOrder') === 'asc' ? 'asc' : 'desc'
@@ -104,13 +161,23 @@ const UserListPage = () => {
       setDebouncedSearchValue(searchValue);
       setPage(1); // Reset to first page when search changes
 
-      // Update URL with search parameter
+      // Update URL with search parameter and all filters
       updateUrlParams({
         search: searchValue || undefined,
         role: filters.role || undefined,
         isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
         dateFrom: filters.dateFrom || undefined,
         dateTo: filters.dateTo || undefined,
+        isVerified: filters.isVerified !== undefined ? String(filters.isVerified) : undefined,
+        email: filters.email || undefined,
+        username: filters.username || undefined,
+        hasProfile: filters.hasProfile !== undefined ? String(filters.hasProfile) : undefined,
+        country: filters.country || undefined,
+        city: filters.city || undefined,
+        lastLoginFrom: filters.lastLoginFrom || undefined,
+        lastLoginTo: filters.lastLoginTo || undefined,
+        createdFrom: filters.createdFrom || undefined,
+        createdTo: filters.createdTo || undefined,
         page: searchValue ? '1' : String(page), // Reset to page 1 if searching
         limit: limit !== 10 ? String(limit) : undefined,
         sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
@@ -137,6 +204,18 @@ const UserListPage = () => {
     };
   }, []);
 
+  // Automatically show filter panel when there are active filters
+  useEffect(() => {
+    const hasActiveFilters = Object.values(filters).some(value =>
+      value !== undefined && value !== null && value !== ''
+    );
+
+    // Only auto-show filters if there are active filters and panel is currently hidden
+    if (hasActiveFilters && !showFilters) {
+      setShowFilters(true);
+    }
+  }, [filters, showFilters]);
+
   // Build query parameters including filters and sorting
   const queryParams = {
     page,
@@ -146,6 +225,18 @@ const UserListPage = () => {
     isActive: filters.isActive !== undefined ? filters.isActive : undefined,
     sortBy,
     sortOrder,
+    // Additional filter parameters (for future backend support)
+    isVerified: filters.isVerified !== undefined ? filters.isVerified : undefined,
+    email: filters.email || undefined,
+    username: filters.username || undefined,
+    hasProfile: filters.hasProfile !== undefined ? filters.hasProfile : undefined,
+    country: filters.country || undefined,
+    city: filters.city || undefined,
+    lastLoginFrom: filters.lastLoginFrom || undefined,
+    lastLoginTo: filters.lastLoginTo || undefined,
+    // Use dateFrom/dateTo as primary, with createdFrom/createdTo as fallback
+    dateFrom: filters.dateFrom || filters.createdFrom || undefined,
+    dateTo: filters.dateTo || filters.createdTo || undefined,
   };
 
   const { data, isLoading, error } = trpc.adminUser.getAllUsers.useQuery(queryParams);
@@ -172,6 +263,16 @@ const UserListPage = () => {
       isActive: newFilters.isActive !== undefined ? String(newFilters.isActive) : undefined,
       dateFrom: newFilters.dateFrom || undefined,
       dateTo: newFilters.dateTo || undefined,
+      isVerified: newFilters.isVerified !== undefined ? String(newFilters.isVerified) : undefined,
+      email: newFilters.email || undefined,
+      username: newFilters.username || undefined,
+      hasProfile: newFilters.hasProfile !== undefined ? String(newFilters.hasProfile) : undefined,
+      country: newFilters.country || undefined,
+      city: newFilters.city || undefined,
+      lastLoginFrom: newFilters.lastLoginFrom || undefined,
+      lastLoginTo: newFilters.lastLoginTo || undefined,
+      createdFrom: newFilters.createdFrom || undefined,
+      createdTo: newFilters.createdTo || undefined,
       page: '1', // Reset to page 1 when filters change
       limit: limit !== 10 ? String(limit) : undefined,
       sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
@@ -194,6 +295,16 @@ const UserListPage = () => {
       isActive: undefined,
       dateFrom: undefined,
       dateTo: undefined,
+      isVerified: undefined,
+      email: undefined,
+      username: undefined,
+      hasProfile: undefined,
+      country: undefined,
+      city: undefined,
+      lastLoginFrom: undefined,
+      lastLoginTo: undefined,
+      createdFrom: undefined,
+      createdTo: undefined,
       page: '1',
       limit: limit !== 10 ? String(limit) : undefined,
       sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
@@ -211,6 +322,16 @@ const UserListPage = () => {
       isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
       dateFrom: filters.dateFrom || undefined,
       dateTo: filters.dateTo || undefined,
+      isVerified: filters.isVerified !== undefined ? String(filters.isVerified) : undefined,
+      email: filters.email || undefined,
+      username: filters.username || undefined,
+      hasProfile: filters.hasProfile !== undefined ? String(filters.hasProfile) : undefined,
+      country: filters.country || undefined,
+      city: filters.city || undefined,
+      lastLoginFrom: filters.lastLoginFrom || undefined,
+      lastLoginTo: filters.lastLoginTo || undefined,
+      createdFrom: filters.createdFrom || undefined,
+      createdTo: filters.createdTo || undefined,
       page: newPage > 1 ? String(newPage) : undefined,
       limit: limit !== 10 ? String(limit) : undefined,
       sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
@@ -233,6 +354,16 @@ const UserListPage = () => {
       isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
       dateFrom: filters.dateFrom || undefined,
       dateTo: filters.dateTo || undefined,
+      isVerified: filters.isVerified !== undefined ? String(filters.isVerified) : undefined,
+      email: filters.email || undefined,
+      username: filters.username || undefined,
+      hasProfile: filters.hasProfile !== undefined ? String(filters.hasProfile) : undefined,
+      country: filters.country || undefined,
+      city: filters.city || undefined,
+      lastLoginFrom: filters.lastLoginFrom || undefined,
+      lastLoginTo: filters.lastLoginTo || undefined,
+      createdFrom: filters.createdFrom || undefined,
+      createdTo: filters.createdTo || undefined,
       page: undefined, // Reset to page 1
       limit: newLimit !== 10 ? String(newLimit) : undefined,
       sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
@@ -273,6 +404,16 @@ const UserListPage = () => {
       isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
       dateFrom: filters.dateFrom || undefined,
       dateTo: filters.dateTo || undefined,
+      isVerified: filters.isVerified !== undefined ? String(filters.isVerified) : undefined,
+      email: filters.email || undefined,
+      username: filters.username || undefined,
+      hasProfile: filters.hasProfile !== undefined ? String(filters.hasProfile) : undefined,
+      country: filters.country || undefined,
+      city: filters.city || undefined,
+      lastLoginFrom: filters.lastLoginFrom || undefined,
+      lastLoginTo: filters.lastLoginTo || undefined,
+      createdFrom: filters.createdFrom || undefined,
+      createdTo: filters.createdTo || undefined,
       page: undefined, // Reset to page 1
       limit: limit !== 10 ? String(limit) : undefined,
       sortBy: newSortBy !== 'createdAt' ? newSortBy : undefined,

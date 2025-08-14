@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { trpc } from '../utils/trpc';
 import { TrpcApiResponse } from '@shared/types/api-response.types';
@@ -95,19 +95,23 @@ export function useAuth(): UseAuthReturn {
     setAuthState(prev => ({ ...prev, user }));
   }, []);
 
+  // Use ref to track the last processed user data to prevent infinite loops
+  const lastProcessedUserRef = useRef<string>('');
+
   // Effect to handle /me endpoint response for authentication verification
   useEffect(() => {
     const response = meData as TrpcApiResponse<User> | undefined;
     if (response?.data) {
-      const currentUser = authState.user;
       const newUserData = response.data;
+      const newUserDataString = JSON.stringify(newUserData);
 
-      // Update user state with fresh data from /me endpoint
-      if (JSON.stringify(currentUser) !== JSON.stringify(newUserData)) {
+      // Only update if the data has actually changed
+      if (lastProcessedUserRef.current !== newUserDataString) {
+        lastProcessedUserRef.current = newUserDataString;
         updateUserState(newUserData);
       }
     }
-  }, [meData, authState.user, updateUserState]);
+  }, [meData, updateUserState]);
 
   // Effect to handle authentication errors from /me endpoint
   useEffect(() => {
@@ -119,19 +123,23 @@ export function useAuth(): UseAuthReturn {
     }
   }, [meError, authState.isAuthenticated, clearAuthData, navigate]);
 
+  // Use ref to track the last processed profile data to prevent infinite loops
+  const lastProcessedProfileRef = useRef<string>('');
+
   // Effect to update user state when profile data is fetched (for full profile)
   useEffect(() => {
     const response = profileData as TrpcApiResponse<User> | undefined;
     if (response?.data) {
-      const currentUser = authState.user;
       const newProfile = response.data;
+      const newProfileString = JSON.stringify(newProfile);
 
-      // Avoid unnecessary updates if user data is the same
-      if (JSON.stringify(currentUser) !== JSON.stringify(newProfile)) {
+      // Only update if the profile data has actually changed
+      if (lastProcessedProfileRef.current !== newProfileString) {
+        lastProcessedProfileRef.current = newProfileString;
         updateUserState(newProfile);
       }
     }
-  }, [profileData, authState.user, updateUserState]);
+  }, [profileData, updateUserState]);
 
   /**
    * 从本地存储中恢复身份验证状态

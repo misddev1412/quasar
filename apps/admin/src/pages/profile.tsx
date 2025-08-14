@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProfileForm from '../components/user/ProfileForm';
 import { AdminUpdatePasswordDto, AdminUpdateUserProfileDto, AdminUserResponseDto } from '../../../backend/src/modules/user/dto/admin/admin-user.dto';
@@ -69,18 +69,45 @@ const UserProfilePage = () => {
     await updatePasswordMutation.mutateAsync(data);
   }
 
-  const initialData = (profileData as AdminUserResponseDto)?.profile || {};
+  // Memoize initialData to prevent unnecessary re-renders
+  const initialData = useMemo(() => {
+    if (!profileData) return {};
 
-  const tabs = [
+    // The API response is wrapped in a standardized response structure
+    // profileData.data contains the actual user data
+    const userData = (profileData as any)?.data;
+    if (!userData) return {};
+
+    const profile = userData.profile;
+    if (!profile) return {};
+
+    // Ensure all fields are properly mapped and handle date formatting
+    return {
+      firstName: profile.firstName || '',
+      lastName: profile.lastName || '',
+      phoneNumber: profile.phoneNumber || '',
+      dateOfBirth: profile.dateOfBirth ? new Date(profile.dateOfBirth).toISOString().split('T')[0] : '',
+      avatar: profile.avatar || '',
+      bio: profile.bio || '',
+      address: profile.address || '',
+      city: profile.city || '',
+      country: profile.country || '',
+      postalCode: profile.postalCode || '',
+    };
+  }, [profileData]);
+
+  // Memoize tabs to prevent unnecessary re-renders
+  const tabs = useMemo(() => [
     {
       label: t('profile.update_profile'),
       icon: <User />,
       content: (
-        <ProfileForm 
-          initialData={initialData} 
+        <ProfileForm
+          initialData={initialData}
           onSubmit={handleProfileSubmit}
           isSubmitting={updateProfileMutation.isPending}
           error={updateProfileMutation.error?.message}
+          isLoading={isLoading}
         />
       ),
     },
@@ -100,7 +127,17 @@ const UserProfilePage = () => {
       icon: <Settings />,
       content: <PreferenceSettings />,
     },
-  ];
+  ], [
+    t,
+    initialData,
+    handleProfileSubmit,
+    updateProfileMutation.isPending,
+    updateProfileMutation.error?.message,
+    handlePasswordSubmit,
+    updatePasswordMutation.isPending,
+    updatePasswordMutation.error?.message,
+    isLoading
+  ]);
 
   const renderContent = () => {
     if (isLoading) {

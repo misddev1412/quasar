@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
-    "outDir": "../../dist/scripts",
+    "outDir": "../../dist/migrations",
     "module": "commonjs",
     "target": "es2021",
     "experimentalDecorators": true,
@@ -13,17 +13,20 @@
     "strict": false,
     "noEmit": false,
     "moduleResolution": "node",
-    "baseUrl": "../../"
+    "baseUrl": ".",
+    "types": ["node"]
   },
   "ts-node": {
     "require": ["tsconfig-paths/register"],
     "compilerOptions": {
-      "module": "commonjs"
+      "module": "commonjs",
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true
     }
   },
   "include": [
-    "src/**/*.ts",
-    "migration-data-source.ts"
+    "migration-data-source.ts",
+    "src/database/migrations/*.ts"
   ],
   "exclude": [
     "node_modules",

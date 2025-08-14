@@ -39,28 +39,28 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "apps/backend",
-        "command": "npx typeorm-ts-node-commonjs migration:run -d migration-data-source.ts"
+        "command": "npx ts-node --project tsconfig.migrations.json -r tsconfig-paths/register ../../node_modules/typeorm/cli.js migration:run -d migration-data-source.ts"
       }
     },
     "migration:show": {
       "executor": "nx:run-commands",
       "options": {
         "cwd": "apps/backend",
-        "command": "npx typeorm-ts-node-commonjs migration:show -d migration-data-source.ts"
+        "command": "npx ts-node --project tsconfig.migrations.json -r tsconfig-paths/register ../../node_modules/typeorm/cli.js migration:show -d migration-data-source.ts"
       }
     },
     "migration:revert": {
       "executor": "nx:run-commands",
       "options": {
         "cwd": "apps/backend",
-        "command": "npx typeorm-ts-node-commonjs migration:revert -d migration-data-source.ts"
+        "command": "npx ts-node --project tsconfig.migrations.json -r tsconfig-paths/register ../../node_modules/typeorm/cli.js migration:revert -d migration-data-source.ts"
       }
     },
     "migration:generate": {
       "executor": "nx:run-commands",
       "options": {
         "cwd": "apps/backend",
-        "command": "npx typeorm-ts-node-commonjs migration:generate -d migration-data-source.ts"
+        "command": "npx ts-node --project tsconfig.migrations.json -r tsconfig-paths/register ../../node_modules/typeorm/cli.js migration:generate -d migration-data-source.ts"
       }
     },
     "seed": {

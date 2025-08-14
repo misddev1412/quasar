@@ -1,0 +1,333 @@
+/* CountrySelector dropdown positioning and styling fixes */
+
+/* Container styling - ensure proper overflow and positioning context */
+.country-selector-container {
+  position: relative;
+  overflow: visible !important;
+  z-index: 1;
+  /* Ensure no transforms interfere with dropdown positioning */
+  transform: none !important;
+  /* Remove any filters that might create stacking contexts */
+  filter: none !important;
+  /* Ensure isolation doesn't interfere */
+  isolation: auto !important;
+}
+
+/* Ensure parent containers don't clip the dropdown */
+.country-selector-container,
+.country-selector-container *:not(.country-selector-dropdown) {
+  overflow: visible !important;
+}
+
+/* Main dropdown styling with fixed positioning */
+.country-selector-dropdown {
+  /* Ensure proper box model */
+  box-sizing: border-box !important;
+  /* Minimum width for proper display */
+  min-width: 320px !important;
+  /* Maximum width to prevent overflow */
+  max-width: 400px !important;
+  /* Maximum height to prevent viewport overflow */
+  max-height: 400px !important;
+  /* Ensure visibility */
+  visibility: visible !important;
+  opacity: 1 !important;
+  /* Remove any transforms that might interfere */
+  transform: none !important;
+  /* Smooth transition */
+  transition: opacity 0.15s ease-out !important;
+  /* Ensure proper overflow handling */
+  overflow: hidden !important;
+  /* Better shadow for depth */
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  /* Ensure proper display */
+  display: flex !important;
+  flex-direction: column !important;
+  /* Critical: Ensure pointer events work */
+  pointer-events: auto !important;
+  /* Ensure proper positioning context */
+  position: fixed !important;
+  /* Prevent any backdrop filters or effects */
+  backdrop-filter: none !important;
+  /* Ensure proper stacking */
+  z-index: 2147483647 !important;
+}
+
+/* Ensure flag images load properly */
+.country-flag {
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+}
+
+.dark .country-flag {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+/* Improve search input styling */
+.country-search-input {
+  transition: all 0.15s ease-in-out;
+}
+
+.country-search-input:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Better hover states for country options */
+.country-option {
+  transition: background-color 0.1s ease-in-out;
+}
+
+.country-option:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark .country-option:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Ensure proper text truncation */
+.country-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Search input styling and functionality */
+.country-search-input {
+  /* Ensure proper positioning and interactivity */
+  position: relative;
+  z-index: 1;
+  pointer-events: auto !important;
+  /* Smooth transitions */
+  transition: all 0.15s ease-in-out;
+  /* Ensure proper text input */
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  /* Ensure input can receive focus and keyboard events */
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  /* Better typography */
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.dark .country-search-input {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+.country-search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dark .country-search-input {
+  border-color: #4b5563;
+  background-color: #374151;
+  color: #f9fafb;
+}
+
+.dark .country-search-input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+/* Country option styling */
+.country-option {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  transition: background-color 0.1s ease-in-out !important;
+  /* Ensure proper touch targets */
+  min-height: 44px !important;
+  /* Ensure proper display */
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Ensure search container doesn't interfere with dropdown */
+.country-selector-dropdown {
+  /* Ensure all child elements can receive events */
+  pointer-events: auto !important;
+}
+
+.country-selector-dropdown * {
+  pointer-events: auto !important;
+}
+
+/* Ensure button is clickable */
+.country-selector-dropdown button {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Ensure input is focusable */
+.country-selector-dropdown input {
+  pointer-events: auto !important;
+  cursor: text !important;
+}
+
+.country-option:hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+.dark .country-option:hover {
+  background-color: rgba(96, 165, 250, 0.1) !important;
+}
+
+/* Country flag styling */
+.country-flag {
+  flex-shrink: 0;
+  border-radius: 2px;
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark .country-flag {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .country-selector-dropdown {
+    width: calc(100vw - 32px) !important;
+    max-width: none !important;
+    left: 16px !important;
+    right: 16px !important;
+    max-height: 50vh !important;
+    min-width: 280px !important;
+  }
+
+  .country-search-input {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+
+  .country-option {
+    padding: 12px 16px; /* Larger touch targets */
+  }
+}
+
+/* Ensure proper text truncation */
+.country-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Custom scrollbar styling for dropdown options */
+.country-selector-dropdown .overflow-y-auto,
+.country-selector-dropdown [role="listbox"] {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f3f4f6;
+  /* Ensure smooth scrolling */
+  scroll-behavior: smooth;
+  /* Ensure proper dimensions */
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.country-selector-dropdown .overflow-y-auto::-webkit-scrollbar,
+.country-selector-dropdown [role="listbox"]::-webkit-scrollbar {
+  width: 6px;
+}
+
+.country-selector-dropdown .overflow-y-auto::-webkit-scrollbar-track,
+.country-selector-dropdown [role="listbox"]::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 3px;
+}
+
+.country-selector-dropdown .overflow-y-auto::-webkit-scrollbar-thumb,
+.country-selector-dropdown [role="listbox"]::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.country-selector-dropdown .overflow-y-auto::-webkit-scrollbar-thumb:hover,
+.country-selector-dropdown [role="listbox"]::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.dark .country-selector-dropdown .overflow-y-auto,
+.dark .country-selector-dropdown [role="listbox"] {
+  scrollbar-color: #4b5563 #1f2937;
+}
+
+.dark .country-selector-dropdown .overflow-y-auto::-webkit-scrollbar-track,
+.dark .country-selector-dropdown [role="listbox"]::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.dark .country-selector-dropdown .overflow-y-auto::-webkit-scrollbar-thumb,
+.dark .country-selector-dropdown [role="listbox"]::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+.dark .country-selector-dropdown .overflow-y-auto::-webkit-scrollbar-thumb:hover,
+.dark .country-selector-dropdown [role="listbox"]::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Additional fixes for dropdown interaction */
+.country-selector-dropdown {
+  /* Ensure dropdown is always on top of everything */
+  z-index: 2147483647 !important;
+  /* Prevent any interference from parent elements */
+  isolation: isolate !important;
+  /* Ensure proper event handling */
+  pointer-events: auto !important;
+  /* Prevent any backdrop effects */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Ensure all interactive elements within dropdown are clickable */
+.country-selector-dropdown [role="option"],
+.country-selector-dropdown button,
+.country-selector-dropdown input,
+.country-selector-dropdown [tabindex] {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+.country-selector-dropdown input {
+  cursor: text !important;
+}
+
+/* Prevent any parent containers from interfering */
+.country-selector-container {
+  /* Create a new stacking context */
+  isolation: isolate !important;
+  /* Ensure proper positioning */
+  position: relative !important;
+  /* Prevent clipping */
+  overflow: visible !important;
+}
+
+/* Override any potential conflicting styles from parent components */
+.country-selector-dropdown,
+.country-selector-dropdown * {
+  /* Ensure visibility */
+  visibility: visible !important;
+  /* Prevent transforms */
+  transform: none !important;
+  /* Prevent filters */
+  filter: none !important;
+  /* Ensure proper opacity */
+  opacity: 1 !important;
+}
+
+/* Specific override for flex containers within dropdown */
+.country-selector-dropdown {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.country-option {
+  display: flex !important;
+  align-items: center !important;
+}
