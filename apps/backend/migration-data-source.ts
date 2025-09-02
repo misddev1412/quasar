@@ -1,6 +1,6 @@
-import { DataSource } from 'typeorm';
-import { config } from 'dotenv';
-import * as path from 'path';
+const { DataSource } = require('typeorm');
+const { config } = require('dotenv');
+const path = require('path');
 
 // Load environment variables
 config();
@@ -33,4 +33,4 @@ const migrationDataSource = new DataSource({
 });
 
 // Export only default export as required by TypeORM CLI
-export default migrationDataSource;
+module.exports = migrationDataSource;

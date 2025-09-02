@@ -128,7 +128,7 @@ export class AdminUserRouter {
         isActive: createUserDto.isActive,
         role: createUserDto.role,
       };
-      
+
       const user = await this.adminUserService.createUser(adminCreateDto);
       return this.responseHandler.createTrpcSuccess(user);
     } catch (error) {
@@ -158,13 +158,9 @@ export class AdminUserRouter {
         role: query.role,
         isActive: query.isActive,
       };
-      
+
       const result = await this.adminUserService.getAllUsers(filters);
-      return this.responseHandler.createTrpcResponse(
-        200,
-        'OK',
-        result
-      );
+      return this.responseHandler.createTrpcSuccess(result);
     } catch (error) {
       throw this.responseHandler.createTRPCError(
         10, // ModuleCode.USER
@@ -208,12 +204,14 @@ export class AdminUserRouter {
       const { id, ...updateDto } = input;
       const user = await this.adminUserService.updateUser(id, updateDto);
       return this.responseHandler.createTrpcSuccess(user);
-    } catch (error) {
+    } catch (error: any) {
+      const message = error?.message || error?.error?.message || 'Failed to update user';
+      const level = error?.error?.code === 409 ? ErrorLevelCode.CONFLICT : ErrorLevelCode.BUSINESS_LOGIC_ERROR;
       throw this.responseHandler.createTRPCError(
         10, // ModuleCode.USER
         3,  // OperationCode.UPDATE
-        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
-        error.message || 'Failed to update user'
+        level,
+        message
       );
     }
   }
@@ -245,7 +243,7 @@ export class AdminUserRouter {
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Mutation({
-    input: z.object({ 
+    input: z.object({
       id: z.string(),
       isActive: z.boolean(),
     }),
@@ -266,6 +264,30 @@ export class AdminUserRouter {
       );
     }
   }
+
+  // Admin-only: update any user's profile by ID
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({ id: z.string() }).merge(adminUpdateUserProfileSchema),
+    output: apiResponseSchema,
+  })
+  async updateUserProfileById(
+    @Input() input: { id: string } & z.infer<typeof adminUpdateUserProfileSchema>
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const { id, ...updateDto } = input;
+      const updatedUser = await this.adminUserService.updateUserProfile(id, updateDto);
+      return this.responseHandler.createTrpcSuccess(updatedUser);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        10, // ModuleCode.USER
+        3,  // OperationCode.UPDATE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+        (error as any)?.message || 'Failed to update user profile'
+      );
+    }
+  }
+
 
   @UseMiddlewares(AuthMiddleware)
   @Query({
@@ -334,4 +356,4 @@ export class AdminUserRouter {
       );
     }
   }
-} 
+}

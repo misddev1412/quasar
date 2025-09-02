@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BaseRepository, PermissionAction, PermissionScope, UserRole } from '@shared';
+import { BaseRepository, PermissionAction, PermissionScope, UserRole, PaginatedResponseDto } from '@shared';
 import { Permission } from '../entities/permission.entity';
 import { RolePermission } from '../entities/role-permission.entity';
 import { Role } from '../entities/role.entity';
-import { 
-  IPermissionRepository, 
-  CreatePermissionDto, 
+import {
+  IPermissionRepository,
+  CreatePermissionDto,
   UpdatePermissionDto,
   CreateRolePermissionDto,
   PermissionFilter
@@ -37,24 +37,74 @@ export class PermissionRepository extends BaseRepository<Permission> implements 
 
   async findAllPermissions(filter?: PermissionFilter): Promise<Permission[]> {
     const queryBuilder = this.repository.createQueryBuilder('permission');
-    
+
     if (filter?.resource) {
       queryBuilder.andWhere('permission.resource = :resource', { resource: filter.resource });
     }
-    
+
     if (filter?.action) {
       queryBuilder.andWhere('permission.action = :action', { action: filter.action });
     }
-    
+
     if (filter?.scope) {
       queryBuilder.andWhere('permission.scope = :scope', { scope: filter.scope });
     }
-    
+
     if (filter?.isActive !== undefined) {
       queryBuilder.andWhere('permission.isActive = :isActive', { isActive: filter.isActive });
     }
-    
+
+    if (filter?.search) {
+      queryBuilder.andWhere(
+        '(permission.name ILIKE :search OR permission.description ILIKE :search OR permission.resource ILIKE :search)',
+        { search: `%${filter.search}%` }
+      );
+    }
+
     return await queryBuilder.getMany();
+  }
+
+  async findAllPermissionsWithPagination(filter?: PermissionFilter): Promise<PaginatedResponseDto<Permission>> {
+    const queryBuilder = this.repository.createQueryBuilder('permission');
+
+    // Apply filters
+    if (filter?.resource) {
+      queryBuilder.andWhere('permission.resource = :resource', { resource: filter.resource });
+    }
+
+    if (filter?.action) {
+      queryBuilder.andWhere('permission.action = :action', { action: filter.action });
+    }
+
+    if (filter?.scope) {
+      queryBuilder.andWhere('permission.scope = :scope', { scope: filter.scope });
+    }
+
+    if (filter?.isActive !== undefined) {
+      queryBuilder.andWhere('permission.isActive = :isActive', { isActive: filter.isActive });
+    }
+
+    if (filter?.search) {
+      queryBuilder.andWhere(
+        '(permission.name ILIKE :search OR permission.description ILIKE :search OR permission.resource ILIKE :search)',
+        { search: `%${filter.search}%` }
+      );
+    }
+
+    // Apply sorting
+    queryBuilder.orderBy('permission.createdAt', 'DESC');
+
+    // Apply pagination
+    const page = filter?.page || 1;
+    const limit = filter?.limit || 10;
+    const skip = (page - 1) * limit;
+
+    queryBuilder.skip(skip).take(limit);
+
+    // Get results and count
+    const [data, total] = await queryBuilder.getManyAndCount();
+
+    return PaginatedResponseDto.create(data, total, page, limit);
   }
 
   async findPermissionById(id: string): Promise<Permission | null> {
@@ -67,6 +117,10 @@ export class PermissionRepository extends BaseRepository<Permission> implements 
     return await this.repository.findOne({
       where: { name }
     });
+  }
+
+  async findByIds(ids: string[]): Promise<Permission[]> {
+    return await this.repository.findByIds(ids);
   }
 
   async updatePermission(id: string, updatePermissionDto: UpdatePermissionDto): Promise<Permission | null> {

@@ -1,6 +1,6 @@
 import { Permission } from '../entities/permission.entity';
 import { RolePermission } from '../entities/role-permission.entity';
-import { PermissionAction, PermissionScope, UserRole } from '@shared';
+import { PermissionAction, PermissionScope, UserRole, PaginatedResponseDto } from '@shared';
 
 export interface CreatePermissionDto {
   name: string;
@@ -31,12 +31,16 @@ export interface PermissionFilter {
   action?: PermissionAction;
   scope?: PermissionScope;
   isActive?: boolean;
+  search?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface IPermissionRepository {
   // Permission CRUD
   createPermission(createPermissionDto: CreatePermissionDto): Promise<Permission>;
   findAllPermissions(filter?: PermissionFilter): Promise<Permission[]>;
+  findAllPermissionsWithPagination(filter?: PermissionFilter): Promise<PaginatedResponseDto<Permission>>;
   findPermissionById(id: string): Promise<Permission | null>;
   findPermissionByName(name: string): Promise<Permission | null>;
   updatePermission(id: string, updatePermissionDto: UpdatePermissionDto): Promise<Permission | null>;

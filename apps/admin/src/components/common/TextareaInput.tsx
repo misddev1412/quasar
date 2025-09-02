@@ -25,7 +25,7 @@ export const TextareaInput: React.FC<TextareaInputProps & { [key: string]: any }
   ...rest
 }) => {
   return (
-    <div className="space-y-2 h-full">
+    <div className="space-y-2">
       <label htmlFor={id} className="block text-sm font-medium text-neutral-800 dark:text-neutral-200">
         {label}
       </label>
@@ -36,7 +36,7 @@ export const TextareaInput: React.FC<TextareaInputProps & { [key: string]: any }
         required={required}
         placeholder={placeholder}
         rows={rows}
-        className={`w-full h-full p-3 outline-none focus:ring-0 focus:outline-none resize-y rounded-lg bg-white dark:bg-neutral-900 ${
+        className={`w-full p-3 outline-none focus:ring-0 focus:outline-none resize-y rounded-lg bg-white dark:bg-neutral-900 ${
           error
             ? 'border border-error focus:border-error text-error placeholder-red-300 dark:placeholder-red-500'
             : 'border border-neutral-300 dark:border-neutral-700 focus:border-primary text-neutral-900 dark:text-neutral-100 placeholder-neutral-500 dark:placeholder-neutral-400'

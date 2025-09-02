@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLayout } from '../../contexts/LayoutContext';
 import { useTheme } from '../../context/ThemeContext';
-import { ToastProvider } from '../../context/ToastContext';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import Footer from './Footer';
@@ -165,39 +164,37 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   );
 
   return (
-    <ToastProvider>
-      <div className={`min-h-screen flex flex-col w-full ${isDarkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
-        <div className="flex flex-grow w-full overflow-hidden">
-          {/* 垂直布局的侧边栏 */}
-          {type === 'vertical' && <Sidebar />}
-          
-          {/* 主内容区域 */}
-          <div className={`
-            flex flex-col flex-grow w-full overflow-hidden
-            ${type === 'vertical' ? 'border-l' : ''}
-            ${isDarkMode ? 'border-gray-800' : 'border-gray-200'}
-          `}>
-            {/* 水平布局的顶部导航 */}
-            {type === 'horizontal' && <HorizontalNav />}
-            
-            {/* 顶部栏 */}
-            <Header />
-            
-            {/* 内容区域 */}
-            <Content>{children}</Content>
-            
-            {/* 底部 */}
-            <Footer />
-          </div>
+    <div className={`min-h-screen flex flex-col w-full ${isDarkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+      <div className="flex flex-grow w-full overflow-hidden">
+        {/* 垂直布局的侧边栏 */}
+        {type === 'vertical' && <Sidebar />}
+
+        {/* 主内容区域 */}
+        <div className={`
+          flex flex-col flex-grow w-full overflow-hidden
+          ${type === 'vertical' ? 'border-l' : ''}
+          ${isDarkMode ? 'border-gray-800' : 'border-gray-200'}
+        `}>
+          {/* 水平布局的顶部导航 */}
+          {type === 'horizontal' && <HorizontalNav />}
+
+          {/* 顶部栏 */}
+          <Header />
+
+          {/* 内容区域 */}
+          <Content>{children}</Content>
+
+          {/* 底部 */}
+          <Footer />
         </div>
-        
-        {/* 返回顶部按钮 */}
-        {renderBackToTop()}
-        
-        {/* 渲染快速操作按钮 - 在屏幕右下角 */}
-        {renderQuickActions()}
       </div>
-    </ToastProvider>
+
+      {/* 返回顶部按钮 */}
+      {renderBackToTop()}
+
+      {/* 渲染快速操作按钮 - 在屏幕右下角 */}
+      {renderQuickActions()}
+    </div>
   );
 };
 

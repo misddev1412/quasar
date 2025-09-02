@@ -53,6 +53,13 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import SearchIcon from '@mui/icons-material/Search';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import AddIcon from '@mui/icons-material/Add';
+import EmailIcon from '@mui/icons-material/Email';
+import ArticleIcon from '@mui/icons-material/Article';
+import CreateIcon from '@mui/icons-material/Create';
+import CategoryIcon from '@mui/icons-material/Category';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import PublicIcon from '@mui/icons-material/Public';
+import StorageIcon from '@mui/icons-material/Storage';
 // 移除了不再需要的图标导入
 import { styled } from '@mui/material/styles';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -313,12 +320,12 @@ const Sidebar: React.FC = () => {
             {
               icon: <ManageAccountsIcon />,
               label: t('admin.manage_roles', '角色管理'),
-              path: '/users/roles'
+              path: '/roles'
             },
             {
               icon: <SecurityIcon />,
               label: t('admin.manage_permissions', '权限设置'),
-              path: '/users/permissions'
+              path: '/permissions'
             }
           ]
         },
@@ -326,6 +333,38 @@ const Sidebar: React.FC = () => {
           icon: <DescriptionIcon />,
           label: t('admin.seo_management', 'SEO管理'),
           path: '/seo',
+        },
+        {
+          icon: <EmailIcon />,
+          label: t('admin.mail_templates', 'Mail Templates'),
+          path: '/mail-templates',
+        },
+        {
+          icon: <ArticleIcon />,
+          label: t('admin.posts_management', 'Posts Management'),
+          path: '/posts-management',
+          subItems: [
+            {
+              icon: <ViewListIcon />,
+              label: t('admin.posts_list', 'Posts List'),
+              path: '/posts'
+            },
+            {
+              icon: <CreateIcon />,
+              label: t('admin.create_post', 'Create Post'),
+              path: '/posts/create'
+            },
+            {
+              icon: <CategoryIcon />,
+              label: t('admin.categories', 'Categories'),
+              path: '/posts/categories'
+            },
+            {
+              icon: <LocalOfferIcon />,
+              label: t('admin.tags', 'Tags'),
+              path: '/posts/tags'
+            }
+          ]
         }
       ]
     },
@@ -354,6 +393,16 @@ const Sidebar: React.FC = () => {
     {
       title: t('navigation.system', '系统'),
       items: [
+        {
+          icon: <PublicIcon />,
+          label: t('languages.languages', '语言管理'),
+          path: '/languages'
+        },
+        {
+          icon: <StorageIcon />,
+          label: t('navigation.storage', 'Storage Configuration'),
+          path: '/storage'
+        },
         {
           icon: <SettingsIcon />,
           label: t('navigation.settings', '设置'),
@@ -446,6 +495,20 @@ const Sidebar: React.FC = () => {
     if (path === '/') {
       return location.pathname === '/';
     }
+    
+    // For parent menu items that are just grouping paths (like /posts-management), 
+    // they should not be active unless explicitly navigated to
+    if (path.endsWith('-management')) {
+      return location.pathname === path;
+    }
+    
+    // For specific routes that should only match exactly
+    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/seo', '/languages'];
+    if (exactMatchPaths.includes(path)) {
+      return location.pathname === path;
+    }
+    
+    // For other paths, use startsWith for nested routes
     return location.pathname.startsWith(path);
   };
 

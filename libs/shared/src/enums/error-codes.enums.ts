@@ -50,7 +50,8 @@ export enum ModuleCode {
   // Communication (60-69)
   NOTIFICATION = 60,      // Notification System
   EMAIL = 61,             // Email Service
-  SMS = 62,               // SMS Service
+  EMAIL_CHANNEL = 62,     // Email Channel Management
+  SMS = 63,               // SMS Service
   
   // File & Media (70-79)
   FILE = 70,              // File Management

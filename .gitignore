@@ -122,3 +122,6 @@ Thumbs.db
 # Runtime files
 *.log
 *.lock
+
+# Uploads
+apps/backend/uploads/

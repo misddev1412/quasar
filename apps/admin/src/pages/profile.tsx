@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import ProfileForm from '../components/user/ProfileForm';
 import { AdminUpdatePasswordDto, AdminUpdateUserProfileDto, AdminUserResponseDto } from '../../../backend/src/modules/user/dto/admin/admin-user.dto';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
+import { useUrlTabs } from '../hooks/useUrlTabs';
 import { trpc } from '../utils/trpc';
 import { useToast } from '../context/ToastContext';
 import BaseLayout from '../components/layout/BaseLayout';
@@ -15,12 +15,13 @@ const UserProfilePage = () => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
   const trpcContext = trpc.useContext();
-  const [searchParams, setSearchParams] = useSearchParams();
 
-  const activeTab = parseInt(searchParams.get('tab') || '0', 10);
-  const handleTabChange = (index: number) => {
-    setSearchParams({ tab: String(index) });
-  };
+  // Use URL tabs hook with tab keys for clean URLs
+  const { activeTab, handleTabChange } = useUrlTabs({
+    defaultTab: 0,
+    tabParam: 'tab',
+    tabKeys: ['profile', 'password', 'preferences'] // Maps to tab content
+  });
 
   const { data: profileData, isLoading, error } = trpc.adminUser.getProfile.useQuery(undefined, {
     staleTime: 5 * 60 * 1000, // 5 minutes

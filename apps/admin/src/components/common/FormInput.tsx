@@ -1,6 +1,8 @@
 import React from 'react';
 import clsx from 'clsx';
 
+export type IconSpacing = 'compact' | 'standard' | 'large';
+
 interface FormInputProps {
   id: string;
   type: string;
@@ -16,6 +18,11 @@ interface FormInputProps {
   autoComplete?: string;
   className?: string;
   size?: 'sm' | 'md' | 'lg';
+  inputRef?: React.Ref<HTMLInputElement>;
+  /** Use new icon spacing system instead of bordered icon container */
+  useIconSpacing?: boolean;
+  /** Icon spacing size when useIconSpacing is true */
+  iconSpacing?: IconSpacing;
 }
 
 export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
@@ -33,6 +40,9 @@ export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
   autoComplete,
   className = '',
   size = 'md',
+  inputRef,
+  useIconSpacing = false,
+  iconSpacing = 'standard',
   ...rest
 }) => {
   // Explicit height classes for pixel-perfect consistency across all input types
@@ -41,6 +51,14 @@ export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
     md: '!h-11',     // 44px height
     lg: '!h-12',     // 48px height
   };
+
+  // Icon spacing classes for new system
+  const spacingClasses = {
+    compact: 'input-with-left-icon-compact',
+    standard: 'input-with-left-icon',
+    large: 'input-with-left-icon-large'
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -50,7 +68,9 @@ export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
         {rightElement && rightElement}
       </div>
       <div className={clsx(
-        'relative flex items-center bg-white dark:bg-neutral-900 rounded-lg overflow-hidden',
+        'relative group bg-white dark:bg-neutral-900 rounded-lg overflow-hidden',
+        // Conditional flex layout for old bordered icon system
+        !useIconSpacing && 'flex items-center',
         // Ensure container height matches input height
         sizeClasses[size],
         error
@@ -58,9 +78,16 @@ export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
           : 'border border-neutral-300 dark:border-neutral-700 focus-within:ring-1 focus-within:ring-primary focus-within:border-primary',
         className
       )}>
-        {/* Icon container with fixed width */}
-        {icon && (
-          <div className="flex-shrink-0 w-12 flex justify-center items-center">
+        {/* Old bordered icon container - only when not using new spacing system */}
+        {icon && !useIconSpacing && (
+          <div className="flex-shrink-0 w-12 flex justify-center items-center border-r border-neutral-200 dark:border-neutral-700 group-focus-within:border-primary">
+            {icon}
+          </div>
+        )}
+
+        {/* New icon positioning system */}
+        {icon && useIconSpacing && (
+          <div className="input-icon-left">
             {icon}
           </div>
         )}
@@ -68,6 +95,7 @@ export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
         {/* Input without border since the container has border */}
         <input
           id={id}
+          ref={inputRef as any}
           type={type}
           value={value}
           onChange={onChange}
@@ -75,10 +103,11 @@ export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
           autoComplete={autoComplete}
           placeholder={placeholder}
           className={clsx(
-            'w-full border-0 outline-none focus:ring-0 focus:outline-none bg-transparent',
+            'w-full border-0 outline-none focus:ring-0 focus:outline-none focus:shadow-none focus-visible:shadow-none bg-transparent',
             // Explicit sizing and spacing for pixel-perfect consistency
             '!py-0 !box-border !text-sm !leading-normal',
-            icon ? '' : '!pl-4',
+            // Conditional padding based on icon system
+            useIconSpacing && icon ? spacingClasses[iconSpacing] : (icon ? '' : '!pl-4'),
             rightIcon ? '!pr-12' : '!pr-4',
             sizeClasses[size],
             error
@@ -94,10 +123,15 @@ export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
             fontSize: '14px',
             fontFamily: 'inherit',
             margin: 0,
-            padding: icon ? '0 48px 0 0' : rightIcon ? '0 48px 0 16px' : '0 16px 0 16px',
+            // Conditional padding based on icon system
+            padding: useIconSpacing
+              ? (rightIcon ? '0 48px 0 0' : '0 16px 0 0')
+              : (icon ? '0 48px 0 12px' : rightIcon ? '0 48px 0 16px' : '0 16px 0 16px'),
             border: 'none',
             background: 'transparent',
             outline: 'none',
+            boxShadow: 'none',
+            WebkitBoxShadow: 'none',
           }}
           {...rest}
         />

@@ -22,32 +22,34 @@ const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({ password 
   const strength = checkPasswordStrength(password);
   
   const strengthLevels = [
-    { label: '', color: 'bg-transparent' }, // level 0
-    { label: 'user.password_strength.weak', color: 'bg-red-500' }, // level 1
-    { label: 'user.password_strength.medium', color: 'bg-orange-500' }, // level 2
-    { label: 'user.password_strength.strong', color: 'bg-yellow-500' }, // level 3
-    { label: 'user.password_strength.very_strong', color: 'bg-green-500' }, // level 4
+    { label: '', bar: 'bg-transparent', badge: '' },
+    { label: 'user.password_strength.weak', bar: 'bg-gradient-to-r from-red-500 to-red-600', badge: 'text-red-700 bg-red-100 dark:text-red-300 dark:bg-red-900/30' },
+    { label: 'user.password_strength.medium', bar: 'bg-gradient-to-r from-orange-400 to-orange-500', badge: 'text-orange-700 bg-orange-100 dark:text-orange-300 dark:bg-orange-900/30' },
+    { label: 'user.password_strength.strong', bar: 'bg-gradient-to-r from-yellow-400 to-amber-500', badge: 'text-amber-800 bg-amber-100 dark:text-amber-300 dark:bg-amber-900/30' },
+    { label: 'user.password_strength.very_strong', bar: 'bg-gradient-to-r from-emerald-500 to-green-600', badge: 'text-emerald-800 bg-emerald-100 dark:text-emerald-300 dark:bg-emerald-900/30' },
   ];
 
   const currentLevel = strengthLevels[strength];
 
   return (
     <div className="w-full space-y-2 pt-1">
-      <div className="grid grid-cols-4 gap-x-2">
+      <div className="grid grid-cols-4 gap-x-1.5 md:gap-x-2 h-1.5 md:h-2">
         {Array.from({ length: 4 }).map((_, index) => (
           <div
             key={index}
-            className={`h-1 rounded-full transition-colors ${
-              index < strength ? currentLevel.color : 'bg-gray-200 dark:bg-neutral-700'
+            className={`h-full rounded-full transition-all duration-200 ${
+              index < strength ? (currentLevel as any).bar : 'bg-neutral-200 dark:bg-neutral-700'
             }`}
           />
         ))}
       </div>
       {password && strength > 0 && (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        <div className="text-xs md:text-sm text-neutral-600 dark:text-neutral-400">
           {t('user.password_strength.title')}:{' '}
-          <span className="font-semibold">{t(currentLevel.label)}</span>
-        </p>
+          <span className={`inline-flex items-center px-2 py-0.5 rounded-full font-medium ${(currentLevel as any).badge}`}>
+            {t((currentLevel as any).label)}
+          </span>
+        </div>
       )}
     </div>
   );

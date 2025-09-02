@@ -1,0 +1,25 @@
+export enum ModuleCode {
+  USER = 'USER',
+  ROLE = 'ROLE',
+  PERMISSION = 'PERMISSION',
+  LANGUAGE = 'LANGUAGE',
+  POST = 'POST',
+  MAIL_TEMPLATE = 'MAIL_TEMPLATE',
+  EMAIL_CHANNEL = 'EMAIL_CHANNEL',
+  SEO = 'SEO',
+  SETTINGS = 'SETTINGS',
+  AUTH = 'AUTH',
+  TRANSLATION = 'TRANSLATION',
+  ARTICLE = 'ARTICLE',
+}
+
+export enum OperationCode {
+  CREATE = 'CREATE',
+  READ = 'READ',
+  UPDATE = 'UPDATE',
+  DELETE = 'DELETE',
+  LIST = 'LIST',
+  SEARCH = 'SEARCH',
+  IMPORT = 'IMPORT',
+  EXPORT = 'EXPORT',
+}

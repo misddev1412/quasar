@@ -16,7 +16,7 @@ function getAuthToken(): string | null {
 }
 
 function getBaseUrl() {
-  return `http://localhost:3000`; // Backend port
+  return `http://localhost:3000`; // Backend port (changed to match our running backend)
 }
 
 // For use in React components with hooks

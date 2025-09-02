@@ -11,7 +11,25 @@ import SettingsPage from '../pages/settings';
 import UserProfilePage from '../pages/profile';
 import UserListPage from '../pages/users';
 import UserCreatePage from '../pages/users/create';
-import RolesPage from '../pages/roles';
+import UserUpdatePage from '../pages/users/update';
+import RoleIndexPage from '../pages/roles';
+import RoleCreatePage from '../pages/roles/create';
+import RoleUpdatePage from '../pages/roles/update';
+import PermissionIndexPage from '../pages/permissions';
+import PermissionCreatePage from '../pages/permissions/create';
+import PermissionUpdatePage from '../pages/permissions/update';
+import MailTemplateIndexPage from '../pages/mail-templates';
+import MailTemplateCreatePage from '../pages/mail-templates/create';
+import MailTemplateEditPage from '../pages/mail-templates/edit';
+import PostsIndexPage from '../pages/posts';
+import PostsCreatePage from '../pages/posts/create';
+import PostsEditPage from '../pages/posts/edit';
+import PostCategoriesPage from '../pages/posts/categories';
+import PostTagsPage from '../pages/posts/tags';
+import LanguagesIndexPage from '../pages/languages';
+import LanguagesCreatePage from '../pages/languages/create';
+import LanguagesEditPage from '../pages/languages/edit';
+import StorageConfigPage from '../pages/storage';
 import DateInputTest from '../pages/test/DateInputTest';
 import { PhoneInputTest } from '../components/test/PhoneInputTest';
 import AppLayout from '../components/layout/AppLayout';
@@ -48,10 +66,31 @@ const AppRoutes: React.FC = () => {
       <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
       <Route path="/seo" element={<ProtectedRoute><SeoPage /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+      <Route path="/storage" element={<ProtectedRoute><StorageConfigPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute><UserListPage /></ProtectedRoute>} />
       <Route path="/users/create" element={<ProtectedRoute><UserCreatePage /></ProtectedRoute>} />
-      <Route path="/roles" element={<ProtectedRoute><RolesPage /></ProtectedRoute>} />
+      <Route path="/users/:id" element={<ProtectedRoute><UserUpdatePage /></ProtectedRoute>} />
+      <Route path="/roles" element={<ProtectedRoute><RoleIndexPage /></ProtectedRoute>} />
+      <Route path="/roles/create" element={<ProtectedRoute><RoleCreatePage /></ProtectedRoute>} />
+      <Route path="/roles/:id" element={<ProtectedRoute><RoleUpdatePage /></ProtectedRoute>} />
+      <Route path="/permissions" element={<ProtectedRoute><PermissionIndexPage /></ProtectedRoute>} />
+      <Route path="/permissions/create" element={<ProtectedRoute><PermissionCreatePage /></ProtectedRoute>} />
+      <Route path="/permissions/:id" element={<ProtectedRoute><PermissionUpdatePage /></ProtectedRoute>} />
+      {/* Mail Templates */}
+      <Route path="/mail-templates" element={<ProtectedRoute><MailTemplateIndexPage /></ProtectedRoute>} />
+      <Route path="/mail-templates/create" element={<ProtectedRoute><MailTemplateCreatePage /></ProtectedRoute>} />
+      <Route path="/mail-templates/:id" element={<ProtectedRoute><MailTemplateEditPage /></ProtectedRoute>} />
+      {/* Posts */}
+      <Route path="/posts" element={<ProtectedRoute><PostsIndexPage /></ProtectedRoute>} />
+      <Route path="/posts/create" element={<ProtectedRoute><PostsCreatePage /></ProtectedRoute>} />
+      <Route path="/posts/:id" element={<ProtectedRoute><PostsEditPage /></ProtectedRoute>} />
+      <Route path="/posts/categories" element={<ProtectedRoute><PostCategoriesPage /></ProtectedRoute>} />
+      <Route path="/posts/tags" element={<ProtectedRoute><PostTagsPage /></ProtectedRoute>} />
+      {/* Languages */}
+      <Route path="/languages" element={<ProtectedRoute><LanguagesIndexPage /></ProtectedRoute>} />
+      <Route path="/languages/create" element={<ProtectedRoute><LanguagesCreatePage /></ProtectedRoute>} />
+      <Route path="/languages/:id/edit" element={<ProtectedRoute><LanguagesEditPage /></ProtectedRoute>} />
       <Route path="/test/date-input" element={<ProtectedRoute><DateInputTest /></ProtectedRoute>} />
       <Route path="/test/phone-input" element={<ProtectedRoute><PhoneInputTest /></ProtectedRoute>} />
       {/* 404页面，不需要认证 */}

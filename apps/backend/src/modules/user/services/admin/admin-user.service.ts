@@ -105,6 +105,30 @@ export class AdminUserService {
       );
     }
 
+    // Ensure email/username uniqueness excluding the current user
+    // Only check when the field is actually changing
+    if (updateUserDto.email && updateUserDto.email !== user.email) {
+      const existingByEmail = await this.userRepository.findByEmail(updateUserDto.email);
+      if (existingByEmail && existingByEmail.id !== id) {
+        throw this.responseHandler.createError(
+          ApiStatusCodes.CONFLICT,
+          'Email is already in use by another user',
+          'CONFLICT'
+        );
+      }
+    }
+
+    if (updateUserDto.username && updateUserDto.username !== user.username) {
+      const existingByUsername = await this.userRepository.findByUsername(updateUserDto.username);
+      if (existingByUsername && existingByUsername.id !== id) {
+        throw this.responseHandler.createError(
+          ApiStatusCodes.CONFLICT,
+          'Username is already in use by another user',
+          'CONFLICT'
+        );
+      }
+    }
+
     try {
       const updatedUser = await this.userRepository.update(id, updateUserDto);
       if (!updatedUser) {
@@ -114,7 +138,7 @@ export class AdminUserService {
           'NOT_FOUND'
         );
       }
-      
+
       // Get user with profile after update
       const userWithProfile = await this.userRepository.findWithProfile(id);
       return this.toAdminUserResponse(userWithProfile || updatedUser);

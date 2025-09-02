@@ -4,9 +4,11 @@ import React, { ReactNode } from 'react';
 
 interface DropdownItem {
   label: string;
-  onClick: () => void;
+  onClick: (e?: React.MouseEvent) => void;
   icon?: ReactNode;
   className?: string;
+  disabled?: boolean;
+  tooltip?: string;
 }
 
 interface DropdownProps {
@@ -34,17 +36,28 @@ export const Dropdown: React.FC<DropdownProps> = ({
           sideOffset={5}
         >
           {items.map((item, index) => (
-            <DropdownMenu.Item
-              key={`${item.label}-${index}`}
-              onClick={item.onClick}
-              className={clsx(
-                'w-full text-left flex items-center gap-2 px-4 py-2 text-sm cursor-pointer focus:bg-gray-100 dark:focus:bg-gray-700 focus:outline-none',
-                item.className
-              )}
-            >
-              {item.icon}
-              {item.label}
-            </DropdownMenu.Item>
+            <div key={`${item.label}-${index}`} title={item.tooltip || undefined}>
+              <DropdownMenu.Item
+                onClick={(e) => {
+                  if (!item.disabled) {
+                    e.stopPropagation();
+                    item.onClick(e);
+                  }
+                }}
+                disabled={item.disabled}
+                className={clsx(
+                  'w-full text-left flex items-center gap-2 px-4 py-2 text-sm focus:bg-blue-500 hover:bg-blue-500 focus:text-white hover:text-white focus:outline-none transition-colors',
+                  'dark:focus:bg-blue-600 dark:hover:bg-blue-600',
+                  item.disabled 
+                    ? 'cursor-not-allowed opacity-50 text-gray-400' 
+                    : 'cursor-pointer text-gray-700 dark:text-gray-200',
+                  item.className
+                )}
+              >
+                {item.icon}
+                {item.label}
+              </DropdownMenu.Item>
+            </div>
           ))}
         </DropdownMenu.Content>
       </DropdownMenu.Portal>

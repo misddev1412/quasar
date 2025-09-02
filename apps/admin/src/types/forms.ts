@@ -5,7 +5,7 @@ import { FieldValues } from 'react-hook-form';
 export interface FormFieldConfig {
   name: string;
   label: string;
-  type: 'text' | 'email' | 'password' | 'select' | 'textarea' | 'checkbox' | 'tel' | 'phone';
+  type: 'text' | 'email' | 'password' | 'password-simple' | 'select' | 'textarea' | 'checkbox' | 'tel' | 'phone' | 'richtext' | 'role-multiselect' | 'custom' | 'tags' | 'file-types' | 'media-upload' | 'image-gallery';
   placeholder?: string;
   required?: boolean;
   options?: Array<{ value: string; label: string; disabled?: boolean }>;
@@ -18,9 +18,18 @@ export interface FormFieldConfig {
   };
   size?: 'sm' | 'md' | 'lg';
   rows?: number; // for textarea
+  minHeight?: string; // for richtext editor
   disabled?: boolean;
   description?: string;
   defaultCountry?: string; // for phone input
+  dependsOn?: { field: string; value: any }; // for conditional fields
+  component?: ReactNode; // for custom components
+  // Media upload specific options
+  accept?: string; // file types to accept
+  maxSize?: number; // max file size in MB
+  multiple?: boolean; // allow multiple files
+  // Image gallery specific options
+  maxImages?: number; // maximum number of images for gallery
 }
 
 // Form section configuration
@@ -50,6 +59,9 @@ export interface EntityFormProps<T extends FieldValues = FieldValues> {
   onCancel?: () => void;
   className?: string;
   showCancelButton?: boolean;
+  // Optional external tab control (for URL persistence)
+  activeTab?: number;
+  onTabChange?: (index: number) => void;
 }
 
 // Form validation result

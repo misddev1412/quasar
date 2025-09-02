@@ -54,7 +54,7 @@ export const LoginFormUI: React.FC<LoginFormUIProps> = ({
           {t('auth.enter_credentials')}
         </p>
       </div>
-      
+
       {/* 错误信息 */}
       {error && (
         <div className="mb-6 p-4 rounded-lg bg-red-50 border-l-4 border-red-600 text-red-800 shadow-lg animate-pulse-slow transition-all duration-300">

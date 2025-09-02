@@ -33,7 +33,7 @@ i18n
     },
 
     detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
+      order: ['localStorage'], // Only use localStorage, ignore browser language
       lookupLocalStorage: 'admin-locale',
       caches: ['localStorage'],
     },

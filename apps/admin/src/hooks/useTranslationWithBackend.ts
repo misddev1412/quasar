@@ -19,7 +19,8 @@ export const useTranslationWithBackend = (): UseTranslationWithBackendResult => 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const currentLocale = getCurrentLocale();
+  // Use i18n.resolvedLanguage which is reactive to language changes
+  const currentLocale = i18n.resolvedLanguage as SupportedLocale || getCurrentLocale();
   
   // Get translations from backend
   const { data: backendTranslations, isLoading: isFetching, error: fetchError } = 

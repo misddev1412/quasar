@@ -15,13 +15,15 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  lastDeactivatedAccountError?: string;
 }
 
 interface AuthActions {
-  login: (email: string, password: string) => Promise<{success: boolean, errorMessage?: string}>;
+  login: (email: string, password: string) => Promise<{success: boolean, errorMessage?: string, isAccountDeactivated?: boolean}>;
   logout: () => void;
   refreshToken: () => Promise<boolean>;
   verifyAuth: () => Promise<boolean>;
+  clearDeactivatedAccountError: () => void;
 }
 
 export interface UseAuthReturn extends AuthState, AuthActions {}
@@ -38,7 +40,8 @@ export function useAuth(): UseAuthReturn {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     isAuthenticated: false,
-    isLoading: true
+    isLoading: true,
+    lastDeactivatedAccountError: undefined
   });
   
   const navigate = useNavigate();
@@ -79,8 +82,16 @@ export function useAuth(): UseAuthReturn {
     setAuthState({
       user: null,
       isAuthenticated: false,
-      isLoading: false
+      isLoading: false,
+      lastDeactivatedAccountError: undefined
     });
+  }, []);
+
+  /**
+   * Clear deactivated account error
+   */
+  const clearDeactivatedAccountError = useCallback(() => {
+    setAuthState(prev => ({ ...prev, lastDeactivatedAccountError: undefined }));
   }, []);
 
   /**
@@ -117,8 +128,27 @@ export function useAuth(): UseAuthReturn {
   useEffect(() => {
     if (meError && authState.isAuthenticated) {
       console.error('Authentication verification failed:', meError);
-      // If /me endpoint fails, user is no longer authenticated
-      clearAuthData();
+
+      // Check if this is a deactivated account error from /me endpoint
+      const errorMessage = meError.message || '';
+      const isDeactivatedAccount = errorMessage.includes('User not found or inactive') ||
+                                  errorMessage.includes('deactivated') ||
+                                  errorMessage.includes('inactive');
+
+      if (isDeactivatedAccount) {
+        // Store the deactivated account error for the login form to pick up
+        setAuthState(prev => ({
+          ...prev,
+          lastDeactivatedAccountError: errorMessage,
+          isAuthenticated: false,
+          isLoading: false,
+          user: null
+        }));
+      } else {
+        // Regular auth error - clear data
+        clearAuthData();
+      }
+
       navigate('/auth/login');
     }
   }, [meError, authState.isAuthenticated, clearAuthData, navigate]);
@@ -178,7 +208,7 @@ export function useAuth(): UseAuthReturn {
   /**
    * 登录操作
    */
-  const login = useCallback(async (email: string, password: string): Promise<{success: boolean, errorMessage?: string}> => {
+  const login = useCallback(async (email: string, password: string): Promise<{success: boolean, errorMessage?: string, isAccountDeactivated?: boolean}> => {
     setAuthState(prev => ({ ...prev, isLoading: true }));
     
     try {
@@ -209,22 +239,34 @@ export function useAuth(): UseAuthReturn {
       return { success: false, errorMessage: result.status || '登录失败' };
     } catch (error: any) {
       console.error('登录错误:', error);
-      
+
       // 尝试从错误中提取API错误信息
       let errorMessage = '登录失败';
-      
-      if (error.shape?.data) {
-        const errorData = Array.isArray(error.shape.data) 
-          ? error.shape.data[0]?.error 
+
+      // Try multiple ways to extract the error message
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.shape?.message) {
+        errorMessage = error.shape.message;
+      } else if (error.shape?.data) {
+        const errorData = Array.isArray(error.shape.data)
+          ? error.shape.data[0]?.error
           : error.shape.data?.error;
-          
+
         if (errorData) {
           errorMessage = errorData.message || errorMessage;
         }
       }
-      
+
+      // Check if this is a deactivated account error
+      const isAccountDeactivated = errorMessage.includes('deactivated') ||
+                                  errorMessage.includes('inactive') ||
+                                  errorMessage.includes('not found or inactive') ||
+                                  errorMessage.includes('User not found or inactive') ||
+                                  errorMessage.toLowerCase().includes('account has been deactivated');
+
       setAuthState(prev => ({ ...prev, isLoading: false }));
-      return { success: false, errorMessage };
+      return { success: false, errorMessage, isAccountDeactivated };
     }
   }, [loginMutation]);
 
@@ -307,6 +349,7 @@ export function useAuth(): UseAuthReturn {
     login,
     logout,
     refreshToken,
-    verifyAuth
+    verifyAuth,
+    clearDeactivatedAccountError
   };
 } 

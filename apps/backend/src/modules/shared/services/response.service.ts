@@ -321,11 +321,13 @@ export class ResponseService {
       code = 'UNAUTHORIZED';
     }
 
-    this.logger.error(`TRPC Error [${httpStatus}]: ${message}`, {
-      moduleCode,
-      operationCode,
-      errorLevelCode
-    });
+    // Only log non-null codes to avoid confusing logs
+    const logContext: any = {};
+    if (moduleCode !== null) logContext.moduleCode = moduleCode;
+    if (operationCode !== null) logContext.operationCode = operationCode;
+    if (errorLevelCode !== null) logContext.errorLevelCode = errorLevelCode;
+
+    this.logger.error(`TRPC Error [${httpStatus}]: ${message}`, logContext);
 
     // Prepare our standardized error format that will be used by the filter
     const errorData = {

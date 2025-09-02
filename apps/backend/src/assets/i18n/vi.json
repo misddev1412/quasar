@@ -47,7 +47,9 @@
     "login_required": "Vui lòng đăng nhập",
     "invalid_credentials": "Thông tin đăng nhập không chính xác",
     "account_locked": "Tài khoản đã bị khóa",
-    "password_expired": "Mật khẩu đã hết hạn"
+    "password_expired": "Mật khẩu đã hết hạn",
+    "account_deactivated": "Tài khoản đã bị vô hiệu hóa",
+    "account_inactive": "Tài khoản của bạn đã bị vô hiệu hóa và không thể sử dụng để đăng nhập"
   },
   "user": {
     "profile": "Hồ sơ",

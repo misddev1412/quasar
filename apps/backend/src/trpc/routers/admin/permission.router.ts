@@ -60,6 +60,9 @@ const permissionFilterSchema = z.object({
   action: permissionActionSchema.optional(),
   scope: permissionScopeSchema.optional(),
   isActive: z.boolean().optional(),
+  search: z.string().optional(),
+  page: z.number().min(1).optional().default(1),
+  limit: z.number().min(1).max(100).optional().default(10),
 });
 
 const permissionResponseSchema = z.object({
@@ -146,8 +149,15 @@ export class AdminPermissionRouter {
     @Input() filter: z.infer<typeof permissionFilterSchema>
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const permissions = await this.permissionService.getAllPermissions(filter);
-      return this.responseHandler.createTrpcSuccess(permissions);
+      // If pagination parameters are provided, use paginated method
+      if (filter.page || filter.limit) {
+        const paginatedResult = await this.permissionService.getAllPermissionsWithPagination(filter);
+        return this.responseHandler.createTrpcSuccess(paginatedResult);
+      } else {
+        // Fallback to non-paginated method for backward compatibility
+        const permissions = await this.permissionService.getAllPermissions(filter);
+        return this.responseHandler.createTrpcSuccess(permissions);
+      }
     } catch (error) {
       throw this.responseHandler.createTRPCError(
         ModuleCode.PERMISSION,

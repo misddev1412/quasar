@@ -76,13 +76,13 @@
 }
 
 .react-select__option--is-focused {
-  background-color: #f3f4f6 !important;
-  color: inherit !important;
+  background-color: var(--color-hover-secondary, #f3f4f6) !important;
+  color: var(--color-neutral-900, #111827) !important;
 }
 
 .react-select__option--is-selected {
-  background-color: #3b82f6 !important;
-  color: white !important;
+  background-color: var(--color-primary-500, #3b82f6) !important;
+  color: #ffffff !important;
 }
 
 /* Input and placeholder styling */
@@ -154,13 +154,13 @@
 }
 
 .dark .react-select__option--is-focused {
-  background-color: #374151 !important;
-  color: #f9fafb !important;
+  background-color: var(--color-hover-secondary, #374151) !important;
+  color: var(--color-neutral-50, #f9fafb) !important;
 }
 
 .dark .react-select__option--is-selected {
-  background-color: #3b82f6 !important;
-  color: white !important;
+  background-color: var(--color-primary-500, #3b82f6) !important;
+  color: #ffffff !important;
 }
 
 .dark .react-select__placeholder {
@@ -206,6 +206,12 @@
 .dark .react-select__single-value img {
   border-color: rgba(255, 255, 255, 0.1);
 }
+
+/* Increase spacing between flag and text in the control */
+.react-select__single-value img {
+  margin-right: 8px !important; /* add extra space to the right of the flag */
+}
+
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
@@ -565,11 +571,11 @@
 }
 
 .country-selector-option:hover {
-  background-color: #f3f4f6 !important;
+  background-color: var(--color-hover-secondary, #f3f4f6) !important;
 }
 
 .dark .country-selector-option:hover {
-  background-color: #374151 !important;
+  background-color: var(--color-hover-secondary, #374151) !important;
 }
 
 .country-selector-option-flag {
@@ -620,4 +626,31 @@
 
 .dark .country-selector-option-calling-code {
   color: #9ca3af !important;
+}
+
+
+/* Embedded variant: remove inner borders/radius to avoid double-border with parent input */
+.country-selector--embedded .react-select__control {
+  border: 0 !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+.country-selector--embedded .react-select__control:hover,
+.country-selector--embedded .react-select__control--is-focused {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Keep dropdown looking like a floating panel without attaching a second border to the input */
+.country-selector--embedded .react-select__menu {
+  margin-top: 4px !important; /* small gap to visually separate from parent border */
+  border-radius: 0.5rem !important;
+  border: 1px solid #d1d5db !important; /* normal dropdown border */
+}
+
+.dark .country-selector--embedded .react-select__menu {
+  border-color: #4b5563 !important;
 }

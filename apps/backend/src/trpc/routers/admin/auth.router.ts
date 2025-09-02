@@ -59,9 +59,23 @@ export class AdminAuthRouter {
         );
       }
 
+      // Check if the user account is active - CRITICAL SECURITY CHECK
+      if (!user.isActive) {
+        // Track failed login attempt for deactivated account
+        await this.trackFailedLogin(activityContext, input.email, 'Account deactivated');
+
+        throw this.responseHandler.createTRPCError(
+          20, // ModuleCode.AUTH
+          1,  // OperationCode.LOGIN
+          ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+          'Account has been deactivated'
+        );
+      }
+
+
       // Check if the user has admin role
       const userWithRoles = await this.userRepository.findWithRoles(user.id);
-      const hasAdminRole = userWithRoles?.userRoles?.some(ur => 
+      const hasAdminRole = userWithRoles?.userRoles?.some(ur =>
         ur.isActive && [UserRole.SUPER_ADMIN, UserRole.ADMIN].includes(ur.role?.code as UserRole)
       );
 

@@ -5,9 +5,9 @@ import { PermissionRepository } from '../../repositories/permission.repository';
 import { Permission } from '../../entities/permission.entity';
 import { RolePermission } from '../../entities/role-permission.entity';
 import { Role } from '../../entities/role.entity';
-import { PermissionAction, PermissionScope, UserRole } from '@shared';
-import { 
-  CreatePermissionDto, 
+import { PermissionAction, PermissionScope, UserRole, PaginatedResponseDto } from '@shared';
+import {
+  CreatePermissionDto,
   UpdatePermissionDto,
   CreateRolePermissionDto,
   PermissionFilter
@@ -73,6 +73,10 @@ export class AdminPermissionService {
 
   async getAllPermissions(filter?: PermissionFilter): Promise<Permission[]> {
     return await this.permissionRepository.findAllPermissions(filter);
+  }
+
+  async getAllPermissionsWithPagination(filter?: PermissionFilter): Promise<PaginatedResponseDto<Permission>> {
+    return await this.permissionRepository.findAllPermissionsWithPagination(filter);
   }
 
   async getPermissionById(id: string): Promise<Permission> {

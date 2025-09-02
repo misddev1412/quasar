@@ -19,7 +19,12 @@
         "tsConfig": "apps/admin/tsconfig.app.json",
         "assets": [
           "apps/admin/src/favicon.ico",
-          "apps/admin/src/assets"
+          "apps/admin/src/assets",
+          {
+            "glob": "**/*",
+            "input": "apps/admin/public",
+            "output": "./"
+          }
         ],
         "styles": ["apps/admin/src/styles.scss"],
         "isolatedConfig": true,

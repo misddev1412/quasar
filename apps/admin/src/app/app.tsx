@@ -1,6 +1,7 @@
 import React from 'react';
 import { LayoutProvider } from '../contexts/LayoutContext';
 import { ThemeProvider as CustomThemeProvider } from '../context/ThemeContext';
+import { ToastProvider } from '../context/ToastContext';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import AppRoutes from '../routes/AppRoutes';
@@ -41,11 +42,13 @@ export function App() {
         <MUIThemeProvider theme={muiTheme}>
           <CssBaseline />
           <CustomThemeProvider>
-            <LayoutProvider>
-              <AuthProvider>
-                <AppRoutes />
-              </AuthProvider>
-            </LayoutProvider>
+            <ToastProvider>
+              <LayoutProvider>
+                <AuthProvider>
+                  <AppRoutes />
+                </AuthProvider>
+              </LayoutProvider>
+            </ToastProvider>
           </CustomThemeProvider>
         </MUIThemeProvider>
       </Router>

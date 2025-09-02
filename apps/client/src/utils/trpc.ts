@@ -20,7 +20,7 @@ function getBaseUrl() {
   }
   
   // Assume localhost
-  return `http://localhost:3001`; // Backend port
+  return `http://localhost:3000`; // Backend port
 }
 
 export const trpc = createTRPCNext<AppRouter>({

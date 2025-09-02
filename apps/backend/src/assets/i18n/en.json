@@ -47,7 +47,9 @@
     "login_required": "Please login",
     "invalid_credentials": "Invalid credentials",
     "account_locked": "Account has been locked",
-    "password_expired": "Password has expired"
+    "password_expired": "Password has expired",
+    "account_deactivated": "Account has been deactivated",
+    "account_inactive": "Your account is inactive and cannot be used to log in"
   },
   "user": {
     "profile": "Profile",

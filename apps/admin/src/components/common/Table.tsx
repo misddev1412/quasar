@@ -702,7 +702,8 @@ export function Table<T extends { id: string | number }>({
     if (!visibleColumns || !onColumnVisibilityChange) {
       return columnsWithIds;
     }
-    return columnsWithIds.filter(col => visibleColumns.has(col.id));
+    // Always include non-hideable columns (e.g., Actions) regardless of preferences
+    return columnsWithIds.filter(col => (col.hideable === false) || visibleColumns.has(col.id));
   }, [columnsWithIds, visibleColumns, onColumnVisibilityChange]);
 
   // Prepare column data for toolbar
@@ -835,20 +836,18 @@ export function Table<T extends { id: string | number }>({
     const isHovered = enableRowHover && hoveredRow === item.id;
 
     return clsx(
-      'group transition-all duration-200 ease-in-out border-l-4',
+      'group transition-all duration-200 ease-in-out',
       onRowClick && 'cursor-pointer focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2',
       {
         // Selected state with professional blue accent
-        'bg-blue-50/80 dark:bg-blue-900/20 border-blue-500 shadow-sm': isSelected,
+        'bg-blue-50/80 dark:bg-blue-900/20 shadow-sm': isSelected,
         // Hover state with subtle elevation
-        'hover:bg-gray-50/80 dark:hover:bg-gray-800/50 hover:shadow-sm border-transparent':
+        'hover:bg-gray-50/80 dark:hover:bg-gray-800/50 hover:shadow-sm':
           onRowClick && !isSelected && enableRowHover,
         'hover:bg-blue-100/80 dark:hover:bg-blue-900/30 hover:shadow-md':
           onRowClick && isSelected && enableRowHover,
         // Default state
-        'bg-white dark:bg-gray-900 border-transparent': !isSelected,
-        // Professional hover effects without scale transforms
-        'hover:border-gray-200 dark:hover:border-gray-700': onRowClick && !isSelected && enableRowHover,
+        'bg-white dark:bg-gray-900': !isSelected,
       }
     );
   }, [selectedIds, hoveredRow, onRowClick, enableRowHover]);
@@ -884,7 +883,7 @@ export function Table<T extends { id: string | number }>({
   // Professional empty state with enhanced UX
   if (!data || data.length === 0) {
     return (
-      <Card className={clsx('overflow-hidden', className)}>
+      <Card className={clsx('overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700', className)}>
         {(onSearchChange || onFilterClick || showColumnVisibility) && (
           <TableToolbar
             searchValue={searchValue}
@@ -900,26 +899,94 @@ export function Table<T extends { id: string | number }>({
             showColumnVisibility={showColumnVisibility}
           />
         )}
-        <div className="text-center py-20 px-6" role="status" aria-live="polite">
-          <div className="mx-auto w-20 h-20 mb-6 text-gray-300 dark:text-gray-600">
-            <EmptyIcon className="w-full h-full" />
-          </div>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
-            {t('table.empty_state.title')}
-          </h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto leading-relaxed">
-            {emptyMessage || t('table.empty_state.message')}
-          </p>
-          {emptyAction && (
-            <Button
-              onClick={emptyAction.onClick}
-              variant="primary"
-              startIcon={emptyAction.icon}
-              className="shadow-sm"
-            >
-              {emptyAction.label}
-            </Button>
-          )}
+
+        {/* Enhanced Table Container with Empty State */}
+        <div
+          className="overflow-x-auto overflow-y-auto"
+          style={{ maxHeight: maxHeight }}
+          role="region"
+          aria-label={t('table.accessibility.table_region')}
+        >
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700" role="table">
+            {/* Table Header */}
+            <thead className={clsx(
+              'bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700',
+              stickyHeader && 'sticky top-0 z-20 shadow-sm'
+            )}>
+              <tr className="border-b border-gray-200 dark:border-gray-600">
+                {isSelectable && (
+                  <th scope="col" className={clsx("relative w-12", densityClasses.header)}>
+                    <div className="flex items-center justify-center">
+                      <input
+                        id="checkbox-all"
+                        type="checkbox"
+                        className="w-4 h-4 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 transition-colors duration-200"
+                        disabled
+                        aria-label={t('table.selection.select_all', { count: 0 })}
+                      />
+                    </div>
+                  </th>
+                )}
+                {visibleColumnsFiltered.map((col, colIndex) => (
+                  <th
+                    key={`${col.header}-${colIndex}`}
+                    scope="col"
+                    className={clsx(
+                      densityClasses.header,
+                      'text-left text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider',
+                      col.align === 'center' && 'text-center',
+                      col.align === 'right' && 'text-right',
+                      col.className
+                    )}
+                    style={{
+                      width: col.width,
+                      minWidth: col.minWidth,
+                    }}
+                  >
+                    <div className={clsx(
+                      "flex items-center group",
+                      col.align === 'center' && 'justify-center',
+                      col.align === 'right' && 'justify-end',
+                      !col.align && 'justify-between'
+                    )}>
+                      <span className="font-medium">{col.header}</span>
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+
+            {/* Empty State Body */}
+            <tbody className="bg-white dark:bg-gray-900">
+              <tr>
+                <td colSpan={visibleColumnsFiltered.length + (isSelectable ? 1 : 0)} className="p-0">
+                  <div className="flex items-center justify-center min-h-[400px] py-20 px-6">
+                    <div className="flex flex-col items-center text-center" role="status" aria-live="polite">
+                      <div className="w-20 h-20 mb-6 text-gray-300 dark:text-gray-600">
+                        <EmptyIcon className="w-full h-full" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                        {t('table.empty_state.title')}
+                      </h3>
+                      <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md leading-relaxed">
+                        {emptyMessage || t('table.empty_state.message')}
+                      </p>
+                      {emptyAction && (
+                        <Button
+                          onClick={emptyAction.onClick}
+                          variant="primary"
+                          startIcon={emptyAction.icon}
+                          className="shadow-sm"
+                        >
+                          {emptyAction.label}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </Card>
     );

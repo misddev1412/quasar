@@ -17,4 +17,10 @@ module.exports = {
       generatePackageJson: true,
     }),
   ],
+  // Enable hot reload for development
+  watchOptions: {
+    ignored: /node_modules/,
+    poll: 1000,
+  },
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
 };

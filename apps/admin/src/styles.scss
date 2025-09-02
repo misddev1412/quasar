@@ -295,7 +295,88 @@ html, body {
     text-shadow: 0 1px 2px rgba(0,0,0,0.1);
   }
 
-  /* Table search input with proper icon spacing */
+  /* FileTypeSelector hover overrides with higher specificity */
+  .category-item:hover, .file-type-item:hover {
+    background-color: #3b82f6 !important;
+    color: white !important;
+  }
+  
+  .category-item:hover *, .file-type-item:hover * {
+    color: white !important;
+  }
+  
+  .category-item:hover span, .file-type-item:hover span {
+    color: white !important;
+  }
+  
+  .category-item:hover div, .file-type-item:hover div {
+    color: white !important;
+  }
+  
+  .category-item:hover svg, .file-type-item:hover svg {
+    color: white !important;
+  }
+  
+  /* Target specific Tailwind classes with higher specificity */
+  .category-item:hover .text-gray-600,
+  .category-item:hover .text-gray-900,
+  .category-item:hover .text-gray-500,
+  .category-item:hover .text-gray-400,
+  .file-type-item:hover .text-gray-600,
+  .file-type-item:hover .text-gray-900,
+  .file-type-item:hover .text-gray-500,
+  .file-type-item:hover .text-gray-400 {
+    color: white !important;
+  }
+  
+  /* Dark mode support */
+  .dark .category-item:hover, .dark .file-type-item:hover {
+    background-color: #2563eb !important;
+  }
+  
+  .dark .category-item:hover *, .dark .file-type-item:hover * {
+    color: white !important;
+  }
+  
+  .dark .category-item:hover .text-gray-100,
+  .dark .category-item:hover .text-gray-300,
+  .dark .file-type-item:hover .text-gray-100,
+  .dark .file-type-item:hover .text-gray-300 {
+    color: white !important;
+  }
+
+  /* Input with left icon spacing utilities */
+  /* Standard icon spacing - for 20px (w-5 h-5) icons with proper padding */
+  .input-with-left-icon {
+    padding-left: 3.5rem !important; /* 56px - accommodates icon + comfortable spacing */
+  }
+
+  /* Compact icon spacing - for smaller icons or tighter layouts */
+  .input-with-left-icon-compact {
+    padding-left: 2.75rem !important; /* 44px - more compact spacing */
+  }
+
+  /* Large icon spacing - for bigger icons or more generous spacing */
+  .input-with-left-icon-large {
+    padding-left: 4rem !important; /* 64px - extra generous spacing */
+  }
+
+  /* Icon container positioning utilities */
+  .input-icon-left {
+    position: absolute;
+    left: 0.75rem; /* 12px from left edge */
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: theme('colors.gray.400');
+  }
+
+  /* Dark mode icon color */
+  .dark .input-icon-left {
+    color: theme('colors.gray.500');
+  }
+
+  /* Table search input with proper icon spacing - keeping for backward compatibility */
   .table-search-input {
     padding-left: 60px !important;
   }

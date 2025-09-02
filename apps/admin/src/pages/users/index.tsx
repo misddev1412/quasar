@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiPlus, FiMoreVertical, FiUsers, FiUserCheck, FiUserPlus, FiUser, FiActivity, FiClock } from 'react-icons/fi';
+import { FiPlus, FiMoreVertical, FiUsers, FiUserCheck, FiUserPlus, FiUser, FiActivity, FiClock, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiUserX, FiTrash2, FiEye } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { Dropdown } from '../../components/common/Dropdown';
 import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
 import { Table, Column, SortDescriptor } from '../../components/common/Table';
 import BaseLayout from '../../components/layout/BaseLayout';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
@@ -119,10 +121,12 @@ const UserListPage = () => {
     searchParams.get('sortOrder') === 'asc' ? 'asc' : 'desc'
   );
 
-  // Column visibility state - use preferences with fallback
-  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(
-    preferences.visibleColumns || new Set(['user', 'username', 'role', 'status', 'createdAt'])
-  );
+  // Column visibility state - ensure non-hideable columns like 'actions' are always included
+  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(() => {
+    const initial = preferences.visibleColumns ? new Set(preferences.visibleColumns) : new Set(['user', 'username', 'role', 'status', 'createdAt', 'actions']);
+    if (!initial.has('actions')) initial.add('actions');
+    return initial;
+  });
 
   // Selected users for bulk actions
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string | number>>(new Set());
@@ -239,7 +243,7 @@ const UserListPage = () => {
     dateTo: filters.dateTo || filters.createdTo || undefined,
   };
 
-  const { data, isLoading, error } = trpc.adminUser.getAllUsers.useQuery(queryParams);
+  const { data, isLoading, error, refetch, isFetching } = trpc.adminUser.getAllUsers.useQuery(queryParams);
 
   // Fetch user statistics
   const {
@@ -251,6 +255,10 @@ const UserListPage = () => {
   const handleCreateUser = () => {
     navigate('/users/create');
   };
+
+  const goToUser = (id: string) => navigate(`/users/${id}`);
+
+  const { t } = useTranslationWithBackend();
 
   const handleFilterChange = (newFilters: UserFiltersType) => {
     setFilters(newFilters);
@@ -421,11 +429,46 @@ const UserListPage = () => {
     });
   };
 
-  // Handle individual user deletion - moved before columns definition
-  const handleDeleteUser = useCallback((userId: string) => {
-    // Implement delete confirmation and API call
-    console.log(`Deleting user: ${userId}`);
-  }, []);
+  // Row actions: delete, activate/deactivate
+  const { addToast } = useToast();
+  const updateUserStatusMutation = trpc.adminUser.updateUserStatus.useMutation();
+  const deleteUserMutation = trpc.adminUser.deleteUser.useMutation();
+
+  const handleToggleStatus = useCallback(async (userId: string, currentActive: boolean) => {
+    try {
+      await updateUserStatusMutation.mutateAsync({ id: userId, isActive: !currentActive });
+
+      // Show success toast with descriptive message
+      const action = currentActive ? 'deactivated' : 'activated';
+      addToast({
+        type: 'success',
+        title: `User ${action} successfully`,
+        description: `The user has been ${action} and the changes are now in effect.`
+      });
+
+      // Refresh the data to show updated status
+      refetch();
+    } catch (e: any) {
+      // Show error toast with detailed information
+      addToast({
+        type: 'error',
+        title: 'Failed to update user status',
+        description: e?.message || 'An error occurred while updating the user status. Please try again.'
+      });
+    }
+  }, [updateUserStatusMutation, addToast, refetch]);
+
+  const handleDeleteUser = useCallback(async (userId: string) => {
+    try {
+      const ok = window.confirm('Are you sure you want to delete this user? This action cannot be undone.');
+      if (!ok) return;
+      await deleteUserMutation.mutateAsync({ id: userId });
+      addToast({ type: 'success', title: 'User deleted' });
+      refetch();
+    } catch (e: any) {
+      addToast({ type: 'error', title: 'Delete failed', description: e?.message || 'Failed to delete user' });
+    }
+  }, [deleteUserMutation, addToast, refetch]);
 
   // Handle bulk actions
   const handleBulkAction = useCallback((action: string) => {
@@ -446,6 +489,50 @@ const UserListPage = () => {
     }
   }, [selectedUserIds.size]);
 
+  const handleRefresh = useCallback(() => {
+    try {
+      refetch();
+    } catch (e) {
+      console.error('Refresh failed', e);
+    }
+  }, [refetch]);
+
+  const handleExportCsv = useCallback(() => {
+    try {
+      const items: any[] = ((data as any)?.data?.items) ?? [];
+      if (!items.length) {
+        console.warn('No users to export');
+      }
+      const headers = ['Name', 'Username', 'Email', 'Role', 'Status', 'Created At'];
+      const escape = (val: any) => {
+        const s = String(val ?? '');
+        const needsQuotes = s.includes(',') || s.includes('"') || s.includes('\n');
+        const escaped = s.replace(/"/g, '""');
+        return needsQuotes ? `"${escaped}"` : escaped;
+      };
+      const rows = items.map((item) => {
+        const name = item?.profile?.firstName && item?.profile?.lastName
+          ? `${item.profile.firstName} ${item.profile.lastName}`
+          : (item?.username ?? '');
+        const created = item?.createdAt ? new Date(item.createdAt).toLocaleString() : '';
+        const status = item?.isActive ? 'Active' : 'Inactive';
+        return [name, item?.username ?? '', item?.email ?? '', item?.role ?? 'USER', status, created]
+          .map(escape)
+          .join(',');
+      });
+      const csv = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const ts = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+      link.download = `users-${ts}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Export CSV failed', e);
+    }
+  }, [data]);
   // Count active filters for display (search is handled separately by Table component)
   const activeFilterCount = useMemo(() =>
     Object.values(filters).filter(value =>
@@ -461,7 +548,22 @@ const UserListPage = () => {
       primary: true,
       icon: <FiPlus />,
     },
-  ], []);
+    {
+      label: 'Export CSV',
+      onClick: handleExportCsv,
+      icon: <FiDownload />,
+    },
+    {
+      label: 'Refresh',
+      onClick: handleRefresh,
+      icon: <FiRefreshCw />,
+    },
+    {
+      label: showFilters ? 'Hide Filters' : 'Show Filters',
+      onClick: handleFilterToggle,
+      icon: <FiFilter />,
+    },
+  ], [handleCreateUser, handleExportCsv, handleRefresh, handleFilterToggle, showFilters]);
 
   // Prepare statistics data
   const statisticsCards: StatisticData[] = useMemo(() => {
@@ -602,15 +704,25 @@ const UserListPage = () => {
           }
           items={[
             {
-              label: 'Edit',
-              onClick: () => navigate(`/users/${item.id}/edit`)
+              label: t('common.edit'),
+              icon: <FiEdit2 className="w-4 h-4" aria-hidden="true" />,
+              onClick: () => goToUser(item.id)
+            },
+            {
+              label: item.isActive ? 'Deactivate' : 'Activate',
+              icon: item.isActive
+                ? <FiUserX className="w-4 h-4" aria-hidden="true" />
+                : <FiUserCheck className="w-4 h-4" aria-hidden="true" />,
+              onClick: () => handleToggleStatus(item.id, item.isActive),
             },
             {
               label: 'View Profile',
+              icon: <FiEye className="w-4 h-4" aria-hidden="true" />,
               onClick: () => navigate(`/users/${item.id}`)
             },
             {
               label: 'Delete',
+              icon: <FiTrash2 className="w-4 h-4" aria-hidden="true" />,
               onClick: () => handleDeleteUser(item.id),
               className: 'text-red-500 hover:text-red-700'
             },
@@ -649,7 +761,7 @@ const UserListPage = () => {
 
   if (isLoading) {
     return (
-      <BaseLayout title="User Management" description="Manage all users in the system" actions={actions}>
+      <BaseLayout title="User Management" description="Manage all users in the system" actions={actions} fullWidth={true}>
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
@@ -659,7 +771,7 @@ const UserListPage = () => {
 
   if (error) {
     return (
-      <BaseLayout title="User Management" description="Manage all users in the system" actions={actions}>
+      <BaseLayout title="User Management" description="Manage all users in the system" actions={actions} fullWidth={true}>
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{(error as any).message}</AlertDescription>
@@ -673,7 +785,7 @@ const UserListPage = () => {
   const totalPages = Math.ceil(totalUsers / limit);
 
   return (
-    <BaseLayout title="User Management" description="Manage all users in the system" actions={actions}>
+    <BaseLayout title="User Management" description="Manage all users in the system" actions={actions} fullWidth={true}>
       <div className="space-y-6">
         {/* Statistics Cards */}
         <StatisticsGrid
@@ -726,7 +838,14 @@ const UserListPage = () => {
           // Additional features
           enableRowHover={true}
           density="normal"
-          onRowClick={(user) => navigate(`/users/${user.id}`)}
+          onRowClick={(user) => goToUser(user.id)}
+          // Empty state
+          emptyMessage={t('users.no_users_found', 'No users found')}
+          emptyAction={{
+            label: t('users.create_user', 'Create User'),
+            onClick: handleCreateUser,
+            icon: <FiPlus />,
+          }}
         />
 
 
@@ -735,4 +854,4 @@ const UserListPage = () => {
   );
 };
 
-export default UserListPage; 
+export default UserListPage;

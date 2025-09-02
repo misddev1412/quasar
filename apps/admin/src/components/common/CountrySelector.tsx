@@ -11,6 +11,7 @@ import Select, {
 import { getCountries, getCountryCallingCode } from 'react-phone-number-input';
 import clsx from 'clsx';
 import './CountrySelector.css';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 // Country data interface
 interface Country {
@@ -102,6 +103,7 @@ interface CountrySelectorProps {
   error?: boolean;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  variant?: 'embedded' | 'standalone';
 }
 
 // Function to get alternative names and common abbreviations for countries
@@ -351,7 +353,7 @@ const CustomOption: React.FC<OptionProps<Country, false, GroupBase<Country>>> = 
           {searchTerm && (data.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
            data.callingCode.includes(searchTerm.replace('+', ''))) && (
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              Code: {highlightMatch(data.code, searchTerm)}
+              {(props.selectProps as any).t?.('phone.country_code_label', 'Code')}: {highlightMatch(data.code, searchTerm)}
             </div>
           )}
         </div>
@@ -426,9 +428,9 @@ const CustomMenu: React.FC<MenuProps<Country, false, GroupBase<Country>>> = (pro
             }
             e.stopPropagation();
           }}
-          placeholder="Search countries by name, code, or +calling code"
+          placeholder={(selectProps as any).t?.('phone.search_placeholder', 'Search countries by name, code, or +calling code')}
           className="country-selector-search-input"
-          aria-label="Search countries"
+          aria-label={(selectProps as any).t?.('phone.search_aria_label', 'Search countries')}
         />
       </div>
       {children}
@@ -443,7 +445,9 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
   error = false,
   size = 'md',
   className = '',
+  variant = 'standalone',
 }) => {
+  const { t } = useTranslationWithBackend();
   // Local state to control search visibility inside dropdown
   const [menuSearch, setMenuSearch] = useState('');
   const [menuIsOpen, setMenuIsOpen] = useState(false);
@@ -454,6 +458,11 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
 
   // Ref to Select to programmatically focus/open
   const selectRef = useRef<any>(null);
+
+
+  // Stable instance id to scope menu portal/lookups for this component instance
+  const instanceIdRef = useRef(`country-selector-${Math.random().toString(36).slice(2, 10)}`);
+  const instanceId = instanceIdRef.current;
 
   const handleContainerMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (disabled) return;
@@ -471,14 +480,63 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
       if (!menuIsOpen) return;
       const target = e.target as HTMLElement;
       const inContainer = !!containerRef.current && containerRef.current.contains(target);
-      const inPortal = target.closest('.react-select__menu-portal');
-      if (inContainer || inPortal) {
+
+      // Only treat clicks inside THIS select's portal as internal
+      let inThisPortal = false;
+      const portal = target.closest('.react-select__menu-portal') as HTMLElement | null;
+      if (portal) {
+        if (target.closest(`[id^="react-select-${instanceId}-"]`)) {
+          inThisPortal = true;
+        } else if (portal.querySelector(`[id^="react-select-${instanceId}-"]`)) {
+          inThisPortal = portal.contains(target);
+        }
+      }
+
+      if (inContainer || inThisPortal) {
         e.preventDefault();
       }
     };
     document.addEventListener('mousedown', handleMouseDown, true);
     return () => document.removeEventListener('mousedown', handleMouseDown, true);
   }, [menuIsOpen]);
+
+  // Close when clicking outside the component or its own menu portal
+  useEffect(() => {
+    if (!menuIsOpen) return;
+
+    const handleGlobalPointer = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+
+      const inContainer = !!containerRef.current && containerRef.current.contains(target);
+
+      // Limit to this instance's menu rendered in portal
+      let inThisMenu = false;
+      const portal = target.closest('.react-select__menu-portal') as HTMLElement | null;
+      if (portal) {
+        // react-select uses ids like `react-select-${instanceId}-option-...` / `...-listbox`
+        if (target.closest(`[id^="react-select-${instanceId}-"]`)) {
+          inThisMenu = true;
+        } else if (portal.querySelector(`[id^="react-select-${instanceId}-"]`)) {
+          // Fallback: if the portal contains our instance id nodes, any click inside counts
+          inThisMenu = portal.contains(target);
+        }
+      }
+
+      if (!inContainer && !inThisMenu) {
+        setMenuIsOpen(false);
+        setMenuSearch('');
+      }
+    };
+
+    document.addEventListener('mousedown', handleGlobalPointer);
+    document.addEventListener('touchstart', handleGlobalPointer, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', handleGlobalPointer);
+      document.removeEventListener('touchstart', handleGlobalPointer);
+    };
+  }, [menuIsOpen, instanceId]);
+
 
   // Generate countries data with enhanced search terms
   // Generate countries data with enhanced search terms
@@ -536,26 +594,26 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
       ...provided,
       minHeight: heightClasses[size],
       height: heightClasses[size],
-      borderColor: error
+      borderColor: variant === 'embedded' ? 'transparent' : (error
         ? '#ef4444'
         : state.isFocused
           ? '#3b82f6'
-          : '#d1d5db',
-      borderWidth: '1px',
-      borderRadius: '0.5rem',
+          : '#d1d5db'),
+      borderWidth: variant === 'embedded' ? '0px' : '1px',
+      borderRadius: variant === 'embedded' ? '0px' : '0.5rem',
       backgroundColor: 'transparent',
-      boxShadow: state.isFocused
+      boxShadow: state.isFocused && variant !== 'embedded'
         ? '0 0 0 1px #3b82f6'
         : 'none',
       '&:hover': {
-        borderColor: error ? '#ef4444' : '#9ca3af',
+        borderColor: variant === 'embedded' ? 'transparent' : (error ? '#ef4444' : '#9ca3af'),
       },
       cursor: disabled ? 'not-allowed' : 'pointer',
       opacity: disabled ? 0.5 : 1,
     }),
     valueContainer: (provided, state) => ({
       ...provided,
-      padding: '0 8px',
+      padding: variant === 'embedded' ? '0 12px' : '0 8px',
       height: heightClasses[size],
     }),
     input: (provided, state) => ({
@@ -591,9 +649,9 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
     option: (provided, state) => ({
       ...provided,
       backgroundColor: state.isSelected
-        ? '#3b82f6'
+        ? 'var(--color-primary-500, #3b82f6)'
         : state.isFocused
-          ? '#f3f4f6'
+          ? 'var(--color-hover-secondary, #f3f4f6)'
           : 'transparent',
       color: state.isSelected
         ? 'white'
@@ -603,7 +661,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
       margin: '2px 0',
       cursor: 'pointer',
       '&:hover': {
-        backgroundColor: state.isSelected ? '#3b82f6' : '#f3f4f6',
+        backgroundColor: state.isSelected ? 'var(--color-primary-500, #3b82f6)' : 'var(--color-hover-secondary, #f3f4f6)',
       },
     }),
     indicatorSeparator: () => ({
@@ -627,13 +685,13 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
     control: (provided, state) => ({
       ...customStyles.control!(provided, state),
       backgroundColor: 'transparent',
-      borderColor: error
+      borderColor: variant === 'embedded' ? 'transparent' : (error
         ? '#ef4444'
         : state.isFocused
           ? '#60a5fa'
-          : '#4b5563',
+          : '#4b5563'),
       '&:hover': {
-        borderColor: error ? '#ef4444' : '#6b7280',
+        borderColor: variant === 'embedded' ? 'transparent' : (error ? '#ef4444' : '#6b7280'),
       },
     }),
     menu: (provided, state) => ({
@@ -644,15 +702,15 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
     option: (provided, state) => ({
       ...customStyles.option!(provided, state),
       backgroundColor: state.isSelected
-        ? '#3b82f6'
+        ? 'var(--color-primary-500, #3b82f6)'
         : state.isFocused
-          ? '#374151'
+          ? 'var(--color-hover-secondary, #374151)'
           : 'transparent',
       color: state.isSelected
         ? 'white'
         : '#f9fafb',
       '&:hover': {
-        backgroundColor: state.isSelected ? '#3b82f6' : '#374151',
+        backgroundColor: state.isSelected ? 'var(--color-primary-500, #3b82f6)' : 'var(--color-hover-secondary, #374151)',
       },
     }),
     placeholder: (provided, state) => ({
@@ -679,6 +737,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
     <div ref={containerRef} onMouseDown={handleContainerMouseDown} className={clsx('relative cursor-pointer', className)} style={{ overflow: 'visible', zIndex: 10 }}>
       <Select<Country, false, GroupBase<Country>>
         ref={selectRef}
+        instanceId={instanceId}
         value={selectedCountry}
         onChange={(selectedOption) => {
           if (selectedOption) {
@@ -728,12 +787,16 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
         menuSearch={menuSearch}
         // @ts-ignore
         setMenuSearch={setMenuSearch}
+        // Pass translation function to subcomponents
+        // @ts-ignore
+        t={t}
         menuPosition="fixed"
         menuPlacement="auto"
         className={clsx(
           'react-select-container',
           sizeClasses[size],
-          error && 'react-select-error'
+          error && 'react-select-error',
+          variant === 'embedded' && 'country-selector--embedded !border-0 !shadow-none'
         )}
         classNamePrefix="react-select"
       />
