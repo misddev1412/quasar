@@ -4,7 +4,7 @@ import { SEOEntity } from './entities/seo.entity';
 import { SEORepository } from './repositories/seo.repository';
 import { SEOService } from './services/seo.service';
 import { SharedModule } from '../shared/shared.module';
-import { AdminSeoRouter } from '../../trpc/routers/admin/seo.router';
+import { AdminSeoRouter } from './routers/admin-seo.router';
 import { ClientSeoRouter } from '../../trpc/routers/client/seo.router';
 
 @Module({

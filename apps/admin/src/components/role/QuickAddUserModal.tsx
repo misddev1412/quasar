@@ -159,12 +159,25 @@ export const QuickAddUserModal: React.FC<QuickAddUserModalProps> = ({
             {users.length > 0 && (
               <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={users.length > 0 && selectedUsers.size === users.length}
-                    onChange={handleSelectAll}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer"
-                  />
+                  <div className="relative inline-flex flex-shrink-0 items-center justify-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 w-9 h-5 cursor-pointer" 
+                       style={{ backgroundColor: (users.length > 0 && selectedUsers.size === users.length) ? '#2563eb' : '#d1d5db' }}>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={users.length > 0 && selectedUsers.size === users.length}
+                      onClick={handleSelectAll}
+                      className="w-full h-full rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                    >
+                      <span className="sr-only">{t('common.select_all', 'Select All')}</span>
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute left-0 inline-block transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out w-3.5 h-3.5 top-[2px] left-[2px]"
+                        style={{
+                          transform: (users.length > 0 && selectedUsers.size === users.length) ? 'translate(18px, 0)' : 'translate(2px, 0)'
+                        }}
+                      />
+                    </button>
+                  </div>
                   <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                     {t('common.select_all', 'Select All')} ({users.length})
                   </span>
@@ -203,12 +216,16 @@ export const QuickAddUserModal: React.FC<QuickAddUserModalProps> = ({
                         }`}
                         onClick={() => handleUserToggle(user.id)}
                       >
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => {}}
-                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer"
-                        />
+                        <div className="relative inline-flex flex-shrink-0 items-center justify-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 w-9 h-5 cursor-pointer" 
+                             style={{ backgroundColor: isSelected ? '#2563eb' : '#d1d5db' }}>
+                          <span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute left-0 inline-block transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out w-3.5 h-3.5 top-[2px] left-[2px]"
+                            style={{
+                              transform: isSelected ? 'translate(18px, 0)' : 'translate(2px, 0)'
+                            }}
+                          />
+                        </div>
                         <div className="ml-3 flex-1">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">

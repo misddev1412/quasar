@@ -18,11 +18,15 @@ import { UserSessionRepository } from '../modules/user/repositories/user-session
 import { UserActivityTrackingService } from '../modules/user/services/user-activity-tracking.service';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { FirebaseAuthStrategy } from './strategies/firebase-auth.strategy';
 import { RolesGuard } from './guards/roles.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { AdminAuthRouter } from '../trpc/routers/admin/auth.router';
+import { FirebaseAuthGuard } from './guards/firebase-auth.guard';
+import { AdminAuthRouter } from './routers/admin-auth.router';
+import { PublicAuthRouter } from './routers/public-auth.router';
 import { SharedModule } from '../modules/shared/shared.module';
 import { UserModule } from '../modules/user/user.module';
+import { FirebaseModule } from '../modules/firebase/firebase.module';
 
 const jwtModule = JwtModule.registerAsync({
   imports: [ConfigModule],
@@ -41,21 +45,27 @@ const jwtModule = JwtModule.registerAsync({
     PassportModule,
     jwtModule,
     SharedModule,
+    FirebaseModule,
     forwardRef(() => UserModule),
   ],
   providers: [
     AuthService,
     JwtStrategy,
+    FirebaseAuthStrategy,
     RolesGuard,
     JwtAuthGuard,
+    FirebaseAuthGuard,
     AdminAuthRouter,
+    PublicAuthRouter,
   ],
   exports: [
     AuthService,
     jwtModule,
     JwtAuthGuard,
+    FirebaseAuthGuard,
     RolesGuard,
-    AdminAuthRouter
+    AdminAuthRouter,
+    PublicAuthRouter,
   ],
 })
 export class AuthModule {} 

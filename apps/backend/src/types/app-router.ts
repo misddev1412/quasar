@@ -773,6 +773,15 @@ export const appRouter = router({
         return {} as any;
       }),
 
+    loginWithFirebase: procedure
+      .input(z.object({
+        firebaseIdToken: z.string()
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
     refresh: procedure
       .input(z.object({
         refreshToken: z.string()
@@ -1480,6 +1489,711 @@ export const appRouter = router({
         folder: z.string().optional(),
         limit: z.number().min(1).max(50).default(10),
       }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+  }),
+
+  // Product Management Routers
+  adminProducts: router({
+    list: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(10),
+        search: z.string().optional(),
+        status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE', 'DISCONTINUED']).optional(),
+        categoryId: z.string().optional(),
+        brandId: z.string().optional(),
+        isFeatured: z.boolean().optional(),
+        isActive: z.boolean().optional(),
+        minPrice: z.number().min(0).optional(),
+        maxPrice: z.number().min(0).optional(),
+        hasStock: z.boolean().optional(),
+        createdFrom: z.string().optional(),
+        createdTo: z.string().optional(),
+        sortBy: z.enum(['name', 'price', 'createdAt', 'updatedAt']).default('createdAt'),
+        sortOrder: z.enum(['ASC', 'DESC']).default('DESC'),
+      }).optional())
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    detail: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    create: procedure
+      .input(z.object({
+        name: z.string().min(1),
+        description: z.string().optional(),
+        price: z.number().min(0),
+        comparePrice: z.number().min(0).optional(),
+        cost: z.number().min(0).optional(),
+        sku: z.string().optional(),
+        barcode: z.string().optional(),
+        trackQuantity: z.boolean().default(true),
+        quantity: z.number().min(0).default(0),
+        weight: z.number().min(0).optional(),
+        dimensions: z.object({
+          length: z.number().min(0).optional(),
+          width: z.number().min(0).optional(),
+          height: z.number().min(0).optional(),
+        }).optional(),
+        status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE', 'DISCONTINUED']).default('DRAFT'),
+        categoryId: z.string().optional(),
+        brandId: z.string().optional(),
+        images: z.array(z.string()).optional(),
+        tags: z.array(z.string()).optional(),
+        seoTitle: z.string().optional(),
+        seoDescription: z.string().optional(),
+        metaKeywords: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    update: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        data: z.object({
+          name: z.string().min(1).optional(),
+          description: z.string().optional(),
+          price: z.number().min(0).optional(),
+          comparePrice: z.number().min(0).optional(),
+          cost: z.number().min(0).optional(),
+          sku: z.string().optional(),
+          barcode: z.string().optional(),
+          trackQuantity: z.boolean().optional(),
+          quantity: z.number().min(0).optional(),
+          weight: z.number().min(0).optional(),
+          dimensions: z.object({
+            length: z.number().min(0).optional(),
+            width: z.number().min(0).optional(),
+            height: z.number().min(0).optional(),
+          }).optional(),
+          status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE', 'DISCONTINUED']).optional(),
+          categoryId: z.string().optional(),
+          brandId: z.string().optional(),
+          images: z.array(z.string()).optional(),
+          tags: z.array(z.string()).optional(),
+          seoTitle: z.string().optional(),
+          seoDescription: z.string().optional(),
+          metaKeywords: z.string().optional(),
+        }),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    delete: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    stats: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    updateStatus: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE', 'DISCONTINUED']),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+  }),
+
+  clientProducts: router({
+    list: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(10),
+        search: z.string().optional(),
+        categoryId: z.string().optional(),
+        brandId: z.string().optional(),
+        priceRange: z.object({
+          min: z.number().min(0).optional(),
+          max: z.number().min(0).optional(),
+        }).optional(),
+        sortBy: z.enum(['name', 'price', 'popularity', 'newest']).default('newest'),
+        sortOrder: z.enum(['ASC', 'DESC']).default('DESC'),
+      }).optional())
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    detail: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    featured: procedure
+      .input(z.object({
+        limit: z.number().min(1).max(50).default(10),
+      }).optional())
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    byCategory: procedure
+      .input(z.object({
+        categoryId: z.string(),
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(10),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    byBrand: procedure
+      .input(z.object({
+        brandId: z.string(),
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(10),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+  }),
+
+  publicProducts: router({
+    list: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(10),
+        search: z.string().optional(),
+        categoryId: z.string().optional(),
+        brandId: z.string().optional(),
+        priceRange: z.object({
+          min: z.number().min(0).optional(),
+          max: z.number().min(0).optional(),
+        }).optional(),
+        sortBy: z.enum(['name', 'price', 'popularity', 'newest']).default('newest'),
+        sortOrder: z.enum(['ASC', 'DESC']).default('DESC'),
+      }).optional())
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    detail: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    featured: procedure
+      .input(z.object({
+        limit: z.number().min(1).max(50).default(10),
+      }).optional())
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    byCategory: procedure
+      .input(z.object({
+        categoryId: z.string(),
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(10),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    byBrand: procedure
+      .input(z.object({
+        brandId: z.string(),
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(10),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    search: procedure
+      .input(z.object({
+        query: z.string().min(1),
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(10),
+        filters: z.object({
+          categoryId: z.string().optional(),
+          brandId: z.string().optional(),
+          priceRange: z.object({
+            min: z.number().min(0).optional(),
+            max: z.number().min(0).optional(),
+          }).optional(),
+        }).optional(),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+  }),
+
+  // Client User router
+  clientUser: router({
+    getProfile: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    register: procedure
+      .input(z.object({
+        email: z.string().email(),
+        password: z.string().min(8),
+        firstName: z.string().min(2),
+        lastName: z.string().min(2),
+        username: z.string().min(3).optional(),
+        phoneNumber: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    login: procedure
+      .input(z.object({
+        email: z.string().email(),
+        password: z.string().min(6),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    updateProfile: procedure
+      .input(z.object({
+        firstName: z.string().min(2).optional(),
+        lastName: z.string().min(2).optional(),
+        phoneNumber: z.string().optional(),
+        dateOfBirth: z.string().optional(),
+        avatar: z.string().optional(),
+        bio: z.string().optional(),
+        address: z.string().optional(),
+        city: z.string().optional(),
+        country: z.string().optional(),
+        postalCode: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    refreshToken: procedure
+      .input(z.object({ refreshToken: z.string() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+  }),
+
+  // Admin Firebase Config router
+  adminFirebaseConfig: router({
+    getAllConfigs: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getConfig: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    createConfig: procedure
+      .input(z.object({
+        name: z.string().min(1),
+        apiKey: z.string().min(1),
+        authDomain: z.string().min(1),
+        projectId: z.string().min(1),
+        storageBucket: z.string().optional(),
+        messagingSenderId: z.string().optional(),
+        appId: z.string().min(1),
+        measurementId: z.string().optional(),
+        active: z.boolean().default(true),
+        description: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    updateConfig: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        name: z.string().min(1).optional(),
+        apiKey: z.string().min(1).optional(),
+        authDomain: z.string().min(1).optional(),
+        projectId: z.string().min(1).optional(),
+        storageBucket: z.string().optional(),
+        messagingSenderId: z.string().optional(),
+        appId: z.string().min(1).optional(),
+        measurementId: z.string().optional(),
+        active: z.boolean().optional(),
+        description: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    deleteConfig: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+  }),
+
+  // Admin Product Brands router
+  adminProductBrands: router({
+    getAll: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(10),
+        search: z.string().optional(),
+        isActive: z.boolean().optional(),
+        sortBy: z.enum(['name', 'createdAt', 'updatedAt']).default('createdAt'),
+        sortOrder: z.enum(['ASC', 'DESC']).default('DESC'),
+      }).optional())
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getById: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    create: procedure
+      .input(z.object({
+        name: z.string().min(1),
+        description: z.string().optional(),
+        logo: z.string().optional(),
+        website: z.string().optional(),
+        isActive: z.boolean().default(true),
+        sortOrder: z.number().min(0).default(0),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    update: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        name: z.string().min(1).optional(),
+        description: z.string().optional(),
+        logo: z.string().optional(),
+        website: z.string().optional(),
+        isActive: z.boolean().optional(),
+        sortOrder: z.number().min(0).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    delete: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    getStats: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+  }),
+
+  // Standalone Admin Product Categories router
+  adminProductCategories: router({
+    getAll: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(10),
+        search: z.string().optional(),
+        isActive: z.boolean().optional(),
+        parentId: z.string().uuid().optional(),
+        sortBy: z.enum(['name', 'createdAt', 'updatedAt', 'sortOrder']).default('sortOrder'),
+        sortOrder: z.enum(['ASC', 'DESC']).default('ASC'),
+      }).optional())
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getTree: procedure
+      .input(z.object({
+        includeInactive: z.boolean().default(false),
+      }).optional())
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getRootCategories: procedure
+      .input(z.object({
+        includeInactive: z.boolean().default(false),
+      }).optional())
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getCategoryChildren: procedure
+      .input(z.object({
+        parentId: z.string().uuid(),
+        includeInactive: z.boolean().default(false),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getById: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    create: procedure
+      .input(z.object({
+        name: z.string().min(1),
+        description: z.string().optional(),
+        slug: z.string().min(1),
+        parentId: z.string().uuid().optional(),
+        isActive: z.boolean().default(true),
+        sortOrder: z.number().min(0).default(0),
+        image: z.string().optional(),
+        seoTitle: z.string().optional(),
+        seoDescription: z.string().optional(),
+        metaKeywords: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    update: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        name: z.string().min(1).optional(),
+        description: z.string().optional(),
+        slug: z.string().min(1).optional(),
+        parentId: z.string().uuid().optional(),
+        isActive: z.boolean().optional(),
+        sortOrder: z.number().min(0).optional(),
+        image: z.string().optional(),
+        seoTitle: z.string().optional(),
+        seoDescription: z.string().optional(),
+        metaKeywords: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    delete: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    getStats: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+  }),
+
+  // Admin Product router (with nested categories and brands)
+  adminProduct: router({
+    categories: router({
+      getAll: procedure
+        .input(z.object({
+          page: z.number().min(1).default(1),
+          limit: z.number().min(1).max(100).default(10),
+          search: z.string().optional(),
+          isActive: z.boolean().optional(),
+          parentId: z.string().uuid().optional(),
+          sortBy: z.enum(['name', 'createdAt', 'updatedAt', 'sortOrder']).default('sortOrder'),
+          sortOrder: z.enum(['ASC', 'DESC']).default('ASC'),
+        }).optional())
+        .output(paginatedResponseSchema)
+        .query(() => {
+          return {} as any;
+        }),
+
+      getTree: procedure
+        .input(z.object({
+          includeInactive: z.boolean().default(false),
+        }).optional())
+        .output(apiResponseSchema)
+        .query(() => {
+          return {} as any;
+        }),
+
+      getById: procedure
+        .input(z.object({ id: z.string().uuid() }))
+        .output(apiResponseSchema)
+        .query(() => {
+          return {} as any;
+        }),
+
+      create: procedure
+        .input(z.object({
+          name: z.string().min(1),
+          description: z.string().optional(),
+          slug: z.string().min(1),
+          parentId: z.string().uuid().optional(),
+          isActive: z.boolean().default(true),
+          sortOrder: z.number().min(0).default(0),
+          image: z.string().optional(),
+          seoTitle: z.string().optional(),
+          seoDescription: z.string().optional(),
+          metaKeywords: z.string().optional(),
+        }))
+        .output(apiResponseSchema)
+        .mutation(() => {
+          return {} as any;
+        }),
+
+      update: procedure
+        .input(z.object({
+          id: z.string().uuid(),
+          name: z.string().min(1).optional(),
+          description: z.string().optional(),
+          slug: z.string().min(1).optional(),
+          parentId: z.string().uuid().optional(),
+          isActive: z.boolean().optional(),
+          sortOrder: z.number().min(0).optional(),
+          image: z.string().optional(),
+          seoTitle: z.string().optional(),
+          seoDescription: z.string().optional(),
+          metaKeywords: z.string().optional(),
+        }))
+        .output(apiResponseSchema)
+        .mutation(() => {
+          return {} as any;
+        }),
+
+      delete: procedure
+        .input(z.object({ id: z.string().uuid() }))
+        .output(apiResponseSchema)
+        .mutation(() => {
+          return {} as any;
+        }),
+
+      getStats: procedure
+        .output(apiResponseSchema)
+        .query(() => {
+          return {} as any;
+        }),
+    }),
+
+    brands: router({
+      getAll: procedure
+        .input(z.object({
+          page: z.number().min(1).default(1),
+          limit: z.number().min(1).max(100).default(10),
+          search: z.string().optional(),
+          isActive: z.boolean().optional(),
+          sortBy: z.enum(['name', 'createdAt', 'updatedAt']).default('createdAt'),
+          sortOrder: z.enum(['ASC', 'DESC']).default('DESC'),
+        }).optional())
+        .output(paginatedResponseSchema)
+        .query(() => {
+          return {} as any;
+        }),
+
+      getById: procedure
+        .input(z.object({ id: z.string().uuid() }))
+        .output(apiResponseSchema)
+        .query(() => {
+          return {} as any;
+        }),
+
+      create: procedure
+        .input(z.object({
+          name: z.string().min(1),
+          description: z.string().optional(),
+          logo: z.string().optional(),
+          website: z.string().optional(),
+          isActive: z.boolean().default(true),
+          sortOrder: z.number().min(0).default(0),
+        }))
+        .output(apiResponseSchema)
+        .mutation(() => {
+          return {} as any;
+        }),
+
+      update: procedure
+        .input(z.object({
+          id: z.string().uuid(),
+          name: z.string().min(1).optional(),
+          description: z.string().optional(),
+          logo: z.string().optional(),
+          website: z.string().optional(),
+          isActive: z.boolean().optional(),
+          sortOrder: z.number().min(0).optional(),
+        }))
+        .output(apiResponseSchema)
+        .mutation(() => {
+          return {} as any;
+        }),
+
+      delete: procedure
+        .input(z.object({ id: z.string().uuid() }))
+        .output(apiResponseSchema)
+        .mutation(() => {
+          return {} as any;
+        }),
+
+      getStats: procedure
+        .output(apiResponseSchema)
+        .query(() => {
+          return {} as any;
+        }),
+    }),
+  }),
+
+  // Public Auth router - no authentication required
+  publicAuth: router({
+    getFirebaseConfig: procedure
       .output(apiResponseSchema)
       .query(() => {
         return {} as any;

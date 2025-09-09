@@ -1,17 +1,25 @@
-import React, { useState } from 'react';
-import { FileText, Settings, Globe, Image, Calendar, Tag } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { FileText, Settings, Globe, Image, Calendar, Tag, RefreshCw } from 'lucide-react';
 import { EntityForm } from '../common/EntityForm';
 import { FormTabConfig } from '../../types/forms';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useLanguageOptions } from '../../hooks/useLanguages';
 import { z } from 'zod';
 import { TranslationsSection } from './TranslationsSection';
+import { generateSlug } from '../../utils/slugUtils';
 
 // Form validation schema
 const createPostSchema = z.object({
   // General content (default language)
   title: z.string().min(1, 'Title is required'),
-  slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
+  slug: z.string().min(1, 'Slug is required').refine((val) => {
+    // Allow Unicode characters but forbid certain special characters
+    return val.length > 0 && 
+           !val.startsWith('-') && 
+           !val.endsWith('-') && 
+           !/-{2,}/.test(val) && 
+           !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
+  }, 'Slug must not start/end with hyphens or contain forbidden characters'),
   content: z.string().min(1, 'Content is required'),
   excerpt: z.string().optional(),
   
@@ -43,7 +51,14 @@ const createPostSchema = z.object({
   additionalTranslations: z.array(z.object({
     locale: z.string().min(2).max(5),
     title: z.string().min(1, 'Title is required'),
-    slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
+    slug: z.string().min(1, 'Slug is required').refine((val) => {
+    // Allow Unicode characters but forbid certain special characters
+    return val.length > 0 && 
+           !val.startsWith('-') && 
+           !val.endsWith('-') && 
+           !/-{2,}/.test(val) && 
+           !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
+  }, 'Slug must not start/end with hyphens or contain forbidden characters'),
     content: z.string().min(1, 'Content is required'),
     excerpt: z.string().optional(),
     metaTitle: z.string().optional(),
@@ -129,12 +144,10 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
             {
               name: 'slug',
               label: t('posts.slug'),
-              type: 'text',
+              type: 'slug',
               placeholder: 'post-slug',
               required: true,
-              validation: {
-                pattern: /^[a-z0-9-]+$/,
-              },
+              sourceField: 'title',
               description: t('form.descriptions.slug_requirements'),
             },
             {

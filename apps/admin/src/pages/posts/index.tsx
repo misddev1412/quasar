@@ -15,7 +15,6 @@ import { Alert, AlertDescription, AlertTitle } from '../../components/common/Ale
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { PostFilters } from '../../components/features/PostFilters';
 import { Post, PostStatus, PostType, PostFiltersType } from '../../types/post';
-import { format } from 'date-fns';
 
 // Helper functions for URL parameter validation
 const validatePostStatus = (status: string | null): PostStatus | undefined => {
@@ -252,30 +251,25 @@ const PostListPage = () => {
     {
       id: 'publishedAt',
       header: 'Published',
-      accessor: (item) => (
-        <span className="text-sm text-gray-900 dark:text-gray-100">
-          {item.publishedAt ? format(new Date(item.publishedAt), 'MMM dd, yyyy') : '-'}
-        </span>
-      ),
+      accessor: 'publishedAt',
+      type: 'datetime',
       isSortable: true,
-      sortKey: 'publishedAt',
       hideable: true,
     },
     {
       id: 'createdAt',
       header: 'Created',
-      accessor: (item) => (
-        <span className="text-sm text-gray-900 dark:text-gray-100">
-          {format(new Date(item.createdAt), 'MMM dd, yyyy')}
-        </span>
-      ),
+      accessor: 'createdAt',
+      type: 'datetime',
       isSortable: true,
-      sortKey: 'createdAt',
       hideable: true,
     },
     {
       id: 'actions',
-      header: '',
+      header: 'Actions',
+      width: '80px',
+      hideable: false,
+      isSortable: false,
       accessor: (item) => (
         <Dropdown
           button={
@@ -308,8 +302,6 @@ const PostListPage = () => {
           ]}
         />
       ),
-      isSortable: false,
-      hideable: false,
     },
   ], [navigate]);
 
@@ -540,6 +532,7 @@ const PostListPage = () => {
           // Additional features
           enableRowHover={true}
           density="normal"
+          onRowClick={(post) => navigate(`/posts/${post.id}`)}
           // Empty state
           emptyMessage={t('posts.no_posts_found', 'No posts found')}
           emptyAction={{

@@ -224,6 +224,7 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
       id: 'name',
       header: t('mail_templates.name', 'Name'),
       isSortable: true,
+      hideable: true,
       accessor: (template) => (
         <div className="flex items-center space-x-3">
           <div className="flex-shrink-0">
@@ -248,6 +249,7 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
       id: 'subject',
       header: t('mail_templates.subject', 'Subject'),
       isSortable: true,
+      hideable: true,
       accessor: (template) => (
         <div className="max-w-xs truncate" title={template.subject}>
           {template.subject}
@@ -258,6 +260,7 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
       id: 'type',
       header: t('mail_templates.type', 'Type'),
       isSortable: true,
+      hideable: true,
       accessor: (template) => (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
           {template.type}
@@ -268,6 +271,7 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
       id: 'isActive',
       header: t('mail_templates.status', 'Status'),
       isSortable: true,
+      hideable: true,
       accessor: (template) => (
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
           template.isActive
@@ -282,6 +286,7 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
       id: 'variableCount',
       header: t('mail_templates.variables', 'Variables'),
       isSortable: false,
+      hideable: true,
       accessor: (template) => (
         <span className="text-sm text-gray-600 dark:text-gray-400">
           {template.variableCount}
@@ -291,17 +296,17 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
     {
       id: 'updatedAt',
       header: t('common.updated_at', 'Updated'),
+      accessor: 'updatedAt',
+      type: 'datetime',
       isSortable: true,
-      accessor: (template) => (
-        <span className="text-sm text-gray-600 dark:text-gray-400">
-          {new Date(template.updatedAt).toLocaleDateString()}
-        </span>
-      ),
+      hideable: true,
     },
     {
       id: 'actions',
       header: t('common.actions', 'Actions'),
       isSortable: false,
+      hideable: false,
+      width: '80px',
       accessor: (template) => (
         <Dropdown
           button={
@@ -486,6 +491,7 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
       {/* Main Content */}
       <Card>
         <Table
+          tableId="mail-templates-table"
           data={templates}
           columns={columns}
           isLoading={isFetching}
@@ -527,6 +533,9 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
             }
             updateVisibleColumns(newVisibleColumns);
           }}
+          showColumnVisibility={true}
+          enableRowHover={true}
+          density="normal"
         />
       </Card>
 

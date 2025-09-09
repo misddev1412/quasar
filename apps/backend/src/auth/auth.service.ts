@@ -4,6 +4,7 @@ import { UserRepository } from '../modules/user/repositories/user.repository';
 import { User } from '../modules/user/entities/user.entity';
 import { UserRole } from '@shared';
 import { UserActivityTrackingService } from '../modules/user/services/user-activity-tracking.service';
+import { FirebaseAuthService, FirebaseTokenPayload } from '../modules/firebase/services/firebase-auth.service';
 import * as bcrypt from 'bcryptjs';
 
 export interface JwtPayload {
@@ -20,6 +21,7 @@ export class AuthService {
     private jwtService: JwtService,
     private userRepository: UserRepository,
     private activityTrackingService: UserActivityTrackingService,
+    private firebaseAuthService: FirebaseAuthService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<User | null> {
@@ -45,8 +47,12 @@ export class AuthService {
       isActive: user.isActive
     };
 
-    const accessToken = this.jwtService.sign(payload);
-    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    // Set token expiration based on remember me option
+    const accessTokenExpiry = sessionData?.isRememberMe ? '7d' : '15m';
+    const refreshTokenExpiry = sessionData?.isRememberMe ? '30d' : '7d';
+    
+    const accessToken = this.jwtService.sign(payload, { expiresIn: accessTokenExpiry });
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: refreshTokenExpiry });
 
     // Create session tracking
     if (sessionData) {
@@ -105,5 +111,47 @@ export class AuthService {
     } catch (error) {
       throw new UnauthorizedException('Invalid refresh token');
     }
+  }
+
+  async loginWithFirebase(firebaseIdToken: string, sessionData?: { ipAddress?: string; userAgent?: string; isRememberMe?: boolean }) {
+    try {
+      // Verify Firebase ID token
+      const firebaseUser = await this.firebaseAuthService.verifyIdToken(firebaseIdToken);
+      
+      if (!firebaseUser.email) {
+        throw new UnauthorizedException('Email not found in Firebase token');
+      }
+
+      // Find or create user in local database
+      let user = await this.userRepository.findByEmail(firebaseUser.email);
+      
+      if (!user) {
+        // Create new user from Firebase data
+        user = await this.userRepository.createUser({
+          email: firebaseUser.email,
+          username: firebaseUser.email.split('@')[0],
+          password: '', // No password for Firebase users
+          firstName: firebaseUser.name?.split(' ')[0] || '',
+          lastName: firebaseUser.name?.split(' ').slice(1).join(' ') || '',
+          isActive: true,
+          emailVerifiedAt: firebaseUser.email_verified ? new Date() : null,
+        });
+      } else if (!user.isActive) {
+        throw new UnauthorizedException('User account is disabled');
+      }
+
+      // Generate JWT tokens using existing login method
+      return this.login(user, sessionData);
+      
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new UnauthorizedException('Firebase authentication failed');
+    }
+  }
+
+  async getFirebaseWebConfig() {
+    return this.firebaseAuthService.getFirebaseWebConfig();
   }
 } 

@@ -30,6 +30,15 @@ import LanguagesIndexPage from '../pages/languages';
 import LanguagesCreatePage from '../pages/languages/create';
 import LanguagesEditPage from '../pages/languages/edit';
 import StorageConfigPage from '../pages/storage';
+import FirebaseConfigsPage from '../pages/firebase-configs';
+import CreateFirebaseConfigPage from '../pages/firebase-configs/create';
+import EditFirebaseConfigPage from '../pages/firebase-configs/[id]';
+// Product Management
+import ProductsIndexPage from '../pages/products';
+import BrandsPage from '../pages/products/brands';
+import CategoriesPage from '../pages/products/categories';
+import EditCategoryPage from '../pages/products/categories/edit';
+import CategoryCreatePage from '../pages/products/categories/create';
 import DateInputTest from '../pages/test/DateInputTest';
 import { PhoneInputTest } from '../components/test/PhoneInputTest';
 import AppLayout from '../components/layout/AppLayout';
@@ -91,6 +100,16 @@ const AppRoutes: React.FC = () => {
       <Route path="/languages" element={<ProtectedRoute><LanguagesIndexPage /></ProtectedRoute>} />
       <Route path="/languages/create" element={<ProtectedRoute><LanguagesCreatePage /></ProtectedRoute>} />
       <Route path="/languages/:id/edit" element={<ProtectedRoute><LanguagesEditPage /></ProtectedRoute>} />
+      {/* Firebase Configurations */}
+      <Route path="/firebase-configs" element={<ProtectedRoute><FirebaseConfigsPage /></ProtectedRoute>} />
+      <Route path="/firebase-configs/create" element={<ProtectedRoute><CreateFirebaseConfigPage /></ProtectedRoute>} />
+      <Route path="/firebase-configs/:id" element={<ProtectedRoute><EditFirebaseConfigPage /></ProtectedRoute>} />
+      {/* Product Management */}
+      <Route path="/products" element={<ProtectedRoute><ProductsIndexPage /></ProtectedRoute>} />
+      <Route path="/products/brands" element={<ProtectedRoute><BrandsPage /></ProtectedRoute>} />
+      <Route path="/products/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
+      <Route path="/products/categories/create" element={<ProtectedRoute><CategoryCreatePage /></ProtectedRoute>} />
+      <Route path="/products/categories/:id/edit" element={<ProtectedRoute><EditCategoryPage /></ProtectedRoute>} />
       <Route path="/test/date-input" element={<ProtectedRoute><DateInputTest /></ProtectedRoute>} />
       <Route path="/test/phone-input" element={<ProtectedRoute><PhoneInputTest /></ProtectedRoute>} />
       {/* 404页面，不需要认证 */}

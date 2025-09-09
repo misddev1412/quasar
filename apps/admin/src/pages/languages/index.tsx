@@ -239,7 +239,7 @@ const LanguagesIndexPage: React.FC = () => {
             </div>
           </div>
         ),
-        sortable: true,
+        isSortable: true,
         hideable: true,
       },
       {
@@ -262,7 +262,7 @@ const LanguagesIndexPage: React.FC = () => {
             )}
           </div>
         ),
-        sortable: true,
+        isSortable: true,
         hideable: true,
       },
       {
@@ -273,18 +273,15 @@ const LanguagesIndexPage: React.FC = () => {
             {language.sortOrder}
           </span>
         ),
-        sortable: true,
+        isSortable: true,
         hideable: true,
       },
       {
         id: 'createdAt',
         header: t('languages.table.createdAt'),
-        accessor: (language) => (
-          <span className="text-gray-900 dark:text-gray-100">
-            {new Date(language.createdAt).toLocaleDateString()}
-          </span>
-        ),
-        sortable: true,
+        accessor: 'createdAt',
+        type: 'datetime',
+        isSortable: true,
         hideable: true,
       },
       {
@@ -332,7 +329,7 @@ const LanguagesIndexPage: React.FC = () => {
             ]}
           />
         ),
-        sortable: false,
+        isSortable: false,
         hideable: false, // Actions column should always be visible
         width: '80px',
       },

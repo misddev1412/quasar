@@ -293,18 +293,14 @@ export const PermissionCheckboxGrid: React.FC<PermissionCheckboxGridProps> = ({
                     className="flex items-center gap-2 cursor-pointer"
                     onClick={() => handleResourceToggle(resource)}
                   >
-                    <div className="relative">
-                      <input
-                        type="checkbox"
-                        checked={allSelected}
-                        ref={(el) => {
-                          if (el) {
-                            el.indeterminate = someSelected;
-                          }
+                    <div className="relative inline-flex flex-shrink-0 items-center justify-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 w-9 h-5 cursor-pointer" 
+                         style={{ backgroundColor: allSelected ? '#2563eb' : someSelected ? '#6366f1' : '#d1d5db' }}>
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute left-0 inline-block transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out w-3.5 h-3.5 top-[2px] left-[2px]"
+                        style={{
+                          transform: allSelected || someSelected ? 'translate(18px, 0)' : 'translate(2px, 0)'
                         }}
-                        onChange={() => {}} // Handled by onClick
-                        disabled={disabled}
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded disabled:opacity-50"
                       />
                     </div>
                     <div className="flex items-center gap-2">
@@ -335,15 +331,18 @@ export const PermissionCheckboxGrid: React.FC<PermissionCheckboxGridProps> = ({
                       } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                       onClick={() => handlePermissionToggle(permission.id)}
                     >
-                      {/* Checkbox */}
+                      {/* Switch Toggle */}
                       <div className="absolute top-3 right-3">
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => {}} // Handled by div onClick
-                          disabled={disabled}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                        />
+                        <div className="relative inline-flex flex-shrink-0 items-center justify-center rounded-full transition-colors duration-200 ease-in-out w-9 h-5 cursor-pointer" 
+                             style={{ backgroundColor: isSelected ? '#2563eb' : '#d1d5db' }}>
+                          <span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute left-0 inline-block transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out w-3.5 h-3.5 top-[2px] left-[2px]"
+                            style={{
+                              transform: isSelected ? 'translate(18px, 0)' : 'translate(2px, 0)'
+                            }}
+                          />
+                        </div>
                       </div>
 
                       {/* Permission Info */}

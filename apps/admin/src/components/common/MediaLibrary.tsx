@@ -108,7 +108,7 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ({
     type: selectedType !== 'all' ? selectedType : undefined,
     sortBy: 'createdAt',
     sortOrder: 'DESC',
-  }) as { data: TrpcResponse<MediaResponse> | undefined; isLoading: boolean; refetch: () => void };
+  });
 
   const deleteMediaMutation = trpc.adminMedia.deleteMedia.useMutation({
     onSuccess: () => {
@@ -149,10 +149,10 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ({
 
   // Handle confirm selection
   const handleConfirmSelection = () => {
-    if (!mediaData?.data) return;
+    if (!(mediaData as any)?.data?.data) return;
 
-    const mediaResponse = mediaData.data as MediaResponse;
-    const selectedMedia = (mediaResponse.media || []).filter((media: MediaFile) =>
+    const mediaResponse = (mediaData as any)?.data?.data as MediaResponse;
+    const selectedMedia = (mediaResponse?.media || []).filter((media: MediaFile) =>
       selectedMediaIds.includes(media.id)
     );
 
@@ -219,7 +219,7 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ({
 
   if (!isOpen) return null;
 
-  const mediaResponse = mediaData?.data as MediaResponse | undefined;
+  const mediaResponse = (mediaData as any)?.data?.data as MediaResponse | undefined;
   const media = mediaResponse?.media || [];
   const hasMore = mediaResponse && page < mediaResponse.totalPages;
 

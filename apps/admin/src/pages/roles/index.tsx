@@ -411,16 +411,11 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
     },
     {
       id: 'createdAt',
-      accessor: (role: Role) => (
-        <div 
-          className="text-sm text-gray-600 dark:text-gray-300"
-          title={new Date(role.createdAt).toLocaleString()}
-        >
-          {new Date(role.createdAt).toLocaleDateString()}
-        </div>
-      ),
+      accessor: 'createdAt',
       header: t('common.created_at', 'Created At'),
+      type: 'datetime',
       isSortable: true,
+      hideable: true,
     },
     {
       id: 'actions',

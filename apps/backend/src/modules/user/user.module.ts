@@ -9,6 +9,7 @@ import { UserRole } from './entities/user-role.entity';
 import { RolePermission } from './entities/role-permission.entity';
 import { UserActivity } from './entities/user-activity.entity';
 import { UserSession } from './entities/user-session.entity';
+import { UserLoginProvider } from './entities/user-login-provider.entity';
 import { UserRepository } from './repositories/user.repository';
 import { PermissionRepository } from './repositories/permission.repository';
 import { RoleRepository } from './repositories/role.repository';
@@ -17,6 +18,8 @@ import { UserSessionRepository } from './repositories/user-session.repository';
 import { ActivityTrackingService } from './services/activity-tracking.service';
 import { UserActivityTrackingService } from './services/user-activity-tracking.service';
 import { UserActivityStatusService } from './services/user-activity-status.service';
+import { FirebaseAuthService } from './services/firebase-auth.service';
+import { UserService } from './services/user.service';
 import { ActivityTrackingMiddleware } from './middleware/activity-tracking.middleware';
 import { AdminActivityInterceptor } from './interceptors/admin-activity.interceptor';
 import { ActivityTrackingGuard, AdminActivityTrackingGuard } from './guards/activity-tracking.guard';
@@ -27,19 +30,22 @@ import { PermissionCheckerService } from '../shared/services/permission-checker.
 import { AdminUserService } from './services/admin/admin-user.service';
 import { AdminUserStatisticsService } from './services/admin/admin-user-statistics.service';
 import { ClientUserService } from './services/client/client-user.service';
-import { AdminUserRouter, AdminPermissionRouter } from '../../trpc/routers/admin';
-import { AdminRoleRouter } from '../../trpc/routers/admin/role.router';
-import { AdminUserStatisticsRouter } from '../../trpc/routers/admin/user-statistics.router';
-import { AdminUserActivityRouter } from '../../trpc/routers/admin/user-activity.router';
+import { AdminUserRouter } from './routers/admin-user.router';
+import { AdminUserStatisticsRouter } from './routers/admin-user-statistics.router';
+import { AdminUserActivityRouter } from './routers/admin-user-activity.router';
+import { AdminPermissionRouter } from './routers/admin-permission.router';
+import { AdminRoleRouter } from './routers/admin-role.router';
 import { ClientUserRouter } from '../../trpc/routers/client';
 import { SharedModule } from '../shared/shared.module';
 import { AuthModule } from '../../auth/auth.module';
+import { FirebaseModule } from '../firebase/firebase.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserProfile, Permission, Role, UserRole, RolePermission, UserActivity, UserSession]),
+    TypeOrmModule.forFeature([User, UserProfile, Permission, Role, UserRole, RolePermission, UserActivity, UserSession, UserLoginProvider]),
     SharedModule,
     forwardRef(() => AuthModule),
+    FirebaseModule,
   ],
   controllers: [AdminUserController],
   providers: [
@@ -51,6 +57,7 @@ import { AuthModule } from '../../auth/auth.module';
     UserSessionRepository,
 
     // Services
+    UserService,
     PermissionCheckerService,
     AdminPermissionService,
     AdminRoleService,
@@ -60,6 +67,7 @@ import { AuthModule } from '../../auth/auth.module';
     UserActivityTrackingService,
     ActivityTrackingService,
     UserActivityStatusService,
+    FirebaseAuthService,
 
     // Activity Tracking Components
     AdminActivityInterceptor,
@@ -89,6 +97,7 @@ import { AuthModule } from '../../auth/auth.module';
     UserSessionRepository,
 
     // Services
+    UserService,
     PermissionCheckerService,
     AdminPermissionService,
     AdminRoleService,
@@ -98,6 +107,7 @@ import { AuthModule } from '../../auth/auth.module';
     UserActivityTrackingService,
     ActivityTrackingService,
     UserActivityStatusService,
+    FirebaseAuthService,
 
     // Activity Tracking Components
     AdminActivityInterceptor,

@@ -8,6 +8,103 @@ import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend
 import { TABLE_CONFIG, getPageSizeOptions, type PageSizeOption } from '../../config/table.config';
 
 /**
+ * Utility function to format datetime values for table display
+ * Supports multiple languages including Vietnamese
+ */
+const formatDateTime = (
+  value: any, 
+  locale: string = 'en', 
+  t?: (key: string, options?: any) => string
+): { formatted: string; raw: string } | null => {
+  if (!value) return null;
+  
+  try {
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return null;
+    
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+    
+    let formatted: string;
+    const isVietnamese = locale === 'vi';
+    
+    if (diffInDays === 0) {
+      // Today - show relative time
+      const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+      const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+      
+      if (diffInHours === 0) {
+        if (diffInMinutes <= 0) {
+          formatted = isVietnamese ? 'Vừa xong' : 'Just now';
+        } else if (diffInMinutes === 1) {
+          formatted = isVietnamese ? '1 phút trước' : '1 minute ago';
+        } else {
+          formatted = isVietnamese ? `${diffInMinutes} phút trước` : `${diffInMinutes} minutes ago`;
+        }
+      } else if (diffInHours === 1) {
+        formatted = isVietnamese ? '1 giờ trước' : '1 hour ago';
+      } else {
+        formatted = isVietnamese ? `${diffInHours} giờ trước` : `${diffInHours} hours ago`;
+      }
+    } else if (diffInDays === 1) {
+      formatted = isVietnamese ? 'Hôm qua' : 'Yesterday';
+    } else if (diffInDays <= 7) {
+      formatted = isVietnamese ? `${diffInDays} ngày trước` : `${diffInDays} days ago`;
+    } else {
+      // More than a week - show formatted date with proper locale
+      if (isVietnamese) {
+        // Vietnamese date format: "15 tháng 1, 2024"
+        formatted = date.toLocaleDateString('vi-VN', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      } else {
+        // English date format: "Jan 15, 2024"
+        formatted = date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+      }
+    }
+    
+    const raw = date.toISOString();
+    return { formatted, raw };
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Component for displaying formatted datetime with raw value
+ * Automatically detects current language and formats accordingly
+ */
+const DateTimeDisplay = memo(({ value }: { value: any }) => {
+  const { i18n, t } = useTranslationWithBackend();
+  const currentLocale = i18n.resolvedLanguage || 'en';
+  const dateInfo = formatDateTime(value, currentLocale, t);
+  
+  if (!dateInfo) {
+    return <span className="text-gray-400 dark:text-gray-500">—</span>;
+  }
+  
+  return (
+    <div className="flex flex-col">
+      <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">
+        {dateInfo.formatted}
+      </span>
+      <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+        {dateInfo.raw}
+      </span>
+    </div>
+  );
+});
+
+DateTimeDisplay.displayName = 'DateTimeDisplay';
+
+/**
  * Professional Table Component Icons
  * Optimized for accessibility and visual clarity
  */
@@ -311,6 +408,8 @@ export interface Column<T> {
   align?: 'left' | 'center' | 'right';
   /** Whether this column can be hidden (default: true) */
   hideable?: boolean;
+  /** Column type for special formatting */
+  type?: 'text' | 'datetime' | 'number' | 'boolean';
 }
 
 export interface BulkAction {
@@ -740,6 +839,11 @@ export function Table<T extends { id: string | number }>({
         return <span className="text-gray-400 dark:text-gray-500">—</span>;
       }
 
+      // Handle datetime formatting
+      if (column.type === 'datetime') {
+        return <DateTimeDisplay value={value} />;
+      }
+
       return String(value);
     } catch (error) {
       console.warn('Error rendering table cell:', error);
@@ -861,6 +965,7 @@ export function Table<T extends { id: string | number }>({
             searchValue={searchValue}
             onSearchChange={onSearchChange}
             onFilterClick={onFilterClick}
+            isFilterActive={isFilterActive}
             showSearch={showSearch}
             showFilter={showFilter}
             bulkActions={[]}
@@ -889,6 +994,7 @@ export function Table<T extends { id: string | number }>({
             searchValue={searchValue}
             onSearchChange={onSearchChange}
             onFilterClick={onFilterClick}
+            isFilterActive={isFilterActive}
             showSearch={showSearch}
             showFilter={showFilter}
             bulkActions={[]}
@@ -1186,6 +1292,9 @@ export function Table<T extends { id: string | number }>({
 
 // Export the component with display name for better debugging
 Table.displayName = 'Table';
+
+// Export utility functions and components
+export { formatDateTime, DateTimeDisplay };
 
 // Export default for convenience
 export default Table;

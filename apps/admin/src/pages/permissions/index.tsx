@@ -40,17 +40,14 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
     direction: 'asc',
   });
 
-  // Table preferences
+  // Table preferences - Default to showing only essential columns (actions hidden by default)
   const { preferences, updateVisibleColumns, resetPreferences } = useTablePreferences('permissions-table', {
     visibleColumns: new Set([
       'name',
       'resource',
       'action',
       'scope',
-      'description',
       'isActive',
-      'createdAt',
-      'actions',
     ]),
   });
 
@@ -59,10 +56,7 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
     'resource',
     'action',
     'scope',
-    'description',
     'isActive',
-    'createdAt',
-    'actions',
   ]);
 
   // Update URL when filters change
@@ -220,6 +214,78 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
 
   const goToPermission = (id: string) => navigate(`/permissions/${id}`);
 
+  // Permission mutations
+  const updatePermissionMutation = trpc.adminPermission.updatePermission.useMutation();
+  const deletePermissionMutation = trpc.adminPermission.deletePermission.useMutation();
+
+  const handleTogglePermissionStatus = useCallback(async (permission: Permission) => {
+    try {
+      await updatePermissionMutation.mutateAsync({ 
+        id: permission.id, 
+        isActive: !permission.isActive 
+      });
+
+      // Show success toast with descriptive message
+      const action = permission.isActive ? 'deactivated' : 'activated';
+      addToast({
+        type: 'success',
+        title: `Permission ${action} successfully`,
+        description: `The permission "${permission.name}" has been ${action} and the changes are now in effect.`
+      });
+
+      // Refresh the data to show updated status
+      refetch();
+    } catch (e: any) {
+      // Show error toast with detailed information
+      addToast({
+        type: 'error',
+        title: 'Failed to update permission status',
+        description: e?.message || 'An error occurred while updating the permission status. Please try again.'
+      });
+    }
+  }, [updatePermissionMutation, addToast, refetch]);
+
+  const handleDeletePermission = useCallback(async (permission: Permission) => {
+    try {
+      const ok = window.confirm(
+        `Are you sure you want to delete the permission "${permission.name}"? This action cannot be undone and may affect users who have this permission.`
+      );
+      if (!ok) return;
+
+      await deletePermissionMutation.mutateAsync({ id: permission.id });
+      
+      addToast({ 
+        type: 'success', 
+        title: 'Permission deleted successfully',
+        description: `The permission "${permission.name}" has been permanently deleted.`
+      });
+      
+      refetch();
+    } catch (e: any) {
+      addToast({ 
+        type: 'error', 
+        title: 'Delete failed', 
+        description: e?.message || 'Failed to delete permission. Please try again.'
+      });
+    }
+  }, [deletePermissionMutation, addToast, refetch]);
+
+  const handleDuplicatePermission = useCallback((permission: Permission) => {
+    // Navigate to create page with pre-filled data
+    navigate('/permissions/create', { 
+      state: { 
+        template: {
+          name: `${permission.name} (Copy)`,
+          resource: permission.resource,
+          action: permission.action,
+          scope: permission.scope,
+          description: permission.description ? `${permission.description} (Copy)` : undefined,
+          isActive: permission.isActive
+        }
+      }
+    });
+  }, [navigate]);
+
   // Handle permission actions
   const handlePermissionAction = useCallback((action: string, permission: Permission) => {
     switch (action) {
@@ -239,27 +305,76 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
       default:
         console.warn('Unknown action:', action);
     }
-  }, []);
-
-  const handleDeletePermission = (permission: Permission) => {
-    // TODO: Implement delete confirmation modal
-    console.log('Delete permission:', permission);
-  };
-
-  const handleTogglePermissionStatus = (permission: Permission) => {
-    // TODO: Implement permission status toggle
-    console.log('Toggle permission status:', permission);
-  };
-
-  const handleDuplicatePermission = (permission: Permission) => {
-    // TODO: Implement permission duplication
-    console.log('Duplicate permission:', permission);
-  };
+  }, [handleDeletePermission, handleTogglePermissionStatus, handleDuplicatePermission]);
 
   // Handle bulk actions
-  const handleBulkAction = (action: string) => {
-    console.log('Bulk action:', action, 'for permissions:', selectedPermissions);
-  };
+  const handleBulkAction = useCallback(async (action: string) => {
+    if (selectedPermissions.size === 0) {
+      addToast({
+        type: 'warning',
+        title: 'No permissions selected',
+        description: 'Please select at least one permission to perform bulk actions.'
+      });
+      return;
+    }
+
+    const selectedIds = Array.from(selectedPermissions);
+    const count = selectedIds.length;
+
+    try {
+      switch (action) {
+        case 'activate':
+          // TODO: Implement bulk activate when API is available
+          addToast({
+            type: 'info',
+            title: 'Bulk activate',
+            description: `Would activate ${count} permission(s). Feature coming soon.`
+          });
+          break;
+
+        case 'deactivate':
+          // TODO: Implement bulk deactivate when API is available
+          addToast({
+            type: 'info',
+            title: 'Bulk deactivate',
+            description: `Would deactivate ${count} permission(s). Feature coming soon.`
+          });
+          break;
+
+        case 'delete':
+          const confirmDelete = window.confirm(
+            `Are you sure you want to delete ${count} permission(s)? This action cannot be undone and may affect users who have these permissions.`
+          );
+          if (!confirmDelete) return;
+
+          // TODO: Implement bulk delete when API is available
+          addToast({
+            type: 'info',
+            title: 'Bulk delete',
+            description: `Would delete ${count} permission(s). Feature coming soon.`
+          });
+          break;
+
+        case 'export':
+          // TODO: Implement export functionality
+          addToast({
+            type: 'info',
+            title: 'Export permissions',
+            description: `Would export ${count} permission(s). Feature coming soon.`
+          });
+          break;
+
+        default:
+          console.warn('Unknown bulk action:', action);
+      }
+    } catch (e: any) {
+      addToast({
+        type: 'error',
+        title: 'Bulk action failed',
+        description: e?.message || `Failed to perform bulk ${action}. Please try again.`
+      });
+    }
+  }, [selectedPermissions, addToast]);
 
   // Handle search
   const handleSearch = useCallback((searchTerm: string) => {
@@ -289,10 +404,8 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
   // Table columns configuration
   const columns: Column<Permission>[] = useMemo(() => [
     {
-      accessor: 'name',
-      header: t('permission.name', 'Permission Name'),
-      isSortable: true,
-      render: (permission: Permission) => (
+      id: 'name',
+      accessor: (permission: Permission) => (
         <div className="flex items-center space-x-3">
           <div className="flex-shrink-0">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
@@ -308,76 +421,81 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
           </div>
         </div>
       ),
+      header: t('permission.name', 'Permission Name'),
+      isSortable: true,
+      hideable: true,
     },
     {
-      accessor: 'resource',
-      header: t('permission.resource', 'Resource'),
-      isSortable: true,
-      render: (permission: Permission) => (
+      id: 'resource',
+      accessor: (permission: Permission) => (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
           {permission.resource}
         </span>
       ),
+      header: t('permission.resource', 'Resource'),
+      isSortable: true,
+      hideable: true,
     },
     {
-      accessor: 'action',
-      header: t('permission.action', 'Action'),
-      isSortable: true,
-      render: (permission: Permission) => (
+      id: 'action',
+      accessor: (permission: Permission) => (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
           {permission.action}
         </span>
       ),
+      header: t('permission.action', 'Action'),
+      isSortable: true,
+      hideable: true,
     },
     {
-      accessor: 'scope',
-      header: t('permission.scope', 'Scope'),
-      isSortable: true,
-      render: (permission: Permission) => (
+      id: 'scope',
+      accessor: (permission: Permission) => (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
           {permission.scope}
         </span>
       ),
+      header: t('permission.scope', 'Scope'),
+      isSortable: true,
+      hideable: true,
     },
     {
-      accessor: 'description',
-      header: t('permission.description', 'Description'),
-      render: (permission: Permission) => (
+      id: 'description',
+      accessor: (permission: Permission) => (
         <div className="max-w-xs">
           <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
             {permission.description || t('common.no_description', 'No description')}
           </p>
         </div>
       ),
+      header: t('permission.description', 'Description'),
+      hideable: true,
     },
     {
-      accessor: 'isActive',
-      header: t('common.status', 'Status'),
-      isSortable: true,
-      render: (permission: Permission) => (
+      id: 'isActive',
+      accessor: (permission: Permission) => (
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
           permission.isActive !== false
             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+            : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
         }`}>
           {permission.isActive !== false ? t('common.active', 'Active') : t('common.inactive', 'Inactive')}
         </span>
       ),
+      header: t('common.status', 'Status'),
+      isSortable: true,
+      hideable: true,
     },
     {
+      id: 'createdAt',
       accessor: 'createdAt',
       header: t('common.created_at', 'Created At'),
       isSortable: true,
-      render: (permission: Permission) => (
-        <div className="text-sm text-gray-600 dark:text-gray-300">
-          {permission.createdAt ? new Date(permission.createdAt).toLocaleDateString() : '-'}
-        </div>
-      ),
+      type: 'datetime',
+      hideable: true,
     },
     {
-      accessor: (permission: Permission) => permission.id,
-      header: t('common.actions', 'Actions'),
-      render: (permission: Permission) => (
+      id: 'actions',
+      accessor: (permission: Permission) => (
         <Dropdown
           button={
             <Button variant="ghost" size="sm">
@@ -413,21 +531,12 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
           ]}
         />
       ),
+      header: t('common.actions', 'Actions'),
+      hideable: false,
+      width: '80px',
     },
   ], [t, handlePermissionAction]);
 
-  // Filter visible columns based on user preferences
-  const visibleColumnsData = useMemo(() => {
-    return columns.filter((column, index) => {
-      // Handle function accessors by checking column position/index
-      if (typeof column.accessor === 'function') {
-        // Map specific column positions to their logical names
-        if (index === 7) return visibleColumns.has('actions'); // Actions column is last
-        return true;
-      }
-      return visibleColumns.has(column.accessor as string);
-    });
-  }, [columns, visibleColumns]);
 
   // Bulk actions configuration
   const bulkActions = useMemo(() => [
@@ -519,8 +628,9 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
       {/* Main Content */}
       <Card>
         <Table<Permission>
+          tableId="permissions-table"
           data={processedData.items}
-          columns={visibleColumnsData}
+          columns={columns}
           isLoading={isFetching}
           selectedIds={selectedPermissions}
           onSelectionChange={(selectedIds: Set<string | number>) => {
@@ -558,6 +668,9 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
             }
             updateVisibleColumns(newVisibleColumns);
           }}
+          showColumnVisibility={true}
+          enableRowHover={true}
+          density="normal"
         />
       </Card>
     </BaseLayout>

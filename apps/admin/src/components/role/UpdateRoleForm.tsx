@@ -134,11 +134,25 @@ export const UpdateRoleForm: React.FC<UpdateRoleFormProps> = ({
             
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
-                <input
-                  {...register('isActive')}
-                  type="checkbox"
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                />
+                <div className="relative inline-flex flex-shrink-0 items-center justify-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 w-9 h-5 cursor-pointer" 
+                     style={{ backgroundColor: watch('isActive') ? '#2563eb' : '#d1d5db' }}>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={watch('isActive') || false}
+                    onClick={() => setValue('isActive', !watch('isActive'))}
+                    className="w-full h-full rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                  >
+                    <span className="sr-only">{t('role.is_active')}</span>
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute left-0 inline-block transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out w-3.5 h-3.5 top-[2px] left-[2px]"
+                      style={{
+                        transform: watch('isActive') ? 'translate(18px, 0)' : 'translate(2px, 0)'
+                      }}
+                    />
+                  </button>
+                </div>
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     {t('role.is_active')}
@@ -150,12 +164,27 @@ export const UpdateRoleForm: React.FC<UpdateRoleFormProps> = ({
               </div>
 
               <div className="flex items-start space-x-3">
-                <input
-                  {...register('isDefault')}
-                  type="checkbox"
-                  disabled={isDefaultRole}
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded disabled:opacity-50"
-                />
+                <div className={`relative inline-flex flex-shrink-0 items-center justify-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 w-9 h-5 ${
+                  isDefaultRole ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+                }`} style={{ backgroundColor: watch('isDefault') ? '#2563eb' : '#d1d5db' }}>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={watch('isDefault') || false}
+                    onClick={() => !isDefaultRole && setValue('isDefault', !watch('isDefault'))}
+                    disabled={isDefaultRole}
+                    className="w-full h-full rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                  >
+                    <span className="sr-only">{t('role.is_default')}</span>
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute left-0 inline-block transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out w-3.5 h-3.5 top-[2px] left-[2px]"
+                      style={{
+                        transform: watch('isDefault') ? 'translate(18px, 0)' : 'translate(2px, 0)'
+                      }}
+                    />
+                  </button>
+                </div>
                 <div className="space-y-1">
                   <label className={`text-sm font-medium ${isDefaultRole ? 'text-gray-500' : 'text-gray-900 dark:text-gray-100'}`}>
                     {t('role.is_default')}

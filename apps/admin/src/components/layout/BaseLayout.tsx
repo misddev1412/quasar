@@ -6,6 +6,7 @@ interface ActionButton {
   onClick: () => void;
   primary?: boolean;
   icon?: ReactNode;
+  active?: boolean;
 }
 
 interface BaseLayoutProps {
@@ -57,6 +58,7 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({
                 variant={action.primary ? 'primary' : 'secondary'}
                 size="sm"
                 startIcon={action.icon}
+                active={action.active}
               >
                 {action.label}
               </Button>

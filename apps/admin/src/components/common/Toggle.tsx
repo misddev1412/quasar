@@ -3,9 +3,14 @@ import cn from 'classnames';
 
 interface ToggleProps {
   checked: boolean;
-  onChange: () => void;
+  onChange: (checked: boolean) => void;
   disabled?: boolean;
   size?: 'sm' | 'md';
+  label?: string;
+  description?: string;
+  id?: string;
+  className?: string;
+  'aria-label'?: string;
 }
 
 export const Toggle: React.FC<ToggleProps> = ({
@@ -13,6 +18,11 @@ export const Toggle: React.FC<ToggleProps> = ({
   onChange,
   disabled = false,
   size = 'md',
+  label,
+  description,
+  id,
+  className,
+  'aria-label': ariaLabel,
 }) => {
   const sizeClasses = {
     sm: {
@@ -33,28 +43,30 @@ export const Toggle: React.FC<ToggleProps> = ({
 
   const handleChange = () => {
     if (!disabled) {
-      onChange();
+      onChange(!checked);
     }
   };
 
-  return (
+  const toggleElement = (
     <button
       type="button"
       role="switch"
       aria-checked={checked}
       onClick={handleChange}
       disabled={disabled}
+      id={id}
+      aria-label={ariaLabel || label}
       className={cn(
-        'relative inline-flex flex-shrink-0 items-center justify-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+        'relative inline-flex flex-shrink-0 items-center justify-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
         s.container,
-        { 'bg-blue-600': checked, 'bg-gray-200': !checked },
+        { 'bg-primary-600': checked, 'bg-gray-300': !checked },
         {
           'cursor-pointer': !disabled,
           'cursor-not-allowed opacity-50': disabled,
         }
       )}
     >
-      <span className="sr-only">Use setting</span>
+      <span className="sr-only">{ariaLabel || label || 'Toggle switch'}</span>
       <span
         aria-hidden="true"
         className={cn(
@@ -65,4 +77,35 @@ export const Toggle: React.FC<ToggleProps> = ({
       />
     </button>
   );
+
+  if (label || description) {
+    return (
+      <div className={cn('flex items-start space-x-3', className)}>
+        {toggleElement}
+        <div className="flex-1">
+          {label && (
+            <label 
+              htmlFor={id}
+              className={cn(
+                'text-sm font-medium cursor-pointer',
+                disabled 
+                  ? 'text-gray-400 cursor-not-allowed' 
+                  : 'text-gray-900 dark:text-gray-100'
+              )}
+              onClick={!disabled ? handleChange : undefined}
+            >
+              {label}
+            </label>
+          )}
+          {description && (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {description}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return toggleElement;
 };

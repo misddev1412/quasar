@@ -66,7 +66,7 @@ module.exports = {
     proxy: [
       {
         context: ['/uploads'],
-        target: 'http://localhost:3001',
+        target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
       },

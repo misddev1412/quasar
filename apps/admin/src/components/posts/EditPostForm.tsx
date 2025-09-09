@@ -12,7 +12,14 @@ const editPostSchema = z.object({
   id: z.string().optional(), // For edit mode
   // General content (default language)
   title: z.string().min(1, 'Title is required'),
-  slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
+  slug: z.string().min(1, 'Slug is required').refine((val) => {
+    // Allow Unicode characters but forbid certain special characters
+    return val.length > 0 && 
+           !val.startsWith('-') && 
+           !val.endsWith('-') && 
+           !/-{2,}/.test(val) && 
+           !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
+  }, 'Slug must not start/end with hyphens or contain forbidden characters'),
   content: z.string().min(1, 'Content is required'),
   excerpt: z.string().optional(),
   
@@ -44,7 +51,14 @@ const editPostSchema = z.object({
   additionalTranslations: z.array(z.object({
     locale: z.string().min(2).max(5),
     title: z.string().min(1, 'Title is required'),
-    slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
+    slug: z.string().min(1, 'Slug is required').refine((val) => {
+    // Allow Unicode characters but forbid certain special characters
+    return val.length > 0 && 
+           !val.startsWith('-') && 
+           !val.endsWith('-') && 
+           !/-{2,}/.test(val) && 
+           !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
+  }, 'Slug must not start/end with hyphens or contain forbidden characters'),
     content: z.string().min(1, 'Content is required'),
     excerpt: z.string().optional(),
     metaTitle: z.string().optional(),
@@ -104,7 +118,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
     }
   }, [initialData]);
 
-  // Get primary language for filtering
+  // Get primary language for filtering  
   const primaryLanguage = initialData?.languageCode || languageOptions.find(option => option.isDefault)?.value || languageOptions[0]?.value || 'en';
 
   // Define form tabs configuration
@@ -153,12 +167,10 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
             {
               name: 'slug',
               label: t('posts.slug'),
-              type: 'text',
+              type: 'slug',
               placeholder: 'post-slug',
               required: true,
-              validation: {
-                pattern: /^[a-z0-9-]+$/,
-              },
+              sourceField: 'title',
               description: t('form.descriptions.slug_requirements'),
             },
             {

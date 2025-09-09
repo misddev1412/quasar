@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailTemplate } from './entities/mail-template.entity';
 import { MailTemplateRepository } from './repositories/mail-template.repository';
 import { MailTemplateService } from './services/mail-template.service';
-import { AdminMailTemplateRouter } from '../../trpc/routers/admin/mail-template.router';
+import { AdminMailTemplateRouter } from './routers/admin-mail-template.router';
 import { SharedModule } from '../shared/shared.module';
 
 @Module({
@@ -19,6 +19,7 @@ import { SharedModule } from '../shared/shared.module';
   exports: [
     MailTemplateService,
     MailTemplateRepository,
+    AdminMailTemplateRouter,
   ],
 })
 export class MailTemplateModule {}

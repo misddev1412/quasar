@@ -10,6 +10,16 @@ interface AuthCardProps {
   children: React.ReactNode;
 }
 
+// 获取统一的控制按钮样式
+const getControlButtonStyle = (isDarkMode: boolean) => {
+  return `px-3 py-2 rounded-lg backdrop-blur-sm transition-all duration-300 flex items-center justify-center shadow-lg text-sm font-medium cursor-pointer hover:scale-105 ${
+    isDarkMode 
+      ? 'bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30' 
+      : 'bg-primary-100/80 hover:bg-primary-200/90 text-primary-900 border border-primary-200 hover:border-primary-300'
+  }`;
+};
+
+
 // 主题切换按钮组件
 const ThemeToggleButton: React.FC = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -17,7 +27,7 @@ const ThemeToggleButton: React.FC = () => {
   return (
     <button
       onClick={toggleDarkMode}
-      className={`p-2 rounded-lg ${isDarkMode ? 'bg-white/10 hover:bg-white/20' : 'bg-primary-100/80 hover:bg-primary-100/90'} backdrop-blur-sm transition-all duration-300 flex items-center justify-center shadow-lg`}
+      className={getControlButtonStyle(isDarkMode)}
       aria-label={isDarkMode ? "切换到浅色模式" : "切换到深色模式"}
     >
       {isDarkMode ? (
@@ -38,7 +48,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({
   children
 }) => {
   const { t } = useTranslationWithBackend();
-  const { isDarkMode, currentMode } = useTheme();
+  const { isDarkMode } = useTheme();
   const currentYear = new Date().getFullYear();
 
   // 为登录页面应用特定样式
@@ -123,39 +133,52 @@ export const AuthCard: React.FC<AuthCardProps> = ({
               <div className="flex items-center space-x-3">
                 <ThemeToggleButton />
                 <LocaleSwitcher 
-                  className="bg-transparent"
-                  selectClassName={`backdrop-blur-sm ${isDarkMode ? 'border-white/20 bg-white/10 text-white hover:bg-white/20' : 'border-primary-200 bg-primary-50/80 text-primary-900 hover:bg-primary-50'} focus:ring-primary-400 focus:border-primary-400 shadow-lg`} 
+                  className="auth-locale-switcher min-w-[5rem] max-w-[7rem]"
+                  selectClassName={`${getControlButtonStyle(isDarkMode)} min-h-[40px] relative overflow-hidden`}
                 />
               </div>
             </div>
             <h1 className={`text-4xl lg:text-5xl font-bold ${getTitleTextColor()} mb-4 ${isDarkMode ? 'drop-shadow-xl text-shadow-enhanced' : ''}`}>{title || t('auth.admin_platform')}</h1>
-            <p className={`${getTitleTextColor()} text-lg mb-8 ${isDarkMode ? 'drop-shadow-xl text-shadow-enhanced' : ''}`}>{t('auth.enter_credentials')}</p>
+            <p className={`${getTitleTextColor()} text-lg mb-6 ${isDarkMode ? 'drop-shadow-xl text-shadow-enhanced' : ''}`}>{t('auth.enter_credentials')}</p>
+            
+            {/* Main Image */}
+            <div className="flex justify-center mb-8">
+              <img 
+                src="/assets/images/auth-form-main.png" 
+                alt="Admin Platform" 
+                className="w-full h-auto"
+                style={{ maxHeight: '400px' }}
+              />
+            </div>
+
+            {/* 功能列表，移到标题下方 */}
+            <div className="space-y-4 mt-6">
+              <FeatureItem 
+                icon={<ShieldIcon className={`h-6 w-6 ${getIconColor()}`} />} 
+                text={t('features.enterprise_security')} 
+                className="hover:translate-x-1 transition-transform duration-300 feature-item-enhanced"
+                isDarkMode={isDarkMode}
+                enhancedText={true}
+              />
+              <FeatureItem 
+                icon={<BoltIcon className={`h-6 w-6 ${getIconColor()}`} />} 
+                text={t('features.efficient_management')} 
+                className="hover:translate-x-1 transition-transform duration-300 feature-item-enhanced"
+                isDarkMode={isDarkMode}
+                enhancedText={true}
+              />
+              <FeatureItem 
+                icon={<ChartIcon className={`h-6 w-6 ${getIconColor()}`} />} 
+                text={t('features.data_analysis')} 
+                className="hover:translate-x-1 transition-transform duration-300 feature-item-enhanced"
+                isDarkMode={isDarkMode}
+                enhancedText={true}
+              />
+            </div>
           </div>
           
-          {/* 功能列表，增强对比度 */}
-          <div className="space-y-6 relative z-10">
-            <FeatureItem 
-              icon={<ShieldIcon className={`h-6 w-6 ${getIconColor()}`} />} 
-              text={t('features.enterprise_security')} 
-              className="hover:translate-x-1 transition-transform duration-300 feature-item-enhanced"
-              isDarkMode={isDarkMode}
-              enhancedText={true}
-            />
-            <FeatureItem 
-              icon={<BoltIcon className={`h-6 w-6 ${getIconColor()}`} />} 
-              text={t('features.efficient_management')} 
-              className="hover:translate-x-1 transition-transform duration-300 feature-item-enhanced"
-              isDarkMode={isDarkMode}
-              enhancedText={true}
-            />
-            <FeatureItem 
-              icon={<ChartIcon className={`h-6 w-6 ${getIconColor()}`} />} 
-              text={t('features.data_analysis')} 
-              className="hover:translate-x-1 transition-transform duration-300 feature-item-enhanced"
-              isDarkMode={isDarkMode}
-              enhancedText={true}
-            />
-          </div>
+          {/* 占位符，保持底部对齐 */}
+          <div className="relative z-10"></div>
         </div>
         
         {/* 内容 - 右侧 */}

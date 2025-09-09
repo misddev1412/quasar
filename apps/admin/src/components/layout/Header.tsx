@@ -271,9 +271,37 @@ const Header: React.FC = () => {
           
           <Divider orientation="vertical" flexItem sx={{ mx: 0.5, height: '24px', alignSelf: 'center' }} />
           
-          {/* Language switcher - increased width */}
-          <Box sx={{ minWidth: 120 }}>
-            <LocaleSwitcher selectClassName="w-full" />
+          {/* Language switcher - enhanced design */}
+          <Box 
+            sx={{ 
+              minWidth: 130,
+              '& .locale-switcher': {
+                height: '36px'
+              },
+              '& select': {
+                backgroundColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+                border: `1px solid ${isDarkMode ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)'}`,
+                borderRadius: '8px',
+                color: isDarkMode ? '#e5e7eb' : '#374151',
+                fontSize: '14px',
+                padding: '6px 12px',
+                height: '36px',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  backgroundColor: isDarkMode ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)',
+                  borderColor: isDarkMode ? 'rgba(59, 130, 246, 0.5)' : 'rgba(59, 130, 246, 0.5)',
+                },
+                '&:focus': {
+                  outline: 'none',
+                  borderColor: isDarkMode ? '#3b82f6' : '#3b82f6',
+                  boxShadow: isDarkMode 
+                    ? '0 0 0 3px rgba(59, 130, 246, 0.1)' 
+                    : '0 0 0 3px rgba(59, 130, 246, 0.1)',
+                }
+              }
+            }}
+          >
+            <LocaleSwitcher className="header-locale-switcher" />
           </Box>
           
           {/* Notifications */}

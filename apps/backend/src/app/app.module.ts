@@ -16,6 +16,8 @@ import { LanguageModule } from '../modules/language/language.module';
 import { StorageModule } from '../modules/storage/storage.module';
 import { AuthModule } from '../auth/auth.module';
 import { SharedModule } from '../modules/shared/shared.module';
+import { FirebaseModule } from '../modules/firebase/firebase.module';
+import { ProductsModule } from '../modules/products/products.module';
 import { AppContext } from '../trpc/context';
 import databaseConfig from '../config/database.config';
 import { User } from '../modules/user/entities/user.entity';
@@ -26,6 +28,7 @@ import { UserRole } from '../modules/user/entities/user-role.entity';
 import { RolePermission } from '../modules/user/entities/role-permission.entity';
 import { UserActivity } from '../modules/user/entities/user-activity.entity';
 import { UserSession } from '../modules/user/entities/user-session.entity';
+import { UserLoginProvider } from '../modules/user/entities/user-login-provider.entity';
 import { Translation } from '../modules/translation/entities/translation.entity';
 import { SEOEntity } from '../modules/seo/entities/seo.entity';
 import { SettingEntity } from '../modules/settings/entities/setting.entity';
@@ -37,22 +40,18 @@ import { PostTag } from '../modules/posts/entities/post-tag.entity';
 import { EmailChannel } from '../modules/email-channel/entities/email-channel.entity';
 import { Language } from '../modules/language/entities/language.entity';
 import { Media } from '../modules/storage/entities/media.entity';
+import { FirebaseConfigEntity } from '../modules/firebase/entities/firebase-config.entity';
+import { Brand } from '../modules/products/entities/brand.entity';
+import { Category } from '../modules/products/entities/category.entity';
+import { Product } from '../modules/products/entities/product.entity';
+import { ProductTag } from '../modules/products/entities/product-tag.entity';
+import { ProductVariant } from '../modules/products/entities/product-variant.entity';
+import { Warranty } from '../modules/products/entities/warranty.entity';
 import { createErrorFormatter } from '../trpc/error-formatter';
-import { AdminAuthRouter } from '../trpc/routers/admin/auth.router';
-import { AdminUserRouter } from '../trpc/routers/admin/user.router';
-import { AdminUserStatisticsRouter } from '../trpc/routers/admin/user-statistics.router';
-import { AdminUserActivityRouter } from '../trpc/routers/admin/user-activity.router';
-import { AdminRoleRouter } from '../trpc/routers/admin/role.router';
-import { AdminPermissionRouter } from '../trpc/routers/admin/permission.router';
-import { AdminChartDataRouter } from '../trpc/routers/admin/chart-data.router';
-import { AdminMailTemplateRouter } from '../trpc/routers/admin/mail-template.router';
-import { AdminPostsRouter } from '../trpc/routers/admin/posts.router';
-import { AdminPostCategoriesRouter } from '../trpc/routers/admin/post-categories.router';
-import { AdminPostTagsRouter } from '../trpc/routers/admin/post-tags.router';
-import { AdminEmailChannelRouter } from '../trpc/routers/admin/email-channel.router';
-import { AdminLanguageRouter } from '../trpc/routers/admin/language.router';
-import { AdminStorageRouter } from '../trpc/routers/admin/storage.router';
-import { AdminMediaRouter } from '../trpc/routers/admin/media.router';
+import { AdminProductsRouter } from '../modules/products/routers/admin.router';
+import { ClientProductsRouter } from '../modules/products/routers/client.router';
+import { PublicProductsRouter } from '../modules/products/routers/public.router';
+import { AppRouterModule } from '../trpc/app-router.module';
 
 @Module({
   imports: [
@@ -73,6 +72,7 @@ import { AdminMediaRouter } from '../trpc/routers/admin/media.router';
           RolePermission,
           UserActivity,
           UserSession,
+          UserLoginProvider,
           Translation,
           SEOEntity,
           SettingEntity,
@@ -83,12 +83,20 @@ import { AdminMediaRouter } from '../trpc/routers/admin/media.router';
           PostTag,
           EmailChannel,
           Language,
-          Media
+          Media,
+          FirebaseConfigEntity,
+          Brand,
+          Category,
+          Product,
+          ProductTag,
+          ProductVariant,
+          Warranty,
         ],
         autoLoadEntities: true
       }),
     }),
     AuthModule,
+    FirebaseModule,
     TRPCModule.forRoot({
       context: AppContext,
       errorFormatter: createErrorFormatter('TRPCModule.forRoot'),
@@ -104,26 +112,16 @@ import { AdminMediaRouter } from '../trpc/routers/admin/media.router';
     EmailChannelModule,
     LanguageModule,
     StorageModule,
+    ProductsModule,
+    AppRouterModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     AppContext,
-    AdminAuthRouter,
-    AdminUserRouter,
-    AdminUserStatisticsRouter,
-    AdminUserActivityRouter,
-    AdminRoleRouter,
-    AdminPermissionRouter,
-    AdminChartDataRouter,
-    AdminMailTemplateRouter,
-    AdminPostsRouter,
-    AdminPostCategoriesRouter,
-    AdminPostTagsRouter,
-    AdminEmailChannelRouter,
-    AdminLanguageRouter,
-    AdminStorageRouter,
-    AdminMediaRouter,
+    AdminProductsRouter,
+    ClientProductsRouter,
+    PublicProductsRouter,
   ],
 })
 export class AppModule {}

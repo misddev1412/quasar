@@ -82,12 +82,12 @@ export function useLoginForm({ auth }: UseLoginFormProps): UseLoginFormReturn {
   };
 
   // 登录处理函数，直接使用email和password
-  const handleLogin = async (email: string, password: string) => {
+  const handleLogin = async (email: string, password: string, rememberMe: boolean = false) => {
     setError('');
     setIsSubmitting(true);
 
     try {
-      const result = await auth.login(email, password);
+      const result = await auth.login(email, password, rememberMe);
 
       if (result.success) {
         // 登录成功后重定向
@@ -112,12 +112,21 @@ export function useLoginForm({ auth }: UseLoginFormProps): UseLoginFormReturn {
             description: t('auth.account_deactivated_message')
           });
         } else {
-          // 显示其他错误信息
-          setError(errorMessage || t('auth.login_failed'));
+          // Show all backend errors as toast notifications
+          addToast({
+            type: 'error',
+            title: t('auth.login_failed'),
+            description: errorMessage || t('auth.check_credentials')
+          });
         }
       }
     } catch (err) {
-      setError(t('auth.error_occurred'));
+      // Show catch errors as toast notifications
+      addToast({
+        type: 'error',
+        title: t('auth.error_occurred'),
+        description: t('auth.check_credentials')
+      });
       console.error(t('auth.login_error'), err);
     } finally {
       setIsSubmitting(false);
@@ -126,8 +135,8 @@ export function useLoginForm({ auth }: UseLoginFormProps): UseLoginFormReturn {
 
   // 表单提交处理
   const handleFormSubmit = async (values: LoginFormValues) => {
-    const { email, password } = values;
-    await handleLogin(email, password);
+    const { email, password, rememberMe } = values;
+    await handleLogin(email, password, rememberMe);
   };
 
   // 创建表单状态

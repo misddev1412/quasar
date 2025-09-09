@@ -5,7 +5,7 @@ import { FieldValues } from 'react-hook-form';
 export interface FormFieldConfig {
   name: string;
   label: string;
-  type: 'text' | 'email' | 'password' | 'password-simple' | 'select' | 'textarea' | 'checkbox' | 'tel' | 'phone' | 'richtext' | 'role-multiselect' | 'custom' | 'tags' | 'file-types' | 'media-upload' | 'image-gallery';
+  type: 'text' | 'email' | 'password' | 'password-simple' | 'select' | 'textarea' | 'checkbox' | 'tel' | 'phone' | 'number' | 'richtext' | 'role-multiselect' | 'custom' | 'tags' | 'file-types' | 'media-upload' | 'image-gallery' | 'slug';
   placeholder?: string;
   required?: boolean;
   options?: Array<{ value: string; label: string; disabled?: boolean }>;
@@ -16,6 +16,10 @@ export interface FormFieldConfig {
     pattern?: RegExp;
     custom?: (value: any) => string | undefined;
   };
+  // Number input specific options
+  min?: number;
+  max?: number;
+  step?: number;
   size?: 'sm' | 'md' | 'lg';
   rows?: number; // for textarea
   minHeight?: string; // for richtext editor
@@ -30,6 +34,8 @@ export interface FormFieldConfig {
   multiple?: boolean; // allow multiple files
   // Image gallery specific options
   maxImages?: number; // maximum number of images for gallery
+  // Slug field specific options
+  sourceField?: string; // field name to generate slug from
 }
 
 // Form section configuration

@@ -18,6 +18,7 @@ import { TagInput } from '../components/common/TagInput';
 import { FileTypeSelector } from '../components/common/FileTypeSelector';
 import { MediaUpload } from '../components/common/MediaUpload';
 import { ImageGalleryUpload } from '../components/common/ImageGalleryUpload';
+import { SlugField } from '../components/posts/SlugField';
 
 export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
   form: UseFormReturn<T>,
@@ -48,6 +49,7 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
       case 'text':
       case 'email':
       case 'tel':
+      case 'number':
         return (
           <Controller
             key={field.name}
@@ -61,6 +63,9 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                 onChange={formField.onChange}
                 icon={field.icon}
                 autoComplete={field.type === 'email' ? 'email' : undefined}
+                min={field.min}
+                max={field.max}
+                step={field.step}
               />
             )}
           />
@@ -289,23 +294,43 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
             name={fieldName}
             control={control}
             render={({ field: formField }) => (
-              <div className="flex items-center space-x-2">
-                <input
-                  id={commonProps.id}
-                  type="checkbox"
-                  checked={formField.value || false}
-                  onChange={(e) => formField.onChange(e.target.checked)}
-                  disabled={field.disabled}
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                />
-                <label htmlFor={commonProps.id} className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {field.label}
-                  {field.required && <span className="text-red-500 ml-1">*</span>}
-                </label>
-                {field.description && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {field.description}
-                  </p>
+              <div className="space-y-2">
+                <div className="flex items-start space-x-3">
+                  <div className="relative inline-flex flex-shrink-0 items-center justify-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 w-9 h-5 bg-primary-600 cursor-pointer" 
+                       style={{ backgroundColor: formField.value ? '#2563eb' : '#d1d5db' }}>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={formField.value || false}
+                      onClick={() => formField.onChange(!formField.value)}
+                      disabled={field.disabled}
+                      id={commonProps.id}
+                      className="w-full h-full rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                    >
+                      <span className="sr-only">{field.label}</span>
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute left-0 inline-block transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out w-3.5 h-3.5 top-[2px] left-[2px]"
+                        style={{
+                          transform: formField.value ? 'translate(18px, 0)' : 'translate(2px, 0)'
+                        }}
+                      />
+                    </button>
+                  </div>
+                  <div className="flex-1">
+                    <label htmlFor={commonProps.id} className="text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer">
+                      {field.label}
+                      {field.required && <span className="text-red-500 ml-1">*</span>}
+                    </label>
+                    {field.description && (
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {field.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                {error && (
+                  <p className="text-xs text-red-500">{error}</p>
                 )}
               </div>
             )}
@@ -457,6 +482,27 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                 maxSize={field.maxSize || 10}
               />
             )}
+          />
+        );
+
+      case 'slug':
+        return (
+          <Controller
+            key={field.name}
+            name={fieldName}
+            control={control}
+            render={({ field: formField }) => {
+              const sourceFieldValue = field.sourceField ? watch(field.sourceField as FieldPath<T>) : '';
+              return (
+                <SlugField
+                  {...commonProps}
+                  value={formField.value || ''}
+                  onChange={formField.onChange}
+                  sourceText={sourceFieldValue || ''}
+                  description={field.description}
+                />
+              );
+            }}
           />
         );
 

@@ -3,6 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { trpc } from '../utils/trpc';
 import { TrpcApiResponse } from '@shared/types/api-response.types';
 
+interface LoginInput {
+  email: string;
+  password: string;
+  rememberMe?: boolean;
+}
+
 interface User {
   id: string;
   email: string;
@@ -19,7 +25,7 @@ interface AuthState {
 }
 
 interface AuthActions {
-  login: (email: string, password: string) => Promise<{success: boolean, errorMessage?: string, isAccountDeactivated?: boolean}>;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<{success: boolean, errorMessage?: string, isAccountDeactivated?: boolean}>;
   logout: () => void;
   refreshToken: () => Promise<boolean>;
   verifyAuth: () => Promise<boolean>;
@@ -208,11 +214,12 @@ export function useAuth(): UseAuthReturn {
   /**
    * 登录操作
    */
-  const login = useCallback(async (email: string, password: string): Promise<{success: boolean, errorMessage?: string, isAccountDeactivated?: boolean}> => {
+  const login = useCallback(async (email: string, password: string, rememberMe: boolean = false): Promise<{success: boolean, errorMessage?: string, isAccountDeactivated?: boolean}> => {
     setAuthState(prev => ({ ...prev, isLoading: true }));
     
     try {
-      const result = await loginMutation.mutateAsync({ email, password }) as TrpcApiResponse;
+      const loginInput: LoginInput = { email, password, rememberMe };
+      const result = await loginMutation.mutateAsync(loginInput as any) as TrpcApiResponse;
       
       if (result.code === 200 && result.data) {
         const userData = result.data.user as User;

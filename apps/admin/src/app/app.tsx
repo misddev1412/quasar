@@ -8,6 +8,7 @@ import AppRoutes from '../routes/AppRoutes';
 import { ThemeProvider as MUIThemeProvider, CssBaseline } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import { AuthProvider } from '../context/AuthContext';
+import { FirebaseAuthProvider } from '../hooks/useFirebaseAuth';
 
 export function App() {
   // 创建 MUI 主题
@@ -45,7 +46,9 @@ export function App() {
             <ToastProvider>
               <LayoutProvider>
                 <AuthProvider>
-                  <AppRoutes />
+                  <FirebaseAuthProvider>
+                    <AppRoutes />
+                  </FirebaseAuthProvider>
                 </AuthProvider>
               </LayoutProvider>
             </ToastProvider>

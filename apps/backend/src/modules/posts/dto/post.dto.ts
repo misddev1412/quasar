@@ -5,7 +5,14 @@ import { PostStatus, PostType } from '../entities/post.entity';
 export const PostTranslationSchema = z.object({
   locale: z.string().min(2).max(5),
   title: z.string().min(1).max(255),
-  slug: z.string().min(1).max(255).regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
+  slug: z.string().min(1).max(255).refine((val) => {
+    // Allow Unicode characters but forbid certain special characters
+    return val.length > 0 && 
+           !val.startsWith('-') && 
+           !val.endsWith('-') && 
+           !/-{2,}/.test(val) && 
+           !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
+  }, 'Slug must not start/end with hyphens or contain forbidden characters'),
   content: z.string().min(1),
   excerpt: z.string().optional(),
   metaTitle: z.string().max(255).optional(),
@@ -65,7 +72,14 @@ export const PostFiltersSchema = z.object({
 // Post category schemas
 export const CreatePostCategorySchema = z.object({
   name: z.string().min(1).max(255),
-  slug: z.string().min(1).max(255).regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
+  slug: z.string().min(1).max(255).refine((val) => {
+    // Allow Unicode characters but forbid certain special characters
+    return val.length > 0 && 
+           !val.startsWith('-') && 
+           !val.endsWith('-') && 
+           !/-{2,}/.test(val) && 
+           !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
+  }, 'Slug must not start/end with hyphens or contain forbidden characters'),
   description: z.string().optional(),
   parentId: z.string().uuid().optional(),
   sortOrder: z.number().int().default(0),
@@ -84,7 +98,14 @@ export const UpdatePostCategorySchema = z.object({
 // Post tag schemas
 export const CreatePostTagSchema = z.object({
   name: z.string().min(1).max(255),
-  slug: z.string().min(1).max(255).regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
+  slug: z.string().min(1).max(255).refine((val) => {
+    // Allow Unicode characters but forbid certain special characters
+    return val.length > 0 && 
+           !val.startsWith('-') && 
+           !val.endsWith('-') && 
+           !/-{2,}/.test(val) && 
+           !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
+  }, 'Slug must not start/end with hyphens or contain forbidden characters'),
   description: z.string().optional(),
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Color must be a valid hex color').optional(),
   isActive: z.boolean().default(true),

@@ -1,8 +1,9 @@
 import React from 'react';
-import { Globe } from 'lucide-react';
+import { Globe, RefreshCw } from 'lucide-react';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useLanguageOptions } from '../../hooks/useLanguages';
 import { TagInput } from '../common/TagInput';
+import { generateSlug } from '../../utils/slugUtils';
 
 interface TranslationData {
   locale: string;
@@ -141,14 +142,28 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         {t('posts.slug')} <span className="text-red-500">*</span>
                       </label>
-                      <input
-                        type="text"
-                        value={translation.slug}
-                        onChange={(e) => updateTranslation(index, 'slug', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                        placeholder="post-slug"
-                        required
-                      />
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={translation.slug}
+                          onChange={(e) => updateTranslation(index, 'slug', e.target.value)}
+                          className="w-full px-3 py-2 pr-20 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="post-slug"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const autoSlug = generateSlug(translation.title);
+                            updateTranslation(index, 'slug', autoSlug);
+                          }}
+                          disabled={!translation.title}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-primary-600 dark:text-gray-500 dark:hover:text-primary-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                          title={t('posts.generateSlugFromTitle')}
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
 

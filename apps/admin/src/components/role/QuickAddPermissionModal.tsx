@@ -178,12 +178,16 @@ export const QuickAddPermissionModal: React.FC<QuickAddPermissionModalProps> = (
                         }`}
                         onClick={() => handlePermissionToggle(permission.id)}
                       >
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => {}}
-                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer"
-                        />
+                        <div className="relative inline-flex flex-shrink-0 items-center justify-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 w-9 h-5 cursor-pointer" 
+                             style={{ backgroundColor: isSelected ? '#2563eb' : '#d1d5db' }}>
+                          <span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute left-0 inline-block transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out w-3.5 h-3.5 top-[2px] left-[2px]"
+                            style={{
+                              transform: isSelected ? 'translate(18px, 0)' : 'translate(2px, 0)'
+                            }}
+                          />
+                        </div>
                         <div className="ml-3 flex-1">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">

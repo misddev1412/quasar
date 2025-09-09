@@ -9,6 +9,8 @@ export interface CreateUserDto {
   lastName: string;
   phoneNumber?: string;
   role?: string;
+  isActive?: boolean;
+  emailVerifiedAt?: Date;
 }
 
 export interface UpdateUserDto {

@@ -8,6 +8,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
+  active?: boolean;
 }
 
 const Spinner = ({ className = "" }) => (
@@ -28,6 +29,7 @@ export const Button: React.FC<ButtonProps> = ({
   children,
   fullWidth = false,
   startIcon,
+  active = false,
   endIcon,
   ...props
 }) => {
@@ -54,14 +56,14 @@ export const Button: React.FC<ButtonProps> = ({
           : 'from-primary-700 to-primary-900 hover:from-primary-800 hover:to-primary-950'
       } text-white font-semibold shadow-md hover:shadow-lg`,
       secondary: isDarkMode 
-        ? 'bg-theme-surface text-theme-primary border border-theme-border hover:bg-opacity-80'
-        : 'bg-slate-200 text-slate-800 border border-slate-300 hover:bg-slate-300 font-medium',
+        ? `${active ? 'bg-primary-500/20 border-primary-500 text-primary-400' : 'bg-theme-surface text-theme-primary border-theme-border'} border hover:bg-opacity-80`
+        : `${active ? 'bg-primary-100 border-primary-500 text-primary-700' : 'bg-slate-200 text-slate-800 border-slate-300'} border hover:bg-slate-300 font-medium`,
       outline: isDarkMode
-        ? 'bg-transparent border border-theme-border text-theme-primary hover:bg-theme-surface'
-        : 'bg-transparent border-2 border-primary-700 text-primary-800 hover:bg-primary-50 font-medium',
+        ? `${active ? 'bg-primary-500/20 border-primary-500 text-primary-400' : 'bg-transparent border-theme-border text-theme-primary'} border hover:bg-theme-surface`
+        : `${active ? 'bg-primary-50 border-primary-500 text-primary-700' : 'bg-transparent border-primary-700 text-primary-800'} border-2 hover:bg-primary-50 font-medium`,
       ghost: isDarkMode
-        ? 'bg-transparent hover:bg-theme-surface text-theme-primary'
-        : 'bg-transparent hover:bg-slate-100 text-slate-800 font-medium',
+        ? `${active ? 'bg-primary-500/20 text-primary-400' : 'bg-transparent text-theme-primary'} hover:bg-theme-surface`
+        : `${active ? 'bg-primary-100 text-primary-700' : 'bg-transparent text-slate-800'} hover:bg-slate-100 font-medium`,
       danger: 'bg-error-600 hover:bg-error-700 text-white font-semibold shadow-md',
     };
     

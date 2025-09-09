@@ -562,6 +562,7 @@ const UserListPage = () => {
       label: showFilters ? 'Hide Filters' : 'Show Filters',
       onClick: handleFilterToggle,
       icon: <FiFilter />,
+      active: showFilters,
     },
   ], [handleCreateUser, handleExportCsv, handleRefresh, handleFilterToggle, showFilters]);
 
@@ -688,7 +689,8 @@ const UserListPage = () => {
     {
       id: 'createdAt',
       header: 'Created At',
-      accessor: (item) => new Date(item.createdAt).toLocaleDateString(),
+      accessor: 'createdAt',
+      type: 'datetime',
       isSortable: true,
       hideable: true,
     },
