@@ -374,10 +374,10 @@ const ProductsPage: React.FC = () => {
       accessor: (product) => (
         <div className="flex items-center space-x-3">
           <div className="flex-shrink-0">
-            {product.images?.[0] ? (
+            {product.media?.[0]?.url ? (
               <img
-                src={product.images[0]}
-                alt={product.name}
+                src={product.media[0].url}
+                alt={product.media[0].altText || product.name}
                 className="w-10 h-10 object-cover rounded-lg"
               />
             ) : (

@@ -34,6 +34,18 @@ export const updateBrandSchema = z.object({
   sortOrder: z.number().optional(),
 });
 
+export const createBrandTranslationSchema = z.object({
+  brandId: z.string().uuid(),
+  locale: z.string().min(2).max(5),
+  name: z.string().min(1).optional(),
+  description: z.string().optional(),
+});
+
+export const updateBrandTranslationSchema = z.object({
+  name: z.string().min(1).optional(),
+  description: z.string().optional(),
+});
+
 @Router({ alias: 'adminProductBrands' })
 @Injectable()
 export class AdminProductBrandsRouter {
@@ -182,6 +194,148 @@ export class AdminProductBrandsRouter {
         2,  // OperationCode.READ
         10, // ErrorLevelCode.SERVER_ERROR
         error.message || 'Failed to retrieve brand statistics'
+      );
+    }
+  }
+
+  // Translation endpoints
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({ 
+      brandId: z.string().uuid(),
+      locale: z.string().min(2).max(5).optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  async getBrandTranslations(
+    @Input() input: { brandId: string; locale?: string }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      if (input.locale) {
+        const translation = await this.brandRepository.findBrandTranslation(input.brandId, input.locale);
+        return this.responseHandler.createTrpcSuccess(translation);
+      } else {
+        const translations = await this.brandRepository.findBrandTranslations(input.brandId);
+        return this.responseHandler.createTrpcSuccess(translations);
+      }
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50, // ModuleCode.PRODUCT
+        2,  // OperationCode.READ
+        10, // ErrorLevelCode.SERVER_ERROR
+        error.message || 'Failed to retrieve brand translations'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({ 
+      id: z.string().uuid(),
+      locale: z.string().min(2).max(5).optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  async getByIdWithTranslations(
+    @Input() input: { id: string; locale?: string }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const brand = await this.brandRepository.findByIdWithTranslations(input.id, input.locale);
+      if (!brand) {
+        throw new Error('Brand not found');
+      }
+      return this.responseHandler.createTrpcSuccess(brand);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50, // ModuleCode.PRODUCT
+        2,  // OperationCode.READ
+        4,  // ErrorLevelCode.NOT_FOUND
+        error.message || 'Brand not found'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: createBrandTranslationSchema,
+    output: apiResponseSchema,
+  })
+  async createBrandTranslation(
+    @Input() input: z.infer<typeof createBrandTranslationSchema>
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const translation = await this.brandRepository.createBrandTranslation({
+        brand_id: input.brandId,
+        locale: input.locale,
+        name: input.name,
+        description: input.description,
+      });
+      return this.responseHandler.createTrpcSuccess(translation);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50, // ModuleCode.PRODUCT
+        1,  // OperationCode.CREATE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+        error.message || 'Failed to create brand translation'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      brandId: z.string().uuid(),
+      locale: z.string().min(2).max(5),
+    }).merge(updateBrandTranslationSchema),
+    output: apiResponseSchema,
+  })
+  async updateBrandTranslation(
+    @Input() input: { brandId: string; locale: string } & z.infer<typeof updateBrandTranslationSchema>
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const { brandId, locale, ...updateData } = input;
+      const translation = await this.brandRepository.updateBrandTranslation(brandId, locale, updateData);
+      
+      if (!translation) {
+        throw this.responseHandler.createTRPCError(
+          50, // ModuleCode.PRODUCT
+          3,  // OperationCode.UPDATE
+          4,  // ErrorLevelCode.NOT_FOUND
+          'Brand translation not found'
+        );
+      }
+      
+      return this.responseHandler.createTrpcSuccess(translation);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50, // ModuleCode.PRODUCT
+        3,  // OperationCode.UPDATE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+        error.message || 'Failed to update brand translation'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      brandId: z.string().uuid(),
+      locale: z.string().min(2).max(5),
+    }),
+    output: apiResponseSchema,
+  })
+  async deleteBrandTranslation(
+    @Input() input: { brandId: string; locale: string }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      await this.brandRepository.deleteBrandTranslation(input.brandId, input.locale);
+      return this.responseHandler.createTrpcSuccess({ deleted: true });
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50, // ModuleCode.PRODUCT
+        4,  // OperationCode.DELETE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+        error.message || 'Failed to delete brand translation'
       );
     }
   }

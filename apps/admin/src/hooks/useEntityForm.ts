@@ -38,6 +38,9 @@ export function useEntityForm<T extends FieldValues = FieldValues>({
     } finally {
       setIsSubmitting(false);
     }
+  }, (errors) => {
+    console.log('❌ [useEntityForm] Form validation errors:', errors);
+    console.log('❌ [useEntityForm] Form is invalid, submission blocked');
   });
 
   return { form, handleSubmit, isSubmitting };

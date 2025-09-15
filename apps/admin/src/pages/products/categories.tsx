@@ -1,14 +1,12 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiPlus, FiMoreVertical, FiFolder, FiFolderPlus, FiEdit2, FiTrash2, FiRefreshCw, FiChevronRight, FiChevronDown, FiActivity, FiEye, FiTag, FiGrid, FiList, FiSearch } from 'react-icons/fi';
+import { FiPlus, FiMoreVertical, FiFolder, FiFolderPlus, FiEdit2, FiTrash2, FiRefreshCw, FiActivity, FiEye, FiTag, FiFilter } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { Dropdown } from '../../components/common/Dropdown';
 import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
-import { Table, Column } from '../../components/common/Table';
-import { CategoryTreeView } from '../../components/products/CategoryTreeView';
 import { LazyLoadingCategoryTreeView } from '../../components/products/LazyLoadingCategoryTreeView';
-import { FormInput } from '../../components/common/FormInput';
+import { CategoryFilter, CategoryFilterOptions } from '../../components/products/CategoryFilter';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
@@ -24,12 +22,16 @@ const CategoriesPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // State management
-  const [page, setPage] = useState(() => parseInt(searchParams.get('page') || '1'));
-  const [limit, setLimit] = useState(() => parseInt(searchParams.get('limit') || '25'));
   const [searchValue, setSearchValue] = useState(() => searchParams.get('search') || '');
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<Set<string | number>>(new Set());
-  const [expandedNodes, setExpandedNodes] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState<'tree' | 'table'>('tree');
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState<CategoryFilterOptions>({
+    search: searchParams.get('search') || undefined,
+    isActive: searchParams.get('isActive') ? searchParams.get('isActive') === 'true' : undefined,
+    parentId: searchParams.get('parentId') || undefined,
+    level: searchParams.get('level') ? parseInt(searchParams.get('level')!) : undefined,
+    dateFrom: searchParams.get('dateFrom') || undefined,
+    dateTo: searchParams.get('dateTo') || undefined,
+  });
 
   const utils = trpc.useContext();
 
@@ -49,34 +51,6 @@ const CategoriesPage: React.FC = () => {
 
   const categories = (categoriesData as any)?.data || [];
 
-  // Flatten the tree structure for table display while preserving hierarchy info
-  const flattenCategories = useCallback((cats: Category[], level = 0, parentPath = ''): (Category & { level: number; path: string })[] => {
-    const result: (Category & { level: number; path: string })[] = [];
-    
-    cats.forEach(cat => {
-      const path = parentPath ? `${parentPath} > ${cat.name}` : cat.name;
-      result.push({ ...cat, level, path });
-      
-      if (cat.children && cat.children.length > 0) {
-        result.push(...flattenCategories(cat.children, level + 1, path));
-      }
-    });
-    
-    return result;
-  }, []);
-
-  const allFlatCategories = useMemo(() => flattenCategories(categories), [categories, flattenCategories]);
-  
-  // Filter categories based on search value
-  const flatCategories = useMemo(() => {
-    if (!searchValue.trim()) return allFlatCategories;
-    
-    return allFlatCategories.filter(category =>
-      category.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-      (category.description && category.description.toLowerCase().includes(searchValue.toLowerCase()))
-    );
-  }, [allFlatCategories, searchValue]);
-
   // Mutations
   const deleteMutation = trpc.adminProductCategories.delete.useMutation({
     onSuccess: () => {
@@ -95,6 +69,7 @@ const CategoriesPage: React.FC = () => {
     },
   });
 
+
   // Event handlers
   const handleDelete = useCallback(async (id: string) => {
     const confirmDelete = window.confirm(t('categories.deleteConfirm', 'Are you sure you want to delete this category? This action cannot be undone.'));
@@ -110,6 +85,55 @@ const CategoriesPage: React.FC = () => {
   const handleRefresh = useCallback(() => {
     refetch();
   }, [refetch]);
+
+  const handleFilterToggle = () => {
+    setShowFilters(!showFilters);
+  };
+
+  const handleFiltersChange = useCallback((newFilters: CategoryFilterOptions) => {
+    setFilters(newFilters);
+    
+    // Update search params
+    const params = new URLSearchParams();
+    if (newFilters.search) params.set('search', newFilters.search);
+    if (newFilters.isActive !== undefined) params.set('isActive', newFilters.isActive.toString());
+    if (newFilters.parentId) params.set('parentId', newFilters.parentId);
+    if (newFilters.level !== undefined) params.set('level', newFilters.level.toString());
+    if (newFilters.dateFrom) params.set('dateFrom', newFilters.dateFrom);
+    if (newFilters.dateTo) params.set('dateTo', newFilters.dateTo);
+    
+    setSearchParams(params);
+    
+    // Update searchValue for compatibility with existing tree view
+    setSearchValue(newFilters.search || '');
+  }, [setSearchParams]);
+
+  const handleFiltersReset = useCallback(() => {
+    const resetFilters: CategoryFilterOptions = {
+      search: undefined,
+      isActive: undefined,
+      parentId: undefined,
+      level: undefined,
+      dateFrom: undefined,
+      dateTo: undefined,
+    };
+    setFilters(resetFilters);
+    setSearchValue('');
+    setSearchParams(new URLSearchParams());
+  }, [setSearchParams]);
+
+  // Calculate active filter count
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (filters.search) count++;
+    if (filters.isActive !== undefined) count++;
+    if (filters.parentId) count++;
+    if (filters.level !== undefined) count++;
+    if (filters.dateFrom) count++;
+    if (filters.dateTo) count++;
+    return count;
+  }, [filters]);
+
 
   const handleEditCategory = useCallback((category: Category) => {
     navigate(`/products/categories/${category.id}/edit`);
@@ -128,7 +152,7 @@ const CategoriesPage: React.FC = () => {
     }
   }, [deleteMutation, t]);
 
-  // Statistics data
+  // Statistics data - calculate from tree structure
   const statisticsData = useMemo(() => {
     const apiStats = (statsData as any)?.data;
     if (apiStats) {
@@ -144,13 +168,26 @@ const CategoriesPage: React.FC = () => {
     }
     
     // Fallback calculation from current data
-    if (!allFlatCategories.length) return null;
+    if (!categories.length) return null;
     
-    const total = allFlatCategories.length;
-    const active = allFlatCategories.filter((c) => c.isActive).length;
+    // Flatten categories to calculate stats
+    const flattenForStats = (cats: Category[], level = 0): (Category & { level: number })[] => {
+      const result: (Category & { level: number })[] = [];
+      cats.forEach(cat => {
+        result.push({ ...cat, level });
+        if (cat.children && cat.children.length > 0) {
+          result.push(...flattenForStats(cat.children, level + 1));
+        }
+      });
+      return result;
+    };
+    
+    const allCategories = flattenForStats(categories);
+    const total = allCategories.length;
+    const active = allCategories.filter((c) => c.isActive).length;
     const inactive = total - active;
-    const rootCategories = allFlatCategories.filter((c) => c.level === 0).length;
-    const maxDepth = Math.max(...allFlatCategories.map(c => c.level)) + 1;
+    const rootCategories = categories.length;
+    const maxDepth = Math.max(...allCategories.map(c => c.level)) + 1;
     
     return {
       data: {
@@ -161,120 +198,8 @@ const CategoriesPage: React.FC = () => {
         maxDepth,
       }
     };
-  }, [allFlatCategories, statsData]);
+  }, [categories, statsData]);
 
-  // Column definitions
-  const columns: Column<Category & { level: number; path: string }>[] = useMemo(() => [
-    {
-      id: 'category',
-      header: t('categories.name', 'Category'),
-      accessor: (category) => (
-        <div className="flex items-center space-x-3">
-          <div className="flex-shrink-0">
-            {category.image ? (
-              <img
-                src={category.image}
-                alt={category.name}
-                className="w-10 h-10 object-cover rounded-lg"
-              />
-            ) : (
-              <div className="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                <FiFolder className="w-5 h-5 text-gray-400" />
-              </div>
-            )}
-          </div>
-          <div className="flex items-center">
-            <div className="flex items-center" style={{ marginLeft: `${category.level * 24}px` }}>
-              {category.level > 0 && (
-                <FiChevronRight className="w-4 h-4 text-gray-400 mr-1" />
-              )}
-              <div>
-                <div className="font-medium text-gray-900 dark:text-gray-100">
-                  {category.name}
-                </div>
-                {category.description && (
-                  <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
-                    {category.description}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      ),
-      isSortable: false,
-      hideable: false,
-    },
-    {
-      id: 'productsCount',
-      header: t('categories.productsCount', 'Products'),
-      accessor: (category) => (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-          {category.productsCount || 0}
-        </span>
-      ),
-      isSortable: true,
-      hideable: true,
-    },
-    {
-      id: 'status',
-      header: t('common.status', 'Status'),
-      accessor: (category) => (
-        <span
-          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            category.isActive
-              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-              : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-          }`}
-        >
-          {category.isActive ? t('common.active', 'Active') : t('common.inactive', 'Inactive')}
-        </span>
-      ),
-      isSortable: true,
-      hideable: true,
-    },
-    {
-      id: 'createdAt',
-      header: t('common.created_at', 'Created At'),
-      accessor: 'createdAt',
-      type: 'datetime',
-      isSortable: true,
-      hideable: true,
-    },
-    {
-      id: 'actions',
-      header: t('common.actions', 'Actions'),
-      accessor: (category) => (
-        <Dropdown
-          button={
-            <Button variant="ghost" size="sm" aria-label={`Actions for ${category.name}`}>
-              <FiMoreVertical />
-            </Button>
-          }
-          items={[
-            {
-              label: t('categories.addSubcategory', 'Add Subcategory'),
-              icon: <FiFolderPlus className="w-4 h-4" aria-hidden="true" />,
-              onClick: () => navigate(`/products/categories/create?parentId=${category.id}`)
-            },
-            {
-              label: t('common.edit', 'Edit'),
-              icon: <FiEdit2 className="w-4 h-4" aria-hidden="true" />,
-              onClick: () => navigate(`/products/categories/${category.id}/edit`)
-            },
-            {
-              label: t('common.delete', 'Delete'),
-              icon: <FiTrash2 className="w-4 h-4" aria-hidden="true" />,
-              onClick: () => handleDelete(category.id),
-              className: 'text-red-500 hover:text-red-700'
-            },
-          ]}
-        />
-      ),
-      hideable: false,
-      width: '80px',
-    },
-  ], [navigate, handleDelete, t]);
 
   // Actions
   const actions = useMemo(() => [
@@ -289,23 +214,14 @@ const CategoriesPage: React.FC = () => {
       onClick: handleRefresh,
       icon: <FiRefreshCw />,
     },
-  ], [handleCreateCategory, handleRefresh, t]);
+    {
+      label: showFilters ? t('common.hideFilters', 'Hide Filters') : t('common.showFilters', 'Show Filters'),
+      onClick: handleFilterToggle,
+      icon: <FiFilter />,
+      active: showFilters,
+    },
+  ], [handleCreateCategory, handleRefresh, handleFilterToggle, showFilters, t]);
 
-  // View mode toggle buttons
-  const viewModeButtons = useMemo(() => [
-    {
-      label: t('categories.treeView', 'Tree View'),
-      onClick: () => setViewMode('tree'),
-      active: viewMode === 'tree',
-      icon: <FiGrid />,
-    },
-    {
-      label: t('categories.tableView', 'Table View'),
-      onClick: () => setViewMode('table'),
-      active: viewMode === 'table',
-      icon: <FiList />,
-    },
-  ], [viewMode, t]);
 
   // Statistics cards
   const statisticsCards: StatisticData[] = useMemo(() => {
@@ -392,7 +308,17 @@ const CategoriesPage: React.FC = () => {
           skeletonCount={4}
         />
 
-        {/* Categories View */}
+        {/* Filter Panel */}
+        {showFilters && (
+          <CategoryFilter
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+            onClearFilters={handleFiltersReset}
+            activeFilterCount={activeFilterCount}
+          />
+        )}
+
+        {/* Categories Tree View */}
         <Card className="p-0">
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
@@ -401,88 +327,23 @@ const CategoriesPage: React.FC = () => {
                   {t('categories.list', 'Category List')}
                 </h3>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  {viewMode === 'tree' 
-                    ? t('categories.treeViewDescription', 'Tree view of categories with hierarchy')
-                    : t('categories.tableViewDescription', 'Table view of all categories')
-                  }
+                  {t('categories.treeViewDescription', 'Tree view of categories with hierarchy')}
                 </p>
-              </div>
-              
-              {/* View Mode Toggle */}
-              <div className="flex items-center space-x-2">
-                {/* Search Input for Tree View */}
-                {viewMode === 'tree' && (
-                  <div className="relative">
-                    <FormInput
-                      id="category-search"
-                      type="text"
-                      label=""
-                      value={searchValue}
-                      onChange={(e) => setSearchValue(e.target.value)}
-                      placeholder={t('categories.searchPlaceholder', 'Search categories...')}
-                      className="pl-10 w-64"
-                    />
-                    <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  </div>
-                )}
-                
-                <div className="inline-flex rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-1">
-                  {viewModeButtons.map((button) => (
-                    <button
-                      key={button.label}
-                      onClick={button.onClick}
-                      className={`
-                        inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors
-                        ${button.active
-                          ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm'
-                          : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-                        }
-                      `}
-                    >
-                      {button.icon}
-                      <span className="ml-2 hidden sm:inline">{button.label}</span>
-                    </button>
-                  ))}
-                </div>
               </div>
             </div>
           </div>
           
           <div className="p-6">
-            {viewMode === 'tree' ? (
-              <LazyLoadingCategoryTreeView
-                onEdit={handleEditCategory}
-                onDelete={handleDeleteCategory}
-                onAddChild={handleAddChildCategory}
-                searchValue={searchValue}
-                includeInactive={true}
-              />
-            ) : (
-              <Table<Category & { level: number; path: string }>
-                tableId="categories-table"
-                columns={columns}
-                data={flatCategories}
-                searchValue={searchValue}
-                onSearchChange={setSearchValue}
-                searchPlaceholder={t('categories.searchPlaceholder', 'Search categories by name or description...')}
-                pagination={{
-                  currentPage: page,
-                  totalPages: Math.ceil(flatCategories.length / limit),
-                  totalItems: flatCategories.length,
-                  itemsPerPage: limit,
-                  onPageChange: setPage,
-                  onItemsPerPageChange: setLimit,
-                }}
-                enableRowHover={true}
-                density="normal"
-                emptyMessage={t('categories.noCategories', 'No categories found')}
-                emptyAction={{
-                  label: t('categories.create', 'Create Category'),
-                  onClick: handleCreateCategory,
-                  icon: <FiPlus />,
-                }}
-              />
-            )}
+            <LazyLoadingCategoryTreeView
+              onEdit={handleEditCategory}
+              onDelete={handleDeleteCategory}
+              onAddChild={handleAddChildCategory}
+              searchValue={searchValue}
+              onSearchChange={setSearchValue}
+              includeInactive={true}
+              showFilters={showFilters}
+              onFilterClick={handleFilterToggle}
+            />
           </div>
         </Card>
 

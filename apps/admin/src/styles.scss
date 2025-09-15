@@ -378,12 +378,12 @@ html, body {
 
   /* Table search input with proper icon spacing - keeping for backward compatibility */
   .table-search-input {
-    padding-left: 60px !important;
+    padding-left: 2.75rem !important; /* 44px - matches pl-11 */
   }
 
   /* Additional specificity for table search input */
   div.relative input.table-search-input {
-    padding-left: 60px !important;
+    padding-left: 2.75rem !important; /* 44px - matches pl-11 */
     box-sizing: border-box !important;
   }
   

@@ -18,6 +18,7 @@ import { TagInput } from '../components/common/TagInput';
 import { FileTypeSelector } from '../components/common/FileTypeSelector';
 import { MediaUpload } from '../components/common/MediaUpload';
 import { ImageGalleryUpload } from '../components/common/ImageGalleryUpload';
+import { ProductMediaUpload, MediaType } from '../components/common/ProductMediaUpload';
 import { SlugField } from '../components/posts/SlugField';
 
 export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
@@ -471,7 +472,7 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
             control={control}
             render={({ field: formField }) => (
               <ImageGalleryUpload
-                value={formField.value || []}
+                value={Array.isArray(formField.value) ? formField.value : []}
                 onChange={formField.onChange}
                 label={field.label}
                 description={field.description}
@@ -480,6 +481,29 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                 error={error}
                 maxImages={field.maxImages || 10}
                 maxSize={field.maxSize || 10}
+              />
+            )}
+          />
+        );
+
+      case 'product-media':
+        return (
+          <Controller
+            key={field.name}
+            name={fieldName}
+            control={control}
+            render={({ field: formField }) => (
+              <ProductMediaUpload
+                value={Array.isArray(formField.value) ? formField.value : []}
+                onChange={formField.onChange}
+                label={field.label}
+                description={field.description}
+                required={field.required}
+                disabled={field.disabled}
+                error={error}
+                maxItems={field.maxItems || 10}
+                maxSize={field.maxSize || 100}
+                allowedTypes={field.allowedTypes || [MediaType.IMAGE, MediaType.VIDEO]}
               />
             )}
           />
@@ -526,23 +550,29 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
               )}
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {section.fields.map((field) => {
-              // Handle conditional field rendering
-              if (field.dependsOn) {
-                const dependentFieldValue = watch(field.dependsOn.field as FieldPath<T>);
-                if (dependentFieldValue !== field.dependsOn.value) {
-                  return null;
+          {section.customContent ? (
+            <div className="w-full">
+              {section.customContent}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {section.fields.map((field) => {
+                // Handle conditional field rendering
+                if (field.dependsOn) {
+                  const dependentFieldValue = watch(field.dependsOn.field as FieldPath<T>);
+                  if (dependentFieldValue !== field.dependsOn.value) {
+                    return null;
+                  }
                 }
-              }
-              
-              return (
-                <div key={field.name} className={clsx((field.type === 'textarea' || field.type === 'richtext' || field.type === 'role-multiselect' || field.type === 'custom' || field.type === 'file-types' || field.type === 'media-upload' || field.type === 'image-gallery') && 'md:col-span-2')}>
-                  {renderField(field, tabIndex)}
-                </div>
-              );
-            })}
-          </div>
+                
+                return (
+                  <div key={field.name} className={clsx((field.type === 'textarea' || field.type === 'richtext' || field.type === 'role-multiselect' || field.type === 'custom' || field.type === 'file-types' || field.type === 'media-upload' || field.type === 'image-gallery' || field.type === 'product-media') && 'md:col-span-2')}>
+                    {renderField(field, tabIndex)}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       ))}
     </div>

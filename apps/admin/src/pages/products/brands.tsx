@@ -14,8 +14,8 @@ import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { Brand } from '../../types/product';
-import { CreateBrandForm } from '../../components/products/CreateBrandForm';
-import { EditBrandForm } from '../../components/products/EditBrandForm';
+import { CreateBrandModal } from '../../components/products/CreateBrandModal';
+import { EditBrandModal } from '../../components/products/EditBrandModal';
 
 interface BrandFiltersType {
   search?: string;
@@ -613,92 +613,30 @@ const BrandsPage: React.FC = () => {
         />
       </div>
 
-      {/* Create Brand Dialog */}
-      {createDialogOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => setCreateDialogOpen(false)}
-        >
-          <div 
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                {t('brands.create', 'Create Brand')}
-              </h2>
-              <button
-                onClick={() => setCreateDialogOpen(false)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                aria-label="Close dialog"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6">
-              <CreateBrandForm
-                onSuccess={() => {
-                  setCreateDialogOpen(false);
-                  refetch();
-                  addToast({ type: 'success', title: t('brands.create_success', 'Brand created successfully') });
-                }}
-                onCancel={() => setCreateDialogOpen(false)}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Create Brand Modal */}
+      <CreateBrandModal
+        isOpen={createDialogOpen}
+        onClose={() => setCreateDialogOpen(false)}
+        onSuccess={() => {
+          setCreateDialogOpen(false);
+          refetch();
+        }}
+      />
 
-      {/* Edit Brand Dialog */}
-      {editDialogOpen && editingBrand && (
-        <div 
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => setEditDialogOpen(false)}
-        >
-          <div 
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                {t('brands.edit', 'Edit Brand')} - {editingBrand.name}
-              </h2>
-              <button
-                onClick={() => setEditDialogOpen(false)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                aria-label="Close dialog"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6">
-              <EditBrandForm
-                brand={editingBrand}
-                onSuccess={() => {
-                  setEditDialogOpen(false);
-                  setEditingBrand(null);
-                  refetch();
-                  addToast({ type: 'success', title: t('brands.update_success', 'Brand updated successfully') });
-                }}
-                onCancel={() => {
-                  setEditDialogOpen(false);
-                  setEditingBrand(null);
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Edit Brand Modal */}
+      <EditBrandModal
+        isOpen={editDialogOpen}
+        brand={editingBrand}
+        onClose={() => {
+          setEditDialogOpen(false);
+          setEditingBrand(null);
+        }}
+        onSuccess={() => {
+          setEditDialogOpen(false);
+          setEditingBrand(null);
+          refetch();
+        }}
+      />
     </BaseLayout>
   );
 };

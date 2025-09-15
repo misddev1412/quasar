@@ -295,7 +295,8 @@ export class ResponseService {
     moduleCode: ModuleCode | null,
     operationCode: OperationCode | null,
     errorLevelCode: ErrorLevelCode | null,
-    message: string
+    message: string,
+    originalError?: any
   ): TRPCError {
     // Map error level to HTTP status
     let httpStatus = 500;
@@ -321,11 +322,30 @@ export class ResponseService {
       code = 'UNAUTHORIZED';
     }
 
-    // Only log non-null codes to avoid confusing logs
-    const logContext: any = {};
+    // Build comprehensive log context
+    const logContext: any = {
+      timestamp: new Date().toISOString(),
+      httpStatus,
+      code
+    };
+    
     if (moduleCode !== null) logContext.moduleCode = moduleCode;
     if (operationCode !== null) logContext.operationCode = operationCode;
     if (errorLevelCode !== null) logContext.errorLevelCode = errorLevelCode;
+    
+    // Add original error details for better debugging
+    if (originalError) {
+      logContext.originalError = {
+        name: originalError.name,
+        message: originalError.message,
+        stack: originalError.stack,
+        // Include additional properties that might be useful
+        ...(originalError.code && { errorCode: originalError.code }),
+        ...(originalError.errno && { errno: originalError.errno }),
+        ...(originalError.sqlState && { sqlState: originalError.sqlState }),
+        ...(originalError.sqlMessage && { sqlMessage: originalError.sqlMessage })
+      };
+    }
 
     this.logger.error(`TRPC Error [${httpStatus}]: ${message}`, logContext);
 
@@ -356,9 +376,10 @@ export class ResponseService {
     moduleCode: ModuleCode | null,
     operationCode: OperationCode | null,
     errorLevelCode: ErrorLevelCode | null,
-    message: string
+    message: string,
+    originalError?: any
   ): TRPCError {
-    return this.createTRPCError(moduleCode, operationCode, errorLevelCode, message);
+    return this.createTRPCError(moduleCode, operationCode, errorLevelCode, message, originalError);
   }
 
   // ================================================================

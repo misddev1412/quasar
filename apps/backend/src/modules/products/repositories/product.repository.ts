@@ -40,27 +40,74 @@ export class ProductRepository {
   ) {}
 
   async findAll(options: ProductQueryOptions = {}): Promise<PaginatedProducts> {
-    // Debug logging can be enabled when needed
-    
+
     const { page = 1, limit = 20, filters = {}, relations = [] } = options;
-    
+
     try {
       // Create basic query builder
       const queryBuilder = this.productRepository.createQueryBuilder('product');
-      
-      // Apply pagination first (most basic operations)
+
+
+      // Add relations if requested with support for nested relations
+      if (relations.length > 0) {
+        const addedJoins = new Set<string>(); // Track added joins to avoid duplicates
+
+        relations.forEach(relation => {
+          // Handle nested relations like 'variants.variantItems.attribute'
+          const relationParts = relation.split('.');
+
+          if (relationParts.length === 1) {
+            // Simple relation: product.variants
+            const joinKey = `product.${relation}`;
+            if (!addedJoins.has(joinKey)) {
+              queryBuilder.leftJoinAndSelect(joinKey, relation);
+              addedJoins.add(joinKey);
+            }
+          } else {
+            // Nested relation: variants.variantItems or variants.variantItems.attribute
+            let currentAlias = 'product';
+
+            relationParts.forEach((part, index) => {
+              if (index === 0) {
+                // First level: product.variants
+                const joinKey = `${currentAlias}.${part}`;
+                if (!addedJoins.has(joinKey)) {
+                  queryBuilder.leftJoinAndSelect(joinKey, part);
+                  addedJoins.add(joinKey);
+                }
+                currentAlias = part;
+              } else {
+                // Nested levels: variants.variantItems, variantItems.attribute
+                const parentAlias = currentAlias;
+                const relationAlias = relationParts.slice(0, index + 1).join('_');
+                const joinKey = `${parentAlias}.${part}`;
+
+                if (!addedJoins.has(joinKey)) {
+                  queryBuilder.leftJoinAndSelect(joinKey, relationAlias);
+                  addedJoins.add(joinKey);
+                }
+                currentAlias = relationAlias;
+              }
+            });
+          }
+        });
+      }
+
+      // Apply pagination and ordering
       const skip = (page - 1) * limit;
       queryBuilder
         .skip(skip)
         .take(limit)
         .orderBy('product.id', 'DESC'); // Use simplest ordering
-      
-      const total = await queryBuilder.getCount();
-      
+
+      // Get count without relations for performance
+      const countQueryBuilder = this.productRepository.createQueryBuilder('product');
+      const total = await countQueryBuilder.getCount();
+
       const items = await queryBuilder.getMany();
-      
+
       const totalPages = Math.ceil(total / limit);
-      
+
       const result = {
         items,
         total,
@@ -68,25 +115,86 @@ export class ProductRepository {
         limit,
         totalPages,
       };
-      
+
       // Return paginated result
       return result;
-      
+
     } catch (error) {
-      console.error('Error in ProductRepository.findAll:', error);
-      console.error('Error stack:', error.stack);
       throw error;
     }
   }
 
   async findById(id: string, relations: string[] = []): Promise<Product | null> {
-    const findOptions: any = { where: { id } };
-    
-    if (relations.length > 0) {
-      findOptions.relations = relations;
+    console.log('🔍 DEBUG REPO - Finding product by ID:', id);
+    console.log('🔍 DEBUG REPO - Relations requested:', relations);
+
+    if (relations.length === 0) {
+      // No relations requested, use simple findOne
+      return this.productRepository.findOne({ where: { id } });
     }
-    
-    return this.productRepository.findOne(findOptions);
+
+    // Use QueryBuilder for proper relation loading when lazy: true is set
+    const queryBuilder = this.productRepository.createQueryBuilder('product');
+    queryBuilder.where('product.id = :id', { id });
+
+    // Add relations using leftJoinAndSelect with support for nested relations
+    const addedJoins = new Set<string>(); // Track added joins to avoid duplicates
+
+    relations.forEach(relation => {
+      console.log('🔍 DEBUG REPO - Adding relation:', relation);
+
+      // Handle nested relations like 'variants.variantItems.attribute'
+      const relationParts = relation.split('.');
+
+      if (relationParts.length === 1) {
+        // Simple relation: product.variants
+        const joinKey = `product.${relation}`;
+        if (!addedJoins.has(joinKey)) {
+          queryBuilder.leftJoinAndSelect(joinKey, relation);
+          addedJoins.add(joinKey);
+          console.log('🔍 DEBUG REPO - Added simple join:', joinKey, 'as', relation);
+        }
+      } else {
+        // Nested relation: variants.variantItems or variants.variantItems.attribute
+        let currentAlias = 'product';
+
+        relationParts.forEach((part, index) => {
+          if (index === 0) {
+            // First level: product.variants
+            const joinKey = `${currentAlias}.${part}`;
+            if (!addedJoins.has(joinKey)) {
+              queryBuilder.leftJoinAndSelect(joinKey, part);
+              addedJoins.add(joinKey);
+              console.log('🔍 DEBUG REPO - Added nested join level 0:', joinKey, 'as', part);
+            }
+            currentAlias = part;
+          } else {
+            // Nested levels: variants.variantItems, variantItems.attribute
+            const parentAlias = currentAlias;
+            const relationAlias = relationParts.slice(0, index + 1).join('_');
+            const joinKey = `${parentAlias}.${part}`;
+
+            if (!addedJoins.has(joinKey)) {
+              queryBuilder.leftJoinAndSelect(joinKey, relationAlias);
+              addedJoins.add(joinKey);
+              console.log('🔍 DEBUG REPO - Added nested join level', index, ':', joinKey, 'as', relationAlias);
+            }
+            currentAlias = relationAlias;
+          }
+        });
+      }
+    });
+
+    console.log('🔍 DEBUG REPO - Final SQL:', queryBuilder.getSql());
+    const result = await queryBuilder.getOne();
+
+    console.log('🔍 DEBUG REPO - Result:', result ? 'Found' : 'Not found');
+    if (result) {
+      console.log('🔍 DEBUG REPO - Result media:', (result as any).media);
+      console.log('🔍 DEBUG REPO - Result media type:', typeof (result as any).media);
+    }
+
+    return result;
   }
 
   async findBySku(sku: string): Promise<Product | null> {

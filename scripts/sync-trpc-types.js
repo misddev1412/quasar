@@ -98,7 +98,9 @@ const appRouter = t.router({
     typeDefinition += `  ${aliasKey}: t.router({\n`;
     
     for (const procedure of router.procedures) {
-      const hasInput = ['list', 'detail', 'create', 'update', 'delete', 'updateStatus'].includes(procedure.name);
+      // Check if procedure needs input schema - mutations generally need input, some queries too
+      const hasInput = procedure.type === 'mutation' ||
+                      ['list', 'detail', 'getById', 'getByIdWithTranslations', 'getCategoryTranslations', 'getBrandTranslations', 'getAttributeTranslations'].includes(procedure.name);
       const inputPart = hasInput ? '.input(z.any())' : '';
       const procedureType = procedure.type === 'query' ? 'query' : 'mutation';
       

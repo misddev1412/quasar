@@ -42,7 +42,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
   className = '',
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [images, setImages] = useState<GalleryImage[]>(value);
+  const [images, setImages] = useState<GalleryImage[]>(Array.isArray(value) ? value : []);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [draggedOverIndex, setDraggedOverIndex] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -53,7 +53,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
 
   // Update local state when value prop changes
   useEffect(() => {
-    setImages(value);
+    setImages(Array.isArray(value) ? value : []);
   }, [value]);
 
   // Notify parent of changes
@@ -613,7 +613,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
 
       {/* Image Edit Modal */}
       {editingImage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4">
             <div className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">

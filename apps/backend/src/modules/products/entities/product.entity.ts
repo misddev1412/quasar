@@ -6,6 +6,8 @@ import { Category } from './category.entity';
 import { Warranty } from './warranty.entity';
 import { ProductTag } from './product-tag.entity';
 import { ProductVariant } from './product-variant.entity';
+import { ProductAttribute } from './product-attribute.entity';
+import { ProductMedia } from './product-media.entity';
 
 export enum ProductStatus {
   DRAFT = 'DRAFT',
@@ -152,7 +154,13 @@ export class Product extends BaseEntity {
   @OneToMany(() => ProductVariant, (variant) => variant.product, { lazy: true })
   variants: Promise<ProductVariant[]>;
 
-  // Virtual properties
+  @OneToMany(() => ProductAttribute, (productAttribute) => productAttribute.product, { lazy: true })
+  productAttributes: Promise<ProductAttribute[]>;
+
+  @OneToMany(() => ProductMedia, (media) => media.product)
+  media: ProductMedia[];
+
+  // Virtual properties - keeping for backward compatibility
   get imageList(): string[] {
     if (!this.images) return [];
     try {
@@ -169,6 +177,31 @@ export class Product extends BaseEntity {
   get primaryImage(): string | null {
     const images = this.imageList;
     return images.length > 0 ? images[0] : null;
+  }
+
+  // New methods for ProductMedia
+  getMediaByType(type?: string): ProductMedia[] {
+    const allMedia = this.media;
+    if (!type) return allMedia || [];
+    return allMedia?.filter(m => m.type === type) || [];
+  }
+
+  getImages(): ProductMedia[] {
+    return this.getMediaByType('image');
+  }
+
+  getVideos(): ProductMedia[] {
+    return this.getMediaByType('video');
+  }
+
+  getPrimaryMedia(): ProductMedia | null {
+    const allMedia = this.media;
+    return allMedia?.find(m => m.isPrimary) || allMedia?.[0] || null;
+  }
+
+  getPrimaryImageUrl(): string | null {
+    const primaryMedia = this.getPrimaryMedia();
+    return primaryMedia?.isImage ? primaryMedia.url : null;
   }
 
   get isPublished(): boolean {

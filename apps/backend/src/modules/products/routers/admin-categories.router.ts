@@ -21,6 +21,13 @@ export const getCategoryTreeSchema = z.object({
   includeInactive: z.boolean().default(false),
 });
 
+export const getFilteredCategoryTreeSchema = z.object({
+  includeInactive: z.boolean().default(false),
+  search: z.string().optional(),
+  isActive: z.boolean().optional(),
+  parentId: z.string().uuid().optional(),
+});
+
 export const getRootCategoriesSchema = z.object({
   includeInactive: z.boolean().default(false),
 });
@@ -33,24 +40,36 @@ export const getCategoryChildrenSchema = z.object({
 export const createCategorySchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
-  slug: z.string().min(1).optional(),
   parentId: z.string().uuid().optional(),
   isActive: z.boolean().default(true),
   sortOrder: z.number().min(0).default(0),
   image: z.string().optional(),
-  seoTitle: z.string().optional(),
-  seoDescription: z.string().optional(),
-  metaKeywords: z.string().optional(),
 });
 
 export const updateCategorySchema = z.object({
   name: z.string().min(1).optional(),
   description: z.string().optional(),
-  slug: z.string().min(1).optional(),
   parentId: z.string().uuid().optional(),
   isActive: z.boolean().optional(),
   sortOrder: z.number().min(0).optional(),
   image: z.string().optional(),
+});
+
+export const createCategoryTranslationSchema = z.object({
+  categoryId: z.string().uuid(),
+  locale: z.string().min(2).max(5),
+  name: z.string().min(1).optional(),
+  description: z.string().optional(),
+  slug: z.string().min(1).optional(),
+  seoTitle: z.string().optional(),
+  seoDescription: z.string().optional(),
+  metaKeywords: z.string().optional(),
+});
+
+export const updateCategoryTranslationSchema = z.object({
+  name: z.string().min(1).optional(),
+  description: z.string().optional(),
+  slug: z.string().min(1).optional(),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
@@ -146,6 +165,28 @@ export class AdminProductCategoriesRouter {
         2,  // OperationCode.READ
         10, // ErrorLevelCode.SERVER_ERROR
         error.message || 'Failed to retrieve category children'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: getFilteredCategoryTreeSchema,
+    output: apiResponseSchema,
+  })
+  async getFilteredTree(
+    @Input() query: z.infer<typeof getFilteredCategoryTreeSchema>
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const { includeInactive, ...filters } = query;
+      const tree = await this.categoryRepository.getFilteredCategoryTree(filters, includeInactive);
+      return this.responseHandler.createTrpcSuccess(tree);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50, // ModuleCode.PRODUCT
+        2,  // OperationCode.READ
+        10, // ErrorLevelCode.SERVER_ERROR
+        error.message || 'Failed to retrieve filtered category tree'
       );
     }
   }
@@ -255,4 +296,175 @@ export class AdminProductCategoriesRouter {
       );
     }
   }
+
+  // Translation endpoints
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({ 
+      categoryId: z.string().uuid(),
+      locale: z.string().min(2).max(5).optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  async getCategoryTranslations(
+    @Input() input: { categoryId: string; locale?: string }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      if (input.locale) {
+        const translation = await this.categoryRepository.findCategoryTranslation(input.categoryId, input.locale);
+        return this.responseHandler.createTrpcSuccess(translation);
+      } else {
+        const translations = await this.categoryRepository.findCategoryTranslations(input.categoryId);
+        return this.responseHandler.createTrpcSuccess(translations);
+      }
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50, // ModuleCode.PRODUCT
+        2,  // OperationCode.READ
+        10, // ErrorLevelCode.SERVER_ERROR
+        error.message || 'Failed to retrieve category translations'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({ 
+      id: z.string().uuid(),
+      locale: z.string().min(2).max(5).optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  async getByIdWithTranslations(
+    @Input() input: { id: string; locale?: string }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const category = await this.categoryRepository.findByIdWithTranslations(input.id, input.locale);
+      if (!category) {
+        throw new Error('Category not found');
+      }
+      return this.responseHandler.createTrpcSuccess(category);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50, // ModuleCode.PRODUCT
+        2,  // OperationCode.READ
+        4,  // ErrorLevelCode.NOT_FOUND
+        error.message || 'Category not found'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({
+      locale: z.string().min(2).max(5).optional(),
+      includeInactive: z.boolean().default(false),
+    }),
+    output: apiResponseSchema,
+  })
+  async getTreeWithTranslations(
+    @Input() input: { locale?: string; includeInactive?: boolean }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const tree = await this.categoryRepository.getTreeWithTranslations(input.locale, input.includeInactive);
+      return this.responseHandler.createTrpcSuccess(tree);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50, // ModuleCode.PRODUCT
+        2,  // OperationCode.READ
+        10, // ErrorLevelCode.SERVER_ERROR
+        error.message || 'Failed to retrieve category tree with translations'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: createCategoryTranslationSchema,
+    output: apiResponseSchema,
+  })
+  async createCategoryTranslation(
+    @Input() input: z.infer<typeof createCategoryTranslationSchema>
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const translation = await this.categoryRepository.createCategoryTranslation({
+        category_id: input.categoryId,
+        locale: input.locale,
+        name: input.name,
+        description: input.description,
+        slug: input.slug,
+        seoTitle: input.seoTitle,
+        seoDescription: input.seoDescription,
+        metaKeywords: input.metaKeywords,
+      });
+      return this.responseHandler.createTrpcSuccess(translation);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50, // ModuleCode.PRODUCT
+        1,  // OperationCode.CREATE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+        error.message || 'Failed to create category translation'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      categoryId: z.string().uuid(),
+      locale: z.string().min(2).max(5),
+    }).merge(updateCategoryTranslationSchema),
+    output: apiResponseSchema,
+  })
+  async updateCategoryTranslation(
+    @Input() input: { categoryId: string; locale: string } & z.infer<typeof updateCategoryTranslationSchema>
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const { categoryId, locale, ...updateData } = input;
+      const translation = await this.categoryRepository.updateCategoryTranslation(categoryId, locale, updateData);
+      
+      if (!translation) {
+        throw this.responseHandler.createTRPCError(
+          50, // ModuleCode.PRODUCT
+          3,  // OperationCode.UPDATE
+          4,  // ErrorLevelCode.NOT_FOUND
+          'Category translation not found'
+        );
+      }
+      
+      return this.responseHandler.createTrpcSuccess(translation);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50, // ModuleCode.PRODUCT
+        3,  // OperationCode.UPDATE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+        error.message || 'Failed to update category translation'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      categoryId: z.string().uuid(),
+      locale: z.string().min(2).max(5),
+    }),
+    output: apiResponseSchema,
+  })
+  async deleteCategoryTranslation(
+    @Input() input: { categoryId: string; locale: string }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      await this.categoryRepository.deleteCategoryTranslation(input.categoryId, input.locale);
+      return this.responseHandler.createTrpcSuccess({ deleted: true });
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50, // ModuleCode.PRODUCT
+        4,  // OperationCode.DELETE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+        error.message || 'Failed to delete category translation'
+      );
+    }
+  }
+
 }

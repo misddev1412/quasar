@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 interface LoadingProps {
   message?: string;
@@ -40,11 +41,13 @@ const getProgressSize = (size: LoadingProps['size']): number => {
 };
 
 export const Loading: React.FC<LoadingProps> = ({ 
-  message = '加载中...',
+  message,
   size = 'medium',
   fullPage = false
 }) => {
+  const { t } = useTranslationWithBackend();
   const progressSize = getProgressSize(size);
+  const displayMessage = message || t('common.loading', 'Loading...');
   
   return (
     <LoadingContainer fullPage={fullPage}>
@@ -52,14 +55,14 @@ export const Loading: React.FC<LoadingProps> = ({
         size={progressSize} 
         color="primary" 
         thickness={4}
-        sx={{ mb: message ? 2 : 0 }}
+        sx={{ mb: displayMessage ? 2 : 0 }}
       />
-      {message && (
+      {displayMessage && (
         <Typography 
           variant={size === 'large' ? 'h6' : 'body2'} 
           color="text.secondary"
         >
-          {message}
+          {displayMessage}
         </Typography>
       )}
     </LoadingContainer>

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from '../entities/category.entity';
+import { CategoryTranslation } from '../entities/category-translation.entity';
 import slugify from 'slugify';
 
 export interface CategoryFilters {
@@ -30,12 +31,12 @@ export interface CategoryFindManyOptions {
 export interface CategoryTreeNode {
   id: string;
   name: string;
-  slug?: string;
   description?: string;
   parentId?: string;
   image?: string;
   isActive: boolean;
   sortOrder: number;
+  level: number;
   createdAt: Date;
   updatedAt: Date;
   productCount?: number;
@@ -47,6 +48,8 @@ export class CategoryRepository {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
+    @InjectRepository(CategoryTranslation)
+    private readonly categoryTranslationRepo: Repository<CategoryTranslation>,
   ) {}
 
   async findAll(options: CategoryQueryOptions = {}) {
@@ -168,10 +171,23 @@ export class CategoryRepository {
     });
   }
 
+  // Note: slug is now handled in translations, use findBySlugWithTranslation instead
   async findBySlug(slug: string): Promise<Category | null> {
-    return this.categoryRepository.findOne({
-      where: { slug },
-    });
+    // This method is deprecated - slug is now in translations
+    // Use findBySlugWithTranslation instead
+    return null;
+  }
+
+  async findBySlugWithTranslation(slug: string, locale?: string): Promise<Category | null> {
+    const queryBuilder = this.categoryRepository.createQueryBuilder('category')
+      .leftJoinAndSelect('category.translations', 'translations')
+      .where('translations.slug = :slug', { slug });
+
+    if (locale) {
+      queryBuilder.andWhere('translations.locale = :locale', { locale });
+    }
+
+    return queryBuilder.getOne();
   }
 
   private generateSlug(text: string, maxLength: number = 100): string {
@@ -246,33 +262,79 @@ export class CategoryRepository {
     }
   }
 
-  async create(categoryData: Partial<Category>): Promise<Category> {
-    // Handle slug generation
-    if (!categoryData.slug && categoryData.name) {
-      const baseSlug = this.generateSlug(categoryData.name);
-      categoryData.slug = await this.generateUniqueSlug(baseSlug);
-    } else if (categoryData.slug) {
-      // Clean the provided slug and ensure it's unique
-      const cleanedSlug = this.generateSlug(categoryData.slug);
-      categoryData.slug = await this.generateUniqueSlug(cleanedSlug);
+  // Helper method to calculate category level based on parent hierarchy
+  private async calculateCategoryLevel(parentId?: string): Promise<number> {
+    if (!parentId) {
+      return 0; // Root level
     }
+    
+    const parent = await this.findById(parentId);
+    if (!parent) {
+      return 0; // If parent not found, treat as root
+    }
+    
+    return parent.level + 1;
+  }
+
+  // Helper method to update levels of all descendant categories
+  private async updateDescendantLevels(categoryId: string): Promise<void> {
+    const children = await this.categoryRepository.find({
+      where: { parentId: categoryId }
+    });
+
+    for (const child of children) {
+      const newLevel = await this.calculateCategoryLevel(child.parentId);
+      if (child.level !== newLevel) {
+        await this.categoryRepository.update(child.id, { level: newLevel });
+        // Recursively update grandchildren and beyond
+        await this.updateDescendantLevels(child.id);
+      }
+    }
+  }
+
+  // Helper method to recalculate all category levels (useful for data integrity)
+  async recalculateAllLevels(): Promise<void> {
+    // Get all categories ordered by level to ensure parents are processed before children
+    const categories = await this.categoryRepository.find({
+      order: { level: 'ASC' }
+    });
+
+    for (const category of categories) {
+      const correctLevel = await this.calculateCategoryLevel(category.parentId);
+      if (category.level !== correctLevel) {
+        await this.categoryRepository.update(category.id, { level: correctLevel });
+      }
+    }
+  }
+
+  async create(categoryData: Partial<Category>): Promise<Category> {
+    // Calculate and set the level based on parent hierarchy
+    categoryData.level = await this.calculateCategoryLevel(categoryData.parentId);
 
     const category = this.categoryRepository.create(categoryData);
     return this.categoryRepository.save(category);
   }
 
   async update(id: string, categoryData: Partial<Category>): Promise<Category | null> {
-    // Handle slug generation/update
-    if (categoryData.name && !categoryData.slug) {
-      const baseSlug = this.generateSlug(categoryData.name);
-      categoryData.slug = await this.generateUniqueSlug(baseSlug, id);
-    } else if (categoryData.slug) {
-      // Clean the provided slug and ensure it's unique
-      const cleanedSlug = this.generateSlug(categoryData.slug);
-      categoryData.slug = await this.generateUniqueSlug(cleanedSlug, id);
+    // Get the existing category to check if parent changed
+    const existingCategory = await this.findById(id);
+    if (!existingCategory) {
+      return null;
+    }
+
+    // Check if parent has changed and recalculate level if needed
+    const parentChanged = 'parentId' in categoryData && categoryData.parentId !== existingCategory.parentId;
+    if (parentChanged) {
+      categoryData.level = await this.calculateCategoryLevel(categoryData.parentId);
     }
 
     await this.categoryRepository.update(id, categoryData);
+    
+    // If parent changed, update levels of all descendants
+    if (parentChanged) {
+      await this.updateDescendantLevels(id);
+    }
+
     return this.findById(id);
   }
 
@@ -283,6 +345,10 @@ export class CategoryRepository {
 
   async getCategoryTree(includeInactive = false): Promise<CategoryTreeNode[]> {
     return this.getTree(includeInactive);
+  }
+
+  async getFilteredCategoryTree(filters: CategoryFilters, includeInactive = false): Promise<CategoryTreeNode[]> {
+    return this.getFilteredTree(filters, includeInactive);
   }
 
   async getTree(includeInactive = false): Promise<CategoryTreeNode[]> {
@@ -307,12 +373,12 @@ export class CategoryRepository {
       const node: CategoryTreeNode = {
         id: category.id,
         name: category.name,
-        slug: category.slug,
         description: category.description,
         parentId: category.parentId,
         image: category.image,
         isActive: category.isActive,
         sortOrder: category.sortOrder,
+        level: category.level,
         createdAt: category.createdAt,
         updatedAt: category.updatedAt,
         productCount: category.productCount,
@@ -323,6 +389,118 @@ export class CategoryRepository {
 
     // Second pass: build the tree
     categories.forEach(category => {
+      const node = categoryMap.get(category.id);
+      if (!node) return;
+
+      if (category.parentId && categoryMap.has(category.parentId)) {
+        const parent = categoryMap.get(category.parentId);
+        if (parent && parent.children) {
+          parent.children.push(node);
+        }
+      } else {
+        rootCategories.push(node);
+      }
+    });
+
+    return rootCategories;
+  }
+
+  async getFilteredTree(filters: CategoryFilters, includeInactive = false): Promise<CategoryTreeNode[]> {
+    const queryBuilder = this.categoryRepository.createQueryBuilder('category')
+      .leftJoinAndSelect('category.products', 'products');
+
+    if (!includeInactive) {
+      queryBuilder.andWhere('category.is_active = :isActive', { isActive: true });
+    }
+
+    // Apply filters
+    if (filters.search) {
+      queryBuilder.andWhere(
+        '(LOWER(category.name) LIKE :search OR LOWER(category.description) LIKE :search)',
+        { search: `%${filters.search.toLowerCase()}%` }
+      );
+    }
+    
+    if (filters.isActive !== undefined) {
+      queryBuilder.andWhere('category.is_active = :filterActive', { filterActive: filters.isActive });
+    }
+
+    if (filters.parentId !== undefined) {
+      if (filters.parentId === null) {
+        queryBuilder.andWhere('category.parent_id IS NULL');
+      } else {
+        queryBuilder.andWhere('category.parent_id = :parentId', { parentId: filters.parentId });
+      }
+    }
+
+    queryBuilder.orderBy('category.sort_order', 'ASC')
+                 .addOrderBy('category.name', 'ASC');
+
+    const categories = await queryBuilder.getMany();
+    
+    // If search is applied, we need to include parent categories for context
+    let allRelevantCategories = [...categories];
+    if (filters.search) {
+      const parentIds = new Set<string>();
+      
+      // Collect all parent IDs from filtered categories
+      const collectParentIds = (categoryId: string) => {
+        categories.forEach(cat => {
+          if (cat.id === categoryId && cat.parentId && !parentIds.has(cat.parentId)) {
+            parentIds.add(cat.parentId);
+            collectParentIds(cat.parentId);
+          }
+        });
+      };
+      
+      categories.forEach(cat => {
+        if (cat.parentId) {
+          collectParentIds(cat.parentId);
+        }
+      });
+      
+      // Fetch parent categories if needed
+      if (parentIds.size > 0) {
+        const parentCategories = await this.categoryRepository
+          .createQueryBuilder('category')
+          .leftJoinAndSelect('category.products', 'products')
+          .whereInIds(Array.from(parentIds))
+          .getMany();
+        
+        // Add parents that aren't already included
+        parentCategories.forEach(parent => {
+          if (!allRelevantCategories.find(c => c.id === parent.id)) {
+            allRelevantCategories.push(parent);
+          }
+        });
+      }
+    }
+    
+    // Build the tree structure
+    const categoryMap = new Map<string, CategoryTreeNode>();
+    const rootCategories: CategoryTreeNode[] = [];
+
+    // First pass: create map of all categories
+    allRelevantCategories.forEach(category => {
+      const node: CategoryTreeNode = {
+        id: category.id,
+        name: category.name,
+        description: category.description,
+        parentId: category.parentId,
+        image: category.image,
+        isActive: category.isActive,
+        sortOrder: category.sortOrder,
+        level: category.level,
+        createdAt: category.createdAt,
+        updatedAt: category.updatedAt,
+        productCount: category.productCount,
+        children: []
+      };
+      categoryMap.set(category.id, node);
+    });
+
+    // Second pass: build the tree
+    allRelevantCategories.forEach(category => {
       const node = categoryMap.get(category.id);
       if (!node) return;
 
@@ -432,5 +610,198 @@ export class CategoryRepository {
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
         .slice(0, 5),
     };
+  }
+
+  // Translation methods
+  async findCategoryTranslations(categoryId: string): Promise<CategoryTranslation[]> {
+    return this.categoryTranslationRepo.find({
+      where: { category_id: categoryId },
+      order: { locale: 'ASC' },
+    });
+  }
+
+  async findCategoryTranslation(categoryId: string, locale: string): Promise<CategoryTranslation | null> {
+    return this.categoryTranslationRepo.findOne({
+      where: { category_id: categoryId, locale },
+    });
+  }
+
+  async createCategoryTranslation(translationData: Partial<CategoryTranslation>): Promise<CategoryTranslation> {
+    const translation = this.categoryTranslationRepo.create(translationData);
+    return this.categoryTranslationRepo.save(translation);
+  }
+
+  async updateCategoryTranslation(
+    categoryId: string, 
+    locale: string, 
+    translationData: Partial<CategoryTranslation>
+  ): Promise<CategoryTranslation | null> {
+    const existingTranslation = await this.findCategoryTranslation(categoryId, locale);
+    
+    if (!existingTranslation) {
+      return null;
+    }
+    
+    Object.assign(existingTranslation, translationData);
+    return this.categoryTranslationRepo.save(existingTranslation);
+  }
+
+  async deleteCategoryTranslation(categoryId: string, locale: string): Promise<boolean> {
+    const result = await this.categoryTranslationRepo.delete({ category_id: categoryId, locale });
+    return result.affected > 0;
+  }
+
+  async findByIdWithTranslations(id: string, locale?: string): Promise<Category | null> {
+    const query = this.categoryRepository.createQueryBuilder('category')
+      .leftJoinAndSelect('category.translations', 'translations')
+      .leftJoinAndSelect('category.products', 'products')
+      .leftJoinAndSelect('category.children', 'children')
+      .leftJoinAndSelect('category.parent', 'parent')
+      .where('category.id = :id', { id });
+
+    if (locale) {
+      query.andWhere('translations.locale = :locale', { locale });
+    }
+
+    return query.getOne();
+  }
+
+  async findManyWithTranslations(options: CategoryFindManyOptions, locale?: string) {
+    const { 
+      page = 1, 
+      limit = 10, 
+      search, 
+      isActive, 
+      parentId,
+      sortBy = 'sortOrder', 
+      sortOrder = 'ASC' 
+    } = options;
+    
+    const queryBuilder = this.categoryRepository.createQueryBuilder('category')
+      .leftJoinAndSelect('category.translations', 'translations')
+      .leftJoinAndSelect('category.products', 'products');
+    
+    if (locale) {
+      queryBuilder.andWhere('(translations.locale = :locale OR translations.locale IS NULL)', { locale });
+    }
+    
+    // Apply filters - now also search in translations
+    if (search) {
+      queryBuilder.andWhere(
+        '(LOWER(category.name) LIKE :search OR LOWER(category.description) LIKE :search OR LOWER(translations.name) LIKE :search OR LOWER(translations.description) LIKE :search)',
+        { search: `%${search.toLowerCase()}%` }
+      );
+    }
+    
+    if (isActive !== undefined) {
+      queryBuilder.andWhere('category.is_active = :isActive', { isActive });
+    }
+
+    if (parentId !== undefined) {
+      if (parentId === null) {
+        queryBuilder.andWhere('category.parent_id IS NULL');
+      } else {
+        queryBuilder.andWhere('category.parent_id = :parentId', { parentId });
+      }
+    }
+    
+    // Apply ordering
+    const orderByMap = {
+      name: 'category.name',
+      createdAt: 'category.createdAt',
+      updatedAt: 'category.updatedAt',
+      sortOrder: 'category.sort_order',
+    };
+    queryBuilder.orderBy(orderByMap[sortBy], sortOrder);
+    
+    // Apply pagination
+    const offset = (page - 1) * limit;
+    queryBuilder.skip(offset).take(limit);
+    
+    const [categories, total] = await queryBuilder.getManyAndCount();
+    
+    return {
+      categories: categories.map(category => ({
+        id: category.id || '',
+        name: category.name || '',
+        description: category.description || null,
+        parentId: category.parentId || null,
+        image: category.image || null,
+        isActive: Boolean(category.isActive),
+        sortOrder: category.sortOrder || 0,
+        level: category.level || 0,
+        productCount: category.productCount || 0,
+        translations: category.translations || [],
+        createdAt: category.createdAt?.toISOString() || new Date().toISOString(),
+        updatedAt: category.updatedAt?.toISOString() || new Date().toISOString(),
+        version: category.version || 1,
+        createdBy: category.createdBy || null,
+        updatedBy: category.updatedBy || null,
+      })),
+      total: total || 0,
+      page: page || 1,
+      limit: limit || 10,
+      totalPages: Math.ceil((total || 0) / (limit || 10)),
+    };
+  }
+
+  async getTreeWithTranslations(locale?: string, includeInactive = false): Promise<CategoryTreeNode[]> {
+    const queryBuilder = this.categoryRepository.createQueryBuilder('category')
+      .leftJoinAndSelect('category.translations', 'translations')
+      .leftJoinAndSelect('category.products', 'products');
+
+    if (locale) {
+      queryBuilder.andWhere('(translations.locale = :locale OR translations.locale IS NULL)', { locale });
+    }
+
+    if (!includeInactive) {
+      queryBuilder.andWhere('category.is_active = :isActive', { isActive: true });
+    }
+
+    queryBuilder.orderBy('category.sort_order', 'ASC')
+                 .addOrderBy('category.name', 'ASC');
+
+    const categories = await queryBuilder.getMany();
+    
+    // Build the tree structure
+    const categoryMap = new Map<string, CategoryTreeNode>();
+    const rootCategories: CategoryTreeNode[] = [];
+
+    // First pass: create map of all categories
+    categories.forEach(category => {
+      const localeTranslation = category.translations?.find(t => t.locale === locale);
+      const node: CategoryTreeNode = {
+        id: category.id,
+        name: localeTranslation?.name || category.name,
+        description: localeTranslation?.description || category.description,
+        parentId: category.parentId,
+        image: category.image,
+        isActive: category.isActive,
+        sortOrder: category.sortOrder,
+        level: category.level,
+        createdAt: category.createdAt,
+        updatedAt: category.updatedAt,
+        productCount: category.productCount,
+        children: []
+      };
+      categoryMap.set(category.id, node);
+    });
+
+    // Second pass: build the tree
+    categories.forEach(category => {
+      const node = categoryMap.get(category.id);
+      if (!node) return;
+
+      if (category.parentId && categoryMap.has(category.parentId)) {
+        const parent = categoryMap.get(category.parentId);
+        if (parent && parent.children) {
+          parent.children.push(node);
+        }
+      } else {
+        rootCategories.push(node);
+      }
+    });
+
+    return rootCategories;
   }
 }

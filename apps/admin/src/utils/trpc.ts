@@ -3,7 +3,7 @@ import {
   createTRPCProxyClient,
   CreateTRPCClientOptions,
 } from '@trpc/react-query';
-import { httpBatchLink, TRPCLink } from '@trpc/client';
+import { httpBatchLink, httpLink, splitLink, TRPCLink } from '@trpc/client';
 import { observable } from '@trpc/server/observable';
 import type { AppRouter } from '../../../backend/src/types/app-router';
 import { appEvents } from '../lib/event-emitter';
@@ -26,12 +26,26 @@ export const trpc = createTRPCReact<AppRouter>();
 export const links: TRPCLink<AppRouter>[] = [
   // Custom error link to handle network errors globally
   errorLink,
-  httpBatchLink({
-    url: `${getBaseUrl()}/trpc`,
-    headers() {
-      const token = getAuthToken();
-      return token ? { Authorization: `Bearer ${token}` } : {};
+  // Split link to use GET for queries and POST for mutations
+  splitLink({
+    condition(op) {
+      // Use batching for mutations only
+      return op.type === 'mutation';
     },
+    true: httpBatchLink({
+      url: `${getBaseUrl()}/trpc`,
+      headers() {
+        const token = getAuthToken();
+        return token ? { Authorization: `Bearer ${token}` } : {};
+      },
+    }),
+    false: httpLink({
+      url: `${getBaseUrl()}/trpc`,
+      headers() {
+        const token = getAuthToken();
+        return token ? { Authorization: `Bearer ${token}` } : {};
+      },
+    }),
   }),
 ];
 

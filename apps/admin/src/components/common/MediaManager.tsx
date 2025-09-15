@@ -19,6 +19,8 @@ import {
   Download,
   FolderOpen,
   Plus,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { trpc } from '../../utils/trpc';
 import { useToast } from '../../context/ToastContext';
@@ -33,7 +35,7 @@ interface MediaFile {
   url: string;
   mimeType: string;
   type: 'image' | 'video' | 'audio' | 'document' | 'other';
-  size: number;
+  size: number | string; // Can be string from API response
   folder: string;
   provider: string;
   alt?: string;
@@ -42,9 +44,9 @@ interface MediaFile {
   userId: string;
   createdAt: string;
   updatedAt: string;
-  sizeFormatted: string;
-  isImage: boolean;
-  isVideo: boolean;
+  sizeFormatted?: string; // Optional since it might not come from API
+  isImage?: boolean; // Optional since it might not come from API
+  isVideo?: boolean; // Optional since it might not come from API
 }
 
 interface MediaResponse {
@@ -119,14 +121,17 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
     data: mediaData,
     isLoading,
     refetch,
+    error,
+    isError,
   } = trpc.adminMedia.getUserMedia.useQuery({
     page,
-    limit: 20,
+    limit: 15,
     search: searchQuery || undefined,
     type: selectedType !== 'all' ? selectedType : undefined,
     sortBy: 'createdAt',
     sortOrder: 'DESC',
   });
+
 
   const deleteMediaMutation = trpc.adminMedia.deleteMedia.useMutation({
     onSuccess: () => {
@@ -194,42 +199,23 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
       return;
     }
 
-    setIsUploading(true);
+    const fileType = getFileType(file);
+    let preview: string | undefined;
 
-    try {
-      const fileType = getFileType(file);
-      let preview: string | undefined;
-
-      if (fileType === 'image' || fileType === 'video') {
-        preview = URL.createObjectURL(file);
-      }
-
-      const url = URL.createObjectURL(file);
-
-      const uploadedFile: UploadedFile = {
-        file,
-        url,
-        preview,
-        type: fileType,
-      };
-
-      setUploadedFiles(prev => [...prev, uploadedFile]);
-      
-      addToast({
-        type: 'success',
-        title: 'File uploaded',
-        description: `${file.name} has been uploaded successfully`,
-      });
-    } catch (error) {
-      console.error('Upload error:', error);
-      addToast({
-        type: 'error',
-        title: 'Upload failed',
-        description: 'An error occurred while uploading the file',
-      });
-    } finally {
-      setIsUploading(false);
+    if (fileType === 'image' || fileType === 'video') {
+      preview = URL.createObjectURL(file);
     }
+
+    const url = URL.createObjectURL(file);
+
+    const uploadedFile: UploadedFile = {
+      file,
+      url,
+      preview,
+      type: fileType,
+    };
+
+    setUploadedFiles(prev => [...prev, uploadedFile]);
   }, [addToast, maxSize, accept]);
 
   // Handle file selection from library
@@ -248,11 +234,10 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
 
   // Handle confirm selection
   const handleConfirmSelection = () => {
-    if (!(mediaData as any)?.data?.data) return;
+    if (!mediaResponse || !media.length) return;
 
-    const mediaResponse = (mediaData as any)?.data?.data as MediaResponse;
-    const selectedMedia = (mediaResponse?.media || []).filter((media: MediaFile) =>
-      selectedMediaIds.includes(media.id)
+    const selectedMedia = media.filter((mediaFile: MediaFile) =>
+      selectedMediaIds.includes(mediaFile.id)
     );
 
     if (selectedMedia.length === 0) {
@@ -291,6 +276,77 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
 
     setUploadedFiles(prev => prev.filter((_, i) => i !== index));
   }, [uploadedFiles]);
+
+  // Upload files to server
+  const handleUploadFiles = useCallback(async () => {
+    if (uploadedFiles.length === 0) return;
+
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+
+      // Add all files to FormData
+      uploadedFiles.forEach(uploadedFile => {
+        formData.append('files', uploadedFile.file);
+      });
+
+      // Add folder parameter
+      formData.append('folder', 'gallery');
+
+      // Get auth token
+      const token = typeof window !== 'undefined' ? localStorage.getItem('admin_access_token') : null;
+
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+
+      // Upload to server using fetch (since tRPC doesn't handle file uploads well)
+      const response = await fetch('http://localhost:3000/api/upload/multiple', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Upload failed');
+      }
+
+      const result = await response.json();
+
+      addToast({
+        type: 'success',
+        title: 'Upload complete',
+        description: `${uploadedFiles.length} file${uploadedFiles.length !== 1 ? 's' : ''} uploaded successfully`,
+      });
+
+      // Clean up preview URLs
+      uploadedFiles.forEach(uploadedFile => {
+        URL.revokeObjectURL(uploadedFile.url);
+        if (uploadedFile.preview) {
+          URL.revokeObjectURL(uploadedFile.preview);
+        }
+      });
+
+      // Clear uploaded files and refetch media list
+      setUploadedFiles([]);
+      await refetch();
+      setActiveTab('library');
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      addToast({
+        type: 'error',
+        title: 'Upload failed',
+        description: error instanceof Error ? error.message : 'An error occurred while uploading files',
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  }, [uploadedFiles, addToast, refetch]);
 
   // Handle delete file
   const handleDeleteFile = (fileId: string) => {
@@ -341,9 +397,31 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
 
   if (!isOpen) return null;
 
-  const mediaResponse = (mediaData as any)?.data?.data as MediaResponse | undefined;
-  const media = mediaResponse?.media || [];
-  const hasMore = mediaResponse && page < mediaResponse.totalPages;
+  // Extract media response from the nested tRPC response structure
+  // The tRPC response is: { result: { data: { data: { media: [...] } } } }
+  let mediaResponse: MediaResponse | undefined;
+  let media: MediaFile[] = [];
+  let hasMore = false;
+
+  if (mediaData) {
+    // Try different possible response structures
+    const possiblePaths = [
+      (mediaData as any)?.result?.data?.data,        // { result: { data: { data: {...} } } }
+      (mediaData as any)?.data?.data,                // { data: { data: {...} } }
+      (mediaData as any)?.result?.data,              // { result: { data: {...} } }
+      (mediaData as any)?.data,                      // { data: {...} }
+      mediaData                                      // Direct response
+    ];
+
+    for (const path of possiblePaths) {
+      if (path && path.media && Array.isArray(path.media)) {
+        mediaResponse = path as MediaResponse;
+        media = path.media || [];
+        hasMore = mediaResponse && page < mediaResponse.totalPages;
+        break;
+      }
+    }
+  }
 
   const modalContent = (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-6">
@@ -522,7 +600,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                   )}
                 </div>
               ) : viewMode === 'grid' ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 p-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 p-4">
                   {media.map((file) => (
                     <div
                       key={file.id}
@@ -569,7 +647,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                         </p>
                         <div className="flex items-center justify-between mt-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {formatFileSize(file.size)}
+                            {formatFileSize(typeof file.size === 'string' ? parseInt(file.size) : file.size)}
                           </p>
                           <div className="flex items-center gap-1">
                             {getMediaTypeIcon(file.type, file.mimeType)}
@@ -662,7 +740,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                           {file.originalName}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {formatFileSize(file.size)} • {file.type} • {new Date(file.createdAt).toLocaleDateString()}
+                          {formatFileSize(typeof file.size === 'string' ? parseInt(file.size) : file.size)} • {file.type} • {new Date(file.createdAt).toLocaleDateString()}
                         </p>
                       </div>
 
@@ -683,15 +761,82 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                 </div>
               )}
 
-              {/* Load more */}
-              {hasMore && (
-                <div className="p-4 text-center">
-                  <button
-                    onClick={() => setPage(prev => prev + 1)}
-                    className="px-4 py-2 text-primary-600 hover:text-primary-700 font-medium"
-                  >
-                    {t('common.load_more')}
-                  </button>
+              {/* Pagination */}
+              {mediaResponse && mediaResponse.totalPages > 1 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Showing {((page - 1) * 15) + 1} to {Math.min(page * 15, mediaResponse.total)} of {mediaResponse.total} files
+                  </div>
+
+                  <div className="flex items-center space-x-1 sm:space-x-2">
+                    {/* Previous button */}
+                    <button
+                      onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                      disabled={page <= 1}
+                      className="flex items-center gap-1 px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      Previous
+                    </button>
+
+                    {/* Page numbers */}
+                    {(() => {
+                      const totalPages = mediaResponse.totalPages;
+                      const currentPage = page;
+                      const pages = [];
+
+                      // Show first page
+                      if (currentPage > 3) {
+                        pages.push(1);
+                        if (currentPage > 4) {
+                          pages.push('...');
+                        }
+                      }
+
+                      // Show pages around current page (fewer on mobile)
+                      const isMobile = window.innerWidth < 640;
+                      const range = isMobile ? 1 : 2;
+                      for (let i = Math.max(1, currentPage - range); i <= Math.min(totalPages, currentPage + range); i++) {
+                        pages.push(i);
+                      }
+
+                      // Show last page
+                      if (currentPage < totalPages - 2) {
+                        if (currentPage < totalPages - 3) {
+                          pages.push('...');
+                        }
+                        pages.push(totalPages);
+                      }
+
+                      return pages.map((pageNum, index) => (
+                        pageNum === '...' ? (
+                          <span key={index} className="px-2 text-gray-400">...</span>
+                        ) : (
+                          <button
+                            key={pageNum}
+                            onClick={() => setPage(pageNum as number)}
+                            className={`px-3 py-1 text-sm font-medium rounded-md ${
+                              pageNum === currentPage
+                                ? 'bg-primary-600 text-white'
+                                : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700'
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        )
+                      ));
+                    })()}
+
+                    {/* Next button */}
+                    <button
+                      onClick={() => setPage(prev => Math.min(mediaResponse.totalPages, prev + 1))}
+                      disabled={page >= mediaResponse.totalPages}
+                      className="flex items-center gap-1 px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700"
+                    >
+                      Next
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -924,14 +1069,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
               <button
                 onClick={() => {
                   if (uploadedFiles.length > 0) {
-                    addToast({
-                      type: 'success',
-                      title: 'Upload complete',
-                      description: `${uploadedFiles.length} file${uploadedFiles.length !== 1 ? 's' : ''} uploaded successfully`,
-                    });
-                    refetch();
-                    setUploadedFiles([]);
-                    setActiveTab('library');
+                    handleUploadFiles();
                   } else {
                     onClose();
                   }
@@ -939,7 +1077,12 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                 disabled={uploadedFiles.length === 0 || isUploading}
                 className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-md hover:shadow-lg disabled:hover:shadow-md flex items-center gap-2"
               >
-                {uploadedFiles.length > 0 ? (
+                {isUploading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Uploading...
+                  </>
+                ) : uploadedFiles.length > 0 ? (
                   <>
                     <Upload className="w-4 h-4" />
                     Complete Upload ({uploadedFiles.length})

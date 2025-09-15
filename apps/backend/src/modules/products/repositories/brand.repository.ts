@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, FindManyOptions } from 'typeorm';
 import { Brand } from '../entities/brand.entity';
+import { BrandTranslation } from '../entities/brand-translation.entity';
 
 export interface BrandFilters {
   search?: string;
@@ -29,6 +30,8 @@ export class BrandRepository {
   constructor(
     @InjectRepository(Brand)
     private readonly brandRepository: Repository<Brand>,
+    @InjectRepository(BrandTranslation)
+    private readonly brandTranslationRepo: Repository<BrandTranslation>,
   ) {}
 
   async findAll(options: BrandQueryOptions = {}) {
@@ -223,6 +226,127 @@ export class BrandRepository {
           createdAt: brand.createdAt.toISOString(),
           updatedAt: brand.updatedAt.toISOString(),
         })),
+    };
+  }
+
+  // Translation methods
+  async findBrandTranslations(brandId: string): Promise<BrandTranslation[]> {
+    return this.brandTranslationRepo.find({
+      where: { brand_id: brandId },
+      order: { locale: 'ASC' },
+    });
+  }
+
+  async findBrandTranslation(brandId: string, locale: string): Promise<BrandTranslation | null> {
+    return this.brandTranslationRepo.findOne({
+      where: { brand_id: brandId, locale },
+    });
+  }
+
+  async createBrandTranslation(translationData: Partial<BrandTranslation>): Promise<BrandTranslation> {
+    const translation = this.brandTranslationRepo.create(translationData);
+    return this.brandTranslationRepo.save(translation);
+  }
+
+  async updateBrandTranslation(
+    brandId: string, 
+    locale: string, 
+    translationData: Partial<BrandTranslation>
+  ): Promise<BrandTranslation | null> {
+    // Find the existing translation first
+    const existingTranslation = await this.findBrandTranslation(brandId, locale);
+    
+    if (!existingTranslation) {
+      return null;
+    }
+    
+    // Update the translation using save() which returns the updated entity
+    Object.assign(existingTranslation, translationData);
+    return this.brandTranslationRepo.save(existingTranslation);
+  }
+
+  async deleteBrandTranslation(brandId: string, locale: string): Promise<boolean> {
+    const result = await this.brandTranslationRepo.delete({ brand_id: brandId, locale });
+    return result.affected > 0;
+  }
+
+  async findByIdWithTranslations(id: string, locale?: string): Promise<Brand | null> {
+    const query = this.brandRepository.createQueryBuilder('brand')
+      .leftJoinAndSelect('brand.translations', 'translations')
+      .leftJoinAndSelect('brand.products', 'products')
+      .where('brand.id = :id', { id });
+
+    if (locale) {
+      query.andWhere('translations.locale = :locale', { locale });
+    }
+
+    return query.getOne();
+  }
+
+  async findManyWithTranslations(options: BrandFindManyOptions, locale?: string) {
+    const { 
+      page = 1, 
+      limit = 10, 
+      search, 
+      isActive, 
+      sortBy = 'createdAt', 
+      sortOrder = 'DESC' 
+    } = options;
+    
+    const queryBuilder = this.brandRepository.createQueryBuilder('brand')
+      .leftJoinAndSelect('brand.translations', 'translations')
+      .leftJoinAndSelect('brand.products', 'products');
+    
+    if (locale) {
+      queryBuilder.andWhere('(translations.locale = :locale OR translations.locale IS NULL)', { locale });
+    }
+    
+    // Apply filters - now also search in translations
+    if (search) {
+      queryBuilder.andWhere(
+        '(LOWER(brand.name) LIKE :search OR LOWER(brand.description) LIKE :search OR LOWER(translations.name) LIKE :search OR LOWER(translations.description) LIKE :search)',
+        { search: `%${search.toLowerCase()}%` }
+      );
+    }
+    
+    if (isActive !== undefined) {
+      queryBuilder.andWhere('brand.is_active = :isActive', { isActive });
+    }
+    
+    // Apply ordering
+    const orderByMap = {
+      name: 'brand.name',
+      createdAt: 'brand.createdAt',
+      updatedAt: 'brand.updatedAt',
+    };
+    queryBuilder.orderBy(orderByMap[sortBy], sortOrder);
+    
+    // Apply pagination
+    const offset = (page - 1) * limit;
+    queryBuilder.skip(offset).take(limit);
+    
+    const [brands, total] = await queryBuilder.getManyAndCount();
+    
+    return {
+      items: brands.map(brand => ({
+        id: brand.id || '',
+        name: brand.name || '',
+        description: brand.description || null,
+        logo: brand.logo || null,
+        website: brand.website || null,
+        isActive: Boolean(brand.isActive),
+        productCount: brand.productCount || 0,
+        translations: brand.translations || [],
+        createdAt: brand.createdAt?.toISOString() || new Date().toISOString(),
+        updatedAt: brand.updatedAt?.toISOString() || new Date().toISOString(),
+        version: brand.version || 1,
+        createdBy: brand.createdBy || null,
+        updatedBy: brand.updatedBy || null,
+      })),
+      total: total || 0,
+      page: page || 1,
+      limit: limit || 10,
+      totalPages: Math.ceil((total || 0) / (limit || 10)),
     };
   }
 }

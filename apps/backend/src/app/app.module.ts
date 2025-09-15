@@ -47,10 +47,10 @@ import { Product } from '../modules/products/entities/product.entity';
 import { ProductTag } from '../modules/products/entities/product-tag.entity';
 import { ProductVariant } from '../modules/products/entities/product-variant.entity';
 import { Warranty } from '../modules/products/entities/warranty.entity';
+import { Attribute } from '../modules/products/entities/attribute.entity';
+import { AttributeValue } from '../modules/products/entities/attribute-value.entity';
+import { ProductAttribute } from '../modules/products/entities/product-attribute.entity';
 import { createErrorFormatter } from '../trpc/error-formatter';
-import { AdminProductsRouter } from '../modules/products/routers/admin.router';
-import { ClientProductsRouter } from '../modules/products/routers/client.router';
-import { PublicProductsRouter } from '../modules/products/routers/public.router';
 import { AppRouterModule } from '../trpc/app-router.module';
 
 @Module({
@@ -91,6 +91,9 @@ import { AppRouterModule } from '../trpc/app-router.module';
           ProductTag,
           ProductVariant,
           Warranty,
+          Attribute,
+          AttributeValue,
+          ProductAttribute,
         ],
         autoLoadEntities: true
       }),
@@ -119,9 +122,6 @@ import { AppRouterModule } from '../trpc/app-router.module';
   providers: [
     AppService,
     AppContext,
-    AdminProductsRouter,
-    ClientProductsRouter,
-    PublicProductsRouter,
   ],
 })
 export class AppModule {}

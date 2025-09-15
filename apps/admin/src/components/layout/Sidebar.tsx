@@ -99,7 +99,7 @@ const Sidebar: React.FC = () => {
 
   const drawer = (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
-      {/* Logo和收缩按钮 */}
+      {/* Logo and collapse button */}
       <Box sx={{ 
         display: 'flex', 
         alignItems: 'center', 
@@ -110,7 +110,7 @@ const Sidebar: React.FC = () => {
       }}>
         <Logo collapsed={sidebarCollapsed} />
         {!sidebarCollapsed && (
-          <Tooltip title="收起侧边栏">
+          <Tooltip title={t('sidebar.collapseSidebar', 'Collapse Sidebar')}>
             <IconButton 
               onClick={toggleSidebar} 
               size="small" 
@@ -137,10 +137,10 @@ const Sidebar: React.FC = () => {
         )}
       </Box>
 
-      {/* 移动展开按钮到Logo下方的单独行 */}
+      {/* Move expand button to separate line below Logo */}
       {sidebarCollapsed && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 1 }}>
-          <Tooltip title="展开侧边栏" placement="right">
+          <Tooltip title={t('sidebar.expandSidebar', 'Expand Sidebar')} placement="right">
             <IconButton
               onClick={toggleSidebar}
               sx={{
@@ -175,10 +175,10 @@ const Sidebar: React.FC = () => {
         onToggleSidebar={toggleSidebar}
       />
       
-      {/* 主题切换按钮 */}
+      {/* Theme toggle button */}
       {sidebarCollapsed ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1, mb: 1 }}>
-          <Tooltip title={isDarkMode ? "切换到亮色模式" : "切换到暗色模式"} placement="right">
+          <Tooltip title={isDarkMode ? t('sidebar.switchToLightMode', 'Switch to Light Mode') : t('sidebar.switchToDarkMode', 'Switch to Dark Mode')} placement="right">
             <IconButton
               onClick={toggleDarkMode}
               sx={{
@@ -212,7 +212,7 @@ const Sidebar: React.FC = () => {
               {isDarkMode ? <LightModeIcon /> : <DarkModeIcon />}
             </ListItemIcon>
             <ListItemText 
-              primary={isDarkMode ? "切换到亮色模式" : "切换到暗色模式"} 
+              primary={isDarkMode ? t('sidebar.switchToLightMode', 'Switch to Light Mode') : t('sidebar.switchToDarkMode', 'Switch to Dark Mode')} 
               primaryTypographyProps={{ fontSize: 14 }}
             />
           </StyledListItemButton>
@@ -221,25 +221,25 @@ const Sidebar: React.FC = () => {
       
       <Divider sx={{ my: 0.5 }} />
 
-      {/* 导航菜单 */}
+      {/* Navigation menu */}
       <Box sx={{ overflow: 'auto', flexGrow: 1, pb: 8 }}>
         {menuGroups.map((group, groupIndex) => (
           <React.Fragment key={groupIndex}>
-            {/* 分组标题 - 在非折叠状态下才显示 */}
+            {/* Group title - only show in expanded state */}
             {!sidebarCollapsed && (
               <Box sx={{ mt: groupIndex === 0 ? 1 : 3, mb: 0.5 }}>
                 <GroupTitle>{group.title}</GroupTitle>
               </Box>
             )}
             
-            {/* 如果是第一个分组且折叠状态，添加一点上边距 */}
+            {/* Add top margin if first group and collapsed */}
             {sidebarCollapsed && groupIndex === 0 && <Box sx={{ mt: 1 }} />}
             
-            {/* 分组中的菜单项 */}
+            {/* Menu items in group */}
             <List sx={{ 
               pt: 0.5, 
               pb: 0.5,
-              // 如果折叠状态且不是第一个分组，添加细分隔线
+              // Add separator line if collapsed and not first group
               ...(sidebarCollapsed && groupIndex > 0 ? {
                 borderTop: theme => `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'}`,
                 pt: 1.5,
@@ -252,14 +252,14 @@ const Sidebar: React.FC = () => {
         ))}
       </Box>
 
-      {/* 用户资料区域 - 使用新的UserInfo组件 */}
+      {/* User profile area - using new UserInfo component */}
       <UserInfo collapsed={sidebarCollapsed} />
     </Box>
   );
 
-  // 已移除快速操作悬浮按钮的渲染函数
+  // Removed quick action floating button render function
 
-  // 根据收缩状态渲染不同宽度的侧边栏
+  // Render different width sidebar based on collapsed state
   return (
     <>
       {sidebarCollapsed ? (

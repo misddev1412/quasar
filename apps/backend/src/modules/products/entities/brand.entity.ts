@@ -2,6 +2,7 @@ import { Entity, Column, OneToMany } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
 import { Product } from './product.entity';
+import { BrandTranslation } from './brand-translation.entity';
 
 @Entity('brands')
 export class Brand extends BaseEntity {
@@ -47,6 +48,12 @@ export class Brand extends BaseEntity {
   // Relations
   @OneToMany(() => Product, (product) => product.brand)
   products?: Product[];
+
+  @OneToMany(() => BrandTranslation, (translation) => translation.brand, {
+    cascade: true,
+    eager: false,
+  })
+  translations: BrandTranslation[];
 
   // Virtual properties
   get productCount(): number {

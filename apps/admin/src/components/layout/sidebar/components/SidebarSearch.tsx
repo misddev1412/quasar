@@ -15,6 +15,7 @@ import { SearchService } from '../../../../domains/search/services/SearchService
 import { ISearchService } from '../../../../domains/search/interfaces/ISearchService';
 import { MenuGroup } from '../../../../domains/navigation/types/MenuItem';
 import { SearchResult } from '../../../../domains/search/types/SearchResult';
+import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
 import {
   Search,
   SearchIconWrapper,
@@ -35,6 +36,7 @@ const SidebarSearch: React.FC<SidebarSearchProps> = ({
   onToggleSidebar,
 }) => {
   const navigate = useNavigate();
+  const { t } = useTranslationWithBackend();
   const searchService: ISearchService = new SearchService();
   
   const [searchValue, setSearchValue] = useState('');
@@ -83,7 +85,7 @@ const SidebarSearch: React.FC<SidebarSearchProps> = ({
       if (searchValue.trim().length > 0) {
         return (
           <Box sx={{ p: 2, textAlign: 'center', color: 'text.secondary' }}>
-            <Typography variant="body2">没有匹配的结果</Typography>
+            <Typography variant="body2">{t('search.noMatchingResults', 'No matching results')}</Typography>
           </Box>
         );
       }
@@ -120,7 +122,7 @@ const SidebarSearch: React.FC<SidebarSearchProps> = ({
   if (collapsed) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1, mb: 1 }}>
-        <Tooltip title="搜索" placement="right">
+        <Tooltip title={t('search.search', 'Search')} placement="right">
           <IconButton
             onClick={handleCollapsedSearchClick}
             sx={{
@@ -151,7 +153,7 @@ const SidebarSearch: React.FC<SidebarSearchProps> = ({
           <SearchIcon fontSize="small" color="action" />
         </SearchIconWrapper>
         <StyledInputBase
-          placeholder="搜索…"
+          placeholder={t('search.searchPlaceholder', 'Search...')}
           inputProps={{ 'aria-label': 'search' }}
           value={searchValue}
           onChange={handleSearch}

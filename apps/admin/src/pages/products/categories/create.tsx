@@ -42,7 +42,10 @@ const CategoryCreatePage: React.FC = () => {
     },
   });
 
-  const handleSubmit = async (formData: CreateCategoryFormData) => {
+  // Translation mutations
+  const createTranslationMutation = trpc.adminProductCategories.createCategoryTranslation.useMutation();
+
+  const handleSubmit = async (formData: CreateCategoryFormData & { additionalTranslations?: any[] }) => {
     try {
       // Transform form data to match API expectations
       const categoryData = {
@@ -58,7 +61,29 @@ const CategoryCreatePage: React.FC = () => {
         metaKeywords: formData.metaKeywords || undefined,
       };
 
-      await createCategoryMutation.mutateAsync(categoryData);
+      const createdCategory = await createCategoryMutation.mutateAsync(categoryData);
+      
+      // Handle additional translations after category creation
+      if (formData.additionalTranslations && formData.additionalTranslations.length > 0 && createdCategory) {
+        const categoryId = (createdCategory as any)?.data?.id;
+        if (categoryId) {
+          try {
+            for (const translation of formData.additionalTranslations) {
+              if (translation && (translation.name || translation.description)) {
+                await createTranslationMutation.mutateAsync({
+                  categoryId,
+                  locale: translation.locale,
+                  name: translation.name,
+                  description: translation.description,
+                });
+              }
+            }
+          } catch (translationError) {
+            console.warn('Failed to create some translations:', translationError);
+            // Don't fail the entire operation for translation errors
+          }
+        }
+      }
     } catch (error) {
       // Error handling is done in the mutation's onError callback
       console.error('Category creation error:', error);

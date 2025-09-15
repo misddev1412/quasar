@@ -493,7 +493,7 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
 
       {/* 创建设置对话框 */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 animate-fadeIn">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9998] flex items-center justify-center p-4 animate-fadeIn">
           <div 
             className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl transform transition-all animate-scaleIn"
             style={{ maxHeight: '90vh', overflowY: 'auto' }}

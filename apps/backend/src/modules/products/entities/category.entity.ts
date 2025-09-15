@@ -2,6 +2,7 @@ import { Entity, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
 import { Product } from './product.entity';
+import { CategoryTranslation } from './category-translation.entity';
 
 @Entity('categories')
 export class Category extends BaseEntity {
@@ -53,12 +54,10 @@ export class Category extends BaseEntity {
 
   @Expose()
   @Column({
-    type: 'varchar',
-    length: 255,
-    unique: true,
-    nullable: true,
+    type: 'int',
+    default: 0,
   })
-  slug?: string;
+  level: number;
 
   // Relations
   @ManyToOne(() => Category, (category) => category.children)
@@ -70,6 +69,12 @@ export class Category extends BaseEntity {
 
   @OneToMany(() => Product, (product) => product.category)
   products?: Product[];
+
+  @OneToMany(() => CategoryTranslation, (translation) => translation.category, {
+    cascade: true,
+    eager: false,
+  })
+  translations: CategoryTranslation[];
 
   // Virtual properties
   get productCount(): number {

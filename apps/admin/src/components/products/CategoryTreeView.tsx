@@ -9,12 +9,15 @@ import {
   FiMoreVertical,
   FiTag,
   FiEye,
-  FiUsers
+  FiUsers,
+  FiSearch,
+  FiFilter
 } from 'react-icons/fi';
 import { Button } from '../common/Button';
 import { Dropdown } from '../common/Dropdown';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { Category } from '../../types/product';
+import { CategoryFilter, CategoryFilterOptions } from './CategoryFilter';
 
 interface CategoryNode extends Category {
   children?: CategoryNode[];
@@ -28,6 +31,11 @@ interface CategoryTreeViewProps {
   expandedNodes?: Set<string>;
   onToggleExpand?: (categoryId: string) => void;
   searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  filters?: CategoryFilterOptions;
+  onFiltersChange?: (filters: CategoryFilterOptions) => void;
+  showFilters?: boolean;
+  onToggleFilters?: () => void;
 }
 
 interface CategoryTreeItemProps {
@@ -40,6 +48,7 @@ interface CategoryTreeItemProps {
   onDelete: (category: CategoryNode) => void;
   onAddChild: (parentCategory: CategoryNode) => void;
   searchValue?: string;
+  isLastInGroup?: boolean;
 }
 
 const CategoryTreeItem: React.FC<CategoryTreeItemProps> = ({
@@ -52,6 +61,7 @@ const CategoryTreeItem: React.FC<CategoryTreeItemProps> = ({
   onDelete,
   onAddChild,
   searchValue,
+  isLastInGroup = false,
 }) => {
   const { t } = useTranslationWithBackend();
   
@@ -82,7 +92,7 @@ const CategoryTreeItem: React.FC<CategoryTreeItemProps> = ({
   };
 
   return (
-    <div className={`${isHighlighted ? 'bg-yellow-50 dark:bg-yellow-900/20 rounded-lg' : ''}`}>
+    <div className={`${isHighlighted ? 'bg-yellow-50 dark:bg-yellow-900/20 rounded-lg' : ''} ${!isLastInGroup || (hasChildren && isExpanded) ? 'border-b border-gray-200 dark:border-gray-700' : ''}`}>
       <div
         className={`
           group flex items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg
@@ -170,11 +180,19 @@ const CategoryTreeItem: React.FC<CategoryTreeItemProps> = ({
                   {category.isActive ? t('common.active', 'Active') : t('common.inactive', 'Inactive')}
                 </span>
 
+                {/* Level Badge */}
+                <span 
+                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400"
+                  title={`${t('categories.level', 'Level')} ${category.level ?? 0} - ${category.level === 0 ? t('categories.rootCategory', 'Root category') : `${category.level} ${t('categories.levelDeep', 'level')}${category.level > 1 ? 's' : ''} ${t('common.deep', 'deep')}`}`}
+                >
+                  L{category.level ?? 0}
+                </span>
+
                 {/* Child Count Badge */}
                 {hasChildren && (
                   <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
                     <FiTag className="w-3 h-3 mr-1" />
-                    {category.children?.length} {category.children?.length === 1 ? 'child' : 'children'}
+                    {category.children?.length} {category.children?.length === 1 ? t('categories.child', 'child') : t('categories.children', 'children')}
                   </span>
                 )}
 
@@ -182,7 +200,7 @@ const CategoryTreeItem: React.FC<CategoryTreeItemProps> = ({
                 {(category.productsCount ?? 0) > 0 && (
                   <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
                     <FiUsers className="w-3 h-3 mr-1" />
-                    {category.productsCount} {category.productsCount === 1 ? 'product' : 'products'}
+                    {category.productsCount} {category.productsCount === 1 ? t('categories.product', 'product') : t('categories.products', 'products')}
                   </span>
                 )}
               </div>
@@ -241,8 +259,8 @@ const CategoryTreeItem: React.FC<CategoryTreeItemProps> = ({
 
       {/* Children */}
       {hasChildren && isExpanded && category.children && (
-        <div className="ml-4 border-l border-gray-200 dark:border-gray-700">
-          {category.children.map((child) => (
+        <div className="ml-4 border-l border-b border-gray-200 dark:border-gray-700">
+          {category.children.map((child, index) => (
             <CategoryTreeItemWrapper
               key={child.id}
               category={child}
@@ -251,6 +269,7 @@ const CategoryTreeItem: React.FC<CategoryTreeItemProps> = ({
               onDelete={onDelete}
               onAddChild={onAddChild}
               searchValue={searchValue}
+              isLastInGroup={index === category.children!.length - 1}
             />
           ))}
         </div>
@@ -286,36 +305,167 @@ export const CategoryTreeView: React.FC<CategoryTreeViewProps> = ({
   onDelete,
   onAddChild,
   searchValue,
+  onSearchChange,
+  filters = {},
+  onFiltersChange,
+  showFilters = false,
+  onToggleFilters,
 }) => {
   const { t } = useTranslationWithBackend();
 
+  // Calculate active filter count
+  const activeFilterCount = React.useMemo(() => {
+    if (!filters) return 0;
+    let count = 0;
+    if (filters.search) count++;
+    if (filters.isActive !== undefined) count++;
+    if (filters.parentId) count++;
+    if (filters.level !== undefined) count++;
+    if (filters.dateFrom) count++;
+    if (filters.dateTo) count++;
+    return count;
+  }, [filters]);
+
+  const handleResetFilters = () => {
+    if (onFiltersChange) {
+      onFiltersChange({});
+    }
+    if (onSearchChange) {
+      onSearchChange('');
+    }
+  };
+
   if (categories.length === 0) {
     return (
-      <div className="text-center py-12">
-        <FiFolder className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
-          {t('categories.noCategories', 'No categories')}
-        </h3>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          {t('categories.noCategoriesDesc', 'Get started by creating your first category.')}
-        </p>
+      <div className="space-y-4">
+        {/* Search and Filter Controls */}
+        {(onSearchChange || onToggleFilters) && (
+          <div className="flex items-center space-x-3">
+            {onSearchChange && (
+              <div className="relative w-full sm:flex-1 sm:max-w-md">
+                <FiSearch
+                  className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-gray-400 pointer-events-none z-10"
+                  style={{ left: '12px' }}
+                />
+                <input
+                  type="text"
+                  placeholder={t('categories.searchPlaceholder', 'Search categories...')}
+                  value={searchValue || ''}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  className="w-full h-10 pl-11 pr-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 text-sm"
+                  aria-label={t('categories.searchLabel', 'Search categories')}
+                />
+              </div>
+            )}
+            
+            {onToggleFilters && (
+              <Button
+                variant={showFilters ? "primary" : "outline"}
+                size="sm"
+                onClick={onToggleFilters}
+                className={`whitespace-nowrap flex-shrink-0 w-auto transition-all duration-200 ${
+                  showFilters
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-md'
+                    : ''
+                }`}
+                aria-label={showFilters ? t('common.hideFilters', 'Hide Filters') : t('common.showFilters', 'Show Filters')}
+              >
+                <FiFilter className={`w-4 h-4 mr-2 ${showFilters ? 'text-white' : ''}`} />
+                {t('common.filter', 'Filter')}
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Filter Panel */}
+        {onFiltersChange && showFilters && (
+          <CategoryFilter
+            filters={filters || {}}
+            onFiltersChange={onFiltersChange}
+            onClearFilters={handleResetFilters}
+            activeFilterCount={activeFilterCount}
+          />
+        )}
+
+        <div className="text-center py-12">
+          <FiFolder className="mx-auto h-12 w-12 text-gray-400" />
+          <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+            {t('categories.noCategories', 'No categories')}
+          </h3>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            {t('categories.noCategoriesDesc', 'Get started by creating your first category.')}
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-2">
-      {categories.map((category) => (
-        <CategoryTreeItemWrapper
-          key={category.id}
-          category={category}
-          level={0}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onAddChild={onAddChild}
-          searchValue={searchValue}
+    <div className="space-y-4">
+      {/* Search and Filter Controls */}
+      {(onSearchChange || onToggleFilters) && (
+        <div className="flex items-center space-x-3">
+          {onSearchChange && (
+            <div className="relative w-full sm:flex-1 sm:max-w-md">
+              <FiSearch
+                className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-gray-400 pointer-events-none z-10"
+                style={{ left: '12px' }}
+              />
+              <input
+                type="text"
+                placeholder={t('categories.searchPlaceholder', 'Search categories...')}
+                value={searchValue || ''}
+                onChange={(e) => onSearchChange(e.target.value)}
+                className="w-full h-10 pl-11 pr-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-400 dark:hover:border-gray-500 text-sm"
+                aria-label={t('categories.searchLabel', 'Search categories')}
+              />
+            </div>
+          )}
+          
+          {onToggleFilters && (
+            <Button
+              variant={showFilters ? "primary" : "outline"}
+              size="sm"
+              onClick={onToggleFilters}
+              className={`whitespace-nowrap flex-shrink-0 w-auto transition-all duration-200 ${
+                showFilters
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-md'
+                  : ''
+              }`}
+              aria-label={showFilters ? t('common.hideFilters', 'Hide Filters') : t('common.showFilters', 'Show Filters')}
+            >
+              <FiFilter className={`w-4 h-4 mr-2 ${showFilters ? 'text-white' : ''}`} />
+              {t('common.filter', 'Filter')}
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Filter Panel */}
+      {onFiltersChange && showFilters && (
+        <CategoryFilter
+          filters={filters || {}}
+          onFiltersChange={onFiltersChange}
+          onClearFilters={handleResetFilters}
+          activeFilterCount={activeFilterCount}
         />
-      ))}
+      )}
+
+      {/* Categories Tree */}
+      <div className="space-y-2">
+        {categories.map((category, index) => (
+          <CategoryTreeItemWrapper
+            key={category.id}
+            category={category}
+            level={0}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onAddChild={onAddChild}
+            searchValue={searchValue}
+            isLastInGroup={index === categories.length - 1}
+          />
+        ))}
+      </div>
     </div>
   );
 };

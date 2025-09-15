@@ -1935,6 +1935,61 @@ export const appRouter = router({
       .query(() => {
         return {} as any;
       }),
+
+    // Brand translation endpoints
+    getBrandTranslations: procedure
+      .input(z.object({ 
+        brandId: z.string().uuid(),
+        locale: z.string().min(2).max(5).optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getByIdWithTranslations: procedure
+      .input(z.object({ 
+        id: z.string().uuid(),
+        locale: z.string().min(2).max(5).optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    createBrandTranslation: procedure
+      .input(z.object({
+        brandId: z.string().uuid(),
+        locale: z.string().min(2).max(5),
+        name: z.string().min(1),
+        description: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    updateBrandTranslation: procedure
+      .input(z.object({
+        brandId: z.string().uuid(),
+        locale: z.string().min(2).max(5),
+        name: z.string().min(1),
+        description: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    deleteBrandTranslation: procedure
+      .input(z.object({
+        brandId: z.string().uuid(),
+        locale: z.string().min(2).max(5),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
   }),
 
   // Standalone Admin Product Categories router
@@ -2036,6 +2091,79 @@ export const appRouter = router({
     getStats: procedure
       .output(apiResponseSchema)
       .query(() => {
+        return {} as any;
+      }),
+
+    // Category translation endpoints
+    getCategoryTranslations: procedure
+      .input(z.object({ 
+        categoryId: z.string().uuid(),
+        locale: z.string().min(2).max(5).optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getByIdWithTranslations: procedure
+      .input(z.object({ 
+        id: z.string().uuid(),
+        locale: z.string().min(2).max(5).optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getTreeWithTranslations: procedure
+      .input(z.object({
+        locale: z.string().min(2).max(5).optional(),
+        includeInactive: z.boolean().default(false),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    createCategoryTranslation: procedure
+      .input(z.object({
+        categoryId: z.string().uuid(),
+        locale: z.string().min(2).max(5),
+        name: z.string().min(1).optional(),
+        description: z.string().optional(),
+        slug: z.string().optional(),
+        seoTitle: z.string().optional(),
+        seoDescription: z.string().optional(),
+        metaKeywords: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    updateCategoryTranslation: procedure
+      .input(z.object({
+        categoryId: z.string().uuid(),
+        locale: z.string().min(2).max(5),
+        name: z.string().min(1).optional(),
+        description: z.string().optional(),
+        slug: z.string().optional(),
+        seoTitle: z.string().optional(),
+        seoDescription: z.string().optional(),
+        metaKeywords: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    deleteCategoryTranslation: procedure
+      .input(z.object({
+        categoryId: z.string().uuid(),
+        locale: z.string().min(2).max(5),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
         return {} as any;
       }),
   }),
@@ -2189,6 +2317,177 @@ export const appRouter = router({
           return {} as any;
         }),
     }),
+  }),
+
+  // Admin Product Attributes router
+  adminProductAttributes: router({
+    getAll: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(10),
+        search: z.string().optional(),
+        type: z.enum(['TEXT', 'NUMBER', 'BOOLEAN', 'SELECT', 'MULTISELECT', 'COLOR', 'DATE']).optional(),
+        isRequired: z.boolean().optional(),
+        isFilterable: z.boolean().optional(),
+        sortBy: z.enum(['name', 'displayName', 'createdAt', 'updatedAt', 'sortOrder']).default('sortOrder'),
+        sortOrder: z.enum(['ASC', 'DESC']).default('ASC'),
+      }).optional())
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getById: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getSelectAttributes: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getFilterableAttributes: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    create: procedure
+      .input(z.object({
+        name: z.string().min(1),
+        displayName: z.string().optional(),
+        type: z.enum(['TEXT', 'NUMBER', 'BOOLEAN', 'SELECT', 'MULTISELECT', 'COLOR', 'DATE']),
+        isRequired: z.boolean().default(false),
+        isFilterable: z.boolean().default(false),
+        sortOrder: z.number().min(0).default(0),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    update: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        name: z.string().min(1).optional(),
+        displayName: z.string().optional(),
+        type: z.enum(['TEXT', 'NUMBER', 'BOOLEAN', 'SELECT', 'MULTISELECT', 'COLOR', 'DATE']).optional(),
+        isRequired: z.boolean().optional(),
+        isFilterable: z.boolean().optional(),
+        sortOrder: z.number().min(0).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    delete: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    getAttributeValues: procedure
+      .input(z.object({ attributeId: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    createAttributeValue: procedure
+      .input(z.object({
+        attributeId: z.string().uuid(),
+        value: z.string().min(1),
+        displayValue: z.string().optional(),
+        sortOrder: z.number().min(0).default(0),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    updateAttributeValue: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        value: z.string().min(1).optional(),
+        displayValue: z.string().optional(),
+        sortOrder: z.number().min(0).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    deleteAttributeValue: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    getStats: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    // Translation endpoints
+    getAttributeTranslations: procedure
+      .input(z.object({ 
+        attributeId: z.string().uuid(),
+        locale: z.string().min(2).max(5).optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    getByIdWithTranslations: procedure
+      .input(z.object({ 
+        id: z.string().uuid(),
+        locale: z.string().min(2).max(5).optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+
+    createAttributeTranslation: procedure
+      .input(z.object({
+        attributeId: z.string().uuid(),
+        locale: z.string().min(2).max(5),
+        displayName: z.string().min(1),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    updateAttributeTranslation: procedure
+      .input(z.object({
+        attributeId: z.string().uuid(),
+        locale: z.string().min(2).max(5),
+        displayName: z.string().min(1),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
+
+    deleteAttributeTranslation: procedure
+      .input(z.object({
+        attributeId: z.string().uuid(),
+        locale: z.string().min(2).max(5),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as any;
+      }),
   }),
 
   // Public Auth router - no authentication required

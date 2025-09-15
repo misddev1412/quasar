@@ -1,6 +1,14 @@
+export { Attribute, AttributeType } from './attribute.entity';
+export { AttributeTranslation } from './attribute-translation.entity';
+export { AttributeValue } from './attribute-value.entity';
 export { Brand } from './brand.entity';
+export { BrandTranslation } from './brand-translation.entity';
 export { Category } from './category.entity';
+export { CategoryTranslation } from './category-translation.entity';
 export { Product, ProductStatus } from './product.entity';
+export { ProductAttribute } from './product-attribute.entity';
+export { ProductMedia, MediaType } from './product-media.entity';
 export { ProductTag } from './product-tag.entity';
 export { ProductVariant } from './product-variant.entity';
+export { ProductVariantItem } from './product-variant-item.entity';
 export { Warranty, WarrantyType } from './warranty.entity';

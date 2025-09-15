@@ -24,6 +24,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import BrandingWatermarkIcon from '@mui/icons-material/BrandingWatermark';
 import BusinessIcon from '@mui/icons-material/Business';
+import TuneIcon from '@mui/icons-material/Tune';
 
 export class NavigationService implements INavigationService {
   constructor(private translate: (key: string, fallback?: string) => string) {}
@@ -105,33 +106,36 @@ export class NavigationService implements INavigationService {
                 path: '/posts/tags'
               }
             ]
+          }
+        ]
+      },
+      {
+        title: t('products.management', 'Product Management'),
+        items: [
+          {
+            icon: React.createElement(ViewListIcon),
+            label: t('products.title', 'Products'),
+            path: '/products'
           },
           {
-            icon: React.createElement(InventoryIcon),
-            label: t('products.title', 'Product Management'),
-            path: '/products-management',
-            subItems: [
-              {
-                icon: React.createElement(ViewListIcon),
-                label: t('products.title', 'Products'),
-                path: '/products'
-              },
-              {
-                icon: React.createElement(BrandingWatermarkIcon),
-                label: t('brands.title', 'Brands'),
-                path: '/products/brands'
-              },
-              {
-                icon: React.createElement(CategoryIcon),
-                label: t('categories.title', 'Categories'),
-                path: '/products/categories'
-              },
-              {
-                icon: React.createElement(BusinessIcon),
-                label: t('suppliers.title', 'Suppliers'),
-                path: '/products/suppliers'
-              }
-            ]
+            icon: React.createElement(BrandingWatermarkIcon),
+            label: t('brands.title', 'Brands'),
+            path: '/products/brands'
+          },
+          {
+            icon: React.createElement(CategoryIcon),
+            label: t('categories.title', 'Categories'),
+            path: '/products/categories'
+          },
+          {
+            icon: React.createElement(TuneIcon),
+            label: t('attributes.title', 'Attributes'),
+            path: '/products/attributes'
+          },
+          {
+            icon: React.createElement(BusinessIcon),
+            label: t('suppliers.title', 'Suppliers'),
+            path: '/products/suppliers'
           }
         ]
       },

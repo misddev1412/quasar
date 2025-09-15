@@ -1,13 +1,14 @@
 import { styled, alpha } from '@mui/material/styles';
-import { 
-  Drawer, 
-  ListItemButton, 
-  Badge, 
-  Typography, 
-  IconButton, 
-  InputBase, 
-  MenuItem 
+import {
+  Drawer,
+  ListItemButton,
+  Badge,
+  Typography,
+  IconButton,
+  InputBase,
+  MenuItem
 } from '@mui/material';
+import { Z_INDEX } from '../../../../utils/zIndex';
 
 export const StyledDrawer = styled(Drawer)(({ theme }) => ({
   width: 250,
@@ -16,6 +17,7 @@ export const StyledDrawer = styled(Drawer)(({ theme }) => ({
   boxSizing: 'border-box',
   '& .MuiDrawer-paper': {
     width: 250,
+    zIndex: Z_INDEX.SIDEBAR, // Lower than main content and modals
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -33,6 +35,7 @@ export const StyledMiniDrawer = styled(Drawer)(({ theme }) => ({
   boxSizing: 'border-box',
   '& .MuiDrawer-paper': {
     width: 70,
+    zIndex: Z_INDEX.SIDEBAR, // Lower than main content and modals
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,

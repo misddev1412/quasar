@@ -22,6 +22,7 @@ export interface Category {
   image?: string;
   isActive: boolean;
   sortOrder: number;
+  level: number;
   products?: Product[];
   productsCount?: number;
   createdAt: Date;
@@ -63,6 +64,25 @@ export interface ProductTag {
   updatedAt: Date;
 }
 
+export interface ProductMedia {
+  id: string;
+  productId: string;
+  type: 'image' | 'video' | 'audio' | 'document' | 'other';
+  url: string;
+  altText?: string;
+  caption?: string;
+  sortOrder: number;
+  fileSize?: number;
+  mimeType?: string;
+  width?: number;
+  height?: number;
+  duration?: number;
+  thumbnailUrl?: string;
+  isPrimary: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Warranty {
   id: string;
   name: string;
@@ -89,6 +109,7 @@ export interface Product {
   warrantyId?: string;
   warranty?: Warranty;
   images?: string[];
+  media?: ProductMedia[];
   variants?: ProductVariant[];
   attributes?: ProductAttribute[];
   tags?: ProductTag[] | string[];
@@ -101,6 +122,18 @@ export interface Product {
   isFeatured: boolean;
   sortOrder: number;
   viewCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ProductVariantItem {
+  id: string;
+  productVariantId: string;
+  attributeId: string;
+  attributeValueId: string;
+  sortOrder: number;
+  attribute?: Attribute;
+  attributeValue?: AttributeValue;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -125,6 +158,7 @@ export interface ProductVariant {
   attributes?: Record<string, any>;
   isActive: boolean;
   sortOrder: number;
+  variantItems?: ProductVariantItem[];
   inventoryTransactions?: InventoryTransaction[];
   createdAt: Date;
   updatedAt: Date;
@@ -248,6 +282,7 @@ export interface CreateProductFormData {
   categoryId?: string;
   warrantyId?: string;
   images?: string[];
+  media?: ProductMedia[];
   tags?: string[];
   metaTitle?: string;
   metaDescription?: string;

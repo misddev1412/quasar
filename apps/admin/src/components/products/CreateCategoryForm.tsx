@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FolderPlus, Globe, Search, Image, Settings } from 'lucide-react';
 import { EntityForm } from '../common/EntityForm';
+import { CategoryTranslationsSection, CategoryTranslationData } from './CategoryTranslationsSection';
 import { FormTabConfig } from '../../types/forms';
 import { CreateCategoryFormData } from '../../types/product';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { useLanguageOptions } from '../../hooks/useLanguages';
 import { trpc } from '../../utils/trpc';
 import { z } from 'zod';
 
@@ -18,10 +20,16 @@ const createCategorySchema = z.object({
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
+  languageCode: z.string().min(1, 'Language is required'),
+  additionalTranslations: z.array(z.object({
+    locale: z.string().min(2).max(5),
+    name: z.string().min(1, 'Name is required'),
+    description: z.string().optional(),
+  })).optional(),
 });
 
 interface CreateCategoryFormProps {
-  onSubmit: (data: CreateCategoryFormData) => Promise<void>;
+  onSubmit: (data: CreateCategoryFormData & { additionalTranslations?: CategoryTranslationData[] }) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
   activeTab?: number;
@@ -38,6 +46,13 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
   defaultParentId,
 }) => {
   const { t } = useTranslationWithBackend();
+  const { languageOptions, isLoading: languagesLoading } = useLanguageOptions();
+  
+  // State for managing translations
+  const [additionalTranslations, setAdditionalTranslations] = useState<CategoryTranslationData[]>([]);
+  
+  // Get primary language (default to first available language)
+  const primaryLanguage = languageOptions.length > 0 ? languageOptions[0].value : 'en';
 
   const { data: categoriesData } = trpc.adminProductCategories.getTree.useQuery({
     includeInactive: false,
@@ -122,6 +137,15 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
               options: categoryOptions,
             }]),
             {
+              name: 'languageCode',
+              label: t('categories.primary_language', 'Primary Language'),
+              type: 'select' as const,
+              placeholder: t('categories.select_language', 'Select language'),
+              required: true,
+              options: languageOptions,
+              description: t('categories.primary_language_description', 'The main language for this category'),
+            },
+            {
               name: 'sortOrder',
               label: t('categories.sort_order', 'Sort Order'),
               type: 'number',
@@ -160,16 +184,30 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
       icon: <Globe className="w-4 h-4" />,
       sections: [
         {
-          title: t('categories.translations_coming_soon', 'Translations Coming Soon'),
-          description: t('categories.translations_description', 'Multi-language support for categories will be available in a future update.'),
-          icon: <Globe className="w-5 h-5 text-gray-400" />,
-          fields: [],
+          title: t('categories.translations', 'Category Translations'),
+          description: t('categories.translations_description', 'Manage category translations in different languages.'),
+          icon: <Globe className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
+          fields: [
+            {
+              name: 'additionalTranslations',
+              label: '',
+              type: 'custom',
+              required: false,
+              component: (
+                <CategoryTranslationsSection
+                  translations={additionalTranslations}
+                  onTranslationsChange={setAdditionalTranslations}
+                  primaryLanguage={primaryLanguage}
+                />
+              ),
+            },
+          ],
         },
       ],
     },
     {
       id: 'seo',
-      label: t('admin.seo', 'SEO'),
+      label: t('admin.seo',   'SEO'),
       icon: <Search className="w-4 h-4" />,
       sections: [
         {
@@ -214,7 +252,7 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
     },
   ];
 
-  const defaultValues: Partial<CreateCategoryFormData> = {
+  const defaultValues: Partial<CreateCategoryFormData & { languageCode: string; additionalTranslations: CategoryTranslationData[] }> = {
     name: '',
     slug: '',
     description: '',
@@ -225,13 +263,23 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
     seoTitle: '',
     seoDescription: '',
     metaKeywords: '',
+    languageCode: primaryLanguage,
+    additionalTranslations: [],
+  };
+
+  const handleSubmit = async (data: CreateCategoryFormData & { languageCode: string; additionalTranslations?: CategoryTranslationData[] }) => {
+    const formDataWithTranslations = {
+      ...data,
+      additionalTranslations: additionalTranslations,
+    };
+    await onSubmit(formDataWithTranslations);
   };
 
   return (
-    <EntityForm<CreateCategoryFormData>
+    <EntityForm<CreateCategoryFormData & { languageCode: string; additionalTranslations?: CategoryTranslationData[] }>
       tabs={tabs}
       initialValues={defaultValues}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       onCancel={onCancel}
       isSubmitting={isSubmitting}
       validationSchema={createCategorySchema as any}

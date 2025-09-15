@@ -15,6 +15,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useNavigate } from 'react-router-dom';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { Z_INDEX } from '../../utils/zIndex';
 
 // 快速操作按钮容器
 const QuickActionsFab = styled('div')({
@@ -24,7 +25,7 @@ const QuickActionsFab = styled('div')({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'flex-end',
-  zIndex: 1200
+  zIndex: Z_INDEX.FLOATING_BUTTONS
 });
 
 // 返回顶部按钮容器
@@ -32,7 +33,7 @@ const BackToTopButton = styled('div')({
   position: 'fixed',
   bottom: '100px',
   right: '30px',
-  zIndex: 1200
+  zIndex: Z_INDEX.FLOATING_BUTTONS
 });
 
 // 速度拨号样式
@@ -170,11 +171,14 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         {type === 'vertical' && <Sidebar />}
 
         {/* 主内容区域 */}
-        <div className={`
-          flex flex-col flex-grow w-full overflow-hidden
-          ${type === 'vertical' ? 'border-l' : ''}
-          ${isDarkMode ? 'border-gray-800' : 'border-gray-200'}
-        `}>
+        <div
+          className={`
+            flex flex-col flex-grow w-full overflow-hidden relative
+            ${type === 'vertical' ? 'border-l' : ''}
+            ${isDarkMode ? 'border-gray-800' : 'border-gray-200'}
+          `}
+          style={{ zIndex: Z_INDEX.MAIN_CONTENT }}
+        >
           {/* 水平布局的顶部导航 */}
           {type === 'horizontal' && <HorizontalNav />}
 

@@ -35,10 +35,13 @@ import CreateFirebaseConfigPage from '../pages/firebase-configs/create';
 import EditFirebaseConfigPage from '../pages/firebase-configs/[id]';
 // Product Management
 import ProductsIndexPage from '../pages/products';
+import AttributesPage from '../pages/products/attributes';
 import BrandsPage from '../pages/products/brands';
 import CategoriesPage from '../pages/products/categories';
 import EditCategoryPage from '../pages/products/categories/edit';
 import CategoryCreatePage from '../pages/products/categories/create';
+import CreateProductPage from '../pages/products/create';
+import EditProductPage from '../pages/products/[id]/edit';
 import DateInputTest from '../pages/test/DateInputTest';
 import { PhoneInputTest } from '../components/test/PhoneInputTest';
 import AppLayout from '../components/layout/AppLayout';
@@ -106,6 +109,9 @@ const AppRoutes: React.FC = () => {
       <Route path="/firebase-configs/:id" element={<ProtectedRoute><EditFirebaseConfigPage /></ProtectedRoute>} />
       {/* Product Management */}
       <Route path="/products" element={<ProtectedRoute><ProductsIndexPage /></ProtectedRoute>} />
+      <Route path="/products/create" element={<ProtectedRoute><CreateProductPage /></ProtectedRoute>} />
+      <Route path="/products/:id/edit" element={<ProtectedRoute><EditProductPage /></ProtectedRoute>} />
+      <Route path="/products/attributes" element={<ProtectedRoute><AttributesPage /></ProtectedRoute>} />
       <Route path="/products/brands" element={<ProtectedRoute><BrandsPage /></ProtectedRoute>} />
       <Route path="/products/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
       <Route path="/products/categories/create" element={<ProtectedRoute><CategoryCreatePage /></ProtectedRoute>} />

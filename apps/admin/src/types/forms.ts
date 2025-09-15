@@ -1,11 +1,12 @@
 import { ReactNode } from 'react';
+import { MediaType } from '../components/common/ProductMediaUpload';
 import { FieldValues } from 'react-hook-form';
 
 // Generic form field configuration
 export interface FormFieldConfig {
   name: string;
   label: string;
-  type: 'text' | 'email' | 'password' | 'password-simple' | 'select' | 'textarea' | 'checkbox' | 'tel' | 'phone' | 'number' | 'richtext' | 'role-multiselect' | 'custom' | 'tags' | 'file-types' | 'media-upload' | 'image-gallery' | 'slug';
+  type: 'text' | 'email' | 'password' | 'password-simple' | 'select' | 'textarea' | 'checkbox' | 'tel' | 'phone' | 'number' | 'richtext' | 'role-multiselect' | 'custom' | 'tags' | 'file-types' | 'media-upload' | 'image-gallery' | 'product-media' | 'slug';
   placeholder?: string;
   required?: boolean;
   options?: Array<{ value: string; label: string; disabled?: boolean }>;
@@ -34,6 +35,9 @@ export interface FormFieldConfig {
   multiple?: boolean; // allow multiple files
   // Image gallery specific options
   maxImages?: number; // maximum number of images for gallery
+  // Product media specific options
+  maxItems?: number; // maximum number of media items
+  allowedTypes?: MediaType[]; // allowed media types
   // Slug field specific options
   sourceField?: string; // field name to generate slug from
 }
@@ -44,6 +48,7 @@ export interface FormSectionConfig {
   description?: string;
   fields: FormFieldConfig[];
   icon?: ReactNode;
+  customContent?: ReactNode;
 }
 
 // Tab configuration for tabbed forms
