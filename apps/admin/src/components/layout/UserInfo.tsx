@@ -24,14 +24,18 @@ interface UserInfoProps {
   collapsed?: boolean;
 }
 
-const UserInfoContainer = styled(Box)<{ collapsed?: boolean }>(({ theme, collapsed }) => ({
+const UserInfoContainer = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'collapsed'
+})<{ collapsed?: boolean }>(({ theme, collapsed }) => ({
   marginTop: theme.spacing(2),
   borderTop: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200]}`,
   backgroundColor: theme.palette.mode === 'dark' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.8)',
   backdropFilter: 'blur(5px)',
 }));
 
-const UserInfoContent = styled(Box)<{ collapsed?: boolean }>(({ theme, collapsed }) => ({
+const UserInfoContent = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'collapsed'
+})<{ collapsed?: boolean }>(({ theme, collapsed }) => ({
   display: 'flex',
   alignItems: 'center',
   padding: theme.spacing(2),

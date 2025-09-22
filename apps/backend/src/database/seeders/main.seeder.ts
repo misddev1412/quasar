@@ -13,6 +13,8 @@ import { SeoSeeder } from './seo.seeder';
 import { AdminSeeder } from './admin.seeder';
 import { SettingsSeeder } from './settings.seeder';
 import { UserActivitySeeder } from './user-activity.seeder';
+import { CountriesSeeder } from './countries.seeder';
+import { AdministrativeDivisionsSeeder } from './administrative-divisions.seeder';
 import databaseConfig from '../../config/database.config';
 
 @Module({
@@ -38,8 +40,12 @@ export async function bootstrap() {
     const adminSeeder = app.get(AdminSeeder);
     const settingsSeeder = app.get(SettingsSeeder);
     const userActivitySeeder = app.get(UserActivitySeeder);
+    const countriesSeeder = app.get(CountriesSeeder);
+    const administrativeDivisionsSeeder = app.get(AdministrativeDivisionsSeeder);
 
-    // Run seeders in order (permissions and admin first, then user activities)
+    // Run seeders in order (countries first, then administrative divisions, then permissions and admin, then user activities)
+    await countriesSeeder.seed();
+    await administrativeDivisionsSeeder.seed();
     await permissionSeeder.seed();
     await seoSeeder.seed();
     await adminSeeder.seed();

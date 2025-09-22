@@ -26,6 +26,7 @@
       "@backend/modules/*": ["apps/backend/src/modules/*"],
       "@backend/trpc/*": ["apps/backend/src/trpc/*"],
       "@backend/config/*": ["apps/backend/src/config/*"],
+      "@backend/@generated/*": ["apps/backend/src/@generated/*"],
       "@admin/components/*": ["apps/admin/src/components/*"],
       "@admin/assets/*": ["apps/admin/src/assets/*"],
       "@admin/contexts/*": ["apps/admin/src/contexts/*"],

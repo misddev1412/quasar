@@ -77,7 +77,7 @@ const productSchema = z.object({
   sku: z.string().optional(),
   status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE', 'DISCONTINUED']),
   brandId: z.string().optional(),
-  categoryId: z.string().optional(),
+  categoryIds: z.array(z.string()).optional(),
   warrantyId: z.string().optional(),
   media: z.any().optional(), // Simplified validation for media
   tags: z.array(z.string()).optional(),
@@ -103,7 +103,7 @@ export interface BackendVariant {
   allowBackorders: boolean;
   weight?: number;
   dimensions?: string;
-  images?: string[];
+  image?: string;
   isActive: boolean;
   sortOrder: number;
   variantItems: Array<{
@@ -118,7 +118,7 @@ export interface ProductFormData {
   sku?: string;
   status: 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'DISCONTINUED';
   brandId?: string;
-  categoryId?: string;
+  categoryIds?: string[];
   warrantyId?: string;
   media?: MediaItem[]; // Use MediaItem for frontend form
   tags?: string[];
@@ -174,9 +174,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         id: v.id,
         attributeCombination,
         combinationDisplay,
-        price: v.price || 0,
-        quantity: v.stockQuantity || 0,
+        price: typeof v.price === 'string' ? parseFloat(v.price) || 0 : (v.price || 0),
+        quantity: typeof v.stockQuantity === 'string' ? parseInt(v.stockQuantity) || 0 : (v.stockQuantity || 0),
         sku: v.sku,
+        image: v.image,
         isEnabled: v.isActive,
       };
     });
@@ -188,8 +189,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   });
   const categories = (categoriesData as any)?.data || [];
 
-  const { data: brandsData } = trpc.adminProductBrands.getAll.useQuery();
-  const brands = (brandsData as any)?.data || [];
+  const { data: brandsData } = trpc.adminProductBrands.getAll.useQuery({});
+  const brands = Array.isArray((brandsData as any)?.data?.data) ? (brandsData as any).data.data : [];
 
   const renderCategoryOptions = (categories: any[], level = 0): { value: string; label: string }[] => {
     const result: { value: string; label: string }[] = [];
@@ -285,12 +286,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           icon: <Layers className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
           fields: [
             {
-              name: 'categoryId',
-              label: t('products.category', 'Category'),
-              type: 'select',
-              placeholder: t('products.select_category', 'Select category'),
+              name: 'categoryIds',
+              label: t('products.categories', 'Categories'),
+              type: 'category-multiselect',
+              placeholder: t('products.select_categories', 'Select categories'),
               required: false,
-              options: categoryOptions,
+              description: t('products.categories_description', 'Select one or more categories for this product'),
+              maxItems: 5,
             },
             {
               name: 'brandId',
@@ -417,7 +419,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     sku: product?.sku || '',
     status: product?.status || 'DRAFT',
     brandId: product?.brandId || '',
-    categoryId: product?.categoryId || '',
+    categoryIds: product?.categoryIds || [],
     warrantyId: product?.warrantyId || '',
     media: (() => {
       // Check both media and __media__ fields (backend may use __media__ due to TypeORM lazy loading)
@@ -441,8 +443,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   };
 
   const handleSubmit = async (data: ProductFormData) => {
-    console.log('🚀 [ProductForm] handleSubmit called with data:', data);
-    console.log('🚀 [ProductForm] variants:', variants);
     try {
       // Transform variants from VariantMatrixItem to backend format only if there are variants
       let submitData: any = {
@@ -453,32 +453,33 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
       // Only include variants if there are any to avoid validation issues
       if (variants && variants.length > 0) {
-        const transformedVariants = variants.map((variant, index) => ({
-          id: variant.id,
-          name: variant.combinationDisplay || `Variant ${index + 1}`,
-          sku: variant.sku || null,
-          barcode: null,
-          price: Number(variant.price) || 0,
-          compareAtPrice: null,
-          costPrice: null,
-          stockQuantity: Number(variant.quantity) || 0,
-          lowStockThreshold: null,
-          trackInventory: true,
-          allowBackorders: false,
-          weight: null,
-          dimensions: null,
-          images: [],
-          isActive: Boolean(variant.isEnabled),
-          sortOrder: index,
-          variantItems: Object.entries(variant.attributeCombination || {}).map(([attributeId, attributeValueId]) => ({
-            attributeId,
-            attributeValueId,
-          })),
-        }));
+        const transformedVariants = variants.map((variant, index) => {
+          return {
+            id: variant.id,
+            name: variant.combinationDisplay || `Variant ${index + 1}`,
+            sku: variant.sku || null,
+            barcode: null,
+            price: Number(variant.price) || 0,
+            compareAtPrice: null,
+            costPrice: null,
+            stockQuantity: Number(variant.quantity) || 0,
+            lowStockThreshold: null,
+            trackInventory: true,
+            allowBackorders: false,
+            weight: null,
+            dimensions: null,
+            image: variant.image || null,
+            isActive: Boolean(variant.isEnabled),
+            sortOrder: index,
+            variantItems: Object.entries(variant.attributeCombination || {}).map(([attributeId, attributeValueId]) => ({
+              attributeId,
+              attributeValueId,
+            })),
+          };
+        });
 
         submitData.variants = transformedVariants;
       }
-      console.log('🚀 [ProductForm] Final submit data:', submitData);
       await onSubmit(submitData);
     } catch (error) {
       console.error('❌ Product form submission error:', error);

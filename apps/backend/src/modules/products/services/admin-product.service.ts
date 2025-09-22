@@ -13,7 +13,7 @@ export interface AdminProductFilters {
   limit: number;
   search?: string;
   brandId?: string;
-  categoryId?: string;
+  categoryIds?: string[];
   status?: ProductStatus;
   isActive?: boolean;
   isFeatured?: boolean;
@@ -56,11 +56,11 @@ export class AdminProductService {
       const result = await this.productRepository.findAll({
         page: filters.page,
         limit: filters.limit,
-        relations: ['media', 'variants', 'variants.variantItems', 'variants.variantItems.attribute', 'variants.variantItems.attributeValue', 'brand', 'category'], // Load same relations as detail endpoint
+        relations: ['media', 'variants', 'variants.variantItems', 'variants.variantItems.attribute', 'variants.variantItems.attributeValue', 'brand', 'productCategories', 'productCategories.category'], // Load same relations as detail endpoint
         filters: {
           search: filters.search,
           brandId: filters.brandId,
-          categoryId: filters.categoryId,
+          categoryIds: filters.categoryIds,
           status: filters.status,
           isActive: filters.isActive,
           isFeatured: filters.isFeatured,
@@ -96,20 +96,11 @@ export class AdminProductService {
     }
   }
 
-  async getProductById(id: string, relations: string[] = ['media', 'variants', 'variants.variantItems', 'variants.variantItems.attribute', 'variants.variantItems.attributeValue', 'brand', 'category']): Promise<TransformedProduct> {
-    console.log('🔍 DEBUG SERVICE - Getting product by ID:', id);
-    console.log('🔍 DEBUG SERVICE - Requested relations:', relations);
-
+  async getProductById(id: string, relations: string[] = ['media', 'variants', 'variants.variantItems', 'variants.variantItems.attribute', 'variants.variantItems.attributeValue', 'brand', 'productCategories', 'productCategories.category']): Promise<TransformedProduct> {
     const product = await this.productRepository.findById(id, relations);
     if (!product) {
       throw new NotFoundException('Product not found');
     }
-
-    console.log('🔍 DEBUG SERVICE - Product found:', product.id);
-    console.log('🔍 DEBUG SERVICE - Product media property:', (product as any).media);
-    console.log('🔍 DEBUG SERVICE - Product media type:', typeof (product as any).media);
-    console.log('🔍 DEBUG SERVICE - Product variants property:', (product as any).variants);
-    console.log('🔍 DEBUG SERVICE - Product variants type:', typeof (product as any).variants);
 
     // Transform product to consistent frontend format
     return await this.productTransformer.transformProduct(product);
@@ -144,7 +135,6 @@ export class AdminProductService {
         sku: productData.sku || null,
         status: productData.status || 'DRAFT',
         brandId: cleanUuid(productData.brandId),
-        categoryId: cleanUuid(productData.categoryId),
         warrantyId: cleanUuid(productData.warrantyId),
         metaTitle: productData.metaTitle || null,
         metaDescription: productData.metaDescription || null,
@@ -170,6 +160,11 @@ export class AdminProductService {
         await this.handleProductVariants(product.id, productData.variants);
       }
 
+      // Handle category assignments
+      if (productData.categoryIds && Array.isArray(productData.categoryIds)) {
+        await this.handleProductCategories(product.id, productData.categoryIds);
+      }
+
       // TODO: Handle tags after product creation
       // This would require additional service methods to create related entities
 
@@ -187,7 +182,6 @@ export class AdminProductService {
   }
 
   async updateProduct(id: string, productData: any): Promise<Product> {
-    console.log('🔥 [AdminProductService] updateProduct called with:', { id, productData });
     const existingProduct = await this.productRepository.findById(id);
     if (!existingProduct) {
       throw new NotFoundException('Product not found');
@@ -209,7 +203,6 @@ export class AdminProductService {
         sku: productData.sku || null,
         status: productData.status || 'DRAFT',
         brandId: cleanUuid(productData.brandId),
-        categoryId: cleanUuid(productData.categoryId),
         warrantyId: cleanUuid(productData.warrantyId),
         metaTitle: productData.metaTitle || null,
         metaDescription: productData.metaDescription || null,
@@ -249,6 +242,16 @@ export class AdminProductService {
         } else {
           // If variants is not an array, delete all existing variants
           await this.productVariantRepository.deleteByProductId(id);
+        }
+      }
+
+      // Handle category assignments - only if categoryIds are explicitly provided
+      if (productData.categoryIds !== undefined) {
+        if (Array.isArray(productData.categoryIds)) {
+          await this.handleProductCategories(id, productData.categoryIds);
+        } else {
+          // If categoryIds is not an array, clear all category assignments
+          await this.handleProductCategories(id, []);
         }
       }
 
@@ -330,15 +333,12 @@ export class AdminProductService {
 
   private async handleProductVariants(productId: string, variantsData: any[]): Promise<void> {
     try {
-      console.log('🔥 [AdminProductService] handleProductVariants called with:', { productId, variantsCount: variantsData.length });
-
       // Delete existing variants for this product first
       await this.productVariantRepository.deleteByProductId(productId);
 
       // Create new variants only if there are any
       if (variantsData && variantsData.length > 0) {
         for (const variantData of variantsData) {
-          console.log('🔥 [AdminProductService] Processing variant:', variantData);
 
           const createVariantData: CreateProductVariantDto = {
             productId,
@@ -354,22 +354,26 @@ export class AdminProductService {
             allowBackorders: Boolean(variantData.allowBackorders),
             weight: variantData.weight ? Number(variantData.weight) : null,
             dimensions: variantData.dimensions || null,
-            images: variantData.images || [],
+            image: variantData.image || null,
             isActive: Boolean(variantData.isActive),
             sortOrder: Number(variantData.sortOrder) || 0,
             variantItems: variantData.variantItems || [],
           };
 
-          console.log('🔥 [AdminProductService] Creating variant with data:', createVariantData);
-
           await this.productVariantRepository.create(createVariantData);
         }
       }
-
-      console.log('🔥 [AdminProductService] Variants handling completed');
     } catch (error) {
-      console.error('❌ [AdminProductService] Failed to handle product variants:', error);
       throw new Error('Failed to update product variants: ' + error.message);
+    }
+  }
+
+  private async handleProductCategories(productId: string, categoryIds: string[]): Promise<void> {
+    try {
+      // Update product categories using repository method
+      await this.productRepository.updateProductCategories(productId, categoryIds);
+    } catch (error) {
+      throw new Error('Failed to update product categories: ' + error.message);
     }
   }
 }

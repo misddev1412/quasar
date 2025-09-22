@@ -33,10 +33,23 @@ import StorageConfigPage from '../pages/storage';
 import FirebaseConfigsPage from '../pages/firebase-configs';
 import CreateFirebaseConfigPage from '../pages/firebase-configs/create';
 import EditFirebaseConfigPage from '../pages/firebase-configs/[id]';
+import NotificationsPage from '../pages/notifications';
+import NotificationPreferencesPage from '../pages/notifications/preferences';
 // Product Management
 import ProductsIndexPage from '../pages/products';
 import AttributesPage from '../pages/products/attributes';
 import BrandsPage from '../pages/products/brands';
+import SuppliersPage from '../pages/products/suppliers';
+// Order Management
+import OrdersIndexPage from '../pages/orders';
+import OrderCreatePage from '../pages/orders/create';
+import OrderEditPage from '../pages/orders/edit';
+import OrderDetailPage from '../pages/orders/detail';
+// Customer Management
+import CustomersIndexPage from '../pages/customers';
+import CustomerCreatePage from '../pages/customers/create';
+import CustomerEditPage from '../pages/customers/edit';
+import CustomerDetailPage from '../pages/customers/detail';
 import CategoriesPage from '../pages/products/categories';
 import EditCategoryPage from '../pages/products/categories/edit';
 import CategoryCreatePage from '../pages/products/categories/create';
@@ -107,15 +120,29 @@ const AppRoutes: React.FC = () => {
       <Route path="/firebase-configs" element={<ProtectedRoute><FirebaseConfigsPage /></ProtectedRoute>} />
       <Route path="/firebase-configs/create" element={<ProtectedRoute><CreateFirebaseConfigPage /></ProtectedRoute>} />
       <Route path="/firebase-configs/:id" element={<ProtectedRoute><EditFirebaseConfigPage /></ProtectedRoute>} />
+      {/* Notifications */}
+      <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+      <Route path="/notifications/preferences" element={<ProtectedRoute><NotificationPreferencesPage /></ProtectedRoute>} />
       {/* Product Management */}
       <Route path="/products" element={<ProtectedRoute><ProductsIndexPage /></ProtectedRoute>} />
       <Route path="/products/create" element={<ProtectedRoute><CreateProductPage /></ProtectedRoute>} />
       <Route path="/products/:id/edit" element={<ProtectedRoute><EditProductPage /></ProtectedRoute>} />
       <Route path="/products/attributes" element={<ProtectedRoute><AttributesPage /></ProtectedRoute>} />
       <Route path="/products/brands" element={<ProtectedRoute><BrandsPage /></ProtectedRoute>} />
+      <Route path="/products/suppliers" element={<ProtectedRoute><SuppliersPage /></ProtectedRoute>} />
       <Route path="/products/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
       <Route path="/products/categories/create" element={<ProtectedRoute><CategoryCreatePage /></ProtectedRoute>} />
       <Route path="/products/categories/:id/edit" element={<ProtectedRoute><EditCategoryPage /></ProtectedRoute>} />
+      {/* Order Management */}
+      <Route path="/orders" element={<ProtectedRoute><OrdersIndexPage /></ProtectedRoute>} />
+      <Route path="/orders/new" element={<ProtectedRoute><OrderCreatePage /></ProtectedRoute>} />
+      <Route path="/orders/:id" element={<ProtectedRoute><OrderDetailPage /></ProtectedRoute>} />
+      <Route path="/orders/:id/edit" element={<ProtectedRoute><OrderEditPage /></ProtectedRoute>} />
+      {/* Customer Management */}
+      <Route path="/customers" element={<ProtectedRoute><CustomersIndexPage /></ProtectedRoute>} />
+      <Route path="/customers/create" element={<ProtectedRoute><CustomerCreatePage /></ProtectedRoute>} />
+      <Route path="/customers/:id" element={<ProtectedRoute><CustomerDetailPage /></ProtectedRoute>} />
+      <Route path="/customers/:id/edit" element={<ProtectedRoute><CustomerEditPage /></ProtectedRoute>} />
       <Route path="/test/date-input" element={<ProtectedRoute><DateInputTest /></ProtectedRoute>} />
       <Route path="/test/phone-input" element={<ProtectedRoute><PhoneInputTest /></ProtectedRoute>} />
       {/* 404页面，不需要认证 */}

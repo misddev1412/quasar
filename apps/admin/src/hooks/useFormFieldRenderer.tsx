@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { FormFieldConfig, FormTabConfig } from '../types/forms';
 import { FormInput } from '../components/common/FormInput';
 import PasswordStrengthMeter from '../components/user/PasswordStrengthMeter';
-import { Eye, EyeOff, CheckCircle2, XCircle, Shield, RefreshCw } from 'lucide-react';
+import { Eye, EyeOff, CheckCircle2, XCircle, Shield, RefreshCw, ChevronDown, Check } from 'lucide-react';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 import { usePasswordGeneration } from './usePasswordGeneration';
 import { PasswordRule, getPasswordRules } from '../utils/password';
@@ -20,6 +20,9 @@ import { MediaUpload } from '../components/common/MediaUpload';
 import { ImageGalleryUpload } from '../components/common/ImageGalleryUpload';
 import { ProductMediaUpload, MediaType } from '../components/common/ProductMediaUpload';
 import { SlugField } from '../components/posts/SlugField';
+import { CategoryMultiSelect } from '../components/common/CategoryMultiSelect';
+import { DateInput } from '../components/common/DateInput';
+import { trpc } from '../utils/trpc';
 
 export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
   form: UseFormReturn<T>,
@@ -67,6 +70,24 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                 min={field.min}
                 max={field.max}
                 step={field.step}
+              />
+            )}
+          />
+        );
+
+      case 'date':
+        return (
+          <Controller
+            key={field.name}
+            name={fieldName}
+            control={control}
+            render={({ field: formField }) => (
+              <DateInput
+                {...commonProps}
+                value={formField.value || ''}
+                onChange={formField.onChange}
+                min={field.min ? String(field.min) : undefined}
+                max={field.max ? String(field.max) : undefined}
               />
             )}
           />
@@ -237,6 +258,119 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
           />
         );
 
+      case 'multiselect':
+        return (
+          <Controller
+            key={field.name}
+            name={fieldName}
+            control={control}
+            render={({ field: formField }) => {
+              const [isOpen, setIsOpen] = React.useState(false);
+              const options = field.options || [];
+              const value = formField.value || [];
+
+              const selectedOptions = options.filter(opt => value.includes(opt.value));
+
+              const handleToggleOption = (optionValue: string) => {
+                const newValue = value.includes(optionValue)
+                  ? value.filter((v: string) => v !== optionValue)
+                  : [...value, optionValue];
+                formField.onChange(newValue);
+              };
+
+              const handleRemoveOption = (optionValue: string, event: React.MouseEvent) => {
+                event.stopPropagation();
+                const newValue = value.filter((v: string) => v !== optionValue);
+                formField.onChange(newValue);
+              };
+
+              return (
+                <div className="space-y-2">
+                  {field.label && (
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {field.label}
+                      {field.required && <span className="text-red-500 ml-1">*</span>}
+                    </label>
+                  )}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      className={`w-full px-3 py-2 text-left bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-lg shadow-sm focus:border-primary focus:ring-1 focus:ring-primary ${
+                        field.disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+                      } ${error ? 'border-error focus:border-error focus:ring-error' : ''}`}
+                      onClick={() => !field.disabled && setIsOpen(!isOpen)}
+                      disabled={field.disabled}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          {selectedOptions.length === 0 ? (
+                            <span className="text-neutral-500">
+                              {field.placeholder || 'Select options...'}
+                            </span>
+                          ) : (
+                            <div className="flex flex-wrap gap-1">
+                              {selectedOptions.map(option => (
+                                <span
+                                  key={option.value}
+                                  className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-md"
+                                >
+                                  {option.label}
+                                  <button
+                                    type="button"
+                                    onClick={(e) => handleRemoveOption(option.value, e)}
+                                    className="hover:text-primary/70"
+                                  >
+                                    ×
+                                  </button>
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${
+                          isOpen ? 'rotate-180' : ''
+                        }`} />
+                      </div>
+                    </button>
+
+                    {isOpen && (
+                      <div className="absolute z-10 w-full mt-1 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                        {options.map(option => (
+                          <button
+                            key={option.value}
+                            type="button"
+                            className="w-full px-3 py-2 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800 flex items-center gap-2 text-sm"
+                            onClick={() => handleToggleOption(option.value)}
+                          >
+                            <div className={`w-4 h-4 border rounded flex items-center justify-center ${
+                              value.includes(option.value)
+                                ? 'bg-primary border-primary text-white'
+                                : 'border-neutral-300 dark:border-neutral-600'
+                            }`}>
+                              {value.includes(option.value) && (
+                                <Check className="w-3 h-3" />
+                              )}
+                            </div>
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {field.description && (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {field.description}
+                    </p>
+                  )}
+                  {error && (
+                    <p className="text-xs text-red-500">{error}</p>
+                  )}
+                </div>
+              );
+            }}
+          />
+        );
+
       case 'textarea':
         return (
           <Controller
@@ -296,8 +430,19 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
             control={control}
             render={({ field: formField }) => (
               <div className="space-y-2">
-                <div className="flex items-start space-x-3">
-                  <div className="relative inline-flex flex-shrink-0 items-center justify-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 w-9 h-5 bg-primary-600 cursor-pointer" 
+                <div className="flex flex-col space-y-2">
+                  <div className="flex-1">
+                    <label htmlFor={commonProps.id} className="text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer">
+                      {field.label}
+                      {field.required && <span className="text-red-500 ml-1">*</span>}
+                    </label>
+                    {field.description && (
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {field.description}
+                      </p>
+                    )}
+                  </div>
+                  <div className="relative inline-flex flex-shrink-0 items-center justify-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 w-9 h-5 bg-primary-600 cursor-pointer"
                        style={{ backgroundColor: formField.value ? '#2563eb' : '#d1d5db' }}>
                     <button
                       type="button"
@@ -317,17 +462,6 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                         }}
                       />
                     </button>
-                  </div>
-                  <div className="flex-1">
-                    <label htmlFor={commonProps.id} className="text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer">
-                      {field.label}
-                      {field.required && <span className="text-red-500 ml-1">*</span>}
-                    </label>
-                    {field.description && (
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {field.description}
-                      </p>
-                    )}
                   </div>
                 </div>
                 {error && (
@@ -354,6 +488,28 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                 disabled={field.disabled}
                 description={field.description}
                 error={error}
+              />
+            )}
+          />
+        );
+
+      case 'category-multiselect':
+        return (
+          <Controller
+            key={field.name}
+            name={fieldName}
+            control={control}
+            render={({ field: formField }) => (
+              <CategoryMultiSelect
+                value={formField.value || []}
+                onChange={formField.onChange}
+                label={field.label}
+                placeholder={field.placeholder}
+                required={field.required}
+                disabled={field.disabled}
+                description={field.description}
+                error={error}
+                maxSelectedItems={field.maxItems || 10}
               />
             )}
           />
@@ -537,7 +693,9 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
 
   const renderTabContent = (tab: FormTabConfig, tabIndex: number) => (
     <div className="space-y-8">
-      {tab.sections.map((section, sectionIndex) => (
+      {tab.customContent ? (
+        tab.customContent
+      ) : tab.sections?.map((section, sectionIndex) => (
         <div key={`${tabIndex}-${sectionIndex}`}>
           <div className="flex items-center gap-4 mb-4 pb-3 border-b border-neutral-200 dark:border-neutral-700">
             <div className="pr-3 border-r border-neutral-200 dark:border-neutral-700">
@@ -564,7 +722,7 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                     return null;
                   }
                 }
-                
+
                 return (
                   <div key={field.name} className={clsx((field.type === 'textarea' || field.type === 'richtext' || field.type === 'role-multiselect' || field.type === 'custom' || field.type === 'file-types' || field.type === 'media-upload' || field.type === 'image-gallery' || field.type === 'product-media') && 'md:col-span-2')}>
                     {renderField(field, tabIndex)}

@@ -70,7 +70,7 @@ export const createProductSchema = z.object({
     allowBackorders: z.boolean(),
     weight: z.number().optional(),
     dimensions: z.string().optional(),
-    images: z.array(z.string()).optional(),
+    image: z.string().nullable().optional(),
     isActive: z.boolean(),
     sortOrder: z.number(),
     variantItems: z.array(z.object({
@@ -123,7 +123,7 @@ export const updateProductSchema = z.object({
     allowBackorders: z.boolean(),
     weight: z.number().nullable().optional(),
     dimensions: z.string().nullable().optional(),
-    images: z.array(z.string()).optional(),
+    image: z.string().nullable().optional(),
     isActive: z.boolean(),
     sortOrder: z.number(),
     variantItems: z.array(z.object({

@@ -2,12 +2,14 @@ import { Entity, Column, ManyToOne, OneToMany, ManyToMany, JoinColumn, JoinTable
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
 import { Brand } from './brand.entity';
+import { Supplier } from './supplier.entity';
 import { Category } from './category.entity';
 import { Warranty } from './warranty.entity';
 import { ProductTag } from './product-tag.entity';
 import { ProductVariant } from './product-variant.entity';
 import { ProductAttribute } from './product-attribute.entity';
 import { ProductMedia } from './product-media.entity';
+import { ProductCategory } from './product-category.entity';
 
 export enum ProductStatus {
   DRAFT = 'DRAFT',
@@ -59,11 +61,11 @@ export class Product extends BaseEntity {
 
   @Expose()
   @Column({
-    name: 'category_id',
+    name: 'supplier_id',
     type: 'uuid',
     nullable: true,
   })
-  categoryId?: string;
+  supplierId?: string;
 
   @Expose()
   @Column({
@@ -135,9 +137,18 @@ export class Product extends BaseEntity {
   @JoinColumn({ name: 'brand_id' })
   brand: Promise<Brand>;
 
-  @ManyToOne(() => Category, (category) => category.products, { lazy: true })
-  @JoinColumn({ name: 'category_id' })
-  category: Promise<Category>;
+  @ManyToOne(() => Supplier, (supplier) => supplier.products, { lazy: true })
+  @JoinColumn({ name: 'supplier_id' })
+  supplier: Promise<Supplier>;
+
+  // Categories via ProductCategory junction table
+  // @ManyToMany(() => Category, (category) => category.products, { lazy: true })
+  // @JoinTable({
+  //   name: 'product_categories',
+  //   joinColumn: { name: 'product_id', referencedColumnName: 'id' },
+  //   inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' },
+  // })
+  // categories: Promise<Category[]>;
 
   @ManyToOne(() => Warranty, (warranty) => warranty.products, { lazy: true })
   @JoinColumn({ name: 'warranty_id' })
@@ -159,6 +170,18 @@ export class Product extends BaseEntity {
 
   @OneToMany(() => ProductMedia, (media) => media.product)
   media: ProductMedia[];
+
+  @OneToMany(() => ProductCategory, (productCategory) => productCategory.product)
+  productCategories: ProductCategory[];
+
+  // Getter for categories through ProductCategory junction
+  async getCategories(): Promise<Category[]> {
+    if (!this.productCategories) return [];
+    const categories = await Promise.all(
+      this.productCategories.map(pc => pc.category)
+    );
+    return categories.filter(c => c !== null);
+  }
 
   // Virtual properties - keeping for backward compatibility
   get imageList(): string[] {

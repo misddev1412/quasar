@@ -18,6 +18,7 @@ import { AuthModule } from '../auth/auth.module';
 import { SharedModule } from '../modules/shared/shared.module';
 import { FirebaseModule } from '../modules/firebase/firebase.module';
 import { ProductsModule } from '../modules/products/products.module';
+import { NotificationsModule } from '../modules/notifications/notifications.module';
 import { AppContext } from '../trpc/context';
 import databaseConfig from '../config/database.config';
 import { User } from '../modules/user/entities/user.entity';
@@ -50,6 +51,7 @@ import { Warranty } from '../modules/products/entities/warranty.entity';
 import { Attribute } from '../modules/products/entities/attribute.entity';
 import { AttributeValue } from '../modules/products/entities/attribute-value.entity';
 import { ProductAttribute } from '../modules/products/entities/product-attribute.entity';
+import { NotificationEntity } from '../modules/notifications/entities/notification.entity';
 import { createErrorFormatter } from '../trpc/error-formatter';
 import { AppRouterModule } from '../trpc/app-router.module';
 
@@ -94,6 +96,7 @@ import { AppRouterModule } from '../trpc/app-router.module';
           Attribute,
           AttributeValue,
           ProductAttribute,
+          NotificationEntity,
         ],
         autoLoadEntities: true
       }),
@@ -116,6 +119,7 @@ import { AppRouterModule } from '../trpc/app-router.module';
     LanguageModule,
     StorageModule,
     ProductsModule,
+    NotificationsModule,
     AppRouterModule,
   ],
   controllers: [AppController],

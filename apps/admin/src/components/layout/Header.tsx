@@ -22,6 +22,7 @@ import {
 import { styled, alpha } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import NotificationBell from '../notifications/NotificationBell';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import ViewComfyIcon from '@mui/icons-material/ViewComfy';
@@ -305,13 +306,7 @@ const Header: React.FC = () => {
           </Box>
           
           {/* Notifications */}
-          <Tooltip title={t('header.notifications')}>
-            <ActionButton size="small" sx={{ borderRadius: '50%' }}>
-              <Badge badgeContent={3} color="error">
-                <NotificationsIcon fontSize="small" />
-              </Badge>
-            </ActionButton>
-          </Tooltip>
+          <NotificationBell currentUserId={user?.id} />
           
           {/* User avatar with dropdown */}
           <Tooltip title={user?.username || user?.email || t('header.userSettings')}>
@@ -362,6 +357,14 @@ const Header: React.FC = () => {
                 <AccountCircleIcon fontSize="small" />
               </ListItemIcon>
               {t('navigation.profile')}
+            </MenuItem>
+
+            {/* Notifications */}
+            <MenuItem onClick={() => handleNavigation('/notifications')}>
+              <ListItemIcon>
+                <NotificationsIcon fontSize="small" />
+              </ListItemIcon>
+              {t('navigation.notifications')}
             </MenuItem>
 
             {/* Settings */}

@@ -15,7 +15,7 @@ export interface TransformedProduct {
   isFeatured: boolean;
   sortOrder: number;
   brandId: string | null;
-  categoryId: string | null;
+  categoryIds: string[];
   warrantyId: string | null;
   metaTitle: string | null;
   metaDescription: string | null;
@@ -25,7 +25,7 @@ export interface TransformedProduct {
 
   // Related data
   brand: TransformedBrand | null;
-  category: TransformedCategory | null;
+  categories: TransformedCategory[];
   media: TransformedMedia[];
   variants: TransformedVariant[];
 
@@ -108,9 +108,9 @@ export interface TransformedVariant {
   allowBackorders: boolean;
   weight: number | null;
   dimensions: string | null;
+  image: string | null;
   isActive: boolean;
   sortOrder: number;
-  images: string[];
   variantItems: TransformedVariantItem[];
 }
 
@@ -129,7 +129,7 @@ export class ProductTransformer {
     const media = this.extractAndTransformMedia(product);
     const variants = await this.extractAndTransformVariants(product);
     const brand = this.extractAndTransformBrand(product);
-    const category = this.extractAndTransformCategory(product);
+    const categories = this.extractAndTransformCategories(product);
 
     // Calculate computed properties
     const imageUrls = media
@@ -158,7 +158,7 @@ export class ProductTransformer {
       isFeatured: product.isFeatured,
       sortOrder: product.sortOrder || 0,
       brandId: product.brandId || null,
-      categoryId: product.categoryId || null,
+      categoryIds: categories.map(c => c.id),
       warrantyId: product.warrantyId || null,
       metaTitle: product.metaTitle || null,
       metaDescription: product.metaDescription || null,
@@ -168,7 +168,7 @@ export class ProductTransformer {
 
       // Related data
       brand,
-      category,
+      categories,
       media,
       variants,
 
@@ -201,7 +201,7 @@ export class ProductTransformer {
     const media = this.extractAndTransformMedia(product);
     const variants = await this.extractAndTransformVariants(product);
     const brand = this.extractAndTransformBrand(product);
-    const category = this.extractAndTransformCategory(product);
+    const categories = this.extractAndTransformCategories(product);
 
     const imageUrls = media
       .filter(m => m.type === 'image')
@@ -226,13 +226,13 @@ export class ProductTransformer {
       isActive: product.isActive,
       isFeatured: product.isFeatured,
       brandId: product.brandId || null,
-      categoryId: product.categoryId || null,
+      categoryIds: categories.map(c => c.id),
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
 
       // Essential related data for list views
       brand: brand ? { id: brand.id, name: brand.name } as any : null,
-      category: category ? { id: category.id, name: category.name } as any : null,
+      categories: categories.map(c => ({ id: c.id, name: c.name })) as any,
 
       // Essential computed properties
       primaryImage,
@@ -249,7 +249,7 @@ export class ProductTransformer {
    * Fix TypeORM lazy loading serialization issues
    */
   private fixLazyLoadingSerialization(product: Product): void {
-    const relations = ['media', 'variants', 'brand', 'category', 'tags'];
+    const relations = ['media', 'variants', 'brand', 'productCategories', 'tags'];
 
     relations.forEach(relation => {
       const underscoreKey = `__${relation}__`;
@@ -611,9 +611,9 @@ export class ProductTransformer {
           allowBackorders: v.allowBackorders || false,
           weight: v.weight || null,
           dimensions: v.dimensions || null,
+          image: v.image || null,
           isActive: v.isActive !== false,
           sortOrder: v.sortOrder || 0,
-          images: v.images ? (Array.isArray(v.images) ? v.images : JSON.parse(v.images || '[]')) : [],
           variantItems,
         };
       });
@@ -685,40 +685,76 @@ export class ProductTransformer {
   }
 
   /**
-   * Extract and transform category relation
+   * Extract and transform categories relation through ProductCategory junction
    */
-  private extractAndTransformCategory(product: Product): TransformedCategory | null {
-    const category = (product as any).category;
+  private extractAndTransformCategories(product: Product): TransformedCategory[] {
+    const productCategories = (product as any).productCategories;
 
-    // Check if category is a Promise (lazy loaded but not resolved)
-    if (category instanceof Promise) {
-      return null;
+    // Check if productCategories is a Promise (lazy loaded but not resolved)
+    if (productCategories instanceof Promise) {
+      return [];
     }
 
-    // Handle loaded lazy relation that might still be wrapped
-    let categoryData = category;
-    if (categoryData && typeof categoryData === 'object' && !categoryData.id) {
-      if (categoryData.value && categoryData.value.id) {
-        categoryData = categoryData.value;
-      } else if (categoryData.__value__ && categoryData.__value__.id) {
-        categoryData = categoryData.__value__;
+    // Handle case where productCategories is already an array
+    if (Array.isArray(productCategories)) {
+      const categories = productCategories
+        .map(pc => pc.category)
+        .filter(category => category && category.id);
+      return this.processCategoriesArray(categories);
+    }
+
+    // Handle case where productCategories is loaded but still wrapped in another object
+    let productCategoriesArray = productCategories;
+    if (!Array.isArray(productCategories) && productCategories && typeof productCategories === 'object') {
+      // Try array-like object with length property
+      if (typeof productCategories.length === 'number' && productCategories.length >= 0) {
+        productCategoriesArray = Array.from(productCategories);
+      }
+      // Try nested value properties
+      else if (productCategories.value && Array.isArray(productCategories.value)) {
+        productCategoriesArray = productCategories.value;
+      }
+      else if (productCategories.__value__ && Array.isArray(productCategories.__value__)) {
+        productCategoriesArray = productCategories.__value__;
+      }
+      // Try extracting from numeric keys
+      else {
+        const keys = Object.keys(productCategories);
+        const numericKeys = keys.filter(k => !isNaN(Number(k)) && Number(k) >= 0);
+        if (numericKeys.length > 0) {
+          productCategoriesArray = numericKeys
+            .map(k => productCategories[k])
+            .filter(item => item && typeof item === 'object' && item.category);
+        }
       }
     }
 
-    if (!categoryData || !categoryData.id) {
-      return null;
+    if (!productCategoriesArray || !Array.isArray(productCategoriesArray)) {
+      return [];
     }
 
-    return {
-      id: categoryData.id,
-      name: categoryData.name,
-      slug: categoryData.slug || null,
-      description: categoryData.description || null,
-      image: categoryData.image || null,
-      parentId: categoryData.parentId || null,
-      level: categoryData.level || 0,
-      isActive: categoryData.isActive !== false,
-    };
+    const categories = productCategoriesArray
+      .map(pc => pc.category)
+      .filter(category => category && category.id);
+    return this.processCategoriesArray(categories);
+  }
+
+  /**
+   * Process categories array and transform to TransformedCategory[]
+   */
+  private processCategoriesArray(categoriesArray: any[]): TransformedCategory[] {
+    return categoriesArray
+      .filter(c => c && c.id) // Filter out invalid categories
+      .map((c: any): TransformedCategory => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug || null,
+        description: c.description || null,
+        image: c.image || null,
+        parentId: c.parentId || null,
+        level: c.level || 0,
+        isActive: c.isActive !== false,
+      }));
   }
 
   /**

@@ -353,7 +353,8 @@ export class CategoryRepository {
 
   async getTree(includeInactive = false): Promise<CategoryTreeNode[]> {
     const queryBuilder = this.categoryRepository.createQueryBuilder('category')
-      .leftJoinAndSelect('category.products', 'products');
+      .leftJoinAndSelect('category.productCategories', 'productCategories')
+      .leftJoinAndSelect('productCategories.product', 'products');
 
     if (!includeInactive) {
       queryBuilder.andWhere('category.is_active = :isActive', { isActive: true });
@@ -407,7 +408,8 @@ export class CategoryRepository {
 
   async getFilteredTree(filters: CategoryFilters, includeInactive = false): Promise<CategoryTreeNode[]> {
     const queryBuilder = this.categoryRepository.createQueryBuilder('category')
-      .leftJoinAndSelect('category.products', 'products');
+      .leftJoinAndSelect('category.productCategories', 'productCategories')
+      .leftJoinAndSelect('productCategories.product', 'products');
 
     if (!includeInactive) {
       queryBuilder.andWhere('category.is_active = :isActive', { isActive: true });
@@ -463,7 +465,8 @@ export class CategoryRepository {
       if (parentIds.size > 0) {
         const parentCategories = await this.categoryRepository
           .createQueryBuilder('category')
-          .leftJoinAndSelect('category.products', 'products')
+          .leftJoinAndSelect('category.productCategories', 'productCategories')
+          .leftJoinAndSelect('productCategories.product', 'products')
           .whereInIds(Array.from(parentIds))
           .getMany();
         
@@ -520,7 +523,8 @@ export class CategoryRepository {
   async getRootCategories(includeInactive = false): Promise<Category[]> {
     // First, get the root categories
     const queryBuilder = this.categoryRepository.createQueryBuilder('category')
-      .leftJoinAndSelect('category.products', 'products')
+      .leftJoinAndSelect('category.productCategories', 'productCategories')
+      .leftJoinAndSelect('productCategories.product', 'products')
       .andWhere('category.parent_id IS NULL');
 
     if (!includeInactive) {
@@ -555,7 +559,8 @@ export class CategoryRepository {
   async getChildren(parentId: string, includeInactive = false): Promise<Category[]> {
     // First, get the child categories
     const queryBuilder = this.categoryRepository.createQueryBuilder('category')
-      .leftJoinAndSelect('category.products', 'products')
+      .leftJoinAndSelect('category.productCategories', 'productCategories')
+      .leftJoinAndSelect('productCategories.product', 'products')
       .andWhere('category.parent_id = :parentId', { parentId });
 
     if (!includeInactive) {
@@ -589,7 +594,8 @@ export class CategoryRepository {
 
   async getStats() {
     const queryBuilder = this.categoryRepository.createQueryBuilder('category')
-      .leftJoinAndSelect('category.products', 'products');
+      .leftJoinAndSelect('category.productCategories', 'productCategories')
+      .leftJoinAndSelect('productCategories.product', 'products');
 
     const categories = await queryBuilder.getMany();
     
@@ -654,7 +660,8 @@ export class CategoryRepository {
   async findByIdWithTranslations(id: string, locale?: string): Promise<Category | null> {
     const query = this.categoryRepository.createQueryBuilder('category')
       .leftJoinAndSelect('category.translations', 'translations')
-      .leftJoinAndSelect('category.products', 'products')
+      .leftJoinAndSelect('category.productCategories', 'productCategories')
+      .leftJoinAndSelect('productCategories.product', 'products')
       .leftJoinAndSelect('category.children', 'children')
       .leftJoinAndSelect('category.parent', 'parent')
       .where('category.id = :id', { id });
@@ -667,19 +674,20 @@ export class CategoryRepository {
   }
 
   async findManyWithTranslations(options: CategoryFindManyOptions, locale?: string) {
-    const { 
-      page = 1, 
-      limit = 10, 
-      search, 
-      isActive, 
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      isActive,
       parentId,
-      sortBy = 'sortOrder', 
-      sortOrder = 'ASC' 
+      sortBy = 'sortOrder',
+      sortOrder = 'ASC'
     } = options;
-    
+
     const queryBuilder = this.categoryRepository.createQueryBuilder('category')
       .leftJoinAndSelect('category.translations', 'translations')
-      .leftJoinAndSelect('category.products', 'products');
+      .leftJoinAndSelect('category.productCategories', 'productCategories')
+      .leftJoinAndSelect('productCategories.product', 'products');
     
     if (locale) {
       queryBuilder.andWhere('(translations.locale = :locale OR translations.locale IS NULL)', { locale });
@@ -748,7 +756,8 @@ export class CategoryRepository {
   async getTreeWithTranslations(locale?: string, includeInactive = false): Promise<CategoryTreeNode[]> {
     const queryBuilder = this.categoryRepository.createQueryBuilder('category')
       .leftJoinAndSelect('category.translations', 'translations')
-      .leftJoinAndSelect('category.products', 'products');
+      .leftJoinAndSelect('category.productCategories', 'productCategories')
+      .leftJoinAndSelect('productCategories.product', 'products');
 
     if (locale) {
       queryBuilder.andWhere('(translations.locale = :locale OR translations.locale IS NULL)', { locale });

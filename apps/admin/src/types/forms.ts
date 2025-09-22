@@ -6,7 +6,7 @@ import { FieldValues } from 'react-hook-form';
 export interface FormFieldConfig {
   name: string;
   label: string;
-  type: 'text' | 'email' | 'password' | 'password-simple' | 'select' | 'textarea' | 'checkbox' | 'tel' | 'phone' | 'number' | 'richtext' | 'role-multiselect' | 'custom' | 'tags' | 'file-types' | 'media-upload' | 'image-gallery' | 'product-media' | 'slug';
+  type: 'text' | 'email' | 'password' | 'password-simple' | 'select' | 'multiselect' | 'textarea' | 'checkbox' | 'tel' | 'phone' | 'number' | 'richtext' | 'role-multiselect' | 'category-multiselect' | 'custom' | 'tags' | 'file-types' | 'media-upload' | 'image-gallery' | 'product-media' | 'slug' | 'date';
   placeholder?: string;
   required?: boolean;
   options?: Array<{ value: string; label: string; disabled?: boolean }>;
@@ -17,9 +17,9 @@ export interface FormFieldConfig {
     pattern?: RegExp;
     custom?: (value: any) => string | undefined;
   };
-  // Number input specific options
-  min?: number;
-  max?: number;
+  // Number input specific options (also used for date fields as string)
+  min?: number | string;
+  max?: number | string;
   step?: number;
   size?: 'sm' | 'md' | 'lg';
   rows?: number; // for textarea
@@ -56,7 +56,8 @@ export interface FormTabConfig {
   id: string;
   label: string;
   icon?: ReactNode;
-  sections: FormSectionConfig[];
+  sections?: FormSectionConfig[];
+  customContent?: ReactNode;
 }
 
 // Generic entity form props

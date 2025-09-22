@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package } from 'lucide-react';
+import { FiHome, FiPackage } from 'react-icons/fi';
 import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
 import { ProductForm, ProductFormData } from '../../components/products/ProductForm';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -62,6 +63,19 @@ const CreateProductPage: React.FC = () => {
       onBack={handleCancel}
       isSubmitting={createProductMutation.isPending}
       maxWidth="full"
+      breadcrumbs={[
+        {
+          label: t('navigation.home', 'Home'),
+          href: '/',
+        },
+        {
+          label: t('products.products', 'Products'),
+          onClick: handleCancel,
+        },
+        {
+          label: t('products.create_product', 'Create Product'),
+        }
+      ]}
     >
       <ProductForm
         onSubmit={handleSubmit}

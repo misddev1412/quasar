@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiPlus, FiX } from 'react-icons/fi';
+import { FiPlus, FiX, FiImage, FiTrash2 } from 'react-icons/fi';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -8,6 +8,7 @@ import { Card } from '../common/Card';
 import { Select } from '../common/Select';
 import { FormInput } from '../common/FormInput';
 import { Badge } from '../common/Badge';
+import { MediaManager } from '../common/MediaManager';
 import { Attribute, AttributeValue } from '../../types/product';
 import { AttributeValuesSelector } from './AttributeValuesSelector';
 
@@ -18,6 +19,7 @@ export interface VariantMatrixItem {
   price: number;
   quantity: number;
   sku?: string;
+  image?: string | null;
   isEnabled: boolean;
 }
 
@@ -40,9 +42,14 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
 
+
   // Selected attributes for matrix generation
   const [selectedAttributes, setSelectedAttributes] = useState<SelectedAttribute[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // MediaManager state for variant images
+  const [isMediaManagerOpen, setIsMediaManagerOpen] = useState(false);
+  const [currentVariantIndex, setCurrentVariantIndex] = useState<number | null>(null);
 
   // Fetch attributes
   const { data: attributesData, isLoading: attributesLoading } = trpc.adminProductAttributes.getSelectAttributes.useQuery();
@@ -79,10 +86,19 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
     }
   }, [attributes, variants, isInitialized]);
 
-  // Helper function to get attribute values from the selector components
-  const getAttributeValues = (attributeId: string): AttributeValue[] => {
-    // This will be handled by the AttributeValuesSelector component
-    return [];
+  // Get tRPC utils for imperative queries
+  const utils = trpc.useUtils();
+
+  // Helper function to get value name by making a direct query
+  const getValueName = async (attributeId: string, valueId: string): Promise<string> => {
+    try {
+      const data = await utils.adminProductAttributes.getAttributeValues.fetch({ attributeId });
+      const values = (data as any)?.data || [];
+      const value = values.find((v: any) => v.id === valueId);
+      return value?.displayValue || value?.value || valueId;
+    } catch (error) {
+      return valueId;
+    }
   };
 
   // Add new attribute selection
@@ -133,11 +149,18 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
 
 
 
-  // Simple effect that only triggers matrix generation based on attribute selections
+  // Generate variant combinations when attribute selections change
   useEffect(() => {
     if (!isInitialized) return;
 
+    // If we have existing variants with actual data (not just generated), preserve them
+    const hasExistingVariantsWithData = variants.some(v => v.price > 0 || v.quantity > 0 || v.sku);
+    if (hasExistingVariantsWithData) {
+      return;
+    }
+
     if (selectedAttributes.length === 0) {
+      // Only clear variants if we don't have existing data
       onVariantsChange([]);
       return;
     }
@@ -146,7 +169,7 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
     const allAttributesSelected = selectedAttributes.every(attr => attr.attributeId && attr.valueIds.length > 0);
     if (!allAttributesSelected) return;
 
-    // Generate combinations directly here without external dependencies
+    // Generate combinations directly here
     const combinations: string[][] = [];
 
     const buildCombinations = (current: string[], attrIndex: number) => {
@@ -165,33 +188,49 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
 
     buildCombinations([], 0);
 
-    // Create simple variants without checking existing ones initially
-    const newVariants: VariantMatrixItem[] = combinations.map((combination) => {
-      const attributeCombination: Record<string, string> = {};
-      const displayParts: string[] = [];
+    // Create variants and resolve display names asynchronously
+    const createVariantsWithNames = async () => {
+      const newVariants: VariantMatrixItem[] = [];
 
-      combination.forEach((valueId, attrIndex) => {
-        const attr = selectedAttributes[attrIndex];
-        attributeCombination[attr.attributeId] = valueId;
+      for (const combination of combinations) {
+        const attributeCombination: Record<string, string> = {};
+        const displayParts: string[] = [];
 
-        // Simple display generation
-        const attrName = attributes.find(a => a.id === attr.attributeId)?.displayName ||
-                         attributes.find(a => a.id === attr.attributeId)?.name || 'Unknown';
-        displayParts.push(`${attrName}: ${valueId}`);
-      });
+        // Process each value in the combination
+        for (let attrIndex = 0; attrIndex < combination.length; attrIndex++) {
+          const valueId = combination[attrIndex];
+          const attr = selectedAttributes[attrIndex];
+          attributeCombination[attr.attributeId] = valueId;
 
-      return {
-        attributeCombination,
-        combinationDisplay: displayParts.join(', '),
-        price: 0,
-        quantity: 0,
-        sku: '',
-        isEnabled: true,
-      };
-    });
+          // Get attribute name
+          const attribute = attributes.find(a => a.id === attr.attributeId);
+          const attrName = attribute?.displayName || attribute?.name || 'Unknown';
 
-    onVariantsChange(newVariants);
-  }, [selectedAttributes, isInitialized, attributes]);
+          // Get value name asynchronously
+          try {
+            const valueName = await getValueName(attr.attributeId, valueId);
+            displayParts.push(`${attrName}: ${valueName}`);
+          } catch (error) {
+            displayParts.push(`${attrName}: ${valueId}`);
+          }
+        }
+
+        newVariants.push({
+          attributeCombination,
+          combinationDisplay: displayParts.join(', '),
+          price: 0,
+          quantity: 0,
+          sku: '',
+          image: null,
+          isEnabled: true,
+        });
+      }
+
+      onVariantsChange(newVariants);
+    };
+
+    createVariantsWithNames();
+  }, [selectedAttributes, isInitialized, attributes, variants]);
 
   // Update variant field
   const updateVariant = (index: number, field: keyof VariantMatrixItem, value: any) => {
@@ -208,13 +247,40 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
     updateVariant(index, 'isEnabled', !variants[index].isEnabled);
   };
 
-  // Apply bulk pricing
-  const applyBulkPricing = (price: number) => {
+  // Apply bulk updates
+  const applyBulkUpdates = (price?: number, quantity?: number) => {
     const newVariants = variants.map(variant => ({
       ...variant,
-      price: variant.isEnabled ? price : variant.price,
+      ...(price !== undefined && variant.isEnabled ? { price } : {}),
+      ...(quantity !== undefined && variant.isEnabled ? { quantity } : {}),
     }));
+
     onVariantsChange(newVariants);
+
+    addToast({
+      type: 'success',
+      title: t('common.success', 'Success'),
+      description: t('products.bulk_update_applied', 'Bulk updates have been applied to enabled variants'),
+    });
+  };
+
+  // Handle variant image selection
+  const openImageSelector = (index: number) => {
+    setCurrentVariantIndex(index);
+    setIsMediaManagerOpen(true);
+  };
+
+  const handleImageSelect = (file: any) => {
+    if (currentVariantIndex !== null) {
+      const imageUrl = Array.isArray(file) ? file[0]?.url : file.url;
+      updateVariant(currentVariantIndex, 'image', imageUrl);
+    }
+    setIsMediaManagerOpen(false);
+    setCurrentVariantIndex(null);
+  };
+
+  const removeVariantImage = (index: number) => {
+    updateVariant(index, 'image', null);
   };
 
   if (attributesLoading) {
@@ -400,8 +466,12 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
               <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
                 {t('products.bulk_actions', 'Bulk Actions')}
               </h4>
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-wrap items-center gap-4">
+                {/* Bulk Price */}
                 <div className="flex items-center space-x-2">
+                  <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                    {t('products.price', 'Price')}:
+                  </label>
                   <FormInput
                     id="bulk-price"
                     label=""
@@ -411,23 +481,85 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                     placeholder="0.00"
                     className="w-32"
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => {
-                      const input = e.currentTarget.parentElement?.querySelector('input') as HTMLInputElement;
-                      const price = parseFloat(input?.value || '0');
-                      if (price > 0) {
-                        applyBulkPricing(price);
-                        input.value = '';
-                      }
-                    }}
-                    className="h-10 px-4"
-                  >
-                    {t('products.apply_to_enabled', 'Apply to Enabled')}
-                  </Button>
                 </div>
+
+                {/* Bulk Quantity */}
+                <div className="flex items-center space-x-2">
+                  <label className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                    {t('products.quantity', 'Quantity')}:
+                  </label>
+                  <FormInput
+                    id="bulk-quantity"
+                    label=""
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    className="w-32"
+                  />
+                </div>
+
+                {/* Single Apply Button */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const priceInput = document.getElementById('bulk-price') as HTMLInputElement;
+                    const quantityInput = document.getElementById('bulk-quantity') as HTMLInputElement;
+
+                    const priceValue = priceInput?.value?.trim();
+                    const quantityValue = quantityInput?.value?.trim();
+
+                    const price = priceValue ? parseFloat(priceValue) : undefined;
+                    const quantity = quantityValue ? parseInt(quantityValue) : undefined;
+
+                    // Validate inputs
+                    if (price !== undefined && (isNaN(price) || price < 0)) {
+                      addToast({
+                        type: 'error',
+                        title: t('common.validation_error', 'Validation Error'),
+                        description: t('products.invalid_price', 'Please enter a valid price (0 or greater)'),
+                      });
+                      return;
+                    }
+
+                    if (quantity !== undefined && (isNaN(quantity) || quantity < 0)) {
+                      addToast({
+                        type: 'error',
+                        title: t('common.validation_error', 'Validation Error'),
+                        description: t('products.invalid_quantity', 'Please enter a valid quantity (0 or greater)'),
+                      });
+                      return;
+                    }
+
+                    if (price === undefined && quantity === undefined) {
+                      addToast({
+                        type: 'warning',
+                        title: t('common.no_changes', 'No Changes'),
+                        description: t('products.no_bulk_values', 'Please enter at least one value to apply'),
+                      });
+                      return;
+                    }
+
+                    // Check if there are enabled variants to update
+                    const enabledVariants = variants.filter(v => v.isEnabled);
+                    if (enabledVariants.length === 0) {
+                      addToast({
+                        type: 'warning',
+                        title: t('common.no_targets', 'No Targets'),
+                        description: t('products.no_enabled_variants', 'No enabled variants to update'),
+                      });
+                      return;
+                    }
+
+                    applyBulkUpdates(price, quantity);
+                    if (priceInput) priceInput.value = '';
+                    if (quantityInput) quantityInput.value = '';
+                  }}
+                  className="h-10 px-4"
+                >
+                  {t('products.apply_to_enabled', 'Apply to Enabled')}
+                </Button>
               </div>
             </div>
 
@@ -449,6 +581,9 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                       {t('products.sku', 'SKU')}
                     </th>
                     <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      {t('products.image', 'Image')}
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       {t('products.enabled', 'Enabled')}
                     </th>
                   </tr>
@@ -463,6 +598,7 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap">
                         <FormInput
+                          key={`price-${index}-${variant.id}-${variant.price}`}
                           id={`price-${index}`}
                           label=""
                           type="number"
@@ -477,6 +613,7 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap">
                         <FormInput
+                          key={`quantity-${index}-${variant.id}-${variant.quantity}`}
                           id={`quantity-${index}`}
                           label=""
                           type="number"
@@ -501,6 +638,37 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                         />
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap text-center">
+                        <div className="flex items-center justify-center space-x-2">
+                          {variant.image ? (
+                            <div className="relative group">
+                              <img
+                                src={variant.image}
+                                alt={`Variant ${variant.combinationDisplay}`}
+                                className="w-12 h-12 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeVariantImage(index)}
+                                className="absolute -top-1 -right-1 p-0.5 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200"
+                                title={t('common.remove', 'Remove')}
+                              >
+                                <FiTrash2 className="w-3 h-3 text-white" />
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => openImageSelector(index)}
+                              className="w-12 h-12 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-primary-500 hover:border-primary-500 transition-all duration-200"
+                              title={t('products.add_image', 'Add Image')}
+                              disabled={!variant.isEnabled}
+                            >
+                              <FiImage className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-5 whitespace-nowrap text-center">
                         <input
                           type="checkbox"
                           checked={variant.isEnabled}
@@ -516,6 +684,19 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
           </div>
         </Card>
       )}
+
+      {/* MediaManager for variant image selection */}
+      <MediaManager
+        isOpen={isMediaManagerOpen}
+        onClose={() => {
+          setIsMediaManagerOpen(false);
+          setCurrentVariantIndex(null);
+        }}
+        onSelect={handleImageSelect}
+        multiple={false}
+        accept="image/*"
+        title={t('products.select_variant_image', 'Select Variant Image')}
+      />
     </div>
   );
 };

@@ -11,6 +11,7 @@ export enum ModuleCode {
   AUTH = 'AUTH',
   TRANSLATION = 'TRANSLATION',
   ARTICLE = 'ARTICLE',
+  ADDRESS_BOOK = 'ADDRESS_BOOK',
 }
 
 export enum OperationCode {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, X, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { FiArrowLeft, FiSave, FiX, FiCheckCircle, FiAlertCircle, FiClock } from 'react-icons/fi';
 import { Card, CardHeader, CardContent } from './Card';
 import BaseLayout from '../layout/BaseLayout';
 import { Button } from './Button';
@@ -76,11 +76,11 @@ export const CreatePageTemplate: React.FC<CreatePageTemplateProps> = ({
   const getStatusIcon = () => {
     switch (formStatus) {
       case 'modified':
-        return <Clock className="w-4 h-4 text-yellow-500" />;
+        return <FiClock className="w-4 h-4 text-yellow-500" />;
       case 'saving':
         return <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />;
       case 'saved':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
+        return <FiCheckCircle className="w-4 h-4 text-green-500" />;
       default:
         return icon;
     }
@@ -121,7 +121,7 @@ export const CreatePageTemplate: React.FC<CreatePageTemplateProps> = ({
     {
       label: t('common.back_to_entity', `Back to ${entityNamePlural}`),
       onClick: onBack,
-      icon: <ArrowLeft className="w-4 h-4" />,
+      icon: <FiArrowLeft className="w-4 h-4" />,
     },
     ...customActions,
   ];
@@ -263,7 +263,7 @@ export const CreatePageTemplate: React.FC<CreatePageTemplateProps> = ({
                       disabled={isSubmitting}
                       className="min-w-[100px]"
                     >
-                      <X className="w-4 h-4 mr-2" />
+                      <FiX className="w-4 h-4 mr-2" />
                       {t('common.cancel')}
                     </Button>
                     <Button
@@ -273,7 +273,7 @@ export const CreatePageTemplate: React.FC<CreatePageTemplateProps> = ({
                       disabled={isSubmitting}
                       className="min-w-[120px]"
                     >
-                      <Save className="w-4 h-4 mr-2" />
+                      <FiSave className="w-4 h-4 mr-2" />
                       {mode === 'update'
                         ? t('common.update_entity', `Update ${entityName}`)
                         : t('common.create_entity', `Create ${entityName}`)

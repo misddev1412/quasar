@@ -9,6 +9,7 @@ import { ThemeProvider as MUIThemeProvider, CssBaseline } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import { AuthProvider } from '../context/AuthContext';
 import { FirebaseAuthProvider } from '../hooks/useFirebaseAuth';
+import { ModalProvider } from '../context/ModalContext';
 
 export function App() {
   // 创建 MUI 主题
@@ -44,13 +45,15 @@ export function App() {
           <CssBaseline />
           <CustomThemeProvider>
             <ToastProvider>
-              <LayoutProvider>
-                <AuthProvider>
-                  <FirebaseAuthProvider>
-                    <AppRoutes />
-                  </FirebaseAuthProvider>
-                </AuthProvider>
-              </LayoutProvider>
+              <ModalProvider>
+                <LayoutProvider>
+                  <AuthProvider>
+                    <FirebaseAuthProvider>
+                      <AppRoutes />
+                    </FirebaseAuthProvider>
+                  </AuthProvider>
+                </LayoutProvider>
+              </ModalProvider>
             </ToastProvider>
           </CustomThemeProvider>
         </MUIThemeProvider>

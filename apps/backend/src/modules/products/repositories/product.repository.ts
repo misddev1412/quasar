@@ -2,11 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, FindManyOptions } from 'typeorm';
 import { Product, ProductStatus } from '../entities/product.entity';
+import { ProductCategory } from '../entities/product-category.entity';
 
 export interface ProductFilters {
   search?: string;
   brandId?: string;
-  categoryId?: string;
+  categoryIds?: string[];
   status?: ProductStatus;
   isActive?: boolean;
   isFeatured?: boolean;
@@ -37,6 +38,8 @@ export class ProductRepository {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    @InjectRepository(ProductCategory)
+    private readonly productCategoryRepository: Repository<ProductCategory>,
   ) {}
 
   async findAll(options: ProductQueryOptions = {}): Promise<PaginatedProducts> {
@@ -93,15 +96,109 @@ export class ProductRepository {
         });
       }
 
+      // Apply filters
+      if (filters.search) {
+        queryBuilder.andWhere(
+          '(product.name ILIKE :search OR product.sku ILIKE :search OR product.description ILIKE :search)',
+          { search: `%${filters.search}%` }
+        );
+      }
+
+      if (filters.brandId) {
+        queryBuilder.andWhere('product.brandId = :brandId', { brandId: filters.brandId });
+      }
+
+      if (filters.status) {
+        queryBuilder.andWhere('product.status = :status', { status: filters.status });
+      }
+
+      if (filters.isActive !== undefined) {
+        queryBuilder.andWhere('product.isActive = :isActive', { isActive: filters.isActive });
+      }
+
+      if (filters.isFeatured !== undefined) {
+        queryBuilder.andWhere('product.isFeatured = :isFeatured', { isFeatured: filters.isFeatured });
+      }
+
+      if (filters.categoryIds && filters.categoryIds.length > 0) {
+        // Add join for categories if not already joined
+        if (!relations.some(rel => rel.includes('productCategories'))) {
+          queryBuilder.leftJoin('product.productCategories', 'pc');
+        }
+        queryBuilder.andWhere('pc.categoryId IN (:...categoryIds)', { categoryIds: filters.categoryIds });
+      }
+
+      if (filters.minPrice !== undefined) {
+        queryBuilder.andWhere('product.price >= :minPrice', { minPrice: filters.minPrice });
+      }
+
+      if (filters.maxPrice !== undefined) {
+        queryBuilder.andWhere('product.price <= :maxPrice', { maxPrice: filters.maxPrice });
+      }
+
+      if (filters.createdFrom) {
+        queryBuilder.andWhere('product.createdAt >= :createdFrom', { createdFrom: filters.createdFrom });
+      }
+
+      if (filters.createdTo) {
+        queryBuilder.andWhere('product.createdAt <= :createdTo', { createdTo: filters.createdTo });
+      }
+
       // Apply pagination and ordering
       const skip = (page - 1) * limit;
       queryBuilder
         .skip(skip)
         .take(limit)
-        .orderBy('product.id', 'DESC'); // Use simplest ordering
+        .orderBy('product.createdAt', 'DESC');
 
-      // Get count without relations for performance
+      // Get count with same filters for pagination
       const countQueryBuilder = this.productRepository.createQueryBuilder('product');
+
+      // Apply same filters to count query
+      if (filters.search) {
+        countQueryBuilder.andWhere(
+          '(product.name ILIKE :search OR product.sku ILIKE :search OR product.description ILIKE :search)',
+          { search: `%${filters.search}%` }
+        );
+      }
+
+      if (filters.brandId) {
+        countQueryBuilder.andWhere('product.brandId = :brandId', { brandId: filters.brandId });
+      }
+
+      if (filters.status) {
+        countQueryBuilder.andWhere('product.status = :status', { status: filters.status });
+      }
+
+      if (filters.isActive !== undefined) {
+        countQueryBuilder.andWhere('product.isActive = :isActive', { isActive: filters.isActive });
+      }
+
+      if (filters.isFeatured !== undefined) {
+        countQueryBuilder.andWhere('product.isFeatured = :isFeatured', { isFeatured: filters.isFeatured });
+      }
+
+      if (filters.categoryIds && filters.categoryIds.length > 0) {
+        countQueryBuilder.leftJoin('product.productCategories', 'pc');
+        countQueryBuilder.andWhere('pc.categoryId IN (:...categoryIds)', { categoryIds: filters.categoryIds });
+      }
+
+      if (filters.minPrice !== undefined) {
+        countQueryBuilder.andWhere('product.price >= :minPrice', { minPrice: filters.minPrice });
+      }
+
+      if (filters.maxPrice !== undefined) {
+        countQueryBuilder.andWhere('product.price <= :maxPrice', { maxPrice: filters.maxPrice });
+      }
+
+      if (filters.createdFrom) {
+        countQueryBuilder.andWhere('product.createdAt >= :createdFrom', { createdFrom: filters.createdFrom });
+      }
+
+      if (filters.createdTo) {
+        countQueryBuilder.andWhere('product.createdAt <= :createdTo', { createdTo: filters.createdTo });
+      }
+
       const total = await countQueryBuilder.getCount();
 
       const items = await queryBuilder.getMany();
@@ -223,7 +320,8 @@ export class ProductRepository {
     const queryBuilder = this.productRepository.createQueryBuilder('product')
       .leftJoinAndSelect('product.variants', 'variants')
       .leftJoinAndSelect('product.brand', 'brand')
-      .leftJoinAndSelect('product.category', 'category');
+      .leftJoinAndSelect('product.productCategories', 'productCategories')
+      .leftJoinAndSelect('productCategories.category', 'categories');
 
     const products = await queryBuilder.getMany();
     
@@ -237,17 +335,29 @@ export class ProductRepository {
     // Calculate total stock value using eagerly loaded variants
     const totalStockValue = products.reduce((sum, product) => {
       const variants = (product as any).variants || [];
-      const variantValue = variants.reduce((vSum: number, variant: any) => 
+      // Ensure variants is an array before using reduce
+      if (!Array.isArray(variants)) {
+        return sum;
+      }
+      const variantValue = variants.reduce((vSum: number, variant: any) =>
         vSum + (variant.price * variant.stockQuantity), 0);
       return sum + variantValue;
     }, 0);
     
     const totalViews = 0; // Would need to implement view tracking
     
-    // Categories breakdown using eagerly loaded category
+    // Categories breakdown using ProductCategory junction
     const categoryStats = products.reduce((acc, product) => {
-      const category = (product as any).category?.name || 'Uncategorized';
-      acc[category] = (acc[category] || 0) + 1;
+      const productCategories = (product as any).productCategories || [];
+      // Ensure productCategories is an array before iterating
+      if (!Array.isArray(productCategories) || productCategories.length === 0) {
+        acc['Uncategorized'] = (acc['Uncategorized'] || 0) + 1;
+      } else {
+        productCategories.forEach((pc: any) => {
+          const categoryName = pc.category?.name || 'Uncategorized';
+          acc[categoryName] = (acc[categoryName] || 0) + 1;
+        });
+      }
       return acc;
     }, {} as Record<string, number>);
     
@@ -285,20 +395,37 @@ export class ProductRepository {
       filters: {
         search: filters.search,
         brandId: filters.brandId,
-        categoryId: filters.categoryId,
+        categoryIds: filters.categoryIds,
         status: filters.status,
         isActive: filters.isActive,
         isFeatured: filters.isFeatured,
       },
-      relations: ['brand', 'category', 'variants', 'tags'],
+      relations: ['brand', 'productCategories', 'productCategories.category', 'variants', 'tags'],
     });
   }
 
   async findByIds(productIds: string[]): Promise<Product[]> {
     if (productIds.length === 0) return [];
-    
+
     return await this.productRepository.findBy({
       id: productIds as any
     });
+  }
+
+  async updateProductCategories(productId: string, categoryIds: string[]): Promise<void> {
+    // First, remove existing category relationships for this product
+    await this.productCategoryRepository.delete({ productId });
+
+    // Then, create new relationships
+    if (categoryIds.length > 0) {
+      const productCategories = categoryIds.map(categoryId =>
+        this.productCategoryRepository.create({
+          productId,
+          categoryId,
+        })
+      );
+
+      await this.productCategoryRepository.save(productCategories);
+    }
   }
 }

@@ -35,8 +35,8 @@ export const useTranslationWithBackend = (): UseTranslationWithBackendResult => 
 
   // Merge backend translations with local translations
   useEffect(() => {
-    if (backendTranslations?.success && backendTranslations.data.translations) {
-      const { translations } = backendTranslations.data;
+    if ((backendTranslations as { success?: boolean; data?: { translations?: unknown } })?.success && (backendTranslations as { data?: { translations?: unknown } }).data.translations) {
+      const { translations } = (backendTranslations as { data: { translations: unknown } }).data;
       
       // Add backend translations to i18next resources
       i18n.addResourceBundle(

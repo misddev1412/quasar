@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiPlus, FiMoreVertical, FiPackage, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiShoppingBag, FiStar } from 'react-icons/fi';
+import { FiPlus, FiMoreVertical, FiPackage, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiShoppingBag, FiStar, FiHome } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { Dropdown } from '../../components/common/Dropdown';
@@ -15,6 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from '../../components/common/Ale
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { Product } from '../../types/product';
 import { ProductFilters, ProductFiltersType } from '../../components/features/ProductFilters';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
 
 
 const ProductsPage: React.FC = () => {
@@ -92,7 +93,7 @@ const ProductsPage: React.FC = () => {
         search: searchValue || undefined,
         status: filters.status || undefined,
         brandId: filters.brandId || undefined,
-        categoryId: filters.categoryId || undefined,
+        categoryIds: filters.categoryIds?.join(',') || undefined,
         isFeatured: filters.isFeatured?.toString() || undefined,
         isActive: filters.isActive?.toString() || undefined,
         minPrice: filters.minPrice?.toString() || undefined,
@@ -121,7 +122,7 @@ const ProductsPage: React.FC = () => {
     search: debouncedSearchValue || undefined,
     status: filters.status || undefined,
     brandId: filters.brandId || undefined,
-    categoryId: filters.categoryId || undefined,
+    categoryIds: filters.categoryIds || undefined,
     isFeatured: filters.isFeatured || undefined,
     isActive: filters.isActive || undefined,
     minPrice: filters.minPrice || undefined,
@@ -213,7 +214,7 @@ const ProductsPage: React.FC = () => {
       search: searchValue || undefined,
       status: filters.status || undefined,
       brandId: filters.brandId || undefined,
-      categoryId: filters.categoryId || undefined,
+      categoryIds: filters.categoryIds?.join(',') || undefined,
       isFeatured: filters.isFeatured?.toString() || undefined,
       isActive: filters.isActive?.toString() || undefined,
       minPrice: filters.minPrice?.toString() || undefined,
@@ -236,7 +237,7 @@ const ProductsPage: React.FC = () => {
       search: searchValue || undefined,
       status: filters.status || undefined,
       brandId: filters.brandId || undefined,
-      categoryId: filters.categoryId || undefined,
+      categoryIds: filters.categoryIds?.join(',') || undefined,
       isFeatured: filters.isFeatured?.toString() || undefined,
       isActive: filters.isActive?.toString() || undefined,
       minPrice: filters.minPrice?.toString() || undefined,
@@ -262,7 +263,7 @@ const ProductsPage: React.FC = () => {
       search: searchValue || undefined,
       status: filters.status || undefined,
       brandId: filters.brandId || undefined,
-      categoryId: filters.categoryId || undefined,
+      categoryIds: filters.categoryIds?.join(',') || undefined,
       isFeatured: filters.isFeatured?.toString() || undefined,
       isActive: filters.isActive?.toString() || undefined,
       minPrice: filters.minPrice?.toString() || undefined,
@@ -329,7 +330,7 @@ const ProductsPage: React.FC = () => {
       search: searchValue || undefined,
       status: newFilters.status || undefined,
       brandId: newFilters.brandId || undefined,
-      categoryId: newFilters.categoryId || undefined,
+      categoryIds: newFilters.categoryIds?.join(',') || undefined,
       isFeatured: newFilters.isFeatured?.toString() || undefined,
       isActive: newFilters.isActive?.toString() || undefined,
       minPrice: newFilters.minPrice?.toString() || undefined,
@@ -418,7 +419,13 @@ const ProductsPage: React.FC = () => {
     {
       id: 'category',
       header: t('products.category', 'Category'),
-      accessor: (product) => typeof product.category === 'string' ? product.category : product.category?.name || '-',
+      accessor: (product) => {
+        // Handle both new categories array and old single category
+        if (product.categories && Array.isArray(product.categories)) {
+          return product.categories.map(cat => typeof cat === 'string' ? cat : cat?.name).filter(Boolean).join(', ') || '-';
+        }
+        return typeof product.category === 'string' ? product.category : product.category?.name || '-';
+      },
       isSortable: false,
       hideable: true,
     },
@@ -615,6 +622,21 @@ const ProductsPage: React.FC = () => {
   return (
     <BaseLayout title={t('products.title', 'Product Management')} description={t('products.description', 'Manage all products in the system')} actions={actions} fullWidth={true}>
       <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: t('navigation.home', 'Home'),
+              href: '/',
+              icon: <FiHome className="w-4 h-4" />
+            },
+            {
+              label: t('products.title', 'Products'),
+              icon: <FiPackage className="w-4 h-4" />
+            }
+          ]}
+        />
+
         {/* Statistics Cards */}
         <StatisticsGrid
           statistics={statisticsCards}

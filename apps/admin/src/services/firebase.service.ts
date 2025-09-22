@@ -1,18 +1,26 @@
 import { initializeApp, FirebaseApp } from 'firebase/app';
-import { 
-  getAuth, 
-  Auth, 
-  signInWithEmailAndPassword, 
-  signInWithPopup, 
+import {
+  getAuth,
+  Auth,
+  signInWithEmailAndPassword,
+  signInWithPopup,
   GoogleAuthProvider,
   FacebookAuthProvider,
   TwitterAuthProvider,
   GithubAuthProvider,
-  signOut, 
+  signOut,
   User as FirebaseUser,
   sendSignInLinkToEmail,
   ActionCodeSettings
 } from 'firebase/auth';
+import {
+  getMessaging,
+  Messaging,
+  getToken,
+  onMessage,
+  MessagePayload,
+  isSupported
+} from 'firebase/messaging';
 
 interface FirebaseConfig {
   apiKey: string;
@@ -27,11 +35,14 @@ interface FirebaseConfig {
 export class FirebaseService {
   private app: FirebaseApp | null = null;
   private auth: Auth | null = null;
+  private messaging: Messaging | null = null;
   private googleProvider: GoogleAuthProvider;
   private facebookProvider: FacebookAuthProvider;
   private twitterProvider: TwitterAuthProvider;
   private githubProvider: GithubAuthProvider;
   private initialized = false;
+  private messagingSupported = false;
+  private notificationPermission: NotificationPermission = 'default';
 
   constructor() {
     // Google provider
@@ -65,6 +76,17 @@ export class FirebaseService {
       console.log('🔥 Attempting Firebase initialization with config:', JSON.stringify(config, null, 2));
       this.app = initializeApp(config);
       this.auth = getAuth(this.app);
+
+      // Initialize messaging if supported
+      this.messagingSupported = await isSupported();
+      if (this.messagingSupported) {
+        this.messaging = getMessaging(this.app);
+        this.notificationPermission = Notification.permission;
+        console.log('✅ Firebase Messaging initialized successfully');
+      } else {
+        console.log('⚠️ Firebase Messaging not supported in this environment');
+      }
+
       this.initialized = true;
       console.log('✅ Firebase initialized successfully');
     } catch (error) {
@@ -256,6 +278,100 @@ export class FirebaseService {
 
   isInitialized(): boolean {
     return this.initialized;
+  }
+
+  // Messaging methods
+  async requestNotificationPermission(): Promise<NotificationPermission> {
+    if (!this.messagingSupported) {
+      throw new Error('Firebase Messaging not supported');
+    }
+
+    if (Notification.permission === 'granted') {
+      this.notificationPermission = 'granted';
+      return 'granted';
+    }
+
+    try {
+      const permission = await Notification.requestPermission();
+      this.notificationPermission = permission;
+      console.log('🔔 Notification permission:', permission);
+      return permission;
+    } catch (error) {
+      console.error('❌ Error requesting notification permission:', error);
+      throw new Error('Failed to request notification permission');
+    }
+  }
+
+  async getFCMToken(vapidKey?: string): Promise<string | null> {
+    if (!this.messaging) {
+      throw new Error('Firebase Messaging not initialized');
+    }
+
+    if (this.notificationPermission !== 'granted') {
+      const permission = await this.requestNotificationPermission();
+      if (permission !== 'granted') {
+        throw new Error('Notification permission denied');
+      }
+    }
+
+    try {
+      const token = await getToken(this.messaging, vapidKey ? { vapidKey } : undefined);
+      if (token) {
+        console.log('✅ FCM token generated:', token.substring(0, 20) + '...');
+        return token;
+      } else {
+        console.log('⚠️ No registration token available');
+        return null;
+      }
+    } catch (error) {
+      console.error('❌ Error getting FCM token:', error);
+      throw new Error('Failed to get FCM token');
+    }
+  }
+
+  onMessage(callback: (payload: MessagePayload) => void): (() => void) | null {
+    if (!this.messaging) {
+      console.warn('Firebase Messaging not initialized');
+      return null;
+    }
+
+    try {
+      const unsubscribe = onMessage(this.messaging, (payload) => {
+        console.log('📨 Message received:', payload);
+        callback(payload);
+      });
+
+      return unsubscribe;
+    } catch (error) {
+      console.error('❌ Error setting up message listener:', error);
+      return null;
+    }
+  }
+
+  isMessagingSupported(): boolean {
+    return this.messagingSupported;
+  }
+
+  getNotificationPermission(): NotificationPermission {
+    return this.notificationPermission;
+  }
+
+  showNotification(title: string, options?: NotificationOptions): Notification | null {
+    if (this.notificationPermission !== 'granted') {
+      console.warn('Notification permission not granted');
+      return null;
+    }
+
+    try {
+      return new Notification(title, {
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        ...options,
+      });
+    } catch (error) {
+      console.error('❌ Error showing notification:', error);
+      return null;
+    }
   }
 }
 

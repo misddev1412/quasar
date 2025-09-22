@@ -104,8 +104,12 @@ export interface Product {
   status: 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'DISCONTINUED';
   brandId?: string;
   brand?: Brand | string;
+  supplierId?: string;
+  supplier?: Supplier | string;
   categoryId?: string;
   category?: Category | string;
+  categoryIds?: string[];
+  categories?: Category[] | string[];
   warrantyId?: string;
   warranty?: Warranty;
   images?: string[];
@@ -120,6 +124,7 @@ export interface Product {
   stockQuantity?: number;
   isActive: boolean;
   isFeatured: boolean;
+  isDigital?: boolean;
   sortOrder: number;
   viewCount: number;
   createdAt: Date;
@@ -154,7 +159,7 @@ export interface ProductVariant {
   allowBackorders: boolean;
   weight?: number;
   dimensions?: string;
-  images?: string[];
+  image?: string;
   attributes?: Record<string, any>;
   isActive: boolean;
   sortOrder: number;
@@ -195,15 +200,38 @@ export interface InventoryTransaction {
 export interface Supplier {
   id: string;
   name: string;
-  contactPerson?: string;
+  description?: string;
+  logo?: string;
+  website?: string;
   email?: string;
   phone?: string;
   address?: string;
-  taxId?: string;
-  paymentTerms?: string;
-  notes?: string;
+  city?: string;
+  country?: string;
+  postalCode?: string;
+  contactPerson?: string;
   isActive: boolean;
-  purchaseOrders?: PurchaseOrder[];
+  sortOrder: number;
+  products?: Product[];
+  productCount: number;
+  translations?: SupplierTranslation[];
+  createdAt: Date;
+  updatedAt: Date;
+  version: number;
+  createdBy?: string;
+  updatedBy?: string;
+}
+
+export interface SupplierTranslation {
+  id: string;
+  supplier_id: string;
+  locale: string;
+  name?: string;
+  description?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  contactPerson?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -279,7 +307,9 @@ export interface CreateProductFormData {
   sku?: string;
   status: 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'DISCONTINUED';
   brandId?: string;
+  supplierId?: string;
   categoryId?: string;
+  categoryIds?: string[];
   warrantyId?: string;
   images?: string[];
   media?: ProductMedia[];
@@ -292,14 +322,18 @@ export interface CreateProductFormData {
 
 export interface CreateSupplierFormData {
   name: string;
-  contactPerson?: string;
+  description?: string;
+  logo?: string;
+  website?: string;
   email?: string;
   phone?: string;
   address?: string;
-  taxId?: string;
-  paymentTerms?: string;
-  notes?: string;
+  city?: string;
+  country?: string;
+  postalCode?: string;
+  contactPerson?: string;
   isActive: boolean;
+  sortOrder: number;
 }
 
 // API Response types
@@ -319,6 +353,13 @@ export interface BrandsResponse {
 
 export interface CategoriesResponse {
   categories: Category[];
+}
+
+export interface SuppliersResponse {
+  suppliers: Supplier[];
+  total: number;
+  page: number;
+  limit: number;
 }
 
 export interface ProductStatsResponse {

@@ -25,6 +25,8 @@ import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import BrandingWatermarkIcon from '@mui/icons-material/BrandingWatermark';
 import BusinessIcon from '@mui/icons-material/Business';
 import TuneIcon from '@mui/icons-material/Tune';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import PersonIcon from '@mui/icons-material/Person';
 
 export class NavigationService implements INavigationService {
   constructor(private translate: (key: string, fallback?: string) => string) {}
@@ -118,6 +120,16 @@ export class NavigationService implements INavigationService {
             path: '/products'
           },
           {
+            icon: React.createElement(ShoppingCartIcon),
+            label: t('orders.title', 'Orders'),
+            path: '/orders'
+          },
+          {
+            icon: React.createElement(PersonIcon),
+            label: t('customers.title', 'Customers'),
+            path: '/customers'
+          },
+          {
             icon: React.createElement(BrandingWatermarkIcon),
             label: t('brands.title', 'Brands'),
             path: '/products/brands'
@@ -198,20 +210,46 @@ export class NavigationService implements INavigationService {
     if (path === '/') {
       return currentPath === '/';
     }
-    
+
     if (path.endsWith('-management')) {
       return currentPath === path;
     }
-    
-    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/seo', '/languages', '/products'];
+
+    // Special handling for products - main /products should match edit/create but not sub-categories
+    if (path === '/products') {
+      return currentPath === '/products' ||
+             currentPath.startsWith('/products/create') ||
+             !!currentPath.match(/^\/products\/[^\/]+\/edit$/);
+    }
+
+    // Special handling for orders - main /orders should match detail/edit/create
+    if (path === '/orders') {
+      return currentPath === '/orders' ||
+             currentPath.startsWith('/orders/create') ||
+             !!currentPath.match(/^\/orders\/[^\/]+$/);
+    }
+
+    // Special handling for customers - main /customers should match detail/edit/create
+    if (path === '/customers') {
+      return currentPath === '/customers' ||
+             currentPath.startsWith('/customers/create') ||
+             !!currentPath.match(/^\/customers\/[^\/]+$/);
+    }
+
+    // Products sub-pages should only match exactly or their own sub-paths
+    if (path.startsWith('/products/') && path !== '/products') {
+      return currentPath === path || currentPath.startsWith(path + '/');
+    }
+
+    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/seo', '/languages', '/orders', '/customers'];
     if (exactMatchPaths.includes(path)) {
       return currentPath === path;
     }
-    
+
     if (path.includes('/') && path !== '/') {
       return currentPath === path || currentPath.startsWith(path + '/');
     }
-    
+
     return currentPath.startsWith(path);
   }
 

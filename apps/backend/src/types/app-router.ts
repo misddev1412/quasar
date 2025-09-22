@@ -1,6 +1,6 @@
 import { router, procedure } from '../trpc/trpc';
 import { z } from 'zod';
-import { apiResponseSchema, paginatedResponseSchema } from '../trpc/schemas/response.schemas';
+import { apiResponseSchema, paginatedResponseSchema, ApiResponse } from '../trpc/schemas/response.schemas';
 
 // Zod schemas for validation
 const userRoleSchema = z.enum([
@@ -61,7 +61,7 @@ export const appRouter = router({
       .query(() => {
         // This is just for type definition
         // The actual implementation is handled by NestJS-tRPC
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getTranslation: procedure
@@ -71,7 +71,7 @@ export const appRouter = router({
         defaultValue: z.string().optional(),
       }))
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     createTranslation: procedure
@@ -82,7 +82,7 @@ export const appRouter = router({
         namespace: z.string().optional(),
       }))
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateTranslation: procedure
@@ -93,7 +93,7 @@ export const appRouter = router({
         namespace: z.string().optional(),
       }))
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deleteTranslation: procedure
@@ -102,17 +102,17 @@ export const appRouter = router({
         locale: z.enum(['en', 'vi']),
       }))
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getLocaleConfig: procedure
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     clearCache: procedure
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -122,7 +122,7 @@ export const appRouter = router({
       .input(z.object({ path: z.string() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -133,21 +133,21 @@ export const appRouter = router({
       getAll: procedure
         .output(apiResponseSchema)
         .query(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
 
       getById: procedure
         .input(z.object({ id: z.string() }))
         .output(apiResponseSchema)
         .query(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
 
       getByPath: procedure
         .input(z.object({ path: z.string() }))
         .output(apiResponseSchema)
         .query(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
 
       create: procedure
@@ -161,7 +161,7 @@ export const appRouter = router({
         }))
         .output(apiResponseSchema)
         .mutation(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
 
       update: procedure
@@ -176,14 +176,14 @@ export const appRouter = router({
         }))
         .output(apiResponseSchema)
         .mutation(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
 
       delete: procedure
         .input(z.object({ id: z.string() }))
         .output(apiResponseSchema)
         .mutation(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
     }),
   }),
@@ -202,7 +202,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getAllUsers: procedure
@@ -215,14 +215,14 @@ export const appRouter = router({
       }))
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getUserById: procedure
       .input(z.object({ id: z.string() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateUser: procedure
@@ -235,14 +235,14 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deleteUser: procedure
       .input(z.object({ id: z.string() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateUserStatus: procedure
@@ -252,31 +252,31 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getProfile: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
     updateProfile: procedure
       .input(z.any()) // Using z.any() for simplicity on the client-side type definition
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
     updatePassword: procedure
       .input(z.any()) // Using z.any() for simplicity on the client-side type definition
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
     updateUserProfileById: procedure
       .input(z.object({ id: z.string() }).and(z.any())) // client-side typing convenience
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -294,7 +294,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getTemplates: procedure
@@ -309,21 +309,21 @@ export const appRouter = router({
       }))
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getTemplateById: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getTemplateByName: procedure
       .input(z.object({ name: z.string() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateTemplate: procedure
@@ -339,14 +339,14 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deleteTemplate: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     processTemplate: procedure
@@ -356,7 +356,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     cloneTemplate: procedure
@@ -366,19 +366,19 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getTemplateTypes: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getStatistics: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     bulkUpdateStatus: procedure
@@ -388,14 +388,14 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     searchTemplates: procedure
       .input(z.object({ searchTerm: z.string().min(1) }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -404,21 +404,21 @@ export const appRouter = router({
     getAll: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getById: procedure
       .input(z.object({ id: z.string() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getByPath: procedure
       .input(z.object({ path: z.string() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     create: procedure
@@ -432,7 +432,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     update: procedure
@@ -447,14 +447,14 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     delete: procedure
       .input(z.object({ id: z.string() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -463,13 +463,13 @@ export const appRouter = router({
     getUserStatistics: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getOverview: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getUserGrowth: procedure
@@ -480,13 +480,13 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getRoleDistribution: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getActivityStats: procedure
@@ -497,7 +497,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -513,7 +513,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getAvailableChartTypes: procedure
@@ -522,7 +522,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -539,14 +539,14 @@ export const appRouter = router({
       }))
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getActivityById: procedure
       .input(z.object({ id: z.string() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -555,28 +555,28 @@ export const appRouter = router({
     getAll: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getById: procedure
       .input(z.object({ id: z.string() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getByKey: procedure
       .input(z.object({ key: z.string() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getByGroup: procedure
       .input(z.object({ group: z.string() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     create: procedure
@@ -590,7 +590,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     update: procedure
@@ -604,7 +604,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     bulkUpdate: procedure
@@ -616,14 +616,14 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     delete: procedure
       .input(z.object({ id: z.string() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -647,7 +647,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getRoleById: procedure
@@ -656,7 +656,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     createRole: procedure
@@ -669,7 +669,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateRole: procedure
@@ -685,7 +685,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deleteRole: procedure
@@ -694,19 +694,19 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getAvailablePermissions: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getRoleStatistics: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     toggleRoleStatus: procedure
@@ -715,7 +715,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     duplicateRole: procedure
@@ -725,7 +725,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     addPermissionsToRole: procedure
@@ -735,7 +735,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     searchUsersForRole: procedure
@@ -747,7 +747,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     addUsersToRole: procedure
@@ -757,7 +757,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -770,7 +770,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     loginWithFirebase: procedure
@@ -779,7 +779,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     refresh: procedure
@@ -788,13 +788,13 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     me: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -811,7 +811,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getAllPermissions: procedure
@@ -826,14 +826,14 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getPermissionById: procedure
       .input(z.object({ id: z.string() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updatePermission: procedure
@@ -849,14 +849,14 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deletePermission: procedure
       .input(z.object({ id: z.string() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     assignPermissionToRole: procedure
@@ -866,7 +866,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     removePermissionFromRole: procedure
@@ -876,7 +876,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getRolePermissions: procedure
@@ -885,7 +885,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     grantPermissions: procedure
@@ -900,7 +900,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     checkPermission: procedure
@@ -912,7 +912,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -933,21 +933,21 @@ export const appRouter = router({
       }))
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getPostById: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getPostBySlug: procedure
       .input(z.object({ slug: z.string() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     createPost: procedure
@@ -978,7 +978,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updatePost: procedure
@@ -1011,14 +1011,14 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deletePost: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getFeaturedPosts: procedure
@@ -1028,14 +1028,14 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     incrementViewCount: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -1044,14 +1044,14 @@ export const appRouter = router({
     getCategories: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getCategoryById: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     createCategory: procedure
@@ -1065,7 +1065,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateCategory: procedure
@@ -1082,14 +1082,14 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deleteCategory: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -1098,14 +1098,14 @@ export const appRouter = router({
     getTags: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getTagById: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     searchTags: procedure
@@ -1115,7 +1115,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     createTag: procedure
@@ -1128,7 +1128,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateTag: procedure
@@ -1144,14 +1144,14 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deleteTag: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -1182,7 +1182,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getChannels: procedure
@@ -1196,33 +1196,33 @@ export const appRouter = router({
       }))
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getChannelById: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getActiveChannels: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getChannelsByUsageType: procedure
       .input(z.object({ usageType: z.string() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getDefaultChannel: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateChannel: procedure
@@ -1251,28 +1251,28 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deleteChannel: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     setAsDefault: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     testChannel: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     cloneChannel: procedure
@@ -1282,7 +1282,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -1291,7 +1291,7 @@ export const appRouter = router({
     getStorageConfig: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateStorageConfig: procedure
@@ -1310,7 +1310,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     testStorageConnection: procedure
@@ -1320,7 +1320,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -1335,26 +1335,26 @@ export const appRouter = router({
       }))
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getActiveLanguages: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getLanguageById: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getDefaultLanguage: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     createLanguage: procedure
@@ -1369,7 +1369,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateLanguage: procedure
@@ -1387,28 +1387,28 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deleteLanguage: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     setDefaultLanguage: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     toggleLanguageStatus: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateSortOrders: procedure
@@ -1420,7 +1420,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -1438,14 +1438,14 @@ export const appRouter = router({
       }).optional())
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getMediaById: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateMedia: procedure
@@ -1459,14 +1459,14 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deleteMedia: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deleteMultipleMedia: procedure
@@ -1475,13 +1475,13 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getMediaStats: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getRecentMedia: procedure
@@ -1491,7 +1491,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -1517,14 +1517,14 @@ export const appRouter = router({
       }).optional())
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     detail: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     create: procedure
@@ -1555,7 +1555,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     update: procedure
@@ -1589,20 +1589,20 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     delete: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     stats: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateStatus: procedure
@@ -1612,7 +1612,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -1633,14 +1633,14 @@ export const appRouter = router({
       }).optional())
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     detail: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     featured: procedure
@@ -1649,7 +1649,7 @@ export const appRouter = router({
       }).optional())
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     byCategory: procedure
@@ -1660,7 +1660,7 @@ export const appRouter = router({
       }))
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     byBrand: procedure
@@ -1671,7 +1671,7 @@ export const appRouter = router({
       }))
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -1692,14 +1692,14 @@ export const appRouter = router({
       }).optional())
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     detail: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     featured: procedure
@@ -1708,7 +1708,7 @@ export const appRouter = router({
       }).optional())
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     byCategory: procedure
@@ -1719,7 +1719,7 @@ export const appRouter = router({
       }))
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     byBrand: procedure
@@ -1730,7 +1730,7 @@ export const appRouter = router({
       }))
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     search: procedure
@@ -1749,7 +1749,7 @@ export const appRouter = router({
       }))
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -1758,7 +1758,7 @@ export const appRouter = router({
     getProfile: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     register: procedure
@@ -1772,7 +1772,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     login: procedure
@@ -1782,7 +1782,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateProfile: procedure
@@ -1800,14 +1800,14 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     refreshToken: procedure
       .input(z.object({ refreshToken: z.string() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -1816,14 +1816,14 @@ export const appRouter = router({
     getAllConfigs: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getConfig: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     createConfig: procedure
@@ -1841,7 +1841,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateConfig: procedure
@@ -1860,14 +1860,14 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deleteConfig: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -1884,14 +1884,14 @@ export const appRouter = router({
       }).optional())
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getById: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     create: procedure
@@ -1905,7 +1905,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     update: procedure
@@ -1920,20 +1920,20 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     delete: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getStats: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     // Brand translation endpoints
@@ -1944,7 +1944,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getByIdWithTranslations: procedure
@@ -1954,7 +1954,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     createBrandTranslation: procedure
@@ -1966,7 +1966,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateBrandTranslation: procedure
@@ -1978,7 +1978,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deleteBrandTranslation: procedure
@@ -1988,7 +1988,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -2006,7 +2006,7 @@ export const appRouter = router({
       }).optional())
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getTree: procedure
@@ -2015,7 +2015,7 @@ export const appRouter = router({
       }).optional())
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getRootCategories: procedure
@@ -2024,7 +2024,7 @@ export const appRouter = router({
       }).optional())
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getCategoryChildren: procedure
@@ -2034,14 +2034,14 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getById: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     create: procedure
@@ -2059,7 +2059,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     update: procedure
@@ -2078,20 +2078,20 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     delete: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getStats: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     // Category translation endpoints
@@ -2102,7 +2102,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getByIdWithTranslations: procedure
@@ -2112,7 +2112,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getTreeWithTranslations: procedure
@@ -2122,7 +2122,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     createCategoryTranslation: procedure
@@ -2138,7 +2138,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateCategoryTranslation: procedure
@@ -2154,7 +2154,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deleteCategoryTranslation: procedure
@@ -2164,7 +2164,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
   }),
 
@@ -2183,7 +2183,7 @@ export const appRouter = router({
         }).optional())
         .output(paginatedResponseSchema)
         .query(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
 
       getTree: procedure
@@ -2192,14 +2192,14 @@ export const appRouter = router({
         }).optional())
         .output(apiResponseSchema)
         .query(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
 
       getById: procedure
         .input(z.object({ id: z.string().uuid() }))
         .output(apiResponseSchema)
         .query(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
 
       create: procedure
@@ -2217,7 +2217,7 @@ export const appRouter = router({
         }))
         .output(apiResponseSchema)
         .mutation(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
 
       update: procedure
@@ -2236,20 +2236,20 @@ export const appRouter = router({
         }))
         .output(apiResponseSchema)
         .mutation(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
 
       delete: procedure
         .input(z.object({ id: z.string().uuid() }))
         .output(apiResponseSchema)
         .mutation(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
 
       getStats: procedure
         .output(apiResponseSchema)
         .query(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
     }),
 
@@ -2265,14 +2265,14 @@ export const appRouter = router({
         }).optional())
         .output(paginatedResponseSchema)
         .query(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
 
       getById: procedure
         .input(z.object({ id: z.string().uuid() }))
         .output(apiResponseSchema)
         .query(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
 
       create: procedure
@@ -2286,7 +2286,7 @@ export const appRouter = router({
         }))
         .output(apiResponseSchema)
         .mutation(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
 
       update: procedure
@@ -2301,20 +2301,20 @@ export const appRouter = router({
         }))
         .output(apiResponseSchema)
         .mutation(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
 
       delete: procedure
         .input(z.object({ id: z.string().uuid() }))
         .output(apiResponseSchema)
         .mutation(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
 
       getStats: procedure
         .output(apiResponseSchema)
         .query(() => {
-          return {} as any;
+          return {} as ApiResponse;
         }),
     }),
   }),
@@ -2334,26 +2334,26 @@ export const appRouter = router({
       }).optional())
       .output(paginatedResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getById: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getSelectAttributes: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getFilterableAttributes: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     create: procedure
@@ -2367,7 +2367,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     update: procedure
@@ -2382,21 +2382,21 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     delete: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getAttributeValues: procedure
       .input(z.object({ attributeId: z.string().uuid() }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     createAttributeValue: procedure
@@ -2408,7 +2408,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateAttributeValue: procedure
@@ -2420,20 +2420,20 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deleteAttributeValue: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getStats: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     // Translation endpoints
@@ -2444,7 +2444,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     getByIdWithTranslations: procedure
@@ -2454,7 +2454,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     createAttributeTranslation: procedure
@@ -2465,7 +2465,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     updateAttributeTranslation: procedure
@@ -2476,7 +2476,7 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
       }),
 
     deleteAttributeTranslation: procedure
@@ -2486,7 +2486,151 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as any;
+        return {} as ApiResponse;
+      }),
+  }),
+
+  // Admin Product Suppliers router
+  adminProductSuppliers: router({
+    getAll: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(10),
+        search: z.string().optional(),
+        isActive: z.boolean().optional(),
+        country: z.string().optional(),
+        sortBy: z.enum(['name', 'createdAt', 'updatedAt']).default('createdAt'),
+        sortOrder: z.enum(['ASC', 'DESC']).default('DESC'),
+      }).optional())
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getById: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    create: procedure
+      .input(z.object({
+        name: z.string().min(1),
+        description: z.string().optional(),
+        logo: z.string().optional(),
+        website: z.string().optional(),
+        email: z.string().email().optional(),
+        phone: z.string().optional(),
+        address: z.string().optional(),
+        city: z.string().optional(),
+        country: z.string().optional(),
+        postalCode: z.string().optional(),
+        contactPerson: z.string().optional(),
+        isActive: z.boolean().default(true),
+        sortOrder: z.number().min(0).default(0),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    update: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        name: z.string().min(1).optional(),
+        description: z.string().optional(),
+        logo: z.string().optional(),
+        website: z.string().optional(),
+        email: z.string().email().optional(),
+        phone: z.string().optional(),
+        address: z.string().optional(),
+        city: z.string().optional(),
+        country: z.string().optional(),
+        postalCode: z.string().optional(),
+        contactPerson: z.string().optional(),
+        isActive: z.boolean().optional(),
+        sortOrder: z.number().min(0).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    delete: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    getStats: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    // Supplier translation endpoints
+    getSupplierTranslations: procedure
+      .input(z.object({
+        supplierId: z.string().uuid(),
+        locale: z.string().min(2).max(5).optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getByIdWithTranslations: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        locale: z.string().min(2).max(5).optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    createSupplierTranslation: procedure
+      .input(z.object({
+        supplierId: z.string().uuid(),
+        locale: z.string().min(2).max(5),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        address: z.string().optional(),
+        city: z.string().optional(),
+        country: z.string().optional(),
+        contactPerson: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    updateSupplierTranslation: procedure
+      .input(z.object({
+        supplierId: z.string().uuid(),
+        locale: z.string().min(2).max(5),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        address: z.string().optional(),
+        city: z.string().optional(),
+        country: z.string().optional(),
+        contactPerson: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    deleteSupplierTranslation: procedure
+      .input(z.object({
+        supplierId: z.string().uuid(),
+        locale: z.string().min(2).max(5),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
       }),
   }),
 
@@ -2495,7 +2639,812 @@ export const appRouter = router({
     getFirebaseConfig: procedure
       .output(apiResponseSchema)
       .query(() => {
-        return {} as any;
+        return {} as ApiResponse;
+      }),
+  }),
+
+  // Admin Notification router
+  adminNotification: router({
+    getNotifications: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+        userId: z.string().optional(),
+        type: z.enum(['info', 'success', 'warning', 'error', 'system', 'product', 'order', 'user']).optional(),
+        read: z.boolean().optional(),
+        sortBy: z.enum(['createdAt', 'updatedAt']).default('createdAt'),
+        sortOrder: z.enum(['ASC', 'DESC']).default('DESC'),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getNotificationById: procedure
+      .input(z.object({ id: z.string().min(1) }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getNotificationStats: procedure
+      .input(z.object({ userId: z.string().optional() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    sendNotificationToUser: procedure
+      .input(z.object({
+        userId: z.string().min(1),
+        title: z.string().min(1).max(255),
+        body: z.string().min(1),
+        type: z.enum(['info', 'success', 'warning', 'error', 'system', 'product', 'order', 'user']).optional(),
+        actionUrl: z.string().optional(),
+        icon: z.string().optional(),
+        image: z.string().optional(),
+        data: z.record(z.unknown()).optional(),
+        fcmTokens: z.array(z.string()).optional(),
+        sendPush: z.boolean().default(true),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    sendBulkNotifications: procedure
+      .input(z.object({
+        userIds: z.array(z.string().min(1)).min(1),
+        title: z.string().min(1).max(255),
+        body: z.string().min(1),
+        type: z.enum(['info', 'success', 'warning', 'error', 'system', 'product', 'order', 'user']).optional(),
+        actionUrl: z.string().optional(),
+        icon: z.string().optional(),
+        image: z.string().optional(),
+        data: z.record(z.unknown()).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    sendTopicNotification: procedure
+      .input(z.object({
+        topic: z.string().min(1),
+        title: z.string().min(1).max(255),
+        body: z.string().min(1),
+        actionUrl: z.string().optional(),
+        data: z.record(z.unknown()).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    markAsRead: procedure
+      .input(z.object({ id: z.string().min(1) }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    deleteNotification: procedure
+      .input(z.object({ id: z.string().min(1) }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  // Admin Notification Preferences router
+  adminNotificationPreferences: router({
+    getUserPreferences: procedure
+      .input(z.object({ userId: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getUserPreferencesRaw: procedure
+      .input(z.object({ userId: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    createPreference: procedure
+      .input(z.object({
+        userId: z.string().uuid(),
+        type: z.enum(['info', 'success', 'warning', 'error', 'system', 'product', 'order', 'user']),
+        channel: z.enum(['push', 'email', 'in_app']),
+        enabled: z.boolean().optional().default(true),
+        frequency: z.enum(['immediate', 'hourly', 'daily', 'weekly', 'never']).optional().default('immediate'),
+        quietHoursStart: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
+        quietHoursEnd: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
+        quietHoursTimezone: z.string().optional(),
+        settings: z.record(z.unknown()).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    updatePreference: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        enabled: z.boolean().optional(),
+        frequency: z.enum(['immediate', 'hourly', 'daily', 'weekly', 'never']).optional(),
+        quietHoursStart: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
+        quietHoursEnd: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
+        quietHoursTimezone: z.string().optional(),
+        settings: z.record(z.unknown()).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    updateUserPreference: procedure
+      .input(z.object({
+        userId: z.string().uuid(),
+        type: z.enum(['info', 'success', 'warning', 'error', 'system', 'product', 'order', 'user']),
+        channel: z.enum(['push', 'email', 'in_app']),
+        enabled: z.boolean().optional(),
+        frequency: z.enum(['immediate', 'hourly', 'daily', 'weekly', 'never']).optional(),
+        quietHoursStart: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
+        quietHoursEnd: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
+        quietHoursTimezone: z.string().optional(),
+        settings: z.record(z.unknown()).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    bulkUpdateUserPreferences: procedure
+      .input(z.object({
+        userId: z.string().uuid(),
+        preferences: z.array(z.object({
+          type: z.enum(['info', 'success', 'warning', 'error', 'system', 'product', 'order', 'user']),
+          channel: z.enum(['push', 'email', 'in_app']),
+          enabled: z.boolean().optional(),
+          frequency: z.enum(['immediate', 'hourly', 'daily', 'weekly', 'never']).optional(),
+          quietHoursStart: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
+          quietHoursEnd: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
+          quietHoursTimezone: z.string().optional(),
+          settings: z.record(z.unknown()).optional(),
+        })),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    deletePreference: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    initializeUserPreferences: procedure
+      .input(z.object({ userId: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    toggleNotificationType: procedure
+      .input(z.object({
+        userId: z.string().uuid(),
+        type: z.enum(['info', 'success', 'warning', 'error', 'system', 'product', 'order', 'user']),
+        enabled: z.boolean(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    setQuietHours: procedure
+      .input(z.object({
+        userId: z.string().uuid(),
+        channel: z.enum(['push', 'email', 'in_app']),
+        start: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/),
+        end: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/),
+        timezone: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    getQuietHours: procedure
+      .input(z.object({
+        userId: z.string().uuid(),
+        channel: z.enum(['push', 'email', 'in_app']),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    canSendNotification: procedure
+      .input(z.object({
+        userId: z.string().uuid(),
+        type: z.enum(['info', 'success', 'warning', 'error', 'system', 'product', 'order', 'user']),
+        channel: z.enum(['push', 'email', 'in_app']),
+        timezone: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  // Admin Customers router
+  adminCustomers: router({
+    list: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+        search: z.string().optional(),
+        status: z.enum(['ACTIVE', 'INACTIVE', 'BLOCKED', 'PENDING']).optional(),
+        type: z.enum(['INDIVIDUAL', 'BUSINESS']).optional(),
+        hasOrders: z.boolean().optional(),
+        isVip: z.boolean().optional(),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    detail: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    create: procedure
+      .input(z.object({
+        firstName: z.string().min(1),
+        lastName: z.string().min(1),
+        email: z.string().email(),
+        phone: z.string().optional(),
+        dateOfBirth: z.string().optional(),
+        gender: z.string().optional(),
+        companyName: z.string().optional(),
+        jobTitle: z.string().optional(),
+        type: z.enum(['INDIVIDUAL', 'BUSINESS']).optional(),
+        status: z.enum(['ACTIVE', 'INACTIVE', 'BLOCKED', 'PENDING']).optional(),
+        languagePreference: z.string().optional(),
+        currencyPreference: z.string().optional(),
+        timezone: z.string().optional(),
+        marketingConsent: z.boolean().optional(),
+        newsletterSubscribed: z.boolean().optional(),
+        customerTags: z.array(z.string()).optional(),
+        notes: z.string().optional(),
+        referralSource: z.string().optional(),
+        taxExempt: z.boolean().optional(),
+        taxId: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    update: procedure
+      .input(z.object({
+        id: z.string(),
+        firstName: z.string().optional(),
+        lastName: z.string().optional(),
+        email: z.string().email().optional(),
+        phone: z.string().optional(),
+        dateOfBirth: z.string().optional(),
+        gender: z.string().optional(),
+        companyName: z.string().optional(),
+        jobTitle: z.string().optional(),
+        type: z.enum(['INDIVIDUAL', 'BUSINESS']).optional(),
+        status: z.enum(['ACTIVE', 'INACTIVE', 'BLOCKED', 'PENDING']).optional(),
+        languagePreference: z.string().optional(),
+        currencyPreference: z.string().optional(),
+        timezone: z.string().optional(),
+        marketingConsent: z.boolean().optional(),
+        newsletterSubscribed: z.boolean().optional(),
+        customerTags: z.array(z.string()).optional(),
+        notes: z.string().optional(),
+        referralSource: z.string().optional(),
+        taxExempt: z.boolean().optional(),
+        taxId: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    delete: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    stats: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    updateStatus: procedure
+      .input(z.object({
+        id: z.string(),
+        status: z.enum(['ACTIVE', 'INACTIVE', 'BLOCKED', 'PENDING']),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    search: procedure
+      .input(z.object({
+        search: z.string().min(1),
+        limit: z.number().min(1).max(50).default(20),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    topCustomers: procedure
+      .input(z.object({
+        limit: z.number().min(1).max(50).default(10),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    recentCustomers: procedure
+      .input(z.object({
+        limit: z.number().min(1).max(50).default(10),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    inactiveCustomers: procedure
+      .input(z.object({
+        daysSinceLastOrder: z.number().min(1).default(90),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    customersByTag: procedure
+      .input(z.object({
+        tag: z.string().min(1),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    addLoyaltyPoints: procedure
+      .input(z.object({
+        customerId: z.string(),
+        points: z.number().min(1),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    redeemLoyaltyPoints: procedure
+      .input(z.object({
+        customerId: z.string(),
+        points: z.number().min(1),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    bulkUpdateStatus: procedure
+      .input(z.object({
+        customerIds: z.array(z.string()).min(1),
+        status: z.enum(['ACTIVE', 'INACTIVE', 'BLOCKED', 'PENDING']),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  // Admin Address Book router
+  adminAddressBook: router({
+    list: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+        customerId: z.string().uuid().optional(),
+        countryId: z.string().optional(),
+        addressType: z.enum(['BILLING', 'SHIPPING', 'BOTH']).optional(),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    detail: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    getByCustomerId: procedure
+      .input(z.object({ customerId: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    getByCustomerIdAndType: procedure
+      .input(z.object({
+        customerId: z.string().uuid(),
+        addressType: z.enum(['BILLING', 'SHIPPING', 'BOTH']),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    create: procedure
+      .input(z.object({
+        customerId: z.string().uuid(),
+        countryId: z.string(),
+        provinceId: z.string().optional(),
+        wardId: z.string().optional(),
+        firstName: z.string().min(1),
+        lastName: z.string().min(1),
+        companyName: z.string().optional(),
+        addressLine1: z.string().min(1),
+        addressLine2: z.string().optional(),
+        postalCode: z.string().optional(),
+        phoneNumber: z.string().optional(),
+        email: z.string().email().optional(),
+        addressType: z.enum(['BILLING', 'SHIPPING', 'BOTH']).default('BOTH'),
+        isDefault: z.boolean().default(false),
+        label: z.string().optional(),
+        deliveryInstructions: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    update: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        countryId: z.string().optional(),
+        provinceId: z.string().optional(),
+        wardId: z.string().optional(),
+        firstName: z.string().optional(),
+        lastName: z.string().optional(),
+        companyName: z.string().optional(),
+        addressLine1: z.string().optional(),
+        addressLine2: z.string().optional(),
+        postalCode: z.string().optional(),
+        phoneNumber: z.string().optional(),
+        email: z.string().email().optional(),
+        addressType: z.enum(['BILLING', 'SHIPPING', 'BOTH']).optional(),
+        isDefault: z.boolean().optional(),
+        label: z.string().optional(),
+        deliveryInstructions: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    delete: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    setAsDefault: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    stats: procedure
+      .input(z.object({ customerId: z.string().uuid().optional() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  // Admin Orders router
+  adminOrders: router({
+    list: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+        search: z.string().optional(),
+        status: z.enum(['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURNED', 'REFUNDED']).optional(),
+        paymentStatus: z.enum(['PENDING', 'PAID', 'PARTIALLY_PAID', 'FAILED', 'REFUNDED', 'CANCELLED']).optional(),
+        source: z.enum(['WEBSITE', 'MOBILE_APP', 'PHONE', 'EMAIL', 'IN_STORE', 'SOCIAL_MEDIA', 'MARKETPLACE']).optional(),
+        customerId: z.string().optional(),
+        customerEmail: z.string().optional(),
+        orderNumber: z.string().optional(),
+        minAmount: z.number().optional(),
+        maxAmount: z.number().optional(),
+        isPaid: z.boolean().optional(),
+        isCompleted: z.boolean().optional(),
+        isCancelled: z.boolean().optional(),
+        dateFrom: z.string().optional(),
+        dateTo: z.string().optional(),
+        shippedDateFrom: z.string().optional(),
+        shippedDateTo: z.string().optional(),
+        deliveredDateFrom: z.string().optional(),
+        deliveredDateTo: z.string().optional(),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    detail: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getByOrderNumber: procedure
+      .input(z.object({ orderNumber: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    create: procedure
+      .input(z.object({
+        customerId: z.string().optional(),
+        customerEmail: z.string().email(),
+        customerPhone: z.string().optional(),
+        customerName: z.string().min(1),
+        source: z.enum(['WEBSITE', 'MOBILE_APP', 'PHONE', 'EMAIL', 'IN_STORE', 'SOCIAL_MEDIA', 'MARKETPLACE']).optional(),
+        billingAddress: z.object({
+          firstName: z.string(),
+          lastName: z.string(),
+          company: z.string().optional(),
+          address1: z.string(),
+          address2: z.string().optional(),
+          city: z.string(),
+          state: z.string(),
+          postalCode: z.string(),
+          country: z.string(),
+        }).optional(),
+        shippingAddress: z.object({
+          firstName: z.string(),
+          lastName: z.string(),
+          company: z.string().optional(),
+          address1: z.string(),
+          address2: z.string().optional(),
+          city: z.string(),
+          state: z.string(),
+          postalCode: z.string(),
+          country: z.string(),
+        }).optional(),
+        paymentMethod: z.string().optional(),
+        shippingMethod: z.string().optional(),
+        currency: z.string().optional(),
+        notes: z.string().optional(),
+        customerNotes: z.string().optional(),
+        internalNotes: z.string().optional(),
+        discountCode: z.string().optional(),
+        isGift: z.boolean().optional(),
+        giftMessage: z.string().optional(),
+        items: z.array(z.object({
+          productId: z.string(),
+          productVariantId: z.string().optional(),
+          productName: z.string(),
+          productSku: z.string().optional(),
+          variantName: z.string().optional(),
+          variantSku: z.string().optional(),
+          quantity: z.number().min(1),
+          unitPrice: z.number().min(0),
+          discountAmount: z.number().min(0).optional(),
+          taxAmount: z.number().min(0).optional(),
+          productImage: z.string().optional(),
+          productAttributes: z.record(z.string()).optional(),
+          isDigital: z.boolean().optional(),
+          weight: z.number().optional(),
+          dimensions: z.string().optional(),
+          requiresShipping: z.boolean().optional(),
+          isGiftCard: z.boolean().optional(),
+          giftCardCode: z.string().optional(),
+          notes: z.string().optional(),
+          sortOrder: z.number().optional(),
+        })).min(1),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    update: procedure
+      .input(z.object({
+        id: z.string(),
+        status: z.enum(['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURNED', 'REFUNDED']).optional(),
+        paymentStatus: z.enum(['PENDING', 'PAID', 'PARTIALLY_PAID', 'FAILED', 'REFUNDED', 'CANCELLED']).optional(),
+        customerEmail: z.string().email().optional(),
+        customerPhone: z.string().optional(),
+        customerName: z.string().optional(),
+        billingAddress: z.object({
+          firstName: z.string(),
+          lastName: z.string(),
+          company: z.string().optional(),
+          address1: z.string(),
+          address2: z.string().optional(),
+          city: z.string(),
+          state: z.string(),
+          postalCode: z.string(),
+          country: z.string(),
+        }).optional(),
+        shippingAddress: z.object({
+          firstName: z.string(),
+          lastName: z.string(),
+          company: z.string().optional(),
+          address1: z.string(),
+          address2: z.string().optional(),
+          city: z.string(),
+          state: z.string(),
+          postalCode: z.string(),
+          country: z.string(),
+        }).optional(),
+        paymentMethod: z.string().optional(),
+        paymentReference: z.string().optional(),
+        shippingMethod: z.string().optional(),
+        trackingNumber: z.string().optional(),
+        estimatedDeliveryDate: z.string().optional(),
+        notes: z.string().optional(),
+        customerNotes: z.string().optional(),
+        internalNotes: z.string().optional(),
+        discountCode: z.string().optional(),
+        discountAmount: z.number().optional(),
+        isGift: z.boolean().optional(),
+        giftMessage: z.string().optional(),
+        cancelledReason: z.string().optional(),
+        refundAmount: z.number().optional(),
+        refundReason: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    updateStatus: procedure
+      .input(z.object({
+        id: z.string(),
+        status: z.enum(['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURNED', 'REFUNDED']),
+        reason: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    updatePaymentStatus: procedure
+      .input(z.object({
+        id: z.string(),
+        paymentStatus: z.enum(['PENDING', 'PAID', 'PARTIALLY_PAID', 'FAILED', 'REFUNDED', 'CANCELLED']),
+        paymentReference: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    cancel: procedure
+      .input(z.object({
+        id: z.string(),
+        reason: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    refund: procedure
+      .input(z.object({
+        id: z.string(),
+        refundAmount: z.number().optional(),
+        reason: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    ship: procedure
+      .input(z.object({
+        id: z.string(),
+        trackingNumber: z.string().optional(),
+        shippingMethod: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    fulfill: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    delete: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    stats: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getByCustomer: procedure
+      .input(z.object({
+        customerId: z.string(),
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getByCustomerEmail: procedure
+      .input(z.object({
+        customerEmail: z.string().email(),
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    fulfillItem: procedure
+      .input(z.object({
+        itemId: z.string(),
+        quantity: z.number().min(1),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    refundItem: procedure
+      .input(z.object({
+        itemId: z.string(),
+        quantity: z.number().min(1),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    deleteItem: procedure
+      .input(z.object({ itemId: z.string() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
       }),
   }),
 });

@@ -80,16 +80,15 @@ export const Toggle: React.FC<ToggleProps> = ({
 
   if (label || description) {
     return (
-      <div className={cn('flex items-start space-x-3', className)}>
-        {toggleElement}
+      <div className={cn('flex flex-col space-y-2', className)}>
         <div className="flex-1">
           {label && (
-            <label 
+            <label
               htmlFor={id}
               className={cn(
                 'text-sm font-medium cursor-pointer',
-                disabled 
-                  ? 'text-gray-400 cursor-not-allowed' 
+                disabled
+                  ? 'text-gray-400 cursor-not-allowed'
                   : 'text-gray-900 dark:text-gray-100'
               )}
               onClick={!disabled ? handleChange : undefined}
@@ -103,6 +102,7 @@ export const Toggle: React.FC<ToggleProps> = ({
             </p>
           )}
         </div>
+        {toggleElement}
       </div>
     );
   }

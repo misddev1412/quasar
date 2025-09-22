@@ -28,6 +28,7 @@ export enum ModuleCode {
   CART = 22,              // Shopping Cart
   ORDER = 23,             // Order Management
   INVENTORY = 24,         // Inventory Management
+  ADDRESS_BOOK = 25,      // Address Book Management
   
   // Content Management (30-39)
   NEWS = 30,              // News System

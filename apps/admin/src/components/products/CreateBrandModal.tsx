@@ -117,7 +117,12 @@ export const CreateBrandModal: React.FC<CreateBrandModalProps> = ({
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} size="lg">
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size="lg"
+        modalId="create-brand-modal"
+      >
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex items-center justify-between pr-8">
             <h2 className="text-xl font-semibold">

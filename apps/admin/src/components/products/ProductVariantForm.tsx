@@ -7,7 +7,9 @@ import { Button } from '../common/Button';
 import { FormInput } from '../common/FormInput';
 import { TextareaInput } from '../common/TextareaInput';
 import { Toggle } from '../common/Toggle';
+import { MediaManager } from '../common/MediaManager';
 import { ProductVariantItemsForm, VariantItem } from './ProductVariantItemsForm';
+import { Image, X } from 'lucide-react';
 
 const variantSchema = z.object({
   name: z.string().min(1, 'Variant name is required'),
@@ -39,7 +41,7 @@ export interface ProductVariant {
   allowBackorders: boolean;
   weight?: number;
   dimensions?: string;
-  images?: string[];
+  image?: string;
   isActive: boolean;
   sortOrder: number;
   variantItems: VariantItem[];
@@ -63,6 +65,8 @@ export const ProductVariantForm: React.FC<ProductVariantFormProps> = ({
   const [variantItems, setVariantItems] = useState<VariantItem[]>(
     variant?.variantItems || []
   );
+  const [selectedImage, setSelectedImage] = useState<string | null>(variant?.image || null);
+  const [isMediaManagerOpen, setIsMediaManagerOpen] = useState(false);
 
   const {
     register,
@@ -94,6 +98,7 @@ export const ProductVariantForm: React.FC<ProductVariantFormProps> = ({
   const handleFormSubmit = async (data: any) => {
     const submitData: ProductVariant = {
       ...data,
+      image: selectedImage,
       variantItems,
       sortOrder: variant?.sortOrder || 0,
     };
@@ -297,6 +302,58 @@ export const ProductVariantForm: React.FC<ProductVariantFormProps> = ({
           </div>
         </div>
 
+        {/* Variant Image */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
+            {t('products.variant_image', 'Variant Image')}
+          </h3>
+
+          <div className="space-y-4">
+            <div className="flex items-start gap-4">
+              {selectedImage ? (
+                <div className="relative">
+                  <img
+                    src={selectedImage}
+                    alt="Variant preview"
+                    className="w-32 h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setSelectedImage(null)}
+                    className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                    title="Remove image"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-32 h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <Image className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No image</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex-1">
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                  {t('products.variant_image_description', 'Upload a single image for this product variant. This image will be displayed when customers select this specific variant.')}
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsMediaManagerOpen(true)}
+                >
+                  {selectedImage
+                    ? t('products.change_image', 'Change Image')
+                    : t('products.select_image', 'Select Image')
+                  }
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Settings */}
         <div className="space-y-4">
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700 pb-2">
@@ -340,6 +397,24 @@ export const ProductVariantForm: React.FC<ProductVariantFormProps> = ({
           </Button>
         </div>
       </form>
+
+      {/* MediaManager for image selection */}
+      <MediaManager
+        isOpen={isMediaManagerOpen}
+        onClose={() => setIsMediaManagerOpen(false)}
+        onSelect={(file) => {
+          if (Array.isArray(file)) {
+            // Take the first image if multiple are selected
+            setSelectedImage(file[0]?.url || null);
+          } else {
+            setSelectedImage(file.url);
+          }
+          setIsMediaManagerOpen(false);
+        }}
+        multiple={false}
+        accept="image/*"
+        title={t('products.select_variant_image', 'Select Variant Image')}
+      />
     </div>
   );
 };

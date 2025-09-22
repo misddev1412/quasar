@@ -11,6 +11,8 @@ import { UserActivity } from '../../modules/user/entities/user-activity.entity';
 import { UserSession } from '../../modules/user/entities/user-session.entity';
 import { SEOEntity } from '../../modules/seo/entities/seo.entity';
 import { SettingEntity } from '../../modules/settings/entities/setting.entity';
+import { Country } from '../../modules/products/entities/country.entity';
+import { AdministrativeDivision } from '../../modules/products/entities/administrative-division.entity';
 import { PermissionRepository } from '../../modules/user/repositories/permission.repository';
 import { AdminPermissionService } from '../../modules/user/services/admin/admin-permission.service';
 import { PermissionCheckerService } from '../../modules/shared/services/permission-checker.service';
@@ -19,6 +21,8 @@ import { SeoSeeder } from './seo.seeder';
 import { AdminSeeder } from './admin.seeder';
 import { SettingsSeeder } from './settings.seeder';
 import { UserActivitySeeder } from './user-activity.seeder';
+import { CountriesSeeder } from './countries.seeder';
+import { AdministrativeDivisionsSeeder } from './administrative-divisions.seeder';
 
 @Module({
   imports: [
@@ -33,7 +37,9 @@ import { UserActivitySeeder } from './user-activity.seeder';
       UserActivity,
       UserSession,
       SEOEntity,
-      SettingEntity
+      SettingEntity,
+      Country,
+      AdministrativeDivision
     ]),
   ],
   providers: [
@@ -44,8 +50,10 @@ import { UserActivitySeeder } from './user-activity.seeder';
     SeoSeeder,
     AdminSeeder,
     SettingsSeeder,
-    UserActivitySeeder
+    UserActivitySeeder,
+    CountriesSeeder,
+    AdministrativeDivisionsSeeder
   ],
-  exports: [PermissionSeeder, SeoSeeder, AdminSeeder, SettingsSeeder, UserActivitySeeder],
+  exports: [PermissionSeeder, SeoSeeder, AdminSeeder, SettingsSeeder, UserActivitySeeder, CountriesSeeder, AdministrativeDivisionsSeeder],
 })
 export class SeederModule {} 

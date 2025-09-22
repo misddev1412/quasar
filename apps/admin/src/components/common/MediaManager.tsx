@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useModalContext } from '../../context/ModalContext';
 import {
   X,
   Upload,
@@ -100,6 +101,18 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { pushModal, popModal, modalStack } = useModalContext();
+  const modalId = 'media-manager';
+
+  // Manage modal in stack
+  useEffect(() => {
+    if (isOpen) {
+      pushModal(modalId);
+      return () => {
+        popModal(modalId);
+      };
+    }
+  }, [isOpen, modalId, pushModal, popModal]);
 
   // Library state
   const [searchQuery, setSearchQuery] = useState('');
@@ -423,9 +436,29 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
     }
   }
 
+  // Calculate z-index based on position in modal stack
+  const modalIndex = modalStack.indexOf(modalId);
+  const zIndex = 10000 + (modalIndex >= 0 ? modalIndex * 10 : 0);
+
   const modalContent = (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-6">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] flex flex-col border border-gray-200 dark:border-gray-700">
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-6"
+      style={{
+        pointerEvents: 'auto',
+        zIndex: zIndex
+      }}
+      onClick={(e) => {
+        // Only close if clicking the backdrop, not the modal content
+        if (e.target === e.currentTarget) {
+          e.stopPropagation();
+          onClose();
+        }
+      }}
+    >
+      <div
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] flex flex-col border border-gray-200 dark:border-gray-700"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
           <div className="flex items-center gap-3">
@@ -609,7 +642,11 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                           ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 shadow-md'
                           : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700/30'
                       }`}
-                      onClick={() => handleFileSelect(file)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleFileSelect(file);
+                      }}
                     >
                       {/* Selection indicator */}
                       <div className={`absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center z-10 transition-all duration-200 ${
@@ -704,7 +741,11 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                           ? 'bg-primary-50 dark:bg-primary-900/20'
                           : 'hover:bg-gray-50 dark:hover:bg-gray-700'
                       }`}
-                      onClick={() => handleFileSelect(file)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleFileSelect(file);
+                      }}
                     >
                       {/* Selection checkbox */}
                       <div
@@ -1057,7 +1098,11 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
             </button>
             {activeTab === 'library' && (
               <button
-                onClick={handleConfirmSelection}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleConfirmSelection();
+                }}
                 disabled={selectedMediaIds.length === 0}
                 className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-md hover:shadow-lg disabled:hover:shadow-md flex items-center gap-2"
               >

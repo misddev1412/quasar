@@ -183,6 +183,9 @@ export const ProductVariantsSection: React.FC<ProductVariantsSectionProps> = ({
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         {t('products.sku', 'SKU')}
                       </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        {t('products.image', 'Image')}
+                      </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         {t('products.status', 'Status')}
                       </th>
@@ -209,6 +212,19 @@ export const ProductVariantsSection: React.FC<ProductVariantsSectionProps> = ({
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                           {variant.sku || t('common.not_set', 'Not set')}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          {variant.image ? (
+                            <img
+                              src={variant.image}
+                              alt={`Variant ${variant.combinationDisplay}`}
+                              className="w-10 h-10 object-cover rounded border border-gray-200 dark:border-gray-600 mx-auto"
+                            />
+                          ) : (
+                            <span className="text-xs text-gray-400">
+                              {t('common.no_image', 'No image')}
+                            </span>
+                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <Badge variant={variant.isEnabled ? 'default' : 'secondary'}>

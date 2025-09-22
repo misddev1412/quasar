@@ -12,6 +12,7 @@ import { LanguageModule } from '../modules/language/language.module';
 import { ChartModule } from '../modules/chart/chart.module';
 import { SEOModule } from '../modules/seo/seo.module';
 import { StorageModule } from '../modules/storage/storage.module';
+import { NotificationsModule } from '../modules/notifications/notifications.module';
 import { AppContext } from './context';
 
 @Module({
@@ -32,6 +33,7 @@ import { AppContext } from './context';
     ChartModule,
     SEOModule,
     StorageModule,
+    NotificationsModule,
   ],
 })
 export class AppRouterModule {}

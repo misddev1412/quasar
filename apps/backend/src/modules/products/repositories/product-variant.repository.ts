@@ -19,7 +19,7 @@ export interface CreateProductVariantDto {
   allowBackorders?: boolean;
   weight?: number;
   dimensions?: string;
-  images?: string | string[];
+  image?: string;
   isActive?: boolean;
   sortOrder?: number;
   variantItems?: Array<{
@@ -42,7 +42,7 @@ export interface UpdateProductVariantDto {
   allowBackorders?: boolean;
   weight?: number;
   dimensions?: string;
-  images?: string | string[];
+  image?: string;
   isActive?: boolean;
   sortOrder?: number;
   variantItems?: Array<{
@@ -198,6 +198,7 @@ export class ProductVariantRepository {
   }
 
   async create(data: CreateProductVariantDto) {
+
     // Validate that the product exists
     const product = await this.productRepo.findOne({
       where: { id: data.productId }
@@ -209,20 +210,10 @@ export class ProductVariantRepository {
     // Create the variant
     const { variantItems, ...variantData } = data;
 
-    // Handle images conversion
-    let processedImages: string | undefined;
-    if (data.images) {
-      if (Array.isArray(data.images)) {
-        processedImages = JSON.stringify(data.images);
-      } else {
-        processedImages = data.images;
-      }
-    }
-
     const variant = this.variantRepo.create({
       ...variantData,
-      images: processedImages,
     });
+
     const savedVariant = await this.variantRepo.save(variant);
 
     // Create variant items if provided
@@ -248,21 +239,10 @@ export class ProductVariantRepository {
     }
 
     // Update variant data
-    const { variantItems, images, ...restUpdateData } = data;
-
-    // Handle images conversion
-    let processedImages: string | undefined;
-    if (images !== undefined) {
-      if (Array.isArray(images)) {
-        processedImages = JSON.stringify(images);
-      } else {
-        processedImages = images;
-      }
-    }
+    const { variantItems, ...restUpdateData } = data;
 
     const updateData = {
       ...restUpdateData,
-      ...(processedImages !== undefined && { images: processedImages }),
     };
 
     await this.variantRepo.update(id, updateData);

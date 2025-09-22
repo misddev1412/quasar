@@ -116,10 +116,11 @@ export class ProductVariant extends BaseEntity {
 
   @Expose()
   @Column({
-    type: 'text',
+    type: 'varchar',
+    length: 500,
     nullable: true,
   })
-  images?: string;
+  image?: string;
 
   @Expose()
   @Column({
@@ -156,22 +157,8 @@ export class ProductVariant extends BaseEntity {
   variantItems: ProductVariantItem[];
 
   // Virtual properties
-  get imageList(): string[] {
-    if (!this.images) return [];
-    try {
-      return JSON.parse(this.images);
-    } catch {
-      return [];
-    }
-  }
-
-  set imageList(images: string[]) {
-    this.images = JSON.stringify(images);
-  }
-
   get primaryImage(): string | null {
-    const images = this.imageList;
-    return images.length > 0 ? images[0] : null;
+    return this.image || null;
   }
 
   get isInStock(): boolean {

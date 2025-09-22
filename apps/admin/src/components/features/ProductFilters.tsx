@@ -12,7 +12,7 @@ export interface ProductFiltersType {
   search?: string;
   status?: 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'DISCONTINUED';
   brandId?: string;
-  categoryId?: string;
+  categoryIds?: string[];
   isFeatured?: boolean;
   isActive?: boolean;
   minPrice?: number;
@@ -115,7 +115,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
     ...buildCategoryOptions(categories),
   ];
 
-  const handleFilterChange = (key: keyof ProductFiltersType, value: string | number) => {
+  const handleFilterChange = (key: keyof ProductFiltersType, value: string | number | string[]) => {
     const newFilters = { ...filters };
     
     if (key === 'isFeatured' || key === 'isActive' || key === 'hasStock') {
@@ -124,6 +124,13 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
         delete newFilters[key];
       } else {
         (newFilters as any)[key] = value === 'true';
+      }
+    } else if (key === 'categoryIds') {
+      // Handle array conversion
+      if (value === '' || value === null || value === undefined || (Array.isArray(value) && value.length === 0)) {
+        delete newFilters[key];
+      } else {
+        (newFilters as any)[key] = Array.isArray(value) ? value : [value];
       }
     } else if (key === 'minPrice' || key === 'maxPrice') {
       // Handle number conversion
@@ -218,8 +225,8 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
           <Select
             id="category-filter"
             label={t('products.category', 'Category')}
-            value={filters.categoryId || ''}
-            onChange={(value) => handleFilterChange('categoryId', value)}
+            value={filters.categoryIds?.[0] || ''}
+            onChange={(value) => handleFilterChange('categoryIds', value ? [value] : [])}
             options={categoryOptions}
             placeholder={t('form.placeholders.select_category', 'Select category...')}
             size="md"
@@ -366,13 +373,13 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
               </span>
             )}
 
-            {filters.categoryId && (
+            {filters.categoryIds && filters.categoryIds.length > 0 && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-700 transition-colors">
-                {t('products.category', 'Category')}: {categoryOptions.find(c => c.value === filters.categoryId)?.label}
+                {t('products.categories', 'Categories')}: {filters.categoryIds.map(id => categoryOptions.find(c => c.value === id)?.label).filter(Boolean).join(', ')}
                 <button
-                  onClick={() => handleFilterChange('categoryId', '')}
+                  onClick={() => handleFilterChange('categoryIds', [])}
                   className="ml-1 hover:text-amber-900 dark:hover:text-amber-100 transition-colors rounded-full p-0.5 hover:bg-amber-100 dark:hover:bg-amber-800/50"
-                  aria-label="Remove category filter"
+                  aria-label="Remove categories filter"
                 >
                   <FiX className="w-3 h-3" />
                 </button>

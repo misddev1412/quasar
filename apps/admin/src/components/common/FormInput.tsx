@@ -60,13 +60,15 @@ export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <label htmlFor={id} className="block text-sm font-medium text-neutral-800 dark:text-neutral-200">
-          {label}
-        </label>
-        {rightElement && rightElement}
-      </div>
+    <div className={label ? "space-y-2" : ""}>
+      {label && (
+        <div className="flex items-center justify-between">
+          <label htmlFor={id} className="block text-sm font-medium text-neutral-800 dark:text-neutral-200">
+            {label}
+          </label>
+          {rightElement && rightElement}
+        </div>
+      )}
       <div className={clsx(
         'relative group bg-white dark:bg-neutral-900 rounded-lg overflow-hidden',
         // Conditional flex layout for old bordered icon system

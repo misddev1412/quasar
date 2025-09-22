@@ -1,8 +1,9 @@
-import { Entity, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, OneToMany, ManyToOne, ManyToMany, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
 import { Product } from './product.entity';
 import { CategoryTranslation } from './category-translation.entity';
+import { ProductCategory } from './product-category.entity';
 
 @Entity('categories')
 export class Category extends BaseEntity {
@@ -67,8 +68,9 @@ export class Category extends BaseEntity {
   @OneToMany(() => Category, (category) => category.parent)
   children?: Category[];
 
-  @OneToMany(() => Product, (product) => product.category)
-  products?: Product[];
+  // Products via ProductCategory junction table
+  // @ManyToMany(() => Product, (product) => product.categories)
+  // products?: Product[];
 
   @OneToMany(() => CategoryTranslation, (translation) => translation.category, {
     cascade: true,
@@ -76,9 +78,21 @@ export class Category extends BaseEntity {
   })
   translations: CategoryTranslation[];
 
+  @OneToMany(() => ProductCategory, (productCategory) => productCategory.category)
+  productCategories: ProductCategory[];
+
   // Virtual properties
   get productCount(): number {
-    return this.products?.length || 0;
+    return this.productCategories?.length || 0;
+  }
+
+  // Getter for products through ProductCategory junction
+  async getProducts(): Promise<Product[]> {
+    if (!this.productCategories) return [];
+    const products = await Promise.all(
+      this.productCategories.map(pc => pc.product)
+    );
+    return products.filter(p => p !== null);
   }
 
   get isRootCategory(): boolean {

@@ -7,10 +7,12 @@ import PeopleIcon from '@mui/icons-material/People';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DescriptionIcon from '@mui/icons-material/Description';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { FiHome } from 'react-icons/fi';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import BaseLayout from '../components/layout/BaseLayout';
 import { trpc } from '../utils/trpc';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import { Breadcrumb } from '../components/common/Breadcrumb';
 
 // Define the static SEO data for the home page
 const homeSeoData: SeoData = {
@@ -129,8 +131,19 @@ export const HomePage: React.FC = () => {
       title={t('dashboard.title')}
       description={t('dashboard.welcome_back')}
     >
-      {/* Real Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: t('navigation.dashboard', 'Dashboard'),
+              icon: <FiHome className="w-4 h-4" />
+            }
+          ]}
+        />
+
+        {/* Real Statistics Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {processedStats.map((stat, index) => (
           <div key={index} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-gray-100">
             <div className="p-4 flex justify-between items-start">
@@ -327,6 +340,7 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </BaseLayout>
   );

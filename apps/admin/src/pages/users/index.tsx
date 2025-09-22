@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiPlus, FiMoreVertical, FiUsers, FiUserCheck, FiUserPlus, FiUser, FiActivity, FiClock, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiUserX, FiTrash2, FiEye } from 'react-icons/fi';
+import { FiPlus, FiMoreVertical, FiUsers, FiUserCheck, FiUserPlus, FiUser, FiActivity, FiClock, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiUserX, FiTrash2, FiEye, FiHome } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { Dropdown } from '../../components/common/Dropdown';
@@ -15,6 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from '../../components/common/Ale
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { UserFilters } from '../../components/features/UserFilters';
 import { User, UserRole, UserFiltersType } from '../../types/user';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
 
 // Helper functions for URL parameter validation
 const validateUserRole = (role: string | null): UserRole | undefined => {
@@ -789,6 +790,21 @@ const UserListPage = () => {
   return (
     <BaseLayout title="User Management" description="Manage all users in the system" actions={actions} fullWidth={true}>
       <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: t('navigation.home', 'Home'),
+              href: '/',
+              icon: <FiHome className="w-4 h-4" />
+            },
+            {
+              label: t('navigation.users', 'Users'),
+              icon: <FiUsers className="w-4 h-4" />
+            }
+          ]}
+        />
+
         {/* Statistics Cards */}
         <StatisticsGrid
           statistics={statisticsCards}
