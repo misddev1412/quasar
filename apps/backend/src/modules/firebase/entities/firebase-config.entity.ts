@@ -7,19 +7,19 @@ export class FirebaseConfigEntity extends SoftDeletableEntity {
   @Expose()
   @Index('IDX_FIREBASE_CONFIG_NAME', { unique: true })
   @Column({ length: 255 })
-  name: string;
+  name!: string;
 
   @Expose()
   @Column({ name: 'api_key', type: 'text' })
-  apiKey: string;
+  apiKey!: string;
 
   @Expose()
   @Column({ name: 'auth_domain', length: 255 })
-  authDomain: string;
+  authDomain!: string;
 
   @Expose()
   @Column({ name: 'project_id', length: 255 })
-  projectId: string;
+  projectId!: string;
 
   @Expose()
   @Column({ name: 'storage_bucket', length: 255, nullable: true })
@@ -31,7 +31,7 @@ export class FirebaseConfigEntity extends SoftDeletableEntity {
 
   @Expose()
   @Column({ name: 'app_id', length: 255 })
-  appId: string;
+  appId!: string;
 
   @Expose()
   @Column({ name: 'measurement_id', length: 255, nullable: true })
@@ -43,7 +43,7 @@ export class FirebaseConfigEntity extends SoftDeletableEntity {
 
   @Expose()
   @Column({ default: true, name: 'is_active' })
-  active: boolean;
+  active!: boolean;
 
   @Expose()
   @Column({ length: 500, nullable: true })

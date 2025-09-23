@@ -1,4 +1,5 @@
 const sharedConfig = require('./libs/shared/src/styles/tailwind.config.js');
+const { heroui } = require('@heroui/theme');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -6,8 +7,10 @@ module.exports = {
   content: [
     './apps/admin/src/**/*.{js,ts,jsx,tsx,mdx}',
     './apps/client/src/**/*.{js,ts,jsx,tsx,mdx}',
+    './apps/frontend/src/**/*.{js,ts,jsx,tsx,mdx}',
     './libs/shared/src/**/*.{js,ts,jsx,tsx,mdx}',
     './libs/ui/src/**/*.{js,ts,jsx,tsx,mdx}',
+    './node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
@@ -35,6 +38,6 @@ module.exports = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [require('tailwindcss-animate'), heroui()],
 };
 

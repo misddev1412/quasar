@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FiUser, FiCreditCard, FiFileText, FiMapPin, FiShoppingCart, FiHome, FiTruck, FiGift, FiSearch } from 'react-icons/fi';
 import { EntityForm } from '../common/EntityForm';
+import { FormInput } from '../common/FormInput';
 import { FormTabConfig } from '../../types/forms';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { ProductSelectionSection, OrderItem } from './ProductSelectionSection';
@@ -296,59 +297,41 @@ export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormInput
+                id="customer-name"
+                type="text"
+                label={`${t('admin.customer_name')} *`}
+                value={formData.customerName}
+                onChange={(e) => setFormData(prev => ({ ...prev, customerName: e.target.value }))}
+                placeholder={t('admin.enter_customer_name')}
+                required
+              />
+              <FormInput
+                id="customer-email"
+                type="email"
+                label={`${t('admin.customer_email')} *`}
+                value={formData.customerEmail}
+                onChange={(e) => setFormData(prev => ({ ...prev, customerEmail: e.target.value }))}
+                placeholder={t('admin.enter_customer_email')}
+                required
+              />
+              <FormInput
+                id="customer-phone"
+                type="tel"
+                label={t('admin.customer_phone')}
+                value={formData.customerPhone || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, customerPhone: e.target.value }))}
+                placeholder={t('admin.enter_customer_phone')}
+              />
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t('admin.customer_name')} <span className="text-red-500">*</span>
-                </label>
-                <input
+                <FormInput
+                  id="customer-id"
                   type="text"
-                  value={formData.customerName}
-                  onChange={(e) => setFormData(prev => ({ ...prev, customerName: e.target.value }))}
-                  className="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors"
-                  placeholder={t('admin.enter_customer_name')}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t('admin.customer_email')} <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="email"
-                  value={formData.customerEmail}
-                  onChange={(e) => setFormData(prev => ({ ...prev, customerEmail: e.target.value }))}
-                  className="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors"
-                  placeholder={t('admin.enter_customer_email')}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t('admin.customer_phone')}
-                </label>
-                <input
-                  type="tel"
-                  value={formData.customerPhone || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, customerPhone: e.target.value }))}
-                  className="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors"
-                  placeholder={t('admin.enter_customer_phone')}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t('admin.customer_id')}
-                </label>
-                <input
-                  type="text"
+                  label={t('admin.customer_id')}
                   value={formData.customerId || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, customerId: e.target.value }))}
-                  className={`block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors ${
-                    selectedCustomer
-                      ? 'bg-gray-50 dark:bg-gray-700 cursor-not-allowed'
-                      : 'bg-white dark:bg-gray-800'
-                  }`}
                   placeholder={t('admin.enter_customer_id')}
-                  readOnly={!!selectedCustomer}
+                  className={selectedCustomer ? 'opacity-60' : ''}
                 />
                 <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                   {t('admin.optional_existing_customer_id')}

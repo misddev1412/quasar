@@ -166,7 +166,8 @@ export class FirebaseConfigService {
     ];
     
     for (const { field, name } of requiredFields) {
-      if (!(field in config) || !config[field] || (typeof config[field] === 'string' && !config[field].trim())) {
+      const configValue = (config as Record<string, unknown>)[field];
+      if (!configValue || (typeof configValue === 'string' && !configValue.trim())) {
         throw new BadRequestException(`${name} is required and cannot be empty`);
       }
     }

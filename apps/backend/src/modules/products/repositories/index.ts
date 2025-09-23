@@ -2,6 +2,7 @@ export { AddressBookRepository } from './address-book.repository';
 export { AttributeRepository, type AttributeFilters, type AttributeQueryOptions } from './attribute.repository';
 export { BrandRepository, type BrandFilters, type BrandQueryOptions } from './brand.repository';
 export { CategoryRepository, type CategoryFilters, type CategoryQueryOptions, type CategoryTreeNode } from './category.repository';
+export { DeliveryMethodRepository, type CreateDeliveryMethodDto, type UpdateDeliveryMethodDto, type DeliveryMethodFilters } from './delivery-method.repository';
 export { InventoryItemRepository } from './inventory-item.repository';
 export { ProductRepository, type ProductFilters, type ProductQueryOptions } from './product.repository';
 export { ProductMediaRepository, type CreateProductMediaDto, type UpdateProductMediaDto } from './product-media.repository';
@@ -13,3 +14,4 @@ export { SupplierRepository, type SupplierFilters, type SupplierQueryOptions } f
 export { WarehouseRepository } from './warehouse.repository';
 export { OrderRepository, type OrderFilters, type OrderQueryOptions, type PaginatedOrders } from './order.repository';
 export { CustomerRepository } from './customer.repository';
+export { PaymentMethodRepository, type CreatePaymentMethodDto, type UpdatePaymentMethodDto, type PaymentMethodFilters } from './payment-method.repository';

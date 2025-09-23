@@ -122,17 +122,17 @@ export class PaginatedResponseDto<T> {
 
 export class PaginatedDto<T> {
   @ApiProperty({ isArray: true })
-  readonly items: T[];
+  readonly items!: T[];
 
   @ApiProperty({ type: () => Number })
-  readonly total: number;
+  readonly total!: number;
 
   @ApiProperty({ type: () => Number })
-  readonly page: number;
+  readonly page!: number;
 
   @ApiProperty({ type: () => Number })
-  readonly limit: number;
+  readonly limit!: number;
 
   @ApiProperty({ type: () => Number })
-  readonly totalPages: number;
+  readonly totalPages!: number;
 } 

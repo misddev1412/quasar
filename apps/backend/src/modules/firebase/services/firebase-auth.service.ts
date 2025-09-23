@@ -43,7 +43,7 @@ export class FirebaseAuthService {
         this.logger.log('No Firebase admin config found. Firebase features will not be available until configured.');
       }
     } catch (error) {
-      this.logger.warn('Firebase initialization skipped due to configuration error:', error.message);
+      this.logger.warn('Firebase initialization skipped due to configuration error:', (error as Error).message);
       // Don't throw error - allow app to continue without Firebase
     }
   }

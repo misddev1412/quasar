@@ -21,7 +21,10 @@
     "sync:trpc-types": "node scripts/sync-trpc-types.js",
     "admin:dev": "nx serve admin",
     "admin:dev:3000": "PORT=3000 nx serve admin",
-    "admin:dev:5000": "PORT=5000 nx serve admin"
+    "admin:dev:5000": "PORT=5000 nx serve admin",
+    "frontend:build": "nx run frontend:build",
+    "frontend:dev": "nx serve frontend",
+    "frontend:dev:3002": "PORT=3002 nx serve frontend"
   },
   "devDependencies": {
     "@babel/core": "^7.14.5",
@@ -82,6 +85,8 @@
     "@emotion/styled": "^11.14.1",
     "@headlessui/react": "^2.2.4",
     "@heroicons/react": "^2.2.0",
+    "@heroui/react": "^2.8.4",
+    "@heroui/theme": "^2.4.22",
     "@hookform/resolvers": "^5.1.1",
     "@mui/icons-material": "^7.2.0",
     "@mui/material": "^7.2.0",
@@ -103,6 +108,7 @@
     "@radix-ui/react-switch": "^1.2.5",
     "@radix-ui/react-toast": "^1.2.14",
     "@tanstack/react-query": "^5.81.5",
+    "@tanstack/react-query-devtools": "^5.90.1",
     "@tinymce/tinymce-react": "^6.3.0",
     "@tiptap/extension-color": "^3.2.2",
     "@tiptap/extension-image": "^3.2.2",
@@ -133,6 +139,7 @@
     "date-fns": "^4.1.0",
     "firebase": "^12.2.1",
     "firebase-admin": "^13.5.0",
+    "framer-motion": "^12.23.18",
     "i18next": "^25.3.1",
     "i18next-browser-languagedetector": "^8.2.0",
     "lucide-react": "^0.525.0",

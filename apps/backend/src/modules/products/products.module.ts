@@ -29,6 +29,8 @@ import { Customer } from './entities/customer.entity';
 import { AddressBook } from './entities/address-book.entity';
 import { Country } from './entities/country.entity';
 import { AdministrativeDivision } from './entities/administrative-division.entity';
+import { PaymentMethod } from './entities/payment-method.entity';
+import { DeliveryMethod } from './entities/delivery-method.entity';
 import { AttributeRepository } from './repositories/attribute.repository';
 import { BrandRepository } from './repositories/brand.repository';
 import { InventoryItemRepository } from './repositories/inventory-item.repository';
@@ -44,12 +46,16 @@ import { WarehouseRepository } from './repositories/warehouse.repository';
 import { OrderRepository } from './repositories/order.repository';
 import { CustomerRepository } from './repositories/customer.repository';
 import { AddressBookRepository } from './repositories/address-book.repository';
+import { PaymentMethodRepository } from './repositories/payment-method.repository';
+import { DeliveryMethodRepository } from './repositories/delivery-method.repository';
 import { AdminProductService } from './services/admin-product.service';
 import { WarehouseService } from './services/warehouse.service';
 import { PurchaseOrderService } from './services/purchase-order.service';
 import { AdminOrderService } from './services/admin-order.service';
 import { AdminCustomerService } from './services/admin-customer.service';
 import { AdminAddressBookService } from './services/admin-address-book.service';
+import { PaymentMethodService } from './services/payment-method.service';
+import { DeliveryMethodService } from './services/delivery-method.service';
 import { ProductTransformer } from './transformers/product.transformer';
 import { SharedModule } from '../shared/shared.module';
 import { AdminProductsRouter } from './routers/admin.router';
@@ -63,6 +69,8 @@ import { PublicProductsRouter } from './routers/public.router';
 import { AdminOrdersRouter } from './routers/admin-orders.router';
 import { AdminCustomersRouter } from './routers/admin-customers.router';
 import { AdminAddressBookRouter } from './routers/admin-address-book.router';
+import { AdminPaymentMethodsRouter } from './routers/admin-payment-methods.router';
+import { AdminDeliveryMethodsRouter } from './routers/admin-delivery-methods.router';
 
 @Module({
   imports: [
@@ -96,6 +104,8 @@ import { AdminAddressBookRouter } from './routers/admin-address-book.router';
       AddressBook,
       Country,
       AdministrativeDivision,
+      PaymentMethod,
+      DeliveryMethod,
     ]),
     SharedModule,
   ],
@@ -115,6 +125,8 @@ import { AdminAddressBookRouter } from './routers/admin-address-book.router';
     OrderRepository,
     CustomerRepository,
     AddressBookRepository,
+    PaymentMethodRepository,
+    DeliveryMethodRepository,
     ProductTransformer,
     AdminProductService,
     WarehouseService,
@@ -122,6 +134,8 @@ import { AdminAddressBookRouter } from './routers/admin-address-book.router';
     AdminOrderService,
     AdminCustomerService,
     AdminAddressBookService,
+    PaymentMethodService,
+    DeliveryMethodService,
     AdminProductsRouter,
     AdminProductAttributesRouter,
     AdminProductBrandsRouter,
@@ -133,6 +147,10 @@ import { AdminAddressBookRouter } from './routers/admin-address-book.router';
     AdminOrdersRouter,
     AdminCustomersRouter,
     AdminAddressBookRouter,
+    AdminPaymentMethodsRouter,
+    AdminDeliveryMethodsRouter,
+    DeliveryMethodService,
+    AdminDeliveryMethodsRouter,
   ],
   exports: [
     TypeOrmModule,
@@ -151,6 +169,8 @@ import { AdminAddressBookRouter } from './routers/admin-address-book.router';
     OrderRepository,
     CustomerRepository,
     AddressBookRepository,
+    PaymentMethodRepository,
+    DeliveryMethodRepository,
     ProductTransformer,
     AdminProductService,
     WarehouseService,
@@ -158,6 +178,8 @@ import { AdminAddressBookRouter } from './routers/admin-address-book.router';
     AdminOrderService,
     AdminCustomerService,
     AdminAddressBookService,
+    PaymentMethodService,
+    DeliveryMethodService,
     AdminProductsRouter,
     AdminProductAttributesRouter,
     AdminProductBrandsRouter,
@@ -169,6 +191,8 @@ import { AdminAddressBookRouter } from './routers/admin-address-book.router';
     AdminOrdersRouter,
     AdminCustomersRouter,
     AdminAddressBookRouter,
+    AdminPaymentMethodsRouter,
+    AdminDeliveryMethodsRouter,
   ],
 })
 export class ProductsModule {}

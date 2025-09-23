@@ -27,6 +27,8 @@ import BusinessIcon from '@mui/icons-material/Business';
 import TuneIcon from '@mui/icons-material/Tune';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PersonIcon from '@mui/icons-material/Person';
+import PaymentIcon from '@mui/icons-material/Payment';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 
 export class NavigationService implements INavigationService {
   constructor(private translate: (key: string, fallback?: string) => string) {}
@@ -148,7 +150,7 @@ export class NavigationService implements INavigationService {
             icon: React.createElement(BusinessIcon),
             label: t('suppliers.title', 'Suppliers'),
             path: '/products/suppliers'
-          }
+          },
         ]
       },
       {
@@ -190,6 +192,16 @@ export class NavigationService implements INavigationService {
             icon: React.createElement(FirebaseIcon),
             label: t('navigation.firebase_configs', 'Firebase Configurations'),
             path: '/firebase-configs'
+          },
+          {
+            icon: React.createElement(PaymentIcon),
+            label: t('payment_methods.title', 'Payment Methods'),
+            path: '/payment-methods'
+          },
+          {
+            icon: React.createElement(LocalShippingIcon),
+            label: t('delivery_methods.title', 'Delivery Methods'),
+            path: '/delivery-methods'
           },
           {
             icon: React.createElement(SettingsIcon),
@@ -241,7 +253,7 @@ export class NavigationService implements INavigationService {
       return currentPath === path || currentPath.startsWith(path + '/');
     }
 
-    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/seo', '/languages', '/orders', '/customers'];
+    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/seo', '/languages', '/orders', '/customers', '/payment-methods', '/delivery-methods'];
     if (exactMatchPaths.includes(path)) {
       return currentPath === path;
     }

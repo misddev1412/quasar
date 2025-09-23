@@ -3447,6 +3447,310 @@ export const appRouter = router({
         return {} as ApiResponse;
       }),
   }),
+
+  // Admin Payment Methods router
+  adminPaymentMethods: router({
+    list: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(50),
+        type: z.enum(['CREDIT_CARD', 'DEBIT_CARD', 'BANK_TRANSFER', 'DIGITAL_WALLET', 'CASH', 'CHECK', 'CRYPTOCURRENCY', 'BUY_NOW_PAY_LATER', 'OTHER']).optional(),
+        isActive: z.boolean().optional(),
+        currency: z.string().optional(),
+        minAmount: z.number().min(0).optional(),
+        maxAmount: z.number().min(0).optional(),
+      }).optional())
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    active: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    forAmount: procedure
+      .input(z.object({
+        amount: z.number().min(0.01),
+        currency: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getById: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    create: procedure
+      .input(z.object({
+        name: z.string().min(1).max(255),
+        type: z.enum(['CREDIT_CARD', 'DEBIT_CARD', 'BANK_TRANSFER', 'DIGITAL_WALLET', 'CASH', 'CHECK', 'CRYPTOCURRENCY', 'BUY_NOW_PAY_LATER', 'OTHER']),
+        description: z.string().optional(),
+        isActive: z.boolean().optional().default(true),
+        sortOrder: z.number().int().min(0).optional(),
+        processingFee: z.number().min(0).optional().default(0),
+        processingFeeType: z.enum(['FIXED', 'PERCENTAGE']).optional().default('FIXED'),
+        minAmount: z.number().min(0).optional(),
+        maxAmount: z.number().min(0).optional(),
+        supportedCurrencies: z.array(z.string()).optional(),
+        configuration: z.record(z.any()).optional(),
+        iconUrl: z.string().url().optional(),
+        isDefault: z.boolean().optional().default(false),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    update: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        data: z.object({
+          name: z.string().min(1).max(255).optional(),
+          type: z.enum(['CREDIT_CARD', 'DEBIT_CARD', 'BANK_TRANSFER', 'DIGITAL_WALLET', 'CASH', 'CHECK', 'CRYPTOCURRENCY', 'BUY_NOW_PAY_LATER', 'OTHER']).optional(),
+          description: z.string().optional(),
+          isActive: z.boolean().optional(),
+          sortOrder: z.number().int().min(0).optional(),
+          processingFee: z.number().min(0).optional(),
+          processingFeeType: z.enum(['FIXED', 'PERCENTAGE']).optional(),
+          minAmount: z.number().min(0).optional(),
+          maxAmount: z.number().min(0).optional(),
+          supportedCurrencies: z.array(z.string()).optional(),
+          configuration: z.record(z.any()).optional(),
+          iconUrl: z.string().url().optional(),
+          isDefault: z.boolean().optional(),
+        }),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    delete: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    setDefault: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    toggleActive: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    reorder: procedure
+      .input(z.object({
+        items: z.array(z.object({
+          id: z.string().uuid(),
+          sortOrder: z.number().int().min(0),
+        })),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    calculatePayment: procedure
+      .input(z.object({
+        paymentMethodId: z.string().uuid(),
+        amount: z.number().min(0.01),
+        currency: z.string().optional().default('USD'),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    stats: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  // Admin Delivery Methods router
+  adminDeliveryMethods: router({
+    list: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(50),
+        type: z.enum(['STANDARD', 'EXPRESS', 'OVERNIGHT', 'SAME_DAY', 'PICKUP', 'DIGITAL', 'COURIER', 'FREIGHT', 'OTHER']).optional(),
+        isActive: z.boolean().optional(),
+        isDefault: z.boolean().optional(),
+        costCalculationType: z.enum(['FIXED', 'WEIGHT_BASED', 'DISTANCE_BASED', 'FREE']).optional(),
+        trackingEnabled: z.boolean().optional(),
+        insuranceEnabled: z.boolean().optional(),
+        signatureRequired: z.boolean().optional(),
+        search: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getById: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getActive: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getByType: procedure
+      .input(z.object({ type: z.enum(['STANDARD', 'EXPRESS', 'OVERNIGHT', 'SAME_DAY', 'PICKUP', 'DIGITAL', 'COURIER', 'FREIGHT', 'OTHER']) }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    create: procedure
+      .input(z.object({
+        name: z.string().min(1).max(255),
+        type: z.enum(['STANDARD', 'EXPRESS', 'OVERNIGHT', 'SAME_DAY', 'PICKUP', 'DIGITAL', 'COURIER', 'FREIGHT', 'OTHER']),
+        description: z.string().optional(),
+        isActive: z.boolean().optional().default(true),
+        isDefault: z.boolean().optional().default(false),
+        sortOrder: z.number().int().min(0).optional(),
+        deliveryCost: z.number().min(0).optional().default(0),
+        costCalculationType: z.enum(['FIXED', 'WEIGHT_BASED', 'DISTANCE_BASED', 'FREE']).optional().default('FIXED'),
+        freeDeliveryThreshold: z.number().min(0).optional(),
+        minDeliveryTimeHours: z.number().int().min(0).optional(),
+        maxDeliveryTimeHours: z.number().int().min(0).optional(),
+        weightLimitKg: z.number().min(0).optional(),
+        sizeLimitCm: z.string().max(50).optional(),
+        coverageAreas: z.array(z.string()).optional(),
+        supportedPaymentMethods: z.array(z.string().uuid()).optional(),
+        providerName: z.string().max(255).optional(),
+        providerApiConfig: z.record(z.any()).optional(),
+        trackingEnabled: z.boolean().optional().default(false),
+        insuranceEnabled: z.boolean().optional().default(false),
+        signatureRequired: z.boolean().optional().default(false),
+        iconUrl: z.string().max(512).url().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    update: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        data: z.object({
+          name: z.string().min(1).max(255).optional(),
+          type: z.enum(['STANDARD', 'EXPRESS', 'OVERNIGHT', 'SAME_DAY', 'PICKUP', 'DIGITAL', 'COURIER', 'FREIGHT', 'OTHER']).optional(),
+          description: z.string().optional(),
+          isActive: z.boolean().optional(),
+          isDefault: z.boolean().optional(),
+          sortOrder: z.number().int().min(0).optional(),
+          deliveryCost: z.number().min(0).optional(),
+          costCalculationType: z.enum(['FIXED', 'WEIGHT_BASED', 'DISTANCE_BASED', 'FREE']).optional(),
+          freeDeliveryThreshold: z.number().min(0).optional(),
+          minDeliveryTimeHours: z.number().int().min(0).optional(),
+          maxDeliveryTimeHours: z.number().int().min(0).optional(),
+          weightLimitKg: z.number().min(0).optional(),
+          sizeLimitCm: z.string().max(50).optional(),
+          coverageAreas: z.array(z.string()).optional(),
+          supportedPaymentMethods: z.array(z.string().uuid()).optional(),
+          providerName: z.string().max(255).optional(),
+          providerApiConfig: z.record(z.any()).optional(),
+          trackingEnabled: z.boolean().optional(),
+          insuranceEnabled: z.boolean().optional(),
+          signatureRequired: z.boolean().optional(),
+          iconUrl: z.string().max(512).url().optional(),
+        }),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    delete: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    setDefault: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    toggleActive: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    reorder: procedure
+      .input(z.object({
+        items: z.array(z.object({
+          id: z.string().uuid(),
+          sortOrder: z.number().int().min(0),
+        })),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    calculateDelivery: procedure
+      .input(z.object({
+        deliveryMethodId: z.string().uuid(),
+        orderAmount: z.number().min(0),
+        weight: z.number().min(0).optional(),
+        distance: z.number().min(0).optional(),
+        coverageArea: z.string().optional(),
+        paymentMethodId: z.string().uuid().optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getQuotes: procedure
+      .input(z.object({
+        orderAmount: z.number().min(0),
+        weight: z.number().min(0).optional(),
+        distance: z.number().min(0).optional(),
+        coverageArea: z.string().optional(),
+        paymentMethodId: z.string().uuid().optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    stats: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
 });
 
 // For nestjs-trpc, the actual router structure is generated at runtime

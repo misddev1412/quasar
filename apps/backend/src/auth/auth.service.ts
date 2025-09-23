@@ -134,7 +134,7 @@ export class AuthService {
           firstName: firebaseUser.name?.split(' ')[0] || '',
           lastName: firebaseUser.name?.split(' ').slice(1).join(' ') || '',
           isActive: true,
-          emailVerifiedAt: firebaseUser.email_verified ? new Date() : null,
+          emailVerifiedAt: firebaseUser.email_verified ? new Date() : undefined,
         });
       } else if (!user.isActive) {
         throw new UnauthorizedException('User account is disabled');

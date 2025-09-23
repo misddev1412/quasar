@@ -40,6 +40,8 @@ import ProductsIndexPage from '../pages/products';
 import AttributesPage from '../pages/products/attributes';
 import BrandsPage from '../pages/products/brands';
 import SuppliersPage from '../pages/products/suppliers';
+import PaymentMethodsPage from '../pages/payment-methods';
+import DeliveryMethodsPage from '../pages/delivery-methods';
 // Order Management
 import OrdersIndexPage from '../pages/orders';
 import OrderCreatePage from '../pages/orders/create';
@@ -130,6 +132,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/products/attributes" element={<ProtectedRoute><AttributesPage /></ProtectedRoute>} />
       <Route path="/products/brands" element={<ProtectedRoute><BrandsPage /></ProtectedRoute>} />
       <Route path="/products/suppliers" element={<ProtectedRoute><SuppliersPage /></ProtectedRoute>} />
+      <Route path="/payment-methods" element={<ProtectedRoute><PaymentMethodsPage /></ProtectedRoute>} />
+      <Route path="/delivery-methods" element={<ProtectedRoute><DeliveryMethodsPage /></ProtectedRoute>} />
       <Route path="/products/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
       <Route path="/products/categories/create" element={<ProtectedRoute><CategoryCreatePage /></ProtectedRoute>} />
       <Route path="/products/categories/:id/edit" element={<ProtectedRoute><EditCategoryPage /></ProtectedRoute>} />

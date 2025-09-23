@@ -13,7 +13,7 @@ import { Expose } from 'class-transformer';
 export abstract class BaseEntity {
   @Expose()
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Expose()
   @CreateDateColumn({
@@ -21,7 +21,7 @@ export abstract class BaseEntity {
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  createdAt: Date;
+  createdAt!: Date;
 
   @Expose()
   @UpdateDateColumn({
@@ -30,14 +30,14 @@ export abstract class BaseEntity {
     default: () => 'CURRENT_TIMESTAMP',
     onUpdate: 'CURRENT_TIMESTAMP',
   })
-  updatedAt: Date;
+  updatedAt!: Date;
 
   @Expose()
   @VersionColumn({
     name: 'version',
     default: 1,
   })
-  version: number;
+  version!: number;
 
   @Expose()
   @Column({

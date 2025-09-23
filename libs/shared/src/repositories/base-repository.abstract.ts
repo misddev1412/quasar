@@ -35,6 +35,9 @@ export abstract class BaseRepository<T extends BaseEntity> implements IBaseRepos
   }
 
   async findOne(options?: FindOneOptions<T>): Promise<T | null> {
+    if (!options) {
+      return null;
+    }
     return await this.repository.findOne(options);
   }
 
