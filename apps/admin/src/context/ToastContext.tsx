@@ -63,15 +63,27 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       {toasts.map(({ id, title, description, type }) => (
         <Toast.Root
           key={id}
-          className={`fixed bottom-4 right-4 z-50 p-4 rounded-md shadow-lg text-white ${typeClasses[type]} radix-state-open:animate-slide-in radix-state-closed:animate-hide radix-swipe-end:animate-swipe-out`}
+          className={`fixed bottom-4 right-4 z-50 p-3 rounded-lg shadow-lg backdrop-blur-sm text-white ${typeClasses[type]} radix-state-open:animate-slide-in radix-state-closed:animate-hide radix-swipe-end:animate-swipe-out hover:scale-[1.02]`}
           onOpenChange={() => removeToast(id)}
           duration={5000}
         >
-          <Toast.Title className="font-bold">{title}</Toast.Title>
-          {description && <Toast.Description>{description}</Toast.Description>}
+          <div className="flex justify-between items-start">
+            <div className="flex-1 min-w-0">
+              <Toast.Title className="font-bold text-sm leading-tight block">{title}</Toast.Title>
+              {description && <Toast.Description className="text-xs opacity-90 mt-1 leading-tight block">{description}</Toast.Description>}
+            </div>
+            <button
+              onClick={() => removeToast(id)}
+              className="ml-3 text-white/80 hover:text-white hover:bg-white/20 rounded-full w-6 h-6 flex items-center justify-center transition-all duration-200 flex-shrink-0"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </Toast.Root>
       ))}
-      <Toast.Viewport className="fixed bottom-0 right-0 p-4 flex flex-col gap-2 w-80 max-w-full z-[2147483647]" />
+      <Toast.Viewport className="fixed bottom-0 right-0 p-4 flex flex-col gap-2 w-auto max-w-[80vw] z-[2147483647]" />
     </Toast.Provider>
   );
 };

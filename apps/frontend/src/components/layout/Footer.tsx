@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Container from '../common/Container';
+import { useSettings } from '../../hooks/useSettings';
 
 interface FooterLink {
   label: string;
@@ -30,12 +31,28 @@ interface FooterProps {
 export const Footer: React.FC<FooterProps> = ({
   columns = [],
   socialLinks = [],
-  logo,
-  brandName = 'Brand',
+  logo: propLogo,
+  brandName: propBrandName = 'Brand',
   description,
-  copyright = `© ${new Date().getFullYear()} ${brandName}. All rights reserved.`,
+  copyright: propCopyright,
   variant = 'detailed',
 }) => {
+  const { getFooterLogo, getSetting } = useSettings();
+  const footerLogo = getFooterLogo();
+  const siteName = getSetting('site_name', propBrandName);
+  const copyright = propCopyright || `© ${new Date().getFullYear()} ${siteName}. All rights reserved.`;
+
+  // Use prop logo if provided, otherwise use footer logo from settings
+  const logo = propLogo || (footerLogo ? (
+    <img
+      src={footerLogo}
+      alt={siteName}
+      className="w-full h-full object-contain"
+      onError={(e) => {
+        e.currentTarget.style.display = 'none';
+      }}
+    />
+  ) : null);
   if (variant === 'simple') {
     return (
       <footer className="bg-gray-50 border-t">
@@ -75,7 +92,7 @@ export const Footer: React.FC<FooterProps> = ({
           <div className="md:col-span-4">
             <div className="flex items-center gap-3 mb-4">
               {logo && <div className="w-10 h-10">{logo}</div>}
-              <span className="text-xl font-bold">{brandName}</span>
+              <span className="text-xl font-bold">{siteName}</span>
             </div>
             {description && <p className="text-gray-400 mb-4 max-w-xs">{description}</p>}
             {socialLinks.length > 0 && (

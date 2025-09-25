@@ -91,21 +91,23 @@ const ToastContainer: React.FC<{
         <div
           key={toast.id}
           className={`
-            min-w-[300px] max-w-md p-4 rounded-lg shadow-lg
-            transform transition-all duration-300 ease-in-out
+            w-auto max-w-[80vw] p-3 rounded-lg shadow-lg backdrop-blur-sm
+            transform transition-all duration-300 ease-in-out hover:scale-[1.02]
             ${getToastStyles(toast.type)}
           `}
         >
           <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <h3 className="font-semibold">{toast.title}</h3>
-              {toast.description && <p className="text-sm opacity-90 mt-1">{toast.description}</p>}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-sm leading-tight">{toast.title}</h3>
+              {toast.description && <p className="text-xs opacity-90 mt-1 leading-tight">{toast.description}</p>}
             </div>
             <button
               onClick={() => removeToast(toast.id)}
-              className="ml-3 text-white hover:opacity-70"
+              className="ml-3 text-white/80 hover:text-white hover:bg-white/20 rounded-full w-6 h-6 flex items-center justify-center transition-all duration-200 flex-shrink-0"
             >
-              ×
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
         </div>

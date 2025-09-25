@@ -27,6 +27,7 @@ import SearchInput from '../common/SearchInput';
 import ThemeToggle from '../common/ThemeToggle';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import NotificationDropdown from '../notifications/NotificationDropdown';
+import { useSettings } from '../../hooks/useSettings';
 
 // Icons as components for better maintainability
 const Icons = {
@@ -116,14 +117,29 @@ const Icons = {
 // Logo Component
 const Logo: React.FC<{ currentLocale: string }> = ({ currentLocale }) => {
   const t = useTranslations();
+  const { getSiteLogo, getSetting } = useSettings();
+  const siteLogo = getSiteLogo();
+  const siteName = getSetting('site.name');
 
   return (
     <Link href="/" className="flex items-center gap-2 group">
-      <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
+      {siteLogo ? (
+        <img
+          src={siteLogo}
+          alt={siteName}
+          className="w-9 h-9 object-contain"
+          onError={(e) => {
+            // Fallback to default logo if image fails to load
+            e.currentTarget.style.display = 'none';
+            e.currentTarget.parentElement?.querySelector('.default-logo')?.classList.remove('hidden');
+          }}
+        />
+      ) : null}
+      <div className={`w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow ${siteLogo ? 'hidden default-logo' : ''}`}>
         <span className="text-white font-bold text-lg">Q</span>
       </div>
       <p className="font-bold text-xl bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent m-0">
-        {t('layout.header.brand')}
+        {siteName}
       </p>
     </Link>
   );

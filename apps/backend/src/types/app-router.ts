@@ -558,6 +558,18 @@ export const appRouter = router({
         return {} as ApiResponse;
       }),
 
+    list: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+        search: z.string().optional(),
+        group: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
     getById: procedure
       .input(z.object({ id: z.string() }))
       .output(apiResponseSchema)
@@ -3950,6 +3962,21 @@ export const appRouter = router({
           currentPage: z.string().optional(),
         }).optional(),
       }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  // Client Settings router
+  clientSettings: router({
+    getPublicSettings: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    getPublicSetting: procedure
+      .input(z.object({ key: z.string() }))
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;

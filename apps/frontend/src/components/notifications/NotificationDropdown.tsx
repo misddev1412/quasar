@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -10,12 +10,12 @@ import {
   DropdownItem,
   DropdownSection,
   Button,
-  Avatar,
   Badge,
-  Divider,
 } from '@heroui/react';
 import { useTranslations } from 'next-intl';
+import { useNotifications } from '../../hooks/useNotifications';
 import { Notification, NotificationType } from '../../types/trpc';
+
 // Import icons directly instead of from Header to avoid circular dependency
 const Icons = {
   Bell: ({ className = "w-5 h-5" }: { className?: string }) => (
@@ -31,12 +31,22 @@ interface NotificationDropdownProps {
 }
 
 const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ className }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const router = useRouter();
   const t = useTranslations();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Use the notifications hook with recent notifications enabled
+  const {
+    recentNotifications: notifications,
+    unreadCount,
+    isLoading,
+    markAsRead,
+    markAllAsRead,
+  } = useNotifications({
+    enableRecent: true,
+    autoRefresh: true,
+    refreshInterval: 30000,
+  });
 
   const getNotificationIcon = (type: NotificationType) => {
     switch (type) {
@@ -63,94 +73,6 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ className }
     return t('notifications.time.daysAgo', { count: Math.floor(diffInMinutes / 1440) });
   };
 
-  const fetchNotifications = useCallback(async () => {
-    if (!isAuthenticated || !user) return;
-
-    setIsLoading(true);
-    try {
-      const { trpcClient } = await import('../../utils/trpc');
-
-      console.log('Fetching notifications for user:', user.id);
-
-      // Fetch recent notifications
-      const recentResponse = await (trpcClient as any).clientNotification.getRecentNotifications.query({
-        userId: user.id,
-        limit: 5,
-      });
-
-      console.log('Recent notifications response:', recentResponse);
-      console.log('Response structure check:', {
-        hasData: !!recentResponse?.data,
-        hasDataData: !!recentResponse?.data?.data,
-        dataType: typeof recentResponse?.data?.data,
-        dataArray: Array.isArray(recentResponse?.data?.data),
-        dataLength: recentResponse?.data?.data?.length
-      });
-
-      if (recentResponse?.data?.data) {
-        setNotifications(recentResponse.data.data);
-        console.log('Set notifications:', recentResponse.data.data);
-      } else {
-        console.log('No notifications data found in response');
-        console.log('Full response structure:', JSON.stringify(recentResponse, null, 2));
-      }
-
-      // Fetch unread count
-      const countResponse = await (trpcClient as any).clientNotification.getUnreadCount.query({
-        userId: user.id,
-      });
-
-      console.log('Unread count response:', countResponse);
-
-      if (countResponse?.data?.data) {
-        setUnreadCount(countResponse.data.data.count);
-        console.log('Set unread count:', countResponse.data.data.count);
-      } else {
-        console.log('No unread count data found in response');
-      }
-    } catch (error) {
-      console.error('Failed to fetch notifications:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isAuthenticated, user]);
-
-  const markAsRead = async (notificationId: string) => {
-    try {
-      const { trpcClient } = await import('../../utils/trpc');
-
-      // For now, we'll mark all as read since client router doesn't have single mark as read
-      await (trpcClient as any).clientNotification.markAllAsRead.mutate({
-        userId: user!.id,
-        notificationIds: [notificationId],
-      });
-
-      // Update local state
-      setNotifications(prev =>
-        prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
-      );
-      setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Failed to mark notification as read:', error);
-    }
-  };
-
-  const markAllAsRead = async () => {
-    try {
-      const { trpcClient } = await import('../../utils/trpc');
-
-      await (trpcClient as any).clientNotification.markAllAsRead.mutate({
-        userId: user!.id,
-      });
-
-      // Update local state
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-      setUnreadCount(0);
-    } catch (error) {
-      console.error('Failed to mark all notifications as read:', error);
-    }
-  };
-
   const handleNotificationClick = async (notification: Notification) => {
     if (!notification.read) {
       await markAsRead(notification.id);
@@ -164,22 +86,6 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ className }
   const viewAllNotifications = () => {
     router.push('/notifications');
   };
-
-  useEffect(() => {
-    console.log('NotificationDropdown useEffect:', { isAuthenticated, user: user?.id, notificationsLength: notifications.length, unreadCount });
-    if (isAuthenticated && user) {
-      fetchNotifications();
-
-      // Set up periodic refresh for unread count
-      const interval = setInterval(() => {
-        if (isAuthenticated && user) {
-          fetchNotifications();
-        }
-      }, 30000); // Refresh every 30 seconds
-
-      return () => clearInterval(interval);
-    }
-  }, [isAuthenticated, user, fetchNotifications]);
 
   if (!isAuthenticated) {
     return (
@@ -223,10 +129,10 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ className }
         className="max-w-sm w-80 max-h-96 overflow-hidden"
         variant="flat"
       >
-        <DropdownSection title={t('notifications.title')} showDivider>
+        <DropdownSection showDivider>
           <DropdownItem
             key="header"
-            className="h-14 py-2"
+            className="h-12 py-2"
             isReadOnly
             textValue="Notifications header"
           >
@@ -244,7 +150,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ className }
                   size="sm"
                   variant="light"
                   className="text-xs"
-                  onPress={markAllAsRead}
+                  onPress={() => markAllAsRead()}
                 >
                   {t('notifications.markAllAsRead')}
                 </Button>
@@ -268,7 +174,6 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ className }
             </DropdownItem>
           ) : (
             <>
-              {console.log('Rendering notifications:', notifications.length, notifications)}
               {notifications.map((notification) => (
                 <DropdownItem
                   key={notification.id}

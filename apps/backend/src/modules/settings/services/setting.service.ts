@@ -156,4 +156,24 @@ export class SettingService {
 
     return this.settingRepository.softDelete(id);
   }
+
+  /**
+   * 分页获取设置
+   */
+  async findPaginated(params: {
+    page: number;
+    limit: number;
+    search?: string;
+    group?: string;
+  }): Promise<{ data: SettingEntity[]; total: number; page: number; limit: number; totalPages: number }> {
+    const result = await this.settingRepository.findPaginated(params);
+    const totalPages = Math.ceil(result.total / params.limit);
+
+    return {
+      ...result,
+      page: params.page,
+      limit: params.limit,
+      totalPages
+    };
+  }
 } 

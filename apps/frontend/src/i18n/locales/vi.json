@@ -482,6 +482,94 @@
         },
         "save": "Lưu tùy chọn"
       },
+      "sidebar": {
+        "title": "Menu hồ sơ",
+        "subtitle": "Điều hướng qua các phần hồ sơ của bạn",
+        "main_section": "Chính",
+        "account_section": "Tài khoản",
+        "shopping_section": "Mua sắm",
+        "preferences_section": "Tùy chọn",
+        "overview": "Tổng quan",
+        "overview_desc": "Xem bản tóm tắt và thống kê hồ sơ của bạn",
+        "personal_info": "Thông tin cá nhân",
+        "personal_info_desc": "Cập nhật thông tin cá nhân và liên hệ của bạn",
+        "security": "Bảo mật",
+        "security_desc": "Quản lý mật khẩu và cài đặt bảo mật của bạn",
+        "notifications": "Thông báo",
+        "notifications_desc": "Cấu hình tùy chọn thông báo của bạn",
+        "addresses": "Địa chỉ",
+        "addresses_desc": "Quản lý địa chỉ đã lưu của bạn",
+        "payment": "Phương thức thanh toán",
+        "payment_desc": "Quản lý tùy chọn thanh toán của bạn",
+        "wishlist": "Danh sách yêu thích",
+        "wishlist_desc": "Xem các mục đã lưu của bạn",
+        "orders": "Đơn hàng",
+        "orders_desc": "Xem lịch sử đơn hàng của bạn",
+        "preferences": "Tùy chọn",
+        "preferences_desc": "Tùy chỉnh tùy chọn tài khoản của bạn",
+        "quick_actions": "Hành động nhanh",
+        "download_app": "Tải ứng dụng",
+        "help_center": "Trung tâm trợ giúp"
+      },
+      "overview": {
+        "total_orders": "Tổng số đơn hàng",
+        "wishlist_items": "Mục yêu thích",
+        "saved_cards": "Thẻ đã lưu",
+        "saved_addresses": "Địa chỉ đã lưu",
+        "guest_user": "Khách",
+        "member_since": "Thành viên từ {{date}}",
+        "verified_account": "Tài khoản đã xác minh",
+        "personal_info": "Thông tin cá nhân",
+        "edit": "Chỉnh sửa",
+        "preferences": "Tùy chọn",
+        "full_name": "Họ và tên",
+        "email": "Email",
+        "phone": "Số điện thoại",
+        "not_provided": "Chưa cung cấp",
+        "email_notifications": "Thông báo email",
+        "enabled": "Đã kích hoạt",
+        "disabled": "Đã vô hiệu hóa",
+        "default_language": "Ngôn ngữ mặc định",
+        "two_factor_auth": "Xác thực hai yếu tố",
+        "recent_activity": "Hoạt động gần đây",
+        "order_placed": "Đã đặt đơn hàng",
+        "item_added_wishlist": "Đã thêm mục vào danh sách yêu thích",
+        "address_added": "Đã thêm địa chỉ"
+      },
+      "security": {
+        "coming_soon": "Cài đặt bảo mật sắp ra mắt",
+        "coming_soon_desc": "Các tính năng bảo mật nâng cao sẽ có sẵn tại đây"
+      },
+      "notifications": {
+        "coming_soon": "Cài đặt thông báo sắp ra mắt",
+        "coming_soon_desc": "Tùy chọn thông báo sẽ có sẵn tại đây"
+      },
+      "payment": {
+        "title": "Phương thức thanh toán",
+        "subtitle": "Quản lý tùy chọn thanh toán của bạn",
+        "coming_soon": "Phương thức thanh toán sắp ra mắt",
+        "coming_soon_desc": "Quản lý thanh toán sẽ có sẵn tại đây"
+      },
+      "wishlist": {
+        "title": "Danh sách yêu thích của tôi",
+        "subtitle": "Xem các mục đã lưu của bạn",
+        "coming_soon": "Danh sách yêu thích sắp ra mắt",
+        "coming_soon_desc": "Danh sách yêu thích của bạn sẽ có sẵn tại đây"
+      },
+      "orders": {
+        "title": "Lịch sử đơn hàng",
+        "subtitle": "Xem lịch sử đơn hàng của bạn",
+        "coming_soon": "Lịch sử đơn hàng sắp ra mắt",
+        "coming_soon_desc": "Lịch sử đơn hàng của bạn sẽ có sẵn tại đây"
+      },
+      "preferences": {
+        "title": "Tùy chọn",
+        "subtitle": "Tùy chỉnh tùy chọn tài khoản của bạn",
+        "coming_soon": "Tùy chọn sắp ra mắt",
+        "coming_soon_desc": "Cài đặt tùy chọn sẽ có sẵn tại đây",
+        "language": "Ngôn ngữ & Khu vực",
+        "appearance": "Giao diện"
+      },
       "loading": "Đang tải hồ sơ...",
       "errors": {
         "passwordMismatch": "Mật khẩu mới không khớp",
@@ -757,5 +845,22 @@
     "invalid_type": "Loại tệp không hợp lệ",
     "max_size": "Kích thước tệp tối đa: {{size}}",
     "supported_formats": "Định dạng được hỗ trợ: {{formats}}"
+  },
+  "notifications": {
+    "title": "Thông báo",
+    "unread": "chưa đọc",
+    "markAllAsRead": "Đánh dấu tất cả đã đọc",
+    "noNotifications": "Không có thông báo",
+    "viewDetails": "Xem chi tiết",
+    "viewAll": "Xem tất cả thông báo",
+    "time": {
+      "justNow": "Vừa xong",
+      "minutesAgo": "{count} phút trước",
+      "minutesAgo_plural": "{count} phút trước",
+      "hoursAgo": "{count} giờ trước",
+      "hoursAgo_plural": "{count} giờ trước",
+      "daysAgo": "{count} ngày trước",
+      "daysAgo_plural": "{count} ngày trước"
+    }
   }
 }

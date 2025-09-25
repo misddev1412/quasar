@@ -223,8 +223,20 @@ export class NavigationService implements INavigationService {
           },
           {
             icon: React.createElement(SettingsIcon),
-            label: t('navigation.settings', '设置'),
-            path: '/settings'
+            label: t('navigation.settings', 'Settings'),
+            path: '/settings-management',
+            subItems: [
+              {
+                icon: React.createElement(TuneIcon),
+                label: t('navigation.general_settings', 'General Settings'),
+                path: '/settings'
+              },
+              {
+                icon: React.createElement(PublicIcon),
+                label: t('navigation.settings_visibility', 'Settings Visibility'),
+                path: '/settings/visibility'
+              }
+            ]
           },
           {
             icon: React.createElement(HelpIcon),
@@ -271,7 +283,7 @@ export class NavigationService implements INavigationService {
       return currentPath === path || currentPath.startsWith(path + '/');
     }
 
-    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/seo', '/languages', '/orders', '/customers', '/payment-methods', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics'];
+    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/visibility', '/seo', '/languages', '/orders', '/customers', '/payment-methods', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics'];
     if (exactMatchPaths.includes(path)) {
       return currentPath === path;
     }

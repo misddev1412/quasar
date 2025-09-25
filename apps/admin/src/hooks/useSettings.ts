@@ -20,6 +20,11 @@ export interface GroupedSettings {
 export interface UseSettingsProps {
   group?: string;
   isPublic?: boolean;
+  pagination?: {
+    page: number;
+    limit: number;
+    search?: string;
+  };
 }
 
 export interface UseSettingsReturn {
@@ -27,6 +32,12 @@ export interface UseSettingsReturn {
   groupedSettings: GroupedSettings;
   isLoading: boolean;
   error: Error | null;
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
   updateSetting: (id: string, data: Partial<Omit<SettingData, 'id'>>) => Promise<void>;
   bulkUpdateSettings: (settings: { key: string; value: string }[]) => Promise<void>;
   createSetting: (setting: Partial<SettingData>) => Promise<void>;
@@ -37,18 +48,43 @@ export interface UseSettingsReturn {
 /**
  * 设置管理Hook，用于获取和管理系统设置
  */
-export function useSettings({ group }: UseSettingsProps = {}): UseSettingsReturn {
+export function useSettings({ group, pagination }: UseSettingsProps = {}): UseSettingsReturn {
   const [settings, setSettings] = useState<SettingData[]>([]);
   const [groupedSettings, setGroupedSettings] = useState<GroupedSettings>({});
   const [error, setError] = useState<Error | null>(null);
   const utils = trpc.useContext();
 
-  // 获取所有设置
-  const { 
-    data: settingsData, 
-    isLoading, 
-    refetch 
-  } = trpc.adminSettings.getAll.useQuery();
+  // 根据是否需要分页来决定使用哪个查询
+  const usePaginatedQuery = pagination && (pagination.page > 1 || pagination.search);
+
+  // 获取所有设置（非分页）
+  const {
+    data: allSettingsData,
+    isLoading: isLoadingAll,
+    refetch: refetchAll
+  } = trpc.adminSettings.getAll.useQuery(undefined, {
+    enabled: !usePaginatedQuery
+  });
+
+  // 获取分页设置
+  const {
+    data: paginatedSettingsData,
+    isLoading: isLoadingPaginated,
+    refetch: refetchPaginated
+  } = trpc.adminSettings.list.useQuery(
+    {
+      page: pagination?.page || 1,
+      limit: pagination?.limit || 20,
+      search: pagination?.search,
+      group
+    },
+    {
+      enabled: !!usePaginatedQuery
+    }
+  );
+
+  const isLoading = usePaginatedQuery ? isLoadingPaginated : isLoadingAll;
+  const refetch = usePaginatedQuery ? refetchPaginated : refetchAll;
   
   // 突变钩子
   const updateSettingMutation = trpc.adminSettings.update.useMutation({
@@ -61,8 +97,8 @@ export function useSettings({ group }: UseSettingsProps = {}): UseSettingsReturn
       // 乐观地更新为新值
       utils.adminSettings.getAll.setData(undefined, (oldQueryData: any) => {
         if (!oldQueryData?.data) return oldQueryData;
-        
-        const updatedData = oldQueryData.data.map((setting: SettingData) => 
+
+        const updatedData = oldQueryData.data.map((setting: SettingData) =>
           setting.id === newData.id ? { ...setting, ...newData } : setting
         );
 
@@ -83,21 +119,40 @@ export function useSettings({ group }: UseSettingsProps = {}): UseSettingsReturn
       utils.adminSettings.getAll.invalidate();
     },
   });
-  const bulkUpdateMutation = trpc.adminSettings.bulkUpdate.useMutation();
+
+    const bulkUpdateMutation = trpc.adminSettings.bulkUpdate.useMutation();
   const createSettingMutation = trpc.adminSettings.create.useMutation();
   const deleteSettingMutation = trpc.adminSettings.delete.useMutation();
 
   useEffect(() => {
-    if (settingsData && typeof settingsData === 'object' && 'data' in settingsData) {
-      const data = (settingsData as unknown as BaseApiResponse<SettingData[]>).data || [];
-      
-      // 过滤特定分组的设置
-      const filteredData = group 
+    const currentData = usePaginatedQuery ? paginatedSettingsData : allSettingsData;
+
+    if (currentData && typeof currentData === 'object' && 'data' in currentData) {
+      let data: SettingData[] = [];
+
+      if (usePaginatedQuery) {
+        // 分页数据结构
+        const paginatedResponse = currentData as unknown as BaseApiResponse<{
+          data: SettingData[];
+          total: number;
+          page: number;
+          limit: number;
+          totalPages: number;
+        }>;
+        data = paginatedResponse.data?.data || [];
+      } else {
+        // 非分页数据结构
+        const allResponse = currentData as unknown as BaseApiResponse<SettingData[]>;
+        data = allResponse.data || [];
+      }
+
+      // 过滤特定分组的设置（对于非分页查询）
+      const filteredData = !usePaginatedQuery && group
         ? data.filter(setting => setting.group === group)
         : data;
-      
+
       setSettings(filteredData);
-      
+
       // 对设置进行分组
       const grouped = filteredData.reduce<GroupedSettings>((acc, setting) => {
         const group = setting.group || '其他';
@@ -107,10 +162,10 @@ export function useSettings({ group }: UseSettingsProps = {}): UseSettingsReturn
         acc[group].push(setting);
         return acc;
       }, {});
-      
+
       setGroupedSettings(grouped);
     }
-  }, [settingsData, group]);
+  }, [allSettingsData, paginatedSettingsData, group, usePaginatedQuery]);
 
   // 更新单个设置
   const updateSetting = async (id: string, data: Partial<Omit<SettingData, 'id'>>): Promise<void> => {
@@ -123,6 +178,7 @@ export function useSettings({ group }: UseSettingsProps = {}): UseSettingsReturn
     }
   };
 
+  
   // 批量更新设置
   const bulkUpdateSettings = async (settingsToUpdate: { key: string; value: string }[]): Promise<void> => {
     try {
@@ -158,11 +214,24 @@ export function useSettings({ group }: UseSettingsProps = {}): UseSettingsReturn
     }
   };
 
+  // 获取分页信息
+  const paginationInfo = usePaginatedQuery && paginatedSettingsData ?
+    (() => {
+      const response = paginatedSettingsData as unknown as BaseApiResponse<{
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+      }>;
+      return response.data;
+    })() : undefined;
+
   return {
     settings,
     groupedSettings,
     isLoading,
     error,
+    pagination: paginationInfo,
     updateSetting,
     bulkUpdateSettings,
     createSetting,

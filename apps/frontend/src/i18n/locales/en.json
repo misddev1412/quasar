@@ -482,6 +482,94 @@
         },
         "save": "Save Preferences"
       },
+      "sidebar": {
+        "title": "Profile Menu",
+        "subtitle": "Navigate through your profile sections",
+        "main_section": "Main",
+        "account_section": "Account",
+        "shopping_section": "Shopping",
+        "preferences_section": "Preferences",
+        "overview": "Overview",
+        "overview_desc": "View your profile summary and statistics",
+        "personal_info": "Personal Information",
+        "personal_info_desc": "Update your personal details and contact information",
+        "security": "Security",
+        "security_desc": "Manage your password and security settings",
+        "notifications": "Notifications",
+        "notifications_desc": "Configure your notification preferences",
+        "addresses": "Addresses",
+        "addresses_desc": "Manage your saved addresses",
+        "payment": "Payment Methods",
+        "payment_desc": "Manage your payment options",
+        "wishlist": "Wishlist",
+        "wishlist_desc": "View your saved items",
+        "orders": "Orders",
+        "orders_desc": "View your order history",
+        "preferences": "Preferences",
+        "preferences_desc": "Customize your account preferences",
+        "quick_actions": "Quick Actions",
+        "download_app": "Download App",
+        "help_center": "Help Center"
+      },
+      "overview": {
+        "total_orders": "Total Orders",
+        "wishlist_items": "Wishlist Items",
+        "saved_cards": "Saved Cards",
+        "saved_addresses": "Saved Addresses",
+        "guest_user": "Guest User",
+        "member_since": "Member since {{date}}",
+        "verified_account": "Verified Account",
+        "personal_info": "Personal Information",
+        "edit": "Edit",
+        "preferences": "Preferences",
+        "full_name": "Full Name",
+        "email": "Email",
+        "phone": "Phone",
+        "not_provided": "Not provided",
+        "email_notifications": "Email Notifications",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "default_language": "Default Language",
+        "two_factor_auth": "Two-Factor Authentication",
+        "recent_activity": "Recent Activity",
+        "order_placed": "Order placed",
+        "item_added_wishlist": "Item added to wishlist",
+        "address_added": "Address added"
+      },
+      "security": {
+        "coming_soon": "Security Settings Coming Soon",
+        "coming_soon_desc": "Advanced security features will be available here"
+      },
+      "notifications": {
+        "coming_soon": "Notification Settings Coming Soon",
+        "coming_soon_desc": "Notification preferences will be available here"
+      },
+      "payment": {
+        "title": "Payment Methods",
+        "subtitle": "Manage your payment options",
+        "coming_soon": "Payment Methods Coming Soon",
+        "coming_soon_desc": "Payment management will be available here"
+      },
+      "wishlist": {
+        "title": "My Wishlist",
+        "subtitle": "View your saved items",
+        "coming_soon": "Wishlist Coming Soon",
+        "coming_soon_desc": "Your wishlist will be available here"
+      },
+      "orders": {
+        "title": "Order History",
+        "subtitle": "View your order history",
+        "coming_soon": "Order History Coming Soon",
+        "coming_soon_desc": "Your order history will be available here"
+      },
+      "preferences": {
+        "title": "Preferences",
+        "subtitle": "Customize your account preferences",
+        "coming_soon": "Preferences Coming Soon",
+        "coming_soon_desc": "Preference settings will be available here",
+        "language": "Language & Region",
+        "appearance": "Appearance"
+      },
       "loading": "Loading profile...",
       "errors": {
         "passwordMismatch": "New passwords do not match",
@@ -757,5 +845,22 @@
     "invalid_type": "Invalid file type",
     "max_size": "Maximum file size: {{size}}",
     "supported_formats": "Supported formats: {{formats}}"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unread": "unread",
+    "markAllAsRead": "Mark all as read",
+    "noNotifications": "No notifications",
+    "viewDetails": "View details",
+    "viewAll": "View all notifications",
+    "time": {
+      "justNow": "Just now",
+      "minutesAgo": "{count} minute ago",
+      "minutesAgo_plural": "{count} minutes ago",
+      "hoursAgo": "{count} hour ago",
+      "hoursAgo_plural": "{count} hours ago",
+      "daysAgo": "{count} day ago",
+      "daysAgo_plural": "{count} days ago"
+    }
   }
 }

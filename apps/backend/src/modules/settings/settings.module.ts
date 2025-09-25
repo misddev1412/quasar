@@ -5,7 +5,7 @@ import { SettingRepository } from './repositories/setting.repository';
 import { SettingService } from './services/setting.service';
 import { SharedModule } from '../shared/shared.module';
 import { AdminSettingsRouter } from './routers/admin-settings.router';
-import { ClientSettingsRouter } from '../../trpc/routers/client/settings.router';
+import { ClientSettingsRouter } from '../../trpc/routers/client';
 
 @Module({
   imports: [

@@ -2,19 +2,23 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { notificationService } from '../services/notification.service';
 import { Notification, NotificationType, NotificationWithPagination } from '../types/trpc';
 
 interface UseNotificationsOptions {
   autoRefresh?: boolean;
   refreshInterval?: number;
+  enableRecent?: boolean; // For dropdown usage
 }
 
 interface UseNotificationsReturn {
   notifications: Notification[];
+  recentNotifications: Notification[];
   unreadCount: number;
   isLoading: boolean;
   error: Error | null;
   fetchNotifications: (page?: number, limit?: number) => Promise<void>;
+  fetchRecentNotifications: () => Promise<void>;
   fetchUnreadCount: () => Promise<void>;
   markAsRead: (notificationId: string) => Promise<void>;
   markAllAsRead: (notificationIds?: string[]) => Promise<void>;
@@ -36,6 +40,7 @@ export const useNotifications = (
 ): UseNotificationsReturn => {
   const { user, isAuthenticated } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [recentNotifications, setRecentNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -43,6 +48,7 @@ export const useNotifications = (
   const {
     autoRefresh = true,
     refreshInterval = 30000, // 30 seconds
+    enableRecent = false,
   } = options;
 
   const fetchNotifications = useCallback(async (page = 1, limit = 20) => {
@@ -52,18 +58,8 @@ export const useNotifications = (
     setError(null);
 
     try {
-      const { trpcClient } = await import('../utils/trpc');
-
-      const response = await (trpcClient as any).clientNotification.getUserNotifications.query({
-        userId: user.id,
-        page,
-        limit,
-      });
-
-      if (response?.data?.data) {
-        const data = response.data.data as NotificationWithPagination;
-        setNotifications(data.notifications);
-      }
+      const data = await notificationService.getUserNotifications(user.id, page, limit);
+      setNotifications(data.notifications);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch notifications'));
       console.error('Failed to fetch notifications:', err);
@@ -72,19 +68,23 @@ export const useNotifications = (
     }
   }, [isAuthenticated, user]);
 
+  const fetchRecentNotifications = useCallback(async () => {
+    if (!isAuthenticated || !user) return;
+
+    try {
+      const notifications = await notificationService.getRecentNotifications(user.id, 5);
+      setRecentNotifications(notifications);
+    } catch (err) {
+      console.error('Failed to fetch recent notifications:', err);
+    }
+  }, [isAuthenticated, user]);
+
   const fetchUnreadCount = useCallback(async () => {
     if (!isAuthenticated || !user) return;
 
     try {
-      const { trpcClient } = await import('../utils/trpc');
-
-      const response = await (trpcClient as any).clientNotification.getUnreadCount.query({
-        userId: user.id,
-      });
-
-      if (response?.data?.data) {
-        setUnreadCount(response.data.data.count);
-      }
+      const count = await notificationService.getUnreadCount(user.id);
+      setUnreadCount(count);
     } catch (err) {
       console.error('Failed to fetch unread count:', err);
     }
@@ -94,15 +94,13 @@ export const useNotifications = (
     if (!isAuthenticated || !user) return;
 
     try {
-      const { trpcClient } = await import('../utils/trpc');
-
-      await (trpcClient as any).clientNotification.markAllAsRead.mutate({
-        userId: user.id,
-        notificationIds: [notificationId],
-      });
+      await notificationService.markAsRead(user.id, notificationId);
 
       // Update local state
       setNotifications(prev =>
+        prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
+      );
+      setRecentNotifications(prev =>
         prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
@@ -116,20 +114,19 @@ export const useNotifications = (
     if (!isAuthenticated || !user) return;
 
     try {
-      const { trpcClient } = await import('../utils/trpc');
-
-      await (trpcClient as any).clientNotification.markAllAsRead.mutate({
-        userId: user.id,
-        notificationIds,
-      });
+      await notificationService.markAllAsRead(user.id, notificationIds);
 
       // Update local state
       if (notificationIds) {
         setNotifications(prev =>
           prev.map(n => notificationIds.includes(n.id) ? { ...n, read: true } : n)
         );
+        setRecentNotifications(prev =>
+          prev.map(n => notificationIds.includes(n.id) ? { ...n, read: true } : n)
+        );
       } else {
         setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+        setRecentNotifications(prev => prev.map(n => ({ ...n, read: true })));
       }
       setUnreadCount(0);
     } catch (err) {
@@ -150,34 +147,32 @@ export const useNotifications = (
     if (!isAuthenticated || !user) return;
 
     try {
-      const { trpcClient } = await import('../utils/trpc');
-
-      await (trpcClient as any).clientNotification.createNotification.mutate({
+      await notificationService.createNotification({
         userId: user.id,
         ...data,
       });
 
       // Refresh notifications
-      await fetchNotifications();
+      if (enableRecent) {
+        await fetchRecentNotifications();
+      }
       await fetchUnreadCount();
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to create notification'));
       console.error('Failed to create notification:', err);
     }
-  }, [isAuthenticated, user, fetchNotifications, fetchUnreadCount]);
+  }, [isAuthenticated, user, enableRecent, fetchRecentNotifications, fetchUnreadCount]);
 
   const deleteNotification = useCallback(async (notificationId: string) => {
     if (!isAuthenticated || !user) return;
 
     try {
-      const { trpcClient } = await import('../utils/trpc');
-
-      // Note: This would need to be implemented in the backend
-      // For now, we'll just remove it from local state
+      // Remove from local state (backend API not implemented yet)
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
+      setRecentNotifications(prev => prev.filter(n => n.id !== notificationId));
 
       // If the notification was unread, update the count
-      const notification = notifications.find(n => n.id === notificationId);
+      const notification = [...notifications, ...recentNotifications].find(n => n.id === notificationId);
       if (notification && !notification.read) {
         setUnreadCount(prev => Math.max(0, prev - 1));
       }
@@ -185,17 +180,25 @@ export const useNotifications = (
       setError(err instanceof Error ? err : new Error('Failed to delete notification'));
       console.error('Failed to delete notification:', err);
     }
-  }, [isAuthenticated, user, notifications]);
+  }, [isAuthenticated, user, notifications, recentNotifications]);
 
   const refetch = useCallback(() => {
-    fetchNotifications();
+    if (enableRecent) {
+      fetchRecentNotifications();
+    } else {
+      fetchNotifications();
+    }
     fetchUnreadCount();
-  }, [fetchNotifications, fetchUnreadCount]);
+  }, [fetchNotifications, fetchRecentNotifications, fetchUnreadCount, enableRecent]);
 
   // Initial fetch and auto-refresh
   useEffect(() => {
     if (isAuthenticated && user) {
-      fetchNotifications();
+      if (enableRecent) {
+        fetchRecentNotifications();
+      } else {
+        fetchNotifications();
+      }
       fetchUnreadCount();
 
       if (autoRefresh) {
@@ -208,17 +211,29 @@ export const useNotifications = (
     } else {
       // Reset state when not authenticated
       setNotifications([]);
+      setRecentNotifications([]);
       setUnreadCount(0);
       setError(null);
     }
-  }, [isAuthenticated, user, autoRefresh, refreshInterval, fetchNotifications, fetchUnreadCount]);
+  }, [
+    isAuthenticated,
+    user,
+    autoRefresh,
+    refreshInterval,
+    enableRecent,
+    fetchNotifications,
+    fetchRecentNotifications,
+    fetchUnreadCount
+  ]);
 
   return {
     notifications,
+    recentNotifications,
     unreadCount,
     isLoading,
     error,
     fetchNotifications,
+    fetchRecentNotifications,
     fetchUnreadCount,
     markAsRead,
     markAllAsRead,

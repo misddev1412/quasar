@@ -3,14 +3,22 @@ import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
 import { z } from 'zod';
 import { SettingService } from '../services/setting.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { 
-  createSettingSchema, 
+import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
+import {
+  createSettingSchema,
   updateSettingSchema,
   bulkUpdateSettingsSchema,
   getSettingByKeySchema,
   getSettingsByGroupSchema
 } from '../dto/setting.dto';
+
+export const getSettingsQuerySchema = z.object({
+  page: z.number().min(1).default(1),
+  limit: z.number().min(1).max(100).default(20),
+  search: z.string().optional(),
+  group: z.string().optional(),
+});
+
 import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
 
@@ -35,6 +43,23 @@ export class AdminSettingsRouter {
       'settings',
       settings
     );
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: getSettingsQuerySchema,
+    output: paginatedResponseSchema,
+  })
+  async list(
+    @Input() query: z.infer<typeof getSettingsQuerySchema>
+  ): Promise<z.infer<typeof paginatedResponseSchema>> {
+    const result = await this.settingService.findPaginated({
+      page: query.page || 1,
+      limit: query.limit || 20,
+      search: query.search,
+      group: query.group
+    });
+    return this.responseService.createTrpcSuccess(result);
   }
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
@@ -132,6 +157,27 @@ export class AdminSettingsRouter {
     return this.responseService.createDeletedResponse(
       15, // ModuleCode.SETTINGS
       'settings'
+    );
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      id: z.string().uuid(),
+      isPublic: z.boolean(),
+      description: z.string().max(500).optional()
+    }),
+    output: apiResponseSchema,
+  })
+  async updateVisibility(@Input() input: { id: string, isPublic: boolean, description?: string }): Promise<z.infer<typeof apiResponseSchema>> {
+    const updatedSetting = await this.settingService.update(input.id, {
+      isPublic: input.isPublic,
+      description: input.description
+    });
+    return this.responseService.createUpdatedResponse(
+      15, // ModuleCode.SETTINGS
+      'settings',
+      updatedSetting
     );
   }
 } 

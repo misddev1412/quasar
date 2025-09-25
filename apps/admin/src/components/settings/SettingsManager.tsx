@@ -199,7 +199,7 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
   );
 };
 
-// 设置组卡片组件 
+// 设置组卡片组件
 const SettingGroupCard: React.FC<{
   title: string;
   settings: any[];
@@ -214,10 +214,10 @@ const SettingGroupCard: React.FC<{
       </div>
       <div className="space-y-4">
         {settings.map((setting) => (
-          <SettingItem 
-            key={setting.id} 
-            setting={setting} 
-            onUpdate={onUpdate} 
+          <SettingItem
+            key={setting.id}
+            setting={setting}
+            onUpdate={onUpdate}
           />
         ))}
       </div>
@@ -339,10 +339,10 @@ interface SettingsManagerProps {
   onCloseModal?: () => void;
 }
 
-export const SettingsManager: React.FC<SettingsManagerProps> = ({ 
-  isModalOpen = false, 
-  onOpenCreateModal, 
-  onCloseModal 
+export const SettingsManager: React.FC<SettingsManagerProps> = ({
+  isModalOpen = false,
+  onOpenCreateModal,
+  onCloseModal
 }) => {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   // 如果外部没有提供模态框控制，则使用内部状态

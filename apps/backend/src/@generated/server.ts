@@ -1,7 +1,7 @@
 // AppRouter types for tRPC client
 // This file is auto-generated from actual nestjs-trpc routers
 // Run 'npm run sync:trpc-types' to regenerate this file
-// Generated on: 2025-09-25T07:46:09.267Z
+// Generated on: 2025-09-25T10:37:19.825Z
 
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
@@ -350,6 +350,7 @@ const appRouter = t.router({
   }),
   'admin.settings': t.router({
     getAll: t.procedure.query(() => null),
+    list: t.procedure.input(z.any()).query(() => null),
     getById: t.procedure.input(z.any()).query(() => null),
     getByKey: t.procedure.query(() => null),
     getByGroup: t.procedure.query(() => null),
@@ -357,6 +358,7 @@ const appRouter = t.router({
     update: t.procedure.input(z.any()).mutation(() => null),
     bulkUpdate: t.procedure.input(z.any()).mutation(() => null),
     delete: t.procedure.input(z.any()).mutation(() => null),
+    updateVisibility: t.procedure.input(z.any()).mutation(() => null),
   }),
   adminMedia: t.router({
     getUserMedia: t.procedure.query(() => null),

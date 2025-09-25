@@ -76,4 +76,36 @@ export class SettingRepository extends BaseRepository<SettingEntity> implements 
       }
     });
   }
+
+  async findPaginated(params: {
+    page: number;
+    limit: number;
+    search?: string;
+    group?: string;
+  }): Promise<{ data: SettingEntity[]; total: number }> {
+    const { page, limit, search, group } = params;
+    const skip = (page - 1) * limit;
+
+    const queryBuilder = this.repository.createQueryBuilder('setting')
+      .where('setting.deletedAt IS NULL');
+
+    if (search) {
+      queryBuilder.andWhere(
+        '(setting.key LIKE :search OR setting.description LIKE :search)',
+        { search: `%${search}%` }
+      );
+    }
+
+    if (group) {
+      queryBuilder.andWhere('setting.group = :group', { group });
+    }
+
+    const [data, total] = await queryBuilder
+      .orderBy('setting.key', 'ASC')
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+
+    return { data, total };
+  }
 } 

@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import '../styles.scss';
 import { Providers } from './providers';
 import LocaleWrapper from '../components/LocaleWrapper';
+import { DynamicFavicon } from '../components/common/DynamicFavicon';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={inter.className}>
         <LocaleWrapper>
           <Providers>
+            <DynamicFavicon />
             {children}
           </Providers>
         </LocaleWrapper>
