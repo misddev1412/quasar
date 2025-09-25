@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { ChevronRightIcon, HomeIcon } from '@heroicons/react/20/solid';
 
 export interface BreadcrumbItem {
@@ -43,13 +43,9 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
     // Always show the first item and the last (maxItems - 2) items
     const firstItem = items[0];
     const lastItems = items.slice(-(maxItems - 2));
-    
+
     // Insert an ellipsis item between the first and last items
-    return [
-      firstItem,
-      { label: '...', href: undefined },
-      ...lastItems
-    ];
+    return [firstItem, { label: '...', href: undefined }, ...lastItems];
   }, [items, maxItems]);
 
   return (
@@ -60,7 +56,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
           <li>
             <div>
               <Link
-                to={homeHref}
+                href={homeHref}
                 className="text-gray-400 hover:text-gray-500 transition-colors"
                 onClick={() => handleItemClick({ label: 'Home', href: homeHref })}
               >
@@ -91,7 +87,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
                   <span className="text-gray-500">{item.label}</span>
                 ) : item.href && !item.current ? (
                   <Link
-                    to={item.href}
+                    href={item.href || '#'}
                     className={`text-sm font-medium ${
                       isLast
                         ? 'text-gray-500'
@@ -105,9 +101,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
                   </Link>
                 ) : (
                   <span
-                    className={`text-sm font-medium ${
-                      isLast ? 'text-gray-900' : 'text-gray-500'
-                    }`}
+                    className={`text-sm font-medium ${isLast ? 'text-gray-900' : 'text-gray-500'}`}
                     aria-current={item.current ? 'page' : undefined}
                   >
                     {item.icon && <span className="mr-1">{item.icon}</span>}

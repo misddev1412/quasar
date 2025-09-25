@@ -22,13 +22,7 @@ const defaultIcons = {
   info: 'ℹ',
 };
 
-export const Alert: React.FC<AlertProps> = ({
-  type,
-  title,
-  message,
-  icon,
-  onClose,
-}) => {
+export const Alert: React.FC<AlertProps> = ({ type, title, message, icon, onClose }) => {
   return (
     <Card className={`border ${alertStyles[type]} p-4`}>
       <CardBody className="p-0">
@@ -39,10 +33,7 @@ export const Alert: React.FC<AlertProps> = ({
             <p className="text-sm">{message}</p>
           </div>
           {onClose && (
-            <button
-              onClick={onClose}
-              className="text-xl hover:opacity-70 transition-opacity"
-            >
+            <button onClick={onClose} className="text-xl hover:opacity-70 transition-opacity">
               ×
             </button>
           )}

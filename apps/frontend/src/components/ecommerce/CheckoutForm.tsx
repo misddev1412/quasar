@@ -7,7 +7,7 @@ import OrderSummary from './OrderSummary';
 export interface CheckoutFormData {
   // Customer Information
   email: string;
-  
+
   // Shipping Address
   shippingAddress: {
     firstName: string;
@@ -21,7 +21,7 @@ export interface CheckoutFormData {
     country: string;
     phone?: string;
   };
-  
+
   // Billing Address
   billingAddressSameAsShipping: boolean;
   billingAddress?: {
@@ -36,10 +36,10 @@ export interface CheckoutFormData {
     country: string;
     phone?: string;
   };
-  
+
   // Shipping Method
   shippingMethod: string;
-  
+
   // Payment Method
   paymentMethod: {
     type: 'credit_card' | 'paypal' | 'bank_transfer' | 'cash_on_delivery';
@@ -51,10 +51,10 @@ export interface CheckoutFormData {
     bankAccountNumber?: string;
     bankName?: string;
   };
-  
+
   // Order Notes
   orderNotes?: string;
-  
+
   // Terms and Conditions
   agreeToTerms: boolean;
   agreeToMarketing: boolean;
@@ -126,7 +126,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
   const validateStep = (step: number) => {
     const newErrors: Record<string, string> = {};
-    
+
     if (step === 1) {
       // Validate contact information
       if (!formData.email.trim()) {
@@ -134,7 +134,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
         newErrors.email = 'Email is invalid';
       }
-      
+
       // Validate shipping address
       if (!formData.shippingAddress.firstName.trim()) {
         newErrors['shippingAddress.firstName'] = 'First name is required';
@@ -157,7 +157,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       if (!formData.shippingAddress.country.trim()) {
         newErrors['shippingAddress.country'] = 'Country is required';
       }
-      
+
       // Validate billing address if different from shipping
       if (!formData.billingAddressSameAsShipping) {
         if (!formData.billingAddress?.firstName.trim()) {
@@ -183,14 +183,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         }
       }
     }
-    
+
     if (step === 2) {
       // Validate shipping method
       if (!formData.shippingMethod) {
         newErrors.shippingMethod = 'Please select a shipping method';
       }
     }
-    
+
     if (step === 3) {
       // Validate payment method
       if (formData.paymentMethod.type === 'credit_card') {
@@ -207,7 +207,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           newErrors['paymentMethod.cardholderName'] = 'Cardholder name is required';
         }
       }
-      
+
       if (formData.paymentMethod.type === 'paypal') {
         if (!formData.paymentMethod.paypalEmail?.trim()) {
           newErrors['paymentMethod.paypalEmail'] = 'PayPal email is required';
@@ -215,25 +215,25 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           newErrors['paymentMethod.paypalEmail'] = 'PayPal email is invalid';
         }
       }
-      
+
       // Validate terms agreement
       if (!formData.agreeToTerms) {
         newErrors.agreeToTerms = 'You must agree to the terms and conditions';
       }
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleNextStep = () => {
     if (validateStep(activeStep)) {
-      setActiveStep(prev => prev + 1);
+      setActiveStep((prev) => prev + 1);
     }
   };
 
   const handlePrevStep = () => {
-    setActiveStep(prev => prev - 1);
+    setActiveStep((prev) => prev - 1);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -244,25 +244,25 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   };
 
   const updateFormData = (path: string, value: any) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const newData = { ...prev };
       const keys = path.split('.');
       let current: any = newData;
-      
+
       for (let i = 0; i < keys.length - 1; i++) {
         if (!current[keys[i]]) {
           current[keys[i]] = {};
         }
         current = current[keys[i]];
       }
-      
+
       current[keys[keys.length - 1]] = value;
       return newData;
     });
-    
+
     // Clear error for this field if it exists
     if (errors[path]) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[path];
         return newErrors;
@@ -270,7 +270,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     }
   };
 
-  const selectedShipping = shippingOptions.find(option => option.id === formData.shippingMethod);
+  const selectedShipping = shippingOptions.find((option) => option.id === formData.shippingMethod);
   const adjustedShippingCost = selectedShipping ? selectedShipping.price : shippingCost;
   const adjustedTotal = subtotal + adjustedShippingCost + tax;
 
@@ -286,22 +286,24 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 <div key={step} className="flex items-center">
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                      activeStep >= step
-                        ? 'bg-primary-500 text-white'
-                        : 'bg-gray-200 text-gray-600'
+                      activeStep >= step ? 'bg-primary-500 text-white' : 'bg-gray-200 text-gray-600'
                     }`}
                   >
                     {step}
                   </div>
-                  <span className={`ml-2 text-sm ${
-                    activeStep >= step ? 'text-primary-500 font-medium' : 'text-gray-500'
-                  }`}>
+                  <span
+                    className={`ml-2 text-sm ${
+                      activeStep >= step ? 'text-primary-500 font-medium' : 'text-gray-500'
+                    }`}
+                  >
                     {step === 1 ? 'Information' : step === 2 ? 'Shipping' : 'Payment'}
                   </span>
                   {step < 3 && (
-                    <div className={`w-16 h-1 mx-4 ${
-                      activeStep > step ? 'bg-primary-500' : 'bg-gray-200'
-                    }`}></div>
+                    <div
+                      className={`w-16 h-1 mx-4 ${
+                        activeStep > step ? 'bg-primary-500' : 'bg-gray-200'
+                      }`}
+                    ></div>
                   )}
                 </div>
               ))}
@@ -313,7 +315,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
             {activeStep === 1 && (
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Contact Information</h3>
-                
+
                 <Input
                   label="Email Address"
                   placeholder="your.email@example.com"
@@ -324,27 +326,27 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   errorMessage={errors.email}
                   fullWidth
                 />
-                
+
                 <h3 className="text-lg font-semibold mt-6">Shipping Address</h3>
-                
+
                 <AddressForm
                   address={formData.shippingAddress}
                   onChange={(address) => updateFormData('shippingAddress', address)}
                   errors={errors}
                   prefix="shippingAddress"
                 />
-                
+
                 <Checkbox
                   isSelected={formData.billingAddressSameAsShipping}
                   onChange={(e) => updateFormData('billingAddressSameAsShipping', e.target.checked)}
                 >
                   Billing address is the same as shipping address
                 </Checkbox>
-                
+
                 {!formData.billingAddressSameAsShipping && (
                   <>
                     <h3 className="text-lg font-semibold mt-6">Billing Address</h3>
-                    
+
                     <AddressForm
                       address={formData.billingAddress || formData.shippingAddress}
                       onChange={(address) => updateFormData('billingAddress', address)}
@@ -353,12 +355,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     />
                   </>
                 )}
-                
+
                 <div className="flex justify-end mt-6">
-                  <Button
-                    color="primary"
-                    onPress={handleNextStep}
-                  >
+                  <Button color="primary" onPress={handleNextStep}>
                     Continue to Shipping
                   </Button>
                 </div>
@@ -369,7 +368,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
             {activeStep === 2 && (
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Shipping Method</h3>
-                
+
                 <RadioGroup
                   value={formData.shippingMethod}
                   onValueChange={(value) => updateFormData('shippingMethod', value)}
@@ -388,9 +387,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     </Radio>
                   ))}
                 </RadioGroup>
-                
+
                 <h3 className="text-lg font-semibold mt-6">Order Notes (Optional)</h3>
-                
+
                 <Textarea
                   label="Special instructions for your order"
                   placeholder="Any special delivery instructions or notes about your order"
@@ -400,18 +399,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   minRows={3}
                   fullWidth
                 />
-                
+
                 <div className="flex justify-between mt-6">
-                  <Button
-                    variant="flat"
-                    onPress={handlePrevStep}
-                  >
+                  <Button variant="flat" onPress={handlePrevStep}>
                     Return to Information
                   </Button>
-                  <Button
-                    color="primary"
-                    onPress={handleNextStep}
-                  >
+                  <Button color="primary" onPress={handleNextStep}>
                     Continue to Payment
                   </Button>
                 </div>
@@ -422,7 +415,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
             {activeStep === 3 && (
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Payment Method</h3>
-                
+
                 <RadioGroup
                   value={formData.paymentMethod.type}
                   onValueChange={(value) => updateFormData('paymentMethod.type', value)}
@@ -432,7 +425,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   <Radio value="bank_transfer">Bank Transfer</Radio>
                   <Radio value="cash_on_delivery">Cash on Delivery</Radio>
                 </RadioGroup>
-                
+
                 {formData.paymentMethod.type === 'credit_card' && (
                   <PaymentMethodForm
                     paymentMethod={formData.paymentMethod}
@@ -441,7 +434,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     prefix="paymentMethod"
                   />
                 )}
-                
+
                 {formData.paymentMethod.type === 'paypal' && (
                   <div className="mt-4">
                     <Input
@@ -456,7 +449,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     />
                   </div>
                 )}
-                
+
                 <div className="mt-6 space-y-4">
                   <Checkbox
                     isSelected={formData.agreeToTerms}
@@ -466,7 +459,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   >
                     I agree to the Terms and Conditions and Privacy Policy
                   </Checkbox>
-                  
+
                   <Checkbox
                     isSelected={formData.agreeToMarketing}
                     onChange={(e) => updateFormData('agreeToMarketing', e.target.checked)}
@@ -474,19 +467,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     I want to receive exclusive offers and updates via email
                   </Checkbox>
                 </div>
-                
+
                 <div className="flex justify-between mt-6">
-                  <Button
-                    variant="flat"
-                    onPress={handlePrevStep}
-                  >
+                  <Button variant="flat" onPress={handlePrevStep}>
                     Return to Shipping
                   </Button>
-                  <Button
-                    type="submit"
-                    color="primary"
-                    isLoading={loading}
-                  >
+                  <Button type="submit" color="primary" isLoading={loading}>
                     Place Order
                   </Button>
                 </div>
@@ -508,7 +494,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
               total={adjustedTotal}
               className="mb-6"
             />
-            
+
             <Card className="p-4">
               <h3 className="font-semibold mb-3">Need Help?</h3>
               <p className="text-sm text-gray-600 mb-3">

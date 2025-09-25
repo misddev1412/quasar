@@ -41,7 +41,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim() || !onApplyCoupon) return;
-    
+
     setIsApplyingCoupon(true);
     try {
       await onApplyCoupon(couponCode.trim());
@@ -71,7 +71,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
   return (
     <Card className={`p-6 ${className}`}>
       <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
-      
+
       {/* Order Items */}
       {showItems && (
         <>
@@ -88,7 +88,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                   <div className="text-xs text-gray-500">Qty: {item.quantity}</div>
                 </div>
                 <div className="font-medium">
-                  {currency}{(item.price * item.quantity).toFixed(2)}
+                  {currency}
+                  {(item.price * item.quantity).toFixed(2)}
                 </div>
               </div>
             ))}
@@ -96,7 +97,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           <Divider className="my-4" />
         </>
       )}
-      
+
       {/* Coupon Code */}
       {showCouponCode && (
         <div className="mb-4">
@@ -117,7 +118,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
               {isApplyingCoupon ? 'Applying...' : 'Apply'}
             </button>
           </form>
-          
+
           {discount && (
             <div className="mt-3 flex justify-between items-center">
               <div>
@@ -139,41 +140,42 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           )}
         </div>
       )}
-      
+
       {/* Order Totals */}
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Subtotal</span>
           <PriceDisplay price={subtotal} currency={currency} />
         </div>
-        
+
         {discount && (
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Discount</span>
             <span className="text-green-600">
-              -{currency}{discount.amount.toFixed(2)}
+              -{currency}
+              {discount.amount.toFixed(2)}
             </span>
           </div>
         )}
-        
+
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Shipping</span>
           <PriceDisplay price={shippingCost} currency={currency} />
         </div>
-        
+
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Tax</span>
           <PriceDisplay price={tax} currency={currency} />
         </div>
-        
+
         <Divider className="my-2" />
-        
+
         <div className="flex justify-between font-semibold">
           <span>Total</span>
           <PriceDisplay price={total} currency={currency} size="lg" />
         </div>
       </div>
-      
+
       {/* Additional Info */}
       <div className="mt-4 pt-4 border-t border-gray-200">
         <div className="text-xs text-gray-500 space-y-1">

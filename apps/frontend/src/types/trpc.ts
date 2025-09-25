@@ -60,6 +60,23 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
+export interface LocaleConfig {
+  defaultLocale: 'vi' | 'en';
+  supportedLocales: readonly ('vi' | 'en')[];
+}
+
+export interface TranslationData {
+  locale: 'vi' | 'en';
+  translations: Record<string, string>;
+}
+
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+}
+
 // Define the shape of our tRPC router
 export type AppRouter = {
   auth: {
@@ -73,7 +90,10 @@ export type AppRouter = {
       query: () => Promise<User | null>;
     };
     changePassword: {
-      mutate: (input: { oldPassword: string; newPassword: string }) => Promise<{ success: boolean }>;
+      mutate: (input: {
+        oldPassword: string;
+        newPassword: string;
+      }) => Promise<{ success: boolean }>;
     };
     forgotPassword: {
       mutate: (input: { email: string }) => Promise<{ success: boolean }>;
@@ -146,10 +166,7 @@ export type AppRouter = {
       };
     };
     delete: {
-      useMutation: (options?: {
-        onSuccess?: () => void;
-        onError?: (error: Error) => void;
-      }) => {
+      useMutation: (options?: { onSuccess?: () => void; onError?: (error: Error) => void }) => {
         mutate: (input: { id: string }) => Promise<void>;
         mutateAsync: (input: { id: string }) => Promise<void>;
         isLoading: boolean;
@@ -186,14 +203,22 @@ export type AppRouter = {
       };
     };
     cancel: {
-      useMutation: (options?: {
-        onSuccess?: () => void;
-        onError?: (error: Error) => void;
-      }) => {
+      useMutation: (options?: { onSuccess?: () => void; onError?: (error: Error) => void }) => {
         mutate: (input: { id: string }) => Promise<void>;
         mutateAsync: (input: { id: string }) => Promise<void>;
         isLoading: boolean;
       };
+    };
+  };
+  translation: {
+    getLocaleConfig: {
+      query: () => Promise<ApiResponse<LocaleConfig>>;
+    };
+    getTranslations: {
+      query: (input: { locale: 'vi' | 'en' }) => Promise<ApiResponse<TranslationData>>;
+    };
+    getTranslation: {
+      query: (input: { key: string; locale: 'vi' | 'en'; defaultValue?: string }) => Promise<ApiResponse<{ key: string; value: string }>>;
     };
   };
 };

@@ -2,11 +2,11 @@ import { Route, Routes } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import styles from './app.module.scss';
 import Layout from '../components/Layout';
-import HomePage from '../pages/HomePage';
-import AboutPage from '../pages/AboutPage';
-import ContactPage from '../pages/ContactPage';
-import LoginPage from '../pages/LoginPage';
-import RegisterPage from '../pages/RegisterPage';
+import HomePage from '../page-components/HomePage';
+import AboutPage from '../page-components/AboutPage';
+import ContactPage from '../page-components/ContactPage';
+import LoginPage from '../page-components/LoginPage';
+import RegisterPage from '../page-components/RegisterPage';
 import { Loading } from '../components/utility/Loading';
 
 // Lazy load pages

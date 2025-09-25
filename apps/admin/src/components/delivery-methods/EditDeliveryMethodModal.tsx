@@ -24,6 +24,7 @@ interface DeliveryMethod {
   trackingEnabled: boolean;
   insuranceEnabled: boolean;
   signatureRequired: boolean;
+  useThirdPartyIntegration: boolean;
   iconUrl?: string;
   isActive: boolean;
   isDefault: boolean;
@@ -52,6 +53,7 @@ interface DeliveryMethodFormData {
   trackingEnabled: boolean;
   insuranceEnabled: boolean;
   signatureRequired: boolean;
+  useThirdPartyIntegration: boolean;
   iconUrl: string;
   isActive: boolean;
   isDefault: boolean;
@@ -101,6 +103,7 @@ export const EditDeliveryMethodModal: React.FC<EditDeliveryMethodModalProps> = (
     trackingEnabled: false,
     insuranceEnabled: false,
     signatureRequired: false,
+    useThirdPartyIntegration: false,
     iconUrl: '',
     isActive: true,
     isDefault: false,
@@ -128,6 +131,7 @@ export const EditDeliveryMethodModal: React.FC<EditDeliveryMethodModalProps> = (
         trackingEnabled: deliveryMethod.trackingEnabled || false,
         insuranceEnabled: deliveryMethod.insuranceEnabled || false,
         signatureRequired: deliveryMethod.signatureRequired || false,
+        useThirdPartyIntegration: deliveryMethod.useThirdPartyIntegration || false,
         iconUrl: deliveryMethod.iconUrl || '',
         isActive: deliveryMethod.isActive !== undefined ? deliveryMethod.isActive : true,
         isDefault: deliveryMethod.isDefault || false,
@@ -189,7 +193,7 @@ export const EditDeliveryMethodModal: React.FC<EditDeliveryMethodModalProps> = (
     }
 
     try {
-      await updateMutation.mutateAsync({
+      const updateData = {
         id: deliveryMethod.id,
         data: {
           name: formData.name.trim(),
@@ -207,11 +211,14 @@ export const EditDeliveryMethodModal: React.FC<EditDeliveryMethodModalProps> = (
           trackingEnabled: formData.trackingEnabled,
           insuranceEnabled: formData.insuranceEnabled,
           signatureRequired: formData.signatureRequired,
+          useThirdPartyIntegration: formData.useThirdPartyIntegration,
           iconUrl: formData.iconUrl.trim() || undefined,
           isActive: formData.isActive,
           isDefault: formData.isDefault,
         },
-      });
+      };
+      console.log('Sending update data:', updateData);
+      await updateMutation.mutateAsync(updateData as any);
     } catch (error) {
       // Error handling is done in onError callback
     }
@@ -313,8 +320,67 @@ export const EditDeliveryMethodModal: React.FC<EditDeliveryMethodModalProps> = (
           />
         </div>
 
-        {/* Pricing */}
+        {/* Integration Type */}
         <div className="space-y-4">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+            {t('delivery_methods.form.integration_type', 'Integration Type')}
+          </h3>
+
+          <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
+            <label className="flex items-start space-x-3">
+              <input
+                type="checkbox"
+                checked={formData.useThirdPartyIntegration}
+                onChange={(e) => handleInputChange('useThirdPartyIntegration', e.target.checked)}
+                className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <div>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  {t('delivery_methods.use_third_party_integration', 'Use Third-party Integration')}
+                </span>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {t('delivery_methods.form.third_party_description', 'Enable this to use external delivery service APIs for automatic cost calculation and delivery time estimation')}
+                </p>
+              </div>
+            </label>
+
+            {/* Third-party Integration Configuration */}
+            {formData.useThirdPartyIntegration && (
+              <div className="mt-4 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg space-y-4">
+                <h4 className="text-md font-medium text-blue-900 dark:text-blue-100">
+                  {t('delivery_methods.form.third_party_config', 'Third-party Integration Configuration')}
+                </h4>
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  {t('delivery_methods.form.third_party_note', 'When third-party integration is enabled, delivery costs and times will be calculated by the external service. Configure your API credentials below.')}
+                </p>
+                <div className="space-y-3">
+                  <FormInput
+                    id="apiKey"
+                    type="text"
+                    label={t('delivery_methods.form.api_key', 'API Key')}
+                    placeholder={t('delivery_methods.form.api_key_placeholder', 'Enter your third-party API key')}
+                  />
+                  <FormInput
+                    id="apiSecret"
+                    type="password"
+                    label={t('delivery_methods.form.api_secret', 'API Secret')}
+                    placeholder={t('delivery_methods.form.api_secret_placeholder', 'Enter your API secret')}
+                  />
+                  <FormInput
+                    id="apiEndpoint"
+                    type="url"
+                    label={t('delivery_methods.form.api_endpoint', 'API Endpoint')}
+                    placeholder="https://api.example.com/v1"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Pricing - Hidden for third-party integrations */}
+        {!formData.useThirdPartyIntegration && (
+          <div className="space-y-4">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">
             {t('delivery_methods.form.pricing')}
           </h3>
@@ -359,9 +425,11 @@ export const EditDeliveryMethodModal: React.FC<EditDeliveryMethodModalProps> = (
             />
           </div>
         </div>
+        )}
 
-        {/* Delivery Times */}
-        <div className="space-y-4">
+        {/* Delivery Times - Hidden for third-party integrations */}
+        {!formData.useThirdPartyIntegration && (
+          <div className="space-y-4">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">
             {t('delivery_methods.form.delivery_times')}
           </h3>
@@ -387,6 +455,7 @@ export const EditDeliveryMethodModal: React.FC<EditDeliveryMethodModalProps> = (
             />
           </div>
         </div>
+        )}
 
         {/* Limitations */}
         <div className="space-y-4">

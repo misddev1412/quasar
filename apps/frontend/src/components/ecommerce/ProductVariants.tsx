@@ -32,7 +32,7 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
             {variant.value.split(',').map((value, index) => {
               const variantValue = value.trim();
               const isSelected = selectedVariant?.value === variantValue;
-              
+
               return (
                 <Button
                   key={`${variant.id}-${index}`}
@@ -40,10 +40,12 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
                   variant={isSelected ? 'solid' : 'flat'}
                   color={isSelected ? 'primary' : 'default'}
                   className={`capitalize ${isSelected ? 'border-primary-500' : 'border-gray-300'}`}
-                  onPress={() => onVariantSelect({
-                    ...variant,
-                    value: variantValue
-                  })}
+                  onPress={() =>
+                    onVariantSelect({
+                      ...variant,
+                      value: variantValue,
+                    })
+                  }
                 >
                   {variantValue}
                 </Button>
@@ -64,7 +66,7 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
             {variant.value.split(',').map((value, index) => {
               const variantValue = value.trim();
               const isSelected = selectedVariant?.value === variantValue;
-              
+
               return (
                 <button
                   key={`${variant.id}-${index}`}
@@ -72,10 +74,12 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
                     isSelected ? 'border-primary-500' : 'border-gray-300'
                   }`}
                   style={{ backgroundColor: variantValue }}
-                  onClick={() => onVariantSelect({
-                    ...variant,
-                    value: variantValue
-                  })}
+                  onClick={() =>
+                    onVariantSelect({
+                      ...variant,
+                      value: variantValue,
+                    })
+                  }
                   title={variantValue}
                   aria-label={variantValue}
                 />
@@ -96,7 +100,7 @@ const ProductVariants: React.FC<ProductVariantsProps> = ({
             value={selectedVariant?.value || ''}
             onChange={(e) => {
               const selectedValue = e.target.value;
-              const selectedVariant = variants.find(v => v.value === selectedValue);
+              const selectedVariant = variants.find((v) => v.value === selectedValue);
               if (selectedVariant) {
                 onVariantSelect(selectedVariant);
               }

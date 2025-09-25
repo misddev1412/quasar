@@ -34,7 +34,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
 
   const handleAddToCart = async () => {
     if (!product.inStock || disabled) return;
-    
+
     setIsLoading(true);
     try {
       if (onAddToCart) {
@@ -89,7 +89,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
           ))}
         </select>
       )}
-      
+
       <Button
         size={size}
         variant={variant}
@@ -100,11 +100,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         isDisabled={isDisabled}
         startContent={!isLoading && !iconOnly && <span className="text-lg">🛒</span>}
       >
-        {!isLoading && !iconOnly && (
-          <>
-            {!product.inStock ? 'Out of Stock' : 'Add to Cart'}
-          </>
-        )}
+        {!isLoading && !iconOnly && <>{!product.inStock ? 'Out of Stock' : 'Add to Cart'}</>}
       </Button>
     </div>
   );

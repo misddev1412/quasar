@@ -1,5 +1,7 @@
+'use client';
+
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 
 interface UseProtectedRouteOptions {
@@ -18,20 +20,20 @@ export const useProtectedRoute = (options: UseProtectedRouteOptions = {}) => {
   } = options;
 
   const { isAuthenticated, user, isLoading } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   useEffect(() => {
     if (isLoading) return;
 
     // If route requires authentication and user is not authenticated
     if (requireAuth && !isAuthenticated) {
-      navigate(redirectTo);
+      router.push(redirectTo);
       return;
     }
 
     // If route requires guest (not authenticated) and user is authenticated
     if (requireGuest && isAuthenticated) {
-      navigate('/');
+      router.push('/');
       return;
     }
 
@@ -39,11 +41,20 @@ export const useProtectedRoute = (options: UseProtectedRouteOptions = {}) => {
     if (allowedRoles.length > 0 && user) {
       const hasRequiredRole = allowedRoles.includes(user.role || '');
       if (!hasRequiredRole) {
-        navigate('/unauthorized');
+        router.push('/unauthorized');
         return;
       }
     }
-  }, [isAuthenticated, user, isLoading, requireAuth, requireGuest, allowedRoles, navigate, redirectTo]);
+  }, [
+    isAuthenticated,
+    user,
+    isLoading,
+    requireAuth,
+    requireGuest,
+    allowedRoles,
+    router,
+    redirectTo,
+  ]);
 
   return { isLoading, isAuthenticated, user };
 };

@@ -57,12 +57,10 @@ export class ErrorBoundary extends Component<Props, State> {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                Oops! Something went wrong
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Oops! Something went wrong</h2>
               <p className="text-gray-600 mb-6">
-                We're sorry, but something unexpected happened. Please try refreshing
-                the page or contact support if the problem persists.
+                We're sorry, but something unexpected happened. Please try refreshing the page or
+                contact support if the problem persists.
               </p>
               {process.env.NODE_ENV === 'development' && this.state.error && (
                 <details className="text-left mb-6">
@@ -76,16 +74,10 @@ export class ErrorBoundary extends Component<Props, State> {
                 </details>
               )}
               <div className="flex gap-3 justify-center">
-                <Button
-                  color="primary"
-                  onPress={() => window.location.reload()}
-                >
+                <Button color="primary" onPress={() => window.location.reload()}>
                   Refresh Page
                 </Button>
-                <Button
-                  variant="bordered"
-                  onPress={this.handleReset}
-                >
+                <Button variant="bordered" onPress={this.handleReset}>
                   Try Again
                 </Button>
               </div>

@@ -38,6 +38,7 @@ interface DeliveryMethod {
   trackingEnabled: boolean;
   insuranceEnabled: boolean;
   signatureRequired: boolean;
+  useThirdPartyIntegration: boolean;
   iconUrl?: string;
   isDefault: boolean;
   createdAt: string;
@@ -133,6 +134,13 @@ const DeliveryMethodsPage: React.FC = () => {
   });
 
   const { data: statsData, isLoading: statisticsLoading } = trpc.adminDeliveryMethods.stats.useQuery();
+
+  // Log errors for debugging
+  useEffect(() => {
+    if (error) {
+      console.error('Delivery methods query error:', error);
+    }
+  }, [error]);
 
   // tRPC mutations
   const deleteMutation = trpc.adminDeliveryMethods.delete.useMutation({
@@ -243,7 +251,7 @@ const DeliveryMethodsPage: React.FC = () => {
   };
 
   const getCostCalculationTypeLabel = (type: string): string => {
-    return t(`delivery_methods.cost_types.${type}`);
+    return t(`delivery_methods.cost_types.${type}`, type);
   };
 
   const formatDeliveryTime = (minHours?: number, maxHours?: number): string => {
@@ -271,7 +279,9 @@ const DeliveryMethodsPage: React.FC = () => {
 
   // Table data
   const tableData = useMemo(() => {
-    return (deliveryMethodsData as any)?.data?.items || [];
+    const items = (deliveryMethodsData as any)?.data?.items || [];
+    console.log('Delivery methods table data:', items);
+    return items;
   }, [deliveryMethodsData]);
 
   const totalItems = (deliveryMethodsData as any)?.data?.total || 0;
@@ -347,18 +357,34 @@ const DeliveryMethodsPage: React.FC = () => {
       header: t('delivery_methods.delivery_cost'),
       isSortable: true,
       className: 'w-32',
-      accessor: (item) => (
-        <div className="text-sm">
-          {item.costCalculationType === 'FREE' ? (
-            <span className="text-green-600 font-medium">{t('delivery_methods.free')}</span>
-          ) : (
-            <div>
-              <div>${item.deliveryCost.toFixed(2)}</div>
-              <div className="text-xs text-gray-500">{getCostCalculationTypeLabel(item.costCalculationType)}</div>
+      accessor: (item) => {
+        try {
+          console.log('Delivery cost item:', {
+            id: item.id,
+            name: item.name,
+            deliveryCost: item.deliveryCost,
+            deliveryCostType: typeof item.deliveryCost,
+            costCalculationType: item.costCalculationType
+          });
+
+          return (
+            <div className="text-sm">
+              {item.costCalculationType === 'FREE' ? (
+                <span className="text-green-600 font-medium">{t('delivery_methods.free', 'Free')}</span>
+              ) : (
+                <div>
+                  <div>${typeof item.deliveryCost === 'number' ? item.deliveryCost.toFixed(2) :
+                    (item.deliveryCost ? parseFloat(item.deliveryCost).toFixed(2) : '0.00')}</div>
+                  <div className="text-xs text-gray-500">{getCostCalculationTypeLabel(item.costCalculationType || 'FIXED')}</div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      ),
+          );
+        } catch (error) {
+          console.error('Error rendering delivery cost:', error, item);
+          return <div className="text-sm text-red-500">Error</div>;
+        }
+      },
     },
     {
       id: 'deliveryTime',
@@ -394,6 +420,11 @@ const DeliveryMethodsPage: React.FC = () => {
       className: 'w-24',
       accessor: (item) => (
         <div className="flex items-center space-x-1">
+          {item.useThirdPartyIntegration && (
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200" title="Third-party Integration">
+              3P
+            </span>
+          )}
           {item.trackingEnabled && (
             <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200" title="Tracking">
               T

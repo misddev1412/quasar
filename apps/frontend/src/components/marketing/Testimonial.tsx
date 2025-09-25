@@ -25,9 +25,7 @@ export const Testimonial: React.FC<TestimonialProps> = ({
             {[...Array(5)].map((_, i) => (
               <svg
                 key={i}
-                className={`w-5 h-5 ${
-                  i < rating ? 'text-yellow-400' : 'text-gray-300'
-                }`}
+                className={`w-5 h-5 ${i < rating ? 'text-yellow-400' : 'text-gray-300'}`}
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -37,17 +35,10 @@ export const Testimonial: React.FC<TestimonialProps> = ({
           </div>
         )}
 
-        <blockquote className="text-gray-700 mb-6 italic">
-          "{quote}"
-        </blockquote>
+        <blockquote className="text-gray-700 mb-6 italic">"{quote}"</blockquote>
 
         <div className="flex items-center gap-3">
-          <Avatar
-            src={avatar}
-            name={author}
-            size="md"
-            className="flex-shrink-0"
-          />
+          <Avatar src={avatar} name={author} size="md" className="flex-shrink-0" />
           <div>
             <div className="font-semibold">{author}</div>
             {(role || company) && (

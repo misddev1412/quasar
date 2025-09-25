@@ -58,11 +58,7 @@ export const useAuthMutation = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
-    const mutate = async (data: {
-      name: string;
-      email: string;
-      password: string;
-    }) => {
+    const mutate = async (data: { name: string; email: string; password: string }) => {
       setIsLoading(true);
       setError(null);
 

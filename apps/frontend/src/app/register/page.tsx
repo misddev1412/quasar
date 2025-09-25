@@ -1,15 +1,8 @@
-import { Metadata } from 'next';
-import RegisterPage from '../../pages/RegisterPage';
-
-export const metadata: Metadata = {
-  title: 'Register',
-  description: 'Create a new account',
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
-
 export default function Page() {
-  return <RegisterPage />;
+  return (
+    <div>
+      <h1>Register Page</h1>
+      <p>This is the Register page for locale routing</p>
+    </div>
+  );
 }

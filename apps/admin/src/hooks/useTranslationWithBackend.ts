@@ -78,23 +78,27 @@ export const useTranslationWithBackend = (): UseTranslationWithBackendResult => 
   };
 
   // Custom t function that provides better fallback handling
-  const customT = (key: string, options?: any): string => {
+  const customT = (key: string, fallback?: string, options?: any): string => {
     try {
-      const translation = t(key, { ...options, defaultValue: undefined });
-      
+      const translation = t(key, { ...options, defaultValue: fallback });
+
       // Ensure we return a string
       const result = typeof translation === 'string' ? translation : String(translation);
-      
-      // If translation is the same as key, it means no translation found
+
+      // If translation is the same as key and we have a fallback, return the fallback
+      if (result === key && fallback) {
+        return fallback;
+      }
+
+      // If translation is the same as key, it means no translation found and no fallback
       if (result === key) {
-        // Return the key as fallback
         return key;
       }
-      
+
       return result;
     } catch (err) {
       console.warn(`Translation error for key "${key}":`, err);
-      return key;
+      return fallback || key;
     }
   };
 

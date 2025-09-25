@@ -1,0 +1,761 @@
+{
+  "common": {
+    "validation_error": "Validation Error",
+    "no_changes": "No Changes",
+    "no_targets": "No Targets",
+    "create": "Create",
+    "update": "Update",
+    "submit": "Submit",
+    "filter": "Filter",
+    "filters": "Filters",
+    "export": "Export",
+    "import": "Import",
+    "refresh": "Refresh",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "warning": "Warning",
+    "info": "Information",
+    "close": "Close",
+    "first": "First",
+    "last": "Last",
+    "all": "All",
+    "none": "None",
+    "not_set": "Not set",
+    "select": "Select",
+    "clear_all": "Clear All",
+    "clearAll": "Clear All",
+    "clearFilters": "Clear Filters",
+    "deep": "deep",
+    "ascending": "Ascending",
+    "descending": "Descending",
+    "sortBy": "Sort By",
+    "sortOrder": "Sort Order",
+    "createdFrom": "Created From",
+    "createdTo": "Created To",
+    "hideFilters": "Hide Filters",
+    "options": "options",
+    "reset": "Reset",
+    "menu": "Menu",
+    "upload": "Upload",
+    "load_more": "Load More",
+    "copyright": "Quasar Store © {year} All Rights Reserved",
+    "need_help": "Need help? Contact support",
+    "contact_admin": "Contact administrator",
+    "brand_name": "Quasar",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "help": "Help",
+    "saving": "Saving...",
+    "empty": "Empty",
+    "show": "Show",
+    "hide": "Hide",
+    "unsaved_changes": "Unsaved changes",
+    "processing_request": "Processing your request...",
+    "changes_saved_successfully": "Changes saved successfully",
+    "fill_required_fields": "Fill in the required information below",
+    "unsaved": "Unsaved",
+    "step_1_of_1": "Step 1 of 1",
+    "entity_information": "Information",
+    "entity_information_description": "Provide the required details to create a new entry",
+    "create_entity": "Create",
+    "helpful_tips": "Helpful Tips",
+    "creating_entity": "Creating",
+    "back_to_entity": "Back to",
+    "create_new": "Create New",
+    "loading_permissions": "Loading permissions...",
+    "all_resources": "All Resources",
+    "selected": "selected",
+    "select_all": "Select All",
+    "select_none": "Select None",
+    "no_description": "No description",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "duplicate": "Duplicate",
+    "adding": "Adding...",
+    "add_selected": "Add Selected",
+    "creating": "Creating...",
+    "updating": "Updating...",
+    "assigned": "Assigned",
+    "view": "View",
+    "actions": "Actions",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "created_at": "Created At",
+    "updated_at": "Updated At",
+    "role": "Role",
+    "roles": "Roles",
+    "permission": "Permission",
+    "permissions": "Permissions",
+    "user": "User",
+    "users": "Users",
+    "updating_entity": "Updating",
+    "update_entity": "Update",
+    "update_required_fields": "Update the information below as needed",
+    "update_entity_description": "Update the information and settings",
+    "saved": "Saved",
+    "name": "Name",
+    "description": "Description",
+    "type": "Type",
+    "category": "Category",
+    "group": "Group",
+    "value": "Value",
+    "key": "Key",
+    "settings": "Settings",
+    "configuration": "Configuration",
+    "management": "Management",
+    "overview": "Overview",
+    "details": "Details",
+    "information": "Information",
+    "general": "General",
+    "advanced": "Advanced",
+    "basic": "Basic",
+    "show_filters": "Show Filters",
+    "hide_filters": "Hide Filters",
+    "feature_coming_soon": "Feature coming soon",
+    "post": "Post",
+    "posts": "Posts",
+    "noDescription": "No description",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "clear": "Clear",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "home": "Home",
+    "products": "Products",
+    "categories": "Categories",
+    "about": "About",
+    "contact": "Contact",
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "button": {
+      "loading": "Loading..."
+    },
+    "search": {
+      "placeholder": "Search products..."
+    },
+    "theme": {
+      "switchTo": "Switch to {{mode}} mode",
+      "dark": "Dark",
+      "light": "Light",
+      "mode": "Mode"
+    },
+    "loading": {
+      "default": "Loading..."
+    },
+    "error": {
+      "title": "Oops! Something went wrong",
+      "description": "We're sorry, but something unexpected happened. Please try refreshing the page or contact support if the problem persists.",
+      "details": "Error details (Development only)",
+      "refresh": "Refresh Page",
+      "retry": "Try Again"
+    }
+  },
+  "layout": {
+    "header": {
+      "brand": "Quasar Store",
+      "nav": {
+        "home": "Home",
+        "products": "Products",
+        "categories": "Categories",
+        "deals": "Deals",
+        "about": "About",
+        "contact": "Contact"
+      },
+      "user": {
+        "signedInAs": "Signed in as",
+        "account": "My Account",
+        "profile": "Edit Profile",
+        "orders": "My Orders",
+        "wishlist": "Wishlist",
+        "notifications": "Notifications",
+        "settings": "Settings",
+        "logout": "Log Out"
+      },
+      "search": {
+        "placeholder": "Search products..."
+      },
+      "menu": {
+        "close": "Close menu",
+        "open": "Open menu"
+      },
+      "actions": {
+        "notifications": "Notifications",
+        "wishlist": "Wishlist",
+        "cart": "Shopping cart"
+      },
+      "guest": {
+        "signin": "Sign In",
+        "signup": "Sign Up"
+      }
+    },
+    "footer": {
+      "brand": "Brand",
+      "copyright": "© {{year}} {{brand}}. All rights reserved.",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookie Policy"
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "Home",
+      "description": "Welcome to our website - Your trusted partner in ecommerce",
+      "og": {
+        "title": "Home - Your Site Name"
+      },
+      "hero": {
+        "title": "Welcome to Frontend App",
+        "description": "A simple and clean React frontend service for clients built with HeroUI components.",
+        "cta": "Get Started"
+      },
+      "features": {
+        "title": "Features",
+        "modern": {
+          "title": "Modern React",
+          "description": "Built with the latest React features and best practices."
+        },
+        "responsive": {
+          "title": "Responsive Design",
+          "description": "Works seamlessly across all devices and screen sizes."
+        },
+        "performance": {
+          "title": "Fast Performance",
+          "description": "Optimized for speed and smooth user experience."
+        }
+      }
+    },
+    "login": {
+      "seo": {
+        "title": "Welcome Back - Login",
+        "description": "Sign in to your Quasar Store account to access exclusive deals and track your orders"
+      },
+      "hero": {
+        "title": "Welcome back! 👋",
+        "description": "We're excited to see you again. Sign in to continue your amazing shopping experience."
+      },
+      "features": {
+        "secure": "Secure and encrypted login",
+        "deals": "Access exclusive member deals",
+        "tracking": "Track orders in real-time"
+      },
+      "form": {
+        "email": {
+          "label": "Email address",
+          "placeholder": "Enter your email"
+        },
+        "password": {
+          "label": "Password",
+          "placeholder": "Enter your password"
+        },
+        "remember": "Remember me",
+        "forgotPassword": "Forgot password?",
+        "submit": "Sign In",
+        "submitting": "Signing you in..."
+      },
+      "social": {
+        "divider": "Or continue with"
+      },
+      "signup": {
+        "text": "Don't have an account?",
+        "link": "Sign up for free"
+      },
+      "terms": {
+        "text": "By signing in, you agree to our",
+        "service": "Terms of Service",
+        "privacy": "Privacy Policy"
+      },
+      "guest": {
+        "text": "Just browsing?",
+        "link": "Continue as guest"
+      },
+      "errors": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email",
+        "passwordRequired": "Password is required",
+        "passwordMinLength": "Password must be at least 6 characters",
+        "invalidCredentials": "Invalid email or password. Please try again."
+      }
+    },
+    "register": {
+      "seo": {
+        "title": "Create Account",
+        "description": "Join Quasar Store to get exclusive member benefits, track orders, and enjoy a personalized shopping experience"
+      },
+      "hero": {
+        "title": "Join Our Community",
+        "description": "Create your account and unlock a world of exclusive benefits."
+      },
+      "benefits": {
+        "welcome": "Welcome bonus on first purchase",
+        "earlyAccess": "Early access to sales and new products",
+        "loyalty": "Earn loyalty points with every order",
+        "sync": "Sync across all your devices"
+      },
+      "stats": {
+        "customers": "Happy Customers",
+        "rating": "Average Rating"
+      },
+      "form": {
+        "title": "Create your account",
+        "hasAccount": "Already have an account?",
+        "signIn": "Sign in",
+        "name": {
+          "label": "Full Name",
+          "placeholder": "John Doe"
+        },
+        "email": {
+          "label": "Email address",
+          "placeholder": "you@example.com"
+        },
+        "password": {
+          "label": "Password",
+          "placeholder": "Create a strong password"
+        },
+        "confirmPassword": {
+          "label": "Confirm Password",
+          "placeholder": "Re-enter your password"
+        },
+        "terms": {
+          "text": "I agree to the",
+          "service": "Terms of Service",
+          "privacy": "Privacy Policy"
+        },
+        "submit": "Create account",
+        "submitting": "Creating account..."
+      },
+      "social": {
+        "divider": "Or sign up with"
+      },
+      "marketing": {
+        "consent": "Send me exclusive offers, personalized recommendations, and shopping tips"
+      },
+      "errors": {
+        "nameRequired": "Name is required",
+        "nameMinLength": "Name must be at least 2 characters",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email",
+        "passwordRequired": "Password is required",
+        "passwordMinLength": "Password must be at least 6 characters",
+        "confirmPasswordRequired": "Please confirm your password",
+        "passwordMismatch": "Passwords do not match",
+        "termsRequired": "You must agree to the terms and conditions",
+        "registrationFailed": "Registration failed. Please try again."
+      }
+    },
+    "about": {
+      "title": "About Us",
+      "subtitle": "Learn more about our mission and values",
+      "mission": {
+        "title": "Our Mission",
+        "description": "We are dedicated to creating exceptional user experiences through innovative technology and thoughtful design. Our frontend service provides clients with modern, responsive, and performant web applications built with the latest technologies like React, HeroUI, and Tailwind CSS."
+      },
+      "values": {
+        "title": "Our Values",
+        "innovation": {
+          "title": "Innovation",
+          "description": "Constantly pushing boundaries and embracing new technologies."
+        },
+        "quality": {
+          "title": "Quality",
+          "description": "Delivering excellence in every line of code we write."
+        },
+        "collaboration": {
+          "title": "Collaboration",
+          "description": "Working together to achieve extraordinary results."
+        },
+        "userFocus": {
+          "title": "User Focus",
+          "description": "Putting user experience at the center of everything we do."
+        }
+      }
+    },
+    "contact": {
+      "title": "Contact Us",
+      "subtitle": "Get in touch with our team",
+      "info": {
+        "title": "Get in Touch",
+        "email": "Email",
+        "phone": "Phone",
+        "address": "Address"
+      },
+      "form": {
+        "title": "Send us a Message",
+        "name": {
+          "label": "Name",
+          "placeholder": "Enter your name"
+        },
+        "email": {
+          "label": "Email",
+          "placeholder": "Enter your email"
+        },
+        "message": {
+          "label": "Message",
+          "placeholder": "Enter your message"
+        },
+        "submit": "Send Message",
+        "success": "Thank you for your message! We will get back to you soon."
+      }
+    },
+    "dashboard": {
+      "seo": {
+        "title": "Dashboard",
+        "description": "Manage your account and view your activity"
+      },
+      "welcome": "Welcome back, {{name}}!",
+      "subtitle": "Here's what's happening with your account today.",
+      "stats": {
+        "orders": "Total Orders",
+        "products": "Available Products",
+        "status": "Account Status",
+        "active": "Active"
+      },
+      "activity": {
+        "title": "Recent Activity",
+        "orderPrefix": "Order #",
+        "empty": "No recent activity to show"
+      },
+      "quickActions": {
+        "title": "Quick Actions",
+        "browse": "Browse Products",
+        "orders": "View Orders",
+        "profile": "Edit Profile",
+        "settings": "Settings"
+      },
+      "loading": "Loading dashboard..."
+    },
+    "profile": {
+      "seo": {
+        "title": "My Profile",
+        "description": "Manage your account settings and preferences"
+      },
+      "title": "My Profile",
+      "subtitle": "Manage your account settings and preferences",
+      "tabs": {
+        "profile": "Profile Information",
+        "security": "Security",
+        "notifications": "Notifications"
+      },
+      "profile": {
+        "title": "Profile Information",
+        "subtitle": "Update your account information",
+        "name": "Full Name",
+        "email": "Email Address",
+        "phone": "Phone Number",
+        "avatar": "Profile Picture URL",
+        "avatarPlaceholder": "https://example.com/avatar.jpg",
+        "save": "Save Changes"
+      },
+      "security": {
+        "title": "Security",
+        "subtitle": "Manage your password and security settings",
+        "currentPassword": "Current Password",
+        "newPassword": "New Password",
+        "passwordHint": "Password must be at least 8 characters long",
+        "confirmPassword": "Confirm New Password",
+        "change": "Change Password"
+      },
+      "notifications": {
+        "title": "Notification Preferences",
+        "subtitle": "Choose how you want to receive notifications",
+        "email": {
+          "title": "Email Notifications",
+          "description": "Receive notifications via email"
+        },
+        "push": {
+          "title": "Push Notifications",
+          "description": "Receive push notifications in your browser"
+        },
+        "sms": {
+          "title": "SMS Notifications",
+          "description": "Receive notifications via SMS"
+        },
+        "save": "Save Preferences"
+      },
+      "loading": "Loading profile...",
+      "errors": {
+        "passwordMismatch": "New passwords do not match",
+        "passwordMinLength": "Password must be at least 8 characters"
+      }
+    },
+    "notFound": {
+      "title": "Page Not Found",
+      "heading": "Oops! Page Not Found",
+      "description": "Sorry, we couldn't find the page you're looking for. The page might have been moved or deleted.",
+      "searchPlaceholder": "Search our products...",
+      "searchTitle": "Looking for something specific?",
+      "categoriesTitle": "Popular Categories",
+      "helpTitle": "Need help? Check out these resources:",
+      "backToHome": "Back to Home",
+      "browseProducts": "Browse Products",
+      "goBack": "Go Back",
+      "contactSupport": "Contact Support",
+      "helpCenter": "Help Center",
+      "faq": "FAQ",
+      "categories": {
+        "electronics": "Electronics",
+        "fashion": "Fashion",
+        "homeGarden": "Home & Garden",
+        "sports": "Sports"
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back! 👋",
+      "subtitle": "Sign in to continue your journey",
+      "email": {
+        "label": "Email address",
+        "placeholder": "Enter your email"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Enter your password"
+      },
+      "remember": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign In",
+      "submitting": "Signing you in...",
+      "social": {
+        "divider": "Or continue with"
+      },
+      "signup": {
+        "text": "Don't have an account?",
+        "link": "Sign up for free"
+      },
+      "errors": {
+        "emailRequired": "Email is required",
+        "passwordRequired": "Password is required"
+      }
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Sign up to get started",
+      "social": {
+        "google": "Google",
+        "github": "GitHub",
+        "divider": "Or register with email"
+      },
+      "name": {
+        "label": "Full Name",
+        "placeholder": "Enter your name"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter your email"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Create a password"
+      },
+      "confirmPassword": {
+        "label": "Confirm Password",
+        "placeholder": "Confirm your password"
+      },
+      "terms": {
+        "text": "I agree to the",
+        "service": "Terms of Service",
+        "privacy": "Privacy Policy"
+      },
+      "submit": "Create Account",
+      "signin": {
+        "text": "Already have an account?",
+        "link": "Sign in"
+      },
+      "errors": {
+        "nameRequired": "Name is required",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Email is invalid",
+        "passwordRequired": "Password is required",
+        "passwordMinLength": "Password must be at least 8 characters",
+        "confirmPasswordRequired": "Please confirm your password",
+        "passwordMismatch": "Passwords do not match",
+        "termsRequired": "You must agree to the terms"
+      }
+    },
+    "toast": {
+      "login": {
+        "title": "Login Successful",
+        "message": "Welcome back!"
+      },
+      "register": {
+        "title": "Registration Successful",
+        "message": "Welcome to our platform!"
+      },
+      "logout": {
+        "title": "Logged Out",
+        "message": "You have been successfully logged out."
+      }
+    }
+  },
+  "ecommerce": {
+    "product": {
+      "outOfStock": "Out of Stock"
+    },
+    "cart": {
+      "add": "Add to Cart",
+      "addAriaLabel": "Add to cart",
+      "outOfStock": "Out of Stock",
+      "empty": {
+        "title": "Your cart is empty",
+        "description": "Add some products to your cart to continue shopping",
+        "continue": "Continue Shopping"
+      },
+      "title": "Shopping Cart",
+      "summary": {
+        "subtotal": "Subtotal",
+        "shipping": "Shipping",
+        "tax": "Tax",
+        "total": "Total"
+      },
+      "actions": {
+        "checkout": "Proceed to Checkout",
+        "clear": "Clear Cart",
+        "continue": "Continue Shopping"
+      },
+      "clear": {
+        "title": "Clear Cart",
+        "message": "Are you sure you want to remove all items from your cart? This action cannot be undone.",
+        "cancel": "Cancel",
+        "confirm": "Clear Cart"
+      }
+    }
+  },
+  "form": {
+    "basic_information": "Basic Information",
+    "basic_information_description": "Enter the basic details and contact information.",
+    "general_information": "General Information",
+    "personal_information": "Personal Information",
+    "business_information": "Business Information",
+    "address_information": "Address Information",
+    "additional_info": "Additional Information",
+    "required_field": "Required field",
+    "optional_field": "Optional",
+    "choose_file": "Choose file",
+    "no_file_chosen": "No file chosen",
+    "drag_drop": "Drag and drop files here",
+    "supported_formats": "Supported formats",
+    "max_file_size": "Maximum file size",
+    "upload_progress": "Upload progress",
+    "upload_complete": "Upload complete",
+    "upload_failed": "Upload failed",
+    "retry_upload": "Retry upload",
+    "cancel_upload": "Cancel upload"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email address",
+    "min_length": "Must be at least {{min}} characters",
+    "max_length": "Must be no more than {{max}} characters",
+    "password_min_length": "Password must be at least 6 characters",
+    "password_match": "Passwords do not match",
+    "invalid_email": "Invalid email format",
+    "invalid_url": "Invalid URL format",
+    "invalid_number": "Please enter a valid number",
+    "invalid_phone": "Please enter a valid phone number",
+    "invalid_date": "Please enter a valid date",
+    "file_too_large": "File size must be less than {{size}}",
+    "invalid_file_type": "Invalid file type",
+    "network_error": "Network error occurred",
+    "server_error": "Server error occurred",
+    "invalid_response": "Invalid server response",
+    "unknown_error": "An unknown error occurred"
+  },
+  "table": {
+    "loading": "Loading table data...",
+    "no_data": "No data available",
+    "no_results": "No matching results found",
+    "search_placeholder": "Search...",
+    "filter": "Filter",
+    "sort": "Sort",
+    "ascending": "Ascending",
+    "descending": "Descending",
+    "columns": "Columns",
+    "rows": "Rows",
+    "page": "Page",
+    "of": "of",
+    "showing": "Showing",
+    "entries": "entries",
+    "previous": "Previous",
+    "next": "Next",
+    "first": "First",
+    "last": "Last",
+    "select_all": "Select all",
+    "select_none": "Select none",
+    "actions": "Actions",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "export": "Export",
+    "refresh": "Refresh",
+    "density": "Density",
+    "compact": "Compact",
+    "standard": "Standard",
+    "comfortable": "Comfortable",
+    "visibility": "Visibility"
+  },
+  "modal": {
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "submit": "Submit",
+    "title": "Modal Title",
+    "confirm_title": "Confirm Action",
+    "confirm_message": "Are you sure you want to proceed?",
+    "delete_title": "Delete Item",
+    "delete_message": "Are you sure you want to delete this item? This action cannot be undone.",
+    "success_title": "Success",
+    "error_title": "Error",
+    "warning_title": "Warning",
+    "info_title": "Information"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "first": "First",
+    "last": "Last",
+    "page": "Page",
+    "of": "of",
+    "showing": "Showing",
+    "to": "to",
+    "of": "of",
+    "entries": "entries",
+    "per_page": "Per page",
+    "go_to_page": "Go to page"
+  },
+  "sidebar": {
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "toggle": "Toggle sidebar",
+    "menu": "Menu",
+    "submenu": "Submenu",
+    "back_to_menu": "Back to menu"
+  },
+  "upload": {
+    "title": "Upload File",
+    "description": "Select a file to upload",
+    "drag_drop": "Drag and drop files here or click to browse",
+    "browse": "Browse files",
+    "uploading": "Uploading...",
+    "upload_complete": "Upload complete",
+    "upload_failed": "Upload failed",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "file_too_large": "File is too large",
+    "invalid_type": "Invalid file type",
+    "max_size": "Maximum file size: {{size}}",
+    "supported_formats": "Supported formats: {{formats}}"
+  }
+}

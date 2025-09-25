@@ -1,7 +1,7 @@
 // AppRouter types for tRPC client
 // This file is auto-generated from actual nestjs-trpc routers
 // Run 'npm run sync:trpc-types' to regenerate this file
-// Generated on: 2025-09-22T01:48:51.971Z
+// Generated on: 2025-09-24T01:39:27.591Z
 
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
@@ -210,6 +210,21 @@ const appRouter = t.router({
     redeemLoyaltyPoints: t.procedure.input(z.any()).mutation(() => null),
     bulkUpdateStatus: t.procedure.input(z.any()).mutation(() => null),
   }),
+  adminDeliveryMethods: t.router({
+    list: t.procedure.input(z.any()).query(() => null),
+    getById: t.procedure.input(z.any()).query(() => null),
+    getActive: t.procedure.query(() => null),
+    getByType: t.procedure.query(() => null),
+    create: t.procedure.input(z.any()).mutation(() => null),
+    update: t.procedure.input(z.any()).mutation(() => null),
+    delete: t.procedure.input(z.any()).mutation(() => null),
+    setDefault: t.procedure.input(z.any()).mutation(() => null),
+    toggleActive: t.procedure.input(z.any()).mutation(() => null),
+    reorder: t.procedure.input(z.any()).mutation(() => null),
+    calculateDelivery: t.procedure.query(() => null),
+    getQuotes: t.procedure.query(() => null),
+    stats: t.procedure.query(() => null),
+  }),
   adminOrders: t.router({
     list: t.procedure.input(z.any()).query(() => null),
     detail: t.procedure.input(z.any()).query(() => null),
@@ -230,6 +245,20 @@ const appRouter = t.router({
     fulfillItem: t.procedure.input(z.any()).mutation(() => null),
     refundItem: t.procedure.input(z.any()).mutation(() => null),
     deleteItem: t.procedure.input(z.any()).mutation(() => null),
+  }),
+  adminPaymentMethods: t.router({
+    list: t.procedure.input(z.any()).query(() => null),
+    active: t.procedure.query(() => null),
+    forAmount: t.procedure.query(() => null),
+    getById: t.procedure.input(z.any()).query(() => null),
+    create: t.procedure.input(z.any()).mutation(() => null),
+    update: t.procedure.input(z.any()).mutation(() => null),
+    delete: t.procedure.input(z.any()).mutation(() => null),
+    setDefault: t.procedure.input(z.any()).mutation(() => null),
+    toggleActive: t.procedure.input(z.any()).mutation(() => null),
+    reorder: t.procedure.input(z.any()).mutation(() => null),
+    calculatePayment: t.procedure.query(() => null),
+    stats: t.procedure.query(() => null),
   }),
   adminPurchaseOrders: t.router({
     list: t.procedure.input(z.any()).query(() => null),

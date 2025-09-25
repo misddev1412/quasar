@@ -30,21 +30,21 @@ label {
 }
 
 .label-required::after {
-  content: " *";
+  content: ' *';
   color: var(--color-error-500);
 }
 
 /* Input styles */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-input[type="tel"],
-input[type="url"],
-input[type="search"],
-input[type="date"],
-input[type="time"],
-input[type="datetime-local"],
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='number'],
+input[type='tel'],
+input[type='url'],
+input[type='search'],
+input[type='date'],
+input[type='time'],
+input[type='datetime-local'],
 textarea,
 select {
   appearance: none;
@@ -59,16 +59,16 @@ select {
   width: 100%;
 }
 
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="number"]:focus,
-input[type="tel"]:focus,
-input[type="url"]:focus,
-input[type="search"]:focus,
-input[type="date"]:focus,
-input[type="time"]:focus,
-input[type="datetime-local"]:focus,
+input[type='text']:focus,
+input[type='email']:focus,
+input[type='password']:focus,
+input[type='number']:focus,
+input[type='tel']:focus,
+input[type='url']:focus,
+input[type='search']:focus,
+input[type='date']:focus,
+input[type='time']:focus,
+input[type='datetime-local']:focus,
 textarea:focus,
 select:focus {
   border: var(--border-input-focus);
@@ -76,16 +76,16 @@ select:focus {
   outline: none;
 }
 
-input[type="text"]:disabled,
-input[type="email"]:disabled,
-input[type="password"]:disabled,
-input[type="number"]:disabled,
-input[type="tel"]:disabled,
-input[type="url"]:disabled,
-input[type="search"]:disabled,
-input[type="date"]:disabled,
-input[type="time"]:disabled,
-input[type="datetime-local"]:disabled,
+input[type='text']:disabled,
+input[type='email']:disabled,
+input[type='password']:disabled,
+input[type='number']:disabled,
+input[type='tel']:disabled,
+input[type='url']:disabled,
+input[type='search']:disabled,
+input[type='date']:disabled,
+input[type='time']:disabled,
+input[type='datetime-local']:disabled,
 textarea:disabled,
 select:disabled {
   background-color: var(--color-background-secondary);
@@ -136,8 +136,8 @@ select {
 }
 
 /* Enhanced Checkbox and radio styles with improved visibility */
-input[type="checkbox"],
-input[type="radio"] {
+input[type='checkbox'],
+input[type='radio'] {
   appearance: none;
   background-color: var(--color-background-primary);
   border: 2px solid var(--color-border-default);
@@ -150,36 +150,36 @@ input[type="radio"] {
   transition: all 0.2s ease-in-out;
 }
 
-input[type="radio"] {
+input[type='radio'] {
   border-radius: var(--border-radius-full);
 }
 
 /* Enhanced hover states for better interactivity */
-input[type="checkbox"]:hover,
-input[type="radio"]:hover {
+input[type='checkbox']:hover,
+input[type='radio']:hover {
   border-color: var(--color-primary-500);
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
 /* Enhanced checked states with better contrast */
-input[type="checkbox"]:checked,
-input[type="radio"]:checked {
+input[type='checkbox']:checked,
+input[type='radio']:checked {
   background-color: var(--color-primary-600);
   border-color: var(--color-primary-600);
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 }
 
 /* Dark mode enhancements */
-.dark input[type="checkbox"]:checked,
-.dark input[type="radio"]:checked {
+.dark input[type='checkbox']:checked,
+.dark input[type='radio']:checked {
   background-color: var(--color-primary-500);
   border-color: var(--color-primary-500);
   box-shadow: 0 2px 4px rgba(96, 165, 250, 0.3);
 }
 
 /* Enhanced checkmark with better visibility */
-input[type="checkbox"]:checked::before {
-  content: "";
+input[type='checkbox']:checked::before {
+  content: '';
   position: absolute;
   top: 50%;
   left: 50%;
@@ -193,8 +193,8 @@ input[type="checkbox"]:checked::before {
 }
 
 /* Enhanced radio button indicator */
-input[type="radio"]:checked::before {
-  content: "";
+input[type='radio']:checked::before {
+  content: '';
   position: absolute;
   top: 50%;
   left: 50%;
@@ -207,8 +207,8 @@ input[type="radio"]:checked::before {
 }
 
 /* Focus states for accessibility */
-input[type="checkbox"]:focus,
-input[type="radio"]:focus {
+input[type='checkbox']:focus,
+input[type='radio']:focus {
   outline: none;
   ring: 2px solid var(--color-primary-500);
   ring-offset: 2px;
@@ -216,16 +216,16 @@ input[type="radio"]:focus {
 }
 
 /* Disabled states */
-input[type="checkbox"]:disabled,
-input[type="radio"]:disabled {
+input[type='checkbox']:disabled,
+input[type='radio']:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   border-color: var(--color-border-default);
   background-color: var(--color-background-secondary);
 }
 
-input[type="checkbox"]:disabled:checked,
-input[type="radio"]:disabled:checked {
+input[type='checkbox']:disabled:checked,
+input[type='radio']:disabled:checked {
   background-color: var(--color-neutral-400);
   border-color: var(--color-neutral-400);
 }
@@ -404,4 +404,4 @@ legend {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   padding: 0 var(--spacing-2);
-} 
+}

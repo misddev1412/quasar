@@ -35,10 +35,10 @@ const AboutPage = () => {
         </CardHeader>
         <CardBody>
           <p className="text-lg text-gray-700 leading-relaxed">
-            We are dedicated to creating exceptional user experiences through
-            innovative technology and thoughtful design. Our frontend service
-            provides clients with modern, responsive, and performant web applications
-            built with the latest technologies like React, HeroUI, and Tailwind CSS.
+            We are dedicated to creating exceptional user experiences through innovative technology
+            and thoughtful design. Our frontend service provides clients with modern, responsive,
+            and performant web applications built with the latest technologies like React, HeroUI,
+            and Tailwind CSS.
           </p>
         </CardBody>
       </Card>

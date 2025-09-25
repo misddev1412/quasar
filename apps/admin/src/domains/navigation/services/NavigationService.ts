@@ -15,6 +15,7 @@ import StorageIcon from '@mui/icons-material/Storage';
 import FirebaseIcon from '@mui/icons-material/Whatshot';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HelpIcon from '@mui/icons-material/Help';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
 import SecurityIcon from '@mui/icons-material/Security';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
@@ -29,6 +30,8 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PersonIcon from '@mui/icons-material/Person';
 import PaymentIcon from '@mui/icons-material/Payment';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import ImageIcon from '@mui/icons-material/Image';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 
 export class NavigationService implements INavigationService {
   constructor(private translate: (key: string, fallback?: string) => string) {}
@@ -169,6 +172,11 @@ export class NavigationService implements INavigationService {
             badge: 3
           },
           {
+            icon: React.createElement(SupportAgentIcon),
+            label: t('support_clients.title', 'Support Clients'),
+            path: '/support-clients'
+          },
+          {
             icon: React.createElement(LanguageIcon),
             label: t('admin.translations', '翻译'),
             path: '/translations'
@@ -202,6 +210,16 @@ export class NavigationService implements INavigationService {
             icon: React.createElement(LocalShippingIcon),
             label: t('delivery_methods.title', 'Delivery Methods'),
             path: '/delivery-methods'
+          },
+          {
+            icon: React.createElement(ImageIcon),
+            label: t('brand.assets_title', 'Brand Assets'),
+            path: '/brand-assets'
+          },
+          {
+            icon: React.createElement(AnalyticsIcon),
+            label: t('analytics.title', 'Analytics'),
+            path: '/analytics'
           },
           {
             icon: React.createElement(SettingsIcon),
@@ -253,7 +271,7 @@ export class NavigationService implements INavigationService {
       return currentPath === path || currentPath.startsWith(path + '/');
     }
 
-    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/seo', '/languages', '/orders', '/customers', '/payment-methods', '/delivery-methods'];
+    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/seo', '/languages', '/orders', '/customers', '/payment-methods', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics'];
     if (exactMatchPaths.includes(path)) {
       return currentPath === path;
     }

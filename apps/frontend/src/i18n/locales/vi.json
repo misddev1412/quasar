@@ -1,0 +1,761 @@
+{
+  "common": {
+    "validation_error": "Lỗi xác thực",
+    "no_changes": "Không có thay đổi",
+    "no_targets": "Không có mục tiêu",
+    "create": "Tạo",
+    "update": "Cập nhật",
+    "submit": "Gửi",
+    "filter": "Lọc",
+    "filters": "Bộ lọc",
+    "export": "Xuất",
+    "import": "Nhập",
+    "refresh": "Làm mới",
+    "confirm": "Xác nhận",
+    "yes": "Có",
+    "no": "Không",
+    "warning": "Cảnh báo",
+    "info": "Thông tin",
+    "close": "Đóng",
+    "first": "Đầu tiên",
+    "last": "Cuối cùng",
+    "all": "Tất cả",
+    "none": "Không có",
+    "not_set": "Chưa đặt",
+    "select": "Chọn",
+    "clear_all": "Xóa tất cả",
+    "clearAll": "Xóa tất cả",
+    "clearFilters": "Xóa bộ lọc",
+    "deep": "sâu",
+    "ascending": "Tăng dần",
+    "descending": "Giảm dần",
+    "sortBy": "Sắp xếp theo",
+    "sortOrder": "Thứ tự sắp xếp",
+    "createdFrom": "Tạo từ",
+    "createdTo": "Tạo đến",
+    "hideFilters": "Ẩn bộ lọc",
+    "options": "tùy chọn",
+    "reset": "Đặt lại",
+    "menu": "Menu",
+    "upload": "Tải lên",
+    "load_more": "Tải thêm",
+    "copyright": "Quasar Store © {year} Tất cả quyền được bảo lưu",
+    "need_help": "Cần trợ giúp? Liên hệ hỗ trợ",
+    "contact_admin": "Liên hệ quản trị viên",
+    "brand_name": "Quasar",
+    "enabled": "Đã kích hoạt",
+    "disabled": "Đã vô hiệu hóa",
+    "help": "Trợ giúp",
+    "saving": "Đang lưu...",
+    "empty": "Trống",
+    "show": "Hiển thị",
+    "hide": "Ẩn",
+    "unsaved_changes": "Thay đổi chưa được lưu",
+    "processing_request": "Đang xử lý yêu cầu của bạn...",
+    "changes_saved_successfully": "Thay đổi đã được lưu thành công",
+    "fill_required_fields": "Điền thông tin bắt buộc bên dưới",
+    "unsaved": "Chưa lưu",
+    "step_1_of_1": "Bước 1 của 1",
+    "entity_information": "Thông tin",
+    "entity_information_description": "Cung cấp các chi tiết bắt buộc để tạo mục mới",
+    "create_entity": "Tạo",
+    "helpful_tips": "Mẹo hữu ích",
+    "creating_entity": "Đang tạo",
+    "back_to_entity": "Quay lại",
+    "create_new": "Tạo mới",
+    "loading_permissions": "Đang tải quyền...",
+    "all_resources": "Tất cả tài nguyên",
+    "selected": "đã chọn",
+    "select_all": "Chọn tất cả",
+    "select_none": "Không chọn",
+    "no_description": "Không có mô tả",
+    "activate": "Kích hoạt",
+    "deactivate": "Vô hiệu hóa",
+    "duplicate": "Nhân bản",
+    "adding": "Đang thêm...",
+    "add_selected": "Thêm đã chọn",
+    "creating": "Đang tạo...",
+    "updating": "Đang cập nhật...",
+    "assigned": "Đã gán",
+    "view": "Xem",
+    "actions": "Hành động",
+    "status": "Trạng thái",
+    "active": "Hoạt động",
+    "inactive": "Không hoạt động",
+    "created_at": "Tạo lúc",
+    "updated_at": "Cập nhật lúc",
+    "role": "Vai trò",
+    "roles": "Vai trò",
+    "permission": "Quyền",
+    "permissions": "Quyền",
+    "user": "Người dùng",
+    "users": "Người dùng",
+    "updating_entity": "Đang cập nhật",
+    "update_entity": "Cập nhật",
+    "update_required_fields": "Cập nhật thông tin bên dưới nếu cần",
+    "update_entity_description": "Cập nhật thông tin và cài đặt",
+    "saved": "Đã lưu",
+    "name": "Tên",
+    "description": "Mô tả",
+    "type": "Loại",
+    "category": "Danh mục",
+    "group": "Nhóm",
+    "value": "Giá trị",
+    "key": "Khóa",
+    "settings": "Cài đặt",
+    "configuration": "Cấu hình",
+    "management": "Quản lý",
+    "overview": "Tổng quan",
+    "details": "Chi tiết",
+    "information": "Thông tin",
+    "general": "Chung",
+    "advanced": "Nâng cao",
+    "basic": "Cơ bản",
+    "show_filters": "Hiển thị bộ lọc",
+    "hide_filters": "Ẩn bộ lọc",
+    "feature_coming_soon": "Tính năng sắp ra mắt",
+    "post": "Bài viết",
+    "posts": "Bài viết",
+    "noDescription": "Không có mô tả",
+    "loading": "Đang tải...",
+    "error": "Lỗi",
+    "success": "Thành công",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "add": "Thêm",
+    "search": "Tìm kiếm",
+    "clear": "Xóa",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "previous": "Trước",
+    "home": "Trang chủ",
+    "products": "Sản phẩm",
+    "categories": "Danh mục",
+    "about": "Giới thiệu",
+    "contact": "Liên hệ",
+    "login": "Đăng nhập",
+    "logout": "Đăng xuất",
+    "register": "Đăng ký",
+    "button": {
+      "loading": "Đang tải..."
+    },
+    "search": {
+      "placeholder": "Tìm kiếm sản phẩm..."
+    },
+    "theme": {
+      "switchTo": "Chuyển sang chế độ {{mode}}",
+      "dark": "Tối",
+      "light": "Sáng",
+      "mode": "Chế độ"
+    },
+    "loading": {
+      "default": "Đang tải..."
+    },
+    "error": {
+      "title": "Oops! Đã xảy ra lỗi",
+      "description": "Chúng tôi xin lỗi, nhưng đã xảy ra điều gì đó không mong muốn. Vui lòng thử làm mới trang hoặc liên hệ hỗ trợ nếu vấn đề vẫn tiếp tục.",
+      "details": "Chi tiết lỗi (Chỉ phát triển)",
+      "refresh": "Làm mới trang",
+      "retry": "Thử lại"
+    }
+  },
+  "layout": {
+    "header": {
+      "brand": "Cửa hàng Quasar",
+      "nav": {
+        "home": "Trang chủ",
+        "products": "Sản phẩm",
+        "categories": "Danh mục",
+        "deals": "Ưu đãi",
+        "about": "Giới thiệu",
+        "contact": "Liên hệ"
+      },
+      "user": {
+        "signedInAs": "Đã đăng nhập với tư cách",
+        "account": "Tài khoản của tôi",
+        "profile": "Chỉnh sửa hồ sơ",
+        "orders": "Đơn hàng của tôi",
+        "wishlist": "Danh sách yêu thích",
+        "notifications": "Thông báo",
+        "settings": "Cài đặt",
+        "logout": "Đăng xuất"
+      },
+      "search": {
+        "placeholder": "Tìm kiếm sản phẩm..."
+      },
+      "menu": {
+        "close": "Đóng menu",
+        "open": "Mở menu"
+      },
+      "actions": {
+        "notifications": "Thông báo",
+        "wishlist": "Danh sách yêu thích",
+        "cart": "Giỏ hàng"
+      },
+      "guest": {
+        "signin": "Đăng nhập",
+        "signup": "Đăng ký"
+      }
+    },
+    "footer": {
+      "brand": "Thương hiệu",
+      "copyright": "© {{year}} {{brand}}. Tất cả quyền được bảo lưu.",
+      "privacy": "Chính sách bảo mật",
+      "terms": "Điều khoản dịch vụ",
+      "cookies": "Chính sách Cookie"
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "Trang chủ",
+      "description": "Chào mừng đến với website của chúng tôi - Đối tác đáng tin cậy của bạn trong thương mại điện tử",
+      "og": {
+        "title": "Trang chủ - Tên trang web của bạn"
+      },
+      "hero": {
+        "title": "Chào mừng đến với Ứng dụng Frontend",
+        "description": "Một dịch vụ frontend React đơn giản và sạch sẽ cho khách hàng được xây dựng với các thành phần HeroUI.",
+        "cta": "Bắt đầu"
+      },
+      "features": {
+        "title": "Tính năng",
+        "modern": {
+          "title": "React hiện đại",
+          "description": "Được xây dựng với các tính năng React mới nhất và các thực tiễn tốt nhất."
+        },
+        "responsive": {
+          "title": "Thiết kế đáp ứng",
+          "description": "Hoạt động liền mạch trên tất cả các thiết bị và kích thước màn hình."
+        },
+        "performance": {
+          "title": "Hiệu suất nhanh",
+          "description": "Được tối ưu hóa về tốc độ và trải nghiệm người dùng mượt mà."
+        }
+      }
+    },
+    "login": {
+      "seo": {
+        "title": "Chào mừng trở lại - Đăng nhập",
+        "description": "Đăng nhập vào tài khoản Quasar Store của bạn để truy cập các ưu đãi độc quyền và theo dõi đơn hàng"
+      },
+      "hero": {
+        "title": "Chào mừng trở lại! 👋",
+        "description": "Chúng tôi rất vui khi gặp lại bạn. Đăng nhập để tiếp tục trải nghiệm mua sắm tuyệt vời của bạn."
+      },
+      "features": {
+        "secure": "Đăng nhập an toàn và được mã hóa",
+        "deals": "Truy cập các ưu đãi thành viên độc quyền",
+        "tracking": "Theo dõi đơn hàng theo thời gian thực"
+      },
+      "form": {
+        "email": {
+          "label": "Địa chỉ email",
+          "placeholder": "Nhập email của bạn"
+        },
+        "password": {
+          "label": "Mật khẩu",
+          "placeholder": "Nhập mật khẩu của bạn"
+        },
+        "remember": "Ghi nhớ tôi",
+        "forgotPassword": "Quên mật khẩu?",
+        "submit": "Đăng nhập",
+        "submitting": "Đang đăng nhập..."
+      },
+      "social": {
+        "divider": "Hoặc tiếp tục với"
+      },
+      "signup": {
+        "text": "Chưa có tài khoản?",
+        "link": "Đăng ký miễn phí"
+      },
+      "terms": {
+        "text": "Bằng việc đăng nhập, bạn đồng ý với",
+        "service": "Điều khoản dịch vụ",
+        "privacy": "Chính sách bảo mật"
+      },
+      "guest": {
+        "text": "Chỉ đang duyệt?",
+        "link": "Tiếp tục với tư cách khách"
+      },
+      "errors": {
+        "emailRequired": "Email là bắt buộc",
+        "emailInvalid": "Vui lòng nhập email hợp lệ",
+        "passwordRequired": "Mật khẩu là bắt buộc",
+        "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự",
+        "invalidCredentials": "Email hoặc mật khẩu không hợp lệ. Vui lòng thử lại."
+      }
+    },
+    "register": {
+      "seo": {
+        "title": "Tạo tài khoản",
+        "description": "Tham gia Quasar Store để nhận các lợi ích thành viên độc quyền, theo dõi đơn hàng và tận hưởng trải nghiệm mua sắm được cá nhân hóa"
+      },
+      "hero": {
+        "title": "Tham gia cộng đồng của chúng tôi",
+        "description": "Tạo tài khoản của bạn và mở khóa thế giới lợi ích độc quyền."
+      },
+      "benefits": {
+        "welcome": "Thưởng chào mừng cho lần mua đầu tiên",
+        "earlyAccess": "Truy cập sớm vào các chương trình khuyến mãi và sản phẩm mới",
+        "loyalty": "Kiếm điểm thưởng với mỗi đơn hàng",
+        "sync": "Đồng bộ trên tất cả thiết bị của bạn"
+      },
+      "stats": {
+        "customers": "Khách hàng hài lòng",
+        "rating": "Đánh giá trung bình"
+      },
+      "form": {
+        "title": "Tạo tài khoản của bạn",
+        "hasAccount": "Đã có tài khoản?",
+        "signIn": "Đăng nhập",
+        "name": {
+          "label": "Họ và tên",
+          "placeholder": "Nguyễn Văn A"
+        },
+        "email": {
+          "label": "Địa chỉ email",
+          "placeholder": "ban@example.com"
+        },
+        "password": {
+          "label": "Mật khẩu",
+          "placeholder": "Tạo mật khẩu mạnh"
+        },
+        "confirmPassword": {
+          "label": "Xác nhận mật khẩu",
+          "placeholder": "Nhập lại mật khẩu của bạn"
+        },
+        "terms": {
+          "text": "Tôi đồng ý với",
+          "service": "Điều khoản dịch vụ",
+          "privacy": "Chính sách bảo mật"
+        },
+        "submit": "Tạo tài khoản",
+        "submitting": "Đang tạo tài khoản..."
+      },
+      "social": {
+        "divider": "Hoặc đăng ký với"
+      },
+      "marketing": {
+        "consent": "Gửi cho tôi các ưu đãi độc quyền, đề xuất được cá nhân hóa và mẹo mua sắm"
+      },
+      "errors": {
+        "nameRequired": "Tên là bắt buộc",
+        "nameMinLength": "Tên phải có ít nhất 2 ký tự",
+        "emailRequired": "Email là bắt buộc",
+        "emailInvalid": "Vui lòng nhập email hợp lệ",
+        "passwordRequired": "Mật khẩu là bắt buộc",
+        "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự",
+        "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu của bạn",
+        "passwordMismatch": "Mật khẩu không khớp",
+        "termsRequired": "Bạn phải đồng ý với các điều khoản và điều kiện",
+        "registrationFailed": "Đăng ký thất bại. Vui lòng thử lại."
+      }
+    },
+    "about": {
+      "title": "Về chúng tôi",
+      "subtitle": "Tìm hiểu thêm về sứ mệnh và giá trị của chúng tôi",
+      "mission": {
+        "title": "Sứ mệnh của chúng tôi",
+        "description": "Chúng tôi tận tâm tạo ra những trải nghiệm người dùng đặc biệt thông qua công nghệ sáng tạo và thiết kế chu đáo. Dịch vụ frontend của chúng tôi cung cấp cho khách hàng các ứng dụng web hiện đại, đáp ứng và hiệu suất cao được xây dựng với các công nghệ mới nhất như React, HeroUI và Tailwind CSS."
+      },
+      "values": {
+        "title": "Giá trị của chúng tôi",
+        "innovation": {
+          "title": "Sáng tạo",
+          "description": "Liên tục đẩy ranh giới và ôm lấy công nghệ mới."
+        },
+        "quality": {
+          "title": "Chất lượng",
+          "description": "Mang lại sự xuất sắc trong từng dòng mã chúng tôi viết."
+        },
+        "collaboration": {
+          "title": "Hợp tác",
+          "description": "Làm việc cùng nhau để đạt được kết quả phi thường."
+        },
+        "userFocus": {
+          "title": "Tập trung vào người dùng",
+          "description": "Đặt trải nghiệm người dùng vào trung tâm của mọi thứ chúng tôi làm."
+        }
+      }
+    },
+    "contact": {
+      "title": "Liên hệ chúng tôi",
+      "subtitle": "Liên lạc với đội ngũ của chúng tôi",
+      "info": {
+        "title": "Liên lạc",
+        "email": "Email",
+        "phone": "Điện thoại",
+        "address": "Địa chỉ"
+      },
+      "form": {
+        "title": "Gửi tin nhắn cho chúng tôi",
+        "name": {
+          "label": "Tên",
+          "placeholder": "Nhập tên của bạn"
+        },
+        "email": {
+          "label": "Email",
+          "placeholder": "Nhập email của bạn"
+        },
+        "message": {
+          "label": "Tin nhắn",
+          "placeholder": "Nhập tin nhắn của bạn"
+        },
+        "submit": "Gửi tin nhắn",
+        "success": "Cảm ơn bạn đã gửi tin nhắn! Chúng tôi sẽ liên hệ lại với bạn sớm."
+      }
+    },
+    "dashboard": {
+      "seo": {
+        "title": "Bảng điều khiển",
+        "description": "Quản lý tài khoản của bạn và xem hoạt động"
+      },
+      "welcome": "Chào mừng trở lại, {{name}}!",
+      "subtitle": "Đây là những gì đang diễn ra với tài khoản của bạn hôm nay.",
+      "stats": {
+        "orders": "Tổng số đơn hàng",
+        "products": "Sản phẩm có sẵn",
+        "status": "Trạng thái tài khoản",
+        "active": "Hoạt động"
+      },
+      "activity": {
+        "title": "Hoạt động gần đây",
+        "orderPrefix": "Đơn hàng #",
+        "empty": "Không có hoạt động gần đây để hiển thị"
+      },
+      "quickActions": {
+        "title": "Hành động nhanh",
+        "browse": "Duyệt sản phẩm",
+        "orders": "Xem đơn hàng",
+        "profile": "Chỉnh sửa hồ sơ",
+        "settings": "Cài đặt"
+      },
+      "loading": "Đang tải bảng điều khiển..."
+    },
+    "profile": {
+      "seo": {
+        "title": "Hồ sơ của tôi",
+        "description": "Quản lý cài đặt tài khoản và tùy chọn của bạn"
+      },
+      "title": "Hồ sơ của tôi",
+      "subtitle": "Quản lý cài đặt tài khoản và tùy chọn của bạn",
+      "tabs": {
+        "profile": "Thông tin hồ sơ",
+        "security": "Bảo mật",
+        "notifications": "Thông báo"
+      },
+      "profile": {
+        "title": "Thông tin hồ sơ",
+        "subtitle": "Cập nhật thông tin tài khoản của bạn",
+        "name": "Họ và tên",
+        "email": "Địa chỉ email",
+        "phone": "Số điện thoại",
+        "avatar": "URL ảnh đại diện",
+        "avatarPlaceholder": "https://example.com/avatar.jpg",
+        "save": "Lưu thay đổi"
+      },
+      "security": {
+        "title": "Bảo mật",
+        "subtitle": "Quản lý mật khẩu và cài đặt bảo mật của bạn",
+        "currentPassword": "Mật khẩu hiện tại",
+        "newPassword": "Mật khẩu mới",
+        "passwordHint": "Mật khẩu phải có ít nhất 8 ký tự",
+        "confirmPassword": "Xác nhận mật khẩu mới",
+        "change": "Thay đổi mật khẩu"
+      },
+      "notifications": {
+        "title": "Tùy chọn thông báo",
+        "subtitle": "Chọn cách bạn muốn nhận thông báo",
+        "email": {
+          "title": "Thông báo email",
+          "description": "Nhận thông báo qua email"
+        },
+        "push": {
+          "title": "Thông báo đẩy",
+          "description": "Nhận thông báo đẩy trong trình duyệt của bạn"
+        },
+        "sms": {
+          "title": "Thông báo SMS",
+          "description": "Nhận thông báo qua SMS"
+        },
+        "save": "Lưu tùy chọn"
+      },
+      "loading": "Đang tải hồ sơ...",
+      "errors": {
+        "passwordMismatch": "Mật khẩu mới không khớp",
+        "passwordMinLength": "Mật khẩu phải có ít nhất 8 ký tự"
+      }
+    },
+    "notFound": {
+      "title": "Không tìm thấy trang",
+      "heading": "Oops! Không tìm thấy trang",
+      "description": "Xin lỗi, chúng tôi không tìm thấy trang bạn đang tìm kiếm. Trang có thể đã được di chuyển hoặc xóa.",
+      "searchPlaceholder": "Tìm kiếm sản phẩm...",
+      "searchTitle": "Bạn đang tìm kiếm gì đó cụ thể?",
+      "categoriesTitle": "Danh mục phổ biến",
+      "helpTitle": "Cần trợ giúp? Xem các tài nguyên này:",
+      "backToHome": "Về trang chủ",
+      "browseProducts": "Duyệt sản phẩm",
+      "goBack": "Quay lại",
+      "contactSupport": "Liên hệ hỗ trợ",
+      "helpCenter": "Trung tâm trợ giúp",
+      "faq": "Câu hỏi thường gặp",
+      "categories": {
+        "electronics": "Điện tử",
+        "fashion": "Thời trang",
+        "homeGarden": "Nhà cửa & Vườn",
+        "sports": "Thể thao"
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Chào mừng trở lại! 👋",
+      "subtitle": "Đăng nhập để tiếp tục hành trình của bạn",
+      "email": {
+        "label": "Địa chỉ email",
+        "placeholder": "Nhập email của bạn"
+      },
+      "password": {
+        "label": "Mật khẩu",
+        "placeholder": "Nhập mật khẩu của bạn"
+      },
+      "remember": "Ghi nhớ tôi",
+      "forgotPassword": "Quên mật khẩu?",
+      "submit": "Đăng nhập",
+      "submitting": "Đang đăng nhập...",
+      "social": {
+        "divider": "Hoặc tiếp tục với"
+      },
+      "signup": {
+        "text": "Chưa có tài khoản?",
+        "link": "Đăng ký miễn phí"
+      },
+      "errors": {
+        "emailRequired": "Email là bắt buộc",
+        "passwordRequired": "Mật khẩu là bắt buộc"
+      }
+    },
+    "register": {
+      "title": "Tạo tài khoản",
+      "subtitle": "Đăng ký để bắt đầu",
+      "social": {
+        "google": "Google",
+        "github": "GitHub",
+        "divider": "Hoặc đăng ký với email"
+      },
+      "name": {
+        "label": "Họ và tên",
+        "placeholder": "Nhập tên của bạn"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Nhập email của bạn"
+      },
+      "password": {
+        "label": "Mật khẩu",
+        "placeholder": "Tạo mật khẩu"
+      },
+      "confirmPassword": {
+        "label": "Xác nhận mật khẩu",
+        "placeholder": "Xác nhận mật khẩu của bạn"
+      },
+      "terms": {
+        "text": "Tôi đồng ý với",
+        "service": "Điều khoản dịch vụ",
+        "privacy": "Chính sách bảo mật"
+      },
+      "submit": "Tạo tài khoản",
+      "signin": {
+        "text": "Đã có tài khoản?",
+        "link": "Đăng nhập"
+      },
+      "errors": {
+        "nameRequired": "Tên là bắt buộc",
+        "emailRequired": "Email là bắt buộc",
+        "emailInvalid": "Email không hợp lệ",
+        "passwordRequired": "Mật khẩu là bắt buộc",
+        "passwordMinLength": "Mật khẩu phải có ít nhất 8 ký tự",
+        "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu của bạn",
+        "passwordMismatch": "Mật khẩu không khớp",
+        "termsRequired": "Bạn phải đồng ý với các điều khoản"
+      }
+    },
+    "toast": {
+      "login": {
+        "title": "Đăng nhập thành công",
+        "message": "Chào mừng trở lại!"
+      },
+      "register": {
+        "title": "Đăng ký thành công",
+        "message": "Chào mừng đến với nền tảng của chúng tôi!"
+      },
+      "logout": {
+        "title": "Đã đăng xuất",
+        "message": "Bạn đã đăng xuất thành công."
+      }
+    }
+  },
+  "ecommerce": {
+    "product": {
+      "outOfStock": "Hết hàng"
+    },
+    "cart": {
+      "add": "Thêm vào giỏ hàng",
+      "addAriaLabel": "Thêm vào giỏ hàng",
+      "outOfStock": "Hết hàng",
+      "empty": {
+        "title": "Giỏ hàng của bạn trống",
+        "description": "Thêm một số sản phẩm vào giỏ hàng để tiếp tục mua sắm",
+        "continue": "Tiếp tục mua sắm"
+      },
+      "title": "Giỏ hàng",
+      "summary": {
+        "subtotal": "Tạm tính",
+        "shipping": "Vận chuyển",
+        "tax": "Thuế",
+        "total": "Tổng cộng"
+      },
+      "actions": {
+        "checkout": "Tiến hành thanh toán",
+        "clear": "Xóa giỏ hàng",
+        "continue": "Tiếp tục mua sắm"
+      },
+      "clear": {
+        "title": "Xóa giỏ hàng",
+        "message": "Bạn có chắc chắn muốn xóa tất cả mặt hàng khỏi giỏ hàng không? Hành động này không thể hoàn tác.",
+        "cancel": "Hủy",
+        "confirm": "Xóa giỏ hàng"
+      }
+    }
+  },
+  "form": {
+    "basic_information": "Thông tin cơ bản",
+    "basic_information_description": "Nhập thông tin cơ bản và thông tin liên hệ.",
+    "general_information": "Thông tin chung",
+    "personal_information": "Thông tin cá nhân",
+    "business_information": "Thông tin doanh nghiệp",
+    "address_information": "Thông tin địa chỉ",
+    "additional_info": "Thông tin thêm",
+    "required_field": "Trường bắt buộc",
+    "optional_field": "Tùy chọn",
+    "choose_file": "Chọn tệp",
+    "no_file_chosen": "Chưa chọn tệp",
+    "drag_drop": "Kéo và thả tệp vào đây",
+    "supported_formats": "Định dạng được hỗ trợ",
+    "max_file_size": "Kích thước tệp tối đa",
+    "upload_progress": "Tiến trình tải lên",
+    "upload_complete": "Tải lên hoàn tất",
+    "upload_failed": "Tải lên thất bại",
+    "retry_upload": "Thử lại",
+    "cancel_upload": "Hủy tải lên"
+  },
+  "validation": {
+    "required": "Trường này là bắt buộc",
+    "email": "Vui lòng nhập địa chỉ email hợp lệ",
+    "min_length": "Phải có ít nhất {{min}} ký tự",
+    "max_length": "Không được vượt quá {{max}} ký tự",
+    "password_min_length": "Mật khẩu phải có ít nhất 6 ký tự",
+    "password_match": "Mật khẩu không khớp",
+    "invalid_email": "Định dạng email không hợp lệ",
+    "invalid_url": "Định dạng URL không hợp lệ",
+    "invalid_number": "Vui lòng nhập số hợp lệ",
+    "invalid_phone": "Vui lòng nhập số điện thoại hợp lệ",
+    "invalid_date": "Vui lòng nhập ngày hợp lệ",
+    "file_too_large": "Kích thước tệp phải nhỏ hơn {{size}}",
+    "invalid_file_type": "Loại tệp không hợp lệ",
+    "network_error": "Đã xảy ra lỗi mạng",
+    "server_error": "Đã xảy ra lỗi máy chủ",
+    "invalid_response": "Phản hồi máy chủ không hợp lệ",
+    "unknown_error": "Đã xảy ra lỗi không xác định"
+  },
+  "table": {
+    "loading": "Đang tải dữ liệu bảng...",
+    "no_data": "Không có dữ liệu",
+    "no_results": "Không tìm thấy kết quả phù hợp",
+    "search_placeholder": "Tìm kiếm...",
+    "filter": "Lọc",
+    "sort": "Sắp xếp",
+    "ascending": "Tăng dần",
+    "descending": "Giảm dần",
+    "columns": "Cột",
+    "rows": "Hàng",
+    "page": "Trang",
+    "of": "của",
+    "showing": "Hiển thị",
+    "entries": "mục",
+    "previous": "Trước",
+    "next": "Tiếp",
+    "first": "Đầu",
+    "last": "Cuối",
+    "select_all": "Chọn tất cả",
+    "select_none": "Không chọn",
+    "actions": "Hành động",
+    "view": "Xem",
+    "edit": "Chỉnh sửa",
+    "delete": "Xóa",
+    "export": "Xuất",
+    "refresh": "Làm mới",
+    "density": "Mật độ",
+    "compact": "Gọn",
+    "standard": "Chuẩn",
+    "comfortable": "Thoải mái",
+    "visibility": "Hiển thị"
+  },
+  "modal": {
+    "close": "Đóng",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "confirm": "Xác nhận",
+    "delete": "Xóa",
+    "submit": "Gửi",
+    "title": "Tiêu đề Modal",
+    "confirm_title": "Xác nhận hành động",
+    "confirm_message": "Bạn có chắc chắn muốn tiếp tục?",
+    "delete_title": "Xóa mục",
+    "delete_message": "Bạn có chắc chắn muốn xóa mục này? Hành động này không thể hoàn tác.",
+    "success_title": "Thành công",
+    "error_title": "Lỗi",
+    "warning_title": "Cảnh báo",
+    "info_title": "Thông tin"
+  },
+  "pagination": {
+    "previous": "Trước",
+    "next": "Tiếp",
+    "first": "Đầu",
+    "last": "Cuối",
+    "page": "Trang",
+    "of": "của",
+    "showing": "Hiển thị",
+    "to": "đến",
+    "of": "của",
+    "entries": "mục",
+    "per_page": "Mỗi trang",
+    "go_to_page": "Đến trang"
+  },
+  "sidebar": {
+    "collapse": "Thu gọn thanh bên",
+    "expand": "Mở rộng thanh bên",
+    "toggle": "Chuyển đổi thanh bên",
+    "menu": "Menu",
+    "submenu": "Menu con",
+    "back_to_menu": "Quay lại menu"
+  },
+  "upload": {
+    "title": "Tải tệp lên",
+    "description": "Chọn tệp để tải lên",
+    "drag_drop": "Kéo và thả tệp vào đây hoặc nhấp để duyệt",
+    "browse": "Duyệt tệp",
+    "uploading": "Đang tải lên...",
+    "upload_complete": "Tải lên hoàn tất",
+    "upload_failed": "Tải lên thất bại",
+    "retry": "Thử lại",
+    "cancel": "Hủy",
+    "file_too_large": "Tệp quá lớn",
+    "invalid_type": "Loại tệp không hợp lệ",
+    "max_size": "Kích thước tệp tối đa: {{size}}",
+    "supported_formats": "Định dạng được hỗ trợ: {{formats}}"
+  }
+}

@@ -1,6 +1,8 @@
+'use client';
 import React, { useState } from 'react';
-import { Button, Card, Divider, Modal, Chip } from '@heroui/react';
-import { Link } from 'react-router-dom';
+import { Button, Card, Divider, Chip } from '@heroui/react';
+import Modal from '../common/Modal';
+import Link from 'next/link';
 import { OrderDetails } from './OrderDetails';
 
 export interface OrderItem {
@@ -66,7 +68,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({
   onCancelOrder,
   onReturnOrder,
   className = '',
-  emptyMessage = 'You haven\'t placed any orders yet.',
+  emptyMessage = "You haven't placed any orders yet.",
   showPagination = true,
   ordersPerPage = 5,
 }) => {
@@ -183,11 +185,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({
   };
 
   if (loading) {
-    return (
-      <div className={className}>
-        {renderSkeletons()}
-      </div>
-    );
+    return <div className={className}>{renderSkeletons()}</div>;
   }
 
   if (error) {
@@ -205,9 +203,9 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({
         <div className="text-5xl mb-4">📦</div>
         <h3 className="text-xl font-semibold mb-2">No Orders Yet</h3>
         <p className="text-gray-600 mb-6">{emptyMessage}</p>
-        <Button color="primary" as={Link} to="/">
-          Start Shopping
-        </Button>
+        <Link href="/">
+          <Button color="primary">Start Shopping</Button>
+        </Link>
       </div>
     );
   }
@@ -215,7 +213,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({
   return (
     <div className={className}>
       <h2 className="text-2xl font-bold mb-6">Order History</h2>
-      
+
       <div className="space-y-4">
         {paginatedOrders.map((order) => (
           <Card key={order.id} className="p-6">
@@ -229,30 +227,39 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({
                 </div>
                 <p className="text-sm text-gray-500">Placed on {formatDate(order.orderDate)}</p>
               </div>
-              
+
               <div className="text-right mt-2 md:mt-0">
                 <p className="text-lg font-semibold">${order.total.toFixed(2)}</p>
               </div>
             </div>
-            
+
             <Divider className="my-4" />
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
                 <p className="text-sm text-gray-500">Shipping Address</p>
                 <p className="text-sm">
-                  {order.shippingAddress.firstName} {order.shippingAddress.lastName}<br />
-                  {order.shippingAddress.address1}<br />
-                  {order.shippingAddress.address2 && <>{order.shippingAddress.address2}<br /></>}
-                  {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}<br />
+                  {order.shippingAddress.firstName} {order.shippingAddress.lastName}
+                  <br />
+                  {order.shippingAddress.address1}
+                  <br />
+                  {order.shippingAddress.address2 && (
+                    <>
+                      {order.shippingAddress.address2}
+                      <br />
+                    </>
+                  )}
+                  {order.shippingAddress.city}, {order.shippingAddress.state}{' '}
+                  {order.shippingAddress.postalCode}
+                  <br />
                   {order.shippingAddress.country}
                 </p>
               </div>
-              
+
               <div>
                 <p className="text-sm text-gray-500">Payment Method</p>
                 <p className="text-sm">{order.paymentMethod}</p>
-                
+
                 {order.trackingNumber && (
                   <>
                     <p className="text-sm text-gray-500 mt-2">Tracking Number</p>
@@ -260,31 +267,28 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({
                   </>
                 )}
               </div>
-              
+
               <div>
                 <p className="text-sm text-gray-500">Order Summary</p>
                 <p className="text-sm">
-                  {order.items.length} {order.items.length === 1 ? 'item' : 'items'}<br />
-                  Subtotal: ${order.subtotal.toFixed(2)}<br />
-                  Shipping: ${order.shippingCost.toFixed(2)}<br />
+                  {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
+                  <br />
+                  Subtotal: ${order.subtotal.toFixed(2)}
+                  <br />
+                  Shipping: ${order.shippingCost.toFixed(2)}
+                  <br />
                   Tax: ${order.tax.toFixed(2)}
-                  {order.discount && (
-                    <>Discount: -${order.discount.toFixed(2)}</>
-                  )}
+                  {order.discount && <>Discount: -${order.discount.toFixed(2)}</>}
                 </p>
               </div>
             </div>
-            
+
             <div className="flex justify-between items-center">
               <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="flat"
-                  onPress={() => handleViewOrder(order)}
-                >
+                <Button size="sm" variant="flat" onPress={() => handleViewOrder(order)}>
                   View Details
                 </Button>
-                
+
                 {order.status === 'delivered' && onReturnOrder && (
                   <Button
                     size="sm"
@@ -296,7 +300,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({
                   </Button>
                 )}
               </div>
-              
+
               <div className="flex gap-2">
                 {(order.status === 'pending' || order.status === 'processing') && onCancelOrder && (
                   <Button
@@ -308,13 +312,9 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({
                     Cancel
                   </Button>
                 )}
-                
+
                 {onReorder && (
-                  <Button
-                    size="sm"
-                    color="primary"
-                    onPress={() => handleReorder(order.id)}
-                  >
+                  <Button size="sm" color="primary" onPress={() => handleReorder(order.id)}>
                     Reorder
                   </Button>
                 )}
@@ -323,7 +323,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({
           </Card>
         ))}
       </div>
-      
+
       {/* Pagination */}
       {showPagination && totalPages > 1 && (
         <div className="flex justify-center mt-8">
@@ -336,7 +336,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({
             >
               Previous
             </Button>
-            
+
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
               let pageNum;
               if (totalPages <= 5) {
@@ -348,7 +348,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({
               } else {
                 pageNum = currentPage - 2 + i;
               }
-              
+
               return (
                 <Button
                   key={pageNum}
@@ -361,7 +361,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({
                 </Button>
               );
             })}
-            
+
             <Button
               size="sm"
               variant="flat"
@@ -373,7 +373,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({
           </div>
         </div>
       )}
-      
+
       {/* Order Details Modal */}
       <Modal
         isOpen={isOrderDetailsOpen}

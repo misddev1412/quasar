@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Button, Card, Divider, Modal, Alert } from '@heroui/react';
+import { Button, Card, Divider } from '@heroui/react';
+import Modal from '../common/Modal';
+import Alert from '../common/Alert';
 import { Product } from './ProductCard';
 import ProductCard from './ProductCard';
 
@@ -77,7 +79,9 @@ const Wishlist: React.FC<WishlistProps> = ({
     <div className="flex flex-col items-center justify-center py-12">
       <div className="text-5xl mb-4">❤️</div>
       <h3 className="text-xl font-semibold text-gray-900 mb-2">Your wishlist is empty</h3>
-      <p className="text-gray-500 mb-6">Add products to your wishlist to keep track of items you love</p>
+      <p className="text-gray-500 mb-6">
+        Add products to your wishlist to keep track of items you love
+      </p>
       <Button color="primary" onPress={onClose}>
         Continue Shopping
       </Button>
@@ -101,13 +105,10 @@ const Wishlist: React.FC<WishlistProps> = ({
       {/* Success Message */}
       {showSuccess && (
         <Alert
-          color="success"
-          variant="flat"
-          className="mb-4"
+          type="success"
+          message={successMessage}
           onClose={() => setShowSuccess(false)}
-        >
-          {successMessage}
-        </Alert>
+        />
       )}
 
       {/* Wishlist Items */}
@@ -134,7 +135,7 @@ const Wishlist: React.FC<WishlistProps> = ({
       {products.length > 0 && (
         <>
           <Divider className="my-4" />
-          
+
           <div className="flex flex-col gap-2 pt-4 border-t">
             {showMoveAllButton && onMoveAllToCart && (
               <Button
@@ -157,11 +158,7 @@ const Wishlist: React.FC<WishlistProps> = ({
               </Button>
             )}
             {isModal && onClose && (
-              <Button
-                variant="light"
-                onPress={onClose}
-                className="w-full"
-              >
+              <Button variant="light" onPress={onClose} className="w-full">
                 Continue Shopping
               </Button>
             )}
@@ -176,14 +173,10 @@ const Wishlist: React.FC<WishlistProps> = ({
       <>
         <Modal
           isOpen={isOpen}
-          onClose={onClose}
+          onClose={onClose || (() => {})}
           size="4xl"
-          scrollBehavior="inside"
-          className={className}
         >
-          <Card className="p-6">
-            {renderWishlistContent()}
-          </Card>
+          {renderWishlistContent()}
         </Modal>
 
         {/* Clear Wishlist Confirmation Modal */}
@@ -191,27 +184,20 @@ const Wishlist: React.FC<WishlistProps> = ({
           isOpen={isConfirmingClear}
           onClose={() => setIsConfirmingClear(false)}
           size="sm"
+          title="Clear Wishlist"
         >
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Clear Wishlist</h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to remove all items from your wishlist? This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="flat"
-                onPress={() => setIsConfirmingClear(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                color="danger"
-                onPress={handleClearWishlist}
-              >
-                Clear Wishlist
-              </Button>
-            </div>
-          </Card>
+          <p className="text-gray-600 mb-6">
+            Are you sure you want to remove all items from your wishlist? This action cannot be
+            undone.
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button variant="flat" onPress={() => setIsConfirmingClear(false)}>
+              Cancel
+            </Button>
+            <Button color="danger" onPress={handleClearWishlist}>
+              Clear Wishlist
+            </Button>
+          </div>
         </Modal>
 
         {/* Move All to Cart Confirmation Modal */}
@@ -219,37 +205,25 @@ const Wishlist: React.FC<WishlistProps> = ({
           isOpen={isConfirmingMoveAll}
           onClose={() => setIsConfirmingMoveAll(false)}
           size="sm"
+          title="Move All to Cart"
         >
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Move All to Cart</h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to move all items from your wishlist to your cart?
-            </p>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="flat"
-                onPress={() => setIsConfirmingMoveAll(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                color="primary"
-                onPress={handleMoveAllToCart}
-              >
-                Move All to Cart
-              </Button>
-            </div>
-          </Card>
+          <p className="text-gray-600 mb-6">
+            Are you sure you want to move all items from your wishlist to your cart?
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button variant="flat" onPress={() => setIsConfirmingMoveAll(false)}>
+              Cancel
+            </Button>
+            <Button color="primary" onPress={handleMoveAllToCart}>
+              Move All to Cart
+            </Button>
+          </div>
         </Modal>
       </>
     );
   }
 
-  return (
-    <Card className={`p-6 ${className}`}>
-      {renderWishlistContent()}
-    </Card>
-  );
+  return <Card className={`p-6 ${className}`}>{renderWishlistContent()}</Card>;
 };
 
 export default Wishlist;

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { appEvents, ToastEvent } from '../utils/trpc-error-link';
 
@@ -97,9 +99,7 @@ const ToastContainer: React.FC<{
           <div className="flex justify-between items-start">
             <div className="flex-1">
               <h3 className="font-semibold">{toast.title}</h3>
-              {toast.description && (
-                <p className="text-sm opacity-90 mt-1">{toast.description}</p>
-              )}
+              {toast.description && <p className="text-sm opacity-90 mt-1">{toast.description}</p>}
             </div>
             <button
               onClick={() => removeToast(toast.id)}

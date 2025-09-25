@@ -47,9 +47,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       {!backgroundImage && (
         <div className={`absolute inset-0 bg-gradient-to-br ${backgroundGradient}`} />
       )}
-      {backgroundImage && (
-        <div className="absolute inset-0 bg-black/50" />
-      )}
+      {backgroundImage && <div className="absolute inset-0 bg-black/50" />}
 
       <Container className="relative z-10">
         <div className={`flex flex-col ${alignmentClasses[alignment]} max-w-4xl mx-auto`}>
@@ -59,14 +57,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </span>
           )}
 
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-            {title}
-          </h1>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">{title}</h1>
 
           {description && (
-            <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl">
-              {description}
-            </p>
+            <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl">{description}</p>
           )}
 
           {(primaryAction || secondaryAction) && (
@@ -99,11 +93,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
       {/* Decorative elements */}
       <div className="absolute bottom-0 left-0 right-0">
-        <svg
-          className="w-full h-24 text-white"
-          viewBox="0 0 1440 74"
-          fill="currentColor"
-        >
+        <svg className="w-full h-24 text-white" viewBox="0 0 1440 74" fill="currentColor">
           <path d="M0,32L48,37.3C96,43,192,53,288,56C384,59,480,53,576,48C672,43,768,37,864,32C960,27,1056,21,1152,26.7C1248,32,1344,48,1392,56L1440,64L1440,74L1392,74C1344,74,1248,74,1152,74C1056,74,960,74,864,74C768,74,672,74,576,74C480,74,384,74,288,74C192,74,96,74,48,74L0,74Z" />
         </svg>
       </div>

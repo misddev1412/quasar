@@ -1,16 +1,11 @@
+'use client';
+
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import {
-  Card,
-  CardBody,
-  Input,
-  Button,
-  Checkbox,
-  Divider,
-} from '@heroui/react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Card, CardBody, Input, Button, Checkbox, Divider } from '@heroui/react';
 import { useAuth } from '../contexts/AuthContext';
 import { useProtectedRoute } from '../hooks/useProtectedRoute';
-import { SEO } from '../components/utility/SEO';
 import {
   HiOutlineUser,
   HiOutlineMail,
@@ -22,12 +17,12 @@ import {
   HiOutlineLightningBolt,
   HiOutlineStar,
   HiOutlineDeviceMobile,
-  HiOutlineBadgeCheck
+  HiOutlineBadgeCheck,
 } from 'react-icons/hi';
 import { FaGoogle, FaFacebook, FaApple } from 'react-icons/fa';
 
 const RegisterPage = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { register } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -112,7 +107,7 @@ const RegisterPage = () => {
     } catch (error: any) {
       console.error('Registration failed:', error);
       setErrors({
-        general: error?.message || 'Registration failed. Please try again.'
+        general: error?.message || 'Registration failed. Please try again.',
       });
     } finally {
       setIsLoading(false);
@@ -126,10 +121,6 @@ const RegisterPage = () => {
 
   return (
     <>
-      <SEO
-        title="Create Account"
-        description="Join Quasar Store to get exclusive member benefits, track orders, and enjoy a personalized shopping experience"
-      />
 
       <div className="min-h-screen flex">
         {/* Left Side - Feature Image */}
@@ -138,9 +129,7 @@ const RegisterPage = () => {
             <div className="absolute inset-0 bg-black opacity-20"></div>
             <div className="absolute inset-0 flex items-center justify-center p-12">
               <div className="text-white text-center max-w-md">
-                <h3 className="text-4xl font-bold mb-6">
-                  Join Our Community
-                </h3>
+                <h3 className="text-4xl font-bold mb-6">Join Our Community</h3>
                 <p className="text-xl mb-8 opacity-90">
                   Create your account and unlock a world of exclusive benefits.
                 </p>
@@ -186,19 +175,17 @@ const RegisterPage = () => {
           <div className="max-w-md w-full space-y-8">
             {/* Logo and Welcome */}
             <div className="text-center">
-              <Link to="/" className="inline-flex items-center justify-center mb-6">
+              <Link href="/" className="inline-flex items-center justify-center mb-6">
                 <div className="w-12 h-12 bg-primary-500 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-xl">Q</span>
                 </div>
                 <span className="ml-3 text-2xl font-bold text-gray-900">Quasar Store</span>
               </Link>
 
-              <h2 className="text-3xl font-extrabold text-gray-900">
-                Create your account
-              </h2>
+              <h2 className="text-3xl font-extrabold text-gray-900">Create your account</h2>
               <p className="mt-2 text-sm text-gray-600">
                 Already have an account?{' '}
-                <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
+                <Link href="/login" className="font-medium text-primary-600 hover:text-primary-500">
                   Sign in
                 </Link>
               </p>
@@ -231,13 +218,12 @@ const RegisterPage = () => {
                       variant="bordered"
                       size="lg"
                       classNames={{
-                        label: "text-gray-700 font-medium",
-                        input: "text-gray-900",
-                        inputWrapper: "border-gray-300 hover:border-primary-400 focus:border-primary-500",
+                        label: 'text-gray-700 font-medium',
+                        input: 'text-gray-900',
+                        inputWrapper:
+                          'border-gray-300 hover:border-primary-400 focus:border-primary-500',
                       }}
-                      startContent={
-                        <HiOutlineUser className="text-gray-400 text-xl" />
-                      }
+                      startContent={<HiOutlineUser className="text-gray-400 text-xl" />}
                     />
                   </div>
 
@@ -257,20 +243,19 @@ const RegisterPage = () => {
                       variant="bordered"
                       size="lg"
                       classNames={{
-                        label: "text-gray-700 font-medium",
-                        input: "text-gray-900",
-                        inputWrapper: "border-gray-300 hover:border-primary-400 focus:border-primary-500",
+                        label: 'text-gray-700 font-medium',
+                        input: 'text-gray-900',
+                        inputWrapper:
+                          'border-gray-300 hover:border-primary-400 focus:border-primary-500',
                       }}
-                      startContent={
-                        <HiOutlineMail className="text-gray-400 text-xl" />
-                      }
+                      startContent={<HiOutlineMail className="text-gray-400 text-xl" />}
                     />
                   </div>
 
                   {/* Password Input */}
                   <div>
                     <Input
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? 'text' : 'password'}
                       label="Password"
                       placeholder="Create a strong password"
                       value={formData.password}
@@ -283,13 +268,12 @@ const RegisterPage = () => {
                       variant="bordered"
                       size="lg"
                       classNames={{
-                        label: "text-gray-700 font-medium",
-                        input: "text-gray-900",
-                        inputWrapper: "border-gray-300 hover:border-primary-400 focus:border-primary-500",
+                        label: 'text-gray-700 font-medium',
+                        input: 'text-gray-900',
+                        inputWrapper:
+                          'border-gray-300 hover:border-primary-400 focus:border-primary-500',
                       }}
-                      startContent={
-                        <HiOutlineLockClosed className="text-gray-400 text-xl" />
-                      }
+                      startContent={<HiOutlineLockClosed className="text-gray-400 text-xl" />}
                       endContent={
                         <button
                           className="focus:outline-none"
@@ -309,26 +293,26 @@ const RegisterPage = () => {
                   {/* Confirm Password Input */}
                   <div>
                     <Input
-                      type={showConfirmPassword ? "text" : "password"}
+                      type={showConfirmPassword ? 'text' : 'password'}
                       label="Confirm Password"
                       placeholder="Re-enter your password"
                       value={formData.confirmPassword}
                       onChange={(e) => {
                         setFormData({ ...formData, confirmPassword: e.target.value });
-                        if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: undefined });
+                        if (errors.confirmPassword)
+                          setErrors({ ...errors, confirmPassword: undefined });
                       }}
                       isInvalid={!!errors.confirmPassword}
                       errorMessage={errors.confirmPassword}
                       variant="bordered"
                       size="lg"
                       classNames={{
-                        label: "text-gray-700 font-medium",
-                        input: "text-gray-900",
-                        inputWrapper: "border-gray-300 hover:border-primary-400 focus:border-primary-500",
+                        label: 'text-gray-700 font-medium',
+                        input: 'text-gray-900',
+                        inputWrapper:
+                          'border-gray-300 hover:border-primary-400 focus:border-primary-500',
                       }}
-                      startContent={
-                        <HiOutlineLockOpen className="text-gray-400 text-xl" />
-                      }
+                      startContent={<HiOutlineLockOpen className="text-gray-400 text-xl" />}
                       endContent={
                         <button
                           className="focus:outline-none"
@@ -354,15 +338,15 @@ const RegisterPage = () => {
                         if (errors.agreeTerms) setErrors({ ...errors, agreeTerms: undefined });
                       }}
                       classNames={{
-                        label: "text-sm text-gray-700",
+                        label: 'text-sm text-gray-700',
                       }}
                     >
                       I agree to the{' '}
-                      <Link to="/terms" className="text-primary-600 hover:text-primary-500">
+                      <Link href="/terms" className="text-primary-600 hover:text-primary-500">
                         Terms of Service
                       </Link>{' '}
                       and{' '}
-                      <Link to="/privacy" className="text-primary-600 hover:text-primary-500">
+                      <Link href="/privacy" className="text-primary-600 hover:text-primary-500">
                         Privacy Policy
                       </Link>
                     </Checkbox>
@@ -426,7 +410,7 @@ const RegisterPage = () => {
                   <Checkbox
                     size="sm"
                     classNames={{
-                      label: "text-xs text-gray-500",
+                      label: 'text-xs text-gray-500',
                     }}
                   >
                     Send me exclusive offers, personalized recommendations, and shopping tips

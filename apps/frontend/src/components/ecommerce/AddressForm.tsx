@@ -155,7 +155,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
           isRequired={isFieldRequired('firstName')}
           fullWidth
         />
-        
+
         <Input
           label="Last Name"
           placeholder="Doe"
@@ -168,7 +168,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
           fullWidth
         />
       </div>
-      
+
       {showCompany && (
         <Input
           label="Company (Optional)"
@@ -181,7 +181,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
           fullWidth
         />
       )}
-      
+
       <Input
         label="Address"
         placeholder="123 Main St"
@@ -193,7 +193,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
         isRequired={isFieldRequired('address1')}
         fullWidth
       />
-      
+
       {showAddress2 && (
         <Input
           label="Apartment, suite, etc. (Optional)"
@@ -206,7 +206,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
           fullWidth
         />
       )}
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Input
           label="City"
@@ -219,7 +219,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
           isRequired={isFieldRequired('city')}
           fullWidth
         />
-        
+
         <Select
           label="State/Province"
           selectedKeys={[address.state]}
@@ -234,12 +234,10 @@ const AddressForm: React.FC<AddressFormProps> = ({
           fullWidth
         >
           {getStateProvinces().map((state) => (
-            <SelectItem key={state.code}>
-              {state.name}
-            </SelectItem>
+            <SelectItem key={state.code}>{state.name}</SelectItem>
           ))}
         </Select>
-        
+
         <Input
           label="Postal Code"
           placeholder="10001"
@@ -252,7 +250,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
           fullWidth
         />
       </div>
-      
+
       <Select
         label="Country"
         selectedKeys={[address.country]}
@@ -269,12 +267,10 @@ const AddressForm: React.FC<AddressFormProps> = ({
         fullWidth
       >
         {countries.map((country) => (
-          <SelectItem key={country.code}>
-            {country.name}
-          </SelectItem>
+          <SelectItem key={country.code}>{country.name}</SelectItem>
         ))}
       </Select>
-      
+
       {showPhone && (
         <Input
           label="Phone (Optional)"

@@ -7,6 +7,9 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { trpc, createTrpcClient } from '../utils/trpc';
 import { AuthProvider } from '../contexts/AuthContext';
 import { ToastProvider } from '../contexts/ToastContext';
+import { ThemeProvider } from '../contexts/ThemeContext';
+import { AppInitProvider, useAppInit } from '../contexts/AppInitContext';
+import { AppLoadingOverlay } from '../components/common/AppLoadingOverlay';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,22 +21,38 @@ const queryClient = new QueryClient({
   },
 });
 
-export function Providers({ children }: { children: React.ReactNode }) {
+function AppProviders({ children }: { children: React.ReactNode }) {
+  const { isLoading, initializationProgress, initializationMessage } = useAppInit();
   const [trpcClient] = useState(() => createTrpcClient());
   const TRPCProvider = (trpc as any).Provider;
 
   return (
-    <TRPCProvider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        <HeroUIProvider>
-          <ToastProvider>
-            <AuthProvider>
-              {children}
-            </AuthProvider>
-          </ToastProvider>
-        </HeroUIProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </TRPCProvider>
+    <>
+      <AppLoadingOverlay
+        isLoading={isLoading}
+        progress={initializationProgress}
+        message={initializationMessage}
+      />
+      <TRPCProvider client={trpcClient} queryClient={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <HeroUIProvider>
+            <ThemeProvider>
+              <ToastProvider>
+                <AuthProvider>{children}</AuthProvider>
+              </ToastProvider>
+            </ThemeProvider>
+          </HeroUIProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
+      </TRPCProvider>
+    </>
+  );
+}
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <AppInitProvider>
+      <AppProviders>{children}</AppProviders>
+    </AppInitProvider>
   );
 }

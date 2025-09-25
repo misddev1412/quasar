@@ -44,28 +44,30 @@ const getDeliveryMethodsQuerySchema = z.object({
 export const createDeliveryMethodSchema = z.object({
   name: z.string().min(1, 'Name is required').max(255, 'Name cannot exceed 255 characters'),
   type: deliveryMethodTypeSchema,
-  description: z.string().optional(),
+  description: z.string().nullable().optional(),
   isActive: z.boolean().optional().default(true),
   isDefault: z.boolean().optional().default(false),
-  sortOrder: z.number().int().min(0).optional(),
-  deliveryCost: z.number().min(0).optional().default(0),
+  sortOrder: z.coerce.number().int().min(0).nullable().optional(),
+  deliveryCost: z.coerce.number().min(0).nullable().optional().default(0),
   costCalculationType: costCalculationTypeSchema.optional().default('FIXED'),
-  freeDeliveryThreshold: z.number().min(0).optional(),
-  minDeliveryTimeHours: z.number().int().min(0).optional(),
-  maxDeliveryTimeHours: z.number().int().min(0).optional(),
-  weightLimitKg: z.number().min(0).optional(),
-  sizeLimitCm: z.string().max(50).optional(),
-  coverageAreas: z.array(z.string()).optional(),
-  supportedPaymentMethods: z.array(z.string().uuid()).optional(),
-  providerName: z.string().max(255).optional(),
-  providerApiConfig: z.record(z.any()).optional(),
+  freeDeliveryThreshold: z.coerce.number().min(0).nullable().optional(),
+  minDeliveryTimeHours: z.coerce.number().int().min(0).nullable().optional(),
+  maxDeliveryTimeHours: z.coerce.number().int().min(0).nullable().optional(),
+  weightLimitKg: z.coerce.number().min(0).nullable().optional(),
+  sizeLimitCm: z.string().max(50).nullable().optional(),
+  coverageAreas: z.array(z.string()).nullable().optional(),
+  supportedPaymentMethods: z.array(z.string().uuid()).nullable().optional(),
+  providerName: z.string().max(255).nullable().optional(),
+  providerApiConfig: z.record(z.any()).nullable().optional(),
   trackingEnabled: z.boolean().optional().default(false),
   insuranceEnabled: z.boolean().optional().default(false),
   signatureRequired: z.boolean().optional().default(false),
-  iconUrl: z.string().max(512).url().optional(),
+  useThirdPartyIntegration: z.boolean().optional().default(false),
+  iconUrl: z.string().max(512).url().nullable().optional(),
 }).refine(
   (data) => {
-    if (data.minDeliveryTimeHours !== undefined && data.maxDeliveryTimeHours !== undefined) {
+    if (data.minDeliveryTimeHours !== undefined && data.minDeliveryTimeHours !== null &&
+        data.maxDeliveryTimeHours !== undefined && data.maxDeliveryTimeHours !== null) {
       return data.minDeliveryTimeHours <= data.maxDeliveryTimeHours;
     }
     return true;
@@ -79,25 +81,26 @@ export const createDeliveryMethodSchema = z.object({
 const baseDeliveryMethodSchema = z.object({
   name: z.string().min(1, 'Name is required').max(255, 'Name cannot exceed 255 characters'),
   type: deliveryMethodTypeSchema,
-  description: z.string().optional(),
+  description: z.string().nullable().optional(),
   isActive: z.boolean().optional(),
   isDefault: z.boolean().optional(),
-  sortOrder: z.number().int().min(0).optional(),
-  deliveryCost: z.number().min(0).optional(),
+  sortOrder: z.coerce.number().int().min(0).nullable().optional(),
+  deliveryCost: z.coerce.number().min(0).nullable().optional(),
   costCalculationType: costCalculationTypeSchema.optional(),
-  freeDeliveryThreshold: z.number().min(0).optional(),
-  minDeliveryTimeHours: z.number().int().min(0).optional(),
-  maxDeliveryTimeHours: z.number().int().min(0).optional(),
-  weightLimitKg: z.number().min(0).optional(),
-  sizeLimitCm: z.string().max(50).optional(),
-  coverageAreas: z.array(z.string()).optional(),
-  supportedPaymentMethods: z.array(z.string().uuid()).optional(),
-  providerName: z.string().max(255).optional(),
-  providerApiConfig: z.record(z.any()).optional(),
+  freeDeliveryThreshold: z.coerce.number().min(0).nullable().optional(),
+  minDeliveryTimeHours: z.coerce.number().int().min(0).nullable().optional(),
+  maxDeliveryTimeHours: z.coerce.number().int().min(0).nullable().optional(),
+  weightLimitKg: z.coerce.number().min(0).nullable().optional(),
+  sizeLimitCm: z.string().max(50).nullable().optional(),
+  coverageAreas: z.array(z.string()).nullable().optional(),
+  supportedPaymentMethods: z.array(z.string().uuid()).nullable().optional(),
+  providerName: z.string().max(255).nullable().optional(),
+  providerApiConfig: z.record(z.any()).nullable().optional(),
   trackingEnabled: z.boolean().optional(),
   insuranceEnabled: z.boolean().optional(),
   signatureRequired: z.boolean().optional(),
-  iconUrl: z.string().max(512).url().optional(),
+  useThirdPartyIntegration: z.boolean().optional(),
+  iconUrl: z.string().max(512).url().nullable().optional(),
 });
 
 export const updateDeliveryMethodSchema = baseDeliveryMethodSchema.partial();
@@ -211,6 +214,7 @@ export class AdminDeliveryMethodsRouter {
     output: apiResponseSchema,
   })
   async update(@Input() input: z.infer<typeof deliveryMethodUpdateSchema>) {
+    console.log('Backend received update input:', JSON.stringify(input, null, 2));
     const deliveryMethod = await this.deliveryMethodService.update(input.id, input.data as any);
     return this.responseService.createTrpcSuccess({
       data: deliveryMethod,

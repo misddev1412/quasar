@@ -39,7 +39,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
   const [expandedItems, setExpandedItems] = useState<string[]>(defaultExpanded);
   const [filterValues, setFilterValues] = useState<Record<string, string[] | number[]>>(() => {
     const initialValues: Record<string, string[] | number[]> = {};
-    sections.forEach(section => {
+    sections.forEach((section) => {
       if (section.type === 'range' && section.value) {
         initialValues[section.id] = section.value;
       } else if (section.selectedValues) {
@@ -56,42 +56,42 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
   };
 
   const handleCheckboxChange = (sectionId: string, optionId: string, isChecked: boolean) => {
-    const currentValues = filterValues[sectionId] as string[] || [];
+    const currentValues = (filterValues[sectionId] as string[]) || [];
     let newValues: string[];
-    
+
     if (isChecked) {
       newValues = [...currentValues, optionId];
     } else {
-      newValues = currentValues.filter(id => id !== optionId);
+      newValues = currentValues.filter((id) => id !== optionId);
     }
-    
-    setFilterValues(prev => ({ ...prev, [sectionId]: newValues }));
+
+    setFilterValues((prev) => ({ ...prev, [sectionId]: newValues }));
     onFilterChange(sectionId, newValues);
   };
 
   const handleRadioChange = (sectionId: string, optionId: string) => {
     const newValues = [optionId];
-    setFilterValues(prev => ({ ...prev, [sectionId]: newValues }));
+    setFilterValues((prev) => ({ ...prev, [sectionId]: newValues }));
     onFilterChange(sectionId, newValues);
   };
 
   const handleRangeChange = (sectionId: string, values: number[]) => {
-    setFilterValues(prev => ({ ...prev, [sectionId]: values }));
+    setFilterValues((prev) => ({ ...prev, [sectionId]: values }));
     onFilterChange(sectionId, values);
   };
 
   const handleClearFilters = () => {
     const resetValues: Record<string, string[] | number[]> = {};
-    sections.forEach(section => {
+    sections.forEach((section) => {
       if (section.type === 'range' && section.min !== undefined && section.max !== undefined) {
         resetValues[section.id] = [section.min, section.max];
       } else {
         resetValues[section.id] = [];
       }
     });
-    
+
     setFilterValues(resetValues);
-    
+
     if (onClearFilters) {
       onClearFilters();
     }
@@ -99,7 +99,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
 
   const renderFilterSection = (section: FilterSection) => {
     const currentValues = filterValues[section.id] || [];
-    
+
     switch (section.type) {
       case 'checkbox':
         return (
@@ -108,7 +108,9 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
               <Checkbox
                 key={option.id}
                 isSelected={(currentValues as string[]).includes(option.id)}
-                onValueChange={(isChecked) => handleCheckboxChange(section.id, option.id, isChecked)}
+                onValueChange={(isChecked) =>
+                  handleCheckboxChange(section.id, option.id, isChecked)
+                }
                 size="sm"
               >
                 <div className="flex items-center justify-between w-full">
@@ -121,7 +123,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
             ))}
           </div>
         );
-      
+
       case 'radio':
         return (
           <div className="space-y-2">
@@ -135,7 +137,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
                   onChange={() => handleRadioChange(section.id, option.id)}
                   className="mr-2"
                 />
-                <label 
+                <label
                   htmlFor={`${section.id}-${option.id}`}
                   className="flex items-center justify-between w-full cursor-pointer"
                 >
@@ -148,12 +150,12 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
             ))}
           </div>
         );
-      
+
       case 'range':
         if (section.min === undefined || section.max === undefined) return null;
-        
-        const rangeValues = currentValues as number[] || [section.min, section.max];
-        
+
+        const rangeValues = (currentValues as number[]) || [section.min, section.max];
+
         return (
           <div className="space-y-4">
             <Slider
@@ -174,7 +176,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
             </div>
           </div>
         );
-      
+
       case 'color':
         return (
           <div className="flex flex-wrap gap-2">
@@ -182,25 +184,31 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
               <button
                 key={option.id}
                 className={`w-8 h-8 rounded-full border-2 ${
-                  (currentValues as string[]).includes(option.id) 
-                    ? 'border-primary-500' 
+                  (currentValues as string[]).includes(option.id)
+                    ? 'border-primary-500'
                     : 'border-gray-300'
                 }`}
                 style={{ backgroundColor: option.id }}
-                onClick={() => handleCheckboxChange(section.id, option.id, !(currentValues as string[]).includes(option.id))}
+                onClick={() =>
+                  handleCheckboxChange(
+                    section.id,
+                    option.id,
+                    !(currentValues as string[]).includes(option.id)
+                  )
+                }
                 title={option.name}
                 aria-label={option.name}
               />
             ))}
           </div>
         );
-      
+
       default:
         return null;
     }
   };
 
-  const hasActiveFilters = Object.values(filterValues).some(values => {
+  const hasActiveFilters = Object.values(filterValues).some((values) => {
     if (Array.isArray(values)) {
       return values.length > 0;
     }
@@ -213,28 +221,20 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">Filters</h3>
           {hasActiveFilters && (
-            <Button 
-              variant="light" 
-              size="sm" 
-              onPress={handleClearFilters}
-            >
+            <Button variant="light" size="sm" onPress={handleClearFilters}>
               Clear All
             </Button>
           )}
         </div>
-        
-        <Accordion 
+
+        <Accordion
           selectedKeys={new Set(expandedItems)}
           onSelectionChange={(keys) => handleAccordionChange(keys as Set<string>)}
           selectionMode="multiple"
           variant="splitted"
         >
           {sections.map((section) => (
-            <AccordionItem 
-              key={section.id} 
-              title={section.title}
-              className="py-2"
-            >
+            <AccordionItem key={section.id} title={section.title} className="py-2">
               {renderFilterSection(section)}
             </AccordionItem>
           ))}
@@ -248,16 +248,12 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Filters</h3>
         {hasActiveFilters && (
-          <Button 
-            variant="light" 
-            size="sm" 
-            onPress={handleClearFilters}
-          >
+          <Button variant="light" size="sm" onPress={handleClearFilters}>
             Clear All
           </Button>
         )}
       </div>
-      
+
       <div className="space-y-6">
         {sections.map((section) => (
           <div key={section.id}>

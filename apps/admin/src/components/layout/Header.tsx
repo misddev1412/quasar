@@ -81,6 +81,11 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
       width: '25ch',
     },
     fontSize: '0.875rem',
+    textAlign: 'left',
+    '&::placeholder': {
+      textAlign: 'left',
+      opacity: 0.7,
+    },
   },
 }));
 
@@ -181,7 +186,7 @@ const Header: React.FC = () => {
         borderColor: isDarkMode ? 'grey.800' : 'grey.200',
       }}
     >
-      <Toolbar sx={{ minHeight: '64px' }}>
+      <Toolbar sx={{ minHeight: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         {/* Left section */}
         <Tooltip title={t(config.type === 'vertical' ? 'header.toggleToHorizontal' : 'header.toggleToVertical')}>
           <ActionButton
@@ -210,7 +215,7 @@ const Header: React.FC = () => {
         <Box sx={{ flexGrow: 1 }} />
 
         {/* Right section */}
-        <Stack direction="row" spacing={1} alignItems="center">
+        <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
           {/* Documentation button */}
           <Tooltip title={t('header.documentation')}>
             <ActionButton size="small" sx={{ borderRadius: '50%' }}>
@@ -352,45 +357,45 @@ const Header: React.FC = () => {
             }}
           >
             {/* Profile */}
-            <MenuItem onClick={() => handleNavigation('/profile')}>
+            <MenuItem onClick={() => handleNavigation('/profile')} sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
               <ListItemIcon>
                 <AccountCircleIcon fontSize="small" />
               </ListItemIcon>
-              {t('navigation.profile')}
+              <Typography variant="body2" sx={{ textAlign: 'left' }}>{t('navigation.profile')}</Typography>
             </MenuItem>
 
             {/* Notifications */}
-            <MenuItem onClick={() => handleNavigation('/notifications')}>
+            <MenuItem onClick={() => handleNavigation('/notifications')} sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
               <ListItemIcon>
                 <NotificationsIcon fontSize="small" />
               </ListItemIcon>
-              {t('navigation.notifications')}
+              <Typography variant="body2" sx={{ textAlign: 'left' }}>{t('navigation.notifications')}</Typography>
             </MenuItem>
 
             {/* Settings */}
-            <MenuItem onClick={() => handleNavigation('/settings')}>
+            <MenuItem onClick={() => handleNavigation('/settings')} sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
               <ListItemIcon>
                 <SettingsIcon fontSize="small" />
               </ListItemIcon>
-              {t('navigation.settings')}
+              <Typography variant="body2" sx={{ textAlign: 'left' }}>{t('navigation.settings')}</Typography>
             </MenuItem>
 
             {/* Help */}
-            <MenuItem onClick={() => handleNavigation('/help')}>
+            <MenuItem onClick={() => handleNavigation('/help')} sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
               <ListItemIcon>
                 <HelpOutlineIcon fontSize="small" />
               </ListItemIcon>
-              {t('navigation.help')}
+              <Typography variant="body2" sx={{ textAlign: 'left' }}>{t('navigation.help')}</Typography>
             </MenuItem>
 
             <Divider />
 
             {/* Logout */}
-            <MenuItem onClick={handleLogout}>
+            <MenuItem onClick={handleLogout} sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
               <ListItemIcon>
                 <LogoutIcon fontSize="small" />
               </ListItemIcon>
-              {t('navigation.logout')}
+              <Typography variant="body2" sx={{ textAlign: 'left' }}>{t('navigation.logout')}</Typography>
             </MenuItem>
           </Menu>
         </Stack>

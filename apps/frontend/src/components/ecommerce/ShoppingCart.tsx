@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Button, Card, Divider, Modal } from '@heroui/react';
+import { Button, Card, Divider } from '@heroui/react';
+import Modal from '../common/Modal';
 import { Product } from './ProductCard';
 import CartItem from './CartItem';
 import { PriceDisplay } from './PriceDisplay';
@@ -45,7 +46,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
 }) => {
   const [isConfirmingClear, setIsConfirmingClear] = useState(false);
 
-  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shipping = items.length > 0 ? 5.99 : 0; // Example flat shipping rate
   const tax = subtotal * 0.08; // Example 8% tax
   const total = subtotal + shipping + tax;
@@ -101,7 +102,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
       {items.length > 0 && (
         <>
           <Divider className="my-4" />
-          
+
           {/* Cart Summary */}
           <div className="space-y-2 pb-4">
             <div className="flex justify-between text-sm">
@@ -147,11 +148,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
               </Button>
             )}
             {isModal && onClose && (
-              <Button
-                variant="light"
-                onPress={onClose}
-                className="w-full"
-              >
+              <Button variant="light" onPress={onClose} className="w-full">
                 Continue Shopping
               </Button>
             )}
@@ -171,33 +168,22 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
           scrollBehavior="inside"
           className={className}
         >
-          <Card className="p-6">
-            {renderCartContent()}
-          </Card>
+          <Card className="p-6">{renderCartContent()}</Card>
         </Modal>
 
         {/* Clear Cart Confirmation Modal */}
-        <Modal
-          isOpen={isConfirmingClear}
-          onClose={() => setIsConfirmingClear(false)}
-          size="sm"
-        >
+        <Modal isOpen={isConfirmingClear} onClose={() => setIsConfirmingClear(false)} size="sm">
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Clear Cart</h3>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to remove all items from your cart? This action cannot be undone.
+              Are you sure you want to remove all items from your cart? This action cannot be
+              undone.
             </p>
             <div className="flex justify-end gap-2">
-              <Button
-                variant="flat"
-                onPress={() => setIsConfirmingClear(false)}
-              >
+              <Button variant="flat" onPress={() => setIsConfirmingClear(false)}>
                 Cancel
               </Button>
-              <Button
-                color="danger"
-                onPress={handleClearCart}
-              >
+              <Button color="danger" onPress={handleClearCart}>
                 Clear Cart
               </Button>
             </div>
@@ -207,11 +193,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
     );
   }
 
-  return (
-    <Card className={`p-6 ${className}`}>
-      {renderCartContent()}
-    </Card>
-  );
+  return <Card className={`p-6 ${className}`}>{renderCartContent()}</Card>;
 };
 
 export default ShoppingCart;

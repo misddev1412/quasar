@@ -1,15 +1,8 @@
-import { Metadata } from 'next';
-import ProfilePage from '../../pages/ProfilePage';
-
-export const metadata: Metadata = {
-  title: 'Profile',
-  description: 'Manage your profile',
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
-
 export default function Page() {
-  return <ProfilePage />;
+  return (
+    <div>
+      <h1>Profile Page</h1>
+      <p>This is the Profile page for locale routing</p>
+    </div>
+  );
 }

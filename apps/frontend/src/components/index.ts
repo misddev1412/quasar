@@ -25,7 +25,6 @@ export { Sidebar } from './layout/Sidebar';
 // Utility Components
 export { Loading } from './utility/Loading';
 export { ErrorBoundary } from './utility/ErrorBoundary';
-export { SEO } from './utility/SEO';
 
 // E-commerce Components
 export { default as ProductCard, Product } from './ecommerce/ProductCard';

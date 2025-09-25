@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { Card, CardBody, CardHeader, Input, Textarea, Button } from '@heroui/react';
 
@@ -5,13 +7,13 @@ const ContactPage = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    message: ''
+    message: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -90,12 +92,7 @@ const ContactPage = () => {
                 variant="bordered"
                 minRows={4}
               />
-              <Button
-                type="submit"
-                color="primary"
-                size="lg"
-                className="w-full font-semibold"
-              >
+              <Button type="submit" color="primary" size="lg" className="w-full font-semibold">
                 Send Message
               </Button>
             </form>

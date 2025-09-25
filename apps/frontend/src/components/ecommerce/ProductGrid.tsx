@@ -43,7 +43,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 }) => {
   const renderSkeletons = () => {
     return Array.from({ length: skeletonCount }).map((_, index) => (
-      <div key={`skeleton-${index}`} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div
+        key={`skeleton-${index}`}
+        className="bg-white rounded-lg border border-gray-200 overflow-hidden"
+      >
         <div className="w-full h-48 bg-gray-200 animate-pulse"></div>
         <div className="p-4">
           <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
@@ -61,11 +64,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   };
 
   if (loading) {
-    return (
-      <div className={`${getGridClasses()} ${className}`}>
-        {renderSkeletons()}
-      </div>
-    );
+    return <div className={`${getGridClasses()} ${className}`}>{renderSkeletons()}</div>;
   }
 
   if (error) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLayout } from '../../contexts/LayoutContext';
 import { useTheme } from '../../context/ThemeContext';
+import { AnalyticsProvider } from '../common/AnalyticsProvider';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import Footer from './Footer';
@@ -186,7 +187,11 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           <Header />
 
           {/* 内容区域 */}
-          <Content>{children}</Content>
+          <Content>
+            <AnalyticsProvider>
+              {children}
+            </AnalyticsProvider>
+          </Content>
 
           {/* 底部 */}
           <Footer />

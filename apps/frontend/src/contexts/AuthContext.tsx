@@ -1,5 +1,7 @@
+'use client';
+
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import {
   getAuthToken,
   setAuthToken,
@@ -53,7 +55,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   // Check if user is authenticated on mount
   const checkAuth = useCallback(async () => {
@@ -98,7 +100,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const unsubscribe = appEvents.on('auth-error', () => {
       logout();
-      navigate('/login');
+      router.push('/login');
     });
 
     return unsubscribe;
@@ -136,7 +138,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         });
 
         // Navigate to dashboard or home
-        navigate('/');
+        router.push('/');
       }
     } catch (error: any) {
       // Error will be handled by error link
@@ -177,7 +179,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         });
 
         // Navigate to onboarding or dashboard
-        navigate('/');
+        router.push('/');
       }
     } catch (error: any) {
       // Error will be handled by error link
@@ -196,7 +198,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       description: 'You have been successfully logged out.',
     });
 
-    navigate('/login');
+    router.push('/login');
   };
 
   const updateUser = (updatedUser: User) => {

@@ -56,7 +56,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\s/g, '');
     let formattedValue = '';
-    
+
     // Add space every 4 digits
     for (let i = 0; i < value.length; i++) {
       if (i > 0 && i % 4 === 0) {
@@ -64,35 +64,35 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
       }
       formattedValue += value[i];
     }
-    
+
     // Limit to 19 characters (16 digits + 3 spaces)
     formattedValue = formattedValue.substring(0, 19);
-    
+
     setCardNumber(formattedValue);
     updateField('cardNumber', formattedValue);
   };
 
   const handleExpiryDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '');
-    
+
     // Add slash after 2 digits
     if (value.length > 2) {
       value = value.substring(0, 2) + '/' + value.substring(2, 4);
     }
-    
+
     // Limit to 5 characters (MM/YY)
     value = value.substring(0, 5);
-    
+
     setExpiryDate(value);
     updateField('expiryDate', value);
   };
 
   const handleCvvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, '');
-    
+
     // Limit to 3 or 4 digits
     value = value.substring(0, 4);
-    
+
     setCvv(value);
     updateField('cvv', value);
   };
@@ -115,7 +115,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
 
   const detectCardType = (cardNumber: string) => {
     const cleanNumber = cardNumber.replace(/\s/g, '');
-    
+
     if (cleanNumber.startsWith('4')) {
       return 'visa';
     } else if (cleanNumber.startsWith('5') || cleanNumber.startsWith('2')) {
@@ -125,15 +125,21 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
     } else if (cleanNumber.startsWith('6')) {
       return 'discover';
     }
-    
+
     return '';
   };
 
   const cardType = detectCardType(cardNumber);
-  const cardTypeIcon = cardType === 'visa' ? '💳' : 
-                     cardType === 'mastercard' ? '💳' : 
-                     cardType === 'amex' ? '💳' : 
-                     cardType === 'discover' ? '💳' : '💳';
+  const cardTypeIcon =
+    cardType === 'visa'
+      ? '💳'
+      : cardType === 'mastercard'
+      ? '💳'
+      : cardType === 'amex'
+      ? '💳'
+      : cardType === 'discover'
+      ? '💳'
+      : '💳';
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -155,7 +161,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
                 <div className="font-medium">Use a new card</div>
               </div>
             </div>
-            
+
             {savedCards.map((card) => (
               <div
                 key={card.id}
@@ -169,7 +175,8 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
                 </div>
                 <div className="flex-1">
                   <div className="font-medium">
-                    {card.cardType.charAt(0).toUpperCase() + card.cardType.slice(1)} ending in {card.lastFourDigits}
+                    {card.cardType.charAt(0).toUpperCase() + card.cardType.slice(1)} ending in{' '}
+                    {card.lastFourDigits}
                   </div>
                   <div className="text-sm text-gray-500">Expires {card.expiryDate}</div>
                 </div>
@@ -195,7 +202,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
               fullWidth
             />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <Input
               label="Expiry Date"
@@ -207,7 +214,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
               errorMessage={getFieldError('expiryDate')}
               fullWidth
             />
-            
+
             <Input
               label="CVV"
               placeholder="123"
@@ -219,7 +226,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
               fullWidth
             />
           </div>
-          
+
           <Input
             label="Cardholder Name"
             placeholder="John Doe"
@@ -238,7 +245,8 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
         <div className="flex items-start">
           <span className="text-blue-500 mr-2 mt-0.5">🔒</span>
           <div className="text-sm text-blue-700">
-            Your payment information is encrypted and securely processed. We never store your full card details on our servers.
+            Your payment information is encrypted and securely processed. We never store your full
+            card details on our servers.
           </div>
         </div>
       </div>

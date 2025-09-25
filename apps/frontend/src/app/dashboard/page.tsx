@@ -1,15 +1,8 @@
-import { Metadata } from 'next';
-import DashboardPage from '../../pages/DashboardPage';
-
-export const metadata: Metadata = {
-  title: 'Dashboard',
-  description: 'Your personal dashboard',
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
-
 export default function Page() {
-  return <DashboardPage />;
+  return (
+    <div>
+      <h1>Dashboard Page</h1>
+      <p>This is the Dashboard page for locale routing</p>
+    </div>
+  );
 }

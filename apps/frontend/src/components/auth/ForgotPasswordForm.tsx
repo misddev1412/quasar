@@ -61,16 +61,9 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             </svg>
           </div>
           <h3 className="text-xl font-semibold mb-2">Check your email</h3>
-          <p className="text-gray-600 mb-6">
-            We've sent password reset instructions to {email}
-          </p>
+          <p className="text-gray-600 mb-6">We've sent password reset instructions to {email}</p>
           {onBackToLogin && (
-            <Button
-              color="primary"
-              variant="light"
-              onPress={onBackToLogin}
-              className="w-full"
-            >
+            <Button color="primary" variant="light" onPress={onBackToLogin} className="w-full">
               Back to Login
             </Button>
           )}
@@ -103,23 +96,14 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             variant="bordered"
           />
 
-          <Button
-            type="submit"
-            color="primary"
-            size="lg"
-            className="w-full"
-            isLoading={isLoading}
-          >
+          <Button type="submit" color="primary" size="lg" className="w-full" isLoading={isLoading}>
             Send Reset Email
           </Button>
         </form>
 
         {onBackToLogin && (
           <div className="text-center mt-6">
-            <Link
-              className="cursor-pointer text-sm"
-              onPress={onBackToLogin}
-            >
+            <Link className="cursor-pointer text-sm" onPress={onBackToLogin}>
               ← Back to Login
             </Link>
           </div>

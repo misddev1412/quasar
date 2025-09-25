@@ -31,12 +31,8 @@ export const CTASection: React.FC<CTASectionProps> = ({
       return (
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex-1">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              {title}
-            </h2>
-            {description && (
-              <p className="text-lg text-white/90">{description}</p>
-            )}
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">{title}</h2>
+            {description && <p className="text-lg text-white/90">{description}</p>}
           </div>
           <div className="flex gap-4">
             {primaryAction && (
@@ -68,14 +64,8 @@ export const CTASection: React.FC<CTASectionProps> = ({
 
     return (
       <div className={`max-w-3xl ${variant === 'centered' ? 'mx-auto' : ''}`}>
-        <h2 className={`text-3xl md:text-4xl font-bold text-white mb-4 ${alignment}`}>
-          {title}
-        </h2>
-        {description && (
-          <p className={`text-lg text-white/90 mb-8 ${alignment}`}>
-            {description}
-          </p>
-        )}
+        <h2 className={`text-3xl md:text-4xl font-bold text-white mb-4 ${alignment}`}>{title}</h2>
+        {description && <p className={`text-lg text-white/90 mb-8 ${alignment}`}>{description}</p>}
         {(primaryAction || secondaryAction) && (
           <div className={`flex gap-4 ${variant === 'centered' ? 'justify-center' : ''}`}>
             {primaryAction && (
@@ -113,12 +103,8 @@ export const CTASection: React.FC<CTASectionProps> = ({
         backgroundPosition: 'center',
       }}
     >
-      {backgroundImage && (
-        <div className="absolute inset-0 bg-black/50" />
-      )}
-      <Container className="relative z-10">
-        {renderContent()}
-      </Container>
+      {backgroundImage && <div className="absolute inset-0 bg-black/50" />}
+      <Container className="relative z-10">{renderContent()}</Container>
     </section>
   );
 };

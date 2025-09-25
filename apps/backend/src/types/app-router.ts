@@ -3751,7 +3751,197 @@ export const appRouter = router({
         return {} as ApiResponse;
       }),
   }),
-});
+
+  // Admin Support Clients router
+  adminSupportClients: router({
+    getAll: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+        search: z.string().optional(),
+        type: z.enum(['MESSENGER', 'ZALO', 'WHATSAPP', 'TELEGRAM', 'VIBER', 'SKYPE', 'LINE', 'WECHAT', 'KAKAOTALK', 'EMAIL', 'PHONE', 'CUSTOM']).optional(),
+        isActive: z.boolean().optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getById: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getDefault: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    create: procedure
+      .input(z.object({
+        name: z.string().min(1).max(255),
+        type: z.enum(['MESSENGER', 'ZALO', 'WHATSAPP', 'TELEGRAM', 'VIBER', 'SKYPE', 'LINE', 'WECHAT', 'KAKAOTALK', 'EMAIL', 'PHONE', 'CUSTOM']),
+        description: z.string().optional(),
+        configuration: z.record(z.any()),
+        widgetSettings: z.record(z.any()),
+        iconUrl: z.string().url().optional().or(z.literal('')),
+        targetAudience: z.record(z.any()).optional(),
+        scheduleEnabled: z.boolean().default(false),
+        scheduleStart: z.date().optional(),
+        scheduleEnd: z.date().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    update: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        data: z.object({
+          name: z.string().min(1).max(255).optional(),
+          description: z.string().optional(),
+          isActive: z.boolean().optional(),
+          configuration: z.record(z.any()).optional(),
+          widgetSettings: z.record(z.any()).optional(),
+          iconUrl: z.string().url().optional().or(z.literal('')),
+          targetAudience: z.record(z.any()).optional(),
+          scheduleEnabled: z.boolean().optional(),
+          scheduleStart: z.date().optional(),
+          scheduleEnd: z.date().optional(),
+          sortOrder: z.number().int().min(0).optional(),
+        }),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    delete: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    setAsDefault: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    updateSortOrder: procedure
+      .input(z.array(z.object({
+        id: z.string().uuid(),
+        sortOrder: z.number().int().min(0),
+      })))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    duplicate: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        newName: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    getWidgetScripts: procedure
+      .input(z.object({
+        context: z.object({
+          country: z.string().optional(),
+          language: z.string().optional(),
+          deviceType: z.string().optional(),
+          currentPage: z.string().optional(),
+        }).optional(),
+      }).optional())
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getAvailableClients: procedure
+      .input(z.object({
+        context: z.object({
+          country: z.string().optional(),
+          language: z.string().optional(),
+          deviceType: z.string().optional(),
+          currentPage: z.string().optional(),
+        }).optional(),
+      }).optional())
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getStats: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    validateConfiguration: procedure
+      .input(z.object({
+        type: z.enum(['MESSENGER', 'ZALO', 'WHATSAPP', 'TELEGRAM', 'VIBER', 'SKYPE', 'LINE', 'WECHAT', 'KAKAOTALK', 'EMAIL', 'PHONE', 'CUSTOM']),
+        configuration: z.record(z.any()),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    getRecommendedSettings: procedure
+      .input(z.object({
+        type: z.enum(['MESSENGER', 'ZALO', 'WHATSAPP', 'TELEGRAM', 'VIBER', 'SKYPE', 'LINE', 'WECHAT', 'KAKAOTALK', 'EMAIL', 'PHONE', 'CUSTOM']),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getTypes: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getWidgetPositions: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getWidgetThemes: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    testAvailability: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        context: z.object({
+          country: z.string().optional(),
+          language: z.string().optional(),
+          deviceType: z.string().optional(),
+          currentPage: z.string().optional(),
+        }).optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  });
 
 // For nestjs-trpc, the actual router structure is generated at runtime
 // Use a permissive type that allows access to all router endpoints

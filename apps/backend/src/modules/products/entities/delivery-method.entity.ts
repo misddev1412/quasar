@@ -84,6 +84,9 @@ export class DeliveryMethod {
   @Column({ name: 'signature_required', type: 'boolean', default: false, nullable: false })
   signatureRequired: boolean;
 
+  @Column({ name: 'use_third_party_integration', type: 'boolean', default: false, nullable: false })
+  useThirdPartyIntegration: boolean;
+
   @Column({ name: 'icon_url', type: 'varchar', length: 512, nullable: true })
   iconUrl?: string;
 
@@ -98,6 +101,11 @@ export class DeliveryMethod {
 
   // Helper methods
   calculateDeliveryCost(orderAmount?: number, weight?: number, distance?: number): number {
+    // For third-party integrations, cost calculation should be handled by external API
+    if (this.useThirdPartyIntegration) {
+      throw new Error('Delivery cost for third-party integration must be calculated via external API');
+    }
+
     switch (this.costCalculationType) {
       case CostCalculationType.FREE:
         return 0;
@@ -140,6 +148,11 @@ export class DeliveryMethod {
   }
 
   getEstimatedDeliveryTime(): string {
+    // For third-party integrations, delivery time should be fetched from external API
+    if (this.useThirdPartyIntegration) {
+      return 'Calculated by third-party provider';
+    }
+
     if (!this.minDeliveryTimeHours && !this.maxDeliveryTimeHours) {
       return 'Contact for delivery time';
     }

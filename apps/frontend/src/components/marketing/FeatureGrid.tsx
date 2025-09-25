@@ -34,11 +34,7 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({
       return (
         <Card key={index} shadow="md" className="hover:scale-105 transition-transform">
           {feature.image && (
-            <img
-              src={feature.image}
-              alt={feature.title}
-              className="w-full h-48 object-cover"
-            />
+            <img src={feature.image} alt={feature.title} className="w-full h-48 object-cover" />
           )}
           <CardHeader className="pb-2">
             <div className="flex items-center gap-3">
@@ -70,11 +66,7 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({
     // Simple variant
     return (
       <div key={index} className="flex gap-4">
-        {feature.icon && (
-          <div className="flex-shrink-0 text-3xl text-blue-600">
-            {feature.icon}
-          </div>
-        )}
+        {feature.icon && <div className="flex-shrink-0 text-3xl text-blue-600">{feature.icon}</div>}
         <div>
           <h3 className="text-lg font-semibold mb-1">{feature.title}</h3>
           <p className="text-gray-600">{feature.description}</p>
@@ -93,9 +85,7 @@ export const FeatureGrid: React.FC<FeatureGridProps> = ({
                 {subtitle}
               </span>
             )}
-            {title && (
-              <h2 className="text-3xl md:text-4xl font-bold mt-2">{title}</h2>
-            )}
+            {title && <h2 className="text-3xl md:text-4xl font-bold mt-2">{title}</h2>}
           </div>
         )}
 

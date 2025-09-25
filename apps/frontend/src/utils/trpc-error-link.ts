@@ -44,7 +44,8 @@ export const errorLink: TRPCLink<any> = () => {
             appEvents.emit('show-toast', {
               type: 'error',
               title: 'Network Error',
-              description: 'Unable to connect to the server. Please check your internet connection.',
+              description:
+                'Unable to connect to the server. Please check your internet connection.',
             } as ToastEvent);
           }
           // Handle JSON parsing errors (when server returns HTML instead of JSON)

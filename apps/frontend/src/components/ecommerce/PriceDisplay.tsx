@@ -44,7 +44,7 @@ const PriceDisplay: React.FC<PriceDisplayProps> = ({
   };
 
   const hasDiscount = originalPrice && originalPrice > price;
-  const calculatedDiscount = hasDiscount 
+  const calculatedDiscount = hasDiscount
     ? Math.round(((originalPrice - price) / originalPrice) * 100)
     : discountPercentage;
 
@@ -52,19 +52,23 @@ const PriceDisplay: React.FC<PriceDisplayProps> = ({
     <div className={`flex items-center gap-2 ${className}`}>
       {/* Current Price */}
       <span className={`${sizeClasses[size]} ${currentPriceClasses[size]} text-gray-900`}>
-        {currency}{price.toFixed(2)}
+        {currency}
+        {price.toFixed(2)}
       </span>
-      
+
       {/* Original Price (if discounted) */}
       {hasDiscount && (
         <span className={`${originalPriceClasses[size]} text-gray-500 line-through`}>
-          {currency}{originalPrice.toFixed(2)}
+          {currency}
+          {originalPrice.toFixed(2)}
         </span>
       )}
-      
+
       {/* Discount Badge */}
       {showDiscount && calculatedDiscount && (
-        <span className={`${discountClasses[size]} bg-red-100 text-red-800 px-1.5 py-0.5 rounded font-medium`}>
+        <span
+          className={`${discountClasses[size]} bg-red-100 text-red-800 px-1.5 py-0.5 rounded font-medium`}
+        >
           -{calculatedDiscount}%
         </span>
       )}

@@ -4,15 +4,23 @@ import clsx from 'clsx';
 interface BadgeProps {
   children: React.ReactNode;
   variant?: 'default' | 'outline' | 'secondary';
+  size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
 
-export const Badge: React.FC<BadgeProps> = ({ 
-  children, 
+export const Badge: React.FC<BadgeProps> = ({
+  children,
   variant = 'default',
-  className 
+  size = 'md',
+  className
 }) => {
-  const baseClasses = 'inline-flex items-center px-2 py-1 text-xs font-medium rounded-md';
+  const baseClasses = clsx(
+    'inline-flex items-center font-medium rounded-md',
+    {
+      'px-2 py-1 text-xs': size === 'sm' || size === 'md',
+      'px-3 py-1 text-sm': size === 'lg'
+    }
+  );
   
   const variants = {
     default: 'bg-blue-100 text-blue-800',

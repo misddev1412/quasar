@@ -1,5 +1,7 @@
+'use client';
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Navbar,
   NavbarBrand,
@@ -23,7 +25,7 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { user, isAuthenticated, logout } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const menuItems = [
     { name: 'Home', href: '/' },
@@ -40,13 +42,13 @@ const Header: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    router.push('/');
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
       setSearchQuery('');
     }
   };
@@ -63,11 +65,11 @@ const Header: React.FC = () => {
       {/* Logo and Brand */}
       <NavbarContent>
         <NavbarMenuToggle
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           className="sm:hidden"
         />
         <NavbarBrand>
-          <Link to="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold">Q</span>
             </div>
@@ -81,11 +83,9 @@ const Header: React.FC = () => {
         {menuItems.map((item) => (
           <NavbarItem key={item.href} isActive={isActive(item.href)}>
             <Link
-              to={item.href}
+              href={item.href || '#'}
               className={`text-sm font-medium transition-colors ${
-                isActive(item.href)
-                  ? 'text-primary-500'
-                  : 'text-gray-600 hover:text-gray-900'
+                isActive(item.href) ? 'text-primary-500' : 'text-gray-600 hover:text-gray-900'
               }`}
             >
               {item.name}
@@ -101,10 +101,11 @@ const Header: React.FC = () => {
           <form onSubmit={handleSearch}>
             <Input
               classNames={{
-                base: "max-w-full sm:max-w-[10rem] h-10",
-                mainWrapper: "h-full",
-                input: "text-small",
-                inputWrapper: "h-full font-normal text-default-500 bg-default-400/20 dark:bg-default-500/20",
+                base: 'max-w-full sm:max-w-[10rem] h-10',
+                mainWrapper: 'h-full',
+                input: 'text-small',
+                inputWrapper:
+                  'h-full font-normal text-default-500 bg-default-400/20 dark:bg-default-500/20',
               }}
               placeholder="Search..."
               size="sm"
@@ -122,7 +123,7 @@ const Header: React.FC = () => {
               isIconOnly
               variant="light"
               aria-label="Notifications"
-              onPress={() => navigate('/notifications')}
+              onPress={() => router.push('/notifications')}
             >
               <Badge content="3" color="danger" shape="circle" size="sm">
                 <span className="text-lg">🔔</span>
@@ -138,7 +139,7 @@ const Header: React.FC = () => {
               isIconOnly
               variant="light"
               aria-label="Wishlist"
-              onPress={() => navigate('/wishlist')}
+              onPress={() => router.push('/wishlist')}
             >
               <Badge content="5" color="secondary" shape="circle" size="sm">
                 <span className="text-lg">❤️</span>
@@ -153,7 +154,7 @@ const Header: React.FC = () => {
             isIconOnly
             variant="light"
             aria-label="Shopping cart"
-            onPress={() => navigate('/cart')}
+            onPress={() => router.push('/cart')}
           >
             <Badge content="2" color="primary" shape="circle" size="sm">
               <span className="text-lg">🛒</span>
@@ -181,66 +182,46 @@ const Header: React.FC = () => {
                   <p className="font-semibold">Signed in as</p>
                   <p className="font-semibold">{user?.email}</p>
                 </DropdownItem>
-                <DropdownItem
-                  key="dashboard"
-                  onPress={() => navigate('/account')}
-                >
+                <DropdownItem key="dashboard" onPress={() => router.push('/account')}>
                   My Account
                 </DropdownItem>
-                <DropdownItem
-                  key="profile"
-                  onPress={() => navigate('/profile')}
-                >
+                <DropdownItem key="profile" onPress={() => router.push('/profile')}>
                   Edit Profile
                 </DropdownItem>
-                <DropdownItem
-                  key="orders"
-                  onPress={() => navigate('/orders')}
-                >
+                <DropdownItem key="orders" onPress={() => router.push('/orders')}>
                   My Orders
                 </DropdownItem>
                 <DropdownItem
                   key="wishlist"
-                  onPress={() => navigate('/wishlist')}
+                  onPress={() => router.push('/wishlist')}
                   className="sm:hidden"
                 >
                   Wishlist
                 </DropdownItem>
                 <DropdownItem
                   key="notifications"
-                  onPress={() => navigate('/notifications')}
+                  onPress={() => router.push('/notifications')}
                   className="sm:hidden"
                 >
                   Notifications
                 </DropdownItem>
-                <DropdownItem
-                  key="settings"
-                  onPress={() => navigate('/settings')}
-                >
+                <DropdownItem key="settings" onPress={() => router.push('/settings')}>
                   Settings
                 </DropdownItem>
-                <DropdownItem
-                  key="logout"
-                  color="danger"
-                  onPress={handleLogout}
-                >
+                <DropdownItem key="logout" color="danger" onPress={handleLogout}>
                   Log Out
                 </DropdownItem>
               </DropdownMenu>
             </Dropdown>
           ) : (
             <div className="flex items-center gap-2">
-              <Button
-                variant="light"
-                size="sm"
-                onPress={() => navigate('/login')}
-              >
+              <Button variant="light" size="sm" onPress={() => router.push('/login')}>
                 Sign In
               </Button>
               <Button
                 color="primary"
                 size="sm"
-                onPress={() => navigate('/register')}
+                onPress={() => router.push('/register')}
                 className="hidden sm:flex"
               >
                 Sign Up
@@ -257,10 +238,10 @@ const Header: React.FC = () => {
           <form onSubmit={handleSearch} className="w-full">
             <Input
               classNames={{
-                base: "w-full",
-                mainWrapper: "h-full",
-                input: "text-small",
-                inputWrapper: "h-full font-normal text-default-500 bg-default-400/20",
+                base: 'w-full',
+                mainWrapper: 'h-full',
+                input: 'text-small',
+                inputWrapper: 'h-full font-normal text-default-500 bg-default-400/20',
               }}
               placeholder="Search products..."
               size="lg"
@@ -275,11 +256,9 @@ const Header: React.FC = () => {
         {menuItems.map((item, index) => (
           <NavbarMenuItem key={`${item.href}-${index}`}>
             <Link
-              to={item.href}
+              href={item.href || '#'}
               className={`w-full text-lg flex items-center gap-3 py-2 ${
-                isActive(item.href)
-                  ? 'text-primary-500 font-medium'
-                  : 'text-gray-600'
+                isActive(item.href) ? 'text-primary-500 font-medium' : 'text-gray-600'
               }`}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -298,7 +277,7 @@ const Header: React.FC = () => {
           <>
             <NavbarMenuItem>
               <Link
-                to="/account"
+                href="/account"
                 className="w-full text-lg text-gray-600 flex items-center gap-3 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -307,7 +286,7 @@ const Header: React.FC = () => {
             </NavbarMenuItem>
             <NavbarMenuItem>
               <Link
-                to="/profile"
+                href="/profile"
                 className="w-full text-lg text-gray-600 flex items-center gap-3 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -316,7 +295,7 @@ const Header: React.FC = () => {
             </NavbarMenuItem>
             <NavbarMenuItem>
               <Link
-                to="/orders"
+                href="/orders"
                 className="w-full text-lg text-gray-600 flex items-center gap-3 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -325,7 +304,7 @@ const Header: React.FC = () => {
             </NavbarMenuItem>
             <NavbarMenuItem>
               <Link
-                to="/wishlist"
+                href="/wishlist"
                 className="w-full text-lg text-gray-600 flex items-center gap-3 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -334,7 +313,7 @@ const Header: React.FC = () => {
             </NavbarMenuItem>
             <NavbarMenuItem>
               <Link
-                to="/notifications"
+                href="/notifications"
                 className="w-full text-lg text-gray-600 flex items-center gap-3 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -343,7 +322,7 @@ const Header: React.FC = () => {
             </NavbarMenuItem>
             <NavbarMenuItem>
               <Link
-                to="/settings"
+                href="/settings"
                 className="w-full text-lg text-gray-600 flex items-center gap-3 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -371,7 +350,7 @@ const Header: React.FC = () => {
                 variant="flat"
                 className="w-full"
                 onPress={() => {
-                  navigate('/login');
+                  router.push('/login');
                   setIsMenuOpen(false);
                 }}
               >
@@ -383,7 +362,7 @@ const Header: React.FC = () => {
                 color="primary"
                 className="w-full"
                 onPress={() => {
-                  navigate('/register');
+                  router.push('/register');
                   setIsMenuOpen(false);
                 }}
               >

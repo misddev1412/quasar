@@ -1,3 +1,7 @@
+const createNextIntlPlugin = require('next-intl/plugin');
+
+const withNextIntl = createNextIntlPlugin();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -10,6 +14,14 @@ const nextConfig = {
 
   // SEO-friendly trailing slashes
   trailingSlash: true,
+
+  // Skip static generation for development
+  output: 'standalone',
+
+  // Disable static page generation to avoid Html import issues
+  generateBuildId: async () => {
+    return 'build-' + Date.now();
+  },
 
   // Custom webpack config
   webpack: (config) => {
@@ -27,8 +39,8 @@ const nextConfig = {
 
   // Environment variables
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333/api',
-    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001',
   },
 
   // Headers for SEO
@@ -64,4 +76,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withNextIntl(nextConfig);

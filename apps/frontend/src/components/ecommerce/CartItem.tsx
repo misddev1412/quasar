@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Button, Image } from '@heroui/react';
 import PriceDisplay from './PriceDisplay';
 import { CartItemData } from './ShoppingCart';
@@ -53,7 +53,7 @@ const CartItem: React.FC<CartItemProps> = ({
       {/* Product Image */}
       {showImage && (
         <div className="flex-shrink-0 w-20 h-20">
-          <Link to={`/products/${slug}`}>
+          <Link href={slug ? `/products/${slug}` : '#'}>
             <Image
               src={images[0] || '/placeholder-product.png'}
               alt={name}
@@ -67,17 +67,15 @@ const CartItem: React.FC<CartItemProps> = ({
       {/* Product Details */}
       <div className="flex-1 flex flex-col">
         <div className="flex-1">
-          <Link 
-            to={`/products/${slug}`}
+          <Link
+            href={slug ? `/products/${slug}` : '#'}
             className="font-medium text-gray-900 hover:text-primary-500 transition-colors"
           >
             {name}
           </Link>
-          
-          {variantText && (
-            <p className="text-sm text-gray-500 mt-1">{variantText}</p>
-          )}
-          
+
+          {variantText && <p className="text-sm text-gray-500 mt-1">{variantText}</p>}
+
           <div className="mt-2">
             <PriceDisplay price={price} currency={currency} />
           </div>
@@ -96,31 +94,21 @@ const CartItem: React.FC<CartItemProps> = ({
               >
                 <span className="text-lg">-</span>
               </Button>
-              
+
               <span className="w-8 text-center">{quantity}</span>
-              
-              <Button
-                isIconOnly
-                size="sm"
-                variant="flat"
-                onPress={handleIncrement}
-              >
+
+              <Button isIconOnly size="sm" variant="flat" onPress={handleIncrement}>
                 <span className="text-lg">+</span>
               </Button>
             </div>
 
             <div className="flex items-center gap-2">
               <span className="font-medium">
-                {currency}{(price * quantity).toFixed(2)}
+                {currency}
+                {(price * quantity).toFixed(2)}
               </span>
-              
-              <Button
-                isIconOnly
-                size="sm"
-                variant="light"
-                color="danger"
-                onPress={handleRemove}
-              >
+
+              <Button isIconOnly size="sm" variant="light" color="danger" onPress={handleRemove}>
                 <span className="text-lg">🗑️</span>
               </Button>
             </div>

@@ -38,10 +38,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
       `}
     >
       {badge && (
-        <Chip
-          color="primary"
-          className="absolute -top-3 left-1/2 transform -translate-x-1/2"
-        >
+        <Chip color="primary" className="absolute -top-3 left-1/2 transform -translate-x-1/2">
           {badge}
         </Chip>
       )}
@@ -49,12 +46,11 @@ export const PricingCard: React.FC<PricingCardProps> = ({
       <CardHeader className="pb-8 pt-4">
         <div className="w-full">
           <h3 className="text-2xl font-bold text-center">{title}</h3>
-          {description && (
-            <p className="text-gray-600 text-center mt-2">{description}</p>
-          )}
+          {description && <p className="text-gray-600 text-center mt-2">{description}</p>}
           <div className="text-center mt-6">
             <span className="text-4xl font-bold">
-              {currency}{price}
+              {currency}
+              {price}
             </span>
             <span className="text-gray-600 ml-2">{period}</span>
           </div>
@@ -90,9 +86,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                   />
                 </svg>
               )}
-              <span className={feature.included ? '' : 'text-gray-400'}>
-                {feature.text}
-              </span>
+              <span className={feature.included ? '' : 'text-gray-400'}>{feature.text}</span>
             </li>
           ))}
         </ul>

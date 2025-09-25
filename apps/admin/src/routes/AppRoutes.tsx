@@ -8,6 +8,8 @@ import ForgotPasswordPage from '../pages/auth/forgot-password';
 import NotFound from '../pages/NotFound';
 import SeoPage from '../pages/seo';
 import SettingsPage from '../pages/settings';
+import BrandAssetsPage from '../pages/brand-assets';
+import AnalyticsConfigurationPage from '../pages/analytics';
 import UserProfilePage from '../pages/profile';
 import UserListPage from '../pages/users';
 import UserCreatePage from '../pages/users/create';
@@ -42,6 +44,7 @@ import BrandsPage from '../pages/products/brands';
 import SuppliersPage from '../pages/products/suppliers';
 import PaymentMethodsPage from '../pages/payment-methods';
 import DeliveryMethodsPage from '../pages/delivery-methods';
+import SupportClientsPage from '../pages/support-clients';
 // Order Management
 import OrdersIndexPage from '../pages/orders';
 import OrderCreatePage from '../pages/orders/create';
@@ -92,6 +95,8 @@ const AppRoutes: React.FC = () => {
       {/* 受保护页面 */}
       <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
       <Route path="/seo" element={<ProtectedRoute><SeoPage /></ProtectedRoute>} />
+      <Route path="/brand-assets" element={<ProtectedRoute><BrandAssetsPage /></ProtectedRoute>} />
+      <Route path="/analytics" element={<ProtectedRoute><AnalyticsConfigurationPage /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       <Route path="/storage" element={<ProtectedRoute><StorageConfigPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
@@ -134,6 +139,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/products/suppliers" element={<ProtectedRoute><SuppliersPage /></ProtectedRoute>} />
       <Route path="/payment-methods" element={<ProtectedRoute><PaymentMethodsPage /></ProtectedRoute>} />
       <Route path="/delivery-methods" element={<ProtectedRoute><DeliveryMethodsPage /></ProtectedRoute>} />
+      <Route path="/support-clients" element={<ProtectedRoute><SupportClientsPage /></ProtectedRoute>} />
       <Route path="/products/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
       <Route path="/products/categories/create" element={<ProtectedRoute><CategoryCreatePage /></ProtectedRoute>} />
       <Route path="/products/categories/:id/edit" element={<ProtectedRoute><EditCategoryPage /></ProtectedRoute>} />

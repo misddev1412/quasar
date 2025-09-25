@@ -175,4 +175,4 @@ textarea:not([rows]) {
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-neutral-300) var(--color-neutral-100);
-} 
+}

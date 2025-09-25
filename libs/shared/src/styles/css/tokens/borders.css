@@ -9,13 +9,13 @@
 
   /* Border Radius */
   --border-radius-none: 0px;
-  --border-radius-sm: 0.125rem;    /* 2px */
-  --border-radius-base: 0.25rem;   /* 4px */
-  --border-radius-md: 0.375rem;    /* 6px */
-  --border-radius-lg: 0.5rem;      /* 8px */
-  --border-radius-xl: 0.75rem;     /* 12px */
-  --border-radius-2xl: 1rem;       /* 16px */
-  --border-radius-3xl: 1.5rem;     /* 24px */
+  --border-radius-sm: 0.125rem; /* 2px */
+  --border-radius-base: 0.25rem; /* 4px */
+  --border-radius-md: 0.375rem; /* 6px */
+  --border-radius-lg: 0.5rem; /* 8px */
+  --border-radius-xl: 0.75rem; /* 12px */
+  --border-radius-2xl: 1rem; /* 16px */
+  --border-radius-3xl: 1.5rem; /* 24px */
   --border-radius-full: 9999px;
 
   /* Border Styles */
@@ -26,11 +26,12 @@
   --border-style-none: none;
 
   /* Semantic Border Combinations */
-  --border-input-default: var(--border-width-1) var(--border-style-solid) var(--color-border-default);
+  --border-input-default: var(--border-width-1) var(--border-style-solid)
+    var(--color-border-default);
   --border-input-focus: var(--border-width-2) var(--border-style-solid) var(--color-border-focus);
   --border-input-error: var(--border-width-1) var(--border-style-solid) var(--color-border-error);
 
   --border-button-default: var(--border-width-1) var(--border-style-solid);
   --border-card-default: var(--border-width-1) var(--border-style-solid) var(--color-border-default);
   --border-divider: var(--border-width-1) var(--border-style-solid) var(--color-border-default);
-} 
+}

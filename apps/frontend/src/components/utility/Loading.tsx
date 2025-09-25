@@ -22,9 +22,7 @@ export const Loading: React.FC<LoadingProps> = ({
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
-        {content}
-      </div>
+      <div className="fixed inset-0 flex items-center justify-center bg-white z-50">{content}</div>
     );
   }
 
@@ -36,11 +34,7 @@ export const Loading: React.FC<LoadingProps> = ({
     );
   }
 
-  return (
-    <div className="flex items-center justify-center p-8">
-      {content}
-    </div>
-  );
+  return <div className="flex items-center justify-center p-8">{content}</div>;
 };
 
 export default Loading;

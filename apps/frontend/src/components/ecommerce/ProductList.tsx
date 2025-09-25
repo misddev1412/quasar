@@ -33,7 +33,10 @@ const ProductList: React.FC<ProductListProps> = ({
 }) => {
   const renderSkeletons = () => {
     return Array.from({ length: skeletonCount }).map((_, index) => (
-      <div key={`skeleton-${index}`} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div
+        key={`skeleton-${index}`}
+        className="bg-white rounded-lg border border-gray-200 overflow-hidden"
+      >
         <div className="flex">
           <div className="w-32 h-32 bg-gray-200 animate-pulse"></div>
           <div className="flex-1 p-4">
@@ -50,11 +53,7 @@ const ProductList: React.FC<ProductListProps> = ({
   };
 
   if (loading) {
-    return (
-      <div className={`space-y-4 ${className}`}>
-        {renderSkeletons()}
-      </div>
-    );
+    return <div className={`space-y-4 ${className}`}>{renderSkeletons()}</div>;
   }
 
   if (error) {

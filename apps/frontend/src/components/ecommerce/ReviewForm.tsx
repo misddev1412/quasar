@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
-import { Button, Card, Input, Textarea, Rating } from '@heroui/react';
+import { Button, Card, Input, Textarea } from '@heroui/react';
+import Rating from '../common/Rating';
 
 interface ReviewFormProps {
-  onSubmit: (review: {
-    rating: number;
-    title: string;
-    comment: string;
-  }) => void;
+  onSubmit: (review: { rating: number; title: string; comment: string }) => void;
   initialRating?: number;
   initialTitle?: string;
   initialComment?: string;
@@ -37,28 +34,28 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
+
     if (rating === 0) {
       newErrors.rating = 'Please select a rating';
     }
-    
+
     if (!title.trim()) {
       newErrors.title = 'Please enter a review title';
     }
-    
+
     if (!comment.trim()) {
       newErrors.comment = 'Please enter your review comments';
     } else if (comment.trim().length < 10) {
       newErrors.comment = 'Review must be at least 10 characters long';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       onSubmit({
         rating,
@@ -77,28 +74,28 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
   const handleRatingChange = (newRating: number) => {
     setRating(newRating);
     if (errors.rating) {
-      setErrors(prev => ({ ...prev, rating: '' }));
+      setErrors((prev) => ({ ...prev, rating: '' }));
     }
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
     if (errors.title) {
-      setErrors(prev => ({ ...prev, title: '' }));
+      setErrors((prev) => ({ ...prev, title: '' }));
     }
   };
 
   const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setComment(e.target.value);
     if (errors.comment) {
-      setErrors(prev => ({ ...prev, comment: '' }));
+      setErrors((prev) => ({ ...prev, comment: '' }));
     }
   };
 
   return (
     <Card className={`p-6 ${className}`}>
       <h3 className="text-lg font-semibold mb-4">Write a Review</h3>
-      
+
       <form onSubmit={handleSubmit}>
         {/* Rating */}
         <div className="mb-4">
@@ -106,19 +103,12 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
             Rating <span className="text-red-500">*</span>
           </label>
           <div className="flex items-center gap-2">
-            <Rating
-              value={rating}
-              onChange={handleRatingChange}
-              size="lg"
-              className="mb-1"
-            />
+            <Rating value={rating} onChange={handleRatingChange} size="lg" className="mb-1" />
             <span className="text-sm text-gray-600">
               {rating > 0 ? `${rating} out of 5` : 'Select a rating'}
             </span>
           </div>
-          {errors.rating && (
-            <p className="mt-1 text-sm text-red-600">{errors.rating}</p>
-          )}
+          {errors.rating && <p className="mt-1 text-sm text-red-600">{errors.rating}</p>}
         </div>
 
         {/* Review Title */}
@@ -160,20 +150,11 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
         {/* Form Actions */}
         <div className="flex justify-end gap-3">
           {showCancelButton && (
-            <Button
-              type="button"
-              variant="flat"
-              onPress={handleCancel}
-              isDisabled={loading}
-            >
+            <Button type="button" variant="flat" onPress={handleCancel} isDisabled={loading}>
               {cancelButtonText}
             </Button>
           )}
-          <Button
-            type="submit"
-            color="primary"
-            isLoading={loading}
-          >
+          <Button type="submit" color="primary" isLoading={loading}>
             {submitButtonText}
           </Button>
         </div>

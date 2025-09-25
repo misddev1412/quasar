@@ -112,7 +112,7 @@
   --color-border-error: var(--color-error-600);
   --color-border-success: var(--color-success-600);
   --color-border-warning: var(--color-warning-600);
-  
+
   /* State Colors */
   --color-hover-primary: var(--color-primary-700);
   --color-hover-secondary: var(--color-neutral-200);
@@ -167,7 +167,7 @@
   --color-border-error: var(--color-error-400);
   --color-border-success: var(--color-success-400);
   --color-border-warning: var(--color-warning-400);
-  
+
   /* State Colors */
   --color-hover-primary: var(--color-primary-400);
   --color-hover-secondary: var(--color-neutral-700);
@@ -196,4 +196,4 @@
   --border: 240 3.7% 15.9%;
   --input: 240 3.7% 15.9%;
   --ring: 240 4.9% 83.9%;
-} 
+}

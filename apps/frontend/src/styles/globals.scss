@@ -1,0 +1,561 @@
+/* Global Styles for Frontend Application */
+
+/* Import Tailwind CSS base, components, and utilities */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import shared design system - commented out to avoid conflicts */
+/* @import '@quasar/shared/styles/css/index.css'; */
+
+/* Root Variables Override for Consistent Design */
+:root {
+  /* Enhanced Spacing for better consistency */
+  --input-padding-x: 1rem;
+  --input-padding-y: 0.75rem;
+  --button-padding-x: 1.5rem;
+  --button-padding-y: 0.75rem;
+
+  /* Consistent Border Radius */
+  --radius-input: 0.5rem;
+  --radius-button: 0.5rem;
+  --radius-card: 0.75rem;
+
+  /* Form Element Heights */
+  --input-height-sm: 2.25rem;
+  --input-height-base: 2.75rem;
+  --input-height-lg: 3.25rem;
+
+  /* Consistent Transitions */
+  --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base Layer - Applied globally */
+@layer base {
+  * {
+    @apply border-gray-200 dark:border-gray-700;
+  }
+
+  html,
+  body {
+    @apply transition-colors duration-200;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    @apply bg-white text-gray-900;
+  }
+
+  html.dark {
+    @apply bg-gray-900 text-gray-100;
+  }
+
+  body {
+    @apply bg-white text-gray-900;
+  }
+
+  .dark body {
+    background-color: rgb(17 24 39) !important; /* gray-900 */
+    color: rgb(243 244 246) !important; /* gray-100 */
+  }
+
+  /* Consistent Typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl mb-6;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl mb-5;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl mb-4;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl mb-3;
+  }
+
+  h5 {
+    @apply text-lg md:text-xl mb-2;
+  }
+
+  h6 {
+    @apply text-base md:text-lg mb-2;
+  }
+
+  p {
+    @apply leading-relaxed mb-4;
+  }
+
+  a {
+    @apply text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors;
+  }
+}
+
+/* Components Layer - Reusable components */
+@layer components {
+  /* Container with consistent padding */
+  .container {
+    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+
+  /* Card Component */
+  .card {
+    @apply bg-white text-gray-900 rounded-lg border border-gray-200 shadow-sm;
+    @apply dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700;
+  }
+
+  .card-header {
+    @apply p-6 pb-4;
+  }
+
+  .card-content {
+    @apply p-6 pt-0;
+  }
+
+  .card-footer {
+    @apply p-6 pt-0 flex items-center justify-between;
+  }
+
+  /* Consistent Form Inputs */
+  .form-input {
+    @apply w-full px-4 py-3
+           bg-white dark:bg-gray-800
+           border border-gray-300 dark:border-gray-600 rounded-lg
+           text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400
+           focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-all duration-200;
+  }
+
+  .form-textarea {
+    @apply form-input min-h-[120px] resize-y;
+  }
+
+  .form-select {
+    @apply form-input appearance-none bg-no-repeat pr-10;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-size: 20px;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2;
+  }
+
+  .form-group {
+    @apply mb-5;
+  }
+
+  .form-error {
+    @apply text-sm text-red-600 mt-1.5;
+  }
+
+  .form-hint {
+    @apply text-sm text-gray-500 mt-1.5;
+  }
+
+  /* Consistent Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center
+           px-6 py-3
+           font-medium text-sm
+           rounded-lg
+           transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-offset-2
+           disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-primary {
+    @apply btn
+           bg-blue-600 text-white
+           hover:bg-blue-700
+           focus:ring-blue-500;
+  }
+
+  .btn-secondary {
+    @apply btn
+           bg-gray-600 text-white
+           hover:bg-gray-700
+           focus:ring-gray-500;
+  }
+
+  .btn-outline {
+    @apply btn
+           border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800
+           text-gray-900 dark:text-gray-100
+           hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100
+           focus:ring-blue-500;
+  }
+
+  .btn-ghost {
+    @apply btn
+           text-gray-900 dark:text-gray-100
+           hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100
+           focus:ring-blue-500;
+  }
+
+  .btn-destructive {
+    @apply btn
+           bg-red-600 text-white
+           hover:bg-red-700
+           focus:ring-red-500;
+  }
+
+  .btn-sm {
+    @apply px-4 py-2 text-xs;
+  }
+
+  .btn-lg {
+    @apply px-8 py-4 text-base;
+  }
+
+  /* Enhanced Checkbox and Radio */
+  .form-checkbox,
+  .form-radio {
+    @apply w-5 h-5
+           text-blue-600 dark:text-blue-400
+           bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600
+           focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-2 dark:focus:ring-offset-gray-900
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-all duration-200;
+  }
+
+  .form-checkbox {
+    @apply rounded;
+  }
+
+  .form-radio {
+    @apply rounded-full;
+  }
+
+  /* Consistent Spacing Classes */
+  .section {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+
+  .section-compact {
+    @apply py-8 md:py-10 lg:py-12;
+  }
+
+  .section-large {
+    @apply py-16 md:py-20 lg:py-24;
+  }
+
+  /* Grid System */
+  .grid-responsive {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  .grid-responsive-4 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6;
+  }
+
+  /* Utility Classes for Consistent Spacing */
+  .stack {
+    @apply flex flex-col gap-4;
+  }
+
+  .stack-sm {
+    @apply flex flex-col gap-2;
+  }
+
+  .stack-lg {
+    @apply flex flex-col gap-6;
+  }
+
+  .inline-stack {
+    @apply flex items-center gap-4;
+  }
+
+  .inline-stack-sm {
+    @apply flex items-center gap-2;
+  }
+
+  .inline-stack-lg {
+    @apply flex items-center gap-6;
+  }
+
+  /* Loading States */
+  .skeleton {
+    @apply animate-pulse bg-gray-200 dark:bg-gray-700 rounded;
+  }
+
+  .spinner {
+    @apply inline-block w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin;
+  }
+
+  /* Overlay */
+  .overlay {
+    @apply fixed inset-0 bg-black/50 z-40;
+  }
+
+  /* Modal */
+  .modal {
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+  }
+
+  .modal-content {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-auto;
+  }
+
+  .modal-header {
+    @apply p-6 pb-4 border-b border-gray-200 dark:border-gray-700;
+  }
+
+  .modal-body {
+    @apply p-6;
+  }
+
+  .modal-footer {
+    @apply p-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-end gap-3;
+  }
+
+  /* Alert Component */
+  .alert {
+    @apply p-4 rounded-lg border;
+  }
+
+  .alert-info {
+    @apply alert bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-100;
+  }
+
+  .alert-success {
+    @apply alert bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-900 dark:text-green-100;
+  }
+
+  .alert-warning {
+    @apply alert bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-900 dark:text-yellow-100;
+  }
+
+  .alert-error {
+    @apply alert bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-900 dark:text-red-100;
+  }
+
+  /* Badge Component */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-primary {
+    @apply badge bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200;
+  }
+
+  .badge-secondary {
+    @apply badge bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200;
+  }
+
+  .badge-success {
+    @apply badge bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200;
+  }
+
+  .badge-warning {
+    @apply badge bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200;
+  }
+
+  .badge-error {
+    @apply badge bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200;
+  }
+
+  /* Table Styles */
+  .table-container {
+    @apply w-full overflow-x-auto;
+  }
+
+  .table {
+    @apply w-full text-sm;
+  }
+
+  .table thead {
+    @apply bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700;
+  }
+
+  .table th {
+    @apply px-4 py-3 text-left font-medium text-gray-900 dark:text-gray-100;
+  }
+
+  .table tbody tr {
+    @apply border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors;
+  }
+
+  .table td {
+    @apply px-4 py-3 text-gray-900 dark:text-gray-100;
+  }
+
+  /* Divider */
+  .divider {
+    @apply border-t border-gray-200 dark:border-gray-700 my-6;
+  }
+
+  .divider-vertical {
+    @apply border-l border-gray-200 dark:border-gray-700 mx-4 h-full;
+  }
+
+  /* Focus Visible Utilities */
+  .focus-visible {
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2;
+  }
+
+  /* Scrollbar Styling */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400 dark:bg-gray-500;
+  }
+}
+
+/* Utilities Layer - Single-purpose utility classes */
+@layer utilities {
+  /* Text Utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Animation Utilities */
+  .animate-in {
+    animation: animateIn 0.3s ease-out;
+  }
+
+  .animate-out {
+    animation: animateOut 0.3s ease-in;
+  }
+
+  @keyframes animateIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes animateOut {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+
+  /* Gradient Text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent;
+  }
+
+  /* No Scrollbar */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Safe Area Insets */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  body {
+    font-size: 12pt;
+  }
+
+  a {
+    text-decoration: underline;
+  }
+
+  .btn,
+  button {
+    border: 1px solid currentColor;
+  }
+}
+
+/* Additional Dark Mode Enhancements */
+.dark {
+  /* Scrollbar colors for dark mode */
+  .custom-scrollbar {
+    scrollbar-color: #4b5563 transparent;
+  }
+
+  /* Selection colors */
+  ::selection {
+    @apply bg-blue-600/30 text-blue-100;
+  }
+}
+
+/* Responsive Typography Scale */
+@media (min-width: 640px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  html {
+    font-size: 17px;
+  }
+}
+
+@media (min-width: 1536px) {
+  html {
+    font-size: 18px;
+  }
+}

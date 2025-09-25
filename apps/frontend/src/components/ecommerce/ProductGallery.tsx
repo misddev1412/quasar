@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Image } from '@heroui/react';
-import { Modal } from '@heroui/react';
+import Modal from '../common/Modal';
 
 interface ProductGalleryProps {
   images: string[];
@@ -53,7 +53,9 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
 
   if (!images || images.length === 0) {
     return (
-      <div className={`bg-gray-200 rounded-lg flex items-center justify-center ${imageHeight} ${className}`}>
+      <div
+        className={`bg-gray-200 rounded-lg flex items-center justify-center ${imageHeight} ${className}`}
+      >
         <span className="text-gray-500">No images available</span>
       </div>
     );
@@ -70,7 +72,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
           removeWrapper
           onClick={handleZoomOpen}
         />
-        
+
         {/* Navigation Arrows */}
         {images.length > 1 && (
           <>
@@ -94,7 +96,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
             </Button>
           </>
         )}
-        
+
         {/* Zoom Button */}
         {showZoom && (
           <Button
@@ -107,7 +109,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
             <span className="text-lg">🔍</span>
           </Button>
         )}
-        
+
         {/* Image Counter */}
         {images.length > 1 && (
           <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
@@ -156,7 +158,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
           >
             <span className="text-lg">✕</span>
           </Button>
-          
+
           <div className="flex items-center justify-center min-h-screen">
             <Image
               src={images[currentIndex] || '/placeholder-product.png'}
@@ -165,7 +167,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
               removeWrapper
             />
           </div>
-          
+
           {/* Navigation Arrows in Zoom Modal */}
           {images.length > 1 && (
             <>
@@ -189,7 +191,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
               </Button>
             </>
           )}
-          
+
           {/* Image Counter in Zoom Modal */}
           {images.length > 1 && (
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white text-sm px-3 py-1 rounded">

@@ -11,7 +11,8 @@ import {
   Globe,
   Menu,
   X,
-  Mail
+  Mail,
+  Image
 } from 'lucide-react';
 import Logo from './Logo';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -60,6 +61,12 @@ export const HorizontalNav: React.FC = () => {
       label: t('admin.mail_templates'),
       translationKey: 'admin.mail_templates',
       path: '/mail-templates'
+    },
+    {
+      icon: <Image size={18} />,
+      label: t('brand.assets_title', 'Brand Assets'),
+      translationKey: 'brand.assets_title',
+      path: '/brand-assets'
     },
     {
       icon: <Settings size={18} />,

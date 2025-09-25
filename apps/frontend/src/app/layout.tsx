@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { Providers } from './providers';
-import Layout from '../components/Layout';
 import '../styles.scss';
+import { Providers } from './providers';
+import NextIntlProvider from '../components/NextIntlProvider';
+import enMessages from '../i18n/locales/en.json';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -65,11 +66,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -78,9 +75,11 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body className={inter.className}>
-        <Providers>
-          <Layout>{children}</Layout>
-        </Providers>
+        <NextIntlProvider locale="en" messages={enMessages}>
+          <Providers>
+            {children}
+          </Providers>
+        </NextIntlProvider>
       </body>
     </html>
   );

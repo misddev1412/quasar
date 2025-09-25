@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Card, Chip } from '@heroui/react';
 import { Category } from './CategoryList';
 
@@ -20,15 +20,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   imageHeight = 'h-48',
   onCategoryClick,
 }) => {
-  const {
-    id,
-    name,
-    slug,
-    description,
-    image,
-    productCount,
-    featured,
-  } = category;
+  const { id, name, slug, description, image, productCount, featured } = category;
 
   const handleClick = () => {
     if (onCategoryClick) {
@@ -38,7 +30,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
 
   return (
     <Link
-      to={`/categories/${slug}`}
+      href={slug ? `/categories/${slug}` : '#'}
       className={`group ${className}`}
       onClick={handleClick}
     >
@@ -56,34 +48,36 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
               <span className="text-white text-4xl font-bold">{name.charAt(0)}</span>
             </div>
           )}
-          
+
           {/* Featured Badge */}
           {featured && (
             <Chip size="sm" color="primary" className="absolute top-2 left-2">
               Featured
             </Chip>
           )}
-          
+
           {/* Product Count Badge */}
           {showProductCount && productCount !== undefined && (
-            <Chip size="sm" variant="flat" className="absolute top-2 right-2 bg-white bg-opacity-80">
+            <Chip
+              size="sm"
+              variant="flat"
+              className="absolute top-2 right-2 bg-white bg-opacity-80"
+            >
               {productCount} {productCount === 1 ? 'product' : 'products'}
             </Chip>
           )}
         </div>
-        
+
         {/* Category Info */}
         <div className="p-4">
           <h3 className="font-semibold text-gray-900 group-hover:text-primary-500 transition-colors mb-2">
             {name}
           </h3>
-          
+
           {showDescription && description && (
-            <p className="text-sm text-gray-500 line-clamp-2">
-              {description}
-            </p>
+            <p className="text-sm text-gray-500 line-clamp-2">{description}</p>
           )}
-          
+
           {/* View Products Button */}
           <div className="mt-4">
             <span className="text-sm font-medium text-primary-500 group-hover:text-primary-600 transition-colors">

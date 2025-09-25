@@ -1,8 +1,4 @@
-import {
-  createTRPCReact,
-  createTRPCProxyClient,
-  CreateTRPCClientOptions,
-} from '@trpc/react-query';
+import { createTRPCReact, createTRPCProxyClient, CreateTRPCClientOptions } from '@trpc/react-query';
 import { httpBatchLink, httpLink, splitLink, TRPCLink } from '@trpc/client';
 import { errorLink } from './trpc-error-link';
 import type { AppRouter } from '../types/trpc';
@@ -122,11 +118,9 @@ export const trpcClient = createTRPCProxyClient<any>({
 });
 
 // Factory function to create tRPC client with options
-export const createTrpcClient = (
-  options?: Omit<CreateTRPCClientOptions<any>, 'links'>
-) => {
+export const createTrpcClient = (options?: Omit<CreateTRPCClientOptions<any>, 'links'>) => {
   return (trpc as any).createClient({
     ...options,
-    links
+    links,
   });
 };

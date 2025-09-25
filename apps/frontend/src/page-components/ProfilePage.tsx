@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { useProtectedRoute } from '../hooks/useProtectedRoute';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,7 +9,6 @@ import { Container } from '../components/common/Container';
 import { Loading } from '../components/utility/Loading';
 import { Card, CardBody, CardHeader } from '@heroui/react';
 import { Button } from '../components/common/Button';
-import { SEO } from '../components/utility/SEO';
 import { User, Lock, Settings, Bell, Shield } from 'lucide-react';
 
 const ProfilePage = () => {
@@ -36,7 +37,7 @@ const ProfilePage = () => {
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
     email: user?.email || '',
-    phone: '',  // Phone is not part of User interface, kept for form
+    phone: '', // Phone is not part of User interface, kept for form
     avatar: user?.avatar || '',
   });
 
@@ -65,7 +66,7 @@ const ProfilePage = () => {
           avatar: data.avatar || user?.avatar,
         });
         refetch();
-      }
+      },
     });
   };
 
@@ -82,19 +83,22 @@ const ProfilePage = () => {
       return;
     }
 
-    changePasswordMutation.mutate({
-      oldPassword: passwordData.currentPassword,
-      newPassword: passwordData.newPassword,
-    }, {
-      onSuccess: () => {
-        // Reset form
-        setPasswordData({
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: '',
-        });
+    changePasswordMutation.mutate(
+      {
+        oldPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      },
+      {
+        onSuccess: () => {
+          // Reset form
+          setPasswordData({
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: '',
+          });
+        },
       }
-    });
+    );
   };
 
   const handleNotificationPreferencesChange = (e: React.FormEvent) => {
@@ -109,16 +113,10 @@ const ProfilePage = () => {
 
   return (
     <>
-      <SEO
-        title="My Profile"
-        description="Manage your account settings and preferences"
-      />
       <Container className="py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-          <p className="text-gray-600 mt-2">
-            Manage your account settings and preferences
-          </p>
+          <p className="text-gray-600 mt-2">Manage your account settings and preferences</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -138,7 +136,7 @@ const ProfilePage = () => {
                     <User className="mr-3 h-5 w-5" />
                     Profile Information
                   </button>
-                  
+
                   <button
                     onClick={() => setActiveTab('security')}
                     className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
@@ -150,7 +148,7 @@ const ProfilePage = () => {
                     <Lock className="mr-3 h-5 w-5" />
                     Security
                   </button>
-                  
+
                   <button
                     onClick={() => setActiveTab('notifications')}
                     className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
@@ -174,15 +172,16 @@ const ProfilePage = () => {
               <Card>
                 <CardHeader>
                   <h2 className="text-xl font-semibold">Profile Information</h2>
-                  <p className="text-gray-600">
-                    Update your account information
-                  </p>
+                  <p className="text-gray-600">Update your account information</p>
                 </CardHeader>
                 <CardBody>
                   <form onSubmit={handleProfileSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="name"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Full Name
                         </label>
                         <input
@@ -194,49 +193,64 @@ const ProfilePage = () => {
                           required
                         />
                       </div>
-                      
+
                       <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="email"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Email Address
                         </label>
                         <input
                           type="email"
                           id="email"
                           value={profileData.email}
-                          onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                          onChange={(e) =>
+                            setProfileData({ ...profileData, email: e.target.value })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           required
                         />
                       </div>
-                      
+
                       <div>
-                        <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="phone"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Phone Number
                         </label>
                         <input
                           type="tel"
                           id="phone"
                           value={profileData.phone}
-                          onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                          onChange={(e) =>
+                            setProfileData({ ...profileData, phone: e.target.value })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
-                      
+
                       <div>
-                        <label htmlFor="avatar" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="avatar"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           Profile Picture URL
                         </label>
                         <input
                           type="url"
                           id="avatar"
                           value={profileData.avatar}
-                          onChange={(e) => setProfileData({ ...profileData, avatar: e.target.value })}
+                          onChange={(e) =>
+                            setProfileData({ ...profileData, avatar: e.target.value })
+                          }
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="https://example.com/avatar.jpg"
                         />
                       </div>
                     </div>
-                    
+
                     <div className="flex justify-end">
                       <Button
                         type="submit"
@@ -256,35 +270,43 @@ const ProfilePage = () => {
               <Card>
                 <CardHeader>
                   <h2 className="text-xl font-semibold">Security</h2>
-                  <p className="text-gray-600">
-                    Manage your password and security settings
-                  </p>
+                  <p className="text-gray-600">Manage your password and security settings</p>
                 </CardHeader>
                 <CardBody>
                   <form onSubmit={handlePasswordSubmit} className="space-y-6">
                     <div>
-                      <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="currentPassword"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Current Password
                       </label>
                       <input
                         type="password"
                         id="currentPassword"
                         value={passwordData.currentPassword}
-                        onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                        onChange={(e) =>
+                          setPasswordData({ ...passwordData, currentPassword: e.target.value })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         required
                       />
                     </div>
-                    
+
                     <div>
-                      <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="newPassword"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         New Password
                       </label>
                       <input
                         type="password"
                         id="newPassword"
                         value={passwordData.newPassword}
-                        onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                        onChange={(e) =>
+                          setPasswordData({ ...passwordData, newPassword: e.target.value })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         required
                       />
@@ -292,21 +314,26 @@ const ProfilePage = () => {
                         Password must be at least 8 characters long
                       </p>
                     </div>
-                    
+
                     <div>
-                      <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label
+                        htmlFor="confirmPassword"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
                         Confirm New Password
                       </label>
                       <input
                         type="password"
                         id="confirmPassword"
                         value={passwordData.confirmPassword}
-                        onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                        onChange={(e) =>
+                          setPasswordData({ ...passwordData, confirmPassword: e.target.value })
+                        }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         required
                       />
                     </div>
-                    
+
                     <div className="flex justify-end">
                       <Button
                         type="submit"
@@ -326,45 +353,59 @@ const ProfilePage = () => {
               <Card>
                 <CardHeader>
                   <h2 className="text-xl font-semibold">Notification Preferences</h2>
-                  <p className="text-gray-600">
-                    Choose how you want to receive notifications
-                  </p>
+                  <p className="text-gray-600">Choose how you want to receive notifications</p>
                 </CardHeader>
                 <CardBody>
                   <form onSubmit={handleNotificationPreferencesChange} className="space-y-6">
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h3 className="text-base font-medium text-gray-900">Email Notifications</h3>
+                          <h3 className="text-base font-medium text-gray-900">
+                            Email Notifications
+                          </h3>
                           <p className="text-sm text-gray-500">Receive notifications via email</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
                             checked={notificationPreferences.email}
-                            onChange={(e) => setNotificationPreferences({ ...notificationPreferences, email: e.target.checked })}
+                            onChange={(e) =>
+                              setNotificationPreferences({
+                                ...notificationPreferences,
+                                email: e.target.checked,
+                              })
+                            }
                             className="sr-only peer"
                           />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div>
-                          <h3 className="text-base font-medium text-gray-900">Push Notifications</h3>
-                          <p className="text-sm text-gray-500">Receive push notifications in your browser</p>
+                          <h3 className="text-base font-medium text-gray-900">
+                            Push Notifications
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            Receive push notifications in your browser
+                          </p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
                             checked={notificationPreferences.push}
-                            onChange={(e) => setNotificationPreferences({ ...notificationPreferences, push: e.target.checked })}
+                            onChange={(e) =>
+                              setNotificationPreferences({
+                                ...notificationPreferences,
+                                push: e.target.checked,
+                              })
+                            }
                             className="sr-only peer"
                           />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div>
                           <h3 className="text-base font-medium text-gray-900">SMS Notifications</h3>
@@ -374,19 +415,21 @@ const ProfilePage = () => {
                           <input
                             type="checkbox"
                             checked={notificationPreferences.sms}
-                            onChange={(e) => setNotificationPreferences({ ...notificationPreferences, sms: e.target.checked })}
+                            onChange={(e) =>
+                              setNotificationPreferences({
+                                ...notificationPreferences,
+                                sms: e.target.checked,
+                              })
+                            }
                             className="sr-only peer"
                           />
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                       </div>
                     </div>
-                    
+
                     <div className="flex justify-end">
-                      <Button
-                        type="submit"
-                        color="primary"
-                      >
+                      <Button type="submit" color="primary">
                         Save Preferences
                       </Button>
                     </div>

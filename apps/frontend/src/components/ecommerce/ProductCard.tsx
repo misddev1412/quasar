@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Button, Image } from '@heroui/react';
 import { PriceDisplay } from './PriceDisplay';
 import { Rating } from './Rating';
@@ -100,10 +100,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   return (
-    <div className={`group relative bg-white rounded-lg border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-lg ${className}`}>
+    <div
+      className={`group relative bg-white rounded-lg border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-lg ${className}`}
+    >
       {/* Product Image */}
       <div className={`relative overflow-hidden ${imageHeight}`}>
-        <Link to={`/products/${slug}`}>
+        <Link href={slug ? `/products/${slug}` : '#'}>
           <Image
             src={images[0] || '/placeholder-product.png'}
             alt={name}
@@ -111,21 +113,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
             removeWrapper
           />
         </Link>
-        
+
         {/* Discount Badge */}
         {discountPercentage && (
           <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
             -{discountPercentage}%
           </div>
         )}
-        
+
         {/* Out of Stock Badge */}
         {!inStock && (
           <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <span className="text-white font-bold text-lg">Out of Stock</span>
           </div>
         )}
-        
+
         {/* Action Buttons */}
         <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           {showWishlist && (
@@ -152,59 +154,46 @@ const ProductCard: React.FC<ProductCardProps> = ({
           )}
         </div>
       </div>
-      
+
       {/* Product Info */}
       <div className="p-4">
         {/* Category */}
         {category && (
-          <Link 
-            to={`/categories/${category.slug}`}
+          <Link
+            href={category?.slug ? `/categories/${category.slug}` : '#'}
             className="text-xs text-gray-500 hover:text-primary-500 transition-colors"
           >
             {category.name}
           </Link>
         )}
-        
+
         {/* Product Name */}
-        <Link to={`/products/${slug}`} className="block mt-1">
+        <Link href={slug ? `/products/${slug}` : '#'} className="block mt-1">
           <h3 className="font-medium text-gray-900 line-clamp-2 group-hover:text-primary-500 transition-colors">
             {name}
           </h3>
         </Link>
-        
+
         {/* Product Description */}
-        <p className="mt-1 text-sm text-gray-500 line-clamp-2">
-          {description}
-        </p>
-        
+        <p className="mt-1 text-sm text-gray-500 line-clamp-2">{description}</p>
+
         {/* Rating */}
         {rating && (
           <div className="mt-2 flex items-center">
             <Rating value={rating} size="sm" readonly />
-            {reviewCount && (
-              <span className="ml-1 text-xs text-gray-500">({reviewCount})</span>
-            )}
+            {reviewCount && <span className="ml-1 text-xs text-gray-500">({reviewCount})</span>}
           </div>
         )}
-        
+
         {/* Price */}
         <div className="mt-2">
-          <PriceDisplay 
-            price={price} 
-            originalPrice={originalPrice}
-            size="md"
-          />
+          <PriceDisplay price={price} originalPrice={originalPrice} size="md" />
         </div>
-        
+
         {/* Add to Cart Button */}
         {showAddToCart && inStock && (
           <div className="mt-3">
-            <AddToCartButton
-              product={product}
-              onAddToCart={onAddToCart}
-              fullWidth
-              size="sm"
-            />
+            <AddToCartButton product={product} onAddToCart={onAddToCart} fullWidth size="sm" />
           </div>
         )}
       </div>

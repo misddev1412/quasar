@@ -1,5 +1,6 @@
+'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { Input, Button, Card, Divider } from '@heroui/react';
 import { Product } from './ProductCard';
 
@@ -40,8 +41,8 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  
-  const navigate = useNavigate();
+
+  const router = useRouter();
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout>();
@@ -82,16 +83,17 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!showDropdown) return;
 
-      const totalItems = suggestions.length + (showRecentSearches && query === '' ? recentSearches.length : 0);
-      
+      const totalItems =
+        suggestions.length + (showRecentSearches && query === '' ? recentSearches.length : 0);
+
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault();
-          setSelectedIndex(prev => (prev < totalItems - 1 ? prev + 1 : prev));
+          setSelectedIndex((prev) => (prev < totalItems - 1 ? prev + 1 : prev));
           break;
         case 'ArrowUp':
           e.preventDefault();
-          setSelectedIndex(prev => (prev > 0 ? prev - 1 : -1));
+          setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
           break;
         case 'Enter':
           e.preventDefault();
@@ -163,18 +165,21 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
           inStock: true,
           slug: 'smartphone-case',
         },
-      ].filter(product => 
-        product.name.toLowerCase().includes(query.toLowerCase()) ||
-        product.description.toLowerCase().includes(query.toLowerCase())
+      ].filter(
+        (product) =>
+          product.name.toLowerCase().includes(query.toLowerCase()) ||
+          product.description.toLowerCase().includes(query.toLowerCase())
       );
-      
+
       setSuggestions(mockSuggestions.slice(0, maxSuggestions));
       return;
     }
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${searchEndpoint}?q=${encodeURIComponent(query)}&limit=${maxSuggestions}`);
+      const response = await fetch(
+        `${searchEndpoint}?q=${encodeURIComponent(query)}&limit=${maxSuggestions}`
+      );
       if (response.ok) {
         const data = await response.json();
         setSuggestions(data.products || []);
@@ -190,11 +195,11 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
     if (!query.trim()) return;
 
     // Add to recent searches
-    const updatedSearches = [
-      query,
-      ...recentSearches.filter(search => search !== query)
-    ].slice(0, maxRecentSearches);
-    
+    const updatedSearches = [query, ...recentSearches.filter((search) => search !== query)].slice(
+      0,
+      maxRecentSearches
+    );
+
     setRecentSearches(updatedSearches);
     setShowDropdown(false);
     setSelectedIndex(-1);
@@ -202,7 +207,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
     if (onSearch) {
       onSearch(query);
     } else {
-      navigate(`/search?q=${encodeURIComponent(query)}`);
+      router.push(`/search?q=${encodeURIComponent(query)}`);
     }
   };
 
@@ -219,7 +224,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
     if (onSuggestionSelect) {
       onSuggestionSelect(product);
     } else {
-      navigate(`/products/${product.slug}`);
+      router.push(`/products/${product.slug}`);
     }
   };
 
@@ -227,11 +232,11 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
     setQuery(searchTerm);
     setShowDropdown(false);
     setSelectedIndex(-1);
-    
+
     if (onSearch) {
       onSearch(searchTerm);
     } else {
-      navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+      router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
     }
   };
 
@@ -279,12 +284,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
           }
           startContent={<span className="text-lg mr-2">🔍</span>}
         />
-        <Button 
-          type="submit" 
-          color="primary" 
-          size={size}
-          className="ml-2"
-        >
+        <Button type="submit" color="primary" size={size} className="ml-2">
           Search
         </Button>
       </form>
@@ -298,9 +298,9 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
               <div className="p-3">
                 <div className="flex justify-between items-center mb-2">
                   <h4 className="text-sm font-semibold text-gray-700">Recent Searches</h4>
-                  <Button 
-                    size="sm" 
-                    variant="light" 
+                  <Button
+                    size="sm"
+                    variant="light"
                     onPress={handleClearRecentSearches}
                     className="text-xs"
                   >
@@ -354,9 +354,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
                         <div className="text-sm font-medium truncate">{product.name}</div>
                         <div className="text-xs text-gray-500 truncate">{product.description}</div>
                       </div>
-                      <div className="text-sm font-medium">
-                        ${product.price.toFixed(2)}
-                      </div>
+                      <div className="text-sm font-medium">${product.price.toFixed(2)}</div>
                     </div>
                   );
                 })}
@@ -365,11 +363,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
           )}
 
           {/* Loading State */}
-          {isLoading && (
-            <div className="p-4 text-center text-gray-500">
-              Loading suggestions...
-            </div>
-          )}
+          {isLoading && <div className="p-4 text-center text-gray-500">Loading suggestions...</div>}
         </Card>
       )}
     </div>

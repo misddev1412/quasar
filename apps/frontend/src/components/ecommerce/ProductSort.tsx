@@ -33,7 +33,7 @@ const ProductSort: React.FC<ProductSortProps> = ({
   showLabel = true,
   disabled = false,
 }) => {
-  const selectedSortOption = options.find(option => option.id === selectedOption) || options[0];
+  const selectedSortOption = options.find((option) => option.id === selectedOption) || options[0];
 
   const handleSortChange = (keys: Set<string>) => {
     const selectedKey = Array.from(keys)[0];
@@ -44,10 +44,8 @@ const ProductSort: React.FC<ProductSortProps> = ({
 
   return (
     <div className={`flex items-center ${className}`}>
-      {showLabel && (
-        <span className="text-sm text-gray-600 mr-2">{label}:</span>
-      )}
-      
+      {showLabel && <span className="text-sm text-gray-600 mr-2">{label}:</span>}
+
       <Dropdown>
         <DropdownTrigger>
           <Button
@@ -61,16 +59,19 @@ const ProductSort: React.FC<ProductSortProps> = ({
             {selectedSortOption?.name || 'Select'}
           </Button>
         </DropdownTrigger>
-        <DropdownMenu 
+        <DropdownMenu
           aria-label="Sort options"
           selectionMode="single"
           selectedKeys={[selectedOption || options[0]?.id]}
           onSelectionChange={(keys) => handleSortChange(keys as Set<string>)}
           variant="flat"
-          disabledKeys={disabled ? options.map(o => o.id) : []}
+          disabledKeys={disabled ? options.map((o) => o.id) : []}
         >
           {options.map((option) => (
-            <DropdownItem key={option.id} startContent={option.icon && <span className="text-lg mr-2">{option.icon}</span>}>
+            <DropdownItem
+              key={option.id}
+              startContent={option.icon && <span className="text-lg mr-2">{option.icon}</span>}
+            >
               {option.name}
             </DropdownItem>
           ))}

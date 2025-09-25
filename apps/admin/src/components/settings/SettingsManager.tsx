@@ -269,7 +269,7 @@ const CategorySidebar: React.FC<{
   };
   
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-100 p-5 h-fit lg:sticky lg:top-20">
+    <div className="bg-white rounded-lg shadow-md border border-gray-100 p-5 h-fit lg:sticky lg:top-4">
       <h2 className="font-medium text-lg mb-4 pb-2 border-b border-gray-100">{t('settings.categories', '设置分类')}</h2>
       <nav className="space-y-2">
         <button
@@ -347,7 +347,56 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   // 如果外部没有提供模态框控制，则使用内部状态
   const [internalModalOpen, setInternalModalOpen] = useState(false);
-  const { groupedSettings, isLoading, updateSetting } = useSettings();
+  const { groupedSettings: rawGroupedSettings, isLoading, updateSetting } = useSettings();
+
+  // Filter out settings that have dedicated management pages
+  const excludedKeys = [
+    // Brand assets - managed in Brand Assets page
+    'site.logo',
+    'site.favicon',
+    'site.footer_logo',
+    'site.og_image',
+    'site.login_background',
+    // Storage settings - managed in Storage page
+    'storage.provider',
+    'storage.local.upload_path',
+    'storage.local.base_url',
+    'storage.s3.access_key',
+    'storage.s3.secret_key',
+    'storage.s3.region',
+    'storage.s3.bucket',
+    'storage.s3.endpoint',
+    'storage.s3.force_path_style',
+    'storage.max_file_size',
+    'storage.allowed_file_types',
+    // Analytics settings - managed in Analytics page
+    'analytics.google_analytics_enabled',
+    'analytics.google_analytics_id',
+    'analytics.mixpanel_enabled',
+    'analytics.mixpanel_token',
+    'analytics.mixpanel_api_host',
+    'analytics.track_admin_actions',
+    'analytics.anonymize_ip'
+  ];
+
+  const groupedSettings = React.useMemo(() => {
+    if (!rawGroupedSettings) return rawGroupedSettings;
+
+    const filteredSettings: typeof rawGroupedSettings = {};
+
+    Object.keys(rawGroupedSettings).forEach(group => {
+      const settings = rawGroupedSettings[group];
+      const filteredGroupSettings = settings.filter(setting =>
+        !excludedKeys.includes(setting.key)
+      );
+
+      if (filteredGroupSettings.length > 0) {
+        filteredSettings[group] = filteredGroupSettings;
+      }
+    });
+
+    return filteredSettings;
+  }, [rawGroupedSettings]);
   const { t } = useTranslationWithBackend();
 
   // 确定是否显示模态框
@@ -400,6 +449,17 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
         description: "Enable or disable maintenance mode",
         group: "general",
         isPublic: false
+      }
+    ],
+    "appearance": [
+      {
+        id: "placeholder7",
+        key: "theme_mode",
+        value: "light",
+        type: "string",
+        description: "Default theme mode (light/dark)",
+        group: "appearance",
+        isPublic: true
       }
     ],
     "other": [
@@ -457,6 +517,7 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
             <EmptyState onCreateClick={handleOpenModal} />
           ) : (
             <>
+
               {selectedGroup === null ? (
                 // 所有分组
                 Object.entries(settingsToDisplay).map(([group, settings]) => (

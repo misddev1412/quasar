@@ -29,6 +29,7 @@ interface DeliveryMethodFormData {
   trackingEnabled: boolean;
   insuranceEnabled: boolean;
   signatureRequired: boolean;
+  useThirdPartyIntegration: boolean;
   iconUrl: string;
   isActive: boolean;
   isDefault: boolean;
@@ -77,6 +78,7 @@ export const CreateDeliveryMethodModal: React.FC<CreateDeliveryMethodModalProps>
     trackingEnabled: false,
     insuranceEnabled: false,
     signatureRequired: false,
+    useThirdPartyIntegration: false,
     iconUrl: '',
     isActive: true,
     isDefault: false,
@@ -139,7 +141,7 @@ export const CreateDeliveryMethodModal: React.FC<CreateDeliveryMethodModalProps>
     }
 
     try {
-      await createMutation.mutateAsync({
+      const submitData = {
         name: formData.name.trim(),
         type: formData.type as any,
         description: formData.description.trim() || undefined,
@@ -155,10 +157,12 @@ export const CreateDeliveryMethodModal: React.FC<CreateDeliveryMethodModalProps>
         trackingEnabled: formData.trackingEnabled,
         insuranceEnabled: formData.insuranceEnabled,
         signatureRequired: formData.signatureRequired,
+        useThirdPartyIntegration: formData.useThirdPartyIntegration,
         iconUrl: formData.iconUrl.trim() || undefined,
         isActive: formData.isActive,
         isDefault: formData.isDefault,
-      });
+      };
+      await createMutation.mutateAsync(submitData as any);
     } catch (error) {
       // Error handling is done in onError callback
     }
@@ -260,80 +264,142 @@ export const CreateDeliveryMethodModal: React.FC<CreateDeliveryMethodModalProps>
           />
         </div>
 
-        {/* Pricing */}
+        {/* Integration Type */}
         <div className="space-y-4">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-            {t('delivery_methods.form.pricing')}
+            {t('delivery_methods.form.integration_type', 'Integration Type')}
           </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <FormInput
-              id="deliveryCost"
-              type="number"
-              label={t('delivery_methods.delivery_cost')}
-              value={formData.deliveryCost.toString()}
-              onChange={(e) => handleInputChange('deliveryCost', parseFloat(e.target.value) || 0)}
-              error={errors.deliveryCost}
-              min="0"
-              step="0.01"
-            />
+          <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
+            <label className="flex items-start space-x-3">
+              <input
+                type="checkbox"
+                checked={formData.useThirdPartyIntegration}
+                onChange={(e) => handleInputChange('useThirdPartyIntegration', e.target.checked)}
+                className="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <div>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  {t('delivery_methods.use_third_party_integration', 'Use Third-party Integration')}
+                </span>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {t('delivery_methods.form.third_party_description', 'Enable this to use external delivery service APIs for automatic cost calculation and delivery time estimation')}
+                </p>
+              </div>
+            </label>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                {t('delivery_methods.cost_calculation_type')}
-              </label>
-              <select
-                value={formData.costCalculationType}
-                onChange={(e) => handleInputChange('costCalculationType', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-              >
-                {COST_CALCULATION_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {t(`delivery_methods.cost_types.${type}`)}
-                  </option>
-                ))}
-              </select>
+            {/* Third-party Integration Configuration */}
+            {formData.useThirdPartyIntegration && (
+              <div className="mt-4 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg space-y-4">
+                <h4 className="text-md font-medium text-blue-900 dark:text-blue-100">
+                  {t('delivery_methods.form.third_party_config', 'Third-party Integration Configuration')}
+                </h4>
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  {t('delivery_methods.form.third_party_note', 'When third-party integration is enabled, delivery costs and times will be calculated by the external service. Configure your API credentials below.')}
+                </p>
+                <div className="space-y-3">
+                  <FormInput
+                    id="apiKey"
+                    type="text"
+                    label={t('delivery_methods.form.api_key', 'API Key')}
+                    placeholder={t('delivery_methods.form.api_key_placeholder', 'Enter your third-party API key')}
+                  />
+                  <FormInput
+                    id="apiSecret"
+                    type="password"
+                    label={t('delivery_methods.form.api_secret', 'API Secret')}
+                    placeholder={t('delivery_methods.form.api_secret_placeholder', 'Enter your API secret')}
+                  />
+                  <FormInput
+                    id="apiEndpoint"
+                    type="url"
+                    label={t('delivery_methods.form.api_endpoint', 'API Endpoint')}
+                    placeholder="https://api.example.com/v1"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Pricing - Hidden for third-party integrations */}
+        {!formData.useThirdPartyIntegration && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+              {t('delivery_methods.form.pricing')}
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormInput
+                id="deliveryCost"
+                type="number"
+                label={t('delivery_methods.delivery_cost')}
+                value={formData.deliveryCost.toString()}
+                onChange={(e) => handleInputChange('deliveryCost', parseFloat(e.target.value) || 0)}
+                error={errors.deliveryCost}
+                min="0"
+                step="0.01"
+              />
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {t('delivery_methods.cost_calculation_type')}
+                </label>
+                <select
+                  value={formData.costCalculationType}
+                  onChange={(e) => handleInputChange('costCalculationType', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                >
+                  {COST_CALCULATION_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {t(`delivery_methods.cost_types.${type}`)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <FormInput
+                id="freeDeliveryThreshold"
+                type="number"
+                label={t('delivery_methods.free_delivery_threshold')}
+                value={formData.freeDeliveryThreshold?.toString() || ''}
+                onChange={(e) => handleInputChange('freeDeliveryThreshold', e.target.value ? parseFloat(e.target.value) : undefined)}
+                min="0"
+                step="0.01"
+              />
             </div>
-
-            <FormInput
-              id="freeDeliveryThreshold"
-              type="number"
-              label={t('delivery_methods.free_delivery_threshold')}
-              value={formData.freeDeliveryThreshold?.toString() || ''}
-              onChange={(e) => handleInputChange('freeDeliveryThreshold', e.target.value ? parseFloat(e.target.value) : undefined)}
-              min="0"
-              step="0.01"
-            />
           </div>
-        </div>
+        )}
 
-        {/* Delivery Times */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-            {t('delivery_methods.form.delivery_times')}
-          </h3>
+        {/* Delivery Times - Hidden for third-party integrations */}
+        {!formData.useThirdPartyIntegration && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+              {t('delivery_methods.form.delivery_times')}
+            </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormInput
-              id="minDeliveryTimeHours"
-              type="number"
-              label={`${t('delivery_methods.min_delivery_time')} (${t('delivery_methods.hours')})`}
-              value={formData.minDeliveryTimeHours?.toString() || ''}
-              onChange={(e) => handleInputChange('minDeliveryTimeHours', e.target.value ? parseInt(e.target.value) : undefined)}
-              min="0"
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormInput
+                id="minDeliveryTimeHours"
+                type="number"
+                label={`${t('delivery_methods.min_delivery_time')} (${t('delivery_methods.hours')})`}
+                value={formData.minDeliveryTimeHours?.toString() || ''}
+                onChange={(e) => handleInputChange('minDeliveryTimeHours', e.target.value ? parseInt(e.target.value) : undefined)}
+                min="0"
+              />
 
-            <FormInput
-              id="maxDeliveryTimeHours"
-              type="number"
-              label={`${t('delivery_methods.max_delivery_time')} (${t('delivery_methods.hours')})`}
-              value={formData.maxDeliveryTimeHours?.toString() || ''}
-              onChange={(e) => handleInputChange('maxDeliveryTimeHours', e.target.value ? parseInt(e.target.value) : undefined)}
-              error={errors.maxDeliveryTimeHours}
-              min="0"
-            />
+              <FormInput
+                id="maxDeliveryTimeHours"
+                type="number"
+                label={`${t('delivery_methods.max_delivery_time')} (${t('delivery_methods.hours')})`}
+                value={formData.maxDeliveryTimeHours?.toString() || ''}
+                onChange={(e) => handleInputChange('maxDeliveryTimeHours', e.target.value ? parseInt(e.target.value) : undefined)}
+                error={errors.maxDeliveryTimeHours}
+                min="0"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Limitations */}
         <div className="space-y-4">

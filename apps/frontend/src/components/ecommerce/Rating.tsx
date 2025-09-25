@@ -92,9 +92,7 @@ const Rating: React.FC<RatingProps> = ({
 
   return (
     <div className={`flex items-center gap-1 ${className}`}>
-      <div className="flex items-center">
-        {renderStars()}
-      </div>
+      <div className="flex items-center">{renderStars()}</div>
       {showValue && (
         <span className={`text-gray-600 ${sizeClasses[size]}`}>
           {value.toFixed(1)}/{max}

@@ -39,9 +39,7 @@ export const Modal: React.FC<ModalProps> = ({
       <ModalContent>
         {(onClose) => (
           <>
-            {title && (
-              <ModalHeader className="flex flex-col gap-1">{title}</ModalHeader>
-            )}
+            {title && <ModalHeader className="flex flex-col gap-1">{title}</ModalHeader>}
             <ModalBody>{children}</ModalBody>
             {footer && <ModalFooter>{footer}</ModalFooter>}
           </>

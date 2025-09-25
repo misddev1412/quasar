@@ -1,6 +1,8 @@
+'use client';
 import React, { useState } from 'react';
 import { Button, Card, Divider, Tabs, Tab, Image } from '@heroui/react';
-import { Link, useParams } from 'react-router-dom';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { Product } from './ProductCard';
 import { PriceDisplay } from './PriceDisplay';
 import { Rating } from './Rating';
@@ -15,11 +17,7 @@ interface ProductDetailsProps {
   relatedProducts?: Product[];
   onAddToCart?: (product: Product, quantity?: number) => void;
   onAddToWishlist?: (productId: string) => void;
-  onReviewSubmit?: (review: {
-    rating: number;
-    title: string;
-    comment: string;
-  }) => void;
+  onReviewSubmit?: (review: { rating: number; title: string; comment: string }) => void;
   loading?: boolean;
   className?: string;
 }
@@ -79,19 +77,16 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
     }
   };
 
-  const handleReviewSubmit = (review: {
-    rating: number;
-    title: string;
-    comment: string;
-  }) => {
+  const handleReviewSubmit = (review: { rating: number; title: string; comment: string }) => {
     if (onReviewSubmit) {
       onReviewSubmit(review);
     }
   };
 
-  const currentPrice = selectedVariant && selectedVariant.priceAdjustment
-    ? price + selectedVariant.priceAdjustment
-    : price;
+  const currentPrice =
+    selectedVariant && selectedVariant.priceAdjustment
+      ? price + selectedVariant.priceAdjustment
+      : price;
 
   const currentOriginalPrice = originalPrice
     ? selectedVariant && selectedVariant.priceAdjustment
@@ -115,11 +110,16 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
         <div className="space-y-6">
           {/* Breadcrumb */}
           <div className="flex items-center text-sm text-gray-500">
-            <Link to="/" className="hover:text-primary-500">Home</Link>
+            <Link href="/" className="hover:text-primary-500">
+              Home
+            </Link>
             <span className="mx-2">/</span>
             {category && (
               <>
-                <Link to={`/categories/${category.slug}`} className="hover:text-primary-500">
+                <Link
+                  href={category?.slug ? `/categories/${category.slug}` : '#'}
+                  className="hover:text-primary-500"
+                >
                   {category.name}
                 </Link>
                 <span className="mx-2">/</span>
@@ -135,8 +135,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
           {brand && (
             <div>
               <span className="text-sm text-gray-500">Brand: </span>
-              <Link 
-                to={`/brands/${brand.slug}`} 
+              <Link
+                href={brand?.slug ? `/brands/${brand.slug}` : '#'}
                 className="text-sm font-medium text-primary-500 hover:text-primary-600"
               >
                 {brand.name}
@@ -158,8 +158,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
 
           {/* Price */}
           <div>
-            <PriceDisplay 
-              price={currentPrice} 
+            <PriceDisplay
+              price={currentPrice}
               originalPrice={currentOriginalPrice}
               discountPercentage={discountPercentage}
               size="lg"
@@ -218,7 +218,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
                 size="lg"
                 fullWidth
               />
-              
+
               <Button
                 isIconOnly
                 size="lg"
@@ -272,7 +272,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
               </div>
             </Card>
           </Tab>
-          
+
           <Tab key="specifications" title="Specifications">
             <Card className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -303,7 +303,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
               </div>
             </Card>
           </Tab>
-          
+
           <Tab key="reviews" title={`Reviews (${reviewCount || 0})`}>
             <div className="space-y-6">
               <ReviewList productId={id} />
