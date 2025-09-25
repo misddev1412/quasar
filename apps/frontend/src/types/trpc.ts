@@ -70,11 +70,80 @@ export interface TranslationData {
   translations: Record<string, string>;
 }
 
+export interface Language {
+  id: string;
+  code: string;
+  name: string;
+  nativeName: string;
+  icon?: string;
+  isActive: boolean;
+  isDefault: boolean;
+  sortOrder: number;
+}
+
+export interface SEOData {
+  title: string;
+  description?: string | null;
+  keywords?: string | null;
+  additionalMetaTags?: Record<string, string> | null;
+}
+
 export interface ApiResponse<T = any> {
-  success: boolean;
+  code: number;
+  status: string;
   data?: T;
-  message?: string;
-  error?: string;
+  errors?: Array<{
+    '@type': string;
+    reason: string;
+    domain: string;
+    metadata?: Record<string, string>;
+  }>;
+  timestamp: string;
+}
+
+export enum NotificationType {
+  INFO = 'info',
+  SUCCESS = 'success',
+  WARNING = 'warning',
+  ERROR = 'error',
+  SYSTEM = 'system',
+  PRODUCT = 'product',
+  ORDER = 'order',
+  USER = 'user',
+}
+
+export interface Notification {
+  id: string;
+  userId: string;
+  title: string;
+  body: string;
+  type: NotificationType;
+  actionUrl?: string;
+  icon?: string;
+  image?: string;
+  data?: Record<string, unknown>;
+  read: boolean;
+  fcmToken?: string;
+  sentAt?: Date;
+  readAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface NotificationWithPagination {
+  notifications: Notification[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+export interface NotificationStats {
+  total: number;
+  unread: number;
+  byType: Record<NotificationType, number>;
 }
 
 // Define the shape of our tRPC router
@@ -210,6 +279,131 @@ export type AppRouter = {
       };
     };
   };
+  clientLanguage: {
+    getActiveLanguages: {
+      query: () => Promise<ApiResponse<Language[]>>;
+    };
+    getDefaultLanguage: {
+      query: () => Promise<ApiResponse<Language>>;
+    };
+  };
+  adminLanguage: {
+    getActiveLanguages: {
+      query: () => Promise<ApiResponse<Language[]>>;
+    };
+  };
+  clientNotification: {
+    getUserNotifications: {
+      query: (input: {
+        userId: string;
+        page?: number;
+        limit?: number;
+        type?: NotificationType;
+        read?: boolean;
+      }) => Promise<ApiResponse<NotificationWithPagination>>;
+    };
+    getUnreadCount: {
+      query: (input: { userId: string }) => Promise<ApiResponse<{ count: number }>>;
+    };
+    getRecentNotifications: {
+      query: (input: {
+        userId: string;
+        limit?: number;
+      }) => Promise<ApiResponse<Notification[]>>;
+    };
+    createNotification: {
+      mutate: (input: {
+        userId: string;
+        title: string;
+        body: string;
+        type?: NotificationType;
+        actionUrl?: string;
+        icon?: string;
+        image?: string;
+        data?: Record<string, unknown>;
+      }) => Promise<ApiResponse<Notification>>;
+    };
+    markAllAsRead: {
+      mutate: (input: {
+        userId: string;
+        notificationIds?: string[];
+      }) => Promise<ApiResponse<null>>;
+    };
+    validateFCMToken: {
+      mutate: (input: { token: string }) => Promise<ApiResponse<{ isValid: boolean }>>;
+    };
+    subscribeToTopic: {
+      mutate: (input: {
+        token: string;
+        topic: string;
+      }) => Promise<ApiResponse<{ subscribed: boolean }>>;
+    };
+    unsubscribeFromTopic: {
+      mutate: (input: {
+        token: string;
+        topic: string;
+      }) => Promise<ApiResponse<{ unsubscribed: boolean }>>;
+    };
+    getNotificationTypes: {
+      query: () => Promise<ApiResponse<Array<{ value: NotificationType; label: string }>>>;
+    };
+  };
+  userNotification: {
+    getMyNotifications: {
+      query: (input: {
+        page?: number;
+        limit?: number;
+        type?: NotificationType;
+        read?: boolean;
+        sortBy?: 'createdAt' | 'updatedAt';
+        sortOrder?: 'ASC' | 'DESC';
+      }) => Promise<ApiResponse<NotificationWithPagination>>;
+    };
+    getMyRecentNotifications: {
+      query: (input: { limit?: number }) => Promise<ApiResponse<Notification[]>>;
+    };
+    getMyUnreadCount: {
+      query: () => Promise<ApiResponse<{ count: number }>>;
+    };
+    getMyNotificationById: {
+      query: (input: { id: string }) => Promise<ApiResponse<Notification>>;
+    };
+    getMyNotificationStats: {
+      query: () => Promise<ApiResponse<NotificationStats>>;
+    };
+    markMyNotificationAsRead: {
+      mutate: (input: { id: string }) => Promise<ApiResponse<Notification>>;
+    };
+    markMultipleAsRead: {
+      mutate: (input: { notificationIds: string[] }) => Promise<ApiResponse<null>>;
+    };
+    markAllMyNotificationsAsRead: {
+      mutate: () => Promise<ApiResponse<null>>;
+    };
+    deleteMyNotification: {
+      mutate: (input: { id: string }) => Promise<ApiResponse<null>>;
+    };
+    deleteMyOldNotifications: {
+      mutate: (input: { olderThanDays?: number }) => Promise<ApiResponse<{ deletedCount: number }>>;
+    };
+    registerFCMToken: {
+      mutate: (input: {
+        token: string;
+        deviceInfo?: {
+          platform?: 'web' | 'android' | 'ios';
+          browser?: string;
+          version?: string;
+        };
+      }) => Promise<ApiResponse<{
+        token: string;
+        isValid: boolean;
+        registered: boolean;
+      }>>;
+    };
+    testMyNotification: {
+      mutate: (input: { token: string }) => Promise<ApiResponse<{ messageId: string | null }>>;
+    };
+  };
   translation: {
     getLocaleConfig: {
       query: () => Promise<ApiResponse<LocaleConfig>>;
@@ -219,6 +413,11 @@ export type AppRouter = {
     };
     getTranslation: {
       query: (input: { key: string; locale: 'vi' | 'en'; defaultValue?: string }) => Promise<ApiResponse<{ key: string; value: string }>>;
+    };
+  };
+  seo: {
+    getByPath: {
+      query: (input: { path: string }) => Promise<ApiResponse<SEOData>>;
     };
   };
 };

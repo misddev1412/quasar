@@ -9,7 +9,10 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
-const ROUTERS_DIR = 'apps/backend/src/modules';
+const ROUTERS_DIRS = [
+  'apps/backend/src/modules',
+  'apps/backend/src/trpc/routers'
+];
 const OUTPUT_FILE = 'apps/backend/src/@generated/server.ts';
 
 /**
@@ -48,20 +51,20 @@ function extractRouterInfo(filePath) {
 }
 
 /**
- * Find all router files in the modules directory
+ * Find all router files in the specified directories
  */
-function findRouterFiles(dir) {
+function findRouterFiles(dirs) {
   const routerFiles = [];
-  
+
   function scanDir(currentDir) {
     if (!fs.existsSync(currentDir)) return;
-    
+
     const items = fs.readdirSync(currentDir);
-    
+
     for (const item of items) {
       const fullPath = path.join(currentDir, item);
       const stat = fs.statSync(fullPath);
-      
+
       if (stat.isDirectory()) {
         scanDir(fullPath);
       } else if (item.endsWith('.router.ts')) {
@@ -69,8 +72,10 @@ function findRouterFiles(dir) {
       }
     }
   }
-  
-  scanDir(dir);
+
+  for (const dir of dirs) {
+    scanDir(dir);
+  }
   return routerFiles;
 }
 
@@ -104,10 +109,10 @@ const appRouter = t.router({
     for (const procedure of router.procedures) {
       // Check if procedure needs input schema - mutations generally need input, some queries too
       const hasInput = procedure.type === 'mutation' ||
-                      ['list', 'detail', 'getById', 'getByIdWithTranslations', 'getCategoryTranslations', 'getBrandTranslations', 'getAttributeTranslations', 'getByCustomerId', 'getByCustomerIdAndType'].includes(procedure.name);
+                      ['list', 'detail', 'getById', 'getByIdWithTranslations', 'getCategoryTranslations', 'getBrandTranslations', 'getAttributeTranslations', 'getByCustomerId', 'getByCustomerIdAndType', 'getByPath'].includes(procedure.name);
       const inputPart = hasInput ? '.input(z.any())' : '';
       const procedureType = procedure.type === 'query' ? 'query' : 'mutation';
-      
+
       typeDefinition += `    ${procedure.name}: t.procedure${inputPart}.${procedureType}(() => null),\n`;
     }
     
@@ -131,7 +136,7 @@ function main() {
     console.log('🔍 Scanning for tRPC router files...');
     
     // Find all router files
-    const routerFiles = findRouterFiles(ROUTERS_DIR);
+    const routerFiles = findRouterFiles(ROUTERS_DIRS);
     console.log(`📁 Found ${routerFiles.length} router files:`);
     routerFiles.forEach(file => console.log(`   - ${file}`));
     

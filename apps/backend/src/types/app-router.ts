@@ -1424,6 +1424,21 @@ export const appRouter = router({
       }),
   }),
 
+  // Client Language router
+  clientLanguage: router({
+    getActiveLanguages: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getDefaultLanguage: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
   // Admin Media router
   adminMedia: router({
     getUserMedia: procedure

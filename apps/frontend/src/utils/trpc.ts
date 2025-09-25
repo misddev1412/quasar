@@ -1,7 +1,7 @@
 import { createTRPCReact, createTRPCProxyClient, CreateTRPCClientOptions } from '@trpc/react-query';
 import { httpBatchLink, httpLink, splitLink, TRPCLink } from '@trpc/client';
 import { errorLink } from './trpc-error-link';
-import type { AppRouter } from '../types/trpc';
+import type { AppRouter } from '../../../backend/src/@generated/server';
 
 // Token management for frontend users (not admin)
 export function getAuthToken(): string | null {
@@ -49,12 +49,10 @@ function getBaseUrl() {
 }
 
 // Create tRPC React hooks
-// Using 'any' for router type to avoid cross-compilation with backend
-// Type safety is maintained through explicit typing in hooks
-export const trpc = createTRPCReact<any>();
+export const trpc = createTRPCReact<AppRouter>();
 
 // Shared links configuration
-export const links: TRPCLink<any>[] = [
+export const links: TRPCLink<AppRouter>[] = [
   // Custom error handling
   errorLink,
 
@@ -113,13 +111,13 @@ export const links: TRPCLink<any>[] = [
 ];
 
 // Vanilla client for non-React contexts
-export const trpcClient = createTRPCProxyClient<any>({
+export const trpcClient = createTRPCProxyClient<AppRouter>({
   links,
 });
 
 // Factory function to create tRPC client with options
-export const createTrpcClient = (options?: Omit<CreateTRPCClientOptions<any>, 'links'>) => {
-  return (trpc as any).createClient({
+export const createTrpcClient = (options?: Omit<CreateTRPCClientOptions<AppRouter>, 'links'>) => {
+  return trpc.createClient({
     ...options,
     links,
   });

@@ -25,8 +25,9 @@ i18n
     debug: process.env.NODE_ENV === 'development',
 
     detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
-      caches: ['localStorage'],
+      order: ['localStorage', 'cookie', 'navigator', 'htmlTag'],
+      caches: ['localStorage', 'cookie'],
+      lookupCookie: 'NEXT_LOCALE',
     },
 
     resources,

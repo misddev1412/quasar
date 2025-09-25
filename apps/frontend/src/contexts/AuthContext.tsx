@@ -16,9 +16,13 @@ import { appEvents } from '../utils/trpc-error-link';
 interface User {
   id: string;
   email: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
   name: string;
   avatar?: string;
   role?: string;
+  phoneNumber?: string;
 }
 
 interface AuthContextType {
@@ -33,9 +37,12 @@ interface AuthContextType {
 }
 
 interface RegisterData {
-  name: string;
+  username: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
+  phoneNumber?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,15 +77,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const { trpcClient } = await import('../utils/trpc');
 
       // Verify token with backend and get user data
-      const userData = await (trpcClient as any).auth.me.query();
+      const userData = await (trpcClient as any).clientUser.getProfile.query();
 
-      if (userData) {
+      if (userData?.data) {
+        const user = userData.data;
+        const profile = user.profile || {};
+
         setUser({
-          id: userData.id,
-          email: userData.email,
-          name: userData.name || userData.email,
-          avatar: userData.avatar,
-          role: userData.role,
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          name: `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || user.username || user.email,
+          avatar: profile.avatar,
+          role: user.role,
+          phoneNumber: profile.phoneNumber,
         });
       }
     } catch (error) {
@@ -110,24 +124,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const { trpcClient } = await import('../utils/trpc');
 
-      const response = await (trpcClient as any).auth.login.mutate({
+      const response = await (trpcClient as any).clientUser.login.mutate({
         email,
         password,
       });
 
-      if (response.accessToken) {
-        setAuthToken(response.accessToken);
+      if (response?.data) {
+        const authData = response.data;
+        setAuthToken(authData.accessToken);
 
-        if (response.refreshToken) {
-          setRefreshToken(response.refreshToken);
+        if (authData.refreshToken) {
+          setRefreshToken(authData.refreshToken);
         }
 
+        const userData = authData.user;
+        const profile = userData.profile || {};
+
         setUser({
-          id: response.user.id,
-          email: response.user.email,
-          name: response.user.name || response.user.email,
-          avatar: response.user.avatar,
-          role: response.user.role,
+          id: userData.id,
+          email: userData.email,
+          username: userData.username,
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          name: `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || userData.username || userData.email,
+          avatar: profile.avatar,
+          role: userData.role,
+          phoneNumber: profile.phoneNumber,
         });
 
         // Show success message
@@ -150,25 +172,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const { trpcClient } = await import('../utils/trpc');
 
-      const response = await (trpcClient as any).auth.register.mutate({
-        name: data.name,
+      const response = await (trpcClient as any).clientUser.register.mutate({
+        username: data.username,
+        firstName: data.firstName,
+        lastName: data.lastName,
         email: data.email,
         password: data.password,
+        phoneNumber: data.phoneNumber,
       });
 
-      if (response.accessToken) {
-        setAuthToken(response.accessToken);
+      if (response?.data) {
+        const authData = response.data;
+        setAuthToken(authData.accessToken);
 
-        if (response.refreshToken) {
-          setRefreshToken(response.refreshToken);
+        if (authData.refreshToken) {
+          setRefreshToken(authData.refreshToken);
         }
 
+        const userData = authData.user;
+        const profile = userData.profile || {};
+
         setUser({
-          id: response.user.id,
-          email: response.user.email,
-          name: response.user.name || response.user.email,
-          avatar: response.user.avatar,
-          role: response.user.role,
+          id: userData.id,
+          email: userData.email,
+          username: userData.username,
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          name: `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || userData.username || userData.email,
+          avatar: profile.avatar,
+          role: userData.role,
+          phoneNumber: profile.phoneNumber,
         });
 
         // Show success message

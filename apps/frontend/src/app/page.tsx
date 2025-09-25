@@ -1,4 +1,42 @@
+import { Metadata } from 'next';
+import { getServerSideSEOWithFallback } from '../lib/seo-server';
 import Header from '../components/layout/Header';
+import type { SEOData } from '../types/trpc';
+
+// Fallback SEO data for home page
+const homeSEOFallback: SEOData = {
+  title: 'Quasar - Home',
+  description: 'Welcome to Quasar - A modern web application platform',
+  keywords: 'quasar, home, web application, platform, javascript, typescript, react',
+};
+
+// Generate metadata for server-side SEO
+export async function generateMetadata(): Promise<Metadata> {
+  const seoData = await getServerSideSEOWithFallback('/', homeSEOFallback);
+
+  const siteName = 'Quasar';
+  const title = seoData.title.includes(siteName)
+    ? seoData.title
+    : `${seoData.title} | ${siteName}`;
+
+  return {
+    title,
+    description: seoData.description || undefined,
+    keywords: seoData.keywords || undefined,
+    openGraph: {
+      title,
+      description: seoData.description || undefined,
+      url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/`,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: seoData.description || undefined,
+    },
+    other: seoData.additionalMetaTags || undefined,
+  };
+}
 
 export default function RootPage() {
   return (

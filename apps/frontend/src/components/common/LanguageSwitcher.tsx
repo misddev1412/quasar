@@ -3,6 +3,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocale } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
+import { useLanguages } from '../../hooks/useLanguages';
+import type { Language } from '../../types/trpc';
 
 type Locale = 'en' | 'vi';
 
@@ -17,23 +19,12 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className = '' }) =
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const supportedLocales: Locale[] = ['en', 'vi'];
-
-  const getLanguageName = (locale: string): string => {
-    const names = {
-      en: 'English',
-      vi: 'Tiếng Việt',
-    };
-    return names[locale as Locale] || locale;
-  };
-
-  const getLanguageFlag = (locale: string): string => {
-    const flags = {
-      en: '🇺🇸',
-      vi: '🇻🇳',
-    };
-    return flags[locale as Locale] || '🌐';
-  };
+  const {
+    languages: displayLanguages,
+    isLoading,
+    getLanguageName,
+    getLanguageFlag
+  } = useLanguages();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -48,19 +39,30 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className = '' }) =
   }, []);
 
   const handleLocaleChange = (locale: Locale) => {
-    // Create new pathname with the new locale
-    const segments = pathname.split('/').filter(Boolean);
-    if (segments.length > 0 && ['en', 'vi'].includes(segments[0])) {
-      segments[0] = locale;
-    } else {
-      segments.unshift(locale);
-    }
-    const newPath = '/' + segments.join('/');
+    // Set locale cookie for NextIntlProvider
+    document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000; SameSite=Lax`;
 
-    router.push(newPath);
+    // Set localStorage for i18next
+    localStorage.setItem('i18nextLng', locale);
+
+    // Reload the current page to apply the new locale
+    window.location.reload();
     setIsOpen(false);
   };
 
+  // Show loading state while fetching languages
+  if (isLoading) {
+    return (
+      <div className={`relative inline-block ${className}`} ref={dropdownRef}>
+        <div className="flex items-center gap-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[140px]">
+          <span className="text-base">🌐</span>
+          <span>Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  
   return (
     <div className={`relative inline-block ${className}`} ref={dropdownRef}>
       {/* Trigger Button */}
@@ -87,23 +89,23 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className = '' }) =
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-50">
-          {supportedLocales.map((locale) => (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+          {displayLanguages.map((language: Language, index: number) => (
             <button
-              key={locale}
-              onClick={() => handleLocaleChange(locale)}
+              key={language.id}
+              onClick={() => handleLocaleChange(language.code as Locale)}
               className={`
                 flex items-center gap-3 w-full px-4 py-2 text-sm text-left transition-colors
-                ${locale === currentLocale
+                ${language.code === currentLocale
                   ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                 }
-                ${locale === supportedLocales[0] ? 'rounded-t-lg' : ''}
-                ${locale === supportedLocales[supportedLocales.length - 1] ? 'rounded-b-lg' : ''}
+                ${index === 0 ? 'rounded-t-lg' : ''}
+                ${index === displayLanguages.length - 1 ? 'rounded-b-lg' : ''}
               `}
             >
-              <span className="text-base">{getLanguageFlag(locale)}</span>
-              <span>{getLanguageName(locale)}</span>
+              <span className="text-base">{getLanguageFlag(language.code)}</span>
+              <span>{getLanguageName(language.code)}</span>
             </button>
           ))}
         </div>

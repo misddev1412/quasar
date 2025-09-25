@@ -13,6 +13,7 @@ import { FCMNotificationService } from './services/fcm-notification.service';
 import { AdminNotificationRouter } from './routers/admin-notification.router';
 import { UserNotificationRouter } from './routers/user-notification.router';
 import { AdminNotificationPreferencesRouter } from './routers/admin-notification-preferences.router';
+import { ClientNotificationRouter } from './routers/client-notification.router';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AdminNotificationPreferencesRouter } from './routers/admin-notification
     AdminNotificationRouter,
     UserNotificationRouter,
     AdminNotificationPreferencesRouter,
+    ClientNotificationRouter,
   ],
   exports: [
     NotificationService,
@@ -41,6 +43,7 @@ import { AdminNotificationPreferencesRouter } from './routers/admin-notification
     AdminNotificationRouter,
     UserNotificationRouter,
     AdminNotificationPreferencesRouter,
+    ClientNotificationRouter,
   ],
 })
 export class NotificationsModule {}

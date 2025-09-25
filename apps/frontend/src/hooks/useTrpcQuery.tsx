@@ -1,6 +1,6 @@
 import { trpc } from '../utils/trpc';
 import { useToast } from '../contexts/ToastContext';
-import type { User, Product, Order, PaginatedResponse } from '../types/trpc';
+import type { User, Product, Order, PaginatedResponse, Language, SEOData } from '../types/trpc';
 
 /**
  * Custom hook to simplify tRPC queries with built-in error handling
@@ -88,12 +88,46 @@ export const useTrpcQuery = () => {
     });
   };
 
+  // Active languages query
+  const useActiveLanguages = () => {
+    return (trpc as any).adminLanguage.getActiveLanguages.useQuery(undefined, {
+      staleTime: 15 * 60 * 1000, // 15 minutes
+      onError: (error: Error) => {
+        showToast({
+          type: 'error',
+          title: 'Failed to load languages',
+          description: error.message,
+        });
+      },
+    });
+  };
+
+  // SEO data query by path
+  const useSEO = (path: string, options?: { enabled?: boolean }) => {
+    return (trpc as any).seo.getByPath.useQuery(
+      { path },
+      {
+        enabled: options?.enabled !== false && !!path,
+        staleTime: 30 * 60 * 1000, // 30 minutes
+        onError: (error: Error) => {
+          showToast({
+            type: 'error',
+            title: 'Failed to load SEO data',
+            description: error.message,
+          });
+        },
+      }
+    );
+  };
+
   return {
     useUserProfile,
     useProducts,
     useOrders,
     useCurrentUser,
     useCategories,
+    useActiveLanguages,
+    useSEO,
   };
 };
 

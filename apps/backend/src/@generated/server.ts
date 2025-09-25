@@ -1,7 +1,7 @@
 // AppRouter types for tRPC client
 // This file is auto-generated from actual nestjs-trpc routers
 // Run 'npm run sync:trpc-types' to regenerate this file
-// Generated on: 2025-09-24T01:39:27.591Z
+// Generated on: 2025-09-25T07:46:09.267Z
 
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
@@ -47,6 +47,10 @@ const appRouter = t.router({
     setDefaultLanguage: t.procedure.input(z.any()).mutation(() => null),
     toggleLanguageStatus: t.procedure.input(z.any()).mutation(() => null),
     updateSortOrders: t.procedure.input(z.any()).mutation(() => null),
+  }),
+  clientLanguage: t.router({
+    getActiveLanguages: t.procedure.query(() => null),
+    getDefaultLanguage: t.procedure.query(() => null),
   }),
   adminMailTemplate: t.router({
     createTemplate: t.procedure.input(z.any()).mutation(() => null),
@@ -97,6 +101,17 @@ const appRouter = t.router({
     validateFCMToken: t.procedure.input(z.any()).mutation(() => null),
     sendTestNotification: t.procedure.input(z.any()).mutation(() => null),
     cleanupNotifications: t.procedure.input(z.any()).mutation(() => null),
+  }),
+  clientNotification: t.router({
+    getUserNotifications: t.procedure.query(() => null),
+    getUnreadCount: t.procedure.query(() => null),
+    getRecentNotifications: t.procedure.query(() => null),
+    createNotification: t.procedure.input(z.any()).mutation(() => null),
+    markAllAsRead: t.procedure.input(z.any()).mutation(() => null),
+    validateFCMToken: t.procedure.input(z.any()).mutation(() => null),
+    subscribeToTopic: t.procedure.input(z.any()).mutation(() => null),
+    unsubscribeFromTopic: t.procedure.input(z.any()).mutation(() => null),
+    getNotificationTypes: t.procedure.query(() => null),
   }),
   userNotification: t.router({
     getMyNotifications: t.procedure.query(() => null),
@@ -328,7 +343,7 @@ const appRouter = t.router({
   }),
   'admin.seo': t.router({
     getAll: t.procedure.query(() => null),
-    getByPath: t.procedure.query(() => null),
+    getByPath: t.procedure.input(z.any()).query(() => null),
     create: t.procedure.input(z.any()).mutation(() => null),
     update: t.procedure.input(z.any()).mutation(() => null),
     delete: t.procedure.input(z.any()).mutation(() => null),
@@ -356,6 +371,26 @@ const appRouter = t.router({
     getStorageConfig: t.procedure.query(() => null),
     updateStorageConfig: t.procedure.input(z.any()).mutation(() => null),
     testStorageConnection: t.procedure.input(z.any()).mutation(() => null),
+  }),
+  adminSupportClients: t.router({
+    getAll: t.procedure.query(() => null),
+    getById: t.procedure.input(z.any()).query(() => null),
+    getDefault: t.procedure.query(() => null),
+    create: t.procedure.input(z.any()).mutation(() => null),
+    update: t.procedure.input(z.any()).mutation(() => null),
+    delete: t.procedure.input(z.any()).mutation(() => null),
+    setAsDefault: t.procedure.input(z.any()).mutation(() => null),
+    updateSortOrder: t.procedure.input(z.any()).mutation(() => null),
+    duplicate: t.procedure.input(z.any()).mutation(() => null),
+    getWidgetScripts: t.procedure.query(() => null),
+    getAvailableClients: t.procedure.query(() => null),
+    getStats: t.procedure.query(() => null),
+    validateConfiguration: t.procedure.input(z.any()).mutation(() => null),
+    getRecommendedSettings: t.procedure.query(() => null),
+    getTypes: t.procedure.query(() => null),
+    getWidgetPositions: t.procedure.query(() => null),
+    getWidgetThemes: t.procedure.query(() => null),
+    testAvailability: t.procedure.query(() => null),
   }),
   adminPermission: t.router({
     createPermission: t.procedure.input(z.any()).mutation(() => null),
@@ -404,6 +439,37 @@ const appRouter = t.router({
     getProfile: t.procedure.query(() => null),
     updateProfile: t.procedure.input(z.any()).mutation(() => null),
     updatePassword: t.procedure.input(z.any()).mutation(() => null),
+  }),
+  seo: t.router({
+    getByPath: t.procedure.input(z.any()).query(() => null),
+  }),
+  settings: t.router({
+    getPublicSettings: t.procedure.query(() => null),
+    getPublicSetting: t.procedure.query(() => null),
+  }),
+  clientUser: t.router({
+    register: t.procedure.input(z.any()).mutation(() => null),
+    login: t.procedure.input(z.any()).mutation(() => null),
+    getProfile: t.procedure.query(() => null),
+    updateProfile: t.procedure.input(z.any()).mutation(() => null),
+    refreshToken: t.procedure.input(z.any()).mutation(() => null),
+  }),
+  publicSupportClients: t.router({
+    getAvailable: t.procedure.query(() => null),
+    getWidgetScripts: t.procedure.query(() => null),
+    getDefault: t.procedure.query(() => null),
+    getTypes: t.procedure.query(() => null),
+    getByType: t.procedure.query(() => null),
+    testAvailability: t.procedure.query(() => null),
+  }),
+  translation: t.router({
+    getLocaleConfig: t.procedure.query(() => null),
+    getTranslations: t.procedure.query(() => null),
+    getTranslation: t.procedure.query(() => null),
+    createTranslation: t.procedure.input(z.any()).mutation(() => null),
+    updateTranslation: t.procedure.input(z.any()).mutation(() => null),
+    deleteTranslation: t.procedure.input(z.any()).mutation(() => null),
+    clearCache: t.procedure.input(z.any()).mutation(() => null),
   }),
 });
 

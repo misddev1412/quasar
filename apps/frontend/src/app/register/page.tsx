@@ -1,8 +1,46 @@
-export default function Page() {
+'use client';
+
+import { useRouter } from 'next/navigation';
+import AuthLayout from '../../components/layout/AuthLayout';
+import RegisterForm from '../../components/auth/RegisterForm';
+import { useAuth } from '../../contexts/AuthContext';
+
+export default function RegisterPage() {
+  const router = useRouter();
+  const { register } = useAuth();
+
+  const handleSubmit = async (data: {
+    email: string;
+    password: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+    phoneNumber?: string;
+  }) => {
+    try {
+      await register({
+        email: data.email,
+        password: data.password,
+        username: data.username,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phoneNumber: data.phoneNumber,
+      });
+    } catch (error) {
+      console.error('Registration error:', error);
+    }
+  };
+
+  const handleSignIn = () => {
+    router.push('/login');
+  };
+
   return (
-    <div>
-      <h1>Register Page</h1>
-      <p>This is the Register page for locale routing</p>
-    </div>
+    <AuthLayout>
+      <RegisterForm
+        onSubmit={handleSubmit}
+        onSignIn={handleSignIn}
+      />
+    </AuthLayout>
   );
 }
