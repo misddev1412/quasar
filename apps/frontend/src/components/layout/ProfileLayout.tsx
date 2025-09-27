@@ -1,5 +1,5 @@
 import React from 'react';
-import { ProfileSidebar } from './ProfileSidebar';
+import { ProfileSidebar } from '../profile/ProfileSidebar';
 import { Container } from '../common/Container';
 
 interface ProfileLayoutProps {

@@ -1,7 +1,7 @@
 'use client';
 
-import Layout from '../../../components/Layout';
-import ProfileLayout from '../../../components/profile/ProfileLayout';
+import Layout from '../../../components/layout/Layout';
+import ProfileLayout from '../../../components/layout/ProfileLayout';
 import { Card, CardBody, CardHeader } from '@heroui/react';
 import { CreditCard } from 'lucide-react';
 import { useTranslations } from 'next-intl';

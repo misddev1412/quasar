@@ -1,11 +1,11 @@
 'use client';
 
 import React, { Suspense, useEffect, useState } from 'react';
-import Header from './layout/Header';
-import Footer from './layout/Footer';
-import ClientWrapper from './ClientWrapper';
-import NavigationProgressBar from './NavigationProgressBar';
-import { ChatWidget } from './ChatWidget';
+import Header from './Header';
+import Footer from './Footer';
+import ClientWrapper from '../ClientWrapper';
+import NavigationProgressBar from '../NavigationProgressBar';
+import { ChatWidget } from '../ChatWidget';
 
 interface LayoutProps {
   children: React.ReactNode;

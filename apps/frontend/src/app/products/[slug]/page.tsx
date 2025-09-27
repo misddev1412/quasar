@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { getServerSideSEOWithFallback } from '../../../lib/seo-server';
-import { SEOPageLayout } from '../../../components/SEOPageLayout';
+import { SEOPageLayout } from '../../../components/layout/SEOPageLayout';
 import type { SEOData } from '../../../types/trpc';
 
 interface ProductPageProps {

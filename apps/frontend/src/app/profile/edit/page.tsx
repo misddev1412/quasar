@@ -1,7 +1,7 @@
 'use client';
 
-import Layout from '../../../components/Layout';
-import ProfileLayout from '../../../components/profile/ProfileLayout';
+import Layout from '../../../components/layout/Layout';
+import ProfileLayout from '../../../components/layout/ProfileLayout';
 import { PersonalInformation } from '../../../components/profile/PersonalInformation';
 import { useRouter } from 'next/navigation';
 
