@@ -6,6 +6,7 @@ import { Card, CardBody, CardHeader } from '@heroui/react';
 import { Bell } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import { Helmet } from 'react-helmet-async';
 
 export default function Page() {
   const t = useTranslations();
@@ -16,8 +17,13 @@ export default function Page() {
   };
 
   return (
-    <Layout>
-      <ProfileLayout activeSection="notifications">
+    <>
+      <Helmet>
+        <title>{t('profile.pages.notifications.title')}</title>
+        <meta name="description" content={t('profile.pages.notifications.description')} />
+      </Helmet>
+      <Layout>
+        <ProfileLayout activeSection="notifications">
         <Card className="border-0 bg-transparent shadow-none">
           <CardHeader className="pb-4">
             <div className="flex items-center space-x-3">
@@ -55,5 +61,6 @@ export default function Page() {
         </Card>
       </ProfileLayout>
     </Layout>
+    </>
   );
 }

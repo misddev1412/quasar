@@ -12,6 +12,7 @@ import {
   Monitor
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Helmet } from 'react-helmet-async';
 
 export default function Page() {
   const t = useTranslations();
@@ -22,8 +23,13 @@ export default function Page() {
   };
 
   return (
-    <Layout>
-      <ProfileLayout activeSection="preferences">
+    <>
+      <Helmet>
+        <title>{t('profile.pages.preferences.title')}</title>
+        <meta name="description" content={t('profile.pages.preferences.description')} />
+      </Helmet>
+      <Layout>
+        <ProfileLayout activeSection="preferences">
         <div className="space-y-6">
           <Card>
             <CardHeader>
@@ -121,5 +127,6 @@ export default function Page() {
         </div>
       </ProfileLayout>
     </Layout>
+    </>
   );
 }

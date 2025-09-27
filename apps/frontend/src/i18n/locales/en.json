@@ -439,6 +439,48 @@
         "title": "My Profile",
         "description": "Manage your account settings and preferences"
       },
+      "pages": {
+        "overview": {
+          "title": "Profile Overview",
+          "description": "Manage your profile information and settings"
+        },
+        "orders": {
+          "title": "My Orders",
+          "description": "View and track your order history"
+        },
+        "edit": {
+          "title": "Edit Profile",
+          "description": "Update your personal information"
+        },
+        "security": {
+          "title": "Security Settings",
+          "description": "Manage your account security and privacy"
+        },
+        "preferences": {
+          "title": "Preferences",
+          "description": "Customize your account preferences and settings"
+        },
+        "payment": {
+          "title": "Payment Methods",
+          "description": "Manage your payment methods and billing information"
+        },
+        "loyalty": {
+          "title": "Loyalty Program",
+          "description": "View your loyalty points, rewards, and benefits"
+        },
+        "addresses": {
+          "title": "Address Book",
+          "description": "Manage your shipping and billing addresses"
+        },
+        "notifications": {
+          "title": "Notifications",
+          "description": "Manage your notification preferences and alerts"
+        },
+        "wishlist": {
+          "title": "Wishlist",
+          "description": "Manage your saved items and wishlist"
+        }
+      },
       "title": "My Profile",
       "subtitle": "Manage your account settings and preferences",
       "tabs": {
@@ -515,7 +557,36 @@
         "added_success": "Address Added Successfully",
         "added_success_desc": "Your new address has been saved successfully.",
         "removed_success": "Address Removed",
-        "removed_success_desc": "The address has been removed from your account."
+        "removed_success_desc": "The address has been removed from your account.",
+        "update_success": "Address Updated Successfully",
+        "update_success_desc": "Your address has been updated successfully.",
+        "edit_address": "Edit Address",
+        "confirm_delete": "Are you sure you want to delete this address?",
+        "save_error": "Failed to save address. Please try again.",
+        "delete_error": "Failed to delete address. Please try again.",
+        "default_set": "Default Address Set",
+        "default_set_desc": "This address has been set as your default.",
+        "set_default_error": "Failed to set default address. Please try again.",
+        "first_name": "First Name",
+        "last_name": "Last Name",
+        "phone_number": "Phone Number",
+        "email": "Email",
+        "company_name": "Company Name",
+        "address_line_1": "Address Line 1",
+        "address_line_2": "Address Line 2",
+        "postal_code": "Postal Code",
+        "province": "Province/State",
+        "ward": "Ward/District",
+        "label": "Label",
+        "label_placeholder": "e.g., Home, Work, Parents",
+        "delivery_instructions": "Delivery Instructions",
+        "delivery_instructions_placeholder": "e.g., Leave at the door, Call upon arrival",
+        "select_country": "Select Country",
+        "select_province": "Select Province/State",
+        "select_ward": "Select Ward/District",
+        "type_billing": "Billing",
+        "type_shipping": "Shipping",
+        "type_both": "Both"
       },
       "security": {
         "title": "Security",

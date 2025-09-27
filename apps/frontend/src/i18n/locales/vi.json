@@ -439,6 +439,48 @@
         "title": "Hồ sơ của tôi",
         "description": "Quản lý cài đặt tài khoản và tùy chọn của bạn"
       },
+      "pages": {
+        "overview": {
+          "title": "Tổng quan hồ sơ",
+          "description": "Quản lý thông tin và cài đặt hồ sơ của bạn"
+        },
+        "orders": {
+          "title": "Đơn hàng của tôi",
+          "description": "Xem và theo dõi lịch sử đơn hàng"
+        },
+        "edit": {
+          "title": "Chỉnh sửa hồ sơ",
+          "description": "Cập nhật thông tin cá nhân của bạn"
+        },
+        "security": {
+          "title": "Cài đặt bảo mật",
+          "description": "Quản lý bảo mật và quyền riêng tư tài khoản"
+        },
+        "preferences": {
+          "title": "Tùy chọn",
+          "description": "Tùy chỉnh cài đặt và tùy chọn tài khoản"
+        },
+        "payment": {
+          "title": "Phương thức thanh toán",
+          "description": "Quản lý phương thức thanh toán và thông tin thanh toán"
+        },
+        "loyalty": {
+          "title": "Chương trình thành viên",
+          "description": "Xem điểm thành viên, ưu đãi và quyền lợi"
+        },
+        "addresses": {
+          "title": "Sổ địa chỉ",
+          "description": "Quản lý địa chỉ giao hàng và thanh toán"
+        },
+        "notifications": {
+          "title": "Thông báo",
+          "description": "Quản lý tùy chọn và cảnh báo thông báo"
+        },
+        "wishlist": {
+          "title": "Danh sách yêu thích",
+          "description": "Quản lý các mục đã lưu và danh sách yêu thích"
+        }
+      },
       "title": "Hồ sơ của tôi",
       "subtitle": "Quản lý cài đặt tài khoản và tùy chọn của bạn",
       "tabs": {
@@ -510,7 +552,36 @@
         "added_success": "Thêm địa chỉ thành công",
         "added_success_desc": "Địa chỉ mới của bạn đã được lưu thành công.",
         "removed_success": "Đã xóa địa chỉ",
-        "removed_success_desc": "Địa chỉ đã được xóa khỏi tài khoản của bạn."
+        "removed_success_desc": "Địa chỉ đã được xóa khỏi tài khoản của bạn.",
+        "update_success": "Cập nhật địa chỉ thành công",
+        "update_success_desc": "Địa chỉ của bạn đã được cập nhật thành công.",
+        "edit_address": "Chỉnh sửa địa chỉ",
+        "confirm_delete": "Bạn có chắc chắn muốn xóa địa chỉ này?",
+        "save_error": "Không thể lưu địa chỉ. Vui lòng thử lại.",
+        "delete_error": "Không thể xóa địa chỉ. Vui lòng thử lại.",
+        "default_set": "Đặt địa chỉ mặc định thành công",
+        "default_set_desc": "Địa chỉ này đã được đặt làm mặc định.",
+        "set_default_error": "Không thể đặt địa chỉ mặc định. Vui lòng thử lại.",
+        "first_name": "Tên",
+        "last_name": "Họ",
+        "phone_number": "Số điện thoại",
+        "email": "Email",
+        "company_name": "Tên công ty",
+        "address_line_1": "Địa chỉ dòng 1",
+        "address_line_2": "Địa chỉ dòng 2",
+        "postal_code": "Mã bưu điện",
+        "province": "Tỉnh/Thành phố",
+        "ward": "Quận/Huyện",
+        "label": "Nhãn",
+        "label_placeholder": "ví dụ: Nhà riêng, Công ty, Nhà bố mẹ",
+        "delivery_instructions": "Hướng dẫn giao hàng",
+        "delivery_instructions_placeholder": "ví dụ: Để ở cửa, Gọi khi đến nơi",
+        "select_country": "Chọn quốc gia",
+        "select_province": "Chọn tỉnh/thành phố",
+        "select_ward": "Chọn quận/huyện",
+        "type_billing": "Thanh toán",
+        "type_shipping": "Giao hàng",
+        "type_both": "Cả hai"
       },
       "security": {
         "title": "Bảo mật",

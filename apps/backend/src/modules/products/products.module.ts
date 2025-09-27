@@ -47,6 +47,8 @@ import { WarehouseRepository } from './repositories/warehouse.repository';
 import { OrderRepository } from './repositories/order.repository';
 import { CustomerRepository } from './repositories/customer.repository';
 import { AddressBookRepository } from './repositories/address-book.repository';
+import { CountryRepository } from './repositories/country.repository';
+import { AdministrativeDivisionRepository } from './repositories/administrative-division.repository';
 import { PaymentMethodRepository } from './repositories/payment-method.repository';
 import { DeliveryMethodRepository } from './repositories/delivery-method.repository';
 import { WishlistRepository } from './repositories/wishlist.repository';
@@ -56,6 +58,7 @@ import { PurchaseOrderService } from './services/purchase-order.service';
 import { AdminOrderService } from './services/admin-order.service';
 import { AdminCustomerService } from './services/admin-customer.service';
 import { AdminAddressBookService } from './services/admin-address-book.service';
+import { ClientAddressBookService } from './services/client-address-book.service';
 import { PaymentMethodService } from './services/payment-method.service';
 import { DeliveryMethodService } from './services/delivery-method.service';
 import { ProductTransformer } from './transformers/product.transformer';
@@ -73,8 +76,8 @@ import { AdminCustomersRouter } from './routers/admin-customers.router';
 import { AdminAddressBookRouter } from './routers/admin-address-book.router';
 import { AdminPaymentMethodsRouter } from './routers/admin-payment-methods.router';
 import { AdminDeliveryMethodsRouter } from './routers/admin-delivery-methods.router';
-import { WishlistClientRouter } from '../../trpc/routers/client/wishlist.router';
-import { WishlistAdminRouter } from '../../trpc/routers/wishlist.router';
+import { AdminWishlistRouter } from './routers/admin-wishlist.router';
+import { ClientAddressBookRouter } from './routers/client-address-book.router';
 
 @Module({
   imports: [
@@ -130,6 +133,8 @@ import { WishlistAdminRouter } from '../../trpc/routers/wishlist.router';
     OrderRepository,
     CustomerRepository,
     AddressBookRepository,
+    CountryRepository,
+    AdministrativeDivisionRepository,
     PaymentMethodRepository,
     DeliveryMethodRepository,
     WishlistRepository,
@@ -140,6 +145,7 @@ import { WishlistAdminRouter } from '../../trpc/routers/wishlist.router';
     AdminOrderService,
     AdminCustomerService,
     AdminAddressBookService,
+    ClientAddressBookService,
     PaymentMethodService,
     DeliveryMethodService,
     AdminProductsRouter,
@@ -155,8 +161,8 @@ import { WishlistAdminRouter } from '../../trpc/routers/wishlist.router';
     AdminAddressBookRouter,
     AdminPaymentMethodsRouter,
     AdminDeliveryMethodsRouter,
-    WishlistClientRouter,
-    WishlistAdminRouter,
+    AdminWishlistRouter,
+    ClientAddressBookRouter,
     DeliveryMethodService,
   ],
   exports: [
@@ -176,6 +182,8 @@ import { WishlistAdminRouter } from '../../trpc/routers/wishlist.router';
     OrderRepository,
     CustomerRepository,
     AddressBookRepository,
+    CountryRepository,
+    AdministrativeDivisionRepository,
     PaymentMethodRepository,
     DeliveryMethodRepository,
     WishlistRepository,
@@ -186,6 +194,7 @@ import { WishlistAdminRouter } from '../../trpc/routers/wishlist.router';
     AdminOrderService,
     AdminCustomerService,
     AdminAddressBookService,
+    ClientAddressBookService,
     PaymentMethodService,
     DeliveryMethodService,
     AdminProductsRouter,
@@ -201,8 +210,8 @@ import { WishlistAdminRouter } from '../../trpc/routers/wishlist.router';
     AdminAddressBookRouter,
     AdminPaymentMethodsRouter,
     AdminDeliveryMethodsRouter,
-    WishlistClientRouter,
-    WishlistAdminRouter,
+    AdminWishlistRouter,
+    ClientAddressBookRouter,
   ],
 })
 export class ProductsModule {}
