@@ -3,6 +3,7 @@ import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
 import { Order } from './order.entity';
 import { AddressBook } from './address-book.entity';
+import { Wishlist } from './wishlist.entity';
 
 export enum CustomerType {
   INDIVIDUAL = 'INDIVIDUAL',
@@ -277,6 +278,9 @@ export class Customer extends BaseEntity {
 
   @OneToMany(() => AddressBook, (addressBook) => addressBook.customer)
   addressBook: AddressBook[];
+
+  @OneToMany(() => Wishlist, (wishlist) => wishlist.customer)
+  wishlists: Wishlist[];
 
   // Virtual properties
   get fullName(): string {

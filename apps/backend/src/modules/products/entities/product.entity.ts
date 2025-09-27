@@ -10,6 +10,7 @@ import { ProductVariant } from './product-variant.entity';
 import { ProductAttribute } from './product-attribute.entity';
 import { ProductMedia } from './product-media.entity';
 import { ProductCategory } from './product-category.entity';
+import { Wishlist } from './wishlist.entity';
 
 export enum ProductStatus {
   DRAFT = 'DRAFT',
@@ -173,6 +174,9 @@ export class Product extends BaseEntity {
 
   @OneToMany(() => ProductCategory, (productCategory) => productCategory.product)
   productCategories: ProductCategory[];
+
+  @OneToMany(() => Wishlist, (wishlist) => wishlist.product)
+  wishlists: Wishlist[];
 
   // Getter for categories through ProductCategory junction
   async getCategories(): Promise<Category[]> {

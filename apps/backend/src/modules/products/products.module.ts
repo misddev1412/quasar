@@ -31,6 +31,7 @@ import { Country } from './entities/country.entity';
 import { AdministrativeDivision } from './entities/administrative-division.entity';
 import { PaymentMethod } from './entities/payment-method.entity';
 import { DeliveryMethod } from './entities/delivery-method.entity';
+import { Wishlist } from './entities/wishlist.entity';
 import { AttributeRepository } from './repositories/attribute.repository';
 import { BrandRepository } from './repositories/brand.repository';
 import { InventoryItemRepository } from './repositories/inventory-item.repository';
@@ -48,6 +49,7 @@ import { CustomerRepository } from './repositories/customer.repository';
 import { AddressBookRepository } from './repositories/address-book.repository';
 import { PaymentMethodRepository } from './repositories/payment-method.repository';
 import { DeliveryMethodRepository } from './repositories/delivery-method.repository';
+import { WishlistRepository } from './repositories/wishlist.repository';
 import { AdminProductService } from './services/admin-product.service';
 import { WarehouseService } from './services/warehouse.service';
 import { PurchaseOrderService } from './services/purchase-order.service';
@@ -71,6 +73,8 @@ import { AdminCustomersRouter } from './routers/admin-customers.router';
 import { AdminAddressBookRouter } from './routers/admin-address-book.router';
 import { AdminPaymentMethodsRouter } from './routers/admin-payment-methods.router';
 import { AdminDeliveryMethodsRouter } from './routers/admin-delivery-methods.router';
+import { WishlistClientRouter } from '../../trpc/routers/client/wishlist.router';
+import { WishlistAdminRouter } from '../../trpc/routers/wishlist.router';
 
 @Module({
   imports: [
@@ -106,6 +110,7 @@ import { AdminDeliveryMethodsRouter } from './routers/admin-delivery-methods.rou
       AdministrativeDivision,
       PaymentMethod,
       DeliveryMethod,
+      Wishlist,
     ]),
     SharedModule,
   ],
@@ -127,6 +132,7 @@ import { AdminDeliveryMethodsRouter } from './routers/admin-delivery-methods.rou
     AddressBookRepository,
     PaymentMethodRepository,
     DeliveryMethodRepository,
+    WishlistRepository,
     ProductTransformer,
     AdminProductService,
     WarehouseService,
@@ -149,8 +155,9 @@ import { AdminDeliveryMethodsRouter } from './routers/admin-delivery-methods.rou
     AdminAddressBookRouter,
     AdminPaymentMethodsRouter,
     AdminDeliveryMethodsRouter,
+    WishlistClientRouter,
+    WishlistAdminRouter,
     DeliveryMethodService,
-    AdminDeliveryMethodsRouter,
   ],
   exports: [
     TypeOrmModule,
@@ -171,6 +178,7 @@ import { AdminDeliveryMethodsRouter } from './routers/admin-delivery-methods.rou
     AddressBookRepository,
     PaymentMethodRepository,
     DeliveryMethodRepository,
+    WishlistRepository,
     ProductTransformer,
     AdminProductService,
     WarehouseService,
@@ -193,6 +201,8 @@ import { AdminDeliveryMethodsRouter } from './routers/admin-delivery-methods.rou
     AdminAddressBookRouter,
     AdminPaymentMethodsRouter,
     AdminDeliveryMethodsRouter,
+    WishlistClientRouter,
+    WishlistAdminRouter,
   ],
 })
 export class ProductsModule {}

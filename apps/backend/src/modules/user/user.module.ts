@@ -39,6 +39,7 @@ import { ClientUserRouter } from '../../trpc/routers/client';
 import { SharedModule } from '../shared/shared.module';
 import { AuthModule } from '../../auth/auth.module';
 import { FirebaseModule } from '../firebase/firebase.module';
+import { ProductsModule } from '../products/products.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { FirebaseModule } from '../firebase/firebase.module';
     SharedModule,
     forwardRef(() => AuthModule),
     FirebaseModule,
+    forwardRef(() => ProductsModule),
   ],
   controllers: [AdminUserController],
   providers: [

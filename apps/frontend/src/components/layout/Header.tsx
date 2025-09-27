@@ -262,7 +262,7 @@ const UserMenu: React.FC<{
     {
       key: 'account',
       label: t('layout.header.user.account'),
-      href: '/account',
+      href: '/profile',
       icon: <Icons.Account />
     },
     {
@@ -381,7 +381,7 @@ const MobileMenuItems: React.FC<{
     {
       key: 'account',
       label: t('layout.header.user.account'),
-      href: '/account',
+      href: '/profile',
       icon: <Icons.Account />
     },
     {

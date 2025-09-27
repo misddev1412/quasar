@@ -5,6 +5,12 @@ const { heroui } = require('@heroui/theme');
 module.exports = {
   presets: [sharedConfig],
   content: [
+    // Current working directory (frontend app)
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    // Monorepo structure
     './apps/admin/src/**/*.{js,ts,jsx,tsx,mdx}',
     './apps/client/src/**/*.{js,ts,jsx,tsx,mdx}',
     './apps/frontend/src/**/*.{js,ts,jsx,tsx,mdx}',

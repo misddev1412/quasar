@@ -32,7 +32,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
-  updateUser: (user: User) => void;
+  updateUser: (user: User) => Promise<void>;
   checkAuth: () => Promise<void>;
 }
 
@@ -234,8 +234,66 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     router.push('/login');
   };
 
-  const updateUser = (updatedUser: User) => {
-    setUser(updatedUser);
+  const updateUser = async (updatedUser: User) => {
+    try {
+      const { trpcClient } = await import('../utils/trpc');
+
+      // Prepare update data - handle null values properly
+      const updateData = {
+        avatar: updatedUser.avatar,
+        firstName: updatedUser.firstName || undefined,
+        lastName: updatedUser.lastName || undefined,
+        phoneNumber: updatedUser.phoneNumber || undefined,
+      };
+
+      // Use the updateProfile endpoint with proper null handling
+      const response = await (trpcClient as any).clientUser.updateProfile.mutate(
+        updateData,
+        updatedUser.id
+      );
+
+      if (response?.data) {
+        // Update local state with the response
+        setUser(updatedUser);
+
+        // Show success message
+        appEvents.emit('show-toast', {
+          type: 'success',
+          title: 'Profile Updated',
+          description: 'Your profile has been updated successfully.',
+        });
+      }
+    } catch (error: any) {
+      console.error('Failed to update profile:', error);
+      // Show error message
+      appEvents.emit('show-toast', {
+        type: 'error',
+        title: 'Update Failed',
+        description: error.message || 'Failed to update profile. Please try again.',
+      });
+      // Revert to previous state by calling getProfile to refresh
+      try {
+        const { trpcClient } = await import('../utils/trpc');
+        const userData = await (trpcClient as any).clientUser.getProfile.query();
+        if (userData?.data) {
+          const user = userData.data;
+          const profile = user.profile || {};
+          setUser({
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            firstName: profile.firstName,
+            lastName: profile.lastName,
+            name: `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || user.username || user.email,
+            avatar: profile.avatar,
+            role: user.role,
+            phoneNumber: profile.phoneNumber,
+          });
+        }
+      } catch (refreshError) {
+        console.error('Failed to refresh profile:', refreshError);
+      }
+    }
   };
 
   const value = {

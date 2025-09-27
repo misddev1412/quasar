@@ -8,6 +8,7 @@ import { UserInjectionMiddleware } from '../../middlewares/user-injection.middle
 import { UserRole } from '@shared';
 import { apiResponseSchema } from '../../schemas/response.schemas';
 import { AuthenticatedContext } from '../../context';
+import { CustomerRepository } from '../../../modules/products/repositories/customer.repository';
 
 // Zod schemas for validation
 const clientRegisterSchema = z.object({
@@ -35,6 +36,10 @@ const clientUpdateProfileSchema = z.object({
   city: z.string().optional(),
   country: z.string().optional(),
   postalCode: z.string().optional(),
+});
+
+const updateAvatarSchema = z.object({
+  avatar: z.string().url().nullable(),
 });
 
 const clientUserProfileSchema = z.object({
@@ -70,6 +75,30 @@ const refreshTokenSchema = z.object({
   refreshToken: z.string(),
 });
 
+// Loyalty system schemas
+const loyaltyBalanceSchema = z.object({
+  currentPoints: z.number(),
+  lifetimePoints: z.number(),
+  tier: z.string().optional(),
+  nextTier: z.string().optional(),
+  pointsToNextTier: z.number().optional(),
+});
+
+const loyaltyTransactionSchema = z.object({
+  id: z.string(),
+  points: z.number(),
+  type: z.enum(['earned', 'redeemed', 'expired', 'adjusted']),
+  description: z.string(),
+  orderId: z.string().optional(),
+  createdAt: z.date(),
+  expiresAt: z.date().optional(),
+});
+
+const loyaltyRedeemSchema = z.object({
+  points: z.number().positive(),
+  description: z.string().min(1),
+});
+
 
 
 @Router({ alias: 'clientUser' })
@@ -80,6 +109,8 @@ export class ClientUserRouter {
     private readonly clientUserService: ClientUserService,
     @Inject(ResponseService)
     private readonly responseHandler: ResponseService,
+    @Inject(CustomerRepository)
+    private readonly customerRepository: CustomerRepository,
   ) {}
 
   @Mutation({
@@ -170,11 +201,15 @@ export class ClientUserRouter {
   })
   async updateProfile(
     @Input() updateProfileDto: z.infer<typeof clientUpdateProfileSchema>,
-    @Input() userId: string
+    @Ctx() { user }: AuthenticatedContext
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+
       const result = await this.clientUserService.updateProfile(
-        userId,
+        user.id,
         updateProfileDto
       );
       return this.responseHandler.createTrpcSuccess(result);
@@ -184,6 +219,35 @@ export class ClientUserRouter {
         3,  // OperationCode.UPDATE
         30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
         error.message || 'Failed to update profile'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, UserInjectionMiddleware)
+  @Mutation({
+    input: updateAvatarSchema,
+    output: apiResponseSchema,
+  })
+  async updateAvatar(
+    @Input() avatarData: z.infer<typeof updateAvatarSchema>,
+    @Ctx() { user }: AuthenticatedContext
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+
+      const result = await this.clientUserService.updateProfile(
+        user.id,
+        avatarData
+      );
+      return this.responseHandler.createTrpcSuccess(result);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        10, // ModuleCode.USER
+        3,  // OperationCode.UPDATE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+        error.message || 'Failed to update avatar'
       );
     }
   }
@@ -206,5 +270,137 @@ export class ClientUserRouter {
         error.message || 'Token refresh failed'
       );
     }
+  }
+
+  // Loyalty system endpoints
+  @UseMiddlewares(AuthMiddleware)
+  @Query({
+    output: apiResponseSchema,
+  })
+  async getLoyaltyBalance(
+    @Ctx() { user }: AuthenticatedContext
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+
+      const customer = await this.customerRepository.findByUserId(user.id);
+      if (!customer) {
+        throw new Error('Customer profile not found');
+      }
+
+      const loyaltyData = {
+        currentPoints: customer.loyaltyPoints || 0,
+        lifetimePoints: customer.totalSpent || 0, // Using totalSpent as lifetime points for now
+        tier: this.getCustomerTier(customer.loyaltyPoints || 0),
+        nextTier: this.getNextTier(customer.loyaltyPoints || 0),
+        pointsToNextTier: this.getPointsToNextTier(customer.loyaltyPoints || 0),
+      };
+
+      return this.responseHandler.createTrpcSuccess(loyaltyData);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        10, // ModuleCode.USER
+        2,  // OperationCode.READ
+        4,  // ErrorLevelCode.NOT_FOUND
+        error.message || 'Failed to retrieve loyalty balance'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware)
+  @Query({
+    output: apiResponseSchema,
+  })
+  async getLoyaltyHistory(
+    @Ctx() { user }: AuthenticatedContext
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+
+      const customer = await this.customerRepository.findByUserId(user.id);
+      if (!customer) {
+        throw new Error('Customer profile not found');
+      }
+
+      // For now, return empty array until we implement loyalty transactions table
+      const transactions = [];
+
+      return this.responseHandler.createTrpcSuccess(transactions);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        10, // ModuleCode.USER
+        2,  // OperationCode.READ
+        4,  // ErrorLevelCode.NOT_FOUND
+        error.message || 'Failed to retrieve loyalty history'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware)
+  @Mutation({
+    input: loyaltyRedeemSchema,
+    output: apiResponseSchema,
+  })
+  async redeemLoyaltyPoints(
+    @Input() redeemData: z.infer<typeof loyaltyRedeemSchema>,
+    @Ctx() { user }: AuthenticatedContext
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+
+      const customer = await this.customerRepository.findByUserId(user.id);
+      if (!customer) {
+        throw new Error('Customer profile not found');
+      }
+
+      const success = await this.customerRepository.redeemLoyaltyPoints(
+        customer.id,
+        redeemData.points
+      );
+
+      if (!success) {
+        throw new Error('Insufficient loyalty points');
+      }
+
+      return this.responseHandler.createTrpcSuccess({
+        message: `Successfully redeemed ${redeemData.points} points`,
+        pointsRedeemed: redeemData.points,
+        remainingPoints: (customer.loyaltyPoints || 0) - redeemData.points,
+      });
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        10, // ModuleCode.USER
+        3,  // OperationCode.UPDATE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+        error.message || 'Failed to redeem loyalty points'
+      );
+    }
+  }
+
+  private getCustomerTier(points: number): string {
+    if (points >= 1000) return 'Platinum';
+    if (points >= 500) return 'Gold';
+    if (points >= 200) return 'Silver';
+    return 'Bronze';
+  }
+
+  private getNextTier(points: number): string | null {
+    if (points < 200) return 'Silver';
+    if (points < 500) return 'Gold';
+    if (points < 1000) return 'Platinum';
+    return null;
+  }
+
+  private getPointsToNextTier(points: number): number | null {
+    if (points < 200) return 200 - points;
+    if (points < 500) return 500 - points;
+    if (points < 1000) return 1000 - points;
+    return null;
   }
 } 

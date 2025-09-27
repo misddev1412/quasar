@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useModalContext } from '../../context/ModalContext';
 import {
   X,
   Upload,
@@ -24,9 +23,9 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { trpc } from '../../utils/trpc';
-import { useToast } from '../../context/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { InputWithIcon } from './InputWithIcon';
+import { useToast } from '../../contexts/ToastContext';
+import { useTranslation } from 'react-i18next';
+import { Input } from './Input';
 import clsx from 'clsx';
 
 interface MediaFile {
@@ -36,7 +35,7 @@ interface MediaFile {
   url: string;
   mimeType: string;
   type: 'image' | 'video' | 'audio' | 'document' | 'other';
-  size: number | string; // Can be string from API response
+  size: number | string;
   folder: string;
   provider: string;
   alt?: string;
@@ -45,9 +44,9 @@ interface MediaFile {
   userId: string;
   createdAt: string;
   updatedAt: string;
-  sizeFormatted?: string; // Optional since it might not come from API
-  isImage?: boolean; // Optional since it might not come from API
-  isVideo?: boolean; // Optional since it might not come from API
+  sizeFormatted?: string;
+  isImage?: boolean;
+  isVideo?: boolean;
 }
 
 interface MediaResponse {
@@ -56,14 +55,6 @@ interface MediaResponse {
   page: number;
   limit: number;
   totalPages: number;
-}
-
-interface TrpcResponse<T = any> {
-  code: number;
-  status: string;
-  data?: T;
-  errors?: any[];
-  timestamp: string;
 }
 
 interface UploadedFile {
@@ -98,21 +89,9 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
   selectedFiles = [],
   title = 'Media Manager',
 }) => {
-  const { t } = useTranslationWithBackend();
-  const { addToast } = useToast();
+  const { t } = useTranslation();
+  const { showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { pushModal, popModal, modalStack } = useModalContext();
-  const modalId = 'media-manager';
-
-  // Manage modal in stack
-  useEffect(() => {
-    if (isOpen) {
-      pushModal(modalId);
-      return () => {
-        popModal(modalId);
-      };
-    }
-  }, [isOpen, modalId, pushModal, popModal]);
 
   // Library state
   const [searchQuery, setSearchQuery] = useState('');
@@ -140,25 +119,24 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
     page,
     limit: 15,
     search: searchQuery || undefined,
-    type: selectedType !== 'all' ? selectedType : undefined,
+    type: selectedType !== 'all' ? selectedType as any : undefined,
     sortBy: 'createdAt',
     sortOrder: 'DESC',
-  });
-
+  } as any);
 
   const deleteMediaMutation = trpc.adminMedia.deleteMedia.useMutation({
     onSuccess: () => {
-      addToast({
+      showToast({
         type: 'success',
-        title: t('messages.media_deleted_successfully'),
-        description: t('messages.media_deleted_successfully_description'),
+        title: t('messages.media_deleted_successfully', 'Media deleted successfully'),
+        description: t('messages.media_deleted_successfully_description', 'The media file has been deleted'),
       });
       refetch();
     },
     onError: (error) => {
-      addToast({
+      showToast({
         type: 'error',
-        title: t('messages.failed_to_delete_media'),
+        title: t('messages.failed_to_delete_media', 'Failed to delete media'),
         description: error.message,
       });
     },
@@ -192,7 +170,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
         }
         return file.type === type;
       });
-      
+
       if (!isAccepted) {
         return `File "${file.name}" has an unsupported format. Accepted: ${accept.replace(/,/g, ', ')}`;
       }
@@ -204,7 +182,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
   const processFile = useCallback(async (file: File) => {
     const validationError = validateFile(file);
     if (validationError) {
-      addToast({
+      showToast({
         type: 'error',
         title: 'Upload Error',
         description: validationError,
@@ -229,7 +207,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
     };
 
     setUploadedFiles(prev => [...prev, uploadedFile]);
-  }, [addToast, maxSize, accept]);
+  }, [showToast, maxSize, accept]);
 
   // Handle file selection from library
   const handleFileSelect = (file: MediaFile) => {
@@ -254,10 +232,10 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
     );
 
     if (selectedMedia.length === 0) {
-      addToast({
+      showToast({
         type: 'warning',
-        title: t('messages.no_files_selected'),
-        description: t('messages.please_select_files'),
+        title: t('messages.no_files_selected', 'No files selected'),
+        description: t('messages.please_select_files', 'Please select files to continue'),
       });
       return;
     }
@@ -275,7 +253,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
   const handleDrop = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     setDragActive(false);
-    
+
     const files = Array.from(event.dataTransfer.files);
     files.forEach(processFile);
   }, [processFile]);
@@ -308,13 +286,13 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
       formData.append('folder', 'gallery');
 
       // Get auth token
-      const token = typeof window !== 'undefined' ? localStorage.getItem('admin_access_token') : null;
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
 
       if (!token) {
         throw new Error('Authentication required');
       }
 
-      // Upload to server using fetch (since tRPC doesn't handle file uploads well)
+      // Upload to server using fetch
       const response = await fetch('http://localhost:3000/api/upload/multiple', {
         method: 'POST',
         body: formData,
@@ -330,7 +308,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
 
       const result = await response.json();
 
-      addToast({
+      showToast({
         type: 'success',
         title: 'Upload complete',
         description: `${uploadedFiles.length} file${uploadedFiles.length !== 1 ? 's' : ''} uploaded successfully`,
@@ -351,7 +329,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
 
     } catch (error) {
       console.error('Upload error:', error);
-      addToast({
+      showToast({
         type: 'error',
         title: 'Upload failed',
         description: error instanceof Error ? error.message : 'An error occurred while uploading files',
@@ -359,11 +337,11 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
     } finally {
       setIsUploading(false);
     }
-  }, [uploadedFiles, addToast, refetch]);
+  }, [uploadedFiles, showToast, refetch]);
 
   // Handle delete file
   const handleDeleteFile = (fileId: string) => {
-    if (confirm(t('messages.confirm_delete_media'))) {
+    if (confirm(t('messages.confirm_delete_media', 'Are you sure you want to delete this media file?'))) {
       deleteMediaMutation.mutate({ id: fileId });
     }
   };
@@ -399,19 +377,18 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
     const sizes = ['B', 'KB', 'MB', 'GB'];
     let size = bytes;
     let sizeIndex = 0;
-    
+
     while (size >= 1024 && sizeIndex < sizes.length - 1) {
       size /= 1024;
       sizeIndex++;
     }
-    
+
     return `${size.toFixed(sizeIndex === 0 ? 0 : 1)} ${sizes[sizeIndex]}`;
   };
 
   if (!isOpen) return null;
 
-  // Extract media response from the nested tRPC response structure
-  // The tRPC response is: { result: { data: { data: { media: [...] } } } }
+  // Extract media response from the tRPC response structure
   let mediaResponse: MediaResponse | undefined;
   let media: MediaFile[] = [];
   let hasMore = false;
@@ -419,11 +396,11 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
   if (mediaData) {
     // Try different possible response structures
     const possiblePaths = [
-      (mediaData as any)?.result?.data?.data,        // { result: { data: { data: {...} } } }
-      (mediaData as any)?.data?.data,                // { data: { data: {...} } }
-      (mediaData as any)?.result?.data,              // { result: { data: {...} } }
-      (mediaData as any)?.data,                      // { data: {...} }
-      mediaData                                      // Direct response
+      (mediaData as any)?.result?.data?.data,
+      (mediaData as any)?.data?.data,
+      (mediaData as any)?.result?.data,
+      (mediaData as any)?.data,
+      mediaData
     ];
 
     for (const path of possiblePaths) {
@@ -436,16 +413,12 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
     }
   }
 
-  // Calculate z-index based on position in modal stack
-  const modalIndex = modalStack.indexOf(modalId);
-  const zIndex = 10000 + (modalIndex >= 0 ? modalIndex * 10 : 0);
-
   const modalContent = (
     <div
       className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-6"
       style={{
         pointerEvents: 'auto',
-        zIndex: zIndex
+        zIndex: 9999
       }}
       onClick={(e) => {
         // Only close if clicking the backdrop, not the modal content
@@ -523,7 +496,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                 </button>
               </div>
             )}
-            
+
             <button
               onClick={onClose}
               className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -542,14 +515,13 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
               <div className="flex flex-col sm:flex-row gap-4">
                 {/* Search */}
                 <div className="flex-1">
-                  <InputWithIcon
+                  <Input
                     type="text"
-                    placeholder={`${t('common.search')} files...`}
+                    placeholder={`${t('common.search', 'Search')} files...`}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    leftIcon={<Search className="w-4 h-4 text-gray-400" />}
-                    iconSpacing="standard"
-                    className="h-10 rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    startContent={<Search className="w-4 h-4 text-gray-400" />}
+                    className="h-10"
                   />
                 </div>
 
@@ -570,7 +542,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                   </select>
                 </div>
               </div>
-              
+
               {/* Search/Filter Results Info */}
               {(searchQuery || selectedType !== 'all') && mediaResponse && (
                 <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
@@ -617,7 +589,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                     {searchQuery || selectedType !== 'all' ? 'No files match your search' : 'No files yet'}
                   </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-sm">
-                    {searchQuery || selectedType !== 'all' 
+                    {searchQuery || selectedType !== 'all'
                       ? 'Try adjusting your search terms or filters to find what you\'re looking for.'
                       : 'Upload your first files to get started with your media library.'
                     }
@@ -910,8 +882,8 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
               <div className="p-8 sm:p-12 text-center">
                 <div className={clsx(
                   'w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center transition-all duration-300',
-                  dragActive 
-                    ? 'bg-primary-100 dark:bg-primary-900/40 scale-110' 
+                  dragActive
+                    ? 'bg-primary-100 dark:bg-primary-900/40 scale-110'
                     : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-primary-50 dark:group-hover:bg-primary-900/20 group-hover:scale-105'
                 )}>
                   <Upload className={clsx(
@@ -919,7 +891,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                     dragActive ? 'text-primary-600' : 'text-gray-400 group-hover:text-primary-500'
                   )} />
                 </div>
-                
+
                 {isUploading ? (
                   <div className="flex flex-col items-center justify-center space-y-3">
                     <div className="flex items-center space-x-2">
@@ -934,7 +906,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                       {dragActive ? 'Drop your files here!' : `Upload ${multiple ? 'files' : 'a file'}`}
                     </h3>
                     <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                      {dragActive 
+                      {dragActive
                         ? 'Release to upload your files'
                         : 'Drag and drop files here, or click the button below to browse'
                       }
@@ -1017,7 +989,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                           </div>
                         )}
                       </div>
-                      
+
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate" title={uploadedFile.file.name}>
                           {uploadedFile.file.name}
@@ -1036,7 +1008,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                           </p>
                         </div>
                       </div>
-                      
+
                       <button
                         type="button"
                         onClick={() => handleRemoveUploadedFile(index)}

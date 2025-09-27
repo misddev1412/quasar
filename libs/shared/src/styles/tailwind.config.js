@@ -213,13 +213,8 @@ module.exports = {
         widest: '0.1em',
       },
       
-      // Spacing
+      // Spacing extensions (additional values beyond Tailwind defaults)
       spacing: {
-        px: '0.0625rem',
-        0.5: '0.125rem',
-        1.5: '0.375rem',
-        2.5: '0.625rem',
-        3.5: '0.875rem',
         18: '4.5rem',
         112: '28rem',
         128: '32rem',
@@ -248,9 +243,11 @@ module.exports = {
         '2xl': '1rem',
         '3xl': '1.5rem',
         full: '9999px',
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        // Custom variable-based radius (using different keys to avoid conflicts)
+        'var-sm': 'calc(var(--radius) - 4px)',
+        'var-md': 'calc(var(--radius) - 2px)',
+        'var-lg': 'var(--radius)',
+        'var-xl': 'calc(var(--radius) + 2px)',
       },
       
       // Breakpoints (already included in Tailwind by default, but defining for clarity)

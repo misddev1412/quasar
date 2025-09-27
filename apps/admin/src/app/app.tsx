@@ -10,6 +10,8 @@ import { createTheme } from '@mui/material/styles';
 import { AuthProvider } from '../context/AuthContext';
 import { FirebaseAuthProvider } from '../hooks/useFirebaseAuth';
 import { ModalProvider } from '../context/ModalContext';
+import { RouteLoadingProvider } from '../context/RouteLoadingContext';
+import RouteLoadingIndicator from '../components/common/RouteLoadingIndicator';
 
 export function App() {
   // 创建 MUI 主题
@@ -46,13 +48,16 @@ export function App() {
           <CustomThemeProvider>
             <ToastProvider>
               <ModalProvider>
-                <LayoutProvider>
-                  <AuthProvider>
-                    <FirebaseAuthProvider>
-                      <AppRoutes />
-                    </FirebaseAuthProvider>
-                  </AuthProvider>
-                </LayoutProvider>
+                <RouteLoadingProvider>
+                  <LayoutProvider>
+                    <AuthProvider>
+                      <FirebaseAuthProvider>
+                        <AppRoutes />
+                      </FirebaseAuthProvider>
+                    </AuthProvider>
+                  </LayoutProvider>
+                  <RouteLoadingIndicator />
+                </RouteLoadingProvider>
               </ModalProvider>
             </ToastProvider>
           </CustomThemeProvider>

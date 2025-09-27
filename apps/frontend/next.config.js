@@ -13,7 +13,7 @@ const nextConfig = {
   },
 
   // SEO-friendly trailing slashes
-  trailingSlash: true,
+  trailingSlash: false,
 
   // Skip static generation for development
   output: 'standalone',
