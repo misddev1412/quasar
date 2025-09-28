@@ -66,6 +66,9 @@ export class UserSession extends BaseEntity {
   @Column({ name: 'is_remember_me', default: false })
   isRememberMe: boolean;
 
+  @Column({ name: 'is_current', default: false })
+  isCurrent: boolean;
+
   @Column({
     name: 'session_data',
     type: 'jsonb',

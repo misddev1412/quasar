@@ -1,9 +1,9 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
-import { Customer } from './customer.entity';
-import { Country } from './country.entity';
-import { AdministrativeDivision } from './administrative-division.entity';
+import { Country } from '../../products/entities/country.entity';
+import { AdministrativeDivision } from '../../products/entities/administrative-division.entity';
+import { AddressBookConfig, AddressConfigType } from './address-book-config.entity';
 
 export enum AddressType {
   BILLING = 'BILLING',
@@ -145,9 +145,9 @@ export class AddressBook extends BaseEntity {
   deliveryInstructions?: string;
 
   // Relations
-  @ManyToOne(() => Customer, (customer) => customer.addressBook)
+  @ManyToOne('Customer', 'addressBook')
   @JoinColumn({ name: 'customer_id' })
-  customer: Customer;
+  customer: any;
 
   @ManyToOne(() => Country, { lazy: true })
   @JoinColumn({ name: 'country_id' })
@@ -160,6 +160,18 @@ export class AddressBook extends BaseEntity {
   @ManyToOne(() => AdministrativeDivision, { lazy: true })
   @JoinColumn({ name: 'ward_id' })
   ward: Promise<AdministrativeDivision>;
+
+  @ManyToOne(() => AddressBookConfig, { lazy: true })
+  @JoinColumn({ name: 'config_id' })
+  config: Promise<AddressBookConfig>;
+
+  @Expose()
+  @Column({
+    name: 'config_id',
+    type: 'uuid',
+    nullable: true,
+  })
+  configId?: string;
 
   // Virtual properties
   get fullName(): string {
@@ -186,6 +198,65 @@ export class AddressBook extends BaseEntity {
 
   get isBillingAddress(): boolean {
     return this.addressType === AddressType.BILLING || this.addressType === AddressType.BOTH;
+  }
+
+  async getConfig(): Promise<AddressBookConfig | null> {
+    return this.config ? await this.config : null;
+  }
+
+  async isPostalCodeRequired(): Promise<boolean> {
+    const config = await this.getConfig();
+    if (!config || config.configKey !== AddressConfigType.REQUIRE_POSTAL_CODE) {
+      return false;
+    }
+    return config.getBooleanValue();
+  }
+
+  async isPhoneRequired(): Promise<boolean> {
+    const config = await this.getConfig();
+    if (!config || config.configKey !== AddressConfigType.REQUIRE_PHONE) {
+      return false;
+    }
+    return config.getBooleanValue();
+  }
+
+  async isCompanyRequired(): Promise<boolean> {
+    const config = await this.getConfig();
+    if (!config || config.configKey !== AddressConfigType.REQUIRE_COMPANY) {
+      return false;
+    }
+    return config.getBooleanValue();
+  }
+
+  async getMaxAddressBookEntries(): Promise<number> {
+    const config = await this.getConfig();
+    if (!config || config.configKey !== AddressConfigType.MAX_ADDRESS_BOOK_ENTRIES) {
+      return 10; // Default value
+    }
+    return config.getNumberValue();
+  }
+
+  async validateAgainstConfig(): Promise<string[]> {
+    const errors: string[] = [];
+    const config = await this.getConfig();
+
+    if (!config) {
+      return errors;
+    }
+
+    if (config.configKey === AddressConfigType.REQUIRE_POSTAL_CODE && config.getBooleanValue() && !this.postalCode) {
+      errors.push('Postal code is required for this country');
+    }
+
+    if (config.configKey === AddressConfigType.REQUIRE_PHONE && config.getBooleanValue() && !this.phoneNumber) {
+      errors.push('Phone number is required for this country');
+    }
+
+    if (config.configKey === AddressConfigType.REQUIRE_COMPANY && config.getBooleanValue() && !this.companyName) {
+      errors.push('Company name is required for this country');
+    }
+
+    return errors;
   }
 
   async getFullAddress(): Promise<string> {

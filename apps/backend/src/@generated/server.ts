@@ -1,7 +1,7 @@
 // AppRouter types for tRPC client
 // This file is auto-generated from actual nestjs-trpc routers
 // Run 'npm run sync:trpc-types' to regenerate this file
-// Generated on: 2025-09-26T01:49:39.784Z
+// Generated on: 2025-09-27T10:32:26.282Z
 
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
@@ -316,6 +316,15 @@ const appRouter = t.router({
     getOutOfStock: t.procedure.query(() => null),
     getExpiringSoon: t.procedure.query(() => null),
   }),
+  adminWishlist: t.router({
+    list: t.procedure.input(z.any()).query(() => null),
+    detail: t.procedure.input(z.any()).query(() => null),
+    create: t.procedure.input(z.any()).mutation(() => null),
+    update: t.procedure.input(z.any()).mutation(() => null),
+    delete: t.procedure.input(z.any()).mutation(() => null),
+    updatePriority: t.procedure.input(z.any()).mutation(() => null),
+    stats: t.procedure.query(() => null),
+  }),
   adminProducts: t.router({
     list: t.procedure.input(z.any()).query(() => null),
     addTestMedia: t.procedure.input(z.any()).mutation(() => null),
@@ -325,6 +334,18 @@ const appRouter = t.router({
     delete: t.procedure.input(z.any()).mutation(() => null),
     stats: t.procedure.query(() => null),
     updateStatus: t.procedure.input(z.any()).mutation(() => null),
+  }),
+  clientAddressBook: t.router({
+    getAddresses: t.procedure.query(() => null),
+    getAddressById: t.procedure.query(() => null),
+    createAddress: t.procedure.input(z.any()).mutation(() => null),
+    updateAddress: t.procedure.input(z.any()).mutation(() => null),
+    deleteAddress: t.procedure.input(z.any()).mutation(() => null),
+    setDefaultAddress: t.procedure.input(z.any()).mutation(() => null),
+    getDefaultAddress: t.procedure.query(() => null),
+    getCountries: t.procedure.query(() => null),
+    getAdministrativeDivisions: t.procedure.query(() => null),
+    getAdministrativeDivisionsByParentId: t.procedure.query(() => null),
   }),
   clientProducts: t.router({
     list: t.procedure.input(z.any()).query(() => null),
@@ -441,6 +462,18 @@ const appRouter = t.router({
     getProfile: t.procedure.query(() => null),
     updateProfile: t.procedure.input(z.any()).mutation(() => null),
     updatePassword: t.procedure.input(z.any()).mutation(() => null),
+  }),
+  addressBook: t.router({
+    getAddresses: t.procedure.query(() => null),
+    getAddressById: t.procedure.query(() => null),
+    createAddress: t.procedure.input(z.any()).mutation(() => null),
+    updateAddress: t.procedure.input(z.any()).mutation(() => null),
+    deleteAddress: t.procedure.input(z.any()).mutation(() => null),
+    setDefaultAddress: t.procedure.input(z.any()).mutation(() => null),
+    getDefaultAddress: t.procedure.query(() => null),
+    getCountries: t.procedure.query(() => null),
+    getAdministrativeDivisions: t.procedure.query(() => null),
+    getAdministrativeDivisionsByParentId: t.procedure.query(() => null),
   }),
   seo: t.router({
     getByPath: t.procedure.input(z.any()).query(() => null),

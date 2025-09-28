@@ -30,6 +30,7 @@ export class CountryRepository {
   async findAll(): Promise<Country[]> {
     return this.repository.find({
       order: { name: 'ASC' },
+      relations: [], // Explicitly specify no relations to avoid join issues
     });
   }
 

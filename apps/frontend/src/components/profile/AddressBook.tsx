@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardBody, CardHeader } from '@heroui/react';
+import { Card, CardBody } from '@heroui/react';
 import { Button } from '../common/Button';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslations } from 'next-intl';
@@ -122,7 +122,18 @@ export const AddressBook: React.FC = () => {
   const updateAddressMutation = trpc.clientAddressBook.updateAddress.useMutation();
   const deleteAddressMutation = trpc.clientAddressBook.deleteAddress.useMutation();
   const setDefaultAddressMutation = trpc.clientAddressBook.setDefaultAddress.useMutation();
-  const getAdministrativeDivisionsQuery = trpc.clientAddressBook.getAdministrativeDivisions.useQuery();
+  const getAdministrativeDivisionsQuery = trpc.clientAddressBook.getAdministrativeDivisions.useQuery(
+    { countryId: formData.countryId, type: 'PROVINCE' },
+    { enabled: !!formData.countryId }
+  );
+
+  const getAdministrativeDivisionsByParentIdQuery = trpc.clientAddressBook.getAdministrativeDivisionsByParentId.useQuery(
+    { parentId: formData.provinceId },
+    { enabled: !!formData.provinceId }
+  );
+
+  // Check if Vietnam is selected (VN is the country code for Vietnam)
+  const isVietnamSelected = formData.countryId === '239';
 
   useEffect(() => {
     if (getAddressesQuery.data) {
@@ -136,39 +147,23 @@ export const AddressBook: React.FC = () => {
     }
   }, [getCountriesQuery.data]);
 
-  // Load provinces when country changes
-  useEffect(() => {
-    if (formData.countryId) {
-      getAdministrativeDivisionsQuery.refetch({
-        countryId: formData.countryId,
-        type: 'PROVINCE'
-      });
-    }
-  }, [formData.countryId]);
-
-  // Load wards when province changes
-  useEffect(() => {
-    if (formData.provinceId) {
-      getAdministrativeDivisionsQuery.refetch({
-        countryId: formData.countryId,
-        type: 'WARD'
-      });
-    }
-  }, [formData.provinceId]);
+  // Load provinces when country changes - handled automatically by query
+  // Load wards when province changes - handled automatically by new query
 
   useEffect(() => {
     if (getAdministrativeDivisionsQuery.data) {
       const filtered = getAdministrativeDivisionsQuery.data.filter(
-        div => div.type === 'PROVINCE'
+        (div: AdministrativeDivision) => div.type === 'PROVINCE'
       );
       setProvinces(filtered);
-
-      const filteredWards = getAdministrativeDivisionsQuery.data.filter(
-        div => div.type === 'WARD'
-      );
-      setWards(filteredWards);
     }
   }, [getAdministrativeDivisionsQuery.data]);
+
+  useEffect(() => {
+    if (getAdministrativeDivisionsByParentIdQuery.data) {
+      setWards(getAdministrativeDivisionsByParentIdQuery.data);
+    }
+  }, [getAdministrativeDivisionsByParentIdQuery.data]);
 
   const resetForm = () => {
     setFormData({
@@ -202,11 +197,18 @@ export const AddressBook: React.FC = () => {
 
     // Reset dependent fields
     if (field === 'countryId') {
+      const isVietnam = value === '239';
       setFormData(prev => ({
         ...prev,
         countryId: value as string,
         provinceId: '',
-        wardId: ''
+        wardId: '',
+        // Clear Vietnam-specific hidden fields when switching to Vietnam
+        ...(isVietnam && {
+          companyName: '',
+          addressLine2: '',
+          postalCode: ''
+        })
       }));
     } else if (field === 'provinceId') {
       setFormData(prev => ({
@@ -261,7 +263,7 @@ export const AddressBook: React.FC = () => {
       showToast({
         type: 'error',
         title: t('common.error'),
-        description: error.message || t('pages.profile.addresses.save_error')
+        description: (error as Error).message || t('pages.profile.addresses.save_error')
       });
     } finally {
       setLoading(false);
@@ -305,7 +307,7 @@ export const AddressBook: React.FC = () => {
       showToast({
         type: 'error',
         title: t('common.error'),
-        description: error.message || t('pages.profile.addresses.delete_error')
+        description: (error as Error).message || t('pages.profile.addresses.delete_error')
       });
     }
   };
@@ -323,7 +325,7 @@ export const AddressBook: React.FC = () => {
       showToast({
         type: 'error',
         title: t('common.error'),
-        description: error.message || t('pages.profile.addresses.set_default_error')
+        description: (error as Error).message || t('pages.profile.addresses.set_default_error')
       });
     }
   };
@@ -457,20 +459,22 @@ export const AddressBook: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    {t('pages.profile.addresses.company_name')}
-                  </label>
-                  <div className="relative">
-                    <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type="text"
-                      value={formData.companyName}
-                      onChange={(e) => handleInputChange('companyName', e.target.value)}
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm"
-                    />
+                {!isVietnamSelected && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      {t('pages.profile.addresses.company_name')}
+                    </label>
+                    <div className="relative">
+                      <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        value={formData.companyName}
+                        onChange={(e) => handleInputChange('companyName', e.target.value)}
+                        className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm"
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -487,33 +491,20 @@ export const AddressBook: React.FC = () => {
                   </select>
                 </div>
 
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    {t('pages.profile.addresses.address_line_1')} *
-                  </label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                
+                {!isVietnamSelected && (
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      {t('pages.profile.addresses.address_line_2')}
+                    </label>
                     <textarea
-                      value={formData.addressLine1}
-                      onChange={(e) => handleInputChange('addressLine1', e.target.value)}
+                      value={formData.addressLine2}
+                      onChange={(e) => handleInputChange('addressLine2', e.target.value)}
                       rows={2}
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm resize-none"
-                      required
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm resize-none"
                     />
                   </div>
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    {t('pages.profile.addresses.address_line_2')}
-                  </label>
-                  <textarea
-                    value={formData.addressLine2}
-                    onChange={(e) => handleInputChange('addressLine2', e.target.value)}
-                    rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm resize-none"
-                  />
-                </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -570,29 +561,53 @@ export const AddressBook: React.FC = () => {
                   </select>
                 </div>
 
-                <div>
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    {t('pages.profile.addresses.postal_code')}
+                    {t('pages.profile.addresses.address_line_1')} *
                   </label>
-                  <input
-                    type="text"
-                    value={formData.postalCode}
-                    onChange={(e) => handleInputChange('postalCode', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm"
-                  />
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                    <textarea
+                      value={formData.addressLine1}
+                      onChange={(e) => handleInputChange('addressLine1', e.target.value)}
+                      rows={2}
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm resize-none"
+                      required
+                    />
+                  </div>
                 </div>
 
-                <div className="md:col-span-2">
+                {!isVietnamSelected && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      {t('pages.profile.addresses.postal_code')}
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.postalCode}
+                      onChange={(e) => handleInputChange('postalCode', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm"
+                    />
+                  </div>
+                )}
+
+                <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     {t('pages.profile.addresses.label')}
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.label}
                     onChange={(e) => handleInputChange('label', e.target.value)}
-                    placeholder={t('pages.profile.addresses.label_placeholder')}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm"
-                  />
+                  >
+                    <option value="">{t('pages.profile.addresses.select_label')}</option>
+                    <option value="Home">{t('pages.profile.addresses.label_home')}</option>
+                    <option value="Company">{t('pages.profile.addresses.label_company')}</option>
+                    <option value="Apartment">{t('pages.profile.addresses.label_apartment')}</option>
+                    <option value="Office">{t('pages.profile.addresses.label_office')}</option>
+                    <option value="Parents">{t('pages.profile.addresses.label_parents')}</option>
+                    <option value="Other">{t('pages.profile.addresses.label_other')}</option>
+                  </select>
                 </div>
 
                 <div className="md:col-span-2">

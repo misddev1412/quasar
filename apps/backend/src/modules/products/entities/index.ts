@@ -1,4 +1,3 @@
-export { AddressBook, AddressType } from './address-book.entity';
 export { AdministrativeDivision } from './administrative-division.entity';
 export { Attribute, AttributeType } from './attribute.entity';
 export { AttributeTranslation } from './attribute-translation.entity';

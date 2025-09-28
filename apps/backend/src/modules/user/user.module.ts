@@ -10,11 +10,23 @@ import { RolePermission } from './entities/role-permission.entity';
 import { UserActivity } from './entities/user-activity.entity';
 import { UserSession } from './entities/user-session.entity';
 import { UserLoginProvider } from './entities/user-login-provider.entity';
+import { Customer } from '../products/entities/customer.entity';
+import { AddressBook } from './entities/address-book.entity';
+import { AddressBookConfig } from './entities/address-book-config.entity';
+import { UserSecurity } from './entities/user-security.entity';
+import { Country } from '../products/entities/country.entity';
+import { AdministrativeDivision } from '../products/entities/administrative-division.entity';
 import { UserRepository } from './repositories/user.repository';
 import { PermissionRepository } from './repositories/permission.repository';
 import { RoleRepository } from './repositories/role.repository';
 import { UserActivityRepository } from './repositories/user-activity.repository';
 import { UserSessionRepository } from './repositories/user-session.repository';
+import { CustomerRepository } from '../products/repositories/customer.repository';
+import { AddressBookRepository } from './repositories/address-book.repository';
+import { AddressBookConfigRepository } from './repositories/address-book-config.repository';
+import { UserSecurityRepository } from './repositories/user-security.repository';
+import { CountryRepository } from '../products/repositories/country.repository';
+import { AdministrativeDivisionRepository } from '../products/repositories/administrative-division.repository';
 import { ActivityTrackingService } from './services/activity-tracking.service';
 import { UserActivityTrackingService } from './services/user-activity-tracking.service';
 import { UserActivityStatusService } from './services/user-activity-status.service';
@@ -30,11 +42,17 @@ import { PermissionCheckerService } from '../shared/services/permission-checker.
 import { AdminUserService } from './services/admin/admin-user.service';
 import { AdminUserStatisticsService } from './services/admin/admin-user-statistics.service';
 import { ClientUserService } from './services/client/client-user.service';
+import { AdminAddressBookService } from './services/admin-address-book.service';
+import { ClientAddressBookService } from './services/client-address-book.service';
+import { ClientSecurityService } from './services/client-security.service';
 import { AdminUserRouter } from './routers/admin-user.router';
 import { AdminUserStatisticsRouter } from './routers/admin-user-statistics.router';
 import { AdminUserActivityRouter } from './routers/admin-user-activity.router';
 import { AdminPermissionRouter } from './routers/admin-permission.router';
 import { AdminRoleRouter } from './routers/admin-role.router';
+import { AdminAddressBookRouter } from './routers/admin-address-book.router';
+import { ClientAddressBookRouter } from './routers/client-address-book.router';
+import { ClientSecurityRouter } from './routers/client-security.router';
 import { ClientUserRouter } from '../../trpc/routers/client';
 import { SharedModule } from '../shared/shared.module';
 import { AuthModule } from '../../auth/auth.module';
@@ -43,7 +61,7 @@ import { ProductsModule } from '../products/products.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserProfile, Permission, Role, UserRole, RolePermission, UserActivity, UserSession, UserLoginProvider]),
+    TypeOrmModule.forFeature([User, UserProfile, Permission, Role, UserRole, RolePermission, UserActivity, UserSession, UserLoginProvider, Customer, AddressBook, AddressBookConfig, UserSecurity, Country, AdministrativeDivision]),
     SharedModule,
     forwardRef(() => AuthModule),
     FirebaseModule,
@@ -57,6 +75,10 @@ import { ProductsModule } from '../products/products.module';
     RoleRepository,
     UserActivityRepository,
     UserSessionRepository,
+    CustomerRepository,
+    AddressBookRepository,
+    AddressBookConfigRepository,
+    UserSecurityRepository,
 
     // Services
     UserService,
@@ -70,6 +92,9 @@ import { ProductsModule } from '../products/products.module';
     ActivityTrackingService,
     UserActivityStatusService,
     FirebaseAuthService,
+    AdminAddressBookService,
+    ClientAddressBookService,
+    ClientSecurityService,
 
     // Activity Tracking Components
     AdminActivityInterceptor,
@@ -89,6 +114,9 @@ import { ProductsModule } from '../products/products.module';
     ClientUserRouter,
     AdminPermissionRouter,
     AdminRoleRouter,
+    AdminAddressBookRouter,
+    ClientAddressBookRouter,
+    ClientSecurityRouter,
   ],
   exports: [
     // Repositories
@@ -123,6 +151,9 @@ import { ProductsModule } from '../products/products.module';
     ClientUserRouter,
     AdminPermissionRouter,
     AdminRoleRouter,
+    AdminAddressBookRouter,
+    ClientAddressBookRouter,
+    ClientSecurityRouter,
   ],
 })
 export class UserModule implements NestModule {

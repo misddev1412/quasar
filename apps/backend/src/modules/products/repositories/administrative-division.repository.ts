@@ -26,6 +26,7 @@ export class AdministrativeDivisionRepository {
     return this.repository.find({
       where: { countryId },
       order: { name: 'ASC' },
+      relations: [], // Explicitly specify no relations to avoid join issues
     });
   }
 
@@ -33,6 +34,7 @@ export class AdministrativeDivisionRepository {
     return this.repository.find({
       where: { parentId },
       order: { name: 'ASC' },
+      relations: [], // Explicitly specify no relations to avoid join issues
     });
   }
 
@@ -46,6 +48,7 @@ export class AdministrativeDivisionRepository {
   async findAll(): Promise<AdministrativeDivision[]> {
     return this.repository.find({
       order: { name: 'ASC' },
+      relations: [], // Explicitly specify no relations to avoid join issues
     });
   }
 
@@ -53,6 +56,7 @@ export class AdministrativeDivisionRepository {
     return this.repository.find({
       where,
       order: { name: 'ASC' },
+      relations: [], // Explicitly specify no relations to avoid join issues
     });
   }
 

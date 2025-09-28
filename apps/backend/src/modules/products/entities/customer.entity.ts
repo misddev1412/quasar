@@ -2,7 +2,6 @@ import { Entity, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
 import { Order } from './order.entity';
-import { AddressBook } from './address-book.entity';
 import { Wishlist } from './wishlist.entity';
 
 export enum CustomerType {
@@ -276,8 +275,8 @@ export class Customer extends BaseEntity {
   @OneToMany(() => Order, (order) => order.customerId)
   orders: Order[];
 
-  @OneToMany(() => AddressBook, (addressBook) => addressBook.customer)
-  addressBook: AddressBook[];
+  @OneToMany('AddressBook', 'customer')
+  addressBook: any[];
 
   @OneToMany(() => Wishlist, (wishlist) => wishlist.customer)
   wishlists: Wishlist[];

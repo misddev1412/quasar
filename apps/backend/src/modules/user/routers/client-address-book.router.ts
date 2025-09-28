@@ -6,9 +6,9 @@ import { ResponseService } from '@backend/modules/shared/services/response.servi
 import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
 import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
 import { AuthenticatedContext } from '../../../trpc/context';
-import { CustomerRepository } from '../repositories/customer.repository';
+import { CustomerRepository } from '../../products/repositories/customer.repository';
 import { AddressType } from '../entities/address-book.entity';
-import { AdministrativeDivisionType } from '../entities/administrative-division.entity';
+import { AdministrativeDivisionType } from '../../products/entities/administrative-division.entity';
 import { ModuleCode, OperationCode } from '@shared/enums/error-codes.enums';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
 
@@ -56,6 +56,10 @@ const addressIdSchema = z.object({
 const countryQuerySchema = z.object({
   countryId: z.string(),
   type: z.string().optional(),
+});
+
+const parentQuerySchema = z.object({
+  parentId: z.string(),
 });
 
 const addressBookResponseSchema = z.object({
@@ -526,6 +530,32 @@ export class ClientAddressBookRouter {
         OperationCode.READ,  // OperationCode.READ
         ErrorLevelCode.SERVER_ERROR, // ErrorLevelCode.SERVER_ERROR
         error.message || 'Failed to retrieve administrative divisions'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware)
+  @Query({
+    input: parentQuerySchema,
+    output: z.array(administrativeDivisionResponseSchema),
+  })
+  async getAdministrativeDivisionsByParentId(
+    @Input() input: z.infer<typeof parentQuerySchema>,
+    @Ctx() { user }: AuthenticatedContext
+  ): Promise<z.infer<typeof administrativeDivisionResponseSchema>[]> {
+    try {
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+
+      const divisions = await this.addressBookService.getAdministrativeDivisionsByParentId(input.parentId);
+      return divisions;
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.ADDRESS_BOOK,
+        OperationCode.READ,  // OperationCode.READ
+        ErrorLevelCode.SERVER_ERROR, // ErrorLevelCode.SERVER_ERROR
+        error.message || 'Failed to retrieve administrative divisions by parent ID'
       );
     }
   }

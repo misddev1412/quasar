@@ -23,26 +23,7 @@ export class CreateLoyaltyTables1763900000000 implements MigrationInterface {
       );
     `);
 
-    // Create loyalty_transactions table
-    await queryRunner.query(`
-      CREATE TABLE loyalty_transactions (
-        id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-        customer_id uuid NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
-        points INTEGER NOT NULL,
-        type VARCHAR(50) NOT NULL CHECK (type IN ('earned', 'redeemed', 'expired', 'adjusted', 'referral_bonus')),
-        description TEXT NOT NULL,
-        order_id uuid REFERENCES orders(id) ON DELETE SET NULL,
-        reward_id uuid REFERENCES loyalty_rewards(id) ON DELETE SET NULL,
-        balance_after INTEGER NOT NULL,
-        expires_at TIMESTAMP,
-        metadata JSONB NOT NULL DEFAULT '{}',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        deleted_at TIMESTAMP
-      );
-    `);
-
-    // Create loyalty_rewards table
+    // Create loyalty_rewards table first
     await queryRunner.query(`
       CREATE TABLE loyalty_rewards (
         id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -64,6 +45,25 @@ export class CreateLoyaltyTables1763900000000 implements MigrationInterface {
         tier_restrictions JSONB NOT NULL DEFAULT '[]',
         auto_apply BOOLEAN DEFAULT false NOT NULL,
         sort_order INTEGER DEFAULT 0 NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        deleted_at TIMESTAMP
+      );
+    `);
+
+    // Create loyalty_transactions table after loyalty_rewards
+    await queryRunner.query(`
+      CREATE TABLE loyalty_transactions (
+        id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+        customer_id uuid NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+        points INTEGER NOT NULL,
+        type VARCHAR(50) NOT NULL CHECK (type IN ('earned', 'redeemed', 'expired', 'adjusted', 'referral_bonus')),
+        description TEXT NOT NULL,
+        order_id uuid REFERENCES orders(id) ON DELETE SET NULL,
+        reward_id uuid REFERENCES loyalty_rewards(id) ON DELETE SET NULL,
+        balance_after INTEGER NOT NULL,
+        expires_at TIMESTAMP,
+        metadata JSONB NOT NULL DEFAULT '{}',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
         deleted_at TIMESTAMP

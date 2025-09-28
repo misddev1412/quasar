@@ -1,4 +1,3 @@
-export { AddressBookRepository } from './address-book.repository';
 export { AttributeRepository, type AttributeFilters, type AttributeQueryOptions } from './attribute.repository';
 export { WishlistRepository } from './wishlist.repository';
 export { BrandRepository, type BrandFilters, type BrandQueryOptions } from './brand.repository';

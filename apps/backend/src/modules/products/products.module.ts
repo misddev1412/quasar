@@ -26,7 +26,6 @@ import { Warranty } from './entities/warranty.entity';
 import { Order } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { Customer } from './entities/customer.entity';
-import { AddressBook } from './entities/address-book.entity';
 import { Country } from './entities/country.entity';
 import { AdministrativeDivision } from './entities/administrative-division.entity';
 import { PaymentMethod } from './entities/payment-method.entity';
@@ -46,7 +45,6 @@ import { SupplierRepository } from './repositories/supplier.repository';
 import { WarehouseRepository } from './repositories/warehouse.repository';
 import { OrderRepository } from './repositories/order.repository';
 import { CustomerRepository } from './repositories/customer.repository';
-import { AddressBookRepository } from './repositories/address-book.repository';
 import { CountryRepository } from './repositories/country.repository';
 import { AdministrativeDivisionRepository } from './repositories/administrative-division.repository';
 import { PaymentMethodRepository } from './repositories/payment-method.repository';
@@ -57,8 +55,6 @@ import { WarehouseService } from './services/warehouse.service';
 import { PurchaseOrderService } from './services/purchase-order.service';
 import { AdminOrderService } from './services/admin-order.service';
 import { AdminCustomerService } from './services/admin-customer.service';
-import { AdminAddressBookService } from './services/admin-address-book.service';
-import { ClientAddressBookService } from './services/client-address-book.service';
 import { PaymentMethodService } from './services/payment-method.service';
 import { DeliveryMethodService } from './services/delivery-method.service';
 import { ProductTransformer } from './transformers/product.transformer';
@@ -73,11 +69,9 @@ import { ClientProductsRouter } from './routers/client.router';
 import { PublicProductsRouter } from './routers/public.router';
 import { AdminOrdersRouter } from './routers/admin-orders.router';
 import { AdminCustomersRouter } from './routers/admin-customers.router';
-import { AdminAddressBookRouter } from './routers/admin-address-book.router';
 import { AdminPaymentMethodsRouter } from './routers/admin-payment-methods.router';
 import { AdminDeliveryMethodsRouter } from './routers/admin-delivery-methods.router';
 import { AdminWishlistRouter } from './routers/admin-wishlist.router';
-import { ClientAddressBookRouter } from './routers/client-address-book.router';
 
 @Module({
   imports: [
@@ -108,7 +102,6 @@ import { ClientAddressBookRouter } from './routers/client-address-book.router';
       Order,
       OrderItem,
       Customer,
-      AddressBook,
       Country,
       AdministrativeDivision,
       PaymentMethod,
@@ -132,8 +125,7 @@ import { ClientAddressBookRouter } from './routers/client-address-book.router';
     WarehouseRepository,
     OrderRepository,
     CustomerRepository,
-    AddressBookRepository,
-    CountryRepository,
+        CountryRepository,
     AdministrativeDivisionRepository,
     PaymentMethodRepository,
     DeliveryMethodRepository,
@@ -144,9 +136,7 @@ import { ClientAddressBookRouter } from './routers/client-address-book.router';
     PurchaseOrderService,
     AdminOrderService,
     AdminCustomerService,
-    AdminAddressBookService,
-    ClientAddressBookService,
-    PaymentMethodService,
+        PaymentMethodService,
     DeliveryMethodService,
     AdminProductsRouter,
     AdminProductAttributesRouter,
@@ -158,12 +148,10 @@ import { ClientAddressBookRouter } from './routers/client-address-book.router';
     PublicProductsRouter,
     AdminOrdersRouter,
     AdminCustomersRouter,
-    AdminAddressBookRouter,
-    AdminPaymentMethodsRouter,
+        AdminPaymentMethodsRouter,
     AdminDeliveryMethodsRouter,
     AdminWishlistRouter,
-    ClientAddressBookRouter,
-    DeliveryMethodService,
+        DeliveryMethodService,
   ],
   exports: [
     TypeOrmModule,
@@ -181,8 +169,7 @@ import { ClientAddressBookRouter } from './routers/client-address-book.router';
     WarehouseRepository,
     OrderRepository,
     CustomerRepository,
-    AddressBookRepository,
-    CountryRepository,
+        CountryRepository,
     AdministrativeDivisionRepository,
     PaymentMethodRepository,
     DeliveryMethodRepository,
@@ -193,9 +180,7 @@ import { ClientAddressBookRouter } from './routers/client-address-book.router';
     PurchaseOrderService,
     AdminOrderService,
     AdminCustomerService,
-    AdminAddressBookService,
-    ClientAddressBookService,
-    PaymentMethodService,
+        PaymentMethodService,
     DeliveryMethodService,
     AdminProductsRouter,
     AdminProductAttributesRouter,
@@ -207,11 +192,9 @@ import { ClientAddressBookRouter } from './routers/client-address-book.router';
     PublicProductsRouter,
     AdminOrdersRouter,
     AdminCustomersRouter,
-    AdminAddressBookRouter,
-    AdminPaymentMethodsRouter,
+        AdminPaymentMethodsRouter,
     AdminDeliveryMethodsRouter,
     AdminWishlistRouter,
-    ClientAddressBookRouter,
-  ],
+      ],
 })
 export class ProductsModule {}
