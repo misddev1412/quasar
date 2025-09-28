@@ -222,181 +222,170 @@ export const Security: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-3">
-            <Shield className="w-6 h-6 text-blue-600" />
+    <div className="space-y-6">
+
+      {/* Password Section */}
+      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-4">
+            <div className="p-2 bg-white dark:bg-gray-800 rounded-lg">
+              <Key className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+            </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {t('pages.profile.security.title')}
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-                {t('pages.profile.security.description')}
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {t('pages.profile.security.password')}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {securityStatus?.hasPassword
+                  ? t('pages.profile.security.password_set')
+                  : t('pages.profile.security.password_not_set')
+                }
               </p>
             </div>
           </div>
+          <button
+            onClick={() => setShowPasswordModal(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            {t('pages.profile.security.change_password')}
+          </button>
         </div>
 
-        <div className="p-6 space-y-8">
-          {/* Password Section */}
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <Key className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {t('pages.profile.security.password')}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {securityStatus?.hasPassword
-                      ? t('pages.profile.security.password_set')
-                      : t('pages.profile.security.password_not_set')
-                    }
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowPasswordModal(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                {t('pages.profile.security.change_password')}
-              </button>
-            </div>
-
-            {securityStatus?.lastPasswordChange && (
-              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                <Clock className="w-4 h-4" />
-                <span>
-                  {t('pages.profile.security.last_changed')} {formatLastActive(securityStatus.lastPasswordChange)}
-                </span>
-              </div>
-            )}
+        {securityStatus?.lastPasswordChange && (
+          <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+            <Clock className="w-4 h-4" />
+            <span>
+              {t('pages.profile.security.last_changed')} {formatLastActive(securityStatus.lastPasswordChange)}
+            </span>
           </div>
+        )}
+      </div>
 
-          {/* Two-Factor Authentication Section */}
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <Smartphone className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {t('pages.profile.security.two_factor')}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {securityStatus?.hasTwoFactor
-                      ? t('pages.profile.security.two_factor_enabled', { method: securityStatus.twoFactorMethod })
-                      : t('pages.profile.security.two_factor_disabled')
-                    }
-                  </p>
-                </div>
-              </div>
-
-              {securityStatus?.hasTwoFactor ? (
-                <button
-                  onClick={() => {
-                    const password = prompt(t('pages.profile.security.enter_password_to_disable'));
-                    if (password) {
-                      disable2FA.mutate({ password });
-                    }
-                  }}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  {t('pages.profile.security.disable')}
-                </button>
-              ) : (
-                <button
-                  onClick={() => setShow2FAModal(true)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  {t('pages.profile.security.enable')}
-                </button>
-              )}
+      {/* Two-Factor Authentication Section */}
+      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-4">
+            <div className="p-2 bg-white dark:bg-gray-800 rounded-lg">
+              <Smartphone className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {t('pages.profile.security.two_factor')}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {securityStatus?.hasTwoFactor
+                  ? t('pages.profile.security.two_factor_enabled', { method: securityStatus.twoFactorMethod })
+                  : t('pages.profile.security.two_factor_disabled')
+                }
+              </p>
             </div>
           </div>
 
-          {/* Active Sessions Section */}
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
+          {securityStatus?.hasTwoFactor ? (
+            <button
+              onClick={() => {
+                const password = prompt(t('pages.profile.security.enter_password_to_disable'));
+                if (password) {
+                  disable2FA.mutate({ password });
+                }
+              }}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              {t('pages.profile.security.disable')}
+            </button>
+          ) : (
+            <button
+              onClick={() => setShow2FAModal(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              {t('pages.profile.security.enable')}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Active Sessions Section */}
+      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-4">
+            <div className="p-2 bg-white dark:bg-gray-800 rounded-lg">
+              <Monitor className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {t('pages.profile.security.active_sessions')}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {t('pages.profile.security.sessions_description')}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => revokeAllSessions.mutate()}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            {t('pages.profile.security.revoke_all')}
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {sessions?.sessions?.map((session) => (
+            <div key={session.id} className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg">
+              <div className="flex items-center space-x-4">
                 <Monitor className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {t('pages.profile.security.active_sessions')}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {t('pages.profile.security.sessions_description')}
-                  </p>
+                  <div className="font-medium text-gray-900 dark:text-white">
+                    {session.device || session.browser}
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {session.location} • {formatLastActive(session.lastActive)}
+                  </div>
                 </div>
               </div>
-              <button
-                onClick={() => revokeAllSessions.mutate()}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                {t('pages.profile.security.revoke_all')}
-              </button>
+              <div className="flex items-center space-x-3">
+                {session.isCurrent && (
+                  <span className="px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs rounded-full">
+                    {t('pages.profile.security.current_session')}
+                  </span>
+                )}
+                {!session.isCurrent && (
+                  <button
+                    onClick={() => revokeSession.mutate({ sessionId: session.id })}
+                    className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
             </div>
+          ))}
 
-            <div className="space-y-3">
-              {sessions?.sessions?.map((session) => (
-                <div key={session.id} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <Monitor className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                    <div>
-                      <div className="font-medium text-gray-900 dark:text-white">
-                        {session.device || session.browser}
-                      </div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        {session.location} • {formatLastActive(session.lastActive)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {session.isCurrent && (
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                        {t('pages.profile.security.current_session')}
-                      </span>
-                    )}
-                    {!session.isCurrent && (
-                      <button
-                        onClick={() => revokeSession.mutate({ sessionId: session.id })}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              {sessions?.pagination && sessions.pagination.totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    Showing {((sessions.pagination.page - 1) * sessions.pagination.limit) + 1} to {Math.min(sessions.pagination.page * sessions.pagination.limit, sessions.pagination.total)} of {sessions.pagination.total} sessions
-                  </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      disabled={sessions.pagination.page === 1}
-                      className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
-                    >
-                      Previous
-                    </button>
-                    <span className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg">
-                      {sessions.pagination.page} of {sessions.pagination.totalPages}
-                    </span>
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.min(sessions.pagination.totalPages, prev + 1))}
-                      disabled={sessions.pagination.page === sessions.pagination.totalPages}
-                      className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
+          {sessions?.pagination && sessions.pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Showing {((sessions.pagination.page - 1) * sessions.pagination.limit) + 1} to {Math.min(sessions.pagination.page * sessions.pagination.limit, sessions.pagination.total)} of {sessions.pagination.total} sessions
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={sessions.pagination.page === 1}
+                  className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  Previous
+                </button>
+                <span className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg">
+                  {sessions.pagination.page} of {sessions.pagination.totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(sessions.pagination.totalPages, prev + 1))}
+                  disabled={sessions.pagination.page === sessions.pagination.totalPages}
+                  className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  Next
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 

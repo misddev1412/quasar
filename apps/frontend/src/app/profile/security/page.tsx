@@ -17,7 +17,14 @@ export default function Page() {
         <meta name="description" content={t('pages.profile.security.description')} />
       </Helmet>
       <Layout>
-        <ProfileLayout activeSection="security">
+        <ProfileLayout
+          activeSection="security"
+          sectionHeader={{
+            title: t('pages.profile.security.title'),
+            description: t('pages.profile.security.subtitle'),
+            icon: Shield
+          }}
+        >
           <Security />
         </ProfileLayout>
       </Layout>

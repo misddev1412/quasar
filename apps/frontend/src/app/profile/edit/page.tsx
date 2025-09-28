@@ -6,6 +6,7 @@ import { PersonalInformation } from '../../../components/profile/PersonalInforma
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Helmet } from 'react-helmet-async';
+import { User } from 'lucide-react';
 
 export default function Page() {
   const t = useTranslations();
@@ -22,7 +23,14 @@ export default function Page() {
         <meta name="description" content={t('profile.pages.edit.description')} />
       </Helmet>
       <Layout>
-        <ProfileLayout activeSection="personal">
+        <ProfileLayout
+          activeSection="personal"
+          sectionHeader={{
+            title: t('pages.profile.personal_info.title'),
+            description: t('pages.profile.personal_info.subtitle'),
+            icon: User
+          }}
+        >
           <PersonalInformation onSectionChange={handleSectionChange} />
         </ProfileLayout>
       </Layout>

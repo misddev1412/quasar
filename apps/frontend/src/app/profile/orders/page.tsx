@@ -3,27 +3,21 @@
 import React, { useState } from 'react';
 import Layout from '../../../components/layout/Layout';
 import ProfileLayout from '../../../components/layout/ProfileLayout';
-import { Card, CardBody, CardHeader } from '@heroui/react';
 import {
   Package,
   Calendar,
-  DollarSign,
   Truck,
   CheckCircle,
   XCircle,
   Clock,
   Eye,
-  Search,
-  Filter,
   RefreshCw,
   Download,
-  MoreHorizontal,
-  AlertTriangle
+  MoreHorizontal
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { Helmet } from 'react-helmet-async';
-import { trpc } from '@/utils/trpc';
+import { trpc } from '../../../utils/trpc';
 import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
 import { Table, TableColumn } from '../../../components/common/Table';
@@ -67,19 +61,12 @@ interface Order {
   trackingNumber?: string;
   estimatedDeliveryDate?: Date;
   cancelledReason?: string;
+  actions?: any;
 }
 
-interface OrdersResponse {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-  items: Order[];
-}
 
 export default function Page() {
   const t = useTranslations();
-  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [statusFilter, setStatusFilter] = useState<string>('');
@@ -90,15 +77,15 @@ export default function Page() {
   const [showOrderDetail, setShowOrderDetail] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
 
-  const { data: ordersData, isLoading, refetch } = trpc.clientOrders.list.useQuery<OrdersResponse>({
+  const { data: ordersData, isLoading, refetch } = trpc.clientOrders.list.useQuery({
     page: currentPage,
     limit: pageSize,
     status: statusFilter || undefined,
     sortBy,
     sortOrder,
-  });
+  }) as any;
 
-  const { data: recentOrders } = trpc.clientOrders.recent.useQuery<OrdersResponse>();
+  const { data: recentOrders } = trpc.clientOrders.recent.useQuery() as any;
 
   const cancelOrder = trpc.clientOrders.cancelOrder.useMutation({
     onSuccess: () => {
@@ -107,15 +94,11 @@ export default function Page() {
       setSelectedOrder(null);
       refetch();
     },
-    onError: (error) => {
+    onError: (error: any) => {
       const errorMessage = error.data?.data?.message || error.message || 'Failed to cancel order';
       toast.error(errorMessage);
     }
   });
-
-  const getStatusColor = (status: string) => {
-    return status;
-  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -126,10 +109,6 @@ export default function Page() {
       case 'CANCELLED': return <XCircle className="w-4 h-4" />;
       default: return <Package className="w-4 h-4" />;
     }
-  };
-
-  const getPaymentStatusColor = (status: string) => {
-    return status;
   };
 
   const formatDate = (date: Date) => {
@@ -180,7 +159,7 @@ export default function Page() {
       key: 'orderNumber',
       label: 'Order #',
       sortable: true,
-      render: (value, order) => (
+      render: (value: any, _order: Order) => (
         <span className="font-medium text-gray-900 dark:text-white">
           #{value}
         </span>
@@ -190,7 +169,7 @@ export default function Page() {
       key: 'status',
       label: 'Status',
       sortable: true,
-      render: (value) => (
+      render: (value: any) => (
         <StatusBadge status={value} variant="order" />
       )
     },
@@ -234,7 +213,7 @@ export default function Page() {
     {
       key: 'actions',
       label: '',
-      render: (value, order) => (
+      render: (_value: any, order: Order) => (
         <div className="flex items-center space-x-2">
           <button
             onClick={(e) => {
@@ -269,117 +248,104 @@ export default function Page() {
         <meta name="description" content={t('profile.pages.orders.description')} />
       </Helmet>
       <Layout>
-        <ProfileLayout activeSection="orders">
+        <ProfileLayout
+          activeSection="orders"
+          sectionHeader={{
+            title: t('pages.profile.orders.title'),
+            description: t('pages.profile.orders.subtitle'),
+            icon: Package,
+            actionButtons: (
+              <>
+                <button
+                  onClick={() => refetch()}
+                  disabled={isLoading}
+                  className="p-2.5 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+                </button>
+                <button
+                  onClick={() => setViewMode('table')}
+                  className={`p-2.5 rounded-lg transition-colors ${viewMode === 'table' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                >
+                  <Package className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setViewMode('cards')}
+                  className={`p-2.5 rounded-lg transition-colors ${viewMode === 'cards' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                >
+                  <Calendar className="w-5 h-5" />
+                </button>
+                <button className="p-2.5 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                  <Download className="w-5 h-5" />
+                </button>
+              </>
+            )
+          }}
+        >
           <div className="space-y-6">
-            {/* Header */}
-            <Card className="border-0 bg-transparent shadow-none">
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                      <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-0">
-                        {t('pages.profile.orders.title')}
-                      </h2>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 mb-0">
-                        {t('pages.profile.orders.subtitle')}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => refetch()}
-                      disabled={isLoading}
-                      className="p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                    >
-                      <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                    </button>
-                    <button
-                      onClick={() => setViewMode('table')}
-                      className={`p-2 rounded-lg transition-colors ${viewMode === 'table' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'}`}
-                    >
-                      <Package className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => setViewMode('cards')}
-                      className={`p-2 rounded-lg transition-colors ${viewMode === 'cards' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'}`}
-                    >
-                      <Calendar className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                      <Download className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
 
             {/* Order Statistics */}
-            <OrderStats
-              totalOrders={ordersData?.total || 0}
-              totalSpent={ordersData?.items?.reduce((sum, order) => sum + order.totalAmount, 0) || 0}
-              pendingOrders={ordersData?.items?.filter(order => order.status === 'PENDING').length || 0}
-              deliveredOrders={ordersData?.items?.filter(order => order.status === 'DELIVERED').length || 0}
-              inTransitOrders={ordersData?.items?.filter(order => order.status === 'SHIPPED').length || 0}
-              currency="USD"
-            />
+            <div className="py-4">
+              <OrderStats
+                totalOrders={ordersData?.total || 0}
+                totalSpent={ordersData?.items?.reduce((sum: number, order: Order) => sum + order.totalAmount, 0) || 0}
+                pendingOrders={ordersData?.items?.filter((order: Order) => order.status === 'PENDING').length || 0}
+                deliveredOrders={ordersData?.items?.filter((order: Order) => order.status === 'DELIVERED').length || 0}
+                inTransitOrders={ordersData?.items?.filter((order: Order) => order.status === 'SHIPPED').length || 0}
+                currency="USD"
+              />
+            </div>
 
             {/* Recent Orders */}
             {recentOrders?.items && recentOrders.items.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {t('pages.profile.orders.recent_orders')}
-                  </h3>
-                </CardHeader>
-                <CardBody>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {recentOrders.items.slice(0, 3).map((order) => (
-                      <OrderCard
-                        key={order.id}
-                        order={order}
-                        onViewOrder={handleViewOrder}
-                      />
-                    ))}
-                  </div>
-                </CardBody>
-              </Card>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  {t('pages.profile.orders.recent_orders')}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {recentOrders.items.slice(0, 3).map((order: Order) => (
+                    <OrderCard
+                      key={order.id}
+                      order={order}
+                      onViewOrder={handleViewOrder}
+                    />
+                  ))}
+                </div>
+              </div>
             )}
 
             {/* Filters and Search */}
-            <Card>
-              <CardBody>
-                <SearchFilter
-                  searchValue={searchQuery}
-                  onSearchChange={setSearchQuery}
-                  searchPlaceholder={t('pages.profile.orders.search_orders')}
-                  filterValue={statusFilter}
-                  onFilterChange={handleStatusFilterChange}
-                  filterOptions={statusOptions}
-                  filterPlaceholder={t('pages.profile.orders.all_statuses')}
-                />
-              </CardBody>
-            </Card>
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+              <SearchFilter
+                searchValue={searchQuery}
+                onSearchChange={setSearchQuery}
+                searchPlaceholder={t('pages.profile.orders.search_orders')}
+                filterValue={statusFilter}
+                onFilterChange={handleStatusFilterChange}
+                filterOptions={statusOptions}
+                filterPlaceholder={t('pages.profile.orders.all_statuses')}
+              />
+            </div>
 
             {/* Orders List */}
             {viewMode === 'table' ? (
-              <Table
-                data={ordersData?.items || []}
-                columns={columns}
-                loading={isLoading}
-                emptyMessage={t('pages.profile.orders.no_orders')}
-                emptyDescription={t('pages.profile.orders.no_orders_desc')}
-                onRowClick={handleViewOrder}
-                onSort={handleSortChange}
-                sortColumn={sortBy}
-                sortDirection={sortOrder}
-                keyExtractor={(order) => order.id}
-              />
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <Table
+                  data={ordersData?.items || []}
+                  columns={columns}
+                  loading={isLoading}
+                  emptyMessage={t('pages.profile.orders.no_orders')}
+                  emptyDescription={t('pages.profile.orders.no_orders_desc')}
+                  onRowClick={handleViewOrder}
+                  onSort={handleSortChange}
+                  sortColumn={sortBy as keyof Order}
+                  sortDirection={sortOrder}
+                  keyExtractor={(order: Order) => order.id}
+                />
+              </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {ordersData?.items?.map((order) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {ordersData?.items?.map((order: Order) => (
                   <OrderCard
                     key={order.id}
                     order={order}
@@ -391,13 +357,15 @@ export default function Page() {
 
             {/* Pagination */}
             {ordersData?.pagination && ordersData.pagination.totalPages > 1 && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={ordersData.pagination.totalPages}
-                total={ordersData.pagination.total}
-                limit={ordersData.pagination.limit}
-                onPageChange={handlePageChange}
-              />
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={ordersData.pagination.totalPages}
+                  total={ordersData.pagination.total}
+                  limit={ordersData.pagination.limit}
+                  onPageChange={handlePageChange}
+                />
+              </div>
             )}
           </div>
         </ProfileLayout>

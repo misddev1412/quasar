@@ -69,22 +69,22 @@ export function OrderStats({
   ];
 
   return (
-    <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 ${className}`}>
+    <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 ${className}`}>
       {stats.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Card key={index} className="border border-gray-200 dark:border-gray-700">
-            <CardBody className="p-4">
+          <Card key={index} className="border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
+            <CardBody className="p-5">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                    <Icon className={`w-4 h-4 ${stat.color}`} />
+                <div className="flex items-center space-x-4">
+                  <div className={`p-3 rounded-xl ${stat.bgColor}`}>
+                    <Icon className={`w-5 h-5 ${stat.color}`} />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                       {stat.label}
                     </p>
-                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">
                       {stat.value}
                     </p>
                   </div>

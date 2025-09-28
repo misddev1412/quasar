@@ -1,7 +1,7 @@
 // AppRouter types for tRPC client
 // This file is auto-generated from actual nestjs-trpc routers
 // Run 'npm run sync:trpc-types' to regenerate this file
-// Generated on: 2025-09-27T10:32:26.282Z
+// Generated on: 2025-09-28T09:52:55.152Z
 
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
@@ -146,17 +146,6 @@ const appRouter = t.router({
   adminPosts: t.router({
     getPosts: t.procedure.query(() => null),
     getPostById: t.procedure.query(() => null),
-  }),
-  adminAddressBook: t.router({
-    list: t.procedure.input(z.any()).query(() => null),
-    detail: t.procedure.input(z.any()).query(() => null),
-    getByCustomerId: t.procedure.input(z.any()).query(() => null),
-    getByCustomerIdAndType: t.procedure.input(z.any()).query(() => null),
-    create: t.procedure.input(z.any()).mutation(() => null),
-    update: t.procedure.input(z.any()).mutation(() => null),
-    delete: t.procedure.input(z.any()).mutation(() => null),
-    setAsDefault: t.procedure.input(z.any()).mutation(() => null),
-    stats: t.procedure.query(() => null),
   }),
   adminProductAttributes: t.router({
     getAll: t.procedure.query(() => null),
@@ -335,17 +324,12 @@ const appRouter = t.router({
     stats: t.procedure.query(() => null),
     updateStatus: t.procedure.input(z.any()).mutation(() => null),
   }),
-  clientAddressBook: t.router({
-    getAddresses: t.procedure.query(() => null),
-    getAddressById: t.procedure.query(() => null),
-    createAddress: t.procedure.input(z.any()).mutation(() => null),
-    updateAddress: t.procedure.input(z.any()).mutation(() => null),
-    deleteAddress: t.procedure.input(z.any()).mutation(() => null),
-    setDefaultAddress: t.procedure.input(z.any()).mutation(() => null),
-    getDefaultAddress: t.procedure.query(() => null),
-    getCountries: t.procedure.query(() => null),
-    getAdministrativeDivisions: t.procedure.query(() => null),
-    getAdministrativeDivisionsByParentId: t.procedure.query(() => null),
+  clientOrders: t.router({
+    list: t.procedure.input(z.any()).query(() => null),
+    detail: t.procedure.input(z.any()).query(() => null),
+    recent: t.procedure.query(() => null),
+    active: t.procedure.query(() => null),
+    cancelOrder: t.procedure.input(z.any()).mutation(() => null),
   }),
   clientProducts: t.router({
     list: t.procedure.input(z.any()).query(() => null),
@@ -415,6 +399,17 @@ const appRouter = t.router({
     getWidgetThemes: t.procedure.query(() => null),
     testAvailability: t.procedure.query(() => null),
   }),
+  adminAddressBook: t.router({
+    list: t.procedure.input(z.any()).query(() => null),
+    detail: t.procedure.input(z.any()).query(() => null),
+    getByCustomerId: t.procedure.input(z.any()).query(() => null),
+    getByCustomerIdAndType: t.procedure.input(z.any()).query(() => null),
+    create: t.procedure.input(z.any()).mutation(() => null),
+    update: t.procedure.input(z.any()).mutation(() => null),
+    delete: t.procedure.input(z.any()).mutation(() => null),
+    setAsDefault: t.procedure.input(z.any()).mutation(() => null),
+    stats: t.procedure.query(() => null),
+  }),
   adminPermission: t.router({
     createPermission: t.procedure.input(z.any()).mutation(() => null),
     getAllPermissions: t.procedure.query(() => null),
@@ -462,6 +457,28 @@ const appRouter = t.router({
     getProfile: t.procedure.query(() => null),
     updateProfile: t.procedure.input(z.any()).mutation(() => null),
     updatePassword: t.procedure.input(z.any()).mutation(() => null),
+  }),
+  clientAddressBook: t.router({
+    getAddresses: t.procedure.query(() => null),
+    getAddressById: t.procedure.query(() => null),
+    createAddress: t.procedure.input(z.any()).mutation(() => null),
+    updateAddress: t.procedure.input(z.any()).mutation(() => null),
+    deleteAddress: t.procedure.input(z.any()).mutation(() => null),
+    setDefaultAddress: t.procedure.input(z.any()).mutation(() => null),
+    getDefaultAddress: t.procedure.query(() => null),
+    getCountries: t.procedure.query(() => null),
+    getAdministrativeDivisions: t.procedure.query(() => null),
+    getAdministrativeDivisionsByParentId: t.procedure.query(() => null),
+  }),
+  clientSecurity: t.router({
+    getSecurityStatus: t.procedure.query(() => null),
+    changePassword: t.procedure.input(z.any()).mutation(() => null),
+    setup2FA: t.procedure.input(z.any()).mutation(() => null),
+    verify2FA: t.procedure.input(z.any()).mutation(() => null),
+    disable2FA: t.procedure.input(z.any()).mutation(() => null),
+    getActiveSessions: t.procedure.query(() => null),
+    revokeSession: t.procedure.input(z.any()).mutation(() => null),
+    revokeAllSessions: t.procedure.input(z.any()).mutation(() => null),
   }),
   addressBook: t.router({
     getAddresses: t.procedure.query(() => null),

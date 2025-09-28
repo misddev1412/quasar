@@ -2,6 +2,9 @@ import { trpc } from '../utils/trpc';
 import { useToast } from '../contexts/ToastContext';
 import type { User, Product, Order, PaginatedResponse, Language, SEOData } from '../types/trpc';
 
+// Import the Product interface from the updated ProductCard
+import type { Product as BackendProduct } from '../components/ecommerce/ProductCard';
+
 /**
  * Custom hook to simplify tRPC queries with built-in error handling
  *
@@ -29,14 +32,16 @@ export const useTrpcQuery = () => {
     );
   };
 
-  // Products list query
-  const useProducts = (filters?: {
+  // Public products list query (uses publicProducts router - no auth required)
+  const usePublicProducts = (filters?: {
     search?: string;
-    category?: string;
+    categoryId?: string;
+    brandId?: string;
+    isFeatured?: boolean;
     page?: number;
     limit?: number;
   }) => {
-    return (trpc as any).product.list.useQuery(filters || {}, {
+    return (trpc as any).publicProducts.list.useQuery(filters || {}, {
       staleTime: 5 * 60 * 1000, // 5 minutes
       onError: (error: Error) => {
         showToast({
@@ -46,6 +51,109 @@ export const useTrpcQuery = () => {
         });
       },
     });
+  };
+
+  // Client products list query (uses clientProducts router - auth required)
+  const useClientProducts = (filters?: {
+    search?: string;
+    categoryId?: string;
+    brandId?: string;
+    isFeatured?: boolean;
+    page?: number;
+    limit?: number;
+  }) => {
+    return (trpc as any).clientProducts.list.useQuery(filters || {}, {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      onError: (error: Error) => {
+        showToast({
+          type: 'error',
+          title: 'Failed to load products',
+          description: error.message,
+        });
+      },
+    });
+  };
+
+  // Featured products query
+  const useFeaturedProducts = () => {
+    return (trpc as any).publicProducts.featured.useQuery(undefined, {
+      staleTime: 10 * 60 * 1000, // 10 minutes
+      onError: (error: Error) => {
+        showToast({
+          type: 'error',
+          title: 'Failed to load featured products',
+          description: error.message,
+        });
+      },
+    });
+  };
+
+  // Products by category query
+  const useProductsByCategory = (categoryId: string, filters?: {
+    page?: number;
+    limit?: number;
+  }) => {
+    return (trpc as any).publicProducts.byCategory.useQuery({
+      categoryId,
+      page: filters?.page || 1,
+      limit: filters?.limit || 20,
+    }, {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      onError: (error: Error) => {
+        showToast({
+          type: 'error',
+          title: 'Failed to load products by category',
+          description: error.message,
+        });
+      },
+    });
+  };
+
+  // Products by brand query
+  const useProductsByBrand = (brandId: string, filters?: {
+    page?: number;
+    limit?: number;
+  }) => {
+    return (trpc as any).publicProducts.byBrand.useQuery({
+      brandId,
+      page: filters?.page || 1,
+      limit: filters?.limit || 20,
+    }, {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      onError: (error: Error) => {
+        showToast({
+          type: 'error',
+          title: 'Failed to load products by brand',
+          description: error.message,
+        });
+      },
+    });
+  };
+
+  // Product detail query
+  const useProductDetail = (productId: string) => {
+    return (trpc as any).publicProducts.detail.useQuery({
+      id: productId,
+    }, {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      onError: (error: Error) => {
+        showToast({
+          type: 'error',
+          title: 'Failed to load product details',
+          description: error.message,
+        });
+      },
+    });
+  };
+
+  // Legacy products query (deprecated - use usePublicProducts instead)
+  const useProducts = (filters?: {
+    search?: string;
+    category?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    return usePublicProducts(filters);
   };
 
   // Orders list query
@@ -122,7 +230,13 @@ export const useTrpcQuery = () => {
 
   return {
     useUserProfile,
-    useProducts,
+    usePublicProducts,
+    useClientProducts,
+    useFeaturedProducts,
+    useProductsByCategory,
+    useProductsByBrand,
+    useProductDetail,
+    useProducts, // Legacy support
     useOrders,
     useCurrentUser,
     useCategories,

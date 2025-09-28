@@ -65,22 +65,22 @@ export function OrderCard({ order, onViewOrder, className = '' }: OrderCardProps
       className={`hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-200 dark:border-gray-700 ${className}`}
       onClick={() => onViewOrder(order)}
     >
-      <CardBody className="p-4">
+      <CardBody className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2">
-                <Package className="w-4 h-4 text-gray-500" />
-                <span className="font-semibold text-gray-900 dark:text-white">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <Package className="w-5 h-5 text-gray-500" />
+                <span className="font-bold text-gray-900 dark:text-white text-lg">
                   #{order.orderNumber}
                 </span>
               </div>
               <StatusBadge status={order.status} variant="order" />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                <Calendar className="w-3 h-3 mr-2" />
+                <Calendar className="w-4 h-4 mr-2" />
                 {formatDate(order.orderDate)}
               </div>
 
@@ -98,11 +98,11 @@ export function OrderCard({ order, onViewOrder, className = '' }: OrderCardProps
               </div>
             </div>
 
-            <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-1">
-                  <DollarSign className="w-3 h-3 text-green-600" />
-                  <span className="text-lg font-bold text-gray-900 dark:text-white">
+                <div className="flex items-center space-x-2">
+                  <DollarSign className="w-4 h-4 text-green-600" />
+                  <span className="text-xl font-bold text-gray-900 dark:text-white">
                     {formatCurrency(order.totalAmount, order.currency)}
                   </span>
                 </div>
@@ -111,9 +111,9 @@ export function OrderCard({ order, onViewOrder, className = '' }: OrderCardProps
                     e.stopPropagation();
                     onViewOrder(order);
                   }}
-                  className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  <Eye className="w-3 h-3" />
+                  <Eye className="w-4 h-4" />
                   <span>View</span>
                 </button>
               </div>
