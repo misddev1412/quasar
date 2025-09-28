@@ -34,6 +34,7 @@ interface AuthContextType {
   logout: () => void;
   updateUser: (user: User) => Promise<void>;
   checkAuth: () => Promise<void>;
+  refreshToken: () => Promise<boolean>;
 }
 
 interface RegisterData {
@@ -64,12 +65,46 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  // Refresh token function (uses shared utility from trpc.ts)
+  const refreshToken = useCallback(async (): Promise<boolean> => {
+    const { refreshToken: refreshUtil } = await import('../utils/trpc');
+    return refreshUtil();
+  }, []);
+
   // Check if user is authenticated on mount
   const checkAuth = useCallback(async () => {
     const token = getAuthToken();
+    const refreshTokenValue = getRefreshToken();
+
     if (!token) {
       setIsLoading(false);
       return;
+    }
+
+    // Import token utilities
+    const { isTokenExpired } = await import('../utils/trpc');
+
+    // Check if token is expired and we have a refresh token
+    if (isTokenExpired(token) && refreshTokenValue) {
+      console.log('Access token expired, attempting refresh...');
+      const refreshSuccess = await refreshToken();
+
+      if (!refreshSuccess) {
+        // Refresh failed, clear tokens
+        removeAuthToken();
+        removeRefreshToken();
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
+
+      // Use the new token after successful refresh
+      const newToken = getAuthToken();
+      if (!newToken) {
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
     }
 
     try {
@@ -104,7 +139,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [refreshToken]);
 
   useEffect(() => {
     checkAuth();
@@ -119,6 +154,74 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     return unsubscribe;
   }, []);
+
+  const logout = useCallback(() => {
+    removeAuthToken();
+    removeRefreshToken();
+    setUser(null);
+
+    appEvents.emit('show-toast', {
+      type: 'info',
+      title: 'Logged Out',
+      description: 'You have been successfully logged out.',
+    });
+
+    router.push('/login');
+  }, [router]);
+
+  // Auto-refresh token when page is visible and user is authenticated
+  useEffect(() => {
+    if (!user) return;
+
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        const token = getAuthToken();
+        const refreshTokenValue = getRefreshToken();
+
+        if (token && refreshTokenValue) {
+          const { isTokenExpired } = await import('../utils/trpc');
+
+          if (isTokenExpired(token)) {
+            console.log('Page became visible, refreshing expired token...');
+            const refreshSuccess = await refreshToken();
+
+            if (!refreshSuccess) {
+              // Refresh failed, logout user
+              logout();
+            }
+          }
+        }
+      }
+    };
+
+    // Add event listener for visibility changes
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Also check token expiration periodically (every 5 minutes)
+    const intervalId = setInterval(async () => {
+      const token = getAuthToken();
+      const refreshTokenValue = getRefreshToken();
+
+      if (token && refreshTokenValue) {
+        const { isTokenExpired } = await import('../utils/trpc');
+
+        if (isTokenExpired(token)) {
+          console.log('Token expired during periodic check, refreshing...');
+          const refreshSuccess = await refreshToken();
+
+          if (!refreshSuccess) {
+            // Refresh failed, logout user
+            logout();
+          }
+        }
+      }
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      clearInterval(intervalId);
+    };
+  }, [user, logout, refreshToken]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -220,20 +323,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    removeAuthToken();
-    removeRefreshToken();
-    setUser(null);
-
-    appEvents.emit('show-toast', {
-      type: 'info',
-      title: 'Logged Out',
-      description: 'You have been successfully logged out.',
-    });
-
-    router.push('/login');
-  };
-
+  
   const updateUser = async (updatedUser: User) => {
     try {
       const { trpcClient } = await import('../utils/trpc');
@@ -305,6 +395,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     updateUser,
     checkAuth,
+    refreshToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

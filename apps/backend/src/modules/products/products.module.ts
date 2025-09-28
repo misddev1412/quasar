@@ -26,6 +26,7 @@ import { Warranty } from './entities/warranty.entity';
 import { Order } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { Customer } from './entities/customer.entity';
+import { User } from '../user/entities/user.entity';
 import { Country } from './entities/country.entity';
 import { AdministrativeDivision } from './entities/administrative-division.entity';
 import { PaymentMethod } from './entities/payment-method.entity';
@@ -57,6 +58,7 @@ import { AdminOrderService } from './services/admin-order.service';
 import { AdminCustomerService } from './services/admin-customer.service';
 import { PaymentMethodService } from './services/payment-method.service';
 import { DeliveryMethodService } from './services/delivery-method.service';
+import { ClientOrderService } from './services/client-order.service';
 import { ProductTransformer } from './transformers/product.transformer';
 import { SharedModule } from '../shared/shared.module';
 import { AdminProductsRouter } from './routers/admin.router';
@@ -72,6 +74,7 @@ import { AdminCustomersRouter } from './routers/admin-customers.router';
 import { AdminPaymentMethodsRouter } from './routers/admin-payment-methods.router';
 import { AdminDeliveryMethodsRouter } from './routers/admin-delivery-methods.router';
 import { AdminWishlistRouter } from './routers/admin-wishlist.router';
+import { ClientOrdersRouter } from './routers/client-orders.router';
 
 @Module({
   imports: [
@@ -107,6 +110,7 @@ import { AdminWishlistRouter } from './routers/admin-wishlist.router';
       PaymentMethod,
       DeliveryMethod,
       Wishlist,
+      User,
     ]),
     SharedModule,
   ],
@@ -151,7 +155,8 @@ import { AdminWishlistRouter } from './routers/admin-wishlist.router';
         AdminPaymentMethodsRouter,
     AdminDeliveryMethodsRouter,
     AdminWishlistRouter,
-        DeliveryMethodService,
+        ClientOrdersRouter,
+        ClientOrderService,
   ],
   exports: [
     TypeOrmModule,
@@ -195,6 +200,8 @@ import { AdminWishlistRouter } from './routers/admin-wishlist.router';
         AdminPaymentMethodsRouter,
     AdminDeliveryMethodsRouter,
     AdminWishlistRouter,
+        ClientOrdersRouter,
+        ClientOrderService,
       ],
 })
 export class ProductsModule {}

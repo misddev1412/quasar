@@ -257,10 +257,15 @@ export class ClientUserRouter {
     output: apiResponseSchema,
   })
   async refreshToken(
-    @Input() input: z.infer<typeof refreshTokenSchema>
+    @Input() input: z.infer<typeof refreshTokenSchema>,
+    @Ctx() ctx: any
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const result = await this.clientUserService.refreshToken(input.refreshToken);
+      const sessionData = {
+        ipAddress: ctx.req?.ip || ctx.req?.socket?.remoteAddress || 'unknown',
+        userAgent: ctx.req?.headers['user-agent'] || 'unknown',
+      };
+      const result = await this.clientUserService.refreshToken(input.refreshToken, sessionData);
       return this.responseHandler.createTrpcSuccess(result);
     } catch (error) {
       throw this.responseHandler.createTRPCError(

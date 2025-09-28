@@ -6,7 +6,6 @@ import { ResponseService } from '../../shared/services/response.service';
 import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
 import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
 import { AuthenticatedContext } from '../../../trpc/context';
-import { CustomerRepository } from '../../products/repositories/customer.repository';
 import { ModuleCode, OperationCode } from '@shared/enums/error-codes.enums';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
 
@@ -65,18 +64,9 @@ export class ClientSecurityRouter {
     private readonly securityService: ClientSecurityService,
     @Inject(ResponseService)
     private readonly responseHandler: ResponseService,
-    @Inject(CustomerRepository)
-    private readonly customerRepository: CustomerRepository,
   ) {}
 
-  private async getCustomerId(userId: string): Promise<string> {
-    const customer = await this.customerRepository.findByUserId(userId);
-    if (!customer) {
-      throw new Error('Customer profile not found');
-    }
-    return customer.id;
-  }
-
+  
   @UseMiddlewares(AuthMiddleware)
   @Query({
     output: securityStatusResponseSchema,
@@ -89,8 +79,7 @@ export class ClientSecurityRouter {
         throw new Error('User not authenticated');
       }
 
-      const customerId = await this.getCustomerId(user.id);
-      const securityStatus = await this.securityService.getSecurityStatus(user.id, customerId);
+      const securityStatus = await this.securityService.getSecurityStatus(user.id);
 
       return securityStatus;
     } catch (error) {
@@ -117,8 +106,7 @@ export class ClientSecurityRouter {
         throw new Error('User not authenticated');
       }
 
-      const customerId = await this.getCustomerId(user.id);
-      await this.securityService.changePassword(user.id, customerId, input);
+      await this.securityService.changePassword(user.id, input);
 
       return this.responseHandler.createTrpcSuccess({
         message: 'Password changed successfully'
@@ -147,8 +135,7 @@ export class ClientSecurityRouter {
         throw new Error('User not authenticated');
       }
 
-      const customerId = await this.getCustomerId(user.id);
-      const setupData = await this.securityService.setup2FA(user.id, customerId, input.method);
+      const setupData = await this.securityService.setup2FA(user.id, input.method);
 
       return setupData;
     } catch (error) {
@@ -175,8 +162,7 @@ export class ClientSecurityRouter {
         throw new Error('User not authenticated');
       }
 
-      const customerId = await this.getCustomerId(user.id);
-      await this.securityService.verify2FA(user.id, customerId, input.method, input.token);
+      await this.securityService.verify2FA(user.id, input.method, input.token);
 
       return this.responseHandler.createTrpcSuccess({
         message: '2FA verification successful'
@@ -205,8 +191,7 @@ export class ClientSecurityRouter {
         throw new Error('User not authenticated');
       }
 
-      const customerId = await this.getCustomerId(user.id);
-      await this.securityService.disable2FA(user.id, customerId, input.password);
+      await this.securityService.disable2FA(user.id, input.password);
 
       return this.responseHandler.createTrpcSuccess({
         message: '2FA disabled successfully'
@@ -223,25 +208,37 @@ export class ClientSecurityRouter {
 
   @UseMiddlewares(AuthMiddleware)
   @Query({
-    output: z.array(z.object({
-      id: z.string(),
-      browser: z.string(),
-      device: z.string(),
-      location: z.string(),
-      lastActive: z.date(),
-      isCurrent: z.boolean(),
-    })),
+    input: z.object({
+      page: z.number().min(1).default(1),
+      limit: z.number().min(1).max(100).default(10),
+    }),
+    output: z.object({
+      sessions: z.array(z.object({
+        id: z.string(),
+        browser: z.string(),
+        device: z.string(),
+        location: z.string(),
+        lastActive: z.date(),
+        isCurrent: z.boolean(),
+      })),
+      pagination: z.object({
+        page: z.number(),
+        limit: z.number(),
+        total: z.number(),
+        totalPages: z.number(),
+      }),
+    }),
   })
   async getActiveSessions(
+    @Input() input: any,
     @Ctx() { user }: AuthenticatedContext
-  ): Promise<any[]> {
+  ): Promise<any> {
     try {
       if (!user?.id) {
         throw new Error('User not authenticated');
       }
 
-      const customerId = await this.getCustomerId(user.id);
-      const sessions = await this.securityService.getActiveSessions(user.id, customerId);
+      const sessions = await this.securityService.getActiveSessions(user.id, input.page, input.limit);
 
       return sessions;
     } catch (error) {
@@ -268,8 +265,7 @@ export class ClientSecurityRouter {
         throw new Error('User not authenticated');
       }
 
-      const customerId = await this.getCustomerId(user.id);
-      await this.securityService.revokeSession(user.id, customerId, input.sessionId);
+      await this.securityService.revokeSession(user.id, input.sessionId);
 
       return this.responseHandler.createTrpcSuccess({
         message: 'Session revoked successfully'
@@ -296,8 +292,7 @@ export class ClientSecurityRouter {
         throw new Error('User not authenticated');
       }
 
-      const customerId = await this.getCustomerId(user.id);
-      await this.securityService.revokeAllSessions(user.id, customerId);
+      await this.securityService.revokeAllSessions(user.id);
 
       return this.responseHandler.createTrpcSuccess({
         message: 'All sessions revoked successfully'

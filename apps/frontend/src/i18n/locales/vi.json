@@ -208,6 +208,24 @@
     }
   },
   "pages": {
+    "profile": {
+      "orders": {
+        "title": "Đơn hàng của tôi",
+        "subtitle": "Xem lịch sử đơn hàng và theo dõi gói hàng của bạn",
+        "recent_orders": "Đơn hàng gần đây",
+        "search_orders": "Tìm kiếm đơn hàng...",
+        "all_statuses": "Tất cả trạng thái",
+        "status_pending": "Chờ xử lý",
+        "status_confirmed": "Đã xác nhận",
+        "status_processing": "Đang xử lý",
+        "status_shipped": "Đã vận chuyển",
+        "status_delivered": "Đã giao hàng",
+        "status_cancelled": "Đã hủy",
+        "no_orders": "Không tìm thấy đơn hàng",
+        "no_orders_desc": "Bạn chưa đặt đơn hàng nào.",
+        "order_cancelled": "Hủy đơn hàng thành công"
+      }
+    },
     "home": {
       "title": "Trang chủ",
       "description": "Chào mừng đến với website của chúng tôi - Đối tác đáng tin cậy của bạn trong thương mại điện tử",
@@ -717,7 +735,12 @@
         "enter_password_to_disable": "Nhập mật khẩu để vô hiệu hóa 2FA",
         "session_revoked": "Thu hồi phiên thành công",
         "all_sessions_revoked": "Thu hồi tất cả phiên thành công",
-        "copied_to_clipboard": "Đã sao chép vào clipboard"
+        "copied_to_clipboard": "Đã sao chép vào clipboard",
+        "password_min_length": "Mật khẩu phải có ít nhất 8 ký tự",
+        "current_password_required": "Vui lòng nhập mật khẩu hiện tại",
+        "new_password_required": "Vui lòng nhập mật khẩu mới",
+        "confirm_password_required": "Vui lòng xác nhận mật khẩu mới",
+        "password_too_short": "Mật khẩu phải có ít nhất 8 ký tự"
       },
       "notifications": {
         "coming_soon": "Cài đặt thông báo sắp ra mắt",
@@ -738,8 +761,20 @@
       "orders": {
         "title": "Lịch sử đơn hàng",
         "subtitle": "Xem lịch sử đơn hàng của bạn",
-        "coming_soon": "Lịch sử đơn hàng sắp ra mắt",
-        "coming_soon_desc": "Lịch sử đơn hàng của bạn sẽ có sẵn tại đây"
+        "recent_orders": "Đơn hàng gần đây",
+        "search_orders": "Tìm kiếm đơn hàng...",
+        "all_statuses": "Tất cả trạng thái",
+        "status_pending": "Chờ xử lý",
+        "status_confirmed": "Đã xác nhận",
+        "status_processing": "Đang xử lý",
+        "status_shipped": "Đã vận chuyển",
+        "status_delivered": "Đã giao hàng",
+        "status_cancelled": "Đã hủy",
+        "no_orders": "Không tìm thấy đơn hàng",
+        "no_orders_desc": "Bạn chưa đặt đơn hàng nào.",
+        "order_cancelled": "Hủy đơn hàng thành công",
+        "items": "sản phẩm",
+        "item": "sản phẩm"
       },
       "preferences": {
         "title": "Tùy chọn",

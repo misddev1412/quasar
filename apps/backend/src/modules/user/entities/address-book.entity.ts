@@ -4,6 +4,7 @@ import { Expose } from 'class-transformer';
 import { Country } from '../../products/entities/country.entity';
 import { AdministrativeDivision } from '../../products/entities/administrative-division.entity';
 import { AddressBookConfig, AddressConfigType } from './address-book-config.entity';
+import { Customer } from '../../products/entities/customer.entity';
 
 export enum AddressType {
   BILLING = 'BILLING',
@@ -145,9 +146,9 @@ export class AddressBook extends BaseEntity {
   deliveryInstructions?: string;
 
   // Relations
-  @ManyToOne('Customer', 'addressBook')
+  @ManyToOne(() => Customer, (customer) => customer.addressBook)
   @JoinColumn({ name: 'customer_id' })
-  customer: any;
+  customer: Customer;
 
   @ManyToOne(() => Country, { lazy: true })
   @JoinColumn({ name: 'country_id' })

@@ -18,7 +18,7 @@ export class ClientSecurityService {
     private readonly userSessionRepository: Repository<UserSession>,
   ) {}
 
-  async getSecurityStatus(userId: string, customerId: string) {
+  async getSecurityStatus(userId: string) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: ['loginProviders']
@@ -46,7 +46,7 @@ export class ClientSecurityService {
     };
   }
 
-  async changePassword(userId: string, customerId: string, data: {
+  async changePassword(userId: string, data: {
     currentPassword: string;
     newPassword: string;
     confirmPassword: string;
@@ -97,7 +97,7 @@ export class ClientSecurityService {
     await this.userSecurityRepository.save(security);
   }
 
-  async setup2FA(userId: string, customerId: string, method: TwoFactorMethod) {
+  async setup2FA(userId: string, method: TwoFactorMethod) {
     let security = await this.userSecurityRepository.findOne({
       where: { userId }
     });
@@ -142,7 +142,7 @@ export class ClientSecurityService {
     }
   }
 
-  async verify2FA(userId: string, customerId: string, method: TwoFactorMethod, token: string) {
+  async verify2FA(userId: string, method: TwoFactorMethod, token: string) {
     const security = await this.userSecurityRepository.findOne({
       where: { userId }
     });
@@ -173,7 +173,7 @@ export class ClientSecurityService {
     await this.userSecurityRepository.save(security);
   }
 
-  async disable2FA(userId: string, customerId: string, password: string) {
+  async disable2FA(userId: string, password: string) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       select: ['id', 'password']
@@ -200,23 +200,37 @@ export class ClientSecurityService {
     }
   }
 
-  async getActiveSessions(userId: string, customerId: string) {
-    const sessions = await this.userSessionRepository.find({
+  async getActiveSessions(userId: string, page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+
+    const [sessions, total] = await this.userSessionRepository.findAndCount({
       where: { userId },
-      order: { lastActivityAt: 'DESC' }
+      order: { lastActivityAt: 'DESC' },
+      skip,
+      take: limit
     });
 
-    return sessions.map(session => ({
-      id: session.id,
-      browser: session.userAgent,
-      device: session.deviceType,
-      location: session.ipAddress,
-      lastActive: session.lastActivityAt,
-      isCurrent: session.isCurrent
-    }));
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      sessions: sessions.map(session => ({
+        id: session.id,
+        browser: session.userAgent,
+        device: session.deviceType,
+        location: session.ipAddress,
+        lastActive: session.lastActivityAt,
+        isCurrent: session.isCurrent
+      })),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages
+      }
+    };
   }
 
-  async revokeSession(userId: string, customerId: string, sessionId: string) {
+  async revokeSession(userId: string, sessionId: string) {
     const session = await this.userSessionRepository.findOne({
       where: { id: sessionId, userId }
     });
@@ -232,7 +246,7 @@ export class ClientSecurityService {
     await this.userSessionRepository.remove(session);
   }
 
-  async revokeAllSessions(userId: string, customerId: string) {
+  async revokeAllSessions(userId: string) {
     await this.userSessionRepository.delete({
       userId,
       isCurrent: false

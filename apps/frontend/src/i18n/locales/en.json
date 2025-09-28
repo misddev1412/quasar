@@ -208,6 +208,24 @@
     }
   },
   "pages": {
+    "profile": {
+      "orders": {
+        "title": "My Orders",
+        "subtitle": "View your order history and track your packages",
+        "recent_orders": "Recent Orders",
+        "search_orders": "Search orders...",
+        "all_statuses": "All Statuses",
+        "status_pending": "Pending",
+        "status_confirmed": "Confirmed",
+        "status_processing": "Processing",
+        "status_shipped": "Shipped",
+        "status_delivered": "Delivered",
+        "status_cancelled": "Cancelled",
+        "no_orders": "No Orders Found",
+        "no_orders_desc": "You haven't placed any orders yet.",
+        "order_cancelled": "Order cancelled successfully"
+      }
+    },
     "home": {
       "title": "Home",
       "description": "Welcome to our website - Your trusted partner in ecommerce",
@@ -446,7 +464,22 @@
         },
         "orders": {
           "title": "My Orders",
-          "description": "View and track your order history"
+          "description": "View and track your order history",
+          "subtitle": "View your order history and track your packages",
+          "recent_orders": "Recent Orders",
+          "search_orders": "Search orders...",
+          "all_statuses": "All Statuses",
+          "status_pending": "Pending",
+          "status_confirmed": "Confirmed",
+          "status_processing": "Processing",
+          "status_shipped": "Shipped",
+          "status_delivered": "Delivered",
+          "status_cancelled": "Cancelled",
+          "no_orders": "No Orders Found",
+          "no_orders_desc": "You haven't placed any orders yet.",
+          "order_cancelled": "Order cancelled successfully",
+          "items": "items",
+          "item": "item"
         },
         "edit": {
           "title": "Edit Profile",
@@ -722,7 +755,12 @@
         "enter_password_to_disable": "Enter your password to disable 2FA",
         "session_revoked": "Session revoked successfully",
         "all_sessions_revoked": "All sessions revoked successfully",
-        "copied_to_clipboard": "Copied to clipboard"
+        "copied_to_clipboard": "Copied to clipboard",
+        "password_min_length": "Password must be at least 8 characters long",
+        "current_password_required": "Current password is required",
+        "new_password_required": "New password is required",
+        "confirm_password_required": "Please confirm your new password",
+        "password_too_short": "Password must be at least 8 characters long"
       },
       "notifications": {
         "coming_soon": "Notification Settings Coming Soon",
@@ -743,8 +781,20 @@
       "orders": {
         "title": "Order History",
         "subtitle": "View your order history",
-        "coming_soon": "Order History Coming Soon",
-        "coming_soon_desc": "Your order history will be available here"
+        "recent_orders": "Recent Orders",
+        "search_orders": "Search orders...",
+        "all_statuses": "All Statuses",
+        "status_pending": "Pending",
+        "status_confirmed": "Confirmed",
+        "status_processing": "Processing",
+        "status_shipped": "Shipped",
+        "status_delivered": "Delivered",
+        "status_cancelled": "Cancelled",
+        "no_orders": "No Orders Found",
+        "no_orders_desc": "You haven't placed any orders yet.",
+        "order_cancelled": "Order cancelled successfully",
+        "items": "items",
+        "item": "item"
       },
       "preferences": {
         "title": "Preferences",

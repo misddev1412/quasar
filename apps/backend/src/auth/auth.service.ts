@@ -48,7 +48,7 @@ export class AuthService {
     };
 
     // Set token expiration based on remember me option
-    const accessTokenExpiry = sessionData?.isRememberMe ? '7d' : '15m';
+    const accessTokenExpiry = sessionData?.isRememberMe ? '7d' : '1d';
     const refreshTokenExpiry = sessionData?.isRememberMe ? '30d' : '7d';
     
     const accessToken = this.jwtService.sign(payload, { expiresIn: accessTokenExpiry });
@@ -93,20 +93,37 @@ export class AuthService {
     }
   }
 
-  async refreshToken(refreshToken: string) {
+  async refreshToken(refreshToken: string, sessionData?: { ipAddress?: string; userAgent?: string }) {
     try {
       const payload = this.jwtService.verify(refreshToken);
-      const newPayload: JwtPayload = { 
-        email: payload.email, 
-        sub: payload.sub, 
+      const newPayload: JwtPayload = {
+        email: payload.email,
+        sub: payload.sub,
         username: payload.username,
         role: payload.role,
-        isActive: payload.isActive 
+        isActive: payload.isActive
       };
-      
+
+      const accessToken = this.jwtService.sign(newPayload);
+      const newRefreshToken = this.jwtService.sign(newPayload, { expiresIn: '7d' });
+
+      // Update session with new tokens
+      if (sessionData) {
+        try {
+          const sessionRepository = this.activityTrackingService['sessionRepository'];
+          const existingSession = await sessionRepository.findByRefreshToken(refreshToken);
+
+          if (existingSession) {
+            await sessionRepository.updateSessionTokens(existingSession.id, accessToken, newRefreshToken);
+          }
+        } catch (error) {
+          console.error('Failed to update session during refresh:', error);
+        }
+      }
+
       return {
-        accessToken: this.jwtService.sign(newPayload),
-        refreshToken: this.jwtService.sign(newPayload, { expiresIn: '7d' }),
+        accessToken,
+        refreshToken: newRefreshToken,
       };
     } catch (error) {
       throw new UnauthorizedException('Invalid refresh token');

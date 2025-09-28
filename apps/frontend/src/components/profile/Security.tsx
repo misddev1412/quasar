@@ -28,6 +28,16 @@ interface Session {
   isCurrent: boolean;
 }
 
+interface SessionsResponse {
+  sessions: Session[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 interface SecurityStatus {
   hasPassword: boolean;
   hasTwoFactor: boolean;
@@ -46,14 +56,24 @@ export const Security: React.FC = () => {
   const [show2FAModal, setShow2FAModal] = useState(false);
   const [showBackupCodes, setShowBackupCodes] = useState(false);
   const [selected2FAMethod, setSelected2FAMethod] = useState<'email' | 'authenticator' | 'sms'>('email');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [passwordErrors, setPasswordErrors] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
 
   const { data: securityStatus, refetch: refetchSecurityStatus } = trpc.clientSecurity.getSecurityStatus.useQuery<SecurityStatus>();
-  const { data: sessions, refetch: refetchSessions } = trpc.clientSecurity.getActiveSessions.useQuery<Session[]>();
+  const { data: sessions, refetch: refetchSessions } = trpc.clientSecurity.getActiveSessions.useQuery<SessionsResponse>({
+    page: currentPage,
+    limit: pageSize
+  });
 
   const changePassword = trpc.clientSecurity.changePassword.useMutation({
     onSuccess: () => {
@@ -63,7 +83,8 @@ export const Security: React.FC = () => {
       refetchSecurityStatus();
     },
     onError: (error) => {
-      toast.error(error.message);
+      const errorMessage = error.data?.data?.message || error.message || 'An error occurred while changing your password';
+      toast.error(errorMessage);
     }
   });
 
@@ -76,7 +97,8 @@ export const Security: React.FC = () => {
       }
     },
     onError: (error) => {
-      toast.error(error.message);
+      const errorMessage = error.data?.data?.message || error.message || 'An error occurred while setting up 2FA';
+      toast.error(errorMessage);
     }
   });
 
@@ -88,7 +110,8 @@ export const Security: React.FC = () => {
       refetchSecurityStatus();
     },
     onError: (error) => {
-      toast.error(error.message);
+      const errorMessage = error.data?.data?.message || error.message || 'An error occurred while verifying 2FA';
+      toast.error(errorMessage);
     }
   });
 
@@ -98,7 +121,8 @@ export const Security: React.FC = () => {
       refetchSecurityStatus();
     },
     onError: (error) => {
-      toast.error(error.message);
+      const errorMessage = error.data?.data?.message || error.message || 'An error occurred while disabling 2FA';
+      toast.error(errorMessage);
     }
   });
 
@@ -108,7 +132,8 @@ export const Security: React.FC = () => {
       refetchSessions();
     },
     onError: (error) => {
-      toast.error(error.message);
+      const errorMessage = error.data?.data?.message || error.message || 'An error occurred while revoking session';
+      toast.error(errorMessage);
     }
   });
 
@@ -118,17 +143,56 @@ export const Security: React.FC = () => {
       refetchSessions();
     },
     onError: (error) => {
-      toast.error(error.message);
+      const errorMessage = error.data?.data?.message || error.message || 'An error occurred while revoking all sessions';
+      toast.error(errorMessage);
     }
   });
 
+  const validatePasswordForm = () => {
+    const errors = {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    };
+
+    if (!passwordData.currentPassword.trim()) {
+      errors.currentPassword = t('pages.profile.security.current_password_required');
+    }
+
+    if (!passwordData.newPassword.trim()) {
+      errors.newPassword = t('pages.profile.security.new_password_required');
+    } else if (passwordData.newPassword.length < 8) {
+      errors.newPassword = t('pages.profile.security.password_too_short');
+    }
+
+    if (!passwordData.confirmPassword.trim()) {
+      errors.confirmPassword = t('pages.profile.security.confirm_password_required');
+    } else if (passwordData.confirmPassword.length < 8) {
+      errors.confirmPassword = t('pages.profile.security.password_too_short');
+    } else if (passwordData.newPassword !== passwordData.confirmPassword) {
+      errors.confirmPassword = t('pages.profile.security.passwords_do_not_match');
+    }
+
+    setPasswordErrors(errors);
+    return !errors.currentPassword && !errors.newPassword && !errors.confirmPassword;
+  };
+
   const handlePasswordChange = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error(t('pages.profile.security.passwords_do_not_match'));
+
+    if (!validatePasswordForm()) {
       return;
     }
+
     changePassword.mutate(passwordData);
+  };
+
+  const handlePasswordInputChange = (field: keyof typeof passwordData, value: string) => {
+    setPasswordData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (passwordErrors[field]) {
+      setPasswordErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
 
   const handle2FASetup = () => {
@@ -274,7 +338,7 @@ export const Security: React.FC = () => {
             </div>
 
             <div className="space-y-3">
-              {sessions?.map((session) => (
+              {sessions?.sessions?.map((session) => (
                 <div key={session.id} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg">
                   <div className="flex items-center space-x-3">
                     <Monitor className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -304,6 +368,33 @@ export const Security: React.FC = () => {
                   </div>
                 </div>
               ))}
+
+              {sessions?.pagination && sessions.pagination.totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Showing {((sessions.pagination.page - 1) * sessions.pagination.limit) + 1} to {Math.min(sessions.pagination.page * sessions.pagination.limit, sessions.pagination.total)} of {sessions.pagination.total} sessions
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={sessions.pagination.page === 1}
+                      className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+                    >
+                      Previous
+                    </button>
+                    <span className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg">
+                      {sessions.pagination.page} of {sessions.pagination.totalPages}
+                    </span>
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(sessions.pagination.totalPages, prev + 1))}
+                      disabled={sessions.pagination.page === sessions.pagination.totalPages}
+                      className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -333,10 +424,17 @@ export const Security: React.FC = () => {
                 <input
                   type="password"
                   value={passwordData.currentPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  onChange={(e) => handlePasswordInputChange('currentPassword', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent dark:bg-gray-700 dark:text-white ${
+                    passwordErrors.currentPassword
+                      ? 'border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'
+                  }`}
                   required
                 />
+                {passwordErrors.currentPassword && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{passwordErrors.currentPassword}</p>
+                )}
               </div>
 
               <div>
@@ -346,10 +444,20 @@ export const Security: React.FC = () => {
                 <input
                   type="password"
                   value={passwordData.newPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  onChange={(e) => handlePasswordInputChange('newPassword', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent dark:bg-gray-700 dark:text-white ${
+                    passwordErrors.newPassword
+                      ? 'border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'
+                  }`}
                   required
                 />
+                {passwordErrors.newPassword && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{passwordErrors.newPassword}</p>
+                )}
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  {t('pages.profile.security.password_min_length')}
+                </p>
               </div>
 
               <div>
@@ -359,10 +467,17 @@ export const Security: React.FC = () => {
                 <input
                   type="password"
                   value={passwordData.confirmPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  onChange={(e) => handlePasswordInputChange('confirmPassword', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent dark:bg-gray-700 dark:text-white ${
+                    passwordErrors.confirmPassword
+                      ? 'border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'
+                  }`}
                   required
                 />
+                {passwordErrors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{passwordErrors.confirmPassword}</p>
+                )}
               </div>
 
               <div className="flex space-x-3">

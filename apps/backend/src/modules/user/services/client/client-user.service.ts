@@ -155,11 +155,11 @@ export class ClientUserService {
     }
   }
 
-  async refreshToken(refreshToken: string): Promise<ClientAuthResponseDto> {
+  async refreshToken(refreshToken: string, sessionData?: { ipAddress?: string; userAgent?: string }): Promise<ClientAuthResponseDto> {
     try {
-      const tokens = await this.authService.refreshToken(refreshToken);
+      const tokens = await this.authService.refreshToken(refreshToken, sessionData);
       const payload = await this.authService.verifyToken(tokens.accessToken);
-      
+
       const user = await this.userRepository.findWithProfile(payload.sub);
       if (!user) {
         throw this.responseHandler.createError(

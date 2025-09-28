@@ -167,6 +167,17 @@ export class UserSessionRepository extends BaseRepository<UserSession> {
     );
   }
 
+  async updateSessionTokens(sessionId: string, newAccessToken: string, newRefreshToken: string): Promise<void> {
+    await this.repository.update(
+      { id: sessionId },
+      {
+        sessionToken: newAccessToken,
+        refreshToken: newRefreshToken,
+        lastActivityAt: new Date()
+      }
+    );
+  }
+
   async terminateSession(sessionToken: string, reason: SessionStatus = SessionStatus.LOGGED_OUT): Promise<void> {
     await this.repository.update(
       { sessionToken },

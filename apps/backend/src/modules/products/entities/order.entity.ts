@@ -1,7 +1,8 @@
-import { Entity, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
 import { OrderItem } from './order-item.entity';
+import { Customer } from './customer.entity';
 
 export enum OrderStatus {
   PENDING = 'PENDING',
@@ -51,6 +52,10 @@ export class Order extends BaseEntity {
     nullable: true,
   })
   customerId?: string;
+
+  @ManyToOne(() => Customer, (customer) => customer.orders, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'customer_id' })
+  customer?: Customer;
 
   @Expose()
   @Column({

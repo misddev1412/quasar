@@ -3,6 +3,8 @@ import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
 import { Order } from './order.entity';
 import { Wishlist } from './wishlist.entity';
+import { User } from '../../user/entities/user.entity';
+import { AddressBook } from '../../user/entities/address-book.entity';
 
 export enum CustomerType {
   INDIVIDUAL = 'INDIVIDUAL',
@@ -272,11 +274,15 @@ export class Customer extends BaseEntity {
   taxId?: string;
 
   // Relations
-  @OneToMany(() => Order, (order) => order.customerId)
+  @ManyToOne(() => User, user => user.customers, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @OneToMany(() => Order, (order) => order.customer)
   orders: Order[];
 
-  @OneToMany('AddressBook', 'customer')
-  addressBook: any[];
+  @OneToMany(() => AddressBook, (addressBook) => addressBook.customer)
+  addressBook: AddressBook[];
 
   @OneToMany(() => Wishlist, (wishlist) => wishlist.customer)
   wishlists: Wishlist[];
