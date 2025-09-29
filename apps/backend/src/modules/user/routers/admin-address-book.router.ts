@@ -12,7 +12,7 @@ import { AddressType } from '../entities/address-book.entity';
 export const addressTypeSchema = z.nativeEnum(AddressType);
 
 export const createAddressBookSchema = z.object({
-  customerId: z.string().uuid(),
+  userId: z.string().uuid(),
   countryId: z.string(),
   provinceId: z.string().optional(),
   wardId: z.string().optional(),
@@ -30,12 +30,12 @@ export const createAddressBookSchema = z.object({
   deliveryInstructions: z.string().optional(),
 });
 
-export const updateAddressBookSchema = createAddressBookSchema.partial().omit({ customerId: true });
+export const updateAddressBookSchema = createAddressBookSchema.partial().omit({ userId: true });
 
 export const getAddressBooksQuerySchema = z.object({
   page: z.number().min(1).default(1),
   limit: z.number().min(1).max(100).default(20),
-  customerId: z.string().uuid().optional(),
+  userId: z.string().uuid().optional(),
   countryId: z.string().optional(),
   addressType: addressTypeSchema.optional(),
 });
@@ -62,7 +62,7 @@ export class AdminAddressBookRouter {
       const result = await this.addressBookService.getAllAddressBooks(
         query.page,
         query.limit,
-        query.customerId,
+        query.userId,
         query.countryId,
         query.addressType,
       );
@@ -103,21 +103,21 @@ export class AdminAddressBookRouter {
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
-    input: z.object({ customerId: z.string().uuid() }),
+    input: z.object({ userId: z.string().uuid() }),
     output: apiResponseSchema,
   })
-  async getByCustomerId(
-    @Input() input: { customerId: string }
+  async getByUserId(
+    @Input() input: { userId: string }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const addressBooks = await this.addressBookService.getAddressBooksByCustomerId(input.customerId);
+      const addressBooks = await this.addressBookService.getAddressBooksByUserId(input.userId);
       return this.responseHandler.createTrpcSuccess(addressBooks);
     } catch (error) {
       throw this.responseHandler.createTRPCError(
         ModuleCode.ADDRESS_BOOK,
         OperationCode.READ,
         ErrorLevelCode.SERVER_ERROR,
-        error.message || 'Failed to retrieve customer address books'
+        error.message || 'Failed to retrieve user address books'
       );
     }
   }
@@ -125,17 +125,17 @@ export class AdminAddressBookRouter {
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
     input: z.object({
-      customerId: z.string().uuid(),
+      userId: z.string().uuid(),
       addressType: addressTypeSchema,
     }),
     output: apiResponseSchema,
   })
-  async getByCustomerIdAndType(
-    @Input() input: { customerId: string; addressType: AddressType }
+  async getByUserIdAndType(
+    @Input() input: { userId: string; addressType: AddressType }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const addressBooks = await this.addressBookService.getAddressBooksByCustomerIdAndType(
-        input.customerId,
+      const addressBooks = await this.addressBookService.getAddressBooksByUserIdAndType(
+        input.userId,
         input.addressType
       );
       return this.responseHandler.createTrpcSuccess(addressBooks);
@@ -144,7 +144,7 @@ export class AdminAddressBookRouter {
         ModuleCode.ADDRESS_BOOK,
         OperationCode.READ,
         ErrorLevelCode.SERVER_ERROR,
-        error.message || 'Failed to retrieve customer address books by type'
+        error.message || 'Failed to retrieve user address books by type'
       );
     }
   }
@@ -241,14 +241,14 @@ export class AdminAddressBookRouter {
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
-    input: z.object({ customerId: z.string().uuid().optional() }),
+    input: z.object({ userId: z.string().uuid().optional() }),
     output: apiResponseSchema,
   })
   async stats(
-    @Input() input: { customerId?: string }
+    @Input() input: { userId?: string }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const stats = await this.addressBookService.getAddressBookStats(input.customerId);
+      const stats = await this.addressBookService.getAddressBookStats(input.userId);
       return this.responseHandler.createTrpcSuccess(stats);
     } catch (error) {
       throw this.responseHandler.createTRPCError(

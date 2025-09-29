@@ -23,7 +23,7 @@ export default function Page() {
       </Helmet>
       <Layout>
         <ProfileLayout activeSection="loyalty">
-          <LoyaltyDashboard onSectionChange={handleSectionChange} />
+          <LoyaltyDashboard />
         </ProfileLayout>
       </Layout>
     </>

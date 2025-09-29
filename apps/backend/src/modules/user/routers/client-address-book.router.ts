@@ -6,7 +6,6 @@ import { ResponseService } from '@backend/modules/shared/services/response.servi
 import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
 import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
 import { AuthenticatedContext } from '../../../trpc/context';
-import { CustomerRepository } from '../../products/repositories/customer.repository';
 import { AddressType } from '../entities/address-book.entity';
 import { AdministrativeDivisionType } from '../../products/entities/administrative-division.entity';
 import { ModuleCode, OperationCode } from '@shared/enums/error-codes.enums';
@@ -64,7 +63,7 @@ const parentQuerySchema = z.object({
 
 const addressBookResponseSchema = z.object({
   id: z.string(),
-  customerId: z.string(),
+  userId: z.string(),
   countryId: z.string(),
   provinceId: z.string().nullable(),
   wardId: z.string().nullable(),
@@ -120,17 +119,8 @@ export class ClientAddressBookRouter {
     private readonly addressBookService: ClientAddressBookService,
     @Inject(ResponseService)
     private readonly responseHandler: ResponseService,
-    @Inject(CustomerRepository)
-    private readonly customerRepository: CustomerRepository,
   ) {}
 
-  private async getCustomerId(userId: string): Promise<string> {
-    const customer = await this.customerRepository.findByUserId(userId);
-    if (!customer) {
-      throw new Error('Customer profile not found');
-    }
-    return customer.id;
-  }
 
   @UseMiddlewares(AuthMiddleware)
   @Query({
@@ -144,13 +134,12 @@ export class ClientAddressBookRouter {
         throw new Error('User not authenticated');
       }
 
-      const customerId = await this.getCustomerId(user.id);
-      const addresses = await this.addressBookService.getAddressBooksByCustomerId(customerId);
+      const addresses = await this.addressBookService.getAddressBooksByUserId(user.id);
 
       // Transform addresses to include virtual properties
       return addresses.map(address => ({
         id: address.id,
-        customerId: address.customerId,
+        userId: address.userId,
         countryId: address.countryId,
         provinceId: address.provinceId,
         wardId: address.wardId,
@@ -198,8 +187,7 @@ export class ClientAddressBookRouter {
         throw new Error('User not authenticated');
       }
 
-      const customerId = await this.getCustomerId(user.id);
-      const address = await this.addressBookService.getAddressBookById(input.id, customerId);
+      const address = await this.addressBookService.getAddressBookById(input.id, user.id);
 
       if (!address) {
         throw this.responseHandler.createTRPCError(
@@ -212,7 +200,7 @@ export class ClientAddressBookRouter {
 
       return {
         id: address.id,
-        customerId: address.customerId,
+        userId: address.userId,
         countryId: address.countryId,
         provinceId: address.provinceId,
         wardId: address.wardId,
@@ -263,12 +251,11 @@ export class ClientAddressBookRouter {
         throw new Error('User not authenticated');
       }
 
-      const customerId = await this.getCustomerId(user.id);
-      const address = await this.addressBookService.createAddressBook(customerId, addressData);
+      const address = await this.addressBookService.createAddressBook(user.id, addressData);
 
       return {
         id: address.id,
-        customerId: address.customerId,
+        userId: address.userId,
         countryId: address.countryId,
         provinceId: address.provinceId,
         wardId: address.wardId,
@@ -319,8 +306,7 @@ export class ClientAddressBookRouter {
         throw new Error('User not authenticated');
       }
 
-      const customerId = await this.getCustomerId(user.id);
-      const address = await this.addressBookService.updateAddressBook(input.id, customerId, input.data);
+      const address = await this.addressBookService.updateAddressBook(input.id, user.id, input.data);
 
       if (!address) {
         throw this.responseHandler.createTRPCError(
@@ -333,7 +319,7 @@ export class ClientAddressBookRouter {
 
       return {
         id: address.id,
-        customerId: address.customerId,
+        userId: address.userId,
         countryId: address.countryId,
         provinceId: address.provinceId,
         wardId: address.wardId,
@@ -384,8 +370,7 @@ export class ClientAddressBookRouter {
         throw new Error('User not authenticated');
       }
 
-      const customerId = await this.getCustomerId(user.id);
-      await this.addressBookService.deleteAddressBook(input.id, customerId);
+      await this.addressBookService.deleteAddressBook(input.id, user.id);
 
       return this.responseHandler.createTrpcSuccess({ message: 'Address deleted successfully' });
     } catch (error) {
@@ -412,8 +397,7 @@ export class ClientAddressBookRouter {
         throw new Error('User not authenticated');
       }
 
-      const customerId = await this.getCustomerId(user.id);
-      await this.addressBookService.setAsDefault(input.id, customerId);
+      await this.addressBookService.setAsDefault(input.id, user.id);
 
       return this.responseHandler.createTrpcSuccess({ message: 'Address set as default successfully' });
     } catch (error) {
@@ -438,8 +422,7 @@ export class ClientAddressBookRouter {
         throw new Error('User not authenticated');
       }
 
-      const customerId = await this.getCustomerId(user.id);
-      const address = await this.addressBookService.getDefaultAddressBook(customerId);
+      const address = await this.addressBookService.getDefaultAddressBook(user.id);
 
       if (!address) {
         return null;
@@ -447,7 +430,7 @@ export class ClientAddressBookRouter {
 
       return {
         id: address.id,
-        customerId: address.customerId,
+        userId: address.userId,
         countryId: address.countryId,
         provinceId: address.provinceId,
         wardId: address.wardId,

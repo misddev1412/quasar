@@ -18,44 +18,44 @@ export class AddressBookRepository {
   async findById(id: string): Promise<AddressBook | null> {
     return this.repository.findOne({
       where: { id },
-      relations: ['customer'],
+      relations: ['user'],
     });
   }
 
-  async findByCustomerId(customerId: string): Promise<AddressBook[]> {
+  async findByUserId(userId: string): Promise<AddressBook[]> {
     return this.repository.find({
-      where: { customerId },
+      where: { userId },
       order: { isDefault: 'DESC', createdAt: 'DESC' },
     });
   }
 
-  async findByCustomerIdAndType(
-    customerId: string,
+  async findByUserIdAndType(
+    userId: string,
     addressType: AddressType,
   ): Promise<AddressBook[]> {
     return this.repository.find({
       where: [
-        { customerId, addressType },
-        { customerId, addressType: AddressType.BOTH },
+        { userId, addressType },
+        { userId, addressType: AddressType.BOTH },
       ],
       order: { isDefault: 'DESC', createdAt: 'DESC' },
     });
   }
 
-  async findDefaultByCustomerId(customerId: string): Promise<AddressBook | null> {
+  async findDefaultByUserId(userId: string): Promise<AddressBook | null> {
     return this.repository.findOne({
-      where: { customerId, isDefault: true },
+      where: { userId, isDefault: true },
     });
   }
 
-  async findDefaultByCustomerIdAndType(
-    customerId: string,
+  async findDefaultByUserIdAndType(
+    userId: string,
     addressType: AddressType,
   ): Promise<AddressBook | null> {
     return this.repository.findOne({
       where: [
-        { customerId, addressType, isDefault: true },
-        { customerId, addressType: AddressType.BOTH, isDefault: true },
+        { userId, addressType, isDefault: true },
+        { userId, addressType: AddressType.BOTH, isDefault: true },
       ],
     });
   }
@@ -74,10 +74,10 @@ export class AddressBookRepository {
     return result.affected > 0;
   }
 
-  async setAsDefault(id: string, customerId: string): Promise<void> {
-    // First, unset all default addresses for this customer
+  async setAsDefault(id: string, userId: string): Promise<void> {
+    // First, unset all default addresses for this user
     await this.repository.update(
-      { customerId },
+      { userId },
       { isDefault: false },
     );
 
@@ -107,9 +107,9 @@ export class AddressBookRepository {
     return this.repository.count({ where });
   }
 
-  async countByCustomerId(customerId: string): Promise<number> {
+  async countByUserId(userId: string): Promise<number> {
     return this.repository.count({
-      where: { customerId },
+      where: { userId },
     });
   }
 
@@ -123,7 +123,7 @@ export class AddressBookRepository {
       skip: (page - 1) * limit,
       take: limit,
       order: { createdAt: 'DESC' },
-      relations: ['customer'],
+      relations: ['user'],
     });
 
     return {
@@ -140,12 +140,12 @@ export class AddressBookRepository {
   }
 
   async validateUniqueDefault(
-    customerId: string,
+    userId: string,
     addressType: AddressType,
     excludeId?: string,
   ): Promise<boolean> {
     const where: FindOptionsWhere<AddressBook> = {
-      customerId,
+      userId,
       isDefault: true,
     };
 

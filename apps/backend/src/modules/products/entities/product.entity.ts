@@ -163,8 +163,8 @@ export class Product extends BaseEntity {
   })
   tags: Promise<ProductTag[]>;
 
-  @OneToMany(() => ProductVariant, (variant) => variant.product, { lazy: true })
-  variants: Promise<ProductVariant[]>;
+  @OneToMany(() => ProductVariant, (variant) => variant.product, { eager: true })
+  variants: ProductVariant[];
 
   @OneToMany(() => ProductAttribute, (productAttribute) => productAttribute.product, { lazy: true })
   productAttributes: Promise<ProductAttribute[]>;
@@ -240,32 +240,28 @@ export class Product extends BaseEntity {
     return tags?.map(tag => tag.name) || [];
   }
 
-  async getVariantCount(): Promise<number> {
-    const variants = await this.variants;
-    return variants?.length || 0;
+  getVariantCount(): number {
+    return this.variants?.length || 0;
   }
 
-  async getTotalStock(): Promise<number> {
-    const variants = await this.variants;
-    return variants?.reduce((sum, variant) => sum + variant.stockQuantity, 0) || 0;
+  getTotalStock(): number {
+    return this.variants?.reduce((sum, variant) => sum + variant.stockQuantity, 0) || 0;
   }
 
-  async getLowestPrice(): Promise<number | null> {
-    const variants = await this.variants;
-    if (!variants?.length) return null;
-    return Math.min(...variants.map(v => v.price));
+  getLowestPrice(): number | null {
+    if (!this.variants?.length) return null;
+    return Math.min(...this.variants.map(v => v.price));
   }
 
-  async getHighestPrice(): Promise<number | null> {
-    const variants = await this.variants;
-    if (!variants?.length) return null;
-    return Math.max(...variants.map(v => v.price));
+  getHighestPrice(): number | null {
+    if (!this.variants?.length) return null;
+    return Math.max(...this.variants.map(v => v.price));
   }
 
-  async getPriceRange(): Promise<string | null> {
-    const lowest = await this.getLowestPrice();
-    const highest = await this.getHighestPrice();
-    
+  getPriceRange(): string | null {
+    const lowest = this.getLowestPrice();
+    const highest = this.getHighestPrice();
+
     if (lowest === null || highest === null) return null;
     if (lowest === highest) return `$${lowest.toFixed(2)}`;
     return `$${lowest.toFixed(2)} - $${highest.toFixed(2)}`;

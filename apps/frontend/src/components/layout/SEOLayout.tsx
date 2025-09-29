@@ -1,6 +1,6 @@
 import React from 'react';
-import { SEOProvider } from '../contexts/SEOContext';
-import type { SEOData } from '../types/trpc';
+import { SEOProvider } from '../../contexts/SEOContext';
+import type { SEOData } from '../../types/trpc';
 
 interface SEOLayoutProps {
   children: React.ReactNode;

@@ -4,6 +4,7 @@ import { UserProfile } from './user-profile.entity';
 import { UserRole } from './user-role.entity';
 import { UserLoginProvider, AuthProvider } from './user-login-provider.entity';
 import { Customer } from '../../products/entities/customer.entity';
+import { AddressBook } from './address-book.entity';
 import * as bcrypt from 'bcrypt';
 
 @Entity('users')
@@ -67,6 +68,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Customer, customer => customer.user)
   customers: Customer[];
+
+  @OneToMany(() => AddressBook, addressBook => addressBook.user)
+  addressBooks: AddressBook[];
 
   @BeforeInsert()
   @BeforeUpdate()

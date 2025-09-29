@@ -1,7 +1,7 @@
 // AppRouter types for tRPC client
 // This file is auto-generated from actual nestjs-trpc routers
 // Run 'npm run sync:trpc-types' to regenerate this file
-// Generated on: 2025-09-28T09:52:55.152Z
+// Generated on: 2025-09-29T13:41:15.924Z
 
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
@@ -331,13 +331,6 @@ const appRouter = t.router({
     active: t.procedure.query(() => null),
     cancelOrder: t.procedure.input(z.any()).mutation(() => null),
   }),
-  clientProducts: t.router({
-    list: t.procedure.input(z.any()).query(() => null),
-    detail: t.procedure.input(z.any()).query(() => null),
-    featured: t.procedure.query(() => null),
-    byCategory: t.procedure.query(() => null),
-    byBrand: t.procedure.query(() => null),
-  }),
   publicProducts: t.router({
     list: t.procedure.input(z.any()).query(() => null),
     detail: t.procedure.input(z.any()).query(() => null),
@@ -402,8 +395,8 @@ const appRouter = t.router({
   adminAddressBook: t.router({
     list: t.procedure.input(z.any()).query(() => null),
     detail: t.procedure.input(z.any()).query(() => null),
-    getByCustomerId: t.procedure.input(z.any()).query(() => null),
-    getByCustomerIdAndType: t.procedure.input(z.any()).query(() => null),
+    getByUserId: t.procedure.query(() => null),
+    getByUserIdAndType: t.procedure.query(() => null),
     create: t.procedure.input(z.any()).mutation(() => null),
     update: t.procedure.input(z.any()).mutation(() => null),
     delete: t.procedure.input(z.any()).mutation(() => null),
@@ -491,6 +484,15 @@ const appRouter = t.router({
     getCountries: t.procedure.query(() => null),
     getAdministrativeDivisions: t.procedure.query(() => null),
     getAdministrativeDivisionsByParentId: t.procedure.query(() => null),
+  }),
+  clientProducts: t.router({
+    getProducts: t.procedure.query(() => null),
+    getProductById: t.procedure.query(() => null),
+    getProductBySlug: t.procedure.query(() => null),
+    getFeaturedProducts: t.procedure.query(() => null),
+    getNewProducts: t.procedure.query(() => null),
+    getProductsByCategory: t.procedure.query(() => null),
+    getProductFilters: t.procedure.query(() => null),
   }),
   seo: t.router({
     getByPath: t.procedure.input(z.any()).query(() => null),

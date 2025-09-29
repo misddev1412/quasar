@@ -67,7 +67,6 @@ import { AdminProductBrandsRouter } from './routers/admin-brands.router';
 import { AdminProductCategoriesRouter } from './routers/admin-categories.router';
 import { AdminProductSuppliersRouter } from './routers/admin-suppliers.router';
 import { AdminWarehousesRouter } from './routers/admin-warehouse.router';
-import { ClientProductsRouter } from './routers/client.router';
 import { PublicProductsRouter } from './routers/public.router';
 import { AdminOrdersRouter } from './routers/admin-orders.router';
 import { AdminCustomersRouter } from './routers/admin-customers.router';
@@ -75,6 +74,7 @@ import { AdminPaymentMethodsRouter } from './routers/admin-payment-methods.route
 import { AdminDeliveryMethodsRouter } from './routers/admin-delivery-methods.router';
 import { AdminWishlistRouter } from './routers/admin-wishlist.router';
 import { ClientOrdersRouter } from './routers/client-orders.router';
+import { ClientProductsRouter } from '../../trpc/routers/client/products.router';
 
 @Module({
   imports: [
@@ -148,8 +148,7 @@ import { ClientOrdersRouter } from './routers/client-orders.router';
     AdminProductCategoriesRouter,
     AdminProductSuppliersRouter,
     AdminWarehousesRouter,
-    ClientProductsRouter,
-    PublicProductsRouter,
+        PublicProductsRouter,
     AdminOrdersRouter,
     AdminCustomersRouter,
         AdminPaymentMethodsRouter,
@@ -157,6 +156,7 @@ import { ClientOrdersRouter } from './routers/client-orders.router';
     AdminWishlistRouter,
         ClientOrdersRouter,
         ClientOrderService,
+        ClientProductsRouter,
   ],
   exports: [
     TypeOrmModule,
@@ -193,8 +193,7 @@ import { ClientOrdersRouter } from './routers/client-orders.router';
     AdminProductCategoriesRouter,
     AdminProductSuppliersRouter,
     AdminWarehousesRouter,
-    ClientProductsRouter,
-    PublicProductsRouter,
+        PublicProductsRouter,
     AdminOrdersRouter,
     AdminCustomersRouter,
         AdminPaymentMethodsRouter,
@@ -202,6 +201,7 @@ import { ClientOrdersRouter } from './routers/client-orders.router';
     AdminWishlistRouter,
         ClientOrdersRouter,
         ClientOrderService,
+        ClientProductsRouter,
       ],
 })
 export class ProductsModule {}

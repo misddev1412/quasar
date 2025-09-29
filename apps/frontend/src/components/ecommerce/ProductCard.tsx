@@ -1,9 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { Button, Image } from '@heroui/react';
+import { Button, Image, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from '@heroui/react';
 import PriceDisplay from './PriceDisplay';
 import Rating from './Rating';
 import AddToCartButton from './AddToCartButton';
+
+// ProductVariant interface from backend entity
+export interface ProductVariant {
+  id: string;
+  productId: string;
+  name: string;
+  sku?: string;
+  barcode?: string;
+  price: number;
+  compareAtPrice?: number;
+  costPrice?: number;
+  stockQuantity: number;
+  lowStockThreshold?: number;
+  trackInventory: boolean;
+  allowBackorders: boolean;
+  weight?: number;
+  dimensions?: string;
+  image?: string;
+  attributes?: Record<string, unknown>;
+  isActive: boolean;
+  sortOrder: number;
+  isInStock: boolean;
+  isLowStock: boolean;
+  isOutOfStock: boolean;
+  canPurchase: boolean;
+  discountPercentage?: number;
+  profitMargin?: number;
+}
 
 // Use the backend Product interface
 export interface Product {
@@ -22,6 +50,7 @@ export interface Product {
   brand?: Brand | string;
   category?: Category | string;
   categories?: Category[] | string[];
+  variants?: ProductVariant[];
   viewCount: number;
   createdAt: Date;
   updatedAt: Date;
@@ -79,7 +108,7 @@ interface ProductCardProps {
   showQuickView?: boolean;
   className?: string;
   imageHeight?: string;
-  onAddToCart?: (product: Product, quantity?: number) => void;
+  onAddToCart?: (product: Product, quantity?: number, variant?: ProductVariant | null) => void;
   onWishlistToggle?: (productId: string) => void;
   onQuickView?: (product: Product) => void;
 }
@@ -90,7 +119,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   showWishlist = true,
   showQuickView = false,
   className = '',
-  imageHeight = 'h-48',
+  imageHeight = 'h-64',
   onAddToCart,
   onWishlistToggle,
   onQuickView,
@@ -109,7 +138,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
     category,
     categories,
     brand,
+    variants,
   } = product;
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isImageHovered, setIsImageHovered] = useState(false);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(variants?.[0] || null);
 
   // Get primary image or first image
   const getPrimaryImage = () => {
@@ -124,7 +158,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   // Check if product is in stock
-  const inStock = isActive && status === 'ACTIVE' && (stockQuantity === undefined || stockQuantity > 0);
+  const inStock = selectedVariant
+    ? selectedVariant.canPurchase
+    : isActive && status === 'ACTIVE' && (stockQuantity === undefined || stockQuantity > 0);
+
+  // Get current price and stock
+  const currentPrice = selectedVariant?.price || price;
+  const currentStock = selectedVariant?.stockQuantity || stockQuantity;
 
   // Generate slug if not provided
   const productSlug = slug || name?.toLowerCase().replace(/\s+/g, '-') || id;
@@ -133,8 +173,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
     e.preventDefault();
     e.stopPropagation();
     if (onAddToCart) {
-      onAddToCart(product);
+      onAddToCart(product, 1, selectedVariant);
     }
+  };
+
+  const handleVariantChange = (variantId: string) => {
+    const variant = variants?.find(v => v.id === variantId) || null;
+    setSelectedVariant(variant);
   };
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
@@ -153,18 +198,29 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
+  const handleImageClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onOpen();
+  };
+
   return (
     <div
       className={`group relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 ${className}`}
     >
       {/* Product Image */}
-      <div className={`relative overflow-hidden ${imageHeight} bg-gray-100 dark:bg-gray-700`}>
+      <div className={`relative overflow-hidden ${imageHeight} bg-white dark:bg-gray-800`}>
         <Link href={`/products/${productSlug}`}>
           <Image
             src={getPrimaryImage()}
             alt={name || 'Product'}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className={`w-full h-full object-cover transition-transform duration-500 cursor-pointer rounded-t-xl ${
+              isImageHovered ? 'scale-110' : 'scale-100'
+            }`}
             removeWrapper
+            onClick={handleImageClick}
+            onMouseEnter={() => setIsImageHovered(true)}
+            onMouseLeave={() => setIsImageHovered(false)}
           />
         </Link>
 
@@ -219,16 +275,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {(category || categories) && (
           <Link
             href={
-              typeof category === 'object' && category?.slug
+              category && typeof category === 'object' && 'slug' in category && category.slug
                 ? `/categories/${category.slug}`
-                : typeof categories === 'object' && categories?.[0]?.slug
+                : Array.isArray(categories) && categories[0] && typeof categories[0] === 'object' && 'slug' in categories[0] && categories[0].slug
                 ? `/categories/${categories[0].slug}`
                 : '#'
             }
             className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors uppercase tracking-wide"
           >
-            {typeof category === 'object' ? category?.name :
-             Array.isArray(categories) && categories[0] ? categories[0].name :
+            {category && typeof category === 'object' && 'name' in category ? category.name :
+             Array.isArray(categories) && categories[0] && typeof categories[0] === 'object' && 'name' in categories[0] ? categories[0].name :
              typeof category === 'string' ? category : ''}
           </Link>
         )}
@@ -259,19 +315,41 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         )}
 
+        {/* Variant Selector */}
+        {variants && variants.length > 0 && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Variant:
+            </label>
+            <select
+              value={selectedVariant?.id || ''}
+              onChange={(e) => handleVariantChange(e.target.value)}
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              disabled={!inStock}
+            >
+              {variants.map((variant) => (
+                <option key={variant.id} value={variant.id}>
+                  {variant.name} - ${variant.price}
+                  {variant.sku && ` (${variant.sku})`}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {/* Price */}
-        {price && (
+        {currentPrice && (
           <div className="mt-2">
-            <PriceDisplay price={price} size="lg" />
+            <PriceDisplay price={currentPrice} size="lg" />
           </div>
         )}
 
         {/* Stock */}
-        {stockQuantity !== undefined && (
+        {currentStock !== undefined && (
           <div className="text-xs font-medium">
-            {stockQuantity > 0 ? (
+            {currentStock > 0 ? (
               <span className="text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">
-                ✅ {stockQuantity} in stock
+                ✅ {currentStock} in stock
               </span>
             ) : (
               <span className="text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded-full">
@@ -286,7 +364,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <div className="mt-4">
             <AddToCartButton
               product={product}
-              onAddToCart={onAddToCart}
+              onAddToCart={(product, qty) => onAddToCart?.(product, qty, selectedVariant)}
+              quantity={1}
               fullWidth
               size="md"
               className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-all duration-200 transform hover:scale-105"
@@ -294,6 +373,33 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         )}
       </div>
+
+      {/* Large Image Modal */}
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size="5xl"
+        backdrop="blur"
+        className="dark:bg-gray-900"
+      >
+        <ModalContent className="p-0">
+          <ModalHeader className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              {name || 'Product Image'}
+            </h2>
+          </ModalHeader>
+          <ModalBody className="p-0">
+            <div className="flex items-center justify-center bg-black min-h-[400px]">
+              <Image
+                src={getPrimaryImage()}
+                alt={name || 'Product'}
+                className="max-w-full max-h-[70vh] object-contain"
+                removeWrapper
+              />
+            </div>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </div>
   );
 };

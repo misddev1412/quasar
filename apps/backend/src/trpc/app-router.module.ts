@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { TRPCModule } from 'nestjs-trpc';
 import { ProductsModule } from '../modules/products/products.module';
 import { FirebaseModule } from '../modules/firebase/firebase.module';
 import { AuthModule } from '../auth/auth.module';
@@ -14,14 +13,9 @@ import { SEOModule } from '../modules/seo/seo.module';
 import { StorageModule } from '../modules/storage/storage.module';
 import { NotificationsModule } from '../modules/notifications/notifications.module';
 import { SupportModule } from '../modules/support/support.module';
-import { AppContext } from './context';
 
 @Module({
   imports: [
-    TRPCModule.forRoot({
-      basePath: '/trpc',
-      context: AppContext,
-    }),
     ProductsModule,
     FirebaseModule,
     AuthModule,

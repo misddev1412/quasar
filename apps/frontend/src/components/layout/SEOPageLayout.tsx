@@ -3,8 +3,8 @@
 import React, { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { SEOLayout } from './SEOLayout';
-import { useTrpcQuery } from '../hooks/useTrpcQuery';
-import type { SEOData } from '../types/trpc';
+import { useTrpcQuery } from '../../hooks/useTrpcQuery';
+import type { SEOData } from '../../types/trpc';
 
 interface SEOPageLayoutProps {
   children: React.ReactNode;

@@ -23,7 +23,7 @@ export interface TableProps<T> {
   sortColumn?: keyof T;
   sortDirection?: 'ASC' | 'DESC';
   rowClassName?: (item: T) => string;
-  keyExtractor?: (item: T) => string;
+  keyExtractor?: (item: T, index: number) => string;
 }
 
 export function Table<T>({

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@heroui/react';
 import { Product } from './ProductCard';
 
@@ -33,27 +33,36 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedQuantity, setSelectedQuantity] = useState(quantity);
+  const mountedRef = useRef(true);
 
   const handleAddToCart = async () => {
-    if (!product.inStock || disabled) return;
+    if (!product.stockQuantity || product.stockQuantity <= 0 || disabled || !mountedRef.current) return;
 
     setIsLoading(true);
     try {
-      if (onAddToCart) {
+      if (onAddToCart && mountedRef.current) {
         await onAddToCart(product, selectedQuantity);
       }
     } catch (error) {
       console.error('Error adding to cart:', error);
     } finally {
-      setIsLoading(false);
+      if (mountedRef.current) {
+        setIsLoading(false);
+      }
     }
   };
+
+  React.useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedQuantity(parseInt(e.target.value));
   };
 
-  const isDisabled = disabled || !product.inStock || isLoading;
+  const isDisabled = disabled || !product.stockQuantity || product.stockQuantity <= 0 || isLoading;
 
   if (iconOnly) {
     return (
@@ -102,7 +111,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         isDisabled={isDisabled}
         startContent={!isLoading && !iconOnly && <span className="text-lg">🛒</span>}
       >
-        {!isLoading && !iconOnly && <>{!product.inStock ? 'Out of Stock' : 'Add to Cart'}</>}
+        {!isLoading && !iconOnly && <>{!product.stockQuantity || product.stockQuantity <= 0 ? 'Out of Stock' : 'Add to Cart'}</>}
       </Button>
     </div>
   );

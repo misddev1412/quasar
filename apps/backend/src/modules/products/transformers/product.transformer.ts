@@ -440,7 +440,7 @@ export class ProductTransformer {
   /**
    * Extract and transform variant relations
    */
-  private async extractAndTransformVariants(product: Product): Promise<TransformedVariant[]> {
+  private extractAndTransformVariants(product: Product): TransformedVariant[] {
     const variants = (product as any).variants;
 
     // DEBUG: Log variants to see what we're getting (commented out for production)
@@ -454,7 +454,7 @@ export class ProductTransformer {
     if (variants instanceof Promise) {
       // console.log('🔍 DEBUG VARIANTS - Promise detected, attempting to await it');
       try {
-        const resolvedVariants = await variants;
+        const resolvedVariants = variants;
         // console.log('🔍 DEBUG VARIANTS - Successfully resolved Promise:', resolvedVariants);
         if (Array.isArray(resolvedVariants)) {
           return this.processVariantsArray(resolvedVariants);

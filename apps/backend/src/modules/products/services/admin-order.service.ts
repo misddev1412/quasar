@@ -146,7 +146,7 @@ export class AdminOrderService {
         throw new NotFoundException(`Product with ID ${productId} not found`);
       }
 
-      const variants = await product.variants;
+      const variants = product.variants;
       if (!variants || variants.length === 0) {
         throw new NotFoundException(`Product ${productId} has no variants with pricing information`);
       }
