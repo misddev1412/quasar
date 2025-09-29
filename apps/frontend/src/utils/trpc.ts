@@ -162,79 +162,22 @@ export const links: TRPCLink<AppRouter>[] = [
   // Custom error handling
   errorLink,
 
-  // Split between regular queries and batch mutations
-  splitLink({
-    condition(op) {
-      // Use batch link for mutations
-      return op.type === 'mutation';
+    // Simple httpLink for better compatibility
+  httpLink({
+    url: `${getBaseUrl()}/trpc`,
+    headers() {
+      const token = getAuthToken();
+      const headers: Record<string, string> = {};
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      // Add client identifier for backend to distinguish frontend from admin
+      headers['X-Client-Type'] = 'frontend';
+
+      return headers;
     },
-    true: httpBatchLink({
-      url: `${getBaseUrl()}/trpc`,
-      headers() {
-        const token = getAuthToken();
-        const headers: Record<string, string> = {};
-
-        if (token) {
-          headers.Authorization = `Bearer ${token}`;
-        }
-
-        // Add client identifier for backend to distinguish frontend from admin
-        headers['X-Client-Type'] = 'frontend';
-
-        return headers;
-      },
-      // Add request interceptor for automatic token refresh
-      fetch(url, options) {
-        return fetch(url, options).then(async (response) => {
-          // If unauthorized, try to refresh token
-          if (response.status === 401) {
-            const refreshTokenValue = getRefreshToken();
-            if (refreshTokenValue) {
-              console.log('Access token expired, attempting refresh...');
-              const refreshSuccess = await refreshToken();
-
-              if (refreshSuccess) {
-                // Retry the original request with new token
-                const newToken = getAuthToken();
-                if (newToken) {
-                  const newOptions = {
-                    ...options,
-                    headers: {
-                      ...options?.headers,
-                      Authorization: `Bearer ${newToken}`,
-                    },
-                  };
-                  return fetch(url, newOptions);
-                }
-              } else {
-                // Refresh failed, redirect to login
-                if (typeof window !== 'undefined') {
-                  removeAuthToken();
-                  removeRefreshToken();
-                  window.location.href = '/login';
-                }
-              }
-            }
-          }
-          return response;
-        });
-      },
-    }),
-    false: httpLink({
-      url: `${getBaseUrl()}/trpc`,
-      headers() {
-        const token = getAuthToken();
-        const headers: Record<string, string> = {};
-
-        if (token) {
-          headers.Authorization = `Bearer ${token}`;
-        }
-
-        headers['X-Client-Type'] = 'frontend';
-
-        return headers;
-      },
-    }),
   }),
 ];
 

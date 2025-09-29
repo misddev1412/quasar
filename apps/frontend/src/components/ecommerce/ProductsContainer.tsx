@@ -1,150 +1,158 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductCard from './ProductCard';
 import { Button } from '@heroui/react';
-
-// Static product data to avoid async issues
-const staticProducts = [
-  {
-    id: '1',
-    name: 'Wireless Bluetooth Headphones',
-    description: 'High-quality wireless headphones with noise cancellation',
-    price: 99.99,
-    stockQuantity: 15,
-    isActive: true,
-    isFeatured: true,
-    status: 'ACTIVE' as const,
-    viewCount: 234,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    slug: 'wireless-bluetooth-headphones',
-    category: { id: '1', name: 'Electronics', slug: 'electronics' },
-    brand: { id: '1', name: 'TechBrand' },
-    images: ['/placeholder-headphones.jpg'],
-  },
-  {
-    id: '2',
-    name: 'Organic Cotton T-Shirt',
-    description: 'Comfortable and eco-friendly cotton t-shirt',
-    price: 29.99,
-    stockQuantity: 50,
-    isActive: true,
-    isFeatured: false,
-    status: 'ACTIVE' as const,
-    viewCount: 156,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    slug: 'organic-cotton-t-shirt',
-    category: { id: '2', name: 'Fashion', slug: 'fashion' },
-    brand: { id: '2', name: 'EcoWear' },
-    images: ['/placeholder-tshirt.jpg'],
-  },
-  {
-    id: '3',
-    name: 'Smart Fitness Tracker',
-    description: 'Advanced fitness tracker with heart rate monitoring',
-    price: 149.99,
-    stockQuantity: 8,
-    isActive: true,
-    isFeatured: true,
-    status: 'ACTIVE' as const,
-    viewCount: 89,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    slug: 'smart-fitness-tracker',
-    category: { id: '1', name: 'Electronics', slug: 'electronics' },
-    brand: { id: '3', name: 'FitTech' },
-    images: ['/placeholder-fitness.jpg'],
-  },
-  {
-    id: '4',
-    name: 'Ceramic Plant Pot Set',
-    description: 'Beautiful ceramic plant pots for indoor gardening',
-    price: 39.99,
-    stockQuantity: 25,
-    isActive: true,
-    isFeatured: false,
-    status: 'ACTIVE' as const,
-    viewCount: 67,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    slug: 'ceramic-plant-pot-set',
-    category: { id: '3', name: 'Home & Garden', slug: 'home-garden' },
-    brand: { id: '4', name: 'HomeStyle' },
-    images: ['/placeholder-pots.jpg'],
-  },
-  {
-    id: '5',
-    name: 'Running Shoes',
-    description: 'Lightweight and comfortable running shoes',
-    price: 79.99,
-    stockQuantity: 0,
-    isActive: true,
-    isFeatured: false,
-    status: 'ACTIVE' as const,
-    viewCount: 345,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    slug: 'running-shoes',
-    category: { id: '4', name: 'Sports', slug: 'sports' },
-    brand: { id: '5', name: 'SportMax' },
-    images: ['/placeholder-shoes.jpg'],
-  },
-  {
-    id: '6',
-    name: 'Laptop Stand Adjustable',
-    description: 'Ergonomic adjustable laptop stand for better posture',
-    price: 49.99,
-    stockQuantity: 20,
-    isActive: true,
-    isFeatured: true,
-    status: 'ACTIVE' as const,
-    viewCount: 128,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    slug: 'laptop-stand-adjustable',
-    category: { id: '1', name: 'Electronics', slug: 'electronics' },
-    brand: { id: '6', name: 'DeskPro' },
-    images: ['/placeholder-stand.jpg'],
-  },
-];
+import { ProductService } from '../../services/product.service';
+import type { Product } from '../../types/product';
+import type { ProductFilters } from '../../types/product';
+import type { PaginationInfo } from '../../types/trpc';
 
 interface ProductsContainerProps {
-  initialProducts?: any[];
+  initialProducts?: Product[];
 }
 
 const ProductsContainer: React.FC<ProductsContainerProps> = ({ initialProducts }) => {
-  // Simple state without complex async operations
+  // State for products and filters
   const [sortBy, setSortBy] = useState('createdAt');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState({
+    search: '',
+    category: '',
+    brand: '',
+    minPrice: undefined,
+    maxPrice: undefined,
+    isActive: true,
+    isFeatured: undefined,
+  });
 
-  // Use static data instead of async tRPC calls
-  const products = staticProducts;
-  const totalProducts = products.length;
+  // State for data
+  const [products, setProducts] = useState<Product[]>(initialProducts || []);
+  const [pagination, setPagination] = useState<PaginationInfo>({
+    page: 1,
+    limit: 12,
+    total: 0,
+    totalPages: 0,
+  });
+  const [availableFilters, setAvailableFilters] = useState<ProductFilters>({
+    categories: [],
+    brands: [],
+    priceRange: { min: 0, max: 0 },
+  });
+
+  // Loading states
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFiltersLoading, setIsFiltersLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch products function
+  const fetchProducts = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await ProductService.getProducts({
+        page: currentPage,
+        limit: 12,
+        search: filters.search,
+        category: filters.category,
+        brand: filters.brand,
+        minPrice: filters.minPrice,
+        maxPrice: filters.maxPrice,
+        isActive: filters.isActive,
+        isFeatured: filters.isFeatured,
+        sortBy,
+        sortOrder: sortBy === 'price_DESC' ? 'DESC' : 'ASC',
+      });
+
+      setProducts(response.items);
+      setPagination(response.pagination);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch products');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch filters function
+  const fetchFilters = async () => {
+    setIsFiltersLoading(true);
+    try {
+      const filters = await ProductService.getProductFilters();
+      setAvailableFilters(filters);
+    } catch (err) {
+      console.error('Error fetching filters:', err);
+    } finally {
+      setIsFiltersLoading(false);
+    }
+  };
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchProducts();
+    fetchFilters();
+  }, [currentPage, filters, sortBy]);
+
+  // Update pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, sortBy]);
 
   const handleSortChange = (value: string) => {
     setSortBy(value);
   };
 
-  const handleAddToCart = (product: any) => {
+  const handleAddToCart = (product: Product) => {
     console.log('Adding to cart:', product);
     // Simple add to cart logic
   };
 
-  // Sort products based on selection
-  const sortedProducts = [...products].sort((a, b) => {
-    switch (sortBy) {
-      case 'price':
-        return a.price - b.price;
-      case 'price_DESC':
-        return b.price - a.price;
-      case 'name':
-        return a.name.localeCompare(b.name);
-      case 'createdAt':
-      default:
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    }
-  });
+  const handleFilterChange = (filterType: string, value: any) => {
+    setFilters(prev => ({ ...prev, [filterType]: value }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      search: '',
+      category: '',
+      brand: '',
+      minPrice: undefined,
+      maxPrice: undefined,
+      isActive: true,
+      isFeatured: undefined,
+    });
+  };
+
+  // Handle loading and error states
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="text-red-500 text-lg mb-4">Error loading products</div>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
+            {error}
+          </p>
+          <Button
+            onClick={fetchProducts}
+            color="primary"
+            variant="bordered"
+          >
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
@@ -154,36 +162,103 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({ initialProducts }
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Product Filters</h3>
 
-            {/* Simple category filter */}
+            {/* Search filter */}
+            <div className="mb-6">
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Search</h4>
+              <input
+                type="text"
+                placeholder="Search products..."
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                value={filters.search}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
+              />
+            </div>
+
+            {/* Category filter */}
             <div className="mb-6">
               <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Categories</h4>
               <div className="space-y-2">
-                {['Electronics', 'Fashion', 'Home & Garden', 'Sports'].map((category) => (
-                  <label key={category} className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <input type="checkbox" className="mr-2 rounded text-blue-600" />
-                    {category}
+                {availableFilters.categories.map((category) => (
+                  <label key={category.id} className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                    <input
+                      type="checkbox"
+                      className="mr-2 rounded text-blue-600"
+                      checked={filters.category === category.id}
+                      onChange={(e) => handleFilterChange('category', e.target.checked ? category.id : '')}
+                    />
+                    {category.name} ({category.count})
                   </label>
                 ))}
               </div>
             </div>
 
-            {/* Simple price filter */}
+            {/* Brand filter */}
             <div className="mb-6">
-              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Price Range</h4>
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Brands</h4>
               <div className="space-y-2">
-                {['Under $50', '$50 - $100', '$100 - $150', 'Over $150'].map((range) => (
-                  <label key={range} className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <input type="checkbox" className="mr-2 rounded text-blue-600" />
-                    {range}
+                {availableFilters.brands.map((brand) => (
+                  <label key={brand.id} className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                    <input
+                      type="checkbox"
+                      className="mr-2 rounded text-blue-600"
+                      checked={filters.brand === brand.id}
+                      onChange={(e) => handleFilterChange('brand', e.target.checked ? brand.id : '')}
+                    />
+                    {brand.name} ({brand.count})
                   </label>
                 ))}
               </div>
+            </div>
+
+            {/* Price range filter */}
+            <div className="mb-6">
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Price Range</h4>
+              {availableFilters.priceRange && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-gray-400">Min Price</label>
+                    <input
+                      type="number"
+                      min={availableFilters.priceRange.min}
+                      max={availableFilters.priceRange.max}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      value={filters.minPrice || ''}
+                      onChange={(e) => handleFilterChange('minPrice', e.target.value ? Number(e.target.value) : undefined)}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600 dark:text-gray-400">Max Price</label>
+                    <input
+                      type="number"
+                      min={availableFilters.priceRange.min}
+                      max={availableFilters.priceRange.max}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      value={filters.maxPrice || ''}
+                      onChange={(e) => handleFilterChange('maxPrice', e.target.value ? Number(e.target.value) : undefined)}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Featured filter */}
+            <div className="mb-6">
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Featured Products</h4>
+              <label className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <input
+                  type="checkbox"
+                  className="mr-2 rounded text-blue-600"
+                  checked={filters.isFeatured === true}
+                  onChange={(e) => handleFilterChange('isFeatured', e.target.checked ? true : undefined)}
+                />
+                Show only featured products
+              </label>
             </div>
 
             {/* Clear filters button */}
             <button
               className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-              onClick={() => console.log('Clear filters')}
+              onClick={clearFilters}
             >
               Clear all filters
             </button>
@@ -200,7 +275,7 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({ initialProducts }
               All Products
             </h2>
             <p className="text-gray-600 dark:text-gray-300 text-sm">
-              Showing {sortedProducts.length} of {totalProducts} products
+              Showing {products.length} of {pagination.total} products
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -220,7 +295,7 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({ initialProducts }
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {sortedProducts.map((product) => (
+          {products.map((product) => (
             <ProductCard
               key={product.id}
               product={product}
@@ -229,6 +304,44 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({ initialProducts }
             />
           ))}
         </div>
+
+        {/* Pagination */}
+        {pagination.totalPages && pagination.totalPages > 1 && (
+          <div className="flex justify-center mt-8 space-x-2">
+            <Button
+              isDisabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => prev - 1)}
+              variant="bordered"
+              size="sm"
+            >
+              Previous
+            </Button>
+            <div className="flex space-x-1">
+              {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => {
+                const page = i + 1;
+                return (
+                  <Button
+                    key={page}
+                    isDisabled={currentPage === page}
+                    onClick={() => setCurrentPage(page)}
+                    variant={currentPage === page ? 'solid' : 'bordered'}
+                    size="sm"
+                  >
+                    {page}
+                  </Button>
+                );
+              })}
+            </div>
+            <Button
+              isDisabled={currentPage === pagination.totalPages}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              variant="bordered"
+              size="sm"
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

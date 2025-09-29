@@ -2,11 +2,15 @@
 
 import React, { useState, useRef } from 'react';
 import { Button } from '@heroui/react';
-import { Product } from './ProductCard';
+import { FiShoppingCart, FiPlus, FiCheck, FiLoader } from 'react-icons/fi';
+import type { Product } from '../../types/product';
+import type { ProductVariant } from '../../types/product';
+import VariantSelectionModal from './VariantSelectionModal';
 
 interface AddToCartButtonProps {
   product: Product;
   onAddToCart?: (product: Product, quantity?: number) => void;
+  onVariantAddToCart?: (variant: ProductVariant, quantity?: number) => void;
   quantity?: number;
   size?: 'sm' | 'md' | 'lg';
   variant?: 'solid' | 'bordered' | 'light' | 'flat' | 'faded' | 'shadow';
@@ -21,6 +25,7 @@ interface AddToCartButtonProps {
 const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   product,
   onAddToCart,
+  onVariantAddToCart,
   quantity = 1,
   size = 'md',
   variant = 'solid',
@@ -32,16 +37,42 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   iconOnly = false,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isAdded, setIsAdded] = useState(false);
   const [selectedQuantity, setSelectedQuantity] = useState(quantity);
+  const [showVariantModal, setShowVariantModal] = useState(false);
   const mountedRef = useRef(true);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const getStockQuantity = () => {
+    // Check if product has variants
+    if (product.variants && product.variants.length > 0) {
+      // Return the sum of all variant stock quantities
+      return product.variants.reduce((total, variant) => total + variant.stockQuantity, 0);
+    }
+    // For products without variants, assume they're in stock if active
+    return product.isActive ? 1 : 0;
+  };
 
   const handleAddToCart = async () => {
-    if (!product.stockQuantity || product.stockQuantity <= 0 || disabled || !mountedRef.current) return;
+    // Check if product has variants
+    if (product.variants && product.variants.length > 0) {
+      setShowVariantModal(true);
+      return;
+    }
+
+    const stockQuantity = getStockQuantity();
+    if (stockQuantity <= 0 || disabled || !mountedRef.current) return;
 
     setIsLoading(true);
     try {
       if (onAddToCart && mountedRef.current) {
         await onAddToCart(product, selectedQuantity);
+        setIsAdded(true);
+        // Clear any existing timeout
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => setIsAdded(false), 2000);
       }
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -52,9 +83,34 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
     }
   };
 
+  const handleVariantAddToCart = async (variant: ProductVariant, quantity: number) => {
+    if (!onVariantAddToCart || !mountedRef.current) return;
+
+    setIsLoading(true);
+    try {
+      await onVariantAddToCart(variant, quantity);
+      setIsAdded(true);
+      // Clear any existing timeout
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => setIsAdded(false), 2000);
+    } catch (error) {
+      console.error('Error adding variant to cart:', error);
+    } finally {
+      if (mountedRef.current) {
+        setIsLoading(false);
+      }
+    }
+  };
+
   React.useEffect(() => {
     return () => {
       mountedRef.current = false;
+      // Clean up timeout when component unmounts
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
   }, []);
 
@@ -62,7 +118,8 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
     setSelectedQuantity(parseInt(e.target.value));
   };
 
-  const isDisabled = disabled || !product.stockQuantity || product.stockQuantity <= 0 || isLoading;
+  const stockQuantity = getStockQuantity();
+  const isDisabled = disabled || stockQuantity <= 0 || isLoading;
 
   if (iconOnly) {
     return (
@@ -77,7 +134,13 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         isDisabled={isDisabled}
         aria-label="Add to cart"
       >
-        <span className="text-lg">🛒</span>
+        {isLoading ? (
+          <FiLoader className="animate-spin text-lg" />
+        ) : isAdded ? (
+          <FiCheck className="text-lg text-green-500" />
+        ) : (
+          <FiShoppingCart className="text-lg" />
+        )}
       </Button>
     );
   }
@@ -109,10 +172,46 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         onPress={handleAddToCart}
         isLoading={isLoading}
         isDisabled={isDisabled}
-        startContent={!isLoading && !iconOnly && <span className="text-lg">🛒</span>}
+        startContent={
+          !isLoading && !iconOnly && (
+            isAdded ? (
+              <FiCheck className="text-lg text-green-500" />
+            ) : (
+              <FiShoppingCart className="text-lg" />
+            )
+          )
+        }
       >
-        {!isLoading && !iconOnly && <>{!product.stockQuantity || product.stockQuantity <= 0 ? 'Out of Stock' : 'Add to Cart'}</>}
+        {isLoading ? (
+          <div className="flex items-center gap-2">
+            <FiLoader className="animate-spin" />
+            <span>Adding...</span>
+          </div>
+        ) : isAdded ? (
+          <div className="flex items-center gap-2">
+            <FiCheck className="text-green-500" />
+            <span>Added!</span>
+          </div>
+        ) : stockQuantity <= 0 ? (
+          'Out of Stock'
+        ) : product.variants && product.variants.length > 0 ? (
+          <div className="flex items-center gap-2">
+            <span>Select Options</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <span>Add to Cart</span>
+          </div>
+        )}
       </Button>
+
+      {/* Variant Selection Modal */}
+      <VariantSelectionModal
+        isOpen={showVariantModal}
+        onOpenChange={setShowVariantModal}
+        product={product}
+        onVariantSelect={handleVariantAddToCart}
+      />
     </div>
   );
 };

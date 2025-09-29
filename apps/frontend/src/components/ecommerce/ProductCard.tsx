@@ -4,9 +4,10 @@ import { Button, Image, Modal, ModalContent, ModalHeader, ModalBody, useDisclosu
 import PriceDisplay from './PriceDisplay';
 import Rating from './Rating';
 import AddToCartButton from './AddToCartButton';
+import type { Product, ProductMedia, ProductVariant } from '../../types/product';
 
-// ProductVariant interface from backend entity
-export interface ProductVariant {
+// Legacy ProductVariant interface for backward compatibility
+export interface LegacyProductVariant {
   id: string;
   productId: string;
   name: string;
@@ -33,73 +34,9 @@ export interface ProductVariant {
   profitMargin?: number;
 }
 
-// Use the backend Product interface
-export interface Product {
-  id: string;
-  name: string;
-  description?: string;
-  sku?: string;
-  status: 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'DISCONTINUED';
-  price?: number;
-  stockQuantity?: number;
-  isActive: boolean;
-  isFeatured: boolean;
-  isDigital?: boolean;
-  images?: string[];
-  media?: ProductMedia[];
-  brand?: Brand | string;
-  category?: Category | string;
-  categories?: Category[] | string[];
-  variants?: ProductVariant[];
-  viewCount: number;
-  createdAt: Date;
-  updatedAt: Date;
-  slug?: string;
-}
-
-export interface ProductMedia {
-  id: string;
-  productId: string;
-  type: 'image' | 'video' | 'audio' | 'document' | 'other';
-  url: string;
-  altText?: string;
-  caption?: string;
-  sortOrder: number;
-  fileSize?: number;
-  mimeType?: string;
-  width?: number;
-  height?: number;
-  duration?: number;
-  thumbnailUrl?: string;
-  isPrimary: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface Brand {
-  id: string;
-  name: string;
-  description?: string;
-  logo?: string;
-  website?: string;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  slug?: string;
-  description?: string;
-  parentId?: string;
-  image?: string;
-  isActive: boolean;
-  sortOrder: number;
-  level: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Re-export Product and ProductMedia for backward compatibility
+export type { ProductMedia, ProductVariant };
+export type { Product };
 
 interface ProductCardProps {
   product: Product;
@@ -119,7 +56,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   showWishlist = true,
   showQuickView = false,
   className = '',
-  imageHeight = 'h-64',
+  imageHeight = 'h-72',
   onAddToCart,
   onWishlistToggle,
   onQuickView,
@@ -127,23 +64,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const {
     id,
     name,
-    description,
-    price,
-    images,
-    media,
-    stockQuantity,
-    isActive,
+    sku,
     status,
-    slug,
-    category,
-    categories,
-    brand,
+    isActive,
+    isFeatured,
     variants,
+    media,
   } = product;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isImageHovered, setIsImageHovered] = useState(false);
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(variants?.[0] || null);
+  const [showVariantModal, setShowVariantModal] = useState(false);
 
   // Get primary image or first image
   const getPrimaryImage = () => {
@@ -151,38 +82,34 @@ const ProductCard: React.FC<ProductCardProps> = ({
       const primaryMedia = media.find(m => m.isPrimary);
       return primaryMedia?.url || media[0].url;
     }
-    if (images && images.length > 0) {
-      return images[0];
-    }
     return '/placeholder-product.png';
   };
 
   // Check if product is in stock
-  const inStock = selectedVariant
-    ? selectedVariant.canPurchase
-    : isActive && status === 'ACTIVE' && (stockQuantity === undefined || stockQuantity > 0);
+  const inStock = isActive && status === 'ACTIVE';
 
-  // Get current price and stock
-  const currentPrice = selectedVariant?.price || price;
-  const currentStock = selectedVariant?.stockQuantity || stockQuantity;
+  // Get current price from variants (show lowest price if multiple variants)
+  const currentPrice = variants && variants.length > 0 ? Math.min(...variants.map(v => v.price)) : null;
 
   // Generate slug if not provided
-  const productSlug = slug || name?.toLowerCase().replace(/\s+/g, '-') || id;
+  const productSlug = name?.toLowerCase().replace(/\s+/g, '-') || id;
 
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (onAddToCart) {
-      onAddToCart(product, 1, selectedVariant);
+  const handleAddToCartDirect = (product: Product, quantity?: number) => {
+    if (variants && variants.length > 0) {
+      setShowVariantModal(true);
+    } else if (onAddToCart) {
+      onAddToCart(product, quantity || 1, null);
     }
   };
 
-  const handleVariantChange = (variantId: string) => {
-    const variant = variants?.find(v => v.id === variantId) || null;
-    setSelectedVariant(variant);
+  const handleVariantSelect = (variant: ProductVariant, quantity: number) => {
+    if (onAddToCart) {
+      onAddToCart(product, quantity, variant);
+    }
+    setShowVariantModal(false);
   };
 
-  const handleWishlistToggle = (e: React.MouseEvent) => {
+  const handleWishlistToggle = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
     if (onWishlistToggle) {
@@ -190,7 +117,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
-  const handleQuickView = (e: React.MouseEvent) => {
+  const handleQuickView = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
     if (onQuickView) {
@@ -218,14 +145,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
               isImageHovered ? 'scale-110' : 'scale-100'
             }`}
             removeWrapper
-            onClick={handleImageClick}
+  onClick={handleImageClick}
             onMouseEnter={() => setIsImageHovered(true)}
             onMouseLeave={() => setIsImageHovered(false)}
           />
         </Link>
 
         {/* Featured Badge */}
-        {product.isFeatured && (
+        {isFeatured && (
           <div className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
             <span className="flex items-center gap-1">
               ⭐ Featured
@@ -250,7 +177,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               size="sm"
               variant="light"
               className="bg-white dark:bg-gray-800 rounded-full shadow-lg hover:scale-110 transition-transform duration-200 border border-gray-200 dark:border-gray-600"
-              onClick={handleWishlistToggle}
+              onPress={handleWishlistToggle}
             >
               <span className="text-lg text-red-500">❤️</span>
             </Button>
@@ -261,7 +188,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               size="sm"
               variant="light"
               className="bg-white dark:bg-gray-800 rounded-full shadow-lg hover:scale-110 transition-transform duration-200 border border-gray-200 dark:border-gray-600"
-              onClick={handleQuickView}
+              onPress={handleQuickView}
             >
               <span className="text-lg text-blue-600">👁️</span>
             </Button>
@@ -271,108 +198,132 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
       {/* Product Info */}
       <div className="p-5 space-y-3">
-        {/* Category */}
-        {(category || categories) && (
-          <Link
-            href={
-              category && typeof category === 'object' && 'slug' in category && category.slug
-                ? `/categories/${category.slug}`
-                : Array.isArray(categories) && categories[0] && typeof categories[0] === 'object' && 'slug' in categories[0] && categories[0].slug
-                ? `/categories/${categories[0].slug}`
-                : '#'
-            }
-            className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors uppercase tracking-wide"
-          >
-            {category && typeof category === 'object' && 'name' in category ? category.name :
-             Array.isArray(categories) && categories[0] && typeof categories[0] === 'object' && 'name' in categories[0] ? categories[0].name :
-             typeof category === 'string' ? category : ''}
-          </Link>
-        )}
-
         {/* Product Name */}
         <Link href={`/products/${productSlug}`} className="block">
-          <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-lg leading-tight">
+          <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-lg leading-tight h-14 overflow-hidden">
             {name}
           </h3>
         </Link>
 
-        {/* Product Description */}
-        <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 leading-relaxed">
-          {description}
-        </p>
-
-        {/* Brand */}
-        {typeof brand === 'object' && brand?.name && (
-          <div className="text-sm text-gray-700 dark:text-gray-400 font-medium">
-            Brand: <span className="text-gray-900 dark:text-gray-200">{brand.name}</span>
-          </div>
-        )}
-
         {/* SKU */}
-        {product.sku && (
+        {sku && (
           <div className="text-xs text-gray-500 dark:text-gray-400 font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded inline-block">
-            SKU: {product.sku}
+            SKU: {sku}
           </div>
         )}
 
-        {/* Variant Selector */}
-        {variants && variants.length > 0 && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Variant:
-            </label>
-            <select
-              value={selectedVariant?.id || ''}
-              onChange={(e) => handleVariantChange(e.target.value)}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              disabled={!inStock}
-            >
-              {variants.map((variant) => (
-                <option key={variant.id} value={variant.id}>
-                  {variant.name} - ${variant.price}
-                  {variant.sku && ` (${variant.sku})`}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* Price */}
+      {/* Price */}
+      <div className="h-16">
         {currentPrice && (
           <div className="mt-2">
             <PriceDisplay price={currentPrice} size="lg" />
-          </div>
-        )}
-
-        {/* Stock */}
-        {currentStock !== undefined && (
-          <div className="text-xs font-medium">
-            {currentStock > 0 ? (
-              <span className="text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">
-                ✅ {currentStock} in stock
-              </span>
-            ) : (
-              <span className="text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded-full">
-                ❌ Out of stock
-              </span>
+            {variants && variants.length > 0 && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Starting from ${currentPrice}
+              </p>
             )}
           </div>
         )}
+      </div>
 
         {/* Add to Cart Button */}
-        {showAddToCart && inStock && (
-          <div className="mt-4">
+        <div className="h-16 flex items-end">
+          {showAddToCart && inStock && (
             <AddToCartButton
               product={product}
-              onAddToCart={(product, qty) => onAddToCart?.(product, qty, selectedVariant)}
+              onAddToCart={handleAddToCartDirect}
               quantity={1}
               fullWidth
               size="md"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-all duration-200 transform hover:scale-105"
+              className="relative group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] before:transition-transform before:duration-700 hover:before:translate-x-[100%] overflow-hidden"
             />
-          </div>
-        )}
+          )}
+        </div>
       </div>
+
+      {/* Variant Selection Modal */}
+      {showVariantModal && variants && variants.length > 0 && (
+        <Modal
+          isOpen={showVariantModal}
+          onClose={() => setShowVariantModal(false)}
+          size="2xl"
+          backdrop="blur"
+          className="dark:bg-gray-900"
+        >
+          <ModalContent className="p-0">
+            <ModalHeader className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-4">
+                <Image
+                  src={getPrimaryImage()}
+                  alt={name || 'Product'}
+                  className="w-16 h-16 object-cover rounded-lg"
+                  removeWrapper
+                />
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    {name}
+                  </h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Select variant and quantity
+                  </p>
+                </div>
+              </div>
+            </ModalHeader>
+            <ModalBody className="p-6">
+              <div className="space-y-6">
+                {/* Variant Selection */}
+                <div className="space-y-3">
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                    Select Variant
+                  </h3>
+                  <div className="grid gap-3">
+                    {variants.map((variant) => (
+                      <button
+                        key={variant.id}
+                        onClick={() => handleVariantSelect(variant, 1)}
+                        disabled={variant.stockQuantity <= 0}
+                        className={`w-full p-4 border rounded-lg text-left transition-all duration-200 ${
+                          variant.stockQuantity <= 0
+                            ? 'opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
+                            : 'border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                        }`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <h4 className="font-medium text-gray-900 dark:text-white">
+                              {variant.name}
+                            </h4>
+                            {variant.sku && (
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                SKU: {variant.sku}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-gray-900 dark:text-white">
+                              ${variant.price}
+                            </p>
+                            <p className={`text-sm ${
+                              variant.stockQuantity > 0
+                                ? 'text-green-600 dark:text-green-400'
+                                : 'text-red-600 dark:text-red-400'
+                            }`}>
+                              {variant.stockQuantity > 0
+                                ? `${variant.stockQuantity} in stock`
+                                : 'Out of stock'
+                              }
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      )}
 
       {/* Large Image Modal */}
       <Modal

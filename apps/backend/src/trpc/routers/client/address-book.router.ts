@@ -105,11 +105,11 @@ export class ClientAddressBookRouter {
 
   @UseMiddlewares(AuthMiddleware)
   @Query({
-    input: z.object({ countryId: z.string() }),
+    input: z.object({ countryId: z.string(), type: z.string().optional() }),
     output: z.any(),
   })
   async getAdministrativeDivisions(
-    @Input() input: { countryId: string },
+    @Input() input: { countryId: string; type?: string },
     @Ctx() ctx: any
   ): Promise<any> {
     return this.userClientAddressBookRouter.getAdministrativeDivisions(input, ctx);

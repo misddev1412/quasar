@@ -1,7 +1,7 @@
 // AppRouter types for tRPC client
 // This file is auto-generated from actual nestjs-trpc routers
 // Run 'npm run sync:trpc-types' to regenerate this file
-// Generated on: 2025-09-29T13:41:15.924Z
+// Generated on: 2025-09-29T15:43:35.385Z
 
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
@@ -486,12 +486,12 @@ const appRouter = t.router({
     getAdministrativeDivisionsByParentId: t.procedure.query(() => null),
   }),
   clientProducts: t.router({
-    getProducts: t.procedure.query(() => null),
-    getProductById: t.procedure.query(() => null),
-    getProductBySlug: t.procedure.query(() => null),
+    getProducts: t.procedure.input(z.any()).query(() => null),
+    getProductById: t.procedure.input(z.any()).query(() => null),
+    getProductBySlug: t.procedure.input(z.any()).query(() => null),
     getFeaturedProducts: t.procedure.query(() => null),
     getNewProducts: t.procedure.query(() => null),
-    getProductsByCategory: t.procedure.query(() => null),
+    getProductsByCategory: t.procedure.input(z.any()).query(() => null),
     getProductFilters: t.procedure.query(() => null),
   }),
   seo: t.router({

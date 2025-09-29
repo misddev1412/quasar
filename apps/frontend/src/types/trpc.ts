@@ -1,150 +1,45 @@
 // Type definitions for tRPC client
 // This file defines the structure of our tRPC API without importing backend code
 
-export interface User {
-  id: string;
-  email: string;
-  name?: string;
-  username?: string;
-  avatar?: string;
-  role?: string;
-  isActive?: boolean;
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  emailVerifiedAt?: Date;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+// Import entity types
+export type { User, AuthResponse } from './user';
+export type { Product, ProductVariant, ProductMedia, ProductFilters } from './product';
+export type { Order, OrderItem } from './order';
+export type { Address, Country, AdministrativeDivision } from './address';
+export type {
+  Notification,
+  NotificationWithPagination,
+  NotificationStats
+} from './notification';
+export { NotificationType } from './notification';
+export type { Language, LocaleConfig, TranslationData } from './language';
+export type { SEOData } from './seo';
 
-export interface Product {
-  id: string;
-  name: string;
-  description?: string;
-  price: number;
-  stock?: number;
-  category?: string;
-  images?: string[];
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+// Import API response types
+export type {
+  ApiResponse,
+  PaginatedApiResponse,
+  PaginationInfo
+} from './api';
 
-export interface Order {
-  id: string;
-  userId: string;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled';
-  total: number;
-  items: OrderItem[];
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
-export interface OrderItem {
-  id: string;
-  productId: string;
-  quantity: number;
-  price: number;
-}
-
-export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  user?: User;
-}
-
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
-export interface LocaleConfig {
-  defaultLocale: 'vi' | 'en';
-  supportedLocales: readonly ('vi' | 'en')[];
-}
-
-export interface TranslationData {
-  locale: 'vi' | 'en';
-  translations: Record<string, string>;
-}
-
-export interface Language {
-  id: string;
-  code: string;
-  name: string;
-  nativeName: string;
-  icon?: string;
-  isActive: boolean;
-  isDefault: boolean;
-  sortOrder: number;
-}
-
-export interface SEOData {
-  title: string;
-  description?: string | null;
-  keywords?: string | null;
-  additionalMetaTags?: Record<string, string> | null;
-}
-
-export interface ApiResponse<T = any> {
-  code: number;
-  status: string;
-  data?: T;
-  errors?: Array<{
-    '@type': string;
-    reason: string;
-    domain: string;
-    metadata?: Record<string, string>;
-  }>;
-  timestamp: string;
-}
-
-export enum NotificationType {
-  INFO = 'info',
-  SUCCESS = 'success',
-  WARNING = 'warning',
-  ERROR = 'error',
-  SYSTEM = 'system',
-  PRODUCT = 'product',
-  ORDER = 'order',
-  USER = 'user',
-}
-
-export interface Notification {
-  id: string;
-  userId: string;
-  title: string;
-  body: string;
-  type: NotificationType;
-  actionUrl?: string;
-  icon?: string;
-  image?: string;
-  data?: Record<string, unknown>;
-  read: boolean;
-  fcmToken?: string;
-  sentAt?: Date;
-  readAt?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface NotificationWithPagination {
-  notifications: Notification[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
-}
-
-export interface NotificationStats {
-  total: number;
-  unread: number;
-  byType: Record<NotificationType, number>;
-}
+// Import types for internal use
+import type { User, AuthResponse } from './user';
+import type { Product, ProductVariant, ProductMedia, ProductFilters } from './product';
+import type { Order, OrderItem } from './order';
+import type { Address, Country, AdministrativeDivision } from './address';
+import type {
+  Notification,
+  NotificationWithPagination,
+  NotificationStats
+} from './notification';
+import type { NotificationType } from './notification';
+import type { Language, LocaleConfig, TranslationData } from './language';
+import type { SEOData } from './seo';
+import type {
+  ApiResponse,
+  PaginatedApiResponse,
+  PaginationInfo
+} from './api';
 
 // Define the shape of our tRPC router
 export type AppRouter = {
@@ -206,10 +101,10 @@ export type AppRouter = {
         options?: {
           enabled?: boolean;
           onError?: (error: Error) => void;
-          onSuccess?: (data: PaginatedResponse<Product>) => void;
+          onSuccess?: (data: PaginatedApiResponse<Product>) => void;
         }
       ) => {
-        data?: PaginatedResponse<Product>;
+        data?: PaginatedApiResponse<Product>;
         error?: Error;
         isLoading: boolean;
       };
@@ -253,10 +148,10 @@ export type AppRouter = {
         options?: {
           enabled?: boolean;
           onError?: (error: Error) => void;
-          onSuccess?: (data: PaginatedResponse<Order>) => void;
+          onSuccess?: (data: PaginatedApiResponse<Order>) => void;
         }
       ) => {
-        data?: PaginatedResponse<Order>;
+        data?: PaginatedApiResponse<Order>;
         error?: Error;
         isLoading: boolean;
       };
@@ -277,6 +172,32 @@ export type AppRouter = {
         mutateAsync: (input: { id: string }) => Promise<void>;
         isLoading: boolean;
       };
+    };
+  };
+  clientAddressBook: {
+    getAddresses: {
+      query: () => Promise<ApiResponse<Address[]>>;
+    };
+    getCountries: {
+      query: () => Promise<ApiResponse<Country[]>>;
+    };
+    createAddress: {
+      mutate: (input: any) => Promise<ApiResponse<Address>>;
+    };
+    updateAddress: {
+      mutate: (input: { id: string; data: any }) => Promise<ApiResponse<Address>>;
+    };
+    deleteAddress: {
+      mutate: (input: { id: string }) => Promise<ApiResponse<void>>;
+    };
+    setDefaultAddress: {
+      mutate: (input: { id: string }) => Promise<ApiResponse<void>>;
+    };
+    getAdministrativeDivisions: {
+      query: (input: { countryId: string; type?: string }) => Promise<ApiResponse<AdministrativeDivision[]>>;
+    };
+    getAdministrativeDivisionsByParentId: {
+      query: (input: { parentId: string }) => Promise<ApiResponse<AdministrativeDivision[]>>;
     };
   };
   clientLanguage: {
@@ -413,6 +334,42 @@ export type AppRouter = {
     };
     getTranslation: {
       query: (input: { key: string; locale: 'vi' | 'en'; defaultValue?: string }) => Promise<ApiResponse<{ key: string; value: string }>>;
+    };
+  };
+  clientProducts: {
+    getProducts: {
+      query: (input: {
+        page?: number;
+        limit?: number;
+        search?: string;
+        category?: string;
+        brand?: string;
+        minPrice?: number;
+        maxPrice?: number;
+        status?: string;
+        isActive?: boolean;
+        isFeatured?: boolean;
+        sortBy?: string;
+        sortOrder?: string;
+      }) => Promise<PaginatedApiResponse<Product>>;
+    };
+    getProductById: {
+      query: (input: { id: string }) => Promise<ApiResponse<Product>>;
+    };
+    getProductBySlug: {
+      query: (input: { slug: string }) => Promise<ApiResponse<Product>>;
+    };
+    getFeaturedProducts: {
+      query: () => Promise<PaginatedApiResponse<Product>>;
+    };
+    getNewProducts: {
+      query: () => Promise<PaginatedApiResponse<Product>>;
+    };
+    getProductsByCategory: {
+      query: (input: { categoryId?: string }) => Promise<PaginatedApiResponse<Product>>;
+    };
+    getProductFilters: {
+      query: () => Promise<ApiResponse<ProductFilters>>;
     };
   };
   seo: {

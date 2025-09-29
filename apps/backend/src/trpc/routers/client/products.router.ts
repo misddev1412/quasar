@@ -63,7 +63,7 @@ export class ClientProductsRouter {
 
       // Format response
       const formattedResult = {
-        products: result.items.map(product => this.formatProductForResponse(product)),
+        items: result.items.map(product => this.formatProductForResponse(product)),
         pagination: {
           page: result.page,
           limit: result.limit,
@@ -178,7 +178,7 @@ export class ClientProductsRouter {
       });
 
       const formattedResult = {
-        products: result.items.map(product => this.formatProductForResponse(product)),
+        items: result.items.map(product => this.formatProductForResponse(product)),
         pagination: {
           page: result.page,
           limit: result.limit,
@@ -214,7 +214,7 @@ export class ClientProductsRouter {
       });
 
       const formattedResult = {
-        products: result.items.map(product => this.formatProductForResponse(product)),
+        items: result.items.map(product => this.formatProductForResponse(product)),
         pagination: {
           page: result.page,
           limit: result.limit,
@@ -261,7 +261,7 @@ export class ClientProductsRouter {
       });
 
       const formattedResult = {
-        products: result.items.map(product => this.formatProductForResponse(product)),
+        items: result.items.map(product => this.formatProductForResponse(product)),
         pagination: {
           page: result.page,
           limit: result.limit,
