@@ -8,6 +8,7 @@ import { PostRepository } from './repositories/post.repository';
 import { PostCategoryRepository } from './repositories/post-category.repository';
 import { PostTagRepository } from './repositories/post-tag.repository';
 import { AdminPostsService } from './services/admin-posts.service';
+import { ClientPostsService } from './services/client-posts.service';
 import { AdminPostsRouter } from './routers/admin-posts.router';
 import { AdminPostCategoriesRouter } from './routers/admin-post-categories.router';
 import { AdminPostTagsRouter } from './routers/admin-post-tags.router';
@@ -28,6 +29,7 @@ import { SharedModule } from '../shared/shared.module';
     PostCategoryRepository,
     PostTagRepository,
     AdminPostsService,
+    ClientPostsService,
     AdminPostsRouter,
     AdminPostCategoriesRouter,
     AdminPostTagsRouter,
@@ -37,6 +39,7 @@ import { SharedModule } from '../shared/shared.module';
     PostCategoryRepository,
     PostTagRepository,
     AdminPostsService,
+    ClientPostsService,
     AdminPostsRouter,
     AdminPostCategoriesRouter,
     AdminPostTagsRouter,

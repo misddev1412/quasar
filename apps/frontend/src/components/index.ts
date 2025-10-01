@@ -4,6 +4,7 @@ export { Input } from './common/Input';
 export { Modal } from './common/Modal';
 export { Alert } from './common/Alert';
 export { Container } from './common/Container';
+export { Card, CardHeader, CardBody, CardFooter } from './common/Card';
 
 // Marketing Components
 export { HeroSection } from './marketing/HeroSection';
@@ -33,13 +34,13 @@ export { default as Rating } from './ecommerce/Rating';
 export { default as AddToCartButton } from './ecommerce/AddToCartButton';
 export { default as ProductList } from './ecommerce/ProductList';
 export { default as ProductGrid } from './ecommerce/ProductGrid';
-export { default as ShoppingCart, CartItemData } from './ecommerce/ShoppingCart';
+export { default as ShoppingCart } from './ecommerce/ShoppingCart';
 export { default as CartItem } from './ecommerce/CartItem';
 export { default as ProductFilter, FilterOption, FilterSection } from './ecommerce/ProductFilter';
 export { default as ProductSort, SortOption } from './ecommerce/ProductSort';
 export { default as ProductSearch } from './ecommerce/ProductSearch';
 export { default as Wishlist } from './ecommerce/Wishlist';
-export { default as ProductDetails } from './ecommerce/ProductDetails';
+export { default as ProductDetailPage } from './ecommerce/ProductDetailPage';
 export { default as ProductGallery } from './ecommerce/ProductGallery';
 export { default as ProductVariants } from './ecommerce/ProductVariants';
 export { default as ReviewList, Review } from './ecommerce/ReviewList';
@@ -51,6 +52,9 @@ export { default as PaymentMethodForm, PaymentMethodData } from './ecommerce/Pay
 export { default as CategoryList, Category } from './ecommerce/CategoryList';
 export { default as CategoryCard } from './ecommerce/CategoryCard';
 export { default as Breadcrumb, BreadcrumbItem } from './ecommerce/Breadcrumb';
+
+// Cart System Components
+export { CartProvider, CartButton, CartIcon, CartSidebar, CartWrapper, useCart } from './ecommerce/CartProvider';
 
 // Type exports
 export type { Feature } from './marketing/FeatureGrid';

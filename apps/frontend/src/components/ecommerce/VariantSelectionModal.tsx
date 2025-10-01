@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Divider } from '@heroui/react';
-import { FiX, FiShoppingCart, FiCheck } from 'react-icons/fi';
-import type { Product, ProductVariant, ProductVariantItem, Attribute } from '../../types/product';
+import { FiX, FiShoppingCart } from 'react-icons/fi';
+import type { Product, ProductVariant } from '../../types/product';
+import { buildVariantAttributes, buildVariantSelectionMap } from '../../utils/variantAttributes';
+import Input from '../common/Input';
 
 interface VariantSelectionModalProps {
   isOpen: boolean;
@@ -31,89 +33,121 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
     }
   }, [isOpen]);
 
-  // Group attributes by their names
-  const groupedAttributes = React.useMemo(() => {
-    if (!product.variants) return {};
+  const variantAttributes = useMemo(
+    () => buildVariantAttributes(product.variants),
+    [product.variants]
+  );
 
-    const attributes: Record<string, Attribute[]> = {};
+  const variantSelectionMap = useMemo(
+    () => buildVariantSelectionMap(product.variants),
+    [product.variants]
+  );
 
-    product.variants.forEach(variant => {
-      variant.variantItems?.forEach(item => {
-        if (item.attribute) {
-          const attributeName = item.attribute.name;
-          if (!attributes[attributeName]) {
-            attributes[attributeName] = [];
-          }
-          if (!attributes[attributeName].find(attr => attr.id === item.attribute!.id)) {
-            attributes[attributeName].push(item.attribute);
-          }
-        }
-      });
+  const attributeIndexMap = useMemo(() => {
+    const map = new Map<string, number>();
+    variantAttributes.forEach((attribute, index) => {
+      map.set(attribute.attributeId, index);
     });
+    return map;
+  }, [variantAttributes]);
 
-    return attributes;
-  }, [product.variants]);
-
-  // Get available attribute values for a specific attribute
-  const getAvailableValues = (attributeName: string) => {
-    if (!product.variants) return [];
-
-    const values: Array<{ value: string; displayValue: string; attributeValueId: string }> = [];
-
-    product.variants.forEach(variant => {
-      variant.variantItems?.forEach(item => {
-        if (item.attribute?.name === attributeName && item.attributeValue) {
-          const exists = values.find(v => v.value === item.attributeValue!.value);
-          if (!exists) {
-            values.push({
-              value: item.attributeValue.value,
-              displayValue: item.attributeValue.displayValue || item.attributeValue.value,
-              attributeValueId: item.attributeValue.id
-            });
-          }
-        }
-      });
-    });
-
-    return values.sort((a, b) => a.displayValue.localeCompare(b.displayValue));
-  };
+  const maxSelectableQuantity = useMemo(() => {
+    if (!selectedVariant || typeof selectedVariant.stockQuantity !== 'number') {
+      return 99;
+    }
+    return Math.min(99, Math.max(1, selectedVariant.stockQuantity));
+  }, [selectedVariant]);
 
   // Find variant based on selected attributes
-  const findMatchingVariant = React.useCallback(() => {
+  const findMatchingVariant = useCallback(() => {
     if (!product.variants || Object.keys(selectedAttributes).length === 0) {
       return null;
     }
 
     return product.variants.find(variant => {
-      if (!variant.variantItems) return false;
+      const selections = variantSelectionMap.get(variant.id);
+      if (!selections) {
+        return false;
+      }
 
-      return Object.entries(selectedAttributes).every(([attrName, selectedValue]) => {
-        const variantItem = variant.variantItems?.find(item =>
-          item.attribute?.name === attrName &&
-          item.attributeValue?.value === selectedValue
-        );
-        return !!variantItem;
-      });
+      return Object.entries(selectedAttributes).every(([attributeId, valueId]) => valueId && selections[attributeId] === valueId);
     });
-  }, [product.variants, selectedAttributes]);
+  }, [product.variants, selectedAttributes, variantSelectionMap]);
 
   // Update selected variant when attributes change
   useEffect(() => {
     const matchingVariant = findMatchingVariant();
     setSelectedVariant(matchingVariant || null);
 
-    // Reset quantity if variant changes
     if (matchingVariant) {
       setQuantity(1);
     }
   }, [selectedAttributes, findMatchingVariant]);
 
-  const handleAttributeSelect = (attributeName: string, value: string) => {
-    setSelectedAttributes(prev => ({
-      ...prev,
-      [attributeName]: value
-    }));
-  };
+  const handleAttributeSelect = useCallback((attributeId: string, valueId: string) => {
+    setSelectedAttributes((prev) => {
+      const attributeIndex = attributeIndexMap.get(attributeId);
+
+      if (attributeIndex === undefined) {
+        return prev;
+      }
+
+      if (prev[attributeId] === valueId) {
+        return prev;
+      }
+
+      const nextSelections = {
+        ...prev,
+        [attributeId]: valueId,
+      };
+
+      for (let i = attributeIndex + 1; i < variantAttributes.length; i += 1) {
+        const nextAttributeId = variantAttributes[i].attributeId;
+        if (nextSelections[nextAttributeId]) {
+          delete nextSelections[nextAttributeId];
+        }
+      }
+
+      return nextSelections;
+    });
+  }, [attributeIndexMap, variantAttributes]);
+
+  const handleQuantityChange = useCallback((nextValue: number) => {
+    if (Number.isNaN(nextValue)) {
+      return;
+    }
+
+    const clamped = Math.min(maxSelectableQuantity, Math.max(1, Math.floor(nextValue)));
+    setQuantity(clamped);
+  }, [maxSelectableQuantity]);
+
+  const isOptionDisabled = useCallback((attributeId: string, valueId: string) => {
+    const attributeIndex = attributeIndexMap.get(attributeId);
+    if (attributeIndex === undefined) {
+      return true;
+    }
+
+    const previousAttributeId = attributeIndex > 0 ? variantAttributes[attributeIndex - 1]?.attributeId : undefined;
+    const hasPreviousSelection = previousAttributeId ? Boolean(selectedAttributes[previousAttributeId]) : true;
+
+    if (!hasPreviousSelection) {
+      return true;
+    }
+
+    const tentativeSelections = {
+      ...selectedAttributes,
+      [attributeId]: valueId,
+    };
+
+    return !product.variants?.some((variant) => {
+      const selections = variantSelectionMap.get(variant.id);
+      if (!selections) {
+        return false;
+      }
+
+      return Object.entries(tentativeSelections).every(([attrId, attrValueId]) => selections[attrId] === attrValueId);
+    });
+  }, [attributeIndexMap, product.variants, selectedAttributes, variantAttributes, variantSelectionMap]);
 
   const handleAddToCart = () => {
     if (selectedVariant) {
@@ -152,35 +186,59 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
             <ModalBody>
               <div className="space-y-6">
                 {/* Attribute Selection */}
-                {Object.entries(groupedAttributes).map(([attributeName, attributes]) => (
-                  <div key={attributeName} className="space-y-2">
-                    <h4 className="font-medium text-sm">
-                      {attributes[0]?.displayName || attributeName}
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {getAvailableValues(attributeName).map((value) => (
-                        <Button
-                          key={value.value}
-                          size="sm"
-                          variant={
-                            selectedAttributes[attributeName] === value.value
-                              ? 'solid'
-                              : 'bordered'
-                          }
-                          color={
-                            selectedAttributes[attributeName] === value.value
-                              ? 'primary'
-                              : 'default'
-                          }
-                          onPress={() => handleAttributeSelect(attributeName, value.value)}
-                          className="text-sm"
-                        >
-                          {value.displayValue}
-                        </Button>
-                      ))}
+                {variantAttributes.map((attribute) => {
+                  const attributeIndex = attributeIndexMap.get(attribute.attributeId) ?? 0;
+                  const previousAttributeId = attributeIndex > 0 ? variantAttributes[attributeIndex - 1]?.attributeId : undefined;
+                  const hasPreviousSelection = previousAttributeId ? Boolean(selectedAttributes[previousAttributeId]) : true;
+                  const isActiveStep = attributeIndex === 0 || hasPreviousSelection;
+                  const selectedLabel = attribute.values.find((value) => value.valueId === selectedAttributes[attribute.attributeId])?.label;
+
+                  return (
+                    <div
+                      key={attribute.attributeId}
+                      className={`space-y-3 rounded-2xl border p-4 shadow-sm transition-colors ${
+                        isActiveStep
+                          ? 'border-gray-200 bg-white/95 dark:border-gray-700 dark:bg-gray-900/40'
+                          : 'border-dashed border-gray-200 bg-gray-100/80 dark:border-gray-700/60 dark:bg-gray-900/30 opacity-80'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <h4 className="text-sm font-semibold text-gray-800">
+                          {attribute.name}
+                        </h4>
+                        {selectedLabel && (
+                          <span className="text-xs font-medium text-gray-500">
+                            {selectedLabel}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {attribute.values.map((value) => {
+                          const isSelected = selectedAttributes[attribute.attributeId] === value.valueId;
+                          const disabled = isOptionDisabled(attribute.attributeId, value.valueId);
+
+                          return (
+                            <Button
+                              key={value.valueId}
+                              size="sm"
+                              variant={isSelected ? 'solid' : 'bordered'}
+                              color={isSelected ? 'primary' : 'default'}
+                              isDisabled={disabled}
+                              onPress={() => handleAttributeSelect(attribute.attributeId, value.valueId)}
+                              className={`rounded-full px-4 py-1 text-sm font-medium transition-all duration-150 ${
+                                isSelected
+                                  ? 'shadow-sm'
+                                  : 'bg-white/95 text-gray-600 hover:border-gray-300 dark:bg-gray-900/60 dark:text-gray-300'
+                              } ${disabled ? 'pointer-events-none opacity-50' : ''}`}
+                            >
+                              {value.label}
+                            </Button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
 
                 <Divider />
 
@@ -219,22 +277,52 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
 
                     {/* Quantity Selector */}
                     {selectedVariant.stockQuantity > 0 && (
-                      <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium">Quantity:</label>
-                        <select
-                          value={quantity}
-                          onChange={(e) => setQuantity(parseInt(e.target.value))}
-                          className="border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        >
-                          {Array.from(
-                            { length: Math.min(10, selectedVariant.stockQuantity) },
-                            (_, i) => i + 1
-                          ).map((qty) => (
-                            <option key={qty} value={qty}>
-                              {qty}
-                            </option>
-                          ))}
-                        </select>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-gray-700">Quantity:</span>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            isIconOnly
+                            size="sm"
+                            variant="light"
+                            className="rounded-full"
+                            onPress={() => handleQuantityChange(quantity - 1)}
+                            isDisabled={quantity <= 1}
+                          >
+                            <span className="text-base font-semibold">−</span>
+                          </Button>
+                          <div className="w-20">
+                            <Input
+                              type="number"
+                              value={String(quantity)}
+                              min={1}
+                              max={maxSelectableQuantity}
+                              variant="bordered"
+                              size="sm"
+                              inputMode="numeric"
+                              onValueChange={(value) => {
+                                const parsed = Number(value);
+                                if (Number.isNaN(parsed)) {
+                                  return;
+                                }
+                                handleQuantityChange(parsed);
+                              }}
+                              classNames={{
+                                inputWrapper: 'h-9 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900/70',
+                                input: 'text-center font-semibold text-sm'
+                              }}
+                            />
+                          </div>
+                          <Button
+                            isIconOnly
+                            size="sm"
+                            variant="light"
+                            className="rounded-full"
+                            onPress={() => handleQuantityChange(quantity + 1)}
+                            isDisabled={quantity >= maxSelectableQuantity}
+                          >
+                            <span className="text-base font-semibold">+</span>
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>

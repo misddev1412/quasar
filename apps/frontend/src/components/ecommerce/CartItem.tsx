@@ -1,11 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
-import { Button, Image } from '@heroui/react';
+import { Button, Image, Chip } from '@heroui/react';
 import PriceDisplay from './PriceDisplay';
-import { CartItemData } from './ShoppingCart';
+import type { CartItemDetails } from '../../types/cart';
 
 interface CartItemProps {
-  item: CartItemData;
+  item: CartItemDetails;
   onUpdateQuantity: (itemId: string, quantity: number) => void;
   onRemove: (itemId: string) => void;
   currency?: string;
@@ -23,11 +23,11 @@ const CartItem: React.FC<CartItemProps> = ({
   showImage = true,
   showControls = true,
 }) => {
-  const { id, product, quantity, selectedVariant, price } = item;
-  const { name, images, slug } = product;
+  const { id, product, quantity, variant, unitPrice, totalPrice, inStock, lowStock, maxQuantity } = item;
+  const { name, media, slug } = product;
 
   const handleQuantityChange = (newQuantity: number) => {
-    if (newQuantity >= 1) {
+    if (newQuantity >= 1 && newQuantity <= maxQuantity) {
       onUpdateQuantity(id, newQuantity);
     }
   };
@@ -46,16 +46,24 @@ const CartItem: React.FC<CartItemProps> = ({
     onRemove(id);
   };
 
-  const variantText = selectedVariant ? `${selectedVariant.name}: ${selectedVariant.value}` : '';
+  const getProductImage = () => {
+    if (media && media.length > 0) {
+      const primaryMedia = media.find(m => m.isPrimary);
+      return primaryMedia?.url || media[0].url;
+    }
+    return '/placeholder-product.png';
+  };
+
+  const variantText = variant ? variant.name : '';
 
   return (
-    <div className={`flex gap-4 p-4 border border-gray-200 rounded-lg ${className}`}>
+    <div className={`flex gap-4 p-4 border ${!inStock ? 'border-red-200 bg-red-50 dark:bg-red-900/10' : 'border-gray-200 dark:border-gray-700'} rounded-lg ${className}`}>
       {/* Product Image */}
       {showImage && (
         <div className="flex-shrink-0 w-20 h-20">
           <Link href={slug ? `/products/${slug}` : '#'}>
             <Image
-              src={images[0] || '/placeholder-product.png'}
+              src={getProductImage()}
               alt={name}
               className="w-full h-full object-cover rounded-md"
               removeWrapper
@@ -67,48 +75,82 @@ const CartItem: React.FC<CartItemProps> = ({
       {/* Product Details */}
       <div className="flex-1 flex flex-col">
         <div className="flex-1">
-          <Link
-            href={slug ? `/products/${slug}` : '#'}
-            className="font-medium text-gray-900 hover:text-primary-500 transition-colors"
-          >
-            {name}
-          </Link>
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <Link
+                href={slug ? `/products/${slug}` : '#'}
+                className="font-medium text-gray-900 dark:text-white hover:text-primary-500 transition-colors"
+              >
+                {name}
+              </Link>
 
-          {variantText && <p className="text-sm text-gray-500 mt-1">{variantText}</p>}
+              {variantText && (
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{variantText}</p>
+              )}
 
-          <div className="mt-2">
-            <PriceDisplay price={price} currency={currency} />
+              <div className="mt-2 flex items-center gap-2">
+                <PriceDisplay price={unitPrice} currency={currency} />
+                {lowStock && inStock && (
+                  <Chip color="warning" variant="flat" size="sm">
+                    Only {maxQuantity} left
+                  </Chip>
+                )}
+                {!inStock && (
+                  <Chip color="danger" variant="flat" size="sm">
+                    Out of Stock
+                  </Chip>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Quantity Controls */}
         {showControls && (
-          <div className="flex items-center justify-between mt-2">
+          <div className="flex items-center justify-between mt-3">
             <div className="flex items-center gap-2">
               <Button
                 isIconOnly
                 size="sm"
                 variant="flat"
                 onPress={handleDecrement}
-                isDisabled={quantity <= 1}
+                isDisabled={quantity <= 1 || !inStock}
               >
-                <span className="text-lg">-</span>
+                <span className="text-lg">−</span>
               </Button>
 
-              <span className="w-8 text-center">{quantity}</span>
+              <span className="w-8 text-center font-medium">{quantity}</span>
 
-              <Button isIconOnly size="sm" variant="flat" onPress={handleIncrement}>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="flat"
+                onPress={handleIncrement}
+                isDisabled={quantity >= maxQuantity || !inStock}
+              >
                 <span className="text-lg">+</span>
               </Button>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="font-medium">
-                {currency}
-                {(price * quantity).toFixed(2)}
-              </span>
+              <div className="text-right">
+                <div className="font-medium text-gray-900 dark:text-white">
+                  {currency}
+                  {totalPrice.toFixed(2)}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  {currency}{unitPrice.toFixed(2)} each
+                </div>
+              </div>
 
-              <Button isIconOnly size="sm" variant="light" color="danger" onPress={handleRemove}>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                color="danger"
+                onPress={handleRemove}
+                className="text-red-500 hover:text-red-600"
+              >
                 <span className="text-lg">🗑️</span>
               </Button>
             </div>

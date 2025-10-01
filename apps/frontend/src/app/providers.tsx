@@ -10,6 +10,7 @@ import { ToastProvider } from '../contexts/ToastContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
 import { AppInitProvider, useAppInit } from '../contexts/AppInitContext';
 import { AppLoadingOverlay } from '../components/common/AppLoadingOverlay';
+import { CartProvider } from '../components/ecommerce/CartProvider';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,7 +39,11 @@ function AppProviders({ children }: { children: React.ReactNode }) {
           <HeroUIProvider>
             <ThemeProvider>
               <ToastProvider>
-                <AuthProvider>{children}</AuthProvider>
+                <AuthProvider>
+                  <CartProvider currency="USD" taxRate={0.08} defaultShippingCost={5.99}>
+                    {children}
+                  </CartProvider>
+                </AuthProvider>
               </ToastProvider>
             </ThemeProvider>
           </HeroUIProvider>

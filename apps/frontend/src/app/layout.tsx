@@ -4,7 +4,6 @@ import '../styles.scss';
 import { Providers } from './providers';
 import LocaleWrapper from '../components/LocaleWrapper';
 import { DynamicFavicon } from '../components/common/DynamicFavicon';
-import HelmetWrapper from '../components/HelmetWrapper';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -17,14 +16,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body className={inter.className}>
-        <HelmetWrapper>
-          <LocaleWrapper>
-            <Providers>
-              <DynamicFavicon />
-              {children}
-            </Providers>
-          </LocaleWrapper>
-        </HelmetWrapper>
+        <LocaleWrapper>
+          <Providers>
+            <DynamicFavicon />
+            {children}
+          </Providers>
+        </LocaleWrapper>
       </body>
     </html>
   );

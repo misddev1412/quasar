@@ -16,7 +16,14 @@ jest.mock('@heroui/react', () => ({
       {children}
     </button>
   ),
-  Divider: () => <hr data-testid="divider" />
+  Divider: () => <hr data-testid="divider" />, 
+  Input: ({ onValueChange, value, ...props }: any) => (
+    <input
+      {...props}
+      value={value}
+      onChange={(event) => onValueChange?.(event.target.value)}
+    />
+  )
 }));
 
 const mockProduct = {

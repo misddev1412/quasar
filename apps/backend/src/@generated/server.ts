@@ -1,7 +1,7 @@
 // AppRouter types for tRPC client
 // This file is auto-generated from actual nestjs-trpc routers
 // Run 'npm run sync:trpc-types' to regenerate this file
-// Generated on: 2025-09-29T15:43:35.385Z
+// Generated on: 2025-10-01T01:08:26.771Z
 
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
@@ -453,15 +453,15 @@ const appRouter = t.router({
   }),
   clientAddressBook: t.router({
     getAddresses: t.procedure.query(() => null),
-    getAddressById: t.procedure.query(() => null),
+    getAddressById: t.procedure.input(z.any()).query(() => null),
     createAddress: t.procedure.input(z.any()).mutation(() => null),
     updateAddress: t.procedure.input(z.any()).mutation(() => null),
     deleteAddress: t.procedure.input(z.any()).mutation(() => null),
     setDefaultAddress: t.procedure.input(z.any()).mutation(() => null),
     getDefaultAddress: t.procedure.query(() => null),
     getCountries: t.procedure.query(() => null),
-    getAdministrativeDivisions: t.procedure.query(() => null),
-    getAdministrativeDivisionsByParentId: t.procedure.query(() => null),
+    getAdministrativeDivisions: t.procedure.input(z.any()).query(() => null),
+    getAdministrativeDivisionsByParentId: t.procedure.input(z.any()).query(() => null),
   }),
   clientSecurity: t.router({
     getSecurityStatus: t.procedure.query(() => null),
@@ -475,15 +475,27 @@ const appRouter = t.router({
   }),
   addressBook: t.router({
     getAddresses: t.procedure.query(() => null),
-    getAddressById: t.procedure.query(() => null),
+    getAddressById: t.procedure.input(z.any()).query(() => null),
     createAddress: t.procedure.input(z.any()).mutation(() => null),
     updateAddress: t.procedure.input(z.any()).mutation(() => null),
     deleteAddress: t.procedure.input(z.any()).mutation(() => null),
     setDefaultAddress: t.procedure.input(z.any()).mutation(() => null),
     getDefaultAddress: t.procedure.query(() => null),
     getCountries: t.procedure.query(() => null),
-    getAdministrativeDivisions: t.procedure.query(() => null),
-    getAdministrativeDivisionsByParentId: t.procedure.query(() => null),
+    getAdministrativeDivisions: t.procedure.input(z.any()).query(() => null),
+    getAdministrativeDivisionsByParentId: t.procedure.input(z.any()).query(() => null),
+  }),
+  clientCategories: t.router({
+    getCategories: t.procedure.query(() => null),
+    getCategoryById: t.procedure.input(z.any()).query(() => null),
+    getCategoryTree: t.procedure.query(() => null),
+    getCategoryBySlug: t.procedure.input(z.any()).query(() => null),
+    getRootCategories: t.procedure.input(z.any()).query(() => null),
+  }),
+  clientNews: t.router({
+    getNews: t.procedure.input(z.any()).query(() => null),
+    getNewsBySlug: t.procedure.input(z.any()).query(() => null),
+    getNewsCategories: t.procedure.query(() => null),
   }),
   clientProducts: t.router({
     getProducts: t.procedure.input(z.any()).query(() => null),

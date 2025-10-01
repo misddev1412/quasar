@@ -16,7 +16,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { trpc } from '@/utils/trpc';
+import { trpc } from '../../utils/trpc';
 import { toast } from 'react-hot-toast';
 
 interface Session {

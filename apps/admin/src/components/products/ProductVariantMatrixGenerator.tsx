@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { FiPlus, FiX, FiImage, FiTrash2 } from 'react-icons/fi';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
@@ -9,8 +9,10 @@ import { Select } from '../common/Select';
 import { FormInput } from '../common/FormInput';
 import { Badge } from '../common/Badge';
 import { MediaManager } from '../common/MediaManager';
-import { Attribute, AttributeValue } from '../../types/product';
 import { AttributeValuesSelector } from './AttributeValuesSelector';
+
+const serializeCombination = (combo: Record<string, string>) =>
+  JSON.stringify(Object.entries(combo).sort(([a], [b]) => a.localeCompare(b)));
 
 export interface VariantMatrixItem {
   id?: string;
@@ -88,18 +90,45 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
 
   // Get tRPC utils for imperative queries
   const utils = trpc.useUtils();
+  const valueNamesCacheRef = useRef(new Map<string, Map<string, string>>());
 
-  // Helper function to get value name by making a direct query
-  const getValueName = async (attributeId: string, valueId: string): Promise<string> => {
-    try {
-      const data = await utils.adminProductAttributes.getAttributeValues.fetch({ attributeId });
-      const values = (data as any)?.data || [];
-      const value = values.find((v: any) => v.id === valueId);
-      return value?.displayValue || value?.value || valueId;
-    } catch (error) {
-      return valueId;
-    }
-  };
+  const getValueName = useCallback(
+    async (attributeId: string, valueId: string): Promise<string> => {
+      const attributeCache = valueNamesCacheRef.current.get(attributeId);
+
+      if (attributeCache?.has(valueId)) {
+        return attributeCache.get(valueId)!;
+      }
+
+      try {
+        const data = await utils.adminProductAttributes.getAttributeValues.fetch({ attributeId });
+        const values = (data as any)?.data || [];
+
+        const cache = attributeCache || new Map<string, string>();
+        values.forEach((value: any) => {
+          cache.set(value.id, value.displayValue || value.value || value.id);
+        });
+
+        valueNamesCacheRef.current.set(attributeId, cache);
+        return cache.get(valueId) || valueId;
+      } catch (error) {
+        return valueId;
+      }
+    },
+    [utils]
+  );
+
+  const hasExistingVariantsWithData = useMemo(
+    () => variants.some(v => v.price > 0 || v.quantity > 0 || v.sku),
+    [variants]
+  );
+
+  const existingCombinationKey = useMemo(() => {
+    const keys = variants
+      .map(variant => serializeCombination(variant.attributeCombination))
+      .sort();
+    return JSON.stringify(keys);
+  }, [variants]);
 
   // Add new attribute selection
   const addAttributeSelection = () => {
@@ -151,30 +180,35 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
 
   // Generate variant combinations when attribute selections change
   useEffect(() => {
-    if (!isInitialized) return;
-
-    // If we have existing variants with actual data (not just generated), preserve them
-    const hasExistingVariantsWithData = variants.some(v => v.price > 0 || v.quantity > 0 || v.sku);
-    if (hasExistingVariantsWithData) {
+    if (!isInitialized || hasExistingVariantsWithData) {
       return;
     }
 
     if (selectedAttributes.length === 0) {
-      // Only clear variants if we don't have existing data
-      onVariantsChange([]);
+      if (variants.length > 0) {
+        onVariantsChange([]);
+      }
       return;
     }
 
-    // Check if all attributes have selections
-    const allAttributesSelected = selectedAttributes.every(attr => attr.attributeId && attr.valueIds.length > 0);
-    if (!allAttributesSelected) return;
+    const allAttributesSelected = selectedAttributes.every(
+      attr => attr.attributeId && attr.valueIds.length > 0
+    );
 
-    // Generate combinations directly here
-    const combinations: string[][] = [];
+    if (!allAttributesSelected) {
+      return;
+    }
+
+    const combinationDetails: Array<{ attributeCombination: Record<string, string> }> = [];
 
     const buildCombinations = (current: string[], attrIndex: number) => {
       if (attrIndex >= selectedAttributes.length) {
-        combinations.push([...current]);
+        const attributeCombination: Record<string, string> = {};
+        current.forEach((valueId, index) => {
+          const attr = selectedAttributes[index];
+          attributeCombination[attr.attributeId] = valueId;
+        });
+        combinationDetails.push({ attributeCombination });
         return;
       }
 
@@ -188,25 +222,34 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
 
     buildCombinations([], 0);
 
-    // Create variants and resolve display names asynchronously
+    if (combinationDetails.length === 0) {
+      if (variants.length > 0) {
+        onVariantsChange([]);
+      }
+      return;
+    }
+
+    const newCombinationKey = JSON.stringify(
+      combinationDetails
+        .map(detail => serializeCombination(detail.attributeCombination))
+        .sort()
+    );
+
+    if (newCombinationKey === existingCombinationKey) {
+      return;
+    }
+
     const createVariantsWithNames = async () => {
       const newVariants: VariantMatrixItem[] = [];
 
-      for (const combination of combinations) {
-        const attributeCombination: Record<string, string> = {};
+      for (const detail of combinationDetails) {
         const displayParts: string[] = [];
 
-        // Process each value in the combination
-        for (let attrIndex = 0; attrIndex < combination.length; attrIndex++) {
-          const valueId = combination[attrIndex];
-          const attr = selectedAttributes[attrIndex];
-          attributeCombination[attr.attributeId] = valueId;
-
-          // Get attribute name
+        for (const attr of selectedAttributes) {
+          const valueId = detail.attributeCombination[attr.attributeId];
           const attribute = attributes.find(a => a.id === attr.attributeId);
           const attrName = attribute?.displayName || attribute?.name || 'Unknown';
 
-          // Get value name asynchronously
           try {
             const valueName = await getValueName(attr.attributeId, valueId);
             displayParts.push(`${attrName}: ${valueName}`);
@@ -216,7 +259,7 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
         }
 
         newVariants.push({
-          attributeCombination,
+          attributeCombination: detail.attributeCombination,
           combinationDisplay: displayParts.join(', '),
           price: 0,
           quantity: 0,
@@ -230,7 +273,16 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
     };
 
     createVariantsWithNames();
-  }, [selectedAttributes, isInitialized, attributes, variants]);
+  }, [
+    attributes,
+    existingCombinationKey,
+    getValueName,
+    hasExistingVariantsWithData,
+    isInitialized,
+    onVariantsChange,
+    selectedAttributes,
+    variants.length,
+  ]);
 
   // Update variant field
   const updateVariant = (index: number, field: keyof VariantMatrixItem, value: any) => {

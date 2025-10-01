@@ -1,9 +1,11 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { getServerSideSEOWithFallback } from '../../../lib/seo-server';
-import { SEOPageLayout } from '../../../components/layout/SEOPageLayout';
-import ProductDetailClient from '../../../components/ecommerce/ProductDetailClient';
-import type { SEOData } from '../../../types/trpc';
+import ProductDetailPage from '../../../components/ecommerce/ProductDetailPage';
+import Layout from '../../../components/layout/Layout';
+import { serverTrpc } from '../../../utils/trpc-server';
+import type { Product, ProductVariant } from '../../../types/product';
+import type { Review } from '../../../components/ecommerce/ReviewList';
+import type { Comment } from '../../../components/ecommerce/CommentSection';
 
 interface ProductPageProps {
   params: Promise<{
@@ -11,59 +13,89 @@ interface ProductPageProps {
   }>;
 }
 
-// Fallback SEO data for product pages
-const productSEOFallback: SEOData = {
-  title: 'Products',
-  description: 'Browse our wide range of high-quality products',
-  keywords: 'products, shopping, online store, quality',
-};
-
 // Generate metadata for server-side SEO
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
+
+  // Fetch product data server-side
+  const productResponse = await serverTrpc.clientProducts.getProductBySlug.query({ slug }) as any;
+  const product = productResponse?.data?.product as Product | undefined;
+
+  if (!product) {
+    notFound();
+  }
   const pathname = `/products/${slug}`;
-  const seoData = await getServerSideSEOWithFallback(pathname, productSEOFallback);
+
+  // Use product-specific SEO fields with fallbacks
+  const title = product.metaTitle || product.name;
+  const description = product.metaDescription || product.description || `Buy ${product.name} at our store. High-quality product with excellent value.`;
+  const keywords = product.metaKeywords || `${product.name}, ${product.category || 'product'}, shopping, online store`;
+  const primaryImage = product.media?.find(m => m.isPrimary) || product.media?.[0];
+  const imageUrl = primaryImage?.url;
 
   const siteName = 'Quasar';
-  const title = seoData.title.includes(siteName)
-    ? seoData.title
-    : `${seoData.title} | ${siteName}`;
+  const formattedTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
 
   return {
-    title,
-    description: seoData.description || undefined,
-    keywords: seoData.keywords || undefined,
+    title: formattedTitle,
+    description,
+    keywords,
     openGraph: {
-      title,
-      description: seoData.description || undefined,
+      title: formattedTitle,
+      description,
       url: `${process.env.NEXT_PUBLIC_SITE_URL}${pathname}`,
       type: 'website',
+      images: imageUrl ? [{ url: imageUrl }] : undefined,
     },
     twitter: {
       card: 'summary_large_image',
-      title,
-      description: seoData.description || undefined,
+      title: formattedTitle,
+      description,
+      images: imageUrl ? [imageUrl] : undefined,
     },
-    other: seoData.additionalMetaTags || undefined,
   };
 }
 
 // Server component for product page
 async function ProductPageContent({ params }: ProductPageProps) {
   const { slug } = await params;
-  // Fetch SEO data server-side
-  const pathname = `/products/${slug}`;
-  const serverSEOData = await getServerSideSEOWithFallback(pathname, productSEOFallback);
+
+  // Fetch product data server-side
+  const productResponse = await serverTrpc.clientProducts.getProductBySlug.query({ slug }) as any;
+  const product = productResponse?.data?.product as Product | undefined;
+
+  if (!product) {
+    notFound();
+  }
+
+  // Fetch related products server-side
+  const relatedProductsResponse = await serverTrpc.clientProducts.getFeaturedProducts.query() as any;
+  const relatedProducts = relatedProductsResponse?.data?.items as Product[] || [];
+
+  // Mock data for reviews and comments (would come from API in real implementation)
+  const mockReviews: Review[] = [];
+  const mockComments: Comment[] = [];
+
+  // Handle add to cart (server action or client component would handle this)
+  const handleAddToCart = async (product: Product, quantity?: number, variant?: ProductVariant | null) => {
+    'use server';
+    // Implement server action for adding to cart
+    console.log('Adding to cart:', { product, quantity, variant });
+  };
 
   return (
-    <SEOPageLayout
-      fallback={productSEOFallback}
-      serverSEOData={serverSEOData}
-    >
-      <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <ProductDetailClient slug={slug} />
-      </div>
-    </SEOPageLayout>
+    <Layout>
+      <ProductDetailPage
+        product={product}
+        relatedProducts={relatedProducts}
+        frequentlyBoughtTogether={relatedProducts.slice(0, 2)}
+        recommendedProducts={relatedProducts}
+        trendingProducts={relatedProducts}
+        reviews={mockReviews}
+        comments={mockComments}
+        onAddToCart={handleAddToCart}
+      />
+    </Layout>
   );
 }
 

@@ -43,9 +43,23 @@ const PriceDisplay: React.FC<PriceDisplayProps> = ({
     lg: 'text-sm',
   };
 
-  const hasDiscount = originalPrice && originalPrice > price;
+  if (price === undefined || price === null || Number.isNaN(price)) {
+    return (
+      <div className={`flex items-center gap-2 ${className}`}>
+        <span className={`${sizeClasses[size]} ${currentPriceClasses[size]} text-gray-500`}>
+          {currency}0.00
+        </span>
+      </div>
+    );
+  }
+
+  const normalizedPrice = Number(price);
+  const normalizedOriginalPrice =
+    originalPrice !== undefined && originalPrice !== null ? Number(originalPrice) : undefined;
+
+  const hasDiscount = normalizedOriginalPrice !== undefined && normalizedOriginalPrice > normalizedPrice;
   const calculatedDiscount = hasDiscount
-    ? Math.round(((originalPrice - price) / originalPrice) * 100)
+    ? Math.round(((normalizedOriginalPrice - normalizedPrice) / normalizedOriginalPrice) * 100)
     : discountPercentage;
 
   return (
@@ -53,14 +67,14 @@ const PriceDisplay: React.FC<PriceDisplayProps> = ({
       {/* Current Price */}
       <span className={`${sizeClasses[size]} ${currentPriceClasses[size]} text-gray-900`}>
         {currency}
-        {price.toFixed(2)}
+        {normalizedPrice.toFixed(2)}
       </span>
 
       {/* Original Price (if discounted) */}
-      {hasDiscount && (
+      {hasDiscount && normalizedOriginalPrice !== undefined && (
         <span className={`${originalPriceClasses[size]} text-gray-500 line-through`}>
           {currency}
-          {originalPrice.toFixed(2)}
+          {normalizedOriginalPrice.toFixed(2)}
         </span>
       )}
 
@@ -76,4 +90,5 @@ const PriceDisplay: React.FC<PriceDisplayProps> = ({
   );
 };
 
+export { PriceDisplay };
 export default PriceDisplay;

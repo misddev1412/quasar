@@ -134,7 +134,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
           </label>
           <Textarea
             value={comment}
-            onChange={handleCommentChange}
+            onChange={handleCommentChange as any}
             placeholder="Share your thoughts about this product"
             variant="bordered"
             minRows={4}

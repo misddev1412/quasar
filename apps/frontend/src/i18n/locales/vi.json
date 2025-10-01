@@ -914,22 +914,74 @@
         "continue": "Tiếp tục mua sắm"
       },
       "title": "Giỏ hàng",
+      "items_count": "{{count}} sản phẩm",
+      "items_count_single": "{{count}} sản phẩm",
+      "shipping": {
+        "title": "Tùy chọn vận chuyển",
+        "standard": "Vận chuyển tiêu chuẩn",
+        "standard_description": "5-7 ngày làm việc",
+        "express": "Vận chuyển nhanh",
+        "express_description": "2-3 ngày làm việc",
+        "overnight": "Vận chuyển hỏa tốc",
+        "overnight_description": "Ngày làm việc tiếp theo",
+        "days": "{{days}} ngày"
+      },
+      "discount": {
+        "title": "Mã giảm giá",
+        "placeholder": "Nhập mã giảm giá",
+        "apply": "Áp dụng",
+        "applying": "Đang áp dụng...",
+        "applied": "Đã áp dụng",
+        "remove": "Xóa",
+        "code": "Mã",
+        "description": "Mô tả"
+      },
+      "validation": {
+        "out_of_stock": "Một số mặt hàng trong giỏ của bạn đã hết hàng",
+        "low_stock": "Một số mặt hàng có số lượng tồn kho hạn chế",
+        "quantity_exceeded": "Số lượng vượt quá số lượng tồn kho",
+        "price_changed": "Giá sản phẩm đã thay đổi kể từ khi bạn thêm vào giỏ hàng"
+      },
       "summary": {
         "subtotal": "Tạm tính",
         "shipping": "Vận chuyển",
         "tax": "Thuế",
+        "discount": "Giảm giá",
         "total": "Tổng cộng"
       },
       "actions": {
         "checkout": "Tiến hành thanh toán",
         "clear": "Xóa giỏ hàng",
-        "continue": "Tiếp tục mua sắm"
+        "continue": "Tiếp tục mua sắm",
+        "updating": "Đang cập nhật...",
+        "removing": "Đang xóa..."
+      },
+      "item": {
+        "quantity": "Số lượng",
+        "price": "Giá",
+        "total": "Tổng",
+        "remove": "Xóa",
+        "remove_confirm": "Xóa sản phẩm này khỏi giỏ hàng của bạn?",
+        "variant": "Biến thể",
+        "in_stock": "Còn hàng",
+        "out_of_stock": "Hết hàng",
+        "low_stock": "Chỉ còn {{count}} cái",
+        "max_quantity": "Số lượng tối đa: {{count}}"
       },
       "clear": {
         "title": "Xóa giỏ hàng",
         "message": "Bạn có chắc chắn muốn xóa tất cả mặt hàng khỏi giỏ hàng không? Hành động này không thể hoàn tác.",
         "cancel": "Hủy",
         "confirm": "Xóa giỏ hàng"
+      },
+      "aria_labels": {
+        "cart_button": "Giỏ hàng với {{count}} sản phẩm",
+        "cart_button_empty": "Giỏ hàng trống",
+        "cart_dropdown": "Dropdown giỏ hàng",
+        "item_remove": "Xóa {{name}} khỏi giỏ hàng",
+        "quantity_increase": "Tăng số lượng {{name}}",
+        "quantity_decrease": "Giảm số lượng {{name}}",
+        "close_cart": "Đóng giỏ hàng"
       }
     }
   },

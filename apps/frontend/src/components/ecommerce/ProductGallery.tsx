@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Image } from '@heroui/react';
+import { FiSearch, FiX } from 'react-icons/fi';
 import Modal from '../common/Modal';
 
 interface ProductGalleryProps {
@@ -78,18 +79,18 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
           <>
             <Button
               isIconOnly
-              size="sm"
+              size="md"
               variant="flat"
-              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100"
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-lg"
               onPress={handlePrevImage}
             >
               <span className="text-lg">←</span>
             </Button>
             <Button
               isIconOnly
-              size="sm"
+              size="md"
               variant="flat"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-lg"
               onPress={handleNextImage}
             >
               <span className="text-lg">→</span>
@@ -101,18 +102,18 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
         {showZoom && (
           <Button
             isIconOnly
-            size="sm"
+            size="md"
             variant="flat"
-            className="absolute right-2 bottom-2 bg-white bg-opacity-70 hover:bg-opacity-100"
+            className="absolute right-2 bottom-2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-lg"
             onPress={handleZoomOpen}
           >
-            <span className="text-lg">🔍</span>
+            <FiSearch className="text-lg" />
           </Button>
         )}
 
         {/* Image Counter */}
         {images.length > 1 && (
-          <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+          <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-full">
             {currentIndex + 1} / {images.length}
           </div>
         )}
@@ -120,7 +121,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
 
       {/* Thumbnails */}
       {showThumbnails && images.length > 1 && (
-        <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+        <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
           {images.map((image, index) => (
             <button
               key={index}
@@ -145,18 +146,17 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
         isOpen={isZoomOpen}
         onClose={handleZoomClose}
         size="5xl"
-        className="p-0"
-        hideCloseButton
+        closeButton={false}
       >
         <div className="relative bg-black">
           <Button
             isIconOnly
-            size="sm"
+            size="md"
             variant="flat"
-            className="absolute top-4 right-4 z-10 bg-white bg-opacity-70 hover:bg-opacity-100"
+            className="absolute top-4 right-4 z-10 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-lg"
             onPress={handleZoomClose}
           >
-            <span className="text-lg">✕</span>
+            <FiX className="text-lg" />
           </Button>
 
           <div className="flex items-center justify-center min-h-screen">
@@ -175,7 +175,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
                 isIconOnly
                 size="lg"
                 variant="flat"
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100"
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-lg"
                 onPress={handlePrevImage}
               >
                 <span className="text-2xl">←</span>
@@ -184,7 +184,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
                 isIconOnly
                 size="lg"
                 variant="flat"
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full shadow-lg"
                 onPress={handleNextImage}
               >
                 <span className="text-2xl">→</span>
@@ -194,7 +194,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
 
           {/* Image Counter in Zoom Modal */}
           {images.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white text-sm px-3 py-1 rounded">
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-80 text-white text-sm px-3 py-1.5 rounded-full">
               {currentIndex + 1} / {images.length}
             </div>
           )}

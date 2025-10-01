@@ -5,6 +5,7 @@ import { Button } from '@heroui/react';
 import { FiShoppingCart, FiPlus, FiCheck, FiLoader } from 'react-icons/fi';
 import type { Product } from '../../types/product';
 import type { ProductVariant } from '../../types/product';
+import { useCart } from '../../contexts/CartContext';
 import VariantSelectionModal from './VariantSelectionModal';
 
 interface AddToCartButtonProps {
@@ -36,6 +37,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   showQuantitySelector = false,
   iconOnly = false,
 }) => {
+  const { addItem, isInCart, getItemQuantity, canAddToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [selectedQuantity, setSelectedQuantity] = useState(quantity);
@@ -65,8 +67,14 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
 
     setIsLoading(true);
     try {
-      if (onAddToCart && mountedRef.current) {
-        await onAddToCart(product, selectedQuantity);
+      if (mountedRef.current) {
+        await addItem(product.id, selectedQuantity);
+
+        // Call custom handler if provided
+        if (onAddToCart) {
+          await onAddToCart(product, selectedQuantity);
+        }
+
         setIsAdded(true);
         // Clear any existing timeout
         if (timeoutRef.current) {
@@ -84,11 +92,17 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   };
 
   const handleVariantAddToCart = async (variant: ProductVariant, quantity: number) => {
-    if (!onVariantAddToCart || !mountedRef.current) return;
+    if (!mountedRef.current) return;
 
     setIsLoading(true);
     try {
-      await onVariantAddToCart(variant, quantity);
+      await addItem(product.id, quantity, variant.id);
+
+      // Call custom handler if provided
+      if (onVariantAddToCart) {
+        await onVariantAddToCart(variant, quantity);
+      }
+
       setIsAdded(true);
       // Clear any existing timeout
       if (timeoutRef.current) {
@@ -119,7 +133,10 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   };
 
   const stockQuantity = getStockQuantity();
-  const isDisabled = disabled || stockQuantity <= 0 || isLoading;
+  const currentQuantity = getItemQuantity(product.id);
+  const isAlreadyInCart = isInCart(product.id);
+  const canAdd = canAddToCart(product.id, selectedQuantity);
+  const isDisabled = disabled || stockQuantity <= 0 || isLoading || !canAdd;
 
   if (iconOnly) {
     return (
@@ -197,6 +214,10 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         ) : product.variants && product.variants.length > 0 ? (
           <div className="flex items-center gap-2">
             <span>Select Options</span>
+          </div>
+        ) : isAlreadyInCart ? (
+          <div className="flex items-center gap-2">
+            <span>In Cart ({currentQuantity})</span>
           </div>
         ) : (
           <div className="flex items-center gap-2">

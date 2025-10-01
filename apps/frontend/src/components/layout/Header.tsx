@@ -28,84 +28,142 @@ import ThemeToggle from '../common/ThemeToggle';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import NotificationDropdown from '../notifications/NotificationDropdown';
 import { useSettings } from '../../hooks/useSettings';
+import { CartIcon, CartDropdownIcon, ShoppingCart, useCart } from '../ecommerce/CartProvider';
+import Container from '../common/Container';
 
 // Icons as components for better maintainability
 const Icons = {
   Bell: () => (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+      />
     </svg>
   ),
   Heart: () => (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+      />
     </svg>
   ),
   Cart: () => (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+      />
     </svg>
   ),
   User: () => (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+      />
     </svg>
   ),
   UserCircle: () => (
     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
     </svg>
   ),
   // User menu icons
   Account: () => (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+      />
     </svg>
   ),
   Profile: () => (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 001.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 001.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+      />
     </svg>
   ),
   Orders: () => (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+      />
     </svg>
   ),
   Wishlist: () => (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+      />
     </svg>
   ),
   Notifications: () => (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+      />
     </svg>
   ),
   Settings: () => (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 001.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 001.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+      />
     </svg>
   ),
   Logout: () => (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+      />
     </svg>
   ),
 };
@@ -131,11 +189,17 @@ const Logo: React.FC<{ currentLocale: string }> = ({ currentLocale }) => {
           onError={(e) => {
             // Fallback to default logo if image fails to load
             e.currentTarget.style.display = 'none';
-            e.currentTarget.parentElement?.querySelector('.default-logo')?.classList.remove('hidden');
+            e.currentTarget.parentElement
+              ?.querySelector('.default-logo')
+              ?.classList.remove('hidden');
           }}
         />
       ) : null}
-      <div className={`w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow ${siteLogo ? 'hidden default-logo' : ''}`}>
+      <div
+        className={`w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow ${
+          siteLogo ? 'hidden default-logo' : ''
+        }`}
+      >
         <span className="text-white font-bold text-lg">Q</span>
       </div>
       <p className="font-bold text-xl bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent m-0">
@@ -155,11 +219,11 @@ const IconButtonWithBadge: React.FC<{
 }> = ({ icon, badge, badgeColor = 'primary', label, onClick }) => {
   const getBadgeClasses = (color: string) => {
     const colorClasses: Record<string, string> = {
-      primary: "bg-blue-500 text-white border-2 border-white dark:border-gray-900",
-      secondary: "bg-purple-500 text-white border-2 border-white dark:border-gray-900",
-      danger: "bg-red-500 text-white border-2 border-white dark:border-gray-900",
-      success: "bg-green-500 text-white border-2 border-white dark:border-gray-900",
-      warning: "bg-yellow-500 text-white border-2 border-white dark:border-gray-900"
+      primary: 'bg-blue-500 text-white border-2 border-white dark:border-gray-900',
+      secondary: 'bg-purple-500 text-white border-2 border-white dark:border-gray-900',
+      danger: 'bg-red-500 text-white border-2 border-white dark:border-gray-900',
+      success: 'bg-green-500 text-white border-2 border-white dark:border-gray-900',
+      warning: 'bg-yellow-500 text-white border-2 border-white dark:border-gray-900',
     };
     return colorClasses[color] || colorClasses.primary;
   };
@@ -176,7 +240,8 @@ const IconButtonWithBadge: React.FC<{
         >
           {icon}
         </Button>
-        <span className={`
+        <span
+          className={`
           absolute -top-1 -right-1
           min-w-[20px] h-[20px]
           rounded-full
@@ -185,7 +250,8 @@ const IconButtonWithBadge: React.FC<{
           px-1
           ${getBadgeClasses(badgeColor || 'primary')}
           shadow-sm
-        `}>
+        `}
+        >
           {badge}
         </span>
       </div>
@@ -215,6 +281,7 @@ const DesktopNavigation: React.FC<{
   const navigationItems = [
     { name: t('layout.header.nav.home'), href: '/' },
     { name: t('layout.header.nav.products'), href: '/products' },
+    { name: t('layout.header.nav.news'), href: '/news' },
     { name: t('layout.header.nav.categories'), href: '/categories' },
     { name: t('layout.header.nav.deals'), href: '/deals' },
     { name: t('layout.header.nav.about'), href: '/about' },
@@ -231,9 +298,10 @@ const DesktopNavigation: React.FC<{
               href={item.href}
               className={`
                 text-sm font-medium transition-all duration-200 relative py-2
-                ${isActive
-                  ? 'text-blue-600 dark:text-blue-400'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                ${
+                  isActive
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                 }
                 after:content-[''] after:absolute after:bottom-0 after:left-0
                 after:h-0.5 after:bg-blue-600 dark:after:bg-blue-400 after:transition-all after:duration-200
@@ -263,46 +331,46 @@ const UserMenu: React.FC<{
       key: 'account',
       label: t('layout.header.user.account'),
       href: '/profile',
-      icon: <Icons.Account />
+      icon: <Icons.Account />,
     },
     {
       key: 'edit-profile',
       label: t('layout.header.user.profile'),
       href: '/profile',
-      icon: <Icons.Profile />
+      icon: <Icons.Profile />,
     },
     {
       key: 'orders',
       label: t('layout.header.user.orders'),
       href: '/orders',
-      icon: <Icons.Orders />
+      icon: <Icons.Orders />,
     },
     {
       key: 'wishlist',
       label: t('layout.header.user.wishlist'),
       href: '/wishlist',
       mobileOnly: true,
-      icon: <Icons.Wishlist />
+      icon: <Icons.Wishlist />,
     },
     {
       key: 'notifications',
       label: t('layout.header.user.notifications'),
       href: '/notifications',
       mobileOnly: true,
-      icon: <Icons.Notifications />
+      icon: <Icons.Notifications />,
     },
     {
       key: 'settings',
       label: t('layout.header.user.settings'),
       href: '/settings',
-      icon: <Icons.Settings />
+      icon: <Icons.Settings />,
     },
     {
       key: 'logout',
       label: t('layout.header.user.logout'),
       action: 'logout',
       danger: true,
-      icon: <Icons.Logout />
+      icon: <Icons.Logout />,
     },
   ];
 
@@ -327,40 +395,38 @@ const UserMenu: React.FC<{
           isReadOnly
         >
           <div className="flex flex-col gap-0.5">
-            <p className="font-medium text-xs text-gray-500">{t('layout.header.user.signedInAs')}</p>
+            <p className="font-medium text-xs text-gray-500">
+              {t('layout.header.user.signedInAs')}
+            </p>
             <p className="font-semibold text-sm truncate">{user?.name || user?.email}</p>
             <p className="text-xs text-gray-400 truncate">{user?.email}</p>
           </div>
         </DropdownItem>
 
-        <DropdownItem
-          key="divider"
-          className="h-1 py-0 my-1"
-          isReadOnly
-        >
+        <DropdownItem key="divider" className="h-1 py-0 my-1" isReadOnly>
           <div className="border-t border-gray-200 dark:border-gray-700"></div>
         </DropdownItem>
 
         <>
           {userMenuItems
-            .filter(item => !item.mobileOnly)
+            .filter((item) => !item.mobileOnly)
             .map((item) => (
-            <DropdownItem
-              key={item.key}
-              color={item.danger ? 'danger' : 'default'}
-              className="min-h-[40px] py-3"
-              startContent={item.icon}
-              onPress={() => {
-                if (item.action === 'logout') {
-                  onLogout();
-                } else if (item.href) {
-                  router.push(item.href);
-                }
-              }}
-            >
-              {item.label}
-            </DropdownItem>
-          ))}
+              <DropdownItem
+                key={item.key}
+                color={item.danger ? 'danger' : 'default'}
+                className="min-h-[40px] py-3"
+                startContent={item.icon}
+                onPress={() => {
+                  if (item.action === 'logout') {
+                    onLogout();
+                  } else if (item.href) {
+                    router.push(item.href);
+                  }
+                }}
+              >
+                {item.label}
+              </DropdownItem>
+            ))}
         </>
       </DropdownMenu>
     </Dropdown>
@@ -382,37 +448,37 @@ const MobileMenuItems: React.FC<{
       key: 'account',
       label: t('layout.header.user.account'),
       href: '/profile',
-      icon: <Icons.Account />
+      icon: <Icons.Account />,
     },
     {
       key: 'edit-profile',
       label: t('layout.header.user.profile'),
       href: '/profile',
-      icon: <Icons.Profile />
+      icon: <Icons.Profile />,
     },
     {
       key: 'orders',
       label: t('layout.header.user.orders'),
       href: '/orders',
-      icon: <Icons.Orders />
+      icon: <Icons.Orders />,
     },
     {
       key: 'wishlist',
       label: t('layout.header.user.wishlist'),
       href: '/wishlist',
-      icon: <Icons.Wishlist />
+      icon: <Icons.Wishlist />,
     },
     {
       key: 'notifications',
       label: t('layout.header.user.notifications'),
       href: '/notifications',
-      icon: <Icons.Notifications />
+      icon: <Icons.Notifications />,
     },
     {
       key: 'settings',
       label: t('layout.header.user.settings'),
       href: '/settings',
-      icon: <Icons.Settings />
+      icon: <Icons.Settings />,
     },
   ];
 
@@ -427,9 +493,7 @@ const MobileMenuItems: React.FC<{
                 className="w-full text-base text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-3 py-2 transition-colors"
                 onClick={onClose}
               >
-                <span className="text-gray-500 dark:text-gray-400">
-                  {item.icon}
-                </span>
+                <span className="text-gray-500 dark:text-gray-400">{item.icon}</span>
                 {item.label}
               </Link>
             </NavbarMenuItem>
@@ -443,7 +507,11 @@ const MobileMenuItems: React.FC<{
                 onLogout();
                 onClose();
               }}
-              startContent={<span className="text-red-500"><Icons.Logout /></span>}
+              startContent={
+                <span className="text-red-500">
+                  <Icons.Logout />
+                </span>
+              }
             >
               {t('layout.header.user.logout')}
             </Button>
@@ -486,7 +554,9 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { user, isAuthenticated, logout } = useAuth();
+  const { summary, openCart } = useCart(); // Add cart hook
   const t = useTranslations();
+  const tCart = useTranslations('ecommerce.cart');
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
@@ -506,179 +576,217 @@ const Header: React.FC = () => {
   };
 
   return (
-    <Navbar
-      onMenuOpenChange={setIsMenuOpen}
-      isMenuOpen={isMenuOpen}
-      className="bg-white/95 dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm"
-      maxWidth="xl"
-      height="4rem"
-      position="sticky"
-    >
-      {/* Left Section: Menu Toggle + Logo */}
-      <NavbarContent justify="start">
-        <NavbarMenuToggle
-          aria-label={isMenuOpen ? t('layout.header.menu.close') : t('layout.header.menu.open')}
-          className="sm:hidden text-gray-600 dark:text-gray-400"
-        />
-        <NavbarBrand>
-          <Logo currentLocale={currentLocale} />
-        </NavbarBrand>
-      </NavbarContent>
+    <header className="sticky top-0 z-50 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
+      <Container className="py-0">
+        <Navbar
+          onMenuOpenChange={setIsMenuOpen}
+          isMenuOpen={isMenuOpen}
+          className="bg-transparent shadow-none border-none px-0"
+          maxWidth="full"
+          classNames={{
+            wrapper: 'w-full px-0',
+          }}
+          height="4rem"
+        >
+          {/* Left Section: Menu Toggle + Logo */}
+          <NavbarContent justify="start">
+            <NavbarMenuToggle
+              aria-label={isMenuOpen ? t('layout.header.menu.close') : t('layout.header.menu.open')}
+              className="sm:hidden text-gray-600 dark:text-gray-400"
+            />
+            <NavbarBrand>
+              <Logo currentLocale={currentLocale} />
+            </NavbarBrand>
+          </NavbarContent>
 
-      {/* Center Section: Desktop Navigation */}
-      <DesktopNavigation pathname={pathname} currentLocale={currentLocale} />
+          {/* Center Section: Desktop Navigation */}
+          <DesktopNavigation pathname={pathname} currentLocale={currentLocale} />
 
-      {/* Right Section: Actions */}
-      <NavbarContent justify="end" className="gap-2">
-        {/* Desktop Search */}
-        <NavbarItem className="hidden lg:flex flex-1 max-w-lg mr-4">
-          <SearchInput
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onSubmit={handleSearch}
-            size="sm"
-            placeholder={t('layout.header.search.placeholder')}
-            fullWidth
-          />
-        </NavbarItem>
-
-        {/* Language Switcher */}
-        <NavbarItem>
-          <LanguageSwitcher />
-        </NavbarItem>
-
-        {/* Theme Toggle */}
-        <NavbarItem>
-          <ThemeToggle />
-        </NavbarItem>
-
-        {/* Action Buttons */}
-        {isAuthenticated && (
-          <>
-            <NavbarItem>
-              <NotificationDropdown />
-            </NavbarItem>
-            <NavbarItem className="hidden sm:flex">
-              <IconButtonWithBadge
-                icon={<Icons.Heart />}
-                badge="5"
-                badgeColor="secondary"
-                label={t('layout.header.actions.wishlist')}
-                onClick={() => router.push('/wishlist')}
+          {/* Right Section: Actions */}
+          <NavbarContent justify="end" className="gap-2">
+            {/* Desktop Search */}
+            <NavbarItem className="hidden lg:flex flex-1 max-w-lg mr-4">
+              <SearchInput
+                value={searchQuery}
+                onChange={setSearchQuery}
+                onSubmit={handleSearch}
+                size="sm"
+                placeholder={t('layout.header.search.placeholder')}
+                fullWidth
               />
             </NavbarItem>
-          </>
-        )}
 
-        <NavbarItem>
-          <IconButtonWithBadge
-            icon={<Icons.Cart />}
-            badge="2"
-            badgeColor="primary"
-            label={t('layout.header.actions.cart')}
-            onClick={() => router.push('/cart')}
-          />
-        </NavbarItem>
+            {/* Language Switcher */}
+            <NavbarItem>
+              <LanguageSwitcher />
+            </NavbarItem>
 
-        {/* User Section */}
-        <NavbarItem>
-          {isAuthenticated ? (
-            <UserMenu user={user} router={router} currentLocale={currentLocale} onLogout={handleLogout} />
-          ) : (
-            <Dropdown placement="bottom-end">
-              <DropdownTrigger>
-                <Button
-                  isIconOnly
-                  variant="light"
-                  aria-label="User menu"
-                  className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <Icons.UserCircle />
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu aria-label="User menu actions" variant="flat">
-                <DropdownItem
-                  key="signin"
-                  onPress={() => router.push('/login')}
-                  className="min-h-[40px]"
-                >
-                  {t('layout.header.guest.signin')}
-                </DropdownItem>
-                <DropdownItem
-                  key="signup"
-                  color="primary"
-                  onPress={() => router.push('/register')}
-                  className="min-h-[40px]"
-                >
-                  {t('layout.header.guest.signup')}
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          )}
-        </NavbarItem>
-      </NavbarContent>
+            {/* Theme Toggle */}
+            <NavbarItem>
+              <ThemeToggle />
+            </NavbarItem>
 
-      {/* Mobile Menu */}
-      <NavbarMenu className="pt-6 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md">
-        {/* Mobile Search */}
-        <NavbarMenuItem className="mb-4">
-          <SearchInput
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onSubmit={(e) => {
-              handleSearch(e);
-              setIsMenuOpen(false);
-            }}
-            size="lg"
-            placeholder={t('layout.header.search.placeholder')}
-            fullWidth
-          />
-        </NavbarMenuItem>
+            {/* Action Buttons */}
+            {isAuthenticated && (
+              <>
+                <NavbarItem>
+                  <NotificationDropdown />
+                </NavbarItem>
+                <NavbarItem className="hidden sm:flex">
+                  <IconButtonWithBadge
+                    icon={<Icons.Heart />}
+                    badge="5"
+                    badgeColor="secondary"
+                    label={t('layout.header.actions.wishlist')}
+                    onClick={() => router.push('/wishlist')}
+                  />
+                </NavbarItem>
+              </>
+            )}
 
-        {/* Navigation Items */}
-        {[
-          { name: t('layout.header.nav.home'), href: '/' },
-          { name: t('layout.header.nav.products'), href: '/products' },
-          { name: t('layout.header.nav.categories'), href: '/categories' },
-          { name: t('layout.header.nav.deals'), href: '/deals' },
-          { name: t('layout.header.nav.about'), href: '/about' },
-          { name: t('layout.header.nav.contact'), href: '/contact' },
-        ].map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <NavbarMenuItem key={item.href}>
-              <Link
-                href={item.href}
-                className={`
-                  w-full text-base flex items-center gap-3 py-2 transition-colors rounded-lg px-2
-                  ${isActive
-                    ? 'text-blue-600 dark:text-blue-400 font-medium bg-blue-50 dark:bg-blue-900/20'
-                    : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800'
-                  }
-                `}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {item.name}
-              </Link>
+            <NavbarItem>
+              <CartDropdownIcon className="text-gray-700 dark:text-gray-300" />
+            </NavbarItem>
+
+            {/* User Section */}
+            <NavbarItem>
+              {isAuthenticated ? (
+                <UserMenu
+                  user={user}
+                  router={router}
+                  currentLocale={currentLocale}
+                  onLogout={handleLogout}
+                />
+              ) : (
+                <Dropdown placement="bottom-end">
+                  <DropdownTrigger>
+                    <Button
+                      isIconOnly
+                      variant="light"
+                      aria-label="User menu"
+                      className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      <Icons.UserCircle />
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu aria-label="User menu actions" variant="flat">
+                    <DropdownItem
+                      key="signin"
+                      onPress={() => router.push('/login')}
+                      className="min-h-[40px]"
+                    >
+                      {t('layout.header.guest.signin')}
+                    </DropdownItem>
+                    <DropdownItem
+                      key="signup"
+                      color="primary"
+                      onPress={() => router.push('/register')}
+                      className="min-h-[40px]"
+                    >
+                      {t('layout.header.guest.signup')}
+                    </DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
+              )}
+            </NavbarItem>
+          </NavbarContent>
+
+          {/* Mobile Menu */}
+          <NavbarMenu className="px-4 pt-6 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md">
+            {/* Mobile Search */}
+            <NavbarMenuItem className="mb-4">
+              <SearchInput
+                value={searchQuery}
+                onChange={setSearchQuery}
+                onSubmit={(e) => {
+                  handleSearch(e);
+                  setIsMenuOpen(false);
+                }}
+                size="lg"
+                placeholder={t('layout.header.search.placeholder')}
+                fullWidth
+              />
             </NavbarMenuItem>
-          );
-        })}
 
-        {/* Divider */}
-        <NavbarMenuItem className="my-3">
-          <Divider />
-        </NavbarMenuItem>
+            {/* Navigation Items */}
+            {[
+              { name: t('layout.header.nav.home'), href: '/' },
+              { name: t('layout.header.nav.products'), href: '/products' },
+              { name: t('layout.header.nav.news'), href: '/news' },
+              { name: t('layout.header.nav.categories'), href: '/categories' },
+              { name: t('layout.header.nav.deals'), href: '/deals' },
+              { name: t('layout.header.nav.about'), href: '/about' },
+              { name: t('layout.header.nav.contact'), href: '/contact' },
+            ].map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <NavbarMenuItem key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={`
+                      w-full text-base flex items-center gap-3 py-2 transition-colors rounded-lg px-2
+                      ${
+                        isActive
+                          ? 'text-blue-600 dark:text-blue-400 font-medium bg-blue-50 dark:bg-blue-900/20'
+                          : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      }
+                    `}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                </NavbarMenuItem>
+              );
+            })}
 
-        {/* User Actions */}
-        <MobileMenuItems
-          isAuthenticated={isAuthenticated}
-          router={router}
-          currentLocale={currentLocale}
-          onLogout={handleLogout}
-          onClose={() => setIsMenuOpen(false)}
-        />
-      </NavbarMenu>
-    </Navbar>
+            {/* Cart Link - Mobile */}
+            <NavbarMenuItem>
+              <button
+                className="w-full text-base text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-3 py-2 transition-colors rounded-lg px-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+                onClick={() => {
+                  openCart();
+                  setIsMenuOpen(false);
+                }}
+              >
+                <span className="text-gray-500 dark:text-gray-400">
+                  <Icons.Cart />
+                </span>
+                <span>
+                  {tCart('title')} (
+                  {summary.totalItems === 1
+                    ? tCart('items_count_single', { count: summary.totalItems })
+                    : tCart('items_count', { count: summary.totalItems })}
+                  )
+                </span>
+                {summary.totalItems > 0 && (
+                  <span className="ml-auto text-blue-600 dark:text-blue-400 font-medium">
+                    {summary.totals.currency}
+                    {summary.totals.total.toFixed(2)}
+                  </span>
+                )}
+              </button>
+            </NavbarMenuItem>
+
+            {/* Divider */}
+            <NavbarMenuItem className="my-3">
+              <Divider />
+            </NavbarMenuItem>
+
+            {/* User Actions */}
+            <MobileMenuItems
+              isAuthenticated={isAuthenticated}
+              router={router}
+              currentLocale={currentLocale}
+              onLogout={handleLogout}
+              onClose={() => setIsMenuOpen(false)}
+            />
+          </NavbarMenu>
+
+          {/* Shopping Cart Modal - disabled since we're using dropdown */}
+          {/* <ShoppingCart /> */}
+        </Navbar>
+      </Container>
+    </header>
   );
 };
 

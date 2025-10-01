@@ -32,7 +32,7 @@ export interface ProductListResponse {
 export class ProductService {
   static async getProducts(params: GetProductsParams = {}): Promise<ProductListResponse> {
     try {
-      const response = await trpcClient.clientProducts.getProducts.query(params);
+      const response = await trpcClient.clientProducts.getProducts.query(params) as unknown as PaginatedApiResponse<Product>;
       // For paginated responses, the data is directly in response.data
       const paginateData = response?.data;
 
@@ -60,7 +60,7 @@ export class ProductService {
 
   static async getProductById(id: string): Promise<Product | null> {
     try {
-      const response = await trpcClient.clientProducts.getProductById.query({ id });
+      const response = await trpcClient.clientProducts.getProductById.query({ id }) as unknown as ApiResponse<{ product: Product }>;
       // For single product responses, the data is wrapped in a product object
       return response.data?.product || null;
     } catch (error) {
@@ -71,7 +71,7 @@ export class ProductService {
 
   static async getProductBySlug(slug: string): Promise<Product | null> {
     try {
-      const response = await trpcClient.clientProducts.getProductBySlug.query({ slug });
+      const response = await trpcClient.clientProducts.getProductBySlug.query({ slug }) as unknown as ApiResponse<{ product: Product }>;
       // For single product responses, the data is wrapped in a product object
       return response.data?.product || null;
     } catch (error) {
@@ -82,7 +82,7 @@ export class ProductService {
 
   static async getFeaturedProducts(): Promise<ProductListResponse> {
     try {
-      const response = await trpcClient.clientProducts.getFeaturedProducts.query();
+      const response = await trpcClient.clientProducts.getFeaturedProducts.query() as unknown as PaginatedApiResponse<Product>;
 
       // For paginated responses, the data is directly in response.data
       const paginateData = response.data;
@@ -110,7 +110,7 @@ export class ProductService {
 
   static async getNewProducts(): Promise<ProductListResponse> {
     try {
-      const response = await trpcClient.clientProducts.getNewProducts.query();
+      const response = await trpcClient.clientProducts.getNewProducts.query() as unknown as PaginatedApiResponse<Product>;
 
       // For paginated responses, the data is directly in response.data
       const paginateData = response.data;
@@ -138,7 +138,7 @@ export class ProductService {
 
   static async getProductsByCategory(categoryId?: string): Promise<ProductListResponse> {
     try {
-      const response = await trpcClient.clientProducts.getProductsByCategory.query({ categoryId });
+      const response = await trpcClient.clientProducts.getProductsByCategory.query({ categoryId }) as unknown as PaginatedApiResponse<Product>;
 
       // For paginated responses, the data is directly in response.data
       const paginateData = response.data;
@@ -166,7 +166,7 @@ export class ProductService {
 
   static async getProductFilters(): Promise<ProductFilters> {
     try {
-      const response = await trpcClient.clientProducts.getProductFilters.query();
+      const response = await trpcClient.clientProducts.getProductFilters.query() as unknown as ApiResponse<ProductFilters>;
       // For filters, the data is directly in response.data
       return response.data || {
         categories: [],

@@ -21,19 +21,35 @@ export class ClientSeoRouter {
     output: apiResponseSchema,
   })
   async getByPath(@Input() input: z.infer<typeof getSeoByPathSchema>): Promise<z.infer<typeof apiResponseSchema>> {
-    const seo = await this.seoService.findByPath(input.path);
-    
-    const seoData = {
-      title: seo.title,
-      description: seo.description,
-      keywords: seo.keywords,
-      additionalMetaTags: seo.additionalMetaTags
-    };
-    
-    return this.responseService.createReadResponse(
-      14, // ModuleCode.SEO
-      'seo',
-      seoData
-    );
+    try {
+      const seo = await this.seoService.findByPath(input.path);
+
+      const seoData = {
+        title: seo.title,
+        description: seo.description,
+        keywords: seo.keywords,
+        additionalMetaTags: seo.additionalMetaTags
+      };
+
+      return this.responseService.createReadResponse(
+        14, // ModuleCode.SEO
+        'seo',
+        seoData
+      );
+    } catch (error) {
+      // If SEO not found, return fallback data instead of throwing error
+      const fallbackData = {
+        title: 'Products',
+        description: 'Browse our wide range of high-quality products',
+        keywords: 'products, shopping, online store, quality',
+        additionalMetaTags: {}
+      };
+
+      return this.responseService.createReadResponse(
+        14, // ModuleCode.SEO
+        'seo',
+        fallbackData
+      );
+    }
   }
 } 

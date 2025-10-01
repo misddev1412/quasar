@@ -2,7 +2,7 @@
 
 import Layout from '../../../components/layout/Layout';
 import ProfileLayout from '../../../components/layout/ProfileLayout';
-import { Security } from '../../../components/profile/Security';
+// import { Security } from '../../../components/profile/Security';
 import { Shield } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Helmet } from 'react-helmet-async';
@@ -25,7 +25,9 @@ export default function Page() {
             icon: Shield
           }}
         >
-          <Security />
+          <div className="p-6">
+            <p>Security component temporarily disabled for testing</p>
+          </div>
         </ProfileLayout>
       </Layout>
     </>

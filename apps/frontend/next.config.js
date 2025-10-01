@@ -6,6 +6,7 @@ const withNextIntl = createNextIntlPlugin();
 const nextConfig = {
   reactStrictMode: true,
 
+  
   // Image optimization
   images: {
     domains: ['localhost', 'your-domain.com'],
@@ -15,13 +16,13 @@ const nextConfig = {
   // SEO-friendly trailing slashes
   trailingSlash: false,
 
-  // Skip static generation for development
-  output: 'standalone',
-
   // Disable static page generation to avoid Html import issues
   generateBuildId: async () => {
     return 'build-' + Date.now();
   },
+
+  // Skip static generation for error pages
+  skipTrailingSlashRedirect: true,
 
   // Custom webpack config
   webpack: (config) => {

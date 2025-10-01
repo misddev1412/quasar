@@ -167,6 +167,7 @@
       "nav": {
         "home": "Home",
         "products": "Products",
+        "news": "News",
         "categories": "Categories",
         "deals": "Deals",
         "about": "About",
@@ -934,22 +935,74 @@
         "continue": "Continue Shopping"
       },
       "title": "Shopping Cart",
+      "items_count": "{{count}} items",
+      "items_count_single": "{{count}} item",
+      "shipping": {
+        "title": "Shipping Options",
+        "standard": "Standard Shipping",
+        "standard_description": "5-7 business days",
+        "express": "Express Shipping",
+        "express_description": "2-3 business days",
+        "overnight": "Overnight Shipping",
+        "overnight_description": "Next business day",
+        "days": "{{days}} days"
+      },
+      "discount": {
+        "title": "Discount Code",
+        "placeholder": "Enter discount code",
+        "apply": "Apply",
+        "applying": "Applying...",
+        "applied": "Applied",
+        "remove": "Remove",
+        "code": "Code",
+        "description": "Description"
+      },
+      "validation": {
+        "out_of_stock": "Some items in your cart are out of stock",
+        "low_stock": "Some items have limited stock",
+        "quantity_exceeded": "Quantity exceeds available stock",
+        "price_changed": "Item prices have changed since you added them to your cart"
+      },
       "summary": {
         "subtotal": "Subtotal",
         "shipping": "Shipping",
         "tax": "Tax",
+        "discount": "Discount",
         "total": "Total"
       },
       "actions": {
         "checkout": "Proceed to Checkout",
         "clear": "Clear Cart",
-        "continue": "Continue Shopping"
+        "continue": "Continue Shopping",
+        "updating": "Updating...",
+        "removing": "Removing..."
+      },
+      "item": {
+        "quantity": "Quantity",
+        "price": "Price",
+        "total": "Total",
+        "remove": "Remove",
+        "remove_confirm": "Remove this item from your cart?",
+        "variant": "Variant",
+        "in_stock": "In Stock",
+        "out_of_stock": "Out of Stock",
+        "low_stock": "Only {{count}} left",
+        "max_quantity": "Max quantity: {{count}}"
       },
       "clear": {
         "title": "Clear Cart",
         "message": "Are you sure you want to remove all items from your cart? This action cannot be undone.",
         "cancel": "Cancel",
         "confirm": "Clear Cart"
+      },
+      "aria_labels": {
+        "cart_button": "Shopping cart with {{count}} items",
+        "cart_button_empty": "Empty shopping cart",
+        "cart_dropdown": "Cart dropdown",
+        "item_remove": "Remove {{name}} from cart",
+        "quantity_increase": "Increase quantity of {{name}}",
+        "quantity_decrease": "Decrease quantity of {{name}}",
+        "close_cart": "Close shopping cart"
       }
     }
   },

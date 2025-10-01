@@ -454,21 +454,24 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       // Only include variants if there are any to avoid validation issues
       if (variants && variants.length > 0) {
         const transformedVariants = variants.map((variant, index) => {
-          return {
-            id: variant.id,
+          const transformed: {
+            id?: string;
+            name: string;
+            sku?: string;
+            price: number;
+            stockQuantity: number;
+            trackInventory: boolean;
+            allowBackorders: boolean;
+            image?: string | null;
+            isActive: boolean;
+            sortOrder: number;
+            variantItems: { attributeId: string; attributeValueId: string }[];
+          } = {
             name: variant.combinationDisplay || `Variant ${index + 1}`,
-            sku: variant.sku || null,
-            barcode: null,
             price: Number(variant.price) || 0,
-            compareAtPrice: null,
-            costPrice: null,
             stockQuantity: Number(variant.quantity) || 0,
-            lowStockThreshold: null,
             trackInventory: true,
             allowBackorders: false,
-            weight: null,
-            dimensions: null,
-            image: variant.image || null,
             isActive: Boolean(variant.isEnabled),
             sortOrder: index,
             variantItems: Object.entries(variant.attributeCombination || {}).map(([attributeId, attributeValueId]) => ({
@@ -476,6 +479,20 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               attributeValueId,
             })),
           };
+
+          if (variant.id) {
+            transformed.id = variant.id;
+          }
+
+          if (variant.sku && variant.sku.trim() !== '') {
+            transformed.sku = variant.sku.trim();
+          }
+
+          if (variant.image !== undefined) {
+            transformed.image = variant.image;
+          }
+
+          return transformed;
         });
 
         submitData.variants = transformedVariants;

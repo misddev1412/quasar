@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card, Chip } from '@heroui/react';
-import { Category } from './CategoryList';
+import type { Category } from '../../types/product';
 
 interface CategoryCardProps {
   category: Category;
@@ -20,7 +20,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   imageHeight = 'h-48',
   onCategoryClick,
 }) => {
-  const { id, name, slug, description, image, productCount, featured } = category;
+  const { id, name, description, image, productCount } = category;
 
   const handleClick = () => {
     if (onCategoryClick) {
@@ -28,9 +28,12 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
     }
   };
 
+  // Generate slug from name
+  const slug = name.toLowerCase().replace(/\s+/g, '-');
+
   return (
     <Link
-      href={slug ? `/categories/${slug}` : '#'}
+      href={`/categories/${slug}`}
       className={`group ${className}`}
       onClick={handleClick}
     >
@@ -49,13 +52,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
             </div>
           )}
 
-          {/* Featured Badge */}
-          {featured && (
-            <Chip size="sm" color="primary" className="absolute top-2 left-2">
-              Featured
-            </Chip>
-          )}
-
+  
           {/* Product Count Badge */}
           {showProductCount && productCount !== undefined && (
             <Chip

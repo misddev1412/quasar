@@ -30,19 +30,41 @@ const productMediaSchema = z.object({
   sortOrder: z.number().int(),
 });
 
+const productVariantItemSchema = z.object({
+  id: z.string(),
+  attributeId: z.string().nullable().optional(),
+  attributeValueId: z.string().nullable().optional(),
+  sortOrder: z.number().int().optional(),
+  attribute: z.object({
+    id: z.string(),
+    name: z.string(),
+    displayName: z.string().nullable().optional(),
+    type: z.string().optional(),
+  }).optional(),
+  attributeValue: z.object({
+    id: z.string(),
+    value: z.string(),
+    displayValue: z.string().nullable().optional(),
+  }).optional(),
+});
+
 // Product variant schema
 const productVariantSchema = z.object({
   id: z.string(),
-  sku: z.string(),
+  sku: z.string().nullable().optional(),
   name: z.string(),
-  price: z.number().positive(),
-  comparePrice: z.number().positive().optional(),
-  costPrice: z.number().positive().optional(),
+  price: z.number().nonnegative(),
+  compareAtPrice: z.number().nonnegative().nullable().optional(),
+  costPrice: z.number().nonnegative().nullable().optional(),
   stockQuantity: z.number().int().min(0),
-  weight: z.number().positive().optional(),
-  dimensions: z.string().optional(),
+  weight: z.number().nonnegative().nullable().optional(),
+  dimensions: z.string().nullable().optional(),
   isActive: z.boolean(),
-  sortOrder: z.number().int(),
+  sortOrder: z.number().int().nullable().optional(),
+  trackInventory: z.boolean().optional(),
+  allowBackorders: z.boolean().optional(),
+  attributes: z.record(z.string().nullable()).optional(),
+  variantItems: z.array(productVariantItemSchema).optional(),
 });
 
 // Product tag schema
@@ -138,6 +160,7 @@ export {
   productBaseSchema,
   productMediaSchema,
   productVariantSchema,
+  productVariantItemSchema,
   productTagSchema,
   brandSchema,
   categorySchema,

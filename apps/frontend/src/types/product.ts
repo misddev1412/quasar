@@ -1,6 +1,7 @@
 export interface Product {
   id: string;
   name: string;
+  slug: string;
   description?: string;
   price: number;
   stock?: number;
@@ -87,4 +88,45 @@ export interface ProductFilters {
   categories: Array<{ id: string; name: string; count: number }>;
   brands: Array<{ id: string; name: string; count: number }>;
   priceRange: { min: number; max: number };
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  description?: string;
+  parentId?: string;
+  image?: string;
+  isActive: boolean;
+  sortOrder: number;
+  level: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+  children?: Category[];
+  parent?: Category;
+  productCount?: number;
+  translations?: CategoryTranslation[];
+}
+
+export interface CategoryTranslation {
+  id: string;
+  categoryId: string;
+  locale: string;
+  name?: string;
+  description?: string;
+  slug?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  metaKeywords?: string;
+}
+
+export interface CategoryTree {
+  id: string;
+  name: string;
+  description?: string;
+  image?: string;
+  slug?: string;
+  level: number;
+  sortOrder: number;
+  productCount?: number;
+  children: CategoryTree[];
 }

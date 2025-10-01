@@ -1,6 +1,6 @@
 import { trpc } from '../utils/trpc';
 import { useToast } from '../contexts/ToastContext';
-import type { User, Product, Order, PaginatedResponse, Language, SEOData } from '../types/trpc';
+import type { User, Product, Order, PaginatedApiResponse, Language, SEOData } from '../types/trpc';
 
 // Import the Product interface from the updated ProductCard
 import type { Product as BackendProduct } from '../components/ecommerce/ProductCard';

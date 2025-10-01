@@ -132,38 +132,67 @@ export const AddressBook: React.FC = () => {
     { enabled: !!formData.provinceId }
   );
 
-  // Check if Vietnam is selected (VN is the country code for Vietnam)
-  const isVietnamSelected = formData.countryId === '239';
+  // Check if Vietnam is selected
+  const vietnamCountry = countries.find(c => c.code === 'VN');
+  const isVietnamSelected = vietnamCountry ? formData.countryId === vietnamCountry.id : false;
 
   useEffect(() => {
     if (getAddressesQuery.data) {
-      setAddresses(getAddressesQuery.data);
+      setAddresses(getAddressesQuery.data as Address[]);
     }
-  }, [getAddressesQuery.data]);
+    if (getAddressesQuery.error) {
+      showToast({
+        type: 'error',
+        title: t('common.error'),
+        description: t('pages.profile.addresses.load_error')
+      });
+    }
+  }, [getAddressesQuery.data, getAddressesQuery.error]);
 
   useEffect(() => {
     if (getCountriesQuery.data) {
-      setCountries(getCountriesQuery.data);
+      setCountries(getCountriesQuery.data as Country[]);
     }
-  }, [getCountriesQuery.data]);
+    if (getCountriesQuery.error) {
+      showToast({
+        type: 'error',
+        title: t('common.error'),
+        description: t('pages.profile.addresses.countries_load_error')
+      });
+    }
+  }, [getCountriesQuery.data, getCountriesQuery.error]);
 
   // Load provinces when country changes - handled automatically by query
   // Load wards when province changes - handled automatically by new query
 
   useEffect(() => {
     if (getAdministrativeDivisionsQuery.data) {
-      const filtered = getAdministrativeDivisionsQuery.data.filter(
+      const filtered = (getAdministrativeDivisionsQuery.data as AdministrativeDivision[]).filter(
         (div: AdministrativeDivision) => div.type === 'PROVINCE'
       );
       setProvinces(filtered);
     }
-  }, [getAdministrativeDivisionsQuery.data]);
+    if (getAdministrativeDivisionsQuery.error) {
+      showToast({
+        type: 'error',
+        title: t('common.error'),
+        description: t('pages.profile.addresses.provinces_load_error')
+      });
+    }
+  }, [getAdministrativeDivisionsQuery.data, getAdministrativeDivisionsQuery.error]);
 
   useEffect(() => {
     if (getAdministrativeDivisionsByParentIdQuery.data) {
-      setWards(getAdministrativeDivisionsByParentIdQuery.data);
+      setWards(getAdministrativeDivisionsByParentIdQuery.data as AdministrativeDivision[]);
     }
-  }, [getAdministrativeDivisionsByParentIdQuery.data]);
+    if (getAdministrativeDivisionsByParentIdQuery.error) {
+      showToast({
+        type: 'error',
+        title: t('common.error'),
+        description: t('pages.profile.addresses.wards_load_error')
+      });
+    }
+  }, [getAdministrativeDivisionsByParentIdQuery.data, getAdministrativeDivisionsByParentIdQuery.error]);
 
   const resetForm = () => {
     setFormData({
@@ -203,8 +232,8 @@ export const AddressBook: React.FC = () => {
         countryId: value as string,
         provinceId: '',
         wardId: '',
-        // Clear Vietnam-specific hidden fields when switching to Vietnam
-        ...(isVietnam && {
+        // Clear Vietnam-specific hidden fields when switching FROM Vietnam
+        ...(!isVietnam && {
           companyName: '',
           addressLine2: '',
           postalCode: ''
@@ -482,7 +511,7 @@ export const AddressBook: React.FC = () => {
                   </label>
                   <select
                     value={formData.addressType}
-                    onChange={(e) => handleInputChange('addressType', e.target.value as any)}
+                    onChange={(e) => handleInputChange('addressType', e.target.value as 'BILLING' | 'SHIPPING' | 'BOTH')}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm"
                   >
                     <option value="BILLING">{t('pages.profile.addresses.type_billing')}</option>

@@ -13,6 +13,10 @@ import { SEOModule } from '../modules/seo/seo.module';
 import { StorageModule } from '../modules/storage/storage.module';
 import { NotificationsModule } from '../modules/notifications/notifications.module';
 import { SupportModule } from '../modules/support/support.module';
+import { SharedModule } from '../modules/shared/shared.module';
+import { ResponseService } from '../modules/shared/services/response.service';
+import { ClientNewsRouter } from './routers/client/news.router';
+import { ClientCategoriesRouter } from './routers/client/categories.router';
 
 @Module({
   imports: [
@@ -30,6 +34,12 @@ import { SupportModule } from '../modules/support/support.module';
     StorageModule,
     NotificationsModule,
     SupportModule,
+    SharedModule,
+  ],
+  providers: [
+    ClientNewsRouter,
+    ClientCategoriesRouter,
+    ResponseService,
   ],
 })
 export class AppRouterModule {}

@@ -58,7 +58,19 @@ export class ClientProductsRouter {
         page,
         limit,
         filters,
-        relations: ['brand', 'supplier', 'warranty', 'variants', 'media', 'tags', 'productCategories', 'productCategories.category'],
+        relations: [
+          'brand',
+          'supplier',
+          'warranty',
+          'variants',
+          'variants.variantItems',
+          'variants.variantItems.attribute',
+          'variants.variantItems.attributeValue',
+          'media',
+          'tags',
+          'productCategories',
+          'productCategories.category'
+        ],
       });
 
       // Format response
@@ -98,6 +110,9 @@ export class ClientProductsRouter {
         'supplier',
         'warranty',
         'variants',
+        'variants.variantItems',
+        'variants.variantItems.attribute',
+        'variants.variantItems.attributeValue',
         'media',
         'tags',
         'productCategories',
@@ -139,7 +154,19 @@ export class ClientProductsRouter {
         filters: {
           search: slug.replace(/-/g, ' '),
         },
-        relations: ['brand', 'supplier', 'warranty', 'variants', 'media', 'tags', 'productCategories', 'productCategories.category'],
+        relations: [
+          'brand',
+          'supplier',
+          'warranty',
+          'variants',
+          'variants.variantItems',
+          'variants.variantItems.attribute',
+          'variants.variantItems.attributeValue',
+          'media',
+          'tags',
+          'productCategories',
+          'productCategories.category'
+        ],
       });
 
       if (!product.items || product.items.length === 0) {
@@ -174,7 +201,19 @@ export class ClientProductsRouter {
           isActive: true,
           status: ProductStatus.ACTIVE,
         },
-        relations: ['brand', 'supplier', 'warranty', 'variants', 'media', 'tags', 'productCategories', 'productCategories.category'],
+        relations: [
+          'brand',
+          'supplier',
+          'warranty',
+          'variants',
+          'variants.variantItems',
+          'variants.variantItems.attribute',
+          'variants.variantItems.attributeValue',
+          'media',
+          'tags',
+          'productCategories',
+          'productCategories.category'
+        ],
       });
 
       const formattedResult = {
@@ -210,7 +249,19 @@ export class ClientProductsRouter {
           isActive: true,
           status: ProductStatus.ACTIVE,
         },
-        relations: ['brand', 'supplier', 'warranty', 'variants', 'media', 'tags', 'productCategories', 'productCategories.category'],
+        relations: [
+          'brand',
+          'supplier',
+          'warranty',
+          'variants',
+          'variants.variantItems',
+          'variants.variantItems.attribute',
+          'variants.variantItems.attributeValue',
+          'media',
+          'tags',
+          'productCategories',
+          'productCategories.category'
+        ],
       });
 
       const formattedResult = {
@@ -257,7 +308,19 @@ export class ClientProductsRouter {
         page: 1,
         limit: 50,
         filters,
-        relations: ['brand', 'supplier', 'warranty', 'variants', 'media', 'tags', 'productCategories', 'productCategories.category'],
+        relations: [
+          'brand',
+          'supplier',
+          'warranty',
+          'variants',
+          'variants.variantItems',
+          'variants.variantItems.attribute',
+          'variants.variantItems.attributeValue',
+          'media',
+          'tags',
+          'productCategories',
+          'productCategories.category'
+        ],
       });
 
       const formattedResult = {
@@ -417,19 +480,57 @@ export class ClientProductsRouter {
         name: tag.name,
         color: tag.color,
       })) || [] : [],
-      variants: Array.isArray(product.variants) ? product.variants?.map((variant: any) => ({
-        id: variant.id,
-        sku: variant.sku,
-        name: variant.name,
-        price: variant.price,
-        comparePrice: variant.comparePrice,
-        costPrice: variant.costPrice,
-        stockQuantity: variant.stockQuantity,
-        weight: variant.weight,
-        dimensions: variant.dimensions,
-        isActive: variant.isActive,
-        sortOrder: variant.sortOrder,
-      })) || [] : [],
+      variants: Array.isArray(product.variants) ? product.variants?.map((variant: any) => {
+        const variantItems = Array.isArray(variant.variantItems)
+          ? variant.variantItems.map((item: any) => {
+            const attributeId = item.attributeId || item.attribute?.id || null;
+            const attributeValueId = item.attributeValueId || item.attributeValue?.id || null;
+
+            return {
+              id: item.id,
+              attributeId,
+              attributeValueId,
+              sortOrder: item.sortOrder ?? 0,
+              attribute: item.attribute ? {
+                id: item.attribute.id,
+                name: item.attribute.name,
+                displayName: item.attribute.displayName,
+                type: item.attribute.type,
+              } : undefined,
+              attributeValue: item.attributeValue ? {
+                id: item.attributeValue.id,
+                value: item.attributeValue.value,
+                displayValue: item.attributeValue.displayValue,
+              } : undefined,
+            };
+          }).filter((item: any) => Boolean(item.attributeId && item.attributeValueId))
+          : [];
+
+        const attributeSelections: Record<string, string> = {};
+        variantItems.forEach((item: any) => {
+          if (item.attributeId && item.attributeValueId) {
+            attributeSelections[item.attributeId] = item.attributeValueId;
+          }
+        });
+
+        return {
+          id: variant.id,
+          sku: variant.sku,
+          name: variant.name,
+          price: Number(variant.price) || 0,
+          compareAtPrice: variant.compareAtPrice ?? variant.comparePrice ?? null,
+          costPrice: variant.costPrice ?? null,
+          stockQuantity: Number(variant.stockQuantity) || 0,
+          weight: variant.weight ?? null,
+          dimensions: variant.dimensions ?? null,
+          isActive: variant.isActive,
+          sortOrder: variant.sortOrder ?? 0,
+          trackInventory: variant.trackInventory ?? false,
+          allowBackorders: variant.allowBackorders ?? false,
+          attributes: attributeSelections,
+          variantItems,
+        };
+      }) || [] : [],
       media: Array.isArray(product.media) ? product.media?.map((media: any) => ({
         id: media.id,
         url: media.url,
