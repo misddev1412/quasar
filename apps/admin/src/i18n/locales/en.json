@@ -1724,6 +1724,9 @@
     "categories_description": "Select one or more categories for this product",
     "status": "Status",
     "variants": "Variants",
+    "specifications": "Specifications",
+    "specifications_title": "Product Specifications",
+    "specifications_description": "Define structured attributes or technical details that will be displayed on the product page.",
     "images": "Images",
     "description": "Description",
     "searchPlaceholder": "Search products by name or SKU...",
@@ -2575,6 +2578,120 @@
       "api_endpoint": "API Endpoint",
       "api_key_placeholder": "Enter your third-party API key",
       "api_secret_placeholder": "Enter your API secret"
+    }
+  }
+},
+  "product": {
+  "detail": {
+    "breadcrumb": {
+      "home": "Home",
+      "categoryFallback": "Category"
+    },
+    "overview": {
+      "title": "Product Overview",
+      "subtitle": "Key information about this product",
+      "actions": {
+        "viewReviews": "View Reviews"
+      },
+      "features": [
+        "Premium quality materials",
+        "30-day money-back guarantee",
+        "Free shipping on orders over $50",
+        "1-year warranty included",
+        "Secure packaging",
+        "Environmentally friendly"
+      ]
+    },
+    "specifications": {
+      "title": "Specifications",
+      "subtitle": "Detailed technical information",
+      "empty": "Specifications not available.",
+      "autoLabels": {
+        "brand": "Brand",
+        "sku": "SKU",
+        "category": "Category",
+        "status": "Status",
+        "weight": "Weight",
+        "dimensions": "Dimensions"
+      }
+    },
+    "tabs": {
+      "details": "Details",
+      "reviews": "Reviews",
+      "questions": "Questions"
+    },
+    "reviews": {
+      "title": "Customer Reviews",
+      "subtitle": "Feedback from real customers",
+      "countLabel": "{count, plural, one {{count} review} other {{count} reviews}}",
+      "shareTitle": "Share your experience",
+      "shareSubtitle": "Tell others what you liked or what could be better."
+    },
+    "questions": {
+      "title": "Customer Questions",
+      "subtitle": "Discuss with other shoppers",
+      "countLabel": "{count, plural, one {{count} comment} other {{count} comments}}"
+    },
+    "actions": {
+      "addToCart": "Add to Cart",
+      "outOfStock": "Out of Stock",
+      "quickView": "Quick View"
+    },
+    "variants": {
+      "inStock": "{count, plural, one {{count} item in stock} other {{count} items in stock}}",
+      "outOfStock": "Out of stock"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "videos": {
+      "itemTitle": "{name} Video"
+    },
+    "description": {
+      "title": "Description",
+      "fallback": "Detailed description will be available soon.",
+      "readMore": "Read more",
+      "readLess": "Show less",
+      "defaults": {
+        "materials": "High-quality materials sourced from sustainable suppliers",
+        "careInstructions": [
+          "Clean with soft, dry cloth",
+          "Avoid exposure to direct sunlight",
+          "Store in a cool, dry place",
+          "Handle with care"
+        ],
+        "dimensions": "Standard size",
+        "weight": "Standard weight",
+        "origin": "Manufactured with quality standards",
+        "warranty": "1-year manufacturer warranty"
+      },
+      "details": {
+        "labels": {
+          "materials": "Materials",
+          "dimensions": "Dimensions",
+          "weight": "Weight",
+          "origin": "Origin",
+          "warranty": "Warranty",
+          "careInstructions": "Care Instructions"
+        }
+      },
+      "policies": [
+        {
+          "title": "Free Shipping",
+          "description": "On orders over $50"
+        },
+        {
+          "title": "Easy Returns",
+          "description": "30-day return policy"
+        },
+        {
+          "title": "Warranty",
+          "description": "1-year coverage included"
+        }
+      ],
+      "videos": {
+        "cta": "Watch Video"
+      }
     }
   }
 }

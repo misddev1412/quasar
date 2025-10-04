@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { ProductRepository, ProductFilters, PaginatedProducts } from '../repositories/product.repository';
 import { ProductMediaRepository, CreateProductMediaDto } from '../repositories/product-media.repository';
 import { ProductVariantRepository, CreateProductVariantDto, UpdateProductVariantDto } from '../repositories/product-variant.repository';
+import { ProductSpecificationRepository, CreateProductSpecificationDto } from '../repositories/product-specification.repository';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { Product, ProductStatus } from '../entities/product.entity';
 import { MediaType } from '../entities/product-media.entity';
@@ -46,6 +47,7 @@ export class AdminProductService {
     private readonly productRepository: ProductRepository,
     private readonly productMediaRepository: ProductMediaRepository,
     private readonly productVariantRepository: ProductVariantRepository,
+    private readonly productSpecificationRepository: ProductSpecificationRepository,
     private readonly responseHandler: ResponseService,
     private readonly productTransformer: ProductTransformer,
   ) {}
@@ -56,7 +58,7 @@ export class AdminProductService {
       const result = await this.productRepository.findAll({
         page: filters.page,
         limit: filters.limit,
-        relations: ['media', 'variants', 'variants.variantItems', 'variants.variantItems.attribute', 'variants.variantItems.attributeValue', 'brand', 'productCategories', 'productCategories.category'], // Load same relations as detail endpoint
+        relations: ['media', 'variants', 'variants.variantItems', 'variants.variantItems.attribute', 'variants.variantItems.attributeValue', 'brand', 'productCategories', 'productCategories.category', 'specifications'],
         filters: {
           search: filters.search,
           brandId: filters.brandId,
@@ -96,7 +98,7 @@ export class AdminProductService {
     }
   }
 
-  async getProductById(id: string, relations: string[] = ['media', 'variants', 'variants.variantItems', 'variants.variantItems.attribute', 'variants.variantItems.attributeValue', 'brand', 'productCategories', 'productCategories.category']): Promise<TransformedProduct> {
+  async getProductById(id: string, relations: string[] = ['media', 'variants', 'variants.variantItems', 'variants.variantItems.attribute', 'variants.variantItems.attributeValue', 'brand', 'productCategories', 'productCategories.category', 'specifications']): Promise<TransformedProduct> {
     const product = await this.productRepository.findById(id, relations);
     if (!product) {
       throw new NotFoundException('Product not found');
@@ -153,6 +155,10 @@ export class AdminProductService {
       // Handle media creation
       if (productData.media && Array.isArray(productData.media)) {
         await this.handleProductMedia(product.id, productData.media);
+      }
+
+      if (productData.specifications && Array.isArray(productData.specifications)) {
+        await this.handleProductSpecifications(product.id, productData.specifications);
       }
 
       // Handle variants creation
@@ -233,6 +239,14 @@ export class AdminProductService {
       // Handle media update
       if (productData.media && Array.isArray(productData.media)) {
         await this.handleProductMedia(id, productData.media);
+      }
+
+      if (productData.specifications !== undefined) {
+        if (Array.isArray(productData.specifications)) {
+          await this.handleProductSpecifications(id, productData.specifications);
+        } else {
+          await this.productSpecificationRepository.deleteByProductId(id);
+        }
       }
 
       // Handle variants update - only if variants are explicitly provided
@@ -366,6 +380,29 @@ export class AdminProductService {
     } catch (error) {
       throw new Error('Failed to update product variants: ' + error.message);
     }
+  }
+
+  private async handleProductSpecifications(productId: string, specifications: any[]): Promise<void> {
+    const normalized = specifications
+      .filter((spec) => spec && typeof spec.name === 'string' && spec.name.trim() !== '' && spec.value !== undefined && spec.value !== null)
+      .map((spec, index): CreateProductSpecificationDto => {
+        const parsedOrder = spec.sortOrder !== undefined ? Number(spec.sortOrder) : index;
+        const sortOrder = Number.isFinite(parsedOrder) ? parsedOrder : index;
+
+        return {
+          productId,
+          name: String(spec.name).trim(),
+          value: String(spec.value).trim(),
+          sortOrder,
+        };
+      });
+
+    if (normalized.length === 0) {
+      await this.productSpecificationRepository.deleteByProductId(productId);
+      return;
+    }
+
+    await this.productSpecificationRepository.replaceForProduct(productId, normalized);
   }
 
   private async handleProductCategories(productId: string, categoryIds: string[]): Promise<void> {

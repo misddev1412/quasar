@@ -74,6 +74,13 @@ const productTagSchema = z.object({
   color: z.string().optional(),
 });
 
+const productSpecificationSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  value: z.string(),
+  sortOrder: z.number().int().optional(),
+});
+
 // Brand schema
 const brandSchema = z.object({
   id: z.string(),
@@ -121,6 +128,7 @@ const productSchema = productBaseSchema.extend({
   variants: z.array(productVariantSchema).optional(),
   media: z.array(productMediaSchema).optional(),
   categories: z.array(categorySchema).optional(),
+  specifications: z.array(productSpecificationSchema).optional(),
 });
 
 // Product list query schema
@@ -162,6 +170,7 @@ export {
   productVariantSchema,
   productVariantItemSchema,
   productTagSchema,
+  productSpecificationSchema,
   brandSchema,
   categorySchema,
   supplierSchema,

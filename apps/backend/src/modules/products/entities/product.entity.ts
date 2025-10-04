@@ -11,6 +11,7 @@ import { ProductAttribute } from './product-attribute.entity';
 import { ProductMedia } from './product-media.entity';
 import { ProductCategory } from './product-category.entity';
 import { Wishlist } from './wishlist.entity';
+import { ProductSpecification } from './product-specification.entity';
 
 export enum ProductStatus {
   DRAFT = 'DRAFT',
@@ -168,6 +169,9 @@ export class Product extends BaseEntity {
 
   @OneToMany(() => ProductAttribute, (productAttribute) => productAttribute.product, { lazy: true })
   productAttributes: Promise<ProductAttribute[]>;
+
+  @OneToMany(() => ProductSpecification, (specification) => specification.product, { eager: true })
+  specifications: ProductSpecification[];
 
   @OneToMany(() => ProductMedia, (media) => media.product)
   media: ProductMedia[];

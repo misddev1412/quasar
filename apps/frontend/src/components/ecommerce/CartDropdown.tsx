@@ -49,6 +49,11 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
   const [discountCode, setDiscountCode] = useState('');
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
 
+  const cartLabel =
+    summary.totalItems > 0
+      ? t('aria_labels.cart_button', { count: summary.totalItems })
+      : t('aria_labels.cart_button_empty');
+
   // Sample shipping options - in production, these would come from an API
   const shippingOptions: ShippingOption[] = [
     {
@@ -230,7 +235,7 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {t('title')} ({summary.totalItems === 1 ? t('items_count_single', { count: summary.totalItems }) : t('items_count', { count: summary.totalItems })})
+            {cartLabel}
           </h3>
         </div>
       </div>

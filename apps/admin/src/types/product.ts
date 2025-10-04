@@ -83,6 +83,24 @@ export interface ProductMedia {
   updatedAt: Date;
 }
 
+export interface ProductSpecification {
+  id: string;
+  productId: string;
+  name: string;
+  value: string;
+  sortOrder: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ProductSpecificationInput {
+  id?: string;
+  productId?: string;
+  name: string;
+  value: string;
+  sortOrder?: number;
+}
+
 export interface Warranty {
   id: string;
   name: string;
@@ -116,6 +134,7 @@ export interface Product {
   media?: ProductMedia[];
   variants?: ProductVariant[];
   attributes?: ProductAttribute[];
+  specifications?: ProductSpecification[];
   tags?: ProductTag[] | string[];
   metaTitle?: string;
   metaDescription?: string;
@@ -314,6 +333,7 @@ export interface CreateProductFormData {
   images?: string[];
   media?: ProductMedia[];
   tags?: string[];
+  specifications?: ProductSpecificationInput[];
   metaTitle?: string;
   metaDescription?: string;
   metaKeywords?: string;

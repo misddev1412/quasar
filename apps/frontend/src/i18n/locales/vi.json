@@ -975,13 +975,127 @@
         "confirm": "Xóa giỏ hàng"
       },
       "aria_labels": {
-        "cart_button": "Giỏ hàng với {{count}} sản phẩm",
-        "cart_button_empty": "Giỏ hàng trống",
+        "cart_button": "Giỏ hàng ({{count}} sản phẩm)",
+        "cart_button_empty": "Giỏ hàng (0 sản phẩm)",
         "cart_dropdown": "Dropdown giỏ hàng",
         "item_remove": "Xóa {{name}} khỏi giỏ hàng",
         "quantity_increase": "Tăng số lượng {{name}}",
         "quantity_decrease": "Giảm số lượng {{name}}",
         "close_cart": "Đóng giỏ hàng"
+      }
+    }
+  },
+  "product": {
+    "detail": {
+      "breadcrumb": {
+        "home": "Trang chủ",
+        "categoryFallback": "Danh mục"
+      },
+      "overview": {
+        "title": "Tổng quan sản phẩm",
+        "subtitle": "Những thông tin quan trọng về sản phẩm",
+        "actions": {
+          "viewReviews": "Xem đánh giá"
+        },
+        "features": [
+          "Chất liệu cao cấp",
+          "Hoàn tiền trong 30 ngày",
+          "Miễn phí giao hàng cho đơn từ 50$",
+          "Bảo hành 1 năm đi kèm",
+          "Đóng gói an toàn",
+          "Thân thiện với môi trường"
+        ]
+      },
+      "specifications": {
+        "title": "Thông số kỹ thuật",
+        "subtitle": "Thông tin chi tiết về sản phẩm",
+        "empty": "Chưa có thông số nào.",
+        "autoLabels": {
+          "brand": "Thương hiệu",
+          "sku": "SKU",
+          "category": "Danh mục",
+          "status": "Trạng thái",
+          "weight": "Khối lượng",
+          "dimensions": "Kích thước"
+        }
+      },
+      "tabs": {
+        "details": "Chi tiết",
+        "reviews": "Đánh giá",
+        "questions": "Hỏi đáp"
+      },
+      "reviews": {
+        "title": "Đánh giá của khách hàng",
+        "subtitle": "Những phản hồi thực tế",
+        "countLabel": "{count, plural, one {{count} đánh giá} other {{count} đánh giá}}",
+        "shareTitle": "Chia sẻ trải nghiệm của bạn",
+        "shareSubtitle": "Hãy cho mọi người biết điều bạn thích hoặc chưa hài lòng."
+      },
+      "questions": {
+        "title": "Câu hỏi từ khách hàng",
+        "subtitle": "Trao đổi cùng những người mua khác",
+        "countLabel": "{count, plural, one {{count} bình luận} other {{count} bình luận}}"
+      },
+      "actions": {
+        "addToCart": "Thêm vào giỏ",
+        "outOfStock": "Hết hàng",
+        "quickView": "Xem nhanh"
+      },
+      "variants": {
+        "inStock": "{count, plural, one {Còn {count} sản phẩm} other {Còn {count} sản phẩm}}",
+        "outOfStock": "Hết hàng"
+      },
+      "tags": {
+        "title": "Thẻ sản phẩm"
+      },
+      "videos": {
+        "itemTitle": "Video {name}"
+      },
+      "description": {
+        "title": "Mô tả",
+        "fallback": "Nội dung mô tả sẽ được cập nhật trong thời gian tới.",
+        "readMore": "Xem thêm",
+        "readLess": "Thu gọn",
+        "defaults": {
+          "materials": "Chất liệu cao cấp được chọn lọc kỹ lưỡng",
+          "careInstructions": [
+            "Lau sạch bằng khăn mềm và khô",
+            "Tránh tiếp xúc trực tiếp với ánh nắng",
+            "Bảo quản nơi khô ráo, thoáng mát",
+            "Xử lý nhẹ nhàng khi sử dụng"
+          ],
+          "dimensions": "Kích thước tiêu chuẩn",
+          "weight": "Khối lượng tiêu chuẩn",
+          "origin": "Sản xuất theo quy chuẩn chất lượng",
+          "warranty": "Bảo hành chính hãng 1 năm"
+        },
+        "details": {
+          "labels": {
+            "materials": "Chất liệu",
+            "dimensions": "Kích thước",
+            "weight": "Khối lượng",
+            "origin": "Xuất xứ",
+            "warranty": "Bảo hành",
+            "careInstructions": "Hướng dẫn bảo quản"
+          }
+        },
+        "policies": [
+          {
+            "title": "Miễn phí giao hàng",
+            "description": "Áp dụng cho đơn từ 50$"
+          },
+          {
+            "title": "Đổi trả dễ dàng",
+            "description": "Hỗ trợ đổi trả trong 30 ngày"
+          },
+          {
+            "title": "Bảo hành",
+            "description": "Bao gồm bảo hành 1 năm"
+          }
+        ],
+        "videos": {
+          "cta": "Xem video"
+        }
       }
     }
   },

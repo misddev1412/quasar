@@ -4,7 +4,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import clsx from 'clsx';
 import { Button, Card, Chip, Modal, ModalContent, ModalHeader, ModalBody, Tabs, Tab } from '@heroui/react';
 import Link from 'next/link';
-import { FiHeart, FiHeart as FiHeartOutline, FiCheck } from 'react-icons/fi';
+import { useTranslations } from 'next-intl';
+import { FiHeart, FiHeart as FiHeartOutline } from 'react-icons/fi';
 import ProductGallery from './ProductGallery';
 import ProductDescription from './ProductDescription';
 import ProductVideo from './ProductVideo';
@@ -72,6 +73,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   loading = false,
   className = '',
 }) => {
+  const t = useTranslations('product.detail');
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showQuickView, setShowQuickView] = useState(false);
@@ -93,6 +95,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     categories,
     brand,
     tags,
+    specifications,
   } = product;
 
   // Get primary image or first image
@@ -113,12 +116,12 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   }, [product.variants]);
 
   const breadcrumbItems = useMemo(() => {
-    const items = [{ label: 'Home', href: '/' }];
+    const items = [{ label: t('breadcrumb.home'), href: '/' }];
 
     if (categories && categories.length > 0) {
       const primaryCategory = categories[0] as any;
       if (primaryCategory) {
-        const categoryName = primaryCategory.name ?? primaryCategory?.title ?? 'Category';
+        const categoryName = primaryCategory.name ?? primaryCategory?.title ?? t('breadcrumb.categoryFallback');
         const categorySlug = primaryCategory.slug;
 
         items.push({
@@ -131,7 +134,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     items.push({ label: name, isCurrent: true });
 
     return items;
-  }, [categories, name]);
+  }, [categories, name, t]);
 
   const variantAttributes = useMemo(
     () => buildVariantAttributes(product.variants),
@@ -294,13 +297,19 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     .map(m => m.url) || [getPrimaryImage()];
 
   // Get videos
-  const productVideos = media
-    ?.filter(m => m.type === 'video')
-    .map(m => ({
-      url: m.url,
-      title: `${name} Video`,
-      thumbnail: undefined,
-    })) || [];
+  const productVideos = useMemo(() => {
+    if (!media) {
+      return [];
+    }
+
+    return media
+      .filter((m) => m.type === 'video')
+      .map((m) => ({
+        url: m.url,
+        title: t('videos.itemTitle', { name }),
+        thumbnail: undefined,
+      }));
+  }, [media, name, t]);
 
   // Check if product is in stock
   const inStock = isActive && status === 'ACTIVE';
@@ -312,52 +321,105 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const originalPrice = selectedVariant?.compareAtPrice ||
     (variants && variants.length > 0 ? variants[0].compareAtPrice : undefined);
 
-  // Generate features from product data
-  const productFeatures = [
-    'Premium quality materials',
-    '30-day money-back guarantee',
-    'Free shipping on orders over $50',
-    '1-year warranty included',
-    'Secure packaging',
-    'Environmentally friendly',
-  ];
+  const productFeatures = useMemo(() => {
+    const raw = t.raw('overview.features');
+    return Array.isArray(raw) ? (raw as string[]) : [];
+  }, [t]);
 
-  // Generate specifications
-  const productSpecifications = {
-    brand: (brand as any)?.name || 'N/A',
-    sku: sku || 'N/A',
-    category: (categories?.[0] as any)?.name || 'N/A',
-    status: status || 'N/A',
-    weight: variants?.[0]?.weight || 'N/A',
-    dimensions: variants?.[0]?.dimensions || 'N/A',
+  const defaultDescriptionDetails = useMemo(() => {
+    const raw = t.raw('description.defaults');
+    if (raw && typeof raw === 'object') {
+      return raw as {
+        materials?: string;
+        careInstructions?: string[];
+        dimensions?: string;
+        weight?: string;
+        origin?: string;
+        warranty?: string;
+      };
+    }
+    return {};
+  }, [t]);
+
+  const specificationItems = useMemo(() => {
+    const explicit = (specifications ?? [])
+      .filter((spec) => spec && typeof spec.name === 'string' && spec.name.trim() !== '' && spec.value !== undefined && spec.value !== null && String(spec.value).trim() !== '')
+      .map((spec) => ({
+        id: spec.id ?? `spec-${spec.name}-${spec.sortOrder ?? ''}`,
+        name: spec.name.trim(),
+        value: String(spec.value).trim(),
+        sortOrder: spec.sortOrder ?? 0,
+      }))
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+
+    const existingNames = new Set(explicit.map((spec) => spec.name.toLowerCase()));
+
+    const autoEntries: { id: string; name: string; value: string; sortOrder: number }[] = [];
+    const appendAuto = (name: string, rawValue: unknown) => {
+      if (rawValue === undefined || rawValue === null) {
+        return;
+      }
+
+      const value = typeof rawValue === 'string' ? rawValue : String(rawValue);
+      if (!value.trim()) {
+        return;
+      }
+
+      const lowerName = name.toLowerCase();
+      if (existingNames.has(lowerName)) {
+        return;
+      }
+
+      autoEntries.push({
+        id: `auto-${lowerName}`,
+        name,
+        value: value.trim(),
+        sortOrder: explicit.length + autoEntries.length,
+      });
+      existingNames.add(lowerName);
+    };
+
+    const autoLabels = {
+      brand: t('specifications.autoLabels.brand'),
+      sku: t('specifications.autoLabels.sku'),
+      category: t('specifications.autoLabels.category'),
+      status: t('specifications.autoLabels.status'),
+      weight: t('specifications.autoLabels.weight'),
+      dimensions: t('specifications.autoLabels.dimensions'),
+    };
+
+    appendAuto(autoLabels.brand, (brand as any)?.name);
+    appendAuto(autoLabels.sku, sku);
+    appendAuto(autoLabels.category, (categories?.[0] as any)?.name);
+    appendAuto(autoLabels.status, status);
+    appendAuto(autoLabels.weight, variants?.[0]?.weight);
+    appendAuto(autoLabels.dimensions, variants?.[0]?.dimensions);
+
+    return [...explicit, ...autoEntries];
+  }, [specifications, brand, sku, categories, status, variants, t]);
+
+  const formatSpecificationLabel = (label: string) => {
+    const withSpaces = label.replace(/([A-Z])/g, ' $1').replace(/[_-]/g, ' ');
+    return withSpaces.replace(/\b\w/g, (char) => char.toUpperCase()).trim();
   };
 
   // Product details
   const productDetails = {
-    materials: 'High-quality materials sourced from sustainable suppliers',
-    careInstructions: [
-      'Clean with soft, dry cloth',
-      'Avoid exposure to direct sunlight',
-      'Store in a cool, dry place',
-      'Handle with care',
-    ],
-    dimensions: variants?.[0]?.dimensions || 'Standard size',
-    weight: (variants?.[0]?.weight?.toString() || 'Standard weight'),
-    origin: 'Manufactured with quality standards',
-    warranty: '1-year manufacturer warranty',
+    materials: defaultDescriptionDetails.materials ?? '',
+    careInstructions: Array.isArray(defaultDescriptionDetails.careInstructions)
+      ? defaultDescriptionDetails.careInstructions
+      : [],
+    dimensions: variants?.[0]?.dimensions || defaultDescriptionDetails.dimensions || '',
+    weight: variants?.[0]?.weight
+      ? String(variants[0].weight)
+      : defaultDescriptionDetails.weight || '',
+    origin: defaultDescriptionDetails.origin ?? '',
+    warranty: defaultDescriptionDetails.warranty ?? '',
   };
 
-  const summaryItems = [
-    { label: 'Brand', value: (brand as any)?.name },
-    { label: 'SKU', value: sku },
-    { label: 'Status', value: status },
-    { label: 'Dimensions', value: productDetails.dimensions },
-    { label: 'Weight', value: productDetails.weight },
-    { label: 'Warranty', value: productDetails.warranty },
-    { label: 'Origin', value: productDetails.origin },
-  ].filter((item) => Boolean(item.value) && item.value !== 'N/A');
-
-  const highlightFeatures = productFeatures.slice(0, 4);
+  const descriptionText = description && description.trim().length > 0
+    ? description
+    : t('description.fallback');
 
   const handleQuantityChange = (newQuantity: number) => {
     if (Number.isNaN(newQuantity)) {
@@ -608,7 +670,9 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                             <div className="text-right">
                               <p className="font-semibold">${variantPrice.toFixed(2)}</p>
                               <p className={`text-sm ${variant.stockQuantity > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {variant.stockQuantity > 0 ? `${variant.stockQuantity} in stock` : 'Out of stock'}
+                                {variant.stockQuantity > 0
+                                  ? t('variants.inStock', { count: variant.stockQuantity })
+                                  : t('variants.outOfStock')}
                               </p>
                             </div>
                           </div>
@@ -675,7 +739,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   onPress={handleAddToCart}
                   isDisabled={!inStock || (variantAttributes.length > 0 && !selectedVariant)}
                 >
-                  {!inStock ? 'Out of Stock' : 'Add to Cart'}
+                  {!inStock ? t('actions.outOfStock') : t('actions.addToCart')}
                 </Button>
 
                 <Button
@@ -684,14 +748,14 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   className="flex-1 border border-gray-300 font-semibold py-3"
                   onPress={() => setShowQuickView(true)}
                 >
-                  Quick View
+                  {t('actions.quickView')}
                 </Button>
               </div>
             </div>
 
             {tags && tags.length > 0 && (
               <div className="space-y-3 border-t border-gray-200 pt-5 dark:border-gray-700">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Tags</h3>
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">{t('tags.title')}</h3>
                 <div className="flex flex-wrap gap-2">
                   {tags.map((tag) => (
                     <Chip
@@ -718,22 +782,22 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
             variant="underlined"
             className="w-full"
           >
-            <Tab key="details" title="Details">
+            <Tab key="details" title={t('tabs.details')}>
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <div className="lg:col-span-2 space-y-6">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="space-y-2">
-                      <h3 className={typography.sectionTitle}>Product Overview</h3>
-                      <p className={typography.meta}>Key information about this product</p>
+                      <h3 className={typography.sectionTitle}>{t('overview.title')}</h3>
+                      <p className={typography.meta}>{t('overview.subtitle')}</p>
                     </div>
                     <Button size="sm" variant="flat" className="text-primary-500" onPress={handleScrollToReviews}>
-                      View Reviews
+                      {t('overview.actions.viewReviews')}
                     </Button>
                   </div>
                   <ProductDescription
-                    description={description || 'No description available.'}
+                    description={descriptionText}
                     features={productFeatures}
-                    specifications={productSpecifications}
+                    specifications={specificationItems}
                     details={productDetails}
                     videos={productVideos}
                     className="space-y-6"
@@ -741,30 +805,28 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                 </div>
                 <div className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900/40">
                   <div className="space-y-2">
-                    <h4 className={typography.subsectionTitle}>Key Highlights</h4>
-                    <p className={typography.meta}>Quick facts to help you evaluate the product</p>
+                    <h4 className={typography.subsectionTitle}>{t('specifications.title')}</h4>
+                    <p className={typography.meta}>{t('specifications.subtitle')}</p>
                   </div>
 
-                  {highlightFeatures.length > 0 && (
+                  {specificationItems.length > 0 ? (
                     <div className="space-y-3">
-                      {highlightFeatures.map((feature, index) => (
-                        <div key={`${index}-${feature}`} className="flex items-start gap-3 rounded-xl bg-gray-50 p-3 text-sm dark:bg-gray-800/60">
-                          <FiCheck className="mt-0.5 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+                      {specificationItems.map((spec) => (
+                        <div
+                          key={spec.id || spec.name}
+                          className="flex items-start justify-between gap-4 rounded-xl bg-white/60 px-3 py-2 text-sm dark:bg-gray-800/40"
+                        >
+                          <span className="font-medium text-gray-700 dark:text-gray-300">
+                            {formatSpecificationLabel(spec.name)}
+                          </span>
+                          <span className="text-gray-600 dark:text-gray-400 text-right">
+                            {spec.value}
+                          </span>
                         </div>
                       ))}
                     </div>
-                  )}
-
-                  {summaryItems.length > 0 && (
-                    <div className="grid grid-cols-1 gap-3 border-t border-gray-200 pt-4 dark:border-gray-700">
-                      {summaryItems.map((item) => (
-                        <div key={item.label} className="flex items-center justify-between rounded-xl bg-white/60 px-3 py-2 text-sm dark:bg-gray-800/40">
-                          <span className="font-medium text-gray-700 dark:text-gray-300">{item.label}</span>
-                          <span className="text-gray-600 dark:text-gray-400">{String(item.value)}</span>
-                        </div>
-                      ))}
-                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('specifications.empty')}</p>
                   )}
                 </div>
               </div>
@@ -774,7 +836,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               key="reviews"
               title={
                 <div className="flex items-center gap-2">
-                  <span>Reviews</span>
+                  <span>{t('tabs.reviews')}</span>
                   <Chip size="sm" variant="flat">{reviews.length}</Chip>
                 </div>
               }
@@ -782,10 +844,10 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               <div className="space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="space-y-2">
-                    <h3 className={typography.sectionTitle}>Customer Reviews</h3>
-                    <p className={typography.meta}>Feedback from real customers</p>
+                    <h3 className={typography.sectionTitle}>{t('reviews.title')}</h3>
+                    <p className={typography.meta}>{t('reviews.subtitle')}</p>
                   </div>
-                  <span className="text-sm font-medium text-primary-500">{reviews.length} reviews</span>
+                  <span className="text-sm font-medium text-primary-500">{t('reviews.countLabel', { count: reviews.length })}</span>
                 </div>
                 <ReviewList
                   productId={id}
@@ -794,8 +856,8 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   onReportReview={(reviewId) => console.log('Report review:', reviewId)}
                 />
                 <div className="space-y-4 rounded-2xl border border-dashed border-gray-300 bg-gray-50/80 p-5 dark:border-gray-700/60 dark:bg-gray-900/40">
-                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Share your experience</h4>
-                  <p className={typography.meta}>Tell others what you liked or what could be better.</p>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{t('reviews.shareTitle')}</h4>
+                  <p className={typography.meta}>{t('reviews.shareSubtitle')}</p>
                   <ReviewForm onSubmit={handleReviewSubmit} />
                 </div>
               </div>
@@ -805,7 +867,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               key="questions"
               title={
                 <div className="flex items-center gap-2">
-                  <span>Questions</span>
+                  <span>{t('tabs.questions')}</span>
                   <Chip size="sm" variant="flat">{comments.length}</Chip>
                 </div>
               }
@@ -813,10 +875,10 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               <div className="space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="space-y-2">
-                    <h3 className={typography.sectionTitle}>Customer Questions</h3>
-                    <p className={typography.meta}>Discuss with other shoppers</p>
+                    <h3 className={typography.sectionTitle}>{t('questions.title')}</h3>
+                    <p className={typography.meta}>{t('questions.subtitle')}</p>
                   </div>
-                  <span className="text-sm font-medium text-primary-500">{comments.length} comments</span>
+                  <span className="text-sm font-medium text-primary-500">{t('questions.countLabel', { count: comments.length })}</span>
                 </div>
                 <CommentSection
                   productId={id}
@@ -867,7 +929,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               </div>
               <div className="space-y-5">
                 <PriceDisplay price={currentPrice} originalPrice={originalPrice} size="lg" />
-                <p className="text-base text-gray-600 line-clamp-3">{description}</p>
+                <p className="text-base text-gray-600 line-clamp-3">{descriptionText}</p>
                 <Button
                   color="primary"
                   onPress={() => {
@@ -876,7 +938,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   }}
                   fullWidth
                 >
-                  Add to Cart
+                  {t('actions.addToCart')}
                 </Button>
               </div>
             </div>

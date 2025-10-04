@@ -4,6 +4,7 @@ import { ProductMedia } from '../entities/product-media.entity';
 import { ProductVariant } from '../entities/product-variant.entity';
 import { Brand } from '../entities/brand.entity';
 import { Category } from '../entities/category.entity';
+import { ProductSpecification } from '../entities/product-specification.entity';
 
 export interface TransformedProduct {
   id: string;
@@ -28,6 +29,7 @@ export interface TransformedProduct {
   categories: TransformedCategory[];
   media: TransformedMedia[];
   variants: TransformedVariant[];
+  specifications: TransformedSpecification[];
 
   // Computed properties
   primaryImage: string | null;
@@ -114,6 +116,13 @@ export interface TransformedVariant {
   variantItems: TransformedVariantItem[];
 }
 
+export interface TransformedSpecification {
+  id: string;
+  name: string;
+  value: string;
+  sortOrder: number;
+}
+
 @Injectable()
 export class ProductTransformer {
 
@@ -130,6 +139,7 @@ export class ProductTransformer {
     const variants = await this.extractAndTransformVariants(product);
     const brand = this.extractAndTransformBrand(product);
     const categories = this.extractAndTransformCategories(product);
+    const specifications = this.extractAndTransformSpecifications(product);
 
     // Calculate computed properties
     const imageUrls = media
@@ -171,6 +181,7 @@ export class ProductTransformer {
       categories,
       media,
       variants,
+      specifications,
 
       // Computed properties
       primaryImage,
@@ -249,7 +260,7 @@ export class ProductTransformer {
    * Fix TypeORM lazy loading serialization issues
    */
   private fixLazyLoadingSerialization(product: Product): void {
-    const relations = ['media', 'variants', 'brand', 'productCategories', 'tags'];
+    const relations = ['media', 'variants', 'brand', 'productCategories', 'tags', 'specifications'];
 
     relations.forEach(relation => {
       const underscoreKey = `__${relation}__`;
@@ -406,6 +417,39 @@ export class ProductTransformer {
     }
 
     return this.processMediaArray(mediaArray);
+  }
+
+  private extractAndTransformSpecifications(product: Product): TransformedSpecification[] {
+    const specifications = (product as any).specifications as ProductSpecification[] | Promise<ProductSpecification[]> | undefined;
+
+    if (!specifications) {
+      return [];
+    }
+
+    const toArray = (data: ProductSpecification[] | Promise<ProductSpecification[]>): ProductSpecification[] => {
+      if (Array.isArray(data)) {
+        return data;
+      }
+
+      if (typeof (data as any)[Symbol.iterator] === 'function') {
+        return Array.from(data as any);
+      }
+
+      console.warn('Specifications relation resolved as non-array Promise. Returning empty array.');
+      return [];
+    };
+
+    const resolved = toArray(specifications);
+
+    return resolved
+      .slice()
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+      .map((spec) => ({
+        id: spec.id,
+        name: spec.name,
+        value: spec.value,
+        sortOrder: spec.sortOrder ?? 0,
+      }));
   }
 
   /**

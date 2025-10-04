@@ -9,6 +9,7 @@ import { trpc } from '../../utils/trpc';
 import { z } from 'zod';
 import { ProductVariantsSection, VariantMatrixItem } from './ProductVariantsSection';
 import { MediaType } from '../common/ProductMediaUpload';
+import { ProductSpecificationsEditor, ProductSpecificationFormItem } from './ProductSpecificationsEditor';
 
 // MediaItem interface for frontend form - compatible with ProductMediaUpload component
 interface MediaItem {
@@ -112,6 +113,19 @@ export interface BackendVariant {
   }>;
 }
 
+const generateTempId = () => (
+  typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `temp-${Math.random().toString(36).slice(2, 11)}`
+);
+
+export interface SpecificationFormValue {
+  id?: string;
+  name: string;
+  value: string;
+  sortOrder?: number;
+}
+
 export interface ProductFormData {
   name: string;
   description?: string;
@@ -127,6 +141,7 @@ export interface ProductFormData {
   metaKeywords?: string;
   isFeatured: boolean;
   variants?: VariantMatrixItem[] | BackendVariant[];
+  specifications?: SpecificationFormValue[];
 }
 
 export interface ProductFormProps {
@@ -181,6 +196,23 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         isEnabled: v.isActive,
       };
     });
+  });
+
+  const [specifications, setSpecifications] = useState<ProductSpecificationFormItem[]>(() => {
+    if (!product?.specifications || product.specifications.length === 0) {
+      return [];
+    }
+
+    return product.specifications
+      .slice()
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+      .map((spec) => ({
+        id: spec.id,
+        name: spec.name,
+        value: spec.value,
+        sortOrder: spec.sortOrder,
+        _tempId: spec.id || generateTempId(),
+      }));
   });
 
   // Fetch options for dropdowns
@@ -367,6 +399,63 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       ],
     },
     {
+      id: 'specifications',
+      label: t('products.specifications', 'Specifications'),
+      icon: <Settings className="w-4 h-4" />,
+      sections: [
+        {
+          title: t('products.specifications_title', 'Product Specifications'),
+          description: t('products.specifications_description', 'Define structured technical details or attributes that will be shown to customers.'),
+          icon: <Settings className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
+          fields: [],
+          customContent: (
+            <ProductSpecificationsEditor
+              items={specifications}
+              onAdd={() => {
+                setSpecifications((prev) => [
+                  ...prev,
+                  {
+                    _tempId: generateTempId(),
+                    name: '',
+                    value: '',
+                    sortOrder: prev.length,
+                  },
+                ]);
+              }}
+              onRemove={(tempId) => {
+                setSpecifications((prev) => prev.filter((item) => item._tempId !== tempId));
+              }}
+              onChange={(tempId, field, value) => {
+                setSpecifications((prev) => prev.map((item) => {
+                  if (item._tempId !== tempId) {
+                    return item;
+                  }
+
+                  if (field === 'sortOrder') {
+                    if (value === '') {
+                      const { sortOrder, ...rest } = item;
+                      return { ...rest, sortOrder: undefined } as ProductSpecificationFormItem;
+                    }
+
+                    const parsed = Number(value);
+                    return {
+                      ...item,
+                      sortOrder: Number.isFinite(parsed) ? parsed : item.sortOrder,
+                    };
+                  }
+
+                  return {
+                    ...item,
+                    [field]: value,
+                  } as ProductSpecificationFormItem;
+                }));
+              }}
+            />
+          ),
+        },
+      ],
+    },
+    {
       id: 'seo',
       label: t('products.seo', 'SEO'),
       icon: <Globe className="w-4 h-4" />,
@@ -440,6 +529,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     metaKeywords: product?.metaKeywords || '',
     isFeatured: product?.isFeatured || false,
     variants: variants,
+    specifications: specifications,
   };
 
   const handleSubmit = async (data: ProductFormData) => {
@@ -497,6 +587,29 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
         submitData.variants = transformedVariants;
       }
+
+      const normalizedSpecifications = specifications
+        .map((spec, index) => {
+          const name = spec.name.trim();
+          const value = spec.value.trim();
+          if (!name || !value) {
+            return null;
+          }
+
+          const fallbackOrder = spec.sortOrder ?? index;
+          const sortOrder = Number.isFinite(fallbackOrder) ? fallbackOrder : index;
+
+          return {
+            id: spec.id,
+            name,
+            value,
+            sortOrder,
+          } as SpecificationFormValue;
+        })
+        .filter((spec): spec is SpecificationFormValue => Boolean(spec));
+
+      submitData.specifications = normalizedSpecifications.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+
       await onSubmit(submitData);
     } catch (error) {
       console.error('❌ Product form submission error:', error);

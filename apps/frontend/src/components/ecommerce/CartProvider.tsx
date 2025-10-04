@@ -63,14 +63,16 @@ export const CartIcon: React.FC<{ className?: string }> = ({ className = '' }) =
   const t = useTranslations('ecommerce.cart');
   const { summary, openCart } = useCart();
 
-  // Debug log to track the issue
-  console.log('CartIcon - summary.totalItems:', summary.totalItems);
+  const cartLabel =
+    summary.totalItems > 0
+      ? t('aria_labels.cart_button', { count: summary.totalItems })
+      : t('aria_labels.cart_button_empty');
 
   return (
     <button
       onClick={openCart}
       className={`relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${className}`}
-      aria-label={summary.totalItems > 0 ? t('aria_labels.cart_button', { count: summary.totalItems }) : t('aria_labels.cart_button_empty')}
+      aria-label={cartLabel}
     >
       <FiShoppingCart className="text-xl" />
       {summary.totalItems > 0 && (
@@ -86,15 +88,17 @@ export const CartDropdownIcon: React.FC<{ className?: string }> = ({ className =
   const t = useTranslations('ecommerce.cart');
   const { summary } = useCart();
 
-  // Debug log to track the issue
-  console.log('CartDropdownIcon - summary.totalItems:', summary.totalItems);
+  const cartLabel =
+    summary.totalItems > 0
+      ? t('aria_labels.cart_button', { count: summary.totalItems })
+      : t('aria_labels.cart_button_empty');
 
   return (
     <Dropdown placement="bottom-end">
       <DropdownTrigger>
         <button
           className={`relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${className}`}
-          aria-label={summary.totalItems > 0 ? t('aria_labels.cart_button', { count: summary.totalItems }) : t('aria_labels.cart_button_empty')}
+          aria-label={cartLabel}
         >
           <FiShoppingCart className="text-xl" />
           {summary.totalItems > 0 && (

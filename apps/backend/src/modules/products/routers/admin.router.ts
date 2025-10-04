@@ -57,6 +57,12 @@ export const createProductSchema = z.object({
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
+  specifications: z.array(z.object({
+    id: z.string().optional(),
+    name: z.string().min(1),
+    value: z.string().min(1),
+    sortOrder: z.number().optional(),
+  })).optional(),
   variants: z.array(z.object({
     name: z.string(),
     sku: z.string().optional(),
@@ -109,6 +115,12 @@ export const updateProductSchema = z.object({
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
+  specifications: z.array(z.object({
+    id: z.string().optional(),
+    name: z.string().min(1),
+    value: z.string().min(1),
+    sortOrder: z.number().optional(),
+  })).optional(),
   variants: z.array(z.object({
     id: z.string().optional(), // Include ID for updates
     name: z.string(),

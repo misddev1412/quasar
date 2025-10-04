@@ -69,7 +69,8 @@ export class ClientProductsRouter {
           'media',
           'tags',
           'productCategories',
-          'productCategories.category'
+          'productCategories.category',
+          'specifications'
         ],
       });
 
@@ -116,7 +117,8 @@ export class ClientProductsRouter {
         'media',
         'tags',
         'productCategories',
-        'productCategories.category'
+        'productCategories.category',
+        'specifications'
       ]);
 
       if (!product) {
@@ -165,7 +167,8 @@ export class ClientProductsRouter {
           'media',
           'tags',
           'productCategories',
-          'productCategories.category'
+          'productCategories.category',
+          'specifications'
         ],
       });
 
@@ -212,7 +215,8 @@ export class ClientProductsRouter {
           'media',
           'tags',
           'productCategories',
-          'productCategories.category'
+          'productCategories.category',
+          'specifications'
         ],
       });
 
@@ -260,7 +264,8 @@ export class ClientProductsRouter {
           'media',
           'tags',
           'productCategories',
-          'productCategories.category'
+          'productCategories.category',
+          'specifications'
         ],
       });
 
@@ -319,7 +324,8 @@ export class ClientProductsRouter {
           'media',
           'tags',
           'productCategories',
-          'productCategories.category'
+          'productCategories.category',
+          'specifications'
         ],
       });
 
@@ -356,7 +362,7 @@ export class ClientProductsRouter {
           isActive: true,
           status: ProductStatus.ACTIVE,
         },
-        relations: ['brand', 'variants', 'productCategories', 'productCategories.category'],
+        relations: ['brand', 'variants', 'productCategories', 'productCategories.category', 'specifications'],
       });
 
       const categories = new Map<string, { id: string; name: string; count: number }>();
@@ -547,6 +553,16 @@ export class ClientProductsRouter {
         description: pc.category.description,
         parentId: pc.category.parentId,
       })) || [] : [],
+      specifications: Array.isArray(product.specifications)
+        ? product.specifications
+            .sort((a: any, b: any) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+            .map((spec: any) => ({
+              id: spec.id,
+              name: spec.name,
+              value: spec.value,
+              sortOrder: spec.sortOrder ?? 0,
+            }))
+        : [],
     };
   }
 }

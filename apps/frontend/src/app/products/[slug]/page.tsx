@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import ProductDetailPage from '../../../components/ecommerce/ProductDetailPage';
+import ProductDetailClient from './ProductDetailClient';
 import Layout from '../../../components/layout/Layout';
 import { serverTrpc } from '../../../utils/trpc-server';
-import type { Product, ProductVariant } from '../../../types/product';
+import type { Product } from '../../../types/product';
 import type { Review } from '../../../components/ecommerce/ReviewList';
 import type { Comment } from '../../../components/ecommerce/CommentSection';
 
@@ -76,16 +76,9 @@ async function ProductPageContent({ params }: ProductPageProps) {
   const mockReviews: Review[] = [];
   const mockComments: Comment[] = [];
 
-  // Handle add to cart (server action or client component would handle this)
-  const handleAddToCart = async (product: Product, quantity?: number, variant?: ProductVariant | null) => {
-    'use server';
-    // Implement server action for adding to cart
-    console.log('Adding to cart:', { product, quantity, variant });
-  };
-
   return (
     <Layout>
-      <ProductDetailPage
+      <ProductDetailClient
         product={product}
         relatedProducts={relatedProducts}
         frequentlyBoughtTogether={relatedProducts.slice(0, 2)}
@@ -93,7 +86,6 @@ async function ProductPageContent({ params }: ProductPageProps) {
         trendingProducts={relatedProducts}
         reviews={mockReviews}
         comments={mockComments}
-        onAddToCart={handleAddToCart}
       />
     </Layout>
   );

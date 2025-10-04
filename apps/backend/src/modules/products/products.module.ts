@@ -15,6 +15,7 @@ import { ProductTag } from './entities/product-tag.entity';
 import { ProductVariant } from './entities/product-variant.entity';
 import { ProductVariantItem } from './entities/product-variant-item.entity';
 import { ProductMedia } from './entities/product-media.entity';
+import { ProductSpecification } from './entities/product-specification.entity';
 import { PurchaseOrder } from './entities/purchase-order.entity';
 import { PurchaseOrderItem } from './entities/purchase-order-item.entity';
 import { StockMovement } from './entities/stock-movement.entity';
@@ -39,6 +40,7 @@ import { ProductRepository } from './repositories/product.repository';
 import { ProductMediaRepository } from './repositories/product-media.repository';
 import { ProductVariantRepository } from './repositories/product-variant.repository';
 import { ProductVariantItemRepository } from './repositories/product-variant-item.repository';
+import { ProductSpecificationRepository } from './repositories/product-specification.repository';
 import { PurchaseOrderRepository } from './repositories/purchase-order.repository';
 import { StockMovementRepository } from './repositories/stock-movement.repository';
 import { CategoryRepository } from './repositories/category.repository';
@@ -94,6 +96,7 @@ import { ClientProductsRouter } from '../../trpc/routers/client/products.router'
       ProductVariant,
       ProductVariantItem,
       ProductMedia,
+      ProductSpecification,
       PurchaseOrder,
       PurchaseOrderItem,
       StockMovement,
@@ -122,6 +125,7 @@ import { ClientProductsRouter } from '../../trpc/routers/client/products.router'
     ProductMediaRepository,
     ProductVariantRepository,
     ProductVariantItemRepository,
+    ProductSpecificationRepository,
     PurchaseOrderRepository,
     StockMovementRepository,
     CategoryRepository,
@@ -167,6 +171,7 @@ import { ClientProductsRouter } from '../../trpc/routers/client/products.router'
     ProductMediaRepository,
     ProductVariantRepository,
     ProductVariantItemRepository,
+    ProductSpecificationRepository,
     PurchaseOrderRepository,
     StockMovementRepository,
     CategoryRepository,

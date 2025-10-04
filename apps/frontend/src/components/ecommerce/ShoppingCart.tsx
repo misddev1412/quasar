@@ -53,6 +53,11 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
   const [discountCode, setDiscountCode] = useState('');
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
 
+  const cartLabel =
+    summary.totalItems > 0
+      ? t('aria_labels.cart_button', { count: summary.totalItems })
+      : t('aria_labels.cart_button_empty');
+
   // Sample shipping options - in production, these would come from an API
   const shippingOptions: ShippingOption[] = [
     {
@@ -240,7 +245,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between w-full">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            {t('title')} ({summary.totalItems === 1 ? t('items_count_single', { count: summary.totalItems }) : t('items_count', { count: summary.totalItems })})
+            {cartLabel}
           </h2>
           {isModal && (
             <Button isIconOnly variant="light" size="sm" onPress={closeCartAndNotify}>

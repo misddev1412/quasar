@@ -996,13 +996,127 @@
         "confirm": "Clear Cart"
       },
       "aria_labels": {
-        "cart_button": "Shopping cart with {{count}} items",
-        "cart_button_empty": "Empty shopping cart",
+        "cart_button": "Shopping cart ({{count}} items)",
+        "cart_button_empty": "Shopping cart (0 items)",
         "cart_dropdown": "Cart dropdown",
         "item_remove": "Remove {{name}} from cart",
         "quantity_increase": "Increase quantity of {{name}}",
         "quantity_decrease": "Decrease quantity of {{name}}",
         "close_cart": "Close shopping cart"
+      }
+    }
+  },
+  "product": {
+    "detail": {
+      "breadcrumb": {
+        "home": "Home",
+        "categoryFallback": "Category"
+      },
+      "overview": {
+        "title": "Product Overview",
+        "subtitle": "Key information about this product",
+        "actions": {
+          "viewReviews": "View Reviews"
+        },
+        "features": [
+          "Premium quality materials",
+          "30-day money-back guarantee",
+          "Free shipping on orders over $50",
+          "1-year warranty included",
+          "Secure packaging",
+          "Environmentally friendly"
+        ]
+      },
+      "specifications": {
+        "title": "Specifications",
+        "subtitle": "Detailed technical information",
+        "empty": "Specifications not available.",
+        "autoLabels": {
+          "brand": "Brand",
+          "sku": "SKU",
+          "category": "Category",
+          "status": "Status",
+          "weight": "Weight",
+          "dimensions": "Dimensions"
+        }
+      },
+      "tabs": {
+        "details": "Details",
+        "reviews": "Reviews",
+        "questions": "Questions"
+      },
+      "reviews": {
+        "title": "Customer Reviews",
+        "subtitle": "Feedback from real customers",
+        "countLabel": "{count, plural, one {{count} review} other {{count} reviews}}",
+        "shareTitle": "Share your experience",
+        "shareSubtitle": "Tell others what you liked or what could be better."
+      },
+      "questions": {
+        "title": "Customer Questions",
+        "subtitle": "Discuss with other shoppers",
+        "countLabel": "{count, plural, one {{count} comment} other {{count} comments}}"
+      },
+      "actions": {
+        "addToCart": "Add to Cart",
+        "outOfStock": "Out of Stock",
+        "quickView": "Quick View"
+      },
+      "variants": {
+        "inStock": "{count, plural, one {{count} item in stock} other {{count} items in stock}}",
+        "outOfStock": "Out of stock"
+      },
+      "tags": {
+        "title": "Tags"
+      },
+      "videos": {
+        "itemTitle": "{name} Video"
+      },
+      "description": {
+        "title": "Description",
+        "fallback": "Detailed description will be available soon.",
+        "readMore": "Read more",
+        "readLess": "Show less",
+        "defaults": {
+          "materials": "High-quality materials sourced from sustainable suppliers",
+          "careInstructions": [
+            "Clean with soft, dry cloth",
+            "Avoid exposure to direct sunlight",
+            "Store in a cool, dry place",
+            "Handle with care"
+          ],
+          "dimensions": "Standard size",
+          "weight": "Standard weight",
+          "origin": "Manufactured with quality standards",
+          "warranty": "1-year manufacturer warranty"
+        },
+        "details": {
+          "labels": {
+            "materials": "Materials",
+            "dimensions": "Dimensions",
+            "weight": "Weight",
+            "origin": "Origin",
+            "warranty": "Warranty",
+            "careInstructions": "Care Instructions"
+          }
+        },
+        "policies": [
+          {
+            "title": "Free Shipping",
+            "description": "On orders over $50"
+          },
+          {
+            "title": "Easy Returns",
+            "description": "30-day return policy"
+          },
+          {
+            "title": "Warranty",
+            "description": "1-year coverage included"
+          }
+        ],
+        "videos": {
+          "cta": "Watch Video"
+        }
       }
     }
   },

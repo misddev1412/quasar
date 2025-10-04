@@ -18,7 +18,7 @@ const CreateProductPage: React.FC = () => {
   const { activeTab, handleTabChange } = useUrlTabs({
     defaultTab: 0,
     tabParam: 'tab',
-    tabKeys: ['general', 'media', 'variants', 'seo'] // Maps to ProductForm tab IDs
+    tabKeys: ['general', 'media', 'variants', 'specifications', 'seo'] // Maps to ProductForm tab IDs
   });
 
   const createProductMutation = trpc.adminProducts.create.useMutation({

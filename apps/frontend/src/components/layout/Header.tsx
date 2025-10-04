@@ -562,6 +562,11 @@ const Header: React.FC = () => {
   const pathname = usePathname();
   const { currentLocale, push } = useLocalePath();
 
+  const cartLabel =
+    summary.totalItems > 0
+      ? tCart('aria_labels.cart_button', { count: summary.totalItems })
+      : tCart('aria_labels.cart_button_empty');
+
   const handleLogout = () => {
     logout();
     router.push('/');
@@ -747,17 +752,12 @@ const Header: React.FC = () => {
                   openCart();
                   setIsMenuOpen(false);
                 }}
+                aria-label={cartLabel}
               >
                 <span className="text-gray-500 dark:text-gray-400">
                   <Icons.Cart />
                 </span>
-                <span>
-                  {tCart('title')} (
-                  {summary.totalItems === 1
-                    ? tCart('items_count_single', { count: summary.totalItems })
-                    : tCart('items_count', { count: summary.totalItems })}
-                  )
-                </span>
+                <span>{cartLabel}</span>
                 {summary.totalItems > 0 && (
                   <span className="ml-auto text-blue-600 dark:text-blue-400 font-medium">
                     {summary.totals.currency}

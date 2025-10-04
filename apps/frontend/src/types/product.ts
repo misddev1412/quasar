@@ -28,6 +28,14 @@ export interface Product {
   variants?: ProductVariant[];
   media?: ProductMedia[];
   categories?: unknown[];
+  specifications?: ProductSpecification[];
+}
+
+export interface ProductSpecification {
+  id: string;
+  name: string;
+  value: string;
+  sortOrder?: number;
 }
 
 export interface Attribute {
