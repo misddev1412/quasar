@@ -2579,10 +2579,9 @@
       "api_key_placeholder": "Enter your third-party API key",
       "api_secret_placeholder": "Enter your API secret"
     }
-  }
-},
+  },
   "product": {
-  "detail": {
+    "detail": {
     "breadcrumb": {
       "home": "Home",
       "categoryFallback": "Category"
@@ -2694,4 +2693,5 @@
       }
     }
   }
+}
 }

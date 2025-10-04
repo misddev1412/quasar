@@ -121,11 +121,16 @@ export class ProductRepository {
       }
 
       if (filters.categoryIds && filters.categoryIds.length > 0) {
-        // Add join for categories if not already joined
-        if (!relations.some(rel => rel.includes('productCategories'))) {
-          queryBuilder.leftJoin('product.productCategories', 'pc');
+        const hasCategoryRelation = relations.some(rel =>
+          rel === 'productCategories' || rel.startsWith('productCategories.')
+        );
+        const categoryAlias = hasCategoryRelation ? 'productCategories' : 'pc';
+
+        if (!hasCategoryRelation) {
+          queryBuilder.leftJoin('product.productCategories', categoryAlias);
         }
-        queryBuilder.andWhere('pc.categoryId IN (:...categoryIds)', { categoryIds: filters.categoryIds });
+
+        queryBuilder.andWhere(`${categoryAlias}.categoryId IN (:...categoryIds)`, { categoryIds: filters.categoryIds });
       }
 
       if (filters.minPrice !== undefined) {
