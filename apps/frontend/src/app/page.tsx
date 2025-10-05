@@ -1,6 +1,17 @@
 import { Metadata } from 'next';
+import { headers, cookies } from 'next/headers';
+import { SectionType } from '@shared/enums/section.enums';
 import { getServerSideSEOWithFallback } from '../lib/seo-server';
 import Header from '../components/layout/Header';
+import { fetchSections } from '../services/sections.service';
+import {
+  HeroSlider,
+  FeaturedProducts,
+  ProductsByCategory,
+  NewsSection,
+  CustomHtmlSection,
+} from '../components/sections';
+import type { SectionListItem } from '../types/sections';
 import type { SEOData } from '../types/trpc';
 
 // Fallback SEO data for home page
@@ -38,13 +49,18 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootPage() {
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
+const sectionComponentMap: Record<SectionType, React.ComponentType<any>> = {
+  [SectionType.HERO_SLIDER]: HeroSlider,
+  [SectionType.FEATURED_PRODUCTS]: FeaturedProducts,
+  [SectionType.PRODUCTS_BY_CATEGORY]: ProductsByCategory,
+  [SectionType.NEWS]: NewsSection,
+  [SectionType.CUSTOM_HTML]: CustomHtmlSection,
+};
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 dark:from-blue-800 dark:via-purple-800 dark:to-blue-900">
+function renderFallbackContent() {
+  return (
+    <>
+      <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="text-center">
             <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6">
@@ -68,68 +84,50 @@ export default function RootPage() {
         </div>
       </section>
 
-      {/* Featured Categories */}
-      <section className="py-16 bg-white dark:bg-gray-800">
+      <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Popular Categories
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300">
-              Explore our most popular product categories
-            </p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Popular Categories</h2>
+            <p className="text-gray-600">Explore our most popular product categories</p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { name: 'Electronics', icon: '📱', color: 'bg-blue-100 dark:bg-blue-900' },
-              { name: 'Fashion', icon: '👕', color: 'bg-pink-100 dark:bg-pink-900' },
-              { name: 'Home & Garden', icon: '🏠', color: 'bg-green-100 dark:bg-green-900' },
-              { name: 'Sports', icon: '⚽', color: 'bg-orange-100 dark:bg-orange-900' },
+              { name: 'Electronics', icon: '📱', color: 'bg-blue-100' },
+              { name: 'Fashion', icon: '👕', color: 'bg-pink-100' },
+              { name: 'Home & Garden', icon: '🏠', color: 'bg-green-100' },
+              { name: 'Sports', icon: '⚽', color: 'bg-orange-100' },
             ].map((category) => (
-              <div key={category.name} className="text-center p-6 rounded-lg hover:shadow-lg transition-shadow">
+              <div key={category.name} className="text-center p-6 rounded-lg hover:shadow-lg transition-shadow bg-white">
                 <div className={`${category.color} w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-4 mx-auto`}>
                   {category.icon}
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  {category.name}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  Shop the latest {category.name.toLowerCase()}
-                </p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{category.name}</h3>
+                <p className="text-gray-600 text-sm">Shop the latest {category.name.toLowerCase()}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Featured Products */}
-      <section className="py-16 bg-gray-50 dark:bg-gray-900">
+      <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Featured Products
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300">
-              Handpicked products just for you
-            </p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Products</h2>
+            <p className="text-gray-600">Handpicked products just for you</p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((product) => (
-              <div key={product} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="aspect-square bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+              <div key={product} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="aspect-square bg-gray-200 flex items-center justify-center">
                   <span className="text-4xl">📦</span>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                    Product {product}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
+                  <h3 className="font-semibold text-gray-900 mb-2">Product {product}</h3>
+                  <p className="text-gray-600 text-sm mb-3">
                     High-quality product with amazing features
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                    <span className="text-lg font-bold text-blue-600">
                       ${product * 29.99}
                     </span>
                     <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
@@ -142,21 +140,94 @@ export default function RootPage() {
           </div>
         </div>
       </section>
+    </>
+  );
+}
 
-      {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-purple-600 to-blue-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to Start Shopping?
-          </h2>
-          <p className="text-blue-100 mb-8">
-            Join thousands of satisfied customers and discover amazing deals
-          </p>
-          <button className="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-            Get Started
-          </button>
-        </div>
-      </section>
+const SUPPORTED_LOCALES = new Set(['en', 'vi']);
+
+const normalizeLocale = (value?: string | null): string | undefined => {
+  if (!value) return undefined;
+  const cleaned = value.toLowerCase();
+  if (SUPPORTED_LOCALES.has(cleaned)) {
+    return cleaned;
+  }
+  const short = cleaned.split('-')[0];
+  return SUPPORTED_LOCALES.has(short) ? short : undefined;
+};
+
+async function getPreferredLocale(searchParams?: Record<string, string | string[] | undefined>): Promise<string> {
+  const searchLocaleParam = searchParams?.locale;
+  const searchLocale = Array.isArray(searchLocaleParam) ? searchLocaleParam[0] : searchLocaleParam;
+  const normalizedFromParam = normalizeLocale(searchLocale);
+  if (normalizedFromParam) {
+    return normalizedFromParam;
+  }
+
+  const cookieStore = cookies();
+  const cookieLocale = normalizeLocale(cookieStore.get('NEXT_LOCALE')?.value);
+  if (cookieLocale) {
+    return cookieLocale;
+  }
+
+  const headerList = headers();
+  const acceptLanguage = headerList.get('accept-language');
+  if (acceptLanguage) {
+    const [primary] = acceptLanguage.split(',');
+    const normalizedFromHeader = normalizeLocale(primary);
+    if (normalizedFromHeader) {
+      return normalizedFromHeader;
+    }
+  }
+
+  const nextLocaleHeader = normalizeLocale(headerList.get('x-next-locale'));
+  if (nextLocaleHeader) {
+    return nextLocaleHeader;
+  }
+
+  return 'en';
+}
+
+export default async function RootPage({
+  searchParams,
+}: {
+  searchParams?: Record<string, string | string[] | undefined>;
+}) {
+  const locale = await getPreferredLocale(searchParams);
+  const sections = await fetchSections('home', locale);
+  const orderedSections = [...sections].sort((a, b) => a.position - b.position);
+
+  const renderedSections = orderedSections
+    .map((section: SectionListItem) => {
+      const Component = sectionComponentMap[section.type as SectionType];
+      if (!Component) {
+        return null;
+      }
+      const translation = section.translation
+        ? {
+            title: section.translation.title ?? undefined,
+            subtitle: section.translation.subtitle ?? undefined,
+            description: section.translation.description ?? undefined,
+            heroDescription: section.translation.heroDescription ?? undefined,
+          }
+        : undefined;
+
+      return (
+        <Component
+          key={section.id}
+          config={section.config as any}
+          translation={translation}
+        />
+      );
+    })
+    .filter(Boolean);
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <main>
+        {renderedSections.length > 0 ? renderedSections : renderFallbackContent()}
+      </main>
     </div>
   );
 }

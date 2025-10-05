@@ -1,7 +1,7 @@
 // AppRouter types for tRPC client
 // This file is auto-generated from actual nestjs-trpc routers
 // Run 'npm run sync:trpc-types' to regenerate this file
-// Generated on: 2025-10-02T01:30:46.503Z
+// Generated on: 2025-10-05T08:10:45.790Z
 
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
@@ -523,6 +523,14 @@ const appRouter = t.router({
     getLoyaltyBalance: t.procedure.query(() => null),
     getLoyaltyHistory: t.procedure.query(() => null),
     redeemLoyaltyPoints: t.procedure.input(z.any()).mutation(() => null),
+  }),
+  sections: t.router({
+    list: t.procedure.input(z.any()).query(() => null),
+    listAll: t.procedure.query(() => null),
+    create: t.procedure.input(z.any()).mutation(() => null),
+    update: t.procedure.input(z.any()).mutation(() => null),
+    delete: t.procedure.input(z.any()).mutation(() => null),
+    reorder: t.procedure.input(z.any()).mutation(() => null),
   }),
   publicSupportClients: t.router({
     getAvailable: t.procedure.query(() => null),

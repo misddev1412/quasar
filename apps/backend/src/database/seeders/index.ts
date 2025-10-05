@@ -2,6 +2,7 @@ export { PermissionSeeder } from './permission.seeder';
 export { SeoSeeder } from './seo.seeder';
 export { AdminSeeder } from './admin.seeder';
 export { SettingsSeeder } from './settings.seeder';
+export { SectionsSeeder } from './sections.seeder';
 export { UserActivitySeeder } from './user-activity.seeder';
 export { SeederModule } from './seeder.module';
 export { MainSeederApp, bootstrap } from './main.seeder';

@@ -13,6 +13,7 @@
     "seed:administrative-divisions": "cd apps/backend && npx ts-node -r tsconfig-paths/register --project tsconfig.scripts.json src/database/seeders/dynamic.seeder.ts administrative-divisions",
     "seed:permissions": "cd apps/backend && npx ts-node -r tsconfig-paths/register --project tsconfig.scripts.json src/database/seeders/dynamic.seeder.ts permissions",
     "seed:seo": "cd apps/backend && npx ts-node -r tsconfig-paths/register --project tsconfig.scripts.json src/database/seeders/dynamic.seeder.ts seo",
+    "seed:section": "cd apps/backend && npx ts-node -r tsconfig-paths/register --project tsconfig.scripts.json src/database/seeders/dynamic.seeder.ts section",
     "seed:settings": "cd apps/backend && npx ts-node -r tsconfig-paths/register --project tsconfig.scripts.json src/database/seeders/dynamic.seeder.ts settings",
     "seed:user-activity": "cd apps/backend && npx ts-node -r tsconfig-paths/register --project tsconfig.scripts.json src/database/seeders/dynamic.seeder.ts user-activity",
     "backend:build": "nx build backend",

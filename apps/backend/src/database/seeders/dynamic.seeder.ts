@@ -16,6 +16,7 @@ import { UserActivitySeeder } from './user-activity.seeder';
 import { CountriesSeeder } from './countries.seeder';
 import { AdministrativeDivisionsSeeder } from './administrative-divisions.seeder';
 import databaseConfig from '../../config/database.config';
+import { SectionsSeeder } from './sections.seeder';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ const AVAILABLE_SEEDERS = {
   admin: AdminSeeder,
   settings: SettingsSeeder,
   'user-activity': UserActivitySeeder,
+  section: SectionsSeeder
 };
 
 /**

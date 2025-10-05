@@ -11,6 +11,8 @@ import { UserActivity } from '../../modules/user/entities/user-activity.entity';
 import { UserSession } from '../../modules/user/entities/user-session.entity';
 import { SEOEntity } from '../../modules/seo/entities/seo.entity';
 import { SettingEntity } from '../../modules/settings/entities/setting.entity';
+import { SectionEntity } from '../../modules/sections/entities/section.entity';
+import { SectionTranslationEntity } from '../../modules/sections/entities/section-translation.entity';
 import { Country } from '../../modules/products/entities/country.entity';
 import { AdministrativeDivision } from '../../modules/products/entities/administrative-division.entity';
 import { PermissionRepository } from '../../modules/user/repositories/permission.repository';
@@ -20,6 +22,7 @@ import { PermissionSeeder } from './permission.seeder';
 import { SeoSeeder } from './seo.seeder';
 import { AdminSeeder } from './admin.seeder';
 import { SettingsSeeder } from './settings.seeder';
+import { SectionsSeeder } from './sections.seeder';
 import { UserActivitySeeder } from './user-activity.seeder';
 import { CountriesSeeder } from './countries.seeder';
 import { AdministrativeDivisionsSeeder } from './administrative-divisions.seeder';
@@ -38,6 +41,8 @@ import { AdministrativeDivisionsSeeder } from './administrative-divisions.seeder
       UserSession,
       SEOEntity,
       SettingEntity,
+      SectionEntity,
+      SectionTranslationEntity,
       Country,
       AdministrativeDivision
     ]),
@@ -50,10 +55,11 @@ import { AdministrativeDivisionsSeeder } from './administrative-divisions.seeder
     SeoSeeder,
     AdminSeeder,
     SettingsSeeder,
+    SectionsSeeder,
     UserActivitySeeder,
     CountriesSeeder,
     AdministrativeDivisionsSeeder
   ],
-  exports: [PermissionSeeder, SeoSeeder, AdminSeeder, SettingsSeeder, UserActivitySeeder, CountriesSeeder, AdministrativeDivisionsSeeder],
+  exports: [PermissionSeeder, SeoSeeder, AdminSeeder, SettingsSeeder, SectionsSeeder, UserActivitySeeder, CountriesSeeder, AdministrativeDivisionsSeeder],
 })
 export class SeederModule {} 

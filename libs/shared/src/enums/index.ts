@@ -12,4 +12,7 @@ export * from './status.enums';
 
 // Error and message code enums
 export * from './error-codes.enums';
-export * from './message-codes.enums'; 
+export * from './message-codes.enums';
+
+// Content configuration enums
+export * from './section.enums';

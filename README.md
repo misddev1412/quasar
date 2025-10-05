@@ -48,6 +48,69 @@ yarn nx serve admin    # Admin app on http://localhost:4200 (default)
 PORT=3000 yarn nx serve admin  # Admin app on http://localhost:3000
 ```
 
+
+## 🧩 Section Manager
+
+The Section Manager provides a multi-language content layout system that lets administrators compose the home page from reusable sections. It ships with:
+
+- Drag-and-drop ordering and enable/disable controls in `apps/admin` → `/sections/[page]`.
+- Structured JSON configs per section type with per-locale overrides.
+- Public `sections.list(page, locale)` tRPC endpoint consumed by the Next.js frontend.
+- Seed data that provisions a production-ready home page layout.
+
+### Section Config Shapes
+
+Each section entry contains a `config` object with type-specific settings. Example payloads:
+
+- `hero_slider`
+  ```json
+  {
+    "autoplay": true,
+    "interval": 6000,
+    "slides": [
+      {
+        "id": "hero-default-1",
+        "title": "Build immersive storefronts",
+        "subtitle": "Composable experiences tailored to every launch",
+        "imageUrl": "https://...",
+        "ctaLabel": "Explore sections",
+        "ctaUrl": "#sections"
+      }
+    ]
+  }
+  ```
+- `featured_products`
+  ```json
+  {
+    "productIds": ["SKU-1001", "SKU-1002"],
+    "displayStyle": "grid",
+    "itemsPerRow": 4
+  }
+  ```
+- `products_by_category`
+  ```json
+  {
+    "categoryId": "editorial",
+    "limit": 6,
+    "sort": "newest"
+  }
+  ```
+- `news`
+  ```json
+  {
+    "limit": 3,
+    "categories": ["press", "product"]
+  }
+  ```
+- `custom_html`
+  ```json
+  {
+    "html": "<div class="rounded-3xl...">Campaign content</div>"
+  }
+  ```
+
+Translations can optionally provide a `configOverride` JSON blob to tweak config per locale (for example, localized CTA labels).
+
 ## 📡 tRPC API Architecture
 
 ### Backend Implementation

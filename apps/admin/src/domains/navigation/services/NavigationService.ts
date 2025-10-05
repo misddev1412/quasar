@@ -23,6 +23,7 @@ import ViewListIcon from '@mui/icons-material/ViewList';
 import CreateIcon from '@mui/icons-material/Create';
 import CategoryIcon from '@mui/icons-material/Category';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import ViewQuiltIcon from '@mui/icons-material/ViewQuilt';
 import BrandingWatermarkIcon from '@mui/icons-material/BrandingWatermark';
 import BusinessIcon from '@mui/icons-material/Business';
 import TuneIcon from '@mui/icons-material/Tune';
@@ -113,6 +114,11 @@ export class NavigationService implements INavigationService {
                 path: '/posts/tags'
               }
             ]
+          },
+          {
+            icon: React.createElement(ViewQuiltIcon),
+            label: t('admin.sections', 'Sections'),
+            path: '/sections/home'
           }
         ]
       },

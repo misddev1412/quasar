@@ -12,6 +12,7 @@ import { PermissionSeeder } from './permission.seeder';
 import { SeoSeeder } from './seo.seeder';
 import { AdminSeeder } from './admin.seeder';
 import { SettingsSeeder } from './settings.seeder';
+import { SectionsSeeder } from './sections.seeder';
 import { UserActivitySeeder } from './user-activity.seeder';
 import { CountriesSeeder } from './countries.seeder';
 import { AdministrativeDivisionsSeeder } from './administrative-divisions.seeder';
@@ -39,6 +40,7 @@ export async function bootstrap() {
     const seoSeeder = app.get(SeoSeeder);
     const adminSeeder = app.get(AdminSeeder);
     const settingsSeeder = app.get(SettingsSeeder);
+    const sectionsSeeder = app.get(SectionsSeeder);
     const userActivitySeeder = app.get(UserActivitySeeder);
     const countriesSeeder = app.get(CountriesSeeder);
     const administrativeDivisionsSeeder = app.get(AdministrativeDivisionsSeeder);
@@ -50,6 +52,7 @@ export async function bootstrap() {
     await seoSeeder.seed();
     await adminSeeder.seed();
     await settingsSeeder.seed();
+    await sectionsSeeder.seed();
     await userActivitySeeder.seed();
 
     console.log('All seeders completed successfully');

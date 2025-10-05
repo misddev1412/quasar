@@ -366,6 +366,7 @@
     "translations": "Manage Translations",
     "locale_settings": "Language Settings",
     "seo_management": "SEO Management",
+    "sections": "Sections",
     "user_management": "User Management",
     "user_list": "User List",
     "mail_templates": "Mail Templates",
@@ -751,6 +752,7 @@
     "add": "Add"
   },
   "admin": {
+    "sections": "Sections",
     "update_user": "Update User",
     "user_information": "User Information",
     "user_information_description": "Fill in the details below to update the user account.",

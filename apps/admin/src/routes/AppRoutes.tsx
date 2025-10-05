@@ -46,6 +46,7 @@ import SuppliersPage from '../pages/products/suppliers';
 import PaymentMethodsPage from '../pages/payment-methods';
 import DeliveryMethodsPage from '../pages/delivery-methods';
 import SupportClientsPage from '../pages/support-clients';
+import SectionsPage from '../pages/sections';
 // Order Management
 import OrdersIndexPage from '../pages/orders';
 import OrderCreatePage from '../pages/orders/create';
@@ -142,6 +143,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/payment-methods" element={<ProtectedRoute><PaymentMethodsPage /></ProtectedRoute>} />
       <Route path="/delivery-methods" element={<ProtectedRoute><DeliveryMethodsPage /></ProtectedRoute>} />
       <Route path="/support-clients" element={<ProtectedRoute><SupportClientsPage /></ProtectedRoute>} />
+      <Route path="/sections" element={<Navigate to="/sections/home" replace />} />
+      <Route path="/sections/:page" element={<ProtectedRoute><SectionsPage /></ProtectedRoute>} />
       <Route path="/products/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
       <Route path="/products/categories/create" element={<ProtectedRoute><CategoryCreatePage /></ProtectedRoute>} />
       <Route path="/products/categories/:id/edit" element={<ProtectedRoute><EditCategoryPage /></ProtectedRoute>} />

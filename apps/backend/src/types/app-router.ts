@@ -1,6 +1,7 @@
 import { router, procedure } from '../trpc/trpc';
 import { z } from 'zod';
 import { apiResponseSchema, paginatedResponseSchema, ApiResponse } from '../trpc/schemas/response.schemas';
+import { createSectionSchema, updateSectionSchema, reorderSectionsSchema } from '../modules/sections/dto/section.dto';
 
 // Zod schemas for validation
 const userRoleSchema = z.enum([
@@ -55,6 +56,54 @@ export const appRouter = router({
 
   // Define type information for client-side usage
   // The actual implementation is handled by NestJS-tRPC at runtime
+  // Sections router
+  sections: router({
+    list: procedure
+      .input(z.object({
+        page: z.string(),
+        locale: z.string(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    listAll: procedure
+      .input(z.object({ page: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    create: procedure
+      .input(createSectionSchema)
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    update: procedure
+      .input(z.object({ id: z.string(), data: updateSectionSchema }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    delete: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    reorder: procedure
+      .input(reorderSectionsSchema)
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
   translation: router({
     getTranslations: procedure
       .input(z.object({ locale: z.enum(['en', 'vi']) }))
