@@ -108,6 +108,34 @@ export class ProductService {
     }
   }
 
+  static async getProductsByIds(ids: string[]): Promise<Product[]> {
+    if (!ids || ids.length === 0) {
+      return [];
+    }
+
+    const results = await Promise.all(
+      ids.map(async (id) => {
+        try {
+          const response = await trpcClient.clientProducts.getProductById.query({ id }) as unknown as ApiResponse<{ product: Product }>;
+          const product = response.data?.product;
+          if (!product) return null;
+
+          const normalized: Product = { ...product } as Product;
+          if (normalized.price == null) {
+            const fallbackPrice = (product as any).lowestPrice ?? 0;
+            normalized.price = fallbackPrice;
+          }
+          return normalized;
+        } catch (error) {
+          console.error(`Error fetching product ${id}:`, error);
+          return null;
+        }
+      })
+    );
+
+    return results.filter((product): product is Product => Boolean(product));
+  }
+
   static async getNewProducts(): Promise<ProductListResponse> {
     try {
       const response = await trpcClient.clientProducts.getNewProducts.query() as unknown as PaginatedApiResponse<Product>;
@@ -136,9 +164,15 @@ export class ProductService {
     }
   }
 
-  static async getProductsByCategory(categoryId?: string): Promise<ProductListResponse> {
+  static async getProductsByCategory(
+    categoryId?: string,
+    options: { strategy?: 'latest' | 'featured' | 'bestsellers' | 'custom' } = {},
+  ): Promise<ProductListResponse> {
     try {
-      const response = await trpcClient.clientProducts.getProductsByCategory.query({ categoryId }) as unknown as PaginatedApiResponse<Product>;
+      const response = await trpcClient.clientProducts.getProductsByCategory.query({
+        categoryId,
+        strategy: options.strategy,
+      }) as unknown as PaginatedApiResponse<Product>;
 
       // For paginated responses, the data is directly in response.data
       const paginateData = response.data;

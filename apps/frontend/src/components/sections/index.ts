@@ -5,6 +5,6 @@ export { NewsSection } from './NewsSection';
 export { CustomHtmlSection } from './CustomHtmlSection';
 export type { HeroSliderConfig, SectionTranslationContent } from './HeroSlider';
 export type { FeaturedProductsConfig } from './FeaturedProducts';
-export type { ProductsByCategoryConfig } from './ProductsByCategory';
-export type { NewsSectionConfig } from './NewsSection';
+export type { ProductsByCategoryConfig, ProductsByCategoryRowConfig, ProductsByCategoryStrategy } from './ProductsByCategory';
+export type { NewsSectionConfig, NewsSectionRowConfig, NewsSectionStrategy } from './NewsSection';
 export type { CustomHtmlConfig } from './CustomHtmlSection';

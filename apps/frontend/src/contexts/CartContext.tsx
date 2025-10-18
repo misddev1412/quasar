@@ -55,9 +55,13 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       return { ...state, items: action.payload };
 
     case 'ADD_ITEM':
+      console.log('ADD_ITEM action received, payload:', action.payload);
+      console.log('Current items before adding:', state.items);
+      const newItems = [...state.items, action.payload];
+      console.log('New items after adding:', newItems);
       return {
         ...state,
-        items: [...state.items, action.payload],
+        items: newItems,
       };
 
     case 'REMOVE_ITEM':
@@ -175,20 +179,28 @@ export const CartProvider: React.FC<CartProviderProps> = ({
   // Load cart from localStorage
   const loadCartFromStorage = useCallback(async () => {
     try {
+      console.log('Loading cart from storage...');
       const stored = localStorage.getItem(CART_STORAGE_KEY);
+      console.log('Found stored cart:', stored);
+
       if (stored) {
         const cartStorage: CartStorage = JSON.parse(stored);
+        console.log('Parsed cart storage:', cartStorage);
 
         // Check version compatibility
         if (cartStorage.version !== CART_VERSION) {
+          console.log('Version mismatch, clearing cart');
           localStorage.removeItem(CART_STORAGE_KEY);
           return;
         }
 
         // Load items and restore state
+        const enrichedItems = await enrichCartItems(cartStorage.items);
+        console.log('Enriched items from storage:', enrichedItems);
+
         dispatch({
           type: 'SET_ITEMS',
-          payload: await enrichCartItems(cartStorage.items),
+          payload: enrichedItems,
         });
 
         if (cartStorage.shippingOption) {
@@ -214,6 +226,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({
   // Save cart to localStorage
   const saveCartToStorage = useCallback(() => {
     try {
+      console.log('Saving cart to storage, current items:', state.items);
       const cartStorage: CartStorage = {
         items: state.items.map(({ id, productId, variantId, quantity, addedAt, updatedAt }) => ({
           id,
@@ -228,7 +241,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({
         lastUpdated: new Date(),
         version: CART_VERSION,
       };
+      console.log('Cart data to save:', cartStorage);
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartStorage));
+      console.log('Cart saved to localStorage successfully');
+
+      // Verify it was saved
+      const saved = localStorage.getItem(CART_STORAGE_KEY);
+      console.log('Verified saved cart:', saved);
     } catch (error) {
       console.error('Error saving cart to storage:', error);
     }
@@ -236,18 +255,60 @@ export const CartProvider: React.FC<CartProviderProps> = ({
 
   // Enrich cart items with product details
   const enrichCartItems = async (items: CartItem[]): Promise<CartItemDetails[]> => {
-    // In a real app, this would fetch from API
-    // For now, we'll return basic details
-    return items.map(item => ({
-      ...item,
-      product: {} as Product, // Would be fetched from API
-      variant: item.variantId ? {} as ProductVariant : undefined,
-      unitPrice: 0, // Would be calculated from product/variant
-      totalPrice: 0, // Would be calculated
-      inStock: true, // Would be checked from product/variant
-      lowStock: false, // Would be checked from product/variant
-      maxQuantity, // Would be determined by product/variant stock
-    }));
+    const enrichedItems: CartItemDetails[] = [];
+
+    for (const item of items) {
+      try {
+        // Import ProductService dynamically to avoid circular dependency
+        const { ProductService } = await import('../services/product.service');
+        const product = await ProductService.getProductById(item.productId);
+
+        if (!product) {
+          // Skip items with invalid products
+          continue;
+        }
+
+        // Find variant if specified
+        let variant: ProductVariant | undefined;
+        let unitPrice = product.price || 0;
+        let inStock = product.isActive;
+        let lowStock = false;
+        let stockQuantity = 0;
+
+        if (item.variantId && product.variants) {
+          variant = product.variants.find(v => String(v.id) === String(item.variantId));
+          if (variant) {
+            unitPrice = variant.price;
+            stockQuantity = variant.stockQuantity;
+            inStock = inStock && variant.isActive && variant.stockQuantity > 0;
+            lowStock = variant.stockQuantity <= (variant.lowStockThreshold || 5);
+          }
+        } else {
+          // For products without variants, assume some stock if active
+          stockQuantity = 99; // Default stock for simple products
+          lowStock = false;
+        }
+
+        const totalPrice = unitPrice * item.quantity;
+
+        enrichedItems.push({
+          ...item,
+          product,
+          variant,
+          unitPrice,
+          totalPrice,
+          inStock,
+          lowStock,
+          maxQuantity: Math.min(maxQuantity, stockQuantity),
+        });
+      } catch (error) {
+        console.error(`Error enriching cart item ${item.id}:`, error);
+        // Skip invalid items
+        continue;
+      }
+    }
+
+    return enrichedItems;
   };
 
   // Emit cart event
@@ -261,33 +322,113 @@ export const CartProvider: React.FC<CartProviderProps> = ({
     const errors: CartValidation['errors'] = [];
     const warnings: CartValidation['warnings'] = [];
 
-    state.items.forEach(item => {
-      if (!item.inStock) {
+    // Refresh product data to validate against current stock
+    const validatedItems: CartItemDetails[] = [];
+    for (const item of state.items) {
+      try {
+        const { ProductService } = await import('../services/product.service');
+        const product = await ProductService.getProductById(item.productId);
+
+        if (!product) {
+          errors.push({
+            type: 'product_unavailable',
+            itemId: item.id,
+            message: `Product ${item.productId} is no longer available`,
+            severity: 'error',
+          });
+          continue;
+        }
+
+        // Check if product is still active
+        if (!product.isActive) {
+          errors.push({
+            type: 'product_unavailable',
+            itemId: item.id,
+            message: `${product.name} is no longer available`,
+            severity: 'error',
+          });
+          continue;
+        }
+
+        // Find variant if specified
+        let variant: ProductVariant | undefined;
+        let stockQuantity = 0;
+        let inStock = true;
+        let lowStock = false;
+
+        if (item.variantId && product.variants) {
+          variant = product.variants.find(v => String(v.id) === String(item.variantId));
+          if (!variant || !variant.isActive) {
+            errors.push({
+              type: 'variant_unavailable',
+              itemId: item.id,
+              message: `Selected variant for ${product.name} is no longer available`,
+              severity: 'error',
+            });
+            continue;
+          }
+          stockQuantity = variant.stockQuantity;
+          inStock = variant.stockQuantity > 0;
+          lowStock = variant.stockQuantity <= (variant.lowStockThreshold || 5);
+        } else {
+          // For products without variants, assume some stock if active
+          stockQuantity = 99;
+          inStock = true;
+          lowStock = false;
+        }
+
+        // Create updated item with current stock info
+        const updatedItem: CartItemDetails = {
+          ...item,
+          product,
+          variant,
+          inStock,
+          lowStock,
+          maxQuantity: Math.min(maxQuantity, stockQuantity),
+        };
+
+        validatedItems.push(updatedItem);
+
+        if (!inStock) {
+          errors.push({
+            type: 'out_of_stock',
+            itemId: item.id,
+            message: `${product.name} is out of stock`,
+            severity: 'error',
+          });
+        }
+
+        if (lowStock && inStock) {
+          warnings.push({
+            type: 'low_stock',
+            itemId: item.id,
+            message: `Only ${stockQuantity} ${product.name} left in stock`,
+          });
+        }
+
+        if (item.quantity > stockQuantity) {
+          errors.push({
+            type: 'quantity_limit',
+            itemId: item.id,
+            message: `Quantity exceeds available stock for ${product.name}. Maximum allowed: ${stockQuantity}`,
+            severity: 'error',
+          });
+        }
+      } catch (error) {
+        console.error(`Error validating cart item ${item.id}:`, error);
         errors.push({
-          type: 'out_of_stock',
+          type: 'product_unavailable',
           itemId: item.id,
-          message: `${item.product.name} is out of stock`,
+          message: `Unable to validate product availability`,
           severity: 'error',
         });
       }
+    }
 
-      if (item.lowStock) {
-        warnings.push({
-          type: 'low_stock',
-          itemId: item.id,
-          message: `Only ${item.maxQuantity} ${item.product.name} left in stock`,
-        });
-      }
-
-      if (item.quantity > item.maxQuantity) {
-        errors.push({
-          type: 'quantity_limit',
-          itemId: item.id,
-          message: `Quantity exceeds available stock for ${item.product.name}`,
-          severity: 'error',
-        });
-      }
-    });
+    // Update items with validated data
+    if (validatedItems.length !== state.items.length) {
+      dispatch({ type: 'SET_ITEMS', payload: validatedItems });
+    }
 
     const validation = {
       isValid: errors.length === 0,
@@ -297,30 +438,71 @@ export const CartProvider: React.FC<CartProviderProps> = ({
 
     dispatch({ type: 'SET_VALIDATION', payload: validation });
     return validation;
-  }, [state.items]);
+  }, [state.items, maxQuantity]);
 
   // Add item to cart
   const addItem = useCallback(async (productId: string, quantity: number, variantId?: string) => {
+    console.log('CartContext addItem called:', { productId, quantity, variantId });
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'SET_ERROR', payload: undefined });
 
     try {
-      // In a real app, this would validate against inventory and fetch product details
+      // Fetch product data to create enriched cart item
+      console.log('Fetching product data...');
+      const { ProductService } = await import('../services/product.service');
+      const product = await ProductService.getProductById(productId);
+
+      console.log('Product fetched:', product);
+
+      if (!product) {
+        console.error('Product not found:', productId);
+        throw new Error('Product not found');
+      }
+
+      // Check if product is active
+      if (!product.isActive) {
+        console.error('Product is not active:', product);
+        throw new Error('Product is not available');
+      }
+
+      // Find variant if specified
+      let variant: ProductVariant | undefined;
+      let unitPrice = product.price || 0;
+      let inStock = product.isActive;
+      let stockQuantity = 0;
+
+      if (variantId && product.variants) {
+        variant = product.variants.find(v => String(v.id) === String(variantId));
+        if (!variant) {
+          throw new Error('Product variant not found');
+        }
+        if (!variant.isActive || variant.stockQuantity <= 0) {
+          throw new Error('Variant is not available or out of stock');
+        }
+        unitPrice = variant.price;
+        stockQuantity = variant.stockQuantity;
+        inStock = variant.isActive && variant.stockQuantity > 0;
+      } else {
+        // For products without variants, assume some stock if active
+        stockQuantity = 99; // Default stock for simple products
+      }
+
       const existingItem = state.items.find(item =>
         item.productId === productId && item.variantId === variantId
       );
 
       if (existingItem) {
         const newQuantity = existingItem.quantity + quantity;
-        if (newQuantity > existingItem.maxQuantity) {
-          throw new Error('Quantity exceeds available stock');
+        const maxAllowedQuantity = Math.min(maxQuantity, stockQuantity);
+        if (newQuantity > maxAllowedQuantity) {
+          throw new Error(`Quantity exceeds available stock. Maximum allowed: ${maxAllowedQuantity}`);
         }
         dispatch({
           type: 'UPDATE_QUANTITY',
           payload: { itemId: existingItem.id, quantity: newQuantity },
         });
       } else {
-        // Create new cart item
+        // Create new cart item with full product data
         const newItem: CartItemDetails = {
           id: `cart_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           productId,
@@ -328,27 +510,31 @@ export const CartProvider: React.FC<CartProviderProps> = ({
           quantity,
           addedAt: new Date(),
           updatedAt: new Date(),
-          product: {} as Product, // Would be fetched from API
-          variant: variantId ? {} as ProductVariant : undefined,
-          unitPrice: 0, // Would be calculated from product/variant
-          totalPrice: 0, // Would be calculated
-          inStock: true, // Would be checked from product/variant
-          lowStock: false, // Would be checked from product/variant
-          maxQuantity, // Would be determined by product/variant stock
+          product,
+          variant,
+          unitPrice,
+          totalPrice: unitPrice * quantity,
+          inStock,
+          lowStock: stockQuantity <= 5,
+          maxQuantity: Math.min(maxQuantity, stockQuantity),
         };
         dispatch({ type: 'ADD_ITEM', payload: newItem });
       }
 
+      console.log('Item added successfully, emitting event and validating');
       emitEvent('item_added', { productId, quantity, variantId });
       await validateCart();
+      console.log('Cart validation completed');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to add item to cart';
+      console.error('Add to cart failed:', error);
       dispatch({ type: 'SET_ERROR', payload: message });
       throw error;
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
+      console.log('Add to cart process finished');
     }
-  }, [state.items, validateCart, emitEvent]);
+  }, [state.items, validateCart, emitEvent, maxQuantity]);
 
   // Remove item from cart
   const removeItem = useCallback(async (itemId: string) => {
@@ -523,6 +709,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({
 
   // Save cart to storage whenever it changes
   useEffect(() => {
+    console.log('State changed, saving to storage. Items count:', state.items.length);
     saveCartToStorage();
   }, [state, saveCartToStorage]);
 

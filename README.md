@@ -90,11 +90,35 @@ Each section entry contains a `config` object with type-specific settings. Examp
 - `products_by_category`
   ```json
   {
-    "categoryId": "editorial",
-    "limit": 6,
-    "sort": "newest"
+    "displayStyle": "grid",
+    "rows": [
+      {
+        "id": "homepage-row-1",
+        "strategy": "latest",
+        "productIds": [],
+        "limit": 6
+      },
+      {
+        "id": "homepage-row-2",
+        "strategy": "featured",
+        "productIds": [],
+        "limit": 6
+      },
+      {
+        "id": "homepage-row-3",
+        "strategy": "custom",
+        "productIds": [],
+        "limit": 6
+      }
+    ]
   }
   ```
+
+  Strategies:
+  - `latest`: auto-load the newest products from the selected category.
+  - `featured`: auto-load featured products from the selected category.
+  - `bestsellers`: placeholder for upcoming sales statistics (currently disabled).
+  - `custom`: manually pick specific product IDs (tooling surface provides category-aware picker).
 - `news`
   ```json
   {

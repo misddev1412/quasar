@@ -35,6 +35,8 @@ export enum ModuleCode {
   ARTICLE = 31,           // Article Management
   COMMENT = 32,           // Comment System
   TAG = 33,               // Tag Management
+  SECTION = 34,           // Section Management
+  MENU = 35,              // Menu Management
   
   // Subscription & Billing (40-49)
   SUBSCRIPTION = 40,      // Subscription Management

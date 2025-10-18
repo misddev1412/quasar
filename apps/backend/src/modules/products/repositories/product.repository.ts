@@ -35,6 +35,17 @@ export interface PaginatedProducts {
 
 @Injectable()
 export class ProductRepository {
+  private static readonly UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
+
+  private static sanitizeCategoryIds(categoryIds?: string[]): string[] {
+    if (!Array.isArray(categoryIds) || categoryIds.length === 0) {
+      return [];
+    }
+
+    return categoryIds
+      .map((value) => (typeof value === 'string' ? value.trim() : ''))
+      .filter((value) => value && ProductRepository.UUID_REGEX.test(value));
+  }
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
@@ -44,9 +55,34 @@ export class ProductRepository {
 
   async findAll(options: ProductQueryOptions = {}): Promise<PaginatedProducts> {
 
-    const { page = 1, limit = 20, filters = {}, relations = [] } = options;
+    const {
+      page = 1,
+      limit = 20,
+      filters = {},
+      relations = [],
+    } = options;
+
+    const safePage = Number.isInteger(page) && page > 0 ? page : 1;
+    const safeLimit = Number.isInteger(limit) && limit > 0 ? limit : 20;
 
     try {
+      const sanitizedCategoryIds = ProductRepository.sanitizeCategoryIds(filters.categoryIds);
+
+      // If category filtering is requested, optimize by loading categories first
+      if (sanitizedCategoryIds.length > 0) {
+        return this.findProductsByCategories(safePage, safeLimit, { ...filters, categoryIds: sanitizedCategoryIds }, relations);
+      }
+
+      if (filters.categoryIds && filters.categoryIds.length > 0 && sanitizedCategoryIds.length === 0) {
+        return {
+          items: [],
+          total: 0,
+          page: safePage,
+          limit: safeLimit,
+          totalPages: 0,
+        };
+      }
+
       // Create basic query builder
       const queryBuilder = this.productRepository.createQueryBuilder('product');
 
@@ -120,7 +156,7 @@ export class ProductRepository {
         queryBuilder.andWhere('product.isFeatured = :isFeatured', { isFeatured: filters.isFeatured });
       }
 
-      if (filters.categoryIds && filters.categoryIds.length > 0) {
+      if (sanitizedCategoryIds.length > 0) {
         const hasCategoryRelation = relations.some(rel =>
           rel === 'productCategories' || rel.startsWith('productCategories.')
         );
@@ -130,7 +166,7 @@ export class ProductRepository {
           queryBuilder.leftJoin('product.productCategories', categoryAlias);
         }
 
-        queryBuilder.andWhere(`${categoryAlias}.categoryId IN (:...categoryIds)`, { categoryIds: filters.categoryIds });
+        queryBuilder.andWhere(`${categoryAlias}.categoryId IN (:...categoryIds)`, { categoryIds: sanitizedCategoryIds });
       }
 
       if (filters.minPrice !== undefined) {
@@ -150,10 +186,10 @@ export class ProductRepository {
       }
 
       // Apply pagination and ordering
-      const skip = (page - 1) * limit;
+      const skip = (safePage - 1) * safeLimit;
       queryBuilder
         .skip(skip)
-        .take(limit)
+        .take(safeLimit)
         .orderBy('product.createdAt', 'DESC');
 
       // Get count with same filters for pagination
@@ -183,9 +219,9 @@ export class ProductRepository {
         countQueryBuilder.andWhere('product.isFeatured = :isFeatured', { isFeatured: filters.isFeatured });
       }
 
-      if (filters.categoryIds && filters.categoryIds.length > 0) {
+      if (sanitizedCategoryIds.length > 0) {
         countQueryBuilder.leftJoin('product.productCategories', 'pc');
-        countQueryBuilder.andWhere('pc.categoryId IN (:...categoryIds)', { categoryIds: filters.categoryIds });
+        countQueryBuilder.andWhere('pc.categoryId IN (:...categoryIds)', { categoryIds: sanitizedCategoryIds });
       }
 
       if (filters.minPrice !== undefined) {
@@ -208,13 +244,13 @@ export class ProductRepository {
 
       const items = await queryBuilder.getMany();
 
-      const totalPages = Math.ceil(total / limit);
+      const totalPages = safeLimit > 0 ? Math.ceil(total / safeLimit) : 0;
 
       const result = {
         items,
         total,
-        page,
-        limit,
+        page: safePage,
+        limit: safeLimit,
         totalPages,
       };
 
@@ -409,14 +445,6 @@ export class ProductRepository {
     });
   }
 
-  async findByIds(productIds: string[]): Promise<Product[]> {
-    if (productIds.length === 0) return [];
-
-    return await this.productRepository.findBy({
-      id: productIds as any
-    });
-  }
-
   async updateProductCategories(productId: string, categoryIds: string[]): Promise<void> {
     // First, remove existing category relationships for this product
     await this.productCategoryRepository.delete({ productId });
@@ -431,6 +459,201 @@ export class ProductRepository {
       );
 
       await this.productCategoryRepository.save(productCategories);
+    }
+  }
+
+  async findByIds(ids: string[], relations: string[] = []): Promise<Product[]> {
+    if (!ids || ids.length === 0) {
+      return [];
+    }
+
+    const queryBuilder = this.productRepository.createQueryBuilder('product');
+
+    const addedJoins = new Set<string>();
+    relations.forEach((relation) => {
+      const relationParts = relation.split('.');
+      if (relationParts.length === 1) {
+        const joinKey = `product.${relation}`;
+        if (!addedJoins.has(joinKey)) {
+          queryBuilder.leftJoinAndSelect(joinKey, relation);
+          addedJoins.add(joinKey);
+        }
+      } else {
+        let currentAlias = 'product';
+        relationParts.forEach((part, index) => {
+          const joinKey = `${currentAlias}.${part}`;
+          const alias = relationParts.slice(0, index + 1).join('_');
+          if (!addedJoins.has(joinKey)) {
+            if (index === relationParts.length - 1) {
+              queryBuilder.leftJoinAndSelect(joinKey, alias);
+            } else {
+              queryBuilder.leftJoin(joinKey, alias);
+            }
+            addedJoins.add(joinKey);
+          }
+          currentAlias = alias;
+        });
+      }
+    });
+
+    const products = await queryBuilder
+      .where('product.id IN (:...ids)', { ids })
+      .getMany();
+
+    return products.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+  }
+
+  /**
+   * Optimized method to find products by categories
+   * Loads categories first through ProductCategory entity, then fetches products
+   * This approach is more efficient for category-based filtering
+   */
+  private async findProductsByCategories(
+    page: number,
+    limit: number,
+    filters: ProductFilters,
+    relations: string[]
+  ): Promise<PaginatedProducts> {
+    try {
+      const safePage = Number.isInteger(page) && page > 0 ? page : 1;
+      const safeLimit = Number.isInteger(limit) && limit > 0 ? limit : 20;
+
+      const sanitizedCategoryIds = ProductRepository.sanitizeCategoryIds(filters.categoryIds);
+
+      if (sanitizedCategoryIds.length === 0) {
+        return {
+          items: [],
+          total: 0,
+          page: safePage,
+          limit: safeLimit,
+          totalPages: 0,
+        };
+      }
+
+      // Step 1: Find product IDs by category through ProductCategory entity
+      const categoryQueryBuilder = this.productCategoryRepository
+        .createQueryBuilder('pc')
+        .select('pc.productId', 'productId')
+        .where('pc.categoryId IN (:...categoryIds)', { categoryIds: sanitizedCategoryIds });
+
+      // Apply additional filters at category level to reduce result set early
+      const productQueryBuilder = this.productRepository.createQueryBuilder('product')
+        .select('product.id', 'id')
+        .where(`product.id IN (${categoryQueryBuilder.getQuery()})`);
+
+      // Set parameters from category query
+      categoryQueryBuilder.setParameters({ categoryIds: sanitizedCategoryIds });
+      productQueryBuilder.setParameters(categoryQueryBuilder.getParameters());
+
+      // Apply status and active filters early to reduce dataset
+      if (filters.status) {
+        productQueryBuilder.andWhere('product.status = :status', { status: filters.status });
+      }
+      if (filters.isActive !== undefined) {
+        productQueryBuilder.andWhere('product.isActive = :isActive', { isActive: filters.isActive });
+      }
+      if (filters.isFeatured !== undefined) {
+        productQueryBuilder.andWhere('product.isFeatured = :isFeatured', { isFeatured: filters.isFeatured });
+      }
+      if (filters.brandId) {
+        productQueryBuilder.andWhere('product.brandId = :brandId', { brandId: filters.brandId });
+      }
+      if (filters.search) {
+        productQueryBuilder.andWhere(
+          '(product.name ILIKE :search OR product.sku ILIKE :search)',
+          { search: `%${filters.search}%` }
+        );
+      }
+      if (filters.minPrice !== undefined) {
+        productQueryBuilder.andWhere('product.price >= :minPrice', { minPrice: filters.minPrice });
+      }
+      if (filters.maxPrice !== undefined) {
+        productQueryBuilder.andWhere('product.price <= :maxPrice', { maxPrice: filters.maxPrice });
+      }
+
+      // Get total count for pagination
+      const countQueryBuilder = productQueryBuilder.clone();
+      const total = await countQueryBuilder.getCount();
+
+      // Apply pagination and ordering
+      const skip = (safePage - 1) * safeLimit;
+      productQueryBuilder
+        .skip(skip)
+        .take(safeLimit)
+        .orderBy('product.createdAt', 'DESC');
+
+      // Get filtered product IDs
+      const productIdsResult = await productQueryBuilder.getRawMany();
+      const productIds = productIdsResult.map(item => item.id);
+
+      if (productIds.length === 0) {
+        return {
+          items: [],
+          total: 0,
+          page: safePage,
+          limit: safeLimit,
+          totalPages: 0,
+        };
+      }
+
+      // Step 2: Load full products with relations using the filtered IDs
+      const finalQueryBuilder = this.productRepository.createQueryBuilder('product')
+        .where('product.id IN (:...productIds)', { productIds })
+        .orderBy('product.createdAt', 'DESC');
+
+      // Add relations if requested
+      if (relations.length > 0) {
+        const addedJoins = new Set<string>();
+
+        relations.forEach(relation => {
+          const relationParts = relation.split('.');
+
+          if (relationParts.length === 1) {
+            const joinKey = `product.${relation}`;
+            if (!addedJoins.has(joinKey)) {
+              finalQueryBuilder.leftJoinAndSelect(joinKey, relation);
+              addedJoins.add(joinKey);
+            }
+          } else {
+            let currentAlias = 'product';
+
+            relationParts.forEach((part, index) => {
+              if (index === 0) {
+                const joinKey = `${currentAlias}.${part}`;
+                if (!addedJoins.has(joinKey)) {
+                  finalQueryBuilder.leftJoinAndSelect(joinKey, part);
+                  addedJoins.add(joinKey);
+                }
+                currentAlias = part;
+              } else {
+                const parentAlias = currentAlias;
+                const relationAlias = relationParts.slice(0, index + 1).join('_');
+                const joinKey = `${parentAlias}.${part}`;
+
+                if (!addedJoins.has(joinKey)) {
+                  finalQueryBuilder.leftJoinAndSelect(joinKey, relationAlias);
+                  addedJoins.add(joinKey);
+                }
+                currentAlias = relationAlias;
+              }
+            });
+          }
+        });
+      }
+
+      const items = await finalQueryBuilder.getMany();
+      const totalPages = safeLimit > 0 ? Math.ceil(total / safeLimit) : 0;
+
+      return {
+        items,
+        total,
+        page: safePage,
+        limit: safeLimit,
+        totalPages,
+      };
+
+    } catch (error) {
+      throw error;
     }
   }
 }

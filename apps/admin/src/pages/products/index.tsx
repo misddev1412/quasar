@@ -13,9 +13,11 @@ import { trpc } from '../../utils/trpc';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { Product } from '../../types/product';
+import { Product, ProductVariant } from '../../types/product';
 import { ProductFilters, ProductFiltersType } from '../../components/features/ProductFilters';
 import { Breadcrumb } from '../../components/common/Breadcrumb';
+import { ProductVariantsQuickViewModal } from '../../components/products/ProductVariantsQuickViewModal';
+import { ProductVariantQuickEditModal } from '../../components/products/ProductVariantQuickEditModal';
 
 
 const ProductsPage: React.FC = () => {
@@ -53,6 +55,15 @@ const ProductsPage: React.FC = () => {
 
   // Selected products for bulk actions
   const [selectedProductIds, setSelectedProductIds] = useState<Set<string | number>>(new Set());
+  const trpcContext = trpc.useContext();
+
+  const [isVariantsModalOpen, setVariantsModalOpen] = useState(false);
+  const [productForVariants, setProductForVariants] = useState<Product | null>(null);
+  const [variantForEdit, setVariantForEdit] = useState<ProductVariant | null>(null);
+  const [isVariantEditModalOpen, setVariantEditModalOpen] = useState(false);
+  const [togglingVariantId, setTogglingVariantId] = useState<string | null>(null);
+
+  const showVariantsQuickView = isVariantsModalOpen && !isVariantEditModalOpen;
 
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const urlUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -136,6 +147,118 @@ const ProductsPage: React.FC = () => {
     retry: false,
     refetchOnWindowFocus: false,
   });
+
+  const updateVariantMutation = trpc.adminProducts.updateVariant.useMutation();
+
+  const handleOpenVariantsModal = useCallback((product: Product) => {
+    setProductForVariants(product);
+    setVariantsModalOpen(true);
+  }, []);
+
+  const handleCloseVariantsModal = useCallback(() => {
+    setVariantsModalOpen(false);
+    setProductForVariants(null);
+    setVariantEditModalOpen(false);
+    setVariantForEdit(null);
+  }, []);
+
+  const handleVariantEditClick = useCallback((variant: ProductVariant) => {
+    setVariantForEdit(variant);
+    setVariantEditModalOpen(true);
+  }, []);
+
+  const handleVariantEditClose = useCallback(() => {
+    setVariantEditModalOpen(false);
+    setVariantForEdit(null);
+  }, []);
+
+  const handleVariantUpdate = useCallback(async (payload: {
+    id: string;
+    name: string;
+    sku?: string | null;
+    barcode?: string | null;
+    price: number;
+    compareAtPrice?: number | null;
+    costPrice?: number | null;
+    stockQuantity: number;
+    lowStockThreshold?: number | null;
+    trackInventory: boolean;
+    allowBackorders: boolean;
+    isActive: boolean;
+  }) => {
+    try {
+      const response = await updateVariantMutation.mutateAsync(payload);
+      const updatedVariant = (response as any)?.data as ProductVariant | undefined;
+
+      if (updatedVariant) {
+        setProductForVariants((prev) => {
+          if (!prev) return prev;
+          const updatedVariants = (prev.variants || []).map((variant) =>
+            variant.id === updatedVariant.id ? { ...variant, ...updatedVariant } : variant
+          );
+          return { ...prev, variants: updatedVariants } as Product;
+        });
+      }
+
+      addToast({
+        type: 'success',
+        title: t('products.variant_updated', 'Variant updated'),
+        description: t('products.variant_updated_desc', 'The variant has been updated successfully.'),
+      });
+
+      await trpcContext.adminProducts.list.invalidate();
+      setVariantEditModalOpen(false);
+      setVariantForEdit(null);
+    } catch (mutationError: any) {
+      const message = mutationError?.message || t('products.update_variant_error', 'Failed to update variant.');
+      addToast({
+        type: 'error',
+        title: t('common.error', 'Error'),
+        description: message,
+      });
+    }
+  }, [updateVariantMutation, addToast, t, trpcContext]);
+
+  const handleToggleVariantActive = useCallback(async (variant: ProductVariant, nextValue: boolean) => {
+    if (!variant?.id || updateVariantMutation.isPending) {
+      return;
+    }
+
+    setTogglingVariantId(variant.id);
+    try {
+      const response = await updateVariantMutation.mutateAsync({ id: variant.id, isActive: nextValue });
+      const updatedVariant = (response as any)?.data as ProductVariant | undefined;
+
+      if (updatedVariant) {
+        setProductForVariants((prev) => {
+          if (!prev) return prev;
+          const updatedVariants = (prev.variants || []).map((item) =>
+            item.id === updatedVariant.id ? { ...item, ...updatedVariant } : item
+          );
+          return { ...prev, variants: updatedVariants } as Product;
+        });
+      }
+
+      addToast({
+        type: 'success',
+        title: nextValue
+          ? t('products.variant_activated', 'Variant activated')
+          : t('products.variant_deactivated', 'Variant deactivated'),
+        description: t('products.variant_status_updated', 'Variant status has been updated.'),
+      });
+
+      await trpcContext.adminProducts.list.invalidate();
+    } catch (mutationError: any) {
+      const message = mutationError?.message || t('products.update_variant_error', 'Failed to update variant.');
+      addToast({
+        type: 'error',
+        title: t('common.error', 'Error'),
+        description: message,
+      });
+    } finally {
+      setTogglingVariantId(null);
+    }
+  }, [updateVariantMutation, addToast, t, trpcContext]);
 
   const products = (productsData as any)?.data?.products || (productsData as any)?.data?.items || [];
   const totalProducts = (productsData as any)?.data?.total || 0;
@@ -453,11 +576,26 @@ const ProductsPage: React.FC = () => {
     {
       id: 'variants',
       header: t('products.variants', 'Variants'),
-      accessor: (product) => (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-          {product.variants?.length || 0}
-        </span>
-      ),
+      accessor: (product) => {
+        const variantCount = product.variants?.length || 0;
+        const variantLabelTemplate = t('products.variant_count', '{{count}} variants');
+        const variantLabel = variantLabelTemplate.replace('{{count}}', String(variantCount));
+        return (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="px-2 py-1 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-300"
+            onClick={(event) => {
+              event.stopPropagation();
+              handleOpenVariantsModal(product);
+            }}
+          >
+            {variantCount === 1
+              ? t('products.single_variant', '1 variant')
+              : variantLabel}
+          </Button>
+        );
+      },
       isSortable: false,
       hideable: true,
     },
@@ -502,7 +640,7 @@ const ProductsPage: React.FC = () => {
       hideable: false,
       width: '80px',
     },
-  ], [navigate, handleDeleteProduct, t]);
+  ], [navigate, handleDeleteProduct, handleOpenVariantsModal, t]);
 
   // Current sort descriptor for the table
   const sortDescriptor: SortDescriptor<Product> = useMemo(() => ({
@@ -696,6 +834,23 @@ const ProductsPage: React.FC = () => {
             onClick: handleCreateProduct,
             icon: <FiPlus />,
           }}
+        />
+
+        <ProductVariantsQuickViewModal
+          product={productForVariants}
+          isOpen={showVariantsQuickView}
+          onClose={handleCloseVariantsModal}
+          onEditVariant={handleVariantEditClick}
+          onToggleVariantActive={handleToggleVariantActive}
+          togglingVariantId={togglingVariantId}
+        />
+
+        <ProductVariantQuickEditModal
+          variant={variantForEdit}
+          isOpen={isVariantEditModalOpen}
+          onClose={handleVariantEditClose}
+          onSubmit={handleVariantUpdate}
+          isSubmitting={updateVariantMutation.isPending}
         />
       </div>
     </BaseLayout>

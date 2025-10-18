@@ -191,9 +191,10 @@ async function getPreferredLocale(searchParams?: Record<string, string | string[
 export default async function RootPage({
   searchParams,
 }: {
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const locale = await getPreferredLocale(searchParams);
+  const resolvedSearchParams = await searchParams;
+  const locale = await getPreferredLocale(resolvedSearchParams);
   const sections = await fetchSections('home', locale);
   const orderedSections = [...sections].sort((a, b) => a.position - b.position);
 

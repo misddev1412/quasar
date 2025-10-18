@@ -1,6 +1,7 @@
 'use client';
 
 import React, { CSSProperties, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export interface HeroSlideConfig {
   id?: string;
@@ -157,6 +158,7 @@ const buildOverlayStyle = (color: string, opacity?: number): CSSProperties => {
 };
 
 export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) => {
+  const { t } = useTranslation();
   const slides = Array.isArray(config?.slides) && config.slides.length > 0 ? config.slides : defaultSlides;
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -196,14 +198,14 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
 
   const activeSlide = slides[activeIndex] ?? slides[0];
   const heading = activeSlide?.title?.trim() || translation?.title || defaultSlides[0].title;
-  const subheading = activeSlide?.subtitle?.trim() || translation?.subtitle || 'Curated sections';
+  const subheading = activeSlide?.subtitle?.trim() || translation?.subtitle || t('sections.hero.curated_sections');
   const heroDescription = translation?.heroDescription?.trim();
   const slideDescription = activeSlide?.description?.trim();
   const sectionDescription = translation?.description?.trim();
   const description = heroDescription
     || sectionDescription
     || slideDescription
-    || 'Compose landing experiences with reusable sections, localized content, and data-aware product collections tailored to your audience.';
+    || t('sections.hero.latest_stories');
   const secondaryDescription = heroDescription && slideDescription && heroDescription !== slideDescription
     ? slideDescription
     : undefined;
@@ -221,7 +223,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
       />
       {overlayEnabled && <div className="absolute inset-0" style={overlayStyle} />}
 
-      <div className="relative max-w-6xl mx-auto px-6 lg:px-8 py-16 lg:py-24 min-h-[520px] flex flex-col justify-center">
+      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24 min-h-[520px] flex flex-col justify-center">
         <div className="max-w-2xl space-y-4">
           <p className="text-sm uppercase tracking-widest text-blue-100 mb-3">
             {subheading}
@@ -243,14 +245,14 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
                 href={activeSlide?.ctaUrl || '#'}
                 className="inline-flex items-center justify-center rounded-lg bg-white/95 px-6 py-3 text-sm font-semibold text-blue-700 shadow-lg shadow-blue-900/30 backdrop-blur transition hover:bg-white"
               >
-                {activeSlide?.ctaLabel || 'Explore collections'}
+                {activeSlide?.ctaLabel || t('sections.hero.explore_collections')}
               </a>
             )}
             <a
               href="#sections"
               className="inline-flex items-center justify-center rounded-lg border border-white/40 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
             >
-              View sections
+              {t('sections.hero.view_sections')}
             </a>
           </div>
         </div>

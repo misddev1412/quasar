@@ -108,8 +108,17 @@ export const CartDropdownIcon: React.FC<{ className?: string }> = ({ className =
           )}
         </button>
       </DropdownTrigger>
-      <DropdownMenu aria-label={t('aria_labels.cart_dropdown')} variant="flat">
-        <DropdownItem key="cart" textValue={t('title')} isReadOnly>
+      <DropdownMenu
+        aria-label={t('aria_labels.cart_dropdown')}
+        variant="flat"
+        className="min-w-[0] border-none bg-transparent p-0 shadow-none"
+      >
+        <DropdownItem
+          key="cart"
+          textValue={t('title')}
+          isReadOnly
+          className="rounded-2xl bg-transparent px-0 py-0 data-[hover=true]:bg-transparent"
+        >
           <CartDropdown />
         </DropdownItem>
       </DropdownMenu>

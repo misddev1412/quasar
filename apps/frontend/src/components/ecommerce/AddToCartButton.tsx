@@ -1,17 +1,17 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { Button } from '@heroui/react';
-import { FiShoppingCart, FiPlus, FiCheck, FiLoader } from 'react-icons/fi';
-import type { Product } from '../../types/product';
-import type { ProductVariant } from '../../types/product';
+import { FiShoppingCart, FiCheck, FiLoader } from 'react-icons/fi';
+import type { Product, ProductVariant } from '../../types/product';
 import { useCart } from '../../contexts/CartContext';
 import VariantSelectionModal from './VariantSelectionModal';
+import { useAddToCart } from '../../hooks/useAddToCart';
 
 interface AddToCartButtonProps {
   product: Product;
-  onAddToCart?: (product: Product, quantity?: number) => void;
-  onVariantAddToCart?: (variant: ProductVariant, quantity?: number) => void;
+  onAddToCart?: (product: Product, quantity?: number) => void | boolean | Promise<void | boolean>;
+  onVariantAddToCart?: (variant: ProductVariant, quantity?: number) => void | boolean | Promise<void | boolean>;
   quantity?: number;
   size?: 'sm' | 'md' | 'lg';
   variant?: 'solid' | 'bordered' | 'light' | 'flat' | 'faded' | 'shadow';
@@ -21,6 +21,7 @@ interface AddToCartButtonProps {
   disabled?: boolean;
   showQuantitySelector?: boolean;
   iconOnly?: boolean;
+  useInternalVariantSelection?: boolean;
 }
 
 const AddToCartButton: React.FC<AddToCartButtonProps> = ({
@@ -36,107 +37,183 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   disabled = false,
   showQuantitySelector = false,
   iconOnly = false,
+  useInternalVariantSelection = true,
 }) => {
-  const { addItem, isInCart, getItemQuantity, canAddToCart } = useCart();
-  const [isLoading, setIsLoading] = useState(false);
+  const { isInCart, getItemQuantity, canAddToCart } = useCart();
+  const { addToCart, isAdding } = useAddToCart();
   const [isAdded, setIsAdded] = useState(false);
   const [selectedQuantity, setSelectedQuantity] = useState(quantity);
   const [showVariantModal, setShowVariantModal] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const mountedRef = useRef(true);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const getStockQuantity = () => {
-    // Check if product has variants
-    if (product.variants && product.variants.length > 0) {
-      // Return the sum of all variant stock quantities
-      return product.variants.reduce((total, variant) => total + variant.stockQuantity, 0);
-    }
-    // For products without variants, assume they're in stock if active
-    return product.isActive ? 1 : 0;
-  };
+  const isDelegatedMode = !useInternalVariantSelection;
 
-  const handleAddToCart = async () => {
-    // Check if product has variants
-    if (product.variants && product.variants.length > 0) {
-      setShowVariantModal(true);
-      return;
-    }
+  useEffect(() => {
+    mountedRef.current = true;
 
-    const stockQuantity = getStockQuantity();
-    if (stockQuantity <= 0 || disabled || !mountedRef.current) return;
-
-    setIsLoading(true);
-    try {
-      if (mountedRef.current) {
-        await addItem(product.id, selectedQuantity);
-
-        // Call custom handler if provided
-        if (onAddToCart) {
-          await onAddToCart(product, selectedQuantity);
-        }
-
-        setIsAdded(true);
-        // Clear any existing timeout
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-        }
-        timeoutRef.current = setTimeout(() => setIsAdded(false), 2000);
-      }
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-    } finally {
-      if (mountedRef.current) {
-        setIsLoading(false);
-      }
-    }
-  };
-
-  const handleVariantAddToCart = async (variant: ProductVariant, quantity: number) => {
-    if (!mountedRef.current) return;
-
-    setIsLoading(true);
-    try {
-      await addItem(product.id, quantity, variant.id);
-
-      // Call custom handler if provided
-      if (onVariantAddToCart) {
-        await onVariantAddToCart(variant, quantity);
-      }
-
-      setIsAdded(true);
-      // Clear any existing timeout
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-      timeoutRef.current = setTimeout(() => setIsAdded(false), 2000);
-    } catch (error) {
-      console.error('Error adding variant to cart:', error);
-    } finally {
-      if (mountedRef.current) {
-        setIsLoading(false);
-      }
-    }
-  };
-
-  React.useEffect(() => {
     return () => {
       mountedRef.current = false;
-      // Clean up timeout when component unmounts
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
     };
   }, []);
 
-  const handleQuantityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedQuantity(parseInt(e.target.value));
-  };
+  const stockQuantity = useMemo(() => {
+    if (product.variants && product.variants.length > 0) {
+      return product.variants.reduce((total, variant) => total + (Number(variant.stockQuantity) || 0), 0);
+    }
+    return product.isActive ? 1 : 0;
+  }, [product]);
 
-  const stockQuantity = getStockQuantity();
+  const hasPurchasableVariant = useMemo(() => {
+    if (!product.variants || product.variants.length === 0) {
+      return stockQuantity > 0;
+    }
+
+    return product.variants.some(variant => {
+      const available = variant.stockQuantity ?? 0;
+      return available > 0 || variant.allowBackorders || !variant.trackInventory;
+    });
+  }, [product, stockQuantity]);
+
   const currentQuantity = getItemQuantity(product.id);
   const isAlreadyInCart = isInCart(product.id);
   const canAdd = canAddToCart(product.id, selectedQuantity);
-  const isDisabled = disabled || stockQuantity <= 0 || isLoading || !canAdd;
+  const isLoading = isDelegatedMode ? isProcessing : isAdding;
+  const isOutOfStock = product.variants && product.variants.length > 0 ? !hasPurchasableVariant : stockQuantity <= 0;
+  const isDisabled = disabled || isOutOfStock || isLoading || !canAdd;
+
+  const resetAddedIndicator = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => setIsAdded(false), 2000);
+  };
+
+  const markAsAdded = () => {
+    if (!mountedRef.current) {
+      return;
+    }
+    setIsAdded(true);
+    resetAddedIndicator();
+  };
+
+  const handleDelegatedAddToCart = async () => {
+    if (!onAddToCart) {
+      console.warn('AddToCartButton expects an onAddToCart handler when useInternalVariantSelection is false.');
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const result = await Promise.resolve(onAddToCart(product, selectedQuantity));
+
+      if (mountedRef.current && result !== false) {
+        markAsAdded();
+      }
+    } catch (error) {
+      console.error('Failed to add item via delegated handler', error);
+    } finally {
+      if (mountedRef.current) {
+        setIsProcessing(false);
+      }
+    }
+  };
+
+  const handleAddToCart = async () => {
+    if (isDelegatedMode) {
+      await handleDelegatedAddToCart();
+      return;
+    }
+
+    if (product.variants && product.variants.length > 0) {
+      const requiresVariantSelection = product.variants.some((variant) =>
+        Array.isArray(variant.variantItems) && variant.variantItems.length > 0
+      );
+
+      if (requiresVariantSelection) {
+        if (useInternalVariantSelection) {
+          setShowVariantModal(true);
+        } else if (onAddToCart) {
+          await Promise.resolve(onAddToCart(product, selectedQuantity));
+        }
+        return;
+      }
+
+      const defaultVariant = product.variants.find((variant) => (variant.stockQuantity ?? 0) > 0) || product.variants[0];
+
+      if (defaultVariant) {
+        const result = await addToCart({ product, quantity: selectedQuantity, variant: defaultVariant });
+
+        if (!mountedRef.current) {
+          return;
+        }
+
+        if (result.success) {
+          if (onVariantAddToCart) {
+            const callbackResult = await Promise.resolve(onVariantAddToCart(defaultVariant, selectedQuantity));
+            if (callbackResult === false) {
+              return;
+            }
+          }
+
+          if (onAddToCart) {
+            const callbackResult = await Promise.resolve(onAddToCart(product, selectedQuantity));
+            if (callbackResult === false) {
+              return;
+            }
+          }
+
+          markAsAdded();
+        }
+      }
+
+      return;
+    }
+
+    if (stockQuantity <= 0 || disabled || !mountedRef.current) {
+      return;
+    }
+
+    const result = await addToCart({ product, quantity: selectedQuantity });
+
+    if (!mountedRef.current) {
+      return;
+    }
+
+    if (result.success) {
+      if (onAddToCart) {
+        const callbackResult = await Promise.resolve(onAddToCart(product, selectedQuantity));
+        if (callbackResult === false) {
+          return;
+        }
+      }
+
+      markAsAdded();
+    }
+  };
+
+  const handleVariantAdded = async (variant: ProductVariant, addedQuantity: number) => {
+    if (onVariantAddToCart) {
+      const callbackResult = await Promise.resolve(onVariantAddToCart(variant, addedQuantity));
+      if (callbackResult === false) {
+        return;
+      }
+    }
+
+    if (!mountedRef.current) {
+      return;
+    }
+
+    markAsAdded();
+  };
+
+  const handleQuantityChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedQuantity(parseInt(event.target.value, 10));
+  };
 
   if (iconOnly) {
     return (
@@ -200,16 +277,12 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         }
       >
         {isLoading ? (
-          <div className="flex items-center gap-2">
-            <FiLoader className="animate-spin" />
-            <span>Adding...</span>
-          </div>
+          <span>Adding...</span>
         ) : isAdded ? (
           <div className="flex items-center gap-2">
-            <FiCheck className="text-green-500" />
             <span>Added!</span>
           </div>
-        ) : stockQuantity <= 0 ? (
+        ) : isOutOfStock ? (
           'Out of Stock'
         ) : product.variants && product.variants.length > 0 ? (
           <div className="flex items-center gap-2">
@@ -226,13 +299,14 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         )}
       </Button>
 
-      {/* Variant Selection Modal */}
-      <VariantSelectionModal
-        isOpen={showVariantModal}
-        onOpenChange={setShowVariantModal}
-        product={product}
-        onVariantSelect={handleVariantAddToCart}
-      />
+      {useInternalVariantSelection && (
+        <VariantSelectionModal
+          isOpen={showVariantModal}
+          onOpenChange={setShowVariantModal}
+          product={product}
+          onVariantAdded={handleVariantAdded}
+        />
+      )}
     </div>
   );
 };

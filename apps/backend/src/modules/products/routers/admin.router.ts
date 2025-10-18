@@ -3,6 +3,7 @@ import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { AdminProductService } from '../services/admin-product.service';
+import { UpdateProductVariantDto } from '../repositories/product-variant.repository';
 import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
 import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
@@ -36,6 +37,7 @@ export const createProductSchema = z.object({
   isFeatured: z.boolean().optional(),
   brandId: z.string().optional(),
   categoryId: z.string().optional(),
+  categoryIds: z.array(z.string()).optional(),
   warrantyId: z.string().optional(),
   images: z.array(z.string()).optional(),
   media: z.array(z.object({
@@ -95,6 +97,7 @@ export const updateProductSchema = z.object({
   isFeatured: z.boolean().optional(),
   brandId: z.string().optional(),
   categoryId: z.string().optional(),
+  categoryIds: z.array(z.string()).optional(),
   warrantyId: z.string().optional(),
   media: z.array(z.object({
     id: z.string().optional(),
@@ -145,6 +148,61 @@ export const updateProductSchema = z.object({
   })).optional(),
 });
 
+export const updateProductVariantSchema = z.object({
+  name: z.string().optional(),
+  sku: z.string().nullable().optional(),
+  barcode: z.string().nullable().optional(),
+  price: z.number().optional(),
+  compareAtPrice: z.number().nullable().optional(),
+  costPrice: z.number().nullable().optional(),
+  stockQuantity: z.number().optional(),
+  lowStockThreshold: z.number().nullable().optional(),
+  trackInventory: z.boolean().optional(),
+  allowBackorders: z.boolean().optional(),
+  weight: z.number().nullable().optional(),
+  dimensions: z.string().nullable().optional(),
+  image: z.string().nullable().optional(),
+  isActive: z.boolean().optional(),
+  sortOrder: z.number().optional(),
+  variantItems: z.array(z.object({
+    attributeId: z.string(),
+    attributeValueId: z.string(),
+    sortOrder: z.number().optional(),
+  })).optional(),
+});
+
+const normalizeCategoryIdsInput = (
+  categoryIds?: unknown,
+  categoryId?: unknown,
+): string[] | undefined => {
+  let raw: string[] | undefined;
+
+  if (Array.isArray(categoryIds)) {
+    raw = categoryIds.filter((id): id is string => typeof id === 'string');
+  } else if (categoryIds !== undefined) {
+    raw = [];
+  }
+
+  if (raw === undefined) {
+    if (typeof categoryId === 'string') {
+      raw = [categoryId];
+    } else if (categoryId !== undefined && categoryId !== null) {
+      raw = [];
+    }
+  }
+
+  if (raw === undefined) {
+    return undefined;
+  }
+
+  const normalized = raw
+    .map((id) => id.trim())
+    .filter((id) => id.length > 0);
+
+  const unique = Array.from(new Set(normalized));
+  return unique;
+};
+
 @Router({ alias: 'adminProducts' })
 @Injectable()
 export class AdminProductsRouter {
@@ -169,7 +227,7 @@ export class AdminProductsRouter {
         limit: query.limit,
         search: query.search,
         brandId: query.brandId,
-        categoryId: query.categoryId,
+        categoryIds: query.categoryId ? [query.categoryId] : undefined,
         status: query.status,
         isActive: query.isActive,
         isFeatured: query.isFeatured,
@@ -258,6 +316,27 @@ export class AdminProductsRouter {
   }
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({ id: z.string() }),
+    output: apiResponseSchema,
+  })
+  async variantDetail(
+    @Input() input: { id: string }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const variant = await this.productService.getVariantById(input.id);
+      return this.responseHandler.createTrpcSuccess(variant);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15, // ModuleCode.PRODUCT
+        2,  // OperationCode.READ
+        4,  // ErrorLevelCode.NOT_FOUND
+        error.message || 'Variant not found'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Mutation({
     input: createProductSchema,
     output: apiResponseSchema,
@@ -266,7 +345,14 @@ export class AdminProductsRouter {
     @Input() input: z.infer<typeof createProductSchema>
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const product = await this.productService.createProduct(input);
+      const { categoryId, categoryIds, ...restInput } = input;
+      const normalizedCategoryIds = normalizeCategoryIdsInput(categoryIds, categoryId);
+      const payload = {
+        ...restInput,
+        ...(normalizedCategoryIds !== undefined ? { categoryIds: normalizedCategoryIds } : {}),
+      };
+
+      const product = await this.productService.createProduct(payload);
       return this.responseHandler.createTrpcSuccess(product);
     } catch (error) {
       throw this.responseHandler.createTRPCError(
@@ -287,7 +373,13 @@ export class AdminProductsRouter {
     @Input() input: { id: string } & z.infer<typeof updateProductSchema>
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const { id, ...updateDto } = input;
+      const { id, categoryId, categoryIds, ...restInput } = input;
+      const normalizedCategoryIds = normalizeCategoryIdsInput(categoryIds, categoryId);
+      const updateDto = {
+        ...restInput,
+        ...(normalizedCategoryIds !== undefined ? { categoryIds: normalizedCategoryIds } : {}),
+      };
+
       const product = await this.productService.updateProduct(id, updateDto);
       return this.responseHandler.createTrpcSuccess(product);
     } catch (error) {
@@ -296,6 +388,41 @@ export class AdminProductsRouter {
         3,  // OperationCode.UPDATE
         30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
         error.message || 'Failed to update product'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({ id: z.string() }).merge(updateProductVariantSchema),
+    output: apiResponseSchema,
+  })
+  async updateVariant(
+    @Input() input: { id: string } & z.infer<typeof updateProductVariantSchema>
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const { id, variantItems, ...restInput } = input;
+
+      const normalizedVariantItems: UpdateProductVariantDto['variantItems'] |
+        undefined = variantItems?.map(({ attributeId, attributeValueId, sortOrder }) => ({
+          attributeId,
+          attributeValueId,
+          ...(sortOrder !== undefined ? { sortOrder } : {}),
+        }));
+
+      const updateData: UpdateProductVariantDto = {
+        ...restInput,
+        ...(normalizedVariantItems !== undefined ? { variantItems: normalizedVariantItems } : {}),
+      };
+
+      const variant = await this.productService.updateVariant(id, updateData);
+      return this.responseHandler.createTrpcSuccess(variant);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15, // ModuleCode.PRODUCT
+        3,  // OperationCode.UPDATE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+        error.message || 'Failed to update product variant'
       );
     }
   }

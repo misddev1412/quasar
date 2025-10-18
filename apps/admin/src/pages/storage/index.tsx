@@ -58,7 +58,7 @@ const StorageConfigPage: React.FC = () => {
   });
 
   // Fetch current storage configuration
-  const { data: configData, isLoading, refetch } = trpc.adminStorage.getStorageConfig.useQuery();
+  const { data: configData, isLoading, refetch } = trpc.adminStorage.getStorageConfig.useQuery(undefined);
 
   // tRPC mutations
   const updateConfigMutation = trpc.adminStorage.updateStorageConfig.useMutation({

@@ -935,8 +935,8 @@
         "continue": "Continue Shopping"
       },
       "title": "Shopping Cart",
-      "items_count": "{{count}} items",
-      "items_count_single": "{{count}} item",
+      "items_count": "{count} items",
+      "items_count_single": "{count} item",
       "shipping": {
         "title": "Shipping Options",
         "standard": "Standard Shipping",
@@ -996,7 +996,7 @@
         "confirm": "Clear Cart"
       },
       "aria_labels": {
-        "cart_button": "Shopping cart ({{count}} items)",
+        "cart_button": "Shopping cart ({count} items)",
         "cart_button_empty": "Shopping cart (0 items)",
         "cart_dropdown": "Cart dropdown",
         "item_remove": "Remove {{name}} from cart",
@@ -1060,7 +1060,15 @@
       "actions": {
         "addToCart": "Add to Cart",
         "outOfStock": "Out of Stock",
-        "quickView": "Quick View"
+        "quickView": "Quick View",
+        "selectVariant": "Select Variant",
+        "selectedVariant": "Selected Variant",
+        "noVariantFound": "No variant found with selected attributes",
+        "selectRequiredAttributes": "Please select all required attributes ({current}/{total} selected)"
+      },
+      "common": {
+        "quantity": "Quantity",
+        "cancel": "Cancel"
       },
       "variants": {
         "inStock": "{count, plural, one {{count} item in stock} other {{count} items in stock}}",
@@ -1246,6 +1254,30 @@
     "invalid_type": "Invalid file type",
     "max_size": "Maximum file size: {{size}}",
     "supported_formats": "Supported formats: {{formats}}"
+  },
+  "sections": {
+    "products_by_category": {
+      "title": "Spotlight products",
+      "description": "Discover curated picks and new arrivals from this category.",
+      "view_category": "View category",
+      "category_label": "{{category}} spotlight",
+      "curated_category": "Curated collection",
+      "loading": "Loading products...",
+      "error": "We couldn't load products for this category.",
+      "invalid_category": "The selected category is no longer available.",
+      "missing_category": "Pick a category to show products in this row.",
+      "custom_empty": "Select specific products to highlight in this row.",
+      "empty": "No products are available in this category yet.",
+      "carousel_prev": "Scroll left",
+      "carousel_next": "Scroll right",
+      "strategies": {
+        "latest": "Latest products",
+        "featured": "Featured picks",
+        "bestsellers": "Best sellers",
+        "custom": "Curated selection"
+      },
+      "bestsellers_disabled": "Best sellers will be available soon. Please choose another option for now."
+    }
   },
   "notifications": {
     "title": "Notifications",

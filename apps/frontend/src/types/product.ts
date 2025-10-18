@@ -29,6 +29,13 @@ export interface Product {
   media?: ProductMedia[];
   categories?: unknown[];
   specifications?: ProductSpecification[];
+  totalStock?: number;
+  lowestPrice?: number | null;
+  highestPrice?: number | null;
+  priceRange?: string | null;
+  hasVariants?: boolean;
+  variantCount?: number;
+  viewCount?: number;
 }
 
 export interface ProductSpecification {

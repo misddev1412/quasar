@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+'use client';
+
+import React, { useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Button, Image, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from '@heroui/react';
 import PriceDisplay from './PriceDisplay';
 import Rating from './Rating';
 import AddToCartButton from './AddToCartButton';
 import type { Product, ProductMedia, ProductVariant } from '../../types/product';
+import { useAddToCart } from '../../hooks/useAddToCart';
 
 // Legacy ProductVariant interface for backward compatibility
 export interface LegacyProductVariant {
@@ -45,7 +48,7 @@ interface ProductCardProps {
   showQuickView?: boolean;
   className?: string;
   imageHeight?: string;
-  onAddToCart?: (product: Product, quantity?: number, variant?: ProductVariant | null) => void;
+  onAddToCart?: (product: Product, quantity?: number, variant?: ProductVariant | null) => void | boolean | Promise<void | boolean>;
   onWishlistToggle?: (productId: string) => void;
   onQuickView?: (product: Product) => void;
 }
@@ -75,6 +78,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isImageHovered, setIsImageHovered] = useState(false);
   const [showVariantModal, setShowVariantModal] = useState(false);
+  const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
+  const [quantity, setQuantity] = useState(1);
+  const { addToCart, isAdding } = useAddToCart();
 
   // Get primary image or first image
   const getPrimaryImage = () => {
@@ -94,21 +100,172 @@ const ProductCard: React.FC<ProductCardProps> = ({
   // Generate slug if not provided
   const productSlug = name?.toLowerCase().replace(/\s+/g, '-') || id;
 
-  const handleAddToCartDirect = (product: Product, quantity?: number) => {
-    if (variants && variants.length > 0) {
-      setShowVariantModal(true);
-    } else if (onAddToCart) {
-      onAddToCart(product, quantity || 1, null);
+  const attributeGroups = useMemo(() => {
+    if (!variants || variants.length === 0) return [] as Array<{ name: string; values: string[] }>;
+
+    const attributeMap = new Map<string, Set<string>>();
+
+    variants.forEach(variant => {
+      if (variant.variantItems) {
+        variant.variantItems.forEach(item => {
+          if (item.attribute && item.attributeValue) {
+            const attributeName = item.attribute.displayName || item.attribute.name;
+            if (!attributeMap.has(attributeName)) {
+              attributeMap.set(attributeName, new Set());
+            }
+            attributeMap.get(attributeName)!.add(item.attributeValue.displayValue || item.attributeValue.value);
+          }
+        });
+      }
+    });
+
+    return Array.from(attributeMap.entries()).map(([name, values]) => ({
+      name,
+      values: Array.from(values).sort(),
+    }));
+  }, [variants]);
+
+  const findMatchingVariant = useCallback(() => {
+    if (!variants || variants.length === 0) return null;
+
+    if (attributeGroups.length !== Object.keys(selectedAttributes).length) {
+      return null;
+    }
+
+    return variants.find(variant => {
+      if (!variant.variantItems || variant.variantItems.length === 0) return false;
+
+      const variantAttributes = new Map<string, string>();
+
+      variant.variantItems.forEach(item => {
+        if (item.attribute && item.attributeValue) {
+          const attributeName = item.attribute.displayName || item.attribute.name;
+          variantAttributes.set(attributeName, item.attributeValue.displayValue || item.attributeValue.value);
+        }
+      });
+
+      for (const [attrName, attrValue] of Object.entries(selectedAttributes)) {
+        if (variantAttributes.get(attrName) !== attrValue) {
+          return false;
+        }
+      }
+
+      return variant.variantItems.length === attributeGroups.length;
+    }) || null;
+  }, [attributeGroups, selectedAttributes, variants]);
+
+  const matchingVariant = useMemo(() => findMatchingVariant(), [findMatchingVariant]);
+
+  const isCompleteSelection = useCallback(() => {
+    const selectedCount = Object.keys(selectedAttributes).length;
+    return attributeGroups.length > 0 && selectedCount === attributeGroups.length;
+  }, [attributeGroups, selectedAttributes]);
+
+  const canPurchaseVariant = useCallback((variantOption: ProductVariant | null) => {
+    if (!variantOption) return false;
+    const available = variantOption.stockQuantity ?? 0;
+    if (available > 0) {
+      return true;
+    }
+    if (variantOption.allowBackorders) {
+      return true;
+    }
+    if (!variantOption.trackInventory) {
+      return true;
+    }
+    return false;
+  }, []);
+
+  const getVariantStockMessage = useCallback((variantOption: ProductVariant | null) => {
+    if (!variantOption) {
+      return '';
+    }
+
+    const available = variantOption.stockQuantity ?? 0;
+
+    if (available > 0) {
+      return `${available} available`;
+    }
+
+    if (variantOption.allowBackorders) {
+      return 'Available for backorder';
+    }
+
+    if (!variantOption.trackInventory) {
+      return 'Available';
+    }
+
+    return 'Out of stock';
+  }, []);
+
+  // Handle attribute selection
+  const handleAttributeSelect = (attributeName: string, value: string) => {
+    setSelectedAttributes(prev => ({
+      ...prev,
+      [attributeName]: value
+    }));
+  };
+
+  // Handle quantity change
+  const handleQuantityChange = (newQuantity: number) => {
+    if (newQuantity >= 1) {
+      setQuantity(newQuantity);
     }
   };
 
-  const handleVariantSelect = (variant: ProductVariant, quantity: number) => {
+  // Handle add to cart with selected variant
+  const handleAddToCartWithVariant = useCallback(async (): Promise<boolean> => {
+    const variantToAdd = findMatchingVariant();
+
+    if (!variantToAdd || !canPurchaseVariant(variantToAdd)) {
+      return false;
+    }
+
+    const result = await addToCart({ product, quantity, variant: variantToAdd });
+
+    if (!result.success) {
+      return false;
+    }
+
     if (onAddToCart) {
-      onAddToCart(product, quantity, variant);
+      const callbackResult = await Promise.resolve(onAddToCart(product, quantity, variantToAdd));
+      if (callbackResult === false) {
+        return false;
+      }
     }
-    setShowVariantModal(false);
-  };
 
+    setShowVariantModal(false);
+    setSelectedAttributes({});
+    setQuantity(1);
+    return true;
+  }, [addToCart, canPurchaseVariant, findMatchingVariant, onAddToCart, product, quantity]);
+
+  const handleAddToCartDirect = useCallback(async (selectedProduct: Product, requestedQuantity?: number): Promise<boolean | void> => {
+    const nextQuantity = requestedQuantity || 1;
+
+    if (variants && variants.length > 0) {
+      setQuantity(nextQuantity);
+      setShowVariantModal(true);
+      return;
+    }
+
+    const result = await addToCart({ product: selectedProduct, quantity: nextQuantity });
+
+    if (!result.success) {
+      return false;
+    }
+
+    if (onAddToCart) {
+      const callbackResult = await Promise.resolve(onAddToCart(selectedProduct, nextQuantity, null));
+      if (callbackResult === false) {
+        return false;
+      }
+    }
+
+    return true;
+  }, [addToCart, onAddToCart, variants]);
+
+  
   const handleWishlistToggle = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
@@ -235,6 +392,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               quantity={1}
               fullWidth
               size="md"
+              useInternalVariantSelection={false}
               className="relative group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] before:transition-transform before:duration-700 hover:before:translate-x-[100%] overflow-hidden"
             />
           )}
@@ -271,53 +429,129 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </ModalHeader>
             <ModalBody className="p-6">
               <div className="space-y-6">
-                {/* Variant Selection */}
+                {/* Attribute Selection */}
+                {attributeGroups.map((attribute) => (
+                  <div key={attribute.name} className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                        {attribute.name}
+                      </h3>
+                      {!selectedAttributes[attribute.name] && (
+                        <span className="text-sm text-red-500 font-medium">
+                          Required *
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {attribute.values.map((value) => (
+                        <button
+                          key={value}
+                          onClick={() => handleAttributeSelect(attribute.name, value)}
+                          className={`px-4 py-2 rounded-lg border-2 transition-all duration-200 font-medium ${
+                            selectedAttributes[attribute.name] === value
+                              ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-700 dark:text-gray-300'
+                          }`}
+                        >
+                          {value}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Quantity Selection */}
                 <div className="space-y-3">
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                    Select Variant
+                    Quantity
                   </h3>
-                  <div className="grid gap-3">
-                    {variants.map((variant) => (
-                      <button
-                        key={variant.id}
-                        onClick={() => handleVariantSelect(variant, 1)}
-                        disabled={variant.stockQuantity <= 0}
-                        className={`w-full p-4 border rounded-lg text-left transition-all duration-200 ${
-                          variant.stockQuantity <= 0
-                            ? 'opacity-50 cursor-not-allowed bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
-                            : 'border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
-                        }`}
-                      >
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <h4 className="font-medium text-gray-900 dark:text-white">
-                              {variant.name}
-                            </h4>
-                            {variant.sku && (
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                SKU: {variant.sku}
-                              </p>
-                            )}
-                          </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-gray-900 dark:text-white">
-                              ${variant.price}
-                            </p>
-                            <p className={`text-sm ${
-                              variant.stockQuantity > 0
-                                ? 'text-green-600 dark:text-green-400'
-                                : 'text-red-600 dark:text-red-400'
-                            }`}>
-                              {variant.stockQuantity > 0
-                                ? `${variant.stockQuantity} in stock`
-                                : 'Out of stock'
-                              }
-                            </p>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => handleQuantityChange(quantity - 1)}
+                      disabled={quantity <= 1}
+                      className="w-10 h-10 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min="1"
+                      value={quantity}
+                      onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
+                      className="w-20 text-center border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800"
+                    />
+                    <button
+                      onClick={() => handleQuantityChange(quantity + 1)}
+                      className="w-10 h-10 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      +
+                    </button>
                   </div>
+                </div>
+
+                {/* Price and Stock Display */}
+                {matchingVariant && (
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-gray-600 dark:text-gray-400">Price:</span>
+                      <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                        ${matchingVariant.price}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 dark:text-gray-400">Stock:</span>
+                      <span className={`text-sm font-medium ${
+                        canPurchaseVariant(matchingVariant)
+                          ? 'text-green-600 dark:text-green-400'
+                          : 'text-red-600 dark:text-red-400'
+                      }`}>
+                        {getVariantStockMessage(matchingVariant)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Validation Message */}
+                {!isCompleteSelection() && (
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                    <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                      Please select all required options ({Object.keys(selectedAttributes).length}/{attributeGroups.length} selected) to add to cart
+                    </p>
+                  </div>
+                )}
+
+                {/* Add to Cart Button */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleAddToCartWithVariant}
+                    disabled={!isCompleteSelection() || !matchingVariant || !canPurchaseVariant(matchingVariant) || isAdding}
+                    className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
+                      !isCompleteSelection() || !matchingVariant || !canPurchaseVariant(matchingVariant) || isAdding
+                        ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transform hover:scale-105 hover:shadow-lg'
+                    }`}
+                  >
+                    {!isCompleteSelection()
+                      ? 'Select Options'
+                      : !matchingVariant
+                        ? 'Combination Not Available'
+                        : !canPurchaseVariant(matchingVariant)
+                          ? 'Out of Stock'
+                          : isAdding
+                            ? 'Adding...'
+                            : `Add to Cart - $${(matchingVariant.price || 0) * quantity}`
+                  }
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowVariantModal(false);
+                      setSelectedAttributes({});
+                      setQuantity(1);
+                    }}
+                    className="px-6 py-3 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    Cancel
+                  </button>
                 </div>
               </div>
             </ModalBody>

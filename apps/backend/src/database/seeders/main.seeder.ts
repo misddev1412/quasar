@@ -16,6 +16,7 @@ import { SectionsSeeder } from './sections.seeder';
 import { UserActivitySeeder } from './user-activity.seeder';
 import { CountriesSeeder } from './countries.seeder';
 import { AdministrativeDivisionsSeeder } from './administrative-divisions.seeder';
+import { MenusSeeder } from './menus.seeder';
 import databaseConfig from '../../config/database.config';
 
 @Module({
@@ -44,6 +45,7 @@ export async function bootstrap() {
     const userActivitySeeder = app.get(UserActivitySeeder);
     const countriesSeeder = app.get(CountriesSeeder);
     const administrativeDivisionsSeeder = app.get(AdministrativeDivisionsSeeder);
+    const menusSeeder = app.get(MenusSeeder);
 
     // Run seeders in order (countries first, then administrative divisions, then permissions and admin, then user activities)
     await countriesSeeder.seed();
@@ -53,6 +55,7 @@ export async function bootstrap() {
     await adminSeeder.seed();
     await settingsSeeder.seed();
     await sectionsSeeder.seed();
+    await menusSeeder.seed();
     await userActivitySeeder.seed();
 
     console.log('All seeders completed successfully');

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import ProductDetailPage from '../../../components/ecommerce/ProductDetailPage';
-import { useCart } from '../../../components/ecommerce/CartProvider';
+import { useAddToCart } from '../../../hooks/useAddToCart';
 import type { Product, ProductVariant } from '../../../types/product';
 import type { Review } from '../../../components/ecommerce/ReviewList';
 import type { Comment } from '../../../components/ecommerce/CommentSection';
@@ -26,12 +26,14 @@ const ProductDetailClient: React.FC<ProductDetailClientProps> = ({
   reviews = [],
   comments = [],
 }) => {
-  const { addItem } = useCart();
+  const { addToCart } = useAddToCart();
 
   const handleAddToCart = async (product: Product, quantity?: number, variant?: ProductVariant | null) => {
     try {
-      await addItem(product.id, quantity || 1, variant?.id);
-      console.log('Added to cart:', { product, quantity, variant });
+      const result = await addToCart({ product, quantity, variant });
+      if (result.success) {
+        console.log('Added to cart:', { product, quantity, variant });
+      }
     } catch (error) {
       console.error('Failed to add to cart:', error);
     }

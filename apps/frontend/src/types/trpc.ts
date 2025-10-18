@@ -362,11 +362,14 @@ export type AppRouter = {
     getFeaturedProducts: {
       query: () => Promise<PaginatedApiResponse<Product>>;
     };
+    getProductsByIds: {
+      query: (input: { ids: string[] }) => Promise<ApiResponse<{ items: Product[] }>>;
+    };
     getNewProducts: {
       query: () => Promise<PaginatedApiResponse<Product>>;
     };
     getProductsByCategory: {
-      query: (input: { categoryId?: string }) => Promise<PaginatedApiResponse<Product>>;
+      query: (input: { categoryId?: string; strategy?: 'latest' | 'featured' | 'bestsellers' | 'custom' }) => Promise<PaginatedApiResponse<Product>>;
     };
     getProductFilters: {
       query: () => Promise<ApiResponse<ProductFilters>>;

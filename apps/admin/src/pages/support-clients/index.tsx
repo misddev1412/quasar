@@ -42,7 +42,7 @@ export const SupportClientsPage: React.FC = () => {
     isActive: filters.isActive ? filters.isActive === 'true' : undefined,
   });
 
-  const { data: types } = trpc.adminSupportClients.getTypes.useQuery();
+  const { data: types } = trpc.adminSupportClients.getTypes.useQuery(undefined);
 
   const supportClientsData = data as any;
   const typesData = types as any;

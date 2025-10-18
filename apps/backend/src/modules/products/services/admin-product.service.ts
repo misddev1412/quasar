@@ -108,6 +108,28 @@ export class AdminProductService {
     return await this.productTransformer.transformProduct(product);
   }
 
+  async getVariantById(id: string) {
+    const variant = await this.productVariantRepository.findById(id);
+    if (!variant) {
+      throw new NotFoundException('Product variant not found');
+    }
+
+    return this.productTransformer.transformVariant(variant);
+  }
+
+  async updateVariant(id: string, variantData: UpdateProductVariantDto) {
+    try {
+      const updatedVariant = await this.productVariantRepository.update(id, variantData);
+      return this.productTransformer.transformVariant(updatedVariant);
+    } catch (error) {
+      throw this.responseHandler.createError(
+        ApiStatusCodes.INTERNAL_SERVER_ERROR,
+        error.message || 'Failed to update product variant',
+        'INTERNAL_SERVER_ERROR'
+      );
+    }
+  }
+
   async createProduct(productData: any): Promise<Product> {
     try {
       // Check for duplicate SKU if provided

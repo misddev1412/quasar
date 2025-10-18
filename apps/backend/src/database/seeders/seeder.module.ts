@@ -15,6 +15,8 @@ import { SectionEntity } from '../../modules/sections/entities/section.entity';
 import { SectionTranslationEntity } from '../../modules/sections/entities/section-translation.entity';
 import { Country } from '../../modules/products/entities/country.entity';
 import { AdministrativeDivision } from '../../modules/products/entities/administrative-division.entity';
+import { MenuEntity } from '../../modules/menus/entities/menu.entity';
+import { MenuTranslationEntity } from '../../modules/menus/entities/menu-translation.entity';
 import { PermissionRepository } from '../../modules/user/repositories/permission.repository';
 import { AdminPermissionService } from '../../modules/user/services/admin/admin-permission.service';
 import { PermissionCheckerService } from '../../modules/shared/services/permission-checker.service';
@@ -26,6 +28,7 @@ import { SectionsSeeder } from './sections.seeder';
 import { UserActivitySeeder } from './user-activity.seeder';
 import { CountriesSeeder } from './countries.seeder';
 import { AdministrativeDivisionsSeeder } from './administrative-divisions.seeder';
+import { MenusSeeder } from './menus.seeder';
 
 @Module({
   imports: [
@@ -44,7 +47,9 @@ import { AdministrativeDivisionsSeeder } from './administrative-divisions.seeder
       SectionEntity,
       SectionTranslationEntity,
       Country,
-      AdministrativeDivision
+      AdministrativeDivision,
+      MenuEntity,
+      MenuTranslationEntity
     ]),
   ],
   providers: [
@@ -58,8 +63,9 @@ import { AdministrativeDivisionsSeeder } from './administrative-divisions.seeder
     SectionsSeeder,
     UserActivitySeeder,
     CountriesSeeder,
-    AdministrativeDivisionsSeeder
+    AdministrativeDivisionsSeeder,
+    MenusSeeder
   ],
-  exports: [PermissionSeeder, SeoSeeder, AdminSeeder, SettingsSeeder, SectionsSeeder, UserActivitySeeder, CountriesSeeder, AdministrativeDivisionsSeeder],
+  exports: [PermissionSeeder, SeoSeeder, AdminSeeder, SettingsSeeder, SectionsSeeder, UserActivitySeeder, CountriesSeeder, AdministrativeDivisionsSeeder, MenusSeeder],
 })
 export class SeederModule {} 

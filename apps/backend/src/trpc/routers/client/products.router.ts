@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Ctx, Input } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ProductRepository } from '../../../modules/products/repositories/product.repository';
+import { CategoryRepository } from '../../../modules/products/repositories/category.repository';
 import { ResponseService } from '../../../modules/shared/services/response.service';
 import { apiResponseSchema } from '../../schemas/response.schemas';
 import {
@@ -11,15 +12,58 @@ import {
 } from '../../schemas/product.schemas';
 import { ProductStatus } from '@backend/modules/products/entities/product.entity';
 
+const currencyFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
 @Router({ alias: 'clientProducts' })
 @Injectable()
 export class ClientProductsRouter {
   constructor(
     @Inject(ProductRepository)
     private readonly productRepository: ProductRepository,
+    @Inject(CategoryRepository)
+    private readonly categoryRepository: CategoryRepository,
     @Inject(ResponseService)
     private readonly responseHandler: ResponseService,
   ) {}
+
+  private isUuid(value: string): boolean {
+    return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(value);
+  }
+
+  private normalizeCategoryReference(value?: string): string | undefined {
+    if (!value || typeof value !== 'string') {
+      return undefined;
+    }
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+  }
+
+  private async resolveCategoryId(categoryRef?: string): Promise<string | undefined> {
+    const normalized = this.normalizeCategoryReference(categoryRef);
+    if (!normalized) {
+      return undefined;
+    }
+
+    if (this.isUuid(normalized)) {
+      return normalized;
+    }
+
+    try {
+      const categoryBySlug = await this.categoryRepository.findBySlugWithTranslation(normalized);
+      if (categoryBySlug?.id) {
+        return categoryBySlug.id;
+      }
+
+      const categoryByName = await this.categoryRepository.findByName(normalized);
+      if (categoryByName?.id) {
+        return categoryByName.id;
+      }
+    } catch (error) {
+      // Swallow lookup errors and fall through to undefined
+    }
+
+    return undefined;
+  }
 
   @Query({
     input: productListQuerySchema,
@@ -44,8 +88,9 @@ export class ClientProductsRouter {
       };
 
       // Add category filter if provided
-      if (category) {
-        filters.categoryIds = [category];
+      const resolvedCategoryId = await this.resolveCategoryId(category);
+      if (resolvedCategoryId) {
+        filters.categoryIds = [resolvedCategoryId];
       }
 
       // Add brand filter if provided
@@ -194,6 +239,55 @@ export class ClientProductsRouter {
   @Query({
     output: apiResponseSchema,
   })
+  async getNewProducts(): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const result = await this.productRepository.findAll({
+        page: 1,
+        limit: 12,
+        filters: {
+          isActive: true,
+          status: ProductStatus.ACTIVE,
+        },
+        relations: [
+          'brand',
+          'supplier',
+          'warranty',
+          'variants',
+          'variants.variantItems',
+          'variants.variantItems.attribute',
+          'variants.variantItems.attributeValue',
+          'media',
+          'tags',
+          'productCategories',
+          'productCategories.category',
+          'specifications'
+        ],
+      });
+
+      const formattedResult = {
+        items: result.items.map(product => this.formatProductForResponse(product)),
+        pagination: {
+          page: result.page,
+          limit: result.limit,
+          total: result.total,
+          totalPages: result.totalPages,
+        },
+      };
+
+      return this.responseHandler.createTrpcSuccess(formattedResult);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        20, // ModuleCode.PRODUCTS
+        2,  // OperationCode.READ
+        4,  // ErrorLevelCode.NOT_FOUND
+        error.message || 'Failed to retrieve new products'
+      );
+    }
+  }
+
+  @Query({
+    output: apiResponseSchema,
+  })
   async getFeaturedProducts(): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const result = await this.productRepository.findAll({
@@ -242,71 +336,86 @@ export class ClientProductsRouter {
   }
 
   @Query({
+    input: z.object({
+      ids: z.array(z.string().uuid()).min(1),
+    }),
     output: apiResponseSchema,
   })
-  async getNewProducts(): Promise<z.infer<typeof apiResponseSchema>> {
+  async getProductsByIds(
+    @Input() input: { ids: string[] }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const result = await this.productRepository.findAll({
-        page: 1,
-        limit: 12,
-        filters: {
-          isActive: true,
-          status: ProductStatus.ACTIVE,
-        },
-        relations: [
-          'brand',
-          'supplier',
-          'warranty',
-          'variants',
-          'variants.variantItems',
-          'variants.variantItems.attribute',
-          'variants.variantItems.attributeValue',
-          'media',
-          'tags',
-          'productCategories',
-          'productCategories.category',
-          'specifications'
-        ],
-      });
+      const products = await this.productRepository.findByIds(input.ids, [
+        'brand',
+        'variants',
+        'variants.variantItems',
+        'variants.variantItems.attribute',
+        'variants.variantItems.attributeValue',
+        'media',
+      ]);
 
-      const formattedResult = {
-        items: result.items.map(product => this.formatProductForResponse(product)),
-        pagination: {
-          page: result.page,
-          limit: result.limit,
-          total: result.total,
-          totalPages: result.totalPages,
-        },
-      };
+      const formattedProducts = products.map((product) => this.formatProductForResponse(product));
 
-      return this.responseHandler.createTrpcSuccess(formattedResult);
+      return this.responseHandler.createTrpcSuccess({ items: formattedProducts });
     } catch (error) {
       throw this.responseHandler.createTRPCError(
         20, // ModuleCode.PRODUCTS
         2,  // OperationCode.READ
         4,  // ErrorLevelCode.NOT_FOUND
-        error.message || 'Failed to retrieve new products'
+        error.message || 'Failed to retrieve products'
       );
     }
   }
 
   @Query({
-    input: z.object({ categoryId: z.string().uuid().optional() }),
+    input: z.object({
+      categoryId: z.string().optional(),
+      strategy: z.enum(['latest', 'featured', 'bestsellers', 'custom']).optional(),
+    }),
     output: apiResponseSchema,
   })
   async getProductsByCategory(
-    @Input() params: { categoryId?: string }
+    @Input() params: { categoryId?: string; strategy?: 'latest' | 'featured' | 'bestsellers' | 'custom' }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const { categoryId } = params;
+      const { categoryId, strategy } = params;
+      const resolvedCategoryId = await this.resolveCategoryId(categoryId);
 
       const filters: any = {
         isActive: true,
         status: ProductStatus.ACTIVE,
       };
 
-      if (categoryId) {
-        filters.categoryIds = [categoryId];
+      if (strategy === 'bestsellers') {
+        return this.responseHandler.createTrpcSuccess({
+          items: [],
+          pagination: {
+            page: 1,
+            limit: 50,
+            total: 0,
+            totalPages: 0,
+          },
+        });
+      }
+
+      if (resolvedCategoryId) {
+        if (strategy !== 'custom') {
+          filters.categoryIds = [resolvedCategoryId];
+        }
+      } else if (strategy !== 'custom' && this.normalizeCategoryReference(categoryId)) {
+        return this.responseHandler.createTrpcSuccess({
+          items: [],
+          pagination: {
+            page: 1,
+            limit: 50,
+            total: 0,
+            totalPages: 0,
+          },
+        });
+      }
+
+      if (strategy === 'featured') {
+        filters.isFeatured = true;
       }
 
       const result = await this.productRepository.findAll({
@@ -443,6 +552,126 @@ export class ClientProductsRouter {
   }
 
   private formatProductForResponse(product: any): any {
+    const tags = Array.isArray(product.tags)
+      ? product.tags.map((tag: any) => ({
+          id: tag.id,
+          name: tag.name,
+          color: tag.color,
+        }))
+      : [];
+
+    const variants = Array.isArray(product.variants)
+      ? product.variants.map((variant: any) => {
+          const variantItems = Array.isArray(variant.variantItems)
+            ? variant.variantItems
+                .map((item: any) => {
+                  const attributeId = item.attributeId || item.attribute?.id || null;
+                  const attributeValueId = item.attributeValueId || item.attributeValue?.id || null;
+
+                  return {
+                    id: item.id,
+                    attributeId,
+                    attributeValueId,
+                    sortOrder: item.sortOrder ?? 0,
+                    attribute: item.attribute
+                      ? {
+                          id: item.attribute.id,
+                          name: item.attribute.name,
+                          displayName: item.attribute.displayName,
+                          type: item.attribute.type,
+                        }
+                      : undefined,
+                    attributeValue: item.attributeValue
+                      ? {
+                          id: item.attributeValue.id,
+                          value: item.attributeValue.value,
+                          displayValue: item.attributeValue.displayValue,
+                        }
+                      : undefined,
+                  };
+                })
+                .filter((item: any) => Boolean(item.attributeId && item.attributeValueId))
+            : [];
+
+          const attributeSelections: Record<string, string> = {};
+          variantItems.forEach((item: any) => {
+            if (item.attributeId && item.attributeValueId) {
+              attributeSelections[item.attributeId] = item.attributeValueId;
+            }
+          });
+
+          return {
+            id: variant.id,
+            productId: product.id,
+            sku: variant.sku,
+            name: variant.name,
+            price: Number(variant.price) || 0,
+            compareAtPrice: variant.compareAtPrice ?? variant.comparePrice ?? null,
+            costPrice: variant.costPrice ?? null,
+            stockQuantity: Number(variant.stockQuantity) || 0,
+            weight: variant.weight ?? null,
+            dimensions: variant.dimensions ?? null,
+            isActive: variant.isActive,
+            sortOrder: variant.sortOrder ?? 0,
+            trackInventory: variant.trackInventory ?? false,
+            allowBackorders: variant.allowBackorders ?? false,
+            attributes: attributeSelections,
+            variantItems,
+          };
+        })
+      : [];
+
+    const media = Array.isArray(product.media)
+      ? product.media.map((media: any) => ({
+          id: media.id,
+          url: media.url,
+          type: media.type,
+          altText: media.altText,
+          isPrimary: media.isPrimary,
+          isImage: media.isImage,
+          sortOrder: media.sortOrder,
+        }))
+      : [];
+
+    const imageUrls = media
+      .filter((m) => m.isImage)
+      .sort((a, b) => {
+        if (a.isPrimary && !b.isPrimary) return -1;
+        if (!a.isPrimary && b.isPrimary) return 1;
+        return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
+      })
+      .map((m) => m.url);
+
+    const primaryImage = imageUrls.length > 0 ? imageUrls[0] : null;
+    const totalStock = variants.reduce((sum, v) => sum + (v.stockQuantity ?? 0), 0);
+    const prices = variants.map((v) => v.price).filter((price) => Number.isFinite(price));
+    const lowestPrice = prices.length > 0 ? Math.min(...prices) : null;
+    const highestPrice = prices.length > 0 ? Math.max(...prices) : null;
+    const priceRange = lowestPrice != null && highestPrice != null && lowestPrice !== highestPrice
+      ? `${currencyFormatter.format(lowestPrice)} - ${currencyFormatter.format(highestPrice)}`
+      : null;
+
+    const categories = Array.isArray(product.productCategories)
+      ? product.productCategories.map((pc: any) => ({
+          id: pc.category.id,
+          name: pc.category.name,
+          slug: pc.category.slug,
+          description: pc.category.description,
+          parentId: pc.category.parentId,
+        }))
+      : [];
+
+    const specifications = Array.isArray(product.specifications)
+      ? product.specifications
+          .sort((a: any, b: any) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+          .map((spec: any) => ({
+            id: spec.id,
+            name: spec.name,
+            value: spec.value,
+            sortOrder: spec.sortOrder ?? 0,
+          }))
+      : [];
+
     return {
       id: product.id,
       name: product.name,
@@ -461,108 +690,46 @@ export class ClientProductsRouter {
       sortOrder: product.sortOrder,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
-      brand: product.brand ? {
-        id: product.brand.id,
-        name: product.brand.name,
-        slug: product.brand.slug,
-        logo: product.brand.logo,
-        description: product.brand.description,
-      } : undefined,
-      supplier: product.supplier ? {
-        id: product.supplier.id,
-        name: product.supplier.name,
-        email: product.supplier.email,
-        phone: product.supplier.phone,
-        address: product.supplier.address,
-      } : undefined,
-      warranty: product.warranty ? {
-        id: product.warranty.id,
-        name: product.warranty.name,
-        duration: product.warranty.duration,
-        description: product.warranty.description,
-      } : undefined,
-      tags: Array.isArray(product.tags) ? product.tags?.map((tag: any) => ({
-        id: tag.id,
-        name: tag.name,
-        color: tag.color,
-      })) || [] : [],
-      variants: Array.isArray(product.variants) ? product.variants?.map((variant: any) => {
-        const variantItems = Array.isArray(variant.variantItems)
-          ? variant.variantItems.map((item: any) => {
-            const attributeId = item.attributeId || item.attribute?.id || null;
-            const attributeValueId = item.attributeValueId || item.attributeValue?.id || null;
-
-            return {
-              id: item.id,
-              attributeId,
-              attributeValueId,
-              sortOrder: item.sortOrder ?? 0,
-              attribute: item.attribute ? {
-                id: item.attribute.id,
-                name: item.attribute.name,
-                displayName: item.attribute.displayName,
-                type: item.attribute.type,
-              } : undefined,
-              attributeValue: item.attributeValue ? {
-                id: item.attributeValue.id,
-                value: item.attributeValue.value,
-                displayValue: item.attributeValue.displayValue,
-              } : undefined,
-            };
-          }).filter((item: any) => Boolean(item.attributeId && item.attributeValueId))
-          : [];
-
-        const attributeSelections: Record<string, string> = {};
-        variantItems.forEach((item: any) => {
-          if (item.attributeId && item.attributeValueId) {
-            attributeSelections[item.attributeId] = item.attributeValueId;
+      brand: product.brand
+        ? {
+            id: product.brand.id,
+            name: product.brand.name,
+            slug: product.brand.slug,
+            logo: product.brand.logo,
+            description: product.brand.description,
           }
-        });
-
-        return {
-          id: variant.id,
-          sku: variant.sku,
-          name: variant.name,
-          price: Number(variant.price) || 0,
-          compareAtPrice: variant.compareAtPrice ?? variant.comparePrice ?? null,
-          costPrice: variant.costPrice ?? null,
-          stockQuantity: Number(variant.stockQuantity) || 0,
-          weight: variant.weight ?? null,
-          dimensions: variant.dimensions ?? null,
-          isActive: variant.isActive,
-          sortOrder: variant.sortOrder ?? 0,
-          trackInventory: variant.trackInventory ?? false,
-          allowBackorders: variant.allowBackorders ?? false,
-          attributes: attributeSelections,
-          variantItems,
-        };
-      }) || [] : [],
-      media: Array.isArray(product.media) ? product.media?.map((media: any) => ({
-        id: media.id,
-        url: media.url,
-        type: media.type,
-        altText: media.altText,
-        isPrimary: media.isPrimary,
-        isImage: media.isImage,
-        sortOrder: media.sortOrder,
-      })) || [] : [],
-      categories: Array.isArray(product.productCategories) ? product.productCategories?.map((pc: any) => ({
-        id: pc.category.id,
-        name: pc.category.name,
-        slug: pc.category.slug,
-        description: pc.category.description,
-        parentId: pc.category.parentId,
-      })) || [] : [],
-      specifications: Array.isArray(product.specifications)
-        ? product.specifications
-            .sort((a: any, b: any) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
-            .map((spec: any) => ({
-              id: spec.id,
-              name: spec.name,
-              value: spec.value,
-              sortOrder: spec.sortOrder ?? 0,
-            }))
-        : [],
+        : undefined,
+      supplier: product.supplier
+        ? {
+            id: product.supplier.id,
+            name: product.supplier.name,
+            email: product.supplier.email,
+            phone: product.supplier.phone,
+            address: product.supplier.address,
+          }
+        : undefined,
+      warranty: product.warranty
+        ? {
+            id: product.warranty.id,
+            name: product.warranty.name,
+            duration: product.warranty.duration,
+            description: product.warranty.description,
+          }
+        : undefined,
+      tags,
+      variants,
+      media,
+      categories,
+      specifications,
+      primaryImage,
+      imageUrls,
+      totalStock,
+      lowestPrice,
+      highestPrice,
+      priceRange,
+      price: lowestPrice ?? product.price ?? 0,
+      hasVariants: variants.length > 1,
+      variantCount: variants.length,
     };
   }
 }

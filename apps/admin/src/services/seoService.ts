@@ -11,7 +11,7 @@ export const seoService = {
    */
   getAllSeo: async () => {
     try {
-      const data = await trpcClient.adminSeo.getAll.query();
+      const data = await trpcClient['admin.seo'].getAll.query();
       return apiService.formatResponse(data);
     } catch (error) {
       return apiService.handleError(error);
@@ -23,7 +23,7 @@ export const seoService = {
    */
   getSeoByPath: async (path: string) => {
     try {
-      const data = await trpcClient.adminSeo.getByPath.query({ path });
+      const data = await trpcClient['admin.seo'].getByPath.query({ path });
       return apiService.formatResponse(data);
     } catch (error) {
       return apiService.handleError(error);
@@ -37,7 +37,7 @@ export const seoService = {
     try {
       // Use create for new entries, update for existing ones
       const method = seoData.id ? 'update' : 'create';
-      const data = await trpcClient.adminSeo[method].mutate(seoData);
+      const data = await trpcClient['admin.seo'][method].mutate(seoData);
       return apiService.formatResponse(data);
     } catch (error) {
       return apiService.handleError(error);
@@ -49,7 +49,7 @@ export const seoService = {
    */
   deleteSeo: async (id: string) => {
     try {
-      const data = await trpcClient.adminSeo.delete.mutate({ id });
+      const data = await trpcClient['admin.seo'].delete.mutate({ id });
       return apiService.formatResponse(data);
     } catch (error) {
       return apiService.handleError(error);

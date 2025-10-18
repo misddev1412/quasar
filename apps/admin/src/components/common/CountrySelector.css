@@ -106,6 +106,7 @@
   padding: 8px 12px !important;
   display: flex !important;
   align-items: center !important;
+  min-height: 44px !important;
 }
 
 /* Dropdown indicator */
@@ -308,11 +309,11 @@
 
 /* Ensure proper height consistency */
 .react-select__value-container {
-  min-height: inherit !important;
+  min-height: 44px !important;
 }
 
 .react-select__indicators {
-  height: inherit !important;
+  height: 44px !important;
 }
 
 /* Fix for portal rendering */

@@ -50,13 +50,15 @@ const normalizeVariantItem = (item: ProductVariantItem, index: number): VariantA
   const rawLabel = item.attributeValue?.displayValue || item.attributeValue?.value || String(item.attributeValueId || 'Value');
   const valueId = ensureValueId(item.attributeValueId, attributeId, rawLabel, index);
 
-  return {
+  const result = {
     attributeId,
     name: attributeName,
     valueId,
     label: rawLabel,
     sortOrder: item.sortOrder ?? index,
   };
+
+  return result;
 };
 
 const normalizeFromAttributesRecord = (
@@ -156,7 +158,9 @@ const normalizeFromVariantName = (name: string, fallbackOffset = 0): VariantAttr
 export const extractVariantAttributeEntries = (variant: ProductVariant): VariantAttributeEntry[] => {
   const entries: VariantAttributeEntry[] = [];
 
+  // Check for variantItems
   const items = Array.isArray(variant.variantItems) ? variant.variantItems : [];
+
   if (items.length > 0) {
     items.forEach((item, index) => {
       const normalized = normalizeVariantItem(item, index);
@@ -170,11 +174,33 @@ export const extractVariantAttributeEntries = (variant: ProductVariant): Variant
     return entries;
   }
 
+  // Check for attributes object
   if (variant.attributes && Object.keys(variant.attributes).length > 0) {
-    return normalizeFromAttributesRecord(variant.attributes, entries.length);
+    const attributeEntries = normalizeFromAttributesRecord(variant.attributes, entries.length);
+    return attributeEntries;
   }
 
-  return normalizeFromVariantName(variant.name || '', entries.length);
+  // Try to extract from variant name - handle common patterns better
+  const nameEntries = normalizeFromVariantName(variant.name || '', entries.length);
+
+  // If still no entries, try to parse from name with better logic
+  if (nameEntries.length === 0 && variant.name) {
+    // Try to extract size/color from common patterns like "M", "XL", "Blue", etc.
+    const parts = variant.name.split(/[\s,-]+/).filter(part => part.trim().length > 0);
+    if (parts.length === 1) {
+      // Single attribute like "M" or "XL" - treat as Size
+      const valueLabel = parts[0].trim();
+      return [{
+        attributeId: 'attr-size',
+        name: 'Size',
+        valueId: 'attr-size-val-' + valueLabel.toLowerCase(),
+        label: valueLabel,
+        sortOrder: 0
+      }];
+    }
+  }
+
+  return nameEntries;
 };
 
 export interface VariantAttributeValueOption {
@@ -230,7 +256,7 @@ export const buildVariantAttributes = (variants?: ProductVariant[]): VariantAttr
     });
   });
 
-  return Array.from(attributeMap.values())
+  const result = Array.from(attributeMap.values())
     .sort((a, b) => a.order - b.order)
     .map(({ attributeId, name, values }) => ({
       attributeId,
@@ -238,6 +264,8 @@ export const buildVariantAttributes = (variants?: ProductVariant[]): VariantAttr
       values: Array.from(values.values())
         .sort((a, b) => a.sortOrder - b.sortOrder || a.label.localeCompare(b.label)),
     }));
+
+  return result;
 };
 
 export const buildVariantSelectionMap = (variants?: ProductVariant[]): VariantSelectionMap => {

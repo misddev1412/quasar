@@ -167,6 +167,7 @@
       "nav": {
         "home": "Trang chủ",
         "products": "Sản phẩm",
+        "news": "Tin tức",
         "categories": "Danh mục",
         "deals": "Ưu đãi",
         "about": "Giới thiệu",
@@ -914,8 +915,8 @@
         "continue": "Tiếp tục mua sắm"
       },
       "title": "Giỏ hàng",
-      "items_count": "{{count}} sản phẩm",
-      "items_count_single": "{{count}} sản phẩm",
+      "items_count": "{count} sản phẩm",
+      "items_count_single": "{count} sản phẩm",
       "shipping": {
         "title": "Tùy chọn vận chuyển",
         "standard": "Vận chuyển tiêu chuẩn",
@@ -975,7 +976,7 @@
         "confirm": "Xóa giỏ hàng"
       },
       "aria_labels": {
-        "cart_button": "Giỏ hàng ({{count}} sản phẩm)",
+        "cart_button": "Giỏ hàng ({count} sản phẩm)",
         "cart_button_empty": "Giỏ hàng (0 sản phẩm)",
         "cart_dropdown": "Dropdown giỏ hàng",
         "item_remove": "Xóa {{name}} khỏi giỏ hàng",
@@ -1039,7 +1040,15 @@
       "actions": {
         "addToCart": "Thêm vào giỏ",
         "outOfStock": "Hết hàng",
-        "quickView": "Xem nhanh"
+        "quickView": "Xem nhanh",
+        "selectVariant": "Chọn biến thể",
+        "selectedVariant": "Biến thể đã chọn",
+        "noVariantFound": "Không tìm thấy biến thể nào với thuộc tính đã chọn",
+        "selectRequiredAttributes": "Vui lòng chọn tất cả các thuộc tính bắt buộc ({current}/{total} đã chọn)"
+      },
+      "common": {
+        "quantity": "Số lượng",
+        "cancel": "Hủy"
       },
       "variants": {
         "inStock": "{count, plural, one {Còn {count} sản phẩm} other {Còn {count} sản phẩm}}",
@@ -1225,6 +1234,30 @@
     "invalid_type": "Loại tệp không hợp lệ",
     "max_size": "Kích thước tệp tối đa: {{size}}",
     "supported_formats": "Định dạng được hỗ trợ: {{formats}}"
+  },
+  "sections": {
+    "products_by_category": {
+      "title": "Sản phẩm nổi bật",
+      "description": "Khám phá các sản phẩm mới và được tuyển chọn trong danh mục này.",
+      "view_category": "Xem danh mục",
+      "category_label": "Danh mục {{category}}",
+      "curated_category": "Bộ sưu tập tuyển chọn",
+      "loading": "Đang tải sản phẩm...",
+      "error": "Không thể tải sản phẩm cho danh mục này.",
+      "invalid_category": "Danh mục đã chọn không còn tồn tại.",
+      "missing_category": "Hãy chọn một danh mục để hiển thị sản phẩm.",
+      "custom_empty": "Hãy chọn sản phẩm cụ thể cho danh mục này.",
+      "empty": "Chưa có sản phẩm nào trong danh mục này.",
+      "carousel_prev": "Cuộn sang trái",
+      "carousel_next": "Cuộn sang phải",
+      "strategies": {
+        "latest": "Sản phẩm mới nhất",
+        "featured": "Sản phẩm nổi bật",
+        "bestsellers": "Bán chạy nhất",
+        "custom": "Tự chọn sản phẩm"
+      },
+      "bestsellers_disabled": "Tính năng sản phẩm bán chạy đang được phát triển, vui lòng chọn tuỳ chọn khác."
+    }
   },
   "notifications": {
     "title": "Thông báo",

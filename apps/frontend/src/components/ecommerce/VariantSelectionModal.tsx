@@ -2,24 +2,30 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Divider } from '@heroui/react';
-import { FiX, FiShoppingCart } from 'react-icons/fi';
+import { FiX, FiShoppingCart, FiLoader } from 'react-icons/fi';
+import { useTranslations } from 'next-intl';
 import type { Product, ProductVariant } from '../../types/product';
 import { buildVariantAttributes, buildVariantSelectionMap } from '../../utils/variantAttributes';
-import Input from '../common/Input';
+import { useToast } from '../../contexts/ToastContext';
+import { Input } from '../common/Input';
+import { useAddToCart } from '../../hooks/useAddToCart';
 
 interface VariantSelectionModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   product: Product;
-  onVariantSelect: (variant: ProductVariant, quantity: number) => void;
+  onVariantAdded?: (variant: ProductVariant, quantity: number) => Promise<void> | void;
 }
 
 const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
   isOpen,
   onOpenChange,
   product,
-  onVariantSelect,
+  onVariantAdded,
 }) => {
+  const t = useTranslations('product.detail');
+  const { showToast } = useToast();
+  const { addToCart, isAdding } = useAddToCart();
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
@@ -60,18 +66,86 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
 
   // Find variant based on selected attributes
   const findMatchingVariant = useCallback(() => {
-    if (!product.variants || Object.keys(selectedAttributes).length === 0) {
+    if (!product.variants || product.variants.length === 0) {
       return null;
     }
 
-    return product.variants.find(variant => {
+    const hasSelections = Object.keys(selectedAttributes).length > 0;
+
+    // Try to find exact match first
+    let matchingVariant = product.variants.find((variant) => {
       const selections = variantSelectionMap.get(variant.id);
-      if (!selections) {
+
+      if (selections && Object.keys(selections).length > 0) {
+        const allVariantAttributesSelected = Object.entries(selections).every(([attributeId, valueId]) => {
+          return selectedAttributes[attributeId] === valueId;
+        });
+
+        const noConflictingSelections = Object.entries(selectedAttributes).every(([attributeId, valueId]) => {
+          const variantValue = selections[attributeId];
+          return variantValue === undefined || variantValue === valueId;
+        });
+
+        return allVariantAttributesSelected && noConflictingSelections;
+      }
+
+      if (!hasSelections) {
         return false;
       }
 
-      return Object.entries(selectedAttributes).every(([attributeId, valueId]) => valueId && selections[attributeId] === valueId);
+      // Fallback to attributes object comparison if variantItems are not available
+      if (variant.attributes && Object.keys(variant.attributes).length > 0) {
+        return Object.entries(selectedAttributes).every(([attributeId, valueId]) => {
+          const variantValue = variant.attributes?.[attributeId];
+          return variantValue !== undefined && String(variantValue) === String(valueId);
+        });
+      }
+
+      return false;
     });
+
+    // If no exact match found, try fuzzy matching based on variant names
+    if (!matchingVariant && product.variants.length === 1) {
+      const singleVariant = product.variants[0];
+
+      // For single variant products, if it has a simple name that matches one of the selected values
+      const selectedValues = Object.values(selectedAttributes);
+      const variantName = singleVariant.name?.trim();
+
+      if (variantName && selectedValues.some(value =>
+        value.toLowerCase().includes(variantName.toLowerCase()) ||
+        variantName.toLowerCase().includes(value.toLowerCase())
+      )) {
+        matchingVariant = singleVariant;
+      }
+    }
+
+    if (!matchingVariant && hasSelections) {
+      const subsetMatches = product.variants.filter((variant) => {
+        const selections = variantSelectionMap.get(variant.id);
+
+        if (selections && Object.keys(selections).length > 0) {
+          return Object.entries(selectedAttributes).every(([attributeId, valueId]) => {
+            return selections[attributeId] === valueId;
+          });
+        }
+
+        if (variant.attributes && Object.keys(variant.attributes).length > 0) {
+          return Object.entries(selectedAttributes).every(([attributeId, valueId]) => {
+            const variantValue = variant.attributes?.[attributeId];
+            return variantValue !== undefined && String(variantValue) === String(valueId);
+          });
+        }
+
+        return false;
+      });
+
+      if (subsetMatches.length === 1) {
+        matchingVariant = subsetMatches[0];
+      }
+    }
+
+    return matchingVariant;
   }, [product.variants, selectedAttributes, variantSelectionMap]);
 
   // Update selected variant when attributes change
@@ -83,6 +157,30 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
       setQuantity(1);
     }
   }, [selectedAttributes, findMatchingVariant]);
+
+  useEffect(() => {
+    if (!selectedVariant) {
+      return;
+    }
+
+    const selections = variantSelectionMap.get(selectedVariant.id);
+    if (!selections || Object.keys(selections).length === 0) {
+      return;
+    }
+
+    setSelectedAttributes((prev) => {
+      const needsUpdate = Object.entries(selections).some(([attributeId, valueId]) => prev[attributeId] !== valueId);
+
+      if (!needsUpdate) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        ...selections,
+      };
+    });
+  }, [selectedVariant, variantSelectionMap]);
 
   const handleAttributeSelect = useCallback((attributeId: string, valueId: string) => {
     setSelectedAttributes((prev) => {
@@ -101,6 +199,7 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
         [attributeId]: valueId,
       };
 
+      // Clear subsequent attribute selections
       for (let i = attributeIndex + 1; i < variantAttributes.length; i += 1) {
         const nextAttributeId = variantAttributes[i].attributeId;
         if (nextSelections[nextAttributeId]) {
@@ -111,6 +210,46 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
       return nextSelections;
     });
   }, [attributeIndexMap, variantAttributes]);
+
+  useEffect(() => {
+    if (!selectedVariant && product.variants && product.variants.length === 1) {
+      setSelectedVariant(product.variants[0]);
+    }
+  }, [product.variants, selectedVariant]);
+
+  useEffect(() => {
+    if (selectedVariant || !product.variants || product.variants.length === 0) {
+      return;
+    }
+
+    const hasSelections = Object.keys(selectedAttributes).length > 0;
+    if (!hasSelections) {
+      return;
+    }
+
+    const subsetMatches = product.variants.filter((variant) => {
+      const selections = variantSelectionMap.get(variant.id);
+
+      if (selections && Object.keys(selections).length > 0) {
+        return Object.entries(selectedAttributes).every(([attributeId, valueId]) => {
+          return selections[attributeId] === valueId;
+        });
+      }
+
+      if (variant.attributes && Object.keys(variant.attributes).length > 0) {
+        return Object.entries(selectedAttributes).every(([attributeId, valueId]) => {
+          const variantValue = variant.attributes?.[attributeId];
+          return variantValue !== undefined && String(variantValue) === String(valueId);
+        });
+      }
+
+      return false;
+    });
+
+    if (subsetMatches.length === 1) {
+      setSelectedVariant(subsetMatches[0]);
+    }
+  }, [product.variants, selectedAttributes, selectedVariant, variantSelectionMap]);
 
   const handleQuantityChange = useCallback((nextValue: number) => {
     if (Number.isNaN(nextValue)) {
@@ -149,15 +288,131 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
     });
   }, [attributeIndexMap, product.variants, selectedAttributes, variantAttributes, variantSelectionMap]);
 
-  const handleAddToCart = () => {
-    if (selectedVariant) {
-      onVariantSelect(selectedVariant, quantity);
-      onOpenChange(false);
+  const tryAddVariantToCart = async (variant: ProductVariant) => {
+    const result = await addToCart({ product, variant, quantity });
+
+    if (!result.success) {
+      return false;
     }
+
+    if (onVariantAdded) {
+      await onVariantAdded(variant, quantity);
+    }
+
+    onOpenChange(false);
+    return true;
   };
 
-  const isAddToCartDisabled = !selectedVariant || selectedVariant.stockQuantity <= 0;
+  const handleAddToCart = async () => {
+    if (!selectedVariant) {
+      // If no variant is selected, try to select a fallback that is in stock
+      if (product.variants && product.variants.length > 0) {
+        const firstAvailableVariant = product.variants.find(v => v.stockQuantity > 0) || product.variants[0];
 
+        if (firstAvailableVariant) {
+          setSelectedVariant(firstAvailableVariant);
+
+          if (firstAvailableVariant.stockQuantity <= 0) {
+            showToast({
+              type: 'error',
+              title: 'Out of stock',
+              message: 'This variant is currently out of stock.',
+            });
+            return;
+          }
+
+          const added = await tryAddVariantToCart(firstAvailableVariant);
+          if (!added) {
+            return;
+          }
+        }
+      }
+      return;
+    }
+
+    if (selectedVariant.stockQuantity <= 0) {
+      showToast({
+        type: 'error',
+        title: 'Out of stock',
+        message: 'This variant is currently out of stock.',
+      });
+      return;
+    }
+
+    await tryAddVariantToCart(selectedVariant);
+  };
+
+  const selectedVariantSelections = useMemo(() => {
+    if (!selectedVariant) {
+      return null;
+    }
+    return variantSelectionMap.get(selectedVariant.id) || null;
+  }, [selectedVariant, variantSelectionMap]);
+
+  const missingRequiredSelections = useMemo(() => {
+    if (!selectedVariant) {
+      return true;
+    }
+
+    if (selectedVariantSelections && Object.keys(selectedVariantSelections).length > 0) {
+      return Object.entries(selectedVariantSelections).some(([attributeId, valueId]) => selectedAttributes[attributeId] !== valueId);
+    }
+
+    if (variantAttributes.length > 0) {
+      return Object.keys(selectedAttributes).length < variantAttributes.length;
+    }
+
+    return false;
+  }, [selectedVariant, selectedVariantSelections, selectedAttributes, variantAttributes]);
+
+  const selectionProgress = useMemo(() => {
+    if (selectedVariantSelections && Object.keys(selectedVariantSelections).length > 0) {
+      const total = Object.keys(selectedVariantSelections).length;
+      const current = Object.entries(selectedVariantSelections).reduce((count, [attributeId, valueId]) => {
+        return selectedAttributes[attributeId] === valueId ? count + 1 : count;
+      }, 0);
+
+      return { current, total };
+    }
+
+    return {
+      current: Object.keys(selectedAttributes).length,
+      total: variantAttributes.length,
+    };
+  }, [selectedVariantSelections, selectedAttributes, variantAttributes]);
+
+  const shouldShowSelectionMessage = selectionProgress.total > 0 && selectionProgress.current < selectionProgress.total;
+
+  const isAddToCartDisabled = !selectedVariant || selectedVariant.stockQuantity <= 0 || missingRequiredSelections || isAdding;
+
+  // Debug logging for button state
+  console.log('Button State Debug:', {
+    selectedVariant: selectedVariant?.name || 'None',
+    selectedVariantId: selectedVariant?.id,
+    stockQuantity: selectedVariant?.stockQuantity,
+    variantAttributesLength: variantAttributes.length,
+    selectedAttributesLength: Object.keys(selectedAttributes).length,
+    isAddToCartDisabled
+  });
+
+  // Fallback: If no variant is selected but attributes are selected, try to find a fallback variant
+  const handleAddToCartWithFallback = async () => {
+    console.log('handleAddToCartWithFallback called');
+
+    if (!selectedVariant && product.variants && product.variants.length > 0 && Object.keys(selectedAttributes).length > 0) {
+      console.log('No variant selected, trying fallback selection');
+
+      // Try to find any variant that has stock
+      const availableVariant = product.variants.find(v => v.stockQuantity > 0);
+      if (availableVariant) {
+        console.log('Using available variant as fallback:', availableVariant.name);
+        await handleAddToCart();
+        return;
+      }
+    }
+
+    await handleAddToCart();
+  };
   return (
     <Modal
       isOpen={isOpen}
@@ -170,7 +425,7 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
           <>
             <ModalHeader className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Select Variant</h3>
+                <h3 className="text-lg font-semibold">{t('actions.selectVariant')}</h3>
                 <Button
                   isIconOnly
                   variant="light"
@@ -185,13 +440,67 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
 
             <ModalBody>
               <div className="space-y-6">
-                {/* Attribute Selection */}
-                {variantAttributes.map((attribute) => {
-                  const attributeIndex = attributeIndexMap.get(attribute.attributeId) ?? 0;
-                  const previousAttributeId = attributeIndex > 0 ? variantAttributes[attributeIndex - 1]?.attributeId : undefined;
-                  const hasPreviousSelection = previousAttributeId ? Boolean(selectedAttributes[previousAttributeId]) : true;
-                  const isActiveStep = attributeIndex === 0 || hasPreviousSelection;
-                  const selectedLabel = attribute.values.find((value) => value.valueId === selectedAttributes[attribute.attributeId])?.label;
+                
+                {/* Fallback: Show direct variant selection if attributes building fails */}
+                {variantAttributes.length === 0 && product.variants && product.variants.length > 0 ? (
+                  <div className="space-y-3">
+                    <h4 className="font-medium">Select Variant:</h4>
+                    <div className="space-y-2">
+                      {product.variants.map((variant) => (
+                        <button
+                          key={variant.id}
+                          onClick={() => setSelectedVariant(variant)}
+                          className={`w-full p-3 text-left border rounded-lg transition-colors ${
+                            selectedVariant?.id === variant.id
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                          disabled={variant.stockQuantity <= 0}
+                        >
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium">{variant.name}</span>
+                            <span className="font-semibold">${variant.price.toFixed(2)}</span>
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            Stock: {variant.stockQuantity} | SKU: {variant.sku || 'N/A'}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Quantity selector for fallback */}
+                    {selectedVariant && (
+                      <div className="space-y-3">
+                        <h4 className="font-medium">Quantity:</h4>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => handleQuantityChange(quantity - 1)}
+                            disabled={quantity <= 1}
+                            className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
+                          >
+                            -
+                          </button>
+                          <div className="w-20 text-center border border-gray-200 rounded-lg px-3 py-2">
+                            {quantity}
+                          </div>
+                          <button
+                            onClick={() => handleQuantityChange(quantity + 1)}
+                            className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* Attribute Selection */
+                  variantAttributes.map((attribute) => {
+                    const attributeIndexFromMap = attributeIndexMap.get(attribute.attributeId) ?? 0;
+                    const previousAttributeId = attributeIndexFromMap > 0 ? variantAttributes[attributeIndexFromMap - 1]?.attributeId : undefined;
+                    const hasPreviousSelection = previousAttributeId ? Boolean(selectedAttributes[previousAttributeId]) : true;
+                    const isActiveStep = attributeIndexFromMap === 0 || hasPreviousSelection;
+                    const selectedLabel = attribute.values.find((value) => value.valueId === selectedAttributes[attribute.attributeId])?.label;
 
                   return (
                     <div
@@ -238,7 +547,8 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
                       </div>
                     </div>
                   );
-                })}
+                })
+                )}
 
                 <Divider />
 
@@ -246,7 +556,7 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
                 {selectedVariant && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-medium">Selected Variant</h4>
+                      <h4 className="font-medium">{t('actions.selectedVariant')}</h4>
                       <div className="text-right">
                         <div className="text-lg font-semibold">
                           ${selectedVariant.price.toFixed(2)}
@@ -268,17 +578,17 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
                     <div className="text-sm">
                       {selectedVariant.stockQuantity > 0 ? (
                         <span className="text-green-600">
-                          In Stock ({selectedVariant.stockQuantity} available)
+                          {t('variants.inStock', { count: selectedVariant.stockQuantity })}
                         </span>
                       ) : (
-                        <span className="text-red-600">Out of Stock</span>
+                        <span className="text-red-600">{t('variants.outOfStock')}</span>
                       )}
                     </div>
 
                     {/* Quantity Selector */}
                     {selectedVariant.stockQuantity > 0 && (
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-medium text-gray-700">Quantity:</span>
+                        <span className="text-sm font-medium text-gray-700">{t('common.quantity')}:</span>
                         <div className="flex items-center gap-2">
                           <Button
                             isIconOnly
@@ -330,13 +640,18 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
 
                 {!selectedVariant && Object.keys(selectedAttributes).length > 0 && (
                   <div className="text-center py-4">
-                    <p className="text-gray-500">No variant found with selected attributes</p>
+                    <p className="text-gray-500">{t('actions.noVariantFound')}</p>
                   </div>
                 )}
 
-                {Object.keys(selectedAttributes).length === 0 && (
+                {shouldShowSelectionMessage && (
                   <div className="text-center py-4">
-                    <p className="text-gray-500">Please select product attributes</p>
+                    <p className="text-gray-500">
+                      {t('actions.selectRequiredAttributes', {
+                        current: selectionProgress.current,
+                        total: selectionProgress.total
+                      })}
+                    </p>
                   </div>
                 )}
               </div>
@@ -346,16 +661,20 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
               <Button
                 variant="light"
                 onPress={onClose}
+                isDisabled={isAdding}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 color="primary"
-                onPress={handleAddToCart}
+                onPress={handleAddToCartWithFallback}
                 isDisabled={isAddToCartDisabled}
-                startContent={<FiShoppingCart />}
+                isLoading={isAdding}
+                startContent={
+                  isAdding ? <FiLoader className="animate-spin" /> : <FiShoppingCart />
+                }
               >
-                Add to Cart
+                {t('actions.addToCart')}
               </Button>
             </ModalFooter>
           </>

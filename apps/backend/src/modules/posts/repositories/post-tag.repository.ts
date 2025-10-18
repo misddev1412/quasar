@@ -10,6 +10,7 @@ export interface CreatePostTagDto {
   description?: string;
   color?: string;
   isActive?: boolean;
+  is_active?: boolean;
 }
 
 export interface UpdatePostTagDto {
@@ -18,6 +19,7 @@ export interface UpdatePostTagDto {
   description?: string;
   color?: string;
   isActive?: boolean;
+  is_active?: boolean;
 }
 
 @Injectable()
@@ -42,12 +44,26 @@ export class PostTagRepository extends BaseRepository<PostTag> {
   }
 
   async createTag(createDto: CreatePostTagDto): Promise<PostTag> {
-    const tag = this.repository.create(createDto);
+    // Map frontend field names to backend entity field names
+    const mappedCreateDto = {
+      ...createDto,
+      is_active: createDto.is_active ?? createDto.isActive, // Use is_active if provided, otherwise map from isActive
+      isActive: undefined, // Remove isActive from the create object
+    };
+
+    const tag = this.repository.create(mappedCreateDto);
     return await this.repository.save(tag);
   }
 
   async updateTag(id: string, updateDto: UpdatePostTagDto): Promise<PostTag | null> {
-    await this.repository.update(id, updateDto);
+    // Map frontend field names to backend entity field names
+    const mappedUpdateDto = {
+      ...updateDto,
+      is_active: updateDto.is_active ?? updateDto.isActive, // Use is_active if provided, otherwise map from isActive
+      isActive: undefined, // Remove isActive from the update object
+    };
+
+    await this.repository.update(id, mappedUpdateDto);
     return await this.findById(id);
   }
 

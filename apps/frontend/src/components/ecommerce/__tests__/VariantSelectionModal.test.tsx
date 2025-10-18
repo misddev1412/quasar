@@ -4,26 +4,35 @@ import VariantSelectionModal from '../VariantSelectionModal';
 
 // Mock the HeroUI components
 jest.mock('@heroui/react', () => ({
-  Modal: ({ children, isOpen, onOpenChange }: any) => (
+  Modal: ({ children, isOpen, onOpenChange }) => (
     isOpen ? <div data-testid="modal">{children}</div> : null
   ),
-  ModalContent: ({ children }: any) => <div data-testid="modal-content">{children}</div>,
-  ModalHeader: ({ children }: any) => <div data-testid="modal-header">{children}</div>,
-  ModalBody: ({ children }: any) => <div data-testid="modal-body">{children}</div>,
-  ModalFooter: ({ children }: any) => <div data-testid="modal-footer">{children}</div>,
-  Button: ({ children, onPress, ...props }: any) => (
+  ModalContent: ({ children }) => <div data-testid="modal-content">{children}</div>,
+  ModalHeader: ({ children }) => <div data-testid="modal-header">{children}</div>,
+  ModalBody: ({ children }) => <div data-testid="modal-body">{children}</div>,
+  ModalFooter: ({ children }) => <div data-testid="modal-footer">{children}</div>,
+  Button: ({ children, onPress, ...props }) => (
     <button {...props} onClick={onPress}>
       {children}
     </button>
   ),
   Divider: () => <hr data-testid="divider" />, 
-  Input: ({ onValueChange, value, ...props }: any) => (
+  Input: ({ onValueChange, value, ...props }) => (
     <input
       {...props}
       value={value}
       onChange={(event) => onValueChange?.(event.target.value)}
     />
   )
+}));
+
+const mockAddToCart = jest.fn().mockResolvedValue({ success: true });
+
+jest.mock('../../../hooks/useAddToCart', () => ({
+  useAddToCart: () => ({
+    addToCart: mockAddToCart,
+    isAdding: false,
+  }),
 }));
 
 const mockProduct = {
@@ -125,11 +134,94 @@ const mockProduct = {
   ]
 };
 
+const mockProductWithUnevenAttributes = {
+  id: '2',
+  name: 'Uneven Variant Product',
+  price: 80,
+  isActive: true,
+  variants: [
+    {
+      id: 'variant-a',
+      productId: '2',
+      name: 'Small Only',
+      price: 80,
+      stockQuantity: 4,
+      isActive: true,
+      sortOrder: 0,
+      variantItems: [
+        {
+          id: 'item-a1',
+          productVariantId: 'variant-a',
+          attributeId: 'attr-size',
+          attributeValueId: 'value-small',
+          sortOrder: 0,
+          attribute: {
+            id: 'attr-size',
+            name: 'size',
+            displayName: 'Size'
+          },
+          attributeValue: {
+            id: 'value-small',
+            value: 'S',
+            displayValue: 'Small'
+          }
+        }
+      ]
+    },
+    {
+      id: 'variant-b',
+      productId: '2',
+      name: 'Medium Blue',
+      price: 90,
+      stockQuantity: 6,
+      isActive: true,
+      sortOrder: 1,
+      variantItems: [
+        {
+          id: 'item-b1',
+          productVariantId: 'variant-b',
+          attributeId: 'attr-size',
+          attributeValueId: 'value-medium',
+          sortOrder: 0,
+          attribute: {
+            id: 'attr-size',
+            name: 'size',
+            displayName: 'Size'
+          },
+          attributeValue: {
+            id: 'value-medium',
+            value: 'M',
+            displayValue: 'Medium'
+          }
+        },
+        {
+          id: 'item-b2',
+          productVariantId: 'variant-b',
+          attributeId: 'attr-color',
+          attributeValueId: 'value-blue',
+          sortOrder: 1,
+          attribute: {
+            id: 'attr-color',
+            name: 'color',
+            displayName: 'Color'
+          },
+          attributeValue: {
+            id: 'value-blue',
+            value: 'blue',
+            displayValue: 'Blue'
+          }
+        }
+      ]
+    }
+  ]
+};
+
 describe('VariantSelectionModal', () => {
-  const mockOnVariantSelect = jest.fn();
+  const mockOnVariantAdded = jest.fn();
 
   beforeEach(() => {
-    mockOnVariantSelect.mockClear();
+    mockAddToCart.mockClear();
+    mockOnVariantAdded.mockClear();
   });
 
   it('renders modal when isOpen is true', () => {
@@ -138,7 +230,7 @@ describe('VariantSelectionModal', () => {
         isOpen={true}
         onOpenChange={jest.fn()}
         product={mockProduct}
-        onVariantSelect={mockOnVariantSelect}
+        onVariantAdded={mockOnVariantAdded}
       />
     );
 
@@ -153,7 +245,7 @@ describe('VariantSelectionModal', () => {
         isOpen={false}
         onOpenChange={jest.fn()}
         product={mockProduct}
-        onVariantSelect={mockOnVariantSelect}
+        onVariantAdded={mockOnVariantAdded}
       />
     );
 
@@ -166,7 +258,7 @@ describe('VariantSelectionModal', () => {
         isOpen={true}
         onOpenChange={jest.fn()}
         product={mockProduct}
-        onVariantSelect={mockOnVariantSelect}
+        onVariantAdded={mockOnVariantAdded}
       />
     );
 
@@ -184,7 +276,7 @@ describe('VariantSelectionModal', () => {
         isOpen={true}
         onOpenChange={jest.fn()}
         product={mockProduct}
-        onVariantSelect={mockOnVariantSelect}
+        onVariantAdded={mockOnVariantAdded}
       />
     );
 
@@ -206,7 +298,7 @@ describe('VariantSelectionModal', () => {
         isOpen={true}
         onOpenChange={mockOnOpenChange}
         product={mockProduct}
-        onVariantSelect={mockOnVariantSelect}
+        onVariantAdded={mockOnVariantAdded}
       />
     );
 
@@ -222,15 +314,18 @@ describe('VariantSelectionModal', () => {
     // Click Add to Cart
     fireEvent.click(screen.getByText('Add to Cart'));
 
-    expect(mockOnVariantSelect).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: 'variant-1',
-        name: 'Small Red',
-        price: 100
-      }),
-      1
-    );
-    expect(mockOnOpenChange).toHaveBeenCalledWith(false);
+    await waitFor(() => {
+      expect(mockAddToCart).toHaveBeenCalled();
+      expect(mockOnVariantAdded).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'variant-1',
+          name: 'Small Red',
+          price: 100
+        }),
+        1
+      );
+      expect(mockOnOpenChange).toHaveBeenCalledWith(false);
+    });
   });
 
   it('shows "No variant found" when invalid combination is selected', async () => {
@@ -239,7 +334,7 @@ describe('VariantSelectionModal', () => {
         isOpen={true}
         onOpenChange={jest.fn()}
         product={mockProduct}
-        onVariantSelect={mockOnVariantSelect}
+        onVariantAdded={mockOnVariantAdded}
       />
     );
 
@@ -249,6 +344,39 @@ describe('VariantSelectionModal', () => {
 
     await waitFor(() => {
       expect(screen.getByText('No variant found with selected attributes')).toBeInTheDocument();
+    });
+  });
+
+  it('enables add to cart when a variant lacks optional attributes', async () => {
+    const mockOnOpenChange = jest.fn();
+
+    render(
+      <VariantSelectionModal
+        isOpen={true}
+        onOpenChange={mockOnOpenChange}
+        product={mockProductWithUnevenAttributes}
+        onVariantAdded={mockOnVariantAdded}
+      />
+    );
+
+    // Select the size attribute that only exists on the first variant
+    fireEvent.click(screen.getByText('Small'));
+
+    const addToCartButton = screen.getByRole('button', { name: 'Add to Cart' });
+
+    await waitFor(() => {
+      expect(addToCartButton).not.toBeDisabled();
+    });
+
+    fireEvent.click(addToCartButton);
+
+    await waitFor(() => {
+      expect(mockAddToCart).toHaveBeenCalled();
+      expect(mockOnVariantAdded).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'variant-a' }),
+        1
+      );
+      expect(mockOnOpenChange).toHaveBeenCalledWith(false);
     });
   });
 });

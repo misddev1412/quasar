@@ -14,11 +14,13 @@ import { StorageModule } from '../modules/storage/storage.module';
 import { NotificationsModule } from '../modules/notifications/notifications.module';
 import { SupportModule } from '../modules/support/support.module';
 import { SectionsModule } from '../modules/sections/sections.module';
+import { MenuModule } from '../modules/menus/menus.module';
 import { SharedModule } from '../modules/shared/shared.module';
 import { ResponseService } from '../modules/shared/services/response.service';
 import { ClientNewsRouter } from './routers/client/news.router';
 import { ClientCategoriesRouter } from './routers/client/categories.router';
 import { SectionsRouter } from './routers/sections.router';
+import { AdminMenuRouter } from '../modules/menus/routers/admin-menu.router';
 
 @Module({
   imports: [
@@ -37,12 +39,14 @@ import { SectionsRouter } from './routers/sections.router';
     NotificationsModule,
     SupportModule,
     SectionsModule,
+    MenuModule,
     SharedModule,
   ],
   providers: [
     ClientNewsRouter,
     ClientCategoriesRouter,
     SectionsRouter,
+    AdminMenuRouter,
     ResponseService,
   ],
 })

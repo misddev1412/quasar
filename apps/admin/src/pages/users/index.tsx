@@ -251,7 +251,7 @@ const UserListPage = () => {
     data: statisticsData,
     isLoading: statisticsLoading,
     error: statisticsError
-  } = trpc.adminUserStatistics.getUserStatistics.useQuery();
+  } = trpc.adminUserStatistics.getUserStatistics.useQuery(undefined);
 
   const handleCreateUser = () => {
     navigate('/users/create');

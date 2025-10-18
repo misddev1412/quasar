@@ -1,4 +1,7 @@
+'use client';
+
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { SectionTranslationContent } from './HeroSlider';
 
 export interface CustomHtmlConfig {
@@ -11,7 +14,11 @@ interface CustomHtmlSectionProps {
 }
 
 export const CustomHtmlSection: React.FC<CustomHtmlSectionProps> = ({ config, translation }) => {
-  const html = config.html || '<div class="p-6 rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-500 text-white">\n  <h2 class="text-2xl font-semibold">Compose custom sections</h2>\n  <p class="mt-2 text-sm opacity-90">Inject bespoke marketing content, embed live widgets, or hand-off to your CMS.</p>\n</div>';
+  const { t } = useTranslation();
+  const html = config.html || `<div class="p-6 rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-500 text-white">
+  <h2 class="text-2xl font-semibold">${t('sections.custom_html.default_title')}</h2>
+  <p class="mt-2 text-sm opacity-90">${t('sections.custom_html.default_description')}</p>
+</div>`;
 
   return (
     <section className="py-16 bg-transparent">

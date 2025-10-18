@@ -40,6 +40,41 @@ const layout = {
 const friendlyFallbackDescription = (name: string) =>
   `Discover cheerful finds in our ${name} corner. Everything here is handpicked to make shopping feel easy and welcoming.`;
 
+const ensureNonNegativeInteger = (value: unknown, fallback: number): number => {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return fallback;
+  }
+
+  const parsed = Math.floor(value);
+  return parsed >= 0 ? parsed : fallback;
+};
+
+const sanitizePaginationInfo = (pagination: PaginationInfo | undefined, fallbackLimit = 12): PaginationInfo => {
+  const safeLimit = ensureNonNegativeInteger(pagination?.limit, fallbackLimit) || fallbackLimit;
+  const safeTotal = ensureNonNegativeInteger(pagination?.total, 0);
+  const safePage = ensureNonNegativeInteger(pagination?.page, 1) || 1;
+
+  const candidateTotalPages = pagination?.totalPages;
+  const safeTotalPages = (() => {
+    if (typeof candidateTotalPages === 'number' && Number.isFinite(candidateTotalPages) && candidateTotalPages > 0) {
+      return Math.floor(candidateTotalPages);
+    }
+
+    if (safeLimit > 0 && safeTotal > 0) {
+      return Math.max(1, Math.ceil(safeTotal / safeLimit));
+    }
+
+    return 0;
+  })();
+
+  return {
+    page: safePage,
+    limit: safeLimit,
+    total: safeTotal,
+    totalPages: safeTotalPages,
+  };
+};
+
 const useVisiblePages = (totalPages: number, currentPage: number) => {
   return useMemo(() => {
     if (!totalPages || totalPages <= 0) {
@@ -67,13 +102,16 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [products, setProducts] = useState<Product[]>(initialProducts);
 
-  const initialTotal = category.productCount ?? initialProducts.length;
-  const [pagination, setPagination] = useState<PaginationInfo>({
-    page: 1,
-    limit: 12,
-    total: initialTotal,
-    totalPages: initialTotal > 0 ? Math.max(1, Math.ceil(initialTotal / 12)) : 0,
-  });
+  const rawInitialTotal = category.productCount ?? initialProducts.length;
+  const initialTotal = ensureNonNegativeInteger(rawInitialTotal, initialProducts.length);
+  const [pagination, setPagination] = useState<PaginationInfo>(() =>
+    sanitizePaginationInfo({
+      page: 1,
+      limit: 12,
+      total: initialTotal,
+      totalPages: initialTotal > 0 ? Math.max(1, Math.ceil(initialTotal / 12)) : 0,
+    })
+  );
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -89,13 +127,15 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
 
   const numberFormatter = useMemo(() => new Intl.NumberFormat(), []);
   const totalKnownProducts = useMemo(() => {
-    if (pagination.total && pagination.total > 0) {
-      return pagination.total;
+    const candidates: Array<unknown> = [pagination.total, category.productCount, products.length];
+
+    for (const candidate of candidates) {
+      if (typeof candidate === 'number' && Number.isFinite(candidate) && candidate > 0) {
+        return Math.floor(candidate);
+      }
     }
-    if (category.productCount && category.productCount > 0) {
-      return category.productCount;
-    }
-    return products.length;
+
+    return 0;
   }, [pagination.total, category.productCount, products.length]);
 
   const heroStats = useMemo(
@@ -134,7 +174,7 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
       });
 
       setProducts(response.items);
-      setPagination(response.pagination);
+      setPagination(sanitizePaginationInfo(response.pagination, 12));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch products');
     } finally {

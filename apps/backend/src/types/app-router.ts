@@ -1603,6 +1603,13 @@ export const appRouter = router({
         return {} as ApiResponse;
       }),
 
+    variantDetail: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
     create: procedure
       .input(z.object({
         name: z.string().min(1),
@@ -1668,6 +1675,35 @@ export const appRouter = router({
         return {} as ApiResponse;
       }),
 
+    updateVariant: procedure
+      .input(z.object({
+        id: z.string(),
+        name: z.string().optional(),
+        sku: z.string().nullable().optional(),
+        barcode: z.string().nullable().optional(),
+        price: z.number().optional(),
+        compareAtPrice: z.number().nullable().optional(),
+        costPrice: z.number().nullable().optional(),
+        stockQuantity: z.number().optional(),
+        lowStockThreshold: z.number().nullable().optional(),
+        trackInventory: z.boolean().optional(),
+        allowBackorders: z.boolean().optional(),
+        weight: z.number().nullable().optional(),
+        dimensions: z.string().nullable().optional(),
+        image: z.string().nullable().optional(),
+        isActive: z.boolean().optional(),
+        sortOrder: z.number().optional(),
+        variantItems: z.array(z.object({
+          attributeId: z.string(),
+          attributeValueId: z.string(),
+          sortOrder: z.number().optional(),
+        })).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
     delete: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
@@ -1723,6 +1759,15 @@ export const appRouter = router({
       .input(z.object({
         limit: z.number().min(1).max(50).default(10),
       }).optional())
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getProductsByIds: procedure
+      .input(z.object({
+        ids: z.array(z.string().uuid()).min(1),
+      }))
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;

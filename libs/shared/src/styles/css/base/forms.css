@@ -59,22 +59,6 @@ select {
   width: 100%;
 }
 
-input[type='text']:focus,
-input[type='email']:focus,
-input[type='password']:focus,
-input[type='number']:focus,
-input[type='tel']:focus,
-input[type='url']:focus,
-input[type='search']:focus,
-input[type='date']:focus,
-input[type='time']:focus,
-input[type='datetime-local']:focus,
-textarea:focus,
-select:focus {
-  border: var(--border-input-focus);
-  box-shadow: var(--shadow-input-focus);
-  outline: none;
-}
 
 input[type='text']:disabled,
 input[type='email']:disabled,
@@ -204,15 +188,6 @@ input[type='radio']:checked::before {
   background-color: white;
   border-radius: var(--border-radius-full);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-/* Focus states for accessibility */
-input[type='checkbox']:focus,
-input[type='radio']:focus {
-  outline: none;
-  ring: 2px solid var(--color-primary-500);
-  ring-offset: 2px;
-  box-shadow: 0 0 0 2px var(--color-background-primary), 0 0 0 4px var(--color-primary-500);
 }
 
 /* Disabled states */

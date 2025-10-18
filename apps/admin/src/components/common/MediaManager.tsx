@@ -136,14 +136,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
     refetch,
     error,
     isError,
-  } = trpc.adminMedia.getUserMedia.useQuery({
-    page,
-    limit: 15,
-    search: searchQuery || undefined,
-    type: selectedType !== 'all' ? selectedType : undefined,
-    sortBy: 'createdAt',
-    sortOrder: 'DESC',
-  });
+  } = trpc.adminMedia.getUserMedia.useQuery();
 
 
   const deleteMediaMutation = trpc.adminMedia.deleteMedia.useMutation({

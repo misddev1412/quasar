@@ -16,3 +16,6 @@ export * from './message-codes.enums';
 
 // Content configuration enums
 export * from './section.enums';
+
+// Menu configuration enums
+export * from './menu.enums';

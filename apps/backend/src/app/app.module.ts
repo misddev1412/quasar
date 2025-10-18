@@ -20,6 +20,7 @@ import { FirebaseModule } from '../modules/firebase/firebase.module';
 import { ProductsModule } from '../modules/products/products.module';
 import { NotificationsModule } from '../modules/notifications/notifications.module';
 import { SectionsModule } from '../modules/sections/sections.module';
+import { MenuModule } from '../modules/menus/menus.module';
 import { AppContext } from '../trpc/context';
 import databaseConfig from '../config/database.config';
 import { User } from '../modules/user/entities/user.entity';
@@ -55,6 +56,8 @@ import { ProductAttribute } from '../modules/products/entities/product-attribute
 import { NotificationEntity } from '../modules/notifications/entities/notification.entity';
 import { SectionEntity } from '../modules/sections/entities/section.entity';
 import { SectionTranslationEntity } from '../modules/sections/entities/section-translation.entity';
+import { MenuEntity } from '../modules/menus/entities/menu.entity';
+import { MenuTranslationEntity } from '../modules/menus/entities/menu-translation.entity';
 import { createErrorFormatter } from '../trpc/error-formatter';
 import { AppRouterModule } from '../trpc/app-router.module';
 
@@ -102,6 +105,8 @@ import { AppRouterModule } from '../trpc/app-router.module';
           NotificationEntity,
           SectionEntity,
           SectionTranslationEntity,
+          MenuEntity,
+          MenuTranslationEntity,
         ],
         autoLoadEntities: true
       }),
@@ -126,6 +131,7 @@ import { AppRouterModule } from '../trpc/app-router.module';
     ProductsModule,
     NotificationsModule,
     SectionsModule,
+    MenuModule,
     AppRouterModule,
   ],
   controllers: [AppController],

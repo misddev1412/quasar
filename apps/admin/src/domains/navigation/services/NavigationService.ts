@@ -33,6 +33,7 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ImageIcon from '@mui/icons-material/Image';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import MenuIcon from '@mui/icons-material/Menu';
 
 export class NavigationService implements INavigationService {
   constructor(private translate: (key: string, fallback?: string) => string) {}
@@ -119,6 +120,11 @@ export class NavigationService implements INavigationService {
             icon: React.createElement(ViewQuiltIcon),
             label: t('admin.sections', 'Sections'),
             path: '/sections/home'
+          },
+          {
+            icon: React.createElement(MenuIcon),
+            label: t('admin.menus', 'Menu Management'),
+            path: '/menus'
           }
         ]
       },

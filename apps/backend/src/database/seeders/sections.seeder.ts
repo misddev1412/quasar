@@ -102,9 +102,27 @@ export class SectionsSeeder implements SeederModule {
           position: 2,
           isEnabled: true,
           config: {
-            categoryId: 'editorial',
-            limit: 6,
-            sort: 'newest',
+            displayStyle: 'grid',
+            rows: [
+              {
+                id: 'home-products-latest',
+                strategy: 'latest',
+                productIds: [],
+                limit: 6,
+              },
+              {
+                id: 'home-products-featured',
+                strategy: 'featured',
+                productIds: [],
+                limit: 6,
+              },
+              {
+                id: 'home-products-custom',
+                strategy: 'custom',
+                productIds: [],
+                limit: 6,
+              },
+            ],
           },
         },
         translations: [

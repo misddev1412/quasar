@@ -15,6 +15,7 @@ const EditProductPage: React.FC = () => {
   const { addToast } = useToast();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const trpcContext = trpc.useContext();
 
   // Use URL tabs hook with tab keys for clean URLs
   const { activeTab, handleTabChange } = useUrlTabs({
@@ -37,7 +38,16 @@ const EditProductPage: React.FC = () => {
   const product = (productData as any)?.data as Product;
 
   const updateProductMutation = trpc.adminProducts.update.useMutation({
-    onSuccess: () => {
+    onSuccess: async (_data, variables) => {
+      // Ensure any cached detail/list queries refetch with the updated product data
+      const productId =
+        variables && typeof variables === 'object' && 'id' in variables
+          ? (variables as { id?: string }).id
+          : undefined;
+      await Promise.all([
+        productId ? trpcContext.adminProducts.detail.invalidate({ id: productId }) : Promise.resolve(),
+        trpcContext.adminProducts.list.invalidate(),
+      ]);
       addToast({
         type: 'success',
         title: t('products.product_updated', 'Product updated'),

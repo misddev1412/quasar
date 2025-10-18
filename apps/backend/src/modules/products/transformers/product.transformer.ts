@@ -204,6 +204,32 @@ export class ProductTransformer {
   }
 
   /**
+   * Transform a single variant to the frontend format
+   */
+  transformVariant(variant: ProductVariant): TransformedVariant {
+    if (!variant) {
+      throw new Error('Variant not provided');
+    }
+
+    const transformedVariants = this.processVariantsArray([variant]);
+    if (transformedVariants.length === 0) {
+      throw new Error('Unable to transform variant');
+    }
+    return transformedVariants[0];
+  }
+
+  /**
+   * Transform multiple variants to the frontend format
+   */
+  transformVariants(variants: ProductVariant[]): TransformedVariant[] {
+    if (!Array.isArray(variants)) {
+      return [];
+    }
+
+    return this.processVariantsArray(variants);
+  }
+
+  /**
    * Transform product for minimal list view (lighter payload)
    */
   async transformProductMinimal(product: Product): Promise<Partial<TransformedProduct>> {
