@@ -21,6 +21,7 @@ import { ClientNewsRouter } from './routers/client/news.router';
 import { ClientCategoriesRouter } from './routers/client/categories.router';
 import { SectionsRouter } from './routers/sections.router';
 import { AdminMenuRouter } from '../modules/menus/routers/admin-menu.router';
+import { ClientMenuRouter } from '../modules/menus/routers/client-menu.router';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { AdminMenuRouter } from '../modules/menus/routers/admin-menu.router';
     ClientCategoriesRouter,
     SectionsRouter,
     AdminMenuRouter,
+    ClientMenuRouter,
     ResponseService,
   ],
 })

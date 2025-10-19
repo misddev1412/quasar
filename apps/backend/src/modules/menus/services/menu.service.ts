@@ -3,6 +3,47 @@ import { MenuRepository } from '../repositories/menu.repository';
 import { MenuTranslationRepository } from '../repositories/menu-translation.repository';
 import { CreateMenuDto, UpdateMenuDto, ReorderMenuDto } from '../dto/menu.dto';
 import { MenuEntity } from '../entities/menu.entity';
+import { MenuTranslationEntity } from '../entities/menu-translation.entity';
+
+type MenuTreeTranslation = Omit<MenuTranslationEntity, 'menu'> & {
+  config?: Record<string, unknown> | null;
+};
+
+interface MenuTreeNode {
+  id: string;
+  menuGroup: string;
+  type: MenuEntity['type'];
+  url?: string | null;
+  referenceId?: string | null;
+  target: MenuEntity['target'];
+  position: number;
+  isEnabled: boolean;
+  icon?: string | null;
+  textColor?: string | null;
+  backgroundColor?: string | null;
+  config: Record<string, unknown>;
+  isMegaMenu: boolean;
+  megaMenuColumns?: number | null;
+  parentId: string | null;
+  translations: MenuTreeTranslation[];
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date;
+  createdBy?: string;
+  updatedBy?: string;
+  deletedBy?: string;
+  version: number;
+  children: MenuTreeNode[];
+}
+
+const mapTranslation = (translation: MenuTranslationEntity): MenuTreeTranslation => {
+  const { menu: _menu, config, ...rest } = translation;
+
+  return {
+    ...rest,
+    config: config ?? null,
+  } as MenuTreeTranslation;
+};
 
 @Injectable()
 export class MenuService {
@@ -144,8 +185,57 @@ export class MenuService {
     return conflictingMenu || null;
   }
 
-  async getMenuTree(menuGroup: string): Promise<MenuEntity[]> {
-    return this.menuRepository.findByMenuGroup(menuGroup);
+  async getMenuTree(menuGroup: string): Promise<MenuTreeNode[]> {
+    const menus = await this.menuRepository.findAllWithParent(menuGroup);
+
+    const nodeMap = new Map<string, MenuTreeNode>();
+    const roots: MenuTreeNode[] = [];
+
+    menus.forEach(menu => {
+      nodeMap.set(menu.id, {
+        id: menu.id,
+        menuGroup: menu.menuGroup,
+        type: menu.type,
+        url: menu.url ?? null,
+        referenceId: menu.referenceId ?? null,
+        target: menu.target,
+        position: menu.position,
+        isEnabled: menu.isEnabled,
+        icon: menu.icon ?? null,
+        textColor: menu.textColor ?? null,
+        backgroundColor: menu.backgroundColor ?? null,
+        config: menu.config ?? {},
+        isMegaMenu: menu.isMegaMenu,
+        megaMenuColumns: menu.megaMenuColumns ?? null,
+        parentId: menu.parent?.id ?? null,
+        translations: menu.translations?.map(mapTranslation) ?? [],
+        createdAt: menu.createdAt,
+        updatedAt: menu.updatedAt,
+        deletedAt: menu.deletedAt ?? undefined,
+        createdBy: menu.createdBy,
+        updatedBy: menu.updatedBy,
+        deletedBy: menu.deletedBy,
+        version: menu.version,
+        children: [],
+      });
+    });
+
+    nodeMap.forEach(node => {
+      if (node.parentId && nodeMap.has(node.parentId)) {
+        nodeMap.get(node.parentId)!.children.push(node);
+      } else {
+        roots.push(node);
+      }
+    });
+
+    const sortTree = (nodes: MenuTreeNode[]) => {
+      nodes.sort((a, b) => a.position - b.position);
+      nodes.forEach(child => sortTree(child.children));
+    };
+
+    sortTree(roots);
+
+    return roots;
   }
 
   async getMenuGroups(): Promise<string[]> {

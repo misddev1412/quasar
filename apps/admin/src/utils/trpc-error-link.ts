@@ -1,6 +1,6 @@
 import { TRPCLink } from '@trpc/client';
 import { observable } from '@trpc/server/observable';
-import type { AppRouter } from '../../../backend/src/@generated/server';
+import type { AppRouter } from '../../../backend/src/types/app-router';
 import { appEvents } from '../lib/event-emitter';
 import i18n from '../i18n';
 

@@ -46,6 +46,14 @@ export class MenuRepository {
     return queryBuilder.getMany();
   }
 
+  async findAllWithParent(menuGroup: string): Promise<MenuEntity[]> {
+    return this.menuRepository.find({
+      where: { menuGroup },
+      relations: ['translations', 'parent'],
+      order: { position: 'ASC' },
+    });
+  }
+
   async findById(id: string): Promise<MenuEntity | null> {
     return this.menuRepository.findOne({
       where: { id },

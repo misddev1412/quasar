@@ -39,13 +39,45 @@ export const useMenusManager = (menuGroup?: string) => {
     return response.data as unknown as AdminMenu[];
   }, [menusQuery.data]);
 
+  const buildMenuTree = useCallback((flatMenus: AdminMenu[]): MenuTreeNode[] => {
+    const menuMap = new Map<string, MenuTreeNode>();
+    const rootMenus: MenuTreeNode[] = [];
+
+    // Create all nodes
+    flatMenus.forEach(menu => {
+      menuMap.set(menu.id, { ...menu, children: [], level: 0 });
+    });
+
+    // Build tree structure
+    flatMenus.forEach(menu => {
+      const node = menuMap.get(menu.id)!;
+
+      if (menu.parentId && menuMap.has(menu.parentId)) {
+        const parent = menuMap.get(menu.parentId)!;
+        parent.children.push(node);
+        node.level = parent.level + 1;
+      } else {
+        rootMenus.push(node);
+      }
+    });
+
+    // Sort by position
+    const sortNodes = (nodes: MenuTreeNode[]) => {
+      nodes.sort((a, b) => a.position - b.position);
+      nodes.forEach(node => sortNodes(node.children));
+    };
+
+    sortNodes(rootMenus);
+    return rootMenus;
+  }, []);
+
   const menuTree = useMemo<MenuTreeNode[]>(() => {
     const response = treeQuery.data;
     if (!response || !response.data) {
       return [];
     }
     return buildMenuTree(response.data as unknown as AdminMenu[]);
-  }, [treeQuery.data]);
+  }, [buildMenuTree, treeQuery.data]);
 
   const groups = useMemo<string[]>(() => {
     const response = groupsQuery.data;
@@ -98,38 +130,6 @@ export const useMenusManager = (menuGroup?: string) => {
       }
     },
   });
-
-  const buildMenuTree = useCallback((flatMenus: AdminMenu[]): MenuTreeNode[] => {
-    const menuMap = new Map<string, MenuTreeNode>();
-    const rootMenus: MenuTreeNode[] = [];
-
-    // Create all nodes
-    flatMenus.forEach(menu => {
-      menuMap.set(menu.id, { ...menu, children: [], level: 0 });
-    });
-
-    // Build tree structure
-    flatMenus.forEach(menu => {
-      const node = menuMap.get(menu.id)!;
-
-      if (menu.parentId && menuMap.has(menu.parentId)) {
-        const parent = menuMap.get(menu.parentId)!;
-        parent.children.push(node);
-        node.level = parent.level + 1;
-      } else {
-        rootMenus.push(node);
-      }
-    });
-
-    // Sort by position
-    const sortNodes = (nodes: MenuTreeNode[]) => {
-      nodes.sort((a, b) => a.position - b.position);
-      nodes.forEach(node => sortNodes(node.children));
-    };
-
-    sortNodes(rootMenus);
-    return rootMenus;
-  }, []);
 
   const flattenMenuTree = useCallback((tree: MenuTreeNode[]): AdminMenu[] => {
     const result: AdminMenu[] = [];

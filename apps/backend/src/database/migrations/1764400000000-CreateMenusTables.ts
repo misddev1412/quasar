@@ -59,7 +59,7 @@ export class CreateMenusTables1764400000000 implements MigrationInterface {
       CREATE TABLE "menus_closure" (
         "id_ancestor" uuid NOT NULL REFERENCES "menus"("id") ON DELETE CASCADE,
         "id_descendant" uuid NOT NULL REFERENCES "menus"("id") ON DELETE CASCADE,
-        "depth" integer NOT NULL,
+        "depth" integer NOT NULL DEFAULT 0,
         PRIMARY KEY("id_ancestor", "id_descendant")
       );
     `);

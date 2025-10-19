@@ -30,6 +30,7 @@ import NotificationDropdown from '../notifications/NotificationDropdown';
 import { useSettings } from '../../hooks/useSettings';
 import { CartIcon, CartDropdownIcon, ShoppingCart, useCart } from '../ecommerce/CartProvider';
 import Container from '../common/Container';
+import { useMenu } from '../../hooks/useMenu';
 
 // Icons as components for better maintainability
 const Icons = {
@@ -277,8 +278,10 @@ const DesktopNavigation: React.FC<{
   currentLocale: string;
 }> = ({ pathname, currentLocale }) => {
   const t = useTranslations();
+  const { navigationItems, isLoading } = useMenu('main-navigation');
 
-  const navigationItems = [
+  // Fallback to hardcoded items if menu data is loading or not available
+  const fallbackItems = [
     { name: t('layout.header.nav.home'), href: '/' },
     { name: t('layout.header.nav.products'), href: '/products' },
     { name: t('layout.header.nav.news'), href: '/news' },
@@ -288,14 +291,17 @@ const DesktopNavigation: React.FC<{
     { name: t('layout.header.nav.contact'), href: '/contact' },
   ];
 
+  const items = (!isLoading && navigationItems.length > 0) ? navigationItems : fallbackItems;
+
   return (
     <NavbarContent className="hidden sm:flex gap-6" justify="center">
-      {navigationItems.map((item) => {
+      {items.map((item) => {
         const isActive = pathname === item.href;
         return (
-          <NavbarItem key={item.href} isActive={isActive}>
+          <NavbarItem key={item.id || item.href} isActive={isActive}>
             <Link
               href={item.href}
+              target={item.target}
               className={`
                 text-sm font-medium transition-all duration-200 relative py-2
                 ${
@@ -555,12 +561,26 @@ const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { user, isAuthenticated, logout } = useAuth();
   const { summary, openCart } = useCart(); // Add cart hook
+  const { navigationItems, isLoading } = useMenu('main-navigation');
   const t = useTranslations();
   const tCart = useTranslations('ecommerce.cart');
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const { currentLocale, push } = useLocalePath();
+
+  // Fallback to hardcoded items if menu data is loading or not available
+  const fallbackItems = [
+    { name: t('layout.header.nav.home'), href: '/' },
+    { name: t('layout.header.nav.products'), href: '/products' },
+    { name: t('layout.header.nav.news'), href: '/news' },
+    { name: t('layout.header.nav.categories'), href: '/categories' },
+    { name: t('layout.header.nav.deals'), href: '/deals' },
+    { name: t('layout.header.nav.about'), href: '/about' },
+    { name: t('layout.header.nav.contact'), href: '/contact' },
+  ];
+
+  const items = (!isLoading && navigationItems.length > 0) ? navigationItems : fallbackItems;
 
   const cartLabel =
     summary.totalItems > 0
@@ -581,7 +601,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
+    <header className="sticky top-0 z-50 bg-white dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
       <Container className="py-0">
         <Navbar
           onMenuOpenChange={setIsMenuOpen}
@@ -714,20 +734,13 @@ const Header: React.FC = () => {
             </NavbarMenuItem>
 
             {/* Navigation Items */}
-            {[
-              { name: t('layout.header.nav.home'), href: '/' },
-              { name: t('layout.header.nav.products'), href: '/products' },
-              { name: t('layout.header.nav.news'), href: '/news' },
-              { name: t('layout.header.nav.categories'), href: '/categories' },
-              { name: t('layout.header.nav.deals'), href: '/deals' },
-              { name: t('layout.header.nav.about'), href: '/about' },
-              { name: t('layout.header.nav.contact'), href: '/contact' },
-            ].map((item) => {
+            {items.map((item) => {
               const isActive = pathname === item.href;
               return (
-                <NavbarMenuItem key={item.href}>
+                <NavbarMenuItem key={item.id || item.href}>
                   <Link
                     href={item.href}
+                    target={item.target}
                     className={`
                       w-full text-base flex items-center gap-3 py-2 transition-colors rounded-lg px-2
                       ${

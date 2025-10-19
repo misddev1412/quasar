@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, Index, Tree, TreeParent, TreeChildren } from 'typeorm';
+import { Column, Entity, OneToMany, Index, Tree, TreeParent, TreeChildren, JoinColumn } from 'typeorm';
 import { SoftDeletableEntity } from '@shared';
 import { MenuType, MenuTarget } from '@shared/enums/menu.enums';
 import { MenuTranslationEntity } from './menu-translation.entity';
@@ -8,6 +8,7 @@ import { MenuTranslationEntity } from './menu-translation.entity';
 @Tree('closure-table')
 export class MenuEntity extends SoftDeletableEntity {
   @Column({
+    name: 'menu_group',
     type: 'varchar',
     length: 100,
   })
@@ -27,6 +28,7 @@ export class MenuEntity extends SoftDeletableEntity {
   url?: string | null;
 
   @Column({
+    name: 'reference_id',
     type: 'varchar',
     length: 255,
     nullable: true,
@@ -61,6 +63,7 @@ export class MenuEntity extends SoftDeletableEntity {
   icon?: string | null;
 
   @Column({
+    name: 'text_color',
     type: 'varchar',
     length: 20,
     nullable: true,
@@ -68,6 +71,7 @@ export class MenuEntity extends SoftDeletableEntity {
   textColor?: string | null;
 
   @Column({
+    name: 'background_color',
     type: 'varchar',
     length: 20,
     nullable: true,
@@ -95,6 +99,7 @@ export class MenuEntity extends SoftDeletableEntity {
   megaMenuColumns?: number | null;
 
   @TreeParent()
+  @JoinColumn({ name: 'parent_id' })
   parent?: MenuEntity | null;
 
   @TreeChildren()

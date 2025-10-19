@@ -1,5 +1,5 @@
 import { createTRPCProxyClient, httpLink } from '@trpc/client';
-import type { AppRouter } from '../../../backend/src/@generated/server';
+import type { AppRouter } from '../../../backend/src/types/app-router';
 import type { SEOData, ApiResponse } from '../types/trpc';
 
 /**

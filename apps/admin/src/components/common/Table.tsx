@@ -719,6 +719,8 @@ export interface TableProps<T> {
   showColumnVisibility?: boolean;
   /** Table identifier for preferences persistence */
   tableId?: string;
+  /** Optional row-level props (e.g., drag and drop handlers) */
+  rowProps?: (item: T, index: number) => React.HTMLAttributes<HTMLTableRowElement>;
 }
 
 /**
@@ -779,6 +781,7 @@ export function Table<T extends { id: string | number }>({
   onColumnVisibilityChange,
   showColumnVisibility = true,
   tableId,
+  rowProps,
 }: TableProps<T>) {
   const { t } = useTranslationWithBackend();
   // Refs and state
@@ -1220,19 +1223,61 @@ export function Table<T extends { id: string | number }>({
 
           {/* Professional Table Body */}
           <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-            {data.map((item, index) => (
-              <tr
-                key={item.id}
-                onClick={() => onRowClick?.(item)}
-                onKeyDown={(e) => handleKeyDown(e, item)}
-                onMouseEnter={() => handleRowHover(item.id)}
-                onMouseLeave={() => handleRowHover(null)}
-                tabIndex={onRowClick ? 0 : undefined}
-                className={getRowClassName(item)}
-                role={onRowClick ? 'row button' : 'row'}
-                aria-selected={selectedIds?.has(item.id)}
-                aria-rowindex={index + 2} // +2 because header is row 1
-              >
+            {data.map((item, index) => {
+              const additionalRowProps = rowProps?.(item, index) ?? {};
+              const {
+                className: additionalRowClassName,
+                onClick: additionalOnClick,
+                onKeyDown: additionalOnKeyDown,
+                onMouseEnter: additionalOnMouseEnter,
+                onMouseLeave: additionalOnMouseLeave,
+                role: additionalRole,
+                tabIndex: additionalTabIndex,
+                ...restRowProps
+              } = additionalRowProps;
+
+              const handleRowClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
+                additionalOnClick?.(event);
+                if (!event.defaultPrevented) {
+                  onRowClick?.(item);
+                }
+              };
+
+              const handleRowKeyDown = (event: React.KeyboardEvent<HTMLTableRowElement>) => {
+                additionalOnKeyDown?.(event);
+                if (!event.defaultPrevented) {
+                  handleKeyDown(event, item);
+                }
+              };
+
+              const handleRowMouseEnter = (event: React.MouseEvent<HTMLTableRowElement>) => {
+                additionalOnMouseEnter?.(event);
+                if (!event.defaultPrevented) {
+                  handleRowHover(item.id);
+                }
+              };
+
+              const handleRowMouseLeave = (event: React.MouseEvent<HTMLTableRowElement>) => {
+                additionalOnMouseLeave?.(event);
+                if (!event.defaultPrevented) {
+                  handleRowHover(null);
+                }
+              };
+
+              return (
+                <tr
+                  key={item.id}
+                  {...restRowProps}
+                  onClick={handleRowClick}
+                  onKeyDown={handleRowKeyDown}
+                  onMouseEnter={handleRowMouseEnter}
+                  onMouseLeave={handleRowMouseLeave}
+                  tabIndex={additionalTabIndex ?? (onRowClick ? 0 : undefined)}
+                  className={clsx(getRowClassName(item), additionalRowClassName)}
+                  role={additionalRole ?? (onRowClick ? 'row button' : 'row')}
+                  aria-selected={selectedIds?.has(item.id)}
+                  aria-rowindex={index + 2} // +2 because header is row 1
+                >
                 {isSelectable && (
                   <td className={clsx("relative w-12", densityClasses.cell)}>
                     <div className="flex items-center justify-center">
@@ -1276,8 +1321,9 @@ export function Table<T extends { id: string | number }>({
                     </div>
                   </td>
                 ))}
-              </tr>
-            ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

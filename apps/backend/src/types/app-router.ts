@@ -1,5 +1,6 @@
 import { router, procedure } from '../trpc/trpc';
 import { z } from 'zod';
+import { MenuTarget, MenuType } from '@shared/enums/menu.enums';
 import { apiResponseSchema, paginatedResponseSchema, ApiResponse } from '../trpc/schemas/response.schemas';
 import { createSectionSchema, updateSectionSchema, reorderSectionsSchema } from '../modules/sections/dto/section.dto';
 
@@ -44,6 +45,44 @@ const getUsersResponseSchema = apiResponseSchema.extend({
     page: z.number(),
     limit: z.number(),
   }),
+});
+
+const menuTranslationSchema = z.object({
+  label: z.string().optional(),
+  description: z.string().optional(),
+  customHtml: z.string().optional(),
+  config: z.record(z.unknown()).optional(),
+});
+
+const createMenuSchema = z.object({
+  menuGroup: z.string().min(1),
+  type: z.nativeEnum(MenuType),
+  url: z.string().optional(),
+  referenceId: z.string().optional(),
+  target: z.nativeEnum(MenuTarget),
+  position: z.number().int().min(0),
+  isEnabled: z.boolean(),
+  icon: z.string().optional(),
+  textColor: z.string().optional(),
+  backgroundColor: z.string().optional(),
+  config: z.record(z.unknown()),
+  isMegaMenu: z.boolean(),
+  megaMenuColumns: z.number().int().min(1).max(6).optional(),
+  parentId: z.string().uuid().optional(),
+  translations: z.record(menuTranslationSchema),
+});
+
+const updateMenuSchema = createMenuSchema.partial();
+
+const reorderMenuSchema = z.object({
+  menuGroup: z.string().min(1),
+  items: z.array(
+    z.object({
+      id: z.string().uuid(),
+      position: z.number().int().min(0),
+      parentId: z.string().uuid().optional(),
+    }),
+  ),
 });
 
 
@@ -501,6 +540,63 @@ export const appRouter = router({
 
     delete: procedure
       .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  adminMenus: router({
+    list: procedure
+      .input(z.object({ menuGroup: z.string().optional() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    byId: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    tree: procedure
+      .input(z.object({ menuGroup: z.string().min(1) }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    groups: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    create: procedure
+      .input(createMenuSchema)
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    update: procedure
+      .input(z.object({ id: z.string().uuid(), data: updateMenuSchema }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    delete: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    reorder: procedure
+      .input(reorderMenuSchema)
       .output(apiResponseSchema)
       .mutation(() => {
         return {} as ApiResponse;
@@ -4071,6 +4167,28 @@ export const appRouter = router({
       }),
     getPublicSetting: procedure
       .input(z.object({ key: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  // Client Menus router
+  clientMenus: router({
+    getByGroup: procedure
+      .input(z.object({
+        menuGroup: z.string().min(1),
+        locale: z.string().optional().default('en')
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    getTree: procedure
+      .input(z.object({
+        menuGroup: z.string().min(1),
+        locale: z.string().optional().default('en')
+      }))
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;

@@ -1,6 +1,6 @@
 import { httpLink } from '@trpc/client';
 import { experimental_createTRPCNextAppDirServer } from '@trpc/next/app-dir/server';
-import type { AppRouter } from '../../../backend/src/@generated/server';
+import type { AppRouter } from '../../../backend/src/types/app-router';
 
 const createLinks = () => [
   httpLink({
