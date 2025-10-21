@@ -182,20 +182,6 @@ export const useTrpcQuery = () => {
     });
   };
 
-  // Categories query
-  const useCategories = () => {
-    return (trpc as any).category.list.useQuery(undefined, {
-      staleTime: 10 * 60 * 1000, // 10 minutes
-      onError: (error: Error) => {
-        showToast({
-          type: 'error',
-          title: 'Failed to load categories',
-          description: error.message,
-        });
-      },
-    });
-  };
-
   // Active languages query
   const useActiveLanguages = () => {
     return (trpc as any).adminLanguage.getActiveLanguages.useQuery(undefined, {
@@ -239,7 +225,6 @@ export const useTrpcQuery = () => {
     useProducts, // Legacy support
     useOrders,
     useCurrentUser,
-    useCategories,
     useActiveLanguages,
     useSEO,
   };

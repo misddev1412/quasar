@@ -69,18 +69,25 @@ export class MenuService {
   }
 
   async create(createMenuDto: CreateMenuDto): Promise<MenuEntity> {
-    // Check if position is already taken in the same group and parent
-    const existingMenu = await this.findMenuByPosition(
+    // Get the next available position if the provided position conflicts
+    let position = createMenuDto.position;
+    let existingMenu = await this.findMenuByPosition(
       createMenuDto.menuGroup,
-      createMenuDto.position,
+      position,
       createMenuDto.parentId,
     );
+
     if (existingMenu) {
-      throw new ConflictException(`Position ${createMenuDto.position} is already taken`);
+      // If position is taken, get the next available position
+      position = await this.menuRepository.getLatestPosition(
+        createMenuDto.menuGroup,
+        createMenuDto.parentId,
+      );
     }
 
     const menuData = {
       ...createMenuDto,
+      position, // Use the potentially updated position
       translations: undefined, // We'll handle translations separately
     };
 
@@ -238,9 +245,100 @@ export class MenuService {
     return roots;
   }
 
+  async getChildrenByParent(menuGroup: string, parentId?: string): Promise<MenuEntity[]> {
+    return this.menuRepository.findChildrenByParent(menuGroup, parentId);
+  }
+
+  async getChildrenTreeByParent(menuGroup: string, parentId?: string): Promise<MenuTreeNode[]> {
+    const menus = await this.menuRepository.findDescendantsByParent(menuGroup, parentId);
+
+    const nodeMap = new Map<string, MenuTreeNode>();
+    const roots: MenuTreeNode[] = [];
+
+    menus.forEach(menu => {
+      nodeMap.set(menu.id, {
+        id: menu.id,
+        menuGroup: menu.menuGroup,
+        type: menu.type,
+        url: menu.url ?? null,
+        referenceId: menu.referenceId ?? null,
+        target: menu.target,
+        position: menu.position,
+        isEnabled: menu.isEnabled,
+        icon: menu.icon ?? null,
+        textColor: menu.textColor ?? null,
+        backgroundColor: menu.backgroundColor ?? null,
+        config: menu.config ?? {},
+        isMegaMenu: menu.isMegaMenu,
+        megaMenuColumns: menu.megaMenuColumns ?? null,
+        parentId: menu.parent?.id ?? null,
+        translations: menu.translations?.map(mapTranslation) ?? [],
+        createdAt: menu.createdAt,
+        updatedAt: menu.updatedAt,
+        deletedAt: menu.deletedAt ?? undefined,
+        createdBy: menu.createdBy,
+        updatedBy: menu.updatedBy,
+        deletedBy: menu.deletedBy,
+        version: menu.version,
+        children: [],
+      });
+    });
+
+    nodeMap.forEach(node => {
+      if (node.parentId && nodeMap.has(node.parentId)) {
+        nodeMap.get(node.parentId)!.children.push(node);
+      } else {
+        roots.push(node);
+      }
+    });
+
+    const sortTree = (nodes: MenuTreeNode[]) => {
+      nodes.sort((a, b) => a.position - b.position);
+      nodes.forEach(child => sortTree(child.children));
+    };
+
+    sortTree(roots);
+
+    return roots;
+  }
+
   async getMenuGroups(): Promise<string[]> {
-    const menus = await this.menuRepository.findAll();
-    const groups = [...new Set(menus.map(menu => menu.menuGroup))];
-    return groups.sort();
+    return this.menuRepository.getMenuGroups();
+  }
+
+  async getNextPosition(menuGroup: string, parentId?: string): Promise<number> {
+    return this.menuRepository.getLatestPosition(menuGroup, parentId);
+  }
+
+  async getStatistics(menuGroup?: string): Promise<{
+    totalMenus: number;
+    activeMenus: number;
+    inactiveMenus: number;
+    totalGroups: number;
+    menusByType: Record<string, number>;
+    menusByTarget: Record<string, number>;
+  }> {
+    const menus = await this.menuRepository.findAll(menuGroup);
+    const groups = await this.menuRepository.getMenuGroups();
+
+    const menusByType: Record<string, number> = {};
+    const menusByTarget: Record<string, number> = {};
+
+    menus.forEach(menu => {
+      // Count by type
+      menusByType[menu.type] = (menusByType[menu.type] || 0) + 1;
+
+      // Count by target
+      menusByTarget[menu.target] = (menusByTarget[menu.target] || 0) + 1;
+    });
+
+    return {
+      totalMenus: menus.length,
+      activeMenus: menus.filter(menu => menu.isEnabled).length,
+      inactiveMenus: menus.filter(menu => !menu.isEnabled).length,
+      totalGroups: groups.length,
+      menusByType,
+      menusByTarget,
+    };
   }
 }

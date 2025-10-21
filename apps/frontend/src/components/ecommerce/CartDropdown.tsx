@@ -283,7 +283,7 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
                 <FiShoppingCart className="text-lg" />
               </span>
               <div>
-                <h3 className="text-base font-semibold text-gray-900 dark:text-white">{t('title')}</h3>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-0">{t('title')}</h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   {summary.totalItems === 1
                     ? t('items_count_single', { count: summary.totalItems })

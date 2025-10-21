@@ -28,7 +28,7 @@ export class ClientCategoriesRouter {
         sortOrder: 'ASC',
       });
 
-      const formattedCategories = categories.categories.map(category => this.formatCategoryForResponse(category));
+      const formattedCategories = categories.items.map(category => this.formatCategoryForResponse(category));
 
       return this.responseHandler.createTrpcSuccess(formattedCategories);
     } catch (error) {
@@ -108,11 +108,11 @@ export class ClientCategoriesRouter {
         isActive: true,
       });
 
-      if (!categories.categories || categories.categories.length === 0) {
+      if (!categories.items || categories.items.length === 0) {
         throw new Error('Category not found');
       }
 
-      const formattedCategory = this.formatCategoryForResponse(categories.categories[0]);
+      const formattedCategory = this.formatCategoryForResponse(categories.items[0]);
 
       return this.responseHandler.createTrpcSuccess(formattedCategory);
     } catch (error) {

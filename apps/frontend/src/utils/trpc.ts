@@ -1,5 +1,12 @@
-import { createTRPCReact, createTRPCProxyClient, CreateTRPCClientOptions } from '@trpc/react-query';
-import { httpBatchLink, httpLink, splitLink, TRPCLink } from '@trpc/client';
+import { createTRPCReact } from '@trpc/react-query';
+import {
+  createTRPCProxyClient,
+  CreateTRPCClientOptions,
+  httpBatchLink,
+  httpLink,
+  splitLink,
+  TRPCLink,
+} from '@trpc/client';
 import { errorLink } from './trpc-error-link';
 import type { AppRouter } from '../../../backend/src/types/app-router';
 

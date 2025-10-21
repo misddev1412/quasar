@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Edit3, Trash2, GripVertical, ChevronUp, ChevronDown, RefreshCcw, Image as ImageIcon } from 'lucide-react';
+import { Image as ImageIcon } from 'lucide-react';
+import { FiPlus, FiRefreshCw, FiEdit, FiTrash2, FiMoreVertical } from 'react-icons/fi';
 import { useSectionsManager, AdminSection, ActiveLanguage } from '../../hooks/useSectionsManager';
 import { SectionType, SECTION_TYPE_LABELS } from '@shared/enums/section.enums';
 import { Button } from '../common/Button';
@@ -11,6 +12,8 @@ import { Input } from '../common/Input';
 import { useToast } from '../../context/ToastContext';
 import { cn } from '@admin/lib/utils';
 import { MediaManager } from '../common/MediaManager';
+import { Dropdown } from '../common/Dropdown';
+import { ReorderableTable, DragHandle, type ReorderableColumn } from '../common/ReorderableTable';
 import SelectComponent, { components as selectComponents, type MenuListProps, type FilterOptionOption } from 'react-select';
 import { trpc } from '../../utils/trpc';
 import '../common/CountrySelector.css';
@@ -989,7 +992,7 @@ const HeroSliderLocaleEditor: React.FC<HeroSliderLocaleEditorProps> = ({ locale,
             </p>
           )}
         </div>
-        <Button variant="secondary" size="sm" onClick={addSlide} startIcon={<Plus className="w-4 h-4" />}>Add slide</Button>
+        <Button variant="secondary" size="sm" onClick={addSlide} startIcon={<FiPlus className="w-4 h-4" />}>Add slide</Button>
       </div>
 
       {slides.length === 0 && (
@@ -1005,7 +1008,7 @@ const HeroSliderLocaleEditor: React.FC<HeroSliderLocaleEditorProps> = ({ locale,
             <div key={slideId} className="border rounded-lg p-4 space-y-3 bg-white">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-gray-700">Slide #{idx + 1}</p>
-                <Button variant="ghost" size="sm" onClick={() => removeSlide(idx)} startIcon={<Trash2 className="w-4 h-4" />}>
+                <Button variant="ghost" size="sm" onClick={() => removeSlide(idx)} startIcon={<FiTrash2 className="w-4 h-4" />}>
                   Remove
                 </Button>
               </div>
@@ -1066,7 +1069,7 @@ const HeroSliderLocaleEditor: React.FC<HeroSliderLocaleEditorProps> = ({ locale,
                             size="sm"
                             variant="ghost"
                             onClick={() => updateSlide(idx, 'imageUrl', '')}
-                            startIcon={<Trash2 className="w-4 h-4" />}
+                            startIcon={<FiTrash2 className="w-4 h-4" />}
                           >
                             Remove image
                           </Button>
@@ -1761,7 +1764,7 @@ const NewsByCategoryConfigEditor: React.FC<NewsByCategoryConfigEditorProps> = ({
         onClick={handleAddRow}
         className="w-full flex items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 bg-white py-3 text-sm font-medium text-gray-600 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
       >
-        <Plus className="w-4 h-4" />
+        <FiPlus className="w-4 h-4" />
         Thêm danh mục tin tức
       </button>
     </div>
@@ -1892,7 +1895,7 @@ const NewsCategoryRowEditor: React.FC<NewsCategoryRowEditorProps> = ({
             onClick={onRemove}
             className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
           >
-            <Trash2 className="w-3.5 h-3.5" />
+            <FiTrash2 className="w-3.5 h-3.5" />
             {t('common.actions.remove', 'Xóa')}
           </button>
         )}
@@ -2237,7 +2240,7 @@ const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEditorPro
         onClick={handleAddRow}
         className="w-full flex items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 bg-white py-3 text-sm font-medium text-gray-600 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
       >
-        <Plus className="w-4 h-4" />
+        <FiPlus className="w-4 h-4" />
         Thêm danh mục
       </button>
 
@@ -2693,7 +2696,7 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                 size="sm"
                 className="mt-0 h-[35.5px] px-3"
                 onClick={onRemove}
-                startIcon={<Trash2 className="w-4 h-4" />}
+                startIcon={<FiTrash2 className="w-4 h-4" />}
               >
                 Xóa
               </Button>
@@ -3138,6 +3141,7 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSection, setEditingSection] = useState<AdminSection | null>(null);
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   useEffect(() => {
     const sorted = [...sections].sort((a, b) => a.position - b.position);
@@ -3190,36 +3194,60 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
     }
   };
 
-  const handleDrop = (targetId: string) => {
+  const resetDragState = useCallback(() => {
+    setDraggedId(null);
+    setDragOverId(null);
+  }, []);
+
+  const handleRowDragStart = useCallback((event: React.DragEvent<HTMLTableRowElement>, sectionId: string) => {
+    if (reorderSections.isPending) {
+      event.preventDefault();
+      return;
+    }
+    setDraggedId(sectionId);
+    setDragOverId(sectionId);
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', sectionId);
+  }, [reorderSections.isPending]);
+
+  const handleRowDragOver = useCallback((event: React.DragEvent<HTMLTableRowElement>, targetId: string) => {
+    event.preventDefault();
     if (!draggedId || draggedId === targetId) {
-      setDraggedId(null);
+      return;
+    }
+    setDragOverId(targetId);
+  }, [draggedId]);
+
+  const handleRowDrop = useCallback((event: React.DragEvent<HTMLTableRowElement>, targetId: string) => {
+    event.preventDefault();
+    if (!draggedId || draggedId === targetId) {
+      resetDragState();
       return;
     }
 
     const sourceIndex = localSections.findIndex((section) => section.id === draggedId);
     const targetIndex = localSections.findIndex((section) => section.id === targetId);
     if (sourceIndex === -1 || targetIndex === -1) {
-      setDraggedId(null);
+      resetDragState();
       return;
     }
 
     const updated = [...localSections];
     const [moved] = updated.splice(sourceIndex, 1);
     updated.splice(targetIndex, 0, moved);
-    handleReorder(updated);
-    setDraggedId(null);
-  };
+    void handleReorder(updated);
+    resetDragState();
+  }, [draggedId, localSections, handleReorder, resetDragState]);
 
-  const moveSection = (sectionId: string, direction: -1 | 1) => {
-    const index = localSections.findIndex((section) => section.id === sectionId);
-    if (index === -1) return;
-    const newIndex = index + direction;
-    if (newIndex < 0 || newIndex >= localSections.length) return;
-    const reordered = [...localSections];
-    const [item] = reordered.splice(index, 1);
-    reordered.splice(newIndex, 0, item);
-    handleReorder(reordered);
-  };
+  const handleRowDragLeave = useCallback((targetId: string) => {
+    if (dragOverId === targetId) {
+      setDragOverId(null);
+    }
+  }, [dragOverId]);
+
+  const handleRowDragEnd = useCallback(() => {
+    resetDragState();
+  }, [resetDragState]);
 
   const handleFormSubmit = async (state: SectionFormState) => {
     const translationsPayload = Object.entries(state.translations).map(([locale, translation]) => ({
@@ -3296,6 +3324,89 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
 
   const isLoading = sectionsQuery.isLoading || languagesQuery.isLoading;
 
+  const sectionColumns = useMemo<ReorderableColumn<AdminSection>[]>(() => [
+    {
+      id: 'section',
+      header: t('sections.manager.tableHeaders.title'),
+      accessor: (section, index) => {
+        const translation = section.translations.find((trans) => trans.locale === defaultLanguage) || section.translations[0];
+        return (
+          <div className="flex items-center gap-3">
+            <DragHandle
+              aria-label={`Reorder ${SECTION_TYPE_LABELS[section.type]}`}
+              disabled={reorderSections.isPending}
+              isDragging={draggedId === section.id}
+              label={index + 1}
+            />
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-gray-900">{translation?.title || '—'}</span>
+              <span className="text-xs text-gray-500">{(translation?.locale || defaultLanguage).toUpperCase()}</span>
+            </div>
+          </div>
+        );
+      },
+      hideable: false,
+    },
+    {
+      id: 'type',
+      header: t('sections.manager.tableHeaders.type'),
+      accessor: (section) => (
+        <span className="text-sm font-medium text-gray-700">{SECTION_TYPE_LABELS[section.type]}</span>
+      ),
+      hideable: true,
+    },
+    {
+      id: 'status',
+      header: t('sections.manager.tableHeaders.enabled'),
+      accessor: (section) => (
+        <Toggle
+          data-drag-ignore
+          checked={section.isEnabled}
+          onChange={(checked) => handleToggleEnabled(section, checked)}
+          size="sm"
+          aria-label={`Toggle ${SECTION_TYPE_LABELS[section.type]}`}
+        />
+      ),
+      align: 'center',
+      hideable: false,
+    },
+    {
+      id: 'updatedAt',
+      header: t('sections.manager.tableHeaders.updated'),
+      accessor: 'updatedAt',
+      type: 'datetime',
+      hideable: true,
+    },
+    {
+      id: 'actions',
+      header: t('sections.manager.tableHeaders.actions'),
+      accessor: (section) => (
+        <Dropdown
+          button={
+            <Button variant="ghost" size="sm" data-drag-ignore>
+              <FiMoreVertical className="w-4 h-4" />
+            </Button>
+          }
+          items={[
+            {
+              label: t('sections.manager.edit'),
+              icon: <FiEdit className="w-4 h-4" />,
+              onClick: () => handleEdit(section),
+            },
+            {
+              label: t('sections.manager.delete'),
+              icon: <FiTrash2 className="w-4 h-4" />,
+              onClick: () => handleDelete(section),
+              className: 'text-red-600 dark:text-red-400',
+            },
+          ]}
+        />
+      ),
+      align: 'right',
+      hideable: false,
+    },
+  ], [t, defaultLanguage, reorderSections.isPending, draggedId, handleToggleEnabled, handleEdit, handleDelete]);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -3306,12 +3417,12 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
             onChange={onPageChange}
             options={PAGE_OPTIONS}
           />
-          <Button
-            variant="ghost"
-            size="md"
-            onClick={() => sectionsQuery.refetch()}
-            startIcon={<RefreshCcw className="w-4 h-4" />}
-          >
+        <Button
+          variant="ghost"
+          size="md"
+          onClick={() => sectionsQuery.refetch()}
+          startIcon={<FiRefreshCw className="w-4 h-4" />}
+        >
             {t('sections.manager.refresh')}
           </Button>
         </div>
@@ -3319,115 +3430,36 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
           variant="primary"
           size="md"
           onClick={handleOpenCreate}
-          startIcon={<Plus className="w-4 h-4" />}
+          startIcon={<FiPlus className="w-4 h-4" />}
         >
           {t('sections.manager.newSection')}
         </Button>
       </div>
 
-      <div className="overflow-hidden border border-gray-100 rounded-xl bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500">{t('sections.manager.tableHeaders.order')}</th>
-              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500">{t('sections.manager.tableHeaders.type')}</th>
-              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500">{t('sections.manager.tableHeaders.title')}</th>
-              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500">{t('sections.manager.tableHeaders.enabled')}</th>
-              <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500">{t('sections.manager.tableHeaders.updated')}</th>
-              <th scope="col" className="px-4 py-3 text-right text-xs font-semibold text-gray-500">{t('sections.manager.tableHeaders.actions')}</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-100">
-            {isLoading && (
-              <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-sm text-gray-500">{t('sections.manager.loading')}</td>
-              </tr>
-            )}
-
-            {!isLoading && localSections.length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-sm text-gray-500">
-                  {t('sections.manager.noSections')}
-                </td>
-              </tr>
-            )}
-
-            {localSections.map((section, index) => {
-              const translation = section.translations.find((trans) => trans.locale === defaultLanguage) || section.translations[0];
-              return (
-                <tr
-                  key={section.id}
-                  draggable
-                  onDragStart={() => setDraggedId(section.id)}
-                  onDragOver={(event) => event.preventDefault()}
-                  onDrop={() => handleDrop(section.id)}
-                  className={cn(
-                    'hover:bg-gray-50 transition-colors',
-                    draggedId === section.id ? 'opacity-50' : 'opacity-100',
-                  )}
-                >
-                  <td className="px-4 py-3 text-sm text-gray-500">
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        className="p-1 text-gray-400 hover:text-gray-600"
-                        onClick={() => moveSection(section.id, -1)}
-                        aria-label="Move up"
-                      >
-                        <ChevronUp className="w-4 h-4" />
-                      </button>
-                      <button
-                        type="button"
-                        className="p-1 text-gray-400 hover:text-gray-600"
-                        onClick={() => moveSection(section.id, 1)}
-                        aria-label="Move down"
-                      >
-                        <ChevronDown className="w-4 h-4" />
-                      </button>
-                      <GripVertical className="w-4 h-4 text-gray-400" />
-                      <span className="text-xs text-gray-500">{index + 1}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-700">{SECTION_TYPE_LABELS[section.type]}</td>
-                  <td className="px-4 py-3">
-                    <div className="text-sm text-gray-900">{translation?.title || '—'}</div>
-                    <div className="text-xs text-gray-500">{translation?.locale?.toUpperCase()}</div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Toggle
-                      checked={section.isEnabled}
-                      onChange={(checked) => handleToggleEnabled(section, checked)}
-                      size="sm"
-                      aria-label={`Toggle ${SECTION_TYPE_LABELS[section.type]}`}
-                    />
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">{new Date(section.updatedAt).toLocaleString()}</td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(section)}
-                        startIcon={<Edit3 className="w-4 h-4" />}
-                      >
-                        {t('sections.manager.edit')}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(section)}
-                        startIcon={<Trash2 className="w-4 h-4" />}
-                      >
-                        {t('sections.manager.delete')}
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <ReorderableTable<AdminSection>
+        tableId="sections-table"
+        columns={sectionColumns}
+        data={localSections}
+        isLoading={isLoading}
+        emptyMessage={t('sections.manager.noSections')}
+        showColumnVisibility={false}
+        showSearch={false}
+        showFilter={false}
+        enableRowHover={true}
+        density="normal"
+        dragState={{
+          disabled: reorderSections.isPending,
+          draggedId,
+          dragOverId,
+        }}
+        onDragStart={(event, section, _index) => handleRowDragStart(event, section.id)}
+        onDragOver={(event, section, _index) => handleRowDragOver(event, section.id)}
+        onDrop={(event, section, _index) => handleRowDrop(event, section.id)}
+        onDragLeave={(_event, section, _index) => handleRowDragLeave(section.id)}
+        onDragEnd={(_event, _section, _index) => {
+          handleRowDragEnd();
+        }}
+      />
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} size="xl">
         <div className="space-y-6">

@@ -1,6 +1,6 @@
 import React from 'react';
 import { INavigationService } from '../interfaces/INavigationService';
-import { MenuGroup, MenuItem, SubMenuItem } from '../types/MenuItem';
+import { MenuGroup, MenuItem } from '../types/MenuItem';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -124,7 +124,7 @@ export class NavigationService implements INavigationService {
           {
             icon: React.createElement(MenuIcon),
             label: t('admin.menus', 'Menu Management'),
-            path: '/menus'
+            path: '/menus/main'
           }
         ]
       },
@@ -318,7 +318,7 @@ export class NavigationService implements INavigationService {
     return item.subItems.some(subItem => this.isActiveRoute(subItem.path, currentPath));
   }
 
-  getSubItemsTotalBadge(subItems?: SubMenuItem[]): number {
+  getSubItemsTotalBadge(subItems?: MenuItem[]): number {
     if (!subItems) return 0;
     return subItems.reduce((total, subItem) => total + (subItem.badge || 0), 0);
   }

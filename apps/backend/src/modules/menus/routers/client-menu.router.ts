@@ -6,6 +6,132 @@ import { ResponseService } from '../../shared/services/response.service';
 import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
 
+const DEFAULT_FALLBACK_LOCALE = 'en';
+
+interface ClientMenuTranslation {
+  id: string;
+  menuId: string;
+  locale: string;
+  label?: string | null;
+  description?: string | null;
+  customHtml?: string | null;
+  config?: Record<string, unknown> | null;
+}
+
+interface ClientMenuItem {
+  id: string;
+  menuGroup: string;
+  type: string;
+  url?: string | null;
+  referenceId?: string | null;
+  target: string;
+  position: number;
+  isEnabled: boolean;
+  icon?: string | null;
+  textColor?: string | null;
+  backgroundColor?: string | null;
+  config: Record<string, unknown>;
+  isMegaMenu: boolean;
+  megaMenuColumns?: number | null;
+  parentId: string | null;
+  translations: ClientMenuTranslation[];
+  createdAt: Date;
+  updatedAt: Date;
+  children: ClientMenuItem[];
+}
+
+type RawMenuNode = {
+  id: string;
+  menuGroup: string;
+  type: string;
+  url?: string | null;
+  referenceId?: string | null;
+  target: string;
+  position: number;
+  isEnabled: boolean;
+  icon?: string | null;
+  textColor?: string | null;
+  backgroundColor?: string | null;
+  config?: Record<string, unknown> | null;
+  isMegaMenu?: boolean;
+  megaMenuColumns?: number | null;
+  parentId?: string | null;
+  translations?: Array<{
+    id: string;
+    menuId?: string;
+    locale: string;
+    label?: string | null;
+    description?: string | null;
+    customHtml?: string | null;
+    config?: Record<string, unknown> | null;
+  }>;
+  createdAt: Date;
+  updatedAt: Date;
+  children?: RawMenuNode[];
+};
+
+const selectTranslations = (
+  translations: RawMenuNode['translations'] = [],
+  locale: string,
+  fallbackLocale: string,
+  menuId: string,
+): ClientMenuTranslation[] => {
+  const ensurePlainTranslation = (translation: RawMenuNode['translations'][number]): ClientMenuTranslation => ({
+    id: translation.id,
+    menuId: translation.menuId ?? menuId,
+    locale: translation.locale,
+    label: translation.label ?? null,
+    description: translation.description ?? null,
+    customHtml: translation.customHtml ?? null,
+    config: translation.config ?? null,
+  });
+
+  const primary = translations.filter((translation) => translation.locale === locale);
+  if (primary.length > 0) {
+    return primary.map(ensurePlainTranslation);
+  }
+
+  const fallback = translations.filter((translation) => translation.locale === fallbackLocale);
+  if (fallback.length > 0) {
+    return fallback.map(ensurePlainTranslation);
+  }
+
+  return translations.map(ensurePlainTranslation);
+};
+
+const transformMenuNode = (
+  node: RawMenuNode,
+  locale: string,
+  fallbackLocale: string,
+  parentId: string | null = null,
+): ClientMenuItem => {
+  const children = Array.isArray(node.children) ? node.children : [];
+
+  return {
+    id: node.id,
+    menuGroup: node.menuGroup,
+    type: node.type,
+    url: node.url ?? null,
+    referenceId: node.referenceId ?? null,
+    target: node.target,
+    position: node.position,
+    isEnabled: node.isEnabled,
+    icon: node.icon ?? null,
+    textColor: node.textColor ?? null,
+    backgroundColor: node.backgroundColor ?? null,
+    config: node.config ?? {},
+    isMegaMenu: node.isMegaMenu ?? false,
+    megaMenuColumns: node.megaMenuColumns ?? null,
+    parentId,
+    translations: selectTranslations(node.translations, locale, fallbackLocale, node.id),
+    createdAt: node.createdAt,
+    updatedAt: node.updatedAt,
+    children: children
+      .filter((child) => !!child && child.isEnabled)
+      .map((child) => transformMenuNode(child, locale, fallbackLocale, node.id)),
+  };
+};
+
 const getByGroupInputSchema = z.object({
   menuGroup: z.string().min(1),
   locale: z.string().optional().default('en')
@@ -32,38 +158,18 @@ export class ClientMenuRouter {
   })
   async getByGroup(@Input() input: z.infer<typeof getByGroupInputSchema>) {
     try {
-      const menus = await this.menuService.findByMenuGroup(input.menuGroup);
+      const locale = input.locale || DEFAULT_FALLBACK_LOCALE;
 
-      // Filter only enabled menus and exclude sensitive data
-      const filteredMenus = menus
-        .filter(menu => menu.isEnabled)
-        .map(menu => ({
-          id: menu.id,
-          menuGroup: menu.menuGroup,
-          type: menu.type,
-          url: menu.url,
-          referenceId: menu.referenceId,
-          target: menu.target,
-          position: menu.position,
-          isEnabled: menu.isEnabled,
-          icon: menu.icon,
-          textColor: menu.textColor,
-          backgroundColor: menu.backgroundColor,
-          config: menu.config,
-          isMegaMenu: menu.isMegaMenu,
-          megaMenuColumns: menu.megaMenuColumns,
-          parentId: menu.parent?.id || null,
-          translations: menu.translations?.filter(t => t.locale === input.locale) || [],
-          createdAt: menu.createdAt,
-          updatedAt: menu.updatedAt,
-          children: menu.children?.filter(child => child.isEnabled) || [],
-        }));
+      const menuTree = await this.menuService.getMenuTree(input.menuGroup);
+      const sanitizedMenus = menuTree
+        .filter((menu) => menu.isEnabled)
+        .map((menu) => transformMenuNode(menu as RawMenuNode, locale, DEFAULT_FALLBACK_LOCALE));
 
       return this.responseService.createReadResponse(ModuleCode.MENU, 'data', {
-        items: filteredMenus,
-        total: filteredMenus.length,
+        items: sanitizedMenus,
+        total: sanitizedMenus.length,
         page: 1,
-        limit: filteredMenus.length,
+        limit: sanitizedMenus.length,
       });
     } catch (error) {
       throw this.responseService.createTRPCError(
@@ -82,22 +188,13 @@ export class ClientMenuRouter {
   })
   async getTree(@Input() input: z.infer<typeof getTreeInputSchema>) {
     try {
+      const locale = input.locale || DEFAULT_FALLBACK_LOCALE;
       const menuTree = await this.menuService.getMenuTree(input.menuGroup);
+      const sanitizedTree = menuTree
+        .filter((menu) => menu.isEnabled)
+        .map((menu) => transformMenuNode(menu as RawMenuNode, locale, DEFAULT_FALLBACK_LOCALE));
 
-      // Filter only enabled menus and translations for the specified locale
-      const filterTreeByLocaleAndEnabled = (nodes: any[]): any[] => {
-        return nodes
-          .filter(node => node.isEnabled)
-          .map(node => ({
-            ...node,
-            translations: node.translations?.filter((t: any) => t.locale === input.locale) || [],
-            children: filterTreeByLocaleAndEnabled(node.children || []),
-          }));
-      };
-
-      const filteredTree = filterTreeByLocaleAndEnabled(menuTree);
-
-      return this.responseService.createReadResponse(ModuleCode.MENU, 'data', filteredTree);
+      return this.responseService.createReadResponse(ModuleCode.MENU, 'data', sanitizedTree);
     } catch (error) {
       throw this.responseService.createTRPCError(
         ModuleCode.MENU,

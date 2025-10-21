@@ -32,7 +32,8 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
 
   const showToast = (toast: ToastEvent) => {
     const id = Date.now().toString();
-    const newToast: ToastMessage = { ...toast, id };
+    const description = toast.description ?? toast.message;
+    const newToast: ToastMessage = { ...toast, id, description };
 
     setToasts((prev) => [...prev, newToast]);
 
@@ -86,29 +87,32 @@ const ToastContainer: React.FC<{
   };
 
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end justify-end gap-3">
       {toasts.map((toast) => (
         <div
           key={toast.id}
           className={`
-            w-auto max-w-[80vw] p-3 rounded-lg shadow-lg backdrop-blur-sm
+            relative w-full max-w-[80vw] sm:max-w-xs md:max-w-sm min-w-[240px] px-5 py-4 rounded-lg shadow-lg backdrop-blur-sm
             transform transition-all duration-300 ease-in-out hover:scale-[1.02]
             ${getToastStyles(toast.type)}
           `}
         >
-          <div className="flex justify-between items-start">
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm leading-tight">{toast.title}</h3>
-              {toast.description && <p className="text-xs opacity-90 mt-1 leading-tight">{toast.description}</p>}
-            </div>
-            <button
-              onClick={() => removeToast(toast.id)}
-              className="ml-3 text-white/80 hover:text-white hover:bg-white/20 rounded-full w-6 h-6 flex items-center justify-center transition-all duration-200 flex-shrink-0"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+          <button
+            onClick={() => removeToast(toast.id)}
+            className="absolute top-2 right-2 text-white/80 hover:text-white hover:bg-white/20 rounded-full w-6 h-6 flex items-center justify-center transition-all duration-200"
+            aria-label="Close notification"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <div className="flex flex-col items-center text-center gap-1">
+            <h3 className="font-semibold text-sm leading-tight">{toast.title}</h3>
+            {(toast.description || toast.message) && (
+              <p className="text-xs opacity-90 leading-tight">
+                {toast.description || toast.message}
+              </p>
+            )}
           </div>
         </div>
       ))}

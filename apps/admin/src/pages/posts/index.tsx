@@ -15,6 +15,8 @@ import { Alert, AlertDescription, AlertTitle } from '../../components/common/Ale
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { PostFilters } from '../../components/features/PostFilters';
 import { Post, PostStatus, PostType, PostFiltersType } from '../../types/post';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
+import { FiHome } from 'react-icons/fi';
 
 // Helper functions for URL parameter validation
 const validatePostStatus = (status: string | null): PostStatus | undefined => {
@@ -478,6 +480,20 @@ const PostListPage = () => {
 
   return (
     <BaseLayout title="Post Management" description="Manage all posts in the system" actions={actions} fullWidth={true}>
+      {/* Breadcrumb Navigation */}
+      <Breadcrumb
+        items={[
+          {
+            label: t('navigation.home', 'Home'),
+            href: '/',
+            icon: <FiHome className="w-4 h-4" />
+          },
+          {
+            label: t('posts.title', 'Posts'),
+            icon: <FiFileText className="w-4 h-4" />
+          }
+        ]}
+      />
       <div className="space-y-6">
         {/* Statistics Cards */}
         <StatisticsGrid

@@ -17,6 +17,8 @@ import { Role, RoleFiltersType, RoleStatistics } from '../../types/role';
 import { ConfirmationModal } from '../../components/common/ConfirmationModal';
 import { QuickAddPermissionModal } from '../../components/role/QuickAddPermissionModal';
 import { QuickAddUserModal } from '../../components/role/QuickAddUserModal';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
+import { FiHome } from 'react-icons/fi';
 
 interface RoleIndexPageProps {}
 
@@ -567,6 +569,20 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
       actions={pageActions}
       fullWidth={true}
     >
+      {/* Breadcrumb Navigation */}
+      <Breadcrumb
+        items={[
+          {
+            label: t('navigation.home', 'Home'),
+            href: '/',
+            icon: <FiHome className="w-4 h-4" />
+          },
+          {
+            label: t('roles.title', 'Roles'),
+            icon: <FiShield className="w-4 h-4" />
+          }
+        ]}
+      />
       {/* Statistics */}
       {!statisticsLoading && !statisticsError && (
         <div className="mb-6">

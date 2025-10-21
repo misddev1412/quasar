@@ -146,7 +146,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/support-clients" element={<ProtectedRoute><SupportClientsPage /></ProtectedRoute>} />
       <Route path="/sections" element={<Navigate to="/sections/home" replace />} />
       <Route path="/sections/:page" element={<ProtectedRoute><SectionsPage /></ProtectedRoute>} />
-      <Route path="/menus" element={<ProtectedRoute><MenusPage /></ProtectedRoute>} />
+      <Route path="/menus" element={<Navigate to="/menus/main" replace />} />
+      <Route path="/menus/:group" element={<ProtectedRoute><MenusPage /></ProtectedRoute>} />
       <Route path="/products/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
       <Route path="/products/categories/create" element={<ProtectedRoute><CategoryCreatePage /></ProtectedRoute>} />
       <Route path="/products/categories/:id/edit" element={<ProtectedRoute><EditCategoryPage /></ProtectedRoute>} />

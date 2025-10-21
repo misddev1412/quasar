@@ -13,7 +13,7 @@ export const getCategoriesQuerySchema = z.object({
   search: z.string().optional(),
   isActive: z.boolean().optional(),
   parentId: z.string().uuid().optional(),
-  sortBy: z.enum(['name', 'createdAt', 'updatedAt', 'sortOrder']).default('sortOrder'),
+  sortBy: z.enum(['name', 'createdAt', 'updatedAt', 'sortOrder', 'level']).default('level'),
   sortOrder: z.enum(['ASC', 'DESC']).default('ASC'),
 });
 

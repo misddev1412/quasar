@@ -183,8 +183,44 @@
         "settings": "Cài đặt",
         "logout": "Đăng xuất"
       },
-      "search": {
-        "placeholder": "Tìm kiếm sản phẩm..."
+    "menu": {
+      "open": "Mở menu",
+      "close": "Đóng menu",
+      "megaMenu": {
+        "featuredProducts": "Sản phẩm nổi bật",
+        "viewAll": "Xem tất cả"
+      }
+    },
+    "search": {
+        "title": "Tìm kiếm sản phẩm chuyên sâu",
+        "subtitle": "Khám phá nhanh kho sản phẩm và tìm đúng thứ bạn cần.",
+        "placeholder": "Tìm kiếm sản phẩm...",
+        "open": "Mở tìm kiếm",
+        "close": "Đóng tìm kiếm",
+        "submit": "Tìm kiếm",
+        "show_advanced": "Mở tìm kiếm nâng cao",
+        "hide_advanced": "Thu gọn tìm kiếm nâng cao",
+        "filters": {
+          "heading": "Bộ lọc nâng cao",
+          "description": "Thu hẹp kết quả theo danh mục và khoảng giá mong muốn.",
+          "category": {
+            "label": "Danh mục",
+            "placeholder": "Chọn danh mục"
+          },
+          "min_price": {
+            "label": "Giá từ",
+            "placeholder": "0"
+          },
+          "max_price": {
+            "label": "Giá đến",
+            "placeholder": "1000"
+          },
+          "loading": "Đang tải danh mục...",
+          "empty": "Chưa có danh mục nào",
+          "no_results": "Không tìm thấy danh mục phù hợp",
+          "apply": "Áp dụng",
+          "reset": "Đặt lại"
+        }
       },
       "menu": {
         "close": "Đóng menu",
@@ -917,6 +953,9 @@
       "title": "Giỏ hàng",
       "items_count": "{count} sản phẩm",
       "items_count_single": "{count} sản phẩm",
+      "toast": {
+        "added": "Đã thêm vào giỏ hàng: {{count}}"
+      },
       "shipping": {
         "title": "Tùy chọn vận chuyển",
         "standard": "Vận chuyển tiêu chuẩn",

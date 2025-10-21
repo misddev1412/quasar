@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useLocalePath } from '../../lib/routing';
@@ -22,8 +23,9 @@ import {
   Divider,
 } from '@heroui/react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import SearchInput from '../common/SearchInput';
+import Input from '../common/Input';
 import ThemeToggle from '../common/ThemeToggle';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import NotificationDropdown from '../notifications/NotificationDropdown';
@@ -31,6 +33,9 @@ import { useSettings } from '../../hooks/useSettings';
 import { CartIcon, CartDropdownIcon, ShoppingCart, useCart } from '../ecommerce/CartProvider';
 import Container from '../common/Container';
 import { useMenu } from '../../hooks/useMenu';
+import { CategoryService } from '../../services/category.service';
+import MenuNavigation, { NavigationItem } from '../menu/MenuNavigation';
+import MegaMenu, { MegaMenuSection } from '../menu/MegaMenu';
 
 // Icons as components for better maintainability
 const Icons = {
@@ -167,6 +172,21 @@ const Icons = {
       />
     </svg>
   ),
+  Search: () => (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+      />
+    </svg>
+  ),
+  Close: () => (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  ),
 };
 
 // Navigation configuration - will be used with t() function
@@ -273,54 +293,37 @@ const IconButtonWithBadge: React.FC<{
 };
 
 // Desktop Navigation Component
-const DesktopNavigation: React.FC<{
-  pathname: string;
-  currentLocale: string;
-}> = ({ pathname, currentLocale }) => {
-  const t = useTranslations();
-  const { navigationItems, isLoading } = useMenu('main-navigation');
+type NavigationItem = {
+  id?: string;
+  name: string;
+  href: string;
+  target?: string;
+  icon?: string | null;
+  description?: string;
+  isMegaMenu?: boolean;
+  megaMenuColumns?: number;
+  image?: string;
+  badge?: string;
+  featured?: boolean;
+  children?: NavigationItem[];
+};
 
-  // Fallback to hardcoded items if menu data is loading or not available
-  const fallbackItems = [
-    { name: t('layout.header.nav.home'), href: '/' },
-    { name: t('layout.header.nav.products'), href: '/products' },
-    { name: t('layout.header.nav.news'), href: '/news' },
-    { name: t('layout.header.nav.categories'), href: '/categories' },
-    { name: t('layout.header.nav.deals'), href: '/deals' },
-    { name: t('layout.header.nav.about'), href: '/about' },
-    { name: t('layout.header.nav.contact'), href: '/contact' },
-  ];
-
-  const items = (!isLoading && navigationItems.length > 0) ? navigationItems : fallbackItems;
-
-  return (
-    <NavbarContent className="hidden sm:flex gap-6" justify="center">
-      {items.map((item) => {
-        const isActive = pathname === item.href;
-        return (
-          <NavbarItem key={item.id || item.href} isActive={isActive}>
-            <Link
-              href={item.href}
-              target={item.target}
-              className={`
-                text-sm font-medium transition-all duration-200 relative py-2
-                ${
-                  isActive
-                    ? 'text-blue-600 dark:text-blue-400'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-                }
-                after:content-[''] after:absolute after:bottom-0 after:left-0
-                after:h-0.5 after:bg-blue-600 dark:after:bg-blue-400 after:transition-all after:duration-200
-                ${isActive ? 'after:w-full' : 'after:w-0 hover:after:w-full'}
-              `}
-            >
-              {item.name}
-            </Link>
-          </NavbarItem>
-        );
-      })}
-    </NavbarContent>
-  );
+// Helper function to convert menu items to navigation items
+const convertToNavigationItems = (items: any[]): NavigationItem[] => {
+  return items.map(item => ({
+    id: item.id,
+    name: item.name,
+    href: item.href,
+    target: item.target,
+    icon: item.icon,
+    description: item.description,
+    isMegaMenu: item.isMegaMenu,
+    megaMenuColumns: item.megaMenuColumns,
+    image: item.image,
+    badge: item.badge,
+    featured: item.featured,
+    children: item.children || []
+  }));
 };
 
 // User Menu Component
@@ -559,28 +562,101 @@ const MobileMenuItems: React.FC<{
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [categorySearch, setCategorySearch] = useState('');
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [minPriceFilter, setMinPriceFilter] = useState('');
+  const [maxPriceFilter, setMaxPriceFilter] = useState('');
+  const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const { summary, openCart } = useCart(); // Add cart hook
-  const { navigationItems, isLoading } = useMenu('main-navigation');
+  const { navigationItems } = useMenu('main');
   const t = useTranslations();
   const tCart = useTranslations('ecommerce.cart');
-  const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
-  const { currentLocale, push } = useLocalePath();
+  const { currentLocale } = useLocalePath();
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const advancedSectionId = 'header-advanced-search-panel';
 
-  // Fallback to hardcoded items if menu data is loading or not available
-  const fallbackItems = [
-    { name: t('layout.header.nav.home'), href: '/' },
-    { name: t('layout.header.nav.products'), href: '/products' },
-    { name: t('layout.header.nav.news'), href: '/news' },
-    { name: t('layout.header.nav.categories'), href: '/categories' },
-    { name: t('layout.header.nav.deals'), href: '/deals' },
-    { name: t('layout.header.nav.about'), href: '/about' },
-    { name: t('layout.header.nav.contact'), href: '/contact' },
-  ];
+  const [categories, setCategories] = useState<Array<{ id: string; name: string; translations?: Array<{ locale: string; name?: string }> }>>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
 
-  const items = (!isLoading && navigationItems.length > 0) ? navigationItems : fallbackItems;
+  useEffect(() => {
+    let isMounted = true;
+    setIsLoadingCategories(true);
+
+    CategoryService.getCategories()
+      .then((fetched) => {
+        if (!isMounted) return;
+        const categoryList = Array.isArray(fetched) ? fetched : [];
+        setCategories(
+          categoryList.map((category) => ({
+            id: String(category.id),
+            name: category.name,
+            translations: category.translations?.map((translation) => ({
+              locale: translation.locale,
+              name: translation.name,
+            })),
+          }))
+        );
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setCategories([]);
+      })
+      .finally(() => {
+        if (!isMounted) return;
+        setIsLoadingCategories(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const normalizedCategories = useMemo(() => {
+    const seen = new Set<string>();
+
+    return categories
+      .map((category) => {
+        const translation = category.translations?.find((entry) => entry.locale === currentLocale);
+        const fallbackTranslation = category.translations?.find((entry) => entry.name);
+        const name = translation?.name || fallbackTranslation?.name || category.name || category.id;
+
+        return {
+          id: category.id,
+          name,
+        };
+      })
+      .filter((category) => {
+        if (!category.id || !category.name) {
+          return false;
+        }
+
+        if (seen.has(category.id)) {
+          return false;
+        }
+
+        seen.add(category.id);
+        return true;
+      });
+  }, [categories, currentLocale]);
+
+  const filteredCategories = useMemo(() => {
+    if (!categorySearch) {
+      return normalizedCategories;
+    }
+
+    const normalizedSearch = categorySearch.toLowerCase();
+    return normalizedCategories.filter((category) =>
+      category.name.toLowerCase().includes(normalizedSearch)
+    );
+  }, [normalizedCategories, categorySearch]);
+
+  const navigationItemsConverted = convertToNavigationItems(navigationItems);
 
   const cartLabel =
     summary.totalItems > 0
@@ -592,13 +668,115 @@ const Header: React.FC = () => {
     router.push('/');
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+  const executeSearch = () => {
+    const trimmedQuery = searchQuery.trim();
+    const hasAdvancedFilters = [categoryFilter, minPriceFilter, maxPriceFilter].some((value) =>
+      value.trim()
+    );
+
+    if (!trimmedQuery && !hasAdvancedFilters) {
+      return;
+    }
+
+    const params = new URLSearchParams();
+    if (trimmedQuery) {
+      params.set('q', trimmedQuery);
+    }
+    if (categoryFilter.trim()) {
+      params.set('category', categoryFilter.trim());
+    }
+    if (minPriceFilter.trim()) {
+      params.set('minPrice', minPriceFilter.trim());
+    }
+    if (maxPriceFilter.trim()) {
+      params.set('maxPrice', maxPriceFilter.trim());
+    }
+
+    const queryString = params.toString();
+    if (queryString) {
+      router.push(`/search?${queryString}`);
       setSearchQuery('');
+      setIsSearchOpen(false);
     }
   };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    executeSearch();
+  };
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isSearchOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsSearchOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isSearchOpen]);
+
+  useEffect(() => {
+    if (isSearchOpen) {
+      searchInputRef.current?.focus();
+    }
+  }, [isSearchOpen]);
+
+  useEffect(() => {
+    if (!isSearchOpen) {
+      setIsAdvancedOpen(false);
+    }
+  }, [isSearchOpen]);
+
+  useEffect(() => {
+    if (!isSearchOpen || typeof document === 'undefined') {
+      return;
+    }
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isSearchOpen]);
+
+  useEffect(() => {
+    if (!categoryFilter) {
+      if (!categorySearch) {
+        return;
+      }
+
+      const matched = normalizedCategories.find((category) => category.name === categorySearch);
+      if (!matched) {
+        return;
+      }
+    }
+
+    const selected = normalizedCategories.find((category) => category.id === categoryFilter);
+    if (selected) {
+      setCategorySearch(selected.name);
+    } else if (!categoryFilter) {
+      setCategorySearch('');
+    }
+  }, [categoryFilter, normalizedCategories]);
+
+  useEffect(() => {
+    if (!isAdvancedOpen) {
+      setIsCategoryDropdownOpen(false);
+    }
+  }, [isAdvancedOpen]);
 
   return (
     <header className="sticky top-0 z-50 bg-white dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
@@ -625,20 +803,23 @@ const Header: React.FC = () => {
           </NavbarContent>
 
           {/* Center Section: Desktop Navigation */}
-          <DesktopNavigation pathname={pathname} currentLocale={currentLocale} />
+          <NavbarContent className="hidden lg:flex gap-2 header-nav" justify="center">
+            <MenuNavigation items={navigationItemsConverted} />
+          </NavbarContent>
 
           {/* Right Section: Actions */}
           <NavbarContent justify="end" className="gap-2">
-            {/* Desktop Search */}
-            <NavbarItem className="hidden lg:flex flex-1 max-w-lg mr-4">
-              <SearchInput
-                value={searchQuery}
-                onChange={setSearchQuery}
-                onSubmit={handleSearch}
-                size="sm"
-                placeholder={t('layout.header.search.placeholder')}
-                fullWidth
-              />
+            <NavbarItem className="hidden lg:flex">
+              <Button
+                isIconOnly
+                variant="light"
+                aria-label={t('layout.header.search.open')}
+                aria-expanded={isSearchOpen}
+                className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                onPress={() => setIsSearchOpen(true)}
+              >
+                <Icons.Search />
+              </Button>
             </NavbarItem>
 
             {/* Language Switcher */}
@@ -717,9 +898,9 @@ const Header: React.FC = () => {
           </NavbarContent>
 
           {/* Mobile Menu */}
-          <NavbarMenu className="px-4 pt-6 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md">
+          <NavbarMenu className="px-0 pt-0 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md">
             {/* Mobile Search */}
-            <NavbarMenuItem className="mb-4">
+            <div className="px-4 pt-6 pb-4">
               <SearchInput
                 value={searchQuery}
                 onChange={setSearchQuery}
@@ -731,31 +912,14 @@ const Header: React.FC = () => {
                 placeholder={t('layout.header.search.placeholder')}
                 fullWidth
               />
-            </NavbarMenuItem>
+            </div>
 
             {/* Navigation Items */}
-            {items.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <NavbarMenuItem key={item.id || item.href}>
-                  <Link
-                    href={item.href}
-                    target={item.target}
-                    className={`
-                      w-full text-base flex items-center gap-3 py-2 transition-colors rounded-lg px-2
-                      ${
-                        isActive
-                          ? 'text-blue-600 dark:text-blue-400 font-medium bg-blue-50 dark:bg-blue-900/20'
-                          : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800'
-                      }
-                    `}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
-                </NavbarMenuItem>
-              );
-            })}
+            <MenuNavigation
+              items={navigationItemsConverted}
+              isMobileMenuOpen={isMenuOpen}
+              onMobileMenuClose={() => setIsMenuOpen(false)}
+            />
 
             {/* Cart Link - Mobile */}
             <NavbarMenuItem>
@@ -798,6 +962,232 @@ const Header: React.FC = () => {
           {/* Shopping Cart Modal - disabled since we're using dropdown */}
           {/* <ShoppingCart /> */}
         </Navbar>
+
+        {mounted && isSearchOpen
+          ? createPortal(
+              <div
+                className="hidden lg:flex fixed inset-0 z-[70] items-center justify-center px-4 py-16"
+                onClick={() => setIsSearchOpen(false)}
+              >
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
+                <div
+                  className="relative w-full max-w-3xl rounded-3xl border border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-950/95 shadow-2xl"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <Button
+                    isIconOnly
+                    type="button"
+                    variant="light"
+                    aria-label={t('layout.header.search.close')}
+                    className="absolute top-4 right-4 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    onPress={() => setIsSearchOpen(false)}
+                  >
+                    <Icons.Close />
+                  </Button>
+
+                  <form
+                    className="space-y-6 sm:space-y-8 p-6 sm:p-10 pt-14 sm:pt-16"
+                    onSubmit={handleSearch}
+                  >
+                    <div className="space-y-2">
+                      <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-gray-100">
+                        {t('layout.header.search.title')}
+                      </h2>
+                      <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
+                        {t('layout.header.search.subtitle')}
+                      </p>
+                    </div>
+
+                    <Input
+                      ref={searchInputRef}
+                      type="search"
+                      value={searchQuery}
+                      onValueChange={setSearchQuery}
+                      placeholder={t('layout.header.search.placeholder')}
+                      size="lg"
+                      variant="bordered"
+                      radius="lg"
+                      icon={
+                        <span className="text-gray-400 dark:text-gray-500">
+                          <Icons.Search />
+                        </span>
+                      }
+                      classNames={{
+                        inputWrapper:
+                          'h-14 sm:h-16 px-4 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/70 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
+                        input: 'text-base sm:text-lg text-gray-900 dark:text-gray-100',
+                      }}
+                    />
+
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <Button
+                        size="sm"
+                        variant="light"
+                        type="button"
+                        aria-expanded={isAdvancedOpen}
+                        aria-controls={advancedSectionId}
+                        onPress={() => setIsAdvancedOpen((prev) => !prev)}
+                        className="self-start"
+                      >
+                        {isAdvancedOpen
+                          ? t('layout.header.search.hide_advanced')
+                          : t('layout.header.search.show_advanced')}
+                      </Button>
+                      <Button color="primary" type="submit">
+                        {t('layout.header.search.submit')}
+                      </Button>
+                    </div>
+
+                    {isAdvancedOpen && (
+                      <div
+                        id={advancedSectionId}
+                        className="space-y-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/85 p-6 shadow-inner"
+                      >
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div className="space-y-1">
+                            <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">
+                              {t('layout.header.search.filters.heading')}
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {t('layout.header.search.filters.description')}
+                            </p>
+                          </div>
+                          <Button
+                            variant="light"
+                            size="sm"
+                            type="button"
+                            onPress={() => {
+                              setCategoryFilter('');
+                              setMinPriceFilter('');
+                              setMaxPriceFilter('');
+                              setCategorySearch('');
+                              setIsCategoryDropdownOpen(false);
+                            }}
+                          >
+                            {t('layout.header.search.filters.reset')}
+                          </Button>
+                        </div>
+
+                        <div className="grid gap-4 sm:grid-cols-3">
+                          <div className="sm:col-span-1 relative">
+                            <Input
+                              label={t('layout.header.search.filters.category.label')}
+                              placeholder={t('layout.header.search.filters.category.placeholder')}
+                              value={categorySearch}
+                              onValueChange={(value) => {
+                                setCategorySearch(value);
+                                if (!value) {
+                                  setCategoryFilter('');
+                                }
+                                setIsCategoryDropdownOpen(true);
+                              }}
+                              onFocus={() => setIsCategoryDropdownOpen(true)}
+                              onBlur={() => {
+                                // delay closing to allow click events on dropdown items
+                                setTimeout(() => setIsCategoryDropdownOpen(false), 150);
+                              }}
+                              variant="bordered"
+                              radius="lg"
+                              size="md"
+                              classNames={{
+                                label: 'text-sm font-medium text-gray-600 dark:text-gray-300',
+                                inputWrapper:
+                                  'h-12 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/60 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
+                                input: 'text-sm text-gray-900 dark:text-gray-100',
+                              }}
+                              fullWidth
+                            />
+                            {isCategoryDropdownOpen && (
+                              <div className="absolute z-40 mt-2 max-h-56 w-full overflow-y-auto rounded-xl border border-gray-200 bg-white/95 shadow-xl dark:border-gray-800 dark:bg-gray-950">
+                                {isLoadingCategories ? (
+                                  <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                                    {t('layout.header.search.filters.loading')}
+                                  </div>
+                                ) : normalizedCategories.length === 0 ? (
+                                  <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                                    {t('layout.header.search.filters.empty')}
+                                  </div>
+                                ) : filteredCategories.length === 0 ? (
+                                  <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                                    {t('layout.header.search.filters.no_results')}
+                                  </div>
+                                ) : (
+                                  filteredCategories.map((category) => {
+                                    const isSelected = category.id === categoryFilter;
+                                    return (
+                                      <button
+                                        key={category.id}
+                                        type="button"
+                                        className={`w-full px-4 py-2 text-left text-sm transition-colors ${
+                                          isSelected
+                                            ? 'bg-blue-500/10 text-blue-600 dark:text-blue-300'
+                                            : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                                        }`}
+                                        onMouseDown={() => {
+                                          setCategoryFilter(category.id);
+                                          setCategorySearch(category.name);
+                                          setIsCategoryDropdownOpen(false);
+                                        }}
+                                      >
+                                        {category.name}
+                                      </button>
+                                    );
+                                  })
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          <Input
+                            label={t('layout.header.search.filters.min_price.label')}
+                            placeholder={t('layout.header.search.filters.min_price.placeholder')}
+                            type="number"
+                            value={minPriceFilter}
+                            onChange={(event) => setMinPriceFilter(event.target.value)}
+                            variant="bordered"
+                            radius="lg"
+                            size="md"
+                            inputMode="numeric"
+                            fullWidth
+                            classNames={{
+                              label: 'text-sm font-medium text-gray-600 dark:text-gray-300',
+                              inputWrapper:
+                                'h-12 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/60 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
+                              input: 'text-sm text-gray-900 dark:text-gray-100',
+                            }}
+                          />
+                          <Input
+                            label={t('layout.header.search.filters.max_price.label')}
+                            placeholder={t('layout.header.search.filters.max_price.placeholder')}
+                            type="number"
+                            value={maxPriceFilter}
+                            onChange={(event) => setMaxPriceFilter(event.target.value)}
+                            variant="bordered"
+                            radius="lg"
+                            size="md"
+                            inputMode="numeric"
+                            fullWidth
+                            classNames={{
+                              label: 'text-sm font-medium text-gray-600 dark:text-gray-300',
+                              inputWrapper:
+                                'h-12 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/60 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
+                              input: 'text-sm text-gray-900 dark:text-gray-100',
+                            }}
+                          />
+                        </div>
+
+                        <div className="flex justify-end">
+                          <Button color="primary" type="submit">
+                            {t('layout.header.search.filters.apply')}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </form>
+                </div>
+              </div>,
+              document.body
+            )
+          : null}
       </Container>
     </header>
   );

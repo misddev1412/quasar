@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ListItem,
@@ -25,6 +25,7 @@ interface SidebarMenuItemProps {
   hasActiveSubItem: boolean;
   onToggleSubMenu: () => void;
   onSubItemActiveCheck: (path: string) => boolean;
+  expandedNodes?: Set<string>;
 }
 
 const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
@@ -36,9 +37,29 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
   hasActiveSubItem,
   onToggleSubMenu,
   onSubItemActiveCheck,
+  expandedNodes = new Set(),
 }) => {
   const hasSubItems = item.subItems && item.subItems.length > 0;
   const shouldHighlightParent = collapsed && hasActiveSubItem;
+  const textRef = useRef<HTMLDivElement>(null);
+  const [isTextTruncated, setIsTextTruncated] = useState(false);
+
+  // Check if text is truncated
+  useEffect(() => {
+    const checkTextTruncation = () => {
+      if (textRef.current && !collapsed) {
+        const element = textRef.current;
+        setIsTextTruncated(element.scrollWidth > element.clientWidth);
+      }
+    };
+
+    checkTextTruncation();
+
+    // Check again after a short delay in case the element hasn't rendered fully
+    const timer = setTimeout(checkTextTruncation, 100);
+
+    return () => clearTimeout(timer);
+  }, [item.label, collapsed]);
 
   const renderIcon = () => {
     if (badgeContent > 0) {
@@ -98,11 +119,15 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
         </ListItemIcon>
         {!collapsed && (
           <>
-            <ListItemText 
-              primary={item.label} 
+            <ListItemText
+              ref={textRef}
+              primary={item.label}
               primaryTypographyProps={{
                 fontSize: 14,
                 fontWeight: (isActive || shouldHighlightParent) ? 'medium' : 'normal',
+                noWrap: true,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
               sx={{
                 opacity: collapsed ? 0 : 1,
@@ -117,16 +142,19 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
       </StyledListItemButton>
     );
 
+    const shouldShowTooltip = collapsed || isTextTruncated;
+    const tooltipTitle = shouldShowTooltip ? item.label : '';
+
     if (hasSubItems) {
       return (
-        <Tooltip title={collapsed ? item.label : ''} placement="right">
+        <Tooltip title={tooltipTitle} placement="right" arrow>
           {buttonContent}
         </Tooltip>
       );
     }
 
     return (
-      <Tooltip title={collapsed ? item.label : ''} placement="right">
+      <Tooltip title={tooltipTitle} placement="right" arrow>
         <Link to={item.path} style={{ textDecoration: 'none', color: 'inherit' }}>
           {buttonContent}
         </Link>
@@ -146,6 +174,10 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
             isActive={onSubItemActiveCheck(subItem.path)}
             collapsed={true}
             subIndex={subIndex}
+            level={0}
+            expandedNodes={expandedNodes}
+            onToggleSubMenu={() => {}}
+            onSubItemActiveCheck={onSubItemActiveCheck}
           />
         ))}
       </Box>
@@ -165,6 +197,10 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
               isActive={onSubItemActiveCheck(subItem.path)}
               collapsed={false}
               subIndex={subIndex}
+              level={0}
+              expandedNodes={expandedNodes}
+              onToggleSubMenu={() => {}}
+              onSubItemActiveCheck={onSubItemActiveCheck}
             />
           ))}
         </List>

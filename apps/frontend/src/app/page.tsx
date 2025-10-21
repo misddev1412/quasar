@@ -3,6 +3,7 @@ import { headers, cookies } from 'next/headers';
 import { SectionType } from '@shared/enums/section.enums';
 import { getServerSideSEOWithFallback } from '../lib/seo-server';
 import Header from '../components/layout/Header';
+import Footer from '../components/layout/Footer';
 import { fetchSections } from '../services/sections.service';
 import {
   HeroSlider,
@@ -164,7 +165,7 @@ async function getPreferredLocale(searchParams?: Record<string, string | string[
     return normalizedFromParam;
   }
 
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const cookieLocale = normalizeLocale(cookieStore.get('NEXT_LOCALE')?.value);
   if (cookieLocale) {
     return cookieLocale;
@@ -224,11 +225,12 @@ export default async function RootPage({
     .filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Header />
-      <main>
+      <main className="flex-1">
         {renderedSections.length > 0 ? renderedSections : renderFallbackContent()}
       </main>
+      <Footer />
     </div>
   );
 }

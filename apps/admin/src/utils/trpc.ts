@@ -1,12 +1,13 @@
+import { createTRPCReact } from '@trpc/react-query';
 import {
-  createTRPCReact,
-  createTRPCProxyClient,
   CreateTRPCClientOptions,
-} from '@trpc/react-query';
-import { httpBatchLink, httpLink, splitLink, TRPCLink } from '@trpc/client';
-import { observable } from '@trpc/server/observable';
+  createTRPCProxyClient,
+  httpBatchLink,
+  httpLink,
+  splitLink,
+  TRPCLink,
+} from '@trpc/client';
 import type { AppRouter } from '../../../backend/src/types/app-router';
-import { appEvents } from '../lib/event-emitter';
 import { errorLink } from './trpc-error-link';
 
 // Simple auth token management (you might want to use a state management library)

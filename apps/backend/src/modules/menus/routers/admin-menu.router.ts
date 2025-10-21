@@ -66,6 +66,16 @@ const deleteInputSchema = z.object({
   id: z.string().uuid(),
 });
 
+const childrenInputSchema = z.object({
+  parentId: z.string().uuid().optional(),
+  menuGroup: z.string().min(1),
+});
+
+const nextPositionInputSchema = z.object({
+  menuGroup: z.string().min(1),
+  parentId: z.string().uuid().optional(),
+});
+
 @Router({ alias: 'adminMenus' })
 @Injectable()
 export class AdminMenuRouter {
@@ -140,6 +150,26 @@ export class AdminMenuRouter {
   }
 
   @Query({
+    input: childrenInputSchema,
+    output: apiResponseSchema,
+  })
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  async children(@Input() input: z.infer<typeof childrenInputSchema>) {
+    try {
+      const children = await this.menuService.getChildrenTreeByParent(input.menuGroup, input.parentId);
+      return this.responseService.createReadResponse(ModuleCode.MENU, 'menuChildren', children);
+    } catch (error) {
+      throw this.responseService.createTRPCError(
+        ModuleCode.MENU,
+        OperationCode.READ,
+        ErrorLevelCode.SERVER_ERROR,
+        'Failed to retrieve menu children',
+        error,
+      );
+    }
+  }
+
+  @Query({
     output: apiResponseSchema,
   })
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
@@ -153,6 +183,28 @@ export class AdminMenuRouter {
         OperationCode.READ,
         ErrorLevelCode.SERVER_ERROR,
         'Failed to retrieve menu groups',
+        error,
+      );
+    }
+  }
+
+  @Query({
+    input: z.object({
+      menuGroup: z.string().optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  async statistics(@Input() input: { menuGroup?: string }) {
+    try {
+      const statistics = await this.menuService.getStatistics(input.menuGroup);
+      return this.responseService.createReadResponse(ModuleCode.MENU, 'menuStatistics', statistics);
+    } catch (error) {
+      throw this.responseService.createTRPCError(
+        ModuleCode.MENU,
+        OperationCode.READ,
+        ErrorLevelCode.SERVER_ERROR,
+        'Failed to retrieve menu statistics',
         error,
       );
     }
@@ -233,6 +285,26 @@ export class AdminMenuRouter {
         OperationCode.UPDATE,
         ErrorLevelCode.SERVER_ERROR,
         'Failed to reorder menus',
+        error,
+      );
+    }
+  }
+
+  @Query({
+    input: nextPositionInputSchema,
+    output: apiResponseSchema,
+  })
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  async getNextPosition(@Input() input: z.infer<typeof nextPositionInputSchema>) {
+    try {
+      const position = await this.menuService.getNextPosition(input.menuGroup, input.parentId);
+      return this.responseService.createReadResponse(ModuleCode.MENU, 'nextPosition', position);
+    } catch (error) {
+      throw this.responseService.createTRPCError(
+        ModuleCode.MENU,
+        OperationCode.READ,
+        ErrorLevelCode.SERVER_ERROR,
+        'Failed to get next position',
         error,
       );
     }

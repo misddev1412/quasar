@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '../contexts/CartContext';
 import { useToast } from '../contexts/ToastContext';
 import type { Product, ProductVariant } from '../types/product';
@@ -18,6 +19,7 @@ interface AddToCartResult {
 export const useAddToCart = () => {
   const { addItem } = useCart();
   const { showToast } = useToast();
+  const { t } = useTranslation();
   const [isAdding, setIsAdding] = useState(false);
   const mountedRef = useRef(true);
 
@@ -40,7 +42,7 @@ export const useAddToCart = () => {
       showToast({
         type: 'error',
         title: 'Failed to add to cart',
-        message: error.message,
+        description: error.message,
       });
       return { success: false, error };
     }
@@ -53,11 +55,13 @@ export const useAddToCart = () => {
       await addItem(product.id, quantity, variant?.id);
 
       if (!suppressSuccessToast) {
-        const variantLabel = variant?.name ? ` (${variant.name})` : '';
+        const toastTitle = t('ecommerce.cart.toast.added', {
+          count: quantity,
+        });
+
         showToast({
           type: 'success',
-          title: 'Added to cart!',
-          message: `${product.name}${variantLabel} has been added to your cart.`,
+          title: toastTitle,
         });
       }
 
@@ -71,7 +75,7 @@ export const useAddToCart = () => {
       showToast({
         type: 'error',
         title: 'Failed to add to cart',
-        message: error.message,
+        description: error.message,
       });
 
       return { success: false, error };
@@ -80,7 +84,7 @@ export const useAddToCart = () => {
         setIsAdding(false);
       }
     }
-  }, [addItem, showToast]);
+  }, [addItem, showToast, t]);
 
   return {
     addToCart,

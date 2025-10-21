@@ -74,6 +74,11 @@ const Sidebar: React.FC = () => {
     return navigationService.getSubItemsTotalBadge(subItems);
   };
 
+  // Create expanded nodes set from menuCollapseState
+  const expandedNodes = new Set(
+    Object.keys(menuCollapseState).filter(key => menuCollapseState[key])
+  );
+
   // Render menu item using the new component
   const renderMenuItem = (item: any, index: number) => {
     const isActive = isActiveRoute(item.path);
@@ -93,6 +98,7 @@ const Sidebar: React.FC = () => {
         hasActiveSubItem={hasActiveSubItem}
         onToggleSubMenu={() => handleToggleSubMenu(item)}
         onSubItemActiveCheck={isActiveRoute}
+        expandedNodes={expandedNodes}
       />
     );
   };

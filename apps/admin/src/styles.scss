@@ -376,6 +376,65 @@ html, body {
     color: theme('colors.gray.500');
   }
 
+  /* Shared Icon Classes - Consistent with Frontend */
+  .icon-container {
+    @apply flex items-center justify-center flex-shrink-0;
+  }
+
+  .icon-xs {
+    @apply w-3 h-3;
+  }
+
+  .icon-sm {
+    @apply w-4 h-4;
+  }
+
+  .icon-md {
+    @apply w-5 h-5;
+  }
+
+  .icon-lg {
+    @apply w-6 h-6;
+  }
+
+  .icon-xl {
+    @apply w-8 h-8;
+  }
+
+  /* Icon colors for different states */
+  .icon-default {
+    @apply text-gray-500 dark:text-gray-400;
+  }
+
+  .icon-primary {
+    @apply text-blue-500 dark:text-blue-400;
+  }
+
+  .icon-secondary {
+    @apply text-gray-400 dark:text-gray-500;
+  }
+
+  .icon-muted {
+    @apply text-gray-300 dark:text-gray-600;
+  }
+
+  /* Combined icon classes for convenience */
+  .icon-nav {
+    @apply icon-container icon-sm icon-default;
+  }
+
+  .icon-nav-active {
+    @apply icon-container icon-sm icon-primary;
+  }
+
+  .icon-button {
+    @apply icon-container icon-md icon-default;
+  }
+
+  .icon-header {
+    @apply icon-container icon-lg icon-default;
+  }
+
   /* Table search input with proper icon spacing - keeping for backward compatibility */
   .table-search-input {
     padding-left: 2.75rem !important; /* 44px - matches pl-11 */

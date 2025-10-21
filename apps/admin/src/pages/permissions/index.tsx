@@ -14,6 +14,8 @@ import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { Permission, PermissionFiltersType, PermissionStatistics } from '../../types/permission';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
+import { FiHome } from 'react-icons/fi';
 
 interface PermissionIndexPageProps {}
 
@@ -620,6 +622,20 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
       actions={pageActions}
       fullWidth={true}
     >
+      {/* Breadcrumb Navigation */}
+      <Breadcrumb
+        items={[
+          {
+            label: t('navigation.home', 'Home'),
+            href: '/',
+            icon: <FiHome className="w-4 h-4" />
+          },
+          {
+            label: t('permissions.title', 'Permissions'),
+            icon: <FiLock className="w-4 h-4" />
+          }
+        ]}
+      />
       {/* Statistics */}
       <div className="mb-6">
         <StatisticsGrid statistics={statistics} />

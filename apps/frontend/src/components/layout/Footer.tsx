@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import Container from '../common/Container';
 import { useSettings } from '../../hooks/useSettings';

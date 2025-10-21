@@ -54,15 +54,13 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     case 'SET_ITEMS':
       return { ...state, items: action.payload };
 
-    case 'ADD_ITEM':
-      console.log('ADD_ITEM action received, payload:', action.payload);
-      console.log('Current items before adding:', state.items);
+    case 'ADD_ITEM': {
       const newItems = [...state.items, action.payload];
-      console.log('New items after adding:', newItems);
       return {
         ...state,
         items: newItems,
       };
+    }
 
     case 'REMOVE_ITEM':
       return {
@@ -179,24 +177,19 @@ export const CartProvider: React.FC<CartProviderProps> = ({
   // Load cart from localStorage
   const loadCartFromStorage = useCallback(async () => {
     try {
-      console.log('Loading cart from storage...');
       const stored = localStorage.getItem(CART_STORAGE_KEY);
-      console.log('Found stored cart:', stored);
 
       if (stored) {
         const cartStorage: CartStorage = JSON.parse(stored);
-        console.log('Parsed cart storage:', cartStorage);
 
         // Check version compatibility
         if (cartStorage.version !== CART_VERSION) {
-          console.log('Version mismatch, clearing cart');
           localStorage.removeItem(CART_STORAGE_KEY);
           return;
         }
 
         // Load items and restore state
         const enrichedItems = await enrichCartItems(cartStorage.items);
-        console.log('Enriched items from storage:', enrichedItems);
 
         dispatch({
           type: 'SET_ITEMS',
@@ -226,7 +219,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({
   // Save cart to localStorage
   const saveCartToStorage = useCallback(() => {
     try {
-      console.log('Saving cart to storage, current items:', state.items);
       const cartStorage: CartStorage = {
         items: state.items.map(({ id, productId, variantId, quantity, addedAt, updatedAt }) => ({
           id,
@@ -241,13 +233,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({
         lastUpdated: new Date(),
         version: CART_VERSION,
       };
-      console.log('Cart data to save:', cartStorage);
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartStorage));
-      console.log('Cart saved to localStorage successfully');
-
-      // Verify it was saved
-      const saved = localStorage.getItem(CART_STORAGE_KEY);
-      console.log('Verified saved cart:', saved);
     } catch (error) {
       console.error('Error saving cart to storage:', error);
     }
@@ -442,17 +428,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({
 
   // Add item to cart
   const addItem = useCallback(async (productId: string, quantity: number, variantId?: string) => {
-    console.log('CartContext addItem called:', { productId, quantity, variantId });
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'SET_ERROR', payload: undefined });
 
     try {
       // Fetch product data to create enriched cart item
-      console.log('Fetching product data...');
       const { ProductService } = await import('../services/product.service');
       const product = await ProductService.getProductById(productId);
-
-      console.log('Product fetched:', product);
 
       if (!product) {
         console.error('Product not found:', productId);
@@ -521,10 +503,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({
         dispatch({ type: 'ADD_ITEM', payload: newItem });
       }
 
-      console.log('Item added successfully, emitting event and validating');
       emitEvent('item_added', { productId, quantity, variantId });
       await validateCart();
-      console.log('Cart validation completed');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to add item to cart';
       console.error('Add to cart failed:', error);
@@ -532,7 +512,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({
       throw error;
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
-      console.log('Add to cart process finished');
     }
   }, [state.items, validateCart, emitEvent, maxQuantity]);
 
@@ -709,7 +688,6 @@ export const CartProvider: React.FC<CartProviderProps> = ({
 
   // Save cart to storage whenever it changes
   useEffect(() => {
-    console.log('State changed, saving to storage. Items count:', state.items.length);
     saveCartToStorage();
   }, [state, saveCartToStorage]);
 

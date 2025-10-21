@@ -1,18 +1,11 @@
 import { ReactNode } from 'react';
 
-export interface SubMenuItem {
-  icon: ReactNode;
-  label: string;
-  path: string;
-  badge?: number;
-}
-
 export interface MenuItem {
   icon: ReactNode;
   label: string;
   path: string;
   badge?: number;
-  subItems?: SubMenuItem[];
+  subItems?: MenuItem[];
 }
 
 export interface MenuGroup {

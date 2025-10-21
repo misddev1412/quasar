@@ -24,7 +24,7 @@ export interface CategoryFindManyOptions {
   search?: string;
   isActive?: boolean;
   parentId?: string;
-  sortBy?: 'name' | 'createdAt' | 'updatedAt' | 'sortOrder';
+  sortBy?: 'name' | 'createdAt' | 'updatedAt' | 'sortOrder' | 'level';
   sortOrder?: 'ASC' | 'DESC';
 }
 
@@ -83,7 +83,7 @@ export class CategoryRepository {
     }
     
     // Apply ordering
-    queryBuilder.orderBy('category.sort_order', 'ASC')
+    queryBuilder.orderBy('category.sortOrder', 'ASC')
                  .addOrderBy('category.name', 'ASC');
     
     // Apply pagination
@@ -112,16 +112,17 @@ export class CategoryRepository {
       sortOrder = 'ASC' 
     } = options;
     
-    const queryBuilder = this.categoryRepository.createQueryBuilder('category');
-    
+    const queryBuilder = this.categoryRepository.createQueryBuilder('category')
+      .leftJoin('category.translations', 'translations');
+
     // Apply filters
     if (search) {
       queryBuilder.andWhere(
-        '(LOWER(category.name) LIKE :search OR LOWER(category.description) LIKE :search)',
+        '(LOWER(category.name) LIKE :search OR LOWER(category.description) LIKE :search OR LOWER(translations.name) LIKE :search)',
         { search: `%${search.toLowerCase()}%` }
       );
     }
-    
+
     if (isActive !== undefined) {
       queryBuilder.andWhere('category.is_active = :isActive', { isActive });
     }
@@ -133,13 +134,14 @@ export class CategoryRepository {
         queryBuilder.andWhere('category.parent_id = :parentId', { parentId });
       }
     }
-    
+
     // Apply ordering
     const orderByMap = {
-      name: 'category.name',
+      name: 'COALESCE(translations.name, category.name)',
       createdAt: 'category.createdAt',
       updatedAt: 'category.updatedAt',
-      sortOrder: 'category.sort_order',
+      sortOrder: 'category.sortOrder',
+      level: 'category.level',
     };
     queryBuilder.orderBy(orderByMap[sortBy], sortOrder);
     
@@ -150,7 +152,7 @@ export class CategoryRepository {
     const [categories, total] = await queryBuilder.getManyAndCount();
     
     return {
-      categories,
+      items: categories,
       total,
       page,
       limit,
@@ -360,7 +362,7 @@ export class CategoryRepository {
       queryBuilder.andWhere('category.is_active = :isActive', { isActive: true });
     }
 
-    queryBuilder.orderBy('category.sort_order', 'ASC')
+    queryBuilder.orderBy('category.sortOrder', 'ASC')
                  .addOrderBy('category.name', 'ASC');
 
     const categories = await queryBuilder.getMany();
@@ -435,7 +437,7 @@ export class CategoryRepository {
       }
     }
 
-    queryBuilder.orderBy('category.sort_order', 'ASC')
+    queryBuilder.orderBy('category.sortOrder', 'ASC')
                  .addOrderBy('category.name', 'ASC');
 
     const categories = await queryBuilder.getMany();
@@ -531,7 +533,7 @@ export class CategoryRepository {
       queryBuilder.andWhere('category.is_active = :isActive', { isActive: true });
     }
 
-    queryBuilder.orderBy('category.sort_order', 'ASC')
+    queryBuilder.orderBy('category.sortOrder', 'ASC')
                  .addOrderBy('category.name', 'ASC');
 
     const rootCategories = await queryBuilder.getMany();
@@ -567,7 +569,7 @@ export class CategoryRepository {
       queryBuilder.andWhere('category.is_active = :isActive', { isActive: true });
     }
 
-    queryBuilder.orderBy('category.sort_order', 'ASC')
+    queryBuilder.orderBy('category.sortOrder', 'ASC')
                  .addOrderBy('category.name', 'ASC');
 
     const childCategories = await queryBuilder.getMany();
@@ -700,7 +702,7 @@ export class CategoryRepository {
         { search: `%${search.toLowerCase()}%` }
       );
     }
-    
+
     if (isActive !== undefined) {
       queryBuilder.andWhere('category.is_active = :isActive', { isActive });
     }
@@ -712,13 +714,14 @@ export class CategoryRepository {
         queryBuilder.andWhere('category.parent_id = :parentId', { parentId });
       }
     }
-    
+
     // Apply ordering
     const orderByMap = {
-      name: 'category.name',
+      name: 'COALESCE(translations.name, category.name)',
       createdAt: 'category.createdAt',
       updatedAt: 'category.updatedAt',
-      sortOrder: 'category.sort_order',
+      sortOrder: 'category.sortOrder',
+      level: 'category.level',
     };
     queryBuilder.orderBy(orderByMap[sortBy], sortOrder);
     
@@ -729,7 +732,7 @@ export class CategoryRepository {
     const [categories, total] = await queryBuilder.getManyAndCount();
     
     return {
-      categories: categories.map(category => ({
+      items: categories.map(category => ({
         id: category.id || '',
         name: category.name || '',
         description: category.description || null,
@@ -767,7 +770,7 @@ export class CategoryRepository {
       queryBuilder.andWhere('category.is_active = :isActive', { isActive: true });
     }
 
-    queryBuilder.orderBy('category.sort_order', 'ASC')
+    queryBuilder.orderBy('category.sortOrder', 'ASC')
                  .addOrderBy('category.name', 'ASC');
 
     const categories = await queryBuilder.getMany();

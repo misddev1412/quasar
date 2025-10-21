@@ -36,6 +36,8 @@ import {
   MAIL_TEMPLATE_TYPE_OPTIONS
 } from '../../types/mail-template';
 import { ConfirmationModal } from '../../components/common/ConfirmationModal';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
+import { FiHome } from 'react-icons/fi';
 
 interface MailTemplateIndexPageProps {}
 
@@ -481,6 +483,20 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
       actions={pageActions}
       fullWidth={true}
     >
+      {/* Breadcrumb Navigation */}
+      <Breadcrumb
+        items={[
+          {
+            label: t('navigation.home', 'Home'),
+            href: '/',
+            icon: <FiHome className="w-4 h-4" />
+          },
+          {
+            label: t('mail_templates.title', 'Mail Templates'),
+            icon: <FiMail className="w-4 h-4" />
+          }
+        ]}
+      />
       {/* Statistics */}
       {!statisticsLoading && statisticsCards.length > 0 && (
         <div className="mb-6">

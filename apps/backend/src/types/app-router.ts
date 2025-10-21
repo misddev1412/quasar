@@ -568,7 +568,24 @@ export const appRouter = router({
         return {} as ApiResponse;
       }),
 
+    children: procedure
+      .input(z.object({
+        parentId: z.string().uuid().optional(),
+        menuGroup: z.string().min(1),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
     groups: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    statistics: procedure
+      .input(z.object({ menuGroup: z.string().optional() }))
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;
@@ -599,6 +616,16 @@ export const appRouter = router({
       .input(reorderMenuSchema)
       .output(apiResponseSchema)
       .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    getNextPosition: procedure
+      .input(z.object({
+        menuGroup: z.string().min(1),
+        parentId: z.string().uuid().optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
         return {} as ApiResponse;
       }),
   }),

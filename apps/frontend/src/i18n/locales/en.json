@@ -182,9 +182,45 @@
         "notifications": "Notifications",
         "settings": "Settings",
         "logout": "Log Out"
-      },
-      "search": {
-        "placeholder": "Search products..."
+    },
+    "menu": {
+      "open": "Open menu",
+      "close": "Close menu",
+      "megaMenu": {
+        "featuredProducts": "Featured Products",
+        "viewAll": "View All"
+      }
+    },
+    "search": {
+        "title": "Advanced product search",
+        "subtitle": "Search the catalogue and surface the right items instantly.",
+        "placeholder": "Search products...",
+        "open": "Open search",
+        "close": "Close search",
+        "submit": "Search",
+        "show_advanced": "Show advanced search",
+        "hide_advanced": "Hide advanced search",
+        "filters": {
+          "heading": "Advanced filters",
+          "description": "Refine your search by narrowing down category and price range.",
+          "category": {
+            "label": "Category",
+            "placeholder": "Select category"
+          },
+          "min_price": {
+            "label": "Min price",
+            "placeholder": "0"
+          },
+          "max_price": {
+            "label": "Max price",
+            "placeholder": "1000"
+          },
+          "loading": "Loading categories...",
+          "empty": "No categories available",
+          "no_results": "No matching categories",
+          "apply": "Apply filters",
+          "reset": "Reset"
+        }
       },
       "menu": {
         "close": "Close menu",
@@ -937,6 +973,9 @@
       "title": "Shopping Cart",
       "items_count": "{count} items",
       "items_count_single": "{count} item",
+      "toast": {
+        "added": "Added to cart: {{count}}"
+      },
       "shipping": {
         "title": "Shipping Options",
         "standard": "Standard Shipping",

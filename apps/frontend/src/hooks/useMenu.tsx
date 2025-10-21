@@ -2,14 +2,15 @@
 
 import { trpc } from '../utils/trpc';
 import { useLocale } from 'next-intl';
+import { MenuTarget, MenuType } from '@shared/enums/menu.enums';
 
 export interface MenuItem {
   id: string;
   menuGroup: string;
-  type: 'link' | 'category' | 'product' | 'page' | 'custom';
+  type: MenuType;
   url?: string | null;
   referenceId?: string | null;
-  target: '_self' | '_blank';
+  target: MenuTarget;
   position: number;
   isEnabled: boolean;
   icon?: string | null;
@@ -42,7 +43,7 @@ export interface MenuResponse {
   limit: number;
 }
 
-export const useMenu = (menuGroup: string = 'main-navigation') => {
+export const useMenu = (menuGroup: string = 'main') => {
   const locale = useLocale();
 
   const menuData = trpc.clientMenus.getByGroup.useQuery(
@@ -90,17 +91,36 @@ export const useMenu = (menuGroup: string = 'main-navigation') => {
 
   // Helper function to build href from menu item
   const buildHref = (item: MenuItem): string => {
-    if (item.url) return item.url;
-
     switch (item.type) {
-      case 'category':
-        return `/categories/${item.referenceId}`;
-      case 'product':
-        return `/products/${item.referenceId}`;
-      case 'page':
-        return `/pages/${item.referenceId}`;
-      default:
+      case MenuType.LINK:
+        return item.url ?? '#';
+      case MenuType.CATEGORY:
+        if (item.referenceId) {
+          return `/categories/${item.referenceId}`;
+        }
+        return item.url ?? '#';
+      case MenuType.PRODUCT:
+        if (item.referenceId) {
+          return `/products/${item.referenceId}`;
+        }
+        return item.url ?? '#';
+      case MenuType.BRAND:
+        if (item.referenceId) {
+          return `/brands/${item.referenceId}`;
+        }
+        return item.url ?? '#';
+      case MenuType.NEW_PRODUCTS:
+        return '/products?filter=new';
+      case MenuType.SALE_PRODUCTS:
+        return '/products?filter=sale';
+      case MenuType.FEATURED_PRODUCTS:
+        return '/products?filter=featured';
+      case MenuType.BANNER:
+        return item.url ?? '#';
+      case MenuType.CUSTOM_HTML:
         return '#';
+      default:
+        return item.url ?? '#';
     }
   };
 
@@ -124,7 +144,29 @@ export const useMenu = (menuGroup: string = 'main-navigation') => {
             name: getLabel(child),
             href: buildHref(child),
             target: child.target,
+            icon: child.icon,
             description: getDescription(child),
+            image: (child.config?.image as string) || null,
+            badge: (child.config?.badge as string) || null,
+            featured: (child.config?.featured as boolean) || false,
+            children: child.children
+              .filter(grandChild => grandChild.isEnabled)
+              .map(grandChild => ({
+                id: grandChild.id,
+                name: getLabel(grandChild),
+                href: buildHref(grandChild),
+                target: grandChild.target,
+                icon: grandChild.icon,
+                description: getDescription(grandChild),
+                image: (grandChild.config?.image as string) || null,
+                badge: (grandChild.config?.badge as string) || null,
+                featured: (grandChild.config?.featured as boolean) || false,
+              }))
+              .sort((a, b) => {
+                const grandChildA = child.children.find(gc => gc.id === a.id);
+                const grandChildB = child.children.find(gc => gc.id === b.id);
+                return (grandChildA?.position || 0) - (grandChildB?.position || 0);
+              }),
           }))
           .sort((a, b) => {
             // Sort by position if available in the original data

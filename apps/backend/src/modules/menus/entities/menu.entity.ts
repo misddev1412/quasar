@@ -98,6 +98,13 @@ export class MenuEntity extends SoftDeletableEntity {
   })
   megaMenuColumns?: number | null;
 
+  @Column({
+    name: 'parent_id',
+    type: 'uuid',
+    nullable: true,
+  })
+  parentId?: string | null;
+
   @TreeParent()
   @JoinColumn({ name: 'parent_id' })
   parent?: MenuEntity | null;

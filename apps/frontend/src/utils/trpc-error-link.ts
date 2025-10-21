@@ -7,6 +7,7 @@ export type ToastEvent = {
   type: 'success' | 'error' | 'warning' | 'info';
   title: string;
   description?: string;
+  message?: string;
 };
 
 class EventEmitter {
