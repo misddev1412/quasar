@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import clsx from 'clsx';
-import ReactSelect, { GroupBase, Props as ReactSelectProps, StylesConfig } from 'react-select';
+import { GroupBase, Props as ReactSelectProps, StylesConfig } from 'react-select';
 import './CountrySelector.css';
+import ModalReactSelect from './ModalReactSelect';
 
 type SearchSelectSize = 'sm' | 'md' | 'lg';
 
@@ -175,10 +176,12 @@ export function SearchSelect<
   ...selectProps
 }: SearchSelectProps<Option, IsMulti, Group>) {
   const height = SIZE_HEIGHT_MAP[size];
-  const resolvedMenuPortalTarget = menuPortalTarget ?? (typeof window !== 'undefined' ? window.document.body : undefined);
 
   const styles = useMemo(
-    () => createStyles<Option, IsMulti, Group>(height, customStyles as StylesConfig<Option, IsMulti, Group> | undefined),
+    () => createStyles<Option, IsMulti, Group>(
+      height,
+      customStyles as StylesConfig<Option, IsMulti, Group> | undefined,
+    ),
     [height, customStyles],
   );
 
@@ -191,12 +194,13 @@ export function SearchSelect<
         </label>
       )}
 
-      <ReactSelect<Option, IsMulti, Group>
+      <ModalReactSelect<Option, IsMulti, Group>
         {...selectProps}
         styles={styles}
-        menuPortalTarget={resolvedMenuPortalTarget}
+        menuPortalTarget={menuPortalTarget}
         menuPlacement={menuPlacement}
-        className={clsx('react-select-container', selectClassName, error && 'react-select-error')}
+        menuShouldBlockScroll={false}
+        className={clsx(selectClassName, error && 'react-select-error')}
         classNamePrefix={classNamePrefix}
       />
 

@@ -3,6 +3,7 @@ import type { MutableRefObject } from 'react';
 import { FiPackage } from 'react-icons/fi';
 import { trpc } from '../../utils/trpc';
 import SelectComponent, { components as selectComponents, MenuListProps } from 'react-select';
+import { useSelectMenuPortalTarget } from '../../hooks/useSelectMenuPortalTarget';
 
 interface BrandOption {
   value: string;
@@ -44,7 +45,9 @@ export const BrandSelector: React.FC<BrandSelectorProps> = ({ value, onChange })
   const [initialLoad, setInitialLoad] = useState(true);
   const [hasMore, setHasMore] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuPortalTarget = typeof window !== 'undefined' ? window.document.body : undefined;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const menuPortalTarget = useSelectMenuPortalTarget({ containerRef });
+  const isPortaledToBody = typeof window !== 'undefined' && menuPortalTarget === window.document.body;
 
   const brandsQuery = trpc.adminProductBrands.getAll.useQuery(
     {
@@ -209,13 +212,18 @@ export const BrandSelector: React.FC<BrandSelectorProps> = ({ value, onChange })
       }),
       menu: (provided: any) => ({
         ...provided,
+        position: isPortaledToBody ? 'fixed' : 'absolute',
         borderRadius: '6px',
         boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         border: '1px solid #e5e7eb',
         zIndex: 50,
       }),
+      menuPortal: (provided: any) => ({
+        ...provided,
+        zIndex: 9999,
+      }),
     }),
-    [],
+    [isPortaledToBody],
   );
 
   const loadMore = useCallback(() => {
@@ -351,12 +359,13 @@ export const BrandSelector: React.FC<BrandSelectorProps> = ({ value, onChange })
   };
 
   return (
-    <SelectComponent<BrandOption, false>
-      placeholder="Search brands by name..."
-      value={selectedOption}
-      onChange={(option) => {
-        setSelectedOption(option);
-        onChange(option?.value);
+    <div ref={containerRef}>
+      <SelectComponent<BrandOption, false>
+        placeholder="Search brands by name..."
+        value={selectedOption}
+        onChange={(option) => {
+          setSelectedOption(option);
+          onChange(option?.value);
         setSearchTerm(''); // Clear search term when option is selected
       }}
       options={allOptions}
@@ -385,9 +394,11 @@ export const BrandSelector: React.FC<BrandSelectorProps> = ({ value, onChange })
       menuPortalTarget={menuPortalTarget}
       menuPlacement="auto"
       menuShouldScrollIntoView={false}
-      className="react-select-container"
-      classNamePrefix="react-select"
-      components={{ MenuList }}
-    />
+      menuShouldBlockScroll={false}
+      className={`react-select-container${isPortaledToBody ? ' react-select-container--body-portal' : ''}`}
+        classNamePrefix="react-select"
+        components={{ MenuList }}
+      />
+    </div>
   );
 };

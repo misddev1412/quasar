@@ -130,6 +130,8 @@ const convertToMegaMenuSections = (item: NavigationItem): MegaMenuSection[] => {
       name: grandChild.name,
       href: grandChild.href,
       description: grandChild.description,
+      icon: grandChild.icon,
+      target: grandChild.target,
       image: grandChild.image,
       badge: grandChild.badge,
       featured: grandChild.featured,

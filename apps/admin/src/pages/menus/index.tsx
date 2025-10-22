@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiPlus, FiMenu, FiRefreshCw, FiHome } from 'react-icons/fi';
+import { FiPlus, FiMenu, FiRefreshCw, FiHome, FiFilter } from 'react-icons/fi';
 import { Select, SelectOption } from '../../components/common/Select';
 import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
 import BaseLayout from '../../components/layout/BaseLayout';
@@ -172,9 +172,30 @@ const MenusPage: React.FC = () => {
     },
   ], [statistics]);
 
+  // Override actions with icons for consistency
+  const actionsWithIcons = useMemo(() => [
+    {
+      label: 'Create Menu',
+      onClick: handleAddMenu,
+      primary: true,
+      icon: <FiPlus />,
+    },
+    {
+      label: 'Refresh',
+      onClick: handleRefresh,
+      icon: <FiRefreshCw />,
+    },
+    {
+      label: showFilters ? 'Hide Filters' : 'Show Filters',
+      onClick: () => setShowFilters(!showFilters),
+      icon: <FiFilter />,
+      active: showFilters,
+    },
+  ], [handleAddMenu, handleRefresh, showFilters, setShowFilters]);
+
   if (treeQuery.isLoading) {
     return (
-      <BaseLayout title="Menu Management" description="Manage all navigation menus" actions={actions} fullWidth={true}>
+      <BaseLayout title="Menu Management" description="Manage all navigation menus" actions={actionsWithIcons} fullWidth={true}>
         <div className={cn(menuStyles.itemsCenter, menuStyles.justifyCenter, menuStyles.minH64)}>
           <Loading />
         </div>
@@ -184,7 +205,7 @@ const MenusPage: React.FC = () => {
 
   if (treeQuery.error) {
     return (
-      <BaseLayout title="Menu Management" description="Manage all navigation menus" actions={actions} fullWidth={true}>
+      <BaseLayout title="Menu Management" description="Manage all navigation menus" actions={actionsWithIcons} fullWidth={true}>
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{treeQuery.error.message}</AlertDescription>
@@ -194,7 +215,7 @@ const MenusPage: React.FC = () => {
   }
 
   return (
-    <BaseLayout title="Menu Management" description="Manage all navigation menus" actions={actions} fullWidth={true}>
+    <BaseLayout title="Menu Management" description="Manage all navigation menus" actions={actionsWithIcons} fullWidth={true}>
       <div className={menuStyles.spaceY6}>
         {/* Breadcrumb Navigation */}
         <Breadcrumb

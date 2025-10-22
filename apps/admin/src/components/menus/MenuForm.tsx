@@ -6,7 +6,7 @@ import { Input } from '../../components/common/Input';
 import { ProductSelector } from './ProductSelector';
 import { CategorySelector } from './CategorySelector';
 import { BrandSelector } from './BrandSelector';
-import { ParentMenuSelector } from './ParentMenuSelector';
+import ParentMenuSelector from './ParentMenuSelector';
 import { IconSelector } from './IconSelector';
 import { ColorSelector } from './ColorSelector';
 import { AdminMenu, MenuTreeNode } from '../../hooks/useMenusManager';
