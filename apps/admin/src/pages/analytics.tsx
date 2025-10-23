@@ -4,7 +4,8 @@ import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 import { useToast } from '../context/ToastContext';
 import { Toggle } from '../components/common/Toggle';
 import { Button } from '../components/common/Button';
-import { FiSettings, FiGlobe, FiBarChart2, FiInfo, FiCheck, FiX } from 'react-icons/fi';
+import { Breadcrumb } from '../components/common/Breadcrumb';
+import { FiSettings, FiGlobe, FiBarChart2, FiInfo, FiCheck, FiX, FiHome } from 'react-icons/fi';
 import BaseLayout from '../components/layout/BaseLayout';
 
 interface AnalyticsConfig {
@@ -173,6 +174,20 @@ const AnalyticsConfiguration: React.FC = () => {
       description={t('analytics.description', 'Configure Google Analytics and Mixpanel for tracking user behavior and analytics')}
     >
       <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: t('navigation.home', 'Home'),
+              href: '/',
+              icon: <FiHome className="w-4 h-4" />
+            },
+            {
+              label: t('analytics.title', 'Analytics'),
+              icon: <FiBarChart2 className="w-4 h-4" />
+            }
+          ]}
+        />
         {/* Header */}
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center mb-4">

@@ -20,12 +20,14 @@ import {
   FiRadio,
   FiUsers,
   FiUser,
+  FiHome,
 } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
 import { Table, Column } from '../../components/common/Table';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
@@ -338,6 +340,21 @@ const NotificationsPage: React.FC = () => {
   return (
     <BaseLayout title="Notifications">
       <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: 'Home',
+              href: '/',
+              icon: <FiHome className="w-4 h-4" />
+            },
+            {
+              label: 'Notifications',
+              icon: <FiBell className="w-4 h-4" />
+            }
+          ]}
+        />
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>

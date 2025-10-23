@@ -1,8 +1,9 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FiGlobe } from 'react-icons/fi';
+import { FiGlobe, FiHome } from 'react-icons/fi';
 import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
 import { EditLanguageForm } from '../../components/languages/EditLanguageForm';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -150,12 +151,34 @@ const EditLanguagePage: React.FC = () => {
       isSubmitting={updateLanguageMutation.isPending}
       maxWidth="full"
     >
-      <EditLanguageForm
-        language={language}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        isSubmitting={updateLanguageMutation.isPending}
-      />
+      <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: 'Home',
+              href: '/',
+              icon: <FiHome className="w-4 h-4" />
+            },
+            {
+              label: 'Languages',
+              href: '/languages',
+              icon: <FiGlobe className="w-4 h-4" />
+            },
+            {
+              label: 'Edit Language',
+              icon: <FiGlobe className="w-4 h-4" />
+            }
+          ]}
+        />
+
+        <EditLanguageForm
+          language={language}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          isSubmitting={updateLanguageMutation.isPending}
+        />
+      </div>
     </CreatePageTemplate>
   );
 };

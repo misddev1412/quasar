@@ -106,7 +106,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
     <nav
       aria-label="Breadcrumb"
       className={cn(
-        'relative w-full overflow-hidden rounded-2xl border border-neutral-200/70 bg-white/90 p-2 text-sm text-neutral-500 shadow-sm backdrop-blur-sm transition-colors dark:border-neutral-700/60 dark:bg-neutral-900/70 dark:text-neutral-400',
+        'relative w-full overflow-hidden rounded-2xl border border-neutral-200/70 bg-white/90 p-2 text-sm text-neutral-500 shadow-sm backdrop-blur-sm transition-colors dark:border-neutral-700/60 dark:bg-neutral-900/70 dark:text-neutral-400 mb-6',
         className
       )}
     >

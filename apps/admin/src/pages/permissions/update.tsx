@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Lock, ArrowLeft, Shield, Settings, Trash2 } from 'lucide-react';
+import { Lock, ArrowLeft, Shield, Settings, Trash2, Home } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../../components/common/Card';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -346,8 +347,29 @@ const PermissionUpdatePage: React.FC = () => {
       description={t('permissions.edit_permission_description', 'Update permission information and settings')}
       actions={pageActions}
     >
-      <div className="max-w-4xl mx-auto">
-        <Card>
+      <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: 'Home',
+              href: '/',
+              icon: <Home className="w-4 h-4" />
+            },
+            {
+              label: 'Permissions',
+              href: '/permissions',
+              icon: <Shield className="w-4 h-4" />
+            },
+            {
+              label: 'Edit Permission',
+              icon: <Lock className="w-4 h-4" />
+            }
+          ]}
+        />
+
+        <div className="max-w-4xl mx-auto">
+          <Card>
           <CardHeader>
             <div className="flex items-center space-x-3">
               <div className="flex-shrink-0">
@@ -369,6 +391,7 @@ const PermissionUpdatePage: React.FC = () => {
             {renderContent()}
           </CardContent>
         </Card>
+        </div>
       </div>
     </BaseLayout>
   );

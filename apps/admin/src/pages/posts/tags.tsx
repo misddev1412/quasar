@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiPlus, FiMoreVertical, FiEdit2, FiTrash2, FiTag, FiRefreshCw, FiEye, FiXCircle } from 'react-icons/fi';
+import { FiPlus, FiMoreVertical, FiEdit2, FiTrash2, FiTag, FiRefreshCw, FiEye, FiXCircle, FiHome, FiFileText } from 'react-icons/fi';
 import { StatisticsGrid, type StatisticData } from '../../components/common/StatisticsGrid';
 import { Button } from '../../components/common/Button';
 import { Dropdown } from '../../components/common/Dropdown';
@@ -16,6 +16,7 @@ import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -605,6 +606,26 @@ const PostTagsPage: React.FC = () => {
       fullWidth={true}
     >
       <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: 'Home',
+              href: '/',
+              icon: <FiHome className="w-4 h-4" />
+            },
+            {
+              label: 'Posts',
+              href: '/posts',
+              icon: <FiFileText className="w-4 h-4" />
+            },
+            {
+              label: t('tags.title', 'Post Tags'),
+              icon: <FiTag className="w-4 h-4" />
+            }
+          ]}
+        />
+
         <StatisticsGrid statistics={statisticsCards} isLoading={isLoading && !rawTags.length} />
 
         <Table<PostTag>

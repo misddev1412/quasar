@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiPlus, FiEdit3, FiTrash2, FiSettings, FiGlobe, FiStar, FiCheck, FiX, FiMoreVertical, FiEye } from 'react-icons/fi';
+import { FiPlus, FiEdit3, FiTrash2, FiSettings, FiGlobe, FiStar, FiCheck, FiX, FiMoreVertical, FiEye, FiHome } from 'react-icons/fi';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { StatisticsGrid } from '../../components/common/StatisticsGrid';
 import { Table, Column } from '../../components/common/Table';
 import { Button } from '../../components/common/Button';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { Dropdown } from '../../components/common/Dropdown';
 import { ConfirmationModal } from '../../components/common/ConfirmationModal';
 import { LanguageFilters } from '../../components/features/LanguageFilters';
@@ -378,6 +379,21 @@ const LanguagesIndexPage: React.FC = () => {
   return (
     <BaseLayout title="Language Management" description="Manage system languages and translations" actions={actions} fullWidth={true}>
       <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: 'Home',
+              href: '/',
+              icon: <FiHome className="w-4 h-4" />
+            },
+            {
+              label: 'Languages',
+              icon: <FiGlobe className="w-4 h-4" />
+            }
+          ]}
+        />
+
         {/* Statistics Cards */}
         <StatisticsGrid
           statistics={statisticsCards}

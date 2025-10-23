@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Shield, Trash2 } from 'lucide-react';
+import { Shield, Trash2, Home } from 'lucide-react';
 import { UpdatePageTemplate } from '../../components/common/CreatePageTemplate';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -170,7 +171,28 @@ const RoleUpdatePage: React.FC = () => {
       entityData={(roleResponse as any)?.data}
       customActions={customActions}
     >
-      <UpdateRoleForm
+      <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: 'Home',
+              href: '/',
+              icon: <Home className="w-4 h-4" />
+            },
+            {
+              label: 'Roles',
+              href: '/roles',
+              icon: <Shield className="w-4 h-4" />
+            },
+            {
+              label: 'Edit Role',
+              icon: <Shield className="w-4 h-4" />
+            }
+          ]}
+        />
+
+        <UpdateRoleForm
         initialValues={initialValues}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
@@ -179,6 +201,7 @@ const RoleUpdatePage: React.FC = () => {
         activeTab={activeTab}
         onTabChange={handleTabChange}
       />
+      </div>
     </UpdatePageTemplate>
   );
 };

@@ -1,8 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, ArrowLeft, Settings as SettingsIcon, FileText, Users, Send } from 'lucide-react';
-import { Card, CardHeader, CardContent } from '../../components/common/Card';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { Mail, Home, Settings, Send, FileText, Users } from 'lucide-react';
+import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -264,12 +263,12 @@ const CreateMailTemplatePage: React.FC = () => {
     {
       id: 'settings',
       label: t('form.tabs.preferences'),
-      icon: <SettingsIcon className="w-4 h-4" />,
+      icon: <Settings className="w-4 h-4" />,
       sections: [
         {
           title: t('mail_templates.template_settings', 'Template Settings'),
           description: t('mail_templates.settings_description', 'Configure template status and availability.'),
-          icon: <SettingsIcon className="w-4 h-4" />,
+          icon: <Settings className="w-4 h-4" />,
           fields: [
             {
               name: 'emailChannelId',
@@ -298,53 +297,45 @@ const CreateMailTemplatePage: React.FC = () => {
     },
   ];
 
-  const actions = [
-    {
-      label: t('mail_templates.back_to_templates', 'Back to Templates'),
-      onClick: handleCancel,
-      icon: <ArrowLeft className="w-4 h-4" />,
-    },
-  ];
-
   return (
-    <BaseLayout
+    <CreatePageTemplate
       title={t('mail_templates.create_template', 'Create Mail Template')}
       description={t('mail_templates.create_template_description', 'Create a new email template for your application')}
-      actions={actions}
+      icon={<Mail className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      entityName={t('mail_templates.template', 'Template')}
+      entityNamePlural={t('mail_templates.templates', 'Mail Templates')}
+      backUrl="/mail-templates"
+      onBack={handleCancel}
+      isSubmitting={createTemplateMutation.isPending}
+      maxWidth="full"
+      breadcrumbs={[
+        {
+          label: 'Home',
+          href: '/',
+        },
+        {
+          label: t('navigation.mail_templates', 'Mail Templates'),
+          onClick: handleCancel,
+        },
+        {
+          label: t('mail_templates.create_template', 'Create Mail Template'),
+        }
+      ]}
     >
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="flex-shrink-0 w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
-              <Mail className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                {t('mail_templates.new_template_information', 'New Template Information')}
-              </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {t('mail_templates.create_template_description', 'Create a new email template for your application')}
-              </p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <EntityForm<CreateMailTemplateFormData>
-            tabs={tabs}
-            initialValues={initialValues}
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            isSubmitting={createTemplateMutation.isPending}
-            validationSchema={createMailTemplateSchema as any}
-            submitButtonText={t('common.create')}
-            cancelButtonText={t('common.cancel')}
-            showCancelButton={true}
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-          />
-        </CardContent>
-      </Card>
-    </BaseLayout>
+      <EntityForm<CreateMailTemplateFormData>
+        tabs={tabs}
+        initialValues={initialValues}
+        onSubmit={handleSubmit}
+        onCancel={handleCancel}
+        isSubmitting={createTemplateMutation.isPending}
+        validationSchema={createMailTemplateSchema as any}
+        submitButtonText={t('common.create')}
+        cancelButtonText={t('common.cancel')}
+        showCancelButton={true}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+      />
+    </CreatePageTemplate>
   );
 };
 

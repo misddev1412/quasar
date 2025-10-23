@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { FiHome, FiUser } from 'react-icons/fi';
 import ProfileForm from '../components/user/ProfileForm';
 import { AdminUpdatePasswordDto, AdminUpdateUserProfileDto, AdminUserResponseDto } from '../../../backend/src/modules/user/dto/admin/admin-user.dto';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
@@ -6,6 +7,7 @@ import { useUrlTabs } from '../hooks/useUrlTabs';
 import { trpc } from '../utils/trpc';
 import { useToast } from '../context/ToastContext';
 import BaseLayout from '../components/layout/BaseLayout';
+import { Breadcrumb } from '../components/common/Breadcrumb';
 import Tabs from '../components/common/Tabs';
 import UpdatePasswordForm from '../components/user/UpdatePasswordForm';
 import PreferenceSettings from '../components/user/PreferenceSettings';
@@ -70,6 +72,27 @@ const UserProfilePage = () => {
     await updatePasswordMutation.mutateAsync(data);
   }
 
+  const handleAvatarSelect = (file: any) => {
+    // Update the initialData with the selected avatar URL
+    // This will trigger a re-render of the ProfileForm with the new avatar
+    if (file && file.url) {
+      trpcContext.adminUser.getProfile.setData(undefined, (oldData: any) => {
+        if (!oldData || !oldData.data || !oldData.data.profile) return oldData;
+
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            profile: {
+              ...oldData.data.profile,
+              avatar: file.url
+            }
+          }
+        };
+      });
+    }
+  };
+
   // Memoize initialData to prevent unnecessary re-renders
   const initialData = useMemo(() => {
     if (!profileData) return {};
@@ -109,6 +132,7 @@ const UserProfilePage = () => {
           isSubmitting={updateProfileMutation.isPending}
           error={updateProfileMutation.error?.message}
           isLoading={isLoading}
+          onAvatarSelect={handleAvatarSelect}
         />
       ),
     },
@@ -137,7 +161,8 @@ const UserProfilePage = () => {
     handlePasswordSubmit,
     updatePasswordMutation.isPending,
     updatePasswordMutation.error?.message,
-    isLoading
+    isLoading,
+    handleAvatarSelect
   ]);
 
   const renderContent = () => {
@@ -161,11 +186,28 @@ const UserProfilePage = () => {
   }
 
   return (
-    <BaseLayout 
+    <BaseLayout
       title={t('profile.user_profile')}
       description={t('profile.manage_your_profile_information')}
     >
-      {renderContent()}
+      <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: 'Home',
+              href: '/',
+              icon: <FiHome className="w-4 h-4" />
+            },
+            {
+              label: t('profile.user_profile'),
+              icon: <FiUser className="w-4 h-4" />
+            }
+          ]}
+        />
+
+        {renderContent()}
+      </div>
     </BaseLayout>
   );
 };

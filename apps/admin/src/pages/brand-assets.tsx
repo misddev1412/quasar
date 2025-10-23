@@ -1,6 +1,8 @@
 import React from 'react';
+import { FiImage, FiHome } from 'react-icons/fi';
 import { SiteAssetsManager } from '../components/site-assets/SiteAssetsManager';
 import { withSeo } from '../components/SEO/withSeo';
+import { Breadcrumb } from '../components/common/Breadcrumb';
 import BaseLayout from '../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 
@@ -19,7 +21,24 @@ const BrandAssetsPage: React.FC = () => {
         }
       ]}
     >
-      <SiteAssetsManager />
+      <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: 'Home',
+              href: '/',
+              icon: <FiHome className="w-4 h-4" />
+            },
+            {
+              label: 'Brand Assets',
+              icon: <FiImage className="w-4 h-4" />
+            }
+          ]}
+        />
+
+        <SiteAssetsManager />
+      </div>
     </BaseLayout>
   );
 };

@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { User as UserIcon, ArrowLeft, Lock, Mail, Phone, Settings as SettingsIcon } from 'lucide-react';
+import { User as UserIcon, ArrowLeft, Lock, Mail, Phone, Settings as SettingsIcon, Home } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../../components/common/Card';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -362,7 +363,28 @@ const UserUpdatePage: React.FC = () => {
       description={t('admin.user_information_description')}
       actions={actions}
     >
-      <Card>
+      <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: 'Home',
+              href: '/',
+              icon: <Home className="w-4 h-4" />
+            },
+            {
+              label: 'Users',
+              href: '/users',
+              icon: <UserIcon className="w-4 h-4" />
+            },
+            {
+              label: 'Update User',
+              icon: <UserIcon className="w-4 h-4" />
+            }
+          ]}
+        />
+
+        <Card>
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
             <div className="flex-shrink-0 w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
@@ -379,7 +401,8 @@ const UserUpdatePage: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent className="pt-0">{renderContent()}</CardContent>
-      </Card>
+        </Card>
+      </div>
     </BaseLayout>
   );
 };

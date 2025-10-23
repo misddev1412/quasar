@@ -4,12 +4,9 @@ import { FileText, FolderOpen } from 'lucide-react';
 import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
 import { CreatePostForm } from '../../components/posts/CreatePostForm';
 import { MediaManager } from '../../components/common/MediaManager';
-import BaseLayout from '../../components/layout/BaseLayout';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
-import { FiHome, FiFileText, FiPlus } from 'react-icons/fi';
 
 // Transform the form data to match API expectations
 interface CreatePostAPIData {
@@ -132,29 +129,7 @@ const CreatePostPage: React.FC = () => {
   };
 
   return (
-    <BaseLayout
-      fullWidth={true}
-      title={t('posts.create', 'Create Post')}
-    >
-      {/* Breadcrumb Navigation */}
-      <Breadcrumb
-        items={[
-          {
-            label: t('navigation.home', 'Home'),
-            href: '/',
-            icon: <FiHome className="w-4 h-4" />
-          },
-          {
-            label: t('posts.title', 'Posts'),
-            href: '/posts',
-            icon: <FiFileText className="w-4 h-4" />
-          },
-          {
-            label: t('posts.create', 'Create Post'),
-            icon: <FiPlus className="w-4 h-4" />
-          }
-        ]}
-      />
+    <>
       <CreatePageTemplate
         title={t('posts.create', 'Create Post')}
         description={t('posts.createDescription', 'Create a new post with content and metadata')}
@@ -165,9 +140,22 @@ const CreatePostPage: React.FC = () => {
         onBack={handleCancel}
         isSubmitting={createPostMutation.isPending}
         maxWidth="full"
+        breadcrumbs={[
+          {
+            label: t('navigation.home', 'Home'),
+            href: '/',
+          },
+          {
+            label: t('posts.title', 'Posts'),
+            onClick: handleCancel,
+          },
+          {
+            label: t('posts.create', 'Create Post'),
+          }
+        ]}
         customActions={[
           {
-            label: 'Media Manager',
+            label: t('posts.media_manager', 'Media Manager'),
             onClick: () => setShowMediaManager(true),
             icon: <FolderOpen className="w-4 h-4" />,
             variant: 'primary' as const,
@@ -188,9 +176,9 @@ const CreatePostPage: React.FC = () => {
         multiple={true}
         accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
         maxSize={50}
-        title="Select Media for Post"
+        title={t('posts.select_media_title', 'Select Media for Post')}
       />
-    </BaseLayout>
+  </>
   );
 };
 

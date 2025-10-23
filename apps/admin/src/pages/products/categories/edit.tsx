@@ -1,12 +1,13 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiArrowLeft, FiTrash2 } from 'react-icons/fi';
+import { FiArrowLeft, FiTrash2, FiHome, FiPackage, FiEdit3, FiFolder } from 'react-icons/fi';
 import BaseLayout from '../../../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { useToast } from '../../../context/ToastContext';
 import { trpc } from '../../../utils/trpc';
 import { Loading } from '../../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../../components/common/Alert';
+import { Breadcrumb } from '../../../components/common/Breadcrumb';
 import { EditCategoryForm, EditCategoryFormData } from '../../../components/products/EditCategoryForm';
 
 const EditCategoryPage: React.FC = () => {
@@ -135,12 +136,39 @@ const EditCategoryPage: React.FC = () => {
       description={`${t('categories.editing', 'Editing')}: ${category.name}`}
       actions={actions}
     >
-      <EditCategoryForm
-        category={category}
-        onSubmit={onSubmit}
-        onCancel={() => navigate('/products/categories')}
-        isSubmitting={updateMutation.isPending}
-      />
+      <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: 'Home',
+              href: '/',
+              icon: <FiHome className="w-4 h-4" />
+            },
+            {
+              label: 'Products',
+              href: '/products',
+              icon: <FiPackage className="w-4 h-4" />
+            },
+            {
+              label: t('common.categories', 'Categories'),
+              href: '/products/categories',
+              icon: <FiFolder className="w-4 h-4" />
+            },
+            {
+              label: t('categories.editCategory', 'Edit Category'),
+              icon: <FiEdit3 className="w-4 h-4" />
+            }
+          ]}
+        />
+
+        <EditCategoryForm
+          category={category}
+          onSubmit={onSubmit}
+          onCancel={() => navigate('/products/categories')}
+          isSubmitting={updateMutation.isPending}
+        />
+      </div>
     </BaseLayout>
   );
 };

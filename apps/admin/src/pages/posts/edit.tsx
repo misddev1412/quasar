@@ -1,8 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FileText, ArrowLeft, FolderOpen } from 'lucide-react';
+import { FiHome, FiEdit3 } from 'react-icons/fi';
 import { Card, CardHeader, CardContent } from '../../components/common/Card';
 import BaseLayout from '../../components/layout/BaseLayout';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { EditPostForm } from '../../components/posts/EditPostForm';
 import { MediaManager } from '../../components/common/MediaManager';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -228,7 +230,28 @@ const EditPostPage: React.FC = () => {
         description={t('posts.editDescription') || 'Update post content and metadata'}
         actions={pageActions}
       >
-        <Card>
+        <div className="space-y-6">
+          {/* Breadcrumb Navigation */}
+          <Breadcrumb
+            items={[
+              {
+                label: 'Home',
+                href: '/',
+                icon: <FiHome className="w-4 h-4" />
+              },
+              {
+                label: 'Posts',
+                href: '/posts',
+                icon: <FileText className="w-4 h-4" />
+              },
+              {
+                label: t('posts.edit', 'Edit Post'),
+                icon: <FiEdit3 className="w-4 h-4" />
+              }
+            ]}
+          />
+
+          <Card>
           <CardHeader className="pb-4">
             <div className="flex items-center gap-3">
               <div className="flex-shrink-0 w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
@@ -246,6 +269,7 @@ const EditPostPage: React.FC = () => {
           </CardHeader>
           <CardContent className="pt-0">{renderContent()}</CardContent>
         </Card>
+        </div>
       </BaseLayout>
 
       <MediaManager

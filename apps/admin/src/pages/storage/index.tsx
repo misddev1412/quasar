@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
-import { Server, HardDrive, Settings, Database, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Server, HardDrive, Settings, Database, CheckCircle, XCircle, AlertCircle, Home } from 'lucide-react';
 import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
 import { EntityForm } from '../../components/common/EntityForm';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { FormTabConfig } from '../../types/forms';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
@@ -380,6 +381,25 @@ const StorageConfigPage: React.FC = () => {
       maxWidth="full"
     >
       <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: 'Home',
+              href: '/',
+              icon: <Home className="w-4 h-4" />
+            },
+            {
+              label: 'Settings',
+              href: '/settings',
+              icon: <Settings className="w-4 h-4" />
+            },
+            {
+              label: 'Storage Configuration',
+              icon: <HardDrive className="w-4 h-4" />
+            }
+          ]}
+        />
         {/* Connection Test Results */}
         {testResult && (
           <div className={`p-4 rounded-lg border ${

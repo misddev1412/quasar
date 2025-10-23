@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiSave, FiX, FiUpload, FiEye, FiEyeOff } from 'react-icons/fi';
-import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
+import { FiUpload, FiEye, FiEyeOff } from 'react-icons/fi';
+import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
 import { FormInput } from '../../components/common/FormInput';
 import { TextareaInput } from '../../components/common/TextareaInput';
 import { Toggle } from '../../components/common/Toggle';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { Button } from '../../components/common/Button';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -233,239 +232,184 @@ const CreateFirebaseConfigPage: React.FC = () => {
     input.click();
   };
 
-  const pageActions = [
-    {
-      label: 'Create Configuration',
-      onClick: () => {
-        if (validateForm()) {
-          createConfigMutation.mutate(formData);
-        }
-      },
-      primary: true,
-      icon: <FiSave className="w-4 h-4" />,
-      disabled: createConfigMutation.isPending,
-    },
-    {
-      label: 'Cancel',
-      onClick: handleCancel,
-      icon: <FiX className="w-4 h-4" />,
-    },
-  ];
-
   return (
-    <BaseLayout
-      title="Create Firebase Configuration"
-      description="Add a new Firebase project configuration"
-      actions={pageActions}
-      fullWidth={false}
+    <CreatePageTemplate
+      title={t('firebase_configs.create_config', 'Create Firebase Configuration')}
+      description={t('firebase_configs.create_config_description', 'Add a new Firebase project configuration')}
+      icon={<FiUpload className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      entityName={t('firebase_configs.config', 'Configuration')}
+      entityNamePlural={t('firebase_configs.configs', 'Firebase Configurations')}
+      backUrl="/firebase-configs"
+      onBack={handleCancel}
+      isSubmitting={createConfigMutation.isPending}
+      maxWidth="4xl"
+      customActions={[
+        {
+          label: t('firebase_configs.import_from_json', 'Import from JSON'),
+          onClick: handleImportFromFile,
+          icon: <FiUpload className="w-4 h-4" />,
+          variant: 'outline',
+        },
+      ]}
     >
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic Information */}
-        <Card>
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Basic Information
-              </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <FormInput
+              id="name"
+              type="text"
+              label={t('firebase_configs.config_name', 'Configuration Name *')}
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              placeholder={t('firebase_configs.config_name_placeholder', 'e.g., Production, Development')}
+              error={errors.name}
+            />
+          </div>
+
+          <div>
+            <FormInput
+              id="projectId"
+              type="text"
+              label={t('firebase_configs.project_id', 'Project ID *')}
+              value={formData.projectId}
+              onChange={(e) => handleInputChange('projectId', e.target.value)}
+              placeholder="your-project-id"
+              error={errors.projectId}
+            />
+          </div>
+
+          <div>
+            <FormInput
+              id="authDomain"
+              type="text"
+              label={t('firebase_configs.auth_domain', 'Auth Domain *')}
+              value={formData.authDomain}
+              onChange={(e) => handleInputChange('authDomain', e.target.value)}
+              placeholder="your-project.firebaseapp.com"
+              error={errors.authDomain}
+            />
+          </div>
+
+          <div>
+            <FormInput
+              id="appId"
+              type="text"
+              label={t('firebase_configs.app_id', 'App ID *')}
+              value={formData.appId}
+              onChange={(e) => handleInputChange('appId', e.target.value)}
+              placeholder="1:123456789:web:abcdef"
+              error={errors.appId}
+            />
+          </div>
+
+          <div>
+            <FormInput
+              id="storageBucket"
+              type="text"
+              label={t('firebase_configs.storage_bucket', 'Storage Bucket')}
+              value={formData.storageBucket || ''}
+              onChange={(e) => handleInputChange('storageBucket', e.target.value)}
+              placeholder="your-project.appspot.com"
+            />
+          </div>
+
+          <div>
+            <FormInput
+              id="messagingSenderId"
+              type="text"
+              label={t('firebase_configs.messaging_sender_id', 'Messaging Sender ID')}
+              value={formData.messagingSenderId || ''}
+              onChange={(e) => handleInputChange('messagingSenderId', e.target.value)}
+              placeholder="123456789"
+            />
+          </div>
+
+          <div>
+            <FormInput
+              id="measurementId"
+              type="text"
+              label={t('firebase_configs.measurement_id', 'Measurement ID')}
+              value={formData.measurementId || ''}
+              onChange={(e) => handleInputChange('measurementId', e.target.value)}
+              placeholder="G-XXXXXXX"
+            />
+          </div>
+
+          <div className="flex items-center space-x-3">
+            <Toggle
+              checked={formData.active}
+              onChange={(checked) => handleInputChange('active', checked)}
+            />
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t('firebase_configs.active_config', 'Active Configuration')}
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <TextareaInput
+            id="description"
+            label={t('firebase_configs.description', 'Description')}
+            value={formData.description || ''}
+            onChange={(e) => handleInputChange('description', e.target.value)}
+            placeholder={t('firebase_configs.description_placeholder', 'Description of this Firebase configuration...')}
+            rows={3}
+          />
+        </div>
+
+        <div className="space-y-6">
+          <div>
+            <div className="relative">
+              <FormInput
+                id="apiKey"
+                type={showApiKey ? 'text' : 'password'}
+                label={t('firebase_configs.web_api_key', 'Web API Key *')}
+                value={formData.apiKey}
+                onChange={(e) => handleInputChange('apiKey', e.target.value)}
+                placeholder="AIzaSyC..."
+                error={errors.apiKey}
+              />
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                onClick={handleImportFromFile}
-                startIcon={<FiUpload className="w-4 h-4" />}
-              >
-                Import from JSON
-              </Button>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <FormInput
-                  id="name"
-                  type="text"
-                  label="Configuration Name *"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="e.g., Production, Development"
-                  error={errors.name}
-                />
-              </div>
-
-              <div>
-                <FormInput
-                  id="projectId"
-                  type="text"
-                  label="Project ID *"
-                  value={formData.projectId}
-                  onChange={(e) => handleInputChange('projectId', e.target.value)}
-                  placeholder="your-project-id"
-                  error={errors.projectId}
-                />
-              </div>
-
-              <div>
-                <FormInput
-                  id="authDomain"
-                  type="text"
-                  label="Auth Domain *"
-                  value={formData.authDomain}
-                  onChange={(e) => handleInputChange('authDomain', e.target.value)}
-                  placeholder="your-project.firebaseapp.com"
-                  error={errors.authDomain}
-                />
-              </div>
-
-              <div>
-                <FormInput
-                  id="appId"
-                  type="text"
-                  label="App ID *"
-                  value={formData.appId}
-                  onChange={(e) => handleInputChange('appId', e.target.value)}
-                  placeholder="1:123456789:web:abcdef"
-                  error={errors.appId}
-                />
-              </div>
-
-              <div>
-                <FormInput
-                  id="storageBucket"
-                  type="text"
-                  label="Storage Bucket"
-                  value={formData.storageBucket || ''}
-                  onChange={(e) => handleInputChange('storageBucket', e.target.value)}
-                  placeholder="your-project.appspot.com"
-                />
-              </div>
-
-              <div>
-                <FormInput
-                  id="messagingSenderId"
-                  type="text"
-                  label="Messaging Sender ID"
-                  value={formData.messagingSenderId || ''}
-                  onChange={(e) => handleInputChange('messagingSenderId', e.target.value)}
-                  placeholder="123456789"
-                />
-              </div>
-
-              <div>
-                <FormInput
-                  id="measurementId"
-                  type="text"
-                  label="Measurement ID"
-                  value={formData.measurementId || ''}
-                  onChange={(e) => handleInputChange('measurementId', e.target.value)}
-                  placeholder="G-XXXXXXX"
-                />
-              </div>
-
-              <div className="flex items-center space-x-3">
-                <Toggle
-                  checked={formData.active}
-                  onChange={(checked) => handleInputChange('active', checked)}
-                />
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Active Configuration
-                </label>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <TextareaInput
-                id="description"
-                label="Description"
-                value={formData.description || ''}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Description of this Firebase configuration..."
-                rows={3}
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="absolute right-2 top-8"
+                startIcon={showApiKey ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
               />
             </div>
+            <p className="text-xs text-gray-500 mt-1">
+              {t('firebase_configs.api_key_help', 'Found in Firebase Console → Project Settings → Web apps')}
+            </p>
           </div>
-        </Card>
 
-        {/* API Keys */}
-        <Card>
-          <div className="p-6">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">
-              API Keys
-            </h3>
-            
-            <div className="space-y-6">
-              <div>
-                <div className="relative">
-                  <FormInput
-                    id="apiKey"
-                    type={showApiKey ? 'text' : 'password'}
-                    label="Web API Key *"
-                    value={formData.apiKey}
-                    onChange={(e) => handleInputChange('apiKey', e.target.value)}
-                    placeholder="AIzaSyC..."
-                    error={errors.apiKey}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowApiKey(!showApiKey)}
-                    className="absolute right-2 top-8"
-                    startIcon={showApiKey ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Found in Firebase Console → Project Settings → Web apps
-                </p>
-              </div>
-
-              <div>
-                <div className="relative">
-                  <TextareaInput
-                    id="serviceAccountKey"
-                    label="Service Account Key (JSON)"
-                    value={formData.serviceAccountKey || ''}
-                    onChange={(e) => handleInputChange('serviceAccountKey', e.target.value)}
-                    placeholder='{"type": "service_account", "project_id": "...", ...}'
-                    rows={6}
-                    className={showServiceAccountKey ? '' : 'font-mono text-xs'}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => setShowServiceAccountKey(!showServiceAccountKey)}
-                    className="absolute right-2 top-8"
-                    startIcon={showServiceAccountKey ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Download from Firebase Console → Project Settings → Service Accounts → Generate new private key
-                </p>
-              </div>
+          <div>
+            <div className="relative">
+              <TextareaInput
+                id="serviceAccountKey"
+                label={t('firebase_configs.service_account_key', 'Service Account Key (JSON)')}
+                value={formData.serviceAccountKey || ''}
+                onChange={(e) => handleInputChange('serviceAccountKey', e.target.value)}
+                placeholder='{"type": "service_account", "project_id": "...", ...}'
+                rows={6}
+                className={showServiceAccountKey ? '' : 'font-mono text-xs'}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowServiceAccountKey(!showServiceAccountKey)}
+                className="absolute right-2 top-8"
+                startIcon={showServiceAccountKey ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
+              />
             </div>
+            <p className="text-xs text-gray-500 mt-1">
+              {t('firebase_configs.service_account_help', 'Download from Firebase Console → Project Settings → Service Accounts → Generate new private key')}
+            </p>
           </div>
-        </Card>
-
-        {/* Submit Buttons */}
-        <div className="flex justify-end space-x-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleCancel}
-            disabled={createConfigMutation.isPending}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={createConfigMutation.isPending}
-            startIcon={<FiSave className="w-4 h-4" />}
-          >
-            {createConfigMutation.isPending ? 'Creating...' : 'Create Configuration'}
-          </Button>
         </div>
       </form>
-    </BaseLayout>
+    </CreatePageTemplate>
   );
 };
 

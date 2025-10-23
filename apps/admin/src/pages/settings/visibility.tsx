@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { withSeo } from '../../components/SEO/withSeo';
 import BaseLayout from '../../components/layout/BaseLayout';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
+import { FiHome, FiSettings } from 'react-icons/fi';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useSettings, SettingData } from '../../hooks/useSettings';
 import { Toggle } from '../../components/common/Toggle';
@@ -161,7 +163,28 @@ const SettingsVisibilityPage: React.FC<SettingsVisibilityPageProps> = () => {
       title={t('settings.visibility_title', 'Settings Visibility')}
       description={t('settings.visibility_description', 'Manage which settings are visible to users')}
     >
-      {/* Statistics Cards */}
+      <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: 'Home',
+              href: '/',
+              icon: <FiHome className="w-4 h-4" />
+            },
+            {
+              label: t('navigation.settings', 'Settings'),
+              href: '/settings',
+              icon: <FiSettings className="w-4 h-4" />
+            },
+            {
+              label: t('settings.visibility_title', 'Settings Visibility'),
+              icon: <FiSettings className="w-4 h-4" />
+            }
+          ]}
+        />
+
+        {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex items-center">
@@ -472,6 +495,7 @@ const SettingsVisibilityPage: React.FC<SettingsVisibilityPageProps> = () => {
             </>
           )}
         </div>
+      </div>
       </div>
     </BaseLayout>
   );

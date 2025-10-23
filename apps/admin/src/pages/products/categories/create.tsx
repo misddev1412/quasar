@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FolderPlus } from 'lucide-react';
+import { FiHome, FiPackage, FiFolderPlus } from 'react-icons/fi';
 import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
 import { CreateCategoryForm } from '../../../components/products/CreateCategoryForm';
 import { useToast } from '../../../context/ToastContext';
@@ -105,6 +106,23 @@ const CategoryCreatePage: React.FC = () => {
       onBack={handleCancel}
       isSubmitting={createCategoryMutation.isPending}
       maxWidth="full"
+      breadcrumbs={[
+        {
+          label: 'Home',
+          href: '/'
+        },
+        {
+          label: 'Products',
+          href: '/products'
+        },
+        {
+          label: t('common.categories', 'Categories'),
+          href: '/products/categories'
+        },
+        {
+          label: t('admin.create_new_category', 'Create New Category')
+        }
+      ]}
     >
       <CreateCategoryForm
         onSubmit={handleSubmit}

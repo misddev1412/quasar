@@ -3,8 +3,27 @@ import { FormInput } from '../common/FormInput';
 import { Button } from '../common/Button';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { AdminUpdateUserProfileDto } from '../../../../backend/src/modules/user/dto/admin/admin-user.dto';
-import { User, Phone, Calendar, Image, Home, Building, MapPin, Hash, FileText } from 'lucide-react';
+import { User, Phone, Calendar, Image, Home, Building, MapPin, Hash, FileText, Upload } from 'lucide-react';
 import TextareaInput from '../common/TextareaInput';
+import { MediaManager } from '../common/MediaManager';
+
+interface MediaFile {
+  id: string;
+  filename: string;
+  originalName: string;
+  url: string;
+  mimeType: string;
+  type: 'image' | 'video' | 'audio' | 'document' | 'other';
+  size: number | string;
+  folder: string;
+  provider: string;
+  alt?: string;
+  caption?: string;
+  description?: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 interface ProfileFormUIProps {
   formData: AdminUpdateUserProfileDto;
@@ -12,6 +31,7 @@ interface ProfileFormUIProps {
   error?: string;
   onFieldChange: (fieldName: keyof AdminUpdateUserProfileDto, value: string) => void;
   onSubmit: (e: React.FormEvent) => Promise<void>;
+  onAvatarSelect?: (file: MediaFile) => void;
 }
 
 export const ProfileFormUI: React.FC<ProfileFormUIProps> = ({
@@ -20,11 +40,22 @@ export const ProfileFormUI: React.FC<ProfileFormUIProps> = ({
   error,
   onFieldChange,
   onSubmit,
+  onAvatarSelect,
 }) => {
   const { t } = useTranslationWithBackend();
+  const [isMediaManagerOpen, setIsMediaManagerOpen] = useState(false);
+
   const createChangeHandler = (fieldName: keyof AdminUpdateUserProfileDto) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     onFieldChange(fieldName, e.target.value);
   };
+
+  const handleAvatarSelect = (file: MediaFile) => {
+    if (onAvatarSelect) {
+      onAvatarSelect(file);
+    }
+    setIsMediaManagerOpen(false);
+  };
+
   const iconProps = {
     className: "w-5 h-5 text-gray-400",
   }
@@ -79,15 +110,57 @@ export const ProfileFormUI: React.FC<ProfileFormUIProps> = ({
           icon={<Calendar {...iconProps} />}
         />
         
-        <FormInput
-          id="avatar"
-          type="text"
-          label={t('profile.avatar_url')}
-          placeholder={t('profile.avatar_url_placeholder')}
-          value={formData.avatar || ''}
-          onChange={createChangeHandler('avatar')}
-          icon={<Image {...iconProps} />}
-        />
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            {t('profile.avatar_url')}
+          </label>
+          <div className="flex items-center space-x-4">
+            {/* Avatar Preview */}
+            <div className="flex-shrink-0">
+              {formData.avatar ? (
+                <img
+                  src={formData.avatar}
+                  alt="Avatar preview"
+                  className="h-16 w-16 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
+                />
+              ) : (
+                <div className="h-16 w-16 rounded-full bg-gray-200 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center">
+                  <User className="h-8 w-8 text-gray-400" />
+                </div>
+              )}
+            </div>
+
+            {/* Avatar Actions */}
+            <div className="flex-1 space-y-2">
+              <div className="flex space-x-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setIsMediaManagerOpen(true)}
+                  className="flex items-center space-x-2"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>Choose Avatar</span>
+                </Button>
+                {formData.avatar && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => onFieldChange('avatar', '')}
+                    className="text-red-600 hover:text-red-700 border-red-300 hover:border-red-400"
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+              {formData.avatar && (
+                <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">
+                  {formData.avatar}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
 
         <TextareaInput
           id="bio"
@@ -148,6 +221,17 @@ export const ProfileFormUI: React.FC<ProfileFormUIProps> = ({
           </Button>
         </div>
       </form>
+
+      {/* Media Manager Modal */}
+      <MediaManager
+        isOpen={isMediaManagerOpen}
+        onClose={() => setIsMediaManagerOpen(false)}
+        onSelect={handleAvatarSelect}
+        multiple={false}
+        accept="image/*"
+        maxSize={5}
+        title="Choose Avatar"
+      />
     </div>
   );
 };
@@ -158,6 +242,7 @@ interface ProfileFormProps {
   isSubmitting?: boolean;
   error?: string;
   isLoading?: boolean;
+  onAvatarSelect?: (file: MediaFile) => void;
 }
 
 export const ProfileForm: React.FC<ProfileFormProps> = ({
@@ -166,6 +251,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   isSubmitting = false,
   error,
   isLoading = false,
+  onAvatarSelect,
 }) => {
   const [formData, setFormData] = useState<AdminUpdateUserProfileDto>({});
 
@@ -211,6 +297,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
       error={error}
       onFieldChange={handleFieldChange}
       onSubmit={handleSubmit}
+      onAvatarSelect={onAvatarSelect}
     />
   );
 };

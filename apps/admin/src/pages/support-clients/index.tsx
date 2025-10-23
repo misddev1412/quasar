@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { FiMessageSquare, FiPlus, FiEdit2, FiTrash2, FiStar, FiCopy, FiEye, FiSettings, FiCalendar, FiTarget } from 'react-icons/fi';
+import { FiMessageSquare, FiPlus, FiEdit2, FiTrash2, FiStar, FiCopy, FiEye, FiSettings, FiCalendar, FiTarget, FiHome } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
 import { Table } from '../../components/common/Table';
 import { Badge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -242,6 +243,21 @@ export const SupportClientsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Breadcrumb Navigation */}
+      <Breadcrumb
+        items={[
+          {
+            label: 'Home',
+            href: '/',
+            icon: <FiHome className="w-4 h-4" />
+          },
+          {
+            label: t('support_clients.title', 'Support Clients'),
+            icon: <FiMessageSquare className="w-4 h-4" />
+          }
+        ]}
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">

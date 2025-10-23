@@ -1,11 +1,12 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiPlus, FiMoreVertical, FiServer, FiActivity, FiSettings, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiToggleLeft, FiToggleRight, FiCopy, FiGlobe } from 'react-icons/fi';
+import { FiPlus, FiMoreVertical, FiServer, FiActivity, FiSettings, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiToggleLeft, FiToggleRight, FiCopy, FiGlobe, FiHome } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { Dropdown } from '../../components/common/Dropdown';
 import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
 import { Table, Column, SortDescriptor } from '../../components/common/Table';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
@@ -494,10 +495,26 @@ const FirebaseConfigsPage: React.FC = () => {
       actions={pageActions}
       fullWidth={true}
     >
-      {/* Statistics */}
-      <div className="mb-6">
-        <StatisticsGrid statistics={statistics} />
-      </div>
+      <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: 'Home',
+              href: '/',
+              icon: <FiHome className="w-4 h-4" />
+            },
+            {
+              label: 'Firebase Configurations',
+              icon: <FiServer className="w-4 h-4" />
+            }
+          ]}
+        />
+
+        {/* Statistics */}
+        <div className="mb-6">
+          <StatisticsGrid statistics={statistics} />
+        </div>
 
       {/* Main Content */}
       <Card>
@@ -556,6 +573,7 @@ const FirebaseConfigsPage: React.FC = () => {
         icon={<FiTrash2 className="w-6 h-6" />}
         isLoading={deleteConfigMutation.isPending}
       />
+      </div>
     </BaseLayout>
   );
 };

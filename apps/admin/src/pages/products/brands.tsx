@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiPlus, FiMoreVertical, FiTag, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiExternalLink, FiShoppingBag, FiGlobe, FiTrendingUp } from 'react-icons/fi';
+import { FiPlus, FiMoreVertical, FiTag, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiExternalLink, FiShoppingBag, FiGlobe, FiTrendingUp, FiHome, FiPackage } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { Dropdown } from '../../components/common/Dropdown';
@@ -12,6 +12,7 @@ import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { Brand } from '../../types/product';
 import { CreateBrandModal } from '../../components/products/CreateBrandModal';
@@ -561,6 +562,26 @@ const BrandsPage: React.FC = () => {
   return (
     <BaseLayout title={t('brands.title', 'Brand Management')} description={t('brands.description', 'Manage all brands in the system')} actions={actions} fullWidth={true}>
       <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: 'Home',
+              href: '/',
+              icon: <FiHome className="w-4 h-4" />
+            },
+            {
+              label: 'Products',
+              href: '/products',
+              icon: <FiPackage className="w-4 h-4" />
+            },
+            {
+              label: t('brands.title', 'Brand Management'),
+              icon: <FiTag className="w-4 h-4" />
+            }
+          ]}
+        />
+
         {/* Statistics Cards */}
         <StatisticsGrid
           statistics={statisticsCards}

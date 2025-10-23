@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiPlus, FiMoreVertical, FiFolder, FiFolderPlus, FiEdit2, FiTrash2, FiRefreshCw, FiActivity, FiEye, FiTag, FiFilter } from 'react-icons/fi';
+import { FiPlus, FiMoreVertical, FiFolder, FiFolderPlus, FiEdit2, FiTrash2, FiRefreshCw, FiActivity, FiEye, FiTag, FiFilter, FiHome, FiPackage } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { Dropdown } from '../../components/common/Dropdown';
@@ -13,6 +13,7 @@ import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
+import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { Category } from '../../types/product';
 
 const CategoriesPage: React.FC = () => {
@@ -294,13 +295,33 @@ const CategoriesPage: React.FC = () => {
   }
 
   return (
-    <BaseLayout 
-      title={t('categories.title', 'Categories')} 
-      description={t('categories.description', 'Manage product categories')} 
-      actions={actions} 
+    <BaseLayout
+      title={t('categories.title', 'Categories')}
+      description={t('categories.description', 'Manage product categories')}
+      actions={actions}
       fullWidth={true}
     >
       <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb
+          items={[
+            {
+              label: 'Home',
+              href: '/',
+              icon: <FiHome className="w-4 h-4" />
+            },
+            {
+              label: 'Products',
+              href: '/products',
+              icon: <FiPackage className="w-4 h-4" />
+            },
+            {
+              label: t('categories.title', 'Categories'),
+              icon: <FiFolder className="w-4 h-4" />
+            }
+          ]}
+        />
+
         {/* Statistics Cards */}
         <StatisticsGrid
           statistics={statisticsCards}
