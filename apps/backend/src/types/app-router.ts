@@ -1764,6 +1764,13 @@ export const appRouter = router({
         return {} as ApiResponse;
       }),
 
+    importFromExcel: procedure
+      .input(z.any())
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
     update: procedure
       .input(z.object({
         id: z.string().uuid(),

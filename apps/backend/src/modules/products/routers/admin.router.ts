@@ -364,6 +364,52 @@ export class AdminProductsRouter {
     }
   }
 
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      fileName: z.string().optional(),
+      fileData: z.string().min(1, 'File data is required'),
+      overrideExisting: z.boolean().optional(),
+      dryRun: z.boolean().optional(),
+      defaultStatus: productStatusSchema.optional(),
+      defaultIsActive: z.boolean().optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  async importFromExcel(
+    @Input()
+    input: {
+      fileName?: string;
+      fileData: string;
+      overrideExisting?: boolean;
+      dryRun?: boolean;
+      defaultStatus?: ProductStatus;
+      defaultIsActive?: boolean;
+    },
+    @Ctx() ctx: AuthenticatedContext,
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const result = await this.productService.importProductsFromExcel({
+        fileName: input.fileName || 'products-import.xlsx',
+        fileData: input.fileData,
+        overrideExisting: input.overrideExisting,
+        dryRun: input.dryRun,
+        defaultStatus: input.defaultStatus,
+        defaultIsActive: input.defaultIsActive,
+        actorId: ctx?.user?.id || null,
+      });
+
+      return this.responseHandler.createTrpcSuccess(result);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15, // ModuleCode.PRODUCT
+        1,  // OperationCode.CREATE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+        error.message || 'Failed to import products from Excel'
+      );
+    }
+  }
+
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware) // Temporarily commented for debugging
   @Mutation({
     input: z.object({ id: z.string() }).merge(updateProductSchema),

@@ -4,8 +4,15 @@ import { trpc } from '../utils/trpc';
 import { SupportedLocale } from '@shared';
 import { getCurrentLocale } from '../i18n';
 
+type TranslationOptions = Record<string, unknown>;
+
+type CustomTFunction = {
+  (key: string, options?: TranslationOptions): string;
+  (key: string, fallback: string, options?: TranslationOptions): string;
+};
+
 interface UseTranslationWithBackendResult {
-  t: (key: string, options?: any) => string;
+  t: CustomTFunction;
   i18n: any;
   ready: boolean;
   changeLanguage: (locale: SupportedLocale) => Promise<void>;
@@ -78,9 +85,23 @@ export const useTranslationWithBackend = (): UseTranslationWithBackendResult => 
   };
 
   // Custom t function that provides better fallback handling
-  const customT = (key: string, fallback?: string, options?: any): string => {
+  const customT: CustomTFunction = (
+    key: string,
+    fallbackOrOptions?: string | TranslationOptions,
+    maybeOptions?: TranslationOptions
+  ): string => {
+    const hasStringFallback = typeof fallbackOrOptions === 'string';
+    const fallback = hasStringFallback ? (fallbackOrOptions as string) : undefined;
+    const options = hasStringFallback ? maybeOptions : fallbackOrOptions;
+
+    const normalizedOptions: Record<string, unknown> = options ? { ...options } : {};
+
+    if (fallback !== undefined) {
+      normalizedOptions.defaultValue = fallback;
+    }
+
     try {
-      const translation = t(key, { ...options, defaultValue: fallback });
+      const translation = t(key, normalizedOptions);
 
       // Ensure we return a string
       const result = typeof translation === 'string' ? translation : String(translation);

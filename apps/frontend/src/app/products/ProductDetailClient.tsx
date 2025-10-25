@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import ProductDetailPage from '../../../components/ecommerce/ProductDetailPage';
-import { useAddToCart } from '../../../hooks/useAddToCart';
-import type { Product, ProductVariant } from '../../../types/product';
-import type { Review } from '../../../components/ecommerce/ReviewList';
-import type { Comment } from '../../../components/ecommerce/CommentSection';
+import ProductDetailPage from '../../components/ecommerce/ProductDetailPage';
+import { useAddToCart } from '../../hooks/useAddToCart';
+import type { Product, ProductVariant } from '../../types/product';
+import type { Review } from '../../components/ecommerce/ReviewList';
+import type { Comment } from '../../components/ecommerce/CommentSection';
 
 interface ProductDetailClientProps {
   product: Product;

@@ -287,14 +287,15 @@ export const IconSelector: React.FC<IconSelectorProps> = ({ value, onChange }) =
             onChange={handleCustomIconChange}
             placeholder="Enter icon class name (e.g., fa-home, home)"
             leftIcon={value ? renderIconPreview(value, 20) : undefined}
-            className="w-full"
+            className="w-full h-11"
+            iconSpacing="compact"
           />
         </div>
         <Button
           type="button"
           variant="secondary"
           onClick={() => setIsOpen(!isOpen)}
-          className="px-3"
+          className="px-3 h-11"
         >
           {value ? 'Change' : 'Browse'}
         </Button>

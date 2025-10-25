@@ -28,6 +28,35 @@ export interface MenuFormState {
   megaMenuColumns?: number;
   parentId?: string;
   translations: Record<string, MenuTranslationForm>;
+  // Enhanced customization options
+  badge?: {
+    text: string;
+    color: string;
+    backgroundColor: string;
+  };
+  hoverEffect?: 'none' | 'scale' | 'slide' | 'fade';
+  customClass?: string;
+  imageSize?: 'small' | 'medium' | 'large';
+  showDescription?: boolean;
+  // Section customization (for mega menu sections)
+  columnSpan?: number;
+  borderColor?: string;
+  titleColor?: string;
+  showTitle?: boolean;
+  maxItems?: number;
+  layout?: 'vertical' | 'grid' | 'horizontal';
+  // Banner customization
+  bannerConfig?: {
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    backgroundColor?: string;
+    textColor?: string;
+    buttonText?: string;
+    buttonLink?: string;
+    backgroundImage?: string;
+    position?: 'top' | 'bottom';
+  };
 }
 
 export type ReorderMenuItemInput = { id: string; position: number; parentId?: string };

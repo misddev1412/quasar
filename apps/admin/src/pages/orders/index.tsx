@@ -358,7 +358,7 @@ const OrdersPage: React.FC = () => {
     },
     {
       id: 'actions',
-      header: t('actions'),
+      header: t('orders.actions'),
       accessor: (order) => (
         <div className="flex items-center gap-2">
           <Button
@@ -367,7 +367,7 @@ const OrdersPage: React.FC = () => {
             onClick={() => navigate(`/orders/${order.id}`)}
           >
             <FiEye className="mr-1 h-4 w-4" />
-            {t('view')}
+            {t('orders.view')}
           </Button>
           <Dropdown
             button={
@@ -377,12 +377,12 @@ const OrdersPage: React.FC = () => {
             }
             items={[
               {
-                label: t('edit'),
+                label: t('orders.edit'),
                 icon: React.createElement(FiEdit2),
                 onClick: () => navigate(`/orders/${order.id}/edit`),
               },
               {
-                label: t('mark_as_shipped'),
+                label: t('orders.mark_as_shipped'),
                 icon: React.createElement(FiTruck),
                 onClick: () => {
                   // Handle mark as shipped
@@ -390,7 +390,7 @@ const OrdersPage: React.FC = () => {
                 disabled: order.status !== 'PROCESSING',
               },
               {
-                label: t('mark_as_delivered'),
+                label: t('orders.mark_as_delivered'),
                 icon: React.createElement(FiCheck),
                 onClick: () => {
                   // Handle mark as delivered
@@ -398,7 +398,7 @@ const OrdersPage: React.FC = () => {
                 disabled: order.status !== 'SHIPPED',
               },
               {
-                label: t('cancel_order'),
+                label: t('orders.cancel_order'),
                 icon: React.createElement(FiX),
                 onClick: () => {
                   // Handle cancel order
@@ -420,20 +420,20 @@ const OrdersPage: React.FC = () => {
   // Actions for BaseLayout
   const actions = useMemo(() => [
     {
-      label: t('new_order'),
+      label: t('orders.new_order'),
       onClick: () => navigate('/orders/new'),
       primary: true,
       icon: <FiPlus />,
     },
     {
-      label: t('export'),
+      label: t('orders.export'),
       onClick: () => {
         // Handle export
       },
       icon: <FiDownload />,
     },
     {
-      label: t('refresh'),
+      label: t('orders.refresh'),
       onClick: handleRefresh,
       icon: <FiRefreshCw />,
     },
@@ -447,7 +447,7 @@ const OrdersPage: React.FC = () => {
 
   if (ordersLoading) {
     return (
-      <BaseLayout title={t('orders.title')} description={t('manage_and_track_customer_orders')} actions={actions} fullWidth={true}>
+      <BaseLayout title={t('orders.title')} description={t('orders.manage_and_track_customer_orders')} actions={actions} fullWidth={true}>
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
@@ -457,7 +457,7 @@ const OrdersPage: React.FC = () => {
 
   if (ordersError) {
     return (
-      <BaseLayout title={t('orders.title')} description={t('manage_and_track_customer_orders')} actions={actions} fullWidth={true}>
+      <BaseLayout title={t('orders.title')} description={t('orders.manage_and_track_customer_orders')} actions={actions} fullWidth={true}>
         <Alert variant="destructive">
           <AlertTitle>{t('error_loading_orders')}</AlertTitle>
           <AlertDescription>
@@ -469,7 +469,7 @@ const OrdersPage: React.FC = () => {
   }
 
   return (
-    <BaseLayout title={t('orders')} description={t('manage_and_track_customer_orders')} actions={actions} fullWidth={true}>
+    <BaseLayout title={t('orders.title')} description={t('orders.manage_and_track_customer_orders')} actions={actions} fullWidth={true}>
       <div className="space-y-6">
         {/* Breadcrumb Navigation */}
         <Breadcrumb
@@ -594,7 +594,7 @@ const OrdersPage: React.FC = () => {
           // Empty state
           emptyMessage={t('no_orders_found')}
           emptyAction={{
-            label: t('new_order'),
+            label: t('orders.new_order'),
             onClick: () => navigate('/orders/new'),
             icon: <FiPlus />,
           }}

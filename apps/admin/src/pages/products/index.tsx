@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiPlus, FiMoreVertical, FiPackage, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiShoppingBag, FiStar, FiHome } from 'react-icons/fi';
+import { FiPlus, FiMoreVertical, FiPackage, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiShoppingBag, FiStar, FiHome, FiUpload } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { Dropdown } from '../../components/common/Dropdown';
@@ -18,6 +18,7 @@ import { ProductFilters, ProductFiltersType } from '../../components/features/Pr
 import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { ProductVariantsQuickViewModal } from '../../components/products/ProductVariantsQuickViewModal';
 import { ProductVariantQuickEditModal } from '../../components/products/ProductVariantQuickEditModal';
+import { ProductImportModal } from '../../components/products/ProductImportModal';
 
 
 const ProductsPage: React.FC = () => {
@@ -62,6 +63,7 @@ const ProductsPage: React.FC = () => {
   const [variantForEdit, setVariantForEdit] = useState<ProductVariant | null>(null);
   const [isVariantEditModalOpen, setVariantEditModalOpen] = useState(false);
   const [togglingVariantId, setTogglingVariantId] = useState<string | null>(null);
+  const [isImportModalOpen, setImportModalOpen] = useState(false);
 
   const showVariantsQuickView = isVariantsModalOpen && !isVariantEditModalOpen;
 
@@ -171,6 +173,13 @@ const ProductsPage: React.FC = () => {
     setVariantEditModalOpen(false);
     setVariantForEdit(null);
   }, []);
+
+  const handleOpenImportModal = useCallback(() => setImportModalOpen(true), []);
+  const handleCloseImportModal = useCallback(() => setImportModalOpen(false), []);
+  const handleImportSuccess = useCallback(() => {
+    void trpcContext.adminProducts.list.invalidate();
+    refetch();
+  }, [trpcContext, refetch]);
 
   const handleVariantUpdate = useCallback(async (payload: {
     id: string;
@@ -316,7 +325,21 @@ const ProductsPage: React.FC = () => {
     navigate('/products/create');
   };
 
-  const goToProduct = (id: string) => navigate(`/products/${id}`);
+  const goToProduct = useCallback((product: Product) => {
+    const storefrontBase = process.env.NX_STOREFRONT_URL
+      || process.env.NEXT_PUBLIC_SITE_URL
+      || '';
+    const identifier = (product as any)?.slug || product.id;
+    const cleanBase = storefrontBase.replace(/\/$/, '');
+    const targetUrl = `${cleanBase || ''}/products/${identifier}`;
+
+    if (storefrontBase) {
+      window.open(targetUrl, '_blank', 'noopener');
+      return;
+    }
+
+    window.open(`/products/${identifier}`, '_blank', 'noopener');
+  }, []);
 
   const handleDeleteProduct = useCallback(async (productId: string) => {
     try {
@@ -621,7 +644,7 @@ const ProductsPage: React.FC = () => {
             {
               label: t('common.view', 'View'),
               icon: <FiEye className="w-4 h-4" aria-hidden="true" />,
-              onClick: () => goToProduct(product.id)
+              onClick: () => goToProduct(product)
             },
             {
               label: t('common.edit', 'Edit'),
@@ -640,7 +663,7 @@ const ProductsPage: React.FC = () => {
       hideable: false,
       width: '80px',
     },
-  ], [navigate, handleDeleteProduct, handleOpenVariantsModal, t]);
+  ], [navigate, handleDeleteProduct, handleOpenVariantsModal, goToProduct, t]);
 
   // Current sort descriptor for the table
   const sortDescriptor: SortDescriptor<Product> = useMemo(() => ({
@@ -669,6 +692,11 @@ const ProductsPage: React.FC = () => {
 
   const actions = useMemo(() => [
     {
+      label: t('products.import.action', 'Import from Excel'),
+      onClick: handleOpenImportModal,
+      icon: <FiUpload />,
+    },
+    {
       label: t('products.create', 'Create Product'),
       onClick: handleCreateProduct,
       primary: true,
@@ -685,7 +713,7 @@ const ProductsPage: React.FC = () => {
       icon: <FiFilter />,
       active: showFilters,
     },
-  ], [handleCreateProduct, handleRefresh, handleFilterToggle, showFilters, t]);
+  ], [handleCreateProduct, handleRefresh, handleFilterToggle, handleOpenImportModal, showFilters, t]);
 
   // Prepare statistics data
   const statisticsCards: StatisticData[] = useMemo(() => {
@@ -826,7 +854,7 @@ const ProductsPage: React.FC = () => {
           // Additional features
           enableRowHover={true}
           density="normal"
-          onRowClick={(product) => goToProduct(product.id)}
+          onRowClick={(product) => goToProduct(product)}
           // Empty state
           emptyMessage={t('products.no_products_found', 'No products found')}
           emptyAction={{
@@ -834,6 +862,12 @@ const ProductsPage: React.FC = () => {
             onClick: handleCreateProduct,
             icon: <FiPlus />,
           }}
+        />
+
+        <ProductImportModal
+          isOpen={isImportModalOpen}
+          onClose={handleCloseImportModal}
+          onImportSuccess={handleImportSuccess}
         />
 
         <ProductVariantsQuickViewModal

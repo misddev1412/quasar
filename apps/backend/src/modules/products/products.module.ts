@@ -77,6 +77,7 @@ import { AdminDeliveryMethodsRouter } from './routers/admin-delivery-methods.rou
 import { AdminWishlistRouter } from './routers/admin-wishlist.router';
 import { ClientOrdersRouter } from './routers/client-orders.router';
 import { ClientProductsRouter } from '../../trpc/routers/client/products.router';
+import { StorageModule } from '../storage/storage.module';
 
 @Module({
   imports: [
@@ -116,6 +117,7 @@ import { ClientProductsRouter } from '../../trpc/routers/client/products.router'
       User,
     ]),
     SharedModule,
+    StorageModule,
   ],
   providers: [
     AttributeRepository,
