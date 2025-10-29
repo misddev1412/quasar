@@ -4,7 +4,6 @@ import { FiUser, FiEdit2, FiMail, FiPhone, FiMapPin, FiCalendar, FiAward, FiCred
 import BaseLayout from '../../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { AddressBookModal } from '../../components/customers/AddressBookModal';
@@ -147,17 +146,18 @@ const CustomerDetailPage: React.FC = () => {
     );
   }
 
+  const breadcrumbs = [
+    { label: t('navigation.home'), href: '/', icon: <FiHome className="h-4 w-4" /> },
+    { label: t('admin.customers'), href: '/customers', icon: <FiUser className="h-4 w-4" /> },
+    { label: `${customer.firstName} ${customer.lastName}`, icon: <FiFileText className="h-4 w-4" /> },
+  ];
+
   return (
-    <BaseLayout title={t('admin.customer_detail')}>
+    <BaseLayout
+      title={t('admin.customer_detail')}
+      breadcrumbs={breadcrumbs}
+    >
       <div className="space-y-6">
-        {/* Breadcrumbs */}
-        <Breadcrumb
-          items={[
-            { label: t('navigation.home'), href: '/', icon: <FiHome className="w-4 h-4" /> },
-            { label: t('admin.customers'), href: '/customers' },
-            { label: `${customer.firstName} ${customer.lastName}` },
-          ]}
-        />
 
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -172,7 +172,7 @@ const CustomerDetailPage: React.FC = () => {
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
                 <span className="text-lg font-medium text-primary-600 dark:text-primary-400">
-                  {customer.firstName.charAt(0)}{customer.lastName.charAt(0)}
+                  {(customer.firstName || '').charAt(0)}{(customer.lastName || '').charAt(0)}
                 </span>
               </div>
               <div>

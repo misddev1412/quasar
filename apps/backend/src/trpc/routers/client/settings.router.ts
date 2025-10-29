@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Router, Query, Input } from 'nestjs-trpc';
+import { Router, Query, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { SettingService } from '@backend/modules/settings/services/setting.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { apiResponseSchema } from '../../schemas/response.schemas';
 import { getSettingByKeySchema } from '@backend/modules/settings/dto/setting.dto';
+import { AuthenticatedContext } from '../../context';
 
 @Router({ alias: 'settings' })
 @Injectable()
@@ -32,9 +33,12 @@ export class ClientSettingsRouter {
     input: getSettingByKeySchema,
     output: apiResponseSchema,
   })
-  async getPublicSetting(@Input() input: z.infer<typeof getSettingByKeySchema>): Promise<z.infer<typeof apiResponseSchema>> {
+  async getPublicSetting(
+    @Input() input: z.infer<typeof getSettingByKeySchema>,
+    @Ctx() ctx: AuthenticatedContext
+  ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const setting = await this.settingService.findByKey(input.key);
+      const setting = await this.settingService.findByKey(input.key, ctx.locale);
       
       // 只返回公开设置
       if (!setting.isPublic) {

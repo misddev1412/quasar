@@ -4,6 +4,7 @@ import { Card, CardHeader, CardContent } from './Card';
 import BaseLayout from '../layout/BaseLayout';
 import { Button } from './Button';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import type { BreadcrumbItem } from './Breadcrumb';
 
 interface CreatePageTemplateProps {
   title: string;
@@ -26,11 +27,7 @@ interface CreatePageTemplateProps {
     disabled?: boolean;
   }>;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | 'full';
-  breadcrumbs?: Array<{
-    label: string;
-    href?: string;
-    onClick?: () => void;
-  }>;
+  breadcrumbs?: BreadcrumbItem[];
   mode?: 'create' | 'update';
   isLoading?: boolean;
   error?: any;
@@ -102,7 +99,7 @@ export const CreatePageTemplate: React.FC<CreatePageTemplateProps> = ({
   };
 
   // Generate breadcrumbs automatically if none provided
-  const defaultBreadcrumbs = breadcrumbs.length > 0 ? breadcrumbs : [
+  const defaultBreadcrumbs: BreadcrumbItem[] = breadcrumbs.length > 0 ? breadcrumbs : [
     {
       label: t('common.dashboard', 'Dashboard'),
       href: '/',
@@ -143,6 +140,7 @@ export const CreatePageTemplate: React.FC<CreatePageTemplateProps> = ({
       title={title}
       description={description}
       actions={pageActions}
+      breadcrumbs={defaultBreadcrumbs}
     >
       <div className={maxWidth === 'full' ? 'w-full' : `mx-auto ${maxWidthClasses[maxWidth]}`}>
         <div className="space-y-6">

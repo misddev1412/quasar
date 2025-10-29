@@ -14,9 +14,12 @@ import { SettingEntity } from '../../modules/settings/entities/setting.entity';
 import { SectionEntity } from '../../modules/sections/entities/section.entity';
 import { SectionTranslationEntity } from '../../modules/sections/entities/section-translation.entity';
 import { Country } from '../../modules/products/entities/country.entity';
+import { Currency } from '../../modules/products/entities/currency.entity';
 import { AdministrativeDivision } from '../../modules/products/entities/administrative-division.entity';
+import { Warehouse } from '../../modules/products/entities/warehouse.entity';
 import { MenuEntity } from '../../modules/menus/entities/menu.entity';
 import { MenuTranslationEntity } from '../../modules/menus/entities/menu-translation.entity';
+import { SiteContentEntity } from '../../modules/site-content/entities/site-content.entity';
 import { PermissionRepository } from '../../modules/user/repositories/permission.repository';
 import { AdminPermissionService } from '../../modules/user/services/admin/admin-permission.service';
 import { PermissionCheckerService } from '../../modules/shared/services/permission-checker.service';
@@ -28,7 +31,10 @@ import { SectionsSeeder } from './sections.seeder';
 import { UserActivitySeeder } from './user-activity.seeder';
 import { CountriesSeeder } from './countries.seeder';
 import { AdministrativeDivisionsSeeder } from './administrative-divisions.seeder';
+import { WarehouseSeeder } from './warehouse.seeder';
 import { MenusSeeder } from './menus.seeder';
+import { CurrencySeeder } from './currency.seeder';
+import { SiteContentSeeder } from './site-content.seeder';
 
 @Module({
   imports: [
@@ -47,9 +53,12 @@ import { MenusSeeder } from './menus.seeder';
       SectionEntity,
       SectionTranslationEntity,
       Country,
+      Currency,
       AdministrativeDivision,
+      Warehouse,
       MenuEntity,
-      MenuTranslationEntity
+      MenuTranslationEntity,
+      SiteContentEntity
     ]),
   ],
   providers: [
@@ -63,9 +72,12 @@ import { MenusSeeder } from './menus.seeder';
     SectionsSeeder,
     UserActivitySeeder,
     CountriesSeeder,
+    CurrencySeeder,
     AdministrativeDivisionsSeeder,
-    MenusSeeder
+    WarehouseSeeder,
+    MenusSeeder,
+    SiteContentSeeder
   ],
-  exports: [PermissionSeeder, SeoSeeder, AdminSeeder, SettingsSeeder, SectionsSeeder, UserActivitySeeder, CountriesSeeder, AdministrativeDivisionsSeeder, MenusSeeder],
+  exports: [PermissionSeeder, SeoSeeder, AdminSeeder, SettingsSeeder, SectionsSeeder, UserActivitySeeder, CountriesSeeder, CurrencySeeder, AdministrativeDivisionsSeeder, WarehouseSeeder, MenusSeeder, SiteContentSeeder],
 })
 export class SeederModule {} 

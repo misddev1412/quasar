@@ -281,6 +281,9 @@ export class Customer extends BaseEntity {
   @OneToMany(() => Order, (order) => order.customer)
   orders: Order[];
 
+  @OneToMany(() => AddressBook, (addressBook) => addressBook.customer)
+  addressBooks: AddressBook[];
+
   
   @OneToMany(() => Wishlist, (wishlist) => wishlist.customer)
   wishlists: Wishlist[];

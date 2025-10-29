@@ -6,6 +6,7 @@ import Footer from './Footer';
 import ClientWrapper from '../ClientWrapper';
 import NavigationProgressBar from '../NavigationProgressBar';
 import { ChatWidget } from '../ChatWidget';
+import FloatingIcons from '../common/FloatingIcons';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -51,13 +52,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
         <Header />
 
-        <main className="flex-1 w-full container py-8">{children}</main>
+        <main className="flex-1 w-full">{children}</main>
 
         <Footer />
       </div>
 
       {/* Chat Widget */}
       <ChatWidget context={chatContext} />
+
+      {/* Floating Icons */}
+      <FloatingIcons />
     </ClientWrapper>
   );
 };

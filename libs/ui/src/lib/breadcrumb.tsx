@@ -119,10 +119,10 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
           const isDisabled = item.disabled || isEllipsis;
           const clickable = Boolean(!isDisabled && (item.href || item.onClick || onItemClick));
           const LinkComponent = linkComponent;
+          const hasInteractionHandlers = Boolean(!isDisabled && (item.onClick || onItemClick));
 
-          const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-            if (isDisabled) {
-              event.preventDefault();
+          const handleClick = (_event: React.MouseEvent<HTMLElement>) => {
+            if (!hasInteractionHandlers) {
               return;
             }
 
@@ -166,7 +166,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
                 <LinkComponent
                   href={item.href}
                   className={itemClasses}
-                  onClick={handleClick}
+                  onClick={hasInteractionHandlers ? handleClick : undefined}
                   aria-current={isCurrent ? 'page' : undefined}
                 >
                   {content}
@@ -175,7 +175,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
                 <a
                   href={item.href}
                   className={itemClasses}
-                  onClick={handleClick}
+                  onClick={hasInteractionHandlers ? handleClick : undefined}
                   aria-current={isCurrent ? 'page' : undefined}
                 >
                   {content}

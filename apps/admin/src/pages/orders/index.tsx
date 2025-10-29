@@ -13,7 +13,6 @@ import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { Badge } from '../../components/common/Badge';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 
 interface Order {
   id: string;
@@ -247,35 +246,35 @@ const OrdersPage: React.FC = () => {
     return [
       {
         id: 'totalOrders',
-        title: t('total_orders'),
+        title: t('orders.total_orders'),
         value: stats.totalOrders?.toString() || '0',
         icon: React.createElement(FiShoppingBag),
         trend: {
           value: stats.recentOrders || 0,
           isPositive: true,
-          label: t('last_30_days'),
+          label: t('orders.last_30_days'),
         },
       },
       {
         id: 'totalRevenue',
-        title: t('total_revenue'),
+        title: t('orders.total_revenue'),
         value: `$${stats.totalRevenue?.toLocaleString() || '0'}`,
         icon: React.createElement(FiDollarSign),
         trend: {
           value: stats.recentRevenue || 0,
           isPositive: true,
-          label: t('last_30_days'),
+          label: t('orders.last_30_days'),
         },
       },
       {
         id: 'averageOrderValue',
-        title: t('avg_order_value'),
+        title: t('orders.avg_order_value'),
         value: `$${stats.averageOrderValue?.toFixed(2) || '0.00'}`,
         icon: React.createElement(FiActivity),
       },
       {
         id: 'pendingOrders',
-        title: t('pending_orders'),
+        title: t('orders.pending_orders'),
         value: stats.statusStats?.PENDING?.toString() || '0',
         icon: React.createElement(FiClock),
       },
@@ -286,7 +285,7 @@ const OrdersPage: React.FC = () => {
   const columns: Column<Order>[] = useMemo(() => [
     {
       id: 'orderNumber',
-      header: t('order_number'),
+      header: t('orders.order_number'),
       accessor: (order) => (
         <div className="font-medium">
           <div className="text-sm font-semibold text-gray-900">{order.orderNumber}</div>
@@ -299,7 +298,7 @@ const OrdersPage: React.FC = () => {
     },
     {
       id: 'customer',
-      header: t('customer'),
+      header: t('orders.customer'),
       accessor: (order) => (
         <div>
           <div className="text-sm font-medium text-gray-900">{order.customerName}</div>
@@ -309,7 +308,7 @@ const OrdersPage: React.FC = () => {
     },
     {
       id: 'status',
-      header: t('status'),
+      header: t('orders.status'),
       accessor: (order) => (
         <Badge variant={getStatusBadgeVariant(order.status) as any}>
           {t(`orders.status_types.${order.status}`)}
@@ -319,7 +318,7 @@ const OrdersPage: React.FC = () => {
     },
     {
       id: 'paymentStatus',
-      header: t('payment'),
+      header: t('orders.payment'),
       accessor: (order) => (
         <Badge variant={getPaymentStatusBadgeVariant(order.paymentStatus) as any}>
           {t(`orders.payment_status_types.${order.paymentStatus}`)}
@@ -329,7 +328,7 @@ const OrdersPage: React.FC = () => {
     },
     {
       id: 'totalAmount',
-      header: t('total'),
+      header: t('orders.total'),
       accessor: (order) => (
         <div className="text-sm font-medium">
           {order.currency} {order.totalAmount.toFixed(2)}
@@ -339,7 +338,7 @@ const OrdersPage: React.FC = () => {
     },
     {
       id: 'source',
-      header: t('source'),
+      header: t('orders.source'),
       accessor: (order) => (
         <div className="text-sm text-gray-600">
           {t(`orders.source_types.${order.source}`)}
@@ -348,7 +347,7 @@ const OrdersPage: React.FC = () => {
     },
     {
       id: 'orderDate',
-      header: t('order_date'),
+      header: t('orders.order_date'),
       accessor: (order) => (
         <div className="text-sm text-gray-600">
           {new Date(order.orderDate).toLocaleDateString()}
@@ -438,16 +437,34 @@ const OrdersPage: React.FC = () => {
       icon: <FiRefreshCw />,
     },
     {
-      label: showFilters ? t('hide_filters') : t('show_filters'),
+      label: showFilters ? t('orders.hide_filters') : t('orders.show_filters'),
       onClick: () => setShowFilters(!showFilters),
       icon: <FiFilter />,
       active: showFilters,
     },
   ], [navigate, handleRefresh, showFilters, t]);
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: t('home'),
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />
+    },
+    {
+      label: t('orders.title'),
+      icon: <FiShoppingBag className="w-4 h-4" />
+    }
+  ]), [t]);
+
   if (ordersLoading) {
     return (
-      <BaseLayout title={t('orders.title')} description={t('orders.manage_and_track_customer_orders')} actions={actions} fullWidth={true}>
+      <BaseLayout
+        title={t('orders.title')}
+        description={t('orders.manage_and_track_customer_orders')}
+        actions={actions}
+        fullWidth={true}
+        breadcrumbs={breadcrumbs}
+      >
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
@@ -457,11 +474,17 @@ const OrdersPage: React.FC = () => {
 
   if (ordersError) {
     return (
-      <BaseLayout title={t('orders.title')} description={t('orders.manage_and_track_customer_orders')} actions={actions} fullWidth={true}>
+      <BaseLayout
+        title={t('orders.title')}
+        description={t('orders.manage_and_track_customer_orders')}
+        actions={actions}
+        fullWidth={true}
+        breadcrumbs={breadcrumbs}
+      >
         <Alert variant="destructive">
-          <AlertTitle>{t('error_loading_orders')}</AlertTitle>
+          <AlertTitle>{t('orders.error_loading_orders')}</AlertTitle>
           <AlertDescription>
-            {ordersError.message || t('something_went_wrong_loading_orders')}
+            {ordersError.message || t('orders.something_went_wrong_loading_orders')}
           </AlertDescription>
         </Alert>
       </BaseLayout>
@@ -469,23 +492,14 @@ const OrdersPage: React.FC = () => {
   }
 
   return (
-    <BaseLayout title={t('orders.title')} description={t('orders.manage_and_track_customer_orders')} actions={actions} fullWidth={true}>
+    <BaseLayout
+      title={t('orders.title')}
+      description={t('orders.manage_and_track_customer_orders')}
+      actions={actions}
+      fullWidth={true}
+      breadcrumbs={breadcrumbs}
+    >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: t('home'),
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: t('orders.title'),
-              icon: <FiShoppingBag className="w-4 h-4" />
-            }
-          ]}
-        />
-
         {/* Statistics Cards */}
         <StatisticsGrid
           statistics={statisticsData}
@@ -499,14 +513,14 @@ const OrdersPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('status')}
+                  {t('orders.status')}
                 </label>
                 <select
                   value={filters.status || ''}
                   onChange={(e) => handleFiltersChange({ ...filters, status: e.target.value || undefined })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">{t('all_statuses')}</option>
+                  <option value="">{t('orders.all_statuses')}</option>
                   <option value="PENDING">{t('orders.status_types.PENDING')}</option>
                   <option value="CONFIRMED">{t('orders.status_types.CONFIRMED')}</option>
                   <option value="PROCESSING">{t('orders.status_types.PROCESSING')}</option>
@@ -519,14 +533,14 @@ const OrdersPage: React.FC = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('payment_status')}
+                  {t('orders.payment_status')}
                 </label>
                 <select
                   value={filters.paymentStatus || ''}
                   onChange={(e) => handleFiltersChange({ ...filters, paymentStatus: e.target.value || undefined })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">{t('all_payment_statuses')}</option>
+                  <option value="">{t('orders.all_payment_statuses')}</option>
                   <option value="PENDING">{t('orders.payment_status_types.PENDING')}</option>
                   <option value="PAID">{t('orders.payment_status_types.PAID')}</option>
                   <option value="PARTIALLY_PAID">{t('orders.payment_status_types.PARTIALLY_PAID')}</option>
@@ -537,14 +551,14 @@ const OrdersPage: React.FC = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('source')}
+                  {t('orders.source')}
                 </label>
                 <select
                   value={filters.source || ''}
                   onChange={(e) => handleFiltersChange({ ...filters, source: e.target.value || undefined })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">{t('all_sources')}</option>
+                  <option value="">{t('orders.all_sources')}</option>
                   <option value="WEBSITE">{t('orders.source_types.WEBSITE')}</option>
                   <option value="MOBILE_APP">{t('orders.source_types.MOBILE_APP')}</option>
                   <option value="PHONE">{t('orders.source_types.PHONE')}</option>
@@ -567,7 +581,7 @@ const OrdersPage: React.FC = () => {
           onSearchChange={handleSearch}
           onFilterClick={() => setShowFilters(!showFilters)}
           isFilterActive={showFilters}
-          searchPlaceholder={t('search_placeholder')}
+          searchPlaceholder={t('orders.search_placeholder')}
           // Column visibility features
           visibleColumns={visibleColumns}
           onColumnVisibilityChange={handleVisibleColumnsChange}
@@ -592,7 +606,7 @@ const OrdersPage: React.FC = () => {
           density="normal"
           onRowClick={(order) => navigate(`/orders/${order.id}`)}
           // Empty state
-          emptyMessage={t('no_orders_found')}
+          emptyMessage={t('orders.no_orders_found')}
           emptyAction={{
             label: t('orders.new_order'),
             onClick: () => navigate('/orders/new'),

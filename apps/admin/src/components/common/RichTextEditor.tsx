@@ -34,13 +34,22 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const [isHtmlMode, setIsHtmlMode] = useState(false);
   const [content, setContent] = useState(value);
   const editorRef = useRef<any>(null);
+  const lastInternalValueRef = useRef(value);
 
   // Update content when value prop changes
   useEffect(() => {
+    if (value === lastInternalValueRef.current) {
+      return;
+    }
+
     setContent(value);
     if (!isHtmlMode && editorRef.current) {
-      editorRef.current.setContent(value);
+      const editorContent = editorRef.current.getContent?.();
+      if (editorContent !== value) {
+        editorRef.current.setContent(value);
+      }
     }
+    lastInternalValueRef.current = value;
   }, [value, isHtmlMode]);
 
   const toggleMode = () => {
@@ -62,12 +71,14 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   const handleEditorChange = (newContent: string) => {
     setContent(newContent);
+    lastInternalValueRef.current = newContent;
     onChange?.(newContent);
   };
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value;
     setContent(newContent);
+    lastInternalValueRef.current = newContent;
     onChange?.(newContent);
   };
 
@@ -184,6 +195,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         if (content) {
           editor.setContent(content);
         }
+        lastInternalValueRef.current = content;
         
         // Add custom styles for better dark mode support
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {

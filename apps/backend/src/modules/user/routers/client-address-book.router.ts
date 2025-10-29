@@ -63,7 +63,7 @@ const parentQuerySchema = z.object({
 
 const addressBookResponseSchema = z.object({
   id: z.string(),
-  userId: z.string(),
+  customerId: z.string(),
   countryId: z.string(),
   provinceId: z.string().nullable(),
   wardId: z.string().nullable(),
@@ -139,7 +139,7 @@ export class ClientAddressBookRouter {
       // Transform addresses to include virtual properties
       return addresses.map(address => ({
         id: address.id,
-        userId: address.userId,
+        customerId: address.customerId,
         countryId: address.countryId,
         provinceId: address.provinceId,
         wardId: address.wardId,
@@ -200,7 +200,7 @@ export class ClientAddressBookRouter {
 
       return {
         id: address.id,
-        userId: address.userId,
+        customerId: address.customerId,
         countryId: address.countryId,
         provinceId: address.provinceId,
         wardId: address.wardId,
@@ -255,7 +255,7 @@ export class ClientAddressBookRouter {
 
       return {
         id: address.id,
-        userId: address.userId,
+        customerId: address.customerId,
         countryId: address.countryId,
         provinceId: address.provinceId,
         wardId: address.wardId,
@@ -319,7 +319,7 @@ export class ClientAddressBookRouter {
 
       return {
         id: address.id,
-        userId: address.userId,
+        customerId: address.customerId,
         countryId: address.countryId,
         provinceId: address.provinceId,
         wardId: address.wardId,
@@ -430,7 +430,7 @@ export class ClientAddressBookRouter {
 
       return {
         id: address.id,
-        userId: address.userId,
+        customerId: address.customerId,
         countryId: address.countryId,
         provinceId: address.provinceId,
         wardId: address.wardId,
@@ -464,18 +464,13 @@ export class ClientAddressBookRouter {
     }
   }
 
-  @UseMiddlewares(AuthMiddleware)
   @Query({
     output: z.array(countryResponseSchema),
   })
   async getCountries(
-    @Ctx() { user }: AuthenticatedContext
+    @Ctx() _context: AuthenticatedContext
   ): Promise<z.infer<typeof countryResponseSchema>[]> {
     try {
-      if (!user?.id) {
-        throw new Error('User not authenticated');
-      }
-
       const countries = await this.addressBookService.getCountries();
       return countries;
     } catch (error) {

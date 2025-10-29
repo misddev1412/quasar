@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Mail, ArrowLeft, Settings as SettingsIcon, FileText, Users, Send, Home } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../../components/common/Card';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -331,6 +330,23 @@ const MailTemplateEditPage: React.FC = () => {
     },
   ];
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: t('common.dashboard', 'Home'),
+      href: '/',
+      icon: <Home className="w-4 h-4" />,
+    },
+    {
+      label: t('mail_templates.title', 'Mail Templates'),
+      href: '/mail-templates',
+      icon: <Mail className="w-4 h-4" />,
+    },
+    {
+      label: t('mail_templates.edit_template', 'Edit Mail Template'),
+      icon: <Mail className="w-4 h-4" />,
+    },
+  ]), [t]);
+
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -370,28 +386,9 @@ const MailTemplateEditPage: React.FC = () => {
       title={t('mail_templates.edit_template', 'Edit Mail Template')}
       description={t('mail_templates.template_information_description', 'Update mail template information and settings')}
       actions={actions}
+      breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: 'Home',
-              href: '/',
-              icon: <Home className="w-4 h-4" />
-            },
-            {
-              label: 'Mail Templates',
-              href: '/mail-templates',
-              icon: <Mail className="w-4 h-4" />
-            },
-            {
-              label: 'Edit Template',
-              icon: <Mail className="w-4 h-4" />
-            }
-          ]}
-        />
-
         <Card>
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">

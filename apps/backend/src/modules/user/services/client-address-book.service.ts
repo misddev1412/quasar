@@ -5,6 +5,7 @@ import { AddressBook, AddressType } from '../entities/address-book.entity';
 import { CountryRepository } from '../../products/repositories/country.repository';
 import { AdministrativeDivisionRepository } from '../../products/repositories/administrative-division.repository';
 import { AddressConfigType } from '../entities/address-book-config.entity';
+import { CustomerRepository } from '../../products/repositories/customer.repository';
 
 @Injectable()
 export class ClientAddressBookService {
@@ -17,17 +18,40 @@ export class ClientAddressBookService {
     private readonly countryRepository: CountryRepository,
     @Inject(AdministrativeDivisionRepository)
     private readonly administrativeDivisionRepository: AdministrativeDivisionRepository,
+    @Inject(CustomerRepository)
+    private readonly customerRepository: CustomerRepository,
   ) {}
 
+  private async getCustomerForUser(userId: string) {
+    return this.customerRepository.findByUserId(userId);
+  }
+
+  private async getCustomerForUserOrThrow(userId: string) {
+    const customer = await this.getCustomerForUser(userId);
+    if (!customer) {
+      throw new Error('Customer not found for user');
+    }
+    return customer;
+  }
+
   async getAddressBooksByUserId(userId: string): Promise<AddressBook[]> {
-    return this.addressBookRepository.findByUserId(userId);
+    const customer = await this.getCustomerForUser(userId);
+    if (!customer) {
+      return [];
+    }
+    return this.addressBookRepository.findByCustomerId(customer.id);
   }
 
   async getAddressBookById(id: string, userId: string): Promise<AddressBook | null> {
+    const customer = await this.getCustomerForUser(userId);
+    if (!customer) {
+      return null;
+    }
+
     const address = await this.addressBookRepository.findById(id);
 
-    // Ensure the address belongs to the requesting user
-    if (!address || address.userId !== userId) {
+    // Ensure the address belongs to the requesting customer
+    if (!address || address.customerId !== customer.id) {
       return null;
     }
 
@@ -35,6 +59,8 @@ export class ClientAddressBookService {
   }
 
   async createAddressBook(userId: string, data: Partial<AddressBook>): Promise<AddressBook> {
+    const customer = await this.getCustomerForUserOrThrow(userId);
+
     // Validate required fields
     if (!data.firstName || !data.lastName || !data.addressLine1 || !data.countryId) {
       throw new Error('First name, last name, address line 1, and country are required');
@@ -111,22 +137,22 @@ export class ClientAddressBookService {
     }
 
     // Check address book limit
-    const currentAddressCount = await this.addressBookRepository.countByUserId(userId);
+    const currentAddressCount = await this.addressBookRepository.countByCustomerId(customer.id);
     if (currentAddressCount >= maxAddressBookEntries) {
       throw new Error(`Maximum ${maxAddressBookEntries} address book entries allowed per user`);
     }
 
-    // Set user ID
+    // Set customer ID
     const addressData = {
       ...data,
-      userId,
+      customerId: customer.id,
       addressType: data.addressType || AddressType.BOTH,
     };
 
     // If this is set as default, ensure it's the only default for this user
-    if (data.isDefault && userId) {
+    if (data.isDefault) {
       await this.addressBookRepository.updateBy(
-        { userId },
+        { customerId: customer.id },
         { isDefault: false },
       );
     }
@@ -135,10 +161,11 @@ export class ClientAddressBookService {
   }
 
   async updateAddressBook(id: string, userId: string, data: Partial<AddressBook>): Promise<AddressBook | null> {
+    const customer = await this.getCustomerForUserOrThrow(userId);
     const existingAddress = await this.addressBookRepository.findById(id);
 
-    // Ensure the address belongs to the requesting user
-    if (!existingAddress || existingAddress.userId !== userId) {
+    // Ensure the address belongs to the requesting customer
+    if (!existingAddress || existingAddress.customerId !== customer.id) {
       throw new Error('Address not found or access denied');
     }
 
@@ -211,9 +238,9 @@ export class ClientAddressBookService {
     }
 
     // If updating to set as default, ensure it's the only default for this user
-    if (data.isDefault && existingAddress.userId) {
+    if (data.isDefault) {
       await this.addressBookRepository.updateBy(
-        { userId: existingAddress.userId },
+        { customerId: existingAddress.customerId },
         { isDefault: false },
       );
     }
@@ -222,10 +249,11 @@ export class ClientAddressBookService {
   }
 
   async deleteAddressBook(id: string, userId: string): Promise<boolean> {
+    const customer = await this.getCustomerForUserOrThrow(userId);
     const address = await this.addressBookRepository.findById(id);
 
-    // Ensure the address belongs to the requesting user
-    if (!address || address.userId !== userId) {
+    // Ensure the address belongs to the requesting customer
+    if (!address || address.customerId !== customer.id) {
       throw new Error('Address not found or access denied');
     }
 
@@ -233,18 +261,23 @@ export class ClientAddressBookService {
   }
 
   async setAsDefault(id: string, userId: string): Promise<void> {
+    const customer = await this.getCustomerForUserOrThrow(userId);
     const address = await this.addressBookRepository.findById(id);
 
-    // Ensure the address belongs to the requesting user
-    if (!address || address.userId !== userId) {
+    // Ensure the address belongs to the requesting customer
+    if (!address || address.customerId !== customer.id) {
       throw new Error('Address not found or access denied');
     }
 
-    await this.addressBookRepository.setAsDefault(id, userId);
+    await this.addressBookRepository.setAsDefault(id, customer.id);
   }
 
   async getDefaultAddressBook(userId: string): Promise<AddressBook | null> {
-    return this.addressBookRepository.findDefaultByUserId(userId);
+    const customer = await this.getCustomerForUser(userId);
+    if (!customer) {
+      return null;
+    }
+    return this.addressBookRepository.findDefaultByCustomerId(customer.id);
   }
 
   async getCountries(): Promise<any[]> {
@@ -336,7 +369,12 @@ export class ClientAddressBookService {
 
   async getUserAddressBookLimit(userId: string): Promise<number> {
     // Get the user's addresses to determine their country
-    const addresses = await this.addressBookRepository.findByUserId(userId);
+    const customer = await this.getCustomerForUser(userId);
+    if (!customer) {
+      return 10; // Default limit when no customer exists
+    }
+
+    const addresses = await this.addressBookRepository.findByCustomerId(customer.id);
     if (addresses.length === 0) {
       return 10; // Default limit
     }

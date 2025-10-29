@@ -16,7 +16,6 @@ import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -479,6 +478,23 @@ const PostTagsPage: React.FC = () => {
     [handleCreateTag, handleRefresh, t],
   );
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: 'Home',
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />,
+    },
+    {
+      label: 'Posts',
+      href: '/posts',
+      icon: <FiFileText className="w-4 h-4" />,
+    },
+    {
+      label: t('tags.title', 'Post Tags'),
+      icon: <FiTag className="w-4 h-4" />,
+    },
+  ]), [t]);
+
   // Table columns
   const columns: Column<PostTag>[] = useMemo(
     () => [
@@ -574,6 +590,7 @@ const PostTagsPage: React.FC = () => {
         description={t('tags.description', 'Manage post tags and categorization')}
         actions={actions}
         fullWidth={true}
+        breadcrumbs={breadcrumbs}
       >
         <div className="flex items-center justify-center h-64">
           <Loading />
@@ -589,6 +606,7 @@ const PostTagsPage: React.FC = () => {
         description={t('tags.description', 'Manage post tags and categorization')}
         actions={actions}
         fullWidth={true}
+        breadcrumbs={breadcrumbs}
       >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error')}</AlertTitle>
@@ -604,28 +622,9 @@ const PostTagsPage: React.FC = () => {
       description={t('tags.description', 'Manage post tags and categorization')}
       actions={actions}
       fullWidth={true}
+      breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: 'Home',
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: 'Posts',
-              href: '/posts',
-              icon: <FiFileText className="w-4 h-4" />
-            },
-            {
-              label: t('tags.title', 'Post Tags'),
-              icon: <FiTag className="w-4 h-4" />
-            }
-          ]}
-        />
-
         <StatisticsGrid statistics={statisticsCards} isLoading={isLoading && !rawTags.length} />
 
         <Table<PostTag>

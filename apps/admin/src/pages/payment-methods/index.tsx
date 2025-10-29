@@ -13,7 +13,6 @@ import { trpc } from '../../utils/trpc';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { CreatePaymentMethodModal } from '../../components/payment-methods/CreatePaymentMethodModal';
 import { EditPaymentMethodModal } from '../../components/payment-methods/EditPaymentMethodModal';
 
@@ -58,6 +57,18 @@ const PaymentMethodsPage: React.FC = () => {
       variant: 'primary' as const
     }
   ], [t]);
+
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: t('navigation.home', 'Home'),
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />,
+    },
+    {
+      label: t('admin.payment_methods'),
+      icon: <FiCreditCard className="w-4 h-4" />,
+    },
+  ]), [t]);
 
   // Table preferences with persistence
   const { preferences, updatePageSize, updateVisibleColumns } = useTablePreferences('payment-methods-table', {
@@ -396,7 +407,12 @@ const PaymentMethodsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <BaseLayout title={t('admin.payment_methods')} description={t('admin.payment_methods_description')} actions={actions}>
+      <BaseLayout
+        title={t('admin.payment_methods')}
+        description={t('admin.payment_methods_description')}
+        actions={actions}
+        breadcrumbs={breadcrumbs}
+      >
         <Loading />
       </BaseLayout>
     );
@@ -404,7 +420,12 @@ const PaymentMethodsPage: React.FC = () => {
 
   if (error) {
     return (
-      <BaseLayout title={t('admin.payment_methods')} description={t('admin.payment_methods_description')} actions={actions}>
+      <BaseLayout
+        title={t('admin.payment_methods')}
+        description={t('admin.payment_methods_description')}
+        actions={actions}
+        breadcrumbs={breadcrumbs}
+      >
         <Alert variant="destructive">
           <AlertTitle>{t('admin.error')}</AlertTitle>
           <AlertDescription>{error.message}</AlertDescription>
@@ -414,23 +435,14 @@ const PaymentMethodsPage: React.FC = () => {
   }
 
   return (
-    <BaseLayout title={t('admin.payment_methods')} description={t('admin.payment_methods_description')} actions={actions} fullWidth={true}>
+    <BaseLayout
+      title={t('admin.payment_methods')}
+      description={t('admin.payment_methods_description')}
+      actions={actions}
+      fullWidth={true}
+      breadcrumbs={breadcrumbs}
+    >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: t('navigation.home', 'Home'),
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: t('admin.payment_methods'),
-              icon: <FiCreditCard className="w-4 h-4" />
-            }
-          ]}
-        />
-
         {/* Statistics Cards */}
         <StatisticsGrid
           statistics={statisticsData}

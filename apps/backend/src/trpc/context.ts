@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Type } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ModuleRef } from '@nestjs/core';
 import { ContextOptions, TRPCContext } from 'nestjs-trpc';
-import { UserRole } from '@shared';
+import { SupportedLocale, UserRole } from '@shared';
+import { resolveLocaleFromRequest } from '../modules/shared/utils/locale.util';
 import { Permission } from '../modules/user/entities/permission.entity';
 import { PermissionRepository } from '../modules/user/repositories/permission.repository';
 import { JwtPayload } from '../auth/auth.service';
@@ -19,6 +21,8 @@ export interface AuthenticatedContext extends Record<string, unknown> {
   user?: AuthUser;
   req: any;
   res: any;
+  locale: SupportedLocale;
+  resolve<TInput = unknown>(type: Type<TInput>): TInput;
 }
 
 @Injectable()
@@ -26,6 +30,7 @@ export class AppContext implements TRPCContext {
   constructor(
     private readonly jwtService: JwtService,
     private readonly permissionRepository: PermissionRepository,
+    private readonly moduleRef: ModuleRef,
   ) {}
 
   async create(opts: ContextOptions): Promise<AuthenticatedContext> {
@@ -34,6 +39,7 @@ export class AppContext implements TRPCContext {
     // Extract JWT token from Authorization header
     const authHeader = req.headers.authorization;
     let user: AuthUser | undefined;
+    const locale = resolveLocaleFromRequest(req);
 
     if (authHeader && authHeader.startsWith('Bearer ')) {
       try {
@@ -43,31 +49,40 @@ export class AppContext implements TRPCContext {
         // 确保payload.sub是UUID，而不是用户角色名称
         if (!payload.sub || typeof payload.sub !== 'string') {
           console.warn('Invalid JWT token: missing or invalid user ID');
-          return { req, res };
+        } else {
+          // Load user permissions based on role
+          const permissions = await this.permissionRepository.findPermissionsByRole(payload.role);
+
+          // Create user object from JWT payload with permissions
+          user = {
+            id: payload.sub, // 用户ID
+            email: payload.email,
+            username: payload.username || '',
+            role: payload.role,
+            isActive: payload.isActive || true,
+            permissions,
+          };
         }
-        
-        // Load user permissions based on role
-        const permissions = await this.permissionRepository.findPermissionsByRole(payload.role);
-        
-        // Create user object from JWT payload with permissions
-        user = {
-          id: payload.sub, // 用户ID
-          email: payload.email,
-          username: payload.username || '',
-          role: payload.role,
-          isActive: payload.isActive || true,
-          permissions,
-        };
       } catch (error) {
         // Invalid token - user remains undefined
         console.warn('Invalid JWT token:', error.message);
       }
     }
 
+    if (req) {
+      req.locale = locale;
+    }
+
+    const resolve = <TInput = unknown>(type: Type<TInput>): TInput => {
+      return this.moduleRef.get(type, { strict: false });
+    };
+
     return {
       user,
       req,
       res,
+      locale,
+      resolve,
     };
   }
-} 
+}

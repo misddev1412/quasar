@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { withSeo } from '../../components/SEO/withSeo';
 import BaseLayout from '../../components/layout/BaseLayout';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { FiHome, FiSettings } from 'react-icons/fi';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useSettings, SettingData } from '../../hooks/useSettings';
@@ -39,6 +38,23 @@ const SettingsVisibilityPage: React.FC<SettingsVisibilityPageProps> = () => {
     } : undefined,
     group: selectedGroup === 'all' ? undefined : selectedGroup
   });
+
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: 'Home',
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />,
+    },
+    {
+      label: t('navigation.settings', 'Settings'),
+      href: '/settings',
+      icon: <FiSettings className="w-4 h-4" />,
+    },
+    {
+      label: t('settings.visibility_title', 'Settings Visibility'),
+      icon: <FiSettings className="w-4 h-4" />,
+    },
+  ]), [t]);
 
   // Group settings and count total
   const allGroups = Object.keys(groupedSettings || {});
@@ -150,6 +166,7 @@ const SettingsVisibilityPage: React.FC<SettingsVisibilityPageProps> = () => {
       <BaseLayout
         title={t('settings.visibility_title', 'Settings Visibility')}
         description={t('settings.visibility_description', 'Manage which settings are visible to users')}
+        breadcrumbs={breadcrumbs}
       >
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -162,28 +179,9 @@ const SettingsVisibilityPage: React.FC<SettingsVisibilityPageProps> = () => {
     <BaseLayout
       title={t('settings.visibility_title', 'Settings Visibility')}
       description={t('settings.visibility_description', 'Manage which settings are visible to users')}
+      breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: 'Home',
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: t('navigation.settings', 'Settings'),
-              href: '/settings',
-              icon: <FiSettings className="w-4 h-4" />
-            },
-            {
-              label: t('settings.visibility_title', 'Settings Visibility'),
-              icon: <FiSettings className="w-4 h-4" />
-            }
-          ]}
-        />
-
         {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow-sm border p-6">

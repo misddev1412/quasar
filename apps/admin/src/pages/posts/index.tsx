@@ -15,7 +15,6 @@ import { Alert, AlertDescription, AlertTitle } from '../../components/common/Ale
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { PostFilters } from '../../components/features/PostFilters';
 import { Post, PostStatus, PostType, PostFiltersType } from '../../types/post';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { FiHome } from 'react-icons/fi';
 
 // Helper functions for URL parameter validation
@@ -428,6 +427,18 @@ const PostListPage = () => {
     },
   ], [navigate, handleRefresh, showFilters]);
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: t('navigation.home', 'Home'),
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />,
+    },
+    {
+      label: t('posts.title', 'Posts'),
+      icon: <FiFileText className="w-4 h-4" />,
+    },
+  ]), [t]);
+
   // Column visibility state - matching users page
   const [visibleColumns, setVisibleColumns] = useState<Set<string>>(() => {
     const initial = preferences.visibleColumns ? new Set(preferences.visibleColumns) : new Set(['post', 'status', 'type', 'author', 'publishedAt', 'createdAt', 'actions']);
@@ -459,7 +470,13 @@ const PostListPage = () => {
 
   if (postsQuery.isLoading) {
     return (
-      <BaseLayout title="Post Management" description="Manage all posts in the system" actions={actions} fullWidth={true}>
+      <BaseLayout
+        title="Post Management"
+        description="Manage all posts in the system"
+        actions={actions}
+        fullWidth={true}
+        breadcrumbs={breadcrumbs}
+      >
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
@@ -469,7 +486,13 @@ const PostListPage = () => {
 
   if (postsQuery.error) {
     return (
-      <BaseLayout title="Post Management" description="Manage all posts in the system" actions={actions} fullWidth={true}>
+      <BaseLayout
+        title="Post Management"
+        description="Manage all posts in the system"
+        actions={actions}
+        fullWidth={true}
+        breadcrumbs={breadcrumbs}
+      >
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{postsQuery.error.message}</AlertDescription>
@@ -479,21 +502,13 @@ const PostListPage = () => {
   }
 
   return (
-    <BaseLayout title="Post Management" description="Manage all posts in the system" actions={actions} fullWidth={true}>
-      {/* Breadcrumb Navigation */}
-      <Breadcrumb
-        items={[
-          {
-            label: t('navigation.home', 'Home'),
-            href: '/',
-            icon: <FiHome className="w-4 h-4" />
-          },
-          {
-            label: t('posts.title', 'Posts'),
-            icon: <FiFileText className="w-4 h-4" />
-          }
-        ]}
-      />
+    <BaseLayout
+      title="Post Management"
+      description="Manage all posts in the system"
+      actions={actions}
+      fullWidth={true}
+      breadcrumbs={breadcrumbs}
+    >
       <div className="space-y-6">
         {/* Statistics Cards */}
         <StatisticsGrid

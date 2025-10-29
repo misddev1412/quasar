@@ -29,7 +29,6 @@ import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -563,6 +562,23 @@ const PostCategoriesPage: React.FC = () => {
     [handleCreateCategory, handleRefresh, t],
   );
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: 'Home',
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />,
+    },
+    {
+      label: 'Posts',
+      href: '/posts',
+      icon: <FiFileText className="w-4 h-4" />,
+    },
+    {
+      label: t('categories.title', 'Post Categories'),
+      icon: <FiLayers className="w-4 h-4" />,
+    },
+  ]), [t]);
+
   if (isLoading && !rawCategories.length) {
     return (
       <BaseLayout
@@ -570,6 +586,7 @@ const PostCategoriesPage: React.FC = () => {
         description={t('categories.description', 'Organize post categories and hierarchy')}
         actions={actions}
         fullWidth={true}
+        breadcrumbs={breadcrumbs}
       >
         <div className="flex items-center justify-center h-64">
           <Loading />
@@ -585,6 +602,7 @@ const PostCategoriesPage: React.FC = () => {
         description={t('categories.description', 'Organize post categories and hierarchy')}
         actions={actions}
         fullWidth={true}
+        breadcrumbs={breadcrumbs}
       >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error')}</AlertTitle>
@@ -600,28 +618,9 @@ const PostCategoriesPage: React.FC = () => {
       description={t('categories.description', 'Organize post categories and hierarchy')}
       actions={actions}
       fullWidth={true}
+      breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: 'Home',
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: 'Posts',
-              href: '/posts',
-              icon: <FiFileText className="w-4 h-4" />
-            },
-            {
-              label: t('categories.title', 'Post Categories'),
-              icon: <FiLayers className="w-4 h-4" />
-            }
-          ]}
-        />
-
         <StatisticsGrid statistics={statisticsCards} isLoading={isLoading && !rawCategories.length} />
 
         <Table<CategoryWithLevel>

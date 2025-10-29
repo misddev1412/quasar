@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import Header from '../../components/layout/Header';
+import Layout from '../../components/layout/Layout';
+import PageBreadcrumbs from '../../components/common/PageBreadcrumbs';
 import ProductGrid from '../../components/ecommerce/ProductGrid';
 import type { Product } from '../../types/product';
 import type { PaginationInfo } from '../../types/api';
@@ -352,10 +353,8 @@ export default async function SearchPage({
   const hasActiveFilters = appliedFilterChips.length > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
-
-      <section className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 py-16 lg:py-20">
+    <Layout>
+      <section className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 py-16 lg:py-20 -mt-8 -mx-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Find the products you love
@@ -413,6 +412,15 @@ export default async function SearchPage({
           )}
         </div>
       </section>
+
+      {/* Breadcrumb */}
+      <PageBreadcrumbs
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Search', isCurrent: true },
+        ]}
+        fullWidth={true}
+      />
 
       <section className="py-12 lg:py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -590,6 +598,6 @@ export default async function SearchPage({
           )}
         </div>
       </section>
-    </div>
+    </Layout>
   );
 }

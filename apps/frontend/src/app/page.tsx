@@ -2,8 +2,7 @@ import { Metadata } from 'next';
 import { headers, cookies } from 'next/headers';
 import { SectionType } from '@shared/enums/section.enums';
 import { getServerSideSEOWithFallback } from '../lib/seo-server';
-import Header from '../components/layout/Header';
-import Footer from '../components/layout/Footer';
+import Layout from '../components/layout/Layout';
 import { fetchSections } from '../services/sections.service';
 import {
   HeroSlider,
@@ -61,7 +60,7 @@ const sectionComponentMap: Record<SectionType, React.ComponentType<any>> = {
 function renderFallbackContent() {
   return (
     <>
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800">
+      <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 -mt-8 -mx-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="text-center">
             <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6">
@@ -225,12 +224,8 @@ export default async function RootPage({
     .filter(Boolean);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      <Header />
-      <main className="flex-1">
-        {renderedSections.length > 0 ? renderedSections : renderFallbackContent()}
-      </main>
-      <Footer />
-    </div>
+    <Layout>
+      {renderedSections.length > 0 ? renderedSections : renderFallbackContent()}
+    </Layout>
   );
 }

@@ -6,7 +6,6 @@ import PeopleIcon from '@mui/icons-material/People';
 import DescriptionIcon from '@mui/icons-material/Description';
 import EmailIcon from '@mui/icons-material/Email';
 import ArticleIcon from '@mui/icons-material/Article';
-import InventoryIcon from '@mui/icons-material/Inventory';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ChatIcon from '@mui/icons-material/Chat';
 import LanguageIcon from '@mui/icons-material/Language';
@@ -20,7 +19,6 @@ import SecurityIcon from '@mui/icons-material/Security';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
 import ViewListIcon from '@mui/icons-material/ViewList';
-import CreateIcon from '@mui/icons-material/Create';
 import CategoryIcon from '@mui/icons-material/Category';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import ViewQuiltIcon from '@mui/icons-material/ViewQuilt';
@@ -31,9 +29,14 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PersonIcon from '@mui/icons-material/Person';
 import PaymentIcon from '@mui/icons-material/Payment';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import PackageIcon from '@mui/icons-material/Inventory';
 import ImageIcon from '@mui/icons-material/Image';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import MenuIcon from '@mui/icons-material/Menu';
+import FlashOnIcon from '@mui/icons-material/FlashOn';
+import WarehouseIcon from '@mui/icons-material/Store';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import PolicyIcon from '@mui/icons-material/Policy';
 
 export class NavigationService implements INavigationService {
   constructor(private translate: (key: string, fallback?: string) => string) {}
@@ -53,7 +56,7 @@ export class NavigationService implements INavigationService {
         ]
       },
       {
-        title: t('navigation.content_management', '内容管理'),
+        title: t('navigation.people_access', 'Người dùng & Quyền'),
         items: [
           {
             icon: React.createElement(PeopleIcon),
@@ -78,17 +81,12 @@ export class NavigationService implements INavigationService {
                 path: '/permissions'
               }
             ]
-          },
-          {
-            icon: React.createElement(DescriptionIcon),
-            label: t('admin.seo_management', 'SEO管理'),
-            path: '/seo',
-          },
-          {
-            icon: React.createElement(EmailIcon),
-            label: t('admin.mail_templates', 'Mail Templates'),
-            path: '/mail-templates',
-          },
+          }
+        ]
+      },
+      {
+        title: t('navigation.content_experience', 'Nội dung & Marketing'),
+        items: [
           {
             icon: React.createElement(ArticleIcon),
             label: t('admin.posts_management', 'Posts Management'),
@@ -98,11 +96,6 @@ export class NavigationService implements INavigationService {
                 icon: React.createElement(ViewListIcon),
                 label: t('admin.posts_list', 'Posts List'),
                 path: '/posts'
-              },
-              {
-                icon: React.createElement(CreateIcon),
-                label: t('admin.create_post', 'Create Post'),
-                path: '/posts/create'
               },
               {
                 icon: React.createElement(CategoryIcon),
@@ -117,6 +110,18 @@ export class NavigationService implements INavigationService {
             ]
           },
           {
+            icon: React.createElement(PolicyIcon),
+            label: t('siteContent.navigation.title', 'Site Content'),
+            path: '/site-content',
+            subItems: [
+              {
+                icon: React.createElement(ViewListIcon),
+                label: t('siteContent.navigation.list', 'All Pages'),
+                path: '/site-content'
+              }
+            ]
+          },
+          {
             icon: React.createElement(ViewQuiltIcon),
             label: t('admin.sections', 'Sections'),
             path: '/sections/home'
@@ -125,26 +130,31 @@ export class NavigationService implements INavigationService {
             icon: React.createElement(MenuIcon),
             label: t('admin.menus', 'Menu Management'),
             path: '/menus/main'
+          },
+          {
+            icon: React.createElement(DescriptionIcon),
+            label: t('admin.seo_management', 'SEO管理'),
+            path: '/seo'
+          },
+          {
+            icon: React.createElement(EmailIcon),
+            label: t('admin.mail_templates', 'Mail Templates'),
+            path: '/mail-templates'
+          },
+          {
+            icon: React.createElement(LanguageIcon),
+            label: t('admin.translations', '翻译'),
+            path: '/translations'
           }
         ]
       },
       {
-        title: t('products.management', 'Product Management'),
+        title: t('navigation.commerce', 'Sản phẩm & Danh mục'),
         items: [
           {
             icon: React.createElement(ViewListIcon),
             label: t('products.title', 'Products'),
             path: '/products'
-          },
-          {
-            icon: React.createElement(ShoppingCartIcon),
-            label: t('orders.title', 'Orders'),
-            path: '/orders'
-          },
-          {
-            icon: React.createElement(PersonIcon),
-            label: t('customers.title', 'Customers'),
-            path: '/customers'
           },
           {
             icon: React.createElement(BrandingWatermarkIcon),
@@ -165,11 +175,58 @@ export class NavigationService implements INavigationService {
             icon: React.createElement(BusinessIcon),
             label: t('suppliers.title', 'Suppliers'),
             path: '/products/suppliers'
-          },
+          }
         ]
       },
       {
-        title: t('navigation.communication', '通信'),
+        title: t('navigation.sales_operations', 'Bán hàng & Vận hành'),
+        items: [
+          {
+            icon: React.createElement(ShoppingCartIcon),
+            label: t('orders.title', 'Orders'),
+            path: '/orders'
+          },
+          {
+            icon: React.createElement(PackageIcon),
+            label: t('fulfillments.title', 'Order Fulfillments'),
+            path: '/orders/fulfillments'
+          },
+          {
+            icon: React.createElement(PersonIcon),
+            label: t('customers.title', 'Customers'),
+            path: '/customers'
+          },
+          {
+            icon: React.createElement(WarehouseIcon),
+            label: t('warehouses.title', 'Warehouses'),
+            path: '/warehouses',
+            subItems: [
+              {
+                icon: React.createElement(WarehouseIcon),
+                label: t('warehouses.title', 'Warehouses'),
+                path: '/warehouses'
+              },
+              {
+                icon: React.createElement(LocationOnIcon),
+                label: t('warehouse_locations.title', 'Warehouse Locations'),
+                path: '/warehouses/locations'
+              }
+            ]
+          },
+          {
+            icon: React.createElement(PaymentIcon),
+            label: t('payment_methods.title', 'Payment Methods'),
+            path: '/payment-methods'
+          },
+          {
+            icon: React.createElement(LocalShippingIcon),
+            label: t('delivery_methods.title', 'Delivery Methods'),
+            path: '/delivery-methods'
+          }
+        ]
+      },
+      {
+        title: t('navigation.communication_support', 'Liên lạc & Hỗ trợ'),
         items: [
           {
             icon: React.createElement(NotificationsIcon),
@@ -187,16 +244,11 @@ export class NavigationService implements INavigationService {
             icon: React.createElement(SupportAgentIcon),
             label: t('support_clients.title', 'Support Clients'),
             path: '/support-clients'
-          },
-          {
-            icon: React.createElement(LanguageIcon),
-            label: t('admin.translations', '翻译'),
-            path: '/translations'
           }
         ]
       },
       {
-        title: t('navigation.system', '系统'),
+        title: t('navigation.platform_settings', 'Thiết lập hệ thống'),
         items: [
           {
             icon: React.createElement(PublicIcon),
@@ -212,16 +264,6 @@ export class NavigationService implements INavigationService {
             icon: React.createElement(FirebaseIcon),
             label: t('navigation.firebase_configs', 'Firebase Configurations'),
             path: '/firebase-configs'
-          },
-          {
-            icon: React.createElement(PaymentIcon),
-            label: t('payment_methods.title', 'Payment Methods'),
-            path: '/payment-methods'
-          },
-          {
-            icon: React.createElement(LocalShippingIcon),
-            label: t('delivery_methods.title', 'Delivery Methods'),
-            path: '/delivery-methods'
           },
           {
             icon: React.createElement(ImageIcon),
@@ -244,6 +286,11 @@ export class NavigationService implements INavigationService {
                 path: '/settings'
               },
               {
+                icon: React.createElement(FlashOnIcon),
+                label: t('floating_icons.navigation', 'Floating Icons'),
+                path: '/settings/floating-icons'
+              },
+              {
                 icon: React.createElement(PublicIcon),
                 label: t('navigation.settings_visibility', 'Settings Visibility'),
                 path: '/settings/visibility'
@@ -258,6 +305,7 @@ export class NavigationService implements INavigationService {
         ]
       }
     ];
+
   }
 
   isActiveRoute(path: string, currentPath: string): boolean {
@@ -278,9 +326,36 @@ export class NavigationService implements INavigationService {
 
     // Special handling for orders - main /orders should match detail/edit/create
     if (path === '/orders') {
+      if (currentPath.startsWith('/orders/fulfillments')) {
+        return false;
+      }
+
       return currentPath === '/orders' ||
              currentPath.startsWith('/orders/create') ||
              !!currentPath.match(/^\/orders\/[^\/]+$/);
+    }
+
+    if (path === '/orders/fulfillments') {
+      return currentPath === '/orders/fulfillments' ||
+             currentPath.startsWith('/orders/fulfillments/new') ||
+             !!currentPath.match(/^\/orders\/fulfillments\/[^\/]+/);
+    }
+
+    // Special handling for warehouses - main /warehouses should match detail/edit/create
+    if (path === '/warehouses') {
+      if (currentPath.startsWith('/warehouses/locations')) {
+        return false;
+      }
+
+      return currentPath === '/warehouses' ||
+             currentPath.startsWith('/warehouses/create') ||
+             !!currentPath.match(/^\/warehouses\/[^\/]+$/);
+    }
+
+    if (path === '/warehouses/locations') {
+      return currentPath === '/warehouses/locations' ||
+             currentPath.startsWith('/warehouses/locations/create') ||
+             !!currentPath.match(/^\/warehouses\/locations\/[^\/]+/);
     }
 
     // Special handling for customers - main /customers should match detail/edit/create
@@ -295,7 +370,7 @@ export class NavigationService implements INavigationService {
       return currentPath === path || currentPath.startsWith(path + '/');
     }
 
-    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/visibility', '/seo', '/languages', '/orders', '/customers', '/payment-methods', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics'];
+    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/warehouses', '/warehouses/locations'];
     if (exactMatchPaths.includes(path)) {
       return currentPath === path;
     }

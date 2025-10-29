@@ -15,4 +15,5 @@ export * from './dto.types';
 // Authentication and authorization types
 export * from './auth.types';
 export * from './translation.types';
-export * from './seo.types'; 
+export * from './seo.types';
+export * from './floating-widget.types';

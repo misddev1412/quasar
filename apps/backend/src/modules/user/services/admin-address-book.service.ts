@@ -10,10 +10,10 @@ export class AdminAddressBookService {
   ) {}
 
   async createAddressBook(data: Partial<AddressBook>): Promise<AddressBook> {
-    // If this is set as default, ensure it's the only default for this user and type
-    if (data.isDefault && data.userId) {
+    // If this is set as default, ensure it's the only default for this customer and type
+    if (data.isDefault && data.customerId) {
       await this.addressBookRepository.updateBy(
-        { userId: data.userId },
+        { customerId: data.customerId },
         { isDefault: false },
       );
     }
@@ -25,19 +25,19 @@ export class AdminAddressBookService {
     return this.addressBookRepository.findById(id);
   }
 
-  async getAddressBooksByUserId(userId: string): Promise<AddressBook[]> {
-    return this.addressBookRepository.findByUserId(userId);
+  async getAddressBooksByCustomerId(customerId: string): Promise<AddressBook[]> {
+    return this.addressBookRepository.findByCustomerId(customerId);
   }
 
-  async getAddressBooksByUserIdAndType(
-    userId: string,
+  async getAddressBooksByCustomerIdAndType(
+    customerId: string,
     addressType: AddressType,
   ): Promise<AddressBook[]> {
-    return this.addressBookRepository.findByUserIdAndType(userId, addressType);
+    return this.addressBookRepository.findByCustomerIdAndType(customerId, addressType);
   }
 
-  async getDefaultAddressBook(userId: string): Promise<AddressBook | null> {
-    return this.addressBookRepository.findDefaultByUserId(userId);
+  async getDefaultAddressBook(customerId: string): Promise<AddressBook | null> {
+    return this.addressBookRepository.findDefaultByCustomerId(customerId);
   }
 
   async updateAddressBook(id: string, data: Partial<AddressBook>): Promise<AddressBook | null> {
@@ -46,10 +46,10 @@ export class AdminAddressBookService {
       throw new Error('Address book entry not found');
     }
 
-    // If updating to set as default, ensure it's the only default for this user
-    if (data.isDefault && addressBook.userId) {
+    // If updating to set as default, ensure it's the only default for this customer
+    if (data.isDefault && addressBook.customerId) {
       await this.addressBookRepository.updateBy(
-        { userId: addressBook.userId },
+        { customerId: addressBook.customerId },
         { isDefault: false },
       );
     }
@@ -72,20 +72,20 @@ export class AdminAddressBookService {
       throw new Error('Address book entry not found');
     }
 
-    await this.addressBookRepository.setAsDefault(id, addressBook.userId);
+    await this.addressBookRepository.setAsDefault(id, addressBook.customerId);
   }
 
   async getAllAddressBooks(
     page: number = 1,
     limit: number = 10,
-    userId?: string,
+    customerId?: string,
     countryId?: string,
     addressType?: AddressType,
   ) {
     const where: Parameters<typeof this.addressBookRepository.findAll>[2] = {};
 
-    if (userId) {
-      where.userId = userId;
+    if (customerId) {
+      where.customerId = customerId;
     }
 
     if (countryId) {
@@ -99,23 +99,23 @@ export class AdminAddressBookService {
     return this.addressBookRepository.findAll(page, limit, where);
   }
 
-  async getAddressBookStats(userId?: string) {
+  async getAddressBookStats(customerId?: string) {
     const totalCount = await this.addressBookRepository.count(
-      userId ? { userId } : undefined
+      customerId ? { customerId } : undefined
     );
 
     const billingCount = await this.addressBookRepository.count({
-      ...(userId && { userId }),
+      ...(customerId && { customerId }),
       addressType: AddressType.BILLING,
     });
 
     const shippingCount = await this.addressBookRepository.count({
-      ...(userId && { userId }),
+      ...(customerId && { customerId }),
       addressType: AddressType.SHIPPING,
     });
 
     const bothCount = await this.addressBookRepository.count({
-      ...(userId && { userId }),
+      ...(customerId && { customerId }),
       addressType: AddressType.BOTH,
     });
 
@@ -129,8 +129,8 @@ export class AdminAddressBookService {
 
   async validateAddressBook(data: Partial<AddressBook>): Promise<boolean> {
     // Check if user exists (this would require user service)
-    if (!data.userId) {
-      throw new Error('User ID is required');
+    if (!data.customerId) {
+      throw new Error('Customer ID is required');
     }
 
     // Check if country exists (this would require country service)

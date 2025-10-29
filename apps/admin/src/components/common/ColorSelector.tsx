@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { cn } from '@admin/lib/utils';
-import { InputWithIcon } from '@admin/components/common/InputWithIcon';
+import { cn } from '../../utils/cn';
+import { InputWithIcon } from './InputWithIcon';
 
 interface ColorSelectorProps {
   value?: string;

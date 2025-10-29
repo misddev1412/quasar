@@ -9,6 +9,7 @@ import NotFound from '../pages/NotFound';
 import SeoPage from '../pages/seo';
 import SettingsPage from '../pages/settings';
 import SettingsVisibilityPage from '../pages/settings/visibility';
+import FloatingIconsSettingsPage from '../pages/settings/floating-icons';
 import BrandAssetsPage from '../pages/brand-assets';
 import AnalyticsConfigurationPage from '../pages/analytics';
 import UserProfilePage from '../pages/profile';
@@ -29,6 +30,9 @@ import PostsCreatePage from '../pages/posts/create';
 import PostsEditPage from '../pages/posts/edit';
 import PostCategoriesPage from '../pages/posts/categories';
 import PostTagsPage from '../pages/posts/tags';
+import SiteContentIndexPage from '../pages/site-content';
+import SiteContentCreatePage from '../pages/site-content/create';
+import SiteContentEditPage from '../pages/site-content/edit';
 import LanguagesIndexPage from '../pages/languages';
 import LanguagesCreatePage from '../pages/languages/create';
 import LanguagesEditPage from '../pages/languages/edit';
@@ -43,21 +47,34 @@ import ProductsIndexPage from '../pages/products';
 import AttributesPage from '../pages/products/attributes';
 import BrandsPage from '../pages/products/brands';
 import SuppliersPage from '../pages/products/suppliers';
+// Warehouse Management
+import WarehousesIndexPage from '../pages/warehouses';
+import WarehouseCreatePage from '../pages/warehouses/create';
+import WarehouseEditPage from '../pages/warehouses/edit';
+import WarehouseLocationsPage from '../pages/warehouses/locations';
+import WarehouseLocationCreatePage from '../pages/warehouses/locations/create';
+import WarehouseLocationEditPage from '../pages/warehouses/locations/edit';
 import PaymentMethodsPage from '../pages/payment-methods';
 import DeliveryMethodsPage from '../pages/delivery-methods';
 import SupportClientsPage from '../pages/support-clients';
 import SectionsPage from '../pages/sections';
 import MenusPage from '../pages/menus';
+import HelpPage from '../pages/help';
 // Order Management
 import OrdersIndexPage from '../pages/orders';
 import OrderCreatePage from '../pages/orders/create';
 import OrderEditPage from '../pages/orders/edit';
 import OrderDetailPage from '../pages/orders/detail';
+import OrderFulfillmentsPage from '../pages/orders/fulfillments';
+import OrderFulfillmentCreatePage from '../pages/orders/fulfillments/new';
+import OrderFulfillmentDetailPage from '../pages/orders/fulfillments/[id]';
 // Customer Management
 import CustomersIndexPage from '../pages/customers';
 import CustomerCreatePage from '../pages/customers/create';
 import CustomerEditPage from '../pages/customers/edit';
 import CustomerDetailPage from '../pages/customers/detail';
+// Loyalty Management
+import LoyaltyManagementPage from '../pages/loyalty';
 import CategoriesPage from '../pages/products/categories';
 import EditCategoryPage from '../pages/products/categories/edit';
 import CategoryCreatePage from '../pages/products/categories/create';
@@ -101,9 +118,11 @@ const AppRoutes: React.FC = () => {
       <Route path="/brand-assets" element={<ProtectedRoute><BrandAssetsPage /></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><AnalyticsConfigurationPage /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+      <Route path="/settings/floating-icons" element={<ProtectedRoute><FloatingIconsSettingsPage /></ProtectedRoute>} />
       <Route path="/settings/visibility" element={<ProtectedRoute><SettingsVisibilityPage /></ProtectedRoute>} />
       <Route path="/storage" element={<ProtectedRoute><StorageConfigPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
+      <Route path="/help" element={<ProtectedRoute><HelpPage /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute><UserListPage /></ProtectedRoute>} />
       <Route path="/users/create" element={<ProtectedRoute><UserCreatePage /></ProtectedRoute>} />
       <Route path="/users/:id" element={<ProtectedRoute><UserUpdatePage /></ProtectedRoute>} />
@@ -123,6 +142,9 @@ const AppRoutes: React.FC = () => {
       <Route path="/posts/:id" element={<ProtectedRoute><PostsEditPage /></ProtectedRoute>} />
       <Route path="/posts/categories" element={<ProtectedRoute><PostCategoriesPage /></ProtectedRoute>} />
       <Route path="/posts/tags" element={<ProtectedRoute><PostTagsPage /></ProtectedRoute>} />
+      <Route path="/site-content" element={<ProtectedRoute><SiteContentIndexPage /></ProtectedRoute>} />
+      <Route path="/site-content/create" element={<ProtectedRoute><SiteContentCreatePage /></ProtectedRoute>} />
+      <Route path="/site-content/:id/edit" element={<ProtectedRoute><SiteContentEditPage /></ProtectedRoute>} />
       {/* Languages */}
       <Route path="/languages" element={<ProtectedRoute><LanguagesIndexPage /></ProtectedRoute>} />
       <Route path="/languages/create" element={<ProtectedRoute><LanguagesCreatePage /></ProtectedRoute>} />
@@ -141,6 +163,13 @@ const AppRoutes: React.FC = () => {
       <Route path="/products/attributes" element={<ProtectedRoute><AttributesPage /></ProtectedRoute>} />
       <Route path="/products/brands" element={<ProtectedRoute><BrandsPage /></ProtectedRoute>} />
       <Route path="/products/suppliers" element={<ProtectedRoute><SuppliersPage /></ProtectedRoute>} />
+      {/* Warehouse Management */}
+      <Route path="/warehouses" element={<ProtectedRoute><WarehousesIndexPage /></ProtectedRoute>} />
+      <Route path="/warehouses/create" element={<ProtectedRoute><WarehouseCreatePage /></ProtectedRoute>} />
+      <Route path="/warehouses/:id" element={<ProtectedRoute><WarehouseEditPage /></ProtectedRoute>} />
+      <Route path="/warehouses/locations" element={<ProtectedRoute><WarehouseLocationsPage /></ProtectedRoute>} />
+      <Route path="/warehouses/locations/create" element={<ProtectedRoute><WarehouseLocationCreatePage /></ProtectedRoute>} />
+      <Route path="/warehouses/locations/:id" element={<ProtectedRoute><WarehouseLocationEditPage /></ProtectedRoute>} />
       <Route path="/payment-methods" element={<ProtectedRoute><PaymentMethodsPage /></ProtectedRoute>} />
       <Route path="/delivery-methods" element={<ProtectedRoute><DeliveryMethodsPage /></ProtectedRoute>} />
       <Route path="/support-clients" element={<ProtectedRoute><SupportClientsPage /></ProtectedRoute>} />
@@ -156,11 +185,16 @@ const AppRoutes: React.FC = () => {
       <Route path="/orders/new" element={<ProtectedRoute><OrderCreatePage /></ProtectedRoute>} />
       <Route path="/orders/:id" element={<ProtectedRoute><OrderDetailPage /></ProtectedRoute>} />
       <Route path="/orders/:id/edit" element={<ProtectedRoute><OrderEditPage /></ProtectedRoute>} />
+      <Route path="/orders/fulfillments" element={<ProtectedRoute><OrderFulfillmentsPage /></ProtectedRoute>} />
+      <Route path="/orders/fulfillments/new" element={<ProtectedRoute><OrderFulfillmentCreatePage /></ProtectedRoute>} />
+      <Route path="/orders/fulfillments/:id" element={<ProtectedRoute><OrderFulfillmentDetailPage /></ProtectedRoute>} />
       {/* Customer Management */}
       <Route path="/customers" element={<ProtectedRoute><CustomersIndexPage /></ProtectedRoute>} />
       <Route path="/customers/create" element={<ProtectedRoute><CustomerCreatePage /></ProtectedRoute>} />
       <Route path="/customers/:id" element={<ProtectedRoute><CustomerDetailPage /></ProtectedRoute>} />
       <Route path="/customers/:id/edit" element={<ProtectedRoute><CustomerEditPage /></ProtectedRoute>} />
+      {/* Loyalty Management */}
+      <Route path="/loyalty" element={<ProtectedRoute><LoyaltyManagementPage /></ProtectedRoute>} />
       <Route path="/test/date-input" element={<ProtectedRoute><DateInputTest /></ProtectedRoute>} />
       <Route path="/test/phone-input" element={<ProtectedRoute><PhoneInputTest /></ProtectedRoute>} />
       {/* 404页面，不需要认证 */}

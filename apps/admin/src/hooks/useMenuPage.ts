@@ -5,6 +5,8 @@ import { useTablePreferences } from '../hooks/useTablePreferences';
 import { useMenusManager, AdminMenu, MenuTreeNode } from '../hooks/useMenusManager';
 import { MenuType, MenuTarget } from '@shared/enums/menu.enums';
 
+type MenuSelectOption = { value: MenuType; label: string; disabled?: boolean };
+
 export interface MenuTranslationForm {
   label?: string;
   description?: string;
@@ -61,26 +63,46 @@ export interface MenuFormState {
 
 export type ReorderMenuItemInput = { id: string; position: number; parentId?: string };
 
+export const TOP_MENU_GROUP = 'top';
+
 export const DEFAULT_MENU_GROUP_OPTIONS = [
   { value: 'main', label: 'Main Menu' },
+  { value: TOP_MENU_GROUP, label: 'Top Menu' },
   { value: 'footer', label: 'Footer Menu' },
   { value: 'mobile', label: 'Mobile Menu' },
 ];
 
-export const MENU_TYPE_OPTIONS = (Object.entries({
-  [MenuType.LINK]: 'Custom Link',
-  [MenuType.PRODUCT]: 'Product',
-  [MenuType.CATEGORY]: 'Category',
-  [MenuType.BRAND]: 'Brand',
-  [MenuType.NEW_PRODUCTS]: 'New Products',
-  [MenuType.SALE_PRODUCTS]: 'Sale Products',
-  [MenuType.FEATURED_PRODUCTS]: 'Featured Products',
-  [MenuType.BANNER]: 'Banner',
-  [MenuType.CUSTOM_HTML]: 'Custom HTML',
-}) as Array<[MenuType, string]>).map(([value, label]) => ({
-  value,
-  label,
-}));
+export const MENU_TYPE_OPTIONS: MenuSelectOption[] = [
+  { value: MenuType.LINK, label: 'Custom Link' },
+  { value: MenuType.PRODUCT, label: 'Product' },
+  { value: MenuType.CATEGORY, label: 'Category' },
+  { value: MenuType.BRAND, label: 'Brand' },
+  { value: MenuType.NEW_PRODUCTS, label: 'New Products' },
+  { value: MenuType.SALE_PRODUCTS, label: 'Sale Products' },
+  { value: MenuType.FEATURED_PRODUCTS, label: 'Featured Products' },
+  { value: MenuType.BANNER, label: 'Banner' },
+  { value: MenuType.CUSTOM_HTML, label: 'Custom HTML' },
+  { value: MenuType.SITE_CONTENT, label: 'Site Content' },
+];
+
+export const TOP_MENU_TYPE_OPTIONS: MenuSelectOption[] = [
+  { value: MenuType.TOP_PHONE, label: 'Phone Call' },
+  { value: MenuType.TOP_EMAIL, label: 'Email' },
+  { value: MenuType.TOP_CURRENT_TIME, label: 'Current Time' },
+];
+
+export const ALL_MENU_TYPE_OPTIONS: MenuSelectOption[] = [
+  ...MENU_TYPE_OPTIONS,
+  ...TOP_MENU_TYPE_OPTIONS,
+];
+
+export const TOP_MENU_ALLOWED_TYPES: MenuType[] = [
+  MenuType.LINK,
+  MenuType.CUSTOM_HTML,
+  MenuType.TOP_PHONE,
+  MenuType.TOP_EMAIL,
+  MenuType.TOP_CURRENT_TIME,
+];
 
 export const MENU_TARGET_OPTIONS = (Object.entries({
   [MenuTarget.SELF]: 'Same window',

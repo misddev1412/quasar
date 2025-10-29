@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import Breadcrumb, { BreadcrumbItem } from '../common/Breadcrumb';
 import { Button } from '../common/Button';
 
 interface ActionButton {
@@ -16,6 +17,7 @@ interface BaseLayoutProps {
   actions?: ActionButton[];
   fullWidth?: boolean;
   containerClassName?: string;
+  breadcrumbs?: BreadcrumbItem[];
 }
 
 /**
@@ -36,10 +38,15 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({
   children,
   actions = [],
   fullWidth = false,
-  containerClassName = ''
+  containerClassName = '',
+  breadcrumbs = []
 }) => {
   return (
     <div className={`w-full p-4 sm:p-6 ${!fullWidth ? 'max-w-[1600px] mx-auto' : ''}`}>
+      {breadcrumbs.length > 0 && (
+        <Breadcrumb items={breadcrumbs} />
+      )}
+
       {/* 页面顶部：标题和操作按钮 */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
         <div>

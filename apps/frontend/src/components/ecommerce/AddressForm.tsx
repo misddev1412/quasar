@@ -14,6 +14,19 @@ export interface AddressData {
   phone?: string;
 }
 
+export interface CountryOption {
+  id: string;
+  name: string;
+  code?: string;
+}
+
+export interface AdministrativeDivisionOption {
+  id: string;
+  name: string;
+  code?: string;
+  type?: 'PROVINCE' | 'WARD';
+}
+
 interface AddressFormProps {
   address: AddressData;
   onChange: (address: AddressData) => void;
@@ -24,6 +37,16 @@ interface AddressFormProps {
   showPhone?: boolean;
   showAddress2?: boolean;
   requiredFields?: (keyof AddressData)[];
+  countries?: CountryOption[];
+  provinces?: AdministrativeDivisionOption[];
+  wards?: AdministrativeDivisionOption[];
+  loading?: {
+    provinces?: boolean;
+    wards?: boolean;
+  };
+  onCountryChange?: (countryId: string) => void;
+  onProvinceChange?: (provinceId: string) => void;
+  onWardChange?: (wardId: string) => void;
 }
 
 const AddressForm: React.FC<AddressFormProps> = ({
@@ -36,95 +59,59 @@ const AddressForm: React.FC<AddressFormProps> = ({
   showPhone = true,
   showAddress2 = true,
   requiredFields = ['firstName', 'lastName', 'address1', 'city', 'state', 'postalCode', 'country'],
+  countries: countryOptions = [],
+  provinces: provinceOptions = [],
+  wards: wardOptions = [],
+  loading = {},
+  onCountryChange,
+  onProvinceChange,
+  onWardChange,
 }) => {
-  const countries = [
-    { code: 'US', name: 'United States' },
-    { code: 'CA', name: 'Canada' },
-    { code: 'GB', name: 'United Kingdom' },
-    { code: 'AU', name: 'Australia' },
-    { code: 'DE', name: 'Germany' },
-    { code: 'FR', name: 'France' },
-    { code: 'JP', name: 'Japan' },
-    { code: 'CN', name: 'China' },
-    { code: 'IN', name: 'India' },
-    { code: 'BR', name: 'Brazil' },
-  ];
-
-  const usStates = [
-    { code: 'AL', name: 'Alabama' },
-    { code: 'AK', name: 'Alaska' },
-    { code: 'AZ', name: 'Arizona' },
-    { code: 'AR', name: 'Arkansas' },
-    { code: 'CA', name: 'California' },
-    { code: 'CO', name: 'Colorado' },
-    { code: 'CT', name: 'Connecticut' },
-    { code: 'DE', name: 'Delaware' },
-    { code: 'FL', name: 'Florida' },
-    { code: 'GA', name: 'Georgia' },
-    { code: 'HI', name: 'Hawaii' },
-    { code: 'ID', name: 'Idaho' },
-    { code: 'IL', name: 'Illinois' },
-    { code: 'IN', name: 'Indiana' },
-    { code: 'IA', name: 'Iowa' },
-    { code: 'KS', name: 'Kansas' },
-    { code: 'KY', name: 'Kentucky' },
-    { code: 'LA', name: 'Louisiana' },
-    { code: 'ME', name: 'Maine' },
-    { code: 'MD', name: 'Maryland' },
-    { code: 'MA', name: 'Massachusetts' },
-    { code: 'MI', name: 'Michigan' },
-    { code: 'MN', name: 'Minnesota' },
-    { code: 'MS', name: 'Mississippi' },
-    { code: 'MO', name: 'Missouri' },
-    { code: 'MT', name: 'Montana' },
-    { code: 'NE', name: 'Nebraska' },
-    { code: 'NV', name: 'Nevada' },
-    { code: 'NH', name: 'New Hampshire' },
-    { code: 'NJ', name: 'New Jersey' },
-    { code: 'NM', name: 'New Mexico' },
-    { code: 'NY', name: 'New York' },
-    { code: 'NC', name: 'North Carolina' },
-    { code: 'ND', name: 'North Dakota' },
-    { code: 'OH', name: 'Ohio' },
-    { code: 'OK', name: 'Oklahoma' },
-    { code: 'OR', name: 'Oregon' },
-    { code: 'PA', name: 'Pennsylvania' },
-    { code: 'RI', name: 'Rhode Island' },
-    { code: 'SC', name: 'South Carolina' },
-    { code: 'SD', name: 'South Dakota' },
-    { code: 'TN', name: 'Tennessee' },
-    { code: 'TX', name: 'Texas' },
-    { code: 'UT', name: 'Utah' },
-    { code: 'VT', name: 'Vermont' },
-    { code: 'VA', name: 'Virginia' },
-    { code: 'WA', name: 'Washington' },
-    { code: 'WV', name: 'West Virginia' },
-    { code: 'WI', name: 'Wisconsin' },
-    { code: 'WY', name: 'Wyoming' },
-  ];
-
-  const caProvinces = [
-    { code: 'AB', name: 'Alberta' },
-    { code: 'BC', name: 'British Columbia' },
-    { code: 'MB', name: 'Manitoba' },
-    { code: 'NB', name: 'New Brunswick' },
-    { code: 'NL', name: 'Newfoundland and Labrador' },
-    { code: 'NS', name: 'Nova Scotia' },
-    { code: 'ON', name: 'Ontario' },
-    { code: 'PE', name: 'Prince Edward Island' },
-    { code: 'QC', name: 'Quebec' },
-    { code: 'SK', name: 'Saskatchewan' },
-    { code: 'NT', name: 'Northwest Territories' },
-    { code: 'NU', name: 'Nunavut' },
-    { code: 'YT', name: 'Yukon' },
-  ];
-
   const getFieldError = (field: keyof AddressData) => {
     return errors[`${prefix}.${field}`] || '';
   };
 
   const isFieldRequired = (field: keyof AddressData) => {
     return requiredFields.includes(field);
+  };
+
+  const isCountrySelected = Boolean(address.country);
+  const isProvinceSelected = Boolean(address.state);
+  const hasProvinceOptions = provinceOptions.length > 0;
+  const hasWardOptions = wardOptions.length > 0;
+
+  const canSelectProvince = isCountrySelected;
+  const canSelectWard = isProvinceSelected;
+  const canEditCity = hasProvinceOptions ? isProvinceSelected : isCountrySelected;
+
+  const handleCountrySelect = (value: string) => {
+    const nextAddress = {
+      ...address,
+      country: value,
+      state: '',
+      city: '',
+    };
+    onChange(nextAddress);
+    onCountryChange?.(value);
+  };
+
+  const handleProvinceSelect = (value: string) => {
+    const nextAddress = {
+      ...address,
+      state: value,
+      city: '',
+    };
+    onChange(nextAddress);
+    onProvinceChange?.(value);
+  };
+
+  const handleWardSelect = (value: string) => {
+    const nextAddress = {
+      ...address,
+      city: value,
+    };
+    onChange(nextAddress);
+    onWardChange?.(value);
   };
 
   const updateField = (field: keyof AddressData, value: string) => {
@@ -134,15 +121,34 @@ const AddressForm: React.FC<AddressFormProps> = ({
     });
   };
 
-  const getStateProvinces = () => {
-    if (address.country === 'CA') {
-      return caProvinces;
-    }
-    return usStates;
-  };
+  const selectedCountryKey = address.country ? new Set([address.country]) : new Set<string>();
+  const selectedProvinceKey = address.state ? new Set([address.state]) : new Set<string>();
+  const selectedWardKey = address.city ? new Set([address.city]) : new Set<string>();
 
   return (
     <div className={`space-y-4 ${className}`}>
+      <Select
+        label="Country"
+        selectedKeys={selectedCountryKey}
+        onSelectionChange={(keys) => {
+          const selectedKey = Array.from(keys)[0] as string | undefined;
+          handleCountrySelect(selectedKey ?? '');
+        }}
+        variant="bordered"
+        isInvalid={!!getFieldError('country')}
+        errorMessage={getFieldError('country')}
+        isRequired={isFieldRequired('country')}
+        fullWidth
+        isDisabled={countryOptions.length === 0}
+        placeholder={countryOptions.length ? 'Select country' : 'No countries available'}
+      >
+        {countryOptions.map((country) => (
+          <SelectItem key={country.id} value={country.id}>
+            {country.name}
+          </SelectItem>
+        ))}
+      </Select>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Input
           label="First Name"
@@ -208,35 +214,86 @@ const AddressForm: React.FC<AddressFormProps> = ({
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Input
-          label="City"
-          placeholder="New York"
-          value={address.city}
-          onChange={(e) => updateField('city', e.target.value)}
-          variant="bordered"
-          isInvalid={!!getFieldError('city')}
-          errorMessage={getFieldError('city')}
-          isRequired={isFieldRequired('city')}
-          fullWidth
-        />
+        {hasProvinceOptions ? (
+          <Select
+            label="State/Province"
+            selectedKeys={selectedProvinceKey}
+            onSelectionChange={(keys) => {
+              const selectedKey = Array.from(keys)[0] as string | undefined;
+              handleProvinceSelect(selectedKey ?? '');
+            }}
+            variant="bordered"
+            isInvalid={!!getFieldError('state')}
+            errorMessage={getFieldError('state')}
+            isRequired={isFieldRequired('state')}
+            fullWidth
+            isLoading={loading.provinces}
+            isDisabled={!canSelectProvince || loading.provinces}
+            placeholder={canSelectProvince ? 'Select province' : 'Select country first'}
+          >
+            {provinceOptions.map((province) => (
+              <SelectItem key={province.id} value={province.id}>
+                {province.name}
+              </SelectItem>
+            ))}
+          </Select>
+        ) : (
+          <Input
+            label="State/Province"
+            placeholder="State or Province"
+            value={address.state}
+            onChange={(e) => updateField('state', e.target.value)}
+            variant="bordered"
+            isInvalid={!!getFieldError('state')}
+            errorMessage={getFieldError('state')}
+            isRequired={isFieldRequired('state')}
+            fullWidth
+            isDisabled={!isCountrySelected}
+          />
+        )}
 
-        <Select
-          label="State/Province"
-          selectedKeys={[address.state]}
-          onSelectionChange={(keys) => {
-            const selectedKey = Array.from(keys)[0] as string;
-            updateField('state', selectedKey);
-          }}
-          variant="bordered"
-          isInvalid={!!getFieldError('state')}
-          errorMessage={getFieldError('state')}
-          isRequired={isFieldRequired('state')}
-          fullWidth
-        >
-          {getStateProvinces().map((state) => (
-            <SelectItem key={state.code}>{state.name}</SelectItem>
-          ))}
-        </Select>
+        {hasWardOptions ? (
+          <Select
+            label="District/Ward"
+            selectedKeys={selectedWardKey}
+            onSelectionChange={(keys) => {
+              const selectedKey = Array.from(keys)[0] as string | undefined;
+              handleWardSelect(selectedKey ?? '');
+            }}
+            variant="bordered"
+            isInvalid={!!getFieldError('city')}
+            errorMessage={getFieldError('city')}
+            isRequired={isFieldRequired('city')}
+            fullWidth
+            isLoading={loading.wards}
+            isDisabled={!canSelectWard || loading.wards}
+            placeholder={!isCountrySelected
+              ? 'Select country first'
+              : !isProvinceSelected
+              ? 'Select province first'
+              : 'Select district/ward'
+            }
+          >
+            {wardOptions.map((ward) => (
+              <SelectItem key={ward.id} value={ward.id}>
+                {ward.name}
+              </SelectItem>
+            ))}
+          </Select>
+        ) : (
+          <Input
+            label="City"
+            placeholder="City"
+            value={address.city}
+            onChange={(e) => updateField('city', e.target.value)}
+            variant="bordered"
+            isInvalid={!!getFieldError('city')}
+            errorMessage={getFieldError('city')}
+            isRequired={isFieldRequired('city')}
+            fullWidth
+            isDisabled={!canEditCity}
+          />
+        )}
 
         <Input
           label="Postal Code"
@@ -250,26 +307,6 @@ const AddressForm: React.FC<AddressFormProps> = ({
           fullWidth
         />
       </div>
-
-      <Select
-        label="Country"
-        selectedKeys={[address.country]}
-        onSelectionChange={(keys) => {
-          const selectedKey = Array.from(keys)[0] as string;
-          updateField('country', selectedKey);
-          // Reset state when country changes
-          updateField('state', '');
-        }}
-        variant="bordered"
-        isInvalid={!!getFieldError('country')}
-        errorMessage={getFieldError('country')}
-        isRequired={isFieldRequired('country')}
-        fullWidth
-      >
-        {countries.map((country) => (
-          <SelectItem key={country.code}>{country.name}</SelectItem>
-        ))}
-      </Select>
 
       {showPhone && (
         <Input

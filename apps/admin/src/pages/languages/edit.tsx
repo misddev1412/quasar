@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiGlobe, FiHome } from 'react-icons/fi';
 import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
 import { EditLanguageForm } from '../../components/languages/EditLanguageForm';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -43,6 +42,11 @@ const EditLanguagePage: React.FC = () => {
     },
   });
 
+  const baseBreadcrumbs = useMemo(() => ([
+    { label: t('navigation.home'), href: '/', icon: <FiHome className="w-4 h-4" /> },
+    { label: t('languages.languages', 'Languages'), href: '/languages', icon: <FiGlobe className="w-4 h-4" /> },
+  ]), [t]);
+
   const handleSubmit = async (formData: UpdateLanguageFormData) => {
     if (!id) {
       addToast({
@@ -81,6 +85,10 @@ const EditLanguagePage: React.FC = () => {
         onBack={handleCancel}
         isSubmitting={false}
         maxWidth="full"
+        breadcrumbs={[
+          ...baseBreadcrumbs,
+          { label: t('languages.edit', 'Edit Language') }
+        ]}
       >
         <div className="flex items-center justify-center py-12">
           <div className="text-neutral-600 dark:text-neutral-400">
@@ -104,6 +112,10 @@ const EditLanguagePage: React.FC = () => {
         onBack={handleCancel}
         isSubmitting={false}
         maxWidth="full"
+        breadcrumbs={[
+          ...baseBreadcrumbs,
+          { label: t('languages.edit', 'Edit Language') }
+        ]}
       >
         <div className="flex items-center justify-center py-12">
           <div className="text-red-600 dark:text-red-400">
@@ -139,6 +151,14 @@ const EditLanguagePage: React.FC = () => {
 
   const language = (languageQuery.data as any).data;
 
+  const detailBreadcrumbs = useMemo(() => (
+    [
+      ...baseBreadcrumbs,
+      { label: language.name, href: `/languages/${language.id}`, icon: <FiGlobe className="w-4 h-4" /> },
+      { label: t('common.edit', 'Edit') },
+    ]
+  ), [baseBreadcrumbs, language.id, language.name, t]);
+
   return (
     <CreatePageTemplate
       title={t('languages.editTitle', { name: language.name })}
@@ -150,28 +170,9 @@ const EditLanguagePage: React.FC = () => {
       onBack={handleCancel}
       isSubmitting={updateLanguageMutation.isPending}
       maxWidth="full"
+      breadcrumbs={detailBreadcrumbs}
     >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: 'Home',
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: 'Languages',
-              href: '/languages',
-              icon: <FiGlobe className="w-4 h-4" />
-            },
-            {
-              label: 'Edit Language',
-              icon: <FiGlobe className="w-4 h-4" />
-            }
-          ]}
-        />
-
         <EditLanguageForm
           language={language}
           onSubmit={handleSubmit}

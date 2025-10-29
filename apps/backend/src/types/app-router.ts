@@ -3,6 +3,15 @@ import { z } from 'zod';
 import { MenuTarget, MenuType } from '@shared/enums/menu.enums';
 import { apiResponseSchema, paginatedResponseSchema, ApiResponse } from '../trpc/schemas/response.schemas';
 import { createSectionSchema, updateSectionSchema, reorderSectionsSchema } from '../modules/sections/dto/section.dto';
+import { AdministrativeDivisionType } from '../modules/products/entities/administrative-division.entity';
+import {
+  listSiteContentQuerySchema,
+  createSiteContentSchema,
+  updateSiteContentSchema,
+  siteContentIdSchema,
+  bulkDeleteSiteContentSchema,
+} from '../modules/site-content/dto/site-content.dto';
+import { SiteContentCategory, SiteContentStatus } from '@shared/enums/site-content.enums';
 
 // Zod schemas for validation
 const userRoleSchema = z.enum([
@@ -84,6 +93,91 @@ const reorderMenuSchema = z.object({
     }),
   ),
 });
+
+const adminAddressCountrySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  code: z.string(),
+  iso2: z.string().nullable(),
+  iso3: z.string().nullable(),
+  phoneCode: z.string().nullable(),
+  latitude: z.number().nullable(),
+  longitude: z.number().nullable(),
+});
+
+const adminAdministrativeDivisionSchema = z.object({
+  id: z.string(),
+  countryId: z.string(),
+  parentId: z.string().nullable(),
+  name: z.string(),
+  code: z.string().nullable(),
+  type: z.nativeEnum(AdministrativeDivisionType),
+  i18nKey: z.string(),
+  latitude: z.number().nullable(),
+  longitude: z.number().nullable(),
+});
+
+const siteContentSchema = z.object({
+  id: z.string(),
+  code: z.string(),
+  title: z.string(),
+  slug: z.string(),
+  category: z.nativeEnum(SiteContentCategory),
+  status: z.nativeEnum(SiteContentStatus),
+  summary: z.string().nullable(),
+  content: z.string().nullable(),
+  languageCode: z.string(),
+  publishedAt: z.date().nullable(),
+  metadata: z.record(z.unknown()).nullable(),
+  displayOrder: z.number(),
+  isFeatured: z.boolean(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+const clientSiteContentSchema = z.object({
+  id: z.string(),
+  code: z.string(),
+  title: z.string(),
+  slug: z.string(),
+  category: z.nativeEnum(SiteContentCategory),
+  status: z.nativeEnum(SiteContentStatus),
+  summary: z.string().nullable(),
+  content: z.string().nullable(),
+  languageCode: z.string(),
+  publishedAt: z.string().nullable(),
+  metadata: z.record(z.unknown()).nullable(),
+  displayOrder: z.number(),
+  isFeatured: z.boolean(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+const clientSiteContentListResponseSchema = z.object({
+  items: z.array(clientSiteContentSchema),
+  pagination: z.object({
+    page: z.number(),
+    limit: z.number(),
+    total: z.number(),
+    totalPages: z.number(),
+    hasNext: z.boolean(),
+    hasPrevious: z.boolean(),
+  }),
+});
+
+const fulfillmentStatusSchema = z.enum([
+  'PENDING',
+  'PROCESSING',
+  'PACKED',
+  'SHIPPED',
+  'IN_TRANSIT',
+  'OUT_FOR_DELIVERY',
+  'DELIVERED',
+  'CANCELLED',
+  'RETURNED',
+]);
+
+const fulfillmentPrioritySchema = z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT']);
 
 
 // This creates the combined app router
@@ -214,6 +308,21 @@ export const appRouter = router({
       }),
   }),
 
+  clientDeliveryMethods: router({
+    list: procedure
+      .input(z.object({
+        orderAmount: z.number().min(0).default(0),
+        weight: z.number().min(0).optional(),
+        distance: z.number().min(0).optional(),
+        coverageArea: z.string().optional(),
+        paymentMethodId: z.string().optional(),
+      }).optional())
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
   // Admin routers
   admin: router({
     // Admin SEO router
@@ -274,6 +383,75 @@ export const appRouter = router({
           return {} as ApiResponse;
         }),
     }),
+  }),
+
+  adminWarehouses: router({
+    getAll: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    create: procedure
+      .input(
+        z.object({
+          name: z.string(),
+          code: z.string(),
+          description: z.string().optional(),
+          address: z.string().optional(),
+          city: z.string().optional(),
+          country: z.string().optional(),
+          postalCode: z.string().optional(),
+          phone: z.string().optional(),
+          email: z.string().email().optional(),
+          managerName: z.string().optional(),
+          isActive: z.boolean(),
+          isDefault: z.boolean(),
+          sortOrder: z.number().int(),
+        })
+      )
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    getById: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    update: procedure
+      .input(
+        z.object({
+          id: z.string(),
+          name: z.string().optional(),
+          code: z.string().optional(),
+          description: z.string().optional(),
+          address: z.string().optional(),
+          city: z.string().optional(),
+          country: z.string().optional(),
+          postalCode: z.string().optional(),
+          phone: z.string().optional(),
+          email: z.string().email().optional(),
+          managerName: z.string().optional(),
+          isActive: z.boolean().optional(),
+          isDefault: z.boolean().optional(),
+          sortOrder: z.number().int().optional(),
+        })
+      )
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    delete: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
   }),
 
   adminUser: router({
@@ -1217,6 +1395,90 @@ export const appRouter = router({
 
     incrementViewCount: procedure
       .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  clientSiteContents: router({
+    listSiteContents: procedure
+      .input(z.object({
+        page: z.number().int().min(1).default(1),
+        limit: z.number().int().min(1).max(50).default(10),
+        category: z.nativeEnum(SiteContentCategory).optional(),
+        languageCode: z.string().min(2).max(10).optional(),
+        isFeatured: z.boolean().optional(),
+        sortBy: z.enum(['createdAt', 'updatedAt', 'publishedAt', 'displayOrder']).optional(),
+        sortOrder: z.enum(['asc', 'desc']).optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse<z.infer<typeof clientSiteContentListResponseSchema>>;
+      }),
+
+    getSiteContentBySlug: procedure
+      .input(z.object({
+        slug: z.string().min(1),
+        languageCode: z.string().min(2).max(10).optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse<z.infer<typeof clientSiteContentSchema>>;
+      }),
+
+    getSiteContentByCode: procedure
+      .input(z.object({
+        code: z.string().min(1),
+        languageCode: z.string().min(2).max(10).optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse<z.infer<typeof clientSiteContentSchema>>;
+      }),
+  }),
+
+  adminSiteContents: router({
+    listSiteContents: procedure
+      .input(listSiteContentQuerySchema)
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getSiteContentById: procedure
+      .input(siteContentIdSchema)
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    createSiteContent: procedure
+      .input(createSiteContentSchema)
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    updateSiteContent: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        data: updateSiteContentSchema,
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    deleteSiteContent: procedure
+      .input(siteContentIdSchema)
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    bulkDeleteSiteContents: procedure
+      .input(bulkDeleteSiteContentSchema)
       .output(apiResponseSchema)
       .mutation(() => {
         return {} as ApiResponse;
@@ -3327,6 +3589,26 @@ export const appRouter = router({
       .query(() => {
         return {} as ApiResponse;
       }),
+    getCountries: procedure
+      .output(z.array(adminAddressCountrySchema))
+      .query(() => {
+        return [];
+      }),
+    getAdministrativeDivisions: procedure
+      .input(z.object({
+        countryId: z.string(),
+        type: z.nativeEnum(AdministrativeDivisionType).optional(),
+      }))
+      .output(z.array(adminAdministrativeDivisionSchema))
+      .query(() => {
+        return [];
+      }),
+    getAdministrativeDivisionsByParentId: procedure
+      .input(z.object({ parentId: z.string() }))
+      .output(z.array(adminAdministrativeDivisionSchema))
+      .query(() => {
+        return [];
+      }),
     detail: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
@@ -4207,6 +4489,59 @@ export const appRouter = router({
       }),
   }),
 
+  orderFulfillments: router({
+    getAll: procedure
+      .input(
+        z.object({
+          page: z.number().min(1).default(1),
+          limit: z.number().min(1).max(100).default(20),
+          search: z.string().optional(),
+          status: fulfillmentStatusSchema.optional(),
+          priorityLevel: fulfillmentPrioritySchema.optional(),
+          shippingProviderId: z.string().optional(),
+          hasTrackingNumber: z.boolean().optional(),
+          isOverdue: z.boolean().optional(),
+          orderId: z.string().optional(),
+        })
+      )
+      .output(z.any())
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getById: procedure
+      .input(z.object({ id: z.string() }))
+      .output(z.any())
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    updateStatus: procedure
+      .input(
+        z.object({
+          id: z.string(),
+          status: fulfillmentStatusSchema,
+          notes: z.string().optional(),
+        })
+      )
+      .output(z.any())
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    updateTracking: procedure
+      .input(
+        z.object({
+          id: z.string(),
+          trackingNumber: z.string().min(1),
+        })
+      )
+      .output(z.any())
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
   // Client Menus router
   clientMenus: router({
     getByGroup: procedure
@@ -4223,6 +4558,305 @@ export const appRouter = router({
         menuGroup: z.string().min(1),
         locale: z.string().optional().default('en')
       }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  // Loyalty routers
+  adminLoyaltyTiers: router({
+    list: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+        search: z.string().optional(),
+        isActive: z.boolean().optional(),
+        sortBy: z.enum(['name', 'minPoints', 'sortOrder', 'createdAt']).default('sortOrder'),
+        sortOrder: z.enum(['ASC', 'DESC']).default('ASC'),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    detail: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    create: procedure
+      .input(z.object({
+        name: z.string().min(1),
+        description: z.string().optional(),
+        minPoints: z.number().min(0),
+        maxPoints: z.number().optional(),
+        color: z.string().optional(),
+        icon: z.string().optional(),
+        benefits: z.array(z.string()).optional(),
+        isActive: z.boolean().optional(),
+        sortOrder: z.number().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    update: procedure
+      .input(z.object({
+        id: z.string(),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        minPoints: z.number().min(0).optional(),
+        maxPoints: z.number().optional(),
+        color: z.string().optional(),
+        icon: z.string().optional(),
+        benefits: z.array(z.string()).optional(),
+        isActive: z.boolean().optional(),
+        sortOrder: z.number().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    delete: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    stats: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    active: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  adminLoyaltyRewards: router({
+    list: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+        search: z.string().optional(),
+        type: z.enum(['discount', 'free_shipping', 'free_product', 'cashback', 'gift_card', 'exclusive_access']).optional(),
+        isActive: z.boolean().optional(),
+        sortBy: z.enum(['name', 'pointsRequired', 'sortOrder', 'createdAt']).default('sortOrder'),
+        sortOrder: z.enum(['ASC', 'DESC']).default('ASC'),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    detail: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    create: procedure
+      .input(z.object({
+        name: z.string().min(1),
+        description: z.string().optional(),
+        type: z.enum(['discount', 'free_shipping', 'free_product', 'cashback', 'gift_card', 'exclusive_access']),
+        pointsRequired: z.number().min(0),
+        value: z.number().optional(),
+        discountType: z.enum(['percentage', 'fixed']).optional(),
+        conditions: z.string().optional(),
+        isActive: z.boolean().optional(),
+        isLimited: z.boolean().optional(),
+        totalQuantity: z.number().optional(),
+        remainingQuantity: z.number().optional(),
+        startsAt: z.date().optional(),
+        endsAt: z.date().optional(),
+        imageUrl: z.string().optional(),
+        termsConditions: z.string().optional(),
+        tierRestrictions: z.array(z.string()).optional(),
+        autoApply: z.boolean().optional(),
+        sortOrder: z.number().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    update: procedure
+      .input(z.object({
+        id: z.string(),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        type: z.enum(['discount', 'free_shipping', 'free_product', 'cashback', 'gift_card', 'exclusive_access']).optional(),
+        pointsRequired: z.number().min(0).optional(),
+        value: z.number().optional(),
+        discountType: z.enum(['percentage', 'fixed']).optional(),
+        conditions: z.string().optional(),
+        isActive: z.boolean().optional(),
+        isLimited: z.boolean().optional(),
+        totalQuantity: z.number().optional(),
+        remainingQuantity: z.number().optional(),
+        startsAt: z.date().optional(),
+        endsAt: z.date().optional(),
+        imageUrl: z.string().optional(),
+        termsConditions: z.string().optional(),
+        tierRestrictions: z.array(z.string()).optional(),
+        autoApply: z.boolean().optional(),
+        sortOrder: z.number().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    delete: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    stats: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    active: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    availableForCustomer: procedure
+      .input(z.object({ customerPoints: z.number().min(0) }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  adminLoyaltyTransactions: router({
+    list: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+        search: z.string().optional(),
+        customerId: z.string().optional(),
+        type: z.enum(['earned', 'redeemed', 'expired', 'adjusted', 'referral_bonus']).optional(),
+        orderId: z.string().optional(),
+        rewardId: z.string().optional(),
+        sortBy: z.enum(['createdAt', 'points', 'balanceAfter']).default('createdAt'),
+        sortOrder: z.enum(['ASC', 'DESC']).default('DESC'),
+        createdFrom: z.string().optional(),
+        createdTo: z.string().optional(),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    detail: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    create: procedure
+      .input(z.object({
+        customerId: z.string(),
+        points: z.number(),
+        type: z.enum(['earned', 'redeemed', 'expired', 'adjusted', 'referral_bonus']),
+        description: z.string().min(1),
+        orderId: z.string().optional(),
+        rewardId: z.string().optional(),
+        balanceAfter: z.number(),
+        expiresAt: z.date().optional(),
+        metadata: z.record(z.any()).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    adjustPoints: procedure
+      .input(z.object({
+        customerId: z.string(),
+        points: z.number(),
+        description: z.string().min(1),
+        metadata: z.record(z.any()).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    customerTransactions: procedure
+      .input(z.object({ customerId: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    customerBalance: procedure
+      .input(z.object({ customerId: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    orderTransactions: procedure
+      .input(z.object({ orderId: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    stats: procedure
+      .input(z.object({ days: z.number().min(1).max(365).default(30) }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    topCustomers: procedure
+      .input(z.object({ days: z.number().min(1).max(365).default(30), limit: z.number().min(1).max(50).default(10) }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    popularRewards: procedure
+      .input(z.object({ days: z.number().min(1).max(365).default(30), limit: z.number().min(1).max(50).default(10) }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    recent: procedure
+      .input(z.object({ days: z.number().min(1).max(365).default(30), limit: z.number().min(1).max(100).default(20) }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  adminLoyaltyStats: router({
+    get: procedure
+      .input(z.object({ days: z.number().min(1).max(365).default(30) }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    dashboard: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    customerEngagement: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    pointsFlow: procedure
+      .input(z.object({ days: z.number().min(1).max(365).default(30) }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    tierDistribution: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    rewardPerformance: procedure
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;

@@ -125,5 +125,11 @@
     "access_denied": "Không có quyền truy cập",
     "confirm_delete": "Bạn có chắc chắn muốn xóa?",
     "unsaved_changes": "Có thay đổi chưa được lưu. Bạn có muốn tiếp tục?"
+  },
+  "settings": {
+    "errors": {
+      "not_found": "Không tìm thấy cài đặt",
+      "key_exists": "Khóa cài đặt đã tồn tại"
+    }
   }
-} 
+}

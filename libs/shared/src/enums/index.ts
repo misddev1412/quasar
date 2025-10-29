@@ -19,3 +19,6 @@ export * from './section.enums';
 
 // Menu configuration enums
 export * from './menu.enums';
+
+// Site content enums
+export * from './site-content.enums';

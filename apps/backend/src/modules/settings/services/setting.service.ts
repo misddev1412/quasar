@@ -4,26 +4,45 @@ import { CreateSettingDto, UpdateSettingDto, BulkUpdateSettingsDto } from '../dt
 import { SettingEntity } from '../entities/setting.entity';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { ErrorLevelCode, ModuleCode, OperationCode } from '@shared/enums/error-codes.enums';
+import { TranslationService } from '../../translation/services/translation.service';
+import { SupportedLocale } from '@shared';
+import { DEFAULT_LOCALE } from '../../shared/utils/locale.util';
 
 @Injectable()
 export class SettingService {
   constructor(
     private readonly settingRepository: SettingRepository,
     private readonly responseService: ResponseService,
+    private readonly translationService: TranslationService,
   ) {}
+
+  private async translateMessage(
+    key: string,
+    locale: SupportedLocale | undefined,
+    fallback: string
+  ): Promise<string> {
+    const resolvedLocale = locale ?? DEFAULT_LOCALE;
+    return this.translationService.getTranslation(key, resolvedLocale, fallback);
+  }
 
   /**
    * 创建新设置
    */
-  async create(createSettingDto: CreateSettingDto): Promise<SettingEntity> {
+  async create(createSettingDto: CreateSettingDto, locale?: SupportedLocale): Promise<SettingEntity> {
     // 检查键是否已存在
     const exists = await this.settingRepository.existsByKey(createSettingDto.key);
     if (exists) {
+      const message = await this.translateMessage(
+        'settings.errors.key_exists',
+        locale,
+        'Setting key already exists'
+      );
+
       throw this.responseService.createTRPCError(
         ModuleCode.SETTINGS,
         OperationCode.CREATE,
         ErrorLevelCode.VALIDATION,
-        '设置键已存在'
+        message
       );
     }
 
@@ -34,7 +53,7 @@ export class SettingService {
   /**
    * 批量创建或更新设置
    */
-  async bulkUpdate(bulkUpdateDto: BulkUpdateSettingsDto): Promise<boolean> {
+  async bulkUpdate(bulkUpdateDto: BulkUpdateSettingsDto, locale?: SupportedLocale): Promise<boolean> {
     if (!bulkUpdateDto.settings || bulkUpdateDto.settings.length === 0) {
       return false;
     }
@@ -63,7 +82,7 @@ export class SettingService {
           key: settingData.key,
           value: settingData.value,
           type: 'string',
-        });
+        }, locale);
       }
     }
 
@@ -80,14 +99,20 @@ export class SettingService {
   /**
    * 通过ID获取设置
    */
-  async findById(id: string): Promise<SettingEntity> {
+  async findById(id: string, locale?: SupportedLocale): Promise<SettingEntity> {
     const setting = await this.settingRepository.findById(id);
     if (!setting) {
+      const message = await this.translateMessage(
+        'settings.errors.not_found',
+        locale,
+        'Setting not found'
+      );
+
       throw this.responseService.createTRPCError(
         ModuleCode.SETTINGS,
         OperationCode.READ,
         ErrorLevelCode.NOT_FOUND,
-        '设置未找到'
+        message
       );
     }
     return setting;
@@ -96,14 +121,20 @@ export class SettingService {
   /**
    * 通过键获取设置
    */
-  async findByKey(key: string): Promise<SettingEntity> {
+  async findByKey(key: string, locale?: SupportedLocale): Promise<SettingEntity> {
     const setting = await this.settingRepository.findByKey(key);
     if (!setting) {
+      const message = await this.translateMessage(
+        'settings.errors.not_found',
+        locale,
+        'Setting not found'
+      );
+
       throw this.responseService.createTRPCError(
         ModuleCode.SETTINGS,
         OperationCode.READ,
         ErrorLevelCode.NOT_FOUND,
-        '设置未找到'
+        message
       );
     }
     return setting;
@@ -126,14 +157,20 @@ export class SettingService {
   /**
    * 更新设置
    */
-  async update(id: string, updateSettingDto: UpdateSettingDto): Promise<SettingEntity> {
+  async update(id: string, updateSettingDto: UpdateSettingDto, locale?: SupportedLocale): Promise<SettingEntity> {
     const setting = await this.settingRepository.findById(id);
     if (!setting) {
+      const message = await this.translateMessage(
+        'settings.errors.not_found',
+        locale,
+        'Setting not found'
+      );
+
       throw this.responseService.createTRPCError(
         ModuleCode.SETTINGS,
         OperationCode.UPDATE,
         ErrorLevelCode.NOT_FOUND,
-        '设置未找到'
+        message
       );
     }
 
@@ -143,14 +180,20 @@ export class SettingService {
   /**
    * 删除设置
    */
-  async delete(id: string): Promise<boolean> {
+  async delete(id: string, locale?: SupportedLocale): Promise<boolean> {
     const setting = await this.settingRepository.findById(id);
     if (!setting) {
+      const message = await this.translateMessage(
+        'settings.errors.not_found',
+        locale,
+        'Setting not found'
+      );
+
       throw this.responseService.createTRPCError(
         ModuleCode.SETTINGS,
         OperationCode.DELETE,
         ErrorLevelCode.NOT_FOUND,
-        '设置未找到'
+        message
       );
     }
 

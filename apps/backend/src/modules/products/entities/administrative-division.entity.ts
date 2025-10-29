@@ -12,7 +12,7 @@ export enum AdministrativeDivisionType {
 export class AdministrativeDivision extends BaseEntity {
   @Expose()
   @PrimaryColumn({ type: 'varchar' })
-  id: string;
+  id!: string;
 
   @Expose()
   @Column({
@@ -32,7 +32,7 @@ export class AdministrativeDivision extends BaseEntity {
 
   @Expose()
   @Column({ type: 'text' })
-  name: string;
+  name!: string;
 
   @Expose()
   @Column({
@@ -46,14 +46,14 @@ export class AdministrativeDivision extends BaseEntity {
     type: 'enum',
     enum: AdministrativeDivisionType
   })
-  type: AdministrativeDivisionType;
+  type!: AdministrativeDivisionType;
 
   @Expose()
   @Column({
     name: 'i18n_key',
     type: 'text'
   })
-  i18nKey: string;
+  i18nKey!: string;
 
   @Expose()
   @Column({
@@ -69,14 +69,23 @@ export class AdministrativeDivision extends BaseEntity {
   })
   longitude?: number;
 
-  @ManyToOne(() => Country, (country) => country.administrativeDivisions, { lazy: true })
+  @Expose()
+  @ManyToOne(() => Country, (country) => country.administrativeDivisions, {
+    eager: true,
+    nullable: true,
+  })
   @JoinColumn({ name: 'country_id' })
-  country: Promise<Country>;
+  country?: Country;
 
-  @ManyToOne(() => AdministrativeDivision, (division) => division.children, { lazy: true })
+  @Expose()
+  @ManyToOne(() => AdministrativeDivision, (division) => division.children, {
+    eager: true,
+    nullable: true,
+  })
   @JoinColumn({ name: 'parent_id' })
-  parent: Promise<AdministrativeDivision>;
+  parent?: AdministrativeDivision;
 
-  @OneToMany(() => AdministrativeDivision, (division) => division.parent, { lazy: true })
-  children: Promise<AdministrativeDivision[]>;
+  @Expose()
+  @OneToMany(() => AdministrativeDivision, (division) => division.parent)
+  children?: AdministrativeDivision[];
 }

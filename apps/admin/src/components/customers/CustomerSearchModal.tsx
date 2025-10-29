@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, User, Crown, Phone, Mail, X, Plus, UserPlus } from 'lucide-react';
 import { Modal } from '../common/Modal';
+import { InputWithIcon } from '../common/InputWithIcon';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
 import { debounce } from 'lodash';
@@ -83,7 +84,7 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({
   const [activeTab, setActiveTab] = useState<'search' | 'create'>('search');
   const [searchTerm, setSearchTerm] = useState('');
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [topCustomers, setTopCustomers] = useState<Customer[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
 
@@ -102,6 +103,18 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({
     {
       enabled: !!searchQuery.trim(),
       refetchOnWindowFocus: false,
+    }
+  );
+
+  const {
+    data: topCustomersData,
+    isLoading: isLoadingTopCustomers,
+  } = trpc.adminCustomers.topCustomers.useQuery(
+    { limit: 10 },
+    {
+      enabled: isOpen,
+      refetchOnWindowFocus: false,
+      staleTime: 60_000,
     }
   );
 
@@ -152,10 +165,12 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({
     }
   }, [customersData, searchQuery]);
 
-  // Update loading state
   useEffect(() => {
-    setIsLoading(isLoadingCustomers);
-  }, [isLoadingCustomers]);
+    if (topCustomersData) {
+      const customerList = (topCustomersData as any)?.data || [];
+      setTopCustomers(customerList);
+    }
+  }, [topCustomersData]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -183,6 +198,7 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({
   const handleClose = () => {
     setSearchTerm('');
     setCustomers([]);
+    setSearchQuery('');
     setSelectedCustomer(null);
     setActiveTab('search');
     onClose();
@@ -214,15 +230,20 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({
     }
   };
 
+  const trimmedSearchTerm = searchTerm.trim();
+  const isSearching = trimmedSearchTerm.length > 0;
+  const displayCustomers = isSearching ? customers : topCustomers;
+  const isLoading = isSearching ? isLoadingCustomers : isLoadingTopCustomers;
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
       size="xl"
     >
-      <div className="p-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
+        <div className="border-b border-gray-200 dark:border-gray-700 pb-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="flex-shrink-0">
@@ -242,7 +263,7 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({
           </div>
 
           {/* Tabs */}
-          <div className="mt-6">
+          <div className="mt-5">
             <div className="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
               <button
                 type="button"
@@ -275,63 +296,65 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({
         {activeTab === 'search' ? (
           <>
             {/* Search Input */}
-            <div className="mb-6">
+            <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {t('admin.search_customer')}
               </label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  placeholder={t('admin.search_customers_placeholder')}
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  className="pl-11 pr-4 py-3 w-full border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm"
-                  autoFocus
-                />
-              </div>
+              <InputWithIcon
+                value={searchTerm}
+                onChange={handleSearchChange}
+                placeholder={t('admin.search_customers_placeholder')}
+                leftIcon={<Search className="h-5 w-5 text-gray-400" />}
+                className="py-3 shadow-sm bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                iconSpacing="standard"
+                autoFocus
+              />
             </div>
 
             {/* Search Results */}
-            <div className="min-h-[200px] max-h-96 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800">
+            <div className="min-h-[240px] max-h-96 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center p-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mb-3"></div>
+            <div className="flex flex-col items-center justify-center p-12 space-y-2">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
               <span className="text-sm text-gray-500 dark:text-gray-400">{t('admin.searching')}</span>
             </div>
-          ) : customers.length === 0 && searchTerm ? (
-            <div className="flex flex-col items-center justify-center p-12">
-              <Search className="w-12 h-12 text-gray-300 dark:text-gray-600 mb-3" />
-              <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                {t('admin.no_customers_found')}
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Try adjusting your search terms
-              </p>
+          ) : displayCustomers.length === 0 && isSearching ? (
+            <div className="flex flex-col items-center justify-center p-12 space-y-2">
+              <Search className="w-12 h-12 text-gray-300 dark:text-gray-600" />
+              <div className="text-center space-y-1">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                  {t('admin.no_customers_found')}
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Try adjusting your search terms
+                </p>
+              </div>
             </div>
-          ) : customers.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-12">
-              <User className="w-12 h-12 text-gray-300 dark:text-gray-600 mb-3" />
-              <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                {t('admin.start_typing_to_search')}
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Search by name, email, phone, or company
-              </p>
+          ) : displayCustomers.length === 0 ? (
+            <div className="flex flex-col items-center justify-center p-12 space-y-2">
+              <User className="w-12 h-12 text-gray-300 dark:text-gray-600" />
+              <div className="text-center space-y-1">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                  {t('admin.start_typing_to_search')}
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Search by name, email, phone, or company
+                </p>
+              </div>
             </div>
           ) : (
-            <div className="divide-y divide-gray-200 dark:divide-gray-600 bg-white dark:bg-gray-800">
-              {customers.map((customer) => (
+            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+              {displayCustomers.map((customer) => (
                 <div
                   key={customer.id}
-                  className={`p-5 cursor-pointer transition-all duration-200 ${
+                  className={`px-5 py-4 cursor-pointer transition-all duration-200 ${
                     selectedCustomer?.id === customer.id
                       ? 'bg-primary-50 dark:bg-primary-900/20 border-l-4 border-primary-500'
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-700 hover:shadow-sm'
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                   onClick={() => handleSelectCustomer(customer)}
                 >
-                  <div className="flex items-start space-x-4">
+                  <div className="flex items-start gap-4">
                     <div className="flex-shrink-0">
                       <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                         selectedCustomer?.id === customer.id
@@ -389,7 +412,7 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({
                         )}
                       </div>
 
-                      <div className="flex items-center space-x-6 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+                      <div className="flex items-center gap-6 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
                         <div className="text-center">
                           <div className="text-sm font-semibold text-gray-900 dark:text-white">
                             {customer.totalOrders}
@@ -425,7 +448,7 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({
             </div>
 
             {/* Action Buttons for Search */}
-            <div className="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
+            <div className="flex justify-between items-center pt-5 border-t border-gray-200 dark:border-gray-700">
               <div className="text-sm text-gray-500 dark:text-gray-400">
                 {selectedCustomer ? (
                   <span className="flex items-center space-x-2">

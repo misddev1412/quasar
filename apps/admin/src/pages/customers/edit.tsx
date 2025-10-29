@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiEdit2, FiArrowLeft, FiHome } from 'react-icons/fi';
 import BaseLayout from '../../components/layout/BaseLayout';
@@ -6,7 +6,6 @@ import { EditCustomerForm, EditCustomerFormData } from '../../components/custome
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 
@@ -103,6 +102,13 @@ const EditCustomerPage: React.FC = () => {
     navigate('/customers');
   };
 
+  const breadcrumbs = useMemo(() => ([
+    { label: t('navigation.home'), href: '/', icon: <FiHome className="w-4 h-4" /> },
+    { label: t('admin.customers'), href: '/customers' },
+    { label: `${customer.firstName} ${customer.lastName}`, href: `/customers/${id}` },
+    { label: t('admin.edit') },
+  ]), [customer.firstName, customer.lastName, id, t]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -112,18 +118,8 @@ const EditCustomerPage: React.FC = () => {
   }
 
   return (
-    <BaseLayout title={t('admin.edit_customer')}>
+    <BaseLayout title={t('admin.edit_customer')} breadcrumbs={breadcrumbs}>
       <div className="space-y-6">
-        {/* Breadcrumbs */}
-        <Breadcrumb
-          items={[
-            { label: t('navigation.home'), href: '/', icon: <FiHome className="w-4 h-4" /> },
-            { label: t('admin.customers'), href: '/customers' },
-            { label: `${customer.firstName} ${customer.lastName}`, href: `/customers/${id}` },
-            { label: t('admin.edit') },
-          ]}
-        />
-
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">

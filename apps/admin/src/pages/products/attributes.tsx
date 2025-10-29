@@ -13,7 +13,6 @@ import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { CreateAttributeModal } from '../../components/products/CreateAttributeModal';
 import { EditAttributeModal } from '../../components/products/EditAttributeModal';
@@ -442,9 +441,32 @@ const AttributesPage: React.FC = () => {
     },
   ], [handleCreateAttribute, handleRefresh, handleFilterToggle, showFilters]);
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: 'Home',
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />
+    },
+    {
+      label: 'Products',
+      href: '/products',
+      icon: <FiPackage className="w-4 h-4" />
+    },
+    {
+      label: t('attributes.title', 'Product Attributes'),
+      icon: <FiSettings className="w-4 h-4" />
+    }
+  ]), [t]);
+
   if (isLoading) {
     return (
-      <BaseLayout title={t('attributes.title', 'Product Attributes')} description={t('attributes.description', 'Manage product attributes and their values')} actions={actions} fullWidth={true}>
+      <BaseLayout
+        title={t('attributes.title', 'Product Attributes')}
+        description={t('attributes.description', 'Manage product attributes and their values')}
+        actions={actions}
+        fullWidth={true}
+        breadcrumbs={breadcrumbs}
+      >
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
@@ -454,7 +476,13 @@ const AttributesPage: React.FC = () => {
 
   if (error) {
     return (
-      <BaseLayout title={t('attributes.title', 'Product Attributes')} description={t('attributes.description', 'Manage product attributes and their values')} actions={actions} fullWidth={true}>
+      <BaseLayout
+        title={t('attributes.title', 'Product Attributes')}
+        description={t('attributes.description', 'Manage product attributes and their values')}
+        actions={actions}
+        fullWidth={true}
+        breadcrumbs={breadcrumbs}
+      >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
           <AlertDescription>{error.message}</AlertDescription>
@@ -467,28 +495,14 @@ const AttributesPage: React.FC = () => {
   const totalPages = Math.ceil(totalAttributes / limit);
 
   return (
-    <BaseLayout title={t('attributes.title', 'Product Attributes')} description={t('attributes.description', 'Manage product attributes and their values')} actions={actions} fullWidth={true}>
+    <BaseLayout
+      title={t('attributes.title', 'Product Attributes')}
+      description={t('attributes.description', 'Manage product attributes and their values')}
+      actions={actions}
+      fullWidth={true}
+      breadcrumbs={breadcrumbs}
+    >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: 'Home',
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: 'Products',
-              href: '/products',
-              icon: <FiPackage className="w-4 h-4" />
-            },
-            {
-              label: t('attributes.title', 'Product Attributes'),
-              icon: <FiSettings className="w-4 h-4" />
-            }
-          ]}
-        />
-
         {/* Statistics */}
         <StatisticsGrid statistics={statisticsData} isLoading={statsLoading} />
 

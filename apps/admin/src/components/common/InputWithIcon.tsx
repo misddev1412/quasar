@@ -3,21 +3,11 @@ import clsx from 'clsx';
 
 export type IconSpacing = 'compact' | 'standard' | 'large';
 
-interface InputWithIconProps {
-  id?: string;
-  type?: string;
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
-  className?: string;
+export interface InputWithIconProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   iconSpacing?: IconSpacing;
-  disabled?: boolean;
-  required?: boolean;
-  autoComplete?: string;
-  'aria-label'?: string;
-  'aria-describedby'?: string;
 }
 
 /**
@@ -40,19 +30,12 @@ interface InputWithIconProps {
  * ```
  */
 export const InputWithIcon: React.FC<InputWithIconProps> = ({
-  id,
-  type = 'text',
-  value,
-  onChange,
-  placeholder,
-  className = '',
   leftIcon,
   rightIcon,
   iconSpacing = 'standard',
-  disabled = false,
-  required = false,
-  autoComplete,
-  ...ariaProps
+  className = '',
+  disabled,
+  ...inputProps
 }) => {
   // Map spacing options to CSS classes
   const spacingClasses = {
@@ -75,20 +58,13 @@ export const InputWithIcon: React.FC<InputWithIconProps> = ({
 
       {/* Input Field */}
       <input
-        id={id}
-        type={type}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
         disabled={disabled}
-        required={required}
-        autoComplete={autoComplete}
         className={clsx(
           // Base input styles
           'block w-full py-2 border rounded-md leading-5 bg-white dark:bg-gray-700',
           'text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400',
           'border-gray-300 dark:border-gray-600',
-          'focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500',
+          'focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500',
           // Icon spacing
           leftPaddingClass,
           rightPaddingClass,
@@ -97,7 +73,7 @@ export const InputWithIcon: React.FC<InputWithIconProps> = ({
           // Custom classes
           className
         )}
-        {...ariaProps}
+        {...inputProps}
       />
 
       {/* Right Icon */}

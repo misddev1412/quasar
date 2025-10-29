@@ -17,7 +17,6 @@ import { Role, RoleFiltersType, RoleStatistics } from '../../types/role';
 import { ConfirmationModal } from '../../components/common/ConfirmationModal';
 import { QuickAddPermissionModal } from '../../components/role/QuickAddPermissionModal';
 import { QuickAddUserModal } from '../../components/role/QuickAddUserModal';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { FiHome } from 'react-icons/fi';
 
 interface RoleIndexPageProps {}
@@ -525,6 +524,18 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
     },
   ], [t, handleCreateRole, refetch, handleBulkAction]);
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: t('navigation.home', 'Home'),
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />,
+    },
+    {
+      label: t('roles.title', 'Roles'),
+      icon: <FiShield className="w-4 h-4" />,
+    },
+  ]), [t]);
+
   // Render loading state
   if (isLoading) {
     return (
@@ -532,6 +543,7 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
         title={t('roles.role_management', 'Role Management')}
         description={t('roles.manage_roles_description', 'Manage user roles and permissions')}
         fullWidth={true}
+        breadcrumbs={breadcrumbs}
       >
         <Loading />
       </BaseLayout>
@@ -545,6 +557,7 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
         title={t('roles.role_management', 'Role Management')}
         description={t('roles.manage_roles_description', 'Manage user roles and permissions')}
         fullWidth={true}
+        breadcrumbs={breadcrumbs}
       >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
@@ -568,21 +581,8 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
       description={t('roles.manage_roles_description', 'Manage user roles and permissions')}
       actions={pageActions}
       fullWidth={true}
+      breadcrumbs={breadcrumbs}
     >
-      {/* Breadcrumb Navigation */}
-      <Breadcrumb
-        items={[
-          {
-            label: t('navigation.home', 'Home'),
-            href: '/',
-            icon: <FiHome className="w-4 h-4" />
-          },
-          {
-            label: t('roles.title', 'Roles'),
-            icon: <FiShield className="w-4 h-4" />
-          }
-        ]}
-      />
       {/* Statistics */}
       {!statisticsLoading && !statisticsError && (
         <div className="mb-6">

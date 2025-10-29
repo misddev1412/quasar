@@ -384,6 +384,16 @@ export class OrderRepository {
     await this.orderItemRepository.delete({ orderId });
   }
 
+  async findOrderItemById(id: string, relations: string[] = []): Promise<OrderItem | null> {
+    const findOptions: any = { where: { id } };
+
+    if (relations.length > 0) {
+      findOptions.relations = relations;
+    }
+
+    return this.orderItemRepository.findOne(findOptions);
+  }
+
   async generateOrderNumber(): Promise<string> {
     const today = new Date();
     const year = today.getFullYear().toString().slice(-2);

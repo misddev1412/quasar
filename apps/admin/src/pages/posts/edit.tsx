@@ -4,7 +4,6 @@ import { FileText, ArrowLeft, FolderOpen } from 'lucide-react';
 import { FiHome, FiEdit3 } from 'react-icons/fi';
 import { Card, CardHeader, CardContent } from '../../components/common/Card';
 import BaseLayout from '../../components/layout/BaseLayout';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { EditPostForm } from '../../components/posts/EditPostForm';
 import { MediaManager } from '../../components/common/MediaManager';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -194,6 +193,23 @@ const EditPostPage: React.FC = () => {
     },
   ];
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: 'Home',
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />,
+    },
+    {
+      label: 'Posts',
+      href: '/posts',
+      icon: <FileText className="w-4 h-4" />,
+    },
+    {
+      label: t('posts.edit', 'Edit Post'),
+      icon: <FiEdit3 className="w-4 h-4" />,
+    },
+  ]), [t]);
+
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -229,28 +245,9 @@ const EditPostPage: React.FC = () => {
         title={t('posts.edit', 'Edit Post')}
         description={t('posts.editDescription') || 'Update post content and metadata'}
         actions={pageActions}
+        breadcrumbs={breadcrumbs}
       >
         <div className="space-y-6">
-          {/* Breadcrumb Navigation */}
-          <Breadcrumb
-            items={[
-              {
-                label: 'Home',
-                href: '/',
-                icon: <FiHome className="w-4 h-4" />
-              },
-              {
-                label: 'Posts',
-                href: '/posts',
-                icon: <FileText className="w-4 h-4" />
-              },
-              {
-                label: t('posts.edit', 'Edit Post'),
-                icon: <FiEdit3 className="w-4 h-4" />
-              }
-            ]}
-          />
-
           <Card>
           <CardHeader className="pb-4">
             <div className="flex items-center gap-3">

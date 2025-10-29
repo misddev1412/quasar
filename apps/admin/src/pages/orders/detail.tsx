@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   FiShoppingBag,
@@ -25,7 +25,6 @@ import { Alert, AlertDescription, AlertTitle } from '../../components/common/Ale
 import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
 import { Dropdown } from '../../components/common/Dropdown';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -127,9 +126,33 @@ const OrderDetailPage: React.FC = () => {
     }
   };
 
+  const orderNumber = (orderData as any)?.data?.orderNumber;
+
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: t('navigation.home', 'Home'),
+      href: '/',
+      icon: <FiHome className="h-4 w-4" />,
+    },
+    {
+      label: t('orders'),
+      href: '/orders',
+      icon: <FiShoppingBag className="h-4 w-4" />,
+    },
+    {
+      label: orderNumber ? `#${orderNumber}` : t('order_details'),
+      icon: <FiShoppingBag className="h-4 w-4" />,
+    },
+  ]), [orderNumber, t]);
+
   if (orderLoading) {
     return (
-      <BaseLayout title={t('order_details')} description={t('order_details_description')} fullWidth={true}>
+      <BaseLayout
+        title={t('order_details')}
+        description={t('order_details_description')}
+        fullWidth={true}
+        breadcrumbs={breadcrumbs}
+      >
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
@@ -139,7 +162,12 @@ const OrderDetailPage: React.FC = () => {
 
   if (orderError || !orderData || !(orderData as any)?.data) {
     return (
-      <BaseLayout title={t('order_details')} description={t('order_details_description')} fullWidth={true}>
+      <BaseLayout
+        title={t('order_details')}
+        description={t('order_details_description')}
+        fullWidth={true}
+        breadcrumbs={breadcrumbs}
+      >
         <Alert variant="destructive">
           <AlertTitle>{t('error_loading_order')}</AlertTitle>
           <AlertDescription>
@@ -178,28 +206,9 @@ const OrderDetailPage: React.FC = () => {
       description={t('order_details_description')}
       actions={actions}
       fullWidth={true}
+      breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
-        {/* Breadcrumb */}
-        <Breadcrumb
-          items={[
-            {
-              label: t('home'),
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: t('orders'),
-              href: '/orders',
-              icon: <FiShoppingBag className="w-4 h-4" />
-            },
-            {
-              label: `#${order.orderNumber}`,
-              icon: <FiShoppingBag className="w-4 h-4" />
-            }
-          ]}
-        />
-
         {/* Order Header */}
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between mb-4">

@@ -36,6 +36,7 @@ import { useMenu } from '../../hooks/useMenu';
 import { CategoryService } from '../../services/category.service';
 import MenuNavigation, { NavigationItem } from '../menu/MenuNavigation';
 import MegaMenu, { MegaMenuSection } from '../menu/MegaMenu';
+import TopMenuBar from './TopMenuBar';
 
 // Icons as components for better maintainability
 const Icons = {
@@ -779,18 +780,21 @@ const Header: React.FC = () => {
   }, [isAdvancedOpen]);
 
   return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
-      <Container className="py-0">
-        <Navbar
-          onMenuOpenChange={setIsMenuOpen}
-          isMenuOpen={isMenuOpen}
-          className="bg-transparent shadow-none border-none px-0"
-          maxWidth="full"
-          classNames={{
-            wrapper: 'w-full px-0',
-          }}
-          height="4rem"
-        >
+    <>
+      <TopMenuBar />
+      <header className="sticky top-0 z-50 bg-white dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
+        <Container className="py-0">
+          <Navbar
+            onMenuOpenChange={setIsMenuOpen}
+            isMenuOpen={isMenuOpen}
+            className="bg-transparent shadow-none border-none px-0"
+            maxWidth="full"
+            position="static"
+            classNames={{
+              wrapper: 'w-full px-0',
+            }}
+            height="4rem"
+          >
           {/* Left Section: Menu Toggle + Logo */}
           <NavbarContent justify="start">
             <NavbarMenuToggle
@@ -1188,8 +1192,9 @@ const Header: React.FC = () => {
               document.body
             )
           : null}
-      </Container>
-    </header>
+        </Container>
+      </header>
+    </>
   );
 };
 

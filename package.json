@@ -135,6 +135,7 @@
     "date-fns": "^4.1.0",
     "firebase": "^12.2.1",
     "firebase-admin": "^13.5.0",
+    "formik": "^2.4.6",
     "framer-motion": "^12.23.18",
     "i18next": "^25.3.1",
     "i18next-browser-languagedetector": "^8.2.0",
@@ -170,6 +171,7 @@
     "tinymce": "^8.0.2",
     "typeorm": "^0.3.25",
     "xlsx": "^0.18.5",
+    "yup": "^1.7.1",
     "zod": "^3.25.75"
   }
 }

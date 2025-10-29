@@ -14,6 +14,7 @@ export * from './types/auth.types';
 export * from './types/translation.types';
 export * from './types/api-response.types';
 export * from './types/seo.types';
+export * from './types/floating-widget.types';
 
 // Enums (all enums from index)
 export * from './enums';

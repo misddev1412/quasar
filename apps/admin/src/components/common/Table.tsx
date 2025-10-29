@@ -396,6 +396,8 @@ export interface Column<T> {
   header: string;
   /** Data accessor - can be a key or render function */
   accessor: keyof T | ((item: T, index: number) => React.ReactNode);
+  /** Optional custom renderer when using key accessor */
+  render?: (value: T[keyof T], item: T, index: number) => React.ReactNode;
   /** Additional CSS classes for the column */
   className?: string;
   /** Whether this column can be sorted */
@@ -840,6 +842,10 @@ export function Table<T extends { id: string | number }>({
       // Handle null/undefined values gracefully
       if (value === null || value === undefined) {
         return <span className="text-gray-400 dark:text-gray-500">—</span>;
+      }
+
+      if (column.render) {
+        return column.render(value, item, index);
       }
 
       // Handle datetime formatting

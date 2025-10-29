@@ -9,6 +9,7 @@ import {
 } from '@trpc/client';
 import type { AppRouter } from '../../../backend/src/types/app-router';
 import { errorLink } from './trpc-error-link';
+import { getCurrentLocale } from '../i18n';
 
 // Simple auth token management (you might want to use a state management library)
 function getAuthToken(): string | null {
@@ -36,15 +37,39 @@ export const links: TRPCLink<AppRouter>[] = [
     true: httpBatchLink({
       url: `${getBaseUrl()}/trpc`,
       headers() {
+        const headers: Record<string, string> = {};
         const token = getAuthToken();
-        return token ? { Authorization: `Bearer ${token}` } : {};
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+
+        const locale = getCurrentLocale();
+        if (locale) {
+          headers['x-locale'] = locale;
+        }
+
+        headers['X-Client-Type'] = 'admin';
+
+        return headers;
       },
     }),
     false: httpLink({
       url: `${getBaseUrl()}/trpc`,
       headers() {
+        const headers: Record<string, string> = {};
         const token = getAuthToken();
-        return token ? { Authorization: `Bearer ${token}` } : {};
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+
+        const locale = getCurrentLocale();
+        if (locale) {
+          headers['x-locale'] = locale;
+        }
+
+        headers['X-Client-Type'] = 'admin';
+
+        return headers;
       },
     }),
   }),

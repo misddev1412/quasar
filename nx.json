@@ -4,6 +4,9 @@
   },
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "nxCloudId": "686c88c3e038bd4f51dbd5cd",
+  "cloud": {
+    "enabled": false
+  },
   "cli": {
     "packageManager": "yarn"
   },

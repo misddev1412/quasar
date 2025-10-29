@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Lock, ArrowLeft, Shield, Settings, Trash2, Home } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../../components/common/Card';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -341,32 +340,31 @@ const PermissionUpdatePage: React.FC = () => {
     );
   };
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: t('navigation.home', 'Home'),
+      href: '/',
+      icon: <Home className="h-4 w-4" />,
+    },
+    {
+      label: t('permissions.title', 'Permissions'),
+      href: '/permissions',
+      icon: <Shield className="h-4 w-4" />,
+    },
+    {
+      label: t('permissions.edit_permission', 'Edit Permission'),
+      icon: <Lock className="h-4 w-4" />,
+    },
+  ]), [t]);
+
   return (
     <BaseLayout
       title={t('permissions.edit_permission', 'Edit Permission')}
       description={t('permissions.edit_permission_description', 'Update permission information and settings')}
       actions={pageActions}
+      breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: 'Home',
-              href: '/',
-              icon: <Home className="w-4 h-4" />
-            },
-            {
-              label: 'Permissions',
-              href: '/permissions',
-              icon: <Shield className="w-4 h-4" />
-            },
-            {
-              label: 'Edit Permission',
-              icon: <Lock className="w-4 h-4" />
-            }
-          ]}
-        />
 
         <div className="max-w-4xl mx-auto">
           <Card>

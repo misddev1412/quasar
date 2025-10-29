@@ -159,6 +159,56 @@
       "details": "Error details (Development only)",
       "refresh": "Refresh Page",
       "retry": "Try Again"
+    },
+    "checkout": {
+      "title": "Checkout",
+      "subtitle": "Review your items and complete your order.",
+      "breadcrumb": {
+        "home": "Home",
+        "checkout": "Checkout"
+      },
+      "empty": {
+        "title": "Your cart is empty",
+        "description": "Add some products before proceeding to checkout.",
+        "action": "Browse products"
+      },
+      "actions": {
+        "go_home": "Go to homepage"
+      },
+      "toast": {
+        "success": {
+          "title": "Order placed",
+          "message": "Thank you for your purchase! We'll email your confirmation shortly."
+        },
+        "error": {
+          "title": "Checkout failed",
+          "message": "Something went wrong while placing your order. Please try again."
+        },
+        "empty": {
+          "title": "Cart is empty",
+          "message": "Add items to your cart before checking out."
+        },
+        "validation": {
+          "title": "Cart needs attention",
+          "message": "Please resolve the highlighted issues before placing your order."
+        }
+      },
+      "orderSummary": {
+        "title": "Order Summary",
+        "coupon": {
+          "placeholder": "Enter coupon code",
+          "apply": "Apply",
+          "applying": "Applying...",
+          "applied": "Coupon applied",
+          "applied_with_code": "Coupon \"{code}\" applied",
+          "remove": "Remove coupon"
+        },
+        "notes": {
+          "free_shipping": "Free shipping on orders over $50",
+          "money_back": "30-day money-back guarantee",
+          "secure_checkout": "Secure checkout"
+        }
+      }
     }
   },
   "layout": {
@@ -288,6 +338,133 @@
           "title": "Fast Performance",
           "description": "Optimized for speed and smooth user experience."
         }
+      }
+    },
+    "help": {
+      "seo": {
+        "title": "Help Center | Quasar",
+        "description": "Get instant answers, browse guides, or contact the Quasar support team."
+      },
+      "hero": {
+        "badge": "Help Center",
+        "title": "How can we help you today?",
+        "subtitle": "Quickly find answers, follow guided tutorials, or reach our support specialists.",
+        "searchPlaceholder": "Search for topics, guides, or keywords",
+        "searchButton": "Search",
+        "popular": {
+          "title": "Popular searches",
+          "trackOrder": "Track my order",
+          "trackOrderQuery": "Track my order",
+          "updateAccount": "Update account details",
+          "updateAccountQuery": "Update account details",
+          "returnProduct": "Return a product",
+          "returnProductQuery": "Return a product"
+        },
+        "support": {
+          "title": "Need something resolved fast?",
+          "description": "Our specialists are available around the clock for priority issues.",
+          "averageReply": "Average response time",
+          "averageReplyValue": "< 5 minutes",
+          "availability": "Availability",
+          "availabilityValue": "24/7 worldwide",
+          "cta": "Chat with support"
+        }
+      },
+      "breadcrumbs": {
+        "home": "Home",
+        "help": "Help Center"
+      },
+      "quickLinks": {
+        "title": "Start with quick help",
+        "description": "Jump straight into the tasks customers ask about the most.",
+        "orders": {
+          "title": "Track orders",
+          "description": "Check delivery progress and shipping updates."
+        },
+        "payments": {
+          "title": "Manage payments",
+          "description": "Update saved cards and download invoices."
+        },
+        "security": {
+          "title": "Account security",
+          "description": "Change your password and enable extra protection."
+        },
+        "support": {
+          "title": "Talk to support",
+          "description": "Open a ticket or speak with a specialist."
+        },
+        "cta": "Open"
+      },
+      "resources": {
+        "title": "Guided resources",
+        "description": "Explore curated articles and policies to help you move forward.",
+        "guides": {
+          "title": "Getting started kit",
+          "description": "Step-by-step walkthroughs for new customers."
+        },
+        "shipping": {
+          "title": "Shipping policy",
+          "description": "Delivery timelines, carriers, and regional coverage."
+        },
+        "returns": {
+          "title": "Returns & exchanges",
+          "description": "How to send items back and track the outcome."
+        },
+        "community": {
+          "title": "Quasar community",
+          "description": "Join discussions with other power users."
+        },
+        "cta": "View resource",
+        "featured": {
+          "title": "Latest help article",
+          "description": "This article comes directly from our knowledge base and updates automatically.",
+          "cta": "Read full article"
+        }
+      },
+      "contact": {
+        "title": "Still need help?",
+        "description": "Choose the channel that works best for you - we're here day and night.",
+        "note": "Average reply time: under 5 minutes",
+        "chat": {
+          "title": "Live chat",
+          "description": "Connect with an agent in real time."
+        },
+        "email": {
+          "title": "Email support",
+          "description": "Get a written response with step-by-step guidance."
+        },
+        "call": {
+          "title": "Call us",
+          "description": "Speak to a specialist between 8:00 and 22:00 daily."
+        },
+        "cta": "Start now"
+      },
+      "faq": {
+        "title": "Frequently asked questions",
+        "description": "Answers to the questions we hear most from customers.",
+        "items": {
+          "shipping": {
+            "question": "When will my order arrive?",
+            "answer": "Most orders ship within 24 hours and arrive within 2-5 business days. You can see real-time updates inside the orders dashboard."
+          },
+          "returns": {
+            "question": "How do I start a return?",
+            "answer": "Submit a return request from the orders page, choose the items, and print the prepaid label. We'll confirm once the package is scanned."
+          },
+          "account": {
+            "question": "Can I change my account email?",
+            "answer": "Yes. Visit account security, verify your password, and you can update the email in just a few clicks."
+          },
+          "payments": {
+            "question": "Why was my payment declined?",
+            "answer": "Payments can fail for expired cards or bank safety checks. Try another card or contact us so we can work with your bank."
+          }
+        }
+      },
+      "cta": {
+        "title": "Need personalized assistance?",
+        "description": "Create a priority support ticket and we'll assemble the right specialist team for you.",
+        "button": "Go to support portal"
       }
     },
     "login": {
@@ -960,6 +1137,56 @@
   "ecommerce": {
     "product": {
       "outOfStock": "Out of Stock"
+    },
+    "checkout": {
+      "title": "Checkout",
+      "subtitle": "Review your items and complete your order.",
+      "breadcrumb": {
+        "home": "Home",
+        "checkout": "Checkout"
+      },
+      "empty": {
+        "title": "Your cart is empty",
+        "description": "Add some products before proceeding to checkout.",
+        "action": "Browse products"
+      },
+      "actions": {
+        "go_home": "Go to homepage"
+      },
+      "toast": {
+        "success": {
+          "title": "Order placed",
+          "message": "Thank you for your purchase! We'll email your confirmation shortly."
+        },
+        "error": {
+          "title": "Checkout failed",
+          "message": "Something went wrong while placing your order. Please try again."
+        },
+        "empty": {
+          "title": "Cart is empty",
+          "message": "Add items to your cart before checking out."
+        },
+        "validation": {
+          "title": "Cart needs attention",
+          "message": "Please resolve the highlighted issues before placing your order."
+        }
+      },
+      "orderSummary": {
+        "title": "Order Summary",
+        "coupon": {
+          "placeholder": "Enter coupon code",
+          "apply": "Apply",
+          "applying": "Applying...",
+          "applied": "Coupon applied",
+          "applied_with_code": "Coupon \"{code}\" applied",
+          "remove": "Remove coupon"
+        },
+        "notes": {
+          "free_shipping": "Free shipping on orders over $50",
+          "money_back": "30-day money-back guarantee",
+          "secure_checkout": "Secure checkout"
+        }
+      }
     },
     "cart": {
       "add": "Add to Cart",

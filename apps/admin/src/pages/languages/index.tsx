@@ -5,7 +5,6 @@ import BaseLayout from '../../components/layout/BaseLayout';
 import { StatisticsGrid } from '../../components/common/StatisticsGrid';
 import { Table, Column } from '../../components/common/Table';
 import { Button } from '../../components/common/Button';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { Dropdown } from '../../components/common/Dropdown';
 import { ConfirmationModal } from '../../components/common/ConfirmationModal';
 import { LanguageFilters } from '../../components/features/LanguageFilters';
@@ -358,6 +357,18 @@ const LanguagesIndexPage: React.FC = () => {
     },
   ], [navigate, handleRefresh, showFilters, t]);
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: 'Home',
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />,
+    },
+    {
+      label: t('languages.languages', 'Languages'),
+      icon: <FiGlobe className="w-4 h-4" />,
+    },
+  ]), [t]);
+
   // Count active filters for display
   const activeFilterCount = useMemo(() =>
     Object.values(filters).filter(value =>
@@ -368,7 +379,13 @@ const LanguagesIndexPage: React.FC = () => {
 
   if (error) {
     return (
-      <BaseLayout title="Language Management" description="Manage system languages" actions={actions} fullWidth={true}>
+      <BaseLayout
+        title="Language Management"
+        description="Manage system languages"
+        actions={actions}
+        fullWidth={true}
+        breadcrumbs={breadcrumbs}
+      >
         <div className="text-red-600 dark:text-red-400">
           Error loading languages: {error.message}
         </div>
@@ -377,23 +394,14 @@ const LanguagesIndexPage: React.FC = () => {
   }
 
   return (
-    <BaseLayout title="Language Management" description="Manage system languages and translations" actions={actions} fullWidth={true}>
+    <BaseLayout
+      title="Language Management"
+      description="Manage system languages and translations"
+      actions={actions}
+      fullWidth={true}
+      breadcrumbs={breadcrumbs}
+    >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: 'Home',
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: 'Languages',
-              icon: <FiGlobe className="w-4 h-4" />
-            }
-          ]}
-        />
-
         {/* Statistics Cards */}
         <StatisticsGrid
           statistics={statisticsCards}

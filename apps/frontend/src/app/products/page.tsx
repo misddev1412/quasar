@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import Header from '../../components/layout/Header';
+import Layout from '../../components/layout/Layout';
 import ProductsContainer from '../../components/ecommerce/ProductsContainer';
 
 // Generate metadata for products page
@@ -24,11 +24,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function ProductsPage() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
-
+    <Layout>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 py-16 lg:py-20">
+      <section className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 py-16 lg:py-20 -mt-8 -mx-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
@@ -50,6 +48,6 @@ export default function ProductsPage() {
           <ProductsContainer />
         </div>
       </section>
-    </div>
+    </Layout>
   );
 }

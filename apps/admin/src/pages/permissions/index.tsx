@@ -14,7 +14,6 @@ import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { Permission, PermissionFiltersType, PermissionStatistics } from '../../types/permission';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { FiHome } from 'react-icons/fi';
 
 interface PermissionIndexPageProps {}
@@ -584,6 +583,18 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
     },
   ], [t, handleCreatePermission, refetch, handleBulkAction]);
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: t('navigation.home', 'Home'),
+      href: '/',
+      icon: <FiHome className="h-4 w-4" />,
+    },
+    {
+      label: t('permissions.title', 'Permissions'),
+      icon: <FiLock className="h-4 w-4" />,
+    },
+  ]), [t]);
+
   // Render loading state
   if (isLoading) {
     return (
@@ -591,6 +602,7 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
         title={t('permissions.permission_management', 'Permission Management')}
         description={t('permissions.manage_permissions_description', 'Manage system permissions and access controls')}
         fullWidth={true}
+        breadcrumbs={breadcrumbs}
       >
         <Loading />
       </BaseLayout>
@@ -604,6 +616,7 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
         title={t('permissions.permission_management', 'Permission Management')}
         description={t('permissions.manage_permissions_description', 'Manage system permissions and access controls')}
         fullWidth={true}
+        breadcrumbs={breadcrumbs}
       >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
@@ -621,21 +634,8 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
       description={t('permissions.manage_permissions_description', 'Manage system permissions and access controls')}
       actions={pageActions}
       fullWidth={true}
+      breadcrumbs={breadcrumbs}
     >
-      {/* Breadcrumb Navigation */}
-      <Breadcrumb
-        items={[
-          {
-            label: t('navigation.home', 'Home'),
-            href: '/',
-            icon: <FiHome className="w-4 h-4" />
-          },
-          {
-            label: t('permissions.title', 'Permissions'),
-            icon: <FiLock className="w-4 h-4" />
-          }
-        ]}
-      />
       {/* Statistics */}
       <div className="mb-6">
         <StatisticsGrid statistics={statistics} />

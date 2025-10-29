@@ -33,6 +33,10 @@ import { AdministrativeDivision } from './entities/administrative-division.entit
 import { PaymentMethod } from './entities/payment-method.entity';
 import { DeliveryMethod } from './entities/delivery-method.entity';
 import { Wishlist } from './entities/wishlist.entity';
+import { ShippingProvider } from './entities/shipping-provider.entity';
+import { OrderFulfillment } from './entities/order-fulfillment.entity';
+import { FulfillmentItem } from './entities/fulfillment-item.entity';
+import { DeliveryTracking } from './entities/delivery-tracking.entity';
 import { AttributeRepository } from './repositories/attribute.repository';
 import { BrandRepository } from './repositories/brand.repository';
 import { InventoryItemRepository } from './repositories/inventory-item.repository';
@@ -53,6 +57,10 @@ import { AdministrativeDivisionRepository } from './repositories/administrative-
 import { PaymentMethodRepository } from './repositories/payment-method.repository';
 import { DeliveryMethodRepository } from './repositories/delivery-method.repository';
 import { WishlistRepository } from './repositories/wishlist.repository';
+import { ShippingProviderRepository } from './repositories/shipping-provider.repository';
+import { OrderFulfillmentRepository } from './repositories/order-fulfillment.repository';
+import { FulfillmentItemRepository } from './repositories/fulfillment-item.repository';
+import { DeliveryTrackingRepository } from './repositories/delivery-tracking.repository';
 import { AdminProductService } from './services/admin-product.service';
 import { WarehouseService } from './services/warehouse.service';
 import { PurchaseOrderService } from './services/purchase-order.service';
@@ -61,6 +69,8 @@ import { AdminCustomerService } from './services/admin-customer.service';
 import { PaymentMethodService } from './services/payment-method.service';
 import { DeliveryMethodService } from './services/delivery-method.service';
 import { ClientOrderService } from './services/client-order.service';
+import { OrderFulfillmentService } from './services/order-fulfillment.service';
+import { ShippingProviderService } from './services/shipping-provider.service';
 import { ProductTransformer } from './transformers/product.transformer';
 import { SharedModule } from '../shared/shared.module';
 import { AdminProductsRouter } from './routers/admin.router';
@@ -71,11 +81,13 @@ import { AdminProductSuppliersRouter } from './routers/admin-suppliers.router';
 import { AdminWarehousesRouter } from './routers/admin-warehouse.router';
 import { PublicProductsRouter } from './routers/public.router';
 import { AdminOrdersRouter } from './routers/admin-orders.router';
+import { AdminOrderFulfillmentsRouter } from './routers/admin-order-fulfillments.trpc';
 import { AdminCustomersRouter } from './routers/admin-customers.router';
 import { AdminPaymentMethodsRouter } from './routers/admin-payment-methods.router';
 import { AdminDeliveryMethodsRouter } from './routers/admin-delivery-methods.router';
 import { AdminWishlistRouter } from './routers/admin-wishlist.router';
 import { ClientOrdersRouter } from './routers/client-orders.router';
+import { ClientDeliveryMethodsRouter } from './routers/client-delivery-methods.router';
 import { ClientProductsRouter } from '../../trpc/routers/client/products.router';
 import { StorageModule } from '../storage/storage.module';
 
@@ -115,6 +127,10 @@ import { StorageModule } from '../storage/storage.module';
       DeliveryMethod,
       Wishlist,
       User,
+      ShippingProvider,
+      OrderFulfillment,
+      FulfillmentItem,
+      DeliveryTracking,
     ]),
     SharedModule,
     StorageModule,
@@ -135,34 +151,43 @@ import { StorageModule } from '../storage/storage.module';
     WarehouseRepository,
     OrderRepository,
     CustomerRepository,
-        CountryRepository,
+    CountryRepository,
     AdministrativeDivisionRepository,
     PaymentMethodRepository,
     DeliveryMethodRepository,
     WishlistRepository,
+    ShippingProviderRepository,
+    OrderFulfillmentRepository,
+    FulfillmentItemRepository,
+    DeliveryTrackingRepository,
     ProductTransformer,
     AdminProductService,
     WarehouseService,
     PurchaseOrderService,
     AdminOrderService,
     AdminCustomerService,
-        PaymentMethodService,
+    PaymentMethodService,
     DeliveryMethodService,
+    ClientOrderService,
+    OrderFulfillmentService,
+    ShippingProviderService,
     AdminProductsRouter,
     AdminProductAttributesRouter,
     AdminProductBrandsRouter,
     AdminProductCategoriesRouter,
     AdminProductSuppliersRouter,
     AdminWarehousesRouter,
-        PublicProductsRouter,
+    PublicProductsRouter,
     AdminOrdersRouter,
+    AdminOrderFulfillmentsRouter,
     AdminCustomersRouter,
-        AdminPaymentMethodsRouter,
+    AdminPaymentMethodsRouter,
     AdminDeliveryMethodsRouter,
     AdminWishlistRouter,
-        ClientOrdersRouter,
-        ClientOrderService,
-        ClientProductsRouter,
+    ClientOrdersRouter,
+    ClientOrderService,
+    ClientProductsRouter,
+    ClientDeliveryMethodsRouter,
   ],
   exports: [
     TypeOrmModule,
@@ -181,18 +206,22 @@ import { StorageModule } from '../storage/storage.module';
     WarehouseRepository,
     OrderRepository,
     CustomerRepository,
-        CountryRepository,
+    CountryRepository,
     AdministrativeDivisionRepository,
     PaymentMethodRepository,
     DeliveryMethodRepository,
     WishlistRepository,
+    ShippingProviderRepository,
+    OrderFulfillmentRepository,
+    FulfillmentItemRepository,
+    DeliveryTrackingRepository,
     ProductTransformer,
     AdminProductService,
     WarehouseService,
     PurchaseOrderService,
     AdminOrderService,
     AdminCustomerService,
-        PaymentMethodService,
+    PaymentMethodService,
     DeliveryMethodService,
     AdminProductsRouter,
     AdminProductAttributesRouter,
@@ -200,15 +229,19 @@ import { StorageModule } from '../storage/storage.module';
     AdminProductCategoriesRouter,
     AdminProductSuppliersRouter,
     AdminWarehousesRouter,
-        PublicProductsRouter,
+    PublicProductsRouter,
     AdminOrdersRouter,
+    AdminOrderFulfillmentsRouter,
     AdminCustomersRouter,
-        AdminPaymentMethodsRouter,
+    AdminPaymentMethodsRouter,
     AdminDeliveryMethodsRouter,
     AdminWishlistRouter,
-        ClientOrdersRouter,
-        ClientOrderService,
-        ClientProductsRouter,
-      ],
+    ClientOrdersRouter,
+    ClientOrderService,
+    ClientProductsRouter,
+    ClientDeliveryMethodsRouter,
+    OrderFulfillmentService,
+    ShippingProviderService,
+  ],
 })
 export class ProductsModule {}

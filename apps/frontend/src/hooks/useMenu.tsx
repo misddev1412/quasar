@@ -119,6 +119,31 @@ export const useMenu = (menuGroup: string = 'main') => {
         return item.url ?? '#';
       case MenuType.CUSTOM_HTML:
         return '#';
+      case MenuType.SITE_CONTENT: {
+        if (item.referenceId) {
+          const trimmed = item.referenceId.trim();
+          if (trimmed.length > 0) {
+            if (/^https?:/i.test(trimmed)) {
+              return trimmed;
+            }
+
+            if (trimmed.startsWith('/')) {
+              return trimmed.startsWith('/pages/') ? trimmed : `/pages${trimmed}`;
+            }
+
+            const normalized = trimmed.replace(/^pages\//i, '').replace(/^\/+/, '');
+            if (normalized.length > 0) {
+              return `/pages/${normalized}`;
+            }
+          }
+        }
+
+        if (item.url) {
+          return item.url;
+        }
+
+        return '#';
+      }
       default:
         return item.url ?? '#';
     }

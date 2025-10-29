@@ -12,7 +12,6 @@ import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { Supplier } from '../../types/product';
 
@@ -648,9 +647,32 @@ const SuppliersPage: React.FC = () => {
     ];
   }, [statisticsData, t]);
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: 'Home',
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />
+    },
+    {
+      label: 'Products',
+      href: '/products',
+      icon: <FiPackage className="w-4 h-4" />
+    },
+    {
+      label: t('suppliers.title', 'Supplier Management'),
+      icon: <FiUser className="w-4 h-4" />
+    }
+  ]), [t]);
+
   if (isLoading) {
     return (
-      <BaseLayout title={t('suppliers.title', 'Supplier Management')} description={t('suppliers.description', 'Manage all suppliers in the system')} actions={actions} fullWidth={true}>
+      <BaseLayout
+        title={t('suppliers.title', 'Supplier Management')}
+        description={t('suppliers.description', 'Manage all suppliers in the system')}
+        actions={actions}
+        fullWidth={true}
+        breadcrumbs={breadcrumbs}
+      >
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
@@ -660,7 +682,13 @@ const SuppliersPage: React.FC = () => {
 
   if (error) {
     return (
-      <BaseLayout title={t('suppliers.title', 'Supplier Management')} description={t('suppliers.description', 'Manage all suppliers in the system')} actions={actions} fullWidth={true}>
+      <BaseLayout
+        title={t('suppliers.title', 'Supplier Management')}
+        description={t('suppliers.description', 'Manage all suppliers in the system')}
+        actions={actions}
+        fullWidth={true}
+        breadcrumbs={breadcrumbs}
+      >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
           <AlertDescription>{(error as any).message}</AlertDescription>
@@ -670,28 +698,14 @@ const SuppliersPage: React.FC = () => {
   }
 
   return (
-    <BaseLayout title={t('suppliers.title', 'Supplier Management')} description={t('suppliers.description', 'Manage all suppliers in the system')} actions={actions} fullWidth={true}>
+    <BaseLayout
+      title={t('suppliers.title', 'Supplier Management')}
+      description={t('suppliers.description', 'Manage all suppliers in the system')}
+      actions={actions}
+      fullWidth={true}
+      breadcrumbs={breadcrumbs}
+    >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: 'Home',
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: 'Products',
-              href: '/products',
-              icon: <FiPackage className="w-4 h-4" />
-            },
-            {
-              label: t('suppliers.title', 'Supplier Management'),
-              icon: <FiUser className="w-4 h-4" />
-            }
-          ]}
-        />
-
         {/* Statistics Cards */}
         <StatisticsGrid
           statistics={statisticsCards}

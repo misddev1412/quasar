@@ -12,7 +12,6 @@ import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBacken
 import BaseLayout from '../components/layout/BaseLayout';
 import { trpc } from '../utils/trpc';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
-import { Breadcrumb } from '../components/common/Breadcrumb';
 
 // Define the static SEO data for the home page
 const homeSeoData: SeoData = {
@@ -130,17 +129,14 @@ export const HomePage: React.FC = () => {
     <BaseLayout
       title={t('dashboard.title')}
       description={t('dashboard.welcome_back')}
+      breadcrumbs={[
+        {
+          label: t('navigation.dashboard', 'Dashboard'),
+          icon: <FiHome className="h-4 w-4" />,
+        }
+      ]}
     >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: t('navigation.dashboard', 'Dashboard'),
-              icon: <FiHome className="w-4 h-4" />
-            }
-          ]}
-        />
 
         {/* Real Statistics Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

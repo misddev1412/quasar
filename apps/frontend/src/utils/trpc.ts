@@ -183,6 +183,8 @@ export const links: TRPCLink<AppRouter>[] = [
       // Add client identifier for backend to distinguish frontend from admin
       headers['X-Client-Type'] = 'frontend';
 
+      headers['x-locale'] = getLocale();
+
       return headers;
     },
   }),
@@ -200,3 +202,31 @@ export const createTrpcClient = (options?: Omit<CreateTRPCClientOptions<AppRoute
     links,
   });
 };
+
+const DEFAULT_LOCALE = (process.env.NEXT_PUBLIC_DEFAULT_LOCALE || 'vi').split('-')[0];
+
+function getLocale(): string {
+  if (typeof window === 'undefined') {
+    return DEFAULT_LOCALE;
+  }
+
+  try {
+    const stored = window.localStorage?.getItem('i18nextLng');
+    if (stored) {
+      return stored.split('-')[0];
+    }
+  } catch {
+    // Ignore storage access failures (e.g. disabled cookies)
+  }
+
+  if (typeof navigator !== 'undefined' && navigator.language) {
+    return navigator.language.split('-')[0];
+  }
+
+  const htmlLang = window.document?.documentElement?.lang;
+  if (htmlLang) {
+    return htmlLang.split('-')[0];
+  }
+
+  return DEFAULT_LOCALE;
+}

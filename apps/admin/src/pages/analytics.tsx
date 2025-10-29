@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useSettings, SettingData } from '../hooks/useSettings';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 import { useToast } from '../context/ToastContext';
 import { Toggle } from '../components/common/Toggle';
 import { Button } from '../components/common/Button';
-import { Breadcrumb } from '../components/common/Breadcrumb';
 import { FiSettings, FiGlobe, FiBarChart2, FiInfo, FiCheck, FiX, FiHome } from 'react-icons/fi';
 import BaseLayout from '../components/layout/BaseLayout';
 
@@ -38,6 +37,18 @@ const AnalyticsConfiguration: React.FC = () => {
     googleAnalytics?: { success: boolean; message: string };
     mixpanel?: { success: boolean; message: string };
   }>({});
+
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: t('navigation.home', 'Home'),
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />,
+    },
+    {
+      label: t('analytics.title', 'Analytics'),
+      icon: <FiBarChart2 className="w-4 h-4" />,
+    },
+  ]), [t]);
 
   // Load settings when they become available
   React.useEffect(() => {
@@ -172,22 +183,9 @@ const AnalyticsConfiguration: React.FC = () => {
     <BaseLayout
       title={t('analytics.title', 'Analytics Configuration')}
       description={t('analytics.description', 'Configure Google Analytics and Mixpanel for tracking user behavior and analytics')}
+      breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: t('navigation.home', 'Home'),
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: t('analytics.title', 'Analytics'),
-              icon: <FiBarChart2 className="w-4 h-4" />
-            }
-          ]}
-        />
         {/* Header */}
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center mb-4">

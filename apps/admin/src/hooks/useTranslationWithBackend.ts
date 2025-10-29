@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { trpc } from '../utils/trpc';
 import { SupportedLocale } from '@shared';
@@ -85,7 +85,7 @@ export const useTranslationWithBackend = (): UseTranslationWithBackendResult => 
   };
 
   // Custom t function that provides better fallback handling
-  const customT: CustomTFunction = (
+  const customT = useCallback<CustomTFunction>((
     key: string,
     fallbackOrOptions?: string | TranslationOptions,
     maybeOptions?: TranslationOptions
@@ -121,7 +121,7 @@ export const useTranslationWithBackend = (): UseTranslationWithBackendResult => 
       console.warn(`Translation error for key "${key}":`, err);
       return fallback || key;
     }
-  };
+  }, [t]);
 
   return {
     t: customT,

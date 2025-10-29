@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { FiBell, FiHome, FiUser, FiSave, FiRotateCcw } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import BaseLayout from '../../components/layout/BaseLayout';
@@ -10,7 +10,6 @@ import { withSeo } from '../../components/SEO/withSeo';
 import { Card } from '../../components/common/Card';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription } from '../../components/common/Alert';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 
 const NotificationPreferencesPage: React.FC = () => {
   const { user } = useAuth();
@@ -57,6 +56,23 @@ const NotificationPreferencesPage: React.FC = () => {
     }
   ];
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: t('navigation.home', 'Home'),
+      href: '/',
+      icon: <FiHome className="h-4 w-4" />,
+    },
+    {
+      label: t('navigation.notifications', 'Notifications'),
+      href: '/notifications',
+      icon: <FiBell className="h-4 w-4" />,
+    },
+    {
+      label: t('notificationPreferences.title', 'Preferences'),
+      icon: <FiUser className="h-4 w-4" />,
+    },
+  ]), [t]);
+
   const renderContent = () => {
     if (!user?.id) {
       return (
@@ -88,27 +104,9 @@ const NotificationPreferencesPage: React.FC = () => {
       description={t('notificationPreferences.subtitle', 'Manage your notification settings and preferences')}
       actions={user?.id ? actions : undefined}
       fullWidth={true}
+      breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
-          {/* Breadcrumb Navigation */}
-          <Breadcrumb
-            items={[
-              {
-                label: t('navigation.home', 'Home'),
-                href: '/',
-                icon: <FiHome className="w-4 h-4" />
-              },
-              {
-                label: t('navigation.notifications', 'Notifications'),
-                href: '/notifications',
-                icon: <FiBell className="w-4 h-4" />
-              },
-              {
-                label: t('notificationPreferences.title', 'Preferences')
-              }
-            ]}
-          />
-
           {/* Last Saved Indicator */}
           {lastSaved && (
             <Alert className="border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20">

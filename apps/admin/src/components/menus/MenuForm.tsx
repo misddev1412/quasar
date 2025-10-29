@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '../../components/common/Button';
 import { Select, SelectOption } from '../../components/common/Select';
 import { Toggle } from '../../components/common/Toggle';
@@ -8,10 +8,24 @@ import { CategorySelector } from './CategorySelector';
 import { BrandSelector } from './BrandSelector';
 import ParentMenuSelector from './ParentMenuSelector';
 import { IconSelector } from './IconSelector';
-import { ColorSelector } from './ColorSelector';
+import { ColorSelector } from '../common/ColorSelector';
 import { AdminMenu, MenuTreeNode } from '../../hooks/useMenusManager';
-import { MenuType, MenuTarget } from '@shared/enums/menu.enums';
-import { MenuFormState, MenuTranslationForm, DEFAULT_MENU_GROUP_OPTIONS, MENU_TYPE_OPTIONS, MENU_TARGET_OPTIONS } from '../../hooks/useMenuPage';
+import {
+  MenuType,
+  MenuTarget,
+  TopMenuTimeFormat,
+  TOP_MENU_TIME_FORMAT_LABELS,
+} from '@shared/enums/menu.enums';
+import {
+  MenuFormState,
+  MenuTranslationForm,
+  DEFAULT_MENU_GROUP_OPTIONS,
+  MENU_TYPE_OPTIONS,
+  MENU_TARGET_OPTIONS,
+  TOP_MENU_GROUP,
+  TOP_MENU_ALLOWED_TYPES,
+  ALL_MENU_TYPE_OPTIONS,
+} from '../../hooks/useMenuPage';
 import { cn } from '@admin/lib/utils';
 
 const asStringOrUndefined = (value: unknown): string | undefined =>
@@ -44,6 +58,44 @@ const normalizeBannerConfig = (
     backgroundImage: asStringOrUndefined(banner.backgroundImage),
     position: normalizedPosition,
   };
+};
+
+const requiresUrl = (type: MenuType) => type === MenuType.LINK || type === MenuType.BANNER;
+const requiresReferenceId = (type: MenuType) =>
+  type === MenuType.PRODUCT || type === MenuType.CATEGORY || type === MenuType.BRAND;
+
+const TOP_MENU_CONFIG_KEYS = ['topPhoneNumber', 'topEmailAddress', 'topTimeFormat'] as const;
+const TOP_MENU_ONLY_TYPES = [MenuType.TOP_PHONE, MenuType.TOP_EMAIL, MenuType.TOP_CURRENT_TIME] as const;
+
+const TOP_TIME_FORMAT_OPTIONS: SelectOption[] = (Object.values(TopMenuTimeFormat) as TopMenuTimeFormat[]).map(
+  (value) => ({
+    value,
+    label: TOP_MENU_TIME_FORMAT_LABELS[value],
+  }),
+);
+
+const sanitizeConfigForType = (config: Record<string, unknown> | undefined, type: MenuType) => {
+  const nextConfig: Record<string, unknown> = { ...(config || {}) };
+
+  if (TOP_MENU_ALLOWED_TYPES.includes(type)) {
+    return nextConfig;
+  }
+
+  TOP_MENU_CONFIG_KEYS.forEach((key) => {
+    if (key in nextConfig) {
+      delete nextConfig[key];
+    }
+  });
+
+  return nextConfig;
+};
+
+const getTopMenuConfigValue = (
+  config: Record<string, unknown> | undefined,
+  key: typeof TOP_MENU_CONFIG_KEYS[number],
+) => {
+  const value = config?.[key];
+  return typeof value === 'string' ? value : '';
 };
 
 interface MenuFormProps {
@@ -129,6 +181,51 @@ export const MenuForm: React.FC<MenuFormProps> = ({
     };
   });
 
+  const isTopMenu = formData.menuGroup === TOP_MENU_GROUP;
+
+  const menuTypeOptions = useMemo<SelectOption[]>(() => {
+    const source = isTopMenu
+      ? ALL_MENU_TYPE_OPTIONS.filter(option => TOP_MENU_ALLOWED_TYPES.includes(option.value))
+      : MENU_TYPE_OPTIONS;
+
+    return source.map(option => ({
+      value: option.value,
+      label: option.label,
+      disabled: option.disabled,
+    }));
+  }, [isTopMenu]);
+
+  useEffect(() => {
+    if (!isTopMenu) {
+      setFormData(prev => ({
+        ...prev,
+        config: sanitizeConfigForType(prev.config, prev.type),
+      }));
+      return;
+    }
+
+    setFormData(prev => {
+      const nextType = TOP_MENU_ALLOWED_TYPES.includes(prev.type)
+        ? prev.type
+        : TOP_MENU_ALLOWED_TYPES[0];
+
+      const nextConfig = sanitizeConfigForType(prev.config, nextType);
+      if (nextType === MenuType.TOP_CURRENT_TIME && typeof nextConfig['topTimeFormat'] !== 'string') {
+        nextConfig['topTimeFormat'] = TopMenuTimeFormat.HOURS_MINUTES;
+      }
+
+      return {
+        ...prev,
+        type: nextType,
+        isMegaMenu: false,
+        megaMenuColumns: undefined,
+        url: requiresUrl(nextType) ? prev.url : undefined,
+        referenceId: requiresReferenceId(nextType) ? prev.referenceId : undefined,
+        config: nextConfig,
+      };
+    });
+  }, [isTopMenu]);
+
   const [activeLocale, setActiveLocale] = useState<string>(() => {
     const defaultLanguage = languages.find((language) => language.isDefault);
     return defaultLanguage?.code || languages[0]?.code || 'en';
@@ -164,6 +261,70 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
   const updateFormData = (field: keyof MenuFormState, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const updateConfigValue = (key: typeof TOP_MENU_CONFIG_KEYS[number], value: string) => {
+    setFormData(prev => {
+      const nextConfig = { ...prev.config };
+      if (value === '') {
+        delete nextConfig[key];
+      } else {
+        nextConfig[key] = value;
+      }
+      return {
+        ...prev,
+        config: nextConfig,
+      };
+    });
+  };
+
+  const handleTypeChange = (type: MenuType) => {
+    setFormData(prev => {
+      const nextConfig = sanitizeConfigForType(prev.config, type);
+
+      if (type === MenuType.TOP_CURRENT_TIME && typeof nextConfig['topTimeFormat'] !== 'string') {
+        nextConfig['topTimeFormat'] = TopMenuTimeFormat.HOURS_MINUTES;
+      }
+
+      return {
+        ...prev,
+        type,
+        url: requiresUrl(type) ? prev.url : undefined,
+        referenceId: requiresReferenceId(type) ? prev.referenceId : undefined,
+        config: nextConfig,
+      };
+    });
+  };
+
+  const handleMenuGroupChange = (group: string) => {
+    setFormData(prev => {
+      const isTopGroup = group === TOP_MENU_GROUP;
+
+      let nextType = prev.type;
+      if (isTopGroup && !TOP_MENU_ALLOWED_TYPES.includes(nextType)) {
+        nextType = TOP_MENU_ALLOWED_TYPES[0];
+      }
+
+      if (!isTopGroup && TOP_MENU_ONLY_TYPES.includes(nextType as typeof TOP_MENU_ONLY_TYPES[number])) {
+        nextType = MenuType.LINK;
+      }
+
+      const nextConfig = sanitizeConfigForType(prev.config, nextType);
+      if (isTopGroup && nextType === MenuType.TOP_CURRENT_TIME && typeof nextConfig['topTimeFormat'] !== 'string') {
+        nextConfig['topTimeFormat'] = TopMenuTimeFormat.HOURS_MINUTES;
+      }
+
+      return {
+        ...prev,
+        menuGroup: group,
+        type: nextType,
+        isMegaMenu: isTopGroup ? false : prev.isMegaMenu,
+        megaMenuColumns: isTopGroup ? undefined : prev.megaMenuColumns,
+        url: requiresUrl(nextType) ? prev.url : undefined,
+        referenceId: requiresReferenceId(nextType) ? prev.referenceId : undefined,
+        config: nextConfig,
+      };
+    });
   };
 
   const updateTranslation = (locale: string, field: keyof MenuTranslationForm, value: any) => {
@@ -217,7 +378,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
           <label className="block text-sm font-medium text-gray-700">Menu Group</label>
           <Select
             value={formData.menuGroup}
-            onChange={(value) => updateFormData('menuGroup', value)}
+            onChange={handleMenuGroupChange}
             options={groupOptions}
             className="mt-1"
             size="md"
@@ -228,8 +389,8 @@ export const MenuForm: React.FC<MenuFormProps> = ({
           <label className="block text-sm font-medium text-gray-700">Type</label>
           <Select
             value={formData.type}
-            onChange={(value) => updateFormData('type', value as MenuType)}
-            options={MENU_TYPE_OPTIONS}
+            onChange={(value) => handleTypeChange(value as MenuType)}
+            options={menuTypeOptions}
             className="mt-1"
             size="md"
           />
@@ -308,6 +469,51 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         </div>
       )}
 
+      {formData.type === MenuType.TOP_PHONE && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+          <Input
+            value={getTopMenuConfigValue(formData.config, 'topPhoneNumber')}
+            onChange={(e) => updateConfigValue('topPhoneNumber', e.target.value)}
+            placeholder="(+84) 123 456 789"
+            className="mt-1"
+            inputSize="md"
+          />
+          <p className="text-xs text-gray-500 mt-1">Displayed as a hotline button in the storefront top bar.</p>
+        </div>
+      )}
+
+      {formData.type === MenuType.TOP_EMAIL && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Email Address</label>
+          <Input
+            type="email"
+            value={getTopMenuConfigValue(formData.config, 'topEmailAddress')}
+            onChange={(e) => updateConfigValue('topEmailAddress', e.target.value)}
+            placeholder="support@example.com"
+            className="mt-1"
+            inputSize="md"
+          />
+          <p className="text-xs text-gray-500 mt-1">Adds a quick mailto link for store visitors.</p>
+        </div>
+      )}
+
+      {formData.type === MenuType.TOP_CURRENT_TIME && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Date &amp; Time Format</label>
+          <Select
+            value={
+              getTopMenuConfigValue(formData.config, 'topTimeFormat') || TopMenuTimeFormat.HOURS_MINUTES
+            }
+            onChange={(value) => updateConfigValue('topTimeFormat', value)}
+            options={TOP_TIME_FORMAT_OPTIONS}
+            className="mt-1"
+            size="md"
+          />
+          <p className="text-xs text-gray-500 mt-1">Formats follow Day.js tokens. Default selection uses <code>HH:mm</code>.</p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">Position</label>
@@ -327,9 +533,15 @@ export const MenuForm: React.FC<MenuFormProps> = ({
             label="Enabled"
           />
           <Toggle
-            checked={formData.isMegaMenu}
-            onChange={(checked) => updateFormData('isMegaMenu', checked)}
+            checked={isTopMenu ? false : formData.isMegaMenu}
+            onChange={(checked) => {
+              if (isTopMenu) {
+                return;
+              }
+              updateFormData('isMegaMenu', checked);
+            }}
             label="Mega Menu"
+            disabled={isTopMenu}
           />
         </div>
       </div>

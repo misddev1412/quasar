@@ -28,9 +28,12 @@ const UserInfoContainer = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'collapsed'
 })<{ collapsed?: boolean }>(({ theme, collapsed }) => ({
   marginTop: theme.spacing(2),
+  padding: collapsed ? theme.spacing(1.5, 1) : theme.spacing(1.5, 2.5),
   borderTop: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200]}`,
   backgroundColor: theme.palette.mode === 'dark' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.8)',
   backdropFilter: 'blur(5px)',
+  width: '100%',
+  boxSizing: 'border-box',
 }));
 
 const UserInfoContent = styled(Box, {
@@ -38,10 +41,11 @@ const UserInfoContent = styled(Box, {
 })<{ collapsed?: boolean }>(({ theme, collapsed }) => ({
   display: 'flex',
   alignItems: 'center',
-  padding: theme.spacing(2),
-  paddingLeft: collapsed ? theme.spacing(1) : theme.spacing(3),
-  paddingRight: collapsed ? theme.spacing(1) : theme.spacing(3),
+  width: '100%',
+  paddingLeft: collapsed ? theme.spacing(0.75) : theme.spacing(2),
+  paddingRight: collapsed ? theme.spacing(0.75) : theme.spacing(2),
   justifyContent: collapsed ? 'center' : 'flex-start',
+  gap: collapsed ? theme.spacing(1.25) : theme.spacing(2),
 }));
 
 const UserAvatar = styled(Avatar)(({ theme }) => ({
@@ -50,8 +54,6 @@ const UserAvatar = styled(Avatar)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   color: theme.palette.primary.contrastText,
   transition: 'all 0.2s',
-  paddingLeft: theme.spacing(1),
-  paddingRight: theme.spacing(1),
   '&:hover': {
     boxShadow: `0 0 0 2px ${theme.palette.mode === 'dark' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`,
   }
@@ -106,7 +108,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ collapsed = false }) => {
 
         {!collapsed && (
           <>
-            <Box sx={{ ml: 2, overflow: 'hidden' }}>
+            <Box sx={{ overflow: 'hidden' }}>
               <Typography variant="subtitle2" noWrap sx={{ fontWeight: 'medium' }}>
                 {user.username || user.email}
               </Typography>
@@ -196,4 +198,4 @@ const UserInfo: React.FC<UserInfoProps> = ({ collapsed = false }) => {
   );
 };
 
-export default UserInfo; 
+export default UserInfo;

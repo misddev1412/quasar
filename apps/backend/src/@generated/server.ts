@@ -1,7 +1,7 @@
 // AppRouter types for tRPC client
 // This file is auto-generated from actual nestjs-trpc routers
 // Run 'npm run sync:trpc-types' to regenerate this file
-// Generated on: 2025-10-23T15:24:42.080Z
+// Generated on: 2025-10-26T09:58:48.815Z
 
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
@@ -163,6 +163,14 @@ const appRouter = t.router({
   adminPosts: t.router({
     getPosts: t.procedure.query(() => null),
     getPostById: t.procedure.query(() => null),
+  }),
+  adminSiteContents: t.router({
+    listSiteContents: t.procedure.query(() => null),
+    getSiteContentById: t.procedure.query(() => null),
+    createSiteContent: t.procedure.input(z.any()).mutation(() => null),
+    updateSiteContent: t.procedure.input(z.any()).mutation(() => null),
+    deleteSiteContent: t.procedure.input(z.any()).mutation(() => null),
+    bulkDeleteSiteContents: t.procedure.input(z.any()).mutation(() => null),
   }),
   adminProductAttributes: t.router({
     getAll: t.procedure.query(() => null),
@@ -414,9 +422,12 @@ const appRouter = t.router({
   }),
   adminAddressBook: t.router({
     list: t.procedure.input(z.any()).query(() => null),
+    getCountries: t.procedure.query(() => null),
+    getAdministrativeDivisions: t.procedure.input(z.any()).query(() => null),
+    getAdministrativeDivisionsByParentId: t.procedure.input(z.any()).query(() => null),
     detail: t.procedure.input(z.any()).query(() => null),
-    getByUserId: t.procedure.query(() => null),
-    getByUserIdAndType: t.procedure.query(() => null),
+    getByCustomerId: t.procedure.input(z.any()).query(() => null),
+    getByCustomerIdAndType: t.procedure.input(z.any()).query(() => null),
     create: t.procedure.input(z.any()).mutation(() => null),
     update: t.procedure.input(z.any()).mutation(() => null),
     delete: t.procedure.input(z.any()).mutation(() => null),

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { HeroUIProvider } from '@heroui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { HelmetProvider } from 'react-helmet-async';
 import { trpc, createTrpcClient } from '../utils/trpc';
 import { AuthProvider } from '../contexts/AuthContext';
 import { ToastProvider } from '../contexts/ToastContext';
@@ -28,7 +29,7 @@ function AppProviders({ children }: { children: React.ReactNode }) {
   const TRPCProvider = (trpc as any).Provider;
 
   return (
-    <>
+    <HelmetProvider>
       <AppLoadingOverlay
         isLoading={isLoading}
         progress={initializationProgress}
@@ -50,7 +51,7 @@ function AppProviders({ children }: { children: React.ReactNode }) {
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </TRPCProvider>
-    </>
+    </HelmetProvider>
   );
 }
 

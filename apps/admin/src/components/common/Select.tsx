@@ -5,6 +5,7 @@ export interface SelectOption {
   value: string;
   label: string;
   disabled?: boolean;
+  description?: string;
 }
 
 interface SelectProps {
@@ -12,6 +13,7 @@ interface SelectProps {
   label?: string;
   value?: string;
   onChange?: (value: string) => void;
+  onOpenChange?: (open: boolean) => void;
   options: SelectOption[];
   placeholder?: string;
   disabled?: boolean;
@@ -19,6 +21,7 @@ interface SelectProps {
   className?: string;
   required?: boolean;
   size?: 'sm' | 'md' | 'lg';
+  isLoading?: boolean;
 }
 
 export const Select: React.FC<SelectProps> = ({
@@ -26,6 +29,7 @@ export const Select: React.FC<SelectProps> = ({
   label,
   value,
   onChange,
+  onOpenChange,
   options,
   placeholder = 'Select an option...',
   disabled = false,
@@ -33,6 +37,7 @@ export const Select: React.FC<SelectProps> = ({
   className,
   required = false,
   size = 'md',
+  isLoading = false,
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onChange?.(e.target.value);

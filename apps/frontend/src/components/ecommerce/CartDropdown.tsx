@@ -11,6 +11,7 @@ import { PriceDisplay } from './PriceDisplay';
 import { useCart } from '../../contexts/CartContext';
 import { useTranslations } from 'next-intl';
 import type { ShippingOption } from '../../types/cart';
+import { useRouter } from 'next/navigation';
 
 interface CartDropdownProps {
   showCheckoutButton?: boolean;
@@ -30,6 +31,7 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
   className = '',
 }) => {
   const t = useTranslations('ecommerce.cart');
+  const router = useRouter();
   const {
     items,
     summary,
@@ -105,7 +107,10 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
   const handleCheckout = () => {
     if (onCheckout) {
       onCheckout();
+    } else {
+      router.push('/checkout');
     }
+    closeCart();
   };
 
   const renderEmptyCart = () => (

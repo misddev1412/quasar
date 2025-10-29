@@ -159,6 +159,56 @@
       "details": "Chi tiết lỗi (Chỉ phát triển)",
       "refresh": "Làm mới trang",
       "retry": "Thử lại"
+    },
+    "checkout": {
+      "title": "Thanh toán",
+      "subtitle": "Kiểm tra đơn hàng và hoàn tất thanh toán.",
+      "breadcrumb": {
+        "home": "Trang chủ",
+        "checkout": "Thanh toán"
+      },
+      "empty": {
+        "title": "Giỏ hàng của bạn trống",
+        "description": "Hãy thêm một vài sản phẩm trước khi tiến hành thanh toán.",
+        "action": "Khám phá sản phẩm"
+      },
+      "actions": {
+        "go_home": "Về trang chủ"
+      },
+      "toast": {
+        "success": {
+          "title": "Đặt hàng thành công",
+          "message": "Cảm ơn bạn đã mua sắm! Chúng tôi sẽ gửi email xác nhận trong giây lát."
+        },
+        "error": {
+          "title": "Thanh toán thất bại",
+          "message": "Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại."
+        },
+        "empty": {
+          "title": "Giỏ hàng trống",
+          "message": "Bạn cần thêm sản phẩm vào giỏ trước khi thanh toán."
+        },
+        "validation": {
+          "title": "Vui lòng kiểm tra lại giỏ hàng",
+          "message": "Hãy xử lý các vấn đề được đánh dấu trước khi đặt hàng."
+        }
+      },
+      "orderSummary": {
+        "title": "Thông tin đơn hàng",
+        "coupon": {
+          "placeholder": "Nhập mã giảm giá",
+          "apply": "Áp dụng",
+          "applying": "Đang áp dụng...",
+          "applied": "Đã áp dụng mã giảm giá",
+          "applied_with_code": "Đã áp dụng mã \"{code}\"",
+          "remove": "Xóa mã"
+        },
+        "notes": {
+          "free_shipping": "Miễn phí vận chuyển cho đơn từ $50",
+          "money_back": "Hoàn tiền trong 30 ngày",
+          "secure_checkout": "Thanh toán an toàn"
+        }
+      }
     }
   },
   "layout": {
@@ -288,6 +338,133 @@
           "title": "Hiệu suất nhanh",
           "description": "Được tối ưu hóa về tốc độ và trải nghiệm người dùng mượt mà."
         }
+      }
+    },
+    "help": {
+      "seo": {
+        "title": "Trung tâm trợ giúp | Quasar",
+        "description": "Tìm câu trả lời tức thì, xem hướng dẫn hoặc liên hệ đội ngũ hỗ trợ Quasar."
+      },
+      "hero": {
+        "badge": "Trung tâm trợ giúp",
+        "title": "Chúng tôi có thể hỗ trợ bạn điều gì hôm nay?",
+        "subtitle": "Tìm kiếm câu trả lời nhanh chóng, theo dõi hướng dẫn từng bước hoặc kết nối với chuyên viên hỗ trợ.",
+        "searchPlaceholder": "Tìm kiếm chủ đề, hướng dẫn hoặc từ khóa",
+        "searchButton": "Tìm kiếm",
+        "popular": {
+          "title": "Tìm kiếm phổ biến",
+          "trackOrder": "Theo dõi đơn hàng của tôi",
+          "trackOrderQuery": "Theo dõi đơn hàng của tôi",
+          "updateAccount": "Cập nhật thông tin tài khoản",
+          "updateAccountQuery": "Cập nhật thông tin tài khoản",
+          "returnProduct": "Trả hoặc đổi sản phẩm",
+          "returnProductQuery": "Trả hoặc đổi sản phẩm"
+        },
+        "support": {
+          "title": "Cần giải quyết nhanh?",
+          "description": "Đội ngũ chuyên viên sẵn sàng 24/7 để hỗ trợ các vấn đề ưu tiên.",
+          "averageReply": "Thời gian phản hồi trung bình",
+          "averageReplyValue": "< 5 phút",
+          "availability": "Thời gian hoạt động",
+          "availabilityValue": "24/7 toàn cầu",
+          "cta": "Bắt đầu trò chuyện"
+        }
+      },
+      "breadcrumbs": {
+        "home": "Trang chủ",
+        "help": "Trung tâm trợ giúp"
+      },
+      "quickLinks": {
+        "title": "Truy cập nhanh",
+        "description": "Đi thẳng tới những nhu cầu được hỏi nhiều nhất.",
+        "orders": {
+          "title": "Theo dõi đơn hàng",
+          "description": "Xem tiến trình giao hàng và cập nhật vận chuyển."
+        },
+        "payments": {
+          "title": "Quản lý thanh toán",
+          "description": "Cập nhật thẻ thanh toán và tải hóa đơn."
+        },
+        "security": {
+          "title": "Bảo mật tài khoản",
+          "description": "Đổi mật khẩu và bật các lớp bảo vệ bổ sung."
+        },
+        "support": {
+          "title": "Liên hệ hỗ trợ",
+          "description": "Gửi yêu cầu hoặc trò chuyện với chuyên viên."
+        },
+        "cta": "Xem chi tiết"
+      },
+      "resources": {
+        "title": "Tài nguyên hướng dẫn",
+        "description": "Khám phá các bài viết và chính sách nổi bật để tiếp tục công việc.",
+        "guides": {
+          "title": "Bộ hướng dẫn khởi động",
+          "description": "Các bước thiết lập từng bước cho người dùng mới."
+        },
+        "shipping": {
+          "title": "Chính sách giao hàng",
+          "description": "Thời gian giao, đối tác vận chuyển và phạm vi phục vụ."
+        },
+        "returns": {
+          "title": "Quy trình đổi trả",
+          "description": "Cách gửi yêu cầu đổi trả và theo dõi kết quả."
+        },
+        "community": {
+          "title": "Cộng đồng Quasar",
+          "description": "Trao đổi kinh nghiệm với những người dùng khác."
+        },
+        "cta": "Mở tài nguyên",
+        "featured": {
+          "title": "Bài viết mới nhất",
+          "description": "Nội dung được đồng bộ trực tiếp từ kho tri thức và tự động cập nhật.",
+          "cta": "Xem toàn bộ bài viết"
+        }
+      },
+      "contact": {
+        "title": "Vẫn cần hỗ trợ?",
+        "description": "Chọn kênh phù hợp nhất - chúng tôi luôn trực 24/7.",
+        "note": "Thời gian phản hồi trung bình: dưới 5 phút",
+        "chat": {
+          "title": "Chat trực tiếp",
+          "description": "Kết nối với chuyên viên trong vài phút."
+        },
+        "email": {
+          "title": "Email hỗ trợ",
+          "description": "Nhận hướng dẫn chi tiết qua email."
+        },
+        "call": {
+          "title": "Gọi cho chúng tôi",
+          "description": "Làm việc từ 8:00 đến 22:00 mỗi ngày."
+        },
+        "cta": "Bắt đầu ngay"
+      },
+      "faq": {
+        "title": "Câu hỏi thường gặp",
+        "description": "Những câu trả lời phổ biến giúp bạn tiết kiệm thời gian.",
+        "items": {
+          "shipping": {
+            "question": "Khi nào đơn hàng của tôi được giao?",
+            "answer": "Đơn hàng thường được xử lý trong 24 giờ và giao trong 2-5 ngày làm việc. Bạn có thể theo dõi chi tiết trong mục đơn hàng."
+          },
+          "returns": {
+            "question": "Làm thế nào để bắt đầu đổi trả?",
+            "answer": "Vào trang đơn hàng, chọn sản phẩm cần đổi trả và in nhãn gửi. Chúng tôi sẽ xác nhận ngay khi bưu cục quét gói hàng."
+          },
+          "account": {
+            "question": "Tôi có thể đổi email tài khoản không?",
+            "answer": "Có. Vào mục bảo mật tài khoản, xác thực mật khẩu và cập nhật email mới chỉ trong vài bước."
+          },
+          "payments": {
+            "question": "Tại sao thanh toán bị từ chối?",
+            "answer": "Nguyên nhân phổ biến là thẻ hết hạn hoặc ngân hàng chặn an toàn. Hãy thử thẻ khác hoặc liên hệ để chúng tôi hỗ trợ làm việc với ngân hàng."
+          }
+        }
+      },
+      "cta": {
+        "title": "Cần hỗ trợ chuyên sâu?",
+        "description": "Tạo yêu cầu ưu tiên và chúng tôi sẽ bố trí đúng chuyên gia cho vấn đề của bạn.",
+        "button": "Tới cổng hỗ trợ"
       }
     },
     "login": {
@@ -940,6 +1117,56 @@
   "ecommerce": {
     "product": {
       "outOfStock": "Hết hàng"
+    },
+    "checkout": {
+      "title": "Thanh toán",
+      "subtitle": "Kiểm tra đơn hàng và hoàn tất thanh toán.",
+      "breadcrumb": {
+        "home": "Trang chủ",
+        "checkout": "Thanh toán"
+      },
+      "empty": {
+        "title": "Giỏ hàng của bạn trống",
+        "description": "Hãy thêm một vài sản phẩm trước khi tiến hành thanh toán.",
+        "action": "Khám phá sản phẩm"
+      },
+      "actions": {
+        "go_home": "Về trang chủ"
+      },
+      "toast": {
+        "success": {
+          "title": "Đặt hàng thành công",
+          "message": "Cảm ơn bạn đã mua sắm! Chúng tôi sẽ gửi email xác nhận trong giây lát."
+        },
+        "error": {
+          "title": "Thanh toán thất bại",
+          "message": "Có lỗi xảy ra khi xử lý đơn hàng. Vui lòng thử lại."
+        },
+        "empty": {
+          "title": "Giỏ hàng trống",
+          "message": "Bạn cần thêm sản phẩm vào giỏ trước khi thanh toán."
+        },
+        "validation": {
+          "title": "Vui lòng kiểm tra lại giỏ hàng",
+          "message": "Hãy xử lý các vấn đề được đánh dấu trước khi đặt hàng."
+        }
+      },
+      "orderSummary": {
+        "title": "Thông tin đơn hàng",
+        "coupon": {
+          "placeholder": "Nhập mã giảm giá",
+          "apply": "Áp dụng",
+          "applying": "Đang áp dụng...",
+          "applied": "Đã áp dụng mã giảm giá",
+          "applied_with_code": "Đã áp dụng mã \"{code}\"",
+          "remove": "Xóa mã"
+        },
+        "notes": {
+          "free_shipping": "Miễn phí vận chuyển cho đơn từ $50",
+          "money_back": "Hoàn tiền trong 30 ngày",
+          "secure_checkout": "Thanh toán an toàn"
+        }
+      }
     },
     "cart": {
       "add": "Thêm vào giỏ hàng",

@@ -29,7 +29,7 @@ import { Dropdown } from '../../components/common/Dropdown';
 import { ReorderableTable, DragHandle, type ReorderableColumn } from '../../components/common/ReorderableTable';
 import { UnifiedIcon } from '../../components/common/UnifiedIcon';
 import { AdminMenu, MenuTreeNode } from '../../hooks/useMenusManager';
-import { MENU_TYPE_OPTIONS } from '../../hooks/useMenuPage';
+import { ALL_MENU_TYPE_OPTIONS } from '../../hooks/useMenuPage';
 
 interface MenuTableProps {
   flatMenuList: (AdminMenu & { level: number; children: MenuTreeNode[] })[];
@@ -189,7 +189,7 @@ export const MenuTable: React.FC<MenuTableProps> = ({
       header: 'Type',
       accessor: (item) => (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-          {MENU_TYPE_OPTIONS.find(opt => opt.value === item.type)?.label || item.type}
+          {ALL_MENU_TYPE_OPTIONS.find(opt => opt.value === item.type)?.label || item.type}
         </span>
       ),
       isSortable: true,

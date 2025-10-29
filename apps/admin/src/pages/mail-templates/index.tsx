@@ -36,7 +36,6 @@ import {
   MAIL_TEMPLATE_TYPE_OPTIONS
 } from '../../types/mail-template';
 import { ConfirmationModal } from '../../components/common/ConfirmationModal';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { FiHome } from 'react-icons/fi';
 
 interface MailTemplateIndexPageProps {}
@@ -442,6 +441,18 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
     },
   ], [t, handleCreateTemplate, refetch, handleBulkAction]);
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: t('navigation.home', 'Home'),
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />,
+    },
+    {
+      label: t('mail_templates.title', 'Mail Templates'),
+      icon: <FiMail className="w-4 h-4" />,
+    },
+  ]), [t]);
+
   // Render loading state
   if (isLoading) {
     return (
@@ -449,6 +460,7 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
         title={t('mail_templates.mail_template_management', 'Mail Template Management')}
         description={t('mail_templates.manage_templates_description', 'Manage email templates for your application')}
         fullWidth={true}
+        breadcrumbs={breadcrumbs}
       >
         <Loading />
       </BaseLayout>
@@ -462,6 +474,7 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
         title={t('mail_templates.mail_template_management', 'Mail Template Management')}
         description={t('mail_templates.manage_templates_description', 'Manage email templates for your application')}
         fullWidth={true}
+        breadcrumbs={breadcrumbs}
       >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
@@ -482,21 +495,8 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
       description={t('mail_templates.manage_templates_description', 'Manage email templates for your application')}
       actions={pageActions}
       fullWidth={true}
+      breadcrumbs={breadcrumbs}
     >
-      {/* Breadcrumb Navigation */}
-      <Breadcrumb
-        items={[
-          {
-            label: t('navigation.home', 'Home'),
-            href: '/',
-            icon: <FiHome className="w-4 h-4" />
-          },
-          {
-            label: t('mail_templates.title', 'Mail Templates'),
-            icon: <FiMail className="w-4 h-4" />
-          }
-        ]}
-      />
       {/* Statistics */}
       {!statisticsLoading && statisticsCards.length > 0 && (
         <div className="mb-6">

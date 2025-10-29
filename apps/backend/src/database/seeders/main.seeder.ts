@@ -15,8 +15,11 @@ import { SettingsSeeder } from './settings.seeder';
 import { SectionsSeeder } from './sections.seeder';
 import { UserActivitySeeder } from './user-activity.seeder';
 import { CountriesSeeder } from './countries.seeder';
+import { CurrencySeeder } from './currency.seeder';
 import { AdministrativeDivisionsSeeder } from './administrative-divisions.seeder';
+import { WarehouseSeeder } from './warehouse.seeder';
 import { MenusSeeder } from './menus.seeder';
+import { SiteContentSeeder } from './site-content.seeder';
 import databaseConfig from '../../config/database.config';
 
 @Module({
@@ -44,11 +47,15 @@ export async function bootstrap() {
     const sectionsSeeder = app.get(SectionsSeeder);
     const userActivitySeeder = app.get(UserActivitySeeder);
     const countriesSeeder = app.get(CountriesSeeder);
+    const currencySeeder = app.get(CurrencySeeder);
     const administrativeDivisionsSeeder = app.get(AdministrativeDivisionsSeeder);
+    const warehouseSeeder = app.get(WarehouseSeeder);
     const menusSeeder = app.get(MenusSeeder);
+    const siteContentSeeder = app.get(SiteContentSeeder);
 
-    // Run seeders in order (countries first, then administrative divisions, then permissions and admin, then user activities)
+    // Run seeders in order (countries first, then currencies, then administrative divisions, then permissions and admin, then warehouses, then user activities)
     await countriesSeeder.seed();
+    await currencySeeder.seed();
     await administrativeDivisionsSeeder.seed();
     await permissionSeeder.seed();
     await seoSeeder.seed();
@@ -56,6 +63,8 @@ export async function bootstrap() {
     await settingsSeeder.seed();
     await sectionsSeeder.seed();
     await menusSeeder.seed();
+    await warehouseSeeder.seed();
+    await siteContentSeeder.seed();
     await userActivitySeeder.seed();
 
     console.log('All seeders completed successfully');

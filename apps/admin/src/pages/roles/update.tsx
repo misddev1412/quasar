@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Shield, Trash2, Home } from 'lucide-react';
 import { UpdatePageTemplate } from '../../components/common/CreatePageTemplate';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -138,6 +137,23 @@ const RoleUpdatePage: React.FC = () => {
     };
   }, [roleResponse]);
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: t('common.dashboard', 'Home'),
+      href: '/',
+      icon: <Home className="w-4 h-4" />,
+    },
+    {
+      label: t('common.roles', 'Roles'),
+      href: '/roles',
+      icon: <Shield className="w-4 h-4" />,
+    },
+    {
+      label: t('roles.edit_role', 'Edit Role'),
+      icon: <Shield className="w-4 h-4" />,
+    },
+  ]), [t]);
+
   const customActions = useMemo(() => {
     const actions = [];
 
@@ -170,31 +186,12 @@ const RoleUpdatePage: React.FC = () => {
       error={error}
       entityData={(roleResponse as any)?.data}
       customActions={customActions}
+      breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: 'Home',
-              href: '/',
-              icon: <Home className="w-4 h-4" />
-            },
-            {
-              label: 'Roles',
-              href: '/roles',
-              icon: <Shield className="w-4 h-4" />
-            },
-            {
-              label: 'Edit Role',
-              icon: <Shield className="w-4 h-4" />
-            }
-          ]}
-        />
-
         <UpdateRoleForm
-        initialValues={initialValues}
-        onSubmit={handleSubmit}
+          initialValues={initialValues}
+          onSubmit={handleSubmit}
         onCancel={handleCancel}
         isSubmitting={updateRoleMutation.isPending}
         isDefaultRole={(roleResponse as any)?.data?.isDefault}

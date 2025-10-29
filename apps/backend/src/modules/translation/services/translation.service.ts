@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { TranslationRepository } from '../repositories/translation.repository';
 import { Translation } from '../entities/translation.entity';
 import { SupportedLocale, TranslationMap, LocaleTranslations } from '@shared';
@@ -89,20 +89,28 @@ export class TranslationService {
   }
 
   private getTranslationsFromFile(locale: SupportedLocale): TranslationMap {
-    try {
-      const filePath = join(process.cwd(), 'src', 'assets', 'i18n', `${locale}.json`);
-      
-      if (!existsSync(filePath)) {
-        this.logger.warn(`Translation file not found: ${filePath}`);
-        return {};
-      }
+    const candidatePaths = [
+      join(process.cwd(), 'apps', 'backend', 'src', 'assets', 'i18n', `${locale}.json`),
+      join(process.cwd(), 'src', 'assets', 'i18n', `${locale}.json`),
+      resolve(__dirname, '..', '..', 'assets', 'i18n', `${locale}.json`),
+      resolve(__dirname, '..', '..', '..', '..', 'assets', 'i18n', `${locale}.json`),
+    ];
 
-      const fileContent = readFileSync(filePath, 'utf8');
-      return JSON.parse(fileContent);
-    } catch (error) {
-      this.logger.error(`Failed to load translation file for locale ${locale}:`, error);
-      return {};
+    for (const filePath of candidatePaths) {
+      try {
+        if (!existsSync(filePath)) {
+          continue;
+        }
+
+        const fileContent = readFileSync(filePath, 'utf8');
+        return JSON.parse(fileContent);
+      } catch (error) {
+        this.logger.warn(`Failed to read translation file at ${filePath}: ${error.message}`);
+      }
     }
+
+    this.logger.warn(`Translation file not found for locale ${locale}`);
+    return {};
   }
 
   private mergeTranslations(dbTranslations: TranslationMap, fileTranslations: TranslationMap): TranslationMap {

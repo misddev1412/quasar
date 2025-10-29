@@ -125,5 +125,11 @@
     "access_denied": "Access denied",
     "confirm_delete": "Are you sure you want to delete?",
     "unsaved_changes": "You have unsaved changes. Do you want to continue?"
+  },
+  "settings": {
+    "errors": {
+      "not_found": "Setting not found",
+      "key_exists": "Setting key already exists"
+    }
   }
-} 
+}

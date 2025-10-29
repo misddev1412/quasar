@@ -8,11 +8,13 @@ import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middle
 import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
 import { AddressType } from '../entities/address-book.entity';
+import { AdministrativeDivisionType } from '../../products/entities/administrative-division.entity';
+import { ClientAddressBookService } from '../services/client-address-book.service';
 
 export const addressTypeSchema = z.nativeEnum(AddressType);
 
 export const createAddressBookSchema = z.object({
-  userId: z.string().uuid(),
+  customerId: z.string().uuid(),
   countryId: z.string(),
   provinceId: z.string().optional(),
   wardId: z.string().optional(),
@@ -30,14 +32,46 @@ export const createAddressBookSchema = z.object({
   deliveryInstructions: z.string().optional(),
 });
 
-export const updateAddressBookSchema = createAddressBookSchema.partial().omit({ userId: true });
+export const updateAddressBookSchema = createAddressBookSchema.partial().omit({ customerId: true });
 
 export const getAddressBooksQuerySchema = z.object({
   page: z.number().min(1).default(1),
   limit: z.number().min(1).max(100).default(20),
-  userId: z.string().uuid().optional(),
+  customerId: z.string().uuid().optional(),
   countryId: z.string().optional(),
   addressType: addressTypeSchema.optional(),
+});
+
+const countryResponseSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  code: z.string(),
+  iso2: z.string().nullable(),
+  iso3: z.string().nullable(),
+  phoneCode: z.string().nullable(),
+  latitude: z.number().nullable(),
+  longitude: z.number().nullable(),
+});
+
+const administrativeDivisionResponseSchema = z.object({
+  id: z.string(),
+  countryId: z.string(),
+  parentId: z.string().nullable(),
+  name: z.string(),
+  code: z.string().nullable(),
+  type: z.nativeEnum(AdministrativeDivisionType),
+  i18nKey: z.string(),
+  latitude: z.number().nullable(),
+  longitude: z.number().nullable(),
+});
+
+const countryQuerySchema = z.object({
+  countryId: z.string(),
+  type: z.nativeEnum(AdministrativeDivisionType).optional(),
+});
+
+const parentQuerySchema = z.object({
+  parentId: z.string(),
 });
 
 @Router({ alias: 'adminAddressBook' })
@@ -48,6 +82,8 @@ export class AdminAddressBookRouter {
     private readonly responseHandler: ResponseService,
     @Inject(AdminAddressBookService)
     private readonly addressBookService: AdminAddressBookService,
+    @Inject(ClientAddressBookService)
+    private readonly clientAddressBookService: ClientAddressBookService,
   ) {}
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
@@ -62,7 +98,7 @@ export class AdminAddressBookRouter {
       const result = await this.addressBookService.getAllAddressBooks(
         query.page,
         query.limit,
-        query.userId,
+        query.customerId,
         query.countryId,
         query.addressType,
       );
@@ -73,6 +109,68 @@ export class AdminAddressBookRouter {
         OperationCode.READ,
         ErrorLevelCode.SERVER_ERROR,
         error.message || 'Failed to retrieve address books'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    output: z.array(countryResponseSchema),
+  })
+  async getCountries(): Promise<z.infer<typeof countryResponseSchema>[]> {
+    try {
+      return await this.clientAddressBookService.getCountries();
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.ADDRESS_BOOK,
+        OperationCode.READ,
+        ErrorLevelCode.SERVER_ERROR,
+        error.message || 'Failed to retrieve countries'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: countryQuerySchema,
+    output: z.array(administrativeDivisionResponseSchema),
+  })
+  async getAdministrativeDivisions(
+    @Input() input: z.infer<typeof countryQuerySchema>
+  ): Promise<z.infer<typeof administrativeDivisionResponseSchema>[]> {
+    try {
+      return await this.clientAddressBookService.getAdministrativeDivisions(
+        input.countryId,
+        input.type
+      );
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.ADDRESS_BOOK,
+        OperationCode.READ,
+        ErrorLevelCode.SERVER_ERROR,
+        error.message || 'Failed to retrieve administrative divisions'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: parentQuerySchema,
+    output: z.array(administrativeDivisionResponseSchema),
+  })
+  async getAdministrativeDivisionsByParentId(
+    @Input() input: z.infer<typeof parentQuerySchema>
+  ): Promise<z.infer<typeof administrativeDivisionResponseSchema>[]> {
+    try {
+      return await this.clientAddressBookService.getAdministrativeDivisionsByParentId(
+        input.parentId
+      );
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.ADDRESS_BOOK,
+        OperationCode.READ,
+        ErrorLevelCode.SERVER_ERROR,
+        error.message || 'Failed to retrieve administrative divisions by parent ID'
       );
     }
   }
@@ -103,21 +201,21 @@ export class AdminAddressBookRouter {
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
-    input: z.object({ userId: z.string().uuid() }),
+    input: z.object({ customerId: z.string().uuid() }),
     output: apiResponseSchema,
   })
-  async getByUserId(
-    @Input() input: { userId: string }
+  async getByCustomerId(
+    @Input() input: { customerId: string }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const addressBooks = await this.addressBookService.getAddressBooksByUserId(input.userId);
+      const addressBooks = await this.addressBookService.getAddressBooksByCustomerId(input.customerId);
       return this.responseHandler.createTrpcSuccess(addressBooks);
     } catch (error) {
       throw this.responseHandler.createTRPCError(
         ModuleCode.ADDRESS_BOOK,
         OperationCode.READ,
         ErrorLevelCode.SERVER_ERROR,
-        error.message || 'Failed to retrieve user address books'
+        error.message || 'Failed to retrieve customer address books'
       );
     }
   }
@@ -125,17 +223,17 @@ export class AdminAddressBookRouter {
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
     input: z.object({
-      userId: z.string().uuid(),
+      customerId: z.string().uuid(),
       addressType: addressTypeSchema,
     }),
     output: apiResponseSchema,
   })
-  async getByUserIdAndType(
-    @Input() input: { userId: string; addressType: AddressType }
+  async getByCustomerIdAndType(
+    @Input() input: { customerId: string; addressType: AddressType }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const addressBooks = await this.addressBookService.getAddressBooksByUserIdAndType(
-        input.userId,
+      const addressBooks = await this.addressBookService.getAddressBooksByCustomerIdAndType(
+        input.customerId,
         input.addressType
       );
       return this.responseHandler.createTrpcSuccess(addressBooks);
@@ -144,7 +242,7 @@ export class AdminAddressBookRouter {
         ModuleCode.ADDRESS_BOOK,
         OperationCode.READ,
         ErrorLevelCode.SERVER_ERROR,
-        error.message || 'Failed to retrieve user address books by type'
+        error.message || 'Failed to retrieve customer address books by type'
       );
     }
   }
@@ -241,14 +339,14 @@ export class AdminAddressBookRouter {
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
-    input: z.object({ userId: z.string().uuid().optional() }),
+    input: z.object({ customerId: z.string().uuid().optional() }),
     output: apiResponseSchema,
   })
   async stats(
-    @Input() input: { userId?: string }
+    @Input() input: { customerId?: string }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const stats = await this.addressBookService.getAddressBookStats(input.userId);
+      const stats = await this.addressBookService.getAddressBookStats(input.customerId);
       return this.responseHandler.createTrpcSuccess(stats);
     } catch (error) {
       throw this.responseHandler.createTRPCError(

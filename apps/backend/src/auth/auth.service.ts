@@ -110,7 +110,7 @@ export class AuthService {
       // Update session with new tokens
       if (sessionData) {
         try {
-          const sessionRepository = this.activityTrackingService['sessionRepository'];
+          const sessionRepository = this.activityTrackingService['userSessionRepository'];
           const existingSession = await sessionRepository.findByRefreshToken(refreshToken);
 
           if (existingSession) {

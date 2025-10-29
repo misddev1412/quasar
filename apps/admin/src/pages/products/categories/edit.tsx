@@ -7,7 +7,6 @@ import { useToast } from '../../../context/ToastContext';
 import { trpc } from '../../../utils/trpc';
 import { Loading } from '../../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../../components/common/Alert';
-import { Breadcrumb } from '../../../components/common/Breadcrumb';
 import { EditCategoryForm, EditCategoryFormData } from '../../../components/products/EditCategoryForm';
 
 const EditCategoryPage: React.FC = () => {
@@ -99,12 +98,35 @@ const EditCategoryPage: React.FC = () => {
     },
   ];
 
+  const breadcrumbs = [
+    {
+      label: 'Home',
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />
+    },
+    {
+      label: 'Products',
+      href: '/products',
+      icon: <FiPackage className="w-4 h-4" />
+    },
+    {
+      label: t('common.categories', 'Categories'),
+      href: '/products/categories',
+      icon: <FiFolder className="w-4 h-4" />
+    },
+    {
+      label: t('categories.editCategory', 'Edit Category'),
+      icon: <FiEdit3 className="w-4 h-4" />
+    }
+  ];
+
   if (isLoading) {
     return (
       <BaseLayout
         title={t('categories.editCategory', 'Edit Category')}
         description={t('categories.editDescription', 'Update category information')}
         actions={actions}
+        breadcrumbs={breadcrumbs}
       >
         <div className="flex items-center justify-center h-64">
           <Loading />
@@ -119,6 +141,7 @@ const EditCategoryPage: React.FC = () => {
         title={t('categories.editCategory', 'Edit Category')}
         description={t('categories.editDescription', 'Update category information')}
         actions={actions}
+        breadcrumbs={breadcrumbs}
       >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
@@ -135,33 +158,9 @@ const EditCategoryPage: React.FC = () => {
       title={t('categories.editCategory', 'Edit Category')}
       description={`${t('categories.editing', 'Editing')}: ${category.name}`}
       actions={actions}
+      breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: 'Home',
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: 'Products',
-              href: '/products',
-              icon: <FiPackage className="w-4 h-4" />
-            },
-            {
-              label: t('common.categories', 'Categories'),
-              href: '/products/categories',
-              icon: <FiFolder className="w-4 h-4" />
-            },
-            {
-              label: t('categories.editCategory', 'Edit Category'),
-              icon: <FiEdit3 className="w-4 h-4" />
-            }
-          ]}
-        />
-
         <EditCategoryForm
           category={category}
           onSubmit={onSubmit}

@@ -2,7 +2,7 @@
 
 import Layout from '../../../components/layout/Layout';
 import ProfileLayout from '../../../components/layout/ProfileLayout';
-// import { AddressBook } from '../../../components/profile/AddressBook';
+import { AddressBook } from '../../../components/profile/AddressBook';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Helmet } from 'react-helmet-async';
@@ -24,7 +24,7 @@ export default function Page() {
       <Layout>
         <ProfileLayout activeSection="addresses">
           <div className="p-6">
-            <p>Address Book component temporarily disabled for testing</p>
+            <AddressBook />
           </div>
         </ProfileLayout>
       </Layout>

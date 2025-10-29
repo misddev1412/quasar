@@ -37,6 +37,7 @@ export enum ModuleCode {
   TAG = 33,               // Tag Management
   SECTION = 34,           // Section Management
   MENU = 35,              // Menu Management
+  PAGE = 36,              // Static site content (policies, guides, about pages)
   
   // Subscription & Billing (40-49)
   SUBSCRIPTION = 40,      // Subscription Management

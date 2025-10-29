@@ -13,7 +13,6 @@ import { trpc } from '../../utils/trpc';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { CreateDeliveryMethodModal } from '../../components/delivery-methods/CreateDeliveryMethodModal';
 import { EditDeliveryMethodModal } from '../../components/delivery-methods/EditDeliveryMethodModal';
 
@@ -68,6 +67,18 @@ const DeliveryMethodsPage: React.FC = () => {
       variant: 'primary' as const
     }
   ], [t]);
+
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: t('navigation.home', 'Home'),
+      href: '/',
+      icon: <FiHome className="h-4 w-4" />,
+    },
+    {
+      label: t('delivery_methods.title'),
+      icon: <FiTruck className="h-4 w-4" />,
+    },
+  ]), [t]);
 
   // Table preferences with persistence
   const { preferences, updatePageSize, updateVisibleColumns } = useTablePreferences('delivery-methods-table', {
@@ -510,7 +521,12 @@ const DeliveryMethodsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <BaseLayout title={t('delivery_methods.title')} description={t('delivery_methods.description')} actions={actions}>
+      <BaseLayout
+        title={t('delivery_methods.title')}
+        description={t('delivery_methods.description')}
+        actions={actions}
+        breadcrumbs={breadcrumbs}
+      >
         <Loading />
       </BaseLayout>
     );
@@ -518,7 +534,12 @@ const DeliveryMethodsPage: React.FC = () => {
 
   if (error) {
     return (
-      <BaseLayout title={t('delivery_methods.title')} description={t('delivery_methods.description')} actions={actions}>
+      <BaseLayout
+        title={t('delivery_methods.title')}
+        description={t('delivery_methods.description')}
+        actions={actions}
+        breadcrumbs={breadcrumbs}
+      >
         <Alert variant="destructive">
           <AlertTitle>{t('admin.error')}</AlertTitle>
           <AlertDescription>{error.message}</AlertDescription>
@@ -528,23 +549,14 @@ const DeliveryMethodsPage: React.FC = () => {
   }
 
   return (
-    <BaseLayout title={t('delivery_methods.title')} description={t('delivery_methods.description')} actions={actions} fullWidth={true}>
+    <BaseLayout
+      title={t('delivery_methods.title')}
+      description={t('delivery_methods.description')}
+      actions={actions}
+      fullWidth={true}
+      breadcrumbs={breadcrumbs}
+    >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: t('navigation.home', 'Home'),
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: t('delivery_methods.title'),
-              icon: <FiTruck className="w-4 h-4" />
-            }
-          ]}
-        />
-
         {/* Statistics Cards */}
         <StatisticsGrid
           statistics={statisticsData}

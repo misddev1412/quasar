@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { SettingsManager } from '../components/settings/SettingsManager';
 import { withSeo } from '../components/SEO/withSeo';
 import BaseLayout from '../components/layout/BaseLayout';
-import { Breadcrumb } from '../components/common/Breadcrumb';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 import { FiSettings, FiHome } from 'react-icons/fi';
 
@@ -21,23 +20,19 @@ const SettingsPage: React.FC = () => {
           primary: true
         }
       ]}
+      breadcrumbs={[
+        {
+          label: t('navigation.home', 'Home'),
+          href: '/',
+          icon: <FiHome className="h-4 w-4" />
+        },
+        {
+          label: t('admin.system_settings', 'Settings'),
+          icon: <FiSettings className="h-4 w-4" />
+        }
+      ]}
     >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: t('navigation.home', 'Home'),
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: t('admin.system_settings', 'Settings'),
-              icon: <FiSettings className="w-4 h-4" />
-            }
-          ]}
-        />
-
         <SettingsManager
           isModalOpen={isModalOpen}
           onOpenCreateModal={() => setIsModalOpen(true)}

@@ -1,10 +1,13 @@
-import React from 'react';
+'use client';
+
+import React, { useMemo } from 'react';
 import { Card, Divider } from '@heroui/react';
 import { PriceDisplay } from './PriceDisplay';
-import { CartItemData } from './ShoppingCart';
+import type { CartItemDetails } from '../../types/cart';
+import { useTranslations } from 'next-intl';
 
 interface OrderSummaryProps {
-  cartItems: CartItemData[];
+  cartItems: CartItemDetails[];
   subtotal: number;
   shippingCost: number;
   tax: number;
@@ -38,6 +41,45 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 }) => {
   const [couponCode, setCouponCode] = React.useState('');
   const [isApplyingCoupon, setIsApplyingCoupon] = React.useState(false);
+  const t = useTranslations('ecommerce.checkout.orderSummary');
+  const summaryT = useTranslations('ecommerce.cart.summary');
+
+  const itemsForDisplay = useMemo(
+    () =>
+      cartItems.map((item) => {
+        const variantLabel = (() => {
+          if (!item.variant) {
+            return undefined;
+          }
+
+          const attributeParts = item.variant.variantItems?.map((variantItem) => {
+            const attributeName = variantItem.attribute?.displayName || variantItem.attribute?.name;
+            const attributeValue =
+              variantItem.attributeValue?.displayValue || variantItem.attributeValue?.value;
+
+            if (attributeName && attributeValue) {
+              return `${attributeName}: ${attributeValue}`;
+            }
+            if (attributeValue) {
+              return attributeValue;
+            }
+            return attributeName || item.variant?.name;
+          })?.filter((value): value is string => Boolean(value));
+
+          if (attributeParts && attributeParts.length > 0) {
+            return attributeParts.join(', ');
+          }
+
+          return item.variant.name;
+        })();
+
+        return {
+          ...item,
+          variantLabel,
+        };
+      }),
+    [cartItems]
+  );
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim() || !onApplyCoupon) return;
@@ -70,26 +112,27 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
   return (
     <Card className={`p-6 ${className}`}>
-      <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
+      <h3 className="text-lg font-semibold mb-4">{t('title')}</h3>
 
       {/* Order Items */}
       {showItems && (
         <>
           <div className="space-y-3 mb-4">
-            {cartItems.map((item) => (
+            {itemsForDisplay.map((item) => (
               <div key={item.id} className="flex justify-between text-sm">
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate">{item.product.name}</div>
-                  {item.selectedVariant && (
-                    <div className="text-xs text-gray-500">
-                      {item.selectedVariant.name}: {item.selectedVariant.value}
-                    </div>
+                  {item.variantLabel && (
+                    <div className="text-xs text-gray-500">{item.variantLabel}</div>
                   )}
                   <div className="text-xs text-gray-500">Qty: {item.quantity}</div>
                 </div>
                 <div className="font-medium">
-                  {currency}
-                  {(item.price * item.quantity).toFixed(2)}
+                  <PriceDisplay
+                    price={item.unitPrice * item.quantity}
+                    currency={currency}
+                    className="justify-end"
+                  />
                 </div>
               </div>
             ))}
@@ -104,7 +147,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           <form onSubmit={handleCouponSubmit} className="flex gap-2">
             <input
               type="text"
-              placeholder="Coupon code"
+              placeholder={t('coupon.placeholder')}
               value={couponCode}
               onChange={handleCouponCodeChange}
               disabled={!!discount || isApplyingCoupon}
@@ -115,7 +158,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
               disabled={!couponCode.trim() || !!discount || isApplyingCoupon}
               className="px-4 py-2 bg-primary-500 text-white text-sm font-medium rounded-md hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isApplyingCoupon ? 'Applying...' : 'Apply'}
+              {isApplyingCoupon ? t('coupon.applying') : t('coupon.apply')}
             </button>
           </form>
 
@@ -123,7 +166,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <div className="mt-3 flex justify-between items-center">
               <div>
                 <div className="text-sm font-medium text-green-600">
-                  {discount.code && `Coupon "${discount.code}" applied`}
+                  {discount.code
+                    ? t('coupon.applied_with_code', { code: discount.code })
+                    : t('coupon.applied')}
                 </div>
                 {discount.description && (
                   <div className="text-xs text-gray-500">{discount.description}</div>
@@ -134,7 +179,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                 onClick={handleRemoveCoupon}
                 className="text-sm text-red-500 hover:text-red-700"
               >
-                Remove
+                {t('coupon.remove')}
               </button>
             </div>
           )}
@@ -144,14 +189,14 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       {/* Order Totals */}
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Subtotal</span>
-          <PriceDisplay price={subtotal} currency={currency} />
+          <span className="text-gray-600">{summaryT('subtotal')}</span>
+          <PriceDisplay price={subtotal} currency={currency} className="justify-end" />
         </div>
 
         {discount && (
           <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Discount</span>
-            <span className="text-green-600">
+            <span className="text-gray-600">{summaryT('discount')}</span>
+            <span className="text-green-600 font-medium">
               -{currency}
               {discount.amount.toFixed(2)}
             </span>
@@ -159,29 +204,29 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         )}
 
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Shipping</span>
-          <PriceDisplay price={shippingCost} currency={currency} />
+          <span className="text-gray-600">{summaryT('shipping')}</span>
+          <PriceDisplay price={shippingCost} currency={currency} className="justify-end" />
         </div>
 
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Tax</span>
-          <PriceDisplay price={tax} currency={currency} />
+          <span className="text-gray-600">{summaryT('tax')}</span>
+          <PriceDisplay price={tax} currency={currency} className="justify-end" />
         </div>
 
         <Divider className="my-2" />
 
         <div className="flex justify-between font-semibold">
-          <span>Total</span>
-          <PriceDisplay price={total} currency={currency} size="lg" />
+          <span>{summaryT('total')}</span>
+          <PriceDisplay price={total} currency={currency} size="lg" className="justify-end" />
         </div>
       </div>
 
       {/* Additional Info */}
       <div className="mt-4 pt-4 border-t border-gray-200">
         <div className="text-xs text-gray-500 space-y-1">
-          <div>• Free shipping on orders over $50</div>
-          <div>• 30-day money-back guarantee</div>
-          <div>• Secure checkout</div>
+          <div>• {t('notes.free_shipping')}</div>
+          <div>• {t('notes.money_back')}</div>
+          <div>• {t('notes.secure_checkout')}</div>
         </div>
       </div>
     </Card>

@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
-import Header from '../../components/layout/Header';
+import Layout from '../../components/layout/Layout';
+import PageBreadcrumbs from '../../components/common/PageBreadcrumbs';
 import CategoriesContainer from '../../components/ecommerce/CategoriesContainer';
 
 // Generate metadata for categories page
@@ -24,11 +25,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function CategoriesPage() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
-
+    <Layout>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-green-600 via-teal-600 to-cyan-700 py-16 lg:py-20">
+      <section className="bg-gradient-to-br from-green-600 via-teal-600 to-cyan-700 py-16 lg:py-20 -mt-8 -mx-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
@@ -44,12 +43,21 @@ export default function CategoriesPage() {
         </div>
       </section>
 
+      {/* Breadcrumb */}
+      <PageBreadcrumbs
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Categories', isCurrent: true },
+        ]}
+        fullWidth={true}
+      />
+
       {/* Categories Section */}
       <section className="py-12 lg:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <CategoriesContainer />
         </div>
       </section>
-    </div>
+    </Layout>
   );
 }

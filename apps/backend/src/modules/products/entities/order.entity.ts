@@ -3,6 +3,7 @@ import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
 import { OrderItem } from './order-item.entity';
 import { Customer } from './customer.entity';
+import { OrderFulfillment } from './order-fulfillment.entity';
 
 export enum OrderStatus {
   PENDING = 'PENDING',
@@ -367,6 +368,12 @@ export class Order extends BaseEntity {
   })
   items: OrderItem[];
 
+  @OneToMany(() => OrderFulfillment, (fulfillment) => fulfillment.order, {
+    cascade: true,
+    eager: false,
+  })
+  fulfillments: OrderFulfillment[];
+
   // Virtual properties
   get isPaid(): boolean {
     return this.paymentStatus === PaymentStatus.PAID;
@@ -444,5 +451,126 @@ export class Order extends BaseEntity {
 
   getDiscountPercentage(): number {
     return this.subtotal > 0 ? (this.discountAmount / this.subtotal) * 100 : 0;
+  }
+
+  // Fulfillment-related virtual properties
+  get hasFulfillments(): boolean {
+    return !!(this.fulfillments && this.fulfillments.length > 0);
+  }
+
+  get activeFulfillments(): OrderFulfillment[] {
+    if (!this.fulfillments) return [];
+    return this.fulfillments.filter(f => !f.isCancelled && !f.isCompleted);
+  }
+
+  get completedFulfillments(): OrderFulfillment[] {
+    if (!this.fulfillments) return [];
+    return this.fulfillments.filter(f => f.isCompleted);
+  }
+
+  get shippedFulfillments(): OrderFulfillment[] {
+    if (!this.fulfillments) return [];
+    return this.fulfillments.filter(f => f.isShipped || f.isDelivered);
+  }
+
+  get isFullyFulfilled(): boolean {
+    if (!this.items || !this.fulfillments) return false;
+    const totalFulfilled = this.fulfillments.reduce((sum, fulfillment) =>
+      sum + fulfillment.totalFulfilledItems, 0
+    );
+    return totalFulfilled >= this.totalQuantity;
+  }
+
+  get isPartiallyFulfilled(): boolean {
+    if (!this.items || !this.fulfillments) return false;
+    const totalFulfilled = this.fulfillments.reduce((sum, fulfillment) =>
+      sum + fulfillment.totalFulfilledItems, 0
+    );
+    return totalFulfilled > 0 && totalFulfilled < this.totalQuantity;
+  }
+
+  get fulfillmentProgress(): number {
+    const total = this.totalQuantity;
+    if (total === 0) return 100;
+    const fulfilled = this.fulfillments?.reduce((sum, fulfillment) =>
+      sum + fulfillment.totalFulfilledItems, 0
+    ) || 0;
+    return Math.round((fulfilled / total) * 100);
+  }
+
+  get hasActiveShipping(): boolean {
+    return this.activeFulfillments.some(f => f.isShipped);
+  }
+
+  get trackingNumbers(): string[] {
+    const numbers: string[] = [];
+    this.fulfillments?.forEach(fulfillment => {
+      if (fulfillment.trackingNumber) {
+        numbers.push(fulfillment.trackingNumber);
+      }
+    });
+    return numbers;
+  }
+
+  get primaryTrackingNumber(): string | null {
+    return this.trackingNumbers[0] || null;
+  }
+
+  get totalShippingCost(): number {
+    return this.fulfillments?.reduce((sum, fulfillment) =>
+      sum + fulfillment.shippingCost, 0
+    ) || 0;
+  }
+
+  get canCreateFulfillment(): boolean {
+    return this.isPaid && !this.isCancelled && !this.isRefunded && !this.isFullyFulfilled;
+  }
+
+  get needsFulfillment(): boolean {
+    return this.canCreateFulfillment && this.totalQuantity > 0;
+  }
+
+  get fulfillmentSummary(): string {
+    if (!this.hasFulfillments) return 'No fulfillments';
+    const total = this.totalQuantity;
+    const fulfilled = this.fulfillments?.reduce((sum, fulfillment) =>
+      sum + fulfillment.totalFulfilledItems, 0
+    ) || 0;
+    return `${fulfilled}/${total} items fulfilled`;
+  }
+
+  getFulfillmentStatusDisplay(): string {
+    if (this.isFullyFulfilled) return '✅ Fully Fulfilled';
+    if (this.isPartiallyFulfilled) return '📦 Partially Fulfilled';
+    if (this.needsFulfillment) return '⏳ Pending Fulfillment';
+    return '❓ No items to fulfill';
+  }
+
+  hasShippingIssues(): boolean {
+    return this.shippedFulfillments.some(fulfillment =>
+      fulfillment.isOverdue || fulfillment.items?.some(item => item.needsAttention())
+    );
+  }
+
+  getShippingIssuesCount(): number {
+    return this.shippedFulfillments.filter(fulfillment =>
+      fulfillment.isOverdue || fulfillment.items?.some(item => item.needsAttention())
+    ).length;
+  }
+
+  getEstimatedDeliveryDate(): Date | null {
+    const dates = this.fulfillments
+      ?.filter(f => f.estimatedDeliveryDate)
+      ?.map(f => f.estimatedDeliveryDate!)
+      ?.sort((a, b) => a.getTime() - b.getTime());
+    return dates?.[0] || null;
+  }
+
+  getLatestDeliveryDate(): Date | null {
+    const dates = this.fulfillments
+      ?.filter(f => f.actualDeliveryDate)
+      ?.map(f => f.actualDeliveryDate!)
+      ?.sort((a, b) => b.getTime() - a.getTime());
+    return dates?.[0] || null;
   }
 }

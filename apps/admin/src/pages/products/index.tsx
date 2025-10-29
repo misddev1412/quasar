@@ -15,7 +15,6 @@ import { Alert, AlertDescription, AlertTitle } from '../../components/common/Ale
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { Product, ProductVariant } from '../../types/product';
 import { ProductFilters, ProductFiltersType } from '../../components/features/ProductFilters';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { ProductVariantsQuickViewModal } from '../../components/products/ProductVariantsQuickViewModal';
 import { ProductVariantQuickEditModal } from '../../components/products/ProductVariantQuickEditModal';
 import { ProductImportModal } from '../../components/products/ProductImportModal';
@@ -764,9 +763,27 @@ const ProductsPage: React.FC = () => {
     ];
   }, [statisticsData, t]);
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: t('navigation.home', 'Home'),
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />
+    },
+    {
+      label: t('products.title', 'Products'),
+      icon: <FiPackage className="w-4 h-4" />
+    }
+  ]), [t]);
+
   if (isLoading) {
     return (
-      <BaseLayout title={t('products.title', 'Product Management')} description={t('products.description', 'Manage all products in the system')} actions={actions} fullWidth={true}>
+      <BaseLayout
+        title={t('products.title', 'Product Management')}
+        description={t('products.description', 'Manage all products in the system')}
+        actions={actions}
+        fullWidth={true}
+        breadcrumbs={breadcrumbs}
+      >
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
@@ -776,7 +793,13 @@ const ProductsPage: React.FC = () => {
 
   if (error) {
     return (
-      <BaseLayout title={t('products.title', 'Product Management')} description={t('products.description', 'Manage all products in the system')} actions={actions} fullWidth={true}>
+      <BaseLayout
+        title={t('products.title', 'Product Management')}
+        description={t('products.description', 'Manage all products in the system')}
+        actions={actions}
+        fullWidth={true}
+        breadcrumbs={breadcrumbs}
+      >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
           <AlertDescription>{(error as any).message}</AlertDescription>
@@ -786,23 +809,14 @@ const ProductsPage: React.FC = () => {
   }
 
   return (
-    <BaseLayout title={t('products.title', 'Product Management')} description={t('products.description', 'Manage all products in the system')} actions={actions} fullWidth={true}>
+    <BaseLayout
+      title={t('products.title', 'Product Management')}
+      description={t('products.description', 'Manage all products in the system')}
+      actions={actions}
+      fullWidth={true}
+      breadcrumbs={breadcrumbs}
+    >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: t('navigation.home', 'Home'),
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: t('products.title', 'Products'),
-              icon: <FiPackage className="w-4 h-4" />
-            }
-          ]}
-        />
-
         {/* Statistics Cards */}
         <StatisticsGrid
           statistics={statisticsCards}

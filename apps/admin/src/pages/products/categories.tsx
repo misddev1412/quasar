@@ -13,7 +13,6 @@ import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { Category } from '../../types/product';
 
 const CategoriesPage: React.FC = () => {
@@ -263,6 +262,23 @@ const CategoriesPage: React.FC = () => {
     ];
   }, [statisticsData, t]);
 
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: 'Home',
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />
+    },
+    {
+      label: 'Products',
+      href: '/products',
+      icon: <FiPackage className="w-4 h-4" />
+    },
+    {
+      label: t('categories.title', 'Categories'),
+      icon: <FiFolder className="w-4 h-4" />
+    }
+  ]), [t]);
+
   if (isLoading) {
     return (
       <BaseLayout 
@@ -270,6 +286,7 @@ const CategoriesPage: React.FC = () => {
         description={t('categories.description', 'Manage product categories')} 
         actions={actions} 
         fullWidth={true}
+        breadcrumbs={breadcrumbs}
       >
         <div className="flex items-center justify-center h-64">
           <Loading />
@@ -285,6 +302,7 @@ const CategoriesPage: React.FC = () => {
         description={t('categories.description', 'Manage product categories')} 
         actions={actions} 
         fullWidth={true}
+        breadcrumbs={breadcrumbs}
       >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
@@ -300,28 +318,9 @@ const CategoriesPage: React.FC = () => {
       description={t('categories.description', 'Manage product categories')}
       actions={actions}
       fullWidth={true}
+      breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: 'Home',
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: 'Products',
-              href: '/products',
-              icon: <FiPackage className="w-4 h-4" />
-            },
-            {
-              label: t('categories.title', 'Categories'),
-              icon: <FiFolder className="w-4 h-4" />
-            }
-          ]}
-        />
-
         {/* Statistics Cards */}
         <StatisticsGrid
           statistics={statisticsCards}

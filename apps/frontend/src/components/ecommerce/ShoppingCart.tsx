@@ -7,6 +7,7 @@ import { PriceDisplay } from './PriceDisplay';
 import { useCart } from '../../contexts/CartContext';
 import { useTranslations } from 'next-intl';
 import type { ShippingOption } from '../../types/cart';
+import { useRouter } from 'next/navigation';
 
 interface ShoppingCartProps {
   isOpen?: boolean;
@@ -32,6 +33,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
   onCheckout,
 }) => {
   const t = useTranslations('ecommerce.cart');
+  const router = useRouter();
   const {
     items,
     summary,
@@ -117,6 +119,8 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
   const handleCheckout = () => {
     if (onCheckout) {
       onCheckout();
+    } else {
+      router.push('/checkout');
     }
     closeCartAndNotify();
   };

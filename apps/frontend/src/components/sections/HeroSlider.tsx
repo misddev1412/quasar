@@ -223,34 +223,34 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
       />
       {overlayEnabled && <div className="absolute inset-0" style={overlayStyle} />}
 
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24 min-h-[520px] flex flex-col justify-center">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 xl:py-24 min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[550px] xl:min-h-[600px] 2xl:min-h-[650px] flex flex-col justify-center">
         <div className="max-w-2xl space-y-4">
           <p className="text-sm uppercase tracking-widest text-blue-100 mb-3">
             {subheading}
           </p>
-          <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
             {heading}
           </h1>
-          <p className="mt-6 text-lg text-blue-100 leading-relaxed">
+          <p className="mt-4 sm:mt-6 text-base sm:text-lg text-blue-100 leading-relaxed">
             {description}
           </p>
           {secondaryDescription && (
-            <p className="mt-3 text-base text-blue-100/90 leading-relaxed">
+            <p className="mt-3 text-sm sm:text-base text-blue-100/90 leading-relaxed">
               {secondaryDescription}
             </p>
           )}
-          <div className="mt-8 flex flex-wrap gap-4">
+          <div className="mt-6 sm:mt-8 flex flex-wrap gap-3 sm:gap-4">
             {(activeSlide?.ctaLabel || activeSlide?.ctaUrl) && (
               <a
                 href={activeSlide?.ctaUrl || '#'}
-                className="inline-flex items-center justify-center rounded-lg bg-white/95 px-6 py-3 text-sm font-semibold text-blue-700 shadow-lg shadow-blue-900/30 backdrop-blur transition hover:bg-white"
+                className="inline-flex items-center justify-center rounded-lg bg-white/95 px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-blue-700 shadow-lg shadow-blue-900/30 backdrop-blur transition hover:bg-white"
               >
                 {activeSlide?.ctaLabel || t('sections.hero.explore_collections')}
               </a>
             )}
             <a
               href="#sections"
-              className="inline-flex items-center justify-center rounded-lg border border-white/40 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+              className="inline-flex items-center justify-center rounded-lg border border-white/40 px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white transition hover:bg-white/10"
             >
               {t('sections.hero.view_sections')}
             </a>

@@ -21,6 +21,7 @@ import { ProductsModule } from '../modules/products/products.module';
 import { NotificationsModule } from '../modules/notifications/notifications.module';
 import { SectionsModule } from '../modules/sections/sections.module';
 import { MenuModule } from '../modules/menus/menus.module';
+import { SiteContentModule } from '../modules/site-content/site-content.module';
 import { AppContext } from '../trpc/context';
 import databaseConfig from '../config/database.config';
 import { User } from '../modules/user/entities/user.entity';
@@ -58,8 +59,14 @@ import { SectionEntity } from '../modules/sections/entities/section.entity';
 import { SectionTranslationEntity } from '../modules/sections/entities/section-translation.entity';
 import { MenuEntity } from '../modules/menus/entities/menu.entity';
 import { MenuTranslationEntity } from '../modules/menus/entities/menu-translation.entity';
+import { SiteContentEntity } from '../modules/site-content/entities/site-content.entity';
 import { createErrorFormatter } from '../trpc/error-formatter';
 import { AppRouterModule } from '../trpc/app-router.module';
+import { LoyaltyModule } from '../modules/loyalty/loyalty.module';
+import { LoyaltyTier } from '../modules/loyalty/entities/loyalty-tier.entity';
+import { LoyaltyReward } from '../modules/loyalty/entities/loyalty-reward.entity';
+import { LoyaltyTransaction } from '../modules/loyalty/entities/loyalty-transaction.entity';
+import { CustomerRedemption } from '../modules/loyalty/entities/customer-redemption.entity';
 
 @Module({
   imports: [
@@ -107,6 +114,11 @@ import { AppRouterModule } from '../trpc/app-router.module';
           SectionTranslationEntity,
           MenuEntity,
           MenuTranslationEntity,
+          SiteContentEntity,
+          LoyaltyTier,
+          LoyaltyReward,
+          LoyaltyTransaction,
+          CustomerRedemption,
         ],
         autoLoadEntities: true
       }),
@@ -132,6 +144,8 @@ import { AppRouterModule } from '../trpc/app-router.module';
     NotificationsModule,
     SectionsModule,
     MenuModule,
+    SiteContentModule,
+    LoyaltyModule,
     AppRouterModule,
   ],
   controllers: [AppController],
