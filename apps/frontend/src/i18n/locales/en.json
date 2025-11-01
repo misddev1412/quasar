@@ -173,7 +173,8 @@
         "action": "Browse products"
       },
       "actions": {
-        "go_home": "Go to homepage"
+        "go_home": "Go to homepage",
+        "continue_to_shipping": "Continue to Shipping"
       },
       "toast": {
         "success": {
@@ -1151,7 +1152,8 @@
         "action": "Browse products"
       },
       "actions": {
-        "go_home": "Go to homepage"
+        "go_home": "Go to homepage",
+        "continue_to_shipping": "Continue to Shipping"
       },
       "toast": {
         "success": {

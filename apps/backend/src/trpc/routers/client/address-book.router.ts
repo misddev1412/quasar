@@ -103,27 +103,23 @@ export class ClientAddressBookRouter {
     return this.userClientAddressBookRouter.getCountries(ctx);
   }
 
-  @UseMiddlewares(AuthMiddleware)
   @Query({
     input: z.object({ countryId: z.string(), type: z.string().optional() }),
     output: z.any(),
   })
   async getAdministrativeDivisions(
-    @Input() input: { countryId: string; type?: string },
-    @Ctx() ctx: any
+    @Input() input: { countryId: string; type?: string }
   ): Promise<any> {
-    return this.userClientAddressBookRouter.getAdministrativeDivisions(input, ctx);
+    return this.userClientAddressBookRouter.getAdministrativeDivisions(input);
   }
 
-  @UseMiddlewares(AuthMiddleware)
   @Query({
     input: z.object({ parentId: z.string() }),
     output: z.any(),
   })
   async getAdministrativeDivisionsByParentId(
-    @Input() input: { parentId: string },
-    @Ctx() ctx: any
+    @Input() input: { parentId: string }
   ): Promise<any> {
-    return this.userClientAddressBookRouter.getAdministrativeDivisionsByParentId(input, ctx);
+    return this.userClientAddressBookRouter.getAdministrativeDivisionsByParentId(input);
   }
 }

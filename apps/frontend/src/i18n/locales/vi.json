@@ -173,7 +173,8 @@
         "action": "Khám phá sản phẩm"
       },
       "actions": {
-        "go_home": "Về trang chủ"
+        "go_home": "Về trang chủ",
+        "continue_to_shipping": "Tiếp tục tới giao hàng"
       },
       "toast": {
         "success": {
@@ -1131,7 +1132,8 @@
         "action": "Khám phá sản phẩm"
       },
       "actions": {
-        "go_home": "Về trang chủ"
+        "go_home": "Về trang chủ",
+        "continue_to_shipping": "Tiếp tục tới giao hàng"
       },
       "toast": {
         "success": {

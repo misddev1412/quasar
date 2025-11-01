@@ -1,5 +1,7 @@
-import React from 'react';
-import { Input, Select, SelectItem } from '@heroui/react';
+import React, { useMemo } from 'react';
+import { Input } from '@heroui/react';
+import SelectField, { SelectOption } from '../common/SelectField';
+import PhoneInputField, { PhoneInputCountryOption } from '../common/PhoneInputField';
 
 export interface AddressData {
   firstName: string;
@@ -38,6 +40,7 @@ interface AddressFormProps {
   showAddress2?: boolean;
   requiredFields?: (keyof AddressData)[];
   countries?: CountryOption[];
+  phoneCountryOptions?: PhoneInputCountryOption[];
   provinces?: AdministrativeDivisionOption[];
   wards?: AdministrativeDivisionOption[];
   loading?: {
@@ -60,6 +63,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
   showAddress2 = true,
   requiredFields = ['firstName', 'lastName', 'address1', 'city', 'state', 'postalCode', 'country'],
   countries: countryOptions = [],
+  phoneCountryOptions,
   provinces: provinceOptions = [],
   wards: wardOptions = [],
   loading = {},
@@ -67,13 +71,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
   onProvinceChange,
   onWardChange,
 }) => {
-  const getFieldError = (field: keyof AddressData) => {
-    return errors[`${prefix}.${field}`] || '';
-  };
-
-  const isFieldRequired = (field: keyof AddressData) => {
-    return requiredFields.includes(field);
-  };
+  const getFieldError = (field: keyof AddressData) => errors[`${prefix}.${field}`] || '';
+  const isFieldRequired = (field: keyof AddressData) => requiredFields.includes(field);
 
   const isCountrySelected = Boolean(address.country);
   const isProvinceSelected = Boolean(address.state);
@@ -84,34 +83,38 @@ const AddressForm: React.FC<AddressFormProps> = ({
   const canSelectWard = isProvinceSelected;
   const canEditCity = hasProvinceOptions ? isProvinceSelected : isCountrySelected;
 
-  const handleCountrySelect = (value: string) => {
+  const handleCountrySelect = (value: string | null) => {
     const nextAddress = {
       ...address,
-      country: value,
+      country: value || '',
       state: '',
       city: '',
     };
     onChange(nextAddress);
-    onCountryChange?.(value);
+    onCountryChange?.(nextAddress.country);
   };
 
-  const handleProvinceSelect = (value: string) => {
+  const handleProvinceSelect = (value: string | null) => {
     const nextAddress = {
       ...address,
-      state: value,
+      state: value || '',
       city: '',
     };
     onChange(nextAddress);
-    onProvinceChange?.(value);
+    if (value) {
+      onProvinceChange?.(value);
+    }
   };
 
-  const handleWardSelect = (value: string) => {
+  const handleWardSelect = (value: string | null) => {
     const nextAddress = {
       ...address,
-      city: value,
+      city: value || '',
     };
     onChange(nextAddress);
-    onWardChange?.(value);
+    if (value) {
+      onWardChange?.(value);
+    }
   };
 
   const updateField = (field: keyof AddressData, value: string) => {
@@ -121,33 +124,81 @@ const AddressForm: React.FC<AddressFormProps> = ({
     });
   };
 
-  const selectedCountryKey = address.country ? new Set([address.country]) : new Set<string>();
-  const selectedProvinceKey = address.state ? new Set([address.state]) : new Set<string>();
-  const selectedWardKey = address.city ? new Set([address.city]) : new Set<string>();
+  const countrySelectOptions = useMemo<SelectOption[]>(
+    () =>
+      countryOptions.map((country) => ({
+        value: country.id,
+        label: country.name,
+      })),
+    [countryOptions]
+  );
+
+  const phoneSelectOptions = useMemo<PhoneInputCountryOption[]>(() => {
+    if (phoneCountryOptions && phoneCountryOptions.length > 0) {
+      return phoneCountryOptions;
+    }
+
+    return countryOptions
+      .map((country) => ({
+        code: country.code ? String(country.code).toUpperCase() : '',
+        name: country.name,
+      }))
+      .filter((option) => option.code) as PhoneInputCountryOption[];
+  }, [countryOptions, phoneCountryOptions]);
+
+  const countryCodeById = useMemo(() => {
+    const map = new Map<string, string>();
+    countryOptions.forEach((country) => {
+      if (country.id && country.code) {
+        map.set(country.id, String(country.code).toUpperCase());
+      }
+    });
+    return map;
+  }, [countryOptions]);
+
+  const defaultPhoneCountry = useMemo(() => {
+    if (!address.country) {
+      return undefined;
+    }
+    return countryCodeById.get(address.country);
+  }, [address.country, countryCodeById]);
+
+  const provinceSelectOptions = useMemo<SelectOption[]>(
+    () =>
+      provinceOptions.map((province) => ({
+        value: province.id,
+        label: province.name,
+      })),
+    [provinceOptions]
+  );
+
+  const wardSelectOptions = useMemo<SelectOption[]>(
+    () =>
+      wardOptions.map((ward) => ({
+        value: ward.id,
+        label: ward.name,
+      })),
+    [wardOptions]
+  );
 
   return (
     <div className={`space-y-4 ${className}`}>
-      <Select
+      <SelectField
         label="Country"
-        selectedKeys={selectedCountryKey}
-        onSelectionChange={(keys) => {
-          const selectedKey = Array.from(keys)[0] as string | undefined;
-          handleCountrySelect(selectedKey ?? '');
-        }}
-        variant="bordered"
-        isInvalid={!!getFieldError('country')}
-        errorMessage={getFieldError('country')}
-        isRequired={isFieldRequired('country')}
-        fullWidth
-        isDisabled={countryOptions.length === 0}
+        required={isFieldRequired('country')}
+        error={getFieldError('country')}
+        inputId={`${prefix || 'address'}-country`}
+        options={countrySelectOptions}
+        value={address.country || null}
         placeholder={countryOptions.length ? 'Select country' : 'No countries available'}
-      >
-        {countryOptions.map((country) => (
-          <SelectItem key={country.id} value={country.id}>
-            {country.name}
-          </SelectItem>
-        ))}
-      </Select>
+        isDisabled={countryOptions.length === 0}
+        onChange={handleCountrySelect}
+        onBlur={() => {
+          if (!address.country) {
+            handleCountrySelect('');
+          }
+        }}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Input
@@ -215,28 +266,18 @@ const AddressForm: React.FC<AddressFormProps> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {hasProvinceOptions ? (
-          <Select
+          <SelectField
             label="State/Province"
-            selectedKeys={selectedProvinceKey}
-            onSelectionChange={(keys) => {
-              const selectedKey = Array.from(keys)[0] as string | undefined;
-              handleProvinceSelect(selectedKey ?? '');
-            }}
-            variant="bordered"
-            isInvalid={!!getFieldError('state')}
-            errorMessage={getFieldError('state')}
-            isRequired={isFieldRequired('state')}
-            fullWidth
-            isLoading={loading.provinces}
+            required={isFieldRequired('state')}
+            error={getFieldError('state')}
+            options={provinceSelectOptions}
+            value={address.state || null}
             isDisabled={!canSelectProvince || loading.provinces}
-            placeholder={canSelectProvince ? 'Select province' : 'Select country first'}
-          >
-            {provinceOptions.map((province) => (
-              <SelectItem key={province.id} value={province.id}>
-                {province.name}
-              </SelectItem>
-            ))}
-          </Select>
+            isLoading={loading.provinces}
+            placeholder="Select province"
+            helperText={!canSelectProvince ? 'Select country first' : undefined}
+            onChange={handleProvinceSelect}
+          />
         ) : (
           <Input
             label="State/Province"
@@ -253,33 +294,24 @@ const AddressForm: React.FC<AddressFormProps> = ({
         )}
 
         {hasWardOptions ? (
-          <Select
+          <SelectField
             label="District/Ward"
-            selectedKeys={selectedWardKey}
-            onSelectionChange={(keys) => {
-              const selectedKey = Array.from(keys)[0] as string | undefined;
-              handleWardSelect(selectedKey ?? '');
-            }}
-            variant="bordered"
-            isInvalid={!!getFieldError('city')}
-            errorMessage={getFieldError('city')}
-            isRequired={isFieldRequired('city')}
-            fullWidth
-            isLoading={loading.wards}
+            required={isFieldRequired('city')}
+            error={getFieldError('city')}
+            options={wardSelectOptions}
+            value={address.city || null}
             isDisabled={!canSelectWard || loading.wards}
-            placeholder={!isCountrySelected
-              ? 'Select country first'
-              : !isProvinceSelected
-              ? 'Select province first'
-              : 'Select district/ward'
+            isLoading={loading.wards}
+            placeholder="Select district/ward"
+            helperText={
+              !isCountrySelected
+                ? 'Select country first'
+                : !isProvinceSelected
+                ? 'Select province first'
+                : undefined
             }
-          >
-            {wardOptions.map((ward) => (
-              <SelectItem key={ward.id} value={ward.id}>
-                {ward.name}
-              </SelectItem>
-            ))}
-          </Select>
+            onChange={handleWardSelect}
+          />
         ) : (
           <Input
             label="City"
@@ -309,15 +341,16 @@ const AddressForm: React.FC<AddressFormProps> = ({
       </div>
 
       {showPhone && (
-        <Input
-          label="Phone (Optional)"
-          placeholder="(555) 123-4567"
-          value={address.phone || ''}
-          onChange={(e) => updateField('phone', e.target.value)}
-          variant="bordered"
-          isInvalid={!!getFieldError('phone')}
-          errorMessage={getFieldError('phone')}
-          fullWidth
+        <PhoneInputField
+          id={`${prefix || 'address'}-phone`}
+          label="Phone"
+          placeholder="e.g. +84 912 345 678"
+          value={address.phone}
+          onChange={(value) => updateField('phone', value || '')}
+          error={getFieldError('phone')}
+          countryOptions={phoneSelectOptions}
+          defaultCountry={defaultPhoneCountry}
+          className="w-full"
         />
       )}
     </div>

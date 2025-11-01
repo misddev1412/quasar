@@ -1,133 +1,28 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, Card, Divider, Input, Textarea, Checkbox, RadioGroup, Radio, Spinner } from '@heroui/react';
-import AddressForm, { CountryOption, AdministrativeDivisionOption } from './AddressForm';
+'use client';
+
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { Button, Card, Input, Textarea, Checkbox, RadioGroup, Radio, Spinner } from '@heroui/react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import AddressForm, { AddressData } from './AddressForm';
 import PaymentMethodForm from './PaymentMethodForm';
 import OrderSummary from './OrderSummary';
-import type { CartItemDetails } from '../../types/cart';
-import { trpc } from '../../utils/trpc';
+import PriceDisplay from './PriceDisplay';
+import { useCheckoutForm } from './useCheckoutForm';
+import type {
+  CheckoutFormProps,
+  CheckoutFormData,
+  CheckoutCountry,
+  SavedAddress,
+  DeliveryMethodOption,
+} from './CheckoutForm.types';
 
-export interface CheckoutFormData {
-  // Customer Information
-  email: string;
-
-  // Shipping Address
-  shippingAddress: {
-    firstName: string;
-    lastName: string;
-    company?: string;
-    address1: string;
-    address2?: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-    phone?: string;
-  };
-
-  // Billing Address
-  billingAddressSameAsShipping: boolean;
-  billingAddress?: {
-    firstName: string;
-    lastName: string;
-    company?: string;
-    address1: string;
-    address2?: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-    phone?: string;
-  };
-
-  // Shipping Method
-  shippingMethod: string;
-
-  // Payment Method
-  paymentMethod: {
-    type: 'credit_card' | 'paypal' | 'bank_transfer' | 'cash_on_delivery';
-    cardNumber?: string;
-    expiryDate?: string;
-    cvv?: string;
-    cardholderName?: string;
-    paypalEmail?: string;
-    bankAccountNumber?: string;
-    bankName?: string;
-  };
-
-  // Order Notes
-  orderNotes?: string;
-
-  // Terms and Conditions
-  agreeToTerms: boolean;
-  agreeToMarketing: boolean;
-}
-
-interface CheckoutFormProps {
-  cartItems: CartItemDetails[];
-  subtotal: number;
-  shippingCost: number;
-  tax: number;
-  total: number;
-  onSubmit: (data: CheckoutFormData) => void;
-  loading?: boolean;
-  className?: string;
-  showOrderSummary?: boolean;
-  requireAccount?: boolean;
-  guestCheckoutAllowed?: boolean;
-  currency?: string;
-  savedAddresses?: SavedAddress[];
-  countries?: CheckoutCountry[];
-}
-
-export interface CheckoutCountry extends CountryOption {
-  iso2?: string;
-  iso3?: string;
-  phoneCode?: string;
-}
-
-export interface SavedAddress {
-  id: string;
-  customerId: string;
-  countryId: string;
-  provinceId?: string;
-  wardId?: string;
-  firstName: string;
-  lastName: string;
-  companyName?: string;
-  addressLine1: string;
-  addressLine2?: string;
-  postalCode?: string;
-  phoneNumber?: string;
-  email?: string;
-  addressType: 'BILLING' | 'SHIPPING' | 'BOTH';
-  isDefault: boolean;
-  label?: string;
-  deliveryInstructions?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  fullName: string;
-  formattedAddress: string;
-  displayLabel: string;
-  isShippingAddress: boolean;
-  isBillingAddress: boolean;
-}
-
-export interface DeliveryMethodOption {
-  id: string;
-  name: string;
-  description?: string;
-  isDefault: boolean;
-  costCalculationType: string;
-  deliveryCost: number;
-  estimatedDeliveryTime?: string;
-  providerName?: string;
-  trackingEnabled: boolean;
-  insuranceEnabled: boolean;
-  signatureRequired: boolean;
-  iconUrl?: string;
-  isAvailable: boolean;
-  unavailableReason?: string;
-}
+export type {
+  CheckoutFormProps,
+  CheckoutFormData,
+  CheckoutCountry,
+  SavedAddress,
+  DeliveryMethodOption,
+} from './CheckoutForm.types';
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({
   cartItems,
@@ -139,462 +34,115 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   loading = false,
   className = '',
   showOrderSummary = true,
-  requireAccount = false,
-  guestCheckoutAllowed = true,
+  requireAccount: _requireAccount = false,
+  guestCheckoutAllowed: _guestCheckoutAllowed = true,
   currency = '$',
   savedAddresses = [],
   countries = [],
 }) => {
-  const [formData, setFormData] = useState<CheckoutFormData>({
-    email: '',
-    shippingAddress: {
-      firstName: '',
-      lastName: '',
-      company: '',
-      address1: '',
-      address2: '',
-      city: '',
-      state: '',
-      postalCode: '',
-      country: '',
-      phone: '',
-    },
-    billingAddressSameAsShipping: true,
-    shippingMethod: '',
-    paymentMethod: {
-      type: 'credit_card',
-      cardNumber: '',
-      expiryDate: '',
-      cvv: '',
-      cardholderName: '',
-    },
-    orderNotes: '',
-    agreeToTerms: false,
-    agreeToMarketing: false,
-  });
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [activeStep, setActiveStep] = useState(1);
-  const [selectedSavedAddressId, setSelectedSavedAddressId] = useState<string | null>(null);
-  const [hasClearedSavedAddress, setHasClearedSavedAddress] = useState(false);
-
-  const countryOptions = useMemo<CountryOption[]>(() => {
-    if (!countries.length) {
-      return [];
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentStepParam = searchParams.get('step');
+  const searchParamsString = useMemo(() => searchParams.toString(), [searchParams]);
+  const initialStep = useMemo(() => {
+    const parsed = Number(currentStepParam);
+    if (Number.isFinite(parsed)) {
+      const truncated = Math.trunc(parsed);
+      if (truncated >= 1 && truncated <= 3) {
+        return truncated;
+      }
     }
-    return countries.map((country) => ({
-      id: country.id,
-      name: country.name,
-      code: country.code,
-    }));
-  }, [countries]);
+    return 1;
+  }, [currentStepParam]);
 
-  const shippingCountryId = formData.shippingAddress.country;
-  const shippingProvinceId = formData.shippingAddress.state;
+  const lastSyncedStepRef = useRef(initialStep);
 
-  const shippingProvincesQuery = trpc.clientAddressBook.getAdministrativeDivisions.useQuery(
-    { countryId: shippingCountryId, type: 'PROVINCE' },
-    { enabled: Boolean(shippingCountryId) }
+  const updateStepQuery = useCallback(
+    (step: number) => {
+      const desired = step <= 1 ? null : String(step);
+      const current = currentStepParam ?? null;
+      if (current === desired) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParamsString);
+      if (desired === null) {
+        params.delete('step');
+      } else {
+        params.set('step', desired);
+      }
+
+      const queryString = params.toString();
+      const target = queryString ? `${pathname}?${queryString}` : pathname;
+      router.replace(target, { scroll: false });
+    },
+    [currentStepParam, pathname, router, searchParamsString]
   );
 
-  const shippingWardsQuery = trpc.clientAddressBook.getAdministrativeDivisionsByParentId.useQuery(
-    { parentId: shippingProvinceId },
-    { enabled: Boolean(shippingProvinceId) }
-  );
-
-  const shippingProvinceOptions = useMemo<AdministrativeDivisionOption[]>(() => {
-    const divisions = (shippingProvincesQuery.data as AdministrativeDivisionOption[] | undefined) ?? [];
-    return divisions.map((division) => ({
-      id: division.id,
-      name: division.name,
-      code: division.code,
-      type: division.type,
-    }));
-  }, [shippingProvincesQuery.data]);
-
-  const shippingWardOptions = useMemo<AdministrativeDivisionOption[]>(() => {
-    const divisions = (shippingWardsQuery.data as AdministrativeDivisionOption[] | undefined) ?? [];
-    return divisions.map((division) => ({
-      id: division.id,
-      name: division.name,
-      code: division.code,
-      type: division.type,
-    }));
-  }, [shippingWardsQuery.data]);
-
-  const billingCountryId = formData.billingAddressSameAsShipping
-    ? shippingCountryId
-    : formData.billingAddress?.country ?? '';
-  const billingProvinceId = formData.billingAddressSameAsShipping
-    ? shippingProvinceId
-    : formData.billingAddress?.state ?? '';
-
-  const billingProvincesQuery = trpc.clientAddressBook.getAdministrativeDivisions.useQuery(
-    { countryId: billingCountryId, type: 'PROVINCE' },
-    { enabled: Boolean(billingCountryId) && !formData.billingAddressSameAsShipping }
-  );
-
-  const billingWardsQuery = trpc.clientAddressBook.getAdministrativeDivisionsByParentId.useQuery(
-    { parentId: billingProvinceId },
-    { enabled: Boolean(billingProvinceId) && !formData.billingAddressSameAsShipping }
-  );
-
-  const billingProvinceOptions = useMemo<AdministrativeDivisionOption[]>(() => {
-    const divisions = (billingProvincesQuery.data as AdministrativeDivisionOption[] | undefined) ?? [];
-    return divisions.map((division) => ({
-      id: division.id,
-      name: division.name,
-      code: division.code,
-      type: division.type,
-    }));
-  }, [billingProvincesQuery.data]);
-
-  const billingWardOptions = useMemo<AdministrativeDivisionOption[]>(() => {
-    const divisions = (billingWardsQuery.data as AdministrativeDivisionOption[] | undefined) ?? [];
-    return divisions.map((division) => ({
-      id: division.id,
-      name: division.name,
-      code: division.code,
-      type: division.type,
-    }));
-  }, [billingWardsQuery.data]);
-
-  const billingAddressValue = formData.billingAddress ?? {
-    firstName: '',
-    lastName: '',
-    company: '',
-    address1: '',
-    address2: '',
-    city: '',
-    state: '',
-    postalCode: '',
-    country: billingCountryId,
-    phone: '',
-  };
-
-  const coverageArea = useMemo(() => {
-    const provinceName =
-      shippingProvinceOptions.find((province) => province.id === shippingProvinceId)?.name ||
-      formData.shippingAddress.state;
-    const wardName =
-      shippingWardOptions.find((ward) => ward.id === formData.shippingAddress.city)?.name ||
-      formData.shippingAddress.city;
-    return [wardName, provinceName].filter(Boolean).join(', ') || undefined;
-  }, [
+  const {
+    formData,
+    errors,
+    countryOptions,
+    phoneCountryOptions,
     shippingProvinceOptions,
     shippingWardOptions,
-    shippingProvinceId,
-    formData.shippingAddress.city,
-    formData.shippingAddress.state,
-  ]);
-
-  const deliveryMethodInput = useMemo(
-    () => ({
-      orderAmount: subtotal,
-      coverageArea,
-    }),
-    [subtotal, coverageArea]
-  );
-
-  const deliveryMethodsQuery = trpc.clientDeliveryMethods.list.useQuery(deliveryMethodInput, {
-    keepPreviousData: true,
+    billingAddressValue,
+    billingProvinceOptions,
+    billingWardOptions,
+    shippingRequiredFields,
+    billingRequiredFields,
+    shippingProvincesQuery,
+    shippingWardsQuery,
+    billingProvincesQuery,
+    billingWardsQuery,
+    selectedSavedAddressId,
+    handleSavedAddressSelect,
+    handleManualShippingChange,
+    handleBillingAddressChange,
+    handleBillingSameAsShippingChange,
+    clearSavedAddressSelection,
+    markSavedAddressModified,
+    updateFormData,
+    handleSubmit,
+    activeStep,
+    handleNextStep,
+    handlePrevStep,
+    goToStep,
+    deliveryMethods,
+    deliveryMethodsQuery,
+    adjustedShippingCost,
+    discountAmount,
+    adjustedTotal,
+  } = useCheckoutForm({
+    subtotal,
+    shippingCost,
+    tax,
+    total,
+    onSubmit,
+    savedAddresses,
+    countries,
+    initialStep,
+    onStepChange: updateStepQuery,
   });
 
-  const deliveryMethods = useMemo<DeliveryMethodOption[]>(() => {
-    const raw = deliveryMethodsQuery.data as
-      | { items?: DeliveryMethodOption[] }
-      | { data?: { items?: DeliveryMethodOption[] } }
-      | undefined;
-
-    const items = raw?.items ?? (raw && typeof raw === 'object' ? (raw as any).data?.items : undefined);
-
-    if (!Array.isArray(items)) {
-      return [];
-    }
-
-    return items.map((item) => ({
-      ...item,
-      deliveryCost: Number(item.deliveryCost ?? 0),
-    }));
-  }, [deliveryMethodsQuery.data]);
-
-  const selectedShippingMethod = useMemo(
-    () => deliveryMethods.find((method) => method.id === formData.shippingMethod),
-    [deliveryMethods, formData.shippingMethod]
-  );
-
-  const updateFormData = useCallback((path: string, value: any) => {
-    setFormData((prev) => {
-      const newData: any = { ...prev };
-      const keys = path.split('.');
-      let current = newData;
-
-      for (let i = 0; i < keys.length - 1; i++) {
-        if (!current[keys[i]]) {
-          current[keys[i]] = {};
-        }
-        current = current[keys[i]];
-      }
-
-      current[keys[keys.length - 1]] = value;
-      return newData;
-    });
-
-    if (errors[path]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[path];
-        return newErrors;
-      });
-    }
-  }, [errors]);
-
-  const applySavedAddress = useCallback(
-    (address: SavedAddress, { autoSelect = false }: { autoSelect?: boolean } = {}) => {
-      setHasClearedSavedAddress(false);
-      setSelectedSavedAddressId(address.id);
-
-      const newShippingAddress = {
-        firstName: address.firstName || '',
-      lastName: address.lastName || '',
-      company: address.companyName || '',
-      address1: address.addressLine1 || '',
-      address2: address.addressLine2 || '',
-      city: address.wardId || '',
-      state: address.provinceId || '',
-      postalCode: address.postalCode || '',
-      country: address.countryId || '',
-      phone: address.phoneNumber || '',
-    };
-
-    updateFormData('shippingAddress', newShippingAddress);
-
-    if (!formData.email && address.email) {
-      updateFormData('email', address.email);
-    }
-
-      if (!autoSelect) {
-        setActiveStep(1);
-      }
-    },
-    [formData.email, updateFormData]
-  );
-
-  const handleManualShippingChange = useCallback(
-    (address: CheckoutFormData['shippingAddress']) => {
-      setHasClearedSavedAddress(true);
-      setSelectedSavedAddressId(null);
-      updateFormData('shippingAddress', address);
-    },
-    [updateFormData]
-  );
-
-  const handleBillingAddressChange = useCallback(
-    (address: CheckoutFormData['billingAddress']) => {
-      updateFormData('billingAddress', address);
-    },
-    [updateFormData]
-  );
-
-  const handleSavedAddressSelect = useCallback(
-    (address: SavedAddress) => {
-      applySavedAddress(address);
-    },
-    [applySavedAddress]
-  );
+  void _requireAccount;
+  void _guestCheckoutAllowed;
 
   useEffect(() => {
-    if (!formData.shippingAddress.country && countryOptions.length > 0) {
-      updateFormData('shippingAddress.country', countryOptions[0].id);
-    }
-  }, [countryOptions, formData.shippingAddress.country, updateFormData]);
-
-  useEffect(() => {
-    if (savedAddresses.length === 0) {
+    if (lastSyncedStepRef.current === initialStep) {
       return;
     }
-
-    const selected = savedAddresses.find((address) => address.id === selectedSavedAddressId);
-
-    if (selectedSavedAddressId && !selected) {
-      setSelectedSavedAddressId(null);
+    lastSyncedStepRef.current = initialStep;
+    if (initialStep !== activeStep) {
+      goToStep(initialStep);
     }
-
-    if (!selectedSavedAddressId && !hasClearedSavedAddress) {
-      const defaultShippingAddress =
-        savedAddresses.find((address) => address.isDefault && address.isShippingAddress) ??
-        savedAddresses.find((address) => address.isShippingAddress) ??
-        savedAddresses[0];
-
-      if (defaultShippingAddress) {
-        applySavedAddress(defaultShippingAddress, { autoSelect: true });
-      }
-    }
-  }, [savedAddresses, selectedSavedAddressId, hasClearedSavedAddress, applySavedAddress]);
-
-  useEffect(() => {
-    if (deliveryMethods.length === 0) {
-      if (formData.shippingMethod) {
-        updateFormData('shippingMethod', '');
-      }
-      return;
-    }
-
-    const selected = deliveryMethods.find((method) => method.id === formData.shippingMethod);
-    if (selected && selected.isAvailable) {
-      return;
-    }
-
-    const available = deliveryMethods.filter((method) => method.isAvailable);
-    const preferred =
-      available.find((method) => method.isDefault) ?? available[0] ?? deliveryMethods[0];
-
-    if (preferred && preferred.id !== formData.shippingMethod) {
-      updateFormData('shippingMethod', preferred.id);
-    }
-  }, [deliveryMethods, formData.shippingMethod, updateFormData]);
-
-  const validateStep = (step: number) => {
-    const newErrors: Record<string, string> = {};
-
-    if (step === 1) {
-      // Validate contact information
-      if (!formData.email.trim()) {
-        newErrors.email = 'Email is required';
-      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        newErrors.email = 'Email is invalid';
-      }
-
-      // Validate shipping address
-      if (!formData.shippingAddress.firstName.trim()) {
-        newErrors['shippingAddress.firstName'] = 'First name is required';
-      }
-      if (!formData.shippingAddress.lastName.trim()) {
-        newErrors['shippingAddress.lastName'] = 'Last name is required';
-      }
-      if (!formData.shippingAddress.address1.trim()) {
-        newErrors['shippingAddress.address1'] = 'Address is required';
-      }
-      if (!formData.shippingAddress.city.trim()) {
-        newErrors['shippingAddress.city'] = 'City is required';
-      }
-      if (!formData.shippingAddress.state.trim()) {
-        newErrors['shippingAddress.state'] = 'State is required';
-      }
-      if (!formData.shippingAddress.postalCode.trim()) {
-        newErrors['shippingAddress.postalCode'] = 'Postal code is required';
-      }
-      if (!formData.shippingAddress.country.trim()) {
-        newErrors['shippingAddress.country'] = 'Country is required';
-      }
-
-      // Validate billing address if different from shipping
-      if (!formData.billingAddressSameAsShipping) {
-        if (!formData.billingAddress?.firstName.trim()) {
-          newErrors['billingAddress.firstName'] = 'First name is required';
-        }
-        if (!formData.billingAddress?.lastName.trim()) {
-          newErrors['billingAddress.lastName'] = 'Last name is required';
-        }
-        if (!formData.billingAddress?.address1.trim()) {
-          newErrors['billingAddress.address1'] = 'Address is required';
-        }
-        if (!formData.billingAddress?.city.trim()) {
-          newErrors['billingAddress.city'] = 'City is required';
-        }
-        if (!formData.billingAddress?.state.trim()) {
-          newErrors['billingAddress.state'] = 'State is required';
-        }
-        if (!formData.billingAddress?.postalCode.trim()) {
-          newErrors['billingAddress.postalCode'] = 'Postal code is required';
-        }
-        if (!formData.billingAddress?.country.trim()) {
-          newErrors['billingAddress.country'] = 'Country is required';
-        }
-      }
-    }
-
-    if (step === 2) {
-      // Validate shipping method
-      if (!formData.shippingMethod) {
-        newErrors.shippingMethod = 'Please select a shipping method';
-      } else {
-        const method = deliveryMethods.find((option) => option.id === formData.shippingMethod);
-        if (!method) {
-          newErrors.shippingMethod = 'Selected delivery method is invalid';
-        } else if (!method.isAvailable) {
-          newErrors.shippingMethod = method.unavailableReason || 'Delivery method is not available';
-        }
-      }
-    }
-
-    if (step === 3) {
-      // Validate payment method
-      if (formData.paymentMethod.type === 'credit_card') {
-        if (!formData.paymentMethod.cardNumber?.trim()) {
-          newErrors['paymentMethod.cardNumber'] = 'Card number is required';
-        }
-        if (!formData.paymentMethod.expiryDate?.trim()) {
-          newErrors['paymentMethod.expiryDate'] = 'Expiry date is required';
-        }
-        if (!formData.paymentMethod.cvv?.trim()) {
-          newErrors['paymentMethod.cvv'] = 'CVV is required';
-        }
-        if (!formData.paymentMethod.cardholderName?.trim()) {
-          newErrors['paymentMethod.cardholderName'] = 'Cardholder name is required';
-        }
-      }
-
-      if (formData.paymentMethod.type === 'paypal') {
-        if (!formData.paymentMethod.paypalEmail?.trim()) {
-          newErrors['paymentMethod.paypalEmail'] = 'PayPal email is required';
-        } else if (!/\S+@\S+\.\S+/.test(formData.paymentMethod.paypalEmail)) {
-          newErrors['paymentMethod.paypalEmail'] = 'PayPal email is invalid';
-        }
-      }
-
-      // Validate terms agreement
-      if (!formData.agreeToTerms) {
-        newErrors.agreeToTerms = 'You must agree to the terms and conditions';
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleNextStep = () => {
-    if (validateStep(activeStep)) {
-      setActiveStep((prev) => prev + 1);
-    }
-  };
-
-  const handlePrevStep = () => {
-    setActiveStep((prev) => prev - 1);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateStep(activeStep)) {
-      onSubmit(formData);
-    }
-  };
-
-  const adjustedShippingCost = selectedShippingMethod
-    ? selectedShippingMethod.deliveryCost
-    : shippingCost;
-  const discountAmountRaw = subtotal + shippingCost + tax - total;
-  const discountAmount = Number.isFinite(discountAmountRaw)
-    ? Math.max(0, discountAmountRaw)
-    : 0;
-  const adjustedTotal = Math.max(0, subtotal + adjustedShippingCost + tax - discountAmount);
+  }, [activeStep, goToStep, initialStep]);
 
   return (
     <div className={`grid grid-cols-1 lg:grid-cols-3 gap-8 ${className}`}>
-      {/* Checkout Form */}
       <div className="lg:col-span-2">
         <Card className="p-6">
-          {/* Progress Steps */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               {[1, 2, 3].map((step) => (
@@ -615,9 +163,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   </span>
                   {step < 3 && (
                     <div
-                      className={`w-16 h-1 mx-4 ${
-                        activeStep > step ? 'bg-primary-500' : 'bg-gray-200'
-                      }`}
+                      className={`w-16 h-1 mx-4 ${activeStep > step ? 'bg-primary-500' : 'bg-gray-200'}`}
                     ></div>
                   )}
                 </div>
@@ -626,7 +172,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           </div>
 
           <form onSubmit={handleSubmit}>
-            {/* Step 1: Contact & Address Information */}
             {activeStep === 1 && (
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Contact Information</h3>
@@ -680,14 +225,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                           </div>
                         </label>
                       ))}
-                      <Button
-                        variant="light"
-                        size="sm"
-                        onPress={() => {
-                          setSelectedSavedAddressId(null);
-                          setHasClearedSavedAddress(true);
-                        }}
-                      >
+                      <Button variant="light" size="sm" onPress={clearSavedAddressSelection}>
                         Use a different address
                       </Button>
                     </div>
@@ -702,34 +240,22 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   errors={errors}
                   prefix="shippingAddress"
                   countries={countryOptions}
+                  phoneCountryOptions={phoneCountryOptions}
                   provinces={shippingProvinceOptions}
                   wards={shippingWardOptions}
+                  requiredFields={shippingRequiredFields as (keyof AddressData)[]}
                   loading={{
                     provinces: shippingProvincesQuery.isLoading,
                     wards: shippingWardsQuery.isLoading,
                   }}
-                  onCountryChange={() => {
-                    setHasClearedSavedAddress(true);
-                    setSelectedSavedAddressId(null);
-                  }}
-                  onProvinceChange={() => {
-                    setHasClearedSavedAddress(true);
-                    setSelectedSavedAddressId(null);
-                  }}
-                  onWardChange={() => {
-                    setHasClearedSavedAddress(true);
-                    setSelectedSavedAddressId(null);
-                  }}
+                  onCountryChange={() => markSavedAddressModified()}
+                  onProvinceChange={() => markSavedAddressModified()}
+                  onWardChange={() => markSavedAddressModified()}
                 />
 
                 <Checkbox
                   isSelected={formData.billingAddressSameAsShipping}
-                  onChange={(e) => {
-                    updateFormData('billingAddressSameAsShipping', e.target.checked);
-                    if (e.target.checked) {
-                      updateFormData('billingAddress', undefined);
-                    }
-                  }}
+                  onChange={(e) => handleBillingSameAsShippingChange(e.target.checked)}
                 >
                   Billing address is the same as shipping address
                 </Checkbox>
@@ -744,8 +270,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                       errors={errors}
                       prefix="billingAddress"
                       countries={countryOptions}
+                      phoneCountryOptions={phoneCountryOptions}
                       provinces={billingProvinceOptions}
                       wards={billingWardOptions}
+                      requiredFields={billingRequiredFields as (keyof AddressData)[]}
                       loading={{
                         provinces: billingProvincesQuery.isLoading,
                         wards: billingWardsQuery.isLoading,
@@ -762,7 +290,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
               </div>
             )}
 
-            {/* Step 2: Shipping Method */}
             {activeStep === 2 && (
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Shipping Method</h3>
@@ -840,7 +367,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
               </div>
             )}
 
-            {/* Step 3: Payment */}
             {activeStep === 3 && (
               <div className="space-y-6">
                 <h3 className="text-lg font-semibold">Payment Method</h3>
@@ -880,14 +406,18 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 )}
 
                 <div className="mt-6 space-y-4">
-                  <Checkbox
-                    isSelected={formData.agreeToTerms}
-                    onChange={(e) => updateFormData('agreeToTerms', e.target.checked)}
-                    isInvalid={!!errors.agreeToTerms}
-                    errorMessage={errors.agreeToTerms}
-                  >
-                    I agree to the Terms and Conditions and Privacy Policy
-                  </Checkbox>
+                  <div>
+                    <Checkbox
+                      isSelected={formData.agreeToTerms}
+                      onChange={(e) => updateFormData('agreeToTerms', e.target.checked)}
+                      isInvalid={!!errors.agreeToTerms}
+                    >
+                      I agree to the Terms and Conditions and Privacy Policy
+                    </Checkbox>
+                    {errors.agreeToTerms && (
+                      <p className="mt-1 text-xs text-danger-500">{errors.agreeToTerms}</p>
+                    )}
+                  </div>
 
                   <Checkbox
                     isSelected={formData.agreeToMarketing}
@@ -911,7 +441,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         </Card>
       </div>
 
-      {/* Order Summary */}
       {showOrderSummary && (
         <div className="lg:col-span-1">
           <div className="sticky top-6">

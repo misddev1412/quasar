@@ -1,4 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
+import { appendFileSync, existsSync, mkdirSync } from 'fs';
+import { join } from 'path';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ClientAddressBookService } from '../services/client-address-book.service';
@@ -114,6 +116,8 @@ const administrativeDivisionResponseSchema = z.object({
 @Router({ alias: 'clientAddressBook' })
 @Injectable()
 export class ClientAddressBookRouter {
+  private readonly debugLogPath = join(process.cwd(), 'tmp', 'client-address-book.log');
+
   constructor(
     @Inject(ClientAddressBookService)
     private readonly addressBookService: ClientAddressBookService,
@@ -483,58 +487,75 @@ export class ClientAddressBookRouter {
     }
   }
 
-  @UseMiddlewares(AuthMiddleware)
   @Query({
     input: countryQuerySchema,
     output: z.array(administrativeDivisionResponseSchema),
   })
   async getAdministrativeDivisions(
-    @Input() input: z.infer<typeof countryQuerySchema>,
-    @Ctx() { user }: AuthenticatedContext
+    @Input() input: z.infer<typeof countryQuerySchema>
   ): Promise<z.infer<typeof administrativeDivisionResponseSchema>[]> {
     try {
-      if (!user?.id) {
-        throw new Error('User not authenticated');
-      }
-
+      this.debugLog('getAdministrativeDivisions', input);
       const divisions = await this.addressBookService.getAdministrativeDivisions(
         input.countryId,
         input.type
       );
+      this.debugLog('getAdministrativeDivisions result count', divisions.length);
       return divisions;
     } catch (error) {
+      this.debugLog('getAdministrativeDivisions error', {
+        message: error?.message,
+        stack: error?.stack,
+        name: error?.name,
+      });
       throw this.responseHandler.createTRPCError(
         ModuleCode.ADDRESS_BOOK,
         OperationCode.READ,  // OperationCode.READ
         ErrorLevelCode.SERVER_ERROR, // ErrorLevelCode.SERVER_ERROR
-        error.message || 'Failed to retrieve administrative divisions'
+        error.message || 'Failed to retrieve administrative divisions',
+        error
       );
     }
   }
 
-  @UseMiddlewares(AuthMiddleware)
   @Query({
     input: parentQuerySchema,
     output: z.array(administrativeDivisionResponseSchema),
   })
   async getAdministrativeDivisionsByParentId(
-    @Input() input: z.infer<typeof parentQuerySchema>,
-    @Ctx() { user }: AuthenticatedContext
+    @Input() input: z.infer<typeof parentQuerySchema>
   ): Promise<z.infer<typeof administrativeDivisionResponseSchema>[]> {
     try {
-      if (!user?.id) {
-        throw new Error('User not authenticated');
-      }
-
+      this.debugLog('getAdministrativeDivisionsByParentId', input);
       const divisions = await this.addressBookService.getAdministrativeDivisionsByParentId(input.parentId);
+      this.debugLog('getAdministrativeDivisionsByParentId result count', divisions.length);
       return divisions;
     } catch (error) {
+      this.debugLog('getAdministrativeDivisionsByParentId error', {
+        message: error?.message,
+        stack: error?.stack,
+        name: error?.name,
+      });
       throw this.responseHandler.createTRPCError(
         ModuleCode.ADDRESS_BOOK,
         OperationCode.READ,  // OperationCode.READ
         ErrorLevelCode.SERVER_ERROR, // ErrorLevelCode.SERVER_ERROR
-        error.message || 'Failed to retrieve administrative divisions by parent ID'
+        error.message || 'Failed to retrieve administrative divisions by parent ID',
+        error
       );
+    }
+  }
+
+  private debugLog(event: string, payload: unknown) {
+    try {
+      const dir = join(process.cwd(), 'tmp');
+      if (!existsSync(dir)) {
+        mkdirSync(dir, { recursive: true });
+      }
+      const line = `${new Date().toISOString()} [${event}] ${JSON.stringify(payload)}\n`;
+      appendFileSync(this.debugLogPath, line);
+    } catch (err) {
+      // swallow logging errors
     }
   }
 }

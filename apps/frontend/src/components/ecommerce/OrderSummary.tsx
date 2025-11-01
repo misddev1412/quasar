@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Card, Divider } from '@heroui/react';
+import { Card, Divider, Image } from '@heroui/react';
 import { PriceDisplay } from './PriceDisplay';
 import type { CartItemDetails } from '../../types/cart';
 import { useTranslations } from 'next-intl';
@@ -73,9 +73,35 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           return item.variant.name;
         })();
 
+        const imageSrc = (() => {
+          if (item.variant?.image) {
+            return item.variant.image;
+          }
+
+          const mediaItems = item.product.media;
+          if (mediaItems && mediaItems.length > 0) {
+            const primary = mediaItems.find((media) => media.isPrimary && media.url);
+            if (primary?.url) {
+              return primary.url;
+            }
+
+            const firstImage = mediaItems.find((media) => media.isImage && media.url) ?? mediaItems[0];
+            if (firstImage?.url) {
+              return firstImage.url;
+            }
+          }
+
+          if (item.product.images && item.product.images.length > 0) {
+            return item.product.images[0];
+          }
+
+          return '/placeholder-product.png';
+        })();
+
         return {
           ...item,
           variantLabel,
+          imageSrc,
         };
       }),
     [cartItems]
@@ -119,20 +145,30 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         <>
           <div className="space-y-3 mb-4">
             {itemsForDisplay.map((item) => (
-              <div key={item.id} className="flex justify-between text-sm">
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate">{item.product.name}</div>
-                  {item.variantLabel && (
-                    <div className="text-xs text-gray-500">{item.variantLabel}</div>
-                  )}
-                  <div className="text-xs text-gray-500">Qty: {item.quantity}</div>
-                </div>
-                <div className="font-medium">
-                  <PriceDisplay
-                    price={item.unitPrice * item.quantity}
-                    currency={currency}
-                    className="justify-end"
+              <div key={item.id} className="flex items-center gap-3 text-sm">
+                <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 bg-gray-100 dark:border-gray-700">
+                  <Image
+                    src={item.imageSrc}
+                    alt={item.product.name}
+                    className="h-full w-full object-cover"
+                    removeWrapper
                   />
+                </div>
+                <div className="flex flex-1 items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="font-medium truncate">{item.product.name}</div>
+                    {item.variantLabel && (
+                      <div className="text-xs text-gray-500">{item.variantLabel}</div>
+                    )}
+                    <div className="text-xs text-gray-500">Qty: {item.quantity}</div>
+                  </div>
+                  <div className="font-medium whitespace-nowrap">
+                    <PriceDisplay
+                      price={item.unitPrice * item.quantity}
+                      currency={currency}
+                      className="justify-end"
+                    />
+                  </div>
                 </div>
               </div>
             ))}

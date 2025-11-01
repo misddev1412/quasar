@@ -71,16 +71,16 @@ export class AdministrativeDivision extends BaseEntity {
 
   @Expose()
   @ManyToOne(() => Country, (country) => country.administrativeDivisions, {
-    eager: true,
     nullable: true,
+    eager: false,
   })
   @JoinColumn({ name: 'country_id' })
   country?: Country;
 
   @Expose()
   @ManyToOne(() => AdministrativeDivision, (division) => division.children, {
-    eager: true,
     nullable: true,
+    eager: false,
   })
   @JoinColumn({ name: 'parent_id' })
   parent?: AdministrativeDivision;
