@@ -3,11 +3,22 @@ import AuthCard from '../../components/auth/AuthCard';
 import ForgotPasswordForm from '../../components/auth/ForgotPasswordForm';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
+import { useAdminSeo } from '../../hooks/useAdminSeo';
 
 export function ForgotPasswordPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslationWithBackend();
+
+  // Set SEO for forgot password page
+  useAdminSeo({
+    path: '/auth/forgot-password',
+    defaultSeo: {
+      title: t('auth.forgot_password', 'Forgot Password') + ' | Quasar Admin',
+      description: t('auth.enter_email', 'Enter your email address and we\'ll send you a link to reset your password'),
+      keywords: 'forgot password, reset password, admin, quasar'
+    }
+  });
 
   // 处理忘记密码请求
   const handleForgotPassword = async (email: string): Promise<void> => {

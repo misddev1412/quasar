@@ -12,10 +12,21 @@ import Tabs from '../components/common/Tabs';
 import UpdatePasswordForm from '../components/user/UpdatePasswordForm';
 import PreferenceSettings from '../components/user/PreferenceSettings';
 import { User, Lock, Settings } from 'lucide-react';
+import { useAdminSeo } from '../hooks/useAdminSeo';
 
 const UserProfilePage = () => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
+
+  // Set SEO for profile page
+  useAdminSeo({
+    path: '/profile',
+    defaultSeo: {
+      title: t('profile.user_profile', 'My Profile') + ' | Quasar Admin',
+      description: t('profile.manage_your_profile_information', 'Manage your profile information, including your name, email, and password'),
+      keywords: 'profile, user settings, account, admin'
+    }
+  });
   const trpcContext = trpc.useContext();
 
   // Use URL tabs hook with tab keys for clean URLs

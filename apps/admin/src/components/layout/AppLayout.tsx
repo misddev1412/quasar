@@ -16,6 +16,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useNavigate } from 'react-router-dom';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { useAdminSeo } from '../../hooks/useAdminSeo';
 import { Z_INDEX } from '../../utils/zIndex';
 
 // 快速操作按钮容器
@@ -59,6 +60,9 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const [quickActionsOpen, setQuickActionsOpen] = useState(false);
   const { t } = useTranslationWithBackend();
+
+  // Use admin SEO for automatic meta title management
+  useAdminSeo();
   
   // 滚动触发器，当页面滚动超过100px时触发
   const trigger = useScrollTrigger({

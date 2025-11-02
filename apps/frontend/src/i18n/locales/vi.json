@@ -1153,6 +1153,130 @@
           "message": "Hãy xử lý các vấn đề được đánh dấu trước khi đặt hàng."
         }
       },
+      "form": {
+        "steps": {
+          "information": "Thông tin",
+          "shipping": "Giao hàng",
+          "payment": "Thanh toán"
+        },
+        "headings": {
+          "contact": "Thông tin liên hệ",
+          "savedAddresses": "Địa chỉ giao hàng đã lưu",
+          "shippingAddress": "Địa chỉ giao hàng",
+          "billingAddress": "Địa chỉ thanh toán",
+          "shippingMethod": "Phương thức giao hàng",
+          "orderNotes": "Ghi chú đơn hàng (không bắt buộc)",
+          "paymentMethod": "Phương thức thanh toán"
+        },
+        "fields": {
+          "email": {
+            "label": "Địa chỉ email",
+            "placeholder": "ban@example.com"
+          },
+          "orderNotes": {
+            "label": "Hướng dẫn đặc biệt cho đơn hàng",
+            "placeholder": "Các yêu cầu giao hàng hoặc ghi chú dành cho đơn hàng"
+          },
+          "paypalEmail": {
+            "label": "Email PayPal",
+            "placeholder": "paypal@vidu.com"
+          }
+        },
+        "savedAddresses": {
+          "phone": "Điện thoại: {phone}",
+          "email": "Email: {email}",
+          "defaultTag": "Mặc định"
+        },
+        "buttons": {
+          "useDifferentAddress": "Sử dụng địa chỉ khác"
+        },
+        "checkboxes": {
+          "billingSame": "Địa chỉ thanh toán giống địa chỉ giao hàng",
+          "agreeTerms": "Tôi đồng ý với Điều khoản và Chính sách bảo mật",
+          "agreeMarketing": "Tôi muốn nhận ưu đãi và cập nhật qua email"
+        },
+        "delivery": {
+          "loading": "Đang tải phương thức giao hàng",
+          "error": "Không thể tải phương thức giao hàng. Vui lòng thử lại hoặc kiểm tra lại thông tin địa chỉ.",
+          "empty": "Không có phương thức giao hàng phù hợp với địa chỉ đã chọn. Vui lòng kiểm tra lại thông tin hoặc thử lại sau.",
+          "estimated": "Dự kiến: {time}",
+          "recommended": "Đề xuất"
+        },
+        "actions": {
+          "return_to_information": "Quay lại bước Thông tin",
+          "continue_to_payment": "Tiếp tục tới thanh toán",
+          "return_to_shipping": "Quay lại bước Giao hàng",
+          "place_order": "Đặt hàng"
+        },
+        "paymentMethods": {
+          "credit_card": "Thẻ tín dụng",
+          "paypal": "PayPal",
+          "bank_transfer": "Chuyển khoản ngân hàng",
+          "cash_on_delivery": "Thanh toán khi nhận hàng"
+        },
+        "support": {
+          "title": "Cần hỗ trợ?",
+          "description": "Liên hệ đội ngũ chăm sóc khách hàng nếu bạn có bất kỳ thắc mắc nào về đơn hàng.",
+          "action": "Liên hệ hỗ trợ"
+        },
+        "address": {
+          "labels": {
+            "country": "Quốc gia",
+            "firstName": "Tên",
+            "lastName": "Họ",
+            "company": "Công ty (không bắt buộc)",
+            "address1": "Địa chỉ",
+            "address2": "Căn hộ, tòa nhà, v.v. (không bắt buộc)",
+            "state": "Tỉnh/Thành phố",
+            "citySelect": "Quận/Huyện/Phường",
+            "city": "Thành phố",
+            "postalCode": "Mã bưu chính",
+            "phone": "Số điện thoại"
+          },
+          "placeholders": {
+            "country": "Chọn quốc gia",
+            "noCountries": "Chưa có danh sách quốc gia",
+            "firstName": "Ví dụ: An",
+            "lastName": "Ví dụ: Nguyễn",
+            "company": "Ví dụ: Công ty ABC",
+            "address1": "123 Đường Lê Lợi",
+            "address2": "Căn hộ 4B",
+            "province": "Chọn tỉnh/thành",
+            "state": "Tỉnh hoặc thành phố",
+            "citySelect": "Chọn quận/phường",
+            "city": "Thành phố",
+            "postalCode": "700000",
+            "phone": "VD: +84 912 345 678"
+          },
+          "helpers": {
+            "selectCountryFirst": "Vui lòng chọn quốc gia trước",
+            "selectProvinceFirst": "Vui lòng chọn tỉnh/thành trước"
+          }
+        },
+        "payment": {
+          "savedCards": {
+            "title": "Thẻ đã lưu",
+            "useNew": "Sử dụng thẻ mới",
+            "endingIn": "{type} kết thúc bằng {lastFour}",
+            "expires": "Hết hạn {date}"
+          },
+          "labels": {
+            "cardNumber": "Số thẻ",
+            "expiryDate": "Ngày hết hạn",
+            "cvv": "CVV",
+            "cardholderName": "Tên chủ thẻ"
+          },
+          "placeholders": {
+            "cardNumber": "1234 5678 9012 3456",
+            "expiryDate": "MM/YY",
+            "cvv": "123",
+            "cardholderName": "Nguyễn Văn A"
+          },
+          "security": {
+            "note": "Thông tin thanh toán của bạn được mã hóa và xử lý an toàn. Chúng tôi không bao giờ lưu trữ toàn bộ thông tin thẻ trên hệ thống."
+          }
+        }
+      },
       "orderSummary": {
         "title": "Thông tin đơn hàng",
         "coupon": {

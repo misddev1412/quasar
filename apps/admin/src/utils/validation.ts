@@ -133,6 +133,39 @@ export const updateLanguageSchema = z.object({
 export type CreateLanguageFormData = z.infer<typeof createLanguageSchema>;
 export type UpdateLanguageFormData = z.infer<typeof updateLanguageSchema>;
 
+// Currency validation schemas
+export const createCurrencySchema = z.object({
+  code: z.string()
+    .min(3, 'Currency code must be exactly 3 characters')
+    .max(3, 'Currency code must be exactly 3 characters')
+    .regex(/^[A-Z]{3}$/, 'Currency code must be 3 uppercase letters (e.g., USD)'),
+  name: z.string()
+    .min(2, 'Currency name must be at least 2 characters')
+    .max(100, 'Currency name must not exceed 100 characters'),
+  symbol: z.string()
+    .min(1, 'Currency symbol is required')
+    .max(10, 'Currency symbol must not exceed 10 characters'),
+  exchangeRate: z.number()
+    .positive('Exchange rate must be greater than 0')
+    .max(9999999999, 'Exchange rate is too large')
+    .optional(),
+  isActive: z.boolean().optional(),
+  isDefault: z.boolean().optional(),
+  decimalPlaces: z.number()
+    .int('Decimal places must be an integer')
+    .min(0, 'Decimal places must be 0 or greater')
+    .max(4, 'Decimal places must not exceed 4')
+    .optional(),
+  format: z.string()
+    .max(50, 'Format must not exceed 50 characters')
+    .optional(),
+});
+
+export const updateCurrencySchema = createCurrencySchema.partial();
+
+export type CreateCurrencyFormData = z.infer<typeof createCurrencySchema>;
+export type UpdateCurrencyFormData = z.infer<typeof updateCurrencySchema>;
+
 // Validation helper functions
 export const validateField = (schema: z.ZodSchema, value: any): string | undefined => {
   try {

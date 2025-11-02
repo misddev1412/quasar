@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Input, Select, SelectItem } from '@heroui/react';
+import { Input } from '@heroui/react';
+import { useTranslations } from 'next-intl';
 
 export interface PaymentMethodData {
   cardNumber?: string;
@@ -36,6 +37,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
   showSavedCards = false,
   savedCards = [],
 }) => {
+  const t = useTranslations('ecommerce.checkout.form.payment');
   const [useSavedCard, setUseSavedCard] = useState<string | null>(null);
   const [cardNumber, setCardNumber] = useState(paymentMethod.cardNumber || '');
   const [expiryDate, setExpiryDate] = useState(paymentMethod.expiryDate || '');
@@ -146,7 +148,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
       {/* Saved Cards */}
       {showSavedCards && savedCards.length > 0 && (
         <div className="mb-6">
-          <h4 className="font-medium mb-3">Saved Cards</h4>
+          <h4 className="font-medium mb-3">{t('savedCards.title')}</h4>
           <div className="space-y-2">
             <div
               className={`flex items-center p-3 border rounded-md cursor-pointer ${
@@ -158,7 +160,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
                 <span className="text-lg">+</span>
               </div>
               <div>
-                <div className="font-medium">Use a new card</div>
+                <div className="font-medium">{t('savedCards.useNew')}</div>
               </div>
             </div>
 
@@ -175,10 +177,14 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
                 </div>
                 <div className="flex-1">
                   <div className="font-medium">
-                    {card.cardType.charAt(0).toUpperCase() + card.cardType.slice(1)} ending in{' '}
-                    {card.lastFourDigits}
+                    {t('savedCards.endingIn', {
+                      type: card.cardType.charAt(0).toUpperCase() + card.cardType.slice(1),
+                      lastFour: card.lastFourDigits,
+                    })}
                   </div>
-                  <div className="text-sm text-gray-500">Expires {card.expiryDate}</div>
+                  <div className="text-sm text-gray-500">
+                    {t('savedCards.expires', { date: card.expiryDate })}
+                  </div>
                 </div>
               </div>
             ))}
@@ -191,8 +197,8 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
         <>
           <div className="relative">
             <Input
-              label="Card Number"
-              placeholder="1234 5678 9012 3456"
+              label={t('labels.cardNumber')}
+              placeholder={t('placeholders.cardNumber')}
               value={cardNumber}
               onChange={handleCardNumberChange}
               variant="bordered"
@@ -205,8 +211,8 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Expiry Date"
-              placeholder="MM/YY"
+              label={t('labels.expiryDate')}
+              placeholder={t('placeholders.expiryDate')}
               value={expiryDate}
               onChange={handleExpiryDateChange}
               variant="bordered"
@@ -216,8 +222,8 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
             />
 
             <Input
-              label="CVV"
-              placeholder="123"
+              label={t('labels.cvv')}
+              placeholder={t('placeholders.cvv')}
               value={cvv}
               onChange={handleCvvChange}
               variant="bordered"
@@ -228,8 +234,8 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
           </div>
 
           <Input
-            label="Cardholder Name"
-            placeholder="John Doe"
+            label={t('labels.cardholderName')}
+            placeholder={t('placeholders.cardholderName')}
             value={cardholderName}
             onChange={handleCardholderNameChange}
             variant="bordered"
@@ -245,8 +251,7 @@ const PaymentMethodForm: React.FC<PaymentMethodFormProps> = ({
         <div className="flex items-start">
           <span className="text-blue-500 mr-2 mt-0.5">🔒</span>
           <div className="text-sm text-blue-700">
-            Your payment information is encrypted and securely processed. We never store your full
-            card details on our servers.
+            {t('security.note')}
           </div>
         </div>
       </div>

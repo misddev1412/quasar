@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import withSeo from '@admin/components/SEO/withSeo';
-import { SeoData } from '@admin/hooks/useSeo';
+import withAdminSeo from '@admin/components/SEO/withAdminSeo';
+import { AdminSeoData } from '@admin/hooks/useAdminSeo';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import PeopleIcon from '@mui/icons-material/People';
@@ -14,7 +14,7 @@ import { trpc } from '../utils/trpc';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 
 // Define the static SEO data for the home page
-const homeSeoData: SeoData = {
+const homeSeoData: AdminSeoData = {
   path: '/',
   title: 'Dashboard | Quasar Admin',
   description: 'Welcome to Quasar Admin Dashboard - Manage your application with ease',
@@ -343,4 +343,4 @@ export const HomePage: React.FC = () => {
 };
 
 // Wrap the HomePage component with SEO
-export default withSeo(HomePage, homeSeoData); 
+export default withAdminSeo(HomePage, homeSeoData); 

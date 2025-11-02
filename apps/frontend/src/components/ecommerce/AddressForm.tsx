@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Input } from '@heroui/react';
 import SelectField, { SelectOption } from '../common/SelectField';
 import PhoneInputField, { PhoneInputCountryOption } from '../common/PhoneInputField';
+import { useTranslations } from 'next-intl';
 
 export interface AddressData {
   firstName: string;
@@ -71,6 +72,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
   onProvinceChange,
   onWardChange,
 }) => {
+  const t = useTranslations('ecommerce.checkout.form.address');
   const getFieldError = (field: keyof AddressData) => errors[`${prefix}.${field}`] || '';
   const isFieldRequired = (field: keyof AddressData) => requiredFields.includes(field);
 
@@ -184,13 +186,17 @@ const AddressForm: React.FC<AddressFormProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       <SelectField
-        label="Country"
+        label={t('labels.country')}
         required={isFieldRequired('country')}
         error={getFieldError('country')}
         inputId={`${prefix || 'address'}-country`}
         options={countrySelectOptions}
         value={address.country || null}
-        placeholder={countryOptions.length ? 'Select country' : 'No countries available'}
+        placeholder={
+          countryOptions.length
+            ? t('placeholders.country')
+            : t('placeholders.noCountries')
+        }
         isDisabled={countryOptions.length === 0}
         onChange={handleCountrySelect}
         onBlur={() => {
@@ -202,8 +208,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Input
-          label="First Name"
-          placeholder="John"
+          label={t('labels.firstName')}
+          placeholder={t('placeholders.firstName')}
           value={address.firstName}
           onChange={(e) => updateField('firstName', e.target.value)}
           variant="bordered"
@@ -214,8 +220,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
         />
 
         <Input
-          label="Last Name"
-          placeholder="Doe"
+          label={t('labels.lastName')}
+          placeholder={t('placeholders.lastName')}
           value={address.lastName}
           onChange={(e) => updateField('lastName', e.target.value)}
           variant="bordered"
@@ -228,8 +234,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
 
       {showCompany && (
         <Input
-          label="Company (Optional)"
-          placeholder="Acme Inc."
+          label={t('labels.company')}
+          placeholder={t('placeholders.company')}
           value={address.company || ''}
           onChange={(e) => updateField('company', e.target.value)}
           variant="bordered"
@@ -240,8 +246,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
       )}
 
       <Input
-        label="Address"
-        placeholder="123 Main St"
+        label={t('labels.address1')}
+        placeholder={t('placeholders.address1')}
         value={address.address1}
         onChange={(e) => updateField('address1', e.target.value)}
         variant="bordered"
@@ -253,8 +259,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
 
       {showAddress2 && (
         <Input
-          label="Apartment, suite, etc. (Optional)"
-          placeholder="Apt 4B"
+          label={t('labels.address2')}
+          placeholder={t('placeholders.address2')}
           value={address.address2 || ''}
           onChange={(e) => updateField('address2', e.target.value)}
           variant="bordered"
@@ -267,21 +273,21 @@ const AddressForm: React.FC<AddressFormProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {hasProvinceOptions ? (
           <SelectField
-            label="State/Province"
+            label={t('labels.state')}
             required={isFieldRequired('state')}
             error={getFieldError('state')}
             options={provinceSelectOptions}
             value={address.state || null}
             isDisabled={!canSelectProvince || loading.provinces}
             isLoading={loading.provinces}
-            placeholder="Select province"
-            helperText={!canSelectProvince ? 'Select country first' : undefined}
+            placeholder={t('placeholders.province')}
+            helperText={!canSelectProvince ? t('helpers.selectCountryFirst') : undefined}
             onChange={handleProvinceSelect}
           />
         ) : (
           <Input
-            label="State/Province"
-            placeholder="State or Province"
+            label={t('labels.state')}
+            placeholder={t('placeholders.state')}
             value={address.state}
             onChange={(e) => updateField('state', e.target.value)}
             variant="bordered"
@@ -295,27 +301,27 @@ const AddressForm: React.FC<AddressFormProps> = ({
 
         {hasWardOptions ? (
           <SelectField
-            label="District/Ward"
+            label={t('labels.citySelect')}
             required={isFieldRequired('city')}
             error={getFieldError('city')}
             options={wardSelectOptions}
             value={address.city || null}
             isDisabled={!canSelectWard || loading.wards}
             isLoading={loading.wards}
-            placeholder="Select district/ward"
+            placeholder={t('placeholders.citySelect')}
             helperText={
               !isCountrySelected
-                ? 'Select country first'
+                ? t('helpers.selectCountryFirst')
                 : !isProvinceSelected
-                ? 'Select province first'
+                ? t('helpers.selectProvinceFirst')
                 : undefined
             }
             onChange={handleWardSelect}
           />
         ) : (
           <Input
-            label="City"
-            placeholder="City"
+            label={t('labels.city')}
+            placeholder={t('placeholders.city')}
             value={address.city}
             onChange={(e) => updateField('city', e.target.value)}
             variant="bordered"
@@ -328,8 +334,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
         )}
 
         <Input
-          label="Postal Code"
-          placeholder="10001"
+          label={t('labels.postalCode')}
+          placeholder={t('placeholders.postalCode')}
           value={address.postalCode}
           onChange={(e) => updateField('postalCode', e.target.value)}
           variant="bordered"
@@ -343,8 +349,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
       {showPhone && (
         <PhoneInputField
           id={`${prefix || 'address'}-phone`}
-          label="Phone"
-          placeholder="e.g. +84 912 345 678"
+          label={t('labels.phone')}
+          placeholder={t('placeholders.phone')}
           value={address.phone}
           onChange={(value) => updateField('phone', value || '')}
           error={getFieldError('phone')}

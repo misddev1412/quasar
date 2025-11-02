@@ -37,6 +37,7 @@ import FlashOnIcon from '@mui/icons-material/FlashOn';
 import WarehouseIcon from '@mui/icons-material/Store';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PolicyIcon from '@mui/icons-material/Policy';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
 export class NavigationService implements INavigationService {
   constructor(private translate: (key: string, fallback?: string) => string) {}
@@ -256,6 +257,11 @@ export class NavigationService implements INavigationService {
             path: '/languages'
           },
           {
+            icon: React.createElement(AttachMoneyIcon),
+            label: t('currencies.currencies', '货币管理'),
+            path: '/currencies'
+          },
+          {
             icon: React.createElement(StorageIcon),
             label: t('navigation.storage', 'Storage Configuration'),
             path: '/storage'
@@ -370,7 +376,7 @@ export class NavigationService implements INavigationService {
       return currentPath === path || currentPath.startsWith(path + '/');
     }
 
-    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/warehouses', '/warehouses/locations'];
+    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/warehouses', '/warehouses/locations'];
     if (exactMatchPaths.includes(path)) {
       return currentPath === path;
     }

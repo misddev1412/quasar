@@ -308,199 +308,203 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     : 0;
 
   return (
-    <div className={clsx(layout.container, className)}>
-      {/* Breadcrumb */}
-      <PageBreadcrumbs
-        items={breadcrumbItems}
-        showBackground={false}
-      />
-
-      {/* Main Product Section */}
-      <section className={layout.mainGrid}>
-          {/* Product Gallery */}
-          <div className={layout.galleryStack}>
-            <ProductGallery
-              images={productImages}
-              selectedImageIndex={selectedImageIndex}
-              onImageSelect={handleImageSelect}
-              className={clsx(layout.galleryCard, 'border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/40')}
-            />
-
-            {/* Product Videos */}
-            {productVideos.length > 0 && (
-              <div className="space-y-5">
-                <h3 className={typography.subsectionTitle}>Product Videos</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  {productVideos.slice(0, 2).map((video, index) => (
-                    <ProductVideo
-                      key={index}
-                      videoUrl={video.url}
-                      thumbnailUrl={video.thumbnail}
-                      title={video.title}
-                      className="rounded-lg overflow-hidden"
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Product Info */}
-          <ProductInfo
-            product={product}
-            selectedVariant={selectedVariant}
-            quantity={quantity}
-            wishlistAdded={wishlistAdded}
-            averageRating={averageRating}
-            reviewCount={reviews.length}
-            variantAttributes={variantAttributes}
-            selectedAttributes={selectedAttributes}
-            attributeIndexMap={attributeIndexMap}
-            hasAttributeBasedVariants={hasAttributeBasedVariants}
-            isOptionDisabled={isOptionDisabled}
-            onQuantityChange={handleQuantityChange}
-            onVariantSelect={selectVariant}
-            onAttributeSelect={handleAttributeSelect}
-            onWishlistToggle={handleWishlistToggle}
-            onAddToCart={handleAddToCart}
-            onQuickView={handleQuickViewToggle}
-            onScrollToReviews={handleScrollToReviews}
-          />
-      </section>
-
-      {/* Product Details */}
-      <section ref={detailTabsRef} className="space-y-8">
-        <Card className={clsx(layout.sectionCard, 'space-y-8')}>
-          <Tabs
-            selectedKey={activeDetailTab}
-            onSelectionChange={(key) => handleDetailTabChange(key as 'details' | 'reviews' | 'questions')}
-            variant="underlined"
-            className="w-full"
-          >
-            <Tab key="details" title={t('tabs.details')}>
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <div className="lg:col-span-2 space-y-6">
-                  <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="space-y-2">
-                      <h3 className={typography.sectionTitle}>{t('overview.title')}</h3>
-                      <p className={typography.meta}>{t('overview.subtitle')}</p>
-                    </div>
-                    <Button size="sm" variant="flat" className="text-primary-500" onPress={handleScrollToReviews}>
-                      {t('overview.actions.viewReviews')}
-                    </Button>
-                  </div>
-                  <ProductDescription
-                    description={descriptionText}
-                    features={productFeatures}
-                    specifications={specificationItems}
-                    details={productDetails}
-                    videos={productVideos}
-                    className="space-y-6"
-                  />
-                </div>
-                <div className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900/40">
-                  <div className="space-y-2">
-                    <h4 className={typography.subsectionTitle}>{t('specifications.title')}</h4>
-                    <p className={typography.meta}>{t('specifications.subtitle')}</p>
-                  </div>
-
-                  {specificationItems.length > 0 ? (
-                    <div className="space-y-3">
-                      {specificationItems.map((spec) => (
-                        <div
-                          key={spec.id || spec.name}
-                          className="flex items-start justify-between gap-4 rounded-xl bg-white/60 px-3 py-2 text-sm dark:bg-gray-800/40"
-                        >
-                          <span className="font-medium text-gray-700 dark:text-gray-300">
-                            {formatSpecificationLabel(spec.name)}
-                          </span>
-                          <span className="text-gray-600 dark:text-gray-400 text-right">
-                            {spec.value}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{t('specifications.empty')}</p>
-                  )}
-                </div>
-              </div>
-            </Tab>
-
-            <Tab
-              key="reviews"
-              title={
-                <div className="flex items-center gap-2">
-                  <span>{t('tabs.reviews')}</span>
-                  <Chip size="sm" variant="flat">{reviews.length}</Chip>
-                </div>
-              }
-            >
-              <div className="space-y-6">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div className="space-y-2">
-                    <h3 className={typography.sectionTitle}>{t('reviews.title')}</h3>
-                    <p className={typography.meta}>{t('reviews.subtitle')}</p>
-                  </div>
-                  <span className="text-sm font-medium text-primary-500">{t('reviews.countLabel', { count: reviews.length })}</span>
-                </div>
-                <ReviewList
-                  productId={id}
-                  reviews={reviews}
-                  onHelpfulVote={(reviewId) => console.log('Helpful vote:', reviewId)}
-                  onReportReview={(reviewId) => console.log('Report review:', reviewId)}
-                />
-                <div className="space-y-4 rounded-2xl border border-dashed border-gray-300 bg-gray-50/80 p-5 dark:border-gray-700/60 dark:bg-gray-900/40">
-                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{t('reviews.shareTitle')}</h4>
-                  <p className={typography.meta}>{t('reviews.shareSubtitle')}</p>
-                  <ReviewForm onSubmit={handleReviewSubmit} />
-                </div>
-              </div>
-            </Tab>
-
-            <Tab
-              key="questions"
-              title={
-                <div className="flex items-center gap-2">
-                  <span>{t('tabs.questions')}</span>
-                  <Chip size="sm" variant="flat">{comments.length}</Chip>
-                </div>
-              }
-            >
-              <div className="space-y-6">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div className="space-y-2">
-                    <h3 className={typography.sectionTitle}>{t('questions.title')}</h3>
-                    <p className={typography.meta}>{t('questions.subtitle')}</p>
-                  </div>
-                  <span className="text-sm font-medium text-primary-500">{t('questions.countLabel', { count: comments.length })}</span>
-                </div>
-                <CommentSection
-                  productId={id}
-                  comments={comments}
-                  onCommentSubmit={onCommentSubmit}
-                  onCommentLike={onCommentLike}
-                />
-              </div>
-            </Tab>
-          </Tabs>
-        </Card>
-      </section>
-
-      {/* Cross-sell Products */}
-      {(relatedProducts.length > 0 || frequentlyBoughtTogether.length > 0 ||
-        recommendedProducts.length > 0 || trendingProducts.length > 0) && (
-        <CrossSellSection
-          products={{
-            related: relatedProducts,
-            frequentlyBoughtTogether: frequentlyBoughtTogether,
-            recommended: recommendedProducts,
-            trending: trendingProducts,
-          }}
-          onAddToCart={onAddToCart}
-          onWishlistToggle={onWishlistToggle}
+    <>
+      <div className={clsx(layout.container, className)}>
+        {/* Breadcrumb */}
+        <PageBreadcrumbs
+          items={breadcrumbItems}
+          fullWidth
         />
-      )}
+
+        <div className="mx-auto max-w-7xl space-y-12 px-4 sm:px-6 lg:px-8 lg:space-y-16">
+          {/* Main Product Section */}
+          <section className={layout.mainGrid}>
+            {/* Product Gallery */}
+            <div className={layout.galleryStack}>
+              <ProductGallery
+                images={productImages}
+                selectedImageIndex={selectedImageIndex}
+                onImageSelect={handleImageSelect}
+                className={clsx(layout.galleryCard, 'border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/40')}
+              />
+
+              {/* Product Videos */}
+              {productVideos.length > 0 && (
+                <div className="space-y-5">
+                  <h3 className={typography.subsectionTitle}>Product Videos</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    {productVideos.slice(0, 2).map((video, index) => (
+                      <ProductVideo
+                        key={index}
+                        videoUrl={video.url}
+                        thumbnailUrl={video.thumbnail}
+                        title={video.title}
+                        className="rounded-lg overflow-hidden"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Product Info */}
+            <ProductInfo
+              product={product}
+              selectedVariant={selectedVariant}
+              quantity={quantity}
+              wishlistAdded={wishlistAdded}
+              averageRating={averageRating}
+              reviewCount={reviews.length}
+              variantAttributes={variantAttributes}
+              selectedAttributes={selectedAttributes}
+              attributeIndexMap={attributeIndexMap}
+              hasAttributeBasedVariants={hasAttributeBasedVariants}
+              isOptionDisabled={isOptionDisabled}
+              onQuantityChange={handleQuantityChange}
+              onVariantSelect={selectVariant}
+              onAttributeSelect={handleAttributeSelect}
+              onWishlistToggle={handleWishlistToggle}
+              onAddToCart={handleAddToCart}
+              onQuickView={handleQuickViewToggle}
+              onScrollToReviews={handleScrollToReviews}
+            />
+          </section>
+
+          {/* Product Details */}
+          <section ref={detailTabsRef} className="space-y-8">
+            <Card className={clsx(layout.sectionCard, 'space-y-8')}>
+              <Tabs
+                selectedKey={activeDetailTab}
+                onSelectionChange={(key) => handleDetailTabChange(key as 'details' | 'reviews' | 'questions')}
+                variant="underlined"
+                className="w-full"
+              >
+                <Tab key="details" title={t('tabs.details')}>
+                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                    <div className="lg:col-span-2 space-y-6">
+                      <div className="flex flex-wrap items-start justify-between gap-4">
+                        <div className="space-y-2">
+                          <h3 className={typography.sectionTitle}>{t('overview.title')}</h3>
+                          <p className={typography.meta}>{t('overview.subtitle')}</p>
+                        </div>
+                        <Button size="sm" variant="flat" className="text-primary-500" onPress={handleScrollToReviews}>
+                          {t('overview.actions.viewReviews')}
+                        </Button>
+                      </div>
+                      <ProductDescription
+                        description={descriptionText}
+                        features={productFeatures}
+                        specifications={specificationItems}
+                        details={productDetails}
+                        videos={productVideos}
+                        className="space-y-6"
+                      />
+                    </div>
+                    <div className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900/40">
+                      <div className="space-y-2">
+                        <h4 className={typography.subsectionTitle}>{t('specifications.title')}</h4>
+                        <p className={typography.meta}>{t('specifications.subtitle')}</p>
+                      </div>
+
+                      {specificationItems.length > 0 ? (
+                        <div className="space-y-3">
+                          {specificationItems.map((spec) => (
+                            <div
+                              key={spec.id || spec.name}
+                              className="flex items-start justify-between gap-4 rounded-xl bg-white/60 px-3 py-2 text-sm dark:bg-gray-800/40"
+                            >
+                              <span className="font-medium text-gray-700 dark:text-gray-300">
+                                {formatSpecificationLabel(spec.name)}
+                              </span>
+                              <span className="text-gray-600 dark:text-gray-400 text-right">
+                                {spec.value}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('specifications.empty')}</p>
+                      )}
+                    </div>
+                  </div>
+                </Tab>
+
+                <Tab
+                  key="reviews"
+                  title={
+                    <div className="flex items-center gap-2">
+                      <span>{t('tabs.reviews')}</span>
+                      <Chip size="sm" variant="flat">{reviews.length}</Chip>
+                    </div>
+                  }
+                >
+                  <div className="space-y-6">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div className="space-y-2">
+                        <h3 className={typography.sectionTitle}>{t('reviews.title')}</h3>
+                        <p className={typography.meta}>{t('reviews.subtitle')}</p>
+                      </div>
+                      <span className="text-sm font-medium text-primary-500">{t('reviews.countLabel', { count: reviews.length })}</span>
+                    </div>
+                    <ReviewList
+                      productId={id}
+                      reviews={reviews}
+                      onHelpfulVote={(reviewId) => console.log('Helpful vote:', reviewId)}
+                      onReportReview={(reviewId) => console.log('Report review:', reviewId)}
+                    />
+                    <div className="space-y-4 rounded-2xl border border-dashed border-gray-300 bg-gray-50/80 p-5 dark:border-gray-700/60 dark:bg-gray-900/40">
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{t('reviews.shareTitle')}</h4>
+                      <p className={typography.meta}>{t('reviews.shareSubtitle')}</p>
+                      <ReviewForm onSubmit={handleReviewSubmit} />
+                    </div>
+                  </div>
+                </Tab>
+
+                <Tab
+                  key="questions"
+                  title={
+                    <div className="flex items-center gap-2">
+                      <span>{t('tabs.questions')}</span>
+                      <Chip size="sm" variant="flat">{comments.length}</Chip>
+                    </div>
+                  }
+                >
+                  <div className="space-y-6">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div className="space-y-2">
+                        <h3 className={typography.sectionTitle}>{t('questions.title')}</h3>
+                        <p className={typography.meta}>{t('questions.subtitle')}</p>
+                      </div>
+                      <span className="text-sm font-medium text-primary-500">{t('questions.countLabel', { count: comments.length })}</span>
+                    </div>
+                    <CommentSection
+                      productId={id}
+                      comments={comments}
+                      onCommentSubmit={onCommentSubmit}
+                      onCommentLike={onCommentLike}
+                    />
+                  </div>
+                </Tab>
+              </Tabs>
+            </Card>
+          </section>
+
+          {/* Cross-sell Products */}
+          {(relatedProducts.length > 0 || frequentlyBoughtTogether.length > 0 ||
+            recommendedProducts.length > 0 || trendingProducts.length > 0) && (
+            <CrossSellSection
+              products={{
+                related: relatedProducts,
+                frequentlyBoughtTogether: frequentlyBoughtTogether,
+                recommended: recommendedProducts,
+                trending: trendingProducts,
+              }}
+              onAddToCart={onAddToCart}
+              onWishlistToggle={onWishlistToggle}
+            />
+          )}
+        </div>
+      </div>
 
       {/* Quick View Modal */}
       <ProductQuickView
@@ -511,7 +515,7 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
         description={descriptionText}
         onAddToCart={handleAddToCart}
       />
-    </div>
+    </>
   );
 };
 

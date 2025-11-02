@@ -1173,6 +1173,130 @@
           "message": "Please resolve the highlighted issues before placing your order."
         }
       },
+      "form": {
+        "steps": {
+          "information": "Information",
+          "shipping": "Shipping",
+          "payment": "Payment"
+        },
+        "headings": {
+          "contact": "Contact Information",
+          "savedAddresses": "Saved Shipping Addresses",
+          "shippingAddress": "Shipping Address",
+          "billingAddress": "Billing Address",
+          "shippingMethod": "Shipping Method",
+          "orderNotes": "Order Notes (Optional)",
+          "paymentMethod": "Payment Method"
+        },
+        "fields": {
+          "email": {
+            "label": "Email Address",
+            "placeholder": "your.email@example.com"
+          },
+          "orderNotes": {
+            "label": "Special instructions for your order",
+            "placeholder": "Any special delivery instructions or notes about your order"
+          },
+          "paypalEmail": {
+            "label": "PayPal Email",
+            "placeholder": "your.paypal@email.com"
+          }
+        },
+        "savedAddresses": {
+          "phone": "Phone: {phone}",
+          "email": "Email: {email}",
+          "defaultTag": "Default"
+        },
+        "buttons": {
+          "useDifferentAddress": "Use a different address"
+        },
+        "checkboxes": {
+          "billingSame": "Billing address is the same as shipping address",
+          "agreeTerms": "I agree to the Terms and Conditions and Privacy Policy",
+          "agreeMarketing": "I want to receive exclusive offers and updates via email"
+        },
+        "delivery": {
+          "loading": "Loading delivery methods",
+          "error": "Unable to load delivery methods. Please try again or revise your address details.",
+          "empty": "No delivery methods are available for the selected address. Please verify your details or try again later.",
+          "estimated": "Estimated: {time}",
+          "recommended": "Recommended"
+        },
+        "actions": {
+          "return_to_information": "Return to Information",
+          "continue_to_payment": "Continue to Payment",
+          "return_to_shipping": "Return to Shipping",
+          "place_order": "Place Order"
+        },
+        "paymentMethods": {
+          "credit_card": "Credit Card",
+          "paypal": "PayPal",
+          "bank_transfer": "Bank Transfer",
+          "cash_on_delivery": "Cash on Delivery"
+        },
+        "support": {
+          "title": "Need Help?",
+          "description": "Contact our customer support if you have any questions about your order.",
+          "action": "Contact Support"
+        },
+        "address": {
+          "labels": {
+            "country": "Country",
+            "firstName": "First Name",
+            "lastName": "Last Name",
+            "company": "Company (Optional)",
+            "address1": "Address",
+            "address2": "Apartment, suite, etc. (Optional)",
+            "state": "State/Province",
+            "citySelect": "District/Ward",
+            "city": "City",
+            "postalCode": "Postal Code",
+            "phone": "Phone"
+          },
+          "placeholders": {
+            "country": "Select country",
+            "noCountries": "No countries available",
+            "firstName": "John",
+            "lastName": "Doe",
+            "company": "Acme Inc.",
+            "address1": "123 Main St",
+            "address2": "Apt 4B",
+            "province": "Select province",
+            "state": "State or Province",
+            "citySelect": "Select district/ward",
+            "city": "City",
+            "postalCode": "10001",
+            "phone": "e.g. +84 912 345 678"
+          },
+          "helpers": {
+            "selectCountryFirst": "Select country first",
+            "selectProvinceFirst": "Select province first"
+          }
+        },
+        "payment": {
+          "savedCards": {
+            "title": "Saved Cards",
+            "useNew": "Use a new card",
+            "endingIn": "{type} ending in {lastFour}",
+            "expires": "Expires {date}"
+          },
+          "labels": {
+            "cardNumber": "Card Number",
+            "expiryDate": "Expiry Date",
+            "cvv": "CVV",
+            "cardholderName": "Cardholder Name"
+          },
+          "placeholders": {
+            "cardNumber": "1234 5678 9012 3456",
+            "expiryDate": "MM/YY",
+            "cvv": "123",
+            "cardholderName": "John Doe"
+          },
+          "security": {
+            "note": "Your payment information is encrypted and securely processed. We never store your full card details on our servers."
+          }
+        }
+      },
       "orderSummary": {
         "title": "Order Summary",
         "coupon": {

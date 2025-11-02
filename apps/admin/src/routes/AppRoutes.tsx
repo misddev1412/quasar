@@ -36,6 +36,9 @@ import SiteContentEditPage from '../pages/site-content/edit';
 import LanguagesIndexPage from '../pages/languages';
 import LanguagesCreatePage from '../pages/languages/create';
 import LanguagesEditPage from '../pages/languages/edit';
+// Currency Management
+import CurrenciesIndexPage from '../pages/currencies';
+import CurrenciesCreatePage from '../pages/currencies/create';
 import StorageConfigPage from '../pages/storage';
 import FirebaseConfigsPage from '../pages/firebase-configs';
 import CreateFirebaseConfigPage from '../pages/firebase-configs/create';
@@ -149,6 +152,9 @@ const AppRoutes: React.FC = () => {
       <Route path="/languages" element={<ProtectedRoute><LanguagesIndexPage /></ProtectedRoute>} />
       <Route path="/languages/create" element={<ProtectedRoute><LanguagesCreatePage /></ProtectedRoute>} />
       <Route path="/languages/:id/edit" element={<ProtectedRoute><LanguagesEditPage /></ProtectedRoute>} />
+      {/* Currencies */}
+      <Route path="/currencies" element={<ProtectedRoute><CurrenciesIndexPage /></ProtectedRoute>} />
+      <Route path="/currencies/create" element={<ProtectedRoute><CurrenciesCreatePage /></ProtectedRoute>} />
       {/* Firebase Configurations */}
       <Route path="/firebase-configs" element={<ProtectedRoute><FirebaseConfigsPage /></ProtectedRoute>} />
       <Route path="/firebase-configs/create" element={<ProtectedRoute><CreateFirebaseConfigPage /></ProtectedRoute>} />

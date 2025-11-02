@@ -13,6 +13,7 @@ import { useToast } from '../../contexts/ToastContext';
 import { useTranslations } from 'next-intl';
 import { trpc } from '../../utils/trpc';
 import { useAuth } from '../../contexts/AuthContext';
+import PageBreadcrumbs from '../../components/common/PageBreadcrumbs';
 
 const currencySymbolMap: Record<string, string> = {
   USD: '$',
@@ -140,61 +141,69 @@ const CheckoutPageClient = () => {
   );
 
   return (
-    <div className="bg-gray-50 py-10">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <nav className="text-sm text-gray-500" aria-label="Breadcrumb">
-            <ol className="flex flex-wrap items-center gap-2">
-              <li>
-                <button
-                  type="button"
-                  onClick={() => router.push('/')}
-                  className="text-gray-500 transition hover:text-primary-500"
-                >
-                  {t('breadcrumb.home')}
-                </button>
-              </li>
-              <li aria-hidden="true">/</li>
-              <li className="text-gray-900">{t('breadcrumb.checkout')}</li>
-            </ol>
-          </nav>
-          <h1 className="mt-4 text-3xl font-bold text-gray-900 sm:text-4xl">{t('title')}</h1>
-          <p className="mt-2 text-base text-gray-600">{t('subtitle')}</p>
+    <>
+      <section className="relative isolate -mt-8 overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 py-16 sm:py-20">
+        <div className="absolute inset-0 opacity-40" aria-hidden="true">
+          <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-indigo-500/40 blur-3xl" />
+          <div className="absolute bottom-0 left-24 h-64 w-64 rounded-full bg-blue-500/30 blur-3xl" />
         </div>
-
-        {hasCartIssues && !summary.isEmpty && (
-          <div className="mb-8 space-y-3">
-            {validation.errors.map((error, index) => (
-              <Alert key={`error-${error.itemId ?? index}`} color="danger" variant="flat">
-                {error.message}
-              </Alert>
-            ))}
-            {validation.warnings.map((warning, index) => (
-              <Alert key={`warning-${index}`} color="warning" variant="flat">
-                {warning.message}
-              </Alert>
-            ))}
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl">
+            <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-indigo-100 shadow-sm">
+              {t('breadcrumb.checkout')}
+            </span>
+            <h1 className="mt-6 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+              {t('title')}
+            </h1>
+            <p className="mt-4 text-lg text-slate-200 sm:text-xl">{t('subtitle')}</p>
           </div>
-        )}
+        </div>
+      </section>
 
-        {summary.isEmpty ? (
-          renderEmptyState()
-        ) : (
-          <CheckoutForm
-            cartItems={items}
-            subtotal={summary.totals.subtotal}
-            shippingCost={summary.totals.shipping}
-            tax={summary.totals.tax}
-            total={summary.totals.total}
-            onSubmit={handleCheckoutSubmit}
-            loading={isSubmitting}
-            currency={currencySymbol}
-            savedAddresses={savedAddresses}
-            countries={availableCountries}
-          />
-        )}
-      </div>
-    </div>
+      <PageBreadcrumbs
+        items={[
+          { label: t('breadcrumb.home'), href: '/' },
+          { label: t('breadcrumb.checkout'), isCurrent: true },
+        ]}
+        fullWidth
+      />
+
+      <section className="py-12 lg:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {hasCartIssues && !summary.isEmpty && (
+            <div className="mb-8 space-y-3">
+              {validation.errors.map((error, index) => (
+                <Alert key={`error-${error.itemId ?? index}`} color="danger" variant="flat">
+                  {error.message}
+                </Alert>
+              ))}
+              {validation.warnings.map((warning, index) => (
+                <Alert key={`warning-${index}`} color="warning" variant="flat">
+                  {warning.message}
+                </Alert>
+              ))}
+            </div>
+          )}
+
+          {summary.isEmpty ? (
+            renderEmptyState()
+          ) : (
+            <CheckoutForm
+              cartItems={items}
+              subtotal={summary.totals.subtotal}
+              shippingCost={summary.totals.shipping}
+              tax={summary.totals.tax}
+              total={summary.totals.total}
+              onSubmit={handleCheckoutSubmit}
+              loading={isSubmitting}
+              currency={currencySymbol}
+              savedAddresses={savedAddresses}
+              countries={availableCountries}
+            />
+          )}
+        </div>
+      </section>
+    </>
   );
 };
 
