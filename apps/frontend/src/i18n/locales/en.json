@@ -133,6 +133,7 @@
     "home": "Home",
     "products": "Products",
     "categories": "Categories",
+    "currencies": "Currencies",
     "about": "About",
     "contact": "Contact",
     "login": "Login",
@@ -211,6 +212,9 @@
         }
       }
     }
+  },
+  "currencies": {
+    "currencies": "Currency Management"
   },
   "layout": {
     "header": {
@@ -1173,26 +1177,68 @@
           "message": "Please resolve the highlighted issues before placing your order."
         }
       },
+      "success": {
+        "badge": "Order confirmed",
+        "title": "Thank you for your order",
+        "subtitle": "We've received your request and are getting everything ready.",
+        "breadcrumb": "Order confirmed",
+        "heading": "Your order is on its way!",
+        "description": "We emailed your confirmation and tracking details. If you don't see it, please check your spam folder.",
+        "description_with_email": "We emailed your confirmation and tracking details to {email}. If you don't see it, please check your spam folder.",
+        "orderNumber": "Order number",
+        "pendingNumber": "Generating...",
+        "orderId": "Reference ID: {orderId}",
+        "orderTotal": "Order total",
+        "pendingTotal": "Available soon",
+        "orderStatus": "Status: Pending confirmation",
+        "actions": {
+          "continueShopping": "Continue shopping",
+          "viewOrders": "View my orders",
+          "createAccount": "Create an account to track orders"
+        },
+        "helpText": "Need help? Reply to the confirmation email and our team will assist you."
+      },
       "form": {
         "steps": {
           "information": "Information",
           "shipping": "Shipping",
           "payment": "Payment"
         },
-        "headings": {
-          "contact": "Contact Information",
-          "savedAddresses": "Saved Shipping Addresses",
-          "shippingAddress": "Shipping Address",
-          "billingAddress": "Billing Address",
-          "shippingMethod": "Shipping Method",
-          "orderNotes": "Order Notes (Optional)",
-          "paymentMethod": "Payment Method"
+      "headings": {
+        "contact": "Contact Information",
+        "savedAddresses": "Saved Shipping Addresses",
+        "shippingAddress": "Shipping Address",
+        "billingAddress": "Billing Address",
+        "shippingMethod": "Shipping Method",
+        "orderNotes": "Order Notes (Optional)",
+        "paymentMethod": "Payment Method"
+      },
+      "auth": {
+        "loading": "Checking your account…",
+        "loggedIn": {
+          "title": "You're signed in as {name}",
+          "fallbackName": "your account",
+          "subtitle": "Order updates will be sent to {email}",
+          "subtitle_no_email": "Order updates will be sent to your account email"
         },
-        "fields": {
-          "email": {
-            "label": "Email Address",
-            "placeholder": "your.email@example.com"
-          },
+        "guest": {
+          "title": "Prefer to checkout as a guest?",
+          "description": "You can complete your purchase without creating an account, but signing in lets you track orders and save addresses."
+        },
+        "actions": {
+          "login": "Sign in",
+          "register": "Create account"
+        },
+        "loginRequired": {
+          "title": "Sign in to continue",
+          "description": "You need an account to complete checkout. Sign in or create one to place your order."
+        }
+      },
+      "fields": {
+        "email": {
+          "label": "Email Address",
+          "placeholder": "your.email@example.com"
+        },
           "orderNotes": {
             "label": "Special instructions for your order",
             "placeholder": "Any special delivery instructions or notes about your order"
@@ -1452,6 +1498,7 @@
       "actions": {
         "addToCart": "Add to Cart",
         "outOfStock": "Out of Stock",
+        "buyNow": "Buy Now",
         "quickView": "Quick View",
         "selectVariant": "Select Variant",
         "selectedVariant": "Selected Variant",

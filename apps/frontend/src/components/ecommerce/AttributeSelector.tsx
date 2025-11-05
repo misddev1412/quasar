@@ -16,17 +16,19 @@ interface VariantAttribute {
 interface AttributeSelectorProps {
   attribute: VariantAttribute;
   selectedValue?: string;
-  disabled: boolean;
+  disabled?: boolean;
   isActiveStep: boolean;
   onSelect: (attributeId: string, valueId: string) => void;
+  isOptionDisabled?: (valueId: string) => boolean;
 }
 
 const AttributeSelector: React.FC<AttributeSelectorProps> = ({
   attribute,
   selectedValue,
-  disabled,
+  disabled = false,
   isActiveStep,
   onSelect,
+  isOptionDisabled,
 }) => {
   const selectedLabel = attribute.values.find(
     (value) => value.valueId === selectedValue
@@ -54,6 +56,7 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
       <div className="flex flex-wrap gap-2">
         {attribute.values.map((value) => {
           const isSelected = selectedValue === value.valueId;
+          const optionDisabled = disabled || Boolean(isOptionDisabled?.(value.valueId));
 
           return (
             <Button
@@ -61,14 +64,14 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
               size="sm"
               variant={isSelected ? 'solid' : 'bordered'}
               color={isSelected ? 'primary' : 'default'}
-              isDisabled={disabled}
+              isDisabled={optionDisabled}
               onPress={() => onSelect(attribute.attributeId, value.valueId)}
               className={clsx(
                 'rounded-full px-4 py-1 text-sm font-medium transition-all duration-150',
                 isSelected
                   ? 'shadow-sm'
                   : 'bg-white/95 text-gray-600 hover:border-gray-300 dark:bg-gray-900/60 dark:text-gray-300',
-                disabled && 'opacity-50 pointer-events-none'
+                optionDisabled && 'opacity-50 pointer-events-none'
               )}
             >
               {value.label}

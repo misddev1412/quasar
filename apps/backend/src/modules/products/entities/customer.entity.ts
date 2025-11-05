@@ -339,9 +339,17 @@ export class Customer extends BaseEntity {
   }
 
   updateOrderStats(orderValue: number): void {
-    this.totalOrders += 1;
-    this.totalSpent += orderValue;
-    this.averageOrderValue = this.totalSpent / this.totalOrders;
+    const safeOrderValue = Number.isFinite(Number(orderValue)) ? Number(orderValue) : 0;
+    const currentTotalOrders = Number.isFinite(Number(this.totalOrders)) ? Number(this.totalOrders) : 0;
+    const currentTotalSpent = Number.isFinite(Number(this.totalSpent)) ? Number(this.totalSpent) : 0;
+
+    const nextTotalOrders = currentTotalOrders + 1;
+    const nextTotalSpent = currentTotalSpent + safeOrderValue;
+    const nextAverageOrderValue = nextTotalOrders > 0 ? nextTotalSpent / nextTotalOrders : 0;
+
+    this.totalOrders = nextTotalOrders;
+    this.totalSpent = Math.round((nextTotalSpent + Number.EPSILON) * 100) / 100;
+    this.averageOrderValue = Math.round((nextAverageOrderValue + Number.EPSILON) * 100) / 100;
     this.lastOrderDate = new Date();
 
     if (!this.firstOrderDate) {

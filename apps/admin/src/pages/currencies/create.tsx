@@ -13,8 +13,8 @@ const CreateCurrencyPage: React.FC = () => {
   const { addToast } = useToast();
   const { t } = useTranslationWithBackend();
 
-  // tRPC mutation for creating currency - using placeholder for now
-  const createCurrencyMutation = trpc.adminCurrency.createCurrency.useMutation({
+  // tRPC mutation for creating currency - using type assertion to resolve TypeScript issue
+  const createCurrencyMutation = (trpc.adminCurrency as any).createCurrency.useMutation({
     onSuccess: (data) => {
       addToast({
         type: 'success',

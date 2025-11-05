@@ -130,7 +130,7 @@ const EditOrderPage: React.FC = () => {
         description={t('edit_order_description')}
         icon={<ShoppingCart className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
         entityName={t('order')}
-        entityNamePlural={t('orders')}
+        entityNamePlural={t('orders.title')}
         backUrl="/orders"
         onBack={handleCancel}
         isSubmitting={false}
@@ -150,7 +150,7 @@ const EditOrderPage: React.FC = () => {
         description={t('edit_order_description')}
         icon={<ShoppingCart className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
         entityName={t('order')}
-        entityNamePlural={t('orders')}
+        entityNamePlural={t('orders.title')}
         backUrl="/orders"
         onBack={handleCancel}
         isSubmitting={false}
@@ -170,7 +170,7 @@ const EditOrderPage: React.FC = () => {
       description={`${t('edit_order_description')} #${order.orderNumber}`}
       icon={<ShoppingCart className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
       entityName={t('order')}
-      entityNamePlural={t('orders')}
+      entityNamePlural={t('orders.title')}
       backUrl="/orders"
       onBack={handleCancel}
       isSubmitting={updateOrderMutation.isPending}
@@ -181,7 +181,7 @@ const EditOrderPage: React.FC = () => {
           href: '/',
         },
         {
-          label: t('orders'),
+          label: t('orders.title'),
           onClick: handleCancel,
         },
         {

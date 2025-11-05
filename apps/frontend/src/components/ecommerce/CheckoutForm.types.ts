@@ -109,5 +109,10 @@ export interface CheckoutFormProps {
   currency?: string;
   savedAddresses?: SavedAddress[];
   countries?: CheckoutCountry[];
+  isAuthenticated?: boolean;
+  authLoading?: boolean;
+  userEmail?: string;
+  userName?: string;
+  initialFormData?: Partial<CheckoutFormData>;
+  onFormDataChange?: (data: CheckoutFormData) => void;
 }
-

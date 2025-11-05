@@ -37,6 +37,7 @@ import { ShippingProvider } from './entities/shipping-provider.entity';
 import { OrderFulfillment } from './entities/order-fulfillment.entity';
 import { FulfillmentItem } from './entities/fulfillment-item.entity';
 import { DeliveryTracking } from './entities/delivery-tracking.entity';
+import { Currency } from './entities/currency.entity';
 import { AttributeRepository } from './repositories/attribute.repository';
 import { BrandRepository } from './repositories/brand.repository';
 import { InventoryItemRepository } from './repositories/inventory-item.repository';
@@ -66,6 +67,8 @@ import { WarehouseService } from './services/warehouse.service';
 import { PurchaseOrderService } from './services/purchase-order.service';
 import { AdminOrderService } from './services/admin-order.service';
 import { AdminCustomerService } from './services/admin-customer.service';
+import { AdminCurrencyService } from './services/admin-currency.service';
+import { AdminShippingProviderService } from './services/admin-shipping-provider.service';
 import { PaymentMethodService } from './services/payment-method.service';
 import { DeliveryMethodService } from './services/delivery-method.service';
 import { ClientOrderService } from './services/client-order.service';
@@ -84,6 +87,8 @@ import { AdminOrdersRouter } from './routers/admin-orders.router';
 import { AdminOrderFulfillmentsRouter } from './routers/admin-order-fulfillments.trpc';
 import { AdminCustomersRouter } from './routers/admin-customers.router';
 import { AdminPaymentMethodsRouter } from './routers/admin-payment-methods.router';
+import { AdminCurrencyRouter } from './routers/admin-currency.router';
+import { AdminShippingProviderRouter } from './routers/admin-shipping-provider.router';
 import { AdminDeliveryMethodsRouter } from './routers/admin-delivery-methods.router';
 import { AdminWishlistRouter } from './routers/admin-wishlist.router';
 import { ClientOrdersRouter } from './routers/client-orders.router';
@@ -122,6 +127,7 @@ import { StorageModule } from '../storage/storage.module';
       OrderItem,
       Customer,
       Country,
+      Currency,
       AdministrativeDivision,
       PaymentMethod,
       DeliveryMethod,
@@ -166,6 +172,8 @@ import { StorageModule } from '../storage/storage.module';
     PurchaseOrderService,
     AdminOrderService,
     AdminCustomerService,
+    AdminCurrencyService,
+    AdminShippingProviderService,
     PaymentMethodService,
     DeliveryMethodService,
     ClientOrderService,
@@ -182,6 +190,8 @@ import { StorageModule } from '../storage/storage.module';
     AdminOrderFulfillmentsRouter,
     AdminCustomersRouter,
     AdminPaymentMethodsRouter,
+    AdminCurrencyRouter,
+    AdminShippingProviderRouter,
     AdminDeliveryMethodsRouter,
     AdminWishlistRouter,
     ClientOrdersRouter,
@@ -221,6 +231,7 @@ import { StorageModule } from '../storage/storage.module';
     PurchaseOrderService,
     AdminOrderService,
     AdminCustomerService,
+    AdminCurrencyService,
     PaymentMethodService,
     DeliveryMethodService,
     AdminProductsRouter,
@@ -234,6 +245,8 @@ import { StorageModule } from '../storage/storage.module';
     AdminOrderFulfillmentsRouter,
     AdminCustomersRouter,
     AdminPaymentMethodsRouter,
+    AdminCurrencyRouter,
+    AdminShippingProviderRouter,
     AdminDeliveryMethodsRouter,
     AdminWishlistRouter,
     ClientOrdersRouter,
@@ -242,6 +255,7 @@ import { StorageModule } from '../storage/storage.module';
     ClientDeliveryMethodsRouter,
     OrderFulfillmentService,
     ShippingProviderService,
+    AdminShippingProviderService,
   ],
 })
 export class ProductsModule {}

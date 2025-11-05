@@ -7,13 +7,39 @@ import { FulfillmentItemRepository } from '../repositories/fulfillment-item.repo
 import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
 import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
-import { FulfillmentStatus, PriorityLevel } from '../entities/order-fulfillment.entity';
+import { FulfillmentStatus, PriorityLevel, PackagingType } from '../entities/order-fulfillment.entity';
 import { FulfillmentItemStatus } from '../entities/fulfillment-item.entity';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
 
 const fulfillmentStatusSchema = z.nativeEnum(FulfillmentStatus);
 const fulfillmentPrioritySchema = z.nativeEnum(PriorityLevel);
 const fulfillmentItemStatusSchema = z.nativeEnum(FulfillmentItemStatus);
+const fulfillmentPackagingSchema = z.nativeEnum(PackagingType);
+
+const fulfillmentAddressSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  company: z.string().optional(),
+  address1: z.string(),
+  address2: z.string().optional(),
+  city: z.string(),
+  state: z.string(),
+  postalCode: z.string(),
+  country: z.string(),
+});
+
+const fulfillmentItemInputSchema = z.object({
+  orderItemId: z.string().uuid(),
+  quantity: z.number().positive(),
+  locationPickedFrom: z.string().optional(),
+  batchNumber: z.string().optional(),
+  serialNumbers: z.array(z.string()).optional(),
+  expiryDate: z.string().datetime().optional(),
+  conditionNotes: z.string().optional(),
+  packagingNotes: z.string().optional(),
+  weight: z.number().positive().optional(),
+  notes: z.string().optional(),
+});
 
 const listFulfillmentsInputSchema = z.object({
   page: z.number().min(1).default(1),
@@ -29,6 +55,22 @@ const listFulfillmentsInputSchema = z.object({
 
 const fulfillmentIdSchema = z.object({
   id: z.string().uuid(),
+});
+
+const createFulfillmentInputSchema = z.object({
+  orderId: z.string().uuid(),
+  priorityLevel: fulfillmentPrioritySchema.optional(),
+  shippingProviderId: z.string().uuid().optional(),
+  packagingType: fulfillmentPackagingSchema.optional(),
+  shippingAddress: fulfillmentAddressSchema.optional(),
+  pickupAddress: fulfillmentAddressSchema.optional(),
+  notes: z.string().optional(),
+  internalNotes: z.string().optional(),
+  signatureRequired: z.boolean().optional(),
+  deliveryInstructions: z.string().optional(),
+  giftWrap: z.boolean().optional(),
+  giftMessage: z.string().optional(),
+  items: z.array(fulfillmentItemInputSchema).min(1),
 });
 
 const updateStatusInputSchema = z.object({
@@ -148,6 +190,55 @@ export class AdminOrderFulfillmentsRouter {
         OperationCode.READ,
         this.mapErrorLevel(error),
         this.extractErrorMessage(error, 'Order fulfillment not found'),
+        error,
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: createFulfillmentInputSchema,
+    output: apiResponseSchema,
+  })
+  async create(
+    @Input() input: z.infer<typeof createFulfillmentInputSchema>
+  ) {
+    try {
+      const payload = {
+        orderId: input.orderId,
+        priorityLevel: input.priorityLevel,
+        shippingProviderId: input.shippingProviderId,
+        packagingType: input.packagingType,
+        shippingAddress: input.shippingAddress,
+        pickupAddress: input.pickupAddress,
+        notes: input.notes,
+        internalNotes: input.internalNotes,
+        signatureRequired: input.signatureRequired,
+        deliveryInstructions: input.deliveryInstructions,
+        giftWrap: input.giftWrap,
+        giftMessage: input.giftMessage,
+        items: input.items.map((item) => ({
+          orderItemId: item.orderItemId,
+          quantity: item.quantity,
+          locationPickedFrom: item.locationPickedFrom,
+          batchNumber: item.batchNumber,
+          serialNumbers: item.serialNumbers,
+          expiryDate: item.expiryDate ? new Date(item.expiryDate) : undefined,
+          conditionNotes: item.conditionNotes,
+          packagingNotes: item.packagingNotes,
+          weight: item.weight,
+          notes: item.notes,
+        })),
+      };
+
+      const fulfillment = await this.fulfillmentService.createFulfillment(payload);
+      return this.responseHandler.createTrpcSuccess(fulfillment);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.ORDER,
+        OperationCode.CREATE,
+        this.mapErrorLevel(error),
+        this.extractErrorMessage(error, 'Failed to create order fulfillment'),
         error,
       );
     }

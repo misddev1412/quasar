@@ -98,6 +98,9 @@ interface UseCheckoutFormParams {
   countries?: CheckoutCountry[];
   initialStep?: number;
   onStepChange?: (step: number) => void;
+  defaultEmail?: string;
+  initialData?: Partial<CheckoutFormData>;
+  onFormDataChange?: (data: CheckoutFormData) => void;
 }
 
 interface UseCheckoutFormResult {
@@ -147,6 +150,9 @@ export const useCheckoutForm = ({
   countries = [],
   initialStep = 1,
   onStepChange,
+  defaultEmail,
+  initialData,
+  onFormDataChange,
 }: UseCheckoutFormParams): UseCheckoutFormResult => {
   const clampStep = useCallback((value: number) => {
     const numericValue = Number(value);
@@ -156,33 +162,95 @@ export const useCheckoutForm = ({
     return Math.min(3, Math.max(1, Math.trunc(numericValue)));
   }, []);
 
-  const [formData, setFormData] = useState<CheckoutFormData>({
-    email: '',
-    shippingAddress: {
-      firstName: '',
-      lastName: '',
-      company: '',
-      address1: '',
-      address2: '',
-      city: '',
-      state: '',
-      postalCode: '',
-      country: '',
-      phone: '',
-    },
-    billingAddressSameAsShipping: true,
-    shippingMethod: '',
-    paymentMethod: {
-      type: 'credit_card',
-      cardNumber: '',
-      expiryDate: '',
-      cvv: '',
-      cardholderName: '',
-    },
-    orderNotes: '',
-    agreeToTerms: false,
-    agreeToMarketing: false,
-  });
+  const initialFormState = useMemo<CheckoutFormData>(() => {
+    const base: CheckoutFormData = {
+      email: defaultEmail ?? '',
+      shippingAddress: {
+        firstName: '',
+        lastName: '',
+        company: '',
+        address1: '',
+        address2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+        country: '',
+        phone: '',
+      },
+      billingAddressSameAsShipping: true,
+      shippingMethod: '',
+      paymentMethod: {
+        type: 'credit_card',
+        cardNumber: '',
+        expiryDate: '',
+        cvv: '',
+        cardholderName: '',
+      },
+      orderNotes: '',
+      agreeToTerms: false,
+      agreeToMarketing: false,
+    };
+
+    if (initialData) {
+      if (typeof initialData.email === 'string' && initialData.email.trim().length > 0) {
+        base.email = initialData.email.trim();
+      }
+
+      if (typeof initialData.billingAddressSameAsShipping === 'boolean') {
+        base.billingAddressSameAsShipping = initialData.billingAddressSameAsShipping;
+      }
+
+      if (typeof initialData.shippingMethod === 'string') {
+        base.shippingMethod = initialData.shippingMethod;
+      }
+
+      if (typeof initialData.orderNotes === 'string') {
+        base.orderNotes = initialData.orderNotes;
+      }
+
+      if (typeof initialData.agreeToTerms === 'boolean') {
+        base.agreeToTerms = initialData.agreeToTerms;
+      }
+
+      if (typeof initialData.agreeToMarketing === 'boolean') {
+        base.agreeToMarketing = initialData.agreeToMarketing;
+      }
+
+      if (initialData.shippingAddress) {
+        base.shippingAddress = {
+          ...base.shippingAddress,
+          ...initialData.shippingAddress,
+        };
+      }
+
+      if (!base.billingAddressSameAsShipping && initialData.billingAddress) {
+        base.billingAddress = {
+          firstName: initialData.billingAddress.firstName ?? '',
+          lastName: initialData.billingAddress.lastName ?? '',
+          company: initialData.billingAddress.company ?? '',
+          address1: initialData.billingAddress.address1 ?? '',
+          address2: initialData.billingAddress.address2 ?? '',
+          city: initialData.billingAddress.city ?? '',
+          state: initialData.billingAddress.state ?? '',
+          postalCode: initialData.billingAddress.postalCode ?? '',
+          country: initialData.billingAddress.country ?? '',
+          phone: initialData.billingAddress.phone ?? '',
+        };
+      }
+
+      if (initialData.paymentMethod) {
+        base.paymentMethod = {
+          ...base.paymentMethod,
+          type: initialData.paymentMethod.type ?? base.paymentMethod.type,
+          paypalEmail: initialData.paymentMethod.paypalEmail,
+        };
+      }
+    }
+
+    return base;
+  }, [defaultEmail, initialData]);
+
+  const [formData, setFormData] = useState<CheckoutFormData>(initialFormState);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedSavedAddressId, setSelectedSavedAddressId] = useState<string | null>(null);
@@ -433,7 +501,13 @@ export const useCheckoutForm = ({
           current = current[keys[i]];
         }
 
-        current[keys[keys.length - 1]] = value;
+        const lastKey = keys[keys.length - 1];
+        if (current[lastKey] === value) {
+          return prev;
+        }
+
+        current[lastKey] = value;
+        onFormDataChange?.(newData);
         return newData;
       });
 
@@ -445,8 +519,20 @@ export const useCheckoutForm = ({
         });
       }
     },
-    [errors]
+    [errors, onFormDataChange]
   );
+
+  useEffect(() => {
+    if (!defaultEmail) {
+      return;
+    }
+
+    if (formData.email) {
+      return;
+    }
+
+    updateFormData('email', defaultEmail);
+  }, [defaultEmail, formData.email, updateFormData]);
 
   const applySavedAddress = useCallback(
     (address: SavedAddress, { autoSelect = false }: { autoSelect?: boolean } = {}) => {
@@ -548,6 +634,10 @@ export const useCheckoutForm = ({
   }, [savedAddresses, selectedSavedAddressId, hasClearedSavedAddress, applySavedAddress]);
 
   useEffect(() => {
+    if (!deliveryMethodsQuery.isSuccess) {
+      return;
+    }
+
     if (deliveryMethods.length === 0) {
       if (formData.shippingMethod) {
         updateFormData('shippingMethod', '');
@@ -567,7 +657,12 @@ export const useCheckoutForm = ({
     if (preferred && preferred.id !== formData.shippingMethod) {
       updateFormData('shippingMethod', preferred.id);
     }
-  }, [deliveryMethods, formData.shippingMethod, updateFormData]);
+  }, [
+    deliveryMethods,
+    deliveryMethodsQuery.isSuccess,
+    formData.shippingMethod,
+    updateFormData,
+  ]);
 
   const validateStep = useCallback(
     (step: number) => {

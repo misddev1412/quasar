@@ -22,7 +22,7 @@ interface Order {
   status: 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'RETURNED' | 'REFUNDED';
   paymentStatus: 'PENDING' | 'PAID' | 'PARTIALLY_PAID' | 'FAILED' | 'REFUNDED' | 'CANCELLED';
   source: 'WEBSITE' | 'MOBILE_APP' | 'PHONE' | 'EMAIL' | 'IN_STORE' | 'SOCIAL_MEDIA' | 'MARKETPLACE';
-  totalAmount: number;
+  totalAmount: number | string;
   currency: string;
   itemCount: number;
   orderDate: string;
@@ -50,6 +50,20 @@ interface OrderFiltersType {
   minAmount?: number;
   maxAmount?: number;
 }
+
+const formatAmount = (value: unknown) => {
+  const numericValue = typeof value === 'number'
+    ? value
+    : typeof value === 'string'
+      ? Number(value)
+      : 0;
+
+  if (!Number.isFinite(numericValue)) {
+    return '0.00';
+  }
+
+  return numericValue.toFixed(2);
+};
 
 const OrdersPage: React.FC = () => {
   const navigate = useNavigate();
@@ -246,7 +260,7 @@ const OrdersPage: React.FC = () => {
     return [
       {
         id: 'totalOrders',
-        title: t('orders.total_orders'),
+        title: t('orders.statistics.total_orders'),
         value: stats.totalOrders?.toString() || '0',
         icon: React.createElement(FiShoppingBag),
         trend: {
@@ -257,7 +271,7 @@ const OrdersPage: React.FC = () => {
       },
       {
         id: 'totalRevenue',
-        title: t('orders.total_revenue'),
+        title: t('orders.statistics.total_revenue'),
         value: `$${stats.totalRevenue?.toLocaleString() || '0'}`,
         icon: React.createElement(FiDollarSign),
         trend: {
@@ -268,13 +282,13 @@ const OrdersPage: React.FC = () => {
       },
       {
         id: 'averageOrderValue',
-        title: t('orders.avg_order_value'),
+        title: t('orders.statistics.avg_order_value'),
         value: `$${stats.averageOrderValue?.toFixed(2) || '0.00'}`,
         icon: React.createElement(FiActivity),
       },
       {
         id: 'pendingOrders',
-        title: t('orders.pending_orders'),
+        title: t('orders.statistics.pending_orders'),
         value: stats.statusStats?.PENDING?.toString() || '0',
         icon: React.createElement(FiClock),
       },
@@ -331,7 +345,7 @@ const OrdersPage: React.FC = () => {
       header: t('orders.total'),
       accessor: (order) => (
         <div className="text-sm font-medium">
-          {order.currency} {order.totalAmount.toFixed(2)}
+          {order.currency} {formatAmount(order.totalAmount)}
         </div>
       ),
       isSortable: true,
@@ -363,14 +377,32 @@ const OrdersPage: React.FC = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate(`/orders/${order.id}`)}
+            onClick={(event) => {
+              event.stopPropagation();
+              navigate(`/orders/${order.id}`);
+            }}
           >
             <FiEye className="mr-1 h-4 w-4" />
             {t('orders.view')}
           </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(event) => {
+              event.stopPropagation();
+              navigate(`/orders/fulfillments/new?orderId=${encodeURIComponent(order.id)}`);
+            }}
+          >
+            <FiPackage className="mr-1 h-4 w-4" />
+            {t('orders.fulfill_order', 'Fulfill order')}
+          </Button>
           <Dropdown
             button={
-              <Button variant="ghost" size="sm">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(event) => event.stopPropagation()}
+              >
                 <FiMoreVertical className="h-4 w-4" />
               </Button>
             }

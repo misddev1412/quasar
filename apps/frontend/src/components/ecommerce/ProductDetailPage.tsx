@@ -3,7 +3,6 @@
 import React, { useCallback, useMemo, useRef } from 'react';
 import clsx from 'clsx';
 import { Button, Card, Chip, Tabs, Tab } from '@heroui/react';
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import ProductGallery from './ProductGallery';
 import ProductDescription from './ProductDescription';
@@ -14,16 +13,14 @@ import ReviewForm from './ReviewForm';
 import CrossSellSection from './CrossSellSection';
 import Rating from '../common/Rating';
 import ProductInfo from './ProductInfo';
-import ProductQuickView from './ProductQuickView';
 import PageBreadcrumbs from '../common/PageBreadcrumbs';
+import Container from '../common/Container';
 import { useProductVariants } from '../../hooks/useProductVariants';
 import { useProductState } from '../../hooks/useProductState';
-import type { Product } from '../../types/product';
-import { Breadcrumb } from 'ui';
+import type { Product, ProductVariant } from '../../types/product';
+import { useRouter } from 'next/navigation';
 
 const layout = {
-  container: 'space-y-12 lg:space-y-16',
-  breadcrumb: 'text-xs md:text-sm bg-white/95 dark:bg-neutral-900/80 shadow-sm border border-gray-200/70 dark:border-gray-700/60',
   mainGrid: 'grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10 xl:gap-12',
   galleryStack: 'space-y-6',
   galleryCard: 'rounded-2xl overflow-hidden shadow-md',
@@ -79,13 +76,11 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     quantity,
     wishlistAdded,
     selectedImageIndex,
-    showQuickView,
     activeDetailTab,
     handleQuantityChange,
     handleAddToCart: handleAddToCartState,
     handleWishlistToggle,
     handleImageSelect,
-    handleQuickViewToggle,
     handleDetailTabChange,
   } = useProductState({
     productId: product.id,
@@ -103,10 +98,11 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     isOptionDisabled,
     handleAttributeSelect,
     selectVariant,
-    setSelectedVariant,
   } = useProductVariants({
     variants: product.variants,
   });
+
+  const router = useRouter();
 
   const {
     id,
@@ -296,6 +292,19 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     handleAddToCartState(product, selectedVariant);
   };
 
+  const handleBuyNow = useCallback(() => {
+    if (!inStock) {
+      return;
+    }
+
+    if (hasAttributeBasedVariants && !selectedVariant) {
+      return;
+    }
+
+    handleAddToCartState(product, selectedVariant);
+    router.push('/checkout');
+  }, [handleAddToCartState, hasAttributeBasedVariants, inStock, product, router, selectedVariant]);
+
   const handleReviewSubmit = (review: { rating: number; title: string; comment: string }) => {
     if (onReviewSubmit) {
       onReviewSubmit(review);
@@ -309,16 +318,14 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
   return (
     <>
-      <div className={clsx(layout.container, className)}>
-        {/* Breadcrumb */}
-        <PageBreadcrumbs
-          items={breadcrumbItems}
-          fullWidth
-        />
+      <PageBreadcrumbs
+        items={breadcrumbItems}
+        fullWidth
+      />
 
-        <div className="mx-auto max-w-7xl space-y-12 px-4 sm:px-6 lg:px-8 lg:space-y-16">
-          {/* Main Product Section */}
-          <section className={layout.mainGrid}>
+      <Container className={clsx('space-y-12 py-12 lg:space-y-16 lg:py-16', className)}>
+        {/* Main Product Section */}
+        <section className={layout.mainGrid}>
             {/* Product Gallery */}
             <div className={layout.galleryStack}>
               <ProductGallery
@@ -365,13 +372,13 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               onAttributeSelect={handleAttributeSelect}
               onWishlistToggle={handleWishlistToggle}
               onAddToCart={handleAddToCart}
-              onQuickView={handleQuickViewToggle}
+              onBuyNow={handleBuyNow}
               onScrollToReviews={handleScrollToReviews}
             />
-          </section>
+        </section>
 
-          {/* Product Details */}
-          <section ref={detailTabsRef} className="space-y-8">
+        {/* Product Details */}
+        <section ref={detailTabsRef} className="space-y-8">
             <Card className={clsx(layout.sectionCard, 'space-y-8')}>
               <Tabs
                 selectedKey={activeDetailTab}
@@ -487,34 +494,24 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                 </Tab>
               </Tabs>
             </Card>
-          </section>
+        </section>
 
-          {/* Cross-sell Products */}
-          {(relatedProducts.length > 0 || frequentlyBoughtTogether.length > 0 ||
-            recommendedProducts.length > 0 || trendingProducts.length > 0) && (
-            <CrossSellSection
-              products={{
-                related: relatedProducts,
-                frequentlyBoughtTogether: frequentlyBoughtTogether,
-                recommended: recommendedProducts,
-                trending: trendingProducts,
-              }}
-              onAddToCart={onAddToCart}
-              onWishlistToggle={onWishlistToggle}
-            />
-          )}
-        </div>
-      </div>
+        {/* Cross-sell Products */}
+        {(relatedProducts.length > 0 || frequentlyBoughtTogether.length > 0 ||
+          recommendedProducts.length > 0 || trendingProducts.length > 0) && (
+          <CrossSellSection
+            products={{
+              related: relatedProducts,
+              frequentlyBoughtTogether: frequentlyBoughtTogether,
+              recommended: recommendedProducts,
+              trending: trendingProducts,
+            }}
+            onAddToCart={onAddToCart}
+            onWishlistToggle={onWishlistToggle}
+          />
+        )}
+      </Container>
 
-      {/* Quick View Modal */}
-      <ProductQuickView
-        isOpen={showQuickView}
-        onClose={handleQuickViewToggle}
-        product={product}
-        selectedVariant={selectedVariant}
-        description={descriptionText}
-        onAddToCart={handleAddToCart}
-      />
     </>
   );
 };

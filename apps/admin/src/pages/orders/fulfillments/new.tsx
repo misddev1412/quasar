@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPackage } from 'react-icons/fi';
 import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
 import {
@@ -12,8 +12,10 @@ import { trpc } from '../../../utils/trpc';
 
 const OrderFulfillmentCreatePage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
+  const initialOrderId = searchParams.get('orderId');
 
   const createFulfillmentMutation = (trpc as any).orderFulfillments?.create?.useMutation?.() ?? {
     mutateAsync: async () => {
@@ -106,6 +108,7 @@ const OrderFulfillmentCreatePage: React.FC = () => {
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isSubmitting={createFulfillmentMutation.isPending}
+        initialOrderId={initialOrderId}
       />
     </CreatePageTemplate>
   );

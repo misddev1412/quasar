@@ -1,0 +1,29 @@
+import { IsString, IsOptional, IsBoolean, IsUrl } from 'class-validator';
+
+export class CreateShippingProviderDto {
+  @IsString()
+  name: string;
+
+  @IsString()
+  code: string;
+
+  @IsUrl()
+  @IsOptional()
+  trackingUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
+
+  @IsString()
+  @IsOptional()
+  apiKey?: string | null;
+
+  @IsString()
+  @IsOptional()
+  apiSecret?: string | null;
+}

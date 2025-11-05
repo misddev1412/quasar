@@ -45,6 +45,9 @@ import CreateFirebaseConfigPage from '../pages/firebase-configs/create';
 import EditFirebaseConfigPage from '../pages/firebase-configs/[id]';
 import NotificationsPage from '../pages/notifications';
 import NotificationPreferencesPage from '../pages/notifications/preferences';
+import ShippingProvidersIndexPage from '../pages/shipping-providers';
+import CreateShippingProviderPage from '../pages/shipping-providers/create';
+import EditShippingProviderPage from '../pages/shipping-providers/[id]/edit';
 // Product Management
 import ProductsIndexPage from '../pages/products';
 import AttributesPage from '../pages/products/attributes';
@@ -155,6 +158,10 @@ const AppRoutes: React.FC = () => {
       {/* Currencies */}
       <Route path="/currencies" element={<ProtectedRoute><CurrenciesIndexPage /></ProtectedRoute>} />
       <Route path="/currencies/create" element={<ProtectedRoute><CurrenciesCreatePage /></ProtectedRoute>} />
+      {/* Shipping Providers */}
+      <Route path="/shipping-providers" element={<ProtectedRoute><ShippingProvidersIndexPage /></ProtectedRoute>} />
+      <Route path="/shipping-providers/create" element={<ProtectedRoute><CreateShippingProviderPage /></ProtectedRoute>} />
+      <Route path="/shipping-providers/:id/edit" element={<ProtectedRoute><EditShippingProviderPage /></ProtectedRoute>} />
       {/* Firebase Configurations */}
       <Route path="/firebase-configs" element={<ProtectedRoute><FirebaseConfigsPage /></ProtectedRoute>} />
       <Route path="/firebase-configs/create" element={<ProtectedRoute><CreateFirebaseConfigPage /></ProtectedRoute>} />

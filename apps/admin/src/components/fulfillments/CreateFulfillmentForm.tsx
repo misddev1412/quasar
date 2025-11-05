@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, FormProvider, useFieldArray } from 'react-hook-form';
 import type { Resolver, SubmitHandler } from 'react-hook-form';
 import { z } from 'zod';
@@ -17,6 +17,7 @@ import { Button } from '../common/Button';
 import { Loading } from '../common/Loading';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
+import type { AdministrativeDivisionType } from '../../../../backend/src/modules/products/entities/administrative-division.entity';
 
 interface AddressFormValue {
   firstName?: string;
@@ -125,6 +126,7 @@ interface CreateFulfillmentFormProps {
   onSubmit: (payload: CreateFulfillmentPayload) => Promise<void> | void;
   onCancel: () => void;
   isSubmitting?: boolean;
+  initialOrderId?: string | null;
 }
 
 const PRIORITY_LEVELS: Array<{ value: CreateFulfillmentFormValues['priorityLevel']; label: string }> = [
@@ -175,12 +177,13 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
   onSubmit,
   onCancel,
   isSubmitting = false,
+  initialOrderId = null,
 }) => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
   const [orderSearchTerm, setOrderSearchTerm] = useState('');
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(() => initialOrderId);
 
   const ordersQuery = trpc.adminOrders.list.useQuery({
     page: 1,
@@ -192,6 +195,12 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
     { id: selectedOrderId ?? '' },
     { enabled: !!selectedOrderId }
   );
+
+  useEffect(() => {
+    if (initialOrderId) {
+      setSelectedOrderId(initialOrderId);
+    }
+  }, [initialOrderId]);
 
   const shippingProvidersQuery = (trpc as any)?.adminShippingProviders?.list?.useQuery
     ? (trpc as any).adminShippingProviders.list.useQuery({ page: 1, limit: 100, isActive: true })
@@ -362,6 +371,432 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
   const includeShippingAddress = watch('includeShippingAddress');
   const includePickupAddress = watch('includePickupAddress');
   const giftWrap = watch('giftWrap');
+  const watchedShippingCountry = watch('shippingAddress.country');
+  const watchedShippingProvince = watch('shippingAddress.state');
+  const watchedShippingWard = watch('shippingAddress.city');
+  const watchedPickupCountry = watch('pickupAddress.country');
+  const watchedPickupProvince = watch('pickupAddress.state');
+  const watchedPickupWard = watch('pickupAddress.city');
+
+  const shippingCountryId =
+    watchedShippingCountry ?? selectedOrder?.shippingAddress?.country ?? undefined;
+  const shippingProvinceId =
+    watchedShippingProvince ?? selectedOrder?.shippingAddress?.state ?? undefined;
+  const shippingWardId =
+    watchedShippingWard ?? selectedOrder?.shippingAddress?.city ?? undefined;
+
+  const pickupCountryId = watchedPickupCountry;
+  const pickupProvinceId = watchedPickupProvince;
+  const pickupWardId = watchedPickupWard;
+
+  const countriesQuery = trpc.adminAddressBook.getCountries.useQuery(undefined, {
+    staleTime: 1000 * 60 * 60,
+  });
+
+  const shippingProvincesQuery = trpc.adminAddressBook.getAdministrativeDivisions.useQuery(
+    {
+      countryId: shippingCountryId ?? '',
+      type: 'PROVINCE' as AdministrativeDivisionType,
+    },
+    {
+      enabled: Boolean(shippingCountryId),
+    }
+  );
+
+  const shippingWardsQuery = trpc.adminAddressBook.getAdministrativeDivisionsByParentId.useQuery(
+    { parentId: shippingProvinceId ?? '' },
+    { enabled: Boolean(shippingProvinceId) }
+  );
+
+  const pickupProvincesQuery = trpc.adminAddressBook.getAdministrativeDivisions.useQuery(
+    {
+      countryId: pickupCountryId ?? '',
+      type: 'PROVINCE' as AdministrativeDivisionType,
+    },
+    {
+      enabled: Boolean(pickupCountryId),
+    }
+  );
+
+  const pickupWardsQuery = trpc.adminAddressBook.getAdministrativeDivisionsByParentId.useQuery(
+    { parentId: pickupProvinceId ?? '' },
+    { enabled: Boolean(pickupProvinceId) }
+  );
+
+  const refetchShippingProvinces = shippingProvincesQuery?.refetch;
+  const refetchShippingWards = shippingWardsQuery?.refetch;
+interface CountryOption {
+  id: string;
+  name: string;
+  code?: string | null;
+  iso2?: string | null;
+  iso3?: string | null;
+}
+
+interface AdministrativeOption {
+  id: string;
+  name: string;
+  code?: string | null;
+}
+
+const countryOptions = useMemo<CountryOption[]>(() => {
+    const raw =
+      (countriesQuery.data as Array<{ id: string; name: string; code?: string; iso2?: string | null; iso3?: string | null }> | undefined) ??
+      [];
+    return raw.map((country) => ({
+      id: country.id,
+      name: country.name,
+      code: country.code,
+      iso2: country.iso2,
+      iso3: country.iso3,
+    }));
+  }, [countriesQuery.data]);
+
+const shippingProvinceOptions = useMemo<AdministrativeOption[]>(() => {
+  const raw =
+    (shippingProvincesQuery.data as Array<{ id: string; name: string; code?: string | null }> | undefined) ?? [];
+  return raw.map((division) => ({
+    id: division.id,
+    name: division.name,
+    code: division.code ?? null,
+  }));
+}, [shippingProvincesQuery.data]);
+
+const shippingWardOptions = useMemo<AdministrativeOption[]>(() => {
+  const raw =
+    (shippingWardsQuery.data as Array<{ id: string; name: string; code?: string | null }> | undefined) ?? [];
+  return raw.map((division) => ({
+    id: division.id,
+    name: division.name,
+    code: division.code ?? null,
+  }));
+}, [shippingWardsQuery.data]);
+
+const pickupProvinceOptions = useMemo<AdministrativeOption[]>(() => {
+  const raw =
+    (pickupProvincesQuery.data as Array<{ id: string; name: string; code?: string | null }> | undefined) ?? [];
+  return raw.map((division) => ({
+    id: division.id,
+    name: division.name,
+    code: division.code ?? null,
+  }));
+}, [pickupProvincesQuery.data]);
+
+const pickupWardOptions = useMemo<AdministrativeOption[]>(() => {
+  const raw =
+    (pickupWardsQuery.data as Array<{ id: string; name: string; code?: string | null }> | undefined) ?? [];
+  return raw.map((division) => ({
+    id: division.id,
+    name: division.name,
+    code: division.code ?? null,
+  }));
+}, [pickupWardsQuery.data]);
+
+  const previousShippingCountryRef = useRef<string | undefined>(undefined);
+  const previousShippingProvinceRef = useRef<string | undefined>(undefined);
+  const previousShippingWardRef = useRef<string | undefined>(undefined);
+  const previousPickupCountryRef = useRef<string | undefined>(undefined);
+  const previousPickupProvinceRef = useRef<string | undefined>(undefined);
+  const previousPickupWardRef = useRef<string | undefined>(undefined);
+  const previousSelectedOrderIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (countriesQuery.error) {
+      addToast({
+        type: 'error',
+        title: t('common.error', 'Error'),
+        description: t('fulfillments.countries_load_error', 'Unable to load countries right now.'),
+      });
+    }
+  }, [countriesQuery.error, addToast, t]);
+
+  useEffect(() => {
+    if (shippingProvincesQuery.error) {
+      addToast({
+        type: 'error',
+        title: t('common.error', 'Error'),
+        description: t('fulfillments.province_load_error', 'Unable to load provinces for the selected country.'),
+      });
+    }
+  }, [shippingProvincesQuery.error, addToast, t]);
+
+  useEffect(() => {
+    if (shippingWardsQuery.error) {
+      addToast({
+        type: 'error',
+        title: t('common.error', 'Error'),
+        description: t('fulfillments.ward_load_error', 'Unable to load districts for the selected province.'),
+      });
+    }
+  }, [shippingWardsQuery.error, addToast, t]);
+
+  useEffect(() => {
+    if (pickupProvincesQuery.error) {
+      addToast({
+        type: 'error',
+        title: t('common.error', 'Error'),
+        description: t('fulfillments.pickup_province_error', 'Unable to load pickup provinces for the selected country.'),
+      });
+    }
+  }, [pickupProvincesQuery.error, addToast, t]);
+
+  useEffect(() => {
+    if (pickupWardsQuery.error) {
+      addToast({
+        type: 'error',
+        title: t('common.error', 'Error'),
+        description: t('fulfillments.pickup_ward_error', 'Unable to load pickup districts for the selected province.'),
+      });
+    }
+  }, [pickupWardsQuery.error, addToast, t]);
+
+  useEffect(() => {
+    if (!selectedOrder) {
+      previousSelectedOrderIdRef.current = null;
+      return;
+    }
+
+    if (previousSelectedOrderIdRef.current === selectedOrder.id) {
+      return;
+    }
+
+    previousSelectedOrderIdRef.current = selectedOrder.id;
+
+    if (selectedOrder.shippingAddress) {
+      setValue('includeShippingAddress', true, { shouldDirty: false, shouldTouch: false });
+      setValue('shippingAddress.country', selectedOrder.shippingAddress.country ?? '', {
+        shouldDirty: false,
+        shouldTouch: false,
+      });
+      setValue('shippingAddress.state', selectedOrder.shippingAddress.state ?? '', {
+        shouldDirty: false,
+        shouldTouch: false,
+      });
+      setValue('shippingAddress.city', selectedOrder.shippingAddress.city ?? '', {
+        shouldDirty: false,
+        shouldTouch: false,
+      });
+      if (typeof refetchShippingProvinces === 'function') {
+        refetchShippingProvinces();
+      }
+      if (typeof refetchShippingWards === 'function') {
+        refetchShippingWards();
+      }
+    } else {
+      setValue('includeShippingAddress', false, { shouldDirty: false, shouldTouch: false });
+      setValue('shippingAddress', undefined, { shouldDirty: false, shouldTouch: false });
+    }
+  }, [selectedOrder, setValue, refetchShippingProvinces, refetchShippingWards]);
+
+  useEffect(() => {
+    if (!includeShippingAddress) {
+      previousShippingCountryRef.current = shippingCountryId ?? '';
+      previousShippingProvinceRef.current = shippingProvinceId ?? '';
+      previousShippingWardRef.current = shippingWardId ?? '';
+      return;
+    }
+
+    const currentCountry = shippingCountryId ?? '';
+    if (previousShippingCountryRef.current && previousShippingCountryRef.current !== currentCountry) {
+      setValue('shippingAddress.state', '');
+      setValue('shippingAddress.city', '');
+    }
+    previousShippingCountryRef.current = currentCountry;
+  }, [includeShippingAddress, setValue, shippingCountryId, shippingProvinceId, shippingWardId]);
+
+  useEffect(() => {
+    if (!includeShippingAddress) {
+      previousShippingProvinceRef.current = shippingProvinceId ?? '';
+      previousShippingWardRef.current = shippingWardId ?? '';
+      return;
+    }
+
+    const currentProvince = shippingProvinceId ?? '';
+    if (previousShippingProvinceRef.current && previousShippingProvinceRef.current !== currentProvince) {
+      setValue('shippingAddress.city', '');
+    }
+    previousShippingProvinceRef.current = currentProvince;
+  }, [includeShippingAddress, setValue, shippingProvinceId, shippingWardId]);
+
+  useEffect(() => {
+    if (!includePickupAddress) {
+      previousPickupCountryRef.current = pickupCountryId ?? '';
+      previousPickupProvinceRef.current = pickupProvinceId ?? '';
+      previousPickupWardRef.current = pickupWardId ?? '';
+      return;
+    }
+
+    const currentCountry = pickupCountryId ?? '';
+    if (previousPickupCountryRef.current && previousPickupCountryRef.current !== currentCountry) {
+      setValue('pickupAddress.state', '');
+      setValue('pickupAddress.city', '');
+    }
+    previousPickupCountryRef.current = currentCountry;
+  }, [includePickupAddress, pickupCountryId, pickupProvinceId, pickupWardId, setValue]);
+
+  useEffect(() => {
+    if (!includePickupAddress) {
+      previousPickupProvinceRef.current = pickupProvinceId ?? '';
+      previousPickupWardRef.current = pickupWardId ?? '';
+      return;
+    }
+
+    const currentProvince = pickupProvinceId ?? '';
+    if (previousPickupProvinceRef.current && previousPickupProvinceRef.current !== currentProvince) {
+      setValue('pickupAddress.city', '');
+    }
+    previousPickupProvinceRef.current = currentProvince;
+  }, [includePickupAddress, pickupProvinceId, pickupWardId, setValue]);
+
+  useEffect(() => {
+    if (!includeShippingAddress) return;
+    if (!shippingCountryId) return;
+    if (typeof refetchShippingProvinces === 'function') {
+      refetchShippingProvinces();
+    }
+  }, [includeShippingAddress, shippingCountryId, refetchShippingProvinces]);
+
+  useEffect(() => {
+    if (!includeShippingAddress) return;
+    if (!shippingProvinceId) return;
+    if (typeof refetchShippingWards === 'function') {
+      refetchShippingWards();
+    }
+  }, [includeShippingAddress, shippingProvinceId, refetchShippingWards]);
+
+  const normalizeString = (value?: string | null) => value?.toLowerCase().trim();
+
+  useEffect(() => {
+    if (!includeShippingAddress) return;
+    if (!countryOptions.length) return;
+    const address = getValues('shippingAddress');
+    const candidate = address?.country;
+    if (!candidate) return;
+
+    const normalized = normalizeString(candidate);
+    const match = countryOptions.find((option) => {
+      const values = [
+        option.id,
+        option.code,
+        option.iso2,
+        option.iso3,
+        option.name,
+      ]
+        .filter(Boolean)
+        .map((value) => normalizeString(String(value)));
+      return values.includes(normalized);
+    });
+
+    if (match) {
+      setValue('shippingAddress.country', match.id, { shouldDirty: false, shouldTouch: false });
+    }
+  }, [includeShippingAddress, countryOptions, getValues, setValue]);
+
+  useEffect(() => {
+    if (!includePickupAddress) return;
+    if (!countryOptions.length) return;
+    const address = getValues('pickupAddress');
+    const candidate = address?.country;
+    if (!candidate) return;
+
+    const normalized = normalizeString(candidate);
+    const match = countryOptions.find((option) => {
+      const values = [
+        option.id,
+        option.code,
+        option.iso2,
+        option.iso3,
+        option.name,
+      ]
+        .filter(Boolean)
+        .map((value) => normalizeString(String(value)));
+      return values.includes(normalized);
+    });
+
+    if (match && match.id !== candidate) {
+      setValue('pickupAddress.country', match.id, { shouldDirty: false, shouldTouch: false });
+    }
+  }, [includePickupAddress, countryOptions, getValues, setValue]);
+
+  useEffect(() => {
+    if (!includeShippingAddress) return;
+    if (!shippingProvinceOptions.length) return;
+    const current = getValues('shippingAddress.state');
+    if (!current) return;
+
+    const normalized = normalizeString(current);
+    const match = shippingProvinceOptions.find((option) => {
+      const values = [option.id, option.name, option.code];
+      return values
+        .filter(Boolean)
+        .map((value) => normalizeString(String(value)))
+        .includes(normalized);
+    });
+
+    if (match) {
+      setValue('shippingAddress.state', match.id, { shouldDirty: false, shouldTouch: false });
+    }
+  }, [includeShippingAddress, shippingProvinceOptions, getValues, setValue]);
+
+  useEffect(() => {
+    if (!includeShippingAddress) return;
+    if (!shippingWardOptions.length) return;
+    const current = getValues('shippingAddress.city');
+    if (!current) return;
+
+    const normalized = normalizeString(current);
+    const match = shippingWardOptions.find((option) => {
+      const values = [option.id, option.name, option.code];
+      return values
+        .filter(Boolean)
+        .map((value) => normalizeString(String(value)))
+        .includes(normalized);
+    });
+
+    if (match) {
+      setValue('shippingAddress.city', match.id, { shouldDirty: false, shouldTouch: false });
+    }
+  }, [includeShippingAddress, shippingWardOptions, getValues, setValue]);
+
+  useEffect(() => {
+    if (!includePickupAddress) return;
+    if (!pickupProvinceOptions.length) return;
+    const current = getValues('pickupAddress.state');
+    if (!current) return;
+
+    const normalized = normalizeString(current);
+    const match = pickupProvinceOptions.find((option) => {
+      const values = [option.id, option.name, option.code];
+      return values
+        .filter(Boolean)
+        .map((value) => normalizeString(String(value)))
+        .includes(normalized);
+    });
+
+    if (match) {
+      setValue('pickupAddress.state', match.id, { shouldDirty: false, shouldTouch: false });
+    }
+  }, [includePickupAddress, pickupProvinceOptions, getValues, setValue]);
+
+  useEffect(() => {
+    if (!includePickupAddress) return;
+    if (!pickupWardOptions.length) return;
+    const current = getValues('pickupAddress.city');
+    if (!current) return;
+
+    const normalized = normalizeString(current);
+    const match = pickupWardOptions.find((option) => {
+      const values = [option.id, option.name, option.code];
+      return values
+        .filter(Boolean)
+        .map((value) => normalizeString(String(value)))
+        .includes(normalized);
+    });
+
+    if (match) {
+      setValue('pickupAddress.city', match.id, { shouldDirty: false, shouldTouch: false });
+    }
+  }, [includePickupAddress, pickupWardOptions, getValues, setValue]);
 
   useEffect(() => {
     if (!selectedOrder) return;
@@ -518,8 +953,8 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmitInternal)} className="space-y-8">
-        <section className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm">
+      <form onSubmit={handleSubmit(onSubmitInternal)} className="space-y-10">
+        <section className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-primary-600">
               <FiSearch className="h-5 w-5" />
@@ -544,10 +979,10 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                   value={orderSearchTerm}
                   onChange={(event) => setOrderSearchTerm(event.target.value)}
                   placeholder={t('fulfillments.order_search_placeholder', 'Search by order number, customer, or email')}
-                  className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                  className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                 />
               </div>
-              <Button type="button" onClick={handleOrderSearch} variant="primary" className="self-start">
+              <Button type="button" onClick={handleOrderSearch} variant="primary" className="self-start md:self-end">
                 {t('common.search', 'Search')}
               </Button>
             </div>
@@ -565,7 +1000,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                   </p>
                 </div>
               ) : (
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                   {orders.map((order) => {
                     const isSelected = selectedOrderId === order.id;
                     return (
@@ -573,28 +1008,30 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                         key={order.id}
                         type="button"
                         onClick={() => handleSelectOrder(order)}
-                        className={`text-left rounded-xl border px-4 py-4 transition ${
+                        className={`group flex h-full w-full flex-col items-start justify-between rounded-xl border bg-white dark:bg-gray-900 px-5 py-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:text-white dark:hover:text-white ${
                           isSelected
                             ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
                             : 'border-gray-200 dark:border-gray-800 hover:border-primary-300 hover:bg-primary-50/40'
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-white dark:group-hover:text-white">
                             {order.orderNumber}
                           </div>
                           {isSelected && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-primary-500/10 px-2 py-1 text-xs font-medium text-primary-600">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-primary-500/10 px-2 py-1 text-xs font-medium text-primary-600 transition group-hover:bg-primary-600 group-hover:text-white dark:group-hover:bg-primary-500">
                               <FiCheck className="h-3 w-3" />
                               {t('fulfillments.selected', 'Selected')}
                             </span>
                           )}
                         </div>
                         {order.customerName && (
-                          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{order.customerName}</p>
+                          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 group-hover:text-white dark:group-hover:text-white">
+                            {order.customerName}
+                          </p>
                         )}
                         {order.orderDate && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 group-hover:text-white dark:group-hover:text-white">
                             {new Date(order.orderDate).toLocaleString()}
                           </p>
                         )}
@@ -614,8 +1051,8 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
         )}
 
         {selectedOrder && !orderDetailQuery.isLoading && (
-          <section className="space-y-8">
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm">
+          <section className="space-y-10">
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
               <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-primary-600">
                   <FiPackage className="h-5 w-5" />
@@ -642,12 +1079,15 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-5">
                     {fields.map((field, index) => {
                       const meta = orderItemsMeta.get(field.orderItemId || '');
                       const remaining = meta ? Math.max(meta.ordered - meta.fulfilled, 0) : undefined;
                       return (
-                        <div key={field.id} className="rounded-xl border border-gray-200 dark:border-gray-800 p-4">
+                        <div
+                          key={field.id}
+                          className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm"
+                        >
                           <div className="flex items-start justify-between gap-3">
                             <div>
                               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -673,7 +1113,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                                 min={1}
                                 max={remaining && remaining > 0 ? remaining : undefined}
                                 {...register(`items.${index}.quantity`, { valueAsNumber: true })}
-                                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                                className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                               />
                               {errors.items?.[index]?.quantity && (
                                 <p className="mt-1 text-sm text-red-600">{errors.items[index]?.quantity?.message}</p>
@@ -696,7 +1136,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                                 type="text"
                                 {...register(`items.${index}.locationPickedFrom`)}
                                 placeholder={t('fulfillments.location_placeholder', 'Warehouse location, rack, or bin')}
-                                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                                className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                               />
                               {errors.items?.[index]?.locationPickedFrom && (
                                 <p className="mt-1 text-sm text-red-600">{errors.items[index]?.locationPickedFrom?.message}</p>
@@ -710,11 +1150,11 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                               <input
                                 type="text"
                                 {...register(`items.${index}.batchNumber`)}
-                                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                                className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                               />
                             </div>
 
-                            <div>
+                            <div className="md:col-span-2">
                               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 {t('fulfillments.serial_numbers', 'Serial numbers')}
                               </label>
@@ -733,7 +1173,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                               <input
                                 type="date"
                                 {...register(`items.${index}.expiryDate`)}
-                                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                                className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                               />
                             </div>
 
@@ -746,12 +1186,12 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                                 step="0.01"
                                 min={0}
                                 {...register(`items.${index}.weight`)}
-                                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                                className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                               />
                             </div>
 
-                            <div className="md:col-span-2 grid gap-4 md:grid-cols-2">
-                              <div>
+                            <div className="md:col-span-2 space-y-4">
+                              <div className="md:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                   {t('fulfillments.condition_notes', 'Condition notes')}
                                 </label>
@@ -761,7 +1201,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                                   className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                                 />
                               </div>
-                              <div>
+                              <div className="md:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                   {t('fulfillments.packaging_notes', 'Packaging notes')}
                                 </label>
@@ -793,7 +1233,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
             </div>
 
             <div className="grid gap-8 xl:grid-cols-2">
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm">
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
                 <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-primary-600">
                     <FiMapPin className="h-5 w-5" />
@@ -814,8 +1254,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                     </label>
                     <input
                       type="checkbox"
-                      checked={includeShippingAddress}
-                      onChange={(event) => setValue('includeShippingAddress', event.target.checked)}
+                      {...register('includeShippingAddress')}
                       className="h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                     />
                   </div>
@@ -829,7 +1268,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                         <input
                           type="text"
                           {...register('shippingAddress.firstName')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                         />
                         {errors.shippingAddress?.firstName && (
                           <p className="mt-1 text-sm text-red-600">{errors.shippingAddress.firstName.message}</p>
@@ -842,7 +1281,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                         <input
                           type="text"
                           {...register('shippingAddress.lastName')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                         />
                         {errors.shippingAddress?.lastName && (
                           <p className="mt-1 text-sm text-red-600">{errors.shippingAddress.lastName.message}</p>
@@ -855,7 +1294,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                         <input
                           type="text"
                           {...register('shippingAddress.company')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                         />
                       </div>
                       <div>
@@ -865,7 +1304,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                         <input
                           type="text"
                           {...register('shippingAddress.address1')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                         />
                         {errors.shippingAddress?.address1 && (
                           <p className="mt-1 text-sm text-red-600">{errors.shippingAddress.address1.message}</p>
@@ -878,33 +1317,67 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                         <input
                           type="text"
                           {...register('shippingAddress.address2')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                         />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          {t('common.city', 'City')}
-                        </label>
-                        <input
-                          type="text"
-                          {...register('shippingAddress.city')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
-                        />
-                        {errors.shippingAddress?.city && (
-                          <p className="mt-1 text-sm text-red-600">{errors.shippingAddress.city.message}</p>
-                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           {t('common.state', 'State / Province')}
                         </label>
-                        <input
-                          type="text"
+                        <select
                           {...register('shippingAddress.state')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
-                        />
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          disabled={!shippingCountryId || shippingProvincesQuery.isLoading}
+                        >
+                          <option value="">{t('fulfillments.select_province', 'Select province / city')}</option>
+                          {shippingProvinceOptions.map((province) => (
+                            <option key={province.id} value={province.id}>
+                              {province.name}
+                            </option>
+                          ))}
+                        </select>
+                        {shippingProvincesQuery.isLoading && (
+                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {t('common.loading', 'Loading...')}
+                          </p>
+                        )}
+                        {shippingCountryId && shippingProvinceOptions.length === 0 && !shippingProvincesQuery.isLoading && (
+                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {t('fulfillments.no_province_results', 'No provinces available for the selected country.')}
+                          </p>
+                        )}
                         {errors.shippingAddress?.state && (
                           <p className="mt-1 text-sm text-red-600">{errors.shippingAddress.state.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          {t('common.city', 'City')}
+                        </label>
+                        <select
+                          {...register('shippingAddress.city')}
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          disabled={!shippingProvinceId || shippingWardsQuery.isLoading}
+                        >
+                          <option value="">{t('fulfillments.select_ward', 'Select district / ward')}</option>
+                          {shippingWardOptions.map((ward) => (
+                            <option key={ward.id} value={ward.id}>
+                              {ward.name}
+                            </option>
+                          ))}
+                        </select>
+                        {shippingProvinceId && shippingWardsQuery.isLoading && (
+                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {t('common.loading', 'Loading...')}
+                          </p>
+                        )}
+                        {shippingProvinceId && shippingWardOptions.length === 0 && !shippingWardsQuery.isLoading && (
+                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {t('fulfillments.no_ward_results', 'No districts available for the selected province.')}
+                          </p>
+                        )}
+                        {errors.shippingAddress?.city && (
+                          <p className="mt-1 text-sm text-red-600">{errors.shippingAddress.city.message}</p>
                         )}
                       </div>
                       <div>
@@ -914,7 +1387,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                         <input
                           type="text"
                           {...register('shippingAddress.postalCode')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                         />
                         {errors.shippingAddress?.postalCode && (
                           <p className="mt-1 text-sm text-red-600">{errors.shippingAddress.postalCode.message}</p>
@@ -924,11 +1397,28 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           {t('common.country', 'Country')}
                         </label>
-                        <input
-                          type="text"
+                        <select
                           {...register('shippingAddress.country')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
-                        />
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          disabled={countriesQuery.isLoading}
+                        >
+                          <option value="">{t('fulfillments.select_country', 'Select country')}</option>
+                          {countryOptions.map((country) => (
+                            <option key={country.id} value={country.id}>
+                              {country.name}
+                            </option>
+                          ))}
+                        </select>
+                        {countriesQuery.isLoading && (
+                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {t('common.loading', 'Loading...')}
+                          </p>
+                        )}
+                        {!countriesQuery.isLoading && countryOptions.length === 0 && (
+                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {t('fulfillments.no_country_results', 'No countries available.')}
+                          </p>
+                        )}
                         {errors.shippingAddress?.country && (
                           <p className="mt-1 text-sm text-red-600">{errors.shippingAddress.country.message}</p>
                         )}
@@ -942,8 +1432,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                     </label>
                     <input
                       type="checkbox"
-                      checked={includePickupAddress}
-                      onChange={(event) => setValue('includePickupAddress', event.target.checked)}
+                      {...register('includePickupAddress')}
                       className="h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                     />
                   </div>
@@ -957,7 +1446,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                         <input
                           type="text"
                           {...register('pickupAddress.firstName')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                         />
                         {errors.pickupAddress?.firstName && (
                           <p className="mt-1 text-sm text-red-600">{errors.pickupAddress.firstName.message}</p>
@@ -970,7 +1459,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                         <input
                           type="text"
                           {...register('pickupAddress.lastName')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                         />
                         {errors.pickupAddress?.lastName && (
                           <p className="mt-1 text-sm text-red-600">{errors.pickupAddress.lastName.message}</p>
@@ -983,7 +1472,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                         <input
                           type="text"
                           {...register('pickupAddress.company')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                         />
                       </div>
                       <div>
@@ -993,7 +1482,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                         <input
                           type="text"
                           {...register('pickupAddress.address1')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                         />
                         {errors.pickupAddress?.address1 && (
                           <p className="mt-1 text-sm text-red-600">{errors.pickupAddress.address1.message}</p>
@@ -1006,33 +1495,67 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                         <input
                           type="text"
                           {...register('pickupAddress.address2')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                         />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          {t('common.city', 'City')}
-                        </label>
-                        <input
-                          type="text"
-                          {...register('pickupAddress.city')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
-                        />
-                        {errors.pickupAddress?.city && (
-                          <p className="mt-1 text-sm text-red-600">{errors.pickupAddress.city.message}</p>
-                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           {t('common.state', 'State / Province')}
                         </label>
-                        <input
-                          type="text"
+                        <select
                           {...register('pickupAddress.state')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
-                        />
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          disabled={!pickupCountryId || pickupProvincesQuery.isLoading}
+                        >
+                          <option value="">{t('fulfillments.select_province', 'Select province / city')}</option>
+                          {pickupProvinceOptions.map((province) => (
+                            <option key={province.id} value={province.id}>
+                              {province.name}
+                            </option>
+                          ))}
+                        </select>
+                        {pickupCountryId && pickupProvincesQuery.isLoading && (
+                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {t('common.loading', 'Loading...')}
+                          </p>
+                        )}
+                        {pickupCountryId && pickupProvinceOptions.length === 0 && !pickupProvincesQuery.isLoading && (
+                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {t('fulfillments.no_province_results', 'No provinces available for the selected country.')}
+                          </p>
+                        )}
                         {errors.pickupAddress?.state && (
                           <p className="mt-1 text-sm text-red-600">{errors.pickupAddress.state.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          {t('common.city', 'City')}
+                        </label>
+                        <select
+                          {...register('pickupAddress.city')}
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          disabled={!pickupProvinceId || pickupWardsQuery.isLoading}
+                        >
+                          <option value="">{t('fulfillments.select_ward', 'Select district / ward')}</option>
+                          {pickupWardOptions.map((ward) => (
+                            <option key={ward.id} value={ward.id}>
+                              {ward.name}
+                            </option>
+                          ))}
+                        </select>
+                        {pickupProvinceId && pickupWardsQuery.isLoading && (
+                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {t('common.loading', 'Loading...')}
+                          </p>
+                        )}
+                        {pickupProvinceId && pickupWardOptions.length === 0 && !pickupWardsQuery.isLoading && (
+                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {t('fulfillments.no_ward_results', 'No districts available for the selected province.')}
+                          </p>
+                        )}
+                        {errors.pickupAddress?.city && (
+                          <p className="mt-1 text-sm text-red-600">{errors.pickupAddress.city.message}</p>
                         )}
                       </div>
                       <div>
@@ -1042,7 +1565,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                         <input
                           type="text"
                           {...register('pickupAddress.postalCode')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                         />
                         {errors.pickupAddress?.postalCode && (
                           <p className="mt-1 text-sm text-red-600">{errors.pickupAddress.postalCode.message}</p>
@@ -1052,11 +1575,28 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           {t('common.country', 'Country')}
                         </label>
-                        <input
-                          type="text"
+                        <select
                           {...register('pickupAddress.country')}
-                          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
-                        />
+                          className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                          disabled={countriesQuery.isLoading}
+                        >
+                          <option value="">{t('fulfillments.select_country', 'Select country')}</option>
+                          {countryOptions.map((country) => (
+                            <option key={country.id} value={country.id}>
+                              {country.name}
+                            </option>
+                          ))}
+                        </select>
+                        {countriesQuery.isLoading && (
+                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {t('common.loading', 'Loading...')}
+                          </p>
+                        )}
+                        {!countriesQuery.isLoading && countryOptions.length === 0 && (
+                          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {t('fulfillments.no_country_results', 'No countries available.')}
+                          </p>
+                        )}
                         {errors.pickupAddress?.country && (
                           <p className="mt-1 text-sm text-red-600">{errors.pickupAddress.country.message}</p>
                         )}
@@ -1066,7 +1606,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                 </div>
               </div>
 
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm">
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
                 <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-primary-600">
                     <FiSettings className="h-5 w-5" />
@@ -1088,7 +1628,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                       </label>
                       <select
                         {...register('priorityLevel')}
-                        className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                        className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                       >
                         {PRIORITY_LEVELS.map((level) => (
                           <option key={level.value} value={level.value ?? ''}>
@@ -1104,7 +1644,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                       </label>
                       <select
                         {...register('shippingProviderId')}
-                        className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                        className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                       >
                         <option value="">{t('fulfillments.choose_provider', 'Select a provider (optional)')}</option>
                         {shippingProviders.map((provider) => (
@@ -1121,7 +1661,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                       </label>
                       <select
                         {...register('packagingType')}
-                        className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                        className="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                       >
                         <option value="">{t('fulfillments.choose_packaging', 'Select packaging (optional)')}</option>
                         {PACKAGING_TYPES.map((type) => (
@@ -1132,19 +1672,21 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
                       </select>
                     </div>
 
-                    <div className="flex items-center gap-3 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                      <input
-                        type="checkbox"
-                        {...register('signatureRequired')}
-                        className="h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                      />
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {t('fulfillments.signature_required', 'Signature required on delivery')}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {t('fulfillments.signature_required_description', 'Recipient must sign to confirm delivery.')}
-                        </p>
+                    <div className="md:col-span-2">
+                      <div className="flex items-center gap-3 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+                        <input
+                          type="checkbox"
+                          {...register('signatureRequired')}
+                          className="h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {t('fulfillments.signature_required', 'Signature required on delivery')}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {t('fulfillments.signature_required_description', 'Recipient must sign to confirm delivery.')}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1194,7 +1736,7 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm">
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
               <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-primary-600">
                   <FiInfo className="h-5 w-5" />

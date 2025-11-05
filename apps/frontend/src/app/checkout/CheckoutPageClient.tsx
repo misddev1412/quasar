@@ -11,9 +11,10 @@ import CheckoutForm, {
 import { useCart } from '../../contexts/CartContext';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslations } from 'next-intl';
-import { trpc } from '../../utils/trpc';
+import { trpc, trpcClient } from '../../utils/trpc';
 import { useAuth } from '../../contexts/AuthContext';
 import PageBreadcrumbs from '../../components/common/PageBreadcrumbs';
+import type { Product, ProductVariant } from '../../types/product';
 
 const currencySymbolMap: Record<string, string> = {
   USD: '$',
@@ -34,13 +35,23 @@ function getCurrencySymbol(currency?: string): string {
   return currencySymbolMap[upper] || (upper.length <= 3 ? upper : '$');
 }
 
+const normalizeCurrencyValue = (value: number | null | undefined) => {
+  if (!Number.isFinite(Number(value))) {
+    return 0;
+  }
+
+  const numericValue = Number(value);
+  return Math.round((numericValue + Number.EPSILON) * 100) / 100;
+};
+
 const CheckoutPageClient = () => {
   const router = useRouter();
   const t = useTranslations('ecommerce.checkout');
   const { showToast } = useToast();
   const { items, summary, validation, clearCart } = useCart();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const { mutateAsync: placeOrder, isPending: isSubmitting } = trpc.clientOrders.create.useMutation();
+  const [isPreparingOrder, setIsPreparingOrder] = useState(false);
 
   const addressesQuery = trpc.clientAddressBook.getAddresses.useQuery(undefined, {
     staleTime: 5 * 60 * 1000,
@@ -65,6 +76,34 @@ const CheckoutPageClient = () => {
     if (Array.isArray((raw as any).data)) return (raw as any).data as CheckoutCountry[];
     return [] as CheckoutCountry[];
   }, [countriesQuery.data]);
+
+  const fetchLatestProductSnapshots = useCallback(async () => {
+    const uniqueProductIds = Array.from(
+      new Set(items.map((item) => item.product?.id).filter((productId): productId is string => Boolean(productId)))
+    );
+
+    if (uniqueProductIds.length === 0) {
+      return new Map<string, Product>();
+    }
+
+    const productMap = new Map<string, Product>();
+
+    await Promise.all(
+      uniqueProductIds.map(async (productId) => {
+        try {
+          const response = await trpcClient.clientProducts.getProductById.query({ id: productId });
+          const productData = (response as any)?.data?.product ?? (response as any)?.product;
+          if (productData) {
+            productMap.set(productId, productData as Product);
+          }
+        } catch (error) {
+          console.error('Failed to refresh product snapshot for checkout', productId, error);
+        }
+      })
+    );
+
+    return productMap;
+  }, [items]);
 
   const hasCartIssues = validation.errors.length > 0 || validation.warnings.length > 0;
 
@@ -95,19 +134,173 @@ const CheckoutPageClient = () => {
         return;
       }
 
-      setIsSubmitting(true);
+      const selectBillingAddress = data.billingAddressSameAsShipping
+        ? data.shippingAddress
+        : data.billingAddress ?? data.shippingAddress;
+
+      const formatAddress = (address: CheckoutFormData['shippingAddress']) => ({
+        firstName: address.firstName,
+        lastName: address.lastName,
+        company: address.company || undefined,
+        address1: address.address1,
+        address2: address.address2 || undefined,
+        city: address.city,
+        state: address.state,
+        postalCode: address.postalCode || undefined,
+        country: address.country,
+        phone: address.phone || undefined,
+      });
+
+      const paymentMethodPayload = {
+        type: data.paymentMethod.type,
+        cardholderName: data.paymentMethod.cardholderName?.trim() || undefined,
+        last4: data.paymentMethod.cardNumber ? data.paymentMethod.cardNumber.slice(-4) : undefined,
+        provider: data.paymentMethod.type,
+        reference:
+          data.paymentMethod.type === 'paypal'
+            ? data.paymentMethod.paypalEmail || undefined
+            : data.paymentMethod.type === 'bank_transfer'
+              ? data.paymentMethod.bankAccountNumber
+                ? data.paymentMethod.bankAccountNumber.slice(-4)
+                : undefined
+            : data.paymentMethod.type === 'cash_on_delivery'
+              ? 'COD'
+              : undefined,
+      };
+
       try {
-        // TODO: Replace with real checkout API integration
-        await new Promise((resolve) => setTimeout(resolve, 1200));
+        setIsPreparingOrder(true);
+
+        const productSnapshots = await fetchLatestProductSnapshots();
+
+        const deriveVariantAttributes = (variant?: ProductVariant | null) => {
+          if (!variant || !Array.isArray(variant.variantItems) || variant.variantItems.length === 0) {
+            return undefined;
+          }
+
+          const attributes: Record<string, string> = {};
+
+          variant.variantItems?.forEach((variantItem) => {
+            const key =
+              variantItem.attribute?.displayName ||
+              variantItem.attribute?.name ||
+              variantItem.attributeId ||
+              null;
+            const value =
+              variantItem.attributeValue?.displayValue ||
+              variantItem.attributeValue?.value ||
+              null;
+
+            if (key && value) {
+              attributes[String(key)] = String(value);
+            }
+          });
+
+          return Object.keys(attributes).length > 0 ? attributes : undefined;
+        };
+
+        const normalizedItems = items.map((item) => {
+          const latestProduct = productSnapshots.get(item.product.id);
+          const latestVariant =
+            item.variant?.id && latestProduct?.variants
+              ? latestProduct.variants.find((variant) => variant.id === item.variant?.id)
+              : undefined;
+
+          const resolvedVariant = (latestVariant ?? item.variant) as ProductVariant | undefined;
+          const resolvedProductName = latestProduct?.name ?? item.product.name ?? 'Unknown product';
+          const resolvedProductSku = latestProduct?.sku ?? item.product.sku ?? resolvedVariant?.sku ?? undefined;
+          const resolvedVariantName = resolvedVariant?.name ?? item.variant?.name ?? undefined;
+          const resolvedVariantSku = resolvedVariant?.sku ?? item.variant?.sku ?? undefined;
+          const resolvedImage =
+            resolvedVariant?.image ??
+            latestProduct?.primaryImage ??
+            latestProduct?.imageUrls?.[0] ??
+            item.variant?.image ??
+            (Array.isArray(item.product.images) ? item.product.images[0] : undefined) ??
+            undefined;
+
+          const unitPriceCandidate = resolvedVariant?.price ?? latestProduct?.price ?? item.unitPrice;
+          const resolvedUnitPrice = Number.isFinite(Number(unitPriceCandidate))
+            ? Number(unitPriceCandidate)
+            : item.unitPrice;
+
+          const productAttributes = deriveVariantAttributes(resolvedVariant);
+
+          return {
+            productId: item.product.id,
+            productVariantId: item.variant?.id,
+            quantity: item.quantity,
+            unitPrice: resolvedUnitPrice,
+            productName: resolvedProductName,
+            productSku: resolvedProductSku,
+            variantName: resolvedVariantName,
+            variantSku: resolvedVariantSku,
+            productImage: resolvedImage,
+            productAttributes: productAttributes ?? undefined,
+          };
+        });
+
+        const payload = {
+          email: data.email,
+          shippingAddress: formatAddress(data.shippingAddress),
+          billingAddress: formatAddress(selectBillingAddress),
+          shippingMethodId: data.shippingMethod || undefined,
+          paymentMethod: paymentMethodPayload,
+          orderNotes: data.orderNotes?.trim() || undefined,
+          agreeToMarketing: data.agreeToMarketing,
+          items: normalizedItems,
+          totals: {
+            subtotal: normalizeCurrencyValue(summary.totals.subtotal),
+            taxAmount: normalizeCurrencyValue(summary.totals.tax),
+            shippingCost: normalizeCurrencyValue(summary.totals.shipping),
+            discountAmount: normalizeCurrencyValue(summary.totals.discount),
+            totalAmount: normalizeCurrencyValue(summary.totals.total),
+            currency: summary.totals.currency,
+          },
+        };
+
+        const response = await placeOrder(payload);
+        const responseData = (response as any)?.data ?? response;
+        const orderData = responseData?.order ?? responseData;
+
+        const orderNumber = orderData?.orderNumber ?? orderData?.order_number;
+        const orderId = orderData?.id ?? orderData?.orderId ?? orderData?.order_id;
+        const queryParams = new URLSearchParams();
+
+        if (orderId) {
+          queryParams.set('orderId', String(orderId));
+        }
+        if (orderNumber) {
+          queryParams.set('orderNumber', String(orderNumber));
+        }
+        if (data.email) {
+          queryParams.set('email', data.email.trim());
+        }
+        const rawTotal = orderData?.totalAmount;
+        const totalAmountCandidate = Number.isFinite(Number(rawTotal)) ? Number(rawTotal) : summary.totals.total;
+        const totalAmount = normalizeCurrencyValue(totalAmountCandidate);
+        const currency = orderData?.currency ?? summary.totals.currency;
+
+        if (Number.isFinite(totalAmount)) {
+          queryParams.set('total', String(totalAmount));
+        }
+        if (currency) {
+          queryParams.set('currency', currency);
+        }
 
         showToast({
           type: 'success',
           title: t('toast.success.title'),
-          message: t('toast.success.message'),
+          message: orderNumber
+            ? `${t('toast.success.message')} (#${orderNumber})`
+            : t('toast.success.message'),
         });
 
         await clearCart();
-        router.push('/profile/orders');
+        const successPath = queryParams.toString()
+          ? `/checkout/success?${queryParams.toString()}`
+          : '/checkout/success';
+        router.push(successPath);
       } catch (error) {
         console.error('Checkout submission failed', error);
         showToast({
@@ -116,10 +309,26 @@ const CheckoutPageClient = () => {
           message: t('toast.error.message'),
         });
       } finally {
-        setIsSubmitting(false);
+        setIsPreparingOrder(false);
       }
     },
-    [clearCart, router, showToast, summary.isEmpty, t, validation.errors.length]
+    [
+      fetchLatestProductSnapshots,
+      clearCart,
+      placeOrder,
+      items,
+      router,
+      showToast,
+      summary.isEmpty,
+      summary.totals.currency,
+      summary.totals.discount,
+      summary.totals.shipping,
+      summary.totals.subtotal,
+      summary.totals.tax,
+      summary.totals.total,
+      t,
+      validation.errors.length,
+    ]
   );
 
   const renderEmptyState = () => (
@@ -195,11 +404,15 @@ const CheckoutPageClient = () => {
               tax={summary.totals.tax}
               total={summary.totals.total}
               onSubmit={handleCheckoutSubmit}
-              loading={isSubmitting}
-              currency={currencySymbol}
-              savedAddresses={savedAddresses}
-              countries={availableCountries}
-            />
+              loading={isSubmitting || isPreparingOrder}
+          currency={currencySymbol}
+          savedAddresses={savedAddresses}
+          countries={availableCountries}
+          isAuthenticated={isAuthenticated}
+          authLoading={authLoading}
+          userEmail={user?.email}
+          userName={user?.name}
+        />
           )}
         </div>
       </section>

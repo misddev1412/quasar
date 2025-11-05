@@ -28,6 +28,87 @@ import { Dropdown } from '../../components/common/Dropdown';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
+import type { AdministrativeDivisionType } from '../../../../backend/src/modules/products/entities/administrative-division.entity';
+
+const formatAmount = (value: unknown) => {
+  const numericValue = typeof value === 'number'
+    ? value
+    : typeof value === 'string'
+      ? Number(value)
+      : 0;
+
+  if (!Number.isFinite(numericValue)) {
+    return '0.00';
+  }
+
+  return numericValue.toFixed(2);
+};
+
+type OrderAddress = {
+  city?: string | null;
+  state?: string | null;
+  postalCode?: string | null;
+  country?: string | null;
+};
+
+const useAdministrativeDivisionNames = (address?: OrderAddress | null) => {
+  const countryId = address?.country ?? '';
+  const provinceId = address?.state ?? '';
+  const cityId = address?.city ?? '';
+
+  const provincesQuery = trpc.adminAddressBook.getAdministrativeDivisions.useQuery(
+    { countryId, type: 'PROVINCE' as AdministrativeDivisionType },
+    { enabled: Boolean(countryId) }
+  );
+
+  const wardsQuery = trpc.adminAddressBook.getAdministrativeDivisionsByParentId.useQuery(
+    { parentId: provinceId },
+    { enabled: Boolean(provinceId) }
+  );
+
+  const provinceName = useMemo(() => {
+    if (!provinceId) {
+      return '';
+    }
+
+    const divisions = (provincesQuery.data as { id: string; name: string }[] | undefined) ?? [];
+    const match = divisions.find((division) => division.id === provinceId);
+    return match?.name ?? provinceId;
+  }, [provinceId, provincesQuery.data]);
+
+  const cityName = useMemo(() => {
+    if (!cityId) {
+      return '';
+    }
+
+    const divisions = (wardsQuery.data as { id: string; name: string }[] | undefined) ?? [];
+    const match = divisions.find((division) => division.id === cityId);
+    return match?.name ?? cityId;
+  }, [cityId, wardsQuery.data]);
+
+  return {
+    provinceName,
+    cityName,
+  };
+};
+
+const formatAddressLine = (city?: string, province?: string, postalCode?: string) => {
+  const locationParts = [city, province].filter(
+    (part): part is string => typeof part === 'string' && part.trim().length > 0
+  );
+  const location = locationParts.map((part) => part.trim()).join(', ');
+  const postal = typeof postalCode === 'string' ? postalCode.trim() : postalCode;
+
+  if (!location && !postal) {
+    return '';
+  }
+
+  if (!location) {
+    return postal ?? '';
+  }
+
+  return postal ? `${location} ${postal}` : location;
+};
 
 const OrderDetailPage: React.FC = () => {
   const navigate = useNavigate();
@@ -126,7 +207,28 @@ const OrderDetailPage: React.FC = () => {
     }
   };
 
-  const orderNumber = (orderData as any)?.data?.orderNumber;
+  const order = (orderData as any)?.data;
+
+  const billingDivisions = useAdministrativeDivisionNames(order?.billingAddress);
+  const shippingDivisions = useAdministrativeDivisionNames(order?.shippingAddress);
+
+  const billingAddressLine = order?.billingAddress
+    ? formatAddressLine(
+        billingDivisions.cityName || order.billingAddress.city,
+        billingDivisions.provinceName || order.billingAddress.state,
+        order.billingAddress.postalCode
+      )
+    : '';
+
+  const shippingAddressLine = order?.shippingAddress
+    ? formatAddressLine(
+        shippingDivisions.cityName || order.shippingAddress.city,
+        shippingDivisions.provinceName || order.shippingAddress.state,
+        order.shippingAddress.postalCode
+      )
+    : '';
+
+  const orderNumber = order?.orderNumber;
 
   const breadcrumbs = useMemo(() => ([
     {
@@ -135,7 +237,7 @@ const OrderDetailPage: React.FC = () => {
       icon: <FiHome className="h-4 w-4" />,
     },
     {
-      label: t('orders'),
+      label: t('orders.title'),
       href: '/orders',
       icon: <FiShoppingBag className="h-4 w-4" />,
     },
@@ -160,7 +262,7 @@ const OrderDetailPage: React.FC = () => {
     );
   }
 
-  if (orderError || !orderData || !(orderData as any)?.data) {
+  if (orderError || !orderData || !order) {
     return (
       <BaseLayout
         title={t('order_details')}
@@ -177,8 +279,6 @@ const OrderDetailPage: React.FC = () => {
       </BaseLayout>
     );
   }
-
-  const order = (orderData as any).data;
 
   const actions = [
     {
@@ -211,18 +311,16 @@ const OrderDetailPage: React.FC = () => {
       <div className="space-y-6">
         {/* Order Header */}
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {t('order')} #{order.orderNumber}
-                </h1>
-                <p className="text-gray-600">
-                  {t('placed_on')} {new Date(order.orderDate).toLocaleDateString()}
-                </p>
-              </div>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-4 text-center md:text-left">
+            <div className="space-y-1">
+              <h2 className="text-xl font-semibold text-gray-900">
+                {t('order_details')}
+              </h2>
+              <p className="text-gray-600">
+                {t('placed_on')} {new Date(order.orderDate).toLocaleDateString()}
+              </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-center md:justify-end gap-2">
               <Badge variant={getStatusBadgeVariant(order.status) as any}>
                 {t(`orders.status_types.${order.status}`)}
               </Badge>
@@ -233,7 +331,7 @@ const OrderDetailPage: React.FC = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
             {order.status === 'PROCESSING' && (
               <Button
                 variant="outline"
@@ -333,10 +431,10 @@ const OrderDetailPage: React.FC = () => {
                       </div>
                       <div className="text-right">
                         <div className="font-medium text-gray-900">
-                          {item.quantity} × {order.currency} {item.unitPrice.toFixed(2)}
+                          {item.quantity} × {order.currency} {formatAmount(item.unitPrice)}
                         </div>
                         <div className="text-sm font-semibold text-gray-900">
-                          {order.currency} {item.totalPrice.toFixed(2)}
+                          {order.currency} {formatAmount(item.totalPrice)}
                         </div>
                       </div>
                     </div>
@@ -423,27 +521,27 @@ const OrderDetailPage: React.FC = () => {
               <div className="p-6 space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">{t('subtotal')}</span>
-                  <span className="text-gray-900">{order.currency} {order.subtotal.toFixed(2)}</span>
+                  <span className="text-gray-900">{order.currency} {formatAmount(order.subtotal)}</span>
                 </div>
                 {order.discountAmount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-gray-600">{t('discount')}</span>
-                    <span className="text-green-600">-{order.currency} {order.discountAmount.toFixed(2)}</span>
+                    <span className="text-green-600">-{order.currency} {formatAmount(order.discountAmount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span className="text-gray-600">{t('tax')}</span>
-                  <span className="text-gray-900">{order.currency} {order.taxAmount.toFixed(2)}</span>
+                  <span className="text-gray-900">{order.currency} {formatAmount(order.taxAmount)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">{t('shipping')}</span>
-                  <span className="text-gray-900">{order.currency} {order.shippingCost.toFixed(2)}</span>
+                  <span className="text-gray-900">{order.currency} {formatAmount(order.shippingCost)}</span>
                 </div>
                 <div className="border-t border-gray-200 pt-3">
                   <div className="flex justify-between">
                     <span className="text-lg font-semibold text-gray-900">{t('total')}</span>
                     <span className="text-lg font-semibold text-gray-900">
-                      {order.currency} {order.totalAmount.toFixed(2)}
+                      {order.currency} {formatAmount(order.totalAmount)}
                     </span>
                   </div>
                 </div>
@@ -487,7 +585,7 @@ const OrderDetailPage: React.FC = () => {
                         {order.billingAddress.company && <p>{order.billingAddress.company}</p>}
                         <p>{order.billingAddress.address1}</p>
                         {order.billingAddress.address2 && <p>{order.billingAddress.address2}</p>}
-                        <p>{order.billingAddress.city}, {order.billingAddress.state} {order.billingAddress.postalCode}</p>
+                        {billingAddressLine && <p>{billingAddressLine}</p>}
                         <p>{order.billingAddress.country}</p>
                       </div>
                     </div>
@@ -500,7 +598,7 @@ const OrderDetailPage: React.FC = () => {
                         {order.shippingAddress.company && <p>{order.shippingAddress.company}</p>}
                         <p>{order.shippingAddress.address1}</p>
                         {order.shippingAddress.address2 && <p>{order.shippingAddress.address2}</p>}
-                        <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}</p>
+                        {shippingAddressLine && <p>{shippingAddressLine}</p>}
                         <p>{order.shippingAddress.country}</p>
                       </div>
                     </div>

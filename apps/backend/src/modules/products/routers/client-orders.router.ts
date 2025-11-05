@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '../../shared/services/response.service';
-import { ClientOrderService } from '../services/client-order.service';
+import { ClientOrderService, type CreateClientOrderDto } from '../services/client-order.service';
 import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
 import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
 import { AuthenticatedContext } from '../../../trpc/context';
@@ -20,6 +20,63 @@ const getOrdersQuerySchema = z.object({
 
 const getOrderByIdSchema = z.object({
   id: z.string(),
+});
+
+const checkoutAddressSchema = z.object({
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  company: z.string().optional(),
+  address1: z.string().min(1),
+  address2: z.string().optional(),
+  city: z.string().min(1),
+  state: z.string().min(1),
+  postalCode: z.string().optional(),
+  country: z.string().min(1),
+  phone: z.string().optional(),
+});
+
+const checkoutItemSchema = z.object({
+  productId: z.string(),
+  productVariantId: z.string().optional(),
+  quantity: z.number().min(1),
+  unitPrice: z.number().min(0).optional(),
+  discountAmount: z.number().min(0).optional(),
+  taxAmount: z.number().min(0).optional(),
+  productName: z.string().optional(),
+  productSku: z.string().optional(),
+  variantName: z.string().optional(),
+  variantSku: z.string().optional(),
+  productImage: z.string().optional(),
+  productAttributes: z.record(z.string()).optional(),
+});
+
+const checkoutTotalsSchema = z.object({
+  subtotal: z.number().min(0),
+  taxAmount: z.number().min(0).optional(),
+  shippingCost: z.number().min(0).optional(),
+  discountAmount: z.number().min(0).optional(),
+  totalAmount: z.number().min(0).optional(),
+  currency: z.string().max(3).optional(),
+});
+
+const checkoutPaymentMethodSchema = z.object({
+  type: z.string().min(1),
+  cardholderName: z.string().optional(),
+  last4: z.string().optional(),
+  provider: z.string().optional(),
+  reference: z.string().optional(),
+});
+
+const createClientOrderSchema = z.object({
+  email: z.string().email(),
+  shippingAddress: checkoutAddressSchema,
+  billingAddress: checkoutAddressSchema.optional(),
+  shippingMethodId: z.string().optional(),
+  paymentMethod: checkoutPaymentMethodSchema,
+  orderNotes: z.string().optional(),
+  items: z.array(checkoutItemSchema).min(1),
+  totals: checkoutTotalsSchema.optional(),
+  agreeToMarketing: z.boolean().optional(),
 });
 
 @Router({ alias: 'clientOrders' })
@@ -113,6 +170,49 @@ export class ClientOrdersRouter {
         OperationCode.READ,
         ErrorLevelCode.NOT_FOUND,
         error.message || 'Order not found'
+      );
+    }
+  }
+
+  @Mutation({
+    input: createClientOrderSchema,
+    output: apiResponseSchema,
+  })
+  async create(
+    @Input() input: z.infer<typeof createClientOrderSchema>,
+    @Ctx() ctx: AuthenticatedContext
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const order = await this.orderService.createOrder(input as CreateClientOrderDto, ctx.user?.id);
+
+      const sanitizedOrder = {
+        id: order.id,
+        orderNumber: order.orderNumber,
+        status: order.status,
+        paymentStatus: order.paymentStatus,
+        totalAmount: Number(order.totalAmount ?? 0),
+        currency: order.currency,
+        customerEmail: order.customerEmail,
+        customerName: order.customerName,
+        createdAt:
+          order.createdAt instanceof Date
+            ? order.createdAt.toISOString()
+            : order.createdAt,
+      };
+
+      return this.responseHandler.createTrpcSuccess({
+        order: sanitizedOrder,
+        isGuestCheckout: !ctx.user?.id,
+      });
+    } catch (error) {
+      if (error.statusCode) {
+        throw error;
+      }
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.PRODUCT,
+        OperationCode.CREATE,
+        ErrorLevelCode.BUSINESS_LOGIC_ERROR,
+        error.message || 'Failed to create order'
       );
     }
   }

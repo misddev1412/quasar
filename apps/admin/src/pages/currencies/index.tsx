@@ -15,6 +15,19 @@ import { Currency, CurrencyFiltersType } from '../../types/currency';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { useUrlParams, urlParamValidators } from '../../hooks/useUrlParams';
 
+const normalizeExchangeRate = (value: unknown): number => {
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : Number.NaN;
+  }
+
+  return Number.NaN;
+};
+
 const CurrenciesIndexPage: React.FC = () => {
   const navigate = useNavigate();
   const { addToast } = useToast();
@@ -65,10 +78,10 @@ const CurrenciesIndexPage: React.FC = () => {
     preferences.updateVisibleColumns(columns);
   };
 
-  // tRPC queries - using placeholder for now, will need to implement actual currency routes
-  const currenciesQuery = trpc.adminCurrency.getCurrencies.useQuery(filters);
+  // tRPC queries - using type assertion to resolve TypeScript issues
+  const currenciesQuery = (trpc.adminCurrency as any).getCurrencies.useQuery(filters);
 
-  const deleteCurrencyMutation = trpc.adminCurrency.deleteCurrency.useMutation({
+  const deleteCurrencyMutation = (trpc.adminCurrency as any).deleteCurrency.useMutation({
     onSuccess: () => {
       addToast({
         type: 'success',
@@ -86,7 +99,7 @@ const CurrenciesIndexPage: React.FC = () => {
     },
   });
 
-  const toggleStatusMutation = trpc.adminCurrency.toggleCurrencyStatus.useMutation({
+  const toggleStatusMutation = (trpc.adminCurrency as any).toggleCurrencyStatus.useMutation({
     onSuccess: () => {
       addToast({
         type: 'success',
@@ -103,7 +116,7 @@ const CurrenciesIndexPage: React.FC = () => {
     },
   });
 
-  const setDefaultMutation = trpc.adminCurrency.setDefaultCurrency.useMutation({
+  const setDefaultMutation = (trpc.adminCurrency as any).setDefaultCurrency.useMutation({
     onSuccess: () => {
       addToast({
         type: 'success',
@@ -122,7 +135,21 @@ const CurrenciesIndexPage: React.FC = () => {
 
   // Data processing
   const { data: apiResponse, isLoading, error } = currenciesQuery;
-  const currencies = Array.isArray((apiResponse as any)?.data?.items) ? (apiResponse as any).data.items : [];
+  const currencies: Currency[] = useMemo(() => {
+    const items = Array.isArray((apiResponse as any)?.data?.items)
+      ? (apiResponse as any).data.items
+      : [];
+
+    return items.map((currency: any) => {
+      const rawExchangeRate = currency?.exchangeRate ?? currency?.exchange_rate;
+
+      return {
+        ...currency,
+        exchangeRate: normalizeExchangeRate(rawExchangeRate),
+      } as Currency;
+    });
+  }, [apiResponse]);
+
   const pagination = (apiResponse as any)?.data || {
     page: 1,
     limit: 10,
@@ -217,8 +244,11 @@ const CurrenciesIndexPage: React.FC = () => {
   }, [setDefaultMutation]);
 
   // Table columns
-  const columns: Column<Currency>[] = useMemo(
-    () => [
+  const columns: Column<Currency>[] = useMemo(() => {
+    const formatExchangeRate = (rate: number) =>
+      Number.isFinite(rate) ? rate.toFixed(8) : t('common.notAvailable', 'N/A');
+
+    return [
       {
         id: 'currency',
         header: t('currencies.table.currency'),
@@ -236,7 +266,7 @@ const CurrenciesIndexPage: React.FC = () => {
                 {currency.name}
               </div>
               <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                {currency.code} • Exchange Rate: {currency.exchangeRate}
+                {currency.code} • {t('currencies.table.exchangeRateLabel', 'Exchange Rate')}: {formatExchangeRate(currency.exchangeRate)}
               </div>
             </div>
           </div>
@@ -272,7 +302,7 @@ const CurrenciesIndexPage: React.FC = () => {
         header: t('currencies.table.exchangeRate'),
         accessor: (currency) => (
           <span className="text-gray-900 dark:text-gray-100 font-medium">
-            {currency.exchangeRate.toFixed(8)}
+            {formatExchangeRate(currency.exchangeRate)}
           </span>
         ),
         isSortable: true,
@@ -349,9 +379,8 @@ const CurrenciesIndexPage: React.FC = () => {
         hideable: false, // Actions column should always be visible
         width: '80px',
       },
-    ],
-    [t, navigate, handleToggleStatus, handleSetDefault, handleDelete]
-  );
+    ];
+  }, [t, navigate, handleToggleStatus, handleSetDefault, handleDelete]);
 
   // Actions for BaseLayout
   const actions = useMemo(() => [

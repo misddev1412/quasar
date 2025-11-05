@@ -133,6 +133,7 @@
     "home": "Trang chủ",
     "products": "Sản phẩm",
     "categories": "Danh mục",
+    "currencies": "Quản lý tiền tệ",
     "about": "Giới thiệu",
     "contact": "Liên hệ",
     "login": "Đăng nhập",
@@ -1153,6 +1154,27 @@
           "message": "Hãy xử lý các vấn đề được đánh dấu trước khi đặt hàng."
         }
       },
+      "success": {
+        "badge": "Đơn hàng đã xác nhận",
+        "title": "Cảm ơn bạn đã đặt hàng",
+        "subtitle": "Chúng tôi đã nhận được yêu cầu và đang chuẩn bị gửi đi.",
+        "breadcrumb": "Xác nhận đơn hàng",
+        "heading": "Đơn hàng của bạn đang được xử lý!",
+        "description": "Chúng tôi đã gửi email xác nhận và thông tin theo dõi. Nếu không thấy, vui lòng kiểm tra hộp thư rác.",
+        "description_with_email": "Chúng tôi đã gửi email xác nhận và thông tin theo dõi tới {email}. Nếu không thấy, vui lòng kiểm tra hộp thư rác.",
+        "orderNumber": "Mã đơn hàng",
+        "pendingNumber": "Đang tạo...",
+        "orderId": "Mã tham chiếu: {orderId}",
+        "orderTotal": "Tổng đơn hàng",
+        "pendingTotal": "Sẽ cập nhật sớm",
+        "orderStatus": "Trạng thái: Đang chờ xác nhận",
+        "actions": {
+          "continueShopping": "Tiếp tục mua sắm",
+          "viewOrders": "Xem đơn hàng của tôi",
+          "createAccount": "Đăng ký tài khoản để theo dõi đơn hàng"
+        },
+        "helpText": "Cần hỗ trợ? Chỉ cần trả lời email xác nhận và đội ngũ của chúng tôi sẽ hỗ trợ bạn."
+      },
       "form": {
         "steps": {
           "information": "Thông tin",
@@ -1167,6 +1189,27 @@
           "shippingMethod": "Phương thức giao hàng",
           "orderNotes": "Ghi chú đơn hàng (không bắt buộc)",
           "paymentMethod": "Phương thức thanh toán"
+        },
+        "auth": {
+          "loading": "Đang kiểm tra trạng thái tài khoản…",
+          "loggedIn": {
+            "title": "Bạn đang đăng nhập với tài khoản {name}",
+            "fallbackName": "của bạn",
+            "subtitle": "Chúng tôi sẽ gửi cập nhật đơn hàng đến {email}",
+            "subtitle_no_email": "Chúng tôi sẽ gửi cập nhật đến email tài khoản của bạn"
+          },
+          "guest": {
+            "title": "Muốn thanh toán với tư cách khách vãng lai?",
+            "description": "Bạn có thể hoàn tất đơn hàng mà không cần tạo tài khoản, nhưng đăng nhập giúp theo dõi đơn và lưu địa chỉ nhanh hơn."
+          },
+          "actions": {
+            "login": "Đăng nhập",
+            "register": "Tạo tài khoản"
+          },
+          "loginRequired": {
+            "title": "Vui lòng đăng nhập để tiếp tục",
+            "description": "Bạn cần có tài khoản để hoàn tất thanh toán. Đăng nhập hoặc tạo tài khoản mới để đặt hàng."
+          }
         },
         "fields": {
           "email": {
@@ -1432,6 +1475,7 @@
       "actions": {
         "addToCart": "Thêm vào giỏ",
         "outOfStock": "Hết hàng",
+        "buyNow": "Mua ngay",
         "quickView": "Xem nhanh",
         "selectVariant": "Chọn biến thể",
         "selectedVariant": "Biến thể đã chọn",

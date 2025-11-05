@@ -1,5 +1,4 @@
-import React, { useMemo } from 'react';
-import clsx from 'clsx';
+import React from 'react';
 import { Button, Card, Chip } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { FiHeart, FiHeart as FiHeartOutline } from 'react-icons/fi';
@@ -27,7 +26,7 @@ interface ProductInfoProps {
   onAttributeSelect: (attributeId: string, valueId: string) => void;
   onWishlistToggle: () => void;
   onAddToCart: () => void;
-  onQuickView: () => void;
+  onBuyNow: () => void;
   onScrollToReviews: () => void;
 }
 
@@ -58,7 +57,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   onAttributeSelect,
   onWishlistToggle,
   onAddToCart,
-  onQuickView,
+  onBuyNow,
   onScrollToReviews,
 }) => {
   const t = useTranslations('product.detail');
@@ -94,8 +93,8 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
         </div>
         <Button
           isIconOnly
-          size="lg"
           variant="flat"
+          size="md"
           color={wishlistAdded ? 'danger' : 'default'}
           className="flex-shrink-0"
           onPress={onWishlistToggle}
@@ -164,8 +163,11 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
                     key={attribute.attributeId}
                     attribute={attribute}
                     selectedValue={selectedValue}
-                    disabled={isOptionDisabled(attribute.attributeId, selectedValue)}
+                    disabled={!isActiveStep}
                     isActiveStep={isActiveStep}
+                    isOptionDisabled={(valueId) =>
+                      isOptionDisabled(attribute.attributeId, valueId)
+                    }
                     onSelect={onAttributeSelect}
                   />
                 );
@@ -229,11 +231,10 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
           </div>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <Button
-            size="lg"
             color="primary"
-            className="flex-1 font-semibold py-3"
+            className="flex-1 font-semibold"
             onPress={onAddToCart}
             isDisabled={!inStock || (variantAttributes.length > 0 && !selectedVariant)}
           >
@@ -241,12 +242,12 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
           </Button>
 
           <Button
-            size="lg"
-            variant="bordered"
-            className="flex-1 border border-gray-300 font-semibold py-3"
-            onPress={onQuickView}
+            color="secondary"
+            className="flex-1 font-semibold"
+            onPress={onBuyNow}
+            isDisabled={!inStock || (variantAttributes.length > 0 && !selectedVariant)}
           >
-            {t('actions.quickView')}
+            {t('actions.buyNow')}
           </Button>
         </div>
       </div>

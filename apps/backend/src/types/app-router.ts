@@ -4863,6 +4863,54 @@ export const appRouter = router({
       }),
   }),
 
+  adminCurrency: router({
+    createCurrency: procedure
+      .input(z.object({
+        code: z.string().min(3).max(3),
+        name: z.string().min(2).max(100),
+        symbol: z.string().min(1).max(10),
+        exchangeRate: z.number().positive().optional(),
+        decimalPlaces: z.number().int().min(0).max(8).optional(),
+        format: z.string().min(3).max(30).optional(),
+        isActive: z.boolean().optional(),
+        isDefault: z.boolean().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    getCurrencies: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+        search: z.string().optional(),
+        isActive: z.boolean().optional(),
+        isDefault: z.boolean().optional(),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+    deleteCurrency: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    toggleCurrencyStatus: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    setDefaultCurrency: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
   });
 
 // For nestjs-trpc, the actual router structure is generated at runtime

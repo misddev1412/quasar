@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, LessThan, MoreThan } from 'typeorm';
-import { Order } from '../entities/order.entity';
-import { OrderStatus, PaymentStatus } from '../entities/order.entity';
+import { Repository } from 'typeorm';
+import { Order, OrderStatus, PaymentStatus, OrderSource } from '../entities/order.entity';
 import { Customer } from '../entities/customer.entity';
-import { User } from '../../user/entities/user.entity';
+import { OrderItem } from '../entities/order-item.entity';
+import { OrderRepository } from '../repositories/order.repository';
+import { ProductRepository } from '../repositories/product.repository';
+import { ProductVariantRepository } from '../repositories/product-variant.repository';
+import { DeliveryMethodService } from './delivery-method.service';
 
 export interface OrderFilters {
   page: number;
@@ -28,20 +31,239 @@ export interface PaginatedResult<T> {
   };
 }
 
+export interface ClientOrderAddress {
+  firstName: string;
+  lastName: string;
+  company?: string;
+  address1: string;
+  address2?: string;
+  city: string;
+  state: string;
+  postalCode?: string;
+  country: string;
+  phone?: string;
+}
+
+export interface ClientCheckoutTotals {
+  subtotal: number;
+  taxAmount?: number;
+  shippingCost?: number;
+  discountAmount?: number;
+  totalAmount?: number;
+  currency?: string;
+}
+
+export interface ClientCheckoutPaymentMethod {
+  type: string;
+  cardholderName?: string;
+  last4?: string;
+  provider?: string;
+  reference?: string;
+}
+
+export interface CreateClientOrderItemDto {
+  productId: string;
+  productVariantId?: string;
+  quantity: number;
+  unitPrice?: number;
+  discountAmount?: number;
+  taxAmount?: number;
+  productName?: string;
+  productSku?: string;
+  variantName?: string;
+  variantSku?: string;
+  productImage?: string;
+  productAttributes?: Record<string, string>;
+}
+
+interface EnrichedClientOrderItem extends CreateClientOrderItemDto {
+  unitPrice: number;
+  productName: string;
+  productSku?: string;
+  variantName?: string;
+  variantSku?: string;
+  productImage?: string;
+  weight?: number;
+  dimensions?: string;
+}
+
+export interface CreateClientOrderDto {
+  email: string;
+  shippingAddress: ClientOrderAddress;
+  billingAddress?: ClientOrderAddress;
+  shippingMethodId?: string;
+  paymentMethod: ClientCheckoutPaymentMethod;
+  orderNotes?: string;
+  items: CreateClientOrderItemDto[];
+  totals?: ClientCheckoutTotals;
+  agreeToMarketing?: boolean;
+}
+
 @Injectable()
 export class ClientOrderService {
   constructor(
     @InjectRepository(Order)
-    private readonly orderRepository: Repository<Order>,
+    private readonly orderOrmRepository: Repository<Order>,
     @InjectRepository(Customer)
-    private readonly customerRepository: Repository<Customer>,
+    private readonly customerOrmRepository: Repository<Customer>,
+    private readonly orderRepository: OrderRepository,
+    private readonly productRepository: ProductRepository,
+    private readonly productVariantRepository: ProductVariantRepository,
+    private readonly deliveryMethodService: DeliveryMethodService,
   ) {}
+
+  private mapOrderAddress(address?: ClientOrderAddress | null) {
+    if (!address) {
+      return undefined;
+    }
+
+    return {
+      firstName: address.firstName?.trim() ?? '',
+      lastName: address.lastName?.trim() ?? '',
+      company: address.company?.trim() || undefined,
+      address1: address.address1?.trim() ?? '',
+      address2: address.address2?.trim() || undefined,
+      city: address.city?.trim() ?? '',
+      state: address.state?.trim() ?? '',
+      postalCode: address.postalCode?.trim() ?? '',
+      country: address.country?.trim() ?? '',
+    };
+  }
+
+  private buildVariantAttributes(variant?: any): Record<string, string> | undefined {
+    if (!variant?.variantItems || !Array.isArray(variant.variantItems)) {
+      return undefined;
+    }
+
+    const attributes: Record<string, string> = {};
+
+    for (const variantItem of variant.variantItems) {
+      const key =
+        variantItem?.attribute?.displayName ||
+        variantItem?.attribute?.name ||
+        variantItem?.attributeId ||
+        null;
+      const value =
+        variantItem?.attributeValue?.displayValue ||
+        variantItem?.attributeValue?.value ||
+        variantItem?.attributeValueId ||
+        null;
+
+      if (key && value) {
+        attributes[String(key)] = String(value);
+      }
+    }
+
+    return Object.keys(attributes).length > 0 ? attributes : undefined;
+  }
+
+  private async enrichOrderItem(item: CreateClientOrderItemDto): Promise<EnrichedClientOrderItem> {
+    const quantity = Number(item.quantity);
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      throw new Error('Invalid quantity for order item');
+    }
+
+    if (item.productVariantId) {
+      const variant = await this.productVariantRepository.findById(item.productVariantId, [
+        'product',
+        'product.media',
+        'variantItems',
+        'variantItems.attribute',
+        'variantItems.attributeValue',
+      ]);
+      if (!variant) {
+        throw new Error(`Product variant with ID ${item.productVariantId} not found`);
+      }
+
+      if (!variant.isActive || !variant.canPurchase) {
+        throw new Error(`Product variant ${item.productVariantId} is not available for purchase`);
+      }
+
+      const parentProduct = variant.product;
+      const unitPrice = Number.isFinite(Number(variant.price))
+        ? Number(variant.price)
+        : Number(item.unitPrice ?? 0);
+      const productName = parentProduct?.name ?? item.productName ?? 'Unknown product';
+      const productSku = parentProduct?.sku ?? variant.sku ?? item.productSku ?? undefined;
+      const variantName = variant.name ?? item.variantName ?? undefined;
+      const variantSku = variant.sku ?? item.variantSku ?? undefined;
+      const productImage =
+        variant.image ||
+        (Array.isArray(parentProduct?.media) ? parentProduct?.media?.find((media) => media.isPrimary)?.url : undefined) ||
+        (Array.isArray(parentProduct?.media) ? parentProduct?.media?.[0]?.url : undefined) ||
+        item.productImage;
+      const productAttributes = this.buildVariantAttributes(variant);
+
+      if (Number.isFinite(Number(item.unitPrice)) && Number(item.unitPrice) !== unitPrice) {
+        console.warn(
+          `Checkout price mismatch detected for variant ${item.productVariantId}: payload=${item.unitPrice}, actual=${unitPrice}`
+        );
+      }
+
+      return {
+        ...item,
+        unitPrice,
+        productName,
+        productSku,
+        variantName,
+        variantSku,
+        productImage,
+        productAttributes,
+        weight: variant.weight ?? undefined,
+        dimensions: variant.dimensions ?? undefined,
+      };
+    }
+
+    const product = await this.productRepository.findById(item.productId, [
+      'media',
+      'variants',
+    ]);
+    if (!product) {
+      throw new Error(`Product with ID ${item.productId} not found`);
+    }
+
+    const availableVariant = product.variants?.find(variant => variant.isActive && variant.canPurchase)
+      ?? product.variants?.[0];
+
+    const resolvedVariantPrice = Number.isFinite(Number(availableVariant?.price))
+      ? Number(availableVariant?.price)
+      : undefined;
+    const unitPrice = resolvedVariantPrice ?? Number(item.unitPrice ?? 0);
+    const productSku = product.sku ?? availableVariant?.sku ?? item.productSku ?? undefined;
+    const productName = product.name ?? item.productName ?? 'Unknown product';
+    const variantName = availableVariant?.name ?? item.variantName ?? undefined;
+    const variantSku = availableVariant?.sku ?? item.variantSku ?? undefined;
+    const productImage =
+      (Array.isArray(product.media) ? product.media.find((media) => media.isPrimary)?.url : undefined) ||
+      (Array.isArray(product.media) ? product.media[0]?.url : undefined) ||
+      item.productImage;
+    const productAttributes = this.buildVariantAttributes(availableVariant);
+
+    if (Number.isFinite(Number(item.unitPrice)) && Number(item.unitPrice) !== unitPrice) {
+      console.warn(
+        `Checkout price mismatch detected for product ${item.productId}: payload=${item.unitPrice}, actual=${unitPrice}`
+      );
+    }
+
+    return {
+      ...item,
+      unitPrice,
+      productName,
+      productSku,
+      variantName,
+      variantSku,
+      productImage,
+      productAttributes,
+      weight: availableVariant?.weight ?? undefined,
+      dimensions: availableVariant?.dimensions ?? undefined,
+    };
+  }
 
   async getUserOrders(filters: OrderFilters): Promise<PaginatedResult<Order>> {
     const { page, limit, status, paymentStatus, sortBy, sortOrder, userId, startDate, endDate } = filters;
 
     // Find customer associated with the user
-    const customer = await this.customerRepository.findOne({
+    const customer = await this.customerOrmRepository.findOne({
       where: { userId },
       relations: ['orders'],
     });
@@ -58,7 +280,7 @@ export class ClientOrderService {
       };
     }
 
-    const queryBuilder = this.orderRepository.createQueryBuilder('order')
+    const queryBuilder = this.orderOrmRepository.createQueryBuilder('order')
       .leftJoinAndSelect('order.items', 'items')
       .leftJoinAndSelect('items.product', 'product')
       .where('order.customerId = :customerId', { customerId: customer.id });
@@ -115,7 +337,7 @@ export class ClientOrderService {
 
   async getOrderById(orderId: string, userId: string): Promise<Order | null> {
     // Find customer associated with the user
-    const customer = await this.customerRepository.findOne({
+    const customer = await this.customerOrmRepository.findOne({
       where: { userId },
     });
 
@@ -123,7 +345,7 @@ export class ClientOrderService {
       return null;
     }
 
-    const order = await this.orderRepository.findOne({
+    const order = await this.orderOrmRepository.findOne({
       where: {
         id: orderId,
         customerId: customer.id,
@@ -136,7 +358,7 @@ export class ClientOrderService {
 
   async cancelOrder(orderId: string, userId: string, reason: string): Promise<void> {
     // Find customer associated with the user
-    const customer = await this.customerRepository.findOne({
+    const customer = await this.customerOrmRepository.findOne({
       where: { userId },
     });
 
@@ -144,7 +366,7 @@ export class ClientOrderService {
       throw new Error('Customer not found');
     }
 
-    const order = await this.orderRepository.findOne({
+    const order = await this.orderOrmRepository.findOne({
       where: {
         id: orderId,
         customerId: customer.id,
@@ -166,7 +388,155 @@ export class ClientOrderService {
     order.cancelledReason = reason;
     order.internalNotes = (order.internalNotes || '') + `\n\nCancelled by customer: ${reason}`;
 
-    await this.orderRepository.save(order);
+    await this.orderOrmRepository.save(order);
+  }
+
+  async createOrder(payload: CreateClientOrderDto, userId?: string): Promise<Order> {
+    if (!payload?.items || payload.items.length === 0) {
+      throw new Error('Order must contain at least one item');
+    }
+
+    if (!payload.shippingAddress) {
+      throw new Error('Shipping address is required');
+    }
+
+    const sanitizedEmail = payload.email?.trim();
+    if (!sanitizedEmail) {
+      throw new Error('A valid email is required to place an order');
+    }
+
+    const shippingAddress = payload.shippingAddress;
+    const billingAddress = payload.billingAddress ?? payload.shippingAddress;
+
+    const enrichedItems = await Promise.all(payload.items.map(item => this.enrichOrderItem(item)));
+
+    const totalsInput = payload.totals ?? { subtotal: 0 };
+
+    const subtotal = enrichedItems.reduce((sum, item) => sum + Number(item.unitPrice) * Number(item.quantity), 0);
+    const discountAmount = totalsInput.discountAmount ?? enrichedItems.reduce((sum, item) => sum + Number(item.discountAmount ?? 0), 0);
+    const taxAmount = totalsInput.taxAmount ?? enrichedItems.reduce((sum, item) => sum + Number(item.taxAmount ?? 0), 0);
+
+    let shippingCost = totalsInput.shippingCost ?? 0;
+    let shippingMethodLabel: string | undefined;
+
+    if (payload.shippingMethodId) {
+      try {
+        const deliveryMethod = await this.deliveryMethodService.findById(payload.shippingMethodId);
+        shippingCost = deliveryMethod.deliveryCost ?? shippingCost;
+        shippingMethodLabel = deliveryMethod.name ?? payload.shippingMethodId;
+      } catch (error) {
+        shippingMethodLabel = payload.shippingMethodId;
+      }
+    }
+
+    const computedTotal = subtotal + shippingCost + taxAmount - discountAmount;
+    const totalAmount = totalsInput.totalAmount ?? Math.max(0, computedTotal);
+    const currency = totalsInput.currency ?? 'USD';
+
+    const orderNumber = await this.orderRepository.generateOrderNumber();
+    const customerDisplayName = `${shippingAddress.firstName ?? ''} ${shippingAddress.lastName ?? ''}`.trim();
+
+    return this.orderOrmRepository.manager.transaction(async (manager) => {
+      const customerRepository = manager.getRepository(Customer);
+      const orderRepository = manager.getRepository(Order);
+      const orderItemRepository = manager.getRepository(OrderItem);
+
+      let customer: Customer | null = null;
+
+      if (userId) {
+        customer = await customerRepository.findOne({ where: { userId } });
+      }
+
+      if (!customer) {
+        customer = await customerRepository.findOne({ where: { email: sanitizedEmail } });
+      }
+
+      if (!customer) {
+        customer = customerRepository.create({
+          userId: userId ?? null,
+          email: sanitizedEmail,
+          firstName: shippingAddress.firstName,
+          lastName: shippingAddress.lastName,
+          phone: shippingAddress.phone,
+          marketingConsent: Boolean(payload.agreeToMarketing),
+          defaultShippingAddress: this.mapOrderAddress(shippingAddress),
+          defaultBillingAddress: this.mapOrderAddress(billingAddress),
+        });
+      } else {
+        if (userId && !customer.userId) {
+          customer.userId = userId;
+        }
+        customer.email = sanitizedEmail;
+        customer.firstName = customer.firstName ?? shippingAddress.firstName;
+        customer.lastName = customer.lastName ?? shippingAddress.lastName;
+        customer.phone = shippingAddress.phone ?? customer.phone;
+        if (payload.agreeToMarketing !== undefined) {
+          customer.marketingConsent = payload.agreeToMarketing;
+        }
+        customer.defaultShippingAddress = this.mapOrderAddress(shippingAddress);
+        customer.defaultBillingAddress = this.mapOrderAddress(billingAddress);
+      }
+
+      customer = await customerRepository.save(customer);
+
+      const orderEntity = orderRepository.create({
+        orderNumber,
+        customerId: customer.id,
+        customerEmail: sanitizedEmail,
+        customerPhone: shippingAddress.phone,
+        customerName: customerDisplayName || sanitizedEmail,
+        source: OrderSource.WEBSITE,
+        status: OrderStatus.PENDING,
+        paymentStatus: PaymentStatus.PENDING,
+        orderDate: new Date(),
+        subtotal,
+        taxAmount,
+        shippingCost,
+        discountAmount,
+        totalAmount,
+        currency,
+        billingAddress: this.mapOrderAddress(billingAddress),
+        shippingAddress: this.mapOrderAddress(shippingAddress),
+        paymentMethod: payload.paymentMethod?.type ?? 'unknown',
+        paymentReference: payload.paymentMethod?.reference ?? payload.paymentMethod?.last4 ?? null,
+        shippingMethod: shippingMethodLabel,
+        notes: payload.orderNotes,
+        customerNotes: payload.orderNotes,
+      });
+
+      const savedOrder = await orderRepository.save(orderEntity);
+
+      for (const [index, item] of enrichedItems.entries()) {
+        const orderItem = orderItemRepository.create({
+          orderId: savedOrder.id,
+          productId: item.productId,
+          productVariantId: item.productVariantId,
+          productName: item.productName,
+          productSku: item.productSku,
+          variantName: item.variantName,
+          variantSku: item.variantSku,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          totalPrice: Number(item.unitPrice) * Number(item.quantity),
+          discountAmount: item.discountAmount ?? 0,
+          taxAmount: item.taxAmount ?? 0,
+          productImage: item.productImage,
+          productAttributes: item.productAttributes,
+          requiresShipping: true,
+          sortOrder: index,
+        });
+
+        await orderItemRepository.save(orderItem);
+      }
+
+      customer.updateOrderStats(Number(totalAmount));
+      await customerRepository.save(customer);
+
+      return orderRepository.findOne({
+        where: { id: savedOrder.id },
+        relations: ['items'],
+      }) as Promise<Order>;
+    });
   }
 
   async getOrderStats(userId: string): Promise<{
@@ -178,7 +548,7 @@ export class ClientOrderService {
     averageOrderValue: number;
   }> {
     // Find customer associated with the user
-    const customer = await this.customerRepository.findOne({
+    const customer = await this.customerOrmRepository.findOne({
       where: { userId },
     });
 
@@ -193,7 +563,7 @@ export class ClientOrderService {
       };
     }
 
-    const orders = await this.orderRepository.find({
+    const orders = await this.orderOrmRepository.find({
       where: { customerId: customer.id },
     });
 

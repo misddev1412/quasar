@@ -9,8 +9,8 @@ export interface CreateShippingProviderDto {
   code: string;
   website?: string;
   trackingUrl?: string;
-  apiKey?: string;
-  apiSecret?: string;
+  apiKey?: string | null;
+  apiSecret?: string | null;
   deliveryTimeEstimate?: number;
   description?: string;
   contactInfo?: {
@@ -35,8 +35,8 @@ export interface UpdateShippingProviderDto {
   name?: string;
   website?: string;
   trackingUrl?: string;
-  apiKey?: string;
-  apiSecret?: string;
+  apiKey?: string | null;
+  apiSecret?: string | null;
   deliveryTimeEstimate?: number;
   description?: string;
   contactInfo?: {

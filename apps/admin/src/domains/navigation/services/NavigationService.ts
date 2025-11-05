@@ -28,7 +28,6 @@ import TuneIcon from '@mui/icons-material/Tune';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PersonIcon from '@mui/icons-material/Person';
 import PaymentIcon from '@mui/icons-material/Payment';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PackageIcon from '@mui/icons-material/Inventory';
 import ImageIcon from '@mui/icons-material/Image';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
@@ -38,6 +37,7 @@ import WarehouseIcon from '@mui/icons-material/Store';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PolicyIcon from '@mui/icons-material/Policy';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 
 export class NavigationService implements INavigationService {
   constructor(private translate: (key: string, fallback?: string) => string) {}
@@ -253,13 +253,18 @@ export class NavigationService implements INavigationService {
         items: [
           {
             icon: React.createElement(PublicIcon),
-            label: t('languages.languages', '语言管理'),
+            label: t('languages.languages'),
             path: '/languages'
           },
           {
             icon: React.createElement(AttachMoneyIcon),
-            label: t('currencies.currencies', '货币管理'),
+            label: t('currencies.currencies'),
             path: '/currencies'
+          },
+          {
+            icon: React.createElement(LocalShippingIcon),
+            label: t('shippingProviders.shippingProviders'),
+            path: '/shipping-providers'
           },
           {
             icon: React.createElement(StorageIcon),
@@ -371,12 +376,19 @@ export class NavigationService implements INavigationService {
              !!currentPath.match(/^\/customers\/[^\/]+$/);
     }
 
+    // Special handling for shipping providers - main /shipping-providers should match detail/edit/create
+    if (path === '/shipping-providers') {
+      return currentPath === '/shipping-providers' ||
+             currentPath.startsWith('/shipping-providers/create') ||
+             !!currentPath.match(/^\/shipping-providers\/[^\/]+$/);
+    }
+
     // Products sub-pages should only match exactly or their own sub-paths
     if (path.startsWith('/products/') && path !== '/products') {
       return currentPath === path || currentPath.startsWith(path + '/');
     }
 
-    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/warehouses', '/warehouses/locations'];
+    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/warehouses', '/warehouses/locations'];
     if (exactMatchPaths.includes(path)) {
       return currentPath === path;
     }
