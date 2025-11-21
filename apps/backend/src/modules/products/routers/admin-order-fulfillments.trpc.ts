@@ -53,6 +53,10 @@ const listFulfillmentsInputSchema = z.object({
   orderId: z.string().optional(),
 });
 
+const checkFulfillmentEligibilityInputSchema = z.object({
+  orderIds: z.array(z.string().uuid()).min(1).max(50),
+});
+
 const fulfillmentIdSchema = z.object({
   id: z.string().uuid(),
 });
@@ -190,6 +194,30 @@ export class AdminOrderFulfillmentsRouter {
         OperationCode.READ,
         this.mapErrorLevel(error),
         this.extractErrorMessage(error, 'Order fulfillment not found'),
+        error,
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: checkFulfillmentEligibilityInputSchema,
+    output: apiResponseSchema,
+  })
+  async checkEligibility(
+    @Input() input: z.infer<typeof checkFulfillmentEligibilityInputSchema>
+  ) {
+    try {
+      const eligibility = await this.fulfillmentService.checkFulfillmentEligibility(input.orderIds);
+      return this.responseHandler.createTrpcSuccess({
+        eligibilities: eligibility,
+      });
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.ORDER,
+        OperationCode.READ,
+        this.mapErrorLevel(error),
+        this.extractErrorMessage(error, 'Failed to check fulfillment eligibility'),
         error,
       );
     }

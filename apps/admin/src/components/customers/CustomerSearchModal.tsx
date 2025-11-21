@@ -343,106 +343,107 @@ export const CustomerSearchModal: React.FC<CustomerSearchModalProps> = ({
               </div>
             </div>
           ) : (
-            <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {displayCustomers.map((customer) => (
-                <div
-                  key={customer.id}
-                  className={`px-5 py-4 cursor-pointer transition-all duration-200 ${
-                    selectedCustomer?.id === customer.id
-                      ? 'bg-primary-50 dark:bg-primary-900/20 border-l-4 border-primary-500'
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-700'
-                  }`}
-                  onClick={() => handleSelectCustomer(customer)}
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                        selectedCustomer?.id === customer.id
-                          ? 'bg-primary-100 dark:bg-primary-900'
-                          : 'bg-gray-100 dark:bg-gray-700'
-                      }`}>
-                        <span className={`text-sm font-medium ${
-                          selectedCustomer?.id === customer.id
-                            ? 'text-primary-600 dark:text-primary-400'
-                            : 'text-gray-600 dark:text-gray-300'
+            <div className="space-y-3 p-4">
+              {displayCustomers.map((customer) => {
+                const isSelected = selectedCustomer?.id === customer.id;
+                return (
+                  <div
+                    key={customer.id}
+                    className={`cursor-pointer rounded-xl border transition-all duration-200 ${
+                      isSelected
+                        ? 'border-primary-400 bg-primary-50/80 dark:border-primary-700 dark:bg-primary-900/20 shadow-sm'
+                        : 'border-transparent bg-gray-50 dark:bg-gray-800/70 hover:border-primary-200 hover:bg-white dark:hover:bg-gray-800 shadow-sm hover:shadow-md'
+                    }`}
+                    onClick={() => handleSelectCustomer(customer)}
+                  >
+                    <div className="flex items-start gap-4 px-5 py-4">
+                      <div className="flex-shrink-0">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ring-2 ${
+                          isSelected
+                            ? 'bg-primary-100 dark:bg-primary-900 ring-primary-200 dark:ring-primary-700'
+                            : 'bg-gray-100 dark:bg-gray-700 ring-gray-100/60 dark:ring-gray-600'
                         }`}>
-                          {customer.firstName?.charAt(0) || '?'}{customer.lastName?.charAt(0) || ''}
-                        </span>
+                          <span className={`text-sm font-medium ${
+                            isSelected ? 'text-primary-600 dark:text-primary-300' : 'text-gray-600 dark:text-gray-300'
+                          }`}>
+                            {customer.firstName?.charAt(0) || '?'}{customer.lastName?.charAt(0) || ''}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-2">
-                          <h3 className="text-base font-semibold text-gray-900 dark:text-white truncate">
-                            {customer.firstName || 'Unnamed'} {customer.lastName || ''}
-                          </h3>
-                          {isVipCustomer(customer) && (
-                            <div title={t('admin.vip_customer')} className="flex-shrink-0">
-                              <Crown className="w-4 h-4 text-yellow-500" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center space-x-2">
+                            <h3 className="text-base font-semibold text-gray-900 dark:text-white truncate">
+                              {customer.firstName || 'Unnamed'} {customer.lastName || ''}
+                            </h3>
+                            {isVipCustomer(customer) && (
+                              <div title={t('admin.vip_customer')} className="flex-shrink-0">
+                                <Crown className="w-4 h-4 text-yellow-500" />
+                              </div>
+                            )}
+                          </div>
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(customer.status)}`}>
+                            {t(`admin.customer_status.${customer.status.toLowerCase()}`)}
+                          </span>
+                        </div>
+
+                        {customer.companyName && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 truncate mb-2">
+                            <span className="font-medium">Company:</span> {customer.companyName}
+                          </p>
+                        )}
+
+                        <div className="space-y-1">
+                          {customer.email && (
+                            <div className="flex items-center space-x-2">
+                              <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                              <span className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                                {customer.email}
+                              </span>
+                            </div>
+                          )}
+                          {customer.phone && (
+                            <div className="flex items-center space-x-2">
+                              <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                              <span className="text-sm text-gray-600 dark:text-gray-400">
+                                {customer.phone}
+                              </span>
                             </div>
                           )}
                         </div>
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(customer.status)}`}>
-                          {t(`admin.customer_status.${customer.status.toLowerCase()}`)}
-                        </span>
-                      </div>
 
-                      {customer.companyName && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 truncate mb-2">
-                          <span className="font-medium">Company:</span> {customer.companyName}
-                        </p>
+                        <div className="flex items-center gap-6 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+                          <div className="text-center">
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {customer.totalOrders}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {t('admin.orders')}
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {formatCurrency(customer.totalSpent)}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {t('admin.spent')}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {isSelected && (
+                        <div className="flex-shrink-0">
+                          <div className="w-7 h-7 bg-primary-600 rounded-full flex items-center justify-center shadow">
+                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        </div>
                       )}
-
-                      <div className="space-y-1">
-                        {customer.email && (
-                          <div className="flex items-center space-x-2">
-                            <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                            <span className="text-sm text-gray-600 dark:text-gray-400 truncate">
-                              {customer.email}
-                            </span>
-                          </div>
-                        )}
-                        {customer.phone && (
-                          <div className="flex items-center space-x-2">
-                            <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                              {customer.phone}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-6 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
-                        <div className="text-center">
-                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                            {customer.totalOrders}
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('admin.orders')}
-                          </div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                            {formatCurrency(customer.totalSpent)}
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            {t('admin.spent')}
-                          </div>
-                        </div>
-                      </div>
                     </div>
-                    {selectedCustomer?.id === customer.id && (
-                      <div className="flex-shrink-0">
-                        <div className="w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center">
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                      </div>
-                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
             </div>

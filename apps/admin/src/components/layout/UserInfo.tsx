@@ -1,23 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { 
-  Box, 
-  Avatar, 
-  Typography, 
-  IconButton, 
-  Menu, 
-  MenuItem, 
-  ListItemIcon, 
-  Divider,
-  Tooltip
+import {
+  Box,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import LogoutIcon from '@mui/icons-material/Logout';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import SettingsIcon from '@mui/icons-material/Settings';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import PersonIcon from '@mui/icons-material/Person';
-import { Link } from 'react-router-dom';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 interface UserInfoProps {
@@ -28,172 +17,63 @@ const UserInfoContainer = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'collapsed'
 })<{ collapsed?: boolean }>(({ theme, collapsed }) => ({
   marginTop: theme.spacing(2),
-  padding: collapsed ? theme.spacing(1.5, 1) : theme.spacing(1.5, 2.5),
   borderTop: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200]}`,
   backgroundColor: theme.palette.mode === 'dark' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.8)',
   backdropFilter: 'blur(5px)',
   width: '100%',
   boxSizing: 'border-box',
-}));
-
-const UserInfoContent = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'collapsed'
-})<{ collapsed?: boolean }>(({ theme, collapsed }) => ({
+  padding: theme.spacing(1.5, collapsed ? 1.5 : 2),
   display: 'flex',
-  alignItems: 'center',
-  width: '100%',
-  paddingLeft: collapsed ? theme.spacing(0.75) : theme.spacing(2),
-  paddingRight: collapsed ? theme.spacing(0.75) : theme.spacing(2),
-  justifyContent: collapsed ? 'center' : 'flex-start',
-  gap: collapsed ? theme.spacing(1.25) : theme.spacing(2),
+  justifyContent: 'center',
 }));
 
-const UserAvatar = styled(Avatar)(({ theme }) => ({
-  width: 32,
-  height: 32,
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
-  transition: 'all 0.2s',
-  '&:hover': {
-    boxShadow: `0 0 0 2px ${theme.palette.mode === 'dark' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`,
-  }
+
+const CollapsedLogoutButton = styled(IconButton)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+  width: 36,
+  height: 36,
+  border: `1px solid ${theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[300]}`,
 }));
 
 const UserInfo: React.FC<UserInfoProps> = ({ collapsed = false }) => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const { t } = useTranslationWithBackend();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   const handleLogout = () => {
-    handleClose();
     logout();
   };
-  if (!user) {
-    return (
-      <UserInfoContainer collapsed={collapsed}>
-        <UserInfoContent collapsed={collapsed}>
-          <Tooltip title={t('userInfo.notLoggedIn', 'Not logged in')}>
-            <AccountCircleIcon color="disabled" />
-          </Tooltip>
-        </UserInfoContent>
-      </UserInfoContainer>
-    );
-  }
 
-  const getUserInitial = () => {
-    if (user.username) return user.username.charAt(0).toUpperCase();
-    if (user.email) return user.email.charAt(0).toUpperCase();
-    return 'U';
-  };
   return (
     <UserInfoContainer collapsed={collapsed}>
-      <UserInfoContent collapsed={collapsed}>
-        <Tooltip title={collapsed ? user.username || user.email : ''}>
-          <UserAvatar
-            onClick={handleClick}
-            sx={{ cursor: 'pointer', mx: collapsed ? 'auto' : 0 }}
-          >
-            <PersonIcon fontSize="small" />
-          </UserAvatar>
-        </Tooltip>
-
-        {!collapsed && (
-          <>
-            <Box sx={{ overflow: 'hidden' }}>
-              <Typography variant="subtitle2" noWrap sx={{ fontWeight: 'medium' }}>
-                {user.username || user.email}
-              </Typography>
-              {user.username && user.email && (
-                <Typography variant="caption" color="text.secondary" noWrap>
-                  {user.email}
-                </Typography>
-              )}
-            </Box>
-
-            <Box sx={{ flexGrow: 1 }} />
-
-            <IconButton
-              size="small"
-              onClick={handleClick}
-              aria-controls={open ? 'user-menu' : undefined}
-              aria-haspopup="true"
-              aria-expanded={open ? 'true' : undefined}
-              sx={{ color: 'text.secondary' }}
-            >
-              <SettingsIcon fontSize="small" />
-            </IconButton>
-          </>
-        )}
-      </UserInfoContent>
-
-      <Menu
-        id="user-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        onClick={handleClose}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-        PaperProps={{
-          elevation: 3,
-          sx: {
-            overflow: 'visible',
-            mt: 1.5,
-            width: 200,
-            '&:before': {
-              content: '""',
-              display: 'block',
-              position: 'absolute',
-              top: 0,
-              right: 14,
-              width: 10,
-              height: 10,
-              bgcolor: 'background.paper',
-              transform: 'translateY(-50%) rotate(45deg)',
-              zIndex: 0,
-            },
-          },
-        }}
-      >
-        <MenuItem component={Link} to="/profile" onClick={handleClose}>
-          <ListItemIcon>
-            <AccountCircleIcon fontSize="small" />
-          </ListItemIcon>
-          {t('userInfo.profile', 'Profile')}
-        </MenuItem>
-
-        <MenuItem component={Link} to="/settings" onClick={handleClose}>
-          <ListItemIcon>
-            <SettingsIcon fontSize="small" />
-          </ListItemIcon>
-          {t('userInfo.settings', 'Settings')}
-        </MenuItem>
-
-        <MenuItem onClick={handleClose}>
-          <ListItemIcon>
-            <HelpOutlineIcon fontSize="small" />
-          </ListItemIcon>
-          {t('userInfo.helpCenter', 'Help Center')}
-        </MenuItem>
-
-        <Divider />
-
-        <MenuItem onClick={handleLogout}>
-          <ListItemIcon>
+      {collapsed ? (
+        <Tooltip title={t('userInfo.logout', 'Logout')} placement="right">
+          <CollapsedLogoutButton onClick={handleLogout} size="small">
             <LogoutIcon fontSize="small" />
-          </ListItemIcon>
+          </CollapsedLogoutButton>
+        </Tooltip>
+      ) : (
+        <div
+          onClick={handleLogout}
+          style={{
+            width: '100%',
+            fontSize: '16px',
+            fontWeight: 600,
+            color: '#ef4444',
+            textAlign: 'center',
+            padding: '8px 0',
+            cursor: 'pointer',
+            transition: 'color 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = '#dc2626';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = '#ef4444';
+          }}
+        >
           {t('userInfo.logout', 'Logout')}
-        </MenuItem>
-      </Menu>
+        </div>
+      )}
     </UserInfoContainer>
   );
 };

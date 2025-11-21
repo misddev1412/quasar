@@ -6,6 +6,7 @@ import { ShippingProvider } from './shipping-provider.entity';
 import { FulfillmentItem } from './fulfillment-item.entity';
 import { DeliveryTracking } from './delivery-tracking.entity';
 import { User } from '@backend/modules/user/entities/user.entity';
+import { decimalColumnTransformer } from './transformers/decimal-column.transformer';
 
 export enum FulfillmentStatus {
   PENDING = 'PENDING',
@@ -108,6 +109,7 @@ export class OrderFulfillment extends BaseEntity {
     precision: 10,
     scale: 2,
     default: 0,
+    transformer: decimalColumnTransformer,
   })
   shippingCost: number;
 
@@ -118,6 +120,7 @@ export class OrderFulfillment extends BaseEntity {
     precision: 10,
     scale: 2,
     default: 0,
+    transformer: decimalColumnTransformer,
   })
   insuranceCost: number;
 
@@ -137,6 +140,7 @@ export class OrderFulfillment extends BaseEntity {
     precision: 8,
     scale: 3,
     nullable: true,
+    transformer: decimalColumnTransformer,
   })
   packageWeight?: number;
 

@@ -1,4 +1,5 @@
 import { trpc } from '../utils/trpc';
+import { FooterConfig, createFooterConfig } from '@shared/types/footer.types';
 
 export interface Setting {
   id: string;
@@ -43,6 +44,25 @@ export const useSettings = () => {
     return isNaN(num) ? defaultValue : num;
   };
 
+  const getSettingAsJson = <T>(key: string, defaultValue: T): T => {
+    const rawValue = getSetting(key, '');
+    if (!rawValue) {
+      return defaultValue;
+    }
+
+    try {
+      return JSON.parse(rawValue) as T;
+    } catch (error) {
+      console.warn(`Failed to parse JSON setting "${key}"`, error);
+      return defaultValue;
+    }
+  };
+
+  const getFooterConfig = (): FooterConfig => {
+    const parsed = getSettingAsJson<Partial<FooterConfig>>('storefront.footer_config', {});
+    return createFooterConfig(parsed);
+  };
+
   const getSiteLogo = (): string => {
     return getSetting('site.logo', '');
   };
@@ -62,8 +82,10 @@ export const useSettings = () => {
     getSetting,
     getSettingAsBoolean,
     getSettingAsNumber,
+    getSettingAsJson,
     getSiteLogo,
     getSiteFavicon,
     getFooterLogo,
+    getFooterConfig,
   };
 };

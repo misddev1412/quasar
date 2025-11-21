@@ -41,6 +41,7 @@ export class LoyaltyReward extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'points_required',
     type: 'integer',
   })
   pointsRequired: number;
@@ -56,6 +57,7 @@ export class LoyaltyReward extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'discount_type',
     type: 'varchar',
     length: 20,
     nullable: true,
@@ -71,6 +73,7 @@ export class LoyaltyReward extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'is_active',
     type: 'boolean',
     default: true,
   })
@@ -78,6 +81,7 @@ export class LoyaltyReward extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'is_limited',
     type: 'boolean',
     default: false,
   })
@@ -85,6 +89,7 @@ export class LoyaltyReward extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'total_quantity',
     type: 'integer',
     nullable: true,
   })
@@ -92,6 +97,7 @@ export class LoyaltyReward extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'remaining_quantity',
     type: 'integer',
     nullable: true,
   })
@@ -99,6 +105,7 @@ export class LoyaltyReward extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'starts_at',
     type: 'timestamp',
     nullable: true,
   })
@@ -106,6 +113,7 @@ export class LoyaltyReward extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'ends_at',
     type: 'timestamp',
     nullable: true,
   })
@@ -113,6 +121,7 @@ export class LoyaltyReward extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'image_url',
     type: 'varchar',
     length: 500,
     nullable: true,
@@ -121,6 +130,7 @@ export class LoyaltyReward extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'terms_conditions',
     type: 'text',
     nullable: true,
   })
@@ -128,6 +138,7 @@ export class LoyaltyReward extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'tier_restrictions',
     type: 'jsonb',
     default: () => "'[]'",
   })
@@ -135,6 +146,7 @@ export class LoyaltyReward extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'auto_apply',
     type: 'boolean',
     default: false,
   })
@@ -142,6 +154,7 @@ export class LoyaltyReward extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'sort_order',
     type: 'integer',
     default: 0,
   })

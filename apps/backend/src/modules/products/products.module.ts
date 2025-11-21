@@ -95,6 +95,7 @@ import { ClientOrdersRouter } from './routers/client-orders.router';
 import { ClientDeliveryMethodsRouter } from './routers/client-delivery-methods.router';
 import { ClientProductsRouter } from '../../trpc/routers/client/products.router';
 import { StorageModule } from '../storage/storage.module';
+import { TranslationModule } from '../translation/translation.module';
 
 @Module({
   imports: [
@@ -140,6 +141,7 @@ import { StorageModule } from '../storage/storage.module';
     ]),
     SharedModule,
     StorageModule,
+    TranslationModule,
   ],
   providers: [
     AttributeRepository,

@@ -81,6 +81,7 @@
     "no_description": "Không có mô tả",
     "activate": "Kích hoạt",
     "deactivate": "Vô hiệu hóa",
+    "retry": "Thử lại",
     "duplicate": "Nhân bản",
     "adding": "Đang thêm...",
     "add_selected": "Thêm đã chọn",
@@ -262,6 +263,98 @@
     "upload_failed": "Tải lên tài sản thất bại",
     "removed": "Đã xóa tài sản",
     "remove_failed": "Xóa thất bại"
+  },
+  "storefront": {
+    "footer": {
+      "title": "Footer storefront",
+      "description": "Tuỳ chỉnh bố cục, thông điệp thương hiệu, mạng xã hội và các liên kết pháp lý.",
+      "nav": "Trình dựng footer",
+      "menu_hint": {
+        "title": "Các liên kết footer được lấy từ menu footer.",
+        "description": "Tạo cột bằng cách thêm mục cha cùng các mục con bên dưới.",
+        "btn": "Quản lý menu footer"
+      },
+      "actions": {
+        "reset": "Khôi phục",
+        "save": "Lưu thay đổi"
+      },
+      "messages": {
+        "load_error": "Không thể tải cài đặt footer",
+        "reset": "Đã khôi phục mặc định",
+        "reset_description": "Những thay đổi này chưa được lưu.",
+        "saved": "Đã cập nhật footer",
+        "saved_description": "Thay đổi đã hiển thị trên storefront.",
+        "save_error": "Không thể lưu thay đổi",
+        "loading": "Đang tải cài đặt footer..."
+      },
+      "layout": {
+        "heading": "Bố cục & chủ đề"
+      },
+      "variant": {
+        "label": "Kiểu bố cục",
+        "simple": "Thanh đơn giản",
+        "columns": "Lưới cột",
+        "split": "Bố cục chia đôi"
+      },
+      "theme": {
+        "label": "Giao diện",
+        "dark": "Tối",
+        "light": "Sáng"
+      },
+      "menu_layout": {
+        "label": "Cách hiển thị menu",
+        "columns": "Nhóm theo cột",
+        "inline": "Chia đều các liên kết"
+      },
+      "columns": {
+        "label": "Số cột mỗi hàng",
+        "helper": "Chọn từ 1 đến 4 cột."
+      },
+      "brand": {
+        "heading": "Thương hiệu & thông điệp",
+        "show_description": "Hiển thị mô tả thương hiệu",
+        "show_description_hint": "Bật/tắt đoạn văn dưới logo.",
+        "description_label": "Mô tả",
+        "custom_html": "HTML tuỳ chỉnh (tuỳ chọn)"
+      },
+      "newsletter": {
+        "enable": "Hiện form đăng ký email",
+        "description": "Hiển thị ô email và nút trong cột thương hiệu.",
+        "heading_label": "Tiêu đề newsletter",
+        "copy": "Nội dung newsletter"
+      },
+      "social": {
+        "heading": "Liên kết mạng xã hội",
+        "description": "Các liên kết hiển thị dưới dạng biểu tượng. Để trống URL để ẩn.",
+        "add": "Thêm liên kết",
+        "label": "Tiêu đề",
+        "url": "Đường dẫn",
+        "type": "Mạng xã hội",
+        "visible": "Hiển thị",
+        "visible_hint": "Tắt để ẩn mà không cần xoá.",
+        "item_label": "Liên kết {{index}}",
+        "empty": "Chưa có liên kết nào. Hãy thêm ít nhất một liên kết để hiển thị dãy biểu tượng.",
+        "custom": "Tuỳ chỉnh",
+        "new_label": "Liên kết mới"
+      },
+      "links": {
+        "heading": "Liên kết pháp lý & tiện ích",
+      "description": "Hiển thị ở hàng cuối cùng cạnh phần bản quyền.",
+      "add": "Thêm liên kết",
+      "label": "Tiêu đề",
+      "url": "Đường dẫn",
+      "visible": "Hiển thị",
+      "item_label": "Liên kết {{index}}",
+      "empty": "Hãy thêm các liên kết như Chính sách bảo mật, Điều khoản dịch vụ...",
+      "new_label": "Liên kết mới"
+      },
+      "preview": {
+        "heading": "Xem trước trực tiếp",
+        "description": "Xem chính xác footer trên storefront mà khách hàng sẽ thấy.",
+        "reload": "Tải lại",
+        "missing_origin": "Thiết lập NEXT_PUBLIC_SITE_URL để bật xem trước."
+      }
+    }
   },
   "media": {
     "invalidFileType": "Loại tệp không hợp lệ",
@@ -1154,6 +1247,7 @@
     },
     "pagination": {
       "per_page_10": "10 mỗi trang",
+      "per_page_20": "20 mỗi trang",
       "per_page_25": "25 mỗi trang",
       "per_page_50": "50 mỗi trang",
       "per_page_100": "100 mỗi trang",
@@ -2190,6 +2284,126 @@
     "hasStock": "Còn hàng",
     "noStock": "Hết hàng"
   },
+  "transactions": {
+    "title": "Giao dịch",
+    "description": "Theo dõi và quản lý giao dịch tài chính của khách hàng",
+    "page_title": "Giao dịch",
+    "page_subtitle": "Toàn cảnh ghi nhận các khoản thu và chi của khách hàng.",
+    "actions": {
+      "filters": "Bộ lọc",
+      "refresh": "Làm mới",
+      "record": "Tạo giao dịch",
+      "select_customer": "Chọn khách hàng",
+      "change_customer": "Đổi khách hàng",
+      "select_order": "Chọn đơn hàng",
+      "change_order": "Đổi đơn hàng"
+    },
+    "notifications": {
+      "create_success_title": "Đã ghi nhận giao dịch",
+      "create_success_message": "Giao dịch đã được tạo thành công.",
+      "create_error_title": "Không thể ghi nhận giao dịch",
+      "create_error_message": "Vui lòng kiểm tra lại thông tin và thử lại."
+    },
+    "filters": {
+      "title": "Bộ lọc",
+      "status": "Trạng thái",
+      "all_statuses": "Tất cả trạng thái",
+      "type": "Loại giao dịch",
+      "all_types": "Tất cả loại",
+      "direction": "Chiều giao dịch",
+      "all_directions": "Tất cả",
+      "currency": "Tiền tệ",
+      "customer_id": "Mã khách hàng",
+      "customer_id_placeholder": "Tìm theo mã khách hàng",
+      "min_amount": "Số tiền tối thiểu",
+      "max_amount": "Số tiền tối đa",
+      "date_from": "Từ ngày",
+      "date_to": "Đến ngày"
+    },
+    "status": {
+      "pending": "Chờ xử lý",
+      "processing": "Đang xử lý",
+      "completed": "Hoàn tất",
+      "failed": "Thất bại",
+      "cancelled": "Đã hủy"
+    },
+    "types": {
+      "order_payment": "Thanh toán đơn hàng",
+      "refund": "Hoàn tiền",
+      "wallet_topup": "Nạp ví",
+      "withdrawal": "Rút tiền",
+      "adjustment": "Điều chỉnh",
+      "subscription": "Gia hạn gói"
+    },
+    "directions": {
+      "credit": "Ghi có",
+      "debit": "Ghi nợ"
+    },
+    "table": {
+      "transaction": "Giao dịch",
+      "reference": "Tham chiếu",
+      "customer": "Khách hàng",
+      "unknown_customer": "Không xác định",
+      "amount": "Số tiền",
+      "status": "Trạng thái",
+      "type": "Loại",
+      "created_at": "Thời gian tạo",
+      "order": "Đơn hàng",
+      "view_order": "Xem đơn hàng",
+      "no_order": "—"
+    },
+    "stats": {
+      "total_volume": "Dòng tiền ròng",
+      "total_inflow": "Tổng tiền vào",
+      "total_outflow": "Tổng tiền ra",
+      "unique_customers": "Khách hàng duy nhất"
+    },
+    "modal": {
+      "title": "Ghi nhận giao dịch",
+      "description": "Thêm thủ công giao dịch ghi có hoặc ghi nợ cho khách hàng."
+    },
+    "fields": {
+      "customer_id": "Mã khách hàng",
+      "amount": "Số tiền",
+      "currency": "Tiền tệ",
+      "type": "Loại",
+      "direction": "Chiều giao dịch",
+      "status": "Trạng thái",
+      "description": "Mô tả",
+      "description_placeholder": "Ghi chú bổ sung...",
+      "related_order": "Đơn hàng liên quan (không bắt buộc)",
+      "related_order_placeholder": "Nhập ID đơn hàng để liên kết thanh toán",
+      "related_order_helper": "Nếu nhập, giao dịch sẽ được gắn với đơn hàng này.",
+      "type_locked": "Giao dịch liên kết đơn hàng luôn được ghi nhận là Thanh toán đơn hàng.",
+      "customer_locked_by_order": "Khách hàng sẽ cố định theo đơn hàng đã chọn."
+    },
+    "order_modal": {
+      "title": "Liên kết đơn hàng",
+      "description": "Tìm kiếm đơn hàng có sẵn và gắn với giao dịch này.",
+      "search_placeholder": "Tìm theo số đơn, email hoặc khách hàng",
+      "loading": "Đang tải danh sách đơn hàng...",
+      "empty_title": "Không có đơn hàng phù hợp",
+      "empty_description": "Hãy đổi từ khóa tìm kiếm và thử lại.",
+      "select": "Chọn",
+      "filter_all": "Tất cả đơn hàng",
+      "filter_pending": "Chờ thanh toán",
+      "filter_paid": "Đã thanh toán",
+      "items_label": "Đơn hàng",
+      "amount_label": "Số tiền",
+      "created_label": "Ngày tạo",
+      "amount_placeholder": "—",
+      "customer_missing_title": "Không tìm thấy khách hàng",
+      "customer_missing_description": "Đơn hàng này chưa được gắn với khách hàng nào."
+    },
+    "validation": {
+      "customer_id": "Vui lòng nhập mã khách hàng",
+      "amount": "Số tiền phải lớn hơn 0"
+    },
+    "errors": {
+      "load_failed": "Không thể tải danh sách giao dịch"
+    },
+    "empty_state": "Không có giao dịch phù hợp với bộ lọc hiện tại"
+  },
   "orders": {
     "source_types": {
       "WEBSITE": "Website",
@@ -2226,6 +2440,37 @@
     "items": "Sản phẩm",
     "item_count": "Số lượng",
     "actions": "Thao tác",
+    "record_transaction": "Ghi nhận giao dịch",
+    "transactions": {
+      "title": "Giao dịch thanh toán",
+      "subtitle": "Các khoản tài chính liên kết với đơn hàng này",
+      "empty": "Chưa có giao dịch nào được ghi nhận cho đơn hàng.",
+      "refresh": "Làm mới",
+      "view_all": "Mở trang Giao dịch",
+      "view_transaction": "Xem giao dịch",
+      "record_payment": "Ghi nhận thanh toán",
+      "quick_action": {
+        "title": "Ghi nhận doanh thu cho đơn hàng",
+        "subtitle": "Liên kết giao dịch tài chính với đơn hàng này.",
+        "default_description": "Ghi nhận doanh thu thủ công cho đơn #{{orderNumber}}",
+        "success_title": "Đã ghi nhận doanh thu",
+        "success_message": "Giao dịch đã được ghi lại cho đơn hàng.",
+        "error_title": "Không thể ghi nhận giao dịch",
+        "error_message": "Vui lòng kiểm tra thông tin và thử lại.",
+        "missing_customer_title": "Cần khách hàng",
+        "missing_customer_message": "Đơn này chưa liên kết khách hàng nên không thể ghi doanh thu.",
+        "invalid_amount_title": "Số tiền không hợp lệ",
+        "invalid_amount_message": "Nhập số tiền lớn hơn 0 để ghi nhận doanh thu.",
+        "unknown_customer": "Chưa rõ khách hàng",
+        "currency_label": "Tiền tệ",
+        "amount_label": "Số tiền",
+        "status_label": "Trạng thái",
+        "description_label": "Mô tả",
+        "description_placeholder": "Mô tả khoản thanh toán hoặc điều chỉnh...",
+        "submit": "Ghi nhận doanh thu",
+        "submitting": "Đang ghi..."
+      }
+    },
     "order": "Đơn hàng",
     "orders": "Đơn hàng",
     "manage_and_track_customer_orders": "Quản lý và theo dõi đơn hàng khách hàng",
@@ -2334,6 +2579,7 @@
     "order_selected_description": "Đang tải chi tiết đơn hàng...",
     "select_order": "Chọn đơn hàng để xử lý",
     "select_order_description": "Tìm kiếm và chọn các sản phẩm sẽ đưa vào lần xử lý này.",
+    "current_selection": "Đơn đang xử lý",
     "selected": "Đã chọn",
     "items_section_title": "Sản phẩm sẽ xử lý",
     "items_section_description": "Điều chỉnh số lượng cho từng sản phẩm hoặc bỏ sản phẩm sẽ gửi ở lần khác.",
@@ -2350,6 +2596,9 @@
     "condition_notes": "Ghi chú tình trạng",
     "packaging_notes": "Ghi chú đóng gói",
     "item_notes": "Ghi chú sản phẩm (tuỳ chọn)",
+    "show_item_details": "Thêm thông tin theo dõi",
+    "hide_item_details": "Ẩn thông tin theo dõi",
+    "item_details_hint": "Quản lý số lô, số serial, hạn dùng, khối lượng và ghi chú đóng gói.",
     "no_items_selected": "Chưa chọn sản phẩm nào. Thêm ít nhất một sản phẩm để tạo xử lý.",
     "shipping_details_description": "Xác nhận địa điểm lấy và giao của lần xử lý này.",
     "include_shipping_address": "Bao gồm địa chỉ giao hàng",
@@ -2386,6 +2635,10 @@
     "notes_section_description": "Thêm ghi chú nội bộ hoặc hướng dẫn cho khách hàng.",
     "notes_for_customer": "Ghi chú cho khách hàng (tuỳ chọn)",
     "for_order": "Đơn hàng {{orderNumber}}",
+    "order_overview": "Tổng quan đơn hàng",
+    "summary_order_value": "Giá trị đơn",
+    "summary_items_selected": "Số dòng sản phẩm",
+    "summary_units_selected": "Số lượng giao",
     "tabs": {
       "details": "Chi tiết",
       "items": "Sản phẩm",
@@ -2829,6 +3082,10 @@
         "contentDescription": "Nội dung đánh giá (tên khách hàng, nội dung, xếp hạng, ảnh) được cấu hình theo từng ngôn ngữ trong bảng dịch."
       },
       "cta": {
+        "layoutMode": "Độ rộng hiển thị",
+        "fullWidth": "Toàn bộ chiều rộng",
+        "container": "Theo khung nội dung",
+        "layoutDescription": "Chọn hiển thị tràn toàn màn hình hoặc giữ trong khung nội dung chính.",
         "textAlign": "Căn chỉnh văn bản",
         "centerAligned": "Căn giữa",
         "leftAligned": "Căn trái",
@@ -3042,12 +3299,18 @@
       "fixed": "Số tiền cố định"
     },
     "create_tier_description": "Tạo cấp bậc khách hàng thân thiết mới với quyền lợi và yêu cầu cụ thể",
+    "edit_tier": "Chỉnh sửa Cấp bậc",
+    "edit_tier_description": "Cập nhật yêu cầu, giao diện và quyền lợi của cấp bậc",
     "create_reward_description": "Tạo phần thưởng mới mà khách hàng có thể đổi bằng điểm khách hàng thân thiết",
     "tier_created_success": "Tạo cấp bậc thành công",
     "tier_create_error": "Không thể tạo cấp bậc",
+    "tier_updated_success": "Cập nhật cấp bậc thành công",
+    "tier_update_error": "Không thể cập nhật cấp bậc",
     "tier_deleted_success": "Xóa cấp bậc thành công",
     "tier_delete_error": "Không thể xóa cấp bậc",
     "tier_delete_confirm": "Bạn có chắc muốn xóa cấp bậc này không? Hành động này không thể hoàn tác.",
+    "tier_not_found": "Không tìm thấy cấp bậc",
+    "tier_not_found_description": "Không thể tìm thấy cấp bậc khách hàng thân thiết được yêu cầu.",
     "reward_created_success": "Tạo phần thưởng thành công",
     "reward_create_error": "Không thể tạo phần thưởng",
     "reward_deleted_success": "Xóa phần thưởng thành công",
@@ -3134,6 +3397,17 @@
     "createSuccessDescription": "Tiền tệ mới đã sẵn sàng sử dụng.",
     "createError": "Không thể tạo tiền tệ",
     "createErrorDescription": "Đã xảy ra lỗi khi tạo tiền tệ.",
+    "edit": "Chỉnh sửa tiền tệ",
+    "editDescription": "Cập nhật thông tin tiền tệ",
+    "updateSuccess": "Cập nhật tiền tệ thành công",
+    "updateSuccessDescription": "Tiền tệ đã được cập nhật.",
+    "updateError": "Không thể cập nhật tiền tệ",
+    "updateErrorDescription": "Đã xảy ra lỗi khi cập nhật tiền tệ.",
+    "fetchError": "Lỗi tải tiền tệ",
+    "fetchErrorDescription": "Không thể tải dữ liệu tiền tệ",
+    "notFound": "Không tìm thấy tiền tệ",
+    "notFoundDescription": "Tiền tệ bạn muốn chỉnh sửa không tồn tại",
+    "backToList": "Quay lại danh sách tiền tệ",
     "deleteSuccess": "Xóa tiền tệ thành công",
     "deleteError": "Không thể xóa tiền tệ",
     "statusUpdateSuccess": "Cập nhật trạng thái tiền tệ thành công",

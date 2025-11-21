@@ -30,6 +30,7 @@ import { AdminLoyaltyTiersRouter } from '../modules/loyalty/routers/admin-loyalt
 import { AdminLoyaltyRewardsRouter } from '../modules/loyalty/routers/admin-loyalty-rewards.router';
 import { AdminLoyaltyTransactionsRouter } from '../modules/loyalty/routers/admin-loyalty-transactions.router';
 import { AdminLoyaltyStatsRouter } from '../modules/loyalty/routers/admin-loyalty-stats.router';
+import { AdminCustomerTransactionsRouter } from '../modules/user/routers/admin-customer-transactions.router';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { AdminLoyaltyStatsRouter } from '../modules/loyalty/routers/admin-loyalt
     AdminLoyaltyRewardsRouter,
     AdminLoyaltyTransactionsRouter,
     AdminLoyaltyStatsRouter,
+    AdminCustomerTransactionsRouter,
     ResponseService,
   ],
 })

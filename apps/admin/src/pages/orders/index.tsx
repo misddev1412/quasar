@@ -13,16 +13,20 @@ import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { Badge } from '../../components/common/Badge';
+import { OrderTransactionModal } from '../../components/orders/OrderTransactionModal';
+import type { OrderTransactionContext } from '../../components/orders/OrderTransactionModal';
 
 interface Order {
   id: string;
   orderNumber: string;
+  customerId?: string;
   customerName: string;
   customerEmail: string;
   status: 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'RETURNED' | 'REFUNDED';
   paymentStatus: 'PENDING' | 'PAID' | 'PARTIALLY_PAID' | 'FAILED' | 'REFUNDED' | 'CANCELLED';
   source: 'WEBSITE' | 'MOBILE_APP' | 'PHONE' | 'EMAIL' | 'IN_STORE' | 'SOCIAL_MEDIA' | 'MARKETPLACE';
   totalAmount: number | string;
+  amountPaid?: number | string;
   currency: string;
   itemCount: number;
   orderDate: string;
@@ -74,7 +78,7 @@ const OrdersPage: React.FC = () => {
   // Table preferences with persistence
   const { preferences, updatePageSize, updateVisibleColumns } = useTablePreferences('orders-table', {
     pageSize: parseInt(searchParams.get('limit') || '10'),
-    visibleColumns: new Set(['orderNumber', 'customer', 'status', 'paymentStatus', 'totalAmount', 'source', 'orderDate']),
+    visibleColumns: new Set(['orderNumber', 'customer', 'paymentStatus', 'actions']),
   });
 
   // Initialize state from URL parameters
@@ -92,11 +96,13 @@ const OrdersPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(() =>
     searchParams.get('sortOrder') === 'asc' ? 'asc' : 'desc'
   );
+  const [transactionModalOrder, setTransactionModalOrder] = useState<OrderTransactionContext | null>(null);
 
   // Column visibility state
   const [visibleColumns, setVisibleColumns] = useState<Set<string>>(() => {
-    const initial = preferences.visibleColumns ? new Set(preferences.visibleColumns) : new Set(['orderNumber', 'customer', 'status', 'paymentStatus', 'totalAmount', 'source', 'orderDate', 'actions']);
-    if (!initial.has('actions')) initial.add('actions');
+    const defaultColumns = ['orderNumber', 'customer', 'paymentStatus', 'actions'];
+    const initial = preferences.visibleColumns ? new Set(preferences.visibleColumns) : new Set(defaultColumns);
+    defaultColumns.forEach((columnId) => initial.add(columnId));
     return initial;
   });
 
@@ -156,6 +162,7 @@ const OrdersPage: React.FC = () => {
     data: statsData,
     isLoading: statsLoading,
     error: statsError,
+    refetch: refetchOrderStats,
   } = trpc.adminOrders.stats.useQuery();
 
   // Handle table sort
@@ -296,15 +303,25 @@ const OrdersPage: React.FC = () => {
   }, [statsData, t]);
 
   // Define table columns
+  const compactActionButtonClasses = 'group/action-btn gap-1 h-9 px-2 text-xs font-medium rounded-full border border-slate-200/70 dark:border-slate-700/70 !justify-start overflow-hidden';
+  const compactActionIconClasses = 'h-4 w-4 flex-shrink-0';
+  const compactActionLabelClasses = 'inline-flex items-center whitespace-nowrap overflow-hidden max-w-0 opacity-0 -translate-x-2 transition-[max-width,opacity,transform] duration-300 ease-out group-hover/action-btn:max-w-[140px] group-hover/action-btn:opacity-100 group-hover/action-btn:translate-x-0 group-focus-visible/action-btn:max-w-[140px] group-focus-visible/action-btn:opacity-100 group-focus-visible/action-btn:translate-x-0';
   const columns: Column<Order>[] = useMemo(() => [
     {
       id: 'orderNumber',
       header: t('orders.order_number'),
       accessor: (order) => (
-        <div className="font-medium">
-          <div className="text-sm font-semibold text-gray-900">{order.orderNumber}</div>
-          <div className="text-xs text-gray-500">
-            {new Date(order.orderDate).toLocaleDateString()}
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-gray-900">#{order.orderNumber}</span>
+            <Badge variant={getStatusBadgeVariant(order.status) as any}>
+              {t(`orders.status_types.${order.status}`)}
+            </Badge>
+          </div>
+          <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+            <span>{new Date(order.orderDate).toLocaleDateString()}</span>
+            <span>&bull;</span>
+            <span>{t(`orders.source_types.${order.source}`)}</span>
           </div>
         </div>
       ),
@@ -321,50 +338,22 @@ const OrdersPage: React.FC = () => {
       ),
     },
     {
-      id: 'status',
-      header: t('orders.status'),
-      accessor: (order) => (
-        <Badge variant={getStatusBadgeVariant(order.status) as any}>
-          {t(`orders.status_types.${order.status}`)}
-        </Badge>
-      ),
-      isSortable: true,
-    },
-    {
       id: 'paymentStatus',
       header: t('orders.payment'),
       accessor: (order) => (
-        <Badge variant={getPaymentStatusBadgeVariant(order.paymentStatus) as any}>
-          {t(`orders.payment_status_types.${order.paymentStatus}`)}
-        </Badge>
-      ),
-      isSortable: true,
-    },
-    {
-      id: 'totalAmount',
-      header: t('orders.total'),
-      accessor: (order) => (
-        <div className="text-sm font-medium">
-          {order.currency} {formatAmount(order.totalAmount)}
-        </div>
-      ),
-      isSortable: true,
-    },
-    {
-      id: 'source',
-      header: t('orders.source'),
-      accessor: (order) => (
-        <div className="text-sm text-gray-600">
-          {t(`orders.source_types.${order.source}`)}
-        </div>
-      ),
-    },
-    {
-      id: 'orderDate',
-      header: t('orders.order_date'),
-      accessor: (order) => (
-        <div className="text-sm text-gray-600">
-          {new Date(order.orderDate).toLocaleDateString()}
+        <div className="text-sm">
+          <div className="mb-1">
+            <Badge variant={getPaymentStatusBadgeVariant(order.paymentStatus) as any}>
+              {t(`orders.payment_status_types.${order.paymentStatus}`)}
+            </Badge>
+          </div>
+          <div className="font-medium text-gray-900">
+            {order.currency} {formatAmount(order.amountPaid ?? 0)}
+            <span className="text-xs text-gray-500">
+              {' / '}
+              {formatAmount(order.totalAmount)}
+            </span>
+          </div>
         </div>
       ),
       isSortable: true,
@@ -373,37 +362,66 @@ const OrdersPage: React.FC = () => {
       id: 'actions',
       header: t('orders.actions'),
       accessor: (order) => (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="ghost"
             size="sm"
+            className={compactActionButtonClasses}
             onClick={(event) => {
               event.stopPropagation();
               navigate(`/orders/${order.id}`);
             }}
           >
-            <FiEye className="mr-1 h-4 w-4" />
-            {t('orders.view')}
+            <FiEye className={compactActionIconClasses} />
+            <span className={compactActionLabelClasses}>
+              {t('orders.view')}
+            </span>
           </Button>
           <Button
             variant="ghost"
             size="sm"
+            className={compactActionButtonClasses}
             onClick={(event) => {
               event.stopPropagation();
               navigate(`/orders/fulfillments/new?orderId=${encodeURIComponent(order.id)}`);
             }}
           >
-            <FiPackage className="mr-1 h-4 w-4" />
-            {t('orders.fulfill_order', 'Fulfill order')}
+            <FiPackage className={compactActionIconClasses} />
+            <span className={compactActionLabelClasses}>
+              {t('orders.fulfill_order', 'Fulfill order')}
+            </span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={compactActionButtonClasses}
+            onClick={(event) => {
+              event.stopPropagation();
+              setTransactionModalOrder({
+                id: order.id,
+                orderNumber: order.orderNumber,
+                customerId: order.customerId,
+                customerName: order.customerName,
+                customerEmail: order.customerEmail,
+                currency: order.currency,
+                totalAmount: order.totalAmount,
+              });
+            }}
+          >
+            <FiDollarSign className={compactActionIconClasses} />
+            <span className={compactActionLabelClasses}>
+              {t('orders.record_transaction', 'Record transaction')}
+            </span>
           </Button>
           <Dropdown
             button={
               <Button
                 variant="ghost"
                 size="sm"
+                className={`${compactActionButtonClasses} px-0`}
                 onClick={(event) => event.stopPropagation()}
               >
-                <FiMoreVertical className="h-4 w-4" />
+                <FiMoreVertical className={compactActionIconClasses} />
               </Button>
             }
             items={[
@@ -646,6 +664,18 @@ const OrdersPage: React.FC = () => {
           }}
         />
       </div>
+
+      {transactionModalOrder && (
+        <OrderTransactionModal
+          isOpen={Boolean(transactionModalOrder)}
+          order={transactionModalOrder}
+          onClose={() => setTransactionModalOrder(null)}
+          onSuccess={() => {
+            refetchOrders();
+            refetchOrderStats();
+          }}
+        />
+      )}
     </BaseLayout>
   );
 };

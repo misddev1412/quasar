@@ -8,6 +8,12 @@ import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middle
 import { PostStatus, PostType } from '../entities/post.entity';
 import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
 import { AuthenticatedContext } from '../../../trpc/context';
+import {
+  CreatePostSchema,
+  UpdatePostSchema,
+  CreatePostDto,
+  UpdatePostDto,
+} from '../dto/post.dto';
 
 // Zod schemas for validation
 const postStatusSchema = z.enum([
@@ -39,6 +45,13 @@ const getAllPostsQuerySchema = z.object({
 
 const getPostByIdSchema = z.object({
   id: z.string().uuid(),
+});
+
+const createAdminPostSchema = CreatePostSchema.omit({ authorId: true });
+
+const updateAdminPostSchema = z.object({
+  id: z.string().uuid(),
+  data: UpdatePostSchema,
 });
 
 @Router({ alias: 'adminPosts' })
@@ -112,6 +125,76 @@ export class AdminPostsRouter {
         2,  // OperationCode.READ
         10, // ErrorLevelCode.SERVER_ERROR
         error.message || 'Failed to retrieve post'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: createAdminPostSchema,
+    output: apiResponseSchema,
+  })
+  async createPost(
+    @Input() input: z.infer<typeof createAdminPostSchema>,
+    @Ctx() ctx: AuthenticatedContext,
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      if (!ctx.user?.id) {
+        throw this.responseHandler.createTRPCError(
+          31,
+          1,
+          30,
+          'User context is missing',
+        );
+      }
+
+      const payload: CreatePostDto = {
+        ...input,
+        authorId: ctx.user.id,
+      };
+
+      const post = await this.adminPostsService.createPost(payload);
+      return this.responseHandler.createTrpcSuccess(post);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        31, // ModuleCode.ARTICLE
+        1,  // OperationCode.CREATE
+        10, // ErrorLevelCode.SERVER_ERROR
+        error.message || 'Failed to create post'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: updateAdminPostSchema,
+    output: apiResponseSchema,
+  })
+  async updatePost(
+    @Input() input: z.infer<typeof updateAdminPostSchema>,
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const updatedPost = await this.adminPostsService.updatePost(
+        input.id,
+        input.data as UpdatePostDto,
+      );
+
+      if (!updatedPost) {
+        throw this.responseHandler.createTRPCError(
+          31, // ModuleCode.ARTICLE
+          3,  // OperationCode.UPDATE
+          20, // ErrorLevelCode.NOT_FOUND
+          'Post not found'
+        );
+      }
+
+      return this.responseHandler.createTrpcSuccess(updatedPost);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        31, // ModuleCode.ARTICLE
+        3,  // OperationCode.UPDATE
+        10, // ErrorLevelCode.SERVER_ERROR
+        error.message || 'Failed to update post'
       );
     }
   }

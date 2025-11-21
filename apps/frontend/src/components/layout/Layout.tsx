@@ -7,6 +7,7 @@ import ClientWrapper from '../ClientWrapper';
 import NavigationProgressBar from '../NavigationProgressBar';
 import { ChatWidget } from '../ChatWidget';
 import FloatingIcons from '../common/FloatingIcons';
+import LoyaltyTierBanner from '../storefront/LoyaltyTierBanner';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -51,6 +52,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </Suspense>
       <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
         <Header />
+        <LoyaltyTierBanner />
 
         <main className="flex-1 w-full">{children}</main>
 

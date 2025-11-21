@@ -660,6 +660,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
       vi: 'Cấu hình phương thức xử lý thanh toán'
     }
   },
+  {
+    path: '/transactions',
+    titles: {
+      en: 'Transactions | Quasar Admin',
+      vi: 'Giao Dịch | Quasar Admin'
+    },
+    description: {
+      en: 'Monitor and manage customer financial transactions',
+      vi: 'Theo dõi và quản lý giao dịch tài chính của khách hàng'
+    }
+  },
 
   // Delivery Methods
   {

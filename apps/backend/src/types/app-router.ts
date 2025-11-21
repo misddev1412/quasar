@@ -165,6 +165,29 @@ const clientSiteContentListResponseSchema = z.object({
   }),
 });
 
+const customerTransactionTypeSchema = z.enum([
+  'order_payment',
+  'refund',
+  'wallet_topup',
+  'withdrawal',
+  'adjustment',
+  'subscription',
+]);
+
+const customerTransactionStatusSchema = z.enum([
+  'pending',
+  'processing',
+  'completed',
+  'failed',
+  'cancelled',
+]);
+
+const ledgerEntryDirectionSchema = z.enum(['credit', 'debit']);
+
+const transactionChannelSchema = z.enum(['system', 'admin', 'customer', 'automation']);
+
+const ledgerAccountSchema = z.enum(['customer_balance', 'platform_clearing', 'promotion_reserve', 'bank_settlement', 'adjustment']);
+
 const fulfillmentStatusSchema = z.enum([
   'PENDING',
   'PROCESSING',
@@ -542,6 +565,79 @@ export const appRouter = router({
       .input(z.object({ id: z.string() }).and(z.any())) // client-side typing convenience
       .output(apiResponseSchema)
       .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  adminCustomerTransactions: router({
+    list: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+        search: z.string().optional(),
+        status: customerTransactionStatusSchema.optional(),
+        type: customerTransactionTypeSchema.optional(),
+        direction: ledgerEntryDirectionSchema.optional(),
+        currency: z.string().length(3).optional(),
+        minAmount: z.number().optional(),
+        maxAmount: z.number().optional(),
+        customerId: z.string().uuid().optional(),
+        dateFrom: z.string().optional(),
+        dateTo: z.string().optional(),
+        sortBy: z.enum(['createdAt', 'amount', 'status']).optional(),
+        sortOrder: z.enum(['ASC', 'DESC']).optional(),
+        relatedEntityType: z.string().max(50).optional(),
+        relatedEntityId: z.string().uuid().optional(),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    detail: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    create: procedure
+      .input(z.object({
+        customerId: z.string().uuid(),
+        type: customerTransactionTypeSchema,
+        direction: ledgerEntryDirectionSchema,
+        amount: z.number().positive(),
+        currency: z.string().length(3).optional(),
+        description: z.string().optional(),
+        referenceId: z.string().optional(),
+        channel: transactionChannelSchema.optional(),
+        metadata: z.record(z.unknown()).optional(),
+        status: customerTransactionStatusSchema.optional(),
+        counterAccount: ledgerAccountSchema.optional(),
+        relatedEntityType: z.string().max(50).optional(),
+        relatedEntityId: z.string().uuid().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    updateStatus: procedure
+      .input(z.object({
+        id: z.string(),
+        status: customerTransactionStatusSchema,
+        failureReason: z.string().optional(),
+        processedAt: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    stats: procedure
+      .input(z.object({
+        currency: z.string().length(3).optional(),
+        dateFrom: z.string().optional(),
+        dateTo: z.string().optional(),
+      }).optional())
+      .output(apiResponseSchema)
+      .query(() => {
         return {} as ApiResponse;
       }),
   }),

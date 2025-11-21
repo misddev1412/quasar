@@ -168,6 +168,16 @@ export class Order extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'amount_paid',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0,
+  })
+  amountPaid: number;
+
+  @Expose()
+  @Column({
     name: 'currency',
     type: 'varchar',
     length: 3,

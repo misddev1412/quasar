@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SettingEntity } from '../../modules/settings/entities/setting.entity';
+import { DEFAULT_FOOTER_CONFIG } from '@shared/types/footer.types';
 
 @Injectable()
 export class SettingsSeeder {
@@ -71,6 +72,14 @@ export class SettingsSeeder {
         group: 'general',
         isPublic: true,
         description: 'Login page background image',
+      },
+      {
+        key: 'storefront.footer_config',
+        value: JSON.stringify(DEFAULT_FOOTER_CONFIG),
+        type: 'json' as const,
+        group: 'storefront-ui',
+        isPublic: true,
+        description: 'Storefront footer configuration',
       },
       {
         key: 'admin.theme',

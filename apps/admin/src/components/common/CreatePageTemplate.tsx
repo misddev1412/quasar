@@ -25,6 +25,7 @@ interface CreatePageTemplateProps {
     icon?: React.ReactNode;
     variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
     disabled?: boolean;
+    primary?: boolean;
   }>;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | 'full';
   breadcrumbs?: BreadcrumbItem[];
@@ -299,16 +300,16 @@ export const CreatePageTemplate: React.FC<CreatePageTemplateProps> = ({
                     {t('common.helpful_tips', 'Helpful Tips')}
                   </h4>
                   <ul className="mt-2 text-xs text-blue-800 dark:text-blue-200 space-y-1">
-                    <li>• {t('tips.required_fields', 'Fields marked with an asterisk (*) are required')}</li>
+                    <li>{t('tips.required_fields', 'Fields marked with an asterisk (*) are required')}</li>
                     {mode === 'update' ? (
                       <>
-                        <li>• {t('tips.update_changes', 'Only modified fields will be updated')}</li>
-                        <li>• {t('tips.validation', 'Form validation will guide you through any errors')}</li>
+                        <li>{t('tips.update_changes', 'Only modified fields will be updated')}</li>
+                        <li>{t('tips.validation', 'Form validation will guide you through any errors')}</li>
                       </>
                     ) : (
                       <>
-                        <li>• {t('tips.save_draft', 'You can save your progress and continue later')}</li>
-                        <li>• {t('tips.validation', 'Form validation will guide you through any errors')}</li>
+                        <li>{t('tips.save_draft', 'You can save your progress and continue later')}</li>
+                        <li>{t('tips.validation', 'Form validation will guide you through any errors')}</li>
                       </>
                     )}
                   </ul>

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository, Between, Like } from 'typeorm';
+import { Repository, Between, Like, SelectQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderFulfillment, FulfillmentStatus, PriorityLevel } from '../entities/order-fulfillment.entity';
 
@@ -36,6 +36,115 @@ export class OrderFulfillmentRepository {
     private readonly repository: Repository<OrderFulfillment>,
   ) {}
 
+  private parseDecimal(value: unknown, defaultValue?: number): number {
+    if (value === null || value === undefined || value === '') {
+      return defaultValue ?? 0;
+    }
+
+    if (typeof value === 'number') {
+      return value;
+    }
+
+    const parsed = Number(value);
+    if (Number.isNaN(parsed)) {
+      return defaultValue ?? 0;
+    }
+
+    return parsed;
+  }
+
+  private parseNullableDecimal(value: unknown): number | undefined {
+    if (value === null || value === undefined || value === '') {
+      return undefined;
+    }
+
+    if (typeof value === 'number') {
+      return value;
+    }
+
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  }
+
+  private normalizeDecimalFields(
+    fulfillment: OrderFulfillment | null,
+  ): OrderFulfillment | null {
+    if (!fulfillment) {
+      return fulfillment;
+    }
+
+    fulfillment.shippingCost = this.parseDecimal(
+      fulfillment.shippingCost,
+      0,
+    );
+    fulfillment.insuranceCost = this.parseDecimal(
+      fulfillment.insuranceCost,
+      0,
+    );
+    fulfillment.packageWeight = this.parseNullableDecimal(
+      fulfillment.packageWeight,
+    );
+
+    if (fulfillment.fulfillmentItems?.length) {
+      fulfillment.fulfillmentItems = fulfillment.fulfillmentItems.map(
+        (item) => {
+          item.weight = this.parseNullableDecimal(item.weight);
+          return item;
+        },
+      );
+    }
+
+    return fulfillment;
+  }
+
+  private normalizeDecimalCollection(
+    fulfillments: OrderFulfillment[],
+  ): OrderFulfillment[] {
+    return fulfillments.map(
+      (item) => this.normalizeDecimalFields(item)!,
+    );
+  }
+
+  private applyRelations(
+    queryBuilder: SelectQueryBuilder<OrderFulfillment>,
+    relations: string[] = [],
+  ): void {
+    if (!relations?.length) {
+      return;
+    }
+
+    const joined = new Set<string>();
+    const aliasMap = new Map<string, string>();
+    const rootAlias = queryBuilder.alias || 'fulfillment';
+    aliasMap.set('', rootAlias);
+
+    relations.forEach((relationPath) => {
+      if (!relationPath) {
+        return;
+      }
+
+      const parts = relationPath.split('.');
+      let parentKey = '';
+
+      parts.forEach((part) => {
+        const currentKey = parentKey ? `${parentKey}.${part}` : part;
+        if (joined.has(currentKey)) {
+          parentKey = currentKey;
+          return;
+        }
+
+        const parentAlias = aliasMap.get(parentKey) ?? rootAlias;
+        const alias = currentKey.replace(/\./g, '_');
+
+        queryBuilder.leftJoinAndSelect(`${parentAlias}.${part}`, alias);
+
+        joined.add(currentKey);
+        aliasMap.set(currentKey, alias);
+        parentKey = currentKey;
+      });
+    });
+  }
+
   async findAll(
     options: {
       page?: number;
@@ -54,11 +163,7 @@ export class OrderFulfillmentRepository {
     const queryBuilder = this.repository.createQueryBuilder('fulfillment');
 
     // Apply relations
-    if (relations.length > 0) {
-      relations.forEach(relation => {
-        queryBuilder.leftJoinAndSelect(`fulfillment.${relation}`, relation);
-      });
-    }
+    this.applyRelations(queryBuilder, relations);
 
     // Apply filters
     if (filters.orderId) {
@@ -159,7 +264,7 @@ export class OrderFulfillmentRepository {
     // Order by created date (newest first)
     queryBuilder.orderBy('fulfillment.createdAt', 'DESC');
 
-    const items = await queryBuilder.getMany();
+    const items = this.normalizeDecimalCollection(await queryBuilder.getMany());
 
     return {
       items,
@@ -173,96 +278,77 @@ export class OrderFulfillmentRepository {
   async findById(id: string, relations: string[] = []): Promise<OrderFulfillment | null> {
     const queryBuilder = this.repository.createQueryBuilder('fulfillment');
 
-    if (relations.length > 0) {
-      relations.forEach(relation => {
-        queryBuilder.leftJoinAndSelect(`fulfillment.${relation}`, relation);
-      });
-    }
+    this.applyRelations(queryBuilder, relations);
 
-    return queryBuilder.where('fulfillment.id = :id', { id }).getOne();
+    return this.normalizeDecimalFields(
+      await queryBuilder.where('fulfillment.id = :id', { id }).getOne(),
+    );
   }
 
   async findByFulfillmentNumber(fulfillmentNumber: string, relations: string[] = []): Promise<OrderFulfillment | null> {
     const queryBuilder = this.repository.createQueryBuilder('fulfillment');
 
-    if (relations.length > 0) {
-      relations.forEach(relation => {
-        queryBuilder.leftJoinAndSelect(`fulfillment.${relation}`, relation);
-      });
-    }
+    this.applyRelations(queryBuilder, relations);
 
-    return queryBuilder.where('fulfillment.fulfillmentNumber = :fulfillmentNumber', { fulfillmentNumber }).getOne();
+    return this.normalizeDecimalFields(
+      await queryBuilder.where('fulfillment.fulfillmentNumber = :fulfillmentNumber', { fulfillmentNumber }).getOne(),
+    );
   }
 
   async findByOrderId(orderId: string, relations: string[] = []): Promise<OrderFulfillment[]> {
     const queryBuilder = this.repository.createQueryBuilder('fulfillment');
 
-    if (relations.length > 0) {
-      relations.forEach(relation => {
-        queryBuilder.leftJoinAndSelect(`fulfillment.${relation}`, relation);
-      });
-    }
+    this.applyRelations(queryBuilder, relations);
 
-    return queryBuilder
+    const results = await queryBuilder
       .where('fulfillment.orderId = :orderId', { orderId })
       .orderBy('fulfillment.createdAt', 'ASC')
       .getMany();
+    return this.normalizeDecimalCollection(results);
   }
 
   async findByTrackingNumber(trackingNumber: string, relations: string[] = []): Promise<OrderFulfillment | null> {
     const queryBuilder = this.repository.createQueryBuilder('fulfillment');
 
-    if (relations.length > 0) {
-      relations.forEach(relation => {
-        queryBuilder.leftJoinAndSelect(`fulfillment.${relation}`, relation);
-      });
-    }
+    this.applyRelations(queryBuilder, relations);
 
-    return queryBuilder
+    return this.normalizeDecimalFields(
+      await queryBuilder
       .where('fulfillment.trackingNumber = :trackingNumber', { trackingNumber })
-      .getOne();
+      .getOne(),
+    );
   }
 
   async findByShippingProvider(shippingProviderId: string, relations: string[] = []): Promise<OrderFulfillment[]> {
     const queryBuilder = this.repository.createQueryBuilder('fulfillment');
 
-    if (relations.length > 0) {
-      relations.forEach(relation => {
-        queryBuilder.leftJoinAndSelect(`fulfillment.${relation}`, relation);
-      });
-    }
+    this.applyRelations(queryBuilder, relations);
 
-    return queryBuilder
+    const results = await queryBuilder
       .where('fulfillment.shippingProviderId = :shippingProviderId', { shippingProviderId })
       .orderBy('fulfillment.createdAt', 'DESC')
       .getMany();
+    return this.normalizeDecimalCollection(results);
   }
 
   async findByStatus(status: FulfillmentStatus, relations: string[] = []): Promise<OrderFulfillment[]> {
     const queryBuilder = this.repository.createQueryBuilder('fulfillment');
 
-    if (relations.length > 0) {
-      relations.forEach(relation => {
-        queryBuilder.leftJoinAndSelect(`fulfillment.${relation}`, relation);
-      });
-    }
+    this.applyRelations(queryBuilder, relations);
 
-    return queryBuilder
+    const results = await queryBuilder
       .where('fulfillment.status = :status', { status })
       .orderBy('fulfillment.createdAt', 'DESC')
       .getMany();
+    return this.normalizeDecimalCollection(results);
   }
 
   async findOverdueFulfillments(relations: string[] = []): Promise<OrderFulfillment[]> {
     const queryBuilder = this.repository.createQueryBuilder('fulfillment');
 
-    if (relations.length > 0) {
-      relations.forEach(relation => {
-        queryBuilder.leftJoinAndSelect(`fulfillment.${relation}`, relation);
-      });
-    }
+    this.applyRelations(queryBuilder, relations);
 
-    return queryBuilder
+    const results = await queryBuilder
       .where('fulfillment.estimatedDeliveryDate < :now', { now: new Date() })
       .andWhere('fulfillment.status NOT IN (:deliveredStatuses, :cancelledStatuses, :returnedStatuses)', {
         deliveredStatuses: [FulfillmentStatus.DELIVERED],
@@ -271,18 +357,15 @@ export class OrderFulfillmentRepository {
       })
       .orderBy('fulfillment.estimatedDeliveryDate', 'ASC')
       .getMany();
+    return this.normalizeDecimalCollection(results);
   }
 
   async findActiveFulfillments(relations: string[] = []): Promise<OrderFulfillment[]> {
     const queryBuilder = this.repository.createQueryBuilder('fulfillment');
 
-    if (relations.length > 0) {
-      relations.forEach(relation => {
-        queryBuilder.leftJoinAndSelect(`fulfillment.${relation}`, relation);
-      });
-    }
+    this.applyRelations(queryBuilder, relations);
 
-    return queryBuilder
+    const results = await queryBuilder
       .where('fulfillment.status IN (:activeStatuses)', {
         activeStatuses: [
           FulfillmentStatus.PENDING,
@@ -295,6 +378,7 @@ export class OrderFulfillmentRepository {
       })
       .orderBy('fulfillment.createdAt', 'ASC')
       .getMany();
+    return this.normalizeDecimalCollection(results);
   }
 
   async create(fulfillmentData: Partial<OrderFulfillment>): Promise<OrderFulfillment> {
@@ -437,11 +521,12 @@ export class OrderFulfillmentRepository {
   }
 
   async searchByTrackingNumberOrFulfillmentNumber(query: string): Promise<OrderFulfillment[]> {
-    return this.repository.createQueryBuilder('fulfillment')
+    const results = await this.repository.createQueryBuilder('fulfillment')
       .where('fulfillment.trackingNumber ILIKE :query', { query: `%${query}%` })
       .orWhere('fulfillment.fulfillmentNumber ILIKE :query', { query: `%${query}%` })
       .orderBy('fulfillment.createdAt', 'DESC')
       .limit(20)
       .getMany();
+    return this.normalizeDecimalCollection(results);
   }
 }

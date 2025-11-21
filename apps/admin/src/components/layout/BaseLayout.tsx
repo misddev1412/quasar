@@ -8,6 +8,7 @@ interface ActionButton {
   primary?: boolean;
   icon?: ReactNode;
   active?: boolean;
+  disabled?: boolean;
 }
 
 interface BaseLayoutProps {
@@ -66,6 +67,7 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({
                 size="sm"
                 startIcon={action.icon}
                 active={action.active}
+                disabled={action.disabled}
               >
                 {action.label}
               </Button>

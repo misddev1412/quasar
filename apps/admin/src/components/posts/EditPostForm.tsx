@@ -41,6 +41,7 @@ const editPostSchema = z.object({
   scheduledAt: z.date().optional(),
   isFeatured: z.boolean(),
   allowComments: z.boolean(),
+  categoryIds: z.array(z.string()).optional(),
   
   // SEO
   metaTitle: z.string().optional(),
@@ -230,6 +231,19 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               icon: <Tag className="w-4 h-4" />,
             },
             {
+              name: 'categoryIds',
+              label: t('posts.categories', 'Categories'),
+              type: 'category-multiselect',
+              placeholder: t('posts.select_categories', 'Select categories'),
+              required: false,
+              description: t(
+                'posts.categories_description',
+                'Assign one or more categories to organize this post.'
+              ),
+              maxItems: 5,
+              categorySource: 'post',
+            },
+            {
               name: 'featuredImage',
               label: t('posts.featuredImage'),
               type: 'media-upload',
@@ -350,6 +364,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
     allowComments: initialData?.allowComments !== undefined ? initialData.allowComments : true,
     additionalTranslations: [],
     ...initialData,
+    categoryIds: initialData?.categoryIds ?? [],
   };
 
   // Custom submit handler that includes translations

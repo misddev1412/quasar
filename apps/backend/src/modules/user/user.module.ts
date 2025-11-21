@@ -16,6 +16,7 @@ import { AddressBookConfig } from './entities/address-book-config.entity';
 import { UserSecurity } from './entities/user-security.entity';
 import { Country } from '../products/entities/country.entity';
 import { AdministrativeDivision } from '../products/entities/administrative-division.entity';
+import { CustomerTransaction, CustomerTransactionEntry } from './entities/customer-transaction.entity';
 import { UserRepository } from './repositories/user.repository';
 import { PermissionRepository } from './repositories/permission.repository';
 import { RoleRepository } from './repositories/role.repository';
@@ -27,6 +28,7 @@ import { AddressBookConfigRepository } from './repositories/address-book-config.
 import { UserSecurityRepository } from './repositories/user-security.repository';
 import { CountryRepository } from '../products/repositories/country.repository';
 import { AdministrativeDivisionRepository } from '../products/repositories/administrative-division.repository';
+import { CustomerTransactionRepository } from './repositories/customer-transaction.repository';
 import { ActivityTrackingService } from './services/activity-tracking.service';
 import { UserActivityTrackingService } from './services/user-activity-tracking.service';
 import { UserActivityStatusService } from './services/user-activity-status.service';
@@ -41,6 +43,7 @@ import { AdminRoleService } from './services/admin/admin-role.service';
 import { PermissionCheckerService } from '../shared/services/permission-checker.service';
 import { AdminUserService } from './services/admin/admin-user.service';
 import { AdminUserStatisticsService } from './services/admin/admin-user-statistics.service';
+import { AdminCustomerTransactionService } from './services/admin/admin-customer-transaction.service';
 import { ClientUserService } from './services/client/client-user.service';
 import { AdminAddressBookService } from './services/admin-address-book.service';
 import { ClientAddressBookService } from './services/client-address-book.service';
@@ -53,6 +56,7 @@ import { AdminRoleRouter } from './routers/admin-role.router';
 import { AdminAddressBookRouter } from './routers/admin-address-book.router';
 import { ClientAddressBookRouter } from './routers/client-address-book.router';
 import { ClientSecurityRouter } from './routers/client-security.router';
+import { AdminCustomerTransactionsRouter } from './routers/admin-customer-transactions.router';
 import { ClientUserRouter } from '../../trpc/routers/client';
 import { SharedModule } from '../shared/shared.module';
 import { AuthModule } from '../../auth/auth.module';
@@ -61,7 +65,7 @@ import { ProductsModule } from '../products/products.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserProfile, Permission, Role, UserRole, RolePermission, UserActivity, UserSession, UserLoginProvider, Customer, AddressBook, AddressBookConfig, UserSecurity, Country, AdministrativeDivision]),
+    TypeOrmModule.forFeature([User, UserProfile, Permission, Role, UserRole, RolePermission, UserActivity, UserSession, UserLoginProvider, Customer, AddressBook, AddressBookConfig, UserSecurity, Country, AdministrativeDivision, CustomerTransaction, CustomerTransactionEntry]),
     SharedModule,
     forwardRef(() => AuthModule),
     FirebaseModule,
@@ -79,6 +83,7 @@ import { ProductsModule } from '../products/products.module';
     AddressBookRepository,
     AddressBookConfigRepository,
     UserSecurityRepository,
+    CustomerTransactionRepository,
 
     // Services
     UserService,
@@ -87,6 +92,7 @@ import { ProductsModule } from '../products/products.module';
     AdminRoleService,
     AdminUserService,
     AdminUserStatisticsService,
+    AdminCustomerTransactionService,
     ClientUserService,
     UserActivityTrackingService,
     ActivityTrackingService,
@@ -117,6 +123,7 @@ import { ProductsModule } from '../products/products.module';
     AdminAddressBookRouter,
     ClientAddressBookRouter,
     ClientSecurityRouter,
+    AdminCustomerTransactionsRouter,
   ],
   exports: [
     // Repositories
@@ -125,6 +132,7 @@ import { ProductsModule } from '../products/products.module';
     RoleRepository,
     UserActivityRepository,
     UserSessionRepository,
+    CustomerTransactionRepository,
 
     // Services
     UserService,
@@ -133,6 +141,7 @@ import { ProductsModule } from '../products/products.module';
     AdminRoleService,
     AdminUserService,
     AdminUserStatisticsService,
+    AdminCustomerTransactionService,
     ClientUserService,
     UserActivityTrackingService,
     ActivityTrackingService,
@@ -154,6 +163,7 @@ import { ProductsModule } from '../products/products.module';
     AdminAddressBookRouter,
     ClientAddressBookRouter,
     ClientSecurityRouter,
+    AdminCustomerTransactionsRouter,
   ],
 })
 export class UserModule implements NestModule {

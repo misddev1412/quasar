@@ -290,6 +290,7 @@ export class AdminOrderService {
         shippingCost: 0, // Will be calculated separately
         discountAmount: totalDiscountAmount,
         totalAmount,
+        amountPaid: 0,
         currency: orderData.currency || 'USD',
         billingAddress: orderData.billingAddress,
         shippingAddress: orderData.shippingAddress,

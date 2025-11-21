@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import clsx from 'clsx';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   FiPackage,
@@ -21,6 +22,7 @@ import { Badge } from '../../../components/common/Badge';
 import BaseLayout from '../../../components/layout/BaseLayout';
 import { useToast } from '../../../context/ToastContext';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
+import { useUrlTabs } from '../../../hooks/useUrlTabs';
 import { Loading } from '../../../components/common/Loading';
 import { Breadcrumb } from '../../../components/common/Breadcrumb';
 import { trpc } from '../../../utils/trpc';
@@ -73,13 +75,13 @@ interface FulfillmentDetails {
 
 interface FulfillmentItem {
   id: string;
-  productName: string;
+  productName?: string;
   variantName?: string;
-  sku: string;
+  sku?: string;
   quantity: number;
   fulfilledQuantity: number;
-  unitPrice: number;
-  totalPrice: number;
+  unitPrice?: number;
+  totalPrice?: number;
   productImage?: string;
   locationPickedFrom?: string;
   batchNumber?: string;
@@ -90,6 +92,25 @@ interface FulfillmentItem {
   qualityCheckAt?: string;
   qualityCheckBy?: string;
   notes?: string;
+  orderItem?: {
+    productName?: string;
+    productSku?: string;
+    variantName?: string;
+    variantSku?: string;
+    unitPrice?: number;
+    totalPrice?: number;
+    quantity?: number;
+    productImage?: string;
+    product?: {
+      name?: string;
+      featuredImage?: string;
+      sku?: string;
+    };
+    productVariant?: {
+      name?: string;
+      sku?: string;
+    };
+  };
 }
 
 interface TrackingEvent {
@@ -103,13 +124,53 @@ interface TrackingEvent {
   notes?: string;
 }
 
+const FULFILLMENT_TAB_KEYS = ['details', 'items', 'tracking'] as const;
+type FulfillmentTabKey = typeof FULFILLMENT_TAB_KEYS[number];
+
+const TAB_ICON_MAP: Record<FulfillmentTabKey, React.ComponentType<{ className?: string }>> = {
+  details: FiPackage,
+  items: FiBox,
+  tracking: FiActivity,
+};
+
+const formatCurrency = (value: number | string | null | undefined) => {
+  const numericValue = typeof value === 'number' ? value : Number(value ?? 0);
+  return Number.isFinite(numericValue) ? numericValue.toFixed(2) : '0.00';
+};
+
 const FulfillmentDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToast } = useToast();
   const { t } = useTranslationWithBackend();
 
-  const [activeTab, setActiveTab] = useState<'details' | 'items' | 'tracking'>('details');
+  const { activeTab: activeTabIndex, handleTabChange } = useUrlTabs({
+    defaultTab: 0,
+    tabParam: 'section',
+    tabKeys: [...FULFILLMENT_TAB_KEYS],
+  });
+
+  const currentTab = FULFILLMENT_TAB_KEYS[activeTabIndex] ?? 'details';
+
+  const handleTabSelect = (tabKey: FulfillmentTabKey) => {
+    const index = FULFILLMENT_TAB_KEYS.indexOf(tabKey);
+    if (index !== -1) {
+      handleTabChange(index);
+    }
+  };
+
+  const getTabSubtitle = (tabKey: FulfillmentTabKey) => {
+    switch (tabKey) {
+      case 'details':
+        return t('fulfillments.customer_info');
+      case 'items':
+        return t('fulfillments.items');
+      case 'tracking':
+        return t('fulfillments.tracking_history');
+      default:
+        return '';
+    }
+  };
 
   const { data: fulfillmentResponse, isLoading, error } = trpc.orderFulfillments.getById.useQuery(
     { id: id! },
@@ -229,6 +290,35 @@ const FulfillmentDetailsPage: React.FC = () => {
     );
   }
 
+  const rawItems = (fulfillment as any)?.items ?? (fulfillment as any)?.fulfillmentItems ?? [];
+  const rawTracking = (fulfillment as any)?.trackingHistory ?? (fulfillment as any)?.tracking ?? [];
+
+  const fulfillmentItems = Array.isArray(rawItems) ? rawItems : [];
+  const trackingEvents = Array.isArray(rawTracking) ? rawTracking : [];
+
+  const resolvedItems = fulfillmentItems.map((item) => {
+    const orderItem = (item as FulfillmentItem).orderItem ?? (item as any).orderItem ?? {};
+    const product = orderItem?.product ?? {};
+    const productVariant = orderItem?.productVariant ?? {};
+    const safeQuantity = item.quantity ?? orderItem?.quantity ?? 0;
+    const computedUnitPrice = item.unitPrice ?? orderItem?.unitPrice ?? (orderItem?.totalPrice && safeQuantity
+      ? Number(orderItem.totalPrice) / safeQuantity
+      : undefined);
+    const computedTotalPrice = item.totalPrice ?? orderItem?.totalPrice ?? (computedUnitPrice ?? 0) * safeQuantity;
+
+    return {
+      ...item,
+      quantity: safeQuantity,
+      fulfilledQuantity: item.fulfilledQuantity ?? orderItem?.fulfilledQuantity ?? 0,
+      productName: item.productName ?? orderItem?.productName ?? product?.name ?? t('fulfillments.unknown_product', 'Unknown product'),
+      variantName: item.variantName ?? orderItem?.variantName ?? productVariant?.name,
+      sku: item.sku ?? orderItem?.productSku ?? orderItem?.variantSku ?? product?.sku ?? productVariant?.sku,
+      unitPrice: computedUnitPrice ?? 0,
+      totalPrice: computedTotalPrice ?? 0,
+      productImage: item.productImage ?? orderItem?.productImage ?? product?.featuredImage,
+    } as FulfillmentItem;
+  });
+
   const breadcrumbItems = [
     {
       label: t('home'),
@@ -310,26 +400,79 @@ const FulfillmentDetailsPage: React.FC = () => {
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
-            {(['details', 'items', 'tracking'] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === tab
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                {t(`fulfillments.tabs.${tab}`)}
-              </button>
-            ))}
-          </nav>
+        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-wrap gap-3">
+            {FULFILLMENT_TAB_KEYS.map((tabKey) => {
+              const isActive = currentTab === tabKey;
+              const Icon = TAB_ICON_MAP[tabKey];
+              const badgeValue = tabKey === 'items'
+                ? resolvedItems.length
+                : tabKey === 'tracking'
+                  ? trackingEvents.length
+                  : 0;
+
+              return (
+                <button
+                  key={tabKey}
+                  type="button"
+                  onClick={() => handleTabSelect(tabKey)}
+                  className={clsx(
+                    'group flex flex-1 min-w-[200px] items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
+                    isActive
+                      ? 'border-primary-200 bg-primary-50 text-primary-700 shadow-sm hover:border-primary-500 hover:bg-primary-600 hover:text-white'
+                      : 'border-gray-200 bg-white text-gray-600 hover:border-primary-500 hover:bg-primary-600 hover:text-white'
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={clsx(
+                        'flex h-10 w-10 items-center justify-center rounded-full transition-colors',
+                        isActive
+                          ? 'bg-white text-primary-600 shadow group-hover:bg-primary-500 group-hover:text-white'
+                          : 'bg-gray-100 text-gray-500 group-hover:bg-primary-500 group-hover:text-white'
+                      )}
+                    >
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <div className="flex flex-col">
+                      <span
+                        className={clsx(
+                          'text-sm font-semibold transition-colors',
+                          isActive ? 'text-primary-700 group-hover:text-white' : 'text-gray-700 group-hover:text-white'
+                        )}
+                      >
+                        {t(`fulfillments.tabs.${tabKey}`)}
+                      </span>
+                      <span
+                        className={clsx(
+                          'text-xs transition-colors',
+                          isActive ? 'text-primary-500 group-hover:text-gray-100' : 'text-gray-500 group-hover:text-gray-100'
+                        )}
+                      >
+                        {getTabSubtitle(tabKey)}
+                      </span>
+                    </div>
+                  </div>
+                  {badgeValue > 0 && (
+                    <span
+                      className={clsx(
+                        'rounded-full px-2.5 py-1 text-xs font-semibold transition-colors',
+                        isActive
+                          ? 'bg-primary-100 text-primary-700 group-hover:bg-primary-400 group-hover:text-white'
+                          : 'bg-gray-100 text-gray-600 group-hover:bg-primary-500 group-hover:text-white'
+                      )}
+                    >
+                      {badgeValue}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Tab Content */}
-        {activeTab === 'details' && (
+        {currentTab === 'details' && (
           <div className="space-y-6">
             {/* Customer & Order Info */}
             <div className="bg-white rounded-lg shadow p-6">
@@ -436,17 +579,17 @@ const FulfillmentDetailsPage: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-gray-600">{t('fulfillments.shipping_cost')}</span>
-                  <span className="font-medium">${fulfillment.shippingCost.toFixed(2)}</span>
+                  <span className="font-medium">${formatCurrency(fulfillment.shippingCost)}</span>
                 </div>
                 {fulfillment.insuranceCost > 0 && (
                   <div className="flex justify-between">
                     <span className="text-gray-600">{t('fulfillments.insurance_cost')}</span>
-                    <span className="font-medium">${fulfillment.insuranceCost.toFixed(2)}</span>
+                    <span className="font-medium">${formatCurrency(fulfillment.insuranceCost)}</span>
                   </div>
                 )}
                 <div className="flex justify-between pt-2 border-t font-medium">
                   <span>{t('fulfillments.total_cost')}</span>
-                  <span>${fulfillment.totalCost.toFixed(2)}</span>
+                  <span>${formatCurrency(fulfillment.totalCost)}</span>
                 </div>
               </div>
             </div>
@@ -472,17 +615,22 @@ const FulfillmentDetailsPage: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'items' && (
+        {currentTab === 'items' && (
           <div className="bg-white rounded-lg shadow">
             <div className="p-6">
               <h3 className="text-lg font-medium mb-4">{t('fulfillments.items')}</h3>
               <div className="space-y-4">
-                {fulfillment.items.map((item) => (
-                  <div key={item.id} className="border rounded-lg p-4">
-                    <div className="flex items-start gap-4">
-                      {item.productImage && (
-                        <img
-                          src={item.productImage}
+                {resolvedItems.length === 0 ? (
+                  <div className="py-10 text-center text-gray-500">
+                    {t('fulfillments.no_items', 'No items found for this fulfillment.')}
+                  </div>
+                ) : (
+                  resolvedItems.map((item) => (
+                    <div key={item.id} className="border rounded-lg p-4">
+                      <div className="flex items-start gap-4">
+                        {item.productImage && (
+                          <img
+                            src={item.productImage}
                           alt={item.productName}
                           className="w-16 h-16 object-cover rounded"
                         />
@@ -492,7 +640,9 @@ const FulfillmentDetailsPage: React.FC = () => {
                         {item.variantName && (
                           <p className="text-sm text-gray-600">{item.variantName}</p>
                         )}
-                        <p className="text-sm text-gray-500">SKU: {item.sku}</p>
+                        {item.sku && (
+                          <p className="text-sm text-gray-500">SKU: {item.sku}</p>
+                        )}
                         <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                           <div>
                             <span className="text-gray-600">{t('fulfillments.quantity')}: </span>
@@ -504,11 +654,11 @@ const FulfillmentDetailsPage: React.FC = () => {
                           </div>
                           <div>
                             <span className="text-gray-600">{t('fulfillments.unit_price')}: </span>
-                            <span className="font-medium">${item.unitPrice.toFixed(2)}</span>
+                            <span className="font-medium">${formatCurrency(item.unitPrice)}</span>
                           </div>
                           <div>
                             <span className="text-gray-600">{t('fulfillments.total')}: </span>
-                            <span className="font-medium">${item.totalPrice.toFixed(2)}</span>
+                            <span className="font-medium">${formatCurrency(item.totalPrice)}</span>
                           </div>
                         </div>
                         {item.locationPickedFrom && (
@@ -545,27 +695,28 @@ const FulfillmentDetailsPage: React.FC = () => {
                           </div>
                         )}
                       </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
         )}
 
-        {activeTab === 'tracking' && (
+        {currentTab === 'tracking' && (
           <div className="bg-white rounded-lg shadow">
             <div className="p-6">
               <h3 className="text-lg font-medium mb-4">{t('fulfillments.tracking_history')}</h3>
-              {fulfillment.trackingHistory.length > 0 ? (
+              {trackingEvents.length > 0 ? (
                 <div className="space-y-4">
-                  {fulfillment.trackingHistory.map((event, index) => (
+                  {trackingEvents.map((event, index) => (
                     <div key={event.id} className="flex items-start gap-4">
                       <div className="flex flex-col items-center">
                         <div className={`w-3 h-3 rounded-full ${
                           index === 0 ? 'bg-blue-500' : 'bg-gray-300'
                         }`} />
-                        {index < fulfillment.trackingHistory.length - 1 && (
+                        {index < trackingEvents.length - 1 && (
                           <div className="w-0.5 h-16 bg-gray-300 mt-1" />
                         )}
                       </div>

@@ -195,6 +195,58 @@ export class SectionsSeeder implements SeederModule {
           },
         ],
       },
+      {
+        section: {
+          page: 'home',
+          type: SectionType.CTA,
+          position: 5,
+          isEnabled: true,
+          config: {
+            layout: 'full-width',
+            style: 'center',
+            background: 'gradient',
+            accentColor: '#f97316',
+            backgroundImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1800&q=80',
+            overlayOpacity: 0.65,
+          },
+        },
+        translations: [
+          {
+            locale: 'en',
+            title: 'Launch bold retail storytelling',
+            subtitle: 'Ship CTA-driven banners without rewriting layouts',
+            description: 'Highlight product drops, choreograph campaigns, and drive traffic to the next best action from one reusable block.',
+            heroDescription: null,
+            configOverride: {
+              primaryCta: {
+                label: 'Plan a launch',
+                href: '/contact',
+              },
+              secondaryCta: {
+                label: 'Browse docs',
+                href: '/docs',
+              },
+            },
+          },
+          {
+            locale: 'vi',
+            title: 'Tăng tốc chiến dịch với CTA nổi bật',
+            subtitle: 'Kích hoạt banner thu hút chỉ trong vài phút',
+            description: 'Kể câu chuyện thương hiệu và dẫn dắt khách hàng đến hành động tiếp theo với một khối CTA linh hoạt.',
+            heroDescription: null,
+            configOverride: {
+              primaryCta: {
+                label: 'Trao đổi với đội ngũ',
+                href: '/contact',
+              },
+              secondaryCta: {
+                label: 'Xem tài liệu',
+                href: '/docs',
+              },
+            },
+          },
+        ],
+      },
     ];
 
     for (const entry of sections) {

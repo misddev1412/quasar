@@ -462,6 +462,13 @@ const renderCustomHtml = () => (
   };
 
   const renderCta = () => {
+    const handleLayoutChange = (layout: 'full-width' | 'container') => {
+      onChange({
+        ...(value ?? {}),
+        layout,
+      });
+    };
+
     const handleStyleChange = (style: 'center' | 'left' | 'right') => {
       onChange({
         ...(value ?? {}),
@@ -476,12 +483,27 @@ const renderCustomHtml = () => (
       });
     };
 
+    const currentLayout = (value?.layout as string) || 'full-width';
     const currentStyle = (value?.style as string) || 'center';
     const currentBackground = (value?.background as string) || 'primary';
 
     return (
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <label className="flex flex-col gap-1 text-sm text-gray-600">
+            {t('sections.manager.config.cta.layoutMode')}
+            <Select
+              value={currentLayout}
+              onChange={(layout) => handleLayoutChange(layout as 'full-width' | 'container')}
+              options={[
+                { value: 'full-width', label: t('sections.manager.config.cta.fullWidth') },
+                { value: 'container', label: t('sections.manager.config.cta.container') },
+              ]}
+              className="text-sm"
+            />
+            <span className="text-xs text-gray-500">{t('sections.manager.config.cta.layoutDescription')}</span>
+          </label>
+
           <label className="flex flex-col gap-1 text-sm text-gray-600">
             {t('sections.manager.config.cta.textAlign')}
             <Select
@@ -1642,11 +1664,12 @@ const sanitizeNewsConfigValue = (
   rows: NewsByCategoryAdminRow[],
 ): Record<string, unknown> => {
   const sanitizedRows = rows.map((row) => {
-    const trimmedTitle = typeof row.title === 'string' ? row.title.trim() : '';
+    const rawTitle = typeof row.title === 'string' ? row.title : '';
+    const hasNonWhitespaceTitle = rawTitle.trim().length > 0;
     return {
       id: row.id,
       categoryId: row.categoryId,
-      title: trimmedTitle || undefined,
+      title: hasNonWhitespaceTitle ? row.title : undefined,
       strategy: row.strategy,
       limit: row.limit,
       displayStyle: row.displayStyle,

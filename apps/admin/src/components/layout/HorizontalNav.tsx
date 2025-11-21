@@ -12,7 +12,8 @@ import {
   Menu,
   X,
   Mail,
-  Image
+  Image,
+  Wallet
 } from 'lucide-react';
 import Logo from './Logo';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -37,6 +38,12 @@ export const HorizontalNav: React.FC = () => {
       label: t('navigation.dashboard'),
       translationKey: 'navigation.dashboard',
       path: '/'
+    },
+    {
+      icon: <Wallet size={18} />,
+      label: t('transactions.title', 'Transactions'),
+      translationKey: 'transactions.title',
+      path: '/transactions'
     },
     {
       icon: <Users size={18} />,

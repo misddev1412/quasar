@@ -106,6 +106,7 @@ const EditPostPage: React.FC = () => {
       metaDescription: post?.translations?.[0]?.metaDescription || '',
       metaKeywords: post?.translations?.[0]?.metaKeywords || '',
       additionalTranslations: post?.translations?.slice(1) || [], // Additional translations excluding the first one
+      categoryIds: post?.categories?.map((category: any) => category.id) || [],
     };
   }, [postData]);
 

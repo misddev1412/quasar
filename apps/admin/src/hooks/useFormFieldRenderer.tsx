@@ -510,9 +510,10 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                 description={field.description}
                 error={error}
                 maxSelectedItems={field.maxItems || 10}
+                categorySource={field.categorySource}
               />
             )}
-          />
+        />
         );
 
       case 'custom':
@@ -738,4 +739,3 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
 
   return { renderField, renderTabContent };
 }
-

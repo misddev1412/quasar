@@ -39,6 +39,7 @@ import LanguagesEditPage from '../pages/languages/edit';
 // Currency Management
 import CurrenciesIndexPage from '../pages/currencies';
 import CurrenciesCreatePage from '../pages/currencies/create';
+import EditCurrencyPage from '../pages/currencies/[id]/edit';
 import StorageConfigPage from '../pages/storage';
 import FirebaseConfigsPage from '../pages/firebase-configs';
 import CreateFirebaseConfigPage from '../pages/firebase-configs/create';
@@ -62,10 +63,12 @@ import WarehouseLocationCreatePage from '../pages/warehouses/locations/create';
 import WarehouseLocationEditPage from '../pages/warehouses/locations/edit';
 import PaymentMethodsPage from '../pages/payment-methods';
 import DeliveryMethodsPage from '../pages/delivery-methods';
+import TransactionsPage from '../pages/transactions';
 import SupportClientsPage from '../pages/support-clients';
 import SectionsPage from '../pages/sections';
 import MenusPage from '../pages/menus';
 import HelpPage from '../pages/help';
+import StorefrontFooterPage from '../pages/storefront/footer';
 // Order Management
 import OrdersIndexPage from '../pages/orders';
 import OrderCreatePage from '../pages/orders/create';
@@ -74,6 +77,7 @@ import OrderDetailPage from '../pages/orders/detail';
 import OrderFulfillmentsPage from '../pages/orders/fulfillments';
 import OrderFulfillmentCreatePage from '../pages/orders/fulfillments/new';
 import OrderFulfillmentDetailPage from '../pages/orders/fulfillments/[id]';
+import OrderFulfillmentEditPage from '../pages/orders/fulfillments/edit';
 // Customer Management
 import CustomersIndexPage from '../pages/customers';
 import CustomerCreatePage from '../pages/customers/create';
@@ -81,6 +85,13 @@ import CustomerEditPage from '../pages/customers/edit';
 import CustomerDetailPage from '../pages/customers/detail';
 // Loyalty Management
 import LoyaltyManagementPage from '../pages/loyalty';
+import LoyaltyStatsPage from '../pages/loyalty/stats';
+import LoyaltyRewardsPage from '../pages/loyalty/rewards';
+import CreateLoyaltyRewardPage from '../pages/loyalty/rewards/create';
+import LoyaltyTiersPage from '../pages/loyalty/tiers';
+import CreateLoyaltyTierPage from '../pages/loyalty/tiers/create';
+import EditLoyaltyTierPage from '../pages/loyalty/tiers/[id]/edit';
+import LoyaltyTransactionsPage from '../pages/loyalty/transactions';
 import CategoriesPage from '../pages/products/categories';
 import EditCategoryPage from '../pages/products/categories/edit';
 import CategoryCreatePage from '../pages/products/categories/create';
@@ -158,6 +169,7 @@ const AppRoutes: React.FC = () => {
       {/* Currencies */}
       <Route path="/currencies" element={<ProtectedRoute><CurrenciesIndexPage /></ProtectedRoute>} />
       <Route path="/currencies/create" element={<ProtectedRoute><CurrenciesCreatePage /></ProtectedRoute>} />
+      <Route path="/currencies/:id/edit" element={<ProtectedRoute><EditCurrencyPage /></ProtectedRoute>} />
       {/* Shipping Providers */}
       <Route path="/shipping-providers" element={<ProtectedRoute><ShippingProvidersIndexPage /></ProtectedRoute>} />
       <Route path="/shipping-providers/create" element={<ProtectedRoute><CreateShippingProviderPage /></ProtectedRoute>} />
@@ -184,12 +196,14 @@ const AppRoutes: React.FC = () => {
       <Route path="/warehouses/locations/create" element={<ProtectedRoute><WarehouseLocationCreatePage /></ProtectedRoute>} />
       <Route path="/warehouses/locations/:id" element={<ProtectedRoute><WarehouseLocationEditPage /></ProtectedRoute>} />
       <Route path="/payment-methods" element={<ProtectedRoute><PaymentMethodsPage /></ProtectedRoute>} />
+      <Route path="/transactions" element={<ProtectedRoute><TransactionsPage /></ProtectedRoute>} />
       <Route path="/delivery-methods" element={<ProtectedRoute><DeliveryMethodsPage /></ProtectedRoute>} />
       <Route path="/support-clients" element={<ProtectedRoute><SupportClientsPage /></ProtectedRoute>} />
       <Route path="/sections" element={<Navigate to="/sections/home" replace />} />
       <Route path="/sections/:page" element={<ProtectedRoute><SectionsPage /></ProtectedRoute>} />
       <Route path="/menus" element={<Navigate to="/menus/main" replace />} />
       <Route path="/menus/:group" element={<ProtectedRoute><MenusPage /></ProtectedRoute>} />
+      <Route path="/storefront/footer" element={<ProtectedRoute><StorefrontFooterPage /></ProtectedRoute>} />
       <Route path="/products/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
       <Route path="/products/categories/create" element={<ProtectedRoute><CategoryCreatePage /></ProtectedRoute>} />
       <Route path="/products/categories/:id/edit" element={<ProtectedRoute><EditCategoryPage /></ProtectedRoute>} />
@@ -201,6 +215,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/orders/fulfillments" element={<ProtectedRoute><OrderFulfillmentsPage /></ProtectedRoute>} />
       <Route path="/orders/fulfillments/new" element={<ProtectedRoute><OrderFulfillmentCreatePage /></ProtectedRoute>} />
       <Route path="/orders/fulfillments/:id" element={<ProtectedRoute><OrderFulfillmentDetailPage /></ProtectedRoute>} />
+      <Route path="/orders/fulfillments/:id/edit" element={<ProtectedRoute><OrderFulfillmentEditPage /></ProtectedRoute>} />
       {/* Customer Management */}
       <Route path="/customers" element={<ProtectedRoute><CustomersIndexPage /></ProtectedRoute>} />
       <Route path="/customers/create" element={<ProtectedRoute><CustomerCreatePage /></ProtectedRoute>} />
@@ -208,6 +223,13 @@ const AppRoutes: React.FC = () => {
       <Route path="/customers/:id/edit" element={<ProtectedRoute><CustomerEditPage /></ProtectedRoute>} />
       {/* Loyalty Management */}
       <Route path="/loyalty" element={<ProtectedRoute><LoyaltyManagementPage /></ProtectedRoute>} />
+      <Route path="/loyalty/stats" element={<ProtectedRoute><LoyaltyStatsPage /></ProtectedRoute>} />
+      <Route path="/loyalty/rewards" element={<ProtectedRoute><LoyaltyRewardsPage /></ProtectedRoute>} />
+      <Route path="/loyalty/rewards/create" element={<ProtectedRoute><CreateLoyaltyRewardPage /></ProtectedRoute>} />
+      <Route path="/loyalty/tiers" element={<ProtectedRoute><LoyaltyTiersPage /></ProtectedRoute>} />
+      <Route path="/loyalty/tiers/create" element={<ProtectedRoute><CreateLoyaltyTierPage /></ProtectedRoute>} />
+      <Route path="/loyalty/tiers/:id/edit" element={<ProtectedRoute><EditLoyaltyTierPage /></ProtectedRoute>} />
+      <Route path="/loyalty/transactions" element={<ProtectedRoute><LoyaltyTransactionsPage /></ProtectedRoute>} />
       <Route path="/test/date-input" element={<ProtectedRoute><DateInputTest /></ProtectedRoute>} />
       <Route path="/test/phone-input" element={<ProtectedRoute><PhoneInputTest /></ProtectedRoute>} />
       {/* 404页面，不需要认证 */}

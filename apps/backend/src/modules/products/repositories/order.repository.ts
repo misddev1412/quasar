@@ -179,8 +179,22 @@ export class OrderRepository {
   async findById(id: string, relations: string[] = []): Promise<Order | null> {
     const options: any = { where: { id } };
 
-    if (relations.includes('items')) {
-      options.relations = ['items'];
+    if (relations.length > 0) {
+      const relationAliases: Record<string, string> = {
+        'fulfillments.items': 'fulfillments.fulfillmentItems',
+      };
+      const allowedRelations = new Set([
+        'items',
+        'fulfillments',
+        'fulfillments.fulfillmentItems',
+      ]);
+      const normalizedRelations = relations
+        .map((relation) => relationAliases[relation] ?? relation)
+        .filter((relation) => allowedRelations.has(relation));
+
+      if (normalizedRelations.length > 0) {
+        options.relations = normalizedRelations;
+      }
     }
 
     return this.orderRepository.findOne(options);
@@ -189,8 +203,22 @@ export class OrderRepository {
   async findByOrderNumber(orderNumber: string, relations: string[] = []): Promise<Order | null> {
     const options: any = { where: { orderNumber } };
 
-    if (relations.includes('items')) {
-      options.relations = ['items'];
+    if (relations.length > 0) {
+      const relationAliases: Record<string, string> = {
+        'fulfillments.items': 'fulfillments.fulfillmentItems',
+      };
+      const allowedRelations = new Set([
+        'items',
+        'fulfillments',
+        'fulfillments.fulfillmentItems',
+      ]);
+      const normalizedRelations = relations
+        .map((relation) => relationAliases[relation] ?? relation)
+        .filter((relation) => allowedRelations.has(relation));
+
+      if (normalizedRelations.length > 0) {
+        options.relations = normalizedRelations;
+      }
     }
 
     return this.orderRepository.findOne(options);

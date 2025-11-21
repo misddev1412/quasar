@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Order, OrderStatus, PaymentStatus, OrderSource } from '../entities/order.entity';
 import { Customer } from '../entities/customer.entity';
 import { OrderItem } from '../entities/order-item.entity';
@@ -8,6 +8,15 @@ import { OrderRepository } from '../repositories/order.repository';
 import { ProductRepository } from '../repositories/product.repository';
 import { ProductVariantRepository } from '../repositories/product-variant.repository';
 import { DeliveryMethodService } from './delivery-method.service';
+import {
+  CustomerTransaction,
+  CustomerTransactionEntry,
+  CustomerTransactionStatus,
+  CustomerTransactionType,
+  LedgerAccountType,
+  LedgerEntryDirection,
+  TransactionChannel,
+} from '../../user/entities/customer-transaction.entity';
 
 export interface OrderFilters {
   page: number;
@@ -494,6 +503,7 @@ export class ClientOrderService {
         shippingCost,
         discountAmount,
         totalAmount,
+        amountPaid: 0,
         currency,
         billingAddress: this.mapOrderAddress(billingAddress),
         shippingAddress: this.mapOrderAddress(shippingAddress),
@@ -531,6 +541,19 @@ export class ClientOrderService {
 
       customer.updateOrderStats(Number(totalAmount));
       await customerRepository.save(customer);
+
+      await this.recordOrderPaymentTransaction(manager, {
+        customerId: customer.id,
+        order: savedOrder,
+        paymentMethod: payload.paymentMethod,
+        subtotal,
+        taxAmount,
+        shippingCost,
+        discountAmount,
+        totalAmount,
+        currency,
+        itemCount: enrichedItems.length,
+      });
 
       return orderRepository.findOne({
         where: { id: savedOrder.id },
@@ -596,5 +619,157 @@ export class ClientOrderService {
       default:
         return 'orderDate';
     }
+  }
+
+  private async recordOrderPaymentTransaction(
+    manager: EntityManager,
+    params: {
+      customerId: string;
+      order: Order;
+      paymentMethod?: ClientCheckoutPaymentMethod;
+      subtotal: number;
+      taxAmount: number;
+      shippingCost: number;
+      discountAmount: number;
+      totalAmount: number;
+      currency?: string;
+      itemCount: number;
+    },
+  ): Promise<void> {
+    const normalizedAmount = this.normalizeCurrencyValue(params.totalAmount);
+    if (normalizedAmount <= 0 || !params.order?.id) {
+      return;
+    }
+
+    const transactionRepository = manager.getRepository(CustomerTransaction);
+
+    const existingTransaction = await transactionRepository.findOne({
+      where: {
+        relatedEntityType: 'order',
+        relatedEntityId: params.order.id,
+      },
+    });
+
+    if (existingTransaction) {
+      return;
+    }
+
+    const currency = (params.currency || params.order.currency || 'USD').toUpperCase();
+    const paymentType = params.paymentMethod?.type || params.order.paymentMethod || 'unknown';
+    const referenceId =
+      params.paymentMethod?.reference ||
+      params.order.paymentReference ||
+      params.paymentMethod?.last4 ||
+      params.order.orderNumber;
+    const description = `Payment for order #${params.order.orderNumber ?? params.order.id} via ${paymentType}`;
+
+    const entryCount = 2;
+    const transactionPayload = {
+      customerId: params.customerId,
+      type: CustomerTransactionType.ORDER_PAYMENT,
+      status: CustomerTransactionStatus.PENDING,
+      impactDirection: LedgerEntryDirection.DEBIT,
+      impactAmount: normalizedAmount,
+      currency,
+      channel: TransactionChannel.CUSTOMER,
+      referenceId: referenceId ?? undefined,
+      description,
+      relatedEntityType: 'order' as const,
+      relatedEntityId: params.order.id,
+      metadata: {
+        orderId: params.order.id,
+        orderNumber: params.order.orderNumber,
+        paymentMethod: params.paymentMethod?.type ?? params.order.paymentMethod,
+        paymentReference: params.paymentMethod?.reference ?? params.order.paymentReference,
+        provider: params.paymentMethod?.provider,
+        last4: params.paymentMethod?.last4,
+        totals: {
+          subtotal: this.normalizeCurrencyValue(params.subtotal),
+          taxAmount: this.normalizeCurrencyValue(params.taxAmount),
+          shippingCost: this.normalizeCurrencyValue(params.shippingCost),
+          discountAmount: this.normalizeCurrencyValue(params.discountAmount),
+          totalAmount: normalizedAmount,
+        },
+        itemCount: params.itemCount,
+      },
+      transactionCode: this.generateTransactionCode(),
+      totalAmount: normalizedAmount,
+      entryCount,
+    };
+
+    const insertResult = await transactionRepository
+      .createQueryBuilder()
+      .insert()
+      .values(transactionPayload)
+      .returning(['id'])
+      .execute();
+
+    const transactionId = insertResult.identifiers?.[0]?.id as string | undefined;
+    if (!transactionId) {
+      return;
+    }
+
+    const entries = this.buildLedgerEntries(
+      transactionId,
+      normalizedAmount,
+      currency,
+      LedgerEntryDirection.DEBIT,
+      LedgerAccountType.PLATFORM_CLEARING,
+      description,
+    );
+
+    const entryRepository = manager.getRepository(CustomerTransactionEntry);
+    await entryRepository
+      .createQueryBuilder()
+      .insert()
+      .values(entries)
+      .execute();
+  }
+
+  private buildLedgerEntries(
+    transactionId: string,
+    amount: number,
+    currency: string,
+    direction: LedgerEntryDirection,
+    counterAccount: LedgerAccountType,
+    description?: string,
+  ): Array<Partial<CustomerTransactionEntry>> {
+    const primaryEntry: Partial<CustomerTransactionEntry> = {
+      transactionId,
+      ledgerAccount: LedgerAccountType.CUSTOMER_BALANCE,
+      entryDirection: direction,
+      amount,
+      currency,
+      description,
+    };
+
+    const counterEntry: Partial<CustomerTransactionEntry> = {
+      transactionId,
+      ledgerAccount: counterAccount,
+      entryDirection:
+        direction === LedgerEntryDirection.CREDIT
+          ? LedgerEntryDirection.DEBIT
+          : LedgerEntryDirection.CREDIT,
+      amount,
+      currency,
+      description,
+    };
+
+    return [primaryEntry, counterEntry];
+  }
+
+  private generateTransactionCode(): string {
+    return `CTX-${Date.now().toString(36).toUpperCase()}-${Math.random()
+      .toString(36)
+      .substring(2, 6)
+      .toUpperCase()}`;
+  }
+
+  private normalizeCurrencyValue(value?: number | null): number {
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue)) {
+      return 0;
+    }
+    return Math.round((numericValue + Number.EPSILON) * 100) / 100;
   }
 }

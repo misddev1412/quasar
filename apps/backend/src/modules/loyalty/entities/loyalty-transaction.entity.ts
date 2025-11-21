@@ -17,6 +17,7 @@ export enum TransactionType {
 export class LoyaltyTransaction extends BaseEntity {
   @Expose()
   @Column({
+    name: 'customer_id',
     type: 'uuid',
   })
   customerId: string;
@@ -47,6 +48,7 @@ export class LoyaltyTransaction extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'order_id',
     type: 'uuid',
     nullable: true,
   })
@@ -59,6 +61,7 @@ export class LoyaltyTransaction extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'reward_id',
     type: 'uuid',
     nullable: true,
   })
@@ -71,12 +74,14 @@ export class LoyaltyTransaction extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'balance_after',
     type: 'integer',
   })
   balanceAfter: number;
 
   @Expose()
   @Column({
+    name: 'expires_at',
     type: 'timestamp',
     nullable: true,
   })

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronDown, X, Search, Check, Tag, Folder } from 'lucide-react';
+import { ChevronDown, X, Search, Check, Folder } from 'lucide-react';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
 import { InputWithIcon } from './InputWithIcon';
@@ -27,6 +27,7 @@ interface CategoryMultiSelectProps {
   required?: boolean;
   className?: string;
   maxSelectedItems?: number;
+  categorySource?: 'product' | 'post';
 }
 
 export const CategoryMultiSelect: React.FC<CategoryMultiSelectProps> = ({
@@ -40,18 +41,34 @@ export const CategoryMultiSelect: React.FC<CategoryMultiSelectProps> = ({
   required = false,
   className = '',
   maxSelectedItems = 10,
+  categorySource = 'product',
 }) => {
   const { t } = useTranslationWithBackend();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch categories from API
-  const { data: categoriesData, isLoading } = trpc.adminProductCategories.getTree.useQuery({
-    includeInactive: false,
+  // Fetch categories from the requested source
+  const {
+    data: productCategoriesData,
+    isLoading: productCategoriesLoading,
+  } = trpc.adminProductCategories.getTree.useQuery(
+    { includeInactive: false },
+    { enabled: categorySource === 'product' },
+  );
+
+  const {
+    data: postCategoriesData,
+    isLoading: postCategoriesLoading,
+  } = trpc.adminPostCategories.getCategories.useQuery(undefined, {
+    enabled: categorySource === 'post',
   });
+
+  const categoriesResponse =
+    categorySource === 'post' ? postCategoriesData : productCategoriesData;
+  const isLoading =
+    categorySource === 'post' ? postCategoriesLoading : productCategoriesLoading;
 
   // Flatten the tree structure to work with the existing logic
   const flattenCategories = (categories: any[], level = 0): Category[] => {
@@ -75,7 +92,9 @@ export const CategoryMultiSelect: React.FC<CategoryMultiSelectProps> = ({
     return result;
   };
 
-  const categories = (categoriesData as any)?.data ? flattenCategories((categoriesData as any).data) : [];
+  const categories = (categoriesResponse as any)?.data
+    ? flattenCategories((categoriesResponse as any).data)
+    : [];
 
   // Filter categories based on search term
   const filteredCategories = categories.filter((category) =>
@@ -135,9 +154,6 @@ export const CategoryMultiSelect: React.FC<CategoryMultiSelectProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Focus search input when dropdown opens
-  // Note: InputWithIcon doesn't support ref forwarding yet
-
   // Keyboard navigation
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (!isOpen) {
@@ -173,17 +189,6 @@ export const CategoryMultiSelect: React.FC<CategoryMultiSelectProps> = ({
         }
         break;
     }
-  };
-
-  // Generate category display name with hierarchy
-  const getCategoryDisplayName = (category: Category) => {
-    if (category.level === 0) {
-      return category.name;
-    }
-
-    // Add indentation based on level
-    const indent = '  '.repeat(category.level);
-    return `${indent}${category.name}`;
   };
 
   return (

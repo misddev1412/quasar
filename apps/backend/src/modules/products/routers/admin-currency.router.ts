@@ -27,6 +27,17 @@ const createCurrencySchema = z.object({
   isDefault: z.boolean().optional(),
 });
 
+const updateCurrencySchema = z.object({
+  code: z.string().min(3, 'Code must be 3 characters').max(3, 'Code must be 3 characters').optional(),
+  name: z.string().min(2).max(100).optional(),
+  symbol: z.string().min(1).max(10).optional(),
+  exchangeRate: z.number().positive().optional(),
+  decimalPlaces: z.number().int().min(0).max(8).optional(),
+  format: z.string().min(3).max(30).optional(),
+  isActive: z.boolean().optional(),
+  isDefault: z.boolean().optional(),
+});
+
 const currencyIdSchema = z.object({
   id: z.string().uuid('Invalid currency id'),
 });
@@ -38,6 +49,26 @@ export class AdminCurrencyRouter {
     private readonly currencyService: AdminCurrencyService,
     private readonly responseService: ResponseService,
   ) {}
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: currencyIdSchema,
+    output: apiResponseSchema,
+  })
+  async getCurrencyById(@Input() input: z.infer<typeof currencyIdSchema>) {
+    try {
+      const currency = await this.currencyService.findById(input.id);
+      return this.responseService.createTrpcSuccess(currency);
+    } catch (error) {
+      throw this.responseService.createTRPCError(
+        ModuleCode.PRODUCT,
+        OperationCode.READ,
+        ErrorLevelCode.SERVER_ERROR,
+        error instanceof Error ? error.message : 'Failed to load currency',
+        error,
+      );
+    }
+  }
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
@@ -54,6 +85,26 @@ export class AdminCurrencyRouter {
         OperationCode.READ,
         ErrorLevelCode.SERVER_ERROR,
         error instanceof Error ? error.message : 'Failed to load currencies',
+        error,
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: updateCurrencySchema,
+    output: apiResponseSchema,
+  })
+  async updateCurrency(@Input() input: z.infer<typeof updateCurrencySchema> & { id: string }) {
+    try {
+      const currency = await this.currencyService.update(input.id, input);
+      return this.responseService.createTrpcSuccess(currency);
+    } catch (error) {
+      throw this.responseService.createTRPCError(
+        ModuleCode.PRODUCT,
+        OperationCode.UPDATE,
+        ErrorLevelCode.SERVER_ERROR,
+        error instanceof Error ? error.message : 'Failed to update currency',
         error,
       );
     }

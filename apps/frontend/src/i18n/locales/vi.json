@@ -1693,6 +1693,12 @@
         "custom": "Tự chọn sản phẩm"
       },
       "bestsellers_disabled": "Tính năng sản phẩm bán chạy đang được phát triển, vui lòng chọn tuỳ chọn khác."
+    },
+    "cta_banner": {
+      "default_title": "Điều phối chiến dịch mà không cần chỉnh sửa mã",
+      "default_description": "Dùng banner CTA để nhấn mạnh thông điệp ra mắt, ưu đãi hoặc hành động tiếp theo trên storefront.",
+      "primary_label": "Trao đổi với đội ngũ",
+      "secondary_label": "Xem tài liệu"
     }
   },
   "notifications": {

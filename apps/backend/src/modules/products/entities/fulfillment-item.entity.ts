@@ -4,6 +4,7 @@ import { Expose } from 'class-transformer';
 import { OrderFulfillment } from './order-fulfillment.entity';
 import { OrderItem } from './order-item.entity';
 import { User } from '@backend/modules/user/entities/user.entity';
+import { decimalColumnTransformer } from './transformers/decimal-column.transformer';
 
 export enum FulfillmentItemStatus {
   PENDING = 'PENDING',
@@ -151,6 +152,7 @@ export class FulfillmentItem extends BaseEntity {
     precision: 8,
     scale: 3,
     nullable: true,
+    transformer: decimalColumnTransformer,
   })
   weight?: number;
 

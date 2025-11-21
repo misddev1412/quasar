@@ -38,6 +38,11 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PolicyIcon from '@mui/icons-material/Policy';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import LoyaltyIcon from '@mui/icons-material/CardMembership';
+import StarsIcon from '@mui/icons-material/Stars';
+import RedeemIcon from '@mui/icons-material/Redeem';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 
 export class NavigationService implements INavigationService {
   constructor(private translate: (key: string, fallback?: string) => string) {}
@@ -133,18 +138,23 @@ export class NavigationService implements INavigationService {
             path: '/menus/main'
           },
           {
+            icon: React.createElement(ViewQuiltIcon),
+            label: t('storefront.footer.nav', 'Footer Builder'),
+            path: '/storefront/footer'
+          },
+          {
             icon: React.createElement(DescriptionIcon),
-            label: t('admin.seo_management', 'SEO管理'),
+            label: t('admin.seo_management', 'Quản lý SEO'),
             path: '/seo'
           },
           {
             icon: React.createElement(EmailIcon),
-            label: t('admin.mail_templates', 'Mail Templates'),
+            label: t('admin.mail_templates', 'Mẫu Email'),
             path: '/mail-templates'
           },
           {
             icon: React.createElement(LanguageIcon),
-            label: t('admin.translations', '翻译'),
+            label: t('admin.translations', 'Bản dịch'),
             path: '/translations'
           }
         ]
@@ -154,28 +164,60 @@ export class NavigationService implements INavigationService {
         items: [
           {
             icon: React.createElement(ViewListIcon),
-            label: t('products.title', 'Products'),
+            label: t('products.title', 'Sản phẩm'),
             path: '/products'
           },
           {
             icon: React.createElement(BrandingWatermarkIcon),
-            label: t('brands.title', 'Brands'),
+            label: t('brands.title', 'Thương hiệu'),
             path: '/products/brands'
           },
           {
             icon: React.createElement(CategoryIcon),
-            label: t('categories.title', 'Categories'),
+            label: t('categories.title', 'Danh mục'),
             path: '/products/categories'
           },
           {
             icon: React.createElement(TuneIcon),
-            label: t('attributes.title', 'Attributes'),
+            label: t('attributes.title', 'Thuộc tính'),
             path: '/products/attributes'
           },
           {
             icon: React.createElement(BusinessIcon),
-            label: t('suppliers.title', 'Suppliers'),
+            label: t('suppliers.title', 'Nhà cung cấp'),
             path: '/products/suppliers'
+          }
+        ]
+      },
+      {
+        title: t('loyalty.navigation.title', 'Chương trình khách hàng thân thiết'),
+        items: [
+          {
+            icon: React.createElement(LoyaltyIcon),
+            label: t('loyalty.navigation.overview', 'Tổng quan'),
+            path: '/loyalty',
+            subItems: [
+              {
+                icon: React.createElement(TimelineIcon),
+                label: t('loyalty.navigation.dashboard', 'Bảng điều khiển'),
+                path: '/loyalty/stats'
+              }
+            ]
+          },
+          {
+            icon: React.createElement(StarsIcon),
+            label: t('loyalty.navigation.tiers', 'Hạng thành viên'),
+            path: '/loyalty/tiers'
+          },
+          {
+            icon: React.createElement(RedeemIcon),
+            label: t('loyalty.navigation.rewards', 'Phần thưởng'),
+            path: '/loyalty/rewards'
+          },
+          {
+            icon: React.createElement(TimelineIcon),
+            label: t('loyalty.navigation.transactions', 'Giao dịch'),
+            path: '/loyalty/transactions'
           }
         ]
       },
@@ -184,44 +226,49 @@ export class NavigationService implements INavigationService {
         items: [
           {
             icon: React.createElement(ShoppingCartIcon),
-            label: t('orders.title', 'Orders'),
+            label: t('orders.title', 'Đơn hàng'),
             path: '/orders'
           },
           {
             icon: React.createElement(PackageIcon),
-            label: t('fulfillments.title', 'Order Fulfillments'),
+            label: t('fulfillments.title', 'Xử lý đơn hàng'),
             path: '/orders/fulfillments'
           },
           {
             icon: React.createElement(PersonIcon),
-            label: t('customers.title', 'Customers'),
+            label: t('customers.title', 'Khách hàng'),
             path: '/customers'
           },
           {
             icon: React.createElement(WarehouseIcon),
-            label: t('warehouses.title', 'Warehouses'),
+            label: t('warehouses.title', 'Kho hàng'),
             path: '/warehouses',
             subItems: [
               {
                 icon: React.createElement(WarehouseIcon),
-                label: t('warehouses.title', 'Warehouses'),
+                label: t('warehouses.title', 'Kho hàng'),
                 path: '/warehouses'
               },
               {
                 icon: React.createElement(LocationOnIcon),
-                label: t('warehouse_locations.title', 'Warehouse Locations'),
+                label: t('warehouse_locations.title', 'Vị trí kho hàng'),
                 path: '/warehouses/locations'
               }
             ]
           },
           {
             icon: React.createElement(PaymentIcon),
-            label: t('payment_methods.title', 'Payment Methods'),
+            label: t('payment_methods.title', 'Phương thức thanh toán'),
             path: '/payment-methods'
           },
           {
+            icon: React.createElement(AccountBalanceWalletIcon),
+            label: t('transactions.title', 'Giao dịch'),
+            path: '/transactions'
+          },
+          {
             icon: React.createElement(LocalShippingIcon),
-            label: t('delivery_methods.title', 'Delivery Methods'),
+            label: t('delivery_methods.title', 'Phương thức giao hàng'),
             path: '/delivery-methods'
           }
         ]
@@ -243,7 +290,7 @@ export class NavigationService implements INavigationService {
           },
           {
             icon: React.createElement(SupportAgentIcon),
-            label: t('support_clients.title', 'Support Clients'),
+            label: t('support_clients.title', 'Hỗ trợ khách hàng'),
             path: '/support-clients'
           }
         ]
@@ -268,49 +315,49 @@ export class NavigationService implements INavigationService {
           },
           {
             icon: React.createElement(StorageIcon),
-            label: t('navigation.storage', 'Storage Configuration'),
+            label: t('navigation.storage', 'Cấu hình lưu trữ'),
             path: '/storage'
           },
           {
             icon: React.createElement(FirebaseIcon),
-            label: t('navigation.firebase_configs', 'Firebase Configurations'),
+            label: t('navigation.firebase_configs', 'Cấu hình Firebase'),
             path: '/firebase-configs'
           },
           {
             icon: React.createElement(ImageIcon),
-            label: t('brand.assets_title', 'Brand Assets'),
+            label: t('brand.assets_title', 'Tài sản thương hiệu'),
             path: '/brand-assets'
           },
           {
             icon: React.createElement(AnalyticsIcon),
-            label: t('analytics.title', 'Analytics'),
+            label: t('analytics.title', 'Phân tích'),
             path: '/analytics'
           },
           {
             icon: React.createElement(SettingsIcon),
-            label: t('navigation.settings', 'Settings'),
+            label: t('navigation.settings', 'Cài đặt'),
             path: '/settings-management',
             subItems: [
               {
                 icon: React.createElement(TuneIcon),
-                label: t('navigation.general_settings', 'General Settings'),
+                label: t('navigation.general_settings', 'Cài đặt chung'),
                 path: '/settings'
               },
               {
                 icon: React.createElement(FlashOnIcon),
-                label: t('floating_icons.navigation', 'Floating Icons'),
+                label: t('floating_icons.navigation', 'Biểu tượng nổi'),
                 path: '/settings/floating-icons'
               },
               {
                 icon: React.createElement(PublicIcon),
-                label: t('navigation.settings_visibility', 'Settings Visibility'),
+                label: t('navigation.settings_visibility', 'Hiển thị cài đặt'),
                 path: '/settings/visibility'
               }
             ]
           },
           {
             icon: React.createElement(HelpIcon),
-            label: t('navigation.help', '帮助'),
+            label: t('navigation.help', 'Trợ giúp'),
             path: '/help'
           }
         ]
@@ -388,7 +435,7 @@ export class NavigationService implements INavigationService {
       return currentPath === path || currentPath.startsWith(path + '/');
     }
 
-    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/warehouses', '/warehouses/locations'];
+    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats'];
     if (exactMatchPaths.includes(path)) {
       return currentPath === path;
     }

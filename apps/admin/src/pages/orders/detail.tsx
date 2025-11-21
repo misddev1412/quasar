@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   FiShoppingBag,
@@ -17,7 +17,11 @@ import {
   FiPrinter,
   FiDownload,
   FiCopy,
-  FiHome
+  FiHome,
+  FiRefreshCw,
+  FiExternalLink,
+  FiChevronLeft,
+  FiChevronRight
 } from 'react-icons/fi';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { Loading } from '../../components/common/Loading';
@@ -28,7 +32,11 @@ import { Dropdown } from '../../components/common/Dropdown';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
+import { Link } from 'react-router-dom';
+import type { CustomerTransaction, CustomerTransactionStatus } from '../../types/transactions';
+import type { PaginatedResponse } from '@backend/trpc/schemas/response.schemas';
 import type { AdministrativeDivisionType } from '../../../../backend/src/modules/products/entities/administrative-division.entity';
+import { OrderTransactionModal } from '../../components/orders/OrderTransactionModal';
 
 const formatAmount = (value: unknown) => {
   const numericValue = typeof value === 'number'
@@ -42,6 +50,36 @@ const formatAmount = (value: unknown) => {
   }
 
   return numericValue.toFixed(2);
+};
+
+const getTransactionStatusBadgeVariant = (status: CustomerTransactionStatus) => {
+  switch (status) {
+    case 'completed':
+      return 'success';
+    case 'pending':
+    case 'processing':
+      return 'warning';
+    case 'failed':
+    case 'cancelled':
+      return 'destructive';
+    default:
+      return 'info';
+  }
+};
+
+const formatTransactionAmount = (transaction: Pick<CustomerTransaction, 'impactAmount' | 'currency'>) => {
+  const amount = Number(transaction.impactAmount ?? 0);
+  if (!Number.isFinite(amount)) {
+    return `${transaction.currency ?? 'USD'} 0.00`;
+  }
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: transaction.currency || 'USD',
+    }).format(amount);
+  } catch {
+    return `${transaction.currency ?? 'USD'} ${amount.toFixed(2)}`;
+  }
 };
 
 type OrderAddress = {
@@ -112,10 +150,13 @@ const formatAddressLine = (city?: string, province?: string, postalCode?: string
 
 const OrderDetailPage: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const { id: routeOrderId } = useParams<{ id: string }>();
   const { addToast } = useToast();
   const { t } = useTranslationWithBackend();
   const [isUpdating, setIsUpdating] = useState(false);
+  const [transactionsPage, setTransactionsPage] = useState(1);
+  const transactionsPageSize = 10;
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
 
   // Fetch order data
   const {
@@ -124,8 +165,8 @@ const OrderDetailPage: React.FC = () => {
     error: orderError,
     refetch: refetchOrder,
   } = trpc.adminOrders.detail.useQuery(
-    { id: id! },
-    { enabled: !!id }
+    { id: routeOrderId! },
+    { enabled: !!routeOrderId }
   );
 
   const updateStatusMutation = trpc.adminOrders.updateStatus.useMutation({
@@ -165,16 +206,16 @@ const OrderDetailPage: React.FC = () => {
   });
 
   const handleStatusUpdate = async (status: string) => {
-    if (!id) return;
+    if (!routeOrderId) return;
 
     try {
       setIsUpdating(true);
       if (status === 'SHIPPED') {
-        await shipOrderMutation.mutateAsync({ id });
+        await shipOrderMutation.mutateAsync({ id: routeOrderId });
       } else if (status === 'CANCELLED') {
-        await cancelOrderMutation.mutateAsync({ id });
+        await cancelOrderMutation.mutateAsync({ id: routeOrderId });
       } else {
-        await updateStatusMutation.mutateAsync({ id, status: status as any });
+        await updateStatusMutation.mutateAsync({ id: routeOrderId, status: status as any });
       }
     } catch (error) {
       console.error('Failed to update order status:', error);
@@ -208,6 +249,80 @@ const OrderDetailPage: React.FC = () => {
   };
 
   const order = (orderData as any)?.data;
+  const resolvedOrderId = order?.id ?? routeOrderId ?? '';
+
+  useEffect(() => {
+    if (resolvedOrderId) {
+      setTransactionsPage(1);
+    }
+  }, [resolvedOrderId]);
+
+  const orderTransactionsInput = useMemo(() => {
+    if (!resolvedOrderId) {
+      return undefined;
+    }
+
+    return {
+      page: transactionsPage,
+      limit: transactionsPageSize,
+      relatedEntityType: 'order' as const,
+      relatedEntityId: resolvedOrderId,
+    };
+  }, [resolvedOrderId, transactionsPage, transactionsPageSize]);
+
+  const {
+    data: orderTransactionsResponse,
+    isLoading: orderTransactionsLoading,
+    refetch: refetchOrderTransactions,
+  } = trpc.adminCustomerTransactions.list.useQuery(
+    orderTransactionsInput as any,
+    { enabled: Boolean(orderTransactionsInput) },
+  );
+
+  const orderTransactionsResult = orderTransactionsResponse as PaginatedResponse<CustomerTransaction> | undefined;
+  const rawOrderTransactions = orderTransactionsInput ? orderTransactionsResult?.data?.items ?? [] : [];
+  const orderTransactions = resolvedOrderId
+    ? rawOrderTransactions.filter((transaction) => transaction.relatedEntityId === resolvedOrderId)
+    : rawOrderTransactions;
+  const hasUnexpectedTransactions = rawOrderTransactions.some(
+    (transaction) => transaction.relatedEntityId !== resolvedOrderId,
+  );
+  const orderTransactionsPageInfo = orderTransactionsResult?.data;
+  const backendTotal = orderTransactionsPageInfo?.total ?? orderTransactions.length;
+  const backendTotalPages = orderTransactionsPageInfo?.totalPages ?? Math.max(
+    backendTotal > 0 ? 1 : 0,
+    Math.ceil(backendTotal / (orderTransactionsPageInfo?.limit ?? transactionsPageSize)),
+  );
+  const orderTransactionsTotal = hasUnexpectedTransactions ? orderTransactions.length : backendTotal;
+  const orderTransactionsTotalPages = hasUnexpectedTransactions
+    ? (orderTransactionsTotal > 0 ? 1 : 0)
+    : backendTotalPages;
+  const orderTransactionsLimit = hasUnexpectedTransactions
+    ? transactionsPageSize
+    : orderTransactionsPageInfo?.limit ?? transactionsPageSize;
+  const orderTransactionsPageNumber = hasUnexpectedTransactions
+    ? 1
+    : orderTransactionsPageInfo?.page ?? transactionsPage;
+  const orderTransactionsFrom = orderTransactionsTotal === 0
+    ? 0
+    : hasUnexpectedTransactions
+      ? 1
+      : (orderTransactionsPageNumber - 1) * orderTransactionsLimit + 1;
+  const orderTransactionsTo = orderTransactionsTotal === 0
+    ? 0
+    : hasUnexpectedTransactions
+      ? orderTransactions.length
+      : Math.min(orderTransactionsPageNumber * orderTransactionsLimit, orderTransactionsTotal);
+
+  useEffect(() => {
+    if (
+      !orderTransactionsLoading &&
+      orderTransactionsTotalPages > 0 &&
+      transactionsPage > orderTransactionsTotalPages
+    ) {
+      setTransactionsPage(orderTransactionsTotalPages);
+    }
+  }, [orderTransactionsLoading, orderTransactionsTotalPages, transactionsPage]);
 
   const billingDivisions = useAdministrativeDivisionNames(order?.billingAddress);
   const shippingDivisions = useAdministrativeDivisionNames(order?.shippingAddress);
@@ -506,6 +621,164 @@ const OrderDetailPage: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* Order Transactions */}
+            <div className="bg-white rounded-lg shadow">
+              <div className="p-6 border-b border-gray-200 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-center gap-3">
+                  <FiDollarSign className="h-5 w-5 text-gray-600" />
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      {t('orders.transactions.title', 'Payment transactions')}
+                    </h2>
+                    <p className="text-sm text-gray-500">
+                      {t('orders.transactions.subtitle', 'Financial records linked to this order')}
+                    </p>
+                  </div>
+                  <span className="text-sm text-gray-500">
+                    ({orderTransactionsTotal})
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => setShowTransactionModal(true)}
+                    disabled={!order?.customerId}
+                    title={!order?.customerId ? t('orders.transactions.quick_action.missing_customer_message', 'This order is not linked to a customer, so revenue cannot be recorded.') : undefined}
+                  >
+                    <FiDollarSign className="mr-2 h-4 w-4" />
+                    {t('orders.transactions.record_payment', 'Record payment')}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => refetchOrderTransactions()}
+                    disabled={orderTransactionsLoading}
+                  >
+                    <FiRefreshCw className="mr-2 h-4 w-4" />
+                    {t('orders.transactions.refresh', 'Refresh')}
+                  </Button>
+                  <Link
+                    to={order?.orderNumber ? `/transactions?search=${encodeURIComponent(order.orderNumber)}` : '/transactions'}
+                    className="inline-flex h-10 items-center gap-1 rounded-[var(--border-radius)] border border-primary-200 px-4 text-sm font-medium text-primary-600 hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300"
+                  >
+                    {t('orders.transactions.view_all', 'Open Transactions')}
+                    <FiExternalLink className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                {orderTransactionsLoading ? (
+                  <div className="flex items-center justify-center py-6">
+                    <Loading />
+                  </div>
+                ) : orderTransactions.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-gray-200 px-4 py-6 text-center text-sm text-gray-500">
+                    {t('orders.transactions.empty', 'No transactions recorded for this order yet.')}
+                  </div>
+                ) : (
+                  <>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead>
+                          <tr className="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            <th className="px-4 py-3">{t('orders.transactions.code', 'Code')}</th>
+                            <th className="px-4 py-3">{t('orders.transactions.type', 'Type')}</th>
+                            <th className="px-4 py-3">{t('orders.transactions.amount', 'Amount')}</th>
+                            <th className="px-4 py-3">{t('orders.transactions.status', 'Status')}</th>
+                            <th className="px-4 py-3">{t('orders.transactions.date', 'Date')}</th>
+                            <th className="px-4 py-3 text-right">{t('orders.transactions.actions', 'Actions')}</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 text-sm text-gray-700">
+                          {orderTransactions.map((transaction) => (
+                            <tr key={transaction.id}>
+                              <td className="px-4 py-3 font-semibold text-gray-900">
+                                #{transaction.transactionCode}
+                              </td>
+                              <td className="px-4 py-3">
+                                {t(`transactions.types.${transaction.type}`, transaction.type)}
+                              </td>
+                              <td className="px-4 py-3">
+                                <span
+                                  className={`font-semibold ${
+                                    transaction.impactDirection === 'debit'
+                                      ? 'text-rose-600'
+                                      : 'text-emerald-600'
+                                  }`}
+                                >
+                                  {transaction.impactDirection === 'debit' ? '-' : '+'}
+                                  {formatTransactionAmount(transaction)}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3">
+                                <Badge variant={getTransactionStatusBadgeVariant(transaction.status)}>
+                                  {t(`transactions.status.${transaction.status}`, transaction.status)}
+                                </Badge>
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-500">
+                                {new Date(transaction.createdAt).toLocaleString()}
+                              </td>
+                              <td className="px-4 py-3 text-right">
+                                <Link
+                                  to={`/transactions?search=${transaction.transactionCode}`}
+                                  className="inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:underline"
+                                >
+                                  {t('orders.transactions.view_transaction', 'View transaction')}
+                                  <FiExternalLink className="h-4 w-4" />
+                                </Link>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-xs text-gray-500">
+                        {orderTransactionsTotal === 0
+                          ? t('orders.transactions.pagination_empty', 'No transactions to display.')
+                          : t(
+                              'orders.transactions.pagination_summary',
+                              'Showing {{from}}-{{to}} of {{total}} transactions.',
+                              {
+                                from: orderTransactionsFrom,
+                                to: orderTransactionsTo,
+                                total: orderTransactionsTotal,
+                              },
+                            )}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setTransactionsPage((prev) => Math.max(prev - 1, 1))}
+                          disabled={transactionsPage <= 1 || orderTransactionsLoading}
+                          className="min-w-[100px]"
+                        >
+                          <FiChevronLeft className="mr-1 h-4 w-4" />
+                          {t('previous', 'Previous')}
+                        </Button>
+                        <span className="text-sm text-gray-500">
+                          {t('orders.transactions.page_label', 'Page')} {orderTransactionsPageNumber} / {Math.max(orderTransactionsTotalPages, 1)}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setTransactionsPage((prev) => Math.min(prev + 1, Math.max(orderTransactionsTotalPages, 1)))}
+                          disabled={transactionsPage >= orderTransactionsTotalPages || orderTransactionsTotalPages === 0 || orderTransactionsLoading}
+                          className="min-w-[100px]"
+                        >
+                          {t('next', 'Next')}
+                          <FiChevronRight className="ml-1 h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Sidebar */}
@@ -635,6 +908,7 @@ const OrderDetailPage: React.FC = () => {
               </div>
             </div>
 
+
             {/* Notes */}
             {(order.notes || order.customerNotes || order.internalNotes) && (
               <div className="bg-white rounded-lg shadow">
@@ -669,6 +943,26 @@ const OrderDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {order && (
+        <OrderTransactionModal
+          isOpen={showTransactionModal}
+          order={{
+            id: order.id,
+            orderNumber: order.orderNumber,
+            customerId: order.customerId,
+            customerName: order.customerName,
+            customerEmail: order.customerEmail,
+            currency: order.currency,
+            totalAmount: order.totalAmount,
+          }}
+          onClose={() => setShowTransactionModal(false)}
+          onSuccess={() => {
+            refetchOrder();
+            refetchOrderTransactions();
+          }}
+        />
+      )}
     </BaseLayout>
   );
 };

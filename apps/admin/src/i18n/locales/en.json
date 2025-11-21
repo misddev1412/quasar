@@ -88,6 +88,7 @@
     "no_description": "No description",
     "activate": "Activate",
     "deactivate": "Deactivate",
+    "retry": "Retry",
     "duplicate": "Duplicate",
     "adding": "Adding...",
     "add_selected": "Add Selected",
@@ -645,7 +646,15 @@
     "quick_actions": "Quick Actions",
     "back_to_top": "Back to Top",
     "firebase_configs": "Firebase Configurations",
-    "storage": "Storage Configuration"
+    "storage": "Storage Configuration",
+    "general_settings": "General Settings",
+    "settings_visibility": "Settings Visibility",
+    "people_access": "People & Access",
+    "content_experience": "Content & Marketing",
+    "commerce": "Commerce",
+    "sales_operations": "Sales & Operations",
+    "communication_support": "Communication & Support",
+    "platform_settings": "Platform Settings"
   },
   "validation": {
     "required": "This field is required",
@@ -762,7 +771,20 @@
     "update_user": "Update User",
     "user_information": "User Information",
     "user_information_description": "Fill in the details below to update the user account.",
-    "back_to_users": "Back to Users"
+    "back_to_users": "Back to Users",
+    "seo_management": "SEO Management",
+    "mail_templates": "Mail Templates",
+    "translations": "Translations",
+    "user_management": "User Management",
+    "user_list": "User List",
+    "manage_roles": "Manage Roles",
+    "manage_permissions": "Manage Permissions"
+  },
+  "customers": {
+    "title": "Customers"
+  },
+  "analytics": {
+    "title": "Analytics"
   },
   "features": {
     "enterprise_security": "Enterprise-grade security",
@@ -1062,6 +1084,7 @@
     },
     "pagination": {
       "per_page_10": "10 per page",
+      "per_page_20": "20 per page",
       "per_page_25": "25 per page",
       "per_page_50": "50 per page",
       "per_page_100": "100 per page",
@@ -1731,6 +1754,98 @@
     "removed": "Asset removed",
     "remove_failed": "Remove failed"
   },
+  "storefront": {
+    "footer": {
+      "title": "Storefront footer",
+      "description": "Control layout, branding, social links, and legal information.",
+      "nav": "Footer builder",
+      "menu_hint": {
+        "title": "Footer links are powered by the footer menu.",
+        "description": "Create columns by adding parent menu items with children.",
+        "btn": "Open footer menu"
+      },
+      "actions": {
+        "reset": "Reset",
+        "save": "Save changes"
+      },
+      "messages": {
+        "load_error": "Unable to load footer settings",
+        "reset": "Defaults restored",
+        "reset_description": "Changes have not been saved yet.",
+        "saved": "Footer updated",
+        "saved_description": "Your changes are live on the storefront.",
+        "save_error": "Unable to save changes",
+        "loading": "Loading footer settings..."
+      },
+      "layout": {
+        "heading": "Layout & theme"
+      },
+      "variant": {
+        "label": "Layout variant",
+        "simple": "Simple bar",
+        "columns": "Column layout",
+        "split": "Split layout"
+      },
+      "theme": {
+        "label": "Theme",
+        "dark": "Dark",
+        "light": "Light"
+      },
+      "menu_layout": {
+        "label": "Menu layout",
+        "columns": "Use column groups",
+        "inline": "Distribute links evenly"
+      },
+      "columns": {
+        "label": "Columns per row",
+        "helper": "Choose between 1 and 4 columns."
+      },
+      "brand": {
+        "heading": "Brand & messaging",
+        "show_description": "Show brand description",
+        "show_description_hint": "Toggle the paragraph below the logo.",
+        "description_label": "Description",
+        "custom_html": "Custom HTML (optional)"
+      },
+      "newsletter": {
+        "enable": "Show newsletter signup",
+        "description": "Displays an email field and button in the brand column.",
+        "heading_label": "Newsletter heading",
+        "copy": "Newsletter copy"
+      },
+      "social": {
+        "heading": "Social links",
+        "description": "Links display as icon buttons. Leave URL blank to hide.",
+        "add": "Add social link",
+        "label": "Label",
+        "url": "URL",
+        "type": "Network",
+        "visible": "Visible",
+        "visible_hint": "Hide without deleting by turning this off.",
+        "item_label": "Social link {{index}}",
+        "empty": "No social links yet. Add at least one link to show the icon row.",
+        "custom": "Custom",
+        "new_label": "New social link"
+      },
+      "links": {
+        "heading": "Legal & utility links",
+      "description": "Shown in the bottom row next to the copyright text.",
+      "add": "Add link",
+      "label": "Label",
+      "url": "URL",
+      "visible": "Visible",
+      "item_label": "Link {{index}}",
+      "empty": "Add at least one link for privacy, terms, or support pages.",
+      "new_label": "New link"
+      },
+      "preview": {
+        "heading": "Live preview",
+        "description": "See the storefront footer exactly as customers will see it.",
+        "reload": "Reload",
+        "missing_origin": "Set NEXT_PUBLIC_SITE_URL to enable preview."
+      }
+    }
+  },
   "messages": {
     "media_deleted_successfully": "Media deleted successfully",
     "media_deleted_successfully_description": "The media file has been removed",
@@ -2396,6 +2511,126 @@
     "hasStock": "In Stock",
     "noStock": "Out of Stock"
   },
+  "transactions": {
+    "title": "Transactions",
+    "description": "Monitor and manage customer financial transactions",
+    "page_title": "Transactions",
+    "page_subtitle": "Comprehensive view of customer debits and credits.",
+    "actions": {
+      "filters": "Filters",
+      "refresh": "Refresh",
+      "record": "Record Transaction",
+      "select_customer": "Select customer",
+      "change_customer": "Change customer",
+      "select_order": "Select order",
+      "change_order": "Change order"
+    },
+    "notifications": {
+      "create_success_title": "Transaction recorded",
+      "create_success_message": "The transaction has been recorded successfully.",
+      "create_error_title": "Unable to record transaction",
+      "create_error_message": "Please verify the information and try again."
+    },
+    "filters": {
+      "title": "Filters",
+      "status": "Status",
+      "all_statuses": "All statuses",
+      "type": "Type",
+      "all_types": "All types",
+      "direction": "Direction",
+      "all_directions": "All directions",
+      "currency": "Currency",
+      "customer_id": "Customer ID",
+      "customer_id_placeholder": "Search by customer id",
+      "min_amount": "Min Amount",
+      "max_amount": "Max Amount",
+      "date_from": "Date From",
+      "date_to": "Date To"
+    },
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "types": {
+      "order_payment": "Order Payment",
+      "refund": "Refund",
+      "wallet_topup": "Wallet Top-up",
+      "withdrawal": "Withdrawal",
+      "adjustment": "Adjustment",
+      "subscription": "Subscription"
+    },
+    "directions": {
+      "credit": "Credit",
+      "debit": "Debit"
+    },
+    "table": {
+      "transaction": "Transaction",
+      "reference": "Reference",
+      "customer": "Customer",
+      "unknown_customer": "Unknown customer",
+      "amount": "Amount",
+      "status": "Status",
+      "type": "Type",
+      "created_at": "Created At",
+      "order": "Order",
+      "view_order": "View order",
+      "no_order": "—"
+    },
+    "stats": {
+      "total_volume": "Net Volume",
+      "total_inflow": "Total Inflow",
+      "total_outflow": "Total Outflow",
+      "unique_customers": "Unique Customers"
+    },
+    "modal": {
+      "title": "Record transaction",
+      "description": "Manually credit or debit a customer balance."
+    },
+    "fields": {
+      "customer_id": "Customer ID",
+      "amount": "Amount",
+      "currency": "Currency",
+      "type": "Type",
+      "direction": "Direction",
+      "status": "Status",
+      "description": "Description",
+      "description_placeholder": "Optional description...",
+      "related_order": "Related order (optional)",
+      "related_order_placeholder": "Enter order ID to link payment",
+      "related_order_helper": "When provided, the transaction will be tied to the specified order.",
+      "type_locked": "Order-linked transactions are recorded as Order Payment.",
+      "customer_locked_by_order": "Customer is fixed based on the selected order."
+    },
+    "order_modal": {
+      "title": "Link an order",
+      "description": "Search existing orders and attach one to this transaction.",
+      "search_placeholder": "Search by order number, email, or customer",
+      "loading": "Loading orders...",
+      "empty_title": "No matching orders",
+      "empty_description": "Adjust the search keywords and try again.",
+      "select": "Select",
+      "filter_all": "All orders",
+      "filter_pending": "Pending payment",
+      "filter_paid": "Paid orders",
+      "items_label": "Order",
+      "amount_label": "Amount",
+      "created_label": "Created",
+      "amount_placeholder": "—",
+      "customer_missing_title": "Customer not linked",
+      "customer_missing_description": "The selected order does not have a customer reference."
+    },
+    "validation": {
+      "customer_id": "Customer ID is required",
+      "amount": "Amount must be greater than 0"
+    },
+    "errors": {
+      "load_failed": "Unable to load transactions"
+    },
+    "empty_state": "No transactions found for the selected filters"
+  },
   "orders": {
     "source_types": {
       "WEBSITE": "Website",
@@ -2432,6 +2667,37 @@
     "items": "Items",
     "item_count": "Items",
     "actions": "Actions",
+    "record_transaction": "Record transaction",
+    "transactions": {
+      "title": "Payment transactions",
+      "subtitle": "Financial records linked to this order",
+      "empty": "No transactions recorded for this order yet.",
+      "refresh": "Refresh",
+      "view_all": "Open Transactions",
+      "view_transaction": "View transaction",
+      "record_payment": "Record payment",
+      "quick_action": {
+        "title": "Record order revenue",
+        "subtitle": "Link a financial transaction to this order.",
+        "default_description": "Manual revenue record for order #{{orderNumber}}",
+        "success_title": "Revenue recorded",
+        "success_message": "The transaction has been logged for this order.",
+        "error_title": "Unable to record transaction",
+        "error_message": "Please check the values and try again.",
+        "missing_customer_title": "Customer required",
+        "missing_customer_message": "This order is not linked to a customer, so revenue cannot be recorded.",
+        "invalid_amount_title": "Amount is required",
+        "invalid_amount_message": "Enter an amount greater than 0 to record revenue.",
+        "unknown_customer": "Unknown customer",
+        "currency_label": "Currency",
+        "amount_label": "Amount",
+        "status_label": "Status",
+        "description_label": "Description",
+        "description_placeholder": "Describe this payment or adjustment...",
+        "submit": "Record revenue",
+        "submitting": "Recording..."
+      }
+    },
     "order": "Order",
     "orders": "Orders",
     "manage_and_track_customer_orders": "Manage and track customer orders",
@@ -2540,6 +2806,7 @@
     "order_selected_description": "Loading order details...",
     "select_order": "Select an order to fulfill",
     "select_order_description": "Search for an order and choose the items to include in this fulfillment.",
+    "current_selection": "Currently selected",
     "selected": "Selected",
     "items_section_title": "Items to fulfill",
     "items_section_description": "Adjust quantities for each item to include in this fulfillment. Remove items that will ship later.",
@@ -2556,6 +2823,9 @@
     "condition_notes": "Condition notes",
     "packaging_notes": "Packaging notes",
     "item_notes": "Item notes (optional)",
+    "show_item_details": "Add tracking details",
+    "hide_item_details": "Hide tracking details",
+    "item_details_hint": "Batch numbers, serial numbers, expiry dates, weight, condition notes, and packaging notes.",
     "no_items_selected": "No items selected. Add at least one item to create this fulfillment.",
     "shipping_details_description": "Confirm where this fulfillment will ship from and deliver to.",
     "include_shipping_address": "Include shipping address",
@@ -2592,6 +2862,10 @@
     "notes_section_description": "Include internal notes for your team or instructions for the customer.",
     "notes_for_customer": "Notes for customer (optional)",
     "for_order": "For Order {{orderNumber}}",
+    "order_overview": "Order overview",
+    "summary_order_value": "Order value",
+    "summary_items_selected": "Items selected",
+    "summary_units_selected": "Units shipping",
     "tabs": {
       "details": "Details",
       "items": "Items",
@@ -2926,6 +3200,7 @@
     }
   },
   "floating_icons": {
+    "navigation": "Floating Icons",
     "actions": {
       "add_first": "Create your first icon"
     }
@@ -3198,6 +3473,10 @@
         "contentDescription": "Testimonial content (customer name, text, rating, photo) is configured per language in the translation panel."
       },
       "cta": {
+        "layoutMode": "Width",
+        "fullWidth": "Full Width",
+        "container": "Container",
+        "layoutDescription": "Choose whether the CTA spans the entire viewport or stays within the content container.",
         "textAlign": "Text Alignment",
         "centerAligned": "Center Aligned",
         "leftAligned": "Left Aligned",
@@ -3406,12 +3685,18 @@
       "fixed": "Fixed Amount"
     },
     "create_tier_description": "Create a new loyalty tier with specific benefits and requirements",
+    "edit_tier": "Edit Tier",
+    "edit_tier_description": "Update loyalty tier requirements, appearance, and benefits",
     "create_reward_description": "Create a new reward that customers can redeem with loyalty points",
     "tier_created_success": "Tier created successfully",
     "tier_create_error": "Failed to create tier",
+    "tier_updated_success": "Tier updated successfully",
+    "tier_update_error": "Failed to update tier",
     "tier_deleted_success": "Tier deleted successfully",
     "tier_delete_error": "Failed to delete tier",
     "tier_delete_confirm": "Are you sure you want to delete this tier? This action cannot be undone.",
+    "tier_not_found": "Tier not found",
+    "tier_not_found_description": "The requested loyalty tier could not be located.",
     "reward_created_success": "Reward created successfully",
     "reward_create_error": "Failed to create reward",
     "reward_deleted_success": "Reward deleted successfully",
@@ -3499,6 +3784,17 @@
     "createSuccessDescription": "Your new currency is now available.",
     "createError": "Failed to create currency",
     "createErrorDescription": "An error occurred while creating the currency.",
+    "edit": "Edit Currency",
+    "editDescription": "Update currency information",
+    "updateSuccess": "Currency updated successfully",
+    "updateSuccessDescription": "The currency has been updated.",
+    "updateError": "Failed to update currency",
+    "updateErrorDescription": "An error occurred while updating the currency.",
+    "fetchError": "Error Loading Currency",
+    "fetchErrorDescription": "Failed to load currency data",
+    "notFound": "Currency Not Found",
+    "notFoundDescription": "The currency you are trying to edit does not exist",
+    "backToList": "Back to Currencies",
     "deleteSuccess": "Currency deleted successfully",
     "deleteError": "Failed to delete currency",
     "statusUpdateSuccess": "Currency status updated",

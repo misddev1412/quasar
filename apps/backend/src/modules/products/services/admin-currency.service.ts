@@ -22,6 +22,17 @@ export interface CreateCurrencyInput {
   isDefault?: boolean;
 }
 
+export interface UpdateCurrencyInput {
+  code?: string;
+  name?: string;
+  symbol?: string;
+  exchangeRate?: number;
+  decimalPlaces?: number;
+  format?: string;
+  isActive?: boolean;
+  isDefault?: boolean;
+}
+
 @Injectable()
 export class AdminCurrencyService {
   constructor(
@@ -159,6 +170,100 @@ export class AdminCurrencyService {
 
     currency.isActive = nextStatus;
     return this.currencyRepository.save(currency);
+  }
+
+  async findById(id: string) {
+    const currency = await this.currencyRepository.findOne({ where: { id } });
+    if (!currency) {
+      throw new NotFoundException('Currency not found');
+    }
+    return currency;
+  }
+
+  async update(id: string, input: UpdateCurrencyInput) {
+    return this.currencyRepository.manager.transaction(async manager => {
+      const currency = await manager.findOne(Currency, { where: { id } });
+      if (!currency) {
+        throw new NotFoundException('Currency not found');
+      }
+
+      if (input.code !== undefined) {
+        const rawCode = input.code.trim().toUpperCase();
+        if (rawCode.length !== 3) {
+          throw new BadRequestException('Currency code must be exactly 3 characters');
+        }
+
+        if (rawCode !== currency.code) {
+          const existing = await manager.findOne(Currency, { where: { code: rawCode } });
+          if (existing) {
+            throw new BadRequestException(`Currency with code ${rawCode} already exists`);
+          }
+          currency.code = rawCode;
+        }
+      }
+
+      if (input.name !== undefined) {
+        const name = input.name.trim();
+        if (!name) {
+          throw new BadRequestException('Currency name cannot be empty');
+        }
+        currency.name = name;
+      }
+
+      if (input.symbol !== undefined) {
+        const symbol = input.symbol.trim();
+        if (!symbol) {
+          throw new BadRequestException('Currency symbol cannot be empty');
+        }
+        currency.symbol = symbol;
+      }
+
+      if (input.exchangeRate !== undefined) {
+        if (input.exchangeRate <= 0) {
+          throw new BadRequestException('Exchange rate must be greater than 0');
+        }
+        currency.exchangeRate = input.exchangeRate;
+      }
+
+      if (input.decimalPlaces !== undefined) {
+        if (input.decimalPlaces < 0 || input.decimalPlaces > 8) {
+          throw new BadRequestException('Decimal places must be between 0 and 8');
+        }
+        currency.decimalPlaces = input.decimalPlaces;
+      }
+
+      if (input.format !== undefined) {
+        const format = input.format.trim();
+        if (!format) {
+          throw new BadRequestException('Currency format cannot be empty');
+        }
+        currency.format = format;
+      }
+
+      if (input.isDefault !== undefined && input.isDefault !== currency.isDefault) {
+        if (input.isDefault) {
+          await manager
+            .createQueryBuilder()
+            .update(Currency)
+            .set({ isDefault: false })
+            .where('is_default = :isDefault', { isDefault: true })
+            .execute();
+          currency.isDefault = true;
+          currency.isActive = true;
+        } else {
+          currency.isDefault = false;
+        }
+      }
+
+      if (input.isActive !== undefined) {
+        if (!input.isActive && currency.isDefault) {
+          throw new BadRequestException('Cannot deactivate the default currency');
+        }
+        currency.isActive = input.isActive;
+      }
+
+      return manager.save(currency);
+    });
   }
 
   async setDefault(id: string) {

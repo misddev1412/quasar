@@ -40,6 +40,8 @@ export interface FormFieldConfig {
   allowedTypes?: MediaType[]; // allowed media types
   // Slug field specific options
   sourceField?: string; // field name to generate slug from
+  // Category multiselect specific options
+  categorySource?: 'product' | 'post';
 }
 
 // Form section configuration

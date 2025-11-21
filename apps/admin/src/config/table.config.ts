@@ -16,6 +16,7 @@ export interface PageSizeOption {
  */
 export const DEFAULT_PAGE_SIZE_OPTIONS: PageSizeOption[] = [
   { value: '10', labelKey: 'table.pagination.per_page_10' },
+  { value: '20', labelKey: 'table.pagination.per_page_20' },
   { value: '25', labelKey: 'table.pagination.per_page_25' },
   { value: '50', labelKey: 'table.pagination.per_page_50' },
   { value: '100', labelKey: 'table.pagination.per_page_100' },

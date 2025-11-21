@@ -225,7 +225,7 @@ export class AdminLoyaltyTransactionsRouter {
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
-    input: z.object({ days: z.number().min(1).max(365).default(30) }),
+    input: z.object({ days: z.number().min(1).max(365).default(30) }).default({ days: 30 }),
     output: apiResponseSchema,
   })
   async stats(
@@ -246,7 +246,12 @@ export class AdminLoyaltyTransactionsRouter {
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
-    input: z.object({ days: z.number().min(1).max(365).default(30), limit: z.number().min(1).max(50).default(10) }),
+    input: z
+      .object({
+        days: z.number().min(1).max(365).default(30),
+        limit: z.number().min(1).max(50).default(10),
+      })
+      .default({ days: 30, limit: 10 }),
     output: apiResponseSchema,
   })
   async topCustomers(
@@ -267,7 +272,12 @@ export class AdminLoyaltyTransactionsRouter {
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
-    input: z.object({ days: z.number().min(1).max(365).default(30), limit: z.number().min(1).max(50).default(10) }),
+    input: z
+      .object({
+        days: z.number().min(1).max(365).default(30),
+        limit: z.number().min(1).max(50).default(10),
+      })
+      .default({ days: 30, limit: 10 }),
     output: apiResponseSchema,
   })
   async popularRewards(
@@ -288,7 +298,12 @@ export class AdminLoyaltyTransactionsRouter {
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
-    input: z.object({ days: z.number().min(1).max(365).default(30), limit: z.number().min(1).max(100).default(20) }),
+    input: z
+      .object({
+        days: z.number().min(1).max(365).default(30),
+        limit: z.number().min(1).max(100).default(20),
+      })
+      .default({ days: 30, limit: 20 }),
     output: apiResponseSchema,
   })
   async recent(

@@ -13,17 +13,17 @@ export const getLoyaltyTiersQuerySchema = z.object({
   limit: z.number().min(1).max(100),
   search: z.string().optional(),
   isActive: z.boolean().optional(),
-  sortBy: z.enum(['name', 'minPoints', 'sortOrder', 'createdAt']).optional(),
+  sortBy: z.enum(['name', 'minPointsRequired', 'sortOrder', 'createdAt']).optional(),
   sortOrder: z.enum(['ASC', 'DESC']).optional(),
 });
 
 export const createLoyaltyTierSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
-  minPoints: z.number().min(0),
-  maxPoints: z.number().optional(),
+  minPointsRequired: z.number().min(0),
+  maxPointsRequired: z.number().optional(),
   color: z.string().optional(),
-  icon: z.string().optional(),
+  iconUrl: z.string().optional(),
   benefits: z.array(z.string()).optional(),
   isActive: z.boolean().optional(),
   sortOrder: z.number().optional(),
@@ -32,10 +32,10 @@ export const createLoyaltyTierSchema = z.object({
 export const updateLoyaltyTierSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
-  minPoints: z.number().min(0).optional(),
-  maxPoints: z.number().optional(),
+  minPointsRequired: z.number().min(0).optional(),
+  maxPointsRequired: z.number().optional(),
   color: z.string().optional(),
-  icon: z.string().optional(),
+  iconUrl: z.string().optional(),
   benefits: z.array(z.string()).optional(),
   isActive: z.boolean().optional(),
   sortOrder: z.number().optional(),
@@ -60,12 +60,21 @@ export class AdminLoyaltyTiersRouter {
     @Input() query: z.infer<typeof getLoyaltyTiersQuerySchema>
   ): Promise<z.infer<typeof paginatedResponseSchema>> {
     try {
+      let sortBy: 'name' | 'minPoints' | 'sortOrder' | 'createdAt' | undefined;
+      if (!query.sortBy) {
+        sortBy = undefined;
+      } else if (query.sortBy === 'minPointsRequired') {
+        sortBy = 'minPoints';
+      } else {
+        sortBy = query.sortBy;
+      }
+
       const result = await this.loyaltyTierService.getAllTiers({
         page: query.page ?? 1,
         limit: query.limit ?? 20,
         search: query.search,
         isActive: query.isActive,
-        sortBy: query.sortBy ?? 'sortOrder',
+        sortBy: sortBy ?? 'sortOrder',
         sortOrder: query.sortOrder ?? 'ASC',
       });
       return this.responseHandler.createTrpcSuccess(result);

@@ -33,6 +33,7 @@ import { RolePermission } from '../modules/user/entities/role-permission.entity'
 import { UserActivity } from '../modules/user/entities/user-activity.entity';
 import { UserSession } from '../modules/user/entities/user-session.entity';
 import { UserLoginProvider } from '../modules/user/entities/user-login-provider.entity';
+import { CustomerTransaction, CustomerTransactionEntry } from '../modules/user/entities/customer-transaction.entity';
 import { Translation } from '../modules/translation/entities/translation.entity';
 import { SEOEntity } from '../modules/seo/entities/seo.entity';
 import { SettingEntity } from '../modules/settings/entities/setting.entity';
@@ -88,6 +89,8 @@ import { CustomerRedemption } from '../modules/loyalty/entities/customer-redempt
           UserActivity,
           UserSession,
           UserLoginProvider,
+          CustomerTransaction,
+          CustomerTransactionEntry,
           Translation,
           SEOEntity,
           SettingEntity,

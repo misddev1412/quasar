@@ -12,7 +12,7 @@ import { trpc } from '../../../utils/trpc';
 
 const OrderFulfillmentCreatePage: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
   const initialOrderId = searchParams.get('orderId');
@@ -83,6 +83,16 @@ const OrderFulfillmentCreatePage: React.FC = () => {
     navigate('/orders/fulfillments');
   };
 
+  const handleOrderSelect = (orderId: string) => {
+    const nextParams = new URLSearchParams(searchParams);
+    if (orderId) {
+      nextParams.set('orderId', orderId);
+    } else {
+      nextParams.delete('orderId');
+    }
+    setSearchParams(nextParams, { replace: true });
+  };
+
   return (
     <CreatePageTemplate
       title={t('fulfillments.create_title', 'Create Fulfillment')}
@@ -109,6 +119,7 @@ const OrderFulfillmentCreatePage: React.FC = () => {
         onCancel={handleCancel}
         isSubmitting={createFulfillmentMutation.isPending}
         initialOrderId={initialOrderId}
+        onOrderSelect={handleOrderSelect}
       />
     </CreatePageTemplate>
   );

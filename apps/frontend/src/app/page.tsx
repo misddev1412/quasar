@@ -10,6 +10,7 @@ import {
   ProductsByCategory,
   NewsSection,
   CustomHtmlSection,
+  CTABannerSection,
 } from '../components/sections';
 import type { SectionListItem } from '../types/sections';
 import type { SEOData } from '../types/trpc';
@@ -55,6 +56,7 @@ const sectionComponentMap: Record<SectionType, React.ComponentType<any>> = {
   [SectionType.PRODUCTS_BY_CATEGORY]: ProductsByCategory,
   [SectionType.NEWS]: NewsSection,
   [SectionType.CUSTOM_HTML]: CustomHtmlSection,
+  [SectionType.CTA]: CTABannerSection,
 };
 
 function renderFallbackContent() {

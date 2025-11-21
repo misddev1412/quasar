@@ -6,7 +6,8 @@ import { OrderRepository } from '../repositories/order.repository';
 import { ShippingProviderRepository } from '../repositories/shipping-provider.repository';
 import { OrderRepository as ProductOrderRepository } from '../repositories/order.repository';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
-import { ApiStatusCodes } from '@shared';
+import { TranslationService } from '@backend/modules/translation/services/translation.service';
+import { ApiStatusCodes, SupportedLocale } from '@shared';
 import {
   OrderFulfillment,
   FulfillmentStatus,
@@ -97,6 +98,19 @@ export interface FulfillmentStatsResponse {
   topShippingProviders: any[];
 }
 
+export interface FulfillmentEligibilityStatus {
+  orderId: string;
+  canCreateFulfillment: boolean;
+  reasons: string[];
+  message: string | null;
+  status: {
+    isPaid: boolean;
+    isCancelled: boolean;
+    isRefunded: boolean;
+    isFullyFulfilled: boolean;
+  } | null;
+}
+
 @Injectable()
 export class OrderFulfillmentService {
   constructor(
@@ -106,6 +120,7 @@ export class OrderFulfillmentService {
     private readonly orderRepository: ProductOrderRepository,
     private readonly shippingProviderRepository: ShippingProviderRepository,
     private readonly responseHandler: ResponseService,
+    private readonly translationService: TranslationService,
   ) {}
 
   async getAllFulfillments(
@@ -161,6 +176,84 @@ export class OrderFulfillmentService {
     ]);
   }
 
+  async checkFulfillmentEligibility(orderIds: string[]): Promise<FulfillmentEligibilityStatus[]> {
+    const locale: SupportedLocale = 'vi';
+    const results: FulfillmentEligibilityStatus[] = [];
+
+    for (const orderId of orderIds) {
+      try {
+        const order = await this.orderRepository.findById(orderId, [
+          'items',
+          'fulfillments',
+          'fulfillments.items',
+        ]);
+
+        if (!order) {
+          const notFoundMessage = await this.translationService.getTranslation(
+            'fulfillment.errors.not_found',
+            locale,
+            'Đơn hàng không tồn tại'
+          );
+          results.push({
+            orderId,
+            canCreateFulfillment: false,
+            reasons: [notFoundMessage],
+            message: notFoundMessage,
+            status: null,
+          });
+          continue;
+        }
+
+        if (order.canCreateFulfillment) {
+          results.push({
+            orderId,
+            canCreateFulfillment: true,
+            reasons: [],
+            message: null,
+            status: {
+              isPaid: order.isPaid,
+              isCancelled: order.isCancelled,
+              isRefunded: order.isRefunded,
+              isFullyFulfilled: order.isFullyFulfilled,
+            },
+          });
+          continue;
+        }
+
+        const reasons = await this.getFulfillmentBlockingReasons(order, locale);
+        const message = await this.getFulfillmentErrorMessage(order, locale);
+
+        results.push({
+          orderId,
+          canCreateFulfillment: false,
+          reasons,
+          message,
+          status: {
+            isPaid: order.isPaid,
+            isCancelled: order.isCancelled,
+            isRefunded: order.isRefunded,
+            isFullyFulfilled: order.isFullyFulfilled,
+          },
+        });
+      } catch (error) {
+        const fallback =
+          error instanceof Error
+            ? error.message
+            : 'Failed to check fulfillment eligibility';
+
+        results.push({
+          orderId,
+          canCreateFulfillment: false,
+          reasons: [fallback],
+          message: fallback,
+          status: null,
+        });
+      }
+    }
+
+    return results;
+  }
+
   async createFulfillment(fulfillmentData: CreateFulfillmentDto): Promise<OrderFulfillment> {
     try {
       // Validate order
@@ -171,7 +264,8 @@ export class OrderFulfillmentService {
 
       // Check if order can be fulfilled
       if (!order.canCreateFulfillment) {
-        throw new ConflictException('Order cannot be fulfilled in its current state');
+        const errorMessage = await this.getFulfillmentErrorMessage(order);
+        throw new ConflictException(errorMessage);
       }
 
       // Validate shipping provider if provided
@@ -695,6 +789,69 @@ export class OrderFulfillmentService {
   }
 
   // Private helper methods
+  private async getFulfillmentBlockingReasons(
+    order: Order,
+    locale: SupportedLocale = 'vi'
+  ): Promise<string[]> {
+    const reasons: string[] = [];
+
+    if (!order.isPaid) {
+      const notPaidMessage = await this.translationService.getTranslation(
+        'fulfillment.errors.not_paid',
+        locale,
+        'Đơn hàng chưa thanh toán'
+      );
+      reasons.push(notPaidMessage);
+    }
+
+    if (order.isCancelled) {
+      const cancelledMessage = await this.translationService.getTranslation(
+        'fulfillment.errors.cancelled',
+        locale,
+        'Đơn hàng đã bị hủy'
+      );
+      reasons.push(cancelledMessage);
+    }
+
+    if (order.isRefunded) {
+      const refundedMessage = await this.translationService.getTranslation(
+        'fulfillment.errors.refunded',
+        locale,
+        'Đơn hàng đã được hoàn tiền'
+      );
+      reasons.push(refundedMessage);
+    }
+
+    if (order.isFullyFulfilled) {
+      const fullyFulfilledMessage = await this.translationService.getTranslation(
+        'fulfillment.errors.fully_fulfilled',
+        locale,
+        'Đơn hàng đã được thực hiện hoàn tất'
+      );
+      reasons.push(fullyFulfilledMessage);
+    }
+
+    return reasons;
+  }
+
+  private async getFulfillmentErrorMessage(
+    order: Order,
+    locale: SupportedLocale = 'vi'
+  ): Promise<string> {
+    const reasons = await this.getFulfillmentBlockingReasons(order, locale);
+    const cannotFulfillMessage = await this.translationService.getTranslation(
+      'fulfillment.errors.cannot_fulfill',
+      locale,
+      'Đơn hàng không thể thực hiện'
+    );
+
+    if (!reasons.length) {
+      return cannotFulfillMessage;
+    }
+
+    return `${cannotFulfillMessage}: ${reasons.join(', ')}`;
+  }
+
   private async validateOrderItemForFulfillment(
     orderItemId: string,
     quantity: number

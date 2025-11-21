@@ -20,12 +20,14 @@ export class LoyaltyTier extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'min_points',
     type: 'integer',
   })
   minPoints: number;
 
   @Expose()
   @Column({
+    name: 'max_points',
     type: 'integer',
     nullable: true,
   })
@@ -56,6 +58,7 @@ export class LoyaltyTier extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'is_active',
     type: 'boolean',
     default: true,
   })
@@ -63,6 +66,7 @@ export class LoyaltyTier extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'sort_order',
     type: 'integer',
     default: 0,
   })

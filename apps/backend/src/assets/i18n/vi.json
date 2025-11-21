@@ -131,5 +131,14 @@
       "not_found": "Không tìm thấy cài đặt",
       "key_exists": "Khóa cài đặt đã tồn tại"
     }
+  },
+  "fulfillment": {
+    "errors": {
+      "cannot_fulfill": "Đơn hàng không thể thực hiện",
+      "not_paid": "Đơn hàng chưa thanh toán",
+      "cancelled": "Đơn hàng đã bị hủy",
+      "refunded": "Đơn hàng đã được hoàn tiền",
+      "fully_fulfilled": "Đơn hàng đã được thực hiện hoàn tất"
+    }
   }
 }

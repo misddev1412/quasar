@@ -3,6 +3,7 @@ import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
 import { Order } from './order.entity';
 import { Wishlist } from './wishlist.entity';
+import { CustomerTransaction } from '../../user/entities/customer-transaction.entity';
 import { User } from '../../user/entities/user.entity';
 import { AddressBook } from '../../user/entities/address-book.entity';
 
@@ -287,6 +288,9 @@ export class Customer extends BaseEntity {
   
   @OneToMany(() => Wishlist, (wishlist) => wishlist.customer)
   wishlists: Wishlist[];
+
+  @OneToMany(() => CustomerTransaction, (transaction) => transaction.customer)
+  transactions?: CustomerTransaction[];
 
   // Virtual properties
   get fullName(): string {

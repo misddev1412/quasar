@@ -131,5 +131,14 @@
       "not_found": "Setting not found",
       "key_exists": "Setting key already exists"
     }
+  },
+  "fulfillment": {
+    "errors": {
+      "cannot_fulfill": "Order cannot be fulfilled",
+      "not_paid": "Order has not been paid",
+      "cancelled": "Order is cancelled",
+      "refunded": "Order is refunded",
+      "fully_fulfilled": "Order is already fully fulfilled"
+    }
   }
 }
