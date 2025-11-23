@@ -235,19 +235,19 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation })
   }, [normalizedRowConfigs, errorFallback]);
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-white dark:bg-gray-950">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
           <div>
 
-            <h2 className="mt-2 text-3xl font-semibold text-gray-900">
+            <h2 className="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">
               {translation?.title || t('sections.news.latest_stories', 'Latest stories')}
             </h2>
-            {translation?.description && <p className="mt-2 text-gray-500">{translation.description}</p>}
+            {translation?.description && <p className="mt-2 text-gray-500 dark:text-gray-400">{translation.description}</p>}
           </div>
           <Link
             href="/news"
-            className="inline-flex items-center justify-center rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             {t('sections.news.view_newsroom', 'View newsroom')}
           </Link>
@@ -265,17 +265,17 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation })
             return (
               <div key={row.id} className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-2xl font-semibold text-gray-900">{rowHeading}</h3>
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{rowHeading}</h3>
                   <Link
                     href={viewAllHref}
-                    className="text-sm font-medium text-indigo-600 hover:text-indigo-700"
+                    className="text-sm font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200"
                   >
                     {t('sections.news.view_all', 'View all news')}
                   </Link>
                 </div>
                 <div className="space-y-6">
                   {state.error && (
-                    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                    <div className="rounded-lg border border-red-200 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-200">
                       {state.error}
                     </div>
                   )}
@@ -283,12 +283,12 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation })
                     ? Array.from({ length: row.limit }).map((_, index) => (
                         <article
                           key={`skeleton-${row.id}-${index}`}
-                          className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm animate-pulse"
+                          className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900/40 p-6 shadow-sm animate-pulse"
                         >
-                          <div className="h-3 w-1/3 rounded bg-gray-200" />
-                          <div className="mt-3 h-5 w-2/3 rounded bg-gray-200" />
-                          <div className="mt-4 h-16 rounded bg-gray-100" />
-                          <div className="mt-6 h-4 w-32 rounded bg-gray-200" />
+                          <div className="h-3 w-1/3 rounded bg-gray-200 dark:bg-gray-700" />
+                          <div className="mt-3 h-5 w-2/3 rounded bg-gray-200 dark:bg-gray-700" />
+                          <div className="mt-4 h-16 rounded bg-gray-100 dark:bg-gray-800" />
+                          <div className="mt-6 h-4 w-32 rounded bg-gray-200 dark:bg-gray-700" />
                         </article>
                       ))
                     : state.items.length > 0
@@ -302,14 +302,14 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation })
                         return (
                           <article
                             key={post.id}
-                            className="rounded-xl border border-gray-100 bg-white shadow-sm p-6 hover:shadow-md transition"
+                            className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900/40 shadow-sm p-6 hover:shadow-md dark:hover:shadow-lg transition"
                           >
-                            <p className="text-xs uppercase tracking-wide text-gray-400">{metadata}</p>
-                            <h4 className="mt-2 text-xl font-semibold text-gray-900">{post.title}</h4>
-                            <p className="mt-3 text-sm text-gray-600 line-clamp-3">{post.excerpt}</p>
+                            <p className="text-xs uppercase tracking-wide text-gray-400 dark:text-gray-500">{metadata}</p>
+                            <h4 className="mt-2 text-xl font-semibold text-gray-900 dark:text-gray-100">{post.title}</h4>
+                            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400 line-clamp-3">{post.excerpt}</p>
                             <Link
                               href={`/news/${post.slug}`}
-                              className="mt-4 inline-flex text-sm font-medium text-indigo-600 hover:text-indigo-700"
+                              className="mt-4 inline-flex text-sm font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200"
                             >
                               {t('sections.news.read_story', 'Read story →')}
                             </Link>
@@ -317,7 +317,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation })
                         );
                       })
                     : (
-                      <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-6 text-sm text-gray-500">
+                      <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 px-4 py-6 text-sm text-gray-500 dark:text-gray-400">
                         {emptyMessage}
                       </div>
                     )}

@@ -1364,6 +1364,11 @@
       "add": "Add to Cart",
       "addAriaLabel": "Add to cart",
       "outOfStock": "Out of Stock",
+      "adding": "Adding...",
+      "added": "Added!",
+      "selectOptions": "Select Options",
+      "inCart": "In Cart ({{count}})",
+      "addWithPrice": "Add to Cart - {{price}}",
       "empty": {
         "title": "Your cart is empty",
         "description": "Add some products to your cart to continue shopping",
@@ -1442,6 +1447,13 @@
         "quantity_decrease": "Decrease quantity of {{name}}",
         "close_cart": "Close shopping cart"
       }
+    },
+    "productCard": {
+      "stock": "Stock",
+      "selectionWarning": "Please select all required options ({{current}}/{{total}} selected) to add to cart",
+      "combinationUnavailable": "Combination Not Available",
+      "imageAlt": "Product Image",
+      "startingFrom": "Starting from {{price}}"
     }
   },
   "product": {
@@ -1503,7 +1515,7 @@
         "selectVariant": "Select Variant",
         "selectedVariant": "Selected Variant",
         "noVariantFound": "No variant found with selected attributes",
-        "selectRequiredAttributes": "Please select all required attributes ({current}/{total} selected)"
+        "selectRequiredAttributes": "Please select all required attributes ({{current}}/{{total}} selected)"
       },
       "common": {
         "quantity": "Quantity",
@@ -1716,6 +1728,25 @@
         "custom": "Curated selection"
       },
       "bestsellers_disabled": "Best sellers will be available soon. Please choose another option for now."
+    },
+    "featured_products": {
+      "title": "Featured products",
+      "browse_catalog": "Browse catalog",
+      "placeholder_empty": "Select products to showcase in this section."
+    },
+    "news": {
+      "latest_stories": "Latest stories",
+      "view_newsroom": "Visit newsroom",
+      "latest_news": "Latest news",
+      "view_all": "View all news",
+      "read_story": "Read story →",
+      "empty_category": "No news articles are available in this category yet.",
+      "error_loading": "Unable to load news at the moment.",
+      "strategy": {
+        "latest": "Latest news",
+        "mostViewed": "Most viewed",
+        "featured": "Editor picks"
+      }
     },
     "cta_banner": {
       "default_title": "Coordinate campaigns without code debt",

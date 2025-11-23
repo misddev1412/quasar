@@ -37,12 +37,12 @@ interface CTABannerSectionProps {
 }
 
 const backgroundVariants: Record<string, string> = {
-  gradient: 'bg-gradient-to-br from-sky-500 via-indigo-600 to-violet-700 text-white',
-  primary: 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white',
-  secondary: 'bg-gradient-to-r from-rose-500 via-fuchsia-500 to-orange-500 text-white',
+  gradient: 'bg-gradient-to-br from-sky-500 via-indigo-600 to-violet-700 text-white dark:text-white',
+  primary: 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white dark:text-white',
+  secondary: 'bg-gradient-to-r from-rose-500 via-fuchsia-500 to-orange-500 text-white dark:text-white',
   dark: 'bg-slate-900 text-white',
-  light: 'bg-white text-gray-900 border border-gray-100 shadow-xl',
-  custom: 'text-white',
+  light: 'bg-white text-gray-900 border border-gray-100 shadow-xl dark:bg-gray-900 dark:text-gray-100 dark:border-gray-800',
+  custom: 'text-white dark:text-white',
 };
 
 const clampOpacity = (value?: number): number => {
@@ -160,10 +160,10 @@ export const CTABannerSection: React.FC<CTABannerSectionProps> = ({ config, tran
     const buttonClass =
       variantType === 'primary'
         ? isLightVariant
-          ? 'bg-gray-900 text-white hover:bg-gray-800'
+          ? 'bg-gray-900 text-white hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200'
           : 'bg-white text-gray-900 hover:bg-gray-100'
         : isLightVariant
-          ? 'border border-gray-300 text-gray-900 hover:bg-gray-50'
+          ? 'border border-gray-300 text-gray-900 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-gray-800'
           : 'border border-white/40 bg-white/10 text-white hover:bg-white/20';
 
     const styleOverride = variantType === 'primary' ? primaryButtonStyle : undefined;
@@ -197,18 +197,18 @@ export const CTABannerSection: React.FC<CTABannerSectionProps> = ({ config, tran
         <div className={`flex w-full flex-col gap-6 ${textAlignClass} ${contentWidthClass}`}>
           {badgeText && (
             <span
-              className={`inline-flex items-center rounded-full border px-4 py-1 text-xs font-semibold tracking-[0.3em] ${isLightVariant ? 'text-gray-600 border-gray-200 bg-gray-100/70' : 'text-white/75 border-white/30 bg-white/10'}`}
+              className={`inline-flex items-center rounded-full border px-4 py-1 text-xs font-semibold tracking-[0.3em] ${isLightVariant ? 'text-gray-600 border-gray-200 bg-gray-100/70 dark:text-gray-300 dark:border-gray-700 dark:bg-gray-800/60' : 'text-white/75 border-white/30 bg-white/10'}`}
               style={badgeStyle}
             >
               {badgeText.toUpperCase()}
             </span>
           )}
-          <h2 className={`text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight ${isLightVariant ? 'text-gray-900' : 'text-white'}`} style={headingStyle}>
+          <h2 className={`text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight ${isLightVariant ? 'text-gray-900 dark:text-gray-100' : 'text-white'}`} style={headingStyle}>
             {headingText}
           </h2>
           {descriptionText && (
             <p
-              className={`text-lg ${isLightVariant ? 'text-gray-600' : 'text-white/80'}`}
+              className={`text-lg ${isLightVariant ? 'text-gray-600 dark:text-gray-300' : 'text-white/80'}`}
               style={descriptionStyle}
             >
               {descriptionText}
@@ -224,7 +224,7 @@ export const CTABannerSection: React.FC<CTABannerSectionProps> = ({ config, tran
   );
 
   return (
-    <section className="py-16">
+    <section className="py-16 bg-transparent dark:bg-gray-950">
       {layout === 'container' ? (
         <Container className="max-w-6xl">{content}</Container>
       ) : (

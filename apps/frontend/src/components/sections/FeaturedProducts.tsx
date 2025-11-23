@@ -73,25 +73,25 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
   }, [productIds]);
 
   return (
-    <section id="sections" className="py-16 bg-white">
+    <section id="sections" className="py-16 bg-white dark:bg-gray-950">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
           <div>
-            <h2 className="text-3xl font-semibold text-gray-900">
+            <h2 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
               {translation?.title || t('sections.featured_products.title')}
             </h2>
             {translation?.subtitle && (
-              <p className="mt-2 text-gray-500">{translation.subtitle}</p>
+              <p className="mt-2 text-gray-500 dark:text-gray-400">{translation.subtitle}</p>
             )}
             {translation?.description && (
-              <p className="mt-3 text-sm text-gray-500 max-w-2xl">
+              <p className="mt-3 text-sm text-gray-500 dark:text-gray-400 max-w-2xl">
                 {translation.description}
               </p>
             )}
           </div>
           <Link
             href="/products"
-            className="inline-flex items-center justify-center rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-300 hover:bg-gray-50"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
             {t('sections.featured_products.browse_catalog')}
           </Link>
@@ -102,7 +102,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
             {Array.from({ length: itemsPerRow }).map((_, index) => (
               <div
                 key={`placeholder-${index}`}
-                className="rounded-xl border border-dashed border-gray-200 p-6 text-center text-sm text-gray-400"
+                className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/40 p-6 text-center text-sm text-gray-400 dark:text-gray-500"
               >
                 {t('sections.featured_products.placeholder_empty', 'Select products to showcase in this section.')}
               </div>
@@ -111,19 +111,19 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
         ) : isLoading ? (
           <div className={`grid gap-6 ${gridClass}`}>
             {productIds.map((id) => (
-              <div key={`loading-${id}`} className="animate-pulse rounded-xl border border-gray-100 p-6 space-y-4">
-                <div className="h-40 bg-gray-200 rounded-lg" />
-                <div className="h-4 bg-gray-200 rounded w-3/4" />
-                <div className="h-3 bg-gray-200 rounded w-1/2" />
+              <div key={`loading-${id}`} className="animate-pulse rounded-xl border border-gray-100 dark:border-gray-800 p-6 space-y-4 bg-white dark:bg-gray-900/30">
+                <div className="h-40 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
               </div>
             ))}
           </div>
         ) : error ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-6 text-sm text-red-600">
+          <div className="rounded-lg border border-red-200 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 px-4 py-6 text-sm text-red-600 dark:text-red-200">
             {error}
           </div>
         ) : products.length === 0 ? (
-          <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-6 text-sm text-gray-500">
+          <div className="rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/30 px-4 py-6 text-sm text-gray-500 dark:text-gray-400">
             {t('sections.featured_products.placeholder_empty', 'No featured products available.')}
           </div>
         ) : (

@@ -12,6 +12,7 @@ import { ThemeProvider } from '../contexts/ThemeContext';
 import { AppInitProvider, useAppInit } from '../contexts/AppInitContext';
 import { AppLoadingOverlay } from '../components/common/AppLoadingOverlay';
 import { CartProvider } from '../components/ecommerce/CartProvider';
+import '../lib/i18n';
 
 const queryClient = new QueryClient({
   defaultOptions: {

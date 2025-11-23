@@ -7,6 +7,7 @@ import type { Product, ProductVariant } from '../../types/product';
 import { useCart } from '../../contexts/CartContext';
 import VariantSelectionModal from './VariantSelectionModal';
 import { useAddToCart } from '../../hooks/useAddToCart';
+import { useTranslation } from 'react-i18next';
 
 interface AddToCartButtonProps {
   product: Product;
@@ -41,6 +42,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
 }) => {
   const { isInCart, getItemQuantity, canAddToCart } = useCart();
   const { addToCart, isAdding } = useAddToCart();
+  const { t } = useTranslation();
   const [isAdded, setIsAdded] = useState(false);
   const [selectedQuantity, setSelectedQuantity] = useState(quantity);
   const [showVariantModal, setShowVariantModal] = useState(false);
@@ -226,7 +228,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         onPress={handleAddToCart}
         isLoading={isLoading}
         isDisabled={isDisabled}
-        aria-label="Add to cart"
+        aria-label={t('ecommerce.cart.addAriaLabel', 'Add to cart')}
       >
         {isLoading ? (
           <FiLoader className="animate-spin text-lg" />
@@ -277,24 +279,24 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         }
       >
         {isLoading ? (
-          <span>Adding...</span>
+          <span>{t('ecommerce.cart.adding', 'Adding...')}</span>
         ) : isAdded ? (
           <div className="flex items-center gap-2">
-            <span>Added!</span>
+            <span>{t('ecommerce.cart.added', 'Added!')}</span>
           </div>
         ) : isOutOfStock ? (
-          'Out of Stock'
+          t('ecommerce.cart.outOfStock', 'Out of Stock')
         ) : product.variants && product.variants.length > 0 ? (
           <div className="flex items-center gap-2">
-            <span>Select Options</span>
+            <span>{t('ecommerce.cart.selectOptions', 'Select Options')}</span>
           </div>
         ) : isAlreadyInCart ? (
           <div className="flex items-center gap-2">
-            <span>In Cart ({currentQuantity})</span>
+            <span>{t('ecommerce.cart.inCart', { count: currentQuantity || 0 })}</span>
           </div>
         ) : (
           <div className="flex items-center gap-2">
-            <span>Add to Cart</span>
+            <span>{t('ecommerce.cart.add', 'Add to Cart')}</span>
           </div>
         )}
       </Button>

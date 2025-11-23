@@ -140,5 +140,34 @@
       "refunded": "Đơn hàng đã được hoàn tiền",
       "fully_fulfilled": "Đơn hàng đã được thực hiện hoàn tất"
     }
+  },
+  "sections": {
+    "products_by_category": {
+      "title": "Sản phẩm nổi bật",
+      "description": "Khám phá các sản phẩm mới và được tuyển chọn trong danh mục này.",
+      "view_category": "Xem danh mục",
+      "category_label": "Danh mục {{category}}",
+      "curated_category": "Bộ sưu tập tuyển chọn",
+      "loading": "Đang tải sản phẩm...",
+      "error": "Không thể tải sản phẩm cho danh mục này.",
+      "invalid_category": "Danh mục đã chọn không còn tồn tại.",
+      "missing_category": "Hãy chọn một danh mục để hiển thị sản phẩm.",
+      "custom_empty": "Hãy chọn sản phẩm cụ thể cho danh mục này.",
+      "empty": "Chưa có sản phẩm nào trong danh mục này.",
+      "carousel_prev": "Cuộn sang trái",
+      "carousel_next": "Cuộn sang phải",
+      "strategies": {
+        "latest": "Sản phẩm mới nhất",
+        "featured": "Sản phẩm nổi bật",
+        "bestsellers": "Bán chạy nhất",
+        "custom": "Tự chọn sản phẩm"
+      },
+      "bestsellers_disabled": "Tính năng sản phẩm bán chạy đang được phát triển, vui lòng chọn tuỳ chọn khác."
+    },
+    "featured_products": {
+      "title": "Sản phẩm nổi bật",
+      "browse_catalog": "Duyệt danh mục",
+      "placeholder_empty": "Hãy chọn sản phẩm để hiển thị ở mục này."
+    }
   }
 }

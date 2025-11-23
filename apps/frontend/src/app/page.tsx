@@ -86,11 +86,11 @@ function renderFallbackContent() {
         </div>
       </section>
 
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white dark:bg-gray-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Popular Categories</h2>
-            <p className="text-gray-600">Explore our most popular product categories</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Popular Categories</h2>
+            <p className="text-gray-600 dark:text-gray-400">Explore our most popular product categories</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
@@ -99,37 +99,37 @@ function renderFallbackContent() {
               { name: 'Home & Garden', icon: '🏠', color: 'bg-green-100' },
               { name: 'Sports', icon: '⚽', color: 'bg-orange-100' },
             ].map((category) => (
-              <div key={category.name} className="text-center p-6 rounded-lg hover:shadow-lg transition-shadow bg-white">
-                <div className={`${category.color} w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-4 mx-auto`}>
+              <div key={category.name} className="text-center p-6 rounded-lg hover:shadow-lg transition-shadow bg-white dark:bg-gray-900/50 border border-transparent dark:border-gray-800">
+                <div className={`${category.color} dark:bg-gray-800 w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-4 mx-auto`}>
                   {category.icon}
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{category.name}</h3>
-                <p className="text-gray-600 text-sm">Shop the latest {category.name.toLowerCase()}</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{category.name}</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Shop the latest {category.name.toLowerCase()}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Featured Products</h2>
-            <p className="text-gray-600">Handpicked products just for you</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Featured Products</h2>
+            <p className="text-gray-600 dark:text-gray-400">Handpicked products just for you</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((product) => (
-              <div key={product} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="aspect-square bg-gray-200 flex items-center justify-center">
+              <div key={product} className="bg-white dark:bg-gray-900/60 border border-transparent dark:border-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="aspect-square bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
                   <span className="text-4xl">📦</span>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2">Product {product}</h3>
-                  <p className="text-gray-600 text-sm mb-3">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Product {product}</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
                     High-quality product with amazing features
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-blue-600">
+                    <span className="text-lg font-bold text-blue-600 dark:text-blue-300">
                       ${product * 29.99}
                     </span>
                     <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">

@@ -1341,6 +1341,11 @@
       "add": "Thêm vào giỏ hàng",
       "addAriaLabel": "Thêm vào giỏ hàng",
       "outOfStock": "Hết hàng",
+      "adding": "Đang thêm...",
+      "added": "Đã thêm!",
+      "selectOptions": "Chọn tuỳ chọn",
+      "inCart": "Trong giỏ ({{count}})",
+      "addWithPrice": "Thêm vào giỏ hàng - {{price}}",
       "empty": {
         "title": "Giỏ hàng của bạn trống",
         "description": "Thêm một số sản phẩm vào giỏ hàng để tiếp tục mua sắm",
@@ -1419,6 +1424,13 @@
         "quantity_decrease": "Giảm số lượng {{name}}",
         "close_cart": "Đóng giỏ hàng"
       }
+    },
+    "productCard": {
+      "stock": "Tồn kho",
+      "selectionWarning": "Vui lòng chọn đủ các tuỳ chọn bắt buộc ({{current}}/{{total}}) trước khi thêm vào giỏ hàng",
+      "combinationUnavailable": "Tổ hợp không khả dụng",
+      "imageAlt": "Hình ảnh sản phẩm",
+      "startingFrom": "Giá từ {{price}}"
     }
   },
   "product": {
@@ -1480,7 +1492,7 @@
         "selectVariant": "Chọn biến thể",
         "selectedVariant": "Biến thể đã chọn",
         "noVariantFound": "Không tìm thấy biến thể nào với thuộc tính đã chọn",
-        "selectRequiredAttributes": "Vui lòng chọn tất cả các thuộc tính bắt buộc ({current}/{total} đã chọn)"
+        "selectRequiredAttributes": "Vui lòng chọn tất cả các thuộc tính bắt buộc ({{current}}/{{total}} đã chọn)"
       },
       "common": {
         "quantity": "Số lượng",
@@ -1693,6 +1705,25 @@
         "custom": "Tự chọn sản phẩm"
       },
       "bestsellers_disabled": "Tính năng sản phẩm bán chạy đang được phát triển, vui lòng chọn tuỳ chọn khác."
+    },
+    "featured_products": {
+      "title": "Sản phẩm nổi bật",
+      "browse_catalog": "Duyệt danh mục",
+      "placeholder_empty": "Hãy chọn sản phẩm để hiển thị ở mục này."
+    },
+    "news": {
+      "latest_stories": "Tin mới nhất",
+      "view_newsroom": "Xem trang tin tức",
+      "latest_news": "Tin tức mới nhất",
+      "view_all": "Xem tất cả tin",
+      "read_story": "Đọc bài viết →",
+      "empty_category": "Chưa có tin tức nào trong danh mục này.",
+      "error_loading": "Không thể tải tin tức ngay lúc này.",
+      "strategy": {
+        "latest": "Tin mới nhất",
+        "mostViewed": "Xem nhiều nhất",
+        "featured": "Biên tập chọn lọc"
+      }
     },
     "cta_banner": {
       "default_title": "Điều phối chiến dịch mà không cần chỉnh sửa mã",

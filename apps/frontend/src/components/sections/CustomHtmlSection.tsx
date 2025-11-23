@@ -21,12 +21,12 @@ export const CustomHtmlSection: React.FC<CustomHtmlSectionProps> = ({ config, tr
 </div>`;
 
   return (
-    <section className="py-16 bg-transparent text-gray-900">
+    <section className="py-16 bg-transparent text-gray-900 dark:text-gray-100">
       <div className="w-full px-4 sm:px-6 lg:px-12">
         {(translation?.title || translation?.description) && (
           <div className="mb-6 max-w-3xl">
-            {translation.title && <h2 className="text-3xl font-semibold text-gray-900">{translation.title}</h2>}
-            {translation.description && <p className="mt-2 text-gray-600">{translation.description}</p>}
+            {translation.title && <h2 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">{translation.title}</h2>}
+            {translation.description && <p className="mt-2 text-gray-600 dark:text-gray-400">{translation.description}</p>}
           </div>
         )}
         <div

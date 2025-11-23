@@ -8,6 +8,7 @@ import Rating from './Rating';
 import AddToCartButton from './AddToCartButton';
 import type { Product, ProductMedia, ProductVariant } from '../../types/product';
 import { useAddToCart } from '../../hooks/useAddToCart';
+import { useTranslation } from 'react-i18next';
 
 // Legacy ProductVariant interface for backward compatibility
 export interface LegacyProductVariant {
@@ -81,6 +82,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
   const { addToCart, isAdding } = useAddToCart();
+  const { t } = useTranslation();
 
   // Get primary image or first image
   const getPrimaryImage = () => {
@@ -297,7 +299,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <Link href={`/products/${productSlug}`}>
           <Image
             src={getPrimaryImage()}
-            alt={name || 'Product'}
+            alt={name || t('ecommerce.productCard.imageAlt', 'Product Image')}
             className={`w-full h-full object-cover transition-transform duration-500 cursor-pointer rounded-t-xl ${
               isImageHovered ? 'scale-110' : 'scale-100'
             }`}
@@ -321,7 +323,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {!inStock && (
           <div className="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center">
             <span className="text-white font-bold text-lg bg-red-600 px-4 py-2 rounded-lg">
-              Out of Stock
+              {t('ecommerce.cart.outOfStock', 'Out of Stock')}
             </span>
           </div>
         )}
@@ -376,7 +378,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <PriceDisplay price={currentPrice} size="lg" />
             {variants && variants.length > 0 && (
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Starting from ${currentPrice}
+                {t('ecommerce.productCard.startingFrom', { price: `$${currentPrice}` })}
               </p>
             )}
           </div>
@@ -422,7 +424,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     {name}
                   </h2>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Select variant and quantity
+                    {t('product.detail.actions.selectVariant')}
                   </p>
                 </div>
               </div>
@@ -499,7 +501,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600 dark:text-gray-400">Stock:</span>
+                      <span className="text-gray-600 dark:text-gray-400">{t('ecommerce.productCard.stock', 'Stock')}:</span>
                       <span className={`text-sm font-medium ${
                         canPurchaseVariant(matchingVariant)
                           ? 'text-green-600 dark:text-green-400'
@@ -515,7 +517,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 {!isCompleteSelection() && (
                   <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
                     <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                      Please select all required options ({Object.keys(selectedAttributes).length}/{attributeGroups.length} selected) to add to cart
+                      {t('ecommerce.productCard.selectionWarning', {
+                        current: Object.keys(selectedAttributes).length,
+                        total: attributeGroups.length,
+                      })}
                     </p>
                   </div>
                 )}
@@ -532,14 +537,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     }`}
                   >
                     {!isCompleteSelection()
-                      ? 'Select Options'
+                      ? t('ecommerce.cart.selectOptions', 'Select Options')
                       : !matchingVariant
-                        ? 'Combination Not Available'
+                        ? t('ecommerce.productCard.combinationUnavailable', 'Combination Not Available')
                         : !canPurchaseVariant(matchingVariant)
-                          ? 'Out of Stock'
+                          ? t('ecommerce.cart.outOfStock', 'Out of Stock')
                           : isAdding
-                            ? 'Adding...'
-                            : `Add to Cart - $${(matchingVariant.price || 0) * quantity}`
+                            ? t('ecommerce.cart.adding', 'Adding...')
+                            : t('ecommerce.cart.addWithPrice', {
+                              price: `$${(((matchingVariant.price || 0) * quantity).toFixed(2))}`,
+                            })
                   }
                   </button>
                   <button
@@ -549,8 +556,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
                       setQuantity(1);
                     }}
                     className="px-6 py-3 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                  >
-                    Cancel
+                    >
+                      {t('product.detail.common.cancel', 'Cancel')}
                   </button>
                 </div>
               </div>
@@ -570,14 +577,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <ModalContent className="p-0">
           <ModalHeader className="p-4 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              {name || 'Product Image'}
+              {name || t('ecommerce.productCard.imageAlt', 'Product Image')}
             </h2>
           </ModalHeader>
           <ModalBody className="p-0">
             <div className="flex items-center justify-center bg-black min-h-[400px]">
               <Image
                 src={getPrimaryImage()}
-                alt={name || 'Product'}
+                alt={name || t('ecommerce.productCard.imageAlt', 'Product Image')}
                 className="max-w-full max-h-[70vh] object-contain"
                 removeWrapper
               />

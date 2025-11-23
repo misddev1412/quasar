@@ -140,5 +140,34 @@
       "refunded": "Order is refunded",
       "fully_fulfilled": "Order is already fully fulfilled"
     }
+  },
+  "sections": {
+    "products_by_category": {
+      "title": "Spotlight products",
+      "description": "Discover curated picks and new arrivals from this category.",
+      "view_category": "View category",
+      "category_label": "{{category}} spotlight",
+      "curated_category": "Curated collection",
+      "loading": "Loading products...",
+      "error": "We couldn't load products for this category.",
+      "invalid_category": "The selected category is no longer available.",
+      "missing_category": "Pick a category to show products in this row.",
+      "custom_empty": "Select specific products to highlight in this row.",
+      "empty": "No products are available in this category yet.",
+      "carousel_prev": "Scroll left",
+      "carousel_next": "Scroll right",
+      "strategies": {
+        "latest": "Latest products",
+        "featured": "Featured picks",
+        "bestsellers": "Best sellers",
+        "custom": "Curated selection"
+      },
+      "bestsellers_disabled": "Best sellers will be available soon. Please choose another option for now."
+    },
+    "featured_products": {
+      "title": "Featured products",
+      "browse_catalog": "Browse catalog",
+      "placeholder_empty": "Select products to showcase in this section."
+    }
   }
 }

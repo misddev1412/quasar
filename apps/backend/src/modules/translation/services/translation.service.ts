@@ -114,8 +114,28 @@ export class TranslationService {
   }
 
   private mergeTranslations(dbTranslations: TranslationMap, fileTranslations: TranslationMap): TranslationMap {
-    // Database translations take priority
-    return { ...fileTranslations, ...dbTranslations };
+    return this.deepMerge(fileTranslations, dbTranslations);
+  }
+
+  private deepMerge(base: TranslationMap, override: TranslationMap): TranslationMap {
+    const result: TranslationMap = { ...base };
+
+    Object.entries(override || {}).forEach(([key, value]) => {
+      const existing = result[key];
+
+      if (this.isObject(existing) && this.isObject(value)) {
+        result[key] = this.deepMerge(existing, value);
+        return;
+      }
+
+      result[key] = value;
+    });
+
+    return result;
+  }
+
+  private isObject(value: unknown): value is TranslationMap {
+    return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
   }
 
   private getCachedTranslations(): LocaleTranslations | null {

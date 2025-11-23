@@ -524,15 +524,15 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
   }
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-white dark:bg-gray-950">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
           <div>
-            <p className="text-xs uppercase tracking-widest text-blue-500">
+            <p className="text-xs uppercase tracking-widest text-blue-500 dark:text-blue-300">
               {t('sections.products_by_category.curated_category')}
             </p>
-            <h2 className="mt-2 text-3xl font-semibold text-gray-900">{sectionHeading}</h2>
-            {sectionDescription && <p className="mt-2 text-gray-500">{sectionDescription}</p>}
+            <h2 className="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{sectionHeading}</h2>
+            {sectionDescription && <p className="mt-2 text-gray-500 dark:text-gray-400">{sectionDescription}</p>}
           </div>
         </div>
 
@@ -577,12 +577,12 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
                   <div className="flex gap-4 overflow-hidden pb-2">
                     {placeholders.map((_, index) => (
                       <div key={`loading-${row.id}-${index}`} className="min-w-[240px] max-w-xs flex-shrink-0">
-                        <div className="animate-pulse rounded-xl border border-gray-200 bg-white shadow-sm">
-                          <div className="h-44 rounded-t-xl bg-gradient-to-br from-gray-100 via-white to-gray-200" />
+                        <div className="animate-pulse rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/30 shadow-sm">
+                          <div className="h-44 rounded-t-xl bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800" />
                           <div className="p-4 space-y-3">
-                            <div className="h-3 w-24 rounded bg-gray-200" />
-                            <div className="h-4 w-full rounded bg-gray-200" />
-                            <div className="h-3 w-3/4 rounded bg-gray-200" />
+                            <div className="h-3 w-24 rounded bg-gray-200 dark:bg-gray-700" />
+                            <div className="h-4 w-full rounded bg-gray-200 dark:bg-gray-700" />
+                            <div className="h-3 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
                           </div>
                         </div>
                       </div>
@@ -594,12 +594,12 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
               return (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {placeholders.map((_, index) => (
-                    <div key={`loading-${row.id}-${index}`} className="animate-pulse rounded-xl border border-gray-200 bg-white shadow-sm">
-                      <div className="h-44 rounded-t-xl bg-gradient-to-br from-gray-100 via-white to-gray-200" />
+                    <div key={`loading-${row.id}-${index}`} className="animate-pulse rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/30 shadow-sm">
+                      <div className="h-44 rounded-t-xl bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800" />
                       <div className="p-4 space-y-3">
-                        <div className="h-3 w-24 rounded bg-gray-200" />
-                        <div className="h-4 w-full rounded bg-gray-200" />
-                        <div className="h-3 w-3/4 rounded bg-gray-200" />
+                        <div className="h-3 w-24 rounded bg-gray-200 dark:bg-gray-700" />
+                        <div className="h-4 w-full rounded bg-gray-200 dark:bg-gray-700" />
+                        <div className="h-3 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
                       </div>
                     </div>
                   ))}
@@ -647,12 +647,12 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
                 <div className="relative">
                   <button
                     type="button"
-                    className="hidden md:flex absolute left-0 top-1/2 z-10 -translate-y-1/2 transform items-center justify-center rounded-full border border-gray-200 bg-white p-2 shadow-sm transition hover:bg-gray-100 disabled:opacity-40"
+                    className="hidden md:flex absolute left-0 top-1/2 z-10 -translate-y-1/2 transform items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-2 shadow-sm transition hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40"
                     onClick={() => scrollCarousel('left')}
                     disabled={isAtStart}
                     aria-label={t('sections.products_by_category.carousel_prev')}
                   >
-                    <ChevronLeft className="h-5 w-5" />
+                    <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-200" />
                   </button>
                   <div
                     ref={carouselRef}
@@ -673,12 +673,12 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
                   </div>
                   <button
                     type="button"
-                    className="hidden md:flex absolute right-0 top-1/2 z-10 -translate-y-1/2 transform items-center justify-center rounded-full border border-gray-200 bg-white p-2 shadow-sm transition hover:bg-gray-100 disabled:opacity-40"
+                    className="hidden md:flex absolute right-0 top-1/2 z-10 -translate-y-1/2 transform items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-2 shadow-sm transition hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40"
                     onClick={() => scrollCarousel('right')}
                     disabled={isAtEnd}
                     aria-label={t('sections.products_by_category.carousel_next')}
                   >
-                    <ChevronRight className="h-5 w-5" />
+                    <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-200" />
                   </button>
                 </div>
               );
@@ -706,13 +706,13 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
               bodyContent = renderLoading();
             } else if (state.error) {
               bodyContent = (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-6 text-sm text-red-600">
+                <div className="rounded-lg border border-red-200 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 px-4 py-6 text-sm text-red-600 dark:text-red-200">
                   {state.error}
                 </div>
               );
             } else if (state.products.length === 0) {
               bodyContent = (
-                <div className="rounded-lg border border-gray-200 bg-white px-4 py-6 text-sm text-gray-600">
+                <div className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40 px-4 py-6 text-sm text-gray-600 dark:text-gray-400">
                   {t('sections.products_by_category.empty')}
                 </div>
               );
@@ -724,13 +724,13 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
               <div key={row.id} className="space-y-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div>
-                    <h3 className="text-2xl font-semibold text-gray-900">{categoryLabel}</h3>
+                    <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{categoryLabel}</h3>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wide ${badgeClass}`}>
                         {strategyLabel}
                       </span>
                       {normalizedCategoryName && normalizedCategoryName !== categoryLabel && (
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
                           {normalizedCategoryName}
                         </span>
                       )}
@@ -739,7 +739,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
                   {hasCategoryNavigation && (
                     <Link
                       href={ctaHref}
-                      className="inline-flex items-center justify-center rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-300 hover:bg-gray-50"
+                      className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800"
                     >
                       {t('sections.products_by_category.view_category')}
                     </Link>
