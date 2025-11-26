@@ -5,6 +5,12 @@ import { MenuEntity } from '../../modules/menus/entities/menu.entity';
 import { MenuTranslationEntity } from '../../modules/menus/entities/menu-translation.entity';
 import { MenuType, MenuTarget } from '@shared/enums/menu.enums';
 
+type MenuSeedData = {
+  menu: Partial<MenuEntity>;
+  translations: Array<Partial<MenuTranslationEntity>>;
+  children?: MenuSeedData[];
+};
+
 @Injectable()
 export class MenusSeeder implements SeederModule {
   constructor(private readonly dataSource: DataSource) {}
@@ -13,16 +19,7 @@ export class MenusSeeder implements SeederModule {
     const menuRepository = this.dataSource.getRepository(MenuEntity);
     const translationRepository = this.dataSource.getRepository(MenuTranslationEntity);
 
-    const existing = await menuRepository.count();
-    if (existing > 0) {
-      console.log('Menus already seeded, skipping');
-      return;
-    }
-
-    const menus: Array<{
-      menu: Partial<MenuEntity>;
-      translations: Array<Partial<MenuTranslationEntity>>
-    }> = [
+    const baseMenus: MenuSeedData[] = [
       {
         menu: {
           menuGroup: 'main',
@@ -240,6 +237,60 @@ export class MenusSeeder implements SeederModule {
           },
         ],
       },
+      {
+        menu: {
+          menuGroup: 'main',
+          type: MenuType.LINK,
+          url: '/support',
+          target: MenuTarget.SELF,
+          position: 8,
+          isEnabled: true,
+          icon: 'life-buoy',
+          config: {
+            highlight: true,
+          },
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Support',
+            description: 'Help center resources',
+          },
+          {
+            locale: 'vi',
+            label: 'Hỗ trợ',
+            description: 'Trung tâm hỗ trợ khách hàng',
+          },
+        ],
+        children: [
+          {
+            menu: {
+              menuGroup: 'main',
+              type: MenuType.LINK,
+              url: '/support/faq',
+              target: MenuTarget.SELF,
+              position: 0,
+              isEnabled: true,
+              icon: 'help-circle',
+              config: {},
+              isMegaMenu: false,
+            },
+            translations: [
+              {
+                locale: 'en',
+                label: 'FAQ',
+                description: 'Common customer questions',
+              },
+              {
+                locale: 'vi',
+                label: 'Câu hỏi thường gặp',
+                description: 'Các câu hỏi phổ biến',
+              },
+            ],
+          },
+        ],
+      },
       // Footer menu
       {
         menu: {
@@ -375,9 +426,136 @@ export class MenusSeeder implements SeederModule {
       },
     ];
 
-    // Create menus
-    for (const menuData of menus) {
-      const menu = menuRepository.create(menuData.menu);
+    const headerActionMenus: MenuSeedData[] = [
+      {
+        menu: {
+          menuGroup: 'main',
+          type: MenuType.SEARCH_BUTTON,
+          target: MenuTarget.SELF,
+          position: 90,
+          isEnabled: true,
+          icon: 'search',
+          config: {},
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Search',
+            description: 'Open search overlay',
+          },
+          {
+            locale: 'vi',
+            label: 'Tìm kiếm',
+            description: 'Mở khung tìm kiếm',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'main',
+          type: MenuType.LOCALE_SWITCHER,
+          target: MenuTarget.SELF,
+          position: 91,
+          isEnabled: true,
+          icon: 'globe',
+          config: {},
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Languages',
+            description: 'Switch website language',
+          },
+          {
+            locale: 'vi',
+            label: 'Ngôn ngữ',
+            description: 'Chuyển đổi ngôn ngữ trang',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'main',
+          type: MenuType.THEME_TOGGLE,
+          target: MenuTarget.SELF,
+          position: 92,
+          isEnabled: true,
+          icon: 'moon',
+          config: {},
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Theme',
+            description: 'Toggle light or dark mode',
+          },
+          {
+            locale: 'vi',
+            label: 'Giao diện',
+            description: 'Bật tắt chế độ sáng/tối',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'main',
+          type: MenuType.CART_BUTTON,
+          target: MenuTarget.SELF,
+          position: 93,
+          isEnabled: true,
+          icon: 'shopping-cart',
+          config: {},
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Cart',
+            description: 'View shopping cart',
+          },
+          {
+            locale: 'vi',
+            label: 'Giỏ hàng',
+            description: 'Xem giỏ hàng của bạn',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'main',
+          type: MenuType.USER_PROFILE,
+          target: MenuTarget.SELF,
+          position: 94,
+          isEnabled: true,
+          icon: 'user',
+          config: {},
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Profile',
+            description: 'Access account options',
+          },
+          {
+            locale: 'vi',
+            label: 'Tài khoản',
+            description: 'Truy cập tuỳ chọn tài khoản',
+          },
+        ],
+      },
+    ];
+
+    const createMenuWithTranslations = async (
+      menuData: MenuSeedData,
+      parentId?: string,
+    ): Promise<MenuEntity> => {
+      const menu = menuRepository.create(
+        parentId ? { ...menuData.menu, parentId } : menuData.menu,
+      );
       const savedMenu = await menuRepository.save(menu);
 
       // Create translations
@@ -388,8 +566,47 @@ export class MenusSeeder implements SeederModule {
         });
         await translationRepository.save(translation);
       }
+
+      if (menuData.children) {
+        for (const childMenu of menuData.children) {
+          await createMenuWithTranslations(childMenu, savedMenu.id);
+        }
+      }
+
+      return savedMenu;
+    };
+
+    const existing = await menuRepository.count();
+    if (existing === 0) {
+      for (const menuData of baseMenus) {
+        await createMenuWithTranslations(menuData);
+      }
+      console.log(`✅ Created ${baseMenus.length} base menu items`);
+    } else {
+      console.log('Menus already seeded, skipping base menu creation');
     }
 
-    console.log(`✅ Created ${menus.length} menu items`);
+    let createdActions = 0;
+    for (const menuData of headerActionMenus) {
+      const actionExists = await menuRepository.findOne({
+        where: {
+          menuGroup: menuData.menu.menuGroup,
+          type: menuData.menu.type as MenuType,
+        },
+      });
+
+      if (actionExists) {
+        continue;
+      }
+
+      await createMenuWithTranslations(menuData);
+      createdActions += 1;
+    }
+
+    if (createdActions > 0) {
+      console.log(`✅ Created ${createdActions} header action menu items`);
+    } else {
+      console.log('✅ Header action menu items already exist, skipping');
+    }
   }
 }

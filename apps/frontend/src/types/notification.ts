@@ -19,6 +19,7 @@ export interface Notification {
   icon?: string;
   image?: string;
   data?: Record<string, unknown>;
+  eventKey?: string;
   read: boolean;
   fcmToken?: string;
   sentAt?: Date;

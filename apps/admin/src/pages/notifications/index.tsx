@@ -31,7 +31,28 @@ import BaseLayout from '../../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
+import type { NotificationEventKey } from '../../hooks/useNotificationChannelConfigs';
 
+const NOTIFICATION_EVENT_OPTIONS: ReadonlyArray<{ value: NotificationEventKey; label: string }> = [
+  { value: 'custom.manual', label: 'Manual / Custom' },
+  { value: 'user.registered', label: 'User Registered' },
+  { value: 'user.verified', label: 'User Verified' },
+  { value: 'order.created', label: 'Order Created' },
+  { value: 'order.shipped', label: 'Order Shipped' },
+  { value: 'system.announcement', label: 'System Announcement' },
+  { value: 'marketing.campaign', label: 'Marketing Campaign' },
+] as const;
+
+type SendFormState = {
+  type: 'single' | 'bulk' | 'topic';
+  title: string;
+  body: string;
+  notificationType: string;
+  actionUrl: string;
+  userIds: string;
+  topic: string;
+  eventKey: NotificationEventKey;
+};
 
 const NotificationsPage: React.FC = () => {
   const { t } = useTranslationWithBackend();
@@ -39,7 +60,7 @@ const NotificationsPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
-  const [sendForm, setSendForm] = useState({
+  const [sendForm, setSendForm] = useState<SendFormState>({
     type: 'single',
     title: '',
     body: '',
@@ -47,6 +68,7 @@ const NotificationsPage: React.FC = () => {
     actionUrl: '',
     userIds: '',
     topic: '',
+    eventKey: 'custom.manual',
   });
 
   // Query notifications from tRPC API
@@ -176,6 +198,7 @@ const NotificationsPage: React.FC = () => {
       actionUrl: '',
       userIds: '',
       topic: '',
+      eventKey: 'custom.manual',
     });
   };
 
@@ -188,6 +211,7 @@ const NotificationsPage: React.FC = () => {
           body: sendForm.body,
           type: sendForm.notificationType as any,
           actionUrl: sendForm.actionUrl || undefined,
+          eventKey: sendForm.eventKey,
         });
       } else if (sendForm.type === 'bulk') {
         const userIds = sendForm.userIds.split(',').map(id => id.trim()).filter(id => id);
@@ -197,6 +221,7 @@ const NotificationsPage: React.FC = () => {
           body: sendForm.body,
           type: sendForm.notificationType as any,
           actionUrl: sendForm.actionUrl || undefined,
+          eventKey: sendForm.eventKey,
         });
       } else if (sendForm.type === 'topic') {
         await sendTopicNotificationMutation.mutateAsync({
@@ -464,6 +489,21 @@ const NotificationsPage: React.FC = () => {
                 <MenuItem value="product">Product</MenuItem>
                 <MenuItem value="order">Order</MenuItem>
                 <MenuItem value="system">System</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth>
+              <InputLabel>Event</InputLabel>
+              <Select
+                value={sendForm.eventKey}
+                label="Event"
+                onChange={(e) => setSendForm({ ...sendForm, eventKey: e.target.value as NotificationEventKey })}
+              >
+                {NOTIFICATION_EVENT_OPTIONS.map(option => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
 

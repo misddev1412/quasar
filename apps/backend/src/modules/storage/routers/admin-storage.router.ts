@@ -8,6 +8,7 @@ import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
 import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
 import { AuthenticatedContext } from '../../../trpc/context';
+import { S3Client, HeadBucketCommand } from '@aws-sdk/client-s3';
 
 // Zod schemas for validation
 const updateStorageConfigSchema = z.object({
@@ -200,12 +201,107 @@ export class AdminStorageRouter {
           });
         }
       } else if (input.provider === 's3') {
-        // For S3, we would need to implement actual S3 connection test
-        // This is a placeholder
-        return this.responseHandler.createTrpcSuccess({ 
-          success: false,
-          message: 'S3 connection testing not yet implemented' 
-        });
+        // Test S3 connection
+        // Get credentials from input settings first, fallback to saved config if not provided
+        let accessKey = input.settings['storage.s3.access_key'];
+        let secretKey = input.settings['storage.s3.secret_key'];
+        let region = input.settings['storage.s3.region'];
+        let bucket = input.settings['storage.s3.bucket'];
+        let endpoint = input.settings['storage.s3.endpoint'];
+        let forcePathStyle = input.settings['storage.s3.force_path_style'] === 'true';
+
+        // If credentials not provided in test input, try to get from saved config
+        if (!accessKey || !secretKey) {
+          try {
+            const savedConfig = await this.storageService.getAllStorageConfig() as any;
+            if (!accessKey && savedConfig.accessKey) {
+              accessKey = savedConfig.accessKey;
+            }
+            if (!secretKey && savedConfig.secretKey) {
+              secretKey = savedConfig.secretKey;
+            }
+            if (!region && savedConfig.region) {
+              region = savedConfig.region;
+            }
+            if (!bucket && savedConfig.bucket) {
+              bucket = savedConfig.bucket;
+            }
+            if (!endpoint && savedConfig.endpoint) {
+              endpoint = savedConfig.endpoint;
+            }
+            if (forcePathStyle === false && savedConfig.forcePathStyle !== undefined) {
+              forcePathStyle = savedConfig.forcePathStyle;
+            }
+          } catch (error) {
+            // If we can't get saved config, continue with validation below
+          }
+        }
+
+        // Set defaults
+        region = region || 'us-east-1';
+        endpoint = endpoint || undefined;
+
+        // Validate required fields
+        if (!accessKey || !secretKey) {
+          return this.responseHandler.createTrpcSuccess({ 
+            success: false,
+            message: 'S3 Access Key and Secret Key are required for connection test. Please provide them in the form or ensure they are saved in configuration.' 
+          });
+        }
+
+        if (!bucket) {
+          return this.responseHandler.createTrpcSuccess({ 
+            success: false,
+            message: 'S3 Bucket name is required for connection test' 
+          });
+        }
+
+        try {
+          // Create S3 client with provided credentials
+          const s3Client = new S3Client({
+            region,
+            credentials: {
+              accessKeyId: accessKey,
+              secretAccessKey: secretKey,
+            },
+            endpoint: endpoint || undefined,
+            forcePathStyle: forcePathStyle || false,
+          });
+
+          // Test connection by checking if bucket exists and is accessible
+          const headBucketCommand = new HeadBucketCommand({
+            Bucket: bucket,
+          });
+
+          await s3Client.send(headBucketCommand);
+
+          return this.responseHandler.createTrpcSuccess({ 
+            success: true,
+            message: `Successfully connected to S3 bucket "${bucket}" in region "${region}"` 
+          });
+        } catch (error: any) {
+          // Handle specific AWS errors
+          let errorMessage = 'Failed to connect to S3';
+          
+          if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
+            errorMessage = `Bucket "${bucket}" not found. Please check the bucket name.`;
+          } else if (error.name === 'Forbidden' || error.$metadata?.httpStatusCode === 403) {
+            errorMessage = `Access denied to bucket "${bucket}". Please check your credentials and bucket permissions.`;
+          } else if (error.name === 'InvalidAccessKeyId') {
+            errorMessage = 'Invalid Access Key ID. Please check your credentials.';
+          } else if (error.name === 'SignatureDoesNotMatch') {
+            errorMessage = 'Invalid Secret Access Key. Please check your credentials.';
+          } else if (error.name === 'NetworkingError' || error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+            errorMessage = `Cannot reach S3 endpoint. Please check your endpoint URL and network connection.${endpoint ? ` Endpoint: ${endpoint}` : ''}`;
+          } else if (error.message) {
+            errorMessage = `S3 connection test failed: ${error.message}`;
+          }
+
+          return this.responseHandler.createTrpcSuccess({ 
+            success: false,
+            message: errorMessage 
+          });
+        }
       }
 
       return this.responseHandler.createTrpcSuccess({ 

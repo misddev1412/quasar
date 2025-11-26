@@ -3,6 +3,8 @@ import { FiBell, FiHome, FiUser, FiSave, FiRotateCcw } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import BaseLayout from '../../components/layout/BaseLayout';
 import NotificationSettings from '../../components/notifications/NotificationSettings';
+import NotificationChannelManager from '../../components/notifications/NotificationChannelManager';
+import TelegramNotificationConfigManager from '../../components/notifications/TelegramNotificationConfigManager';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../context/ToastContext';
@@ -91,10 +93,14 @@ const NotificationPreferencesPage: React.FC = () => {
     }
 
     return (
-      <NotificationSettings
-        userId={user.id}
-        onSave={handleSave}
-      />
+      <div className="space-y-6">
+        <NotificationSettings
+          userId={user.id}
+          onSave={handleSave}
+        />
+        <NotificationChannelManager />
+        <TelegramNotificationConfigManager />
+      </div>
     );
   };
 

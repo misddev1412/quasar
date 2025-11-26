@@ -72,6 +72,7 @@ export class NotificationPreferenceService {
   }
 
   async getUserPreferences(userId: string): Promise<NotificationPreferenceEntity[]> {
+    await this.preferenceRepository.createDefaultPreferencesForUser(userId);
     return this.preferenceRepository.findByUser(userId);
   }
 

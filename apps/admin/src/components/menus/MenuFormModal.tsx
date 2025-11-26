@@ -13,6 +13,7 @@ interface MenuFormModalProps {
   languagesQuery: any;
   groups: string[];
   menuTree: MenuTreeNode[];
+  currentMenuGroup: string;
   onSubmit: (data: MenuFormState) => void;
   isSubmitting: boolean;
 }
@@ -25,6 +26,7 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
   languagesQuery,
   groups,
   menuTree,
+  currentMenuGroup,
   onSubmit,
   isSubmitting,
 }) => {
@@ -55,6 +57,7 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
             languages={languages}
             menuGroups={groups}
             menuTree={menuTree}
+            currentMenuGroup={currentMenuGroup}
             isSubmitting={isSubmitting}
           />
         )}

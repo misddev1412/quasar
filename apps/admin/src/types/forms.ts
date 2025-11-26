@@ -51,6 +51,7 @@ export interface FormSectionConfig {
   fields: FormFieldConfig[];
   icon?: ReactNode;
   customContent?: ReactNode;
+  dependsOn?: { field: string; value: any }; // for conditional sections
 }
 
 // Tab configuration for tabbed forms

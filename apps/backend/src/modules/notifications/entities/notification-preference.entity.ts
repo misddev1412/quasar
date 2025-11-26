@@ -16,6 +16,8 @@ export enum NotificationChannel {
   PUSH = 'push',
   EMAIL = 'email',
   IN_APP = 'in_app',
+  SMS = 'sms',
+  TELEGRAM = 'telegram',
 }
 
 export enum NotificationFrequency {

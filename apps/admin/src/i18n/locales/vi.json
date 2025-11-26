@@ -195,6 +195,10 @@
     "save_failed": "Lưu cài đặt thất bại",
     "save_failed_description": "Không thể cập nhật cấu hình analytics."
   },
+  "visitor_analytics": {
+    "title": "Thống kê người truy cập",
+    "description": "Giám sát và phân tích hành vi người truy cập trên nền tảng của bạn"
+  },
   "brand": {
     "assets_title": "Tài sản thương hiệu và trang web",
     "assets_description": "Quản lý danh tính thị giác của trang web và tài sản thương hiệu",
@@ -551,6 +555,7 @@
     "locale_settings": "Cài đặt ngôn ngữ",
     "seo_management": "Quản lý SEO",
     "user_management": "Quản lý người dùng",
+    "user_dashboard": "Bảng điều khiển người dùng",
     "user_list": "Danh sách người dùng",
     "mail_templates": "Mẫu thư",
     "posts_management": "Quản lý bài viết",
@@ -780,31 +785,45 @@
     "title": "Bảng điều khiển",
     "welcome_back": "Chào mừng trở lại! Dưới đây là tổng quan về dữ liệu của bạn",
     "stats": {
-      "total_users": "Tổng số người dùng",
-      "active_users": "Người dùng hoạt động",
-      "new_users_month": "Người dùng mới tháng này",
-      "users_with_profiles": "Người dùng có hồ sơ",
-      "page_views": "Lượt xem trang",
-      "content_items": "Mục nội dung",
-      "orders": "Đơn hàng"
+      "total_revenue": "Tổng doanh thu",
+      "total_orders": "Tổng đơn hàng",
+      "avg_order_value": "Giá trị đơn hàng trung bình",
+      "fulfillment_rate": "Tỷ lệ giao hàng thành công",
+      "last_30_days_revenue": "30 ngày qua: {{value}}",
+      "last_30_days_orders": "30 ngày qua: {{count}} đơn",
+      "avg_order_value_helper": "Giá trị bình quân mỗi đơn",
+      "fulfillment_rate_helper": "{{count}} đơn đã giao"
     },
     "chart": {
-      "title": "Biểu đồ thống kê dữ liệu",
-      "user_growth": "Tăng trưởng người dùng",
-      "user_activity": "Phân bố hoạt động người dùng",
-      "daily": "Hàng ngày",
-      "weekly": "Hàng tuần",
-      "monthly": "Hàng tháng",
-      "chart_area": "Khu vực biểu đồ"
+      "sales_performance": "Hiệu suất bán hàng",
+      "order_status_distribution": "Phân bổ trạng thái đơn hàng",
+      "payment_status_distribution": "Trạng thái thanh toán",
+      "sales_channel_distribution": "Kênh bán hàng"
     },
-    "active_users": {
-      "title": "Người dùng đang hoạt động",
-      "view_all": "Xem tất cả",
-      "online": "Trực tuyến",
-      "offline": "Ngoại tuyến"
+    "sections": {
+      "recent_orders": "Đơn hàng gần đây",
+      "top_customers": "Khách hàng nổi bật"
     },
-    "quick_actions": "Thao tác nhanh",
-    "system_status": "Trạng thái hệ thống"
+    "actions": {
+      "create_order": "Tạo đơn hàng mới",
+      "create_order_description": "Tạo nhanh đơn hàng cho khách trên mọi kênh",
+      "add_product": "Thêm sản phẩm",
+      "add_product_description": "Đăng sản phẩm hoặc biến thể mới",
+      "launch_campaign": "Tạo chương trình khuyến mãi",
+      "launch_campaign_description": "Thúc đẩy doanh thu bằng ưu đãi hoặc combo"
+    },
+    "messages": {
+      "no_sales_data": "Chưa có dữ liệu bán hàng",
+      "no_status_data": "Chưa có dữ liệu trạng thái",
+      "no_payment_data": "Chưa có dữ liệu thanh toán",
+      "no_channel_data": "Chưa có dữ liệu kênh bán hàng",
+      "no_recent_orders": "Chưa có đơn hàng gần đây",
+      "no_customer_data": "Chưa có dữ liệu khách hàng"
+    },
+    "labels": {
+      "unknown_source": "Chưa xác định"
+    },
+    "quick_actions": "Thao tác nhanh"
   },
   "navigation": {
     "home": "Trang chủ",
@@ -1445,6 +1464,73 @@
       "active_users": "Người dùng hoạt động",
       "inactive_users": "Người dùng không hoạt động",
       "verified_users": "Người dùng đã xác thực"
+    },
+    "status": {
+      "active": "Hoạt động",
+      "inactive": "Không hoạt động"
+    },
+    "dashboard": {
+      "title": "Bảng điều khiển người dùng",
+      "subtitle": "Theo dõi sự tăng trưởng và hành vi người dùng theo thời gian thực.",
+      "cards": {
+        "total_users": "Tổng số người dùng",
+        "active_users": "Người dùng hoạt động",
+        "new_this_month": "Người dùng mới trong tháng",
+        "profile_completion": "Hoàn thiện hồ sơ",
+        "currently_active": "Đang hoạt động",
+        "recent_activity": "Hoạt động (24h)"
+      },
+      "actions": {
+        "invite_user": "Mời người dùng",
+        "invite_user_desc": "Tạo tài khoản mới cho thành viên hoặc đối tác.",
+        "view_all_users": "Xem tất cả người dùng",
+        "view_all_users_desc": "Mở toàn bộ danh bạ với bộ lọc và thao tác hàng loạt.",
+        "manage_roles": "Quản lý vai trò & quyền hạn",
+        "manage_roles_desc": "Rà soát chính sách truy cập và phân quyền."
+      },
+      "activity_overview": {
+        "title": "Tổng quan hoạt động",
+        "subtitle": "Ảnh chụp nhanh sức khỏe tương tác.",
+        "currently_active": "Đang hoạt động",
+        "recent_active": "Hoạt động trong 24 giờ",
+        "profile_completion": "Tỉ lệ hoàn thiện hồ sơ",
+        "complete": "{{count}} đã hoàn tất",
+        "missing_profiles": "{{count}} hồ sơ còn thiếu thông tin"
+      },
+      "charts": {
+        "user_growth": "Tăng trưởng người dùng (90 ngày)",
+        "user_growth_description": "Theo dõi tổng số người dùng để phát hiện điểm bùng nổ.",
+        "new_signups": "Đăng ký mới (30 ngày)",
+        "new_signups_description": "Nhìn thấy các đợt tăng do chiến dịch và ra mắt.",
+        "role_distribution": "Phân bổ vai trò",
+        "role_distribution_description": "Nắm rõ cách phân chia cấp truy cập."
+      },
+      "recent_signups": {
+        "title": "Đăng ký gần đây",
+        "subtitle": "Những tài khoản mới nhất trong workspace của bạn.",
+        "joined": "Tham gia {{timeAgo}}"
+      },
+      "profile_completion": {
+        "title": "Mức độ hoàn thiện hồ sơ",
+        "subtitle": "Khuyến khích người dùng bổ sung dữ liệu để hiểu rõ hơn.",
+        "completed": "{{completed}} / {{total}} hồ sơ đã hoàn tất",
+        "missing": "{{count}} hồ sơ thiếu thông tin tùy chọn"
+      },
+      "quick_actions": {
+        "title": "Hành động nhanh",
+        "subtitle": "Rút ngắn thao tác cho đội ngũ vận hành người dùng.",
+        "go": "Thực hiện"
+      },
+      "errors": {
+        "stats_failed": "Không thể tải thống kê người dùng.",
+        "recent_users_failed": "Không thể tải danh sách đăng ký mới."
+      },
+      "empty_states": {
+        "no_growth_data": "Chưa có dữ liệu tăng trưởng cho giai đoạn này.",
+        "no_signup_data": "Chưa có dữ liệu đăng ký trong khoảng thời gian này.",
+        "no_role_data": "Chưa có dữ liệu phân bổ vai trò.",
+        "no_recent_users": "Chưa có người dùng mới đăng ký gần đây."
+      }
     }
   },
   "mail_templates": {
@@ -2920,7 +3006,39 @@
       "start_date": "Ngày bắt đầu",
       "end_date": "Ngày kết thúc",
       "end_date_after_start": "Ngày kết thúc phải sau ngày bắt đầu",
-      "basic_info": "Thông tin cơ bản"
+      "basic_info": "Thông tin cơ bản",
+      "fields": {
+        "facebook_app_id": "ID ứng dụng Facebook",
+        "facebook_page_id": "ID trang Facebook",
+        "zalo_app_id": "ID ứng dụng Zalo",
+        "zalo_api_key": "API key Zalo",
+        "whatsapp_phone": "Số điện thoại WhatsApp",
+        "email_address": "Địa chỉ email",
+        "default_subject": "Tiêu đề mặc định",
+        "phone_number": "Số điện thoại",
+        "telegram_bot_username": "Tên bot Telegram",
+        "custom_script": "Script tùy chỉnh",
+        "position": "Vị trí",
+        "theme": "Giao diện",
+        "primary_color": "Màu chủ đạo",
+        "widget_title": "Tiêu đề widget",
+        "widget_subtitle": "Phụ đề widget",
+        "welcome_message": "Thông điệp chào mừng",
+        "schedule_start": "Thời gian bắt đầu",
+        "schedule_end": "Thời gian kết thúc",
+        "sort_order": "Thứ tự sắp xếp"
+      },
+      "placeholders": {
+        "whatsapp_example": "+1234567890",
+        "telegram_username": "@your_bot",
+        "custom_script": "// Nhập mã JavaScript tùy chỉnh tại đây"
+      },
+      "messages": {
+        "no_configuration_required": "Loại này không cần cấu hình thêm.",
+        "enable_scheduling": "Bật lịch hiển thị",
+        "scheduling_description": "Chỉ hiển thị widget chat trong các khoảng thời gian xác định",
+        "validation_title": "Lỗi xác thực cấu hình"
+      }
     }
   },
   "payment_methods": {
@@ -3000,6 +3118,11 @@
       "heroSlider": {
         "autoplayInterval": "Khoảng thời gian tự động phát (ms)",
         "autoplayEnabled": "Bật tự động phát",
+        "layoutType": "Chế độ bố cục",
+        "fullWidth": "Toàn bộ chiều rộng",
+        "container": "Trong khung nội dung",
+        "fullWidthDescription": "Hero slider sẽ trải dài toàn bộ chiều rộng của viewport.",
+        "containerDescription": "Hero slider sẽ nằm trong khung nội dung chính.",
         "enableOverlay": "Bật lớp phủ",
         "overlayColor": "Màu lớp phủ",
         "overlayOpacity": "Độ mờ lớp phủ (%)",
@@ -3060,95 +3183,100 @@
         "title": "HTML tùy chỉnh",
         "editAsJson": "Chỉnh sửa dưới dạng JSON"
       },
-      "banner": {
-        "layoutType": "Kiểu bố cục",
-        "fullWidth": "Toàn chiều rộng",
-        "container": "Trong khung chứa",
-        "bannerHeight": "Chiều cao banner",
-        "heightPlaceholder": "400px",
-        "heightDescription": "Nhập giá trị chiều cao (ví dụ: 400px, 50vh, 20rem)",
-        "fullWidthDescription": "Banner sẽ trải dài toàn bộ chiều rộng của viewport",
-        "containerDescription": "Banner sẽ nằm trong khung chứa nội dung chính",
-        "contentDescription": "Nội dung banner (hình ảnh, văn bản, nút) được cấu hình theo từng ngôn ngữ trong bảng dịch."
-      },
-      "testimonials": {
-        "layoutStyle": "Kiểu bố cục",
-        "gridLayout": "Bố cục lưới",
-        "sliderLayout": "Slider/Carousel",
-        "numberOfColumns": "Số cột",
-        "columnsDescription": "Số đánh giá mỗi hàng (1-4)",
-        "gridDescription": "Hiển thị đánh giá trong lưới",
-        "sliderDescription": "Hiển thị đánh giá trong slider xoay vòng",
-        "contentDescription": "Nội dung đánh giá (tên khách hàng, nội dung, xếp hạng, ảnh) được cấu hình theo từng ngôn ngữ trong bảng dịch."
-      },
-      "cta": {
-        "layoutMode": "Độ rộng hiển thị",
-        "fullWidth": "Toàn bộ chiều rộng",
-        "container": "Theo khung nội dung",
-        "layoutDescription": "Chọn hiển thị tràn toàn màn hình hoặc giữ trong khung nội dung chính.",
-        "textAlign": "Căn chỉnh văn bản",
-        "centerAligned": "Căn giữa",
-        "leftAligned": "Căn trái",
-        "rightAligned": "Căn phải",
-        "backgroundStyle": "Kiểu nền",
-        "primaryColor": "Màu chính",
-        "secondaryColor": "Màu phụ",
-        "darkBackground": "Nền tối",
-        "gradientBackground": "Nền gradient",
-        "contentDescription": "Nội dung CTA (tiêu đề chính, mô tả, văn bản nút, liên kết nút) được cấu hình theo từng ngôn ngữ trong bảng dịch."
-      },
-      "features": {
-        "layoutStyle": "Kiểu bố cục",
-        "gridLayout": "Bố cục lưới",
-        "listLayout": "Bố cục danh sách",
-        "tabbedLayout": "Bố cục tab",
-        "numberOfColumns": "Số cột",
-        "columnsDescription": "Số tính năng mỗi hàng (1-4)",
-        "contentDescription": "Nội dung tính năng (tiêu đề, mô tả, biểu tượng, hình ảnh) được cấu hình theo từng ngôn ngữ trong bảng dịch."
-      },
-      "gallery": {
-        "galleryLayout": "Bố cục thư viện",
-        "gridLayout": "Bố cục lưới",
-        "masonryLayout": "Bố cục masonry",
-        "sliderLayout": "Slider/Carousel",
-        "numberOfColumns": "Số cột",
-        "columnsDescription": "Số cột (1-6)",
-        "contentDescription": "Hình ảnh và chú thích thư viện được cấu hình theo từng ngôn ngữ trong bảng dịch."
-      },
-      "team": {
-        "layoutStyle": "Kiểu bố cục",
-        "gridLayout": "Bố cục lưới",
-        "sliderLayout": "Slider/Carousel",
-        "numberOfColumns": "Số cột",
-        "columnsDescription": "Số thành viên đội mỗi hàng (1-6)",
-        "contentDescription": "Thông tin thành viên đội (tên, vai trò, tiểu sử, ảnh, liên kết mạng xã hội) được cấu hình theo từng ngôn ngữ trong bảng dịch."
-      },
-      "contactForm": {
-        "formFields": "Trường biểu mẫu",
-        "fieldsDescription": "Chọn các trường để bao gồm trong biểu mẫu liên hệ",
-        "name": "Tên",
-        "email": "Email",
-        "phone": "Điện thoại",
-        "subject": "Chủ đề",
-        "message": "Tin nhắn",
-        "company": "Công ty",
-        "contentDescription": "Nhãn biểu mẫu, trình giữ chỗ và thông báo gửi được cấu hình theo từng ngôn ngữ trong bảng dịch."
-      },
-      "video": {
-        "videoType": "Loại video",
-        "embedVideo": "Video nhúng (YouTube/Vimeo)",
-        "uploadedVideo": "Video đã tải lên",
-        "autoplay": "Tự động phát",
-        "autoplayDescription": "Video sẽ phát tự động (có thể bị chặn bởi trình duyệt)",
-        "contentDescription": "URL video hoặc tải lên tệp và ảnh bìa được cấu hình theo từng ngôn ngữ trong bảng dịch."
-      },
-      "stats": {
-        "layoutStyle": "Kiểu bố cục",
-        "gridLayout": "Bố cục lưới",
-        "animatedCounter": "Bộ đếm hoạt ảnh",
-        "numberOfColumns": "Số cột",
-        "columnsDescription": "Số thống kê mỗi hàng (1-6)",
-        "contentDescription": "Dữ liệu thống kê (số, nhãn, mô tả) được cấu hình theo từng ngôn ngữ trong bảng dịch."
+      "config": {
+        "banner": {
+          "layoutType": "Kiểu bố cục",
+          "fullWidth": "Toàn chiều rộng",
+          "container": "Trong khung chứa",
+          "bannerHeight": "Chiều cao banner",
+          "heightPlaceholder": "400px",
+          "heightDescription": "Nhập giá trị chiều cao (ví dụ: 400px, 50vh, 20rem)",
+          "fullWidthDescription": "Banner sẽ trải dài toàn bộ chiều rộng của viewport",
+          "containerDescription": "Banner sẽ nằm trong khung chứa nội dung chính",
+          "contentDescription": "Nội dung banner (hình ảnh, văn bản, nút) được cấu hình theo từng ngôn ngữ trong bảng dịch."
+        },
+        "testimonials": {
+          "layoutStyle": "Kiểu bố cục",
+          "gridLayout": "Bố cục lưới",
+          "sliderLayout": "Slider/Carousel",
+          "numberOfColumns": "Số cột",
+          "columnsDescription": "Số đánh giá mỗi hàng (1-4)",
+          "gridDescription": "Hiển thị đánh giá trong lưới",
+          "sliderDescription": "Hiển thị đánh giá trong slider xoay vòng",
+          "contentDescription": "Nội dung đánh giá (tên khách hàng, nội dung, xếp hạng, ảnh) được cấu hình theo từng ngôn ngữ trong bảng dịch."
+        },
+        "cta": {
+          "layoutMode": "Chế độ bố cục",
+          "fullWidth": "Toàn bộ chiều rộng",
+          "container": "Trong khung nội dung",
+          "layoutDescription": "Chọn hiển thị tràn sát hai mép hay giữ trong vùng nội dung chính.",
+          "textAlign": "Căn chỉnh văn bản",
+          "centerAligned": "Căn giữa",
+          "leftAligned": "Căn trái",
+          "rightAligned": "Căn phải",
+          "backgroundStyle": "Kiểu nền",
+          "primaryColor": "Màu chính",
+          "secondaryColor": "Màu phụ",
+          "darkBackground": "Nền tối",
+          "gradientBackground": "Nền chuyển sắc",
+          "borderRadius": "Độ bo góc",
+          "borderRadiusPlaceholder": "Ví dụ: 0, 24px, 1.5rem, 50%",
+          "borderRadiusDescription": "Để trống để dùng bo góc mặc định. Chấp nhận mọi giá trị CSS cho border-radius.",
+          "contentDescription": "Nội dung CTA (tiêu đề, mô tả, nhãn nút, liên kết) được cấu hình theo từng ngôn ngữ trong bảng dịch."
+        },
+        "features": {
+          "layoutStyle": "Kiểu bố cục",
+          "gridLayout": "Bố cục lưới",
+          "listLayout": "Bố cục danh sách",
+          "tabbedLayout": "Bố cục tab",
+          "numberOfColumns": "Số cột",
+          "columnsDescription": "Số tính năng mỗi hàng (1-4)",
+          "contentDescription": "Nội dung tính năng (tiêu đề, mô tả, biểu tượng, hình ảnh) được cấu hình theo từng ngôn ngữ trong bảng dịch."
+        },
+        "gallery": {
+          "galleryLayout": "Bố cục thư viện",
+          "gridLayout": "Bố cục lưới",
+          "masonryLayout": "Bố cục masonry",
+          "sliderLayout": "Slider/Carousel",
+          "numberOfColumns": "Số cột",
+          "columnsDescription": "Số cột (1-6)",
+          "contentDescription": "Hình ảnh và chú thích thư viện được cấu hình theo từng ngôn ngữ trong bảng dịch."
+        },
+        "team": {
+          "layoutStyle": "Kiểu bố cục",
+          "gridLayout": "Bố cục lưới",
+          "sliderLayout": "Slider/Carousel",
+          "numberOfColumns": "Số cột",
+          "columnsDescription": "Số thành viên đội mỗi hàng (1-6)",
+          "contentDescription": "Thông tin thành viên đội (tên, vai trò, tiểu sử, ảnh, liên kết mạng xã hội) được cấu hình theo từng ngôn ngữ trong bảng dịch."
+        },
+        "contactForm": {
+          "formFields": "Trường biểu mẫu",
+          "fieldsDescription": "Chọn các trường để bao gồm trong biểu mẫu liên hệ",
+          "name": "Tên",
+          "email": "Email",
+          "phone": "Điện thoại",
+          "subject": "Chủ đề",
+          "message": "Tin nhắn",
+          "company": "Công ty",
+          "contentDescription": "Nhãn biểu mẫu, trình giữ chỗ và thông báo gửi được cấu hình theo từng ngôn ngữ trong bảng dịch."
+        },
+        "video": {
+          "videoType": "Loại video",
+          "embedVideo": "Video nhúng (YouTube/Vimeo)",
+          "uploadedVideo": "Video đã tải lên",
+          "autoplay": "Tự động phát",
+          "autoplayDescription": "Video sẽ phát tự động (có thể bị chặn bởi trình duyệt)",
+          "contentDescription": "URL video hoặc tải lên tệp và ảnh bìa được cấu hình theo từng ngôn ngữ trong bảng dịch."
+        },
+        "stats": {
+          "layoutStyle": "Kiểu bố cục",
+          "gridLayout": "Bố cục lưới",
+          "animatedCounter": "Bộ đếm hoạt ảnh",
+          "numberOfColumns": "Số cột",
+          "columnsDescription": "Số thống kê mỗi hàng (1-6)",
+          "contentDescription": "Dữ liệu thống kê (số, nhãn, mô tả) được cấu hình theo từng ngôn ngữ trong bảng dịch."
+        }
       }
     }
   },

@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { FirebaseMessagingService, FCMPayload } from './firebase-messaging.service';
 import { NotificationService } from './notification.service';
 import { NotificationType } from '../entities/notification.entity';
+import { NotificationEvent } from '../entities/notification-event.enum';
 
 export interface FCMNotificationOptions {
   title: string;
@@ -160,16 +161,22 @@ export class FCMNotificationService {
       cancelled: 'Your order has been cancelled.',
     };
 
-    return this.sendToUser({
+    const title = `Order ${status.charAt(0).toUpperCase() + status.slice(1)}`;
+    const body = statusMessages[status] || `Your order status has been updated to ${status}.`;
+    const eventKey = status === 'shipped'
+      ? NotificationEvent.ORDER_SHIPPED
+      : NotificationEvent.ORDER_CREATED;
+
+    return this.notificationService.sendOrderNotification(
       userId,
-      title: `Order ${status.charAt(0).toUpperCase() + status.slice(1)}`,
-      body: statusMessages[status] || `Your order status has been updated to ${status}.`,
-      type: NotificationType.INFO,
+      title,
+      body,
+      orderId,
+      `/orders/${orderId}`,
       fcmTokens,
-      clickAction: `/orders/${orderId}`,
-      data: { orderId, status },
-      icon: '/icons/order.png',
-    });
+      eventKey,
+      status,
+    );
   }
 
   async sendPromotionalNotification(userIds: string[], title: string, body: string, actionUrl?: string) {

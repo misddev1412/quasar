@@ -375,6 +375,7 @@
     "seo_management": "SEO Management",
     "sections": "Sections",
     "user_management": "User Management",
+    "user_dashboard": "User Dashboard",
     "user_list": "User List",
     "mail_templates": "Mail Templates",
     "posts_management": "Posts Management",
@@ -601,31 +602,45 @@
     "title": "Dashboard",
     "welcome_back": "Welcome back! Here's an overview of your data",
     "stats": {
-      "total_users": "Total Users",
-      "active_users": "Active Users",
-      "new_users_month": "New Users This Month",
-      "users_with_profiles": "Users with Profiles",
-      "page_views": "Page Views",
-      "content_items": "Content Items",
-      "orders": "Orders"
+      "total_revenue": "Total Revenue",
+      "total_orders": "Total Orders",
+      "avg_order_value": "Average Order Value",
+      "fulfillment_rate": "Fulfillment Rate",
+      "last_30_days_revenue": "Last 30 days: {{value}}",
+      "last_30_days_orders": "Last 30 days: {{count}} orders",
+      "avg_order_value_helper": "Average ticket size",
+      "fulfillment_rate_helper": "{{count}} orders delivered"
     },
     "chart": {
-      "title": "Data Statistics Chart",
-      "user_growth": "User Growth",
-      "user_activity": "User Activity Distribution",
-      "daily": "Daily",
-      "weekly": "Weekly",
-      "monthly": "Monthly",
-      "chart_area": "Chart Area"
+      "sales_performance": "Sales performance",
+      "order_status_distribution": "Order status distribution",
+      "payment_status_distribution": "Payment status overview",
+      "sales_channel_distribution": "Sales channel breakdown"
     },
-    "active_users": {
-      "title": "Active Users",
-      "view_all": "View All",
-      "online": "Online",
-      "offline": "Offline"
+    "sections": {
+      "recent_orders": "Recent orders",
+      "top_customers": "Top customers"
     },
-    "quick_actions": "Quick Actions",
-    "system_status": "System Status"
+    "actions": {
+      "create_order": "Create new order",
+      "create_order_description": "Quickly capture a customer order from any channel",
+      "add_product": "Add product",
+      "add_product_description": "Launch a new SKU or variant for the catalog",
+      "launch_campaign": "Launch promotion",
+      "launch_campaign_description": "Drive sales with discounts or bundles"
+    },
+    "messages": {
+      "no_sales_data": "No sales data available yet",
+      "no_status_data": "No status data to display",
+      "no_payment_data": "No payment data to display",
+      "no_channel_data": "No channel data to display",
+      "no_recent_orders": "No recent orders",
+      "no_customer_data": "No customer data yet"
+    },
+    "labels": {
+      "unknown_source": "Unknown source"
+    },
+    "quick_actions": "Quick Actions"
   },
   "navigation": {
     "home": "Home",
@@ -785,6 +800,10 @@
   },
   "analytics": {
     "title": "Analytics"
+  },
+  "visitor_analytics": {
+    "title": "Visitor Analytics",
+    "description": "Monitor and analyze visitor behavior on your platform"
   },
   "features": {
     "enterprise_security": "Enterprise-grade security",
@@ -1300,6 +1319,73 @@
       "active_users": "Active Users",
       "inactive_users": "Inactive Users",
       "verified_users": "Verified Users"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "dashboard": {
+      "title": "User Management Dashboard",
+      "subtitle": "Understand how your user base is growing and behaving in real time.",
+      "cards": {
+        "total_users": "Total Users",
+        "active_users": "Active Users",
+        "new_this_month": "New This Month",
+        "profile_completion": "Profile Completion",
+        "currently_active": "Currently Active",
+        "recent_activity": "Active (24h)"
+      },
+      "actions": {
+        "invite_user": "Invite User",
+        "invite_user_desc": "Create a new account for a teammate or partner.",
+        "view_all_users": "View all users",
+        "view_all_users_desc": "Open the complete directory with filters and bulk actions.",
+        "manage_roles": "Manage roles & permissions",
+        "manage_roles_desc": "Review access policies and assignments."
+      },
+      "activity_overview": {
+        "title": "Activity overview",
+        "subtitle": "Live view of engagement health.",
+        "currently_active": "Currently active",
+        "recent_active": "Active last 24h",
+        "profile_completion": "Profile completion rate",
+        "complete": "{{count}} complete",
+        "missing_profiles": "{{count}} profiles still missing key info"
+      },
+      "charts": {
+        "user_growth": "User growth (90 days)",
+        "user_growth_description": "Track cumulative user count to catch growth inflection points.",
+        "new_signups": "New signups (30 days)",
+        "new_signups_description": "See acquisition spikes from launches and campaigns.",
+        "role_distribution": "Role distribution",
+        "role_distribution_description": "Understand how access levels are distributed."
+      },
+      "recent_signups": {
+        "title": "Recent signups",
+        "subtitle": "Newest accounts created within your workspace.",
+        "joined": "Joined {{timeAgo}}"
+      },
+      "profile_completion": {
+        "title": "Profile completeness",
+        "subtitle": "Encourage richer customer context by nudging users to complete their profile.",
+        "completed": "{{completed}} of {{total}} profiles complete",
+        "missing": "{{count}} profiles missing optional details"
+      },
+      "quick_actions": {
+        "title": "Quick actions",
+        "subtitle": "Move faster with shortcuts tailored for people operations.",
+        "go": "Open"
+      },
+      "errors": {
+        "stats_failed": "Failed to load user statistics.",
+        "recent_users_failed": "Unable to load recent users."
+      },
+      "empty_states": {
+        "no_growth_data": "No growth data available for this period.",
+        "no_signup_data": "No signup data for this range.",
+        "no_role_data": "No role distribution data available.",
+        "no_recent_users": "No users have signed up recently."
+      }
     }
   },
   "mail_templates": {
@@ -3090,7 +3176,39 @@
       "start_date": "Start Date",
       "end_date": "End Date",
       "end_date_after_start": "End date must be after start date",
-      "basic_info": "Basic Information"
+      "basic_info": "Basic Information",
+      "fields": {
+        "facebook_app_id": "Facebook App ID",
+        "facebook_page_id": "Facebook Page ID",
+        "zalo_app_id": "Zalo App ID",
+        "zalo_api_key": "Zalo API Key",
+        "whatsapp_phone": "WhatsApp Phone Number",
+        "email_address": "Email Address",
+        "default_subject": "Default Subject",
+        "phone_number": "Phone Number",
+        "telegram_bot_username": "Telegram Bot Username",
+        "custom_script": "Custom Script",
+        "position": "Position",
+        "theme": "Theme",
+        "primary_color": "Primary Color",
+        "widget_title": "Widget Title",
+        "widget_subtitle": "Widget Subtitle",
+        "welcome_message": "Welcome Message",
+        "schedule_start": "Start Date & Time",
+        "schedule_end": "End Date & Time",
+        "sort_order": "Sort Order"
+      },
+      "placeholders": {
+        "whatsapp_example": "+1234567890",
+        "telegram_username": "@your_bot",
+        "custom_script": "// Enter your custom JavaScript code here"
+      },
+      "messages": {
+        "no_configuration_required": "No configuration required for this type.",
+        "enable_scheduling": "Enable Scheduling",
+        "scheduling_description": "Show this chat widget only during specific time periods",
+        "validation_title": "Configuration Validation Errors"
+      }
     }
   },
   "delivery_methods": {
@@ -3391,6 +3509,11 @@
       "heroSlider": {
         "autoplayInterval": "Autoplay interval (ms)",
         "autoplayEnabled": "Autoplay enabled",
+        "layoutType": "Layout mode",
+        "fullWidth": "Full width",
+        "container": "Container",
+        "fullWidthDescription": "Hero slider will span the full width of the viewport.",
+        "containerDescription": "Hero slider will stay within the main content area.",
         "enableOverlay": "Enable overlay",
         "overlayColor": "Overlay color",
         "overlayOpacity": "Overlay opacity (%)",
@@ -3451,95 +3574,100 @@
         "title": "Custom HTML",
         "editAsJson": "Edit as JSON"
       },
-      "banner": {
-        "layoutType": "Layout Type",
-        "fullWidth": "Full Width",
-        "container": "Container",
-        "bannerHeight": "Banner Height",
-        "heightPlaceholder": "400px",
-        "heightDescription": "Enter height value (e.g., 400px, 50vh, 20rem)",
-        "fullWidthDescription": "Banner will span the full width of the viewport",
-        "containerDescription": "Banner will be contained within the main content area",
-        "contentDescription": "Banner content (images, text, buttons) is configured per language in the translation panel."
-      },
-      "testimonials": {
-        "layoutStyle": "Layout Style",
-        "gridLayout": "Grid Layout",
-        "sliderLayout": "Slider/Carousel",
-        "numberOfColumns": "Number of Columns",
-        "columnsDescription": "Number of testimonials per row (1-4)",
-        "gridDescription": "Display testimonials in a grid",
-        "sliderDescription": "Display testimonials in a rotating slider",
-        "contentDescription": "Testimonial content (customer name, text, rating, photo) is configured per language in the translation panel."
-      },
-      "cta": {
-        "layoutMode": "Width",
-        "fullWidth": "Full Width",
-        "container": "Container",
-        "layoutDescription": "Choose whether the CTA spans the entire viewport or stays within the content container.",
-        "textAlign": "Text Alignment",
-        "centerAligned": "Center Aligned",
-        "leftAligned": "Left Aligned",
-        "rightAligned": "Right Aligned",
-        "backgroundStyle": "Background Style",
-        "primaryColor": "Primary Color",
-        "secondaryColor": "Secondary Color",
-        "darkBackground": "Dark Background",
-        "gradientBackground": "Gradient Background",
-        "contentDescription": "CTA content (headline, description, button text, button link) is configured per language in the translation panel."
-      },
-      "features": {
-        "layoutStyle": "Layout Style",
-        "gridLayout": "Grid Layout",
-        "listLayout": "List Layout",
-        "tabbedLayout": "Tabbed Layout",
-        "numberOfColumns": "Number of Columns",
-        "columnsDescription": "Number of features per row (1-4)",
-        "contentDescription": "Features content (title, description, icon, images) is configured per language in the translation panel."
-      },
-      "gallery": {
-        "galleryLayout": "Gallery Layout",
-        "gridLayout": "Grid Layout",
-        "masonryLayout": "Masonry Layout",
-        "sliderLayout": "Slider/Carousel",
-        "numberOfColumns": "Number of Columns",
-        "columnsDescription": "Number of columns (1-6)",
-        "contentDescription": "Gallery images and captions are configured per language in the translation panel."
-      },
-      "team": {
-        "layoutStyle": "Layout Style",
-        "gridLayout": "Grid Layout",
-        "sliderLayout": "Slider/Carousel",
-        "numberOfColumns": "Number of Columns",
-        "columnsDescription": "Team members per row (1-6)",
-        "contentDescription": "Team member information (name, role, bio, photo, social links) is configured per language in the translation panel."
-      },
-      "contactForm": {
-        "formFields": "Form Fields",
-        "fieldsDescription": "Select which fields to include in the contact form",
-        "name": "Name",
-        "email": "Email",
-        "phone": "Phone",
-        "subject": "Subject",
-        "message": "Message",
-        "company": "Company",
-        "contentDescription": "Form labels, placeholders, and submission messages are configured per language in the translation panel."
-      },
-      "video": {
-        "videoType": "Video Type",
-        "embedVideo": "Embedded Video (YouTube/Vimeo)",
-        "uploadedVideo": "Uploaded Video",
-        "autoplay": "Autoplay",
-        "autoplayDescription": "Video will play automatically (may be blocked by browsers)",
-        "contentDescription": "Video URL or file upload and cover image are configured per language in the translation panel."
-      },
-      "stats": {
-        "layoutStyle": "Layout Style",
-        "gridLayout": "Grid Layout",
-        "animatedCounter": "Animated Counter",
-        "numberOfColumns": "Number of Columns",
-        "columnsDescription": "Statistics per row (1-6)",
-        "contentDescription": "Statistics data (number, label, description) is configured per language in the translation panel."
+      "config": {
+        "banner": {
+          "layoutType": "Layout Type",
+          "fullWidth": "Full Width",
+          "container": "Container",
+          "bannerHeight": "Banner Height",
+          "heightPlaceholder": "400px",
+          "heightDescription": "Enter height value (e.g., 400px, 50vh, 20rem)",
+          "fullWidthDescription": "Banner will span the full width of the viewport",
+          "containerDescription": "Banner will be contained within the main content area",
+          "contentDescription": "Banner content (images, text, buttons) is configured per language in the translation panel."
+        },
+        "testimonials": {
+          "layoutStyle": "Layout Style",
+          "gridLayout": "Grid Layout",
+          "sliderLayout": "Slider/Carousel",
+          "numberOfColumns": "Number of Columns",
+          "columnsDescription": "Number of testimonials per row (1-4)",
+          "gridDescription": "Display testimonials in a grid",
+          "sliderDescription": "Display testimonials in a rotating slider",
+          "contentDescription": "Testimonial content (customer name, text, rating, photo) is configured per language in the translation panel."
+        },
+        "cta": {
+          "layoutMode": "Layout mode",
+          "fullWidth": "Full width",
+          "container": "Container",
+          "layoutDescription": "Choose whether the CTA banner stretches edge-to-edge or stays inside the site container.",
+          "textAlign": "Text alignment",
+          "centerAligned": "Center aligned",
+          "leftAligned": "Left aligned",
+          "rightAligned": "Right aligned",
+          "backgroundStyle": "Background style",
+          "primaryColor": "Primary color",
+          "secondaryColor": "Secondary color",
+          "darkBackground": "Dark background",
+          "gradientBackground": "Gradient background",
+          "borderRadius": "Border radius",
+          "borderRadiusPlaceholder": "Example: 0, 24px, 1.5rem, 50%",
+          "borderRadiusDescription": "Leave blank to keep the default rounding. Accepts any CSS border-radius value.",
+          "contentDescription": "CTA copy (title, description, button labels, links) is managed per language in the translation panel."
+        },
+        "features": {
+          "layoutStyle": "Layout Style",
+          "gridLayout": "Grid Layout",
+          "listLayout": "List Layout",
+          "tabbedLayout": "Tabbed Layout",
+          "numberOfColumns": "Number of Columns",
+          "columnsDescription": "Number of features per row (1-4)",
+          "contentDescription": "Features content (title, description, icon, images) is configured per language in the translation panel."
+        },
+        "gallery": {
+          "galleryLayout": "Gallery Layout",
+          "gridLayout": "Grid Layout",
+          "masonryLayout": "Masonry Layout",
+          "sliderLayout": "Slider/Carousel",
+          "numberOfColumns": "Number of Columns",
+          "columnsDescription": "Number of columns (1-6)",
+          "contentDescription": "Gallery images and captions are configured per language in the translation panel."
+        },
+        "team": {
+          "layoutStyle": "Layout Style",
+          "gridLayout": "Grid Layout",
+          "sliderLayout": "Slider/Carousel",
+          "numberOfColumns": "Number of Columns",
+          "columnsDescription": "Team members per row (1-6)",
+          "contentDescription": "Team member information (name, role, bio, photo, social links) is configured per language in the translation panel."
+        },
+        "contactForm": {
+          "formFields": "Form Fields",
+          "fieldsDescription": "Select which fields to include in the contact form",
+          "name": "Name",
+          "email": "Email",
+          "phone": "Phone",
+          "subject": "Subject",
+          "message": "Message",
+          "company": "Company",
+          "contentDescription": "Form labels, placeholders, and submission messages are configured per language in the translation panel."
+        },
+        "video": {
+          "videoType": "Video Type",
+          "embedVideo": "Embedded Video (YouTube/Vimeo)",
+          "uploadedVideo": "Uploaded Video",
+          "autoplay": "Autoplay",
+          "autoplayDescription": "Video will play automatically (may be blocked by browsers)",
+          "contentDescription": "Video URL or file upload and cover image are configured per language in the translation panel."
+        },
+        "stats": {
+          "layoutStyle": "Layout Style",
+          "gridLayout": "Grid Layout",
+          "animatedCounter": "Animated Counter",
+          "numberOfColumns": "Number of Columns",
+          "columnsDescription": "Statistics per row (1-6)",
+          "contentDescription": "Statistics data (number, label, description) is configured per language in the translation panel."
+        }
       }
     }
   },

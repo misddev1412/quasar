@@ -13,6 +13,7 @@ import {
   FooterWidgetConfig,
 } from '@shared/types/footer.types';
 import { MenuTarget } from '@shared/enums/menu.enums';
+import { trpc } from '../../utils/trpc';
 
 interface FooterProps {
   className?: string;
@@ -188,6 +189,23 @@ const Footer: React.FC<FooterProps> = ({
 }) => {
   const { getFooterLogo, getSetting, getFooterConfig } = useSettings();
   const { navigationItems } = useMenu('footer');
+  const visitorStatsQuery = (trpc as any).clientVisitorStats.getPublicStats.useQuery(
+    {},
+    {
+      staleTime: 60 * 1000,
+      cacheTime: 5 * 60 * 1000,
+    }
+  );
+  const visitorStatsPayload = visitorStatsQuery?.data;
+  const visitorStats =
+    visitorStatsPayload && typeof visitorStatsPayload === 'object' && 'data' in visitorStatsPayload
+      ? (visitorStatsPayload as any).data
+      : visitorStatsPayload;
+  const totalVisitors =
+    visitorStats && typeof visitorStats.totalVisitors === 'number'
+      ? visitorStats.totalVisitors
+      : null;
+  const lastUpdated = visitorStats?.lastUpdated;
 
   const footerConfig = configOverride ?? getFooterConfig();
   const footerLogo = getFooterLogo();
@@ -486,12 +504,44 @@ const Footer: React.FC<FooterProps> = ({
     </div>
   );
 
+  const renderVisitorBadge = () => {
+    if (totalVisitors === null) {
+      return null;
+    }
+
+    return (
+      <div
+        className={clsx(
+          'rounded-2xl border px-4 py-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between',
+          themeClasses.border,
+          theme === 'dark' ? 'bg-white/5' : 'bg-white'
+        )}
+        style={customTextColor ? { borderColor: customTextColor } : undefined}
+      >
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide">
+            Lượt truy cập hôm nay
+          </p>
+          <p className="text-2xl font-bold">
+            {totalVisitors.toLocaleString('vi-VN')}
+          </p>
+        </div>
+        {lastUpdated && (
+          <p className={clsx('text-xs', themeClasses.subtle)} style={getTextStyle(0.75)}>
+            Cập nhật: {new Date(lastUpdated).toLocaleString()}
+          </p>
+        )}
+      </div>
+    );
+  };
+
   const renderColumnsLayout = () => (
     <footer
       className={clsx(themeClasses.background, 'border-t', themeClasses.border, className)}
       style={rootStyle}
     >
       <Container className="py-12 space-y-10">
+        {renderVisitorBadge()}
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4">{renderBrandSection()}</div>
           <div className={clsx('lg:col-span-8', menuGridClass)}>
@@ -525,6 +575,7 @@ const Footer: React.FC<FooterProps> = ({
       style={rootStyle}
     >
       <Container className="py-12 space-y-10">
+        {renderVisitorBadge()}
         {renderBrandSection()}
         <div className={menuGridClass}>
           {menuColumns.length > 0 ? (
@@ -557,6 +608,7 @@ const Footer: React.FC<FooterProps> = ({
       style={rootStyle}
     >
       <Container className="py-8 space-y-6">
+        {renderVisitorBadge()}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             {logo && <div className="w-10 h-10">{logo}</div>}

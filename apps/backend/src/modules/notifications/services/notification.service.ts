@@ -4,6 +4,8 @@ import { NotificationEntity, NotificationType } from '../entities/notification.e
 import { FirebaseMessagingService, FCMPayload, SendToUserOptions } from './firebase-messaging.service';
 import { NotificationPreferenceService } from './notification-preference.service';
 import { NotificationChannel } from '../entities/notification-preference.entity';
+import { NotificationChannelConfigService } from './notification-channel-config.service';
+import { NotificationEvent } from '../entities/notification-event.enum';
 
 export interface NotificationWithPagination {
   notifications: NotificationEntity[];
@@ -26,6 +28,7 @@ export interface SendNotificationToUserDto {
   data?: Record<string, unknown>;
   fcmTokens?: string[];
   sendPush?: boolean;
+  eventKey?: NotificationEvent;
 }
 
 export interface BulkNotificationDto {
@@ -37,6 +40,7 @@ export interface BulkNotificationDto {
   icon?: string;
   image?: string;
   data?: Record<string, unknown>;
+  eventKey?: NotificationEvent;
 }
 
 @Injectable()
@@ -45,6 +49,7 @@ export class NotificationService {
     private readonly notificationRepository: NotificationRepository,
     private readonly firebaseMessagingService: FirebaseMessagingService,
     private readonly notificationPreferenceService: NotificationPreferenceService,
+    private readonly notificationChannelConfigService: NotificationChannelConfigService,
   ) {}
 
   async createNotification(data: CreateNotificationDto): Promise<NotificationEntity> {
@@ -153,7 +158,11 @@ export class NotificationService {
       data: additionalData,
       fcmTokens = [],
       sendPush = true,
+      eventKey,
     } = data;
+
+    const resolvedEvent = eventKey ?? NotificationEvent.CUSTOM;
+    const allowedChannels = await this.notificationChannelConfigService.getAllowedChannels(resolvedEvent);
 
     // Check notification preferences before sending
     const canSendInApp = await this.notificationPreferenceService.canSendNotification(
@@ -162,15 +171,17 @@ export class NotificationService {
       NotificationChannel.IN_APP
     );
 
-    const canSendPush = sendPush && await this.notificationPreferenceService.canSendNotification(
-      userId,
-      type,
-      NotificationChannel.PUSH
-    );
+    const canSendPush = sendPush &&
+      allowedChannels.includes(NotificationChannel.PUSH) &&
+      await this.notificationPreferenceService.canSendNotification(
+        userId,
+        type,
+        NotificationChannel.PUSH
+      );
 
     // Always create in-app notification if preference allows
     let notification: NotificationEntity | null = null;
-    if (canSendInApp) {
+    if (canSendInApp && allowedChannels.includes(NotificationChannel.IN_APP)) {
       notification = await this.notificationRepository.create({
         userId,
         title,
@@ -180,11 +191,12 @@ export class NotificationService {
         icon,
         image,
         data: additionalData,
+        eventKey: resolvedEvent,
       });
     }
 
     // Send push notification if preferences allow and tokens are provided
-    if (canSendPush && fcmTokens.length > 0) {
+    if (canSendPush && allowedChannels.includes(NotificationChannel.PUSH) && fcmTokens.length > 0) {
       const payload: FCMPayload = {
         title,
         body,
@@ -218,7 +230,14 @@ export class NotificationService {
       icon,
       image,
       data: additionalData,
+      eventKey,
     } = data;
+
+    const resolvedEvent = eventKey ?? NotificationEvent.CUSTOM;
+    const allowedChannels = await this.notificationChannelConfigService.getAllowedChannels(resolvedEvent);
+    if (!allowedChannels.includes(NotificationChannel.IN_APP)) {
+      return [];
+    }
 
     // Filter users who can receive in-app notifications
     const allowedUsers: string[] = [];
@@ -246,6 +265,7 @@ export class NotificationService {
       icon,
       image,
       data: additionalData,
+      eventKey: resolvedEvent,
     }));
 
     return await this.notificationRepository.bulkCreate(notifications);
@@ -265,6 +285,7 @@ export class NotificationService {
       type: NotificationType.SYSTEM,
       actionUrl,
       data: additionalData,
+      eventKey: NotificationEvent.SYSTEM_ANNOUNCEMENT,
     });
   }
 
@@ -282,6 +303,7 @@ export class NotificationService {
       type: NotificationType.PRODUCT,
       actionUrl,
       data: { productId },
+      eventKey: NotificationEvent.MARKETING_CAMPAIGN,
     });
   }
 
@@ -291,7 +313,9 @@ export class NotificationService {
     body: string,
     orderId: string,
     actionUrl?: string,
-    fcmTokens?: string[]
+    fcmTokens?: string[],
+    eventKey: NotificationEvent = NotificationEvent.ORDER_CREATED,
+    status?: string,
   ): Promise<NotificationEntity | null> {
     return await this.sendNotificationToUser({
       userId,
@@ -299,8 +323,12 @@ export class NotificationService {
       body,
       type: NotificationType.ORDER,
       actionUrl,
-      data: { orderId },
+      data: {
+        orderId,
+        ...(status ? { status } : {}),
+      },
       fcmTokens,
+      eventKey,
     });
   }
 
@@ -372,8 +400,18 @@ export class NotificationService {
     return { total, unread, byType };
   }
 
-  async getUserEnabledChannels(userId: string, type: NotificationType): Promise<NotificationChannel[]> {
-    return await this.notificationPreferenceService.getEnabledChannelsForUser(userId, type);
+  async getUserEnabledChannels(
+    userId: string,
+    type: NotificationType,
+    eventKey?: NotificationEvent,
+  ): Promise<NotificationChannel[]> {
+    const userChannels = await this.notificationPreferenceService.getEnabledChannelsForUser(userId, type);
+    if (!eventKey) {
+      return userChannels;
+    }
+
+    const allowedChannels = await this.notificationChannelConfigService.getAllowedChannels(eventKey);
+    return userChannels.filter(channel => allowedChannels.includes(channel));
   }
 
   async canSendEmailNotification(userId: string, type: NotificationType): Promise<boolean> {

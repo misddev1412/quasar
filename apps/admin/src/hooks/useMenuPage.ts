@@ -64,9 +64,11 @@ export interface MenuFormState {
 export type ReorderMenuItemInput = { id: string; position: number; parentId?: string };
 
 export const TOP_MENU_GROUP = 'top';
+export const SUB_MENU_GROUP = 'sub';
 
 export const DEFAULT_MENU_GROUP_OPTIONS = [
   { value: 'main', label: 'Main Menu' },
+  { value: SUB_MENU_GROUP, label: 'Sub Menu' },
   { value: TOP_MENU_GROUP, label: 'Top Menu' },
   { value: 'footer', label: 'Footer Menu' },
   { value: 'mobile', label: 'Mobile Menu' },
@@ -83,6 +85,12 @@ export const MENU_TYPE_OPTIONS: MenuSelectOption[] = [
   { value: MenuType.BANNER, label: 'Banner' },
   { value: MenuType.CUSTOM_HTML, label: 'Custom HTML' },
   { value: MenuType.SITE_CONTENT, label: 'Site Content' },
+  { value: MenuType.SEARCH_BUTTON, label: 'Search Button' },
+  { value: MenuType.LOCALE_SWITCHER, label: 'Locale Switcher' },
+  { value: MenuType.THEME_TOGGLE, label: 'Dark/Light Toggle' },
+  { value: MenuType.CART_BUTTON, label: 'Cart Button' },
+  { value: MenuType.USER_PROFILE, label: 'User Profile' },
+  { value: MenuType.CALL_BUTTON, label: 'Call Button' },
 ];
 
 export const TOP_MENU_TYPE_OPTIONS: MenuSelectOption[] = [

@@ -163,6 +163,12 @@ const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, value, 
   };
 
   const renderHeroSlider = () => {
+    const handleLayoutChange = (layout: 'full-width' | 'container') => {
+      onChange({
+        ...(value ?? {}),
+        layout,
+      });
+    };
     const handleOverlayToggle = (checked: boolean) => {
       const existingOverlay = ((value?.overlay as Record<string, unknown>) || {}) as Record<string, unknown>;
       const existingOpacity = typeof existingOverlay.opacity === 'number'
@@ -228,6 +234,7 @@ const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, value, 
       : overlayColor.startsWith('#') && overlayColor.length >= 7
         ? overlayColor.slice(0, 7)
         : '#000000';
+    const currentLayout = value?.layout === 'full-width' ? 'full-width' : 'container';
 
     return (
       <div className="space-y-4">
@@ -236,7 +243,7 @@ const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, value, 
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="flex flex-col gap-1 text-sm text-gray-600">
-            Autoplay interval (ms)
+            {t('sections.manager.heroSlider.autoplayInterval')}
             <Input
               type="number"
               min={1000}
@@ -246,15 +253,32 @@ const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, value, 
               inputSize="md"
             />
           </label>
-          <label className="flex items-center gap-2 text-sm text-gray-600">
-            <input
-              type="checkbox"
-              checked={Boolean(value?.autoplay ?? true)}
-              onChange={(e) => handleValueChange('autoplay', e.target.checked)}
+          <label className="flex flex-col gap-1 text-sm text-gray-600">
+            {t('sections.manager.heroSlider.layoutType')}
+            <Select
+              value={currentLayout}
+              onChange={(layout) => handleLayoutChange(layout as 'full-width' | 'container')}
+              options={[
+                { value: 'full-width', label: t('sections.manager.heroSlider.fullWidth') },
+                { value: 'container', label: t('sections.manager.heroSlider.container') },
+              ]}
+              className="text-sm"
             />
-            Autoplay enabled
+            <span className="text-xs text-gray-500">
+              {currentLayout === 'full-width'
+                ? t('sections.manager.heroSlider.fullWidthDescription')
+                : t('sections.manager.heroSlider.containerDescription')}
+            </span>
           </label>
         </div>
+        <label className="flex items-center gap-2 text-sm text-gray-600">
+          <input
+            type="checkbox"
+            checked={Boolean(value?.autoplay ?? true)}
+            onChange={(e) => handleValueChange('autoplay', e.target.checked)}
+          />
+          {t('sections.manager.heroSlider.autoplayEnabled')}
+        </label>
         <div className="space-y-3 border rounded-lg p-4 bg-gray-50">
           <label className="flex items-center gap-2 text-sm text-gray-600">
             <input
@@ -483,13 +507,25 @@ const renderCustomHtml = () => (
       });
     };
 
+    const handleBorderRadiusChange = (radius: string) => {
+      const next = { ...(value ?? {}) };
+      const trimmed = radius.trim();
+      if (trimmed) {
+        next.borderRadius = trimmed;
+      } else {
+        delete next.borderRadius;
+      }
+      onChange(next);
+    };
+
     const currentLayout = (value?.layout as string) || 'full-width';
     const currentStyle = (value?.style as string) || 'center';
     const currentBackground = (value?.background as string) || 'primary';
+    const currentBorderRadius = (value?.borderRadius as string) || '';
 
     return (
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <label className="flex flex-col gap-1 text-sm text-gray-600">
             {t('sections.manager.config.cta.layoutMode')}
             <Select
@@ -531,6 +567,18 @@ const renderCustomHtml = () => (
               ]}
               className="text-sm"
             />
+          </label>
+
+          <label className="flex flex-col gap-1 text-sm text-gray-600">
+            {t('sections.manager.config.cta.borderRadius')}
+            <Input
+              type="text"
+              value={currentBorderRadius}
+              onChange={(e) => handleBorderRadiusChange(e.target.value)}
+              placeholder={t('sections.manager.config.cta.borderRadiusPlaceholder')}
+              className="text-sm"
+            />
+            <span className="text-xs text-gray-500">{t('sections.manager.config.cta.borderRadiusDescription')}</span>
           </label>
         </div>
 

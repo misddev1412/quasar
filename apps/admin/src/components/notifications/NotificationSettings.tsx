@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNotificationPreferences, NotificationPreference } from '../../hooks/useNotificationPreferences';
+import { useNotificationPreferences, NotificationPreference, NotificationChannel } from '../../hooks/useNotificationPreferences';
 import {
   FiMail,
   FiSmartphone,
@@ -11,7 +11,9 @@ import {
   FiChevronDown,
   FiBell,
   FiCheck,
-  FiX
+  FiX,
+  FiMessageSquare,
+  FiSend,
 } from 'react-icons/fi';
 import { Button } from '../common/Button';
 import { Card } from '../common/Card';
@@ -160,10 +162,16 @@ const ChannelIcon = ({ channel }: { channel: string }) => {
       return <FiSmartphone className="w-4 h-4" />;
     case 'in_app':
       return <FiMonitor className="w-4 h-4" />;
+    case 'sms':
+      return <FiMessageSquare className="w-4 h-4" />;
+    case 'telegram':
+      return <FiSend className="w-4 h-4" />;
     default:
       return <FiBell className="w-4 h-4" />;
   }
 };
+
+const AVAILABLE_CHANNELS: NotificationChannel[] = ['email', 'push', 'sms', 'telegram', 'in_app'];
 
 const getNotificationTypeColor = (type: string) => {
   switch (type) {
@@ -261,7 +269,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({
     Object.entries(prefGroup.channels).forEach(([channel, channelData]) => {
       acc[prefGroup.type][channel] = {
         type: prefGroup.type,
-        channel: channel as 'push' | 'email' | 'in_app',
+        channel: channel as NotificationChannel,
         enabled: channelData.enabled,
         frequency: channelData.frequency,
         quietHoursStart: channelData.quietHoursStart,
@@ -323,10 +331,9 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({
     if (globalQuietHours.enabled) {
       try {
         // Apply quiet hours to all channels
-        const channels = ['email', 'push', 'in_app'];
-        for (const channel of channels) {
+        for (const channel of AVAILABLE_CHANNELS) {
           await setQuietHours(
-            channel as any,
+            channel,
             globalQuietHours.start,
             globalQuietHours.end,
             globalQuietHours.timezone
@@ -337,8 +344,6 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({
       }
     }
   };
-
-  const channels = ['email', 'push', 'in_app'];
 
   if (isLoading) {
     return (
@@ -439,7 +444,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({
               <NotificationChip type={type} color={getNotificationTypeColor(type)} />
               <div className="flex-1">
                 <span className="text-sm text-neutral-500 dark:text-neutral-400">
-                  {Object.values(channelPrefs).filter(p => p.enabled).length} of {channels.length} channels enabled
+                  {Object.values(channelPrefs).filter(p => p.enabled).length} of {Object.keys(channelPrefs).length} channels enabled
                 </span>
               </div>
               <Button
@@ -458,7 +463,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({
           }
         >
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {channels.map(channel => {
+            {AVAILABLE_CHANNELS.filter(channel => !!channelPrefs[channel]).map(channel => {
               const pref = channelPrefs[channel];
               if (!pref) return null;
 

@@ -15,10 +15,15 @@ const messages = {
 
 interface LocaleWrapperProps {
   children: React.ReactNode;
+  initialLocale: string;
 }
 
-export default function LocaleWrapper({ children }: LocaleWrapperProps) {
-  const [locale, setLocale] = React.useState(defaultLocale);
+export default function LocaleWrapper({ children, initialLocale }: LocaleWrapperProps) {
+  const [locale, setLocale] = React.useState(initialLocale || defaultLocale);
+
+  React.useEffect(() => {
+    setLocale(initialLocale || defaultLocale);
+  }, [initialLocale]);
 
   React.useEffect(() => {
     // Simple locale detection without URL routing (client-side only)
@@ -50,7 +55,9 @@ export default function LocaleWrapper({ children }: LocaleWrapperProps) {
     };
 
     const detectedLocale = getInitialLocale();
-    setLocale(detectedLocale);
+    if (detectedLocale) {
+      setLocale((current) => (detectedLocale !== current ? detectedLocale : current));
+    }
   }, []);
 
   // Effect to handle locale changes via cookie (for language switcher)
@@ -78,7 +85,6 @@ export default function LocaleWrapper({ children }: LocaleWrapperProps) {
     };
   }, [locale]);
 
-  
   return (
     <NextIntlProvider locale={locale} messages={messages[locale as keyof typeof messages] || messages.en}>
       {children}

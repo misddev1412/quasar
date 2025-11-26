@@ -1,11 +1,14 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import useAuthVerification from '../hooks/useAuthVerification';
+import { usePermission } from '../hooks/usePermission';
+import { getRoutePermission } from '../config/route-permissions';
 import Home from '../pages/Home';
 import LoginPage from '../pages/auth/login';
 import ForgotPasswordPage from '../pages/auth/forgot-password';
 import NotFound from '../pages/NotFound';
+import Unauthorized from '../pages/Unauthorized';
 import SeoPage from '../pages/seo';
 import SettingsPage from '../pages/settings';
 import SettingsVisibilityPage from '../pages/settings/visibility';
@@ -14,6 +17,7 @@ import BrandAssetsPage from '../pages/brand-assets';
 import AnalyticsConfigurationPage from '../pages/analytics';
 import UserProfilePage from '../pages/profile';
 import UserListPage from '../pages/users';
+import UserDashboardPage from '../pages/users/dashboard';
 import UserCreatePage from '../pages/users/create';
 import UserUpdatePage from '../pages/users/update';
 import RoleIndexPage from '../pages/roles';
@@ -25,6 +29,14 @@ import PermissionUpdatePage from '../pages/permissions/update';
 import MailTemplateIndexPage from '../pages/mail-templates';
 import MailTemplateCreatePage from '../pages/mail-templates/create';
 import MailTemplateEditPage from '../pages/mail-templates/edit';
+// Mail Providers
+import MailProviderIndexPage from '../pages/mail-providers';
+import CreateMailProviderPage from '../pages/mail-providers/create';
+import EditMailProviderPage from '../pages/mail-providers/[id]/edit';
+// Email Flows
+import EmailFlowIndexPage from '../pages/email-flows';
+import CreateEmailFlowPage from '../pages/email-flows/create';
+import EditEmailFlowPage from '../pages/email-flows/[id]/edit';
 import PostsIndexPage from '../pages/posts';
 import PostsCreatePage from '../pages/posts/create';
 import PostsEditPage from '../pages/posts/edit';
@@ -46,6 +58,7 @@ import CreateFirebaseConfigPage from '../pages/firebase-configs/create';
 import EditFirebaseConfigPage from '../pages/firebase-configs/[id]';
 import NotificationsPage from '../pages/notifications';
 import NotificationPreferencesPage from '../pages/notifications/preferences';
+import TelegramConfigsPage from '../pages/telegram-configs';
 import ShippingProvidersIndexPage from '../pages/shipping-providers';
 import CreateShippingProviderPage from '../pages/shipping-providers/create';
 import EditShippingProviderPage from '../pages/shipping-providers/[id]/edit';
@@ -99,6 +112,8 @@ import CreateProductPage from '../pages/products/create';
 import EditProductPage from '../pages/products/[id]/edit';
 import DateInputTest from '../pages/test/DateInputTest';
 import { PhoneInputTest } from '../components/test/PhoneInputTest';
+import { VisitorAnalyticsPage } from '../components/visitor-analytics';
+import VisitorAnalyticsPageWrapper from '../components/visitor-analytics/VisitorAnalyticsPageWrapper';
 import AppLayout from '../components/layout/AppLayout';
 
 // 优化 ProtectedRoute 支持 children 形式，避免不必要的 profile 拉取
@@ -108,11 +123,16 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
-
+  const location = useLocation();
+  
   // Use the auth verification hook to automatically verify authentication on protected pages
   useAuthVerification();
 
-  if (isLoading) {
+  // Get permission required for current route
+  const routePermission = getRoutePermission(location.pathname);
+  const { hasPermission, isLoading: isPermissionLoading } = usePermission(routePermission || undefined);
+
+  if (isLoading || isPermissionLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary-500"></div>
@@ -120,7 +140,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  return isAuthenticated ? <AppLayout>{children}</AppLayout> : <Navigate to="/auth/login" />;
+  // Check authentication first
+  if (!isAuthenticated) {
+    return <Navigate to="/auth/login" replace />;
+  }
+
+  // Check permission if route requires one
+  if (routePermission && !hasPermission) {
+    return <Unauthorized />;
+  }
+
+  return <AppLayout>{children}</AppLayout>;
 };
 
 const AppRoutes: React.FC = () => {
@@ -140,6 +170,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/storage" element={<ProtectedRoute><StorageConfigPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
       <Route path="/help" element={<ProtectedRoute><HelpPage /></ProtectedRoute>} />
+      <Route path="/users/dashboard" element={<ProtectedRoute><UserDashboardPage /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute><UserListPage /></ProtectedRoute>} />
       <Route path="/users/create" element={<ProtectedRoute><UserCreatePage /></ProtectedRoute>} />
       <Route path="/users/:id" element={<ProtectedRoute><UserUpdatePage /></ProtectedRoute>} />
@@ -153,6 +184,14 @@ const AppRoutes: React.FC = () => {
       <Route path="/mail-templates" element={<ProtectedRoute><MailTemplateIndexPage /></ProtectedRoute>} />
       <Route path="/mail-templates/create" element={<ProtectedRoute><MailTemplateCreatePage /></ProtectedRoute>} />
       <Route path="/mail-templates/:id" element={<ProtectedRoute><MailTemplateEditPage /></ProtectedRoute>} />
+      {/* Mail Providers */}
+      <Route path="/mail-providers" element={<ProtectedRoute><MailProviderIndexPage /></ProtectedRoute>} />
+      <Route path="/mail-providers/create" element={<ProtectedRoute><CreateMailProviderPage /></ProtectedRoute>} />
+      <Route path="/mail-providers/:id/edit" element={<ProtectedRoute><EditMailProviderPage /></ProtectedRoute>} />
+      {/* Email Flows */}
+      <Route path="/email-flows" element={<ProtectedRoute><EmailFlowIndexPage /></ProtectedRoute>} />
+      <Route path="/email-flows/create" element={<ProtectedRoute><CreateEmailFlowPage /></ProtectedRoute>} />
+      <Route path="/email-flows/:id/edit" element={<ProtectedRoute><EditEmailFlowPage /></ProtectedRoute>} />
       {/* Posts */}
       <Route path="/posts" element={<ProtectedRoute><PostsIndexPage /></ProtectedRoute>} />
       <Route path="/posts/create" element={<ProtectedRoute><PostsCreatePage /></ProtectedRoute>} />
@@ -181,6 +220,8 @@ const AppRoutes: React.FC = () => {
       {/* Notifications */}
       <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
       <Route path="/notifications/preferences" element={<ProtectedRoute><NotificationPreferencesPage /></ProtectedRoute>} />
+      {/* Telegram Configs */}
+      <Route path="/telegram-configs" element={<ProtectedRoute><TelegramConfigsPage /></ProtectedRoute>} />
       {/* Product Management */}
       <Route path="/products" element={<ProtectedRoute><ProductsIndexPage /></ProtectedRoute>} />
       <Route path="/products/create" element={<ProtectedRoute><CreateProductPage /></ProtectedRoute>} />
@@ -199,6 +240,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/transactions" element={<ProtectedRoute><TransactionsPage /></ProtectedRoute>} />
       <Route path="/delivery-methods" element={<ProtectedRoute><DeliveryMethodsPage /></ProtectedRoute>} />
       <Route path="/support-clients" element={<ProtectedRoute><SupportClientsPage /></ProtectedRoute>} />
+      <Route path="/visitor-analytics" element={<ProtectedRoute><VisitorAnalyticsPageWrapper /></ProtectedRoute>} />
       <Route path="/sections" element={<Navigate to="/sections/home" replace />} />
       <Route path="/sections/:page" element={<ProtectedRoute><SectionsPage /></ProtectedRoute>} />
       <Route path="/menus" element={<Navigate to="/menus/main" replace />} />
@@ -232,6 +274,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/loyalty/transactions" element={<ProtectedRoute><LoyaltyTransactionsPage /></ProtectedRoute>} />
       <Route path="/test/date-input" element={<ProtectedRoute><DateInputTest /></ProtectedRoute>} />
       <Route path="/test/phone-input" element={<ProtectedRoute><PhoneInputTest /></ProtectedRoute>} />
+      {/* Unauthorized page */}
+      <Route path="/unauthorized" element={<Unauthorized />} />
       {/* 404页面，不需要认证 */}
       <Route path="*" element={<NotFound />} />
     </Routes>

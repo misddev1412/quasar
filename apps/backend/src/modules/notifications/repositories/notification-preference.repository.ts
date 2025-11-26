@@ -101,7 +101,17 @@ export class NotificationPreferenceRepository {
   ): Promise<NotificationPreferenceEntity | null> {
     const existing = await this.findByUserAndTypeAndChannel(userId, type, channel);
     if (!existing) {
-      return null;
+      return this.create({
+        userId,
+        type,
+        channel,
+        enabled: data.enabled ?? true,
+        frequency: data.frequency ?? NotificationFrequency.IMMEDIATE,
+        quietHoursStart: data.quietHoursStart,
+        quietHoursEnd: data.quietHoursEnd,
+        quietHoursTimezone: data.quietHoursTimezone,
+        settings: data.settings,
+      });
     }
     return this.update(existing.id, data);
   }
@@ -112,14 +122,23 @@ export class NotificationPreferenceRepository {
   }
 
   async createDefaultPreferencesForUser(userId: string): Promise<void> {
+    const existingPreferences = await this.repository.find({
+      where: { userId },
+      select: ['type', 'channel'],
+    });
+
+    const existingKeys = new Set(
+      existingPreferences.map(pref => `${pref.type}:${pref.channel}`),
+    );
+
     const types = Object.values(NotificationType);
     const channels = Object.values(NotificationChannel);
 
-    const preferences = [];
+    const preferences: CreateNotificationPreferenceDto[] = [];
     for (const type of types) {
       for (const channel of channels) {
-        const existing = await this.findByUserAndTypeAndChannel(userId, type, channel);
-        if (!existing) {
+        const key = `${type}:${channel}`;
+        if (!existingKeys.has(key)) {
           preferences.push({
             userId,
             type,

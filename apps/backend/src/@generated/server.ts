@@ -1,7 +1,7 @@
 // AppRouter types for tRPC client
 // This file is auto-generated from actual nestjs-trpc routers
 // Run 'npm run sync:trpc-types' to regenerate this file
-// Generated on: 2025-10-26T09:58:48.815Z
+// Generated on: 2025-11-23T07:44:19.898Z
 
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
@@ -52,6 +52,46 @@ const appRouter = t.router({
     getActiveLanguages: t.procedure.query(() => null),
     getDefaultLanguage: t.procedure.query(() => null),
   }),
+  adminLoyaltyRewards: t.router({
+    list: t.procedure.input(z.any()).query(() => null),
+    detail: t.procedure.input(z.any()).query(() => null),
+    create: t.procedure.input(z.any()).mutation(() => null),
+    update: t.procedure.input(z.any()).mutation(() => null),
+    delete: t.procedure.input(z.any()).mutation(() => null),
+    stats: t.procedure.query(() => null),
+    active: t.procedure.query(() => null),
+    availableForCustomer: t.procedure.query(() => null),
+  }),
+  adminLoyaltyStats: t.router({
+    get: t.procedure.query(() => null),
+    dashboard: t.procedure.query(() => null),
+    customerEngagement: t.procedure.query(() => null),
+    pointsFlow: t.procedure.query(() => null),
+    tierDistribution: t.procedure.query(() => null),
+    rewardPerformance: t.procedure.query(() => null),
+  }),
+  adminLoyaltyTiers: t.router({
+    list: t.procedure.input(z.any()).query(() => null),
+    detail: t.procedure.input(z.any()).query(() => null),
+    create: t.procedure.input(z.any()).mutation(() => null),
+    update: t.procedure.input(z.any()).mutation(() => null),
+    delete: t.procedure.input(z.any()).mutation(() => null),
+    stats: t.procedure.query(() => null),
+    active: t.procedure.query(() => null),
+  }),
+  adminLoyaltyTransactions: t.router({
+    list: t.procedure.input(z.any()).query(() => null),
+    detail: t.procedure.input(z.any()).query(() => null),
+    create: t.procedure.input(z.any()).mutation(() => null),
+    adjustPoints: t.procedure.input(z.any()).mutation(() => null),
+    customerTransactions: t.procedure.query(() => null),
+    customerBalance: t.procedure.query(() => null),
+    orderTransactions: t.procedure.query(() => null),
+    stats: t.procedure.query(() => null),
+    topCustomers: t.procedure.query(() => null),
+    popularRewards: t.procedure.query(() => null),
+    recent: t.procedure.query(() => null),
+  }),
   adminMailTemplate: t.router({
     createTemplate: t.procedure.input(z.any()).mutation(() => null),
     getTemplates: t.procedure.query(() => null),
@@ -65,6 +105,16 @@ const appRouter = t.router({
     getStatistics: t.procedure.query(() => null),
     bulkUpdateStatus: t.procedure.input(z.any()).mutation(() => null),
     searchTemplates: t.procedure.query(() => null),
+  }),
+  adminMailProvider: t.router({
+    createProvider: t.procedure.input(z.any()).mutation(() => null),
+    getProviders: t.procedure.query(() => null),
+    getProviderById: t.procedure.query(() => null),
+    getActiveProviders: t.procedure.query(() => null),
+    updateProvider: t.procedure.input(z.any()).mutation(() => null),
+    deleteProvider: t.procedure.input(z.any()).mutation(() => null),
+    testConnection: t.procedure.input(z.any()).mutation(() => null),
+    testConnectionWithData: t.procedure.input(z.any()).mutation(() => null),
   }),
   adminMenus: t.router({
     list: t.procedure.input(z.any()).query(() => null),
@@ -163,14 +213,8 @@ const appRouter = t.router({
   adminPosts: t.router({
     getPosts: t.procedure.query(() => null),
     getPostById: t.procedure.query(() => null),
-  }),
-  adminSiteContents: t.router({
-    listSiteContents: t.procedure.query(() => null),
-    getSiteContentById: t.procedure.query(() => null),
-    createSiteContent: t.procedure.input(z.any()).mutation(() => null),
-    updateSiteContent: t.procedure.input(z.any()).mutation(() => null),
-    deleteSiteContent: t.procedure.input(z.any()).mutation(() => null),
-    bulkDeleteSiteContents: t.procedure.input(z.any()).mutation(() => null),
+    createPost: t.procedure.input(z.any()).mutation(() => null),
+    updatePost: t.procedure.input(z.any()).mutation(() => null),
   }),
   adminProductAttributes: t.router({
     getAll: t.procedure.query(() => null),
@@ -221,6 +265,15 @@ const appRouter = t.router({
     createCategoryTranslation: t.procedure.input(z.any()).mutation(() => null),
     updateCategoryTranslation: t.procedure.input(z.any()).mutation(() => null),
     deleteCategoryTranslation: t.procedure.input(z.any()).mutation(() => null),
+  }),
+  adminCurrency: t.router({
+    getCurrencyById: t.procedure.query(() => null),
+    getCurrencies: t.procedure.query(() => null),
+    updateCurrency: t.procedure.input(z.any()).mutation(() => null),
+    createCurrency: t.procedure.input(z.any()).mutation(() => null),
+    deleteCurrency: t.procedure.input(z.any()).mutation(() => null),
+    toggleCurrencyStatus: t.procedure.input(z.any()).mutation(() => null),
+    setDefaultCurrency: t.procedure.input(z.any()).mutation(() => null),
   }),
   adminCustomers: t.router({
     list: t.procedure.input(z.any()).query(() => null),
@@ -303,6 +356,14 @@ const appRouter = t.router({
     getPendingReceivingOrders: t.procedure.query(() => null),
     getOrderStats: t.procedure.query(() => null),
   }),
+  adminShippingProviders: t.router({
+    list: t.procedure.input(z.any()).query(() => null),
+    getById: t.procedure.input(z.any()).query(() => null),
+    create: t.procedure.input(z.any()).mutation(() => null),
+    update: t.procedure.input(z.any()).mutation(() => null),
+    delete: t.procedure.input(z.any()).mutation(() => null),
+    toggleActive: t.procedure.input(z.any()).mutation(() => null),
+  }),
   adminProductSuppliers: t.router({
     getAll: t.procedure.query(() => null),
     getById: t.procedure.input(z.any()).query(() => null),
@@ -352,9 +413,13 @@ const appRouter = t.router({
     stats: t.procedure.query(() => null),
     updateStatus: t.procedure.input(z.any()).mutation(() => null),
   }),
+  clientDeliveryMethods: t.router({
+    list: t.procedure.input(z.any()).query(() => null),
+  }),
   clientOrders: t.router({
     list: t.procedure.input(z.any()).query(() => null),
     detail: t.procedure.input(z.any()).query(() => null),
+    create: t.procedure.input(z.any()).mutation(() => null),
     recent: t.procedure.query(() => null),
     active: t.procedure.query(() => null),
     cancelOrder: t.procedure.input(z.any()).mutation(() => null),
@@ -385,6 +450,19 @@ const appRouter = t.router({
     bulkUpdate: t.procedure.input(z.any()).mutation(() => null),
     delete: t.procedure.input(z.any()).mutation(() => null),
     updateVisibility: t.procedure.input(z.any()).mutation(() => null),
+  }),
+  adminSiteContents: t.router({
+    listSiteContents: t.procedure.query(() => null),
+    getSiteContentById: t.procedure.query(() => null),
+    createSiteContent: t.procedure.input(z.any()).mutation(() => null),
+    updateSiteContent: t.procedure.input(z.any()).mutation(() => null),
+    deleteSiteContent: t.procedure.input(z.any()).mutation(() => null),
+    bulkDeleteSiteContents: t.procedure.input(z.any()).mutation(() => null),
+  }),
+  clientSiteContents: t.router({
+    listSiteContents: t.procedure.query(() => null),
+    getSiteContentBySlug: t.procedure.query(() => null),
+    getSiteContentByCode: t.procedure.query(() => null),
   }),
   adminMedia: t.router({
     getUserMedia: t.procedure.query(() => null),
@@ -432,6 +510,13 @@ const appRouter = t.router({
     update: t.procedure.input(z.any()).mutation(() => null),
     delete: t.procedure.input(z.any()).mutation(() => null),
     setAsDefault: t.procedure.input(z.any()).mutation(() => null),
+    stats: t.procedure.query(() => null),
+  }),
+  adminCustomerTransactions: t.router({
+    list: t.procedure.input(z.any()).query(() => null),
+    detail: t.procedure.input(z.any()).query(() => null),
+    create: t.procedure.input(z.any()).mutation(() => null),
+    updateStatus: t.procedure.input(z.any()).mutation(() => null),
     stats: t.procedure.query(() => null),
   }),
   adminPermission: t.router({
@@ -503,6 +588,24 @@ const appRouter = t.router({
     getActiveSessions: t.procedure.query(() => null),
     revokeSession: t.procedure.input(z.any()).mutation(() => null),
     revokeAllSessions: t.procedure.input(z.any()).mutation(() => null),
+  }),
+  adminVisitorStatistics: t.router({
+    getOverallStats: t.procedure.query(() => null),
+    getDailyTrends: t.procedure.query(() => null),
+    getWeeklyTrends: t.procedure.query(() => null),
+    getMonthlyTrends: t.procedure.query(() => null),
+    getTopPages: t.procedure.query(() => null),
+    getPageViewStatsByType: t.procedure.query(() => null),
+    getVisitorStatsBySource: t.procedure.query(() => null),
+    getRealTimeStats: t.procedure.query(() => null),
+    getGeographicStats: t.procedure.query(() => null),
+    getDeviceStats: t.procedure.query(() => null),
+    getConversionStats: t.procedure.query(() => null),
+    getTrafficSources: t.procedure.query(() => null),
+  }),
+  clientVisitorStats: t.router({
+    getPublicStats: t.procedure.query(() => null),
+    trackStorefrontVisitor: t.procedure.input(z.any()).mutation(() => null),
   }),
   addressBook: t.router({
     getAddresses: t.procedure.query(() => null),

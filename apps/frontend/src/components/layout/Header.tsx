@@ -12,7 +12,6 @@ import {
   NavbarItem,
   NavbarMenuToggle,
   NavbarMenu,
-  NavbarMenuItem,
   Button,
   Dropdown,
   DropdownTrigger,
@@ -20,7 +19,6 @@ import {
   DropdownItem,
   Avatar,
   Badge,
-  Divider,
 } from '@heroui/react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslations } from 'next-intl';
@@ -34,9 +32,11 @@ import { CartIcon, CartDropdownIcon, ShoppingCart, useCart } from '../ecommerce/
 import Container from '../common/Container';
 import { useMenu } from '../../hooks/useMenu';
 import { CategoryService } from '../../services/category.service';
-import MenuNavigation, { NavigationItem } from '../menu/MenuNavigation';
+import MenuNavigation, { NavigationItem, NavigationItemRenderer } from '../menu/MenuNavigation';
 import MegaMenu, { MegaMenuSection } from '../menu/MegaMenu';
 import TopMenuBar from './TopMenuBar';
+import SubMenuBar from './SubMenuBar';
+import { MenuType } from '@shared/enums/menu.enums';
 
 // Icons as components for better maintainability
 const Icons = {
@@ -293,26 +293,11 @@ const IconButtonWithBadge: React.FC<{
   );
 };
 
-// Desktop Navigation Component
-type NavigationItem = {
-  id?: string;
-  name: string;
-  href: string;
-  target?: string;
-  icon?: string | null;
-  description?: string;
-  isMegaMenu?: boolean;
-  megaMenuColumns?: number;
-  image?: string;
-  badge?: string;
-  featured?: boolean;
-  children?: NavigationItem[];
-};
-
 // Helper function to convert menu items to navigation items
 const convertToNavigationItems = (items: any[]): NavigationItem[] => {
   return items.map(item => ({
     id: item.id,
+    type: item.type,
     name: item.name,
     href: item.href,
     target: item.target,
@@ -323,7 +308,8 @@ const convertToNavigationItems = (items: any[]): NavigationItem[] => {
     image: item.image,
     badge: item.badge,
     featured: item.featured,
-    children: item.children || []
+    config: item.config,
+    children: item.children ? convertToNavigationItems(item.children) : [],
   }));
 };
 
@@ -443,122 +429,6 @@ const UserMenu: React.FC<{
   );
 };
 
-// Mobile Menu Items Component
-const MobileMenuItems: React.FC<{
-  isAuthenticated: boolean;
-  router: any;
-  currentLocale: string;
-  onLogout: () => void;
-  onClose: () => void;
-}> = ({ isAuthenticated, router, currentLocale, onLogout, onClose }) => {
-  const t = useTranslations();
-
-  const userMenuItems = [
-    {
-      key: 'account',
-      label: t('layout.header.user.account'),
-      href: '/profile',
-      icon: <Icons.Account />,
-    },
-    {
-      key: 'edit-profile',
-      label: t('layout.header.user.profile'),
-      href: '/profile',
-      icon: <Icons.Profile />,
-    },
-    {
-      key: 'orders',
-      label: t('layout.header.user.orders'),
-      href: '/orders',
-      icon: <Icons.Orders />,
-    },
-    {
-      key: 'wishlist',
-      label: t('layout.header.user.wishlist'),
-      href: '/wishlist',
-      icon: <Icons.Wishlist />,
-    },
-    {
-      key: 'notifications',
-      label: t('layout.header.user.notifications'),
-      href: '/notifications',
-      icon: <Icons.Notifications />,
-    },
-    {
-      key: 'settings',
-      label: t('layout.header.user.settings'),
-      href: '/settings',
-      icon: <Icons.Settings />,
-    },
-  ];
-
-  return (
-    <>
-      {isAuthenticated ? (
-        <>
-          {userMenuItems.map((item) => (
-            <NavbarMenuItem key={item.key}>
-              <Link
-                href={item.href || '#'}
-                className="w-full text-base text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-3 py-2 transition-colors"
-                onClick={onClose}
-              >
-                <span className="text-gray-500 dark:text-gray-400">{item.icon}</span>
-                {item.label}
-              </Link>
-            </NavbarMenuItem>
-          ))}
-          <NavbarMenuItem>
-            <Button
-              color="danger"
-              variant="flat"
-              className="w-full mt-2 flex items-center gap-3"
-              onPress={() => {
-                onLogout();
-                onClose();
-              }}
-              startContent={
-                <span className="text-red-500">
-                  <Icons.Logout />
-                </span>
-              }
-            >
-              {t('layout.header.user.logout')}
-            </Button>
-          </NavbarMenuItem>
-        </>
-      ) : (
-        <>
-          <NavbarMenuItem>
-            <Button
-              variant="flat"
-              className="w-full"
-              onPress={() => {
-                router.push('/login');
-                onClose();
-              }}
-            >
-              {t('layout.header.guest.signin')}
-            </Button>
-          </NavbarMenuItem>
-          <NavbarMenuItem>
-            <Button
-              color="primary"
-              className="w-full"
-              onPress={() => {
-                router.push('/register');
-                onClose();
-              }}
-            >
-              {t('layout.header.guest.signup')}
-            </Button>
-          </NavbarMenuItem>
-        </>
-      )}
-    </>
-  );
-};
-
 // Main Header Component
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -667,6 +537,166 @@ const Header: React.FC = () => {
   const handleLogout = () => {
     logout();
     router.push('/');
+  };
+
+
+  const navigationRenderers: Partial<Record<MenuType, NavigationItemRenderer>> = {
+    [MenuType.SEARCH_BUTTON]: ({ context, closeMobileMenu }) =>
+      context === 'desktop' ? (
+        <Button
+          isIconOnly
+          variant="light"
+          aria-label={t('layout.header.search.open')}
+          className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          onPress={() => setIsSearchOpen(true)}
+        >
+          <Icons.Search />
+        </Button>
+      ) : (
+        <button
+          className="w-full text-base text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-3 py-2 transition-colors rounded-lg px-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+          onClick={() => {
+            setIsSearchOpen(true);
+            closeMobileMenu?.();
+          }}
+        >
+          <span className="text-gray-500 dark:text-gray-400">
+            <Icons.Search />
+          </span>
+          <span>{t('layout.header.search.open')}</span>
+        </button>
+      ),
+    [MenuType.LOCALE_SWITCHER]: ({ context }) => (
+      <div className={context === 'desktop' ? 'flex items-center' : 'w-full px-2'}>
+        <LanguageSwitcher />
+      </div>
+    ),
+    [MenuType.THEME_TOGGLE]: ({ context }) => (
+      <div
+        className={
+          context === 'desktop'
+            ? 'flex items-center'
+            : 'flex items-center justify-between gap-3 px-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 w-full'
+        }
+      >
+        {context === 'mobile' && <span>Theme</span>}
+        <ThemeToggle />
+      </div>
+    ),
+    [MenuType.CART_BUTTON]: ({ context, closeMobileMenu }) =>
+      context === 'desktop' ? (
+        <CartDropdownIcon className="text-gray-700 dark:text-gray-300" />
+      ) : (
+        <button
+          className="w-full text-base text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-3 py-2 transition-colors rounded-lg px-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+          onClick={() => {
+            openCart();
+            closeMobileMenu?.();
+          }}
+          aria-label={cartLabel}
+        >
+          <span className="text-gray-500 dark:text-gray-400">
+            <Icons.Cart />
+          </span>
+          <span>{cartLabel}</span>
+        </button>
+      ),
+    [MenuType.USER_PROFILE]: ({ context, closeMobileMenu }) => {
+      if (isAuthenticated) {
+        if (context === 'desktop') {
+          return (
+            <UserMenu
+              user={user}
+              router={router}
+              currentLocale={currentLocale}
+              onLogout={handleLogout}
+            />
+          );
+        }
+
+        return (
+          <div className="flex flex-col gap-2 w-full">
+            <button
+              className="w-full text-base text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-3 py-2 transition-colors rounded-lg px-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+              onClick={() => {
+                router.push('/profile');
+                closeMobileMenu?.();
+              }}
+            >
+              <Icons.User />
+              <span>{t('layout.header.user.account')}</span>
+            </button>
+            <button
+              className="w-full text-base text-red-600 hover:text-red-700 flex items-center gap-3 py-2 transition-colors rounded-lg px-2 hover:bg-red-50"
+              onClick={() => {
+                handleLogout();
+                closeMobileMenu?.();
+              }}
+            >
+              <Icons.Logout />
+              <span>{t('layout.header.user.logout')}</span>
+            </button>
+          </div>
+        );
+      }
+
+      if (context === 'desktop') {
+        return (
+          <Dropdown placement="bottom-end">
+            <DropdownTrigger>
+              <Button
+                isIconOnly
+                variant="light"
+                aria-label="User menu"
+                className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <Icons.UserCircle />
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="User menu actions" variant="flat">
+              <DropdownItem
+                key="signin"
+                onPress={() => router.push('/login')}
+                className="min-h-[40px]"
+              >
+                {t('layout.header.guest.signin')}
+              </DropdownItem>
+              <DropdownItem
+                key="signup"
+                color="primary"
+                onPress={() => router.push('/register')}
+                className="min-h-[40px]"
+              >
+                {t('layout.header.guest.signup')}
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        );
+      }
+
+      return (
+        <div className="flex flex-col gap-2 w-full px-2">
+          <button
+            className="w-full rounded-lg border border-blue-500 text-blue-600 py-2 font-medium hover:bg-blue-50"
+            onClick={() => {
+              router.push('/login');
+              closeMobileMenu?.();
+            }}
+          >
+            {t('layout.header.guest.signin')}
+          </button>
+          <button
+            className="w-full rounded-lg bg-blue-600 text-white py-2 font-medium hover:bg-blue-700"
+            onClick={() => {
+              router.push('/register');
+              closeMobileMenu?.();
+            }}
+          >
+            {t('layout.header.guest.signup')}
+          </button>
+        </div>
+      );
+    },
   };
 
   const executeSearch = () => {
@@ -808,34 +838,11 @@ const Header: React.FC = () => {
 
           {/* Center Section: Desktop Navigation */}
           <NavbarContent className="hidden lg:flex gap-2 header-nav" justify="center">
-            <MenuNavigation items={navigationItemsConverted} />
+            <MenuNavigation items={navigationItemsConverted} renderers={navigationRenderers} />
           </NavbarContent>
 
           {/* Right Section: Actions */}
           <NavbarContent justify="end" className="gap-2">
-            <NavbarItem className="hidden lg:flex">
-              <Button
-                isIconOnly
-                variant="light"
-                aria-label={t('layout.header.search.open')}
-                aria-expanded={isSearchOpen}
-                className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                onPress={() => setIsSearchOpen(true)}
-              >
-                <Icons.Search />
-              </Button>
-            </NavbarItem>
-
-            {/* Language Switcher */}
-            <NavbarItem>
-              <LanguageSwitcher />
-            </NavbarItem>
-
-            {/* Theme Toggle */}
-            <NavbarItem>
-              <ThemeToggle />
-            </NavbarItem>
-
             {/* Action Buttons */}
             {isAuthenticated && (
               <>
@@ -854,51 +861,7 @@ const Header: React.FC = () => {
               </>
             )}
 
-            <NavbarItem>
-              <CartDropdownIcon className="text-gray-700 dark:text-gray-300" />
-            </NavbarItem>
-
-            {/* User Section */}
-            <NavbarItem>
-              {isAuthenticated ? (
-                <UserMenu
-                  user={user}
-                  router={router}
-                  currentLocale={currentLocale}
-                  onLogout={handleLogout}
-                />
-              ) : (
-                <Dropdown placement="bottom-end">
-                  <DropdownTrigger>
-                    <Button
-                      isIconOnly
-                      variant="light"
-                      aria-label="User menu"
-                      className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    >
-                      <Icons.UserCircle />
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu aria-label="User menu actions" variant="flat">
-                    <DropdownItem
-                      key="signin"
-                      onPress={() => router.push('/login')}
-                      className="min-h-[40px]"
-                    >
-                      {t('layout.header.guest.signin')}
-                    </DropdownItem>
-                    <DropdownItem
-                      key="signup"
-                      color="primary"
-                      onPress={() => router.push('/register')}
-                      className="min-h-[40px]"
-                    >
-                      {t('layout.header.guest.signup')}
-                    </DropdownItem>
-                  </DropdownMenu>
-                </Dropdown>
-              )}
-            </NavbarItem>
+            {/* Cart, profile, search, locale, and theme actions are only rendered when configured in the storefront menu */}
           </NavbarContent>
 
           {/* Mobile Menu */}
@@ -923,49 +886,17 @@ const Header: React.FC = () => {
               items={navigationItemsConverted}
               isMobileMenuOpen={isMenuOpen}
               onMobileMenuClose={() => setIsMenuOpen(false)}
+              renderers={navigationRenderers}
             />
 
-            {/* Cart Link - Mobile */}
-            <NavbarMenuItem>
-              <button
-                className="w-full text-base text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-3 py-2 transition-colors rounded-lg px-2 hover:bg-gray-50 dark:hover:bg-gray-800"
-                onClick={() => {
-                  openCart();
-                  setIsMenuOpen(false);
-                }}
-                aria-label={cartLabel}
-              >
-                <span className="text-gray-500 dark:text-gray-400">
-                  <Icons.Cart />
-                </span>
-                <span>{cartLabel}</span>
-                {summary.totalItems > 0 && (
-                  <span className="ml-auto text-blue-600 dark:text-blue-400 font-medium">
-                    {summary.totals.currency}
-                    {summary.totals.total.toFixed(2)}
-                  </span>
-                )}
-              </button>
-            </NavbarMenuItem>
-
-            {/* Divider */}
-            <NavbarMenuItem className="my-3">
-              <Divider />
-            </NavbarMenuItem>
-
-            {/* User Actions */}
-            <MobileMenuItems
-              isAuthenticated={isAuthenticated}
-              router={router}
-              currentLocale={currentLocale}
-              onLogout={handleLogout}
-              onClose={() => setIsMenuOpen(false)}
-            />
+            {/* Cart, profile, search, locale, and theme entries are managed entirely via storefront navigation */}
           </NavbarMenu>
 
           {/* Shopping Cart Modal - disabled since we're using dropdown */}
           {/* <ShoppingCart /> */}
         </Navbar>
+
+        <SubMenuBar />
 
         {mounted && isSearchOpen
           ? createPortal(

@@ -14,7 +14,7 @@ export interface NotificationPreference {
 }
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'error' | 'system' | 'product' | 'order' | 'user';
-export type NotificationChannel = 'push' | 'email' | 'in_app';
+export type NotificationChannel = 'push' | 'email' | 'in_app' | 'sms' | 'telegram';
 export type NotificationFrequency = 'immediate' | 'hourly' | 'daily' | 'weekly' | 'never';
 
 export interface NotificationPreferenceSettings {

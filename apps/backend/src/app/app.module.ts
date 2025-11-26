@@ -12,6 +12,8 @@ import { ChartModule } from '../modules/chart/chart.module';
 import { MailTemplateModule } from '../modules/mail-template/mail-template.module';
 import { PostsModule } from '../modules/posts/posts.module';
 import { EmailChannelModule } from '../modules/email-channel/email-channel.module';
+import { MailProviderModule } from '../modules/mail-provider/mail-provider.module';
+import { EmailFlowModule } from '../modules/email-flow/email-flow.module';
 import { LanguageModule } from '../modules/language/language.module';
 import { StorageModule } from '../modules/storage/storage.module';
 import { AuthModule } from '../auth/auth.module';
@@ -43,6 +45,8 @@ import { PostTranslation } from '../modules/posts/entities/post-translation.enti
 import { PostCategory } from '../modules/posts/entities/post-category.entity';
 import { PostTag } from '../modules/posts/entities/post-tag.entity';
 import { EmailChannel } from '../modules/email-channel/entities/email-channel.entity';
+import { MailProvider } from '../modules/mail-provider/entities/mail-provider.entity';
+import { EmailFlow } from '../modules/email-flow/entities/email-flow.entity';
 import { Language } from '../modules/language/entities/language.entity';
 import { Media } from '../modules/storage/entities/media.entity';
 import { FirebaseConfigEntity } from '../modules/firebase/entities/firebase-config.entity';
@@ -68,6 +72,10 @@ import { LoyaltyTier } from '../modules/loyalty/entities/loyalty-tier.entity';
 import { LoyaltyReward } from '../modules/loyalty/entities/loyalty-reward.entity';
 import { LoyaltyTransaction } from '../modules/loyalty/entities/loyalty-transaction.entity';
 import { CustomerRedemption } from '../modules/loyalty/entities/customer-redemption.entity';
+import { VisitorModule } from '../modules/visitor/visitor.module';
+import { Visitor } from '../modules/visitor/entities/visitor.entity';
+import { VisitorSession } from '../modules/visitor/entities/visitor-session.entity';
+import { PageView } from '../modules/visitor/entities/page-view.entity';
 
 @Module({
   imports: [
@@ -100,6 +108,8 @@ import { CustomerRedemption } from '../modules/loyalty/entities/customer-redempt
           PostCategory,
           PostTag,
           EmailChannel,
+          MailProvider,
+          EmailFlow,
           Language,
           Media,
           FirebaseConfigEntity,
@@ -122,6 +132,9 @@ import { CustomerRedemption } from '../modules/loyalty/entities/customer-redempt
           LoyaltyReward,
           LoyaltyTransaction,
           CustomerRedemption,
+          Visitor,
+          VisitorSession,
+          PageView,
         ],
         autoLoadEntities: true
       }),
@@ -141,6 +154,8 @@ import { CustomerRedemption } from '../modules/loyalty/entities/customer-redempt
     MailTemplateModule,
     PostsModule,
     EmailChannelModule,
+    MailProviderModule,
+    EmailFlowModule,
     LanguageModule,
     StorageModule,
     ProductsModule,
@@ -149,6 +164,7 @@ import { CustomerRedemption } from '../modules/loyalty/entities/customer-redempt
     MenuModule,
     SiteContentModule,
     LoyaltyModule,
+    VisitorModule,
     AppRouterModule,
   ],
   controllers: [AppController],

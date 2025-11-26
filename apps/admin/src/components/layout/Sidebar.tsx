@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLayout } from '../../contexts/LayoutContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -53,6 +53,10 @@ const Sidebar: React.FC = () => {
   // State
   const [menuCollapseState, setMenuCollapseState] = useState<Record<string, boolean>>({});
   
+  // Refs for scrolling to active menu items
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const activeMenuItemRefs = useRef<Map<string, HTMLElement>>(new Map());
+  
   // Get menu configuration from domain service
   const menuGroups = navigationService.getMenuGroups();
 
@@ -79,6 +83,136 @@ const Sidebar: React.FC = () => {
     Object.keys(menuCollapseState).filter(key => menuCollapseState[key])
   );
 
+  // Function to register menu item ref
+  const registerMenuItemRef = (path: string, element: HTMLElement | null) => {
+    if (element) {
+      activeMenuItemRefs.current.set(path, element);
+    } else {
+      activeMenuItemRefs.current.delete(path);
+    }
+  };
+
+  // Helper function to recursively find active item path and parent
+  const findActiveItemPath = (items: any[]): { path: string; parentPath?: string } | null => {
+    for (const item of items) {
+      if (isActiveRoute(item.path)) {
+        return { path: item.path };
+      }
+      if (item.subItems) {
+        const activeSubPath = findActiveItemPath(item.subItems);
+        if (activeSubPath) {
+          return { path: activeSubPath.path, parentPath: item.path };
+        }
+      }
+    }
+    return null;
+  };
+
+  // Scroll to active menu item when location changes
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    let retryCount = 0;
+    const MAX_RETRIES = 2;
+    
+    const scrollToActiveItem = (isRetry = false) => {
+      if (!scrollContainerRef.current) return;
+
+      // Find the active menu item path by checking all menu groups
+      let activeItemInfo: { path: string; parentPath?: string } | null = null;
+      for (const group of menuGroups) {
+        const found = findActiveItemPath(group.items);
+        if (found) {
+          activeItemInfo = found;
+          break;
+        }
+      }
+
+      if (!activeItemInfo) return;
+
+      const activePath = activeItemInfo.path;
+      
+      // Ensure parent menu is expanded if there's an active sub-item (only on first attempt)
+      if (!isRetry && activeItemInfo.parentPath && !menuCollapseState[activeItemInfo.parentPath]) {
+        // Find the parent item and expand it
+        for (const group of menuGroups) {
+          for (const item of group.items) {
+            if (item.path === activeItemInfo.parentPath) {
+              handleToggleSubMenu(item);
+              // Wait a bit for the expansion animation then retry
+              retryCount++;
+              if (retryCount <= MAX_RETRIES) {
+                setTimeout(() => {
+                  scrollToActiveItem(true);
+                }, 300);
+              }
+              return;
+            }
+          }
+        }
+      }
+
+      // Try multiple methods to find the active element
+      let activeElement: HTMLElement | null = null;
+
+      // Method 1: Try to get element from registered refs
+      activeElement = activeMenuItemRefs.current.get(activePath) || null;
+
+      // Method 2: If not found in refs, try to find by data attribute
+      if (!activeElement && scrollContainerRef.current) {
+        activeElement = scrollContainerRef.current.querySelector(
+          `[data-menu-path="${activePath}"]`
+        ) as HTMLElement;
+      }
+
+      // Method 3: Fallback - find by Mui-selected class within the container
+      if (!activeElement && scrollContainerRef.current) {
+        // Find the selected button/link that matches the active path
+        const selectedElements = scrollContainerRef.current.querySelectorAll('.Mui-selected');
+        for (const el of Array.from(selectedElements)) {
+          const parent = el.closest('[data-menu-path]') as HTMLElement;
+          if (parent && parent.getAttribute('data-menu-path') === activePath) {
+            activeElement = parent;
+            break;
+          }
+        }
+      }
+
+      if (activeElement && scrollContainerRef.current) {
+        const container = scrollContainerRef.current;
+        
+        // Calculate relative position within the scroll container
+        const containerRect = container.getBoundingClientRect();
+        const elementRect = activeElement.getBoundingClientRect();
+        
+        // Calculate the scroll position needed to center the element
+        const elementTopRelativeToContainer = elementRect.top - containerRect.top + container.scrollTop;
+        const elementHeight = elementRect.height;
+        const containerHeight = containerRect.height;
+        
+        const targetScrollTop = elementTopRelativeToContainer - (containerHeight / 2) + (elementHeight / 2);
+        
+        // Smooth scroll to the active item
+        container.scrollTo({
+          top: Math.max(0, Math.min(targetScrollTop, container.scrollHeight - containerHeight)),
+          behavior: 'smooth',
+        });
+      }
+    };
+
+    // Use requestAnimationFrame and setTimeout to ensure DOM is fully updated
+    // Increased delay to ensure all refs are registered and sub-menus are expanded
+    const rafId = requestAnimationFrame(() => {
+      timeoutId = setTimeout(scrollToActiveItem, 300);
+    });
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [location.pathname, menuGroups, sidebarCollapsed, menuCollapseState]);
+
   // Render menu item using the new component
   const renderMenuItem = (item: any, index: number) => {
     const isActive = isActiveRoute(item.path);
@@ -99,6 +233,7 @@ const Sidebar: React.FC = () => {
         onToggleSubMenu={() => handleToggleSubMenu(item)}
         onSubItemActiveCheck={isActiveRoute}
         expandedNodes={expandedNodes}
+        onRegisterRef={registerMenuItemRef}
       />
     );
   };
@@ -228,7 +363,7 @@ const Sidebar: React.FC = () => {
       <Divider sx={{ my: 0.5 }} />
 
       {/* Navigation menu */}
-      <Box sx={{ overflow: 'auto', flexGrow: 1, pb: 8 }}>
+      <Box ref={scrollContainerRef} sx={{ overflow: 'auto', flexGrow: 1, pb: 8 }}>
         {menuGroups.map((group, groupIndex) => (
           <React.Fragment key={groupIndex}>
             {/* Group title - only show in expanded state */}

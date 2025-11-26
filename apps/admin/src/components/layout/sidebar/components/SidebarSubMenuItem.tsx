@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ListItemButton,
@@ -7,6 +7,8 @@ import {
   Tooltip,
   Collapse,
   List,
+  ListItem,
+  Box,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -22,6 +24,7 @@ interface SidebarSubMenuItemProps {
   expandedNodes?: Set<string>;
   onToggleSubMenu?: (itemId: string) => void;
   onSubItemActiveCheck?: (path: string) => boolean;
+  onRegisterRef?: (path: string, element: HTMLElement | null) => void;
 }
 
 const SidebarSubMenuItem: React.FC<SidebarSubMenuItemProps> = ({
@@ -33,29 +36,20 @@ const SidebarSubMenuItem: React.FC<SidebarSubMenuItemProps> = ({
   expandedNodes = new Set(),
   onToggleSubMenu,
   onSubItemActiveCheck,
+  onRegisterRef,
 }) => {
   const hasSubItems = subItem.subItems && subItem.subItems.length > 0;
   const isExpanded = expandedNodes.has(subItem.path);
-  const textRef = useRef<HTMLDivElement>(null);
-  const [isTextTruncated, setIsTextTruncated] = useState(false);
+  const subMenuItemRef = useRef<HTMLLIElement>(null);
 
-  // Check if text is truncated
+  // Register ref when sub-item is active
   useEffect(() => {
-    const checkTextTruncation = () => {
-      if (textRef.current && !collapsed) {
-        const element = textRef.current;
-        setIsTextTruncated(element.scrollWidth > element.clientWidth);
-      }
-    };
-
-    checkTextTruncation();
-
-    // Check again after a short delay in case the element hasn't rendered fully
-    const timer = setTimeout(checkTextTruncation, 100);
-
-    return () => clearTimeout(timer);
-  }, [subItem.label, collapsed]);
-
+    if (isActive && subMenuItemRef.current && onRegisterRef) {
+      onRegisterRef(subItem.path, subMenuItemRef.current);
+    } else if (!isActive && onRegisterRef) {
+      onRegisterRef(subItem.path, null);
+    }
+  }, [isActive, subItem.path, onRegisterRef]);
   const renderIcon = () => {
     if (subItem.badge) {
       return (
@@ -84,6 +78,7 @@ const SidebarSubMenuItem: React.FC<SidebarSubMenuItemProps> = ({
               expandedNodes={expandedNodes}
               onToggleSubMenu={onToggleSubMenu}
               onSubItemActiveCheck={onSubItemActiveCheck}
+              onRegisterRef={onRegisterRef}
             />
           ))}
         </List>
@@ -176,18 +171,19 @@ const SidebarSubMenuItem: React.FC<SidebarSubMenuItemProps> = ({
     );
 
     return (
-      <Tooltip
-        title={subItem.label}
-        placement="right"
-        arrow
-      >
-        {linkContent}
-      </Tooltip>
+      <Box ref={subMenuItemRef} data-menu-path={subItem.path}>
+        <Tooltip
+          title={subItem.label}
+          placement="right"
+          arrow
+        >
+          {linkContent}
+        </Tooltip>
+      </Box>
     );
   }
 
-  const shouldShowTooltip = isTextTruncated;
-  const tooltipTitle = shouldShowTooltip ? subItem.label : '';
+  const tooltipTitle = subItem.label;
 
   const buttonContent = (
     <StyledListItemButton
@@ -213,7 +209,6 @@ const SidebarSubMenuItem: React.FC<SidebarSubMenuItemProps> = ({
         {renderIcon()}
       </ListItemIcon>
       <ListItemText
-        ref={textRef}
         primary={subItem.label}
         primaryTypographyProps={{
           fontSize: 13,
@@ -245,9 +240,11 @@ const SidebarSubMenuItem: React.FC<SidebarSubMenuItemProps> = ({
 
   return (
     <>
-      <Tooltip title={tooltipTitle} placement="top" arrow>
-        {linkContent}
-      </Tooltip>
+      <ListItem ref={subMenuItemRef} data-menu-path={subItem.path} disablePadding>
+        <Tooltip title={tooltipTitle} placement="top" arrow>
+          {linkContent}
+        </Tooltip>
+      </ListItem>
       {renderSubItemsRecursive()}
     </>
   );

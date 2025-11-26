@@ -25,6 +25,7 @@ type UpdateMailTemplateFormData = {
   recipientType?: 'manual' | 'roles' | 'all_users';
   recipientRoles?: string[];
   emailChannelId?: string;
+  emailFlowId: string;
   isActive?: boolean;
 };
 
@@ -41,6 +42,7 @@ const updateMailTemplateSchema = z.object({
   recipientType: z.enum(['manual', 'roles', 'all_users']).optional(),
   recipientRoles: z.array(z.string()).optional(),
   emailChannelId: z.string().optional(),
+  emailFlowId: z.string().uuid(),
   isActive: z.boolean().optional(),
 });
 
@@ -51,6 +53,7 @@ const MailTemplateEditPage: React.FC = () => {
   const { t } = useTranslationWithBackend();
   const trpcContext = trpc.useContext();
   const { channels, defaultChannel, isLoading: isLoadingChannels } = useEmailChannels();
+  const { data: flowsData, isLoading: isLoadingFlows } = trpc.adminEmailFlow.getActiveFlows.useQuery();
 
   // Use URL tabs hook with tab keys for clean URLs
   const { activeTab, handleTabChange } = useUrlTabs({
@@ -99,6 +102,7 @@ const MailTemplateEditPage: React.FC = () => {
       recipientType: data.recipientType || 'manual',
       recipientRoles: data.recipientRoles || [],
       emailChannelId: data.emailChannelId || '',
+      emailFlowId: data.emailFlowId || '',
       isActive: data.isActive ?? true,
     } as any;
   }, [templateResponse]);
@@ -125,6 +129,7 @@ const MailTemplateEditPage: React.FC = () => {
         recipientType: formData.recipientType,
         recipientRoles: formData.recipientRoles,
         emailChannelId: formData.emailChannelId,
+        emailFlowId: formData.emailFlowId,
         isActive: formData.isActive ?? true,
       } as any);
 
@@ -296,8 +301,22 @@ const MailTemplateEditPage: React.FC = () => {
           icon: <SettingsIcon className="w-4 h-4" />,
           fields: [
             {
+              name: 'emailFlowId',
+              label: t('mail_templates.email_flow', 'Email Flow'),
+              type: 'select',
+              placeholder: t('mail_templates.select_email_flow', 'Select email flow'),
+              required: true,
+              options: (flowsData as any)?.data ? ((flowsData as any).data as any[]).map((flow: any) => ({
+                value: flow.id,
+                label: `${flow.name} (${flow.mailProvider?.name || 'N/A'})`,
+              })) : [],
+              icon: <Send className="w-4 h-4" />,
+              description: t('mail_templates.email_flow_description', 'Email flow to use for sending this template. Only active flows with active providers are shown.'),
+              disabled: isLoadingFlows,
+            },
+            {
               name: 'emailChannelId',
-              label: t('mail_templates.email_channel', 'Email Channel'),
+              label: t('mail_templates.email_channel', 'Email Channel (Deprecated)'),
               type: 'select',
               placeholder: t('mail_templates.select_email_channel', 'Select email channel (optional)'),
               required: false,
@@ -306,7 +325,7 @@ const MailTemplateEditPage: React.FC = () => {
                 ...channels,
               ] : [],
               icon: <Send className="w-4 h-4" />,
-              description: t('mail_templates.email_channel_description', 'Email channel to use for sending this template. Leave empty to use the default channel.'),
+              description: t('mail_templates.email_channel_description', 'Email channel to use for sending this template (deprecated, use Email Flow instead).'),
               disabled: isLoadingChannels,
             },
             {

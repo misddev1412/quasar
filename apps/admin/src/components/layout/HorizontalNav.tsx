@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { cn } from '../../lib/utils';
 import { Link, useLocation } from 'react-router-dom';
+import { Tooltip } from '@mui/material';
 import {
   LayoutDashboard,
   Users,
@@ -13,7 +14,8 @@ import {
   X,
   Mail,
   Image,
-  Wallet
+  Wallet,
+  BarChart3
 } from 'lucide-react';
 import Logo from './Logo';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -50,6 +52,12 @@ export const HorizontalNav: React.FC = () => {
       label: t('admin.user_management'),
       translationKey: 'admin.user_management',
       path: '/users'
+    },
+    {
+      icon: <BarChart3 size={18} />,
+      label: t('admin.user_dashboard', 'User Dashboard'),
+      translationKey: 'admin.user_dashboard',
+      path: '/users/dashboard'
     },
     {
       icon: <FileText size={18} />,
@@ -116,22 +124,24 @@ export const HorizontalNav: React.FC = () => {
             
             return (
               <li key={index}>
-                <Link
-                  to={item.path}
-                  className={cn(
-                    'flex items-center px-3 py-2 rounded-lg transition-all',
-                    isActive
-                      ? `text-${primaryColor}-700 dark:text-${primaryColor}-400 bg-${primaryColor}-50 dark:bg-${primaryColor}-900/20`
-                      : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-                  )}
-                >
-                  <span>
-                    {item.icon}
-                  </span>
-                  <span className="ml-2 font-medium text-sm">
-                    {item.label}
-                  </span>
-                </Link>
+                <Tooltip title={item.label} arrow placement="bottom">
+                  <Link
+                    to={item.path}
+                    className={cn(
+                      'flex items-center px-3 py-2 rounded-lg transition-all',
+                      isActive
+                        ? `text-${primaryColor}-700 dark:text-${primaryColor}-400 bg-${primaryColor}-50 dark:bg-${primaryColor}-900/20`
+                        : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
+                    )}
+                  >
+                    <span>
+                      {item.icon}
+                    </span>
+                    <span className="ml-2 font-medium text-sm">
+                      {item.label}
+                    </span>
+                  </Link>
+                </Tooltip>
               </li>
             );
           })}
@@ -176,6 +186,7 @@ export const HorizontalNav: React.FC = () => {
                           : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
                       )}
                       onClick={toggleMobileMenu}
+                      title={item.label}
                     >
                       <span>{item.icon}</span>
                       <span className="ml-3 font-medium">{item.label}</span>

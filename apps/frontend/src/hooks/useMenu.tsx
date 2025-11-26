@@ -43,6 +43,14 @@ export interface MenuResponse {
   limit: number;
 }
 
+const getConfigString = (
+  config: Record<string, unknown> | undefined,
+  key: string,
+) => {
+  const value = config?.[key];
+  return typeof value === 'string' ? value : undefined;
+};
+
 export const useMenu = (menuGroup: string = 'main') => {
   const locale = useLocale();
 
@@ -144,6 +152,26 @@ export const useMenu = (menuGroup: string = 'main') => {
 
         return '#';
       }
+      case MenuType.CALL_BUTTON: {
+        const numberFromConfig = getConfigString(item.config, 'callButtonNumber') || item.url || '';
+        const trimmed = (numberFromConfig || '').trim();
+        if (!trimmed) {
+          return '#';
+        }
+
+        if (trimmed.startsWith('tel:')) {
+          return trimmed;
+        }
+
+        const digits = trimmed.replace(/[^+\d]/g, '');
+        return digits ? `tel:${digits}` : '#';
+      }
+      case MenuType.SEARCH_BUTTON:
+      case MenuType.LOCALE_SWITCHER:
+      case MenuType.THEME_TOGGLE:
+      case MenuType.CART_BUTTON:
+      case MenuType.USER_PROFILE:
+        return '#';
       default:
         return item.url ?? '#';
     }
@@ -155,6 +183,8 @@ export const useMenu = (menuGroup: string = 'main') => {
       .filter(item => item.isEnabled)
       .map(item => ({
         id: item.id,
+        type: item.type,
+        config: item.config,
         name: getLabel(item),
         href: buildHref(item),
         target: item.target,
@@ -166,6 +196,8 @@ export const useMenu = (menuGroup: string = 'main') => {
           .filter(child => child.isEnabled)
           .map(child => ({
             id: child.id,
+            type: child.type,
+            config: child.config,
             name: getLabel(child),
             href: buildHref(child),
             target: child.target,
@@ -178,6 +210,8 @@ export const useMenu = (menuGroup: string = 'main') => {
               .filter(grandChild => grandChild.isEnabled)
               .map(grandChild => ({
                 id: grandChild.id,
+                type: grandChild.type,
+                config: grandChild.config,
                 name: getLabel(grandChild),
                 href: buildHref(grandChild),
                 target: grandChild.target,

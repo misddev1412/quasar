@@ -3,6 +3,7 @@ const { NxReactWebpackPlugin } = require('@nx/react/webpack-plugin');
 const { join } = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+const webpack = require('webpack');
 
 module.exports = {
   output: {
@@ -11,10 +12,65 @@ module.exports = {
   resolve: {
     alias: {
       '@admin': join(__dirname, 'src'),
+      // Redirect NestJS imports to empty stubs (backend-only modules)
+      '@nestjs/common': join(__dirname, 'src/stubs/@nestjs/common.ts'),
+      '@nestjs/swagger': join(__dirname, 'src/stubs/@nestjs/swagger.ts'),
+      '@nestjs/core': join(__dirname, 'src/stubs/@nestjs/core.ts'),
+      '@nestjs/websockets': join(__dirname, 'src/stubs/@nestjs/core.ts'),
+      '@nestjs/microservices': join(__dirname, 'src/stubs/@nestjs/core.ts'),
+      'class-transformer/storage': join(__dirname, 'src/stubs/class-transformer-storage.ts'),
+    },
+    fallback: {
+      'fs': false,
+      'net': false,
+      'tls': false,
+      'crypto': false,
+      'stream': false,
+      'url': false,
+      'zlib': false,
+      'http': false,
+      'https': false,
+      'assert': false,
+      'os': false,
+      'path': false,
+      'util': false,
+      'buffer': false,
+      'process': false,
+      'events': false,
+      'perf_hooks': false,
+      'async_hooks': false,
+      'repl': false,
     },
   },
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        enforce: 'pre',
+        use: ['source-map-loader'],
+        exclude: /node_modules/,
+      },
+    ],
+  },
+  externals: (context, request, callback) => {
+    // Externalize Node.js core modules
+    if (/^node:/.test(request)) {
+      return callback(null, 'commonjs ' + request);
+    }
+    callback();
+  },
+  ignoreWarnings: [
+    {
+      module: /node_modules/,
+    },
+    /Failed to parse source map/,
+    /node:/,
+  ],
 
   plugins: [
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^node:/,
+    }),
     new NodePolyfillPlugin(),
     new NxAppWebpackPlugin({
       tsConfig: './tsconfig.app.json',

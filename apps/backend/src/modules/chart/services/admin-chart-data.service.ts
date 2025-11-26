@@ -89,7 +89,7 @@ export class AdminChartDataService {
   async getAvailableChartTypes(statisticId: string): Promise<string[]> {
     // Define which chart types are available for each statistic
     const chartTypeMap: Record<string, string[]> = {
-      'total-users': ['line', 'bar', 'area'],
+      'total-users': ['line', 'bar', 'pie', 'area'],
       'active-users': ['line', 'bar', 'area'],
       'new-users': ['line', 'bar', 'area'],
       'users-with-profiles': ['line', 'bar', 'pie', 'area'],
@@ -141,18 +141,23 @@ export class AdminChartDataService {
     chartType: string
   ): Promise<ChartDataPoint[] | PieChartDataPoint[]> {
     if (chartType === 'pie') {
-      // For pie chart, show distribution by user roles
-      const roleDistribution = await this.userRepository
-        .createQueryBuilder('user')
-        .select('user.role', 'role')
-        .addSelect('COUNT(*)', 'count')
-        .where('user.createdAt BETWEEN :start AND :end', dateRange)
-        .groupBy('user.role')
-        .getRawMany();
+      // For pie chart, show distribution by assigned roles
+      const roleDistribution = await this.userRepository.query(
+        `
+          SELECT COALESCE(r.name, $1) AS role_name,
+                 COUNT(DISTINCT u.id) AS count
+            FROM users u
+            LEFT JOIN user_roles ur ON ur.user_id = u.id AND ur.is_active = TRUE
+            LEFT JOIN roles r ON r.id = ur.role_id
+           WHERE u.created_at BETWEEN $2 AND $3
+           GROUP BY r.name
+        `,
+        ['Unassigned', dateRange.start, dateRange.end]
+      );
 
-      return roleDistribution.map((item, index) => ({
-        name: item.role,
-        value: parseInt(item.count),
+      return roleDistribution.map((item: { role_name: string; count: string }, index: number) => ({
+        name: item.role_name,
+        value: parseInt(item.count, 10) || 0,
         color: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'][index % 4],
       }));
     }

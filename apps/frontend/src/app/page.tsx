@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { headers, cookies } from 'next/headers';
 import { SectionType } from '@shared/enums/section.enums';
 import { getServerSideSEOWithFallback } from '../lib/seo-server';
 import Layout from '../components/layout/Layout';
@@ -14,6 +13,7 @@ import {
 } from '../components/sections';
 import type { SectionListItem } from '../types/sections';
 import type { SEOData } from '../types/trpc';
+import { getPreferredLocale } from '../lib/server-locale';
 
 // Fallback SEO data for home page
 const homeSEOFallback: SEOData = {
@@ -144,50 +144,6 @@ function renderFallbackContent() {
       </section>
     </>
   );
-}
-
-const SUPPORTED_LOCALES = new Set(['en', 'vi']);
-
-const normalizeLocale = (value?: string | null): string | undefined => {
-  if (!value) return undefined;
-  const cleaned = value.toLowerCase();
-  if (SUPPORTED_LOCALES.has(cleaned)) {
-    return cleaned;
-  }
-  const short = cleaned.split('-')[0];
-  return SUPPORTED_LOCALES.has(short) ? short : undefined;
-};
-
-async function getPreferredLocale(searchParams?: Record<string, string | string[] | undefined>): Promise<string> {
-  const searchLocaleParam = searchParams?.locale;
-  const searchLocale = Array.isArray(searchLocaleParam) ? searchLocaleParam[0] : searchLocaleParam;
-  const normalizedFromParam = normalizeLocale(searchLocale);
-  if (normalizedFromParam) {
-    return normalizedFromParam;
-  }
-
-  const cookieStore = await cookies();
-  const cookieLocale = normalizeLocale(cookieStore.get('NEXT_LOCALE')?.value);
-  if (cookieLocale) {
-    return cookieLocale;
-  }
-
-  const headerList = headers();
-  const acceptLanguage = headerList.get('accept-language');
-  if (acceptLanguage) {
-    const [primary] = acceptLanguage.split(',');
-    const normalizedFromHeader = normalizeLocale(primary);
-    if (normalizedFromHeader) {
-      return normalizedFromHeader;
-    }
-  }
-
-  const nextLocaleHeader = normalizeLocale(headerList.get('x-next-locale'));
-  if (nextLocaleHeader) {
-    return nextLocaleHeader;
-  }
-
-  return 'en';
 }
 
 export default async function RootPage({

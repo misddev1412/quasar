@@ -18,6 +18,13 @@ describe('SEO Titles Configuration', () => {
       expect(config?.titles.vi).toBe('Quản Lý Người Dùng | Quasar Admin');
     });
 
+    it('should return config for user dashboard path', () => {
+      const config = getSeoConfigForPath('/users/dashboard');
+      expect(config).toBeTruthy();
+      expect(config?.path).toBe('/users/dashboard');
+      expect(config?.titles.en).toBe('User Dashboard | Quasar Admin');
+    });
+
     it('should handle parameterized routes', () => {
       const config = getSeoConfigForPath('/users/123');
       expect(config).toBeTruthy();

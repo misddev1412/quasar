@@ -62,7 +62,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
   const createMutation = trpc.adminSupportClients.create.useMutation({
     onSuccess: () => {
       addToast({
-        title: 'Success',
+        title: t('common.success'),
         description: t('support_clients.create_success'),
         type: 'success'
       });
@@ -70,7 +70,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
     },
     onError: (error) => {
       addToast({
-        title: 'Error',
+        title: t('common.error'),
         description: error.message || t('support_clients.create_error'),
         type: 'error'
       });
@@ -136,7 +136,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
 
     if (validationErrors.length > 0) {
       addToast({
-        title: 'Validation Error',
+        title: t('common.validation_error'),
         description: t('support_clients.form.configuration_errors'),
         type: 'error'
       });
@@ -189,7 +189,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
             <FormInput
               id="appId"
               type="text"
-              label="Facebook App ID"
+              label={t('support_clients.form.fields.facebook_app_id')}
               value={formData.configuration.appId || ''}
               onChange={(e) => handleConfigurationChange('appId', e.target.value)}
               required
@@ -197,7 +197,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
             <FormInput
               id="pageId"
               type="text"
-              label="Facebook Page ID"
+              label={t('support_clients.form.fields.facebook_page_id')}
               value={formData.configuration.pageId || ''}
               onChange={(e) => handleConfigurationChange('pageId', e.target.value)}
               required
@@ -211,7 +211,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
             <FormInput
               id="zaloAppId"
               type="text"
-              label="Zalo App ID"
+              label={t('support_clients.form.fields.zalo_app_id')}
               value={formData.configuration.appId || ''}
               onChange={(e) => handleConfigurationChange('appId', e.target.value)}
               required
@@ -219,7 +219,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
             <FormInput
               id="apiKey"
               type="text"
-              label="Zalo API Key"
+              label={t('support_clients.form.fields.zalo_api_key')}
               value={formData.configuration.apiKey || ''}
               onChange={(e) => handleConfigurationChange('apiKey', e.target.value)}
               required
@@ -233,10 +233,10 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
             <FormInput
               id="phoneNumber"
               type="text"
-              label="WhatsApp Phone Number"
+              label={t('support_clients.form.fields.whatsapp_phone')}
               value={formData.configuration.phoneNumber || ''}
               onChange={(e) => handleConfigurationChange('phoneNumber', e.target.value)}
-              placeholder="+1234567890"
+              placeholder={t('support_clients.form.placeholders.whatsapp_example')}
               required
             />
           </div>
@@ -248,7 +248,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
             <FormInput
               id="email"
               type="email"
-              label="Email Address"
+              label={t('support_clients.form.fields.email_address')}
               value={formData.configuration.email || ''}
               onChange={(e) => handleConfigurationChange('email', e.target.value)}
               required
@@ -256,7 +256,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
             <FormInput
               id="subject"
               type="text"
-              label="Default Subject"
+              label={t('support_clients.form.fields.default_subject')}
               value={formData.configuration.subject || ''}
               onChange={(e) => handleConfigurationChange('subject', e.target.value)}
             />
@@ -269,7 +269,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
             <FormInput
               id="phoneNumber"
               type="text"
-              label="Phone Number"
+              label={t('support_clients.form.fields.phone_number')}
               value={formData.configuration.phoneNumber || ''}
               onChange={(e) => handleConfigurationChange('phoneNumber', e.target.value)}
               required
@@ -283,10 +283,10 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
             <FormInput
               id="botUsername"
               type="text"
-              label="Telegram Bot Username"
+              label={t('support_clients.form.fields.telegram_bot_username')}
               value={formData.configuration.botUsername || ''}
               onChange={(e) => handleConfigurationChange('botUsername', e.target.value)}
-              placeholder="@your_bot"
+              placeholder={t('support_clients.form.placeholders.telegram_username')}
               required
             />
           </div>
@@ -297,14 +297,14 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Custom Script
+                {t('support_clients.form.fields.custom_script')}
               </label>
               <textarea
                 value={formData.configuration.customScript || ''}
                 onChange={(e) => handleConfigurationChange('customScript', e.target.value)}
                 rows={8}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono text-sm"
-                placeholder="// Enter your custom JavaScript code here"
+                placeholder={t('support_clients.form.placeholders.custom_script')}
               />
             </div>
           </div>
@@ -313,7 +313,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
       default:
         return (
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            No configuration required for this type.
+            {t('support_clients.form.messages.no_configuration_required')}
           </div>
         );
     }
@@ -403,7 +403,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
                 <FiInfo className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 mr-3" />
                 <div>
                   <h4 className="text-sm font-medium text-red-800 dark:text-red-200">
-                    Configuration Validation Errors
+                    {t('support_clients.form.messages.validation_title')}
                   </h4>
                   <ul className="mt-2 text-sm text-red-700 dark:text-red-300 space-y-1">
                     {validationErrors.map((error, index) => (
@@ -429,7 +429,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Position
+                {t('support_clients.form.fields.position')}
               </label>
               <select
                 value={formData.widgetSettings.position || WidgetPosition.BOTTOM_RIGHT}
@@ -446,7 +446,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Theme
+                {t('support_clients.form.fields.theme')}
               </label>
               <select
                 value={formData.widgetSettings.theme || WidgetTheme.LIGHT}
@@ -464,7 +464,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
             <FormInput
               id="primaryColor"
               type="color"
-              label="Primary Color"
+              label={t('support_clients.form.fields.primary_color')}
               value={formData.widgetSettings.primaryColor || '#0084ff'}
               onChange={(e) => handleWidgetSettingsChange('primaryColor', e.target.value)}
             />
@@ -472,7 +472,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
             <FormInput
               id="title"
               type="text"
-              label="Widget Title"
+              label={t('support_clients.form.fields.widget_title')}
               value={formData.widgetSettings.title || ''}
               onChange={(e) => handleWidgetSettingsChange('title', e.target.value)}
             />
@@ -480,7 +480,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
             <FormInput
               id="subtitle"
               type="text"
-              label="Widget Subtitle"
+              label={t('support_clients.form.fields.widget_subtitle')}
               value={formData.widgetSettings.subtitle || ''}
               onChange={(e) => handleWidgetSettingsChange('subtitle', e.target.value)}
             />
@@ -488,7 +488,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
             <FormInput
               id="welcomeMessage"
               type="textarea"
-              label="Welcome Message"
+              label={t('support_clients.form.fields.welcome_message')}
               value={formData.widgetSettings.welcomeMessage || ''}
               onChange={(e) => handleWidgetSettingsChange('welcomeMessage', e.target.value)}
               rows={2}
@@ -512,10 +512,10 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
               />
               <div>
                 <span className="text-sm font-medium text-gray-900 dark:text-white">
-                  Enable Scheduling
+                  {t('support_clients.form.messages.enable_scheduling')}
                 </span>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Show this chat widget only during specific time periods
+                  {t('support_clients.form.messages.scheduling_description')}
                 </p>
               </div>
             </label>
@@ -525,7 +525,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
                 <FormInput
                   id="scheduleStart"
                   type="datetime-local"
-                  label="Start Date & Time"
+                  label={t('support_clients.form.fields.schedule_start')}
                   value={formData.scheduleStart ? formData.scheduleStart.toISOString().slice(0, 16) : ''}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,
@@ -537,7 +537,7 @@ export const CreateSupportClientModal: React.FC<CreateSupportClientModalProps> =
                 <FormInput
                   id="scheduleEnd"
                   type="datetime-local"
-                  label="End Date & Time"
+                  label={t('support_clients.form.fields.schedule_end')}
                   value={formData.scheduleEnd ? formData.scheduleEnd.toISOString().slice(0, 16) : ''}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,

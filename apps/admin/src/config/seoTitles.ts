@@ -66,6 +66,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     }
   },
   {
+    path: '/users/dashboard',
+    titles: {
+      en: 'User Dashboard | Quasar Admin',
+      vi: 'Bảng Điều Khiển Người Dùng | Quasar Admin'
+    },
+    description: {
+      en: 'Monitor user growth, activity, and segmentation insights',
+      vi: 'Theo dõi tăng trưởng, hoạt động và phân khúc người dùng'
+    }
+  },
+  {
     path: '/users/create',
     titles: {
       en: 'Create New User | Quasar Admin',

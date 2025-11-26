@@ -66,6 +66,15 @@ const requiresReferenceId = (type: MenuType) =>
 
 const TOP_MENU_CONFIG_KEYS = ['topPhoneNumber', 'topEmailAddress', 'topTimeFormat'] as const;
 const TOP_MENU_ONLY_TYPES = [MenuType.TOP_PHONE, MenuType.TOP_EMAIL, MenuType.TOP_CURRENT_TIME] as const;
+const CALL_BUTTON_CONFIG_KEY = 'callButtonNumber';
+
+const getConfigStringValue = (
+  config: Record<string, unknown> | undefined,
+  key: string,
+) => {
+  const value = config?.[key];
+  return typeof value === 'string' ? value : '';
+};
 
 const TOP_TIME_FORMAT_OPTIONS: SelectOption[] = (Object.values(TopMenuTimeFormat) as TopMenuTimeFormat[]).map(
   (value) => ({
@@ -77,15 +86,17 @@ const TOP_TIME_FORMAT_OPTIONS: SelectOption[] = (Object.values(TopMenuTimeFormat
 const sanitizeConfigForType = (config: Record<string, unknown> | undefined, type: MenuType) => {
   const nextConfig: Record<string, unknown> = { ...(config || {}) };
 
-  if (TOP_MENU_ALLOWED_TYPES.includes(type)) {
-    return nextConfig;
+  if (!TOP_MENU_ALLOWED_TYPES.includes(type)) {
+    TOP_MENU_CONFIG_KEYS.forEach((key) => {
+      if (key in nextConfig) {
+        delete nextConfig[key];
+      }
+    });
   }
 
-  TOP_MENU_CONFIG_KEYS.forEach((key) => {
-    if (key in nextConfig) {
-      delete nextConfig[key];
-    }
-  });
+  if (type !== MenuType.CALL_BUTTON && CALL_BUTTON_CONFIG_KEY in nextConfig) {
+    delete nextConfig[CALL_BUTTON_CONFIG_KEY];
+  }
 
   return nextConfig;
 };
@@ -94,8 +105,7 @@ const getTopMenuConfigValue = (
   config: Record<string, unknown> | undefined,
   key: typeof TOP_MENU_CONFIG_KEYS[number],
 ) => {
-  const value = config?.[key];
-  return typeof value === 'string' ? value : '';
+  return getConfigStringValue(config, key);
 };
 
 interface MenuFormProps {
@@ -105,6 +115,7 @@ interface MenuFormProps {
   languages: any[];
   menuGroups: string[];
   menuTree: MenuTreeNode[];
+  currentMenuGroup: string;
   isSubmitting?: boolean;
 }
 
@@ -115,6 +126,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
   languages,
   menuGroups,
   menuTree,
+  currentMenuGroup,
   isSubmitting = false
 }) => {
   const [formData, setFormData] = useState<MenuFormState>(() => {
@@ -170,7 +182,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
     });
 
     return {
-      menuGroup: 'main',
+      menuGroup: currentMenuGroup || 'main',
       type: MenuType.LINK,
       target: MenuTarget.SELF,
       position: 0,
@@ -180,6 +192,9 @@ export const MenuForm: React.FC<MenuFormProps> = ({
       translations: defaultTranslations,
     };
   });
+  const [parentMenuTree, setParentMenuTree] = useState<MenuTreeNode[]>(menuTree);
+  const [isParentLoading, setIsParentLoading] = useState(false);
+  const [parentMenuError, setParentMenuError] = useState<string | null>(null);
 
   const isTopMenu = formData.menuGroup === TOP_MENU_GROUP;
 
@@ -226,6 +241,61 @@ export const MenuForm: React.FC<MenuFormProps> = ({
     });
   }, [isTopMenu]);
 
+  useEffect(() => {
+    if (formData.menuGroup !== currentMenuGroup) {
+      return;
+    }
+
+    setParentMenuTree(menuTree);
+    setParentMenuError(null);
+    setIsParentLoading(false);
+  }, [formData.menuGroup, currentMenuGroup, menuTree]);
+
+  useEffect(() => {
+    if (formData.menuGroup === currentMenuGroup) {
+      return;
+    }
+
+    let isMounted = true;
+    const selectedGroup = formData.menuGroup;
+
+    const fetchParentTree = async () => {
+      setIsParentLoading(true);
+      setParentMenuError(null);
+
+      try {
+        const { trpcClient } = await import('../../utils/trpc');
+        const response = await trpcClient.adminMenus.tree.query({ menuGroup: selectedGroup });
+        const fetchedTree = Array.isArray((response as any)?.data)
+          ? ((response as any).data as MenuTreeNode[])
+          : (response as MenuTreeNode[]);
+
+        if (!isMounted) {
+          return;
+        }
+
+        setParentMenuTree(fetchedTree);
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        setParentMenuTree([]);
+        setParentMenuError('Unable to load parent menus for this group');
+      } finally {
+        if (isMounted) {
+          setIsParentLoading(false);
+        }
+      }
+    };
+
+    void fetchParentTree();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [formData.menuGroup, currentMenuGroup]);
+
   const [activeLocale, setActiveLocale] = useState<string>(() => {
     const defaultLanguage = languages.find((language) => language.isDefault);
     return defaultLanguage?.code || languages[0]?.code || 'en';
@@ -263,19 +333,25 @@ export const MenuForm: React.FC<MenuFormProps> = ({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const updateConfigValue = (key: typeof TOP_MENU_CONFIG_KEYS[number], value: string) => {
+  const updateArbitraryConfigValue = (key: string, value: unknown) => {
     setFormData(prev => {
-      const nextConfig = { ...prev.config };
-      if (value === '') {
+      const nextConfig = { ...(prev.config || {}) };
+
+      if (value === '' || value === undefined || value === null) {
         delete nextConfig[key];
       } else {
         nextConfig[key] = value;
       }
+
       return {
         ...prev,
         config: nextConfig,
       };
     });
+  };
+
+  const updateConfigValue = (key: typeof TOP_MENU_CONFIG_KEYS[number], value: string) => {
+    updateArbitraryConfigValue(key, value);
   };
 
   const handleTypeChange = (type: MenuType) => {
@@ -318,6 +394,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         ...prev,
         menuGroup: group,
         type: nextType,
+        parentId: undefined,
         isMegaMenu: isTopGroup ? false : prev.isMegaMenu,
         megaMenuColumns: isTopGroup ? undefined : prev.megaMenuColumns,
         url: requiresUrl(nextType) ? prev.url : undefined,
@@ -401,10 +478,16 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         <ParentMenuSelector
           value={formData.parentId}
           onChange={(parentId) => updateFormData('parentId', parentId)}
-          menuTree={menuTree}
+          menuTree={parentMenuTree}
           currentMenuId={menu?.id}
           menuGroup={formData.menuGroup}
         />
+        {isParentLoading && (
+          <p className="text-xs text-gray-500 mt-1">Loading available parent menus…</p>
+        )}
+        {!isParentLoading && parentMenuError && (
+          <p className="text-xs text-red-500 mt-1">{parentMenuError}</p>
+        )}
       </div>
 
       {(formData.type === MenuType.LINK || formData.type === MenuType.BANNER) && (
@@ -511,6 +594,22 @@ export const MenuForm: React.FC<MenuFormProps> = ({
             size="md"
           />
           <p className="text-xs text-gray-500 mt-1">Formats follow Day.js tokens. Default selection uses <code>HH:mm</code>.</p>
+        </div>
+      )}
+
+      {formData.type === MenuType.CALL_BUTTON && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+          <Input
+            value={getConfigStringValue(formData.config, CALL_BUTTON_CONFIG_KEY)}
+            onChange={(e) => updateArbitraryConfigValue(CALL_BUTTON_CONFIG_KEY, e.target.value)}
+            placeholder="(+84) 123 456 789"
+            className="mt-1"
+            inputSize="md"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Number used when creating the <code>tel:</code> link. The visible label still comes from translations.
+          </p>
         </div>
       )}
 

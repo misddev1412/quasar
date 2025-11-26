@@ -696,44 +696,83 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
     <div className="space-y-8">
       {tab.customContent ? (
         tab.customContent
-      ) : tab.sections?.map((section, sectionIndex) => (
-        <div key={`${tabIndex}-${sectionIndex}`}>
-          <div className="flex items-center gap-4 mb-4 pb-3 border-b border-neutral-200 dark:border-neutral-700">
-            <div className="pr-3 border-r border-neutral-200 dark:border-neutral-700">
-              {section.icon}
-            </div>
-            <div>
-              <h3 className="font-medium">{section.title}</h3>
-              {section.description && (
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">{section.description}</p>
+      ) : (
+        tab.sections?.map((section, sectionIndex) => {
+          // Check if section should be visible based on dependsOn
+          if (section.dependsOn) {
+            const dependentFieldValue = watch(section.dependsOn.field as FieldPath<T>);
+            const expectedValue = section.dependsOn.value;
+            
+            // Support both single value and array of values
+            const shouldShowSection = Array.isArray(expectedValue)
+              ? expectedValue.includes(dependentFieldValue)
+              : dependentFieldValue === expectedValue;
+            
+            if (!shouldShowSection) {
+              return null;
+            }
+          }
+
+          // Filter visible fields based on dependencies
+          const visibleFields = section.fields?.filter((field) => {
+            if (field.dependsOn) {
+              const dependentFieldValue = watch(field.dependsOn.field as FieldPath<T>);
+              const expectedValue = field.dependsOn.value;
+              
+              // Support both single value and array of values
+              const shouldShow = Array.isArray(expectedValue)
+                ? expectedValue.includes(dependentFieldValue)
+                : dependentFieldValue === expectedValue;
+              
+              return shouldShow;
+            }
+            return true;
+          }) || [];
+
+          // Hide section if no visible fields
+          if (visibleFields.length === 0 && !section.customContent) {
+            return null;
+          }
+
+          return (
+            <div key={`${tabIndex}-${sectionIndex}`}>
+              <div className="flex items-center gap-4 mb-4 pb-3 border-b border-neutral-200 dark:border-neutral-700">
+                <div className="pr-3 border-r border-neutral-200 dark:border-neutral-700">
+                  {section.icon}
+                </div>
+                <div>
+                  <h3 className="font-medium">{section.title}</h3>
+                  {section.description && (
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400">{section.description}</p>
+                  )}
+                </div>
+              </div>
+              {section.customContent ? (
+                <div className="w-full">
+                  {section.customContent}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {visibleFields.map((field) => {
+                    // Checkbox fields should only span 1 column to allow them to be placed side by side
+                    // Other wide fields (textarea, richtext, etc.) span full width
+                    const shouldSpanFullWidth = field.type !== 'checkbox' && 
+                      (field.type === 'textarea' || field.type === 'richtext' || field.type === 'role-multiselect' || 
+                       field.type === 'custom' || field.type === 'file-types' || field.type === 'media-upload' || 
+                       field.type === 'image-gallery' || field.type === 'product-media');
+                    
+                    return (
+                      <div key={field.name} className={clsx(shouldSpanFullWidth && 'md:col-span-2')}>
+                        {renderField(field, tabIndex)}
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </div>
-          </div>
-          {section.customContent ? (
-            <div className="w-full">
-              {section.customContent}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {section.fields.map((field) => {
-                // Handle conditional field rendering
-                if (field.dependsOn) {
-                  const dependentFieldValue = watch(field.dependsOn.field as FieldPath<T>);
-                  if (dependentFieldValue !== field.dependsOn.value) {
-                    return null;
-                  }
-                }
-
-                return (
-                  <div key={field.name} className={clsx((field.type === 'textarea' || field.type === 'richtext' || field.type === 'role-multiselect' || field.type === 'custom' || field.type === 'file-types' || field.type === 'media-upload' || field.type === 'image-gallery' || field.type === 'product-media') && 'md:col-span-2')}>
-                    {renderField(field, tabIndex)}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      ))}
+          );
+        }).filter(Boolean)
+      )}
     </div>
   );
 

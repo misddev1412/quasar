@@ -10,6 +10,7 @@ import { AuthenticatedContext } from '../../../trpc/context';
 import { NotificationType } from '../entities/notification.entity';
 import { CreateNotificationDto } from '../repositories/notification.repository';
 import { SendNotificationToUserDto, BulkNotificationDto } from '../services/notification.service';
+import { NotificationEvent } from '../entities/notification-event.enum';
 
 export const notificationTypeSchema = z.nativeEnum(NotificationType);
 
@@ -45,6 +46,7 @@ export const sendNotificationToUserSchema = z.object({
   data: z.record(z.unknown()).optional(),
   fcmTokens: z.array(z.string()).optional(),
   sendPush: z.boolean().default(true),
+  eventKey: z.nativeEnum(NotificationEvent).optional(),
 });
 
 export const sendBulkNotificationSchema = z.object({
@@ -56,6 +58,7 @@ export const sendBulkNotificationSchema = z.object({
   icon: z.string().optional(),
   image: z.string().url().optional(),
   data: z.record(z.unknown()).optional(),
+  eventKey: z.nativeEnum(NotificationEvent).optional(),
 });
 
 export const sendTopicNotificationSchema = z.object({
@@ -326,6 +329,7 @@ notification);
       data: input.data,
       fcmTokens: input.fcmTokens,
       sendPush: input.sendPush,
+      eventKey: input.eventKey,
     };
     const notification = await this.notificationService.sendNotificationToUser(sendDto);
 
@@ -351,6 +355,7 @@ notification);
       icon: input.icon,
       image: input.image,
       data: input.data,
+      eventKey: input.eventKey,
     };
     const notifications = await this.notificationService.sendBulkNotifications(bulkDto);
 

@@ -1,3 +1,4 @@
+import { TRPCClientError } from '@trpc/client';
 import { cookies, headers } from 'next/headers';
 import type { Metadata } from 'next';
 import { serverTrpc } from '../../../utils/trpc-server';
@@ -25,6 +26,19 @@ type SiteContentCandidate = {
 };
 
 const SUPPORTED_LOCALES = new Set(['en', 'vi']);
+
+const isTrpcNotFoundError = (error: unknown): boolean => {
+  if (!(error instanceof TRPCClientError)) {
+    return false;
+  }
+
+  const code = error.data?.code;
+  if (code === 'NOT_FOUND') {
+    return true;
+  }
+
+  return typeof error.message === 'string' && error.message.toLowerCase().includes('not found');
+};
 
 const asNonEmptyString = (value: unknown): string | undefined => {
   if (typeof value === 'string' && value.trim().length > 0) {
@@ -93,17 +107,25 @@ export const fetchSiteContentList = async (
     sortOrder = 'asc',
   } = args;
 
-  const response = (await serverTrpc.clientSiteContents.listSiteContents.query({
-    page,
-    limit,
-    category,
-    languageCode: locale,
-    isFeatured,
-    sortBy,
-    sortOrder,
-  })) as ApiResponse<SiteContentListResponse> | undefined;
+  try {
+    const response = (await serverTrpc.clientSiteContents.listSiteContents.query({
+      page,
+      limit,
+      category,
+      languageCode: locale,
+      isFeatured,
+      sortBy,
+      sortOrder,
+    })) as ApiResponse<SiteContentListResponse> | undefined;
 
-  return response?.data ?? null;
+    return response?.data ?? null;
+  } catch (error) {
+    if (isTrpcNotFoundError(error)) {
+      return null;
+    }
+
+    throw error;
+  }
 };
 
 export const fetchSiteContentBySlug = async (
@@ -114,12 +136,20 @@ export const fetchSiteContentBySlug = async (
     return null;
   }
 
-  const response = (await serverTrpc.clientSiteContents.getSiteContentBySlug.query({
-    slug,
-    languageCode: locale,
-  })) as ApiResponse<SiteContentResponse> | undefined;
+  try {
+    const response = (await serverTrpc.clientSiteContents.getSiteContentBySlug.query({
+      slug,
+      languageCode: locale,
+    })) as ApiResponse<SiteContentResponse> | undefined;
 
-  return response?.data?.siteContent ?? null;
+    return response?.data?.siteContent ?? null;
+  } catch (error) {
+    if (isTrpcNotFoundError(error)) {
+      return null;
+    }
+
+    throw error;
+  }
 };
 
 export const fetchSiteContentByCode = async (
@@ -130,12 +160,20 @@ export const fetchSiteContentByCode = async (
     return null;
   }
 
-  const response = (await serverTrpc.clientSiteContents.getSiteContentByCode.query({
-    code,
-    languageCode: locale,
-  })) as ApiResponse<SiteContentResponse> | undefined;
+  try {
+    const response = (await serverTrpc.clientSiteContents.getSiteContentByCode.query({
+      code,
+      languageCode: locale,
+    })) as ApiResponse<SiteContentResponse> | undefined;
 
-  return response?.data?.siteContent ?? null;
+    return response?.data?.siteContent ?? null;
+  } catch (error) {
+    if (isTrpcNotFoundError(error)) {
+      return null;
+    }
+
+    throw error;
+  }
 };
 
 export const resolveSiteContent = async (

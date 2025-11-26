@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useImperativeHandle } from 'react';
 import { FieldValues } from 'react-hook-form';
 import { z } from 'zod';
 import clsx from 'clsx';
@@ -13,6 +13,7 @@ import { useFormFieldRenderer } from '../../hooks/useFormFieldRenderer';
 
 interface EntityFormComponentProps<T extends FieldValues = FieldValues> extends EntityFormProps<T> {
   validationSchema?: z.ZodSchema<T>;
+  formRef?: React.RefObject<{ getValues: () => T }>;
 }
 
 export function EntityForm<T extends FieldValues = FieldValues>({
@@ -28,6 +29,7 @@ export function EntityForm<T extends FieldValues = FieldValues>({
   validationSchema,
   activeTab: externalActiveTab,
   onTabChange: externalOnTabChange,
+  formRef,
 }: EntityFormComponentProps<T>) {
   const [internalActiveTab, setInternalActiveTab] = useState(0);
   
@@ -49,7 +51,15 @@ export function EntityForm<T extends FieldValues = FieldValues>({
     mode: 'onBlur',
   });
 
-  const { control, formState: { errors }, setValue, trigger } = form;
+  const { control, formState: { errors }, setValue, trigger, getValues } = form;
+
+  // Expose form methods via ref if provided
+  useImperativeHandle(formRef, () => ({
+    getValues: () => getValues() as T,
+    setValue: (name: string, value: any) => {
+      setValue(name as any, value, { shouldValidate: false });
+    },
+  }), [getValues, setValue]);
 
   const { renderField, renderTabContent } = useFormFieldRenderer<T>(
     form,

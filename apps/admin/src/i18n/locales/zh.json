@@ -1,0 +1,53 @@
+{
+  "common": {
+    "success": "成功",
+    "error": "错误",
+    "cancel": "取消"
+  },
+  "support_clients": {
+    "form": {
+      "name_required": "名称是必填项",
+      "type_required": "需要选择类型",
+      "configuration": "配置",
+      "configuration_errors": "请修复这些配置错误",
+      "widget_settings": "挂件设置",
+      "scheduling": "排程",
+      "start_date": "开始日期",
+      "end_date": "结束日期",
+      "end_date_after_start": "结束时间必须晚于开始时间",
+      "basic_info": "基本信息",
+      "fields": {
+        "facebook_app_id": "Facebook 应用 ID",
+        "facebook_page_id": "Facebook 专页 ID",
+        "zalo_app_id": "Zalo 应用 ID",
+        "zalo_api_key": "Zalo API 密钥",
+        "whatsapp_phone": "WhatsApp 电话号码",
+        "email_address": "电子邮箱地址",
+        "default_subject": "默认主题",
+        "phone_number": "电话号码",
+        "telegram_bot_username": "Telegram 机器人用户名",
+        "custom_script": "自定义脚本",
+        "position": "位置",
+        "theme": "主题",
+        "primary_color": "主色",
+        "widget_title": "挂件标题",
+        "widget_subtitle": "挂件副标题",
+        "welcome_message": "欢迎消息",
+        "schedule_start": "开始日期与时间",
+        "schedule_end": "结束日期与时间",
+        "sort_order": "排序值"
+      },
+      "placeholders": {
+        "whatsapp_example": "+1234567890",
+        "telegram_username": "@your_bot",
+        "custom_script": "// 在此输入自定义 JavaScript 代码"
+      },
+      "messages": {
+        "no_configuration_required": "此类型不需要额外配置。",
+        "enable_scheduling": "启用排程",
+        "scheduling_description": "仅在指定时间段显示此聊天挂件",
+        "validation_title": "配置验证错误"
+      }
+    }
+  }
+}

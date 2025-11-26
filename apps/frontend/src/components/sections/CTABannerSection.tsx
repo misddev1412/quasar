@@ -25,6 +25,7 @@ export interface CTABannerConfig {
   accentColor?: string;
   badge?: string;
   textColor?: string;
+  borderRadius?: string;
   primaryCta?: CTAActionConfig | Record<string, unknown>;
   secondaryCta?: CTAActionConfig | Record<string, unknown>;
   ctaLabel?: string;
@@ -103,6 +104,12 @@ export const CTABannerSection: React.FC<CTABannerSectionProps> = ({ config, tran
     inlineBackgroundStyle.backgroundSize = 'cover';
     inlineBackgroundStyle.backgroundPosition = 'center';
   }
+  const borderRadiusValue =
+    typeof config.borderRadius === 'string' ? config.borderRadius.trim() : '';
+  if (borderRadiusValue) {
+    inlineBackgroundStyle.borderRadius = borderRadiusValue;
+  }
+  const containerRadiusClass = borderRadiusValue ? '' : 'rounded-3xl';
 
   const overlayOpacity = clampOpacity(config.overlayOpacity);
   const headingText = translation?.title?.trim() || t('sections.cta_banner.default_title');
@@ -183,10 +190,7 @@ export const CTABannerSection: React.FC<CTABannerSectionProps> = ({ config, tran
   };
 
   const content = (
-    <div
-      className={`relative overflow-hidden rounded-3xl ${backgroundClass}`}
-      style={inlineBackgroundStyle}
-    >
+    <div className={`relative overflow-hidden ${containerRadiusClass} ${backgroundClass}`} style={inlineBackgroundStyle}>
       {hasBackgroundImage && (
         <div
           className="absolute inset-0"

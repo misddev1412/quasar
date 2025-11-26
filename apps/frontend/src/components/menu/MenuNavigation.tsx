@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { UnifiedIcon } from '../common/UnifiedIcon';
 import MegaMenu, { MegaMenuSection } from './MegaMenu';
+import { MenuType } from '@shared/enums/menu.enums';
 
 // Icons
 const ChevronDownIcon: React.FC<{ className?: string }> = ({ className = "w-4 h-4" }) => (
@@ -21,8 +22,9 @@ const ChevronRightIcon: React.FC<{ className?: string }> = ({ className = "w-4 h
 
 export interface NavigationItem {
   id: string;
+  type: MenuType;
   name: string;
-  href: string;
+  href?: string;
   target?: string;
   description?: string;
   isMegaMenu?: boolean;
@@ -31,8 +33,17 @@ export interface NavigationItem {
   image?: string;
   badge?: string;
   featured?: boolean;
+  config?: Record<string, unknown>;
   children?: NavigationItem[];
 }
+
+export interface NavigationItemRendererProps {
+  item: NavigationItem;
+  context: 'desktop' | 'mobile';
+  closeMobileMenu?: () => void;
+}
+
+export type NavigationItemRenderer = (props: NavigationItemRendererProps) => React.ReactNode;
 
 
 const DesktopNavigationItem: React.FC<{
@@ -57,7 +68,7 @@ const DesktopNavigationItem: React.FC<{
       }}
     >
       <Link
-        href={item.href}
+        href={item.href || '#'}
         target={item.target}
         rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
         className={`
@@ -84,11 +95,11 @@ const DesktopNavigationItem: React.FC<{
           onMouseLeave={() => setIsDropdownOpen(false)}
         >
           <div className="py-2">
-            {item.children?.map((child) => (
-              <Link
-                key={child.id}
-                href={child.href}
-                target={child.target}
+              {item.children?.map((child) => (
+                <Link
+                  key={child.id}
+                  href={child.href || '#'}
+                  target={child.target}
                 rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
                 className="
                   block px-4 py-2 text-sm text-gray-700 dark:text-gray-300
@@ -173,7 +184,8 @@ const EnhancedMegaMenuDropdown: React.FC<{
 const DesktopNavigation: React.FC<{
   pathname: string;
   items: NavigationItem[];
-}> = ({ pathname, items }) => {
+  renderers?: Partial<Record<MenuType, NavigationItemRenderer>>;
+}> = ({ pathname, items, renderers }) => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [megaMenuOpen, setMegaMenuOpen] = useState<string | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -214,6 +226,15 @@ const DesktopNavigation: React.FC<{
         const isActive = pathname === item.href;
         const hasChildren = item.children && item.children.length > 0;
         const isMega = item.isMegaMenu && hasChildren;
+        const renderer = renderers?.[item.type];
+
+        if (renderer) {
+          return (
+            <div key={item.id} className="flex items-center">
+              {renderer({ item, context: 'desktop' })}
+            </div>
+          );
+        }
 
         return (
           <div
@@ -223,7 +244,7 @@ const DesktopNavigation: React.FC<{
             onMouseLeave={handleMouseLeave}
           >
             <Link
-              href={item.href}
+              href={item.href || '#'}
               target={item.target}
               rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
               className={`
@@ -257,32 +278,59 @@ const DesktopNavigation: React.FC<{
                 onMouseEnter={() => setActiveDropdown(item.id)}
                 onMouseLeave={handleMouseLeave}
               >
-                <div className="py-2">
+                <div className="py-2 space-y-1">
                   {item.children?.map((child) => (
-                    <Link
-                      key={child.id}
-                      href={child.href}
-                      target={child.target}
-                      rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
-                      className="
-                        block px-4 py-2 text-sm text-gray-700 dark:text-gray-300
-                        hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800
-                        transition-colors
-                      "
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="flex items-center gap-2">
-                          <UnifiedIcon icon={child.icon} variant="nav" />
-                          <span>{child.name}</span>
-                        </span>
-                        {child.children && child.children.length > 0 && <ChevronRightIcon />}
-                      </div>
-                      {child.description && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          {child.description}
-                        </p>
+                    <div key={child.id} className="px-2 py-1 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors">
+                      <Link
+                        href={child.href || '#'}
+                        target={child.target}
+                        rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
+                        className="
+                          block px-2 py-2 text-sm text-gray-700 dark:text-gray-300
+                          hover:text-blue-600 dark:hover:text-blue-400
+                          transition-colors
+                        "
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="flex items-center gap-2">
+                            <UnifiedIcon icon={child.icon} variant="nav" />
+                            <span>{child.name}</span>
+                          </span>
+                          {child.children && child.children.length > 0 && <ChevronRightIcon />}
+                        </div>
+                        {child.description && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            {child.description}
+                          </p>
+                        )}
+                      </Link>
+                      {child.children && child.children.length > 0 && (
+                        <div className="mt-2 ml-6 border-l border-gray-100 dark:border-gray-700 pl-3 space-y-1">
+                          {child.children.map((grandChild) => (
+                            <Link
+                              key={grandChild.id}
+                              href={grandChild.href || '#'}
+                              target={grandChild.target}
+                              rel={grandChild.target === '_blank' ? 'noopener noreferrer' : undefined}
+                              className="
+                                block text-xs text-gray-600 dark:text-gray-400 py-1
+                                hover:text-blue-600 dark:hover:text-blue-400
+                              "
+                            >
+                              <span className="flex items-center gap-2">
+                                <UnifiedIcon icon={grandChild.icon} variant="nav" />
+                                <span>{grandChild.name}</span>
+                              </span>
+                              {grandChild.description && (
+                                <span className="block text-[11px] text-gray-400 dark:text-gray-500">
+                                  {grandChild.description}
+                                </span>
+                              )}
+                            </Link>
+                          ))}
+                        </div>
                       )}
-                    </Link>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -298,15 +346,24 @@ const MobileMenuItem: React.FC<{
   item: NavigationItem;
   isActive: boolean;
   onClose: () => void;
-}> = ({ item, isActive, onClose }) => {
+  renderer?: NavigationItemRenderer;
+}> = ({ item, isActive, onClose, renderer }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const hasChildren = item.children && item.children.length > 0;
+
+  if (renderer) {
+    return (
+      <div className="border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+        {renderer({ item, context: 'mobile', closeMobileMenu: onClose })}
+      </div>
+    );
+  }
 
   return (
     <div className="border-b border-gray-200 dark:border-gray-700">
       <div className="flex items-center justify-between">
         <Link
-          href={item.href}
+          href={item.href || '#'}
           target={item.target}
               rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
               className={`
@@ -343,28 +400,53 @@ const MobileMenuItem: React.FC<{
       {isExpanded && hasChildren && (
         <div className="bg-gray-50 dark:bg-gray-800">
           {item.children?.map((child) => (
-            <Link
-              key={child.id}
-              href={child.href}
-              target={child.target}
-              rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
-              className="
-                block py-2 px-8 text-sm text-gray-600 dark:text-gray-400
-                hover:text-blue-600 dark:hover:text-blue-400
-                transition-colors
-              "
-              onClick={onClose}
-            >
-              <span className="flex items-center gap-2">
-                <UnifiedIcon icon={child.icon} variant="nav" />
-                <span>{child.name}</span>
-              </span>
-              {child.description && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {child.description}
-                </p>
+            <div key={child.id} className="border-t border-gray-100 dark:border-gray-700 first:border-t-0">
+              <Link
+                href={child.href || '#'}
+                target={child.target}
+                rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
+                className="
+                  block py-2 px-8 text-sm text-gray-600 dark:text-gray-400
+                  hover:text-blue-600 dark:hover:text-blue-400
+                  transition-colors
+                "
+                onClick={onClose}
+              >
+                <span className="flex items-center gap-2">
+                  <UnifiedIcon icon={child.icon} variant="nav" />
+                  <span>{child.name}</span>
+                </span>
+                {child.description && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {child.description}
+                  </p>
+                )}
+              </Link>
+
+              {child.children && child.children.length > 0 && (
+                <div className="ml-8 pl-4 border-l border-gray-200 dark:border-gray-700 space-y-1 pb-3">
+                  {child.children.map((grandChild) => (
+                    <Link
+                      key={grandChild.id}
+                      href={grandChild.href || '#'}
+                      target={grandChild.target}
+                      rel={grandChild.target === '_blank' ? 'noopener noreferrer' : undefined}
+                      className="
+                        block text-sm text-gray-500 dark:text-gray-400 py-1 px-4
+                        hover:text-blue-600 dark:hover:text-blue-400
+                        transition-colors
+                      "
+                      onClick={onClose}
+                    >
+                      <span className="flex items-center gap-2">
+                        <UnifiedIcon icon={grandChild.icon} variant="nav" />
+                        <span>{grandChild.name}</span>
+                      </span>
+                    </Link>
+                  ))}
+                </div>
               )}
-            </Link>
+            </div>
           ))}
         </div>
       )}
@@ -376,12 +458,14 @@ interface MenuNavigationProps {
   items: NavigationItem[];
   isMobileMenuOpen?: boolean;
   onMobileMenuClose?: () => void;
+  renderers?: Partial<Record<MenuType, NavigationItemRenderer>>;
 }
 
 const MenuNavigation: React.FC<MenuNavigationProps> = ({
   items,
   isMobileMenuOpen = false,
-  onMobileMenuClose
+  onMobileMenuClose,
+  renderers
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -397,6 +481,7 @@ const MenuNavigation: React.FC<MenuNavigationProps> = ({
               item={item}
               isActive={pathname === item.href}
               onClose={() => onMobileMenuClose?.()}
+              renderer={renderers?.[item.type]}
             />
           ))}
         </div>
@@ -405,7 +490,7 @@ const MenuNavigation: React.FC<MenuNavigationProps> = ({
   }
 
   // Desktop navigation
-  return <DesktopNavigation pathname={pathname} items={items} />;
+  return <DesktopNavigation pathname={pathname} items={items} renderers={renderers} />;
 };
 
 export default MenuNavigation;

@@ -283,6 +283,7 @@ const MenusPage: React.FC = () => {
           languagesQuery={languagesQuery}
           groups={groups}
           menuTree={menuTree}
+          currentMenuGroup={selectedMenuGroup}
           onSubmit={handleFormSubmit}
           isSubmitting={createMenu.isPending || updateMenu.isPending}
         />

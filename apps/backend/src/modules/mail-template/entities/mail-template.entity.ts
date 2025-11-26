@@ -1,7 +1,8 @@
-import { Entity, Column, Index } from 'typeorm';
+import { Entity, Column, Index, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { IsString, IsBoolean, IsOptional, IsArray, MaxLength, MinLength } from 'class-validator';
 import { Expose } from 'class-transformer';
+import { EmailFlow } from '../../email-flow/entities/email-flow.entity';
 
 @Entity('mail_templates')
 @Index('IDX_MAIL_TEMPLATE_NAME', ['name'], { unique: true })
@@ -136,11 +137,25 @@ export class MailTemplate extends BaseEntity {
   @Column({ 
     name: 'email_channel_id',
     nullable: true,
-    comment: 'Email channel configuration to use for sending'
+    comment: 'Email channel configuration to use for sending (deprecated, use email_flow_id)'
   })
   @IsOptional()
   @IsString()
   emailChannelId?: string;
+
+  @Expose()
+  @Column({ 
+    name: 'email_flow_id',
+    nullable: false,
+    comment: 'Email flow to use for sending (required)'
+  })
+  @IsString()
+  emailFlowId: string;
+
+  @Expose()
+  @ManyToOne(() => EmailFlow, { nullable: false, onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'email_flow_id' })
+  emailFlow: EmailFlow;
 
   // Helper methods for template processing
   getVariablesFromContent(): string[] {
@@ -228,6 +243,7 @@ export class MailTemplate extends BaseEntity {
       recipientType: this.recipientType,
       recipientRoles: this.recipientRoles ? [...this.recipientRoles] : undefined,
       emailChannelId: this.emailChannelId,
+      emailFlowId: this.emailFlowId,
       isActive: false // New cloned templates start as inactive
     };
   }

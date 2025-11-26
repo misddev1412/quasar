@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindManyOptions, FindOptionsWhere, In } from 'typeorm';
 import { NotificationEntity, NotificationType } from '../entities/notification.entity';
+import { NotificationEvent } from '../entities/notification-event.enum';
 
 export interface CreateNotificationDto {
   userId: string;
@@ -13,6 +14,7 @@ export interface CreateNotificationDto {
   image?: string;
   data?: Record<string, unknown>;
   fcmToken?: string;
+  eventKey?: NotificationEvent;
 }
 
 export interface NotificationFilters {

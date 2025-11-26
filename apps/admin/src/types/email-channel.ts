@@ -183,6 +183,13 @@ export const EMAIL_PROVIDER_PRESETS = [
     smtpSecure: true,
     description: 'Amazon SES (adjust region as needed)',
   },
+  {
+    name: 'Mailtrap',
+    smtpHost: 'smtp.mailtrap.io',
+    smtpPort: 2525,
+    smtpSecure: true,
+    description: 'Mailtrap email testing service',
+  },
 ];
 
 // Utility types

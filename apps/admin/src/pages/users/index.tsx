@@ -260,6 +260,9 @@ const UserListPage = () => {
   const goToUser = (id: string) => navigate(`/users/${id}`);
 
   const { t } = useTranslationWithBackend();
+  const handleOpenUserDashboard = useCallback(() => {
+    navigate('/users/dashboard');
+  }, [navigate]);
 
   const handleFilterChange = (newFilters: UserFiltersType) => {
     setFilters(newFilters);
@@ -544,6 +547,11 @@ const UserListPage = () => {
 
   const actions = useMemo(() => [
     {
+      label: t('users.dashboard.title', 'User Management Dashboard'),
+      onClick: handleOpenUserDashboard,
+      icon: <FiActivity />,
+    },
+    {
       label: 'Create User',
       onClick: handleCreateUser,
       primary: true,
@@ -565,7 +573,7 @@ const UserListPage = () => {
       icon: <FiFilter />,
       active: showFilters,
     },
-  ], [handleCreateUser, handleExportCsv, handleRefresh, handleFilterToggle, showFilters]);
+  ], [handleOpenUserDashboard, handleCreateUser, handleExportCsv, handleRefresh, handleFilterToggle, showFilters, t]);
 
   // Prepare statistics data
   const statisticsCards: StatisticData[] = useMemo(() => {

@@ -22,7 +22,7 @@ const notificationTypeEnum = z.enum([
   'user',
 ]);
 
-const notificationChannelEnum = z.enum(['push', 'email', 'in_app']);
+const notificationChannelEnum = z.enum(['push', 'email', 'in_app', 'sms', 'telegram']);
 
 const notificationFrequencyEnum = z.enum([
   'immediate',

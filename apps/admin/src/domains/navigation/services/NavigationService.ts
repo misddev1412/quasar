@@ -8,6 +8,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import ArticleIcon from '@mui/icons-material/Article';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ChatIcon from '@mui/icons-material/Chat';
+import SendIcon from '@mui/icons-material/Send';
 import LanguageIcon from '@mui/icons-material/Language';
 import PublicIcon from '@mui/icons-material/Public';
 import StorageIcon from '@mui/icons-material/Storage';
@@ -43,6 +44,9 @@ import StarsIcon from '@mui/icons-material/Stars';
 import RedeemIcon from '@mui/icons-material/Redeem';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
+import CloudQueueIcon from '@mui/icons-material/CloudQueue';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 
 export class NavigationService implements INavigationService {
   constructor(private translate: (key: string, fallback?: string) => string) {}
@@ -58,6 +62,11 @@ export class NavigationService implements INavigationService {
             icon: React.createElement(DashboardIcon),
             label: t('navigation.dashboard', '仪表盘'),
             path: '/'
+          },
+          {
+            icon: React.createElement(AnalyticsIcon),
+            label: t('admin.user_dashboard', 'User Dashboard'),
+            path: '/users/dashboard'
           }
         ]
       },
@@ -146,11 +155,6 @@ export class NavigationService implements INavigationService {
             icon: React.createElement(DescriptionIcon),
             label: t('admin.seo_management', 'Quản lý SEO'),
             path: '/seo'
-          },
-          {
-            icon: React.createElement(EmailIcon),
-            label: t('admin.mail_templates', 'Mẫu Email'),
-            path: '/mail-templates'
           },
           {
             icon: React.createElement(LanguageIcon),
@@ -274,6 +278,26 @@ export class NavigationService implements INavigationService {
         ]
       },
       {
+        title: t('navigation.mail_management', 'Quản lý Email'),
+        items: [
+          {
+            icon: React.createElement(EmailIcon),
+            label: t('admin.mail_templates', 'Mẫu Email'),
+            path: '/mail-templates'
+          },
+          {
+            icon: React.createElement(CloudQueueIcon),
+            label: t('admin.mail_providers', 'Mail Providers'),
+            path: '/mail-providers'
+          },
+          {
+            icon: React.createElement(AccountTreeIcon),
+            label: t('admin.email_flows', 'Email Flows'),
+            path: '/email-flows'
+          }
+        ]
+      },
+      {
         title: t('navigation.communication_support', 'Liên lạc & Hỗ trợ'),
         items: [
           {
@@ -281,6 +305,11 @@ export class NavigationService implements INavigationService {
             label: t('navigation.notifications', '通知'),
             path: '/notifications',
             badge: 5
+          },
+          {
+            icon: React.createElement(SendIcon),
+            label: t('admin.telegram_configs', 'Cấu hình Telegram'),
+            path: '/telegram-configs'
           },
           {
             icon: React.createElement(ChatIcon),
@@ -292,6 +321,11 @@ export class NavigationService implements INavigationService {
             icon: React.createElement(SupportAgentIcon),
             label: t('support_clients.title', 'Hỗ trợ khách hàng'),
             path: '/support-clients'
+          },
+          {
+            icon: React.createElement(AnalyticsIcon),
+            label: t('visitor_analytics.title', 'Thống kê người truy cập'),
+            path: '/visitor-analytics'
           }
         ]
       },
@@ -435,7 +469,28 @@ export class NavigationService implements INavigationService {
       return currentPath === path || currentPath.startsWith(path + '/');
     }
 
-    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats'];
+    // Special handling for mail-templates - main /mail-templates should match detail/edit/create and sub-items
+    if (path === '/mail-templates') {
+      return currentPath === '/mail-templates' ||
+             currentPath.startsWith('/mail-templates/create') ||
+             !!currentPath.match(/^\/mail-templates\/[^\/]+\/edit$/);
+    }
+
+    // Special handling for mail-providers - main /mail-providers should match detail/edit/create
+    if (path === '/mail-providers') {
+      return currentPath === '/mail-providers' ||
+             currentPath.startsWith('/mail-providers/create') ||
+             !!currentPath.match(/^\/mail-providers\/[^\/]+\/edit$/);
+    }
+
+    // Special handling for email-flows - main /email-flows should match detail/edit/create
+    if (path === '/email-flows') {
+      return currentPath === '/email-flows' ||
+             currentPath.startsWith('/email-flows/create') ||
+             !!currentPath.match(/^\/email-flows\/[^\/]+\/edit$/);
+    }
+
+    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats'];
     if (exactMatchPaths.includes(path)) {
       return currentPath === path;
     }

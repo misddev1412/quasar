@@ -1,0 +1,475 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, Between, MoreThan, SelectQueryBuilder } from 'typeorm';
+import { Visitor, VisitorType, VisitorSource } from '../entities/visitor.entity';
+import { VisitorSession, SessionStatus } from '../entities/visitor-session.entity';
+import { PageView, PageViewType } from '../entities/page-view.entity';
+import { IVisitorRepository } from '../interfaces/visitor-repository.interface';
+
+@Injectable()
+export class VisitorRepository implements IVisitorRepository {
+  constructor(
+    @InjectRepository(Visitor)
+    private readonly visitorRepo: Repository<Visitor>,
+    @InjectRepository(VisitorSession)
+    private readonly sessionRepo: Repository<VisitorSession>,
+    @InjectRepository(PageView)
+    private readonly pageViewRepo: Repository<PageView>,
+  ) {}
+
+  // Visitor operations
+  async findByVisitorId(visitorId: string): Promise<Visitor | null> {
+    return this.visitorRepo.findOne({
+      where: { visitorId },
+      relations: ['sessions']
+    });
+  }
+
+  async findByIdWithSessions(id: string): Promise<Visitor | null> {
+    return this.visitorRepo.findOne({
+      where: { id },
+      relations: ['sessions', 'sessions.pageViews']
+    });
+  }
+
+  async createVisitor(data: Partial<Visitor>): Promise<Visitor> {
+    const visitor = this.visitorRepo.create(data);
+    return this.visitorRepo.save(visitor);
+  }
+
+  async updateVisitor(id: string, data: Partial<Visitor>): Promise<Visitor> {
+    await this.visitorRepo.update(id, data);
+    return this.visitorRepo.findOne({ where: { id } });
+  }
+
+  async findVisitorsByDateRange(startDate: Date, endDate: Date): Promise<Visitor[]> {
+    return this.visitorRepo.find({
+      where: {
+        createdAt: Between(startDate, endDate)
+      },
+      relations: ['sessions']
+    });
+  }
+
+  async findVisitorsByType(type: VisitorType): Promise<Visitor[]> {
+    return this.visitorRepo.find({
+      where: { visitorType: type },
+      relations: ['sessions']
+    });
+  }
+
+  async findVisitorsBySource(source: VisitorSource): Promise<Visitor[]> {
+    return this.visitorRepo.find({
+      where: { visitorSource: source },
+      relations: ['sessions']
+    });
+  }
+
+  async getVisitorStats(startDate: Date, endDate: Date): Promise<any> {
+    const totalVisitors = await this.visitorRepo.count({
+      where: {
+        createdAt: Between(startDate, endDate)
+      }
+    });
+
+    const newVisitors = await this.visitorRepo.count({
+      where: {
+        createdAt: Between(startDate, endDate),
+        visitorType: VisitorType.NEW
+      }
+    });
+
+    const returningVisitors = await this.visitorRepo.count({
+      where: {
+        createdAt: Between(startDate, endDate),
+        visitorType: VisitorType.RETURNING
+      }
+    });
+
+    const visitorsBySource = await this.visitorRepo
+      .createQueryBuilder('visitor')
+      .select('visitor.visitorSource', 'source')
+      .addSelect('COUNT(*)', 'count')
+      .where('visitor.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .groupBy('visitor.visitorSource')
+      .getRawMany();
+
+    return {
+      totalVisitors,
+      newVisitors,
+      returningVisitors,
+      visitorsBySource
+    };
+  }
+
+  // Session operations
+  async findBySessionId(sessionId: string): Promise<VisitorSession | null> {
+    return this.sessionRepo.findOne({
+      where: { sessionId },
+      relations: ['visitor', 'pageViews']
+    });
+  }
+
+  async findSessionsByVisitorId(visitorId: string): Promise<VisitorSession[]> {
+    return this.sessionRepo.find({
+      where: { visitorId },
+      relations: ['pageViews'],
+      order: { createdAt: 'DESC' }
+    });
+  }
+
+  async createSession(data: Partial<VisitorSession>): Promise<VisitorSession> {
+    const session = this.sessionRepo.create(data);
+    return this.sessionRepo.save(session);
+  }
+
+  async updateSession(id: string, data: Partial<VisitorSession>): Promise<VisitorSession> {
+    await this.sessionRepo.update(id, data);
+    return this.sessionRepo.findOne({ where: { id } });
+  }
+
+  async findActiveSessions(): Promise<VisitorSession[]> {
+    return this.sessionRepo.find({
+      where: { status: SessionStatus.ACTIVE },
+      relations: ['visitor']
+    });
+  }
+
+  async findSessionsByDateRange(startDate: Date, endDate: Date): Promise<VisitorSession[]> {
+    return this.sessionRepo.find({
+      where: {
+        createdAt: Between(startDate, endDate)
+      },
+      relations: ['visitor']
+    });
+  }
+
+  async getSessionStats(startDate: Date, endDate: Date): Promise<any> {
+    const totalSessions = await this.sessionRepo.count({
+      where: {
+        createdAt: Between(startDate, endDate)
+      }
+    });
+
+    const avgDuration = await this.sessionRepo
+      .createQueryBuilder('session')
+      .select('AVG(session.durationSeconds)', 'avgDuration')
+      .where('session.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('session.durationSeconds IS NOT NULL')
+      .getRawOne();
+
+    const avgPageViews = await this.sessionRepo
+      .createQueryBuilder('session')
+      .select('AVG(session.pageViewsCount)', 'avgPageViews')
+      .where('session.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .getRawOne();
+
+    const bounceRate = await this.sessionRepo
+      .createQueryBuilder('session')
+      .where('session.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('session.pageViewsCount = 1')
+      .getCount();
+
+    const totalSessionsForBounce = await this.sessionRepo.count({
+      where: {
+        createdAt: Between(startDate, endDate)
+      }
+    });
+
+    return {
+      totalSessions,
+      avgDuration: avgDuration?.avgDuration || 0,
+      avgPageViews: avgPageViews?.avgPageViews || 0,
+      bounceRate: totalSessionsForBounce > 0 ? (bounceRate / totalSessionsForBounce) * 100 : 0
+    };
+  }
+
+  // Page view operations
+  async createPageView(data: Partial<PageView>): Promise<PageView> {
+    const pageView = this.pageViewRepo.create(data);
+    return this.pageViewRepo.save(pageView);
+  }
+
+  async findPageViewsBySessionId(sessionId: string): Promise<PageView[]> {
+    return this.pageViewRepo.find({
+      where: { sessionId },
+      order: { createdAt: 'ASC' }
+    });
+  }
+
+  async findPageViewsByDateRange(startDate: Date, endDate: Date): Promise<PageView[]> {
+    return this.pageViewRepo.find({
+      where: {
+        createdAt: Between(startDate, endDate)
+      },
+      relations: ['session', 'session.visitor']
+    });
+  }
+
+  async findPageViewsByType(type: PageViewType): Promise<PageView[]> {
+    return this.pageViewRepo.find({
+      where: { pageType: type },
+      relations: ['session', 'session.visitor']
+    });
+  }
+
+  async findPopularPages(limit: number = 10, startDate?: Date, endDate?: Date): Promise<any[]> {
+    const query = this.pageViewRepo
+      .createQueryBuilder('pageView')
+      .select('pageView.pageUrl', 'url')
+      .addSelect('pageView.pageTitle', 'title')
+      .addSelect('COUNT(DISTINCT pageView.sessionId)', 'uniqueViews')
+      .addSelect('COUNT(*)', 'totalViews')
+      .groupBy('pageView.pageUrl, pageView.pageTitle')
+      .orderBy('uniqueViews', 'DESC')
+      .take(limit);
+
+    if (startDate && endDate) {
+      query.where('pageView.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate });
+    }
+
+    return query.getRawMany();
+  }
+
+  async getPageViewStats(startDate: Date, endDate: Date): Promise<any> {
+    const totalPageViews = await this.pageViewRepo.count({
+      where: {
+        createdAt: Between(startDate, endDate)
+      }
+    });
+
+    const pageViewsByType = await this.pageViewRepo
+      .createQueryBuilder('pageView')
+      .select('pageView.pageType', 'type')
+      .addSelect('COUNT(*)', 'count')
+      .where('pageView.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .groupBy('pageView.pageType')
+      .getRawMany();
+
+    return {
+      totalPageViews,
+      pageViewsByType
+    };
+  }
+
+  // Enhanced analytics methods for real data
+  async getDeviceStatistics(startDate: Date, endDate: Date): Promise<any> {
+    const deviceTypes = await this.visitorRepo
+      .createQueryBuilder('visitor')
+      .select('visitor.deviceType', 'type')
+      .addSelect('COUNT(*)', 'count')
+      .where('visitor.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('visitor.deviceType IS NOT NULL')
+      .groupBy('visitor.deviceType')
+      .getRawMany();
+
+    const browsers = await this.visitorRepo
+      .createQueryBuilder('visitor')
+      .select('visitor.browserName', 'name')
+      .addSelect('COUNT(*)', 'count')
+      .where('visitor.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('visitor.browserName IS NOT NULL')
+      .groupBy('visitor.browserName')
+      .orderBy('count', 'DESC')
+      .getRawMany();
+
+    const operatingSystems = await this.visitorRepo
+      .createQueryBuilder('visitor')
+      .select('visitor.osName', 'name')
+      .addSelect('COUNT(*)', 'count')
+      .where('visitor.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('visitor.osName IS NOT NULL')
+      .groupBy('visitor.osName')
+      .orderBy('count', 'DESC')
+      .getRawMany();
+
+    const totalDevices = await this.visitorRepo.count({
+      where: {
+        createdAt: Between(startDate, endDate)
+      }
+    });
+
+    return {
+      deviceTypes: deviceTypes.map((item, index, array) => ({
+        type: item.type,
+        count: parseInt(item.count),
+        percentage: Math.round((parseInt(item.count) / array.reduce((sum, item) => sum + parseInt(item.count), 0)) * 100)
+      })),
+      browsers: browsers.map((item, index, array) => ({
+        name: item.name,
+        count: parseInt(item.count),
+        percentage: Math.round((parseInt(item.count) / array.reduce((sum, item) => sum + parseInt(item.count), 0)) * 100)
+      })),
+      operatingSystems: operatingSystems.map((item, index, array) => ({
+        name: item.name,
+        count: parseInt(item.count),
+        percentage: Math.round((parseInt(item.count) / array.reduce((sum, item) => sum + parseInt(item.count), 0)) * 100)
+      }))
+    };
+  }
+
+  async getGeographicStatistics(startDate: Date, endDate: Date): Promise<any> {
+    const topCountries = await this.visitorRepo
+      .createQueryBuilder('visitor')
+      .select('visitor.countryCode', 'country')
+      .addSelect('COUNT(*)', 'count')
+      .where('visitor.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('visitor.countryCode IS NOT NULL')
+      .groupBy('visitor.countryCode')
+      .orderBy('count', 'DESC')
+      .limit(10)
+      .getRawMany();
+
+    const topCities = await this.visitorRepo
+      .createQueryBuilder('visitor')
+      .select('visitor.city', 'city')
+      .addSelect('COUNT(*)', 'count')
+      .where('visitor.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('visitor.city IS NOT NULL')
+      .groupBy('visitor.city')
+      .orderBy('count', 'DESC')
+      .limit(10)
+      .getRawMany();
+
+    const totalWithCountry = await this.visitorRepo.count({
+      where: {
+        createdAt: Between(startDate, endDate)
+      }
+    });
+
+    const totalWithCity = await this.visitorRepo.count({
+      where: {
+        createdAt: Between(startDate, endDate)
+      }
+    });
+
+    return {
+      topCountries: topCountries.map((item, index, array) => ({
+        country: item.country || 'Unknown',
+        count: parseInt(item.count),
+        percentage: Math.round((parseInt(item.count) / array.reduce((sum, item) => sum + parseInt(item.count), 0)) * 100)
+      })),
+      topCities: topCities.map((item, index, array) => ({
+        city: item.city || 'Unknown',
+        count: parseInt(item.count),
+        percentage: Math.round((parseInt(item.count) / array.reduce((sum, item) => sum + parseInt(item.count), 0)) * 100)
+      }))
+    };
+  }
+
+  async getConversionStatistics(startDate: Date, endDate: Date): Promise<any> {
+    const totalVisitors = await this.visitorRepo.count({
+      where: {
+        createdAt: Between(startDate, endDate)
+      }
+    });
+
+    const checkoutInitiated = await this.pageViewRepo.count({
+      where: {
+        createdAt: Between(startDate, endDate),
+        pageType: PageViewType.CHECKOUT_VIEW
+      }
+    });
+
+    // For completed checkouts, you would need to track actual order completions
+    // This is a placeholder implementation
+    const checkoutCompleted = Math.floor(checkoutInitiated * 0.3); // Assume 30% completion rate
+
+    return {
+      totalVisitors,
+      checkoutInitiated,
+      checkoutCompleted,
+      conversionRate: totalVisitors > 0 ? Math.round((checkoutCompleted / totalVisitors) * 100 * 100) / 100 : 0,
+      cartAbandonmentRate: checkoutInitiated > 0 ? Math.round(((checkoutInitiated - checkoutCompleted) / checkoutInitiated) * 100 * 100) / 100 : 0
+    };
+  }
+
+  async getTopExitPages(startDate: Date, endDate: Date, limit: number = 10): Promise<any[]> {
+    // This is a simplified implementation - in practice you'd need to track the last page view of each session
+    return this.findPopularPages(limit, startDate, endDate);
+  }
+
+  async getTrafficSourcesWithMetrics(startDate: Date, endDate: Date): Promise<any[]> {
+    const visitorsBySource = await this.visitorRepo
+      .createQueryBuilder('visitor')
+      .select('visitor.visitorSource', 'source')
+      .addSelect('COUNT(*)', 'visitors')
+      .leftJoin('visitor.sessions', 'session')
+      .addSelect('AVG(session.durationSeconds)', 'avgSessionDuration')
+      .addSelect('AVG(session.pageViewsCount)', 'pagesPerSession')
+      .where('visitor.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .groupBy('visitor.visitorSource')
+      .getRawMany();
+
+    const totalVisitors = visitorsBySource.reduce((sum, item) => sum + parseInt(item.visitors), 0);
+
+    // Calculate bounce rates by source
+    const sources = visitorsBySource.map(async (item) => {
+      const bounceRate = await this.sessionRepo
+        .createQueryBuilder('session')
+        .leftJoin('session.visitor', 'visitor')
+        .where('visitor.visitorSource = :source', { source: item.source })
+        .andWhere('session.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+        .andWhere('session.pageViewsCount = 1')
+        .getCount();
+
+      const totalSessionsBySource = await this.sessionRepo
+        .createQueryBuilder('session')
+        .leftJoin('session.visitor', 'visitor')
+        .where('visitor.visitorSource = :source', { source: item.source })
+        .andWhere('session.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+        .getCount();
+
+      return {
+        source: item.source || 'direct',
+        visitors: parseInt(item.visitors),
+        percentage: Math.round((parseInt(item.visitors) / totalVisitors) * 100),
+        avgSessionDuration: Math.round(item.avgSessionDuration || 0),
+        pagesPerSession: Math.round((item.pagesPerSession || 0) * 10) / 10,
+        bounceRate: totalSessionsBySource > 0 ? Math.round((bounceRate / totalSessionsBySource) * 100 * 100) / 100 : 0
+      };
+    });
+
+    return Promise.all(sources);
+  }
+
+  async getDailyVisitorStats(startDate: Date, endDate: Date): Promise<any[]> {
+    const dailyStats = await this.visitorRepo
+      .createQueryBuilder('visitor')
+      .select("DATE(visitor.createdAt)", 'date')
+      .addSelect('COUNT(*)', 'visitors')
+      .addSelect("SUM(CASE WHEN visitor.visitorType = 'new' THEN 1 ELSE 0 END)", 'newVisitors')
+      .addSelect("SUM(CASE WHEN visitor.visitorType = 'returning' THEN 1 ELSE 0 END)", 'returningVisitors')
+      .leftJoin('visitor.sessions', 'session')
+      .addSelect('COUNT(DISTINCT session.id)', 'sessions')
+      .where('visitor.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .groupBy("DATE(visitor.createdAt)")
+      .orderBy('date', 'ASC')
+      .getRawMany();
+
+    // Get daily page views
+    const pageViewsByDate = await this.pageViewRepo
+      .createQueryBuilder('pageView')
+      .select("DATE(pageView.createdAt)", 'date')
+      .addSelect('COUNT(*)', 'pageViews')
+      .where('pageView.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .groupBy("DATE(pageView.createdAt)")
+      .getRawMany();
+
+    // Merge the data
+    return dailyStats.map(stat => {
+      const pageViewStat = pageViewsByDate.find(pv => pv.date === stat.date);
+      return {
+        date: stat.date,
+        visitors: parseInt(stat.visitors),
+        newVisitors: parseInt(stat.newVisitors),
+        returningVisitors: parseInt(stat.returningVisitors),
+        sessions: parseInt(stat.sessions),
+        pageViews: pageViewStat ? parseInt(pageViewStat.pageViews) : 0,
+        avgSessionDuration: 0, // Would need additional calculation
+        avgPageViews: 0, // Would need additional calculation
+        bounceRate: 0 // Would need additional calculation
+      };
+    });
+  }
+}

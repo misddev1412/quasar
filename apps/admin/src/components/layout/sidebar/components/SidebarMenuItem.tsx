@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ListItem,
@@ -26,6 +26,7 @@ interface SidebarMenuItemProps {
   onToggleSubMenu: () => void;
   onSubItemActiveCheck: (path: string) => boolean;
   expandedNodes?: Set<string>;
+  onRegisterRef?: (path: string, element: HTMLElement | null) => void;
 }
 
 const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
@@ -38,28 +39,20 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
   onToggleSubMenu,
   onSubItemActiveCheck,
   expandedNodes = new Set(),
+  onRegisterRef,
 }) => {
   const hasSubItems = item.subItems && item.subItems.length > 0;
   const shouldHighlightParent = collapsed && hasActiveSubItem;
-  const textRef = useRef<HTMLDivElement>(null);
-  const [isTextTruncated, setIsTextTruncated] = useState(false);
+  const menuItemRef = useRef<HTMLLIElement>(null);
 
-  // Check if text is truncated
+  // Register ref when item is active
   useEffect(() => {
-    const checkTextTruncation = () => {
-      if (textRef.current && !collapsed) {
-        const element = textRef.current;
-        setIsTextTruncated(element.scrollWidth > element.clientWidth);
-      }
-    };
-
-    checkTextTruncation();
-
-    // Check again after a short delay in case the element hasn't rendered fully
-    const timer = setTimeout(checkTextTruncation, 100);
-
-    return () => clearTimeout(timer);
-  }, [item.label, collapsed]);
+    if (isActive && menuItemRef.current && onRegisterRef) {
+      onRegisterRef(item.path, menuItemRef.current);
+    } else if (!isActive && onRegisterRef) {
+      onRegisterRef(item.path, null);
+    }
+  }, [isActive, item.path, onRegisterRef]);
 
   const renderIcon = () => {
     if (badgeContent > 0) {
@@ -120,7 +113,6 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
         {!collapsed && (
           <>
             <ListItemText
-              ref={textRef}
               primary={item.label}
               primaryTypographyProps={{
                 fontSize: 14,
@@ -142,8 +134,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
       </StyledListItemButton>
     );
 
-    const shouldShowTooltip = collapsed || isTextTruncated;
-    const tooltipTitle = shouldShowTooltip ? item.label : '';
+    const tooltipTitle = item.label;
 
     if (hasSubItems) {
       return (
@@ -178,6 +169,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
             expandedNodes={expandedNodes}
             onToggleSubMenu={() => {}}
             onSubItemActiveCheck={onSubItemActiveCheck}
+            onRegisterRef={onRegisterRef}
           />
         ))}
       </Box>
@@ -201,6 +193,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
               expandedNodes={expandedNodes}
               onToggleSubMenu={() => {}}
               onSubItemActiveCheck={onSubItemActiveCheck}
+              onRegisterRef={onRegisterRef}
             />
           ))}
         </List>
@@ -210,10 +203,15 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
 
   return (
     <>
-      <ListItem disablePadding sx={{
-        display: 'block',
-        mb: hasSubItems && collapsed ? 0.5 : (hasSubItems ? 0 : 0.5)
-      }}>
+      <ListItem 
+        ref={menuItemRef} 
+        data-menu-path={item.path}
+        disablePadding 
+        sx={{
+          display: 'block',
+          mb: hasSubItems && collapsed ? 0.5 : (hasSubItems ? 0 : 0.5)
+        }}
+      >
         {renderMainButton()}
       </ListItem>
       

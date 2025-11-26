@@ -9,6 +9,7 @@ import {
   Index,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
+import { NotificationEvent } from './notification-event.enum';
 
 export enum NotificationType {
   INFO = 'info',
@@ -57,6 +58,14 @@ export class NotificationEntity {
 
   @Column('jsonb', { nullable: true })
   data?: Record<string, unknown>;
+
+  @Column({
+    type: 'varchar',
+    name: 'event_key',
+    length: 100,
+    nullable: true,
+  })
+  eventKey?: NotificationEvent;
 
   @Column({ default: false })
   read: boolean;

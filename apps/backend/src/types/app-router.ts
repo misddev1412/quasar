@@ -1828,6 +1828,210 @@ export const appRouter = router({
       }),
   }),
 
+  // Admin Mail Provider router
+  adminMailProvider: router({
+    createProvider: procedure
+      .input(z.object({
+        name: z.string().min(2).max(255),
+        providerType: z.string().max(100).default('smtp'),
+        description: z.string().max(1000).optional(),
+        smtpHost: z.string().max(255).optional(),
+        smtpPort: z.number().int().min(1).max(65535).optional(),
+        smtpSecure: z.boolean().optional().default(true),
+        smtpUsername: z.string().max(255).optional(),
+        smtpPassword: z.string().max(255).optional(),
+        apiKey: z.string().max(500).optional(),
+        apiSecret: z.string().max(500).optional(),
+        apiHost: z.string().max(255).optional(),
+        defaultFromEmail: z.string().email().max(255).optional(),
+        defaultFromName: z.string().max(255).optional(),
+        replyToEmail: z.string().email().max(255).optional(),
+        isActive: z.boolean().optional().default(true),
+        rateLimit: z.number().int().min(1).optional(),
+        maxDailyLimit: z.number().int().min(1).optional(),
+        priority: z.number().int().min(1).max(10).optional().default(5),
+        config: z.record(z.any()).optional(),
+        webhookUrl: z.string().max(500).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    getProviders: procedure
+      .input(z.object({
+        page: z.number().int().min(1).optional().default(1),
+        limit: z.number().int().min(1).max(100).optional().default(10),
+        search: z.string().max(255).optional(),
+        isActive: z.boolean().optional(),
+        providerType: z.string().max(100).optional(),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getProviderById: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getActiveProviders: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    updateProvider: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        name: z.string().min(2).max(255).optional(),
+        providerType: z.string().max(100).optional(),
+        description: z.string().max(1000).optional(),
+        smtpHost: z.string().max(255).optional(),
+        smtpPort: z.number().int().min(1).max(65535).optional(),
+        smtpSecure: z.boolean().optional(),
+        smtpUsername: z.string().max(255).optional(),
+        smtpPassword: z.string().max(255).optional(),
+        apiKey: z.string().max(500).optional(),
+        apiSecret: z.string().max(500).optional(),
+        apiHost: z.string().max(255).optional(),
+        defaultFromEmail: z.string().email().max(255).optional(),
+        defaultFromName: z.string().max(255).optional(),
+        replyToEmail: z.string().email().max(255).optional(),
+        isActive: z.boolean().optional(),
+        rateLimit: z.number().int().min(1).optional(),
+        maxDailyLimit: z.number().int().min(1).optional(),
+        priority: z.number().int().min(1).max(10).optional(),
+        config: z.record(z.any()).optional(),
+        webhookUrl: z.string().max(500).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    deleteProvider: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    testConnection: procedure
+      .input(z.object({ 
+        id: z.string().uuid(),
+        testEmail: z.string().email().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    testConnectionWithData: procedure
+      .input(z.object({
+        name: z.string().min(2).max(255),
+        providerType: z.string().max(100).default('smtp'),
+        description: z.string().max(1000).optional(),
+        smtpHost: z.string().max(255).optional(),
+        smtpPort: z.number().int().min(1).max(65535).optional(),
+        smtpSecure: z.boolean().optional().default(true),
+        smtpUsername: z.string().max(255).optional(),
+        smtpPassword: z.string().max(255).optional(),
+        apiKey: z.string().max(500).optional(),
+        apiSecret: z.string().max(500).optional(),
+        apiHost: z.string().max(255).optional(),
+        defaultFromEmail: z.string().email().max(255).optional(),
+        defaultFromName: z.string().max(255).optional(),
+        replyToEmail: z.string().email().max(255).optional(),
+        isActive: z.boolean().optional().default(true),
+        rateLimit: z.number().int().min(1).optional(),
+        maxDailyLimit: z.number().int().min(1).optional(),
+        priority: z.number().int().min(1).max(10).optional().default(5),
+        config: z.record(z.any()).optional(),
+        webhookUrl: z.string().max(500).optional(),
+        testEmail: z.string().email().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  // Admin Email Flow router
+  adminEmailFlow: router({
+    createFlow: procedure
+      .input(z.object({
+        name: z.string().min(2).max(255),
+        description: z.string().max(1000).optional(),
+        mailProviderId: z.string().uuid(),
+        isActive: z.boolean().optional().default(true),
+        priority: z.number().int().min(1).max(10).optional().default(5),
+        config: z.record(z.any()).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    getFlows: procedure
+      .input(z.object({
+        page: z.number().int().min(1).optional().default(1),
+        limit: z.number().int().min(1).max(100).optional().default(10),
+        search: z.string().max(255).optional(),
+        isActive: z.boolean().optional(),
+        mailProviderId: z.string().uuid().optional(),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getFlowById: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getActiveFlows: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getFlowsByProvider: procedure
+      .input(z.object({ mailProviderId: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    updateFlow: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        name: z.string().min(2).max(255).optional(),
+        description: z.string().max(1000).optional(),
+        mailProviderId: z.string().uuid().optional(),
+        isActive: z.boolean().optional(),
+        priority: z.number().int().min(1).max(10).optional(),
+        config: z.record(z.any()).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    deleteFlow: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
   // Admin Storage router
   adminStorage: router({
     getStorageConfig: procedure
@@ -3295,6 +3499,15 @@ export const appRouter = router({
         data: z.record(z.unknown()).optional(),
         fcmTokens: z.array(z.string()).optional(),
         sendPush: z.boolean().default(true),
+        eventKey: z.enum([
+          'user.registered',
+          'user.verified',
+          'order.created',
+          'order.shipped',
+          'system.announcement',
+          'marketing.campaign',
+          'custom.manual',
+        ]).optional(),
       }))
       .output(apiResponseSchema)
       .mutation(() => {
@@ -3311,6 +3524,15 @@ export const appRouter = router({
         icon: z.string().optional(),
         image: z.string().optional(),
         data: z.record(z.unknown()).optional(),
+        eventKey: z.enum([
+          'user.registered',
+          'user.verified',
+          'order.created',
+          'order.shipped',
+          'system.announcement',
+          'marketing.campaign',
+          'custom.manual',
+        ]).optional(),
       }))
       .output(apiResponseSchema)
       .mutation(() => {
@@ -3365,7 +3587,7 @@ export const appRouter = router({
       .input(z.object({
         userId: z.string().uuid(),
         type: z.enum(['info', 'success', 'warning', 'error', 'system', 'product', 'order', 'user']),
-        channel: z.enum(['push', 'email', 'in_app']),
+        channel: z.enum(['push', 'email', 'in_app', 'sms', 'telegram']),
         enabled: z.boolean().optional().default(true),
         frequency: z.enum(['immediate', 'hourly', 'daily', 'weekly', 'never']).optional().default('immediate'),
         quietHoursStart: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
@@ -3397,7 +3619,7 @@ export const appRouter = router({
       .input(z.object({
         userId: z.string().uuid(),
         type: z.enum(['info', 'success', 'warning', 'error', 'system', 'product', 'order', 'user']),
-        channel: z.enum(['push', 'email', 'in_app']),
+        channel: z.enum(['push', 'email', 'in_app', 'sms', 'telegram']),
         enabled: z.boolean().optional(),
         frequency: z.enum(['immediate', 'hourly', 'daily', 'weekly', 'never']).optional(),
         quietHoursStart: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
@@ -3415,7 +3637,7 @@ export const appRouter = router({
         userId: z.string().uuid(),
         preferences: z.array(z.object({
           type: z.enum(['info', 'success', 'warning', 'error', 'system', 'product', 'order', 'user']),
-          channel: z.enum(['push', 'email', 'in_app']),
+          channel: z.enum(['push', 'email', 'in_app', 'sms', 'telegram']),
           enabled: z.boolean().optional(),
           frequency: z.enum(['immediate', 'hourly', 'daily', 'weekly', 'never']).optional(),
           quietHoursStart: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
@@ -3457,7 +3679,7 @@ export const appRouter = router({
     setQuietHours: procedure
       .input(z.object({
         userId: z.string().uuid(),
-        channel: z.enum(['push', 'email', 'in_app']),
+        channel: z.enum(['push', 'email', 'in_app', 'sms', 'telegram']),
         start: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/),
         end: z.string().regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/),
         timezone: z.string().optional(),
@@ -3470,7 +3692,7 @@ export const appRouter = router({
     getQuietHours: procedure
       .input(z.object({
         userId: z.string().uuid(),
-        channel: z.enum(['push', 'email', 'in_app']),
+        channel: z.enum(['push', 'email', 'in_app', 'sms', 'telegram']),
       }))
       .output(apiResponseSchema)
       .query(() => {
@@ -3481,11 +3703,115 @@ export const appRouter = router({
       .input(z.object({
         userId: z.string().uuid(),
         type: z.enum(['info', 'success', 'warning', 'error', 'system', 'product', 'order', 'user']),
-        channel: z.enum(['push', 'email', 'in_app']),
+        channel: z.enum(['push', 'email', 'in_app', 'sms', 'telegram']),
         timezone: z.string().optional(),
       }))
       .output(apiResponseSchema)
       .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  adminNotificationChannels: router({
+    listConfigs: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    upsertConfig: procedure
+      .input(z.object({
+        eventKey: z.enum([
+          'user.registered',
+          'user.verified',
+          'order.created',
+          'order.shipped',
+          'system.announcement',
+          'marketing.campaign',
+          'custom.manual',
+        ]),
+        displayName: z.string().min(3).max(150),
+        description: z.string().max(500).optional(),
+        allowedChannels: z.array(z.enum(['push', 'email', 'in_app', 'sms', 'telegram'])).min(1),
+        isActive: z.boolean().optional(),
+        metadata: z.record(z.unknown()).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    updateAllowedChannels: procedure
+      .input(z.object({
+        eventKey: z.enum([
+          'user.registered',
+          'user.verified',
+          'order.created',
+          'order.shipped',
+          'system.announcement',
+          'marketing.campaign',
+          'custom.manual',
+        ]),
+        channels: z.array(z.enum(['push', 'email', 'in_app', 'sms', 'telegram'])).min(1),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    initializeDefaults: procedure
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  adminNotificationTelegramConfigs: router({
+    list: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    create: procedure
+      .input(z.object({
+        name: z.string().min(3).max(150),
+        botUsername: z.string().min(3).max(150),
+        botToken: z.string().min(10),
+        chatId: z.string().min(1).max(120),
+        threadId: z.number().int().min(1).nullable().optional(),
+        description: z.string().max(500).optional(),
+        isActive: z.boolean().optional(),
+        metadata: z.record(z.unknown()).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    update: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        name: z.string().min(3).max(150).optional(),
+        botUsername: z.string().min(3).max(150).optional(),
+        botToken: z.string().min(10).optional(),
+        chatId: z.string().min(1).max(120).optional(),
+        threadId: z.number().int().min(1).nullable().optional(),
+        description: z.string().max(500).optional(),
+        isActive: z.boolean().optional(),
+        metadata: z.record(z.unknown()).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    delete: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
         return {} as ApiResponse;
       }),
   }),
@@ -5001,6 +5327,36 @@ export const appRouter = router({
       }),
     setDefaultCurrency: procedure
       .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  clientVisitorStats: router({
+    getPublicStats: procedure
+      .input(z.object({
+        days: z.number().min(1).max(30).default(7),
+        limit: z.number().min(1).max(10).default(5),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    trackStorefrontVisitor: procedure
+      .input(z.object({
+        fingerprint: z.string().min(8),
+        sessionId: z.string().optional(),
+        pageUrl: z.string().min(1),
+        pageTitle: z.string().optional(),
+        referrer: z.string().optional(),
+        timeOnPageSeconds: z.number().min(0).optional(),
+        viewportWidth: z.number().min(0).optional(),
+        viewportHeight: z.number().min(0).optional(),
+        scrollDepthPercent: z.number().min(0).max(100).optional(),
+        language: z.string().optional(),
+        timezoneOffset: z.number().optional(),
+      }))
       .output(apiResponseSchema)
       .mutation(() => {
         return {} as ApiResponse;

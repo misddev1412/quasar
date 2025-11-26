@@ -27,6 +27,7 @@ export interface HeroSliderConfig {
   interval?: number;
   overlay?: HeroSliderOverlayConfig;
   overlayBackground?: string;
+  layout?: 'full-width' | 'container';
 }
 
 export interface SectionTranslationContent {
@@ -164,6 +165,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   const [activeIndex, setActiveIndex] = useState(0);
   const interval = config.interval ?? 6000;
   const autoplay = config.autoplay ?? true;
+  const layout = config.layout === 'full-width' ? 'full-width' : 'container';
 
   const overlaySettings = config.overlay ?? {};
   const overlayEnabled = overlaySettings.enabled ?? true;
@@ -209,6 +211,10 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   const secondaryDescription = heroDescription && slideDescription && heroDescription !== slideDescription
     ? slideDescription
     : undefined;
+  const layoutPaddingClass = layout === 'full-width'
+    ? 'w-full px-4 sm:px-8 lg:px-12 xl:px-16'
+    : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8';
+  const contentWrapperClass = `${layoutPaddingClass} py-12 sm:py-16 lg:py-20 xl:py-24 min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[550px] xl:min-h-[600px] 2xl:min-h-[650px] flex flex-col justify-center`;
 
   return (
     <section className="relative overflow-hidden text-white" style={containerStyle}>
@@ -223,7 +229,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
       />
       {overlayEnabled && <div className="absolute inset-0" style={overlayStyle} />}
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20 xl:py-24 min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[550px] xl:min-h-[600px] 2xl:min-h-[650px] flex flex-col justify-center">
+      <div className={`relative ${contentWrapperClass}`}>
         <div className="max-w-2xl space-y-4">
           <p className="text-sm uppercase tracking-widest text-blue-100 mb-3">
             {subheading}

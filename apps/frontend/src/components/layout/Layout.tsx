@@ -8,6 +8,8 @@ import NavigationProgressBar from '../NavigationProgressBar';
 import { ChatWidget } from '../ChatWidget';
 import FloatingIcons from '../common/FloatingIcons';
 import LoyaltyTierBanner from '../storefront/LoyaltyTierBanner';
+import { useVisitorTracker } from '../../hooks/useVisitorTracker';
+import CookieConsentBanner from '../common/CookieConsentBanner';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -20,6 +22,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     deviceType: '',
     currentPage: '',
   });
+  useVisitorTracker();
 
   useEffect(() => {
     // Get browser language
@@ -64,6 +67,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Floating Icons */}
       <FloatingIcons />
+
+      <CookieConsentBanner />
     </ClientWrapper>
   );
 };

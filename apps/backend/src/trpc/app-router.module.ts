@@ -6,6 +6,8 @@ import { UserModule } from '../modules/user/user.module';
 import { PostsModule } from '../modules/posts/posts.module';
 import { SettingsModule } from '../modules/settings/settings.module';
 import { EmailChannelModule } from '../modules/email-channel/email-channel.module';
+import { MailProviderModule } from '../modules/mail-provider/mail-provider.module';
+import { EmailFlowModule } from '../modules/email-flow/email-flow.module';
 import { MailTemplateModule } from '../modules/mail-template/mail-template.module';
 import { LanguageModule } from '../modules/language/language.module';
 import { ChartModule } from '../modules/chart/chart.module';
@@ -31,6 +33,12 @@ import { AdminLoyaltyRewardsRouter } from '../modules/loyalty/routers/admin-loya
 import { AdminLoyaltyTransactionsRouter } from '../modules/loyalty/routers/admin-loyalty-transactions.router';
 import { AdminLoyaltyStatsRouter } from '../modules/loyalty/routers/admin-loyalty-stats.router';
 import { AdminCustomerTransactionsRouter } from '../modules/user/routers/admin-customer-transactions.router';
+import { AdminMailProviderRouter } from '../modules/mail-provider/routers/admin-mail-provider.router';
+import { AdminEmailFlowRouter } from '../modules/email-flow/routers/admin-email-flow.router';
+import { VisitorModule } from '../modules/visitor/visitor.module';
+import { AdminVisitorStatisticsRouter } from '../modules/visitor/routers/admin-visitor-statistics.router';
+import { ClientVisitorStatsRouter } from '../modules/visitor/routers/client-visitor-stats.router';
+import { AdminNotificationTelegramConfigsRouter } from '../modules/notifications/routers/admin-notification-telegram-configs.router';
 
 @Module({
   imports: [
@@ -41,6 +49,8 @@ import { AdminCustomerTransactionsRouter } from '../modules/user/routers/admin-c
     PostsModule,
     SettingsModule,
     EmailChannelModule,
+    MailProviderModule,
+    EmailFlowModule,
     MailTemplateModule,
     LanguageModule,
     ChartModule,
@@ -52,6 +62,7 @@ import { AdminCustomerTransactionsRouter } from '../modules/user/routers/admin-c
     MenuModule,
     SiteContentModule,
     LoyaltyModule,
+    VisitorModule,
     SharedModule,
   ],
   providers: [
@@ -67,6 +78,11 @@ import { AdminCustomerTransactionsRouter } from '../modules/user/routers/admin-c
     AdminLoyaltyTransactionsRouter,
     AdminLoyaltyStatsRouter,
     AdminCustomerTransactionsRouter,
+    AdminMailProviderRouter,
+    AdminEmailFlowRouter,
+    AdminVisitorStatisticsRouter,
+    ClientVisitorStatsRouter,
+    AdminNotificationTelegramConfigsRouter,
     ResponseService,
   ],
 })
