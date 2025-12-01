@@ -74,10 +74,11 @@ const TopCurrentTimeItem: React.FC<{ item: MenuItem; label?: string; locale: str
 }) => {
   const selectedFormat = getConfigString(item.config, 'topTimeFormat') || TopMenuTimeFormat.HOURS_MINUTES;
   const currentTime = useClock(selectedFormat, locale);
+  const iconColor = item.textColor || undefined;
 
   return (
     <div className="flex items-center gap-2">
-      {item.icon ? <UnifiedIcon icon={item.icon} variant="nav" size={16} /> : null}
+      {item.icon ? <UnifiedIcon icon={item.icon} variant="nav" size={16} color={iconColor} /> : null}
       {label ? (
         <>
           <span className="font-medium">{label}</span>
@@ -115,10 +116,12 @@ const TopMenuBar: React.FC = () => {
     const translation = getTranslationForLocale(item.translations, normalizedLocale);
     const textColor = item.textColor || undefined;
     const backgroundColor = item.backgroundColor || undefined;
-    const iconNode = item.icon ? <UnifiedIcon icon={item.icon} variant="nav" size={16} /> : null;
+    const borderColor = item.borderColor || undefined;
+    const borderWidth = item.borderWidth || undefined;
+    const iconNode = item.icon ? <UnifiedIcon icon={item.icon} variant="nav" size={16} color={textColor} /> : null;
 
     const commonClasses = clsx(
-      'flex items-center gap-2 text-xs md:text-sm transition-colors px-2 py-1 rounded-md',
+      'flex items-center gap-2 text-xs md:text-sm transition-colors px-2 py-1 rounded-md border border-transparent',
       backgroundColor ? 'shadow-sm' : 'hover:bg-white/10',
     );
 
@@ -126,6 +129,19 @@ const TopMenuBar: React.FC = () => {
       color: textColor,
       backgroundColor,
     } as React.CSSProperties;
+
+    if (borderColor) {
+      style.borderColor = borderColor;
+    }
+    if (borderWidth) {
+      style.borderWidth = borderWidth;
+    }
+    if (borderColor || borderWidth) {
+      style.borderStyle = style.borderStyle || 'solid';
+      if (!style.borderWidth) {
+        style.borderWidth = '1px';
+      }
+    }
 
     switch (item.type) {
       case MenuType.TOP_PHONE: {

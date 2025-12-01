@@ -1,9 +1,7 @@
 import React from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import useAuthVerification from '../hooks/useAuthVerification';
-import { usePermission } from '../hooks/usePermission';
-import { getRoutePermission } from '../config/route-permissions';
 import Home from '../pages/Home';
 import LoginPage from '../pages/auth/login';
 import ForgotPasswordPage from '../pages/auth/forgot-password';
@@ -29,6 +27,8 @@ import PermissionUpdatePage from '../pages/permissions/update';
 import MailTemplateIndexPage from '../pages/mail-templates';
 import MailTemplateCreatePage from '../pages/mail-templates/create';
 import MailTemplateEditPage from '../pages/mail-templates/edit';
+import MailLogsPage from '../pages/mail-logs';
+import MailLogDetailPage from '../pages/mail-logs/[id]';
 // Mail Providers
 import MailProviderIndexPage from '../pages/mail-providers';
 import CreateMailProviderPage from '../pages/mail-providers/create';
@@ -58,6 +58,7 @@ import CreateFirebaseConfigPage from '../pages/firebase-configs/create';
 import EditFirebaseConfigPage from '../pages/firebase-configs/[id]';
 import NotificationsPage from '../pages/notifications';
 import NotificationPreferencesPage from '../pages/notifications/preferences';
+import NotificationEventFlowsPage from '../pages/notifications/event-flows';
 import TelegramConfigsPage from '../pages/telegram-configs';
 import ShippingProvidersIndexPage from '../pages/shipping-providers';
 import CreateShippingProviderPage from '../pages/shipping-providers/create';
@@ -123,16 +124,11 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
-  const location = useLocation();
   
   // Use the auth verification hook to automatically verify authentication on protected pages
   useAuthVerification();
 
-  // Get permission required for current route
-  const routePermission = getRoutePermission(location.pathname);
-  const { hasPermission, isLoading: isPermissionLoading } = usePermission(routePermission || undefined);
-
-  if (isLoading || isPermissionLoading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary-500"></div>
@@ -140,16 +136,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  // Check authentication first
+  // Check authentication only - backend will handle permission checks via API
   if (!isAuthenticated) {
     return <Navigate to="/auth/login" replace />;
   }
 
-  // Check permission if route requires one
-  if (routePermission && !hasPermission) {
-    return <Unauthorized />;
-  }
-
+  // Let backend API handle permission checks - if API returns 403, error link will redirect to /unauthorized
   return <AppLayout>{children}</AppLayout>;
 };
 
@@ -184,6 +176,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/mail-templates" element={<ProtectedRoute><MailTemplateIndexPage /></ProtectedRoute>} />
       <Route path="/mail-templates/create" element={<ProtectedRoute><MailTemplateCreatePage /></ProtectedRoute>} />
       <Route path="/mail-templates/:id" element={<ProtectedRoute><MailTemplateEditPage /></ProtectedRoute>} />
+      <Route path="/mail-logs" element={<ProtectedRoute><MailLogsPage /></ProtectedRoute>} />
+      <Route path="/mail-logs/:id" element={<ProtectedRoute><MailLogDetailPage /></ProtectedRoute>} />
       {/* Mail Providers */}
       <Route path="/mail-providers" element={<ProtectedRoute><MailProviderIndexPage /></ProtectedRoute>} />
       <Route path="/mail-providers/create" element={<ProtectedRoute><CreateMailProviderPage /></ProtectedRoute>} />
@@ -220,6 +214,7 @@ const AppRoutes: React.FC = () => {
       {/* Notifications */}
       <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
       <Route path="/notifications/preferences" element={<ProtectedRoute><NotificationPreferencesPage /></ProtectedRoute>} />
+      <Route path="/notifications/event-flows" element={<ProtectedRoute><NotificationEventFlowsPage /></ProtectedRoute>} />
       {/* Telegram Configs */}
       <Route path="/telegram-configs" element={<ProtectedRoute><TelegramConfigsPage /></ProtectedRoute>} />
       {/* Product Management */}

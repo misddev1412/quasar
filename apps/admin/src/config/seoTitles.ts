@@ -489,6 +489,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
       vi: 'Cấu hình cài đặt thông báo'
     }
   },
+  {
+    path: '/notifications/event-flows',
+    titles: {
+      en: 'Notification Event Flows | Quasar Admin',
+      vi: 'Luồng Thông Báo Theo Sự Kiện | Quasar Admin'
+    },
+    description: {
+      en: 'Set up templates, recipients, CC, and channels for every notification event',
+      vi: 'Thiết lập mẫu, người nhận và kênh gửi cho từng sự kiện thông báo'
+    }
+  },
 
   // Product Management
   {

@@ -9,6 +9,7 @@ import { EmailChannelModule } from '../modules/email-channel/email-channel.modul
 import { MailProviderModule } from '../modules/mail-provider/mail-provider.module';
 import { EmailFlowModule } from '../modules/email-flow/email-flow.module';
 import { MailTemplateModule } from '../modules/mail-template/mail-template.module';
+import { MailLogModule } from '../modules/mail-log/mail-log.module';
 import { LanguageModule } from '../modules/language/language.module';
 import { ChartModule } from '../modules/chart/chart.module';
 import { SEOModule } from '../modules/seo/seo.module';
@@ -35,10 +36,12 @@ import { AdminLoyaltyStatsRouter } from '../modules/loyalty/routers/admin-loyalt
 import { AdminCustomerTransactionsRouter } from '../modules/user/routers/admin-customer-transactions.router';
 import { AdminMailProviderRouter } from '../modules/mail-provider/routers/admin-mail-provider.router';
 import { AdminEmailFlowRouter } from '../modules/email-flow/routers/admin-email-flow.router';
+import { AdminMailLogRouter } from '../modules/mail-log/routers/admin-mail-log.router';
 import { VisitorModule } from '../modules/visitor/visitor.module';
 import { AdminVisitorStatisticsRouter } from '../modules/visitor/routers/admin-visitor-statistics.router';
 import { ClientVisitorStatsRouter } from '../modules/visitor/routers/client-visitor-stats.router';
 import { AdminNotificationTelegramConfigsRouter } from '../modules/notifications/routers/admin-notification-telegram-configs.router';
+import { AdminSupportClientsRouter } from '../modules/support/routers/admin-support-clients.router';
 
 @Module({
   imports: [
@@ -52,6 +55,7 @@ import { AdminNotificationTelegramConfigsRouter } from '../modules/notifications
     MailProviderModule,
     EmailFlowModule,
     MailTemplateModule,
+    MailLogModule,
     LanguageModule,
     ChartModule,
     SEOModule,
@@ -80,9 +84,11 @@ import { AdminNotificationTelegramConfigsRouter } from '../modules/notifications
     AdminCustomerTransactionsRouter,
     AdminMailProviderRouter,
     AdminEmailFlowRouter,
+    AdminMailLogRouter,
     AdminVisitorStatisticsRouter,
     ClientVisitorStatsRouter,
     AdminNotificationTelegramConfigsRouter,
+    AdminSupportClientsRouter,
     ResponseService,
   ],
 })

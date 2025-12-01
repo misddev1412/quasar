@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, FindOptionsWhere } from 'typeorm';
 import { SeederModule } from './seeder.module';
 import { MenuEntity } from '../../modules/menus/entities/menu.entity';
 import { MenuTranslationEntity } from '../../modules/menus/entities/menu-translation.entity';
-import { MenuType, MenuTarget } from '@shared/enums/menu.enums';
+import { MenuType, MenuTarget, TopMenuTimeFormat } from '@shared/enums/menu.enums';
 
 type MenuSeedData = {
   menu: Partial<MenuEntity>;
@@ -549,6 +549,326 @@ export class MenusSeeder implements SeederModule {
       },
     ];
 
+    const topMenuDefaults: MenuSeedData[] = [
+      {
+        menu: {
+          menuGroup: 'top',
+          type: MenuType.TOP_PHONE,
+          target: MenuTarget.SELF,
+          position: 0,
+          isEnabled: true,
+          icon: 'phone-call',
+          textColor: '#fef9c3',
+          backgroundColor: '#92400e',
+          borderColor: '#fde68a',
+          borderWidth: '1px',
+          config: {
+            topPhoneNumber: '(+84) 1900 636 648',
+          },
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Customer Hotline',
+            description: 'Need help? Call our hotline.',
+          },
+          {
+            locale: 'vi',
+            label: 'Đường dây nóng',
+            description: 'Cần hỗ trợ? Gọi cho chúng tôi.',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'top',
+          type: MenuType.TOP_EMAIL,
+          target: MenuTarget.SELF,
+          position: 1,
+          isEnabled: true,
+          icon: 'mail',
+          textColor: '#dbeafe',
+          backgroundColor: '#1e3a8a',
+          borderColor: '#bfdbfe',
+          borderWidth: '1px',
+          config: {
+            topEmailAddress: 'support@megastore.vn',
+          },
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Email Support',
+            description: 'Drop us a message anytime.',
+          },
+          {
+            locale: 'vi',
+            label: 'Hỗ trợ email',
+            description: 'Gửi email cho chúng tôi bất cứ lúc nào.',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'top',
+          type: MenuType.TOP_CURRENT_TIME,
+          target: MenuTarget.SELF,
+          position: 2,
+          isEnabled: true,
+          icon: 'clock-8',
+          textColor: '#c7d2fe',
+          backgroundColor: '#312e81',
+          borderColor: '#a5b4fc',
+          borderWidth: '1px',
+          config: {
+            topTimeFormat: TopMenuTimeFormat.HOURS_MINUTES_DAY_MONTH_YEAR,
+          },
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Local Time',
+            description: 'Current Vietnam timezone',
+          },
+          {
+            locale: 'vi',
+            label: 'Giờ địa phương',
+            description: 'Theo múi giờ Việt Nam',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'top',
+          type: MenuType.LINK,
+          url: '/track-order',
+          target: MenuTarget.SELF,
+          position: 3,
+          isEnabled: true,
+          icon: 'package-search',
+          textColor: '#0f172a',
+          backgroundColor: '#facc15',
+          borderColor: '#f97316',
+          borderWidth: '1px',
+          config: {},
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Track Order',
+            description: 'Follow the status of your shipment',
+          },
+          {
+            locale: 'vi',
+            label: 'Theo dõi đơn hàng',
+            description: 'Kiểm tra tình trạng giao hàng',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'top',
+          type: MenuType.CUSTOM_HTML,
+          target: MenuTarget.SELF,
+          position: 4,
+          isEnabled: true,
+          icon: 'badge-check',
+          textColor: '#fefefe',
+          backgroundColor: '#0ea5e9',
+          borderColor: '#bae6fd',
+          borderWidth: '1px',
+          config: {},
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            customHtml:
+              '<strong>Free shipping</strong> on orders over <span class="font-semibold">$99</span>',
+          },
+          {
+            locale: 'vi',
+            customHtml:
+              '<strong>Miễn phí giao hàng</strong> cho đơn từ <span class="font-semibold">2.000.000đ</span>',
+          },
+        ],
+      },
+    ];
+
+    const subMenuDefaults: MenuSeedData[] = [
+      {
+        menu: {
+          menuGroup: 'sub',
+          type: MenuType.LINK,
+          url: '/collections/featured',
+          target: MenuTarget.SELF,
+          position: 0,
+          isEnabled: true,
+          icon: 'sparkles',
+          textColor: '#1d4ed8',
+          borderColor: '#1d4ed8',
+          borderWidth: '1px',
+          config: {
+            subMenuVariant: 'link',
+            badge: {
+              text: 'Hot',
+              color: '#1d4ed8',
+              backgroundColor: 'rgba(37, 99, 235, 0.15)',
+            },
+          },
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Featured Picks',
+            description: 'Curated items from our editors',
+          },
+          {
+            locale: 'vi',
+            label: 'Gợi ý nổi bật',
+            description: 'Những sản phẩm được đề xuất',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'sub',
+          type: MenuType.LINK,
+          url: '/flash-sale',
+          target: MenuTarget.SELF,
+          position: 1,
+          isEnabled: true,
+          icon: 'zap',
+          textColor: '#ffffff',
+          backgroundColor: '#dc2626',
+          borderColor: '#dc2626',
+          borderWidth: '1px',
+          config: {
+            subMenuVariant: 'button',
+            buttonBorderRadius: '9999px',
+            buttonAnimation: 'pulse',
+          },
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Flash Sale',
+            description: 'Limited stock & time offers',
+          },
+          {
+            locale: 'vi',
+            label: 'Ưu đãi chớp nhoáng',
+            description: 'Khuyến mãi giới hạn thời gian',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'sub',
+          type: MenuType.LINK,
+          url: '/loyalty',
+          target: MenuTarget.SELF,
+          position: 2,
+          isEnabled: true,
+          icon: 'gift',
+          textColor: '#7c3aed',
+          borderColor: '#7c3aed',
+          borderWidth: '1px',
+          config: {
+            subMenuVariant: 'link',
+            badge: {
+              text: 'New',
+              color: '#7c3aed',
+              backgroundColor: 'rgba(124, 58, 237, 0.15)',
+            },
+          },
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Rewards Club',
+            description: 'Earn points for every order',
+          },
+          {
+            locale: 'vi',
+            label: 'Câu lạc bộ khách hàng',
+            description: 'Tích điểm cho mỗi đơn hàng',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'sub',
+          type: MenuType.LINK,
+          url: '/download-app',
+          target: MenuTarget.SELF,
+          position: 3,
+          isEnabled: true,
+          icon: 'smartphone',
+          textColor: '#ffffff',
+          backgroundColor: '#0f172a',
+          borderColor: '#0f172a',
+          borderWidth: '1px',
+          config: {
+            subMenuVariant: 'button',
+            buttonBorderRadius: '12px',
+            buttonAnimation: 'float',
+          },
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Get the App',
+            description: 'Unlock exclusive in-app perks',
+          },
+          {
+            locale: 'vi',
+            label: 'Tải ứng dụng',
+            description: 'Nhận ưu đãi chỉ có trên ứng dụng',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'sub',
+          type: MenuType.CALL_BUTTON,
+          url: 'tel:0917001254',
+          target: MenuTarget.SELF,
+          position: 4,
+          isEnabled: true,
+          icon: 'phone',
+          textColor: '#ffffff',
+          backgroundColor: '#3b82f6',
+          config: {
+            subMenuVariant: 'button',
+            buttonBorderRadius: '12px',
+            callButtonNumber: '0917 00 1254',
+          },
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Shopping',
+            description: '0917 00 1254',
+          },
+          {
+            locale: 'vi',
+            label: 'Mua hàng',
+            description: '0917 00 1254',
+          },
+        ],
+      },
+    ];
+
     const createMenuWithTranslations = async (
       menuData: MenuSeedData,
       parentId?: string,
@@ -574,6 +894,25 @@ export class MenusSeeder implements SeederModule {
       }
 
       return savedMenu;
+    };
+
+    const buildMenuLookupCriteria = (menuData: MenuSeedData): FindOptionsWhere<MenuEntity> => {
+      const where: FindOptionsWhere<MenuEntity> = {
+        menuGroup: menuData.menu.menuGroup as string,
+      };
+
+      if (menuData.menu.url) {
+        where.url = menuData.menu.url;
+      } else if (menuData.menu.referenceId) {
+        where.referenceId = menuData.menu.referenceId;
+      } else if (menuData.menu.type) {
+        where.type = menuData.menu.type as MenuType;
+        if (typeof menuData.menu.position === 'number') {
+          where.position = menuData.menu.position;
+        }
+      }
+
+      return where;
     };
 
     const existing = await menuRepository.count();
@@ -607,6 +946,42 @@ export class MenusSeeder implements SeederModule {
       console.log(`✅ Created ${createdActions} header action menu items`);
     } else {
       console.log('✅ Header action menu items already exist, skipping');
+    }
+
+    let createdTopMenus = 0;
+    for (const menuData of topMenuDefaults) {
+      const where = buildMenuLookupCriteria(menuData);
+      const existingTopMenu = await menuRepository.findOne({ where });
+      if (existingTopMenu) {
+        continue;
+      }
+
+      await createMenuWithTranslations(menuData);
+      createdTopMenus += 1;
+    }
+
+    if (createdTopMenus > 0) {
+      console.log(`✅ Created ${createdTopMenus} top menu items`);
+    } else {
+      console.log('✅ Top menu items already exist, skipping');
+    }
+
+    let createdSubMenus = 0;
+    for (const menuData of subMenuDefaults) {
+      const where = buildMenuLookupCriteria(menuData);
+      const existingSubMenu = await menuRepository.findOne({ where });
+      if (existingSubMenu) {
+        continue;
+      }
+
+      await createMenuWithTranslations(menuData);
+      createdSubMenus += 1;
+    }
+
+    if (createdSubMenus > 0) {
+      console.log(`✅ Created ${createdSubMenus} default sub menu items`);
+    } else {
+      console.log('✅ Sub menu defaults already exist, skipping');
     }
   }
 }

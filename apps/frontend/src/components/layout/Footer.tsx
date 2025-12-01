@@ -284,11 +284,12 @@ const Footer: React.FC<FooterProps> = ({
         button: 'bg-gray-900 text-white hover:bg-gray-800',
       };
 
+  const footerLogoAltText = getSetting('site.footer_logo_alt') || siteName;
   const logo = propLogo
     || (resolvedLogoUrl ? (
       <img
         src={resolvedLogoUrl}
-        alt={siteName}
+        alt={footerLogoAltText}
         className="w-full h-full object-contain"
         onError={(event) => {
           event.currentTarget.style.display = 'none';

@@ -1,7 +1,7 @@
 // AppRouter types for tRPC client
 // This file is auto-generated from actual nestjs-trpc routers
 // Run 'npm run sync:trpc-types' to regenerate this file
-// Generated on: 2025-11-23T07:44:19.898Z
+// Generated on: 2025-11-27T15:42:23.031Z
 
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
@@ -28,6 +28,15 @@ const appRouter = t.router({
     setAsDefault: t.procedure.input(z.any()).mutation(() => null),
     testChannel: t.procedure.input(z.any()).mutation(() => null),
     cloneChannel: t.procedure.input(z.any()).mutation(() => null),
+  }),
+  adminEmailFlow: t.router({
+    createFlow: t.procedure.input(z.any()).mutation(() => null),
+    getFlows: t.procedure.query(() => null),
+    getFlowById: t.procedure.query(() => null),
+    getActiveFlows: t.procedure.query(() => null),
+    getFlowsByProvider: t.procedure.query(() => null),
+    updateFlow: t.procedure.input(z.any()).mutation(() => null),
+    deleteFlow: t.procedure.input(z.any()).mutation(() => null),
   }),
   adminFirebaseConfig: t.router({
     getAllConfigs: t.procedure.query(() => null),
@@ -92,6 +101,21 @@ const appRouter = t.router({
     popularRewards: t.procedure.query(() => null),
     recent: t.procedure.query(() => null),
   }),
+  adminMailLog: t.router({
+    getLogs: t.procedure.query(() => null),
+    getLogById: t.procedure.query(() => null),
+    getStatistics: t.procedure.query(() => null),
+  }),
+  adminMailProvider: t.router({
+    createProvider: t.procedure.input(z.any()).mutation(() => null),
+    getProviders: t.procedure.query(() => null),
+    getProviderById: t.procedure.query(() => null),
+    getActiveProviders: t.procedure.query(() => null),
+    updateProvider: t.procedure.input(z.any()).mutation(() => null),
+    deleteProvider: t.procedure.input(z.any()).mutation(() => null),
+    testConnection: t.procedure.input(z.any()).mutation(() => null),
+    testConnectionWithData: t.procedure.input(z.any()).mutation(() => null),
+  }),
   adminMailTemplate: t.router({
     createTemplate: t.procedure.input(z.any()).mutation(() => null),
     getTemplates: t.procedure.query(() => null),
@@ -105,16 +129,6 @@ const appRouter = t.router({
     getStatistics: t.procedure.query(() => null),
     bulkUpdateStatus: t.procedure.input(z.any()).mutation(() => null),
     searchTemplates: t.procedure.query(() => null),
-  }),
-  adminMailProvider: t.router({
-    createProvider: t.procedure.input(z.any()).mutation(() => null),
-    getProviders: t.procedure.query(() => null),
-    getProviderById: t.procedure.query(() => null),
-    getActiveProviders: t.procedure.query(() => null),
-    updateProvider: t.procedure.input(z.any()).mutation(() => null),
-    deleteProvider: t.procedure.input(z.any()).mutation(() => null),
-    testConnection: t.procedure.input(z.any()).mutation(() => null),
-    testConnectionWithData: t.procedure.input(z.any()).mutation(() => null),
   }),
   adminMenus: t.router({
     list: t.procedure.input(z.any()).query(() => null),
@@ -133,6 +147,12 @@ const appRouter = t.router({
     getByGroup: t.procedure.query(() => null),
     getTree: t.procedure.query(() => null),
   }),
+  adminNotificationChannels: t.router({
+    listConfigs: t.procedure.query(() => null),
+    upsertConfig: t.procedure.input(z.any()).mutation(() => null),
+    updateAllowedChannels: t.procedure.input(z.any()).mutation(() => null),
+    initializeDefaults: t.procedure.input(z.any()).mutation(() => null),
+  }),
   adminNotificationPreferences: t.router({
     getUserPreferences: t.procedure.query(() => null),
     getUserPreferencesRaw: t.procedure.query(() => null),
@@ -146,6 +166,12 @@ const appRouter = t.router({
     setQuietHours: t.procedure.input(z.any()).mutation(() => null),
     getQuietHours: t.procedure.query(() => null),
     canSendNotification: t.procedure.query(() => null),
+  }),
+  adminNotificationTelegramConfigs: t.router({
+    list: t.procedure.input(z.any()).query(() => null),
+    create: t.procedure.input(z.any()).mutation(() => null),
+    update: t.procedure.input(z.any()).mutation(() => null),
+    delete: t.procedure.input(z.any()).mutation(() => null),
   }),
   adminNotification: t.router({
     getNotifications: t.procedure.query(() => null),
@@ -168,6 +194,11 @@ const appRouter = t.router({
     validateFCMToken: t.procedure.input(z.any()).mutation(() => null),
     sendTestNotification: t.procedure.input(z.any()).mutation(() => null),
     cleanupNotifications: t.procedure.input(z.any()).mutation(() => null),
+    listEventFlows: t.procedure.query(() => null),
+    getEventFlow: t.procedure.query(() => null),
+    upsertEventFlow: t.procedure.input(z.any()).mutation(() => null),
+    deleteEventFlow: t.procedure.input(z.any()).mutation(() => null),
+    searchNotificationRecipients: t.procedure.query(() => null),
   }),
   clientNotification: t.router({
     getUserNotifications: t.procedure.query(() => null),

@@ -294,6 +294,11 @@ export class NavigationService implements INavigationService {
             icon: React.createElement(AccountTreeIcon),
             label: t('admin.email_flows', 'Email Flows'),
             path: '/email-flows'
+          },
+          {
+            icon: React.createElement(MailOutlineIcon),
+            label: t('mail_logs.title', 'Mail Logs'),
+            path: '/mail-logs'
           }
         ]
       },
@@ -305,6 +310,11 @@ export class NavigationService implements INavigationService {
             label: t('navigation.notifications', '通知'),
             path: '/notifications',
             badge: 5
+          },
+          {
+            icon: React.createElement(AccountTreeIcon),
+            label: t('navigation.notification_flows', 'Notification Flows'),
+            path: '/notifications/event-flows'
           },
           {
             icon: React.createElement(SendIcon),
@@ -488,6 +498,20 @@ export class NavigationService implements INavigationService {
       return currentPath === '/email-flows' ||
              currentPath.startsWith('/email-flows/create') ||
              !!currentPath.match(/^\/email-flows\/[^\/]+\/edit$/);
+    }
+
+    // Special handling for notifications - main /notifications should not match /notifications/event-flows
+    if (path === '/notifications') {
+      if (currentPath.startsWith('/notifications/event-flows')) {
+        return false;
+      }
+      return currentPath === '/notifications' ||
+             currentPath.startsWith('/notifications/preferences');
+    }
+
+    if (path === '/notifications/event-flows') {
+      return currentPath === '/notifications/event-flows' ||
+             currentPath.startsWith('/notifications/event-flows/');
     }
 
     const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats'];

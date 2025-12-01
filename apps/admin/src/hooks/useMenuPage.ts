@@ -40,9 +40,13 @@ export interface MenuFormState {
   customClass?: string;
   imageSize?: 'small' | 'medium' | 'large';
   showDescription?: boolean;
+  subMenuVariant?: 'link' | 'button';
+  buttonBorderRadius?: string;
+  buttonAnimation?: 'none' | 'pulse' | 'float';
   // Section customization (for mega menu sections)
   columnSpan?: number;
   borderColor?: string;
+  borderWidth?: string;
   titleColor?: string;
   showTitle?: boolean;
   maxItems?: number;

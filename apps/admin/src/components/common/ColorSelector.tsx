@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '../../utils/cn';
 import { InputWithIcon } from './InputWithIcon';
 
+const TRANSPARENT_COLOR = 'transparent';
+
 interface ColorSelectorProps {
   value?: string;
   onChange: (color: string | undefined) => void;
@@ -22,6 +24,7 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const presetColors = [
+    TRANSPARENT_COLOR,
     '#000000', '#FFFFFF', '#FF0000', '#00FF00', '#0000FF', '#FFFF00',
     '#FF00FF', '#00FFFF', '#FFA500', '#800080', '#FFC0CB', '#A52A2A',
     '#808080', '#C0C0C0', '#FFD700', '#32CD32', '#87CEEB', '#FF69B4',
@@ -47,9 +50,14 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
     const newValue = e.target.value;
     setInputValue(newValue);
 
-    // Validate hex color format
-    if (newValue === '' || /^#[0-9A-Fa-f]{6}$/.test(newValue)) {
-      onChange(newValue || undefined);
+    const isTransparent = newValue.toLowerCase() === TRANSPARENT_COLOR;
+
+    if (
+      newValue === '' ||
+      /^#[0-9A-Fa-f]{6}$/.test(newValue) ||
+      isTransparent
+    ) {
+      onChange(isTransparent ? TRANSPARENT_COLOR : (newValue || undefined));
     }
   };
 
@@ -64,6 +72,15 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
     onChange(undefined);
     setIsOpen(false);
   };
+
+  const isTransparentValue = (inputValue || '').toLowerCase() === TRANSPARENT_COLOR;
+  const previewBackground = isTransparentValue || !inputValue ? 'transparent' : inputValue;
+  const previewBackgroundImage =
+    !inputValue || isTransparentValue
+      ? 'repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 10px 10px'
+      : 'none';
+  const colorPickerValue = !inputValue || isTransparentValue ? '#000000' : inputValue;
+  const displayValue = inputValue ? (isTransparentValue ? 'transparent' : inputValue) : '#000000';
 
   return (
     <div className={cn('relative', className)}>
@@ -84,9 +101,8 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
                 <div
                   className="w-4 h-4 rounded border border-gray-300"
                   style={{
-                    backgroundColor: inputValue || '#FFFFFF',
-                    backgroundImage: inputValue ? 'none' :
-                      'repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 10px 10px'
+                    backgroundColor: previewBackground || '#FFFFFF',
+                    backgroundImage: previewBackgroundImage,
                   }}
                 />
               }
@@ -142,20 +158,34 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
                 Preset Colors
               </label>
               <div className="grid grid-cols-6 gap-2">
-                {presetColors.map((color) => (
-                  <button
-                    key={color}
-                    type="button"
-                    onClick={() => handleColorSelect(color)}
-                    className={cn(
-                      'w-8 h-8 rounded border-2 transition-all duration-200',
-                      'hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500',
-                      inputValue === color ? 'border-blue-500' : 'border-gray-300'
-                    )}
-                    style={{ backgroundColor: color }}
-                    title={color}
-                  />
-                ))}
+                {presetColors.map((color) => {
+                  const isTransparent = color === TRANSPARENT_COLOR;
+                  const isSelected =
+                    isTransparent ? isTransparentValue : inputValue === color;
+
+                  return (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => handleColorSelect(color)}
+                      className={cn(
+                        'w-8 h-8 rounded border-2 transition-all duration-200 flex items-center justify-center text-[10px] font-semibold uppercase',
+                        'hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500',
+                        isSelected ? 'border-blue-500' : 'border-gray-300',
+                      )}
+                      style={{
+                        backgroundColor: isTransparent ? 'transparent' : color,
+                        backgroundImage: isTransparent
+                          ? 'repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 6px 6px'
+                          : 'none',
+                        color: isTransparent ? '#111827' : 'transparent',
+                      }}
+                      title={isTransparent ? 'Transparent' : color}
+                    >
+                      {isTransparent ? 'T' : null}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -167,12 +197,12 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
-                    value={inputValue || '#000000'}
+                    value={colorPickerValue}
                     onChange={(e) => handleColorSelect(e.target.value)}
                     className="w-12 h-8 border border-gray-300 rounded cursor-pointer "
                   />
                   <span className="text-sm text-gray-600 font-medium">
-                    {inputValue || '#000000'}
+                    {displayValue}
                   </span>
                 </div>
                 <input

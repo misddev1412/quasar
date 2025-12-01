@@ -1,15 +1,8 @@
 import { useCallback } from 'react';
 import { trpc } from '../utils/trpc';
 import { NotificationChannel } from './useNotificationPreferences';
-
-export type NotificationEventKey =
-  | 'custom.manual'
-  | 'user.registered'
-  | 'user.verified'
-  | 'order.created'
-  | 'order.shipped'
-  | 'system.announcement'
-  | 'marketing.campaign';
+import { NotificationEventKey } from '../types/notification-events';
+export type { NotificationEventKey } from '../types/notification-events';
 
 export interface NotificationChannelConfig {
   id: string;

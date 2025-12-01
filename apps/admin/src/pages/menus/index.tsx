@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiPlus, FiMenu, FiRefreshCw, FiHome, FiFilter } from 'react-icons/fi';
 import { Select, SelectOption } from '../../components/common/Select';
@@ -7,14 +7,15 @@ import BaseLayout from '../../components/layout/BaseLayout';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { Breadcrumb } from '../../components/common/Breadcrumb';
-import { useMenuPage, useMenuDragHandlers, flattenMenuTree } from '../../hooks/useMenuPage';
+import { useMenuPage, useMenuDragHandlers, flattenMenuTree, SUB_MENU_GROUP } from '../../hooks/useMenuPage';
 import { AdminMenu, MenuTreeNode } from '../../hooks/useMenusManager';
 import { MenuTable } from '../../components/menus/MenuTable';
 import { MenuFormModal } from '../../components/menus/MenuFormModal';
 import { menuStyles } from '../../components/menus/MenuStyles';
 import { cn } from '@admin/lib/utils';
-
-
+import { Toggle } from '../../components/common/Toggle';
+import { useSettings } from '../../hooks/useSettings';
+const SUB_MENU_VISIBILITY_SETTING_KEY = 'storefront.sub_menu_enabled';
 
 const MenusPage: React.FC = () => {
   const params = useParams<{ group?: string }>();
@@ -76,6 +77,67 @@ const MenusPage: React.FC = () => {
     handleFormSubmit,
     toggleNodeExpansion,
   } = menuPage;
+  const {
+    settings: storefrontSettings,
+    isLoading: isStorefrontSettingsLoading,
+    updateSetting: updateStorefrontSetting,
+    createSetting: createStorefrontSetting,
+  } = useSettings({ group: 'storefront-ui' });
+  const [isUpdatingSubMenuVisibility, setIsUpdatingSubMenuVisibility] = useState(false);
+  const [pendingSubMenuVisibility, setPendingSubMenuVisibility] = useState<boolean | null>(null);
+
+  const subMenuVisibilitySetting = useMemo(
+    () => storefrontSettings.find(setting => setting.key === SUB_MENU_VISIBILITY_SETTING_KEY),
+    [storefrontSettings],
+  );
+  const resolvedSubMenuVisibility = useMemo(
+    () => (subMenuVisibilitySetting ? subMenuVisibilitySetting.value !== 'false' : true),
+    [subMenuVisibilitySetting],
+  );
+  const effectiveSubMenuVisibility = pendingSubMenuVisibility ?? resolvedSubMenuVisibility;
+  const subMenuVisibilitySettingId = subMenuVisibilitySetting?.id;
+
+  const handleSubMenuVisibilityChange = useCallback(async (checked: boolean) => {
+    const previousValue = effectiveSubMenuVisibility;
+    setPendingSubMenuVisibility(checked);
+    setIsUpdatingSubMenuVisibility(true);
+
+    try {
+      if (subMenuVisibilitySettingId) {
+        await updateStorefrontSetting(subMenuVisibilitySettingId, {
+          value: checked ? 'true' : 'false',
+        });
+      } else {
+        await createStorefrontSetting({
+          key: SUB_MENU_VISIBILITY_SETTING_KEY,
+          value: checked ? 'true' : 'false',
+          type: 'boolean',
+          group: 'storefront-ui',
+          isPublic: true,
+          description: 'Controls whether the storefront sub navigation bar is visible.',
+        });
+      }
+
+      addToast({
+        type: 'success',
+        title: checked ? 'Sub menu enabled' : 'Sub menu hidden',
+        description: checked
+          ? 'The storefront sub menu bar will be displayed.'
+          : 'The storefront sub menu bar is now hidden.',
+      });
+      setPendingSubMenuVisibility(null);
+    } catch (error) {
+      console.error('Failed to update sub menu visibility', error);
+      setPendingSubMenuVisibility(previousValue);
+      addToast({
+        type: 'error',
+        title: 'Unable to update sub menu visibility',
+        description: error instanceof Error ? error.message : undefined,
+      });
+    } finally {
+      setIsUpdatingSubMenuVisibility(false);
+    }
+  }, [addToast, createStorefrontSetting, effectiveSubMenuVisibility, subMenuVisibilitySettingId, updateStorefrontSetting]);
 
   const handleMenuGroupChange = useCallback((value: string) => {
     setSelectedMenuGroup(value);
@@ -235,6 +297,25 @@ const MenusPage: React.FC = () => {
             className="w-48"
           />
         </div>
+
+        {selectedMenuGroup === SUB_MENU_GROUP && (
+          <div className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40 p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                Show sub menu on storefront
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Toggle the dedicated sub navigation bar that appears below the header.
+              </p>
+            </div>
+            <Toggle
+              checked={effectiveSubMenuVisibility}
+              onChange={handleSubMenuVisibilityChange}
+              disabled={isStorefrontSettingsLoading || isUpdatingSubMenuVisibility}
+              aria-label="Toggle sub menu visibility"
+            />
+          </div>
+        )}
 
         {/* Statistics Cards */}
         <StatisticsGrid

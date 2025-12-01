@@ -38,6 +38,14 @@ export class CreateMenuDto {
   @IsString()
   backgroundColor?: string;
 
+  @IsOptional()
+  @IsString()
+  borderColor?: string;
+
+  @IsOptional()
+  @IsString()
+  borderWidth?: string;
+
   @IsObject()
   config: Record<string, unknown>;
 
@@ -114,6 +122,14 @@ export class UpdateMenuDto {
   @IsOptional()
   @IsString()
   backgroundColor?: string;
+
+  @IsOptional()
+  @IsString()
+  borderColor?: string;
+
+  @IsOptional()
+  @IsString()
+  borderWidth?: string;
 
   @IsOptional()
   @IsObject()

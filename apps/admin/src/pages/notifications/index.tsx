@@ -31,17 +31,8 @@ import BaseLayout from '../../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
-import type { NotificationEventKey } from '../../hooks/useNotificationChannelConfigs';
-
-const NOTIFICATION_EVENT_OPTIONS: ReadonlyArray<{ value: NotificationEventKey; label: string }> = [
-  { value: 'custom.manual', label: 'Manual / Custom' },
-  { value: 'user.registered', label: 'User Registered' },
-  { value: 'user.verified', label: 'User Verified' },
-  { value: 'order.created', label: 'Order Created' },
-  { value: 'order.shipped', label: 'Order Shipped' },
-  { value: 'system.announcement', label: 'System Announcement' },
-  { value: 'marketing.campaign', label: 'Marketing Campaign' },
-] as const;
+import type { NotificationEventKey } from '../../types/notification-events';
+import { NOTIFICATION_EVENT_OPTIONS } from '../../types/notification-events';
 
 type SendFormState = {
   type: 'single' | 'bulk' | 'topic';

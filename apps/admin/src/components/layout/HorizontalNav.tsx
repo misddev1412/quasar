@@ -15,7 +15,8 @@ import {
   Mail,
   Image,
   Wallet,
-  BarChart3
+  BarChart3,
+  Activity,
 } from 'lucide-react';
 import Logo from './Logo';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -76,6 +77,12 @@ export const HorizontalNav: React.FC = () => {
       label: t('admin.mail_templates'),
       translationKey: 'admin.mail_templates',
       path: '/mail-templates'
+    },
+    {
+      icon: <Activity size={18} />,
+      label: t('mail_logs.title', 'Mail Logs'),
+      translationKey: 'mail_logs.title',
+      path: '/mail-logs'
     },
     {
       icon: <Image size={18} />,

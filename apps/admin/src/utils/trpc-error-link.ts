@@ -1,6 +1,6 @@
 import { TRPCLink } from '@trpc/client';
 import { observable } from '@trpc/server/observable';
-import type { AppRouter } from '../../../backend/src/types/app-router';
+import type { AppRouter } from '../../../backend/src/@generated/server';
 import { appEvents } from '../lib/event-emitter';
 import i18n from '../i18n';
 
@@ -11,7 +11,7 @@ export const errorLink: TRPCLink<AppRouter> = () => {
         next(value) {
           observer.next(value);
         },
-        error(err) {
+        error(err: any) {
           // 检查网络错误
           if (err.message === 'Failed to fetch' || err instanceof TypeError) {
             appEvents.emit('show-toast', {
@@ -27,6 +27,18 @@ export const errorLink: TRPCLink<AppRouter> = () => {
               title: i18n.t('messages.invalid_response_title'),
               description: i18n.t('messages.invalid_response_desc'),
             });
+          }
+          // 检查权限错误 (FORBIDDEN)
+          else if (
+            err.data?.code === 'FORBIDDEN' ||
+            err.data?.status === 'FORBIDDEN' ||
+            err.message?.includes('Insufficient permissions') ||
+            err.message?.includes('FORBIDDEN')
+          ) {
+            // 导航到未授权页面
+            if (typeof window !== 'undefined' && window.location.pathname !== '/unauthorized') {
+              window.location.href = '/unauthorized';
+            }
           }
 
           observer.error(err);

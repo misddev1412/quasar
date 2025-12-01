@@ -136,11 +136,23 @@ export const Search = styled('div')(({ theme }) => ({
 export const SearchIconWrapper = styled('div')(({ theme }) => ({
   padding: theme.spacing(0, 2),
   height: '100%',
+  minHeight: '36px',
   position: 'absolute',
+  left: 0,
+  top: 0,
   pointerEvents: 'none',
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'center',
+  justifyContent: 'flex-start',
+  zIndex: 1,
+  color: theme.palette.mode === 'dark' ? theme.palette.grey[400] : theme.palette.grey[600],
+  '& .MuiSvgIcon-root': {
+    fontSize: '1.25rem !important',
+    display: 'block !important',
+    color: 'inherit !important',
+    width: '1.25rem',
+    height: '1.25rem',
+  },
 }));
 
 export const StyledInputBase = styled(InputBase)(({ theme }) => ({

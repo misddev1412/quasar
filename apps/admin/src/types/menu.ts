@@ -22,6 +22,8 @@ export interface AdminMenu {
   icon?: string | null;
   textColor?: string | null;
   backgroundColor?: string | null;
+  borderColor?: string | null;
+  borderWidth?: string | null;
   config: Record<string, unknown>;
   isMegaMenu: boolean;
   megaMenuColumns?: number | null;
@@ -44,6 +46,8 @@ export interface MenuFormData {
   icon?: string;
   textColor?: string;
   backgroundColor?: string;
+  borderColor?: string;
+  borderWidth?: string;
   config: Record<string, unknown>;
   isMegaMenu: boolean;
   megaMenuColumns?: number;

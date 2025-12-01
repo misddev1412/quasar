@@ -1748,10 +1748,26 @@
     "guidelines": "Guidelines",
     "click_to_upload": "Click to upload",
     "uploading": "Uploading...",
+    "select_from_media": "Select from Media Library",
+    "select_asset": "Select {asset}",
     "max_size": "Max {size}MB",
     "no_asset_uploaded": "No {asset} uploaded",
     "remove": "Remove",
     "recommended_size": "Recommended",
+    "logo_text_settings": "Logo Text Settings",
+    "show_text_next_to_logo": "Show text next to logo",
+    "show_text_next_to_logo_desc": "Display text alongside the logo in the header",
+    "logo_text_content": "Text Content",
+    "logo_text_placeholder": "Enter text to display next to logo",
+    "logo_text_hint": "Leave empty to use site name as default",
+    "logo_text_setting_updated": "Logo text setting has been updated",
+    "logo_text_setting_update_failed": "Failed to update logo text setting",
+    "alt_text_settings": "Alt Text Settings",
+    "alt_text_label": "Alt Text",
+    "alt_text_placeholder": "Enter descriptive alt text for accessibility and SEO",
+    "alt_text_hint": "Alt text helps screen readers and improves SEO. Leave empty to use site name as default.",
+    "alt_text_update_failed": "Failed to update alt text",
+    "alt_text_saved": "Alt text has been saved",
     "analytics": {
       "title": "Analytics Configuration",
       "description": "Configure Google Analytics and Mixpanel for tracking user behavior and analytics",
@@ -1838,7 +1854,9 @@
     "upload_success": "Asset uploaded successfully",
     "upload_failed": "Asset upload failed",
     "removed": "Asset removed",
-    "remove_failed": "Remove failed"
+    "remove_failed": "Remove failed",
+    "setting_updated": "Setting updated",
+    "setting_update_failed": "Update failed"
   },
   "storefront": {
     "footer": {

@@ -6,11 +6,15 @@ import {
   buildProductMetadata,
   fetchProductByIdentifier,
 } from '../productPageUtils';
+import { fetchSections } from '../../../services/sections.service';
+import { renderSections } from '../../../components/sections';
+import { getPreferredLocale } from '../../../lib/server-locale';
 
 interface ProductPageProps {
   params: Promise<{
     identifier: string;
   }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
@@ -19,15 +23,26 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   return buildProductMetadata(product, `/products/${identifier}`);
 }
 
-async function ProductPageContent({ params }: ProductPageProps) {
-  const { identifier } = await params;
-  const [product, detailProps] = await Promise.all([
-    fetchProductByIdentifier(identifier),
+async function ProductPageContent({ params, searchParams }: ProductPageProps) {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const locale = await getPreferredLocale(resolvedSearchParams);
+  const sectionsPromise = fetchSections('product_detail', locale);
+
+  const [product, detailProps, sections] = await Promise.all([
+    fetchProductByIdentifier(resolvedParams.identifier),
     buildProductDetailProps(),
+    sectionsPromise,
   ]);
+
+  const orderedSections = [...sections].sort((a, b) => a.position - b.position);
+  const renderedSections = renderSections(orderedSections);
 
   return (
     <Layout>
+      {renderedSections.length > 0 && (
+        <div className="mb-12 space-y-12">{renderedSections}</div>
+      )}
       <ProductDetailClient
         product={product}
         relatedProducts={detailProps.relatedProducts}

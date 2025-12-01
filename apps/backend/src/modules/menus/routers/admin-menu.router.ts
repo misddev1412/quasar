@@ -29,6 +29,8 @@ const createMenuSchema = z.object({
   icon: z.string().optional(),
   textColor: z.string().optional(),
   backgroundColor: z.string().optional(),
+  borderColor: z.string().optional(),
+  borderWidth: z.string().optional(),
   config: z.record(z.unknown()),
   isMegaMenu: z.boolean(),
   megaMenuColumns: z.number().int().min(1).max(6).optional(),

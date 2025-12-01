@@ -12,6 +12,38 @@ import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-c
 import { AuthenticatedContext } from '../../../trpc/context';
 import { CreateTelegramConfigDto } from '../repositories/notification-telegram-config.repository';
 
+// Create permission middleware classes at module level so they can be registered as providers
+const requireReadAnyTelegramConfig = RequirePermission({
+  resource: 'telegram_config',
+  action: PermissionAction.READ,
+  scope: PermissionScope.ANY,
+});
+
+const requireCreateAnyTelegramConfig = RequirePermission({
+  resource: 'telegram_config',
+  action: PermissionAction.CREATE,
+  scope: PermissionScope.ANY,
+});
+
+const requireUpdateAnyTelegramConfig = RequirePermission({
+  resource: 'telegram_config',
+  action: PermissionAction.UPDATE,
+  scope: PermissionScope.ANY,
+});
+
+const requireDeleteAnyTelegramConfig = RequirePermission({
+  resource: 'telegram_config',
+  action: PermissionAction.DELETE,
+  scope: PermissionScope.ANY,
+});
+
+export const AdminNotificationTelegramConfigPermissions = [
+  requireReadAnyTelegramConfig,
+  requireCreateAnyTelegramConfig,
+  requireUpdateAnyTelegramConfig,
+  requireDeleteAnyTelegramConfig,
+];
+
 const telegramConfigBaseSchema = z.object({
   name: z.string().min(3).max(150),
   botUsername: z.string().min(3).max(150),
@@ -40,9 +72,7 @@ export class AdminNotificationTelegramConfigsRouter {
     private readonly responseService: ResponseService,
   ) {}
 
-  @UseMiddlewares(
-    RequirePermission({ resource: 'telegram_config', action: PermissionAction.READ, scope: PermissionScope.ANY })
-  )
+  @UseMiddlewares(requireReadAnyTelegramConfig)
   @Query({
     output: apiResponseSchema,
   })
@@ -67,9 +97,7 @@ export class AdminNotificationTelegramConfigsRouter {
     }
   }
 
-  @UseMiddlewares(
-    RequirePermission({ resource: 'telegram_config', action: PermissionAction.CREATE, scope: PermissionScope.ANY })
-  )
+  @UseMiddlewares(requireCreateAnyTelegramConfig)
   @Mutation({
     input: telegramConfigBaseSchema,
     output: apiResponseSchema,
@@ -98,9 +126,7 @@ export class AdminNotificationTelegramConfigsRouter {
     }
   }
 
-  @UseMiddlewares(
-    RequirePermission({ resource: 'telegram_config', action: PermissionAction.UPDATE, scope: PermissionScope.ANY })
-  )
+  @UseMiddlewares(requireUpdateAnyTelegramConfig)
   @Mutation({
     input: updateTelegramConfigSchema,
     output: apiResponseSchema,
@@ -134,9 +160,7 @@ export class AdminNotificationTelegramConfigsRouter {
     }
   }
 
-  @UseMiddlewares(
-    RequirePermission({ resource: 'telegram_config', action: PermissionAction.DELETE, scope: PermissionScope.ANY })
-  )
+  @UseMiddlewares(requireDeleteAnyTelegramConfig)
   @Mutation({
     input: deleteTelegramConfigSchema,
     output: apiResponseSchema,

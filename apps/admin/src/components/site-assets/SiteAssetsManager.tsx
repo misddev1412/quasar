@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { FiUpload, FiX, FiImage, FiInfo } from 'react-icons/fi';
 import { Button } from '../common/Button';
+import { Input } from '../common/Input';
+import { Switch } from '../common/Switch';
+import { MediaManager } from '../common/MediaManager';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
 import { useSettings } from '../../hooks/useSettings';
-import { UploadService } from '../../utils/upload';
 
 interface AssetConfig {
   key: string;
@@ -15,6 +17,7 @@ interface AssetConfig {
   group: string;
   acceptedFormats: string[];
   guidelines: string[];
+  supportsAltText?: boolean; // Whether this asset supports alt text configuration
 }
 
 const ASSET_CONFIGS: AssetConfig[] = [
@@ -30,7 +33,8 @@ const ASSET_CONFIGS: AssetConfig[] = [
       'brand.assets.main_logo.guidelines.0',
       'brand.assets.main_logo.guidelines.1',
       'brand.assets.main_logo.guidelines.2'
-    ]
+    ],
+    supportsAltText: true
   },
   {
     key: 'site.favicon',
@@ -58,7 +62,8 @@ const ASSET_CONFIGS: AssetConfig[] = [
       'brand.assets.footer_logo.guidelines.0',
       'brand.assets.footer_logo.guidelines.1',
       'brand.assets.footer_logo.guidelines.2'
-    ]
+    ],
+    supportsAltText: true
   },
   {
     key: 'site.og_image',
@@ -72,7 +77,8 @@ const ASSET_CONFIGS: AssetConfig[] = [
       'brand.assets.social_share_image.guidelines.0',
       'brand.assets.social_share_image.guidelines.1',
       'brand.assets.social_share_image.guidelines.2'
-    ]
+    ],
+    supportsAltText: true
   },
   {
     key: 'site.login_background',
@@ -97,6 +103,22 @@ interface AssetUploadCardProps {
   isUploading: boolean;
   onUploadStart: (key: string) => void;
   onUploadEnd: (key: string) => void;
+  logoTextSettings?: {
+    showText: boolean;
+    textContent: string;
+    onShowTextChange: (show: boolean) => void;
+    onTextContentChange: (text: string) => void;
+    onSaveShowText: () => Promise<void>;
+    onSaveTextContent: () => Promise<void>;
+    hasShowTextChanges?: boolean;
+    hasTextContentChanges?: boolean;
+  };
+  altTextSettings?: {
+    altText: string;
+    onAltTextChange: (text: string) => void;
+    onSave: () => Promise<void>;
+    hasChanges?: boolean;
+  };
 }
 
 const AssetUploadCard: React.FC<AssetUploadCardProps> = ({
@@ -105,91 +127,74 @@ const AssetUploadCard: React.FC<AssetUploadCardProps> = ({
   onUpdate,
   isUploading,
   onUploadStart,
-  onUploadEnd
+  onUploadEnd,
+  logoTextSettings,
+  altTextSettings
 }) => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isMediaManagerOpen, setIsMediaManagerOpen] = useState(false);
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!config.acceptedFormats.includes(file.type)) {
-      addToast({
-        title: t('media.invalidFileType', 'Invalid file type'),
-        description: `${config.title} accepts: ${config.acceptedFormats.join(', ')}`,
-        type: 'error'
-      });
-      return;
-    }
-
-    // Validate file size
-    const maxSizeBytes = config.maxSize * 1024 * 1024;
-    if (file.size > maxSizeBytes) {
-      addToast({
-        title: t('media.fileTooLarge', 'File too large'),
-        description: `${config.title} must be smaller than ${config.maxSize}MB`,
-        type: 'error'
-      });
-      return;
-    }
-
-    onUploadStart(config.key);
-    setPreviewUrl(URL.createObjectURL(file));
-
+  const handleMediaSelect = async (file: any) => {
     try {
-      const result = await UploadService.uploadSingle(file, {
-        folder: 'site-assets',
-        alt: t(config.title, config.title),
-        caption: t(config.description, config.description)
-      });
-
-      if (result.success && result.data?.[0]) {
-        const assetUrl = result.data[0].url;
-        await onUpdate(config.key, assetUrl);
-        addToast({
-          title: t('assets.upload_success', 'Asset uploaded successfully'),
-          description: `${config.title} has been updated`,
-          type: 'success'
-        });
-      } else {
-        throw new Error(result.error || 'Upload failed');
+      const selectedFile = Array.isArray(file) ? file[0] : file;
+      if (!selectedFile || !selectedFile.url) {
+        return;
       }
+
+      // Validate file type if needed
+      if (config.acceptedFormats.length > 0) {
+        const fileType = selectedFile.mimeType || '';
+        if (!config.acceptedFormats.includes(fileType)) {
+          addToast({
+            title: t('media.invalidFileType', 'Invalid file type'),
+            description: `${t(config.title, config.title)} accepts: ${config.acceptedFormats.join(', ')}`,
+            type: 'error'
+          });
+          return;
+        }
+      }
+
+      onUploadStart(config.key);
+      await onUpdate(config.key, selectedFile.url);
+      
+      addToast({
+        title: t('assets.upload_success', 'Asset uploaded successfully'),
+        description: `${t(config.title, config.title)} has been updated`,
+        type: 'success'
+      });
+      
+      setIsMediaManagerOpen(false);
     } catch (error) {
-      console.error('Asset upload error:', error);
+      console.error('Asset update error:', error);
       addToast({
         title: t('assets.upload_failed', 'Asset upload failed'),
-        description: error instanceof Error ? error.message : 'An error occurred during upload',
+        description: error instanceof Error ? error.message : 'An error occurred during update',
         type: 'error'
       });
-      setPreviewUrl(null);
     } finally {
       onUploadEnd(config.key);
-      event.target.value = '';
     }
   };
 
   const handleRemove = async () => {
     try {
       await onUpdate(config.key, '');
-      setPreviewUrl(null);
       addToast({
         title: t('assets.removed', 'Asset removed'),
-        description: `${config.title} has been removed`,
+        description: `${t(config.title, config.title)} has been removed`,
         type: 'success'
       });
     } catch (error) {
       addToast({
         title: t('assets.remove_failed', 'Remove failed'),
-        description: `Failed to remove ${config.title}`,
+        description: `Failed to remove ${t(config.title, config.title)}`,
         type: 'error'
       });
     }
   };
 
-  const displayUrl = previewUrl || currentValue;
+  const displayUrl = currentValue;
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
@@ -249,32 +254,126 @@ const AssetUploadCard: React.FC<AssetUploadCardProps> = ({
             {t('brand.upload_new_asset', 'Upload New Asset')}
           </h4>
           <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-gray-400 dark:hover:border-gray-500 transition-colors h-[180px] flex items-center justify-center">
-            <input
-              type="file"
-              accept={config.acceptedFormats.join(',')}
-              onChange={handleFileSelect}
-              className="hidden"
-              id={`${config.key}-upload-input`}
-              disabled={isUploading}
-            />
-            <label
-              htmlFor={`${config.key}-upload-input`}
-              className={`cursor-pointer block ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              <FiUpload className={`w-8 h-8 mx-auto mb-3 text-gray-400 ${isUploading ? 'animate-spin' : ''}`} />
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            <div className="flex flex-col items-center">
+              <Button
+                onClick={() => setIsMediaManagerOpen(true)}
+                variant="primary"
+                disabled={isUploading}
+                className="mb-2"
+              >
+                <FiImage className="w-4 h-4 mr-2" />
                 {isUploading
                   ? t('brand.uploading', 'Uploading...')
-                  : t('brand.click_to_upload', 'Click to upload')
+                  : t('brand.select_from_media', 'Select from Media Library')
                 }
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500">
+              </Button>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
                 {t('brand.max_size', 'Max {size}MB').replace('{size}', config.maxSize.toString())}
               </p>
-            </label>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Logo Text Settings - Only for main logo */}
+      {config.key === 'site.logo' && logoTextSettings && (
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <h5 className="text-sm font-medium text-gray-900 dark:text-white mb-4">
+            {t('brand.logo_text_settings', 'Logo Text Settings')}
+          </h5>
+          <div className="space-y-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">
+                  {t('brand.show_text_next_to_logo', 'Show text next to logo')}
+                </label>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {t('brand.show_text_next_to_logo_desc', 'Display text alongside the logo in the header')}
+                </p>
+              </div>
+              <div className="flex-shrink-0 pt-1 flex items-center gap-2">
+                <Switch
+                  checked={logoTextSettings.showText}
+                  onChange={logoTextSettings.onShowTextChange}
+                  className="ml-auto"
+                />
+                {logoTextSettings.hasShowTextChanges && (
+                  <Button
+                    onClick={logoTextSettings.onSaveShowText}
+                    variant="primary"
+                    size="sm"
+                  >
+                    {t('common.save', 'Save')}
+                  </Button>
+                )}
+              </div>
+            </div>
+            {logoTextSettings.showText && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('brand.logo_text_content', 'Text Content')}
+                  </label>
+                  {logoTextSettings.hasTextContentChanges && (
+                    <Button
+                      onClick={logoTextSettings.onSaveTextContent}
+                      variant="primary"
+                      size="sm"
+                    >
+                      {t('common.save', 'Save')}
+                    </Button>
+                  )}
+                </div>
+                <Input
+                  type="text"
+                  value={logoTextSettings.textContent}
+                  onChange={(e) => logoTextSettings.onTextContentChange(e.target.value)}
+                  placeholder={t('brand.logo_text_placeholder', 'Enter text to display next to logo')}
+                  className="w-full"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {t('brand.logo_text_hint', 'Leave empty to use site name as default')}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Alt Text Settings - For assets that support it */}
+      {config.supportsAltText && altTextSettings && (
+        <div className="mt-4 pt-4 mb-6 border-t border-gray-200 dark:border-gray-700">
+          <h5 className="text-sm font-medium text-gray-900 dark:text-white mb-4">
+            {t('brand.alt_text_settings', 'Alt Text Settings')}
+          </h5>
+          <div>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">
+              {t('brand.alt_text_label', 'Alt Text')}
+            </label>
+            <Input
+              type="text"
+              value={altTextSettings.altText}
+              onChange={(e) => altTextSettings.onAltTextChange(e.target.value)}
+              placeholder={t('brand.alt_text_placeholder', 'Enter descriptive alt text for accessibility and SEO')}
+              className="w-full"
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {t('brand.alt_text_hint', 'Alt text helps screen readers and improves SEO. Leave empty to use site name as default.')}
+            </p>
+            {altTextSettings.hasChanges && (
+              <div className="pt-2">
+                <Button
+                  onClick={altTextSettings.onSave}
+                  variant="primary"
+                  size="sm"
+                >
+                  {t('common.save', 'Save')}
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Guidelines */}
       {config.guidelines.length > 0 && (
@@ -292,6 +391,17 @@ const AssetUploadCard: React.FC<AssetUploadCardProps> = ({
           </div>
         </div>
       )}
+
+      {/* MediaManager Modal */}
+      <MediaManager
+        isOpen={isMediaManagerOpen}
+        onClose={() => setIsMediaManagerOpen(false)}
+        onSelect={handleMediaSelect}
+        multiple={false}
+        accept={config.acceptedFormats.join(',')}
+        maxSize={config.maxSize}
+        title={t('brand.select_asset', 'Select {asset}').replace('{asset}', t(config.title, config.title))}
+      />
     </div>
   );
 };
@@ -303,6 +413,25 @@ export const SiteAssetsManager: React.FC = () => {
   const [assetValues, setAssetValues] = useState<Record<string, string>>({});
   const [assetSettingIds, setAssetSettingIds] = useState<Record<string, string>>({});
   const [uploadingAssets, setUploadingAssets] = useState<Set<string>>(new Set());
+  
+  // Logo text settings
+  const [logoShowText, setLogoShowText] = useState<boolean>(false);
+  const [logoTextContent, setLogoTextContent] = useState<string>('');
+  const [logoTextSettingIds, setLogoTextSettingIds] = useState<{
+    showText: string | null;
+    textContent: string | null;
+  }>({ showText: null, textContent: null });
+  
+  // Pending changes for logo text
+  const [pendingLogoShowText, setPendingLogoShowText] = useState<boolean | null>(null);
+  const [pendingLogoTextContent, setPendingLogoTextContent] = useState<string | null>(null);
+
+  // Alt text settings
+  const [altTextValues, setAltTextValues] = useState<Record<string, string>>({});
+  const [altTextSettingIds, setAltTextSettingIds] = useState<Record<string, string | null>>({});
+  
+  // Pending changes for alt text
+  const [pendingAltTextValues, setPendingAltTextValues] = useState<Record<string, string>>({});
 
   // Load existing asset values
   useEffect(() => {
@@ -320,6 +449,39 @@ export const SiteAssetsManager: React.FC = () => {
           values[config.key] = '';
         }
       });
+
+      // Load logo text settings
+      const showTextSetting = generalSettings.find(s => s.key === 'site.logo_show_text');
+      const textContentSetting = generalSettings.find(s => s.key === 'site.logo_text');
+      
+      const initialShowText = showTextSetting?.value === 'true' || false;
+      const initialTextContent = textContentSetting?.value || '';
+      
+      setLogoShowText(initialShowText);
+      setLogoTextContent(initialTextContent);
+      setPendingLogoShowText(null);
+      setPendingLogoTextContent(null);
+      setLogoTextSettingIds({
+        showText: showTextSetting?.id || null,
+        textContent: textContentSetting?.id || null
+      });
+
+      // Load alt text settings
+      const altTextValues: Record<string, string> = {};
+      const altTextIds: Record<string, string | null> = {};
+      
+      ASSET_CONFIGS.forEach(config => {
+        if (config.supportsAltText) {
+          const altKey = `${config.key}_alt`;
+          const altSetting = generalSettings.find(s => s.key === altKey);
+          altTextValues[config.key] = altSetting?.value || '';
+          altTextIds[config.key] = altSetting?.id || null;
+        }
+      });
+
+      setAltTextValues(altTextValues);
+      setAltTextSettingIds(altTextIds);
+      setPendingAltTextValues({});
 
       setAssetValues(values);
       setAssetSettingIds(settingIds);
@@ -365,6 +527,142 @@ export const SiteAssetsManager: React.FC = () => {
     });
   };
 
+  // Logo text handlers - only update local state
+  const handleLogoShowTextChange = (show: boolean) => {
+    setPendingLogoShowText(show);
+  };
+
+  const handleLogoTextContentChange = (text: string) => {
+    setPendingLogoTextContent(text);
+  };
+
+  // Save show text setting only
+  const handleSaveShowText = async () => {
+    if (pendingLogoShowText === null) return;
+    
+    try {
+      const settingId = logoTextSettingIds.showText;
+      const value = pendingLogoShowText ? 'true' : 'false';
+
+      if (settingId) {
+        await updateSetting(settingId, { value });
+      } else {
+        await createSetting({
+          key: 'site.logo_show_text',
+          value,
+          type: 'boolean',
+          description: 'Show text next to logo',
+          group: 'general',
+          isPublic: true
+        });
+      }
+
+      setLogoShowText(pendingLogoShowText);
+      setPendingLogoShowText(null);
+
+      addToast({
+        title: t('assets.setting_updated', 'Setting updated'),
+        description: t('brand.logo_text_setting_updated', 'Logo text setting has been updated'),
+        type: 'success'
+      });
+    } catch (error) {
+      console.error('Failed to save show text setting:', error);
+      addToast({
+        title: t('assets.setting_update_failed', 'Update failed'),
+        description: t('brand.logo_text_setting_update_failed', 'Failed to update logo text setting'),
+        type: 'error'
+      });
+    }
+  };
+
+  // Save text content setting only
+  const handleSaveTextContent = async () => {
+    if (pendingLogoTextContent === null) return;
+    
+    try {
+      const settingId = logoTextSettingIds.textContent;
+
+      if (settingId) {
+        await updateSetting(settingId, { value: pendingLogoTextContent });
+      } else {
+        await createSetting({
+          key: 'site.logo_text',
+          value: pendingLogoTextContent,
+          type: 'string',
+          description: 'Custom text to display next to logo',
+          group: 'general',
+          isPublic: true
+        });
+      }
+
+      setLogoTextContent(pendingLogoTextContent);
+      setPendingLogoTextContent(null);
+
+      addToast({
+        title: t('assets.setting_updated', 'Setting updated'),
+        description: t('brand.logo_text_setting_updated', 'Logo text setting has been updated'),
+        type: 'success'
+      });
+    } catch (error) {
+      console.error('Failed to save text content setting:', error);
+      addToast({
+        title: t('assets.setting_update_failed', 'Update failed'),
+        description: t('brand.logo_text_setting_update_failed', 'Failed to update logo text setting'),
+        type: 'error'
+      });
+    }
+  };
+
+  // Alt text handlers - only update local state
+  const handleAltTextChange = (assetKey: string, altText: string) => {
+    setPendingAltTextValues(prev => ({ ...prev, [assetKey]: altText }));
+  };
+
+  // Save alt text setting
+  const handleSaveAltText = async (assetKey: string) => {
+    try {
+      const altText = pendingAltTextValues[assetKey];
+      if (altText === undefined) return;
+
+      const altKey = `${assetKey}_alt`;
+      const settingId = altTextSettingIds[assetKey];
+
+      if (settingId) {
+        await updateSetting(settingId, { value: altText });
+      } else {
+        const config = ASSET_CONFIGS.find(c => c.key === assetKey);
+        await createSetting({
+          key: altKey,
+          value: altText,
+          type: 'string',
+          description: `Alt text for ${config?.title || assetKey}`,
+          group: 'general',
+          isPublic: true
+        });
+      }
+
+      setAltTextValues(prev => ({ ...prev, [assetKey]: altText }));
+      setPendingAltTextValues(prev => {
+        const newPending = { ...prev };
+        delete newPending[assetKey];
+        return newPending;
+      });
+
+      addToast({
+        title: t('assets.setting_updated', 'Setting updated'),
+        description: t('brand.alt_text_saved', 'Alt text has been saved'),
+        type: 'success'
+      });
+    } catch (error) {
+      console.error('Failed to save alt text setting:', error);
+      addToast({
+        title: t('assets.setting_update_failed', 'Update failed'),
+        description: t('brand.alt_text_update_failed', 'Failed to update alt text'),
+        type: 'error'
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -387,6 +685,32 @@ export const SiteAssetsManager: React.FC = () => {
           isUploading={uploadingAssets.has(config.key)}
           onUploadStart={handleUploadStart}
           onUploadEnd={handleUploadEnd}
+          logoTextSettings={
+            config.key === 'site.logo'
+              ? {
+                  showText: pendingLogoShowText !== null ? pendingLogoShowText : logoShowText,
+                  textContent: pendingLogoTextContent !== null ? pendingLogoTextContent : logoTextContent,
+                  onShowTextChange: handleLogoShowTextChange,
+                  onTextContentChange: handleLogoTextContentChange,
+                  onSaveShowText: handleSaveShowText,
+                  onSaveTextContent: handleSaveTextContent,
+                  hasShowTextChanges: pendingLogoShowText !== null,
+                  hasTextContentChanges: pendingLogoTextContent !== null
+                }
+              : undefined
+          }
+          altTextSettings={
+            config.supportsAltText
+              ? {
+                  altText: pendingAltTextValues[config.key] !== undefined 
+                    ? pendingAltTextValues[config.key] 
+                    : (altTextValues[config.key] || ''),
+                  onAltTextChange: (text: string) => handleAltTextChange(config.key, text),
+                  onSave: () => handleSaveAltText(config.key),
+                  hasChanges: pendingAltTextValues[config.key] !== undefined
+                }
+              : undefined
+          }
         />
       ))}
     </div>

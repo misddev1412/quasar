@@ -13,12 +13,6 @@ export class SectionsSeeder implements SeederModule {
     const sectionRepository = this.dataSource.getRepository(SectionEntity);
     const translationRepository = this.dataSource.getRepository(SectionTranslationEntity);
 
-    const existing = await sectionRepository.count();
-    if (existing > 0) {
-      console.log('Sections already seeded, skipping');
-      return;
-    }
-
     const sections: Array<{ section: Partial<SectionEntity>; translations: Array<Partial<SectionTranslationEntity>> }> = [
       {
         section: {
@@ -247,9 +241,166 @@ export class SectionsSeeder implements SeederModule {
           },
         ],
       },
+      {
+        section: {
+          page: 'product',
+          type: SectionType.HERO_SLIDER,
+          position: 0,
+          isEnabled: true,
+          config: {
+            autoplay: true,
+            interval: 7000,
+            layout: 'container',
+            slides: [
+              {
+                id: 'product-hero-1',
+                title: 'Built for merchandising teams',
+                subtitle: 'Curate product stories with localized messaging',
+                imageUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&q=80',
+                ctaLabel: 'Browse catalog',
+                ctaUrl: '/products',
+              },
+              {
+                id: 'product-hero-2',
+                title: 'Launch seasonal assortments quickly',
+                subtitle: 'Coordinate pricing, bundles, and merchandising rules',
+                imageUrl: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=1600&q=80',
+                ctaLabel: 'See featured products',
+                ctaUrl: '#featured',
+              },
+            ],
+          },
+        },
+        translations: [
+          {
+            locale: 'en',
+            title: 'Merchandising excellence',
+            subtitle: 'Keep buyers inspired with dynamic, localized hero content',
+            description: 'Highlight hero assortments, call out bundle offers, and drive shoppers to browse the entire catalog.',
+            heroDescription: 'Hero storytelling tailored for the product listing page.',
+          },
+          {
+            locale: 'vi',
+            title: 'Trải nghiệm sản phẩm nổi bật',
+            subtitle: 'Tùy biến hero theo từng chiến dịch sản phẩm',
+            description: 'Giới thiệu bộ sưu tập, gói ưu đãi và dẫn người dùng khám phá toàn bộ danh mục.',
+            heroDescription: 'Hero linh hoạt cho trang danh sách sản phẩm.',
+          },
+        ],
+      },
+      {
+        section: {
+          page: 'product',
+          type: SectionType.CTA,
+          position: 1,
+          isEnabled: true,
+          config: {
+            layout: 'container',
+            style: 'split',
+            background: 'image',
+            backgroundImage: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1500&q=80',
+            overlayOpacity: 0.5,
+            accentColor: '#2563eb',
+            primaryCta: {
+              label: 'View all categories',
+              href: '/categories',
+            },
+            secondaryCta: {
+              label: 'Talk to sales',
+              href: '/contact',
+            },
+          },
+        },
+        translations: [
+          {
+            locale: 'en',
+            title: 'Need curated recommendations?',
+            subtitle: 'Let our team build the right merchandising mix',
+            description: 'Blend product discovery modules, editorial content, and bundles that complement every PDP.',
+            heroDescription: null,
+          },
+          {
+            locale: 'vi',
+            title: 'Cần gợi ý danh mục phù hợp?',
+            subtitle: 'Đội ngũ của chúng tôi sẽ giúp bạn tối ưu danh mục sản phẩm',
+            description: 'Kết hợp module khám phá sản phẩm, câu chuyện thương hiệu và gói ưu đãi phù hợp cho mọi trang chi tiết.',
+            heroDescription: null,
+          },
+        ],
+      },
+      {
+        section: {
+          page: 'product_detail',
+          type: SectionType.FEATURED_PRODUCTS,
+          position: 0,
+          isEnabled: true,
+          config: {
+            productIds: ['SKU-2001', 'SKU-2002', 'SKU-2003'],
+            displayStyle: 'grid',
+            itemsPerRow: 3,
+          },
+        },
+        translations: [
+          {
+            locale: 'en',
+            title: 'Complete the look',
+            subtitle: 'Pairs well with your current selection',
+            description: 'Show complementary items, bundle-ready accessories, or seasonal add-ons that enhance the product detail page.',
+            heroDescription: null,
+          },
+          {
+            locale: 'vi',
+            title: 'Hoàn thiện trải nghiệm',
+            subtitle: 'Kết hợp hoàn hảo với sản phẩm bạn đang xem',
+            description: 'Gợi ý phụ kiện đi kèm, combo ưu đãi và sản phẩm bổ trợ ngay trên trang chi tiết.',
+            heroDescription: null,
+          },
+        ],
+      },
+      {
+        section: {
+          page: 'product_detail',
+          type: SectionType.CUSTOM_HTML,
+          position: 1,
+          isEnabled: true,
+          config: {
+            html: '<section class="rounded-3xl border border-gray-200 bg-white/90 dark:bg-gray-900/40 p-8 shadow-lg">\n  <div class="grid gap-6 md:grid-cols-2 items-center">\n    <div>\n      <p class="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-500 mb-2">Why shoppers love this collection</p>\n      <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Crafted with premium materials & verified supply chain partners</h2>\n      <p class="text-gray-600 dark:text-gray-300">Use this slot to highlight sustainability claims, warranty information, fit guides, or brand storytelling specific to the PDP.</p>\n    </div>\n    <div class="bg-indigo-50 dark:bg-indigo-900/40 rounded-2xl p-6">\n      <ul class="space-y-3 text-gray-700 dark:text-gray-200 text-sm">\n        <li class="flex items-start gap-3"><span class="text-indigo-500 mt-1">✓</span> Responsive layout that adapts across desktop and mobile PDPs</li>\n        <li class="flex items-start gap-3"><span class="text-indigo-500 mt-1">✓</span> Localized messaging through translation overrides per locale</li>\n        <li class="flex items-start gap-3"><span class="text-indigo-500 mt-1">✓</span> Drop rich media, icons, and supporting copy using HTML blocks</li>\n      </ul>\n    </div>\n  </div>\n</section>',
+          },
+        },
+        translations: [
+          {
+            locale: 'en',
+            title: 'Quality signals customers trust',
+            description: 'Reassure shoppers with PDP-specific storytelling, returns messaging, or detailed product specs.',
+            heroDescription: null,
+          },
+          {
+            locale: 'vi',
+            title: 'Thông tin làm khách hàng yên tâm',
+            description: 'Nhấn mạnh chính sách bảo hành, vật liệu cao cấp và câu chuyện thương hiệu ngay tại trang sản phẩm.',
+            heroDescription: null,
+          },
+        ],
+      },
     ];
 
+    let createdCount = 0;
+
     for (const entry of sections) {
+      const existingSection = await sectionRepository.findOne({
+        where: {
+          page: entry.section.page,
+          type: entry.section.type,
+        },
+      });
+
+      if (existingSection) {
+        console.log(
+          `Skipping section seeding for page='${entry.section.page}' type='${entry.section.type}' (already exists)`,
+        );
+        continue;
+      }
+
       const createdSection = await sectionRepository.save(sectionRepository.create(entry.section));
       const translations = entry.translations.map((translation) =>
         translationRepository.create({
@@ -262,8 +413,9 @@ export class SectionsSeeder implements SeederModule {
         }),
       );
       await translationRepository.save(translations);
+      createdCount += 1;
     }
 
-    console.log(`Seeded ${sections.length} homepage sections with translations.`);
+    console.log(`Seeded ${createdCount} sections with translations.`);
   }
 }

@@ -1,9 +1,8 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import Link from 'next/link';
 import Layout from '../../../components/layout/Layout';
 import { serverTrpc } from '../../../utils/trpc-server';
-import { Breadcrumb } from 'ui';
+import PageBreadcrumbs from '../../../components/common/PageBreadcrumbs';
 
 // News item interface
 interface NewsItem {
@@ -114,19 +113,14 @@ async function NewsPageContent({ params }: NewsPageProps) {
     <Layout>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Breadcrumb */}
-        <div className="bg-white/80 dark:bg-gray-900/70 border-b border-gray-200/70 dark:border-gray-800/70 backdrop-blur">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <Breadcrumb
-              items={[
-                { label: 'Home', href: '/' },
-                { label: 'News', href: '/news' },
-                { label: newsItem.title, isCurrent: true },
-              ]}
-              linkComponent={Link}
-              className="max-w-4xl bg-white/95 p-3 dark:bg-neutral-900/80"
-            />
-          </div>
-        </div>
+        <PageBreadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'News', href: '/news' },
+            { label: newsItem.title, isCurrent: true },
+          ]}
+          fullWidth={true}
+        />
 
         {/* News Header */}
         <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">

@@ -2,6 +2,7 @@ export enum SectionPage {
   HOME = 'home',
   NEWS = 'news',
   PRODUCT = 'product',
+  PRODUCT_DETAIL = 'product_detail',
 }
 
 export enum SectionType {

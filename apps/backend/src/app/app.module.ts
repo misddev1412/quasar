@@ -14,6 +14,7 @@ import { PostsModule } from '../modules/posts/posts.module';
 import { EmailChannelModule } from '../modules/email-channel/email-channel.module';
 import { MailProviderModule } from '../modules/mail-provider/mail-provider.module';
 import { EmailFlowModule } from '../modules/email-flow/email-flow.module';
+import { MailLogModule } from '../modules/mail-log/mail-log.module';
 import { LanguageModule } from '../modules/language/language.module';
 import { StorageModule } from '../modules/storage/storage.module';
 import { AuthModule } from '../auth/auth.module';
@@ -47,6 +48,7 @@ import { PostTag } from '../modules/posts/entities/post-tag.entity';
 import { EmailChannel } from '../modules/email-channel/entities/email-channel.entity';
 import { MailProvider } from '../modules/mail-provider/entities/mail-provider.entity';
 import { EmailFlow } from '../modules/email-flow/entities/email-flow.entity';
+import { MailLog } from '../modules/mail-log/entities/mail-log.entity';
 import { Language } from '../modules/language/entities/language.entity';
 import { Media } from '../modules/storage/entities/media.entity';
 import { FirebaseConfigEntity } from '../modules/firebase/entities/firebase-config.entity';
@@ -110,6 +112,7 @@ import { PageView } from '../modules/visitor/entities/page-view.entity';
           EmailChannel,
           MailProvider,
           EmailFlow,
+          MailLog,
           Language,
           Media,
           FirebaseConfigEntity,
@@ -156,6 +159,7 @@ import { PageView } from '../modules/visitor/entities/page-view.entity';
     EmailChannelModule,
     MailProviderModule,
     EmailFlowModule,
+    MailLogModule,
     LanguageModule,
     StorageModule,
     ProductsModule,

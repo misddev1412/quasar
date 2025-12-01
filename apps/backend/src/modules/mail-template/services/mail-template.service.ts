@@ -274,7 +274,7 @@ export class MailTemplateService {
   /**
    * Search templates
    */
-  async searchTemplates(searchTerm: string): Promise<MailTemplateListItemDto[]> {
+  async searchTemplates(searchTerm: string = ''): Promise<MailTemplateListItemDto[]> {
     const templates = await this.mailTemplateRepository.searchByContent(searchTerm);
     return templates.map(template => this.toListItemDto(template));
   }

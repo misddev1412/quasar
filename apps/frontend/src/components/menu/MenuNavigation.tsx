@@ -34,6 +34,8 @@ export interface NavigationItem {
   badge?: string;
   featured?: boolean;
   config?: Record<string, unknown>;
+  borderColor?: string | null;
+  borderWidth?: string | null;
   children?: NavigationItem[];
 }
 
@@ -44,6 +46,23 @@ export interface NavigationItemRendererProps {
 }
 
 export type NavigationItemRenderer = (props: NavigationItemRendererProps) => React.ReactNode;
+
+const getBorderStyles = (item: NavigationItem): React.CSSProperties => {
+  const style: React.CSSProperties = {};
+  if (item.borderColor) {
+    style.borderColor = item.borderColor;
+  }
+  if (item.borderWidth) {
+    style.borderWidth = item.borderWidth;
+  }
+  if (item.borderColor || item.borderWidth) {
+    style.borderStyle = style.borderStyle || 'solid';
+    if (!style.borderWidth) {
+      style.borderWidth = '1px';
+    }
+  }
+  return style;
+};
 
 
 const DesktopNavigationItem: React.FC<{
@@ -72,13 +91,14 @@ const DesktopNavigationItem: React.FC<{
         target={item.target}
         rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
         className={`
-          flex items-center gap-1 text-sm font-medium transition-all duration-200 relative py-2 px-3 rounded-lg
+          flex items-center gap-1 text-sm font-medium transition-all duration-200 relative py-2 px-3 rounded-lg border border-transparent
           ${
             isActive
               ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
               : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
           }
         `}
+        style={getBorderStyles(item)}
       >
         <span className="flex items-center gap-2">
           <UnifiedIcon icon={item.icon} variant={isActive ? 'nav-active' : 'nav'} />
@@ -101,12 +121,13 @@ const DesktopNavigationItem: React.FC<{
                   href={child.href || '#'}
                   target={child.target}
                 rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
-                className="
-                  block px-4 py-2 text-sm text-gray-700 dark:text-gray-300
-                  hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800
-                  transition-colors
-                "
-              >
+              className="
+                block px-4 py-2 text-sm text-gray-700 dark:text-gray-300
+                hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800
+                transition-colors
+              "
+              style={getBorderStyles(child)}
+            >
                 <div className="flex items-center justify-between gap-3">
                   <span className="flex items-center gap-2">
                     <UnifiedIcon icon={child.icon} variant="nav" />
@@ -248,13 +269,14 @@ const DesktopNavigation: React.FC<{
               target={item.target}
               rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
               className={`
-                flex items-center gap-1 text-sm font-medium transition-all duration-200 relative py-2 px-3 rounded-lg
+                flex items-center gap-1 text-sm font-medium transition-all duration-200 relative py-2 px-3 rounded-lg border border-transparent
                 ${
                   isActive
                     ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
                 }
               `}
+              style={getBorderStyles(item)}
             >
               <span className="flex items-center gap-2">
                 <UnifiedIcon icon={item.icon} variant={isActive ? 'nav-active' : 'nav'} />
@@ -304,19 +326,20 @@ const DesktopNavigation: React.FC<{
                           </p>
                         )}
                       </Link>
-                      {child.children && child.children.length > 0 && (
-                        <div className="mt-2 ml-6 border-l border-gray-100 dark:border-gray-700 pl-3 space-y-1">
-                          {child.children.map((grandChild) => (
-                            <Link
-                              key={grandChild.id}
+                {child.children && child.children.length > 0 && (
+                  <div className="mt-2 ml-6 border-l border-gray-100 dark:border-gray-700 pl-3 space-y-1">
+                    {child.children.map((grandChild) => (
+                      <Link
+                        key={grandChild.id}
                               href={grandChild.href || '#'}
                               target={grandChild.target}
                               rel={grandChild.target === '_blank' ? 'noopener noreferrer' : undefined}
-                              className="
-                                block text-xs text-gray-600 dark:text-gray-400 py-1
-                                hover:text-blue-600 dark:hover:text-blue-400
-                              "
-                            >
+                        className="
+                          block text-xs text-gray-600 dark:text-gray-400 py-1
+                          hover:text-blue-600 dark:hover:text-blue-400
+                        "
+                        style={getBorderStyles(grandChild)}
+                      >
                               <span className="flex items-center gap-2">
                                 <UnifiedIcon icon={grandChild.icon} variant="nav" />
                                 <span>{grandChild.name}</span>
@@ -374,6 +397,7 @@ const MobileMenuItem: React.FC<{
                     : 'text-gray-700 dark:text-gray-300'
                 }
               `}
+              style={getBorderStyles(item)}
               onClick={() => {
                 if (!hasChildren) {
                   onClose();
@@ -410,6 +434,7 @@ const MobileMenuItem: React.FC<{
                   hover:text-blue-600 dark:hover:text-blue-400
                   transition-colors
                 "
+                style={getBorderStyles(child)}
                 onClick={onClose}
               >
                 <span className="flex items-center gap-2">
@@ -436,6 +461,7 @@ const MobileMenuItem: React.FC<{
                         hover:text-blue-600 dark:hover:text-blue-400
                         transition-colors
                       "
+                      style={getBorderStyles(grandChild)}
                       onClick={onClose}
                     >
                       <span className="flex items-center gap-2">

@@ -146,8 +146,17 @@ export class MailTemplateRepository {
 
   /**
    * Search templates by content (subject and body)
+   * If searchTerm is empty, returns latest 10 templates ordered by createdAt DESC
    */
-  async searchByContent(searchTerm: string): Promise<MailTemplate[]> {
+  async searchByContent(searchTerm: string = ''): Promise<MailTemplate[]> {
+    if (!searchTerm || searchTerm.trim() === '') {
+      // Return latest 10 templates when no search term
+      return this.mailTemplateRepository.find({
+        take: 10,
+        order: { createdAt: 'DESC' }
+      });
+    }
+    
     return this.mailTemplateRepository.find({
       where: [
         { subject: ILike(`%${searchTerm}%`) },
@@ -155,7 +164,8 @@ export class MailTemplateRepository {
         { name: ILike(`%${searchTerm}%`) },
         { description: ILike(`%${searchTerm}%`) }
       ],
-      order: { name: 'ASC' }
+      order: { name: 'ASC' },
+      take: 10
     });
   }
 

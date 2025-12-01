@@ -79,6 +79,22 @@ export class MenuEntity extends SoftDeletableEntity {
   backgroundColor?: string | null;
 
   @Column({
+    name: 'border_color',
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+  })
+  borderColor?: string | null;
+
+  @Column({
+    name: 'border_width',
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+  })
+  borderWidth?: string | null;
+
+  @Column({
     type: 'jsonb',
     default: () => "'{}'::jsonb",
   })

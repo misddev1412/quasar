@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
+import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { MailProviderService } from '../services/mail-provider.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
@@ -7,6 +7,7 @@ import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
 import { ErrorLevelCode, ModuleCode, OperationCode } from '@shared/enums/error-codes.enums';
 import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '../../../trpc/context';
 
 // Zod schemas for mail provider operations
 const createMailProviderSchema = z.object({
@@ -195,10 +196,11 @@ export class AdminMailProviderRouter {
     output: apiResponseSchema,
   })
   async testConnection(
-    @Input() input: { id: string; testEmail?: string }
+    @Input() input: { id: string; testEmail?: string },
+    @Ctx() ctx: AuthenticatedContext,
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const result = await this.mailProviderService.testConnection(input.id, input.testEmail);
+      const result = await this.mailProviderService.testConnection(input.id, input.testEmail, ctx.user?.id);
       return this.responseHandler.createTrpcSuccess(result.data);
     } catch (error) {
       const errorLevel = error?.status === 404 ? ErrorLevelCode.NOT_FOUND : 
@@ -221,11 +223,12 @@ export class AdminMailProviderRouter {
     output: apiResponseSchema,
   })
   async testConnectionWithData(
-    @Input() input: z.infer<typeof createMailProviderSchema> & { testEmail?: string }
+    @Input() input: z.infer<typeof createMailProviderSchema> & { testEmail?: string },
+    @Ctx() ctx: AuthenticatedContext,
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const { testEmail, ...providerData } = input;
-      const result = await this.mailProviderService.testConnectionWithData(providerData as any, testEmail);
+      const result = await this.mailProviderService.testConnectionWithData(providerData as any, testEmail, ctx.user?.id);
       return this.responseHandler.createTrpcSuccess(result.data);
     } catch (error) {
       const errorLevel = error?.status === 400 ? ErrorLevelCode.BUSINESS_LOGIC_ERROR : ErrorLevelCode.BUSINESS_LOGIC_ERROR;
@@ -238,5 +241,3 @@ export class AdminMailProviderRouter {
     }
   }
 }
-
-

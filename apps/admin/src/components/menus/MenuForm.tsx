@@ -23,6 +23,7 @@ import {
   MENU_TYPE_OPTIONS,
   MENU_TARGET_OPTIONS,
   TOP_MENU_GROUP,
+  SUB_MENU_GROUP,
   TOP_MENU_ALLOWED_TYPES,
   ALL_MENU_TYPE_OPTIONS,
 } from '../../hooks/useMenuPage';
@@ -152,6 +153,8 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         icon: menu.icon || undefined,
         textColor: menu.textColor || undefined,
         backgroundColor: menu.backgroundColor || undefined,
+        borderColor: menu.borderColor || undefined,
+        borderWidth: menu.borderWidth || undefined,
         config: menu.config,
         isMegaMenu: menu.isMegaMenu,
         megaMenuColumns: menu.megaMenuColumns ?? undefined,
@@ -166,13 +169,15 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         showDescription: menu.config?.showDescription !== false,
         // Section customization
         columnSpan: asNumberOrUndefined(menu.config?.columnSpan),
-        borderColor: asStringOrUndefined(menu.config?.borderColor),
         titleColor: asStringOrUndefined(menu.config?.titleColor),
         showTitle: menu.config?.showTitle !== false,
         maxItems: asNumberOrUndefined(menu.config?.maxItems),
         layout: (menu.config?.layout as 'vertical' | 'grid' | 'horizontal') || undefined,
         // Banner customization
         bannerConfig: normalizeBannerConfig(menu.config?.bannerConfig),
+        subMenuVariant: (menu.config?.subMenuVariant as 'link' | 'button') || undefined,
+        buttonBorderRadius: asStringOrUndefined(menu.config?.buttonBorderRadius),
+        buttonAnimation: (menu.config?.buttonAnimation as 'none' | 'pulse' | 'float') || undefined,
       };
     }
 
@@ -190,6 +195,10 @@ export const MenuForm: React.FC<MenuFormProps> = ({
       config: {},
       isMegaMenu: false,
       translations: defaultTranslations,
+      borderColor: undefined,
+      borderWidth: undefined,
+      subMenuVariant: currentMenuGroup === SUB_MENU_GROUP ? 'button' : undefined,
+      buttonBorderRadius: currentMenuGroup === SUB_MENU_GROUP ? '9999px' : undefined,
     };
   });
   const [parentMenuTree, setParentMenuTree] = useState<MenuTreeNode[]>(menuTree);
@@ -197,6 +206,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
   const [parentMenuError, setParentMenuError] = useState<string | null>(null);
 
   const isTopMenu = formData.menuGroup === TOP_MENU_GROUP;
+  const isSubMenu = formData.menuGroup === SUB_MENU_GROUP;
 
   const menuTypeOptions = useMemo<SelectOption[]>(() => {
     const source = isTopMenu
@@ -324,9 +334,117 @@ export const MenuForm: React.FC<MenuFormProps> = ({
     translationLocales.forEach(ensureTranslation);
   }, [translationLocales.join(',')]);
 
+  const trimString = (value?: string) => {
+    if (typeof value !== 'string') {
+      return undefined;
+    }
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+  };
+
+  const buildConfigPayload = () => {
+    const managedKeys = [
+      'badge',
+      'hoverEffect',
+      'customClass',
+      'imageSize',
+      'showDescription',
+      'columnSpan',
+      'titleColor',
+      'showTitle',
+      'maxItems',
+      'layout',
+      'bannerConfig',
+      'subMenuVariant',
+      'buttonBorderRadius',
+      'buttonAnimation',
+    ];
+
+    const baseConfig: Record<string, unknown> = { ...(formData.config || {}) };
+    managedKeys.forEach(key => {
+      if (key in baseConfig) {
+        delete baseConfig[key];
+      }
+    });
+
+    const normalizedBadge = formData.badge && trimString(formData.badge.text)
+      ? {
+          text: trimString(formData.badge.text)!,
+          color: trimString(formData.badge.color) || formData.badge.color || '#1d4ed8',
+          backgroundColor: trimString(formData.badge.backgroundColor) || formData.badge.backgroundColor || 'rgba(59, 130, 246, 0.15)',
+        }
+      : undefined;
+
+    let bannerConfig = formData.bannerConfig
+      ? Object.entries(formData.bannerConfig).reduce((acc, [key, value]) => {
+          if (typeof value === 'string') {
+            const trimmed = value.trim();
+            if (trimmed.length > 0) {
+              acc[key] = trimmed;
+            }
+          } else if (value !== undefined && value !== null) {
+            acc[key] = value;
+          }
+          return acc;
+        }, {} as Record<string, unknown>)
+      : undefined;
+
+    if (bannerConfig && Object.keys(bannerConfig).length === 0) {
+      bannerConfig = undefined;
+    }
+
+    const normalizedHoverEffect =
+      formData.hoverEffect && formData.hoverEffect !== 'none'
+        ? formData.hoverEffect
+        : undefined;
+
+    const normalizedCustomClass = trimString(formData.customClass);
+    const normalizedTitleColor = trimString(formData.titleColor);
+    const normalizedSubMenuVariant = isSubMenu ? (formData.subMenuVariant || 'button') : undefined;
+    const normalizedButtonBorderRadius =
+      normalizedSubMenuVariant === 'button' ? trimString(formData.buttonBorderRadius) : undefined;
+    const normalizedButtonAnimation =
+      normalizedSubMenuVariant === 'button' && formData.buttonAnimation && formData.buttonAnimation !== 'none'
+        ? formData.buttonAnimation
+        : undefined;
+
+    const assign = (key: string, value: unknown) => {
+      if (value === undefined) {
+        delete baseConfig[key];
+      } else {
+        baseConfig[key] = value;
+      }
+    };
+
+    assign('badge', normalizedBadge);
+    assign('hoverEffect', normalizedHoverEffect);
+    assign('customClass', normalizedCustomClass);
+    assign('imageSize', formData.imageSize);
+    assign('showDescription', typeof formData.showDescription === 'boolean' ? formData.showDescription : undefined);
+    assign('columnSpan', formData.columnSpan);
+    assign('titleColor', normalizedTitleColor);
+    assign('showTitle', typeof formData.showTitle === 'boolean' ? formData.showTitle : undefined);
+    assign('maxItems', formData.maxItems);
+    assign('layout', formData.layout);
+    assign('bannerConfig', bannerConfig);
+    assign('subMenuVariant', normalizedSubMenuVariant);
+    assign('buttonBorderRadius', normalizedButtonBorderRadius);
+    assign('buttonAnimation', normalizedButtonAnimation);
+
+    return baseConfig;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    const payload = {
+      ...formData,
+      textColor: trimString(formData.textColor),
+      backgroundColor: trimString(formData.backgroundColor),
+      borderColor: trimString(formData.borderColor),
+      borderWidth: trimString(formData.borderWidth),
+      config: buildConfigPayload(),
+    };
+    onSubmit(payload);
   };
 
   const updateFormData = (field: keyof MenuFormState, value: any) => {
@@ -375,6 +493,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
   const handleMenuGroupChange = (group: string) => {
     setFormData(prev => {
       const isTopGroup = group === TOP_MENU_GROUP;
+      const isSubGroup = group === SUB_MENU_GROUP;
 
       let nextType = prev.type;
       if (isTopGroup && !TOP_MENU_ALLOWED_TYPES.includes(nextType)) {
@@ -400,6 +519,9 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         url: requiresUrl(nextType) ? prev.url : undefined,
         referenceId: requiresReferenceId(nextType) ? prev.referenceId : undefined,
         config: nextConfig,
+        subMenuVariant: isSubGroup ? (prev.subMenuVariant || 'button') : undefined,
+        buttonBorderRadius: isSubGroup ? (prev.buttonBorderRadius || '9999px') : undefined,
+        buttonAnimation: isSubGroup ? prev.buttonAnimation : undefined,
       };
     });
   };
@@ -439,6 +561,15 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         ...prev.bannerConfig,
         [field]: value
       }
+    }));
+  };
+
+  const handleSubMenuVariantChange = (variant: 'link' | 'button') => {
+    setFormData(prev => ({
+      ...prev,
+      subMenuVariant: variant,
+      buttonBorderRadius: variant === 'button' ? (prev.buttonBorderRadius || '9999px') : undefined,
+      buttonAnimation: variant === 'button' ? (prev.buttonAnimation || 'none') : undefined,
     }));
   };
 
@@ -666,6 +797,77 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         label="Background Color"
       />
 
+      <ColorSelector
+        value={formData.borderColor}
+        onChange={(color) => updateFormData('borderColor', color)}
+        placeholder="#E5E7EB"
+        label="Border Color"
+      />
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Border Width</label>
+        <Input
+          value={formData.borderWidth || ''}
+          onChange={(e) => updateFormData('borderWidth', e.target.value)}
+          placeholder="1px"
+          className="mt-1"
+          inputSize="md"
+        />
+      </div>
+
+      {isSubMenu && (
+        <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
+          <h4 className="text-sm font-semibold text-gray-700 mb-3">Sub Menu Display</h4>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Display Type</label>
+            <Select
+              value={formData.subMenuVariant || 'link'}
+              onChange={(value) => handleSubMenuVariantChange(value as 'link' | 'button')}
+              options={[
+                { value: 'link', label: 'Menu Item' },
+                { value: 'button', label: 'Custom Button' },
+              ]}
+              className="mt-1"
+              size="md"
+            />
+          </div>
+
+          {formData.subMenuVariant === 'button' && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Button Border Radius</label>
+                  <Input
+                    value={formData.buttonBorderRadius || ''}
+                    onChange={(e) => updateFormData('buttonBorderRadius', e.target.value)}
+                    placeholder="9999px"
+                    className="mt-1"
+                    inputSize="md"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Accepts any valid CSS radius (px, rem, etc.).</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Button Animation</label>
+                  <Select
+                    value={formData.buttonAnimation || 'none'}
+                    onChange={(value) => updateFormData('buttonAnimation', value as 'none' | 'pulse' | 'float')}
+                    options={[
+                      { value: 'none', label: 'None' },
+                      { value: 'pulse', label: 'Pulse' },
+                      { value: 'float', label: 'Floating' },
+                    ]}
+                    className="mt-1"
+                    size="md"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">Use the color, icon, and link fields above to finish styling the button.</p>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Enhanced Customization Options */}
       {formData.isMegaMenu && (
         <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
@@ -745,13 +947,6 @@ export const MenuForm: React.FC<MenuFormProps> = ({
                 inputSize="md"
               />
             </div>
-
-            <ColorSelector
-              value={formData.borderColor}
-              onChange={(color) => updateFormData('borderColor', color)}
-              placeholder="#E5E7EB"
-              label="Border Color"
-            />
           </div>
 
           <div className="flex items-center gap-4">

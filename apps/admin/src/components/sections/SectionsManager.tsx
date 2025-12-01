@@ -85,6 +85,7 @@ const PAGE_OPTIONS: SelectOption[] = [
   { value: 'home', label: 'Home' },
   { value: 'news', label: 'News' },
   { value: 'product', label: 'Product' },
+  { value: 'product_detail', label: 'Product Detail' },
 ];
 
 const SECTION_TYPE_OPTIONS: SelectOption[] = (Object.entries(SECTION_TYPE_LABELS) as Array<[SectionType, string]>).map(([value, label]) => ({

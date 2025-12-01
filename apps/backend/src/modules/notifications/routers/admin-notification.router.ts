@@ -11,6 +11,8 @@ import { NotificationType } from '../entities/notification.entity';
 import { CreateNotificationDto } from '../repositories/notification.repository';
 import { SendNotificationToUserDto, BulkNotificationDto } from '../services/notification.service';
 import { NotificationEvent } from '../entities/notification-event.enum';
+import { NotificationChannel } from '../entities/notification-preference.entity';
+import { NotificationEventFlowService } from '../services/notification-event-flow.service';
 
 export const notificationTypeSchema = z.nativeEnum(NotificationType);
 
@@ -106,11 +108,57 @@ export const cleanupNotificationsSchema = z.object({
   olderThanDays: z.number().min(1).default(30),
 });
 
+const notificationChannelEnum = z.enum(['push', 'email', 'in_app', 'sms', 'telegram']);
+
+const listEventFlowsSchema = z.object({
+  page: z.number().min(1).default(1),
+  limit: z.number().min(1).max(100).default(20),
+  search: z.string().optional(),
+  channel: notificationChannelEnum.optional(),
+  eventKey: z.nativeEnum(NotificationEvent).optional(),
+  isActive: z.boolean().optional(),
+});
+
+const getEventFlowSchema = z.object({
+  id: z.string().uuid().optional(),
+  eventKey: z.nativeEnum(NotificationEvent).optional(),
+}).refine(data => data.id || data.eventKey, {
+  message: 'Either id or eventKey must be provided',
+  path: ['id'],
+});
+
+const upsertEventFlowSchema = z.object({
+  id: z.string().uuid().optional(),
+  eventKey: z.nativeEnum(NotificationEvent),
+  displayName: z.string().min(3).max(150),
+  description: z.string().max(500).optional(),
+  channelPreferences: z.array(notificationChannelEnum).min(1),
+  includeActor: z.boolean().default(true),
+  recipientUserIds: z.array(z.string().uuid()).optional().default([]),
+  ccUserIds: z.array(z.string().uuid()).optional().default([]),
+  bccUserIds: z.array(z.string().uuid()).optional().default([]),
+  ccEmails: z.array(z.string().email()).optional().default([]),
+  bccEmails: z.array(z.string().email()).optional().default([]),
+  mailTemplateIds: z.array(z.string().uuid()).optional().default([]),
+  channelMetadata: z.record(z.unknown()).optional(),
+  isActive: z.boolean().optional(),
+});
+
+const deleteEventFlowSchema = z.object({
+  id: z.string().uuid(),
+});
+
+const searchRecipientsSchema = z.object({
+  query: z.string(),
+  limit: z.number().min(1).max(50).default(10),
+});
+
 @Injectable()
 @Router({ alias: 'adminNotification' })
 export class AdminNotificationRouter {
   constructor(
     private readonly notificationService: NotificationService,
+    private readonly notificationEventFlowService: NotificationEventFlowService,
     private readonly responseService: ResponseService,
   ) {}
 
@@ -524,5 +572,99 @@ null);
 
     return this.responseService.createTrpcSuccess(
 { deletedCount });
+  }
+
+  @Query({
+    input: listEventFlowsSchema,
+    output: paginatedResponseSchema,
+  })
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  async listEventFlows(
+    @Input() input: z.infer<typeof listEventFlowsSchema>,
+  ) {
+    const result = await this.notificationEventFlowService.listFlows({
+      page: input.page,
+      limit: input.limit,
+      search: input.search,
+      channel: input.channel as NotificationChannel | undefined,
+      eventKey: input.eventKey,
+      isActive: input.isActive,
+    });
+
+    return this.responseService.createTrpcSuccess({
+      items: result.data,
+      total: result.meta.total,
+      page: result.meta.page,
+      limit: result.meta.limit,
+      totalPages: result.meta.totalPages,
+    });
+  }
+
+  @Query({
+    input: getEventFlowSchema,
+    output: apiResponseSchema,
+  })
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  async getEventFlow(
+    @Input() input: z.infer<typeof getEventFlowSchema>,
+  ) {
+    const flow = input.id
+      ? await this.notificationEventFlowService.getFlowById(input.id)
+      : await this.notificationEventFlowService.getFlowByEvent(input.eventKey!);
+
+    return this.responseService.createTrpcSuccess(flow);
+  }
+
+  @Mutation({
+    input: upsertEventFlowSchema,
+    output: apiResponseSchema,
+  })
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  async upsertEventFlow(
+    @Input() input: z.infer<typeof upsertEventFlowSchema>,
+  ) {
+    const flow = await this.notificationEventFlowService.upsertFlow({
+      id: input.id,
+      eventKey: input.eventKey,
+      displayName: input.displayName,
+      description: input.description,
+      channelPreferences: input.channelPreferences as NotificationChannel[],
+      includeActor: input.includeActor,
+      recipientUserIds: input.recipientUserIds || [],
+      ccUserIds: input.ccUserIds || [],
+      bccUserIds: input.bccUserIds || [],
+      ccEmails: input.ccEmails || [],
+      bccEmails: input.bccEmails || [],
+      mailTemplateIds: input.mailTemplateIds || [],
+      channelMetadata: input.channelMetadata,
+      isActive: input.isActive,
+    });
+
+    return this.responseService.createTrpcSuccess(flow);
+  }
+
+  @Mutation({
+    input: deleteEventFlowSchema,
+    output: apiResponseSchema,
+  })
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  async deleteEventFlow(
+    @Input() input: z.infer<typeof deleteEventFlowSchema>,
+  ) {
+    await this.notificationEventFlowService.deleteFlow(input.id);
+    return this.responseService.createTrpcSuccess({ deleted: true });
+  }
+
+  @Query({
+    input: searchRecipientsSchema,
+    output: apiResponseSchema,
+  })
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  async searchNotificationRecipients(
+    @Input() input: z.infer<typeof searchRecipientsSchema>,
+  ) {
+    const query = (input.query || '').trim();
+    const result = await this.notificationEventFlowService.searchRecipients(query, input.limit);
+    return this.responseService.createTrpcSuccess(result);
   }
 }

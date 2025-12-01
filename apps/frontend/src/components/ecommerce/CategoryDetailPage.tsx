@@ -6,8 +6,8 @@ import Link from 'next/link';
 import { Button } from '@heroui/react';
 import CategoryCard from './CategoryCard';
 import ProductCard from './ProductCard';
-import { Breadcrumb } from 'ui';
 import type { BreadcrumbItem } from 'ui';
+import PageBreadcrumbs from '../common/PageBreadcrumbs';
 import { CategoryService } from '../../services/category.service';
 import type { Category, Product } from '../../types/product';
 import type { PaginationInfo } from '../../types/trpc';
@@ -28,7 +28,6 @@ const layout = {
   heroStats: 'flex flex-wrap items-center gap-3 mt-6',
   heroStatPill: 'inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 dark:bg-emerald-900/50 border border-emerald-200/80 dark:border-emerald-500/20 text-sm font-medium text-emerald-800 dark:text-emerald-100 shadow-sm backdrop-blur',
   heroImageCard: 'relative w-full h-60 sm:h-72 lg:h-80 rounded-3xl overflow-hidden border border-emerald-100/70 dark:border-emerald-500/20 bg-white/75 dark:bg-emerald-950/40 shadow-lg',
-  breadcrumb: 'bg-white/90 dark:bg-neutral-900/85 border border-emerald-200/70 dark:border-emerald-500/20 shadow-sm text-xs md:text-sm backdrop-blur px-3 py-2 rounded-full inline-flex',
   card: 'rounded-3xl border border-gray-200/70 dark:border-gray-700/60 bg-white dark:bg-gray-900/50 shadow-sm p-6 sm:p-8 lg:p-10',
   sectionHeader: 'flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-6 border-b border-gray-200 dark:border-gray-800',
   sectionTitle: 'text-2xl lg:text-3xl font-semibold text-gray-900 dark:text-white',
@@ -258,10 +257,10 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
         </div>
 
         <div className="relative z-10 mt-8">
-          <Breadcrumb
+          <PageBreadcrumbs
             items={breadcrumbItems}
-            linkComponent={Link}
-            className={layout.breadcrumb}
+            showBackground={false}
+            fullWidth={false}
           />
         </div>
       </section>

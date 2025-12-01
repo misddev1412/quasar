@@ -101,6 +101,7 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   // Notifications
   '/notifications': { resource: 'notification', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/notifications/preferences': { resource: 'notification', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
+  '/notifications/event-flows': { resource: 'notification', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
   
   // Telegram Configs
   '/telegram-configs': { resource: 'telegram_config', action: PermissionAction.READ, scope: PermissionScope.ANY },
@@ -203,4 +204,5 @@ export function getRoutePermission(path: string): RoutePermission | null {
     scope: PermissionScope.ANY,
   };
 }
+
 

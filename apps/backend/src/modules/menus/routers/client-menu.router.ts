@@ -30,6 +30,8 @@ interface ClientMenuItem {
   icon?: string | null;
   textColor?: string | null;
   backgroundColor?: string | null;
+  borderColor?: string | null;
+  borderWidth?: string | null;
   config: Record<string, unknown>;
   isMegaMenu: boolean;
   megaMenuColumns?: number | null;
@@ -52,6 +54,8 @@ type RawMenuNode = {
   icon?: string | null;
   textColor?: string | null;
   backgroundColor?: string | null;
+  borderColor?: string | null;
+  borderWidth?: string | null;
   config?: Record<string, unknown> | null;
   isMegaMenu?: boolean;
   megaMenuColumns?: number | null;
@@ -119,6 +123,8 @@ const transformMenuNode = (
     icon: node.icon ?? null,
     textColor: node.textColor ?? null,
     backgroundColor: node.backgroundColor ?? null,
+    borderColor: node.borderColor ?? null,
+    borderWidth: node.borderWidth ?? null,
     config: node.config ?? {},
     isMegaMenu: node.isMegaMenu ?? false,
     megaMenuColumns: node.megaMenuColumns ?? null,

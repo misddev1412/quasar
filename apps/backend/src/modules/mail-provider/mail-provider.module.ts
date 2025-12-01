@@ -5,11 +5,13 @@ import { MailProviderRepository } from './repositories/mail-provider.repository'
 import { MailProviderService } from './services/mail-provider.service';
 import { AdminMailProviderRouter } from './routers/admin-mail-provider.router';
 import { SharedModule } from '../shared/shared.module';
+import { MailLogModule } from '../mail-log/mail-log.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([MailProvider]),
     SharedModule,
+    MailLogModule,
   ],
   providers: [
     MailProviderRepository,
@@ -23,5 +25,6 @@ import { SharedModule } from '../shared/shared.module';
   ],
 })
 export class MailProviderModule {}
+
 
 

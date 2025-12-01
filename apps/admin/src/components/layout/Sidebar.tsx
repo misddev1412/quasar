@@ -56,6 +56,11 @@ const Sidebar: React.FC = () => {
   // Refs for scrolling to active menu items
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeMenuItemRefs = useRef<Map<string, HTMLElement>>(new Map());
+  const lastPathnameRef = useRef<string | undefined>(undefined);
+  const isUserExpandingRef = useRef<boolean>(false);
+  const isProgrammaticExpandRef = useRef<boolean>(false);
+  const timeoutIdsRef = useRef<NodeJS.Timeout[]>([]);
+  const hasScrolledOnMountRef = useRef<boolean>(false);
   
   // Get menu configuration from domain service
   const menuGroups = navigationService.getMenuGroups();
@@ -70,6 +75,19 @@ const Sidebar: React.FC = () => {
   };
 
   const handleToggleSubMenu = (item: any) => {
+    // Check if the item being expanded contains the active route
+    const containsActiveItem = item.subItems?.some((subItem: any) => isActiveRoute(subItem.path));
+    
+    // Mark that user is expanding a menu (only scroll if it contains active item)
+    isUserExpandingRef.current = !containsActiveItem;
+    
+    const newState = navigationService.toggleSubMenu(item, menuCollapseState);
+    setMenuCollapseState(newState);
+  };
+
+  // Helper function to expand menu programmatically (without setting user expansion flag)
+  const expandMenuProgrammatically = (item: any) => {
+    isProgrammaticExpandRef.current = true;
     const newState = navigationService.toggleSubMenu(item, menuCollapseState);
     setMenuCollapseState(newState);
   };
@@ -83,10 +101,39 @@ const Sidebar: React.FC = () => {
     Object.keys(menuCollapseState).filter(key => menuCollapseState[key])
   );
 
-  // Function to register menu item ref
+  // Function to scroll to an element
+  const scrollToElement = (element: HTMLElement) => {
+    if (!scrollContainerRef.current) return;
+    
+    const container = scrollContainerRef.current;
+    const containerRect = container.getBoundingClientRect();
+    const elementRect = element.getBoundingClientRect();
+    
+    const elementTopRelativeToContainer = elementRect.top - containerRect.top + container.scrollTop;
+    const elementHeight = elementRect.height;
+    const containerHeight = containerRect.height;
+    
+    const targetScrollTop = elementTopRelativeToContainer - (containerHeight / 2) + (elementHeight / 2);
+    
+    container.scrollTo({
+      top: Math.max(0, Math.min(targetScrollTop, container.scrollHeight - containerHeight)),
+      behavior: 'smooth',
+    });
+  };
+
+  // Function to register menu item ref and scroll if it's active
   const registerMenuItemRef = (path: string, element: HTMLElement | null) => {
     if (element) {
       activeMenuItemRefs.current.set(path, element);
+      
+      // If this is the active item and we haven't scrolled on mount yet, scroll to it
+      if (isActiveRoute(path) && !hasScrolledOnMountRef.current && scrollContainerRef.current) {
+        // Small delay to ensure container is ready
+        setTimeout(() => {
+          scrollToElement(element);
+          hasScrolledOnMountRef.current = true;
+        }, 100);
+      }
     } else {
       activeMenuItemRefs.current.delete(path);
     }
@@ -108,16 +155,12 @@ const Sidebar: React.FC = () => {
     return null;
   };
 
-  // Scroll to active menu item when location changes
+  // Scroll to active menu item on mount (fallback if registerMenuItemRef didn't trigger)
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    let retryCount = 0;
-    const MAX_RETRIES = 2;
+    if (hasScrolledOnMountRef.current) return;
     
-    const scrollToActiveItem = (isRetry = false) => {
-      if (!scrollContainerRef.current) return;
-
-      // Find the active menu item path by checking all menu groups
+    const attemptScroll = () => {
+      // Find the active menu item path
       let activeItemInfo: { path: string; parentPath?: string } | null = null;
       for (const group of menuGroups) {
         const found = findActiveItemPath(group.items);
@@ -131,86 +174,123 @@ const Sidebar: React.FC = () => {
 
       const activePath = activeItemInfo.path;
       
-      // Ensure parent menu is expanded if there's an active sub-item (only on first attempt)
-      if (!isRetry && activeItemInfo.parentPath && !menuCollapseState[activeItemInfo.parentPath]) {
-        // Find the parent item and expand it
-        for (const group of menuGroups) {
-          for (const item of group.items) {
-            if (item.path === activeItemInfo.parentPath) {
-              handleToggleSubMenu(item);
-              // Wait a bit for the expansion animation then retry
-              retryCount++;
-              if (retryCount <= MAX_RETRIES) {
-                setTimeout(() => {
-                  scrollToActiveItem(true);
-                }, 300);
-              }
-              return;
-            }
-          }
-        }
-      }
+      // Try to find the active element
+      let activeElement: HTMLElement | null = activeMenuItemRefs.current.get(activePath) || null;
 
-      // Try multiple methods to find the active element
-      let activeElement: HTMLElement | null = null;
-
-      // Method 1: Try to get element from registered refs
-      activeElement = activeMenuItemRefs.current.get(activePath) || null;
-
-      // Method 2: If not found in refs, try to find by data attribute
       if (!activeElement && scrollContainerRef.current) {
         activeElement = scrollContainerRef.current.querySelector(
           `[data-menu-path="${activePath}"]`
         ) as HTMLElement;
       }
 
-      // Method 3: Fallback - find by Mui-selected class within the container
-      if (!activeElement && scrollContainerRef.current) {
-        // Find the selected button/link that matches the active path
-        const selectedElements = scrollContainerRef.current.querySelectorAll('.Mui-selected');
-        for (const el of Array.from(selectedElements)) {
-          const parent = el.closest('[data-menu-path]') as HTMLElement;
-          if (parent && parent.getAttribute('data-menu-path') === activePath) {
-            activeElement = parent;
-            break;
+      if (activeElement && scrollContainerRef.current) {
+        scrollToElement(activeElement);
+        hasScrolledOnMountRef.current = true;
+      }
+    };
+
+    // Try multiple times with increasing delays
+    const timeouts = [
+      setTimeout(attemptScroll, 500),
+      setTimeout(attemptScroll, 1000),
+      setTimeout(attemptScroll, 1500),
+    ];
+    
+    timeoutIdsRef.current.push(...timeouts);
+
+    return () => {
+      timeouts.forEach(id => clearTimeout(id));
+    };
+  }, []); // Only run on mount
+
+  // Scroll to active menu item when location changes (but not on first mount)
+  useEffect(() => {
+    const pathnameChanged = lastPathnameRef.current !== location.pathname;
+    const wasProgrammaticExpand = isProgrammaticExpandRef.current;
+    lastPathnameRef.current = location.pathname;
+    
+    // Skip first mount - handled by separate useEffect
+    if (!hasScrolledOnMountRef.current) {
+      return;
+    }
+    
+    // Only scroll if pathname changed, or if user expanded a menu containing active item
+    // Don't scroll if user expanded a different menu
+    if (!pathnameChanged && isUserExpandingRef.current && !wasProgrammaticExpand) {
+      // Reset the flags after checking
+      isUserExpandingRef.current = false;
+      isProgrammaticExpandRef.current = false;
+      return;
+    }
+    
+    // If this is a programmatic expand (from scrollToActiveItem), allow scroll to continue
+    // Also scroll when pathname changed
+    const shouldScroll = pathnameChanged || wasProgrammaticExpand;
+    
+    // Reset user expanding flag
+    isUserExpandingRef.current = false;
+    
+    // Don't scroll if pathname didn't change and it's not a programmatic expand
+    if (!shouldScroll) {
+      isProgrammaticExpandRef.current = false;
+      return;
+    }
+    
+    // Find the active menu item path
+      let activeItemInfo: { path: string; parentPath?: string } | null = null;
+      for (const group of menuGroups) {
+        const found = findActiveItemPath(group.items);
+        if (found) {
+          activeItemInfo = found;
+          break;
+        }
+      }
+
+    if (!activeItemInfo) {
+      isProgrammaticExpandRef.current = false;
+      return;
+    }
+
+      const activePath = activeItemInfo.path;
+      
+    // Ensure parent menu is expanded if there's an active sub-item
+    if (activeItemInfo.parentPath && !menuCollapseState[activeItemInfo.parentPath]) {
+      // Find the parent item and expand it programmatically
+        for (const group of menuGroups) {
+          for (const item of group.items) {
+            if (item.path === activeItemInfo.parentPath) {
+            expandMenuProgrammatically(item);
+            // Will retry after expansion via menuCollapseState change
+              return;
+            }
           }
         }
       }
 
-      if (activeElement && scrollContainerRef.current) {
-        const container = scrollContainerRef.current;
-        
-        // Calculate relative position within the scroll container
-        const containerRect = container.getBoundingClientRect();
-        const elementRect = activeElement.getBoundingClientRect();
-        
-        // Calculate the scroll position needed to center the element
-        const elementTopRelativeToContainer = elementRect.top - containerRect.top + container.scrollTop;
-        const elementHeight = elementRect.height;
-        const containerHeight = containerRect.height;
-        
-        const targetScrollTop = elementTopRelativeToContainer - (containerHeight / 2) + (elementHeight / 2);
-        
-        // Smooth scroll to the active item
-        container.scrollTo({
-          top: Math.max(0, Math.min(targetScrollTop, container.scrollHeight - containerHeight)),
-          behavior: 'smooth',
-        });
-      }
-    };
+    // Try to find the active element
+    let activeElement: HTMLElement | null = activeMenuItemRefs.current.get(activePath) || null;
 
-    // Use requestAnimationFrame and setTimeout to ensure DOM is fully updated
-    // Increased delay to ensure all refs are registered and sub-menus are expanded
-    const rafId = requestAnimationFrame(() => {
-      timeoutId = setTimeout(scrollToActiveItem, 300);
-    });
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+      if (!activeElement && scrollContainerRef.current) {
+        activeElement = scrollContainerRef.current.querySelector(
+          `[data-menu-path="${activePath}"]`
+        ) as HTMLElement;
       }
-    };
+
+    if (activeElement && scrollContainerRef.current) {
+      scrollToElement(activeElement);
+      isProgrammaticExpandRef.current = false;
+    } else {
+      // If element not found, try again after a short delay
+      const timeoutId = setTimeout(() => {
+        const retryElement = activeMenuItemRefs.current.get(activePath) || 
+          scrollContainerRef.current?.querySelector(`[data-menu-path="${activePath}"]`) as HTMLElement;
+        if (retryElement) {
+          scrollToElement(retryElement);
+        }
+        isProgrammaticExpandRef.current = false;
+      }, 300);
+      timeoutIdsRef.current.push(timeoutId);
+    }
   }, [location.pathname, menuGroups, sidebarCollapsed, menuCollapseState]);
 
   // Render menu item using the new component

@@ -48,11 +48,11 @@ import { ClientUserService } from './services/client/client-user.service';
 import { AdminAddressBookService } from './services/admin-address-book.service';
 import { ClientAddressBookService } from './services/client-address-book.service';
 import { ClientSecurityService } from './services/client-security.service';
-import { AdminUserRouter } from './routers/admin-user.router';
+import { AdminUserRouter, AdminUserPermissions } from './routers/admin-user.router';
 import { AdminUserStatisticsRouter } from './routers/admin-user-statistics.router';
 import { AdminUserActivityRouter } from './routers/admin-user-activity.router';
 import { AdminPermissionRouter } from './routers/admin-permission.router';
-import { AdminRoleRouter } from './routers/admin-role.router';
+import { AdminRoleRouter, AdminRolePermissions } from './routers/admin-role.router';
 import { AdminAddressBookRouter } from './routers/admin-address-book.router';
 import { ClientAddressBookRouter } from './routers/client-address-book.router';
 import { ClientSecurityRouter } from './routers/client-security.router';
@@ -114,11 +114,13 @@ import { ProductsModule } from '../products/products.module';
     },
 
     // TRPC Routers
+    ...AdminUserPermissions,
     AdminUserRouter,
     AdminUserStatisticsRouter,
     AdminUserActivityRouter,
     ClientUserRouter,
     AdminPermissionRouter,
+    ...AdminRolePermissions,
     AdminRoleRouter,
     AdminAddressBookRouter,
     ClientAddressBookRouter,

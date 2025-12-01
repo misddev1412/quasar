@@ -133,7 +133,7 @@ export const MenuTable: React.FC<MenuTableProps> = ({
                     : 'bg-green-400 dark:bg-green-500'
               }`} />
               {item.icon && <span className="mr-1"><UnifiedIcon icon={item.icon} variant="table" /></span>}
-              {(item.textColor || item.backgroundColor) && (
+              {(item.textColor || item.backgroundColor || item.borderColor || item.borderWidth) && (
                 <div className="mr-2 flex gap-1">
                   {item.textColor && (
                     <div
@@ -147,6 +147,18 @@ export const MenuTable: React.FC<MenuTableProps> = ({
                       className="w-3 h-3 rounded border border-gray-300"
                       style={{ backgroundColor: item.backgroundColor }}
                       title={`Background color: ${item.backgroundColor}`}
+                    />
+                  )}
+                  {(item.borderColor || item.borderWidth) && (
+                    <div
+                      className="w-3 h-3 rounded border border-dashed"
+                      style={{
+                        backgroundImage: 'repeating-conic-gradient(#d1d5db 0% 25%, transparent 0% 50%) 50% / 6px 6px',
+                        borderColor: item.borderColor || '#9ca3af',
+                        borderWidth: item.borderWidth || '2px',
+                        borderStyle: 'solid',
+                      }}
+                      title={`Border: ${item.borderColor || 'default'}${item.borderWidth ? ` / ${item.borderWidth}` : ''}`}
                     />
                   )}
                 </div>

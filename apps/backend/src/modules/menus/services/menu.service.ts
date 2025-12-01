@@ -21,6 +21,8 @@ interface MenuTreeNode {
   icon?: string | null;
   textColor?: string | null;
   backgroundColor?: string | null;
+  borderColor?: string | null;
+  borderWidth?: string | null;
   config: Record<string, unknown>;
   isMegaMenu: boolean;
   megaMenuColumns?: number | null;
@@ -211,6 +213,8 @@ export class MenuService {
         icon: menu.icon ?? null,
         textColor: menu.textColor ?? null,
         backgroundColor: menu.backgroundColor ?? null,
+        borderColor: menu.borderColor ?? null,
+        borderWidth: menu.borderWidth ?? null,
         config: menu.config ?? {},
         isMegaMenu: menu.isMegaMenu,
         megaMenuColumns: menu.megaMenuColumns ?? null,
@@ -268,6 +272,8 @@ export class MenuService {
         icon: menu.icon ?? null,
         textColor: menu.textColor ?? null,
         backgroundColor: menu.backgroundColor ?? null,
+        borderColor: menu.borderColor ?? null,
+        borderWidth: menu.borderWidth ?? null,
         config: menu.config ?? {},
         isMegaMenu: menu.isMegaMenu,
         megaMenuColumns: menu.megaMenuColumns ?? null,

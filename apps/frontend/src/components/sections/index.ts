@@ -4,6 +4,7 @@ export { ProductsByCategory } from './ProductsByCategory';
 export { NewsSection } from './NewsSection';
 export { CustomHtmlSection } from './CustomHtmlSection';
 export { CTABannerSection } from './CTABannerSection';
+export { renderSections, sectionComponentMap } from './renderSections';
 export type { HeroSliderConfig, SectionTranslationContent } from './HeroSlider';
 export type { FeaturedProductsConfig } from './FeaturedProducts';
 export type { ProductsByCategoryConfig, ProductsByCategoryRowConfig, ProductsByCategoryStrategy } from './ProductsByCategory';

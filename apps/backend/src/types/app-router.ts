@@ -754,7 +754,41 @@ export const appRouter = router({
       }),
 
     searchTemplates: procedure
-      .input(z.object({ searchTerm: z.string().min(1) }))
+      .input(z.object({ searchTerm: z.string().optional().default('') }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  adminMailLog: router({
+    getLogs: procedure
+      .input(z.object({
+        page: z.number().default(1),
+        limit: z.number().max(100).default(20),
+        search: z.string().optional(),
+        status: z.enum(['queued', 'sent', 'failed', 'delivered']).optional(),
+        providerId: z.string().uuid().optional(),
+        templateId: z.string().uuid().optional(),
+        flowId: z.string().uuid().optional(),
+        isTest: z.boolean().optional(),
+        dateFrom: z.string().optional(),
+        dateTo: z.string().optional(),
+        channel: z.enum(['email', 'sms', 'push']).optional(),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getLogById: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getStatistics: procedure
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;
@@ -3565,6 +3599,96 @@ export const appRouter = router({
       .mutation(() => {
         return {} as ApiResponse;
       }),
+
+    listEventFlows: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+        search: z.string().optional(),
+        channel: z.enum(['push', 'email', 'in_app', 'sms', 'telegram']).optional(),
+        eventKey: z.enum([
+          'user.registered',
+          'user.verified',
+          'order.created',
+          'order.shipped',
+          'system.announcement',
+          'marketing.campaign',
+          'custom.manual',
+        ]).optional(),
+        isActive: z.boolean().optional(),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getEventFlow: procedure
+      .input(z.object({
+        id: z.string().uuid().optional(),
+        eventKey: z.enum([
+          'user.registered',
+          'user.verified',
+          'order.created',
+          'order.shipped',
+          'system.announcement',
+          'marketing.campaign',
+          'custom.manual',
+        ]).optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    upsertEventFlow: procedure
+      .input(z.object({
+        id: z.string().uuid().optional(),
+        eventKey: z.enum([
+          'user.registered',
+          'user.verified',
+          'order.created',
+          'order.shipped',
+          'system.announcement',
+          'marketing.campaign',
+          'custom.manual',
+        ]),
+        displayName: z.string().min(3).max(150),
+        description: z.string().max(500).optional(),
+        channelPreferences: z.array(z.enum(['push', 'email', 'in_app', 'sms', 'telegram'])).min(1),
+        includeActor: z.boolean().optional(),
+        recipientUserIds: z.array(z.string().uuid()).optional(),
+        ccUserIds: z.array(z.string().uuid()).optional(),
+        bccUserIds: z.array(z.string().uuid()).optional(),
+        ccEmails: z.array(z.string().email()).optional(),
+        bccEmails: z.array(z.string().email()).optional(),
+        mailTemplateIds: z.array(z.string().uuid()).optional(),
+        channelMetadata: z.record(z.unknown()).optional(),
+        isActive: z.boolean().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    deleteEventFlow: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    searchNotificationRecipients: procedure
+      .input(z.object({
+        query: z.string().default(''),
+        limit: z.number().min(1).max(50).default(10),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
   }),
 
   // Admin Notification Preferences router
@@ -3765,6 +3889,8 @@ export const appRouter = router({
         return {} as ApiResponse;
       }),
   }),
+
+
 
   adminNotificationTelegramConfigs: router({
     list: procedure

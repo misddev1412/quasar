@@ -99,6 +99,52 @@ const getUsersResponseSchema = z.object({
   limit: z.number(),
 });
 
+// Create permission middleware classes at module level so they can be registered as providers
+const requireCreateAnyUser = RequirePermission({
+  resource: 'user',
+  action: PermissionAction.CREATE,
+  scope: PermissionScope.ANY,
+});
+
+const requireReadAnyUser = RequirePermission({
+  resource: 'user',
+  action: PermissionAction.READ,
+  scope: PermissionScope.ANY,
+});
+
+const requireUpdateAnyUser = RequirePermission({
+  resource: 'user',
+  action: PermissionAction.UPDATE,
+  scope: PermissionScope.ANY,
+});
+
+const requireDeleteAnyUser = RequirePermission({
+  resource: 'user',
+  action: PermissionAction.DELETE,
+  scope: PermissionScope.ANY,
+});
+
+const requireReadOwnProfile = RequirePermission({
+  resource: 'profile',
+  action: PermissionAction.READ,
+  scope: PermissionScope.OWN,
+});
+
+const requireUpdateOwnProfile = RequirePermission({
+  resource: 'profile',
+  action: PermissionAction.UPDATE,
+  scope: PermissionScope.OWN,
+});
+
+export const AdminUserPermissions = [
+  requireCreateAnyUser,
+  requireReadAnyUser,
+  requireUpdateAnyUser,
+  requireDeleteAnyUser,
+  requireReadOwnProfile,
+  requireUpdateOwnProfile,
+];
+
 @Router({ alias: 'adminUser' })
 @Injectable()
 export class AdminUserRouter {
@@ -112,7 +158,7 @@ export class AdminUserRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'user', action: PermissionAction.CREATE, scope: PermissionScope.ANY })
+    requireCreateAnyUser
   )
   @Mutation({
     input: adminCreateUserSchema,
@@ -149,7 +195,7 @@ export class AdminUserRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'user', action: PermissionAction.READ, scope: PermissionScope.ANY })
+    requireReadAnyUser
   )
   @Query({
     input: getAllUsersQuerySchema,
@@ -183,7 +229,7 @@ export class AdminUserRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'user', action: PermissionAction.READ, scope: PermissionScope.ANY })
+    requireReadAnyUser
   )
   @Query({
     input: z.object({ id: z.string() }),
@@ -208,7 +254,7 @@ export class AdminUserRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'user', action: PermissionAction.UPDATE, scope: PermissionScope.ANY })
+    requireUpdateAnyUser
   )
   @Mutation({
     input: z.object({ id: z.string() }).merge(adminUpdateUserSchema),
@@ -236,7 +282,7 @@ export class AdminUserRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'user', action: PermissionAction.DELETE, scope: PermissionScope.ANY })
+    requireDeleteAnyUser
   )
   @Mutation({
     input: z.object({ id: z.string() }),
@@ -265,7 +311,7 @@ export class AdminUserRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'user', action: PermissionAction.UPDATE, scope: PermissionScope.ANY })
+    requireUpdateAnyUser
   )
   @Mutation({
     input: z.object({
@@ -294,7 +340,7 @@ export class AdminUserRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'user', action: PermissionAction.UPDATE, scope: PermissionScope.ANY })
+    requireUpdateAnyUser
   )
   @Mutation({
     input: z.object({ id: z.string() }).merge(adminUpdateUserProfileSchema),
@@ -320,7 +366,7 @@ export class AdminUserRouter {
 
   @UseMiddlewares(
     AuthMiddleware,
-    RequirePermission({ resource: 'profile', action: PermissionAction.READ, scope: PermissionScope.OWN })
+    requireReadOwnProfile
   )
   @Query({
     output: apiResponseSchema,
@@ -343,7 +389,7 @@ export class AdminUserRouter {
 
   @UseMiddlewares(
     AuthMiddleware,
-    RequirePermission({ resource: 'profile', action: PermissionAction.UPDATE, scope: PermissionScope.OWN })
+    requireUpdateOwnProfile
   )
   @Mutation({
     input: adminUpdateUserProfileSchema,
@@ -368,7 +414,7 @@ export class AdminUserRouter {
 
   @UseMiddlewares(
     AuthMiddleware,
-    RequirePermission({ resource: 'profile', action: PermissionAction.UPDATE, scope: PermissionScope.OWN })
+    requireUpdateOwnProfile
   )
   @Mutation({
     input: adminUpdatePasswordSchema,

@@ -294,14 +294,14 @@ export class AdminMailTemplateRouter {
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
-    input: z.object({ searchTerm: z.string().min(1) }),
+    input: z.object({ searchTerm: z.string().optional().default('') }),
     output: apiResponseSchema,
   })
   async searchTemplates(
-    @Input() input: { searchTerm: string }
+    @Input() input: { searchTerm?: string }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const templates = await this.mailTemplateService.searchTemplates(input.searchTerm);
+      const templates = await this.mailTemplateService.searchTemplates(input.searchTerm || '');
       return this.responseHandler.createTrpcSuccess(templates);
     } catch (error) {
       throw this.responseHandler.createTRPCError(

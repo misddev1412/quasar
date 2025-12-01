@@ -210,10 +210,26 @@
     "guidelines": "Hướng dẫn",
     "click_to_upload": "Nhấp để tải lên",
     "uploading": "Đang tải lên...",
+    "select_from_media": "Chọn từ Thư viện Media",
+    "select_asset": "Chọn {asset}",
     "max_size": "Tối đa {size}MB",
     "no_asset_uploaded": "Chưa tải lên {asset}",
     "remove": "Xóa",
     "recommended_size": "Khuyến nghị",
+    "logo_text_settings": "Cài đặt Text Logo",
+    "show_text_next_to_logo": "Hiển thị text cạnh logo",
+    "show_text_next_to_logo_desc": "Hiển thị text bên cạnh logo trong header",
+    "logo_text_content": "Nội dung Text",
+    "logo_text_placeholder": "Nhập text để hiển thị cạnh logo",
+    "logo_text_hint": "Để trống để sử dụng tên site làm mặc định",
+    "logo_text_setting_updated": "Cài đặt text logo đã được cập nhật",
+    "logo_text_setting_update_failed": "Không thể cập nhật cài đặt text logo",
+    "alt_text_settings": "Cài đặt Alt Text",
+    "alt_text_label": "Alt Text",
+    "alt_text_placeholder": "Nhập mô tả alt text cho accessibility và SEO",
+    "alt_text_hint": "Alt text giúp screen reader và cải thiện SEO. Để trống để sử dụng tên site làm mặc định.",
+    "alt_text_update_failed": "Không thể cập nhật alt text",
+    "alt_text_saved": "Alt text đã được lưu",
     "assets": {
       "main_logo": {
         "title": "Logo chính",
@@ -266,7 +282,9 @@
     "upload_success": "Tải lên tài sản thành công",
     "upload_failed": "Tải lên tài sản thất bại",
     "removed": "Đã xóa tài sản",
-    "remove_failed": "Xóa thất bại"
+    "remove_failed": "Xóa thất bại",
+    "setting_updated": "Cài đặt đã được cập nhật",
+    "setting_update_failed": "Cập nhật thất bại"
   },
   "storefront": {
     "footer": {

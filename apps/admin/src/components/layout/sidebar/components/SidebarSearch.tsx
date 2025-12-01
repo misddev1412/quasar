@@ -150,7 +150,13 @@ const SidebarSearch: React.FC<SidebarSearchProps> = ({
     <>
       <Search>
         <SearchIconWrapper>
-          <SearchIcon fontSize="small" color="action" />
+          <SearchIcon 
+            fontSize="small" 
+            sx={{ 
+              display: 'block',
+              color: 'inherit',
+            }} 
+          />
         </SearchIconWrapper>
         <StyledInputBase
           placeholder={t('search.searchPlaceholder', 'Search...')}

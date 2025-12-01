@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Type, mixin } from '@nestjs/common';
 import { TRPCError } from '@trpc/server';
 import { TRPCMiddleware, MiddlewareOptions, MiddlewareResponse } from 'nestjs-trpc';
 import { AuthenticatedContext } from '../context';
-import { PermissionAction, PermissionScope } from '@shared';
+import { PermissionAction, PermissionScope, UserRole } from '@shared';
 import { PermissionCheckerService } from '@backend/modules/shared/services/permission-checker.service';
 
 export interface RequiredPermission {
@@ -11,7 +11,7 @@ export interface RequiredPermission {
   scope: PermissionScope;
 }
 
-export function RequirePermission(permission: RequiredPermission) {
+export function RequirePermission(permission: RequiredPermission): Type<TRPCMiddleware> {
   @Injectable()
   class PermissionMiddleware implements TRPCMiddleware {
     constructor(private readonly permissionChecker: PermissionCheckerService) {}
@@ -24,6 +24,17 @@ export function RequirePermission(permission: RequiredPermission) {
         throw new TRPCError({
           code: 'UNAUTHORIZED',
           message: 'Authentication required',
+        });
+      }
+
+      // Bypass permission check for super_admin - full access
+      if (ctx.user.role === UserRole.SUPER_ADMIN) {
+        return next({
+          ctx: {
+            ...ctx,
+            user: ctx.user,
+            permission: { granted: true, attributes: ['*'] },
+          },
         });
       }
 
@@ -58,6 +69,7 @@ export function RequirePermission(permission: RequiredPermission) {
         throw new TRPCError({
           code: 'FORBIDDEN',
           message: `Insufficient permissions. Required: ${permission.action}:${permission.scope}:${permission.resource}`,
+          cause: { httpStatus: 403 },
         });
       }
 
@@ -71,7 +83,7 @@ export function RequirePermission(permission: RequiredPermission) {
     }
   }
 
-  return PermissionMiddleware;
+  return mixin(PermissionMiddleware);
 }
 
 // Convenient permission middleware for common use cases
@@ -96,6 +108,17 @@ export class CanCreateOwn implements TRPCMiddleware {
       });
     }
 
+    // Bypass permission check for super_admin - full access
+    if (ctx.user.role === UserRole.SUPER_ADMIN) {
+      return next({
+        ctx: {
+          ...ctx,
+          user: ctx.user,
+          permission: { granted: true, attributes: ['*'] },
+        },
+      });
+    }
+
     const permissionCheck = await this.permissionChecker
       .can(ctx.user.role)
       .createOwn(this.resource);
@@ -104,6 +127,7 @@ export class CanCreateOwn implements TRPCMiddleware {
       throw new TRPCError({
         code: 'FORBIDDEN',
         message: `Cannot create own ${this.resource}`,
+        cause: { httpStatus: 403 },
       });
     }
 
@@ -138,6 +162,17 @@ export class CanCreateAny implements TRPCMiddleware {
       });
     }
 
+    // Bypass permission check for super_admin - full access
+    if (ctx.user.role === UserRole.SUPER_ADMIN) {
+      return next({
+        ctx: {
+          ...ctx,
+          user: ctx.user,
+          permission: { granted: true, attributes: ['*'] },
+        },
+      });
+    }
+
     const permissionCheck = await this.permissionChecker
       .can(ctx.user.role)
       .createAny(this.resource);
@@ -146,6 +181,7 @@ export class CanCreateAny implements TRPCMiddleware {
       throw new TRPCError({
         code: 'FORBIDDEN',
         message: `Cannot create any ${this.resource}`,
+        cause: { httpStatus: 403 },
       });
     }
 
@@ -180,6 +216,17 @@ export class CanReadAny implements TRPCMiddleware {
       });
     }
 
+    // Bypass permission check for super_admin - full access
+    if (ctx.user.role === UserRole.SUPER_ADMIN) {
+      return next({
+        ctx: {
+          ...ctx,
+          user: ctx.user,
+          permission: { granted: true, attributes: ['*'] },
+        },
+      });
+    }
+
     const permissionCheck = await this.permissionChecker
       .can(ctx.user.role)
       .readAny(this.resource);
@@ -188,6 +235,7 @@ export class CanReadAny implements TRPCMiddleware {
       throw new TRPCError({
         code: 'FORBIDDEN',
         message: `Cannot read any ${this.resource}`,
+        cause: { httpStatus: 403 },
       });
     }
 
@@ -222,6 +270,17 @@ export class CanUpdateOwn implements TRPCMiddleware {
       });
     }
 
+    // Bypass permission check for super_admin - full access
+    if (ctx.user.role === UserRole.SUPER_ADMIN) {
+      return next({
+        ctx: {
+          ...ctx,
+          user: ctx.user,
+          permission: { granted: true, attributes: ['*'] },
+        },
+      });
+    }
+
     const permissionCheck = await this.permissionChecker
       .can(ctx.user.role)
       .updateOwn(this.resource);
@@ -230,6 +289,7 @@ export class CanUpdateOwn implements TRPCMiddleware {
       throw new TRPCError({
         code: 'FORBIDDEN',
         message: `Cannot update own ${this.resource}`,
+        cause: { httpStatus: 403 },
       });
     }
 
@@ -264,6 +324,17 @@ export class CanDeleteAny implements TRPCMiddleware {
       });
     }
 
+    // Bypass permission check for super_admin - full access
+    if (ctx.user.role === UserRole.SUPER_ADMIN) {
+      return next({
+        ctx: {
+          ...ctx,
+          user: ctx.user,
+          permission: { granted: true, attributes: ['*'] },
+        },
+      });
+    }
+
     const permissionCheck = await this.permissionChecker
       .can(ctx.user.role)
       .deleteAny(this.resource);
@@ -272,6 +343,7 @@ export class CanDeleteAny implements TRPCMiddleware {
       throw new TRPCError({
         code: 'FORBIDDEN',
         message: `Cannot delete any ${this.resource}`,
+        cause: { httpStatus: 403 },
       });
     }
 

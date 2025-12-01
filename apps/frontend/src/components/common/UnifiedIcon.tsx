@@ -37,6 +37,8 @@ interface UnifiedIconProps {
   className?: string;
   size?: number;
   fallback?: string;
+  color?: string;
+  style?: React.CSSProperties;
 }
 
 // Available Lucide icon names
@@ -178,7 +180,9 @@ export const UnifiedIcon: React.FC<UnifiedIconProps> = ({
   variant = 'nav',
   className = '',
   size = 18,
-  fallback
+  fallback,
+  color,
+  style,
 }) => {
   if (!icon) {
     return null;
@@ -187,6 +191,7 @@ export const UnifiedIcon: React.FC<UnifiedIconProps> = ({
   const normalized = normalizeIconName(icon);
   const baseClasses = getVariantClasses(variant);
   const combinedClassName = [baseClasses, className].filter(Boolean).join(' ');
+  const iconStyle = color ? { ...(style || {}), color } : style;
 
   // Try Lucide icons first (preferred for frontend)
   if (LUCIDE_ICON_NAMES.has(normalized)) {
@@ -197,6 +202,8 @@ export const UnifiedIcon: React.FC<UnifiedIconProps> = ({
         size={size}
         strokeWidth={1.8}
         className={combinedClassName}
+        color={color}
+        style={iconStyle}
         aria-hidden="true"
       />
     );
@@ -205,8 +212,11 @@ export const UnifiedIcon: React.FC<UnifiedIconProps> = ({
   // Fallback to react-icons for admin compatibility
   const reactIcon = REACT_ICONS_MAP[icon];
   if (reactIcon) {
+    const fallbackStyle = iconStyle
+      ? { fontSize: `${size}px`, lineHeight: 1, ...iconStyle }
+      : { fontSize: `${size}px`, lineHeight: 1 };
     return (
-      <span className={combinedClassName} style={{ fontSize: `${size}px`, lineHeight: 1 }}>
+      <span className={combinedClassName} style={fallbackStyle}>
         {reactIcon}
       </span>
     );
@@ -214,11 +224,19 @@ export const UnifiedIcon: React.FC<UnifiedIconProps> = ({
 
   // Ultimate fallback
   if (fallback) {
-    return <span className={combinedClassName}>{fallback}</span>;
+    return (
+      <span className={combinedClassName} style={iconStyle}>
+        {fallback}
+      </span>
+    );
   }
 
   return (
-    <span className={`${combinedClassName} text-xs opacity-50`} title={`Unknown icon: ${icon}`}>
+    <span
+      className={`${combinedClassName} text-xs opacity-50`}
+      title={`Unknown icon: ${icon}`}
+      style={iconStyle}
+    >
       ?
     </span>
   );

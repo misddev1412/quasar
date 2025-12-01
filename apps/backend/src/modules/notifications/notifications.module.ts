@@ -6,22 +6,30 @@ import { NotificationEntity } from './entities/notification.entity';
 import { NotificationPreferenceEntity } from './entities/notification-preference.entity';
 import { NotificationChannelConfigEntity } from './entities/notification-channel-config.entity';
 import { NotificationTelegramConfigEntity } from './entities/notification-telegram-config.entity';
+import { NotificationEventFlow } from './entities/notification-event-flow.entity';
+import { MailTemplate } from '../mail-template/entities/mail-template.entity';
 import { NotificationRepository } from './repositories/notification.repository';
 import { NotificationPreferenceRepository } from './repositories/notification-preference.repository';
 import { NotificationChannelConfigRepository } from './repositories/notification-channel-config.repository';
 import { NotificationTelegramConfigRepository } from './repositories/notification-telegram-config.repository';
+import { NotificationEventFlowRepository } from './repositories/notification-event-flow.repository';
 import { NotificationService } from './services/notification.service';
 import { NotificationPreferenceService } from './services/notification-preference.service';
 import { NotificationChannelConfigService } from './services/notification-channel-config.service';
 import { NotificationTelegramConfigService } from './services/notification-telegram-config.service';
+import { NotificationEventFlowService } from './services/notification-event-flow.service';
 import { FirebaseMessagingService } from './services/firebase-messaging.service';
 import { FCMNotificationService } from './services/fcm-notification.service';
 import { AdminNotificationRouter } from './routers/admin-notification.router';
 import { UserNotificationRouter } from './routers/user-notification.router';
 import { AdminNotificationPreferencesRouter } from './routers/admin-notification-preferences.router';
 import { AdminNotificationChannelsRouter } from './routers/admin-notification-channels.router';
-import { AdminNotificationTelegramConfigsRouter } from './routers/admin-notification-telegram-configs.router';
+import {
+  AdminNotificationTelegramConfigsRouter,
+  AdminNotificationTelegramConfigPermissions,
+} from './routers/admin-notification-telegram-configs.router';
 import { ClientNotificationRouter } from './routers/client-notification.router';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -30,21 +38,27 @@ import { ClientNotificationRouter } from './routers/client-notification.router';
       NotificationPreferenceEntity,
       NotificationChannelConfigEntity,
       NotificationTelegramConfigEntity,
+      NotificationEventFlow,
+      MailTemplate,
     ]),
     SharedModule,
     FirebaseModule,
+    UserModule,
   ],
   providers: [
     NotificationRepository,
     NotificationPreferenceRepository,
     NotificationChannelConfigRepository,
     NotificationTelegramConfigRepository,
+    NotificationEventFlowRepository,
     NotificationService,
     NotificationPreferenceService,
     NotificationChannelConfigService,
     NotificationTelegramConfigService,
+    NotificationEventFlowService,
     FirebaseMessagingService,
     FCMNotificationService,
+    ...AdminNotificationTelegramConfigPermissions,
     AdminNotificationRouter,
     UserNotificationRouter,
     AdminNotificationPreferencesRouter,
@@ -57,12 +71,14 @@ import { ClientNotificationRouter } from './routers/client-notification.router';
     NotificationPreferenceService,
     NotificationChannelConfigService,
     NotificationTelegramConfigService,
+    NotificationEventFlowService,
     FirebaseMessagingService,
     FCMNotificationService,
     NotificationRepository,
     NotificationPreferenceRepository,
     NotificationChannelConfigRepository,
     NotificationTelegramConfigRepository,
+    NotificationEventFlowRepository,
     AdminNotificationRouter,
     UserNotificationRouter,
     AdminNotificationPreferencesRouter,

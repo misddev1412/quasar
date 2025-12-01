@@ -9,6 +9,45 @@ import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middle
 import { RequirePermission } from '../../../trpc/middlewares/permission.middleware';
 import { PermissionAction, PermissionScope } from '@shared';
 
+// Create permission middleware classes at module level so they can be registered as providers
+const requireReadAnyRole = RequirePermission({
+  resource: 'role',
+  action: PermissionAction.READ,
+  scope: PermissionScope.ANY,
+});
+
+const requireCreateAnyRole = RequirePermission({
+  resource: 'role',
+  action: PermissionAction.CREATE,
+  scope: PermissionScope.ANY,
+});
+
+const requireUpdateAnyRole = RequirePermission({
+  resource: 'role',
+  action: PermissionAction.UPDATE,
+  scope: PermissionScope.ANY,
+});
+
+const requireDeleteAnyRole = RequirePermission({
+  resource: 'role',
+  action: PermissionAction.DELETE,
+  scope: PermissionScope.ANY,
+});
+
+const requireReadAnyPermission = RequirePermission({
+  resource: 'permission',
+  action: PermissionAction.READ,
+  scope: PermissionScope.ANY,
+});
+
+export const AdminRolePermissions = [
+  requireReadAnyRole,
+  requireCreateAnyRole,
+  requireUpdateAnyRole,
+  requireDeleteAnyRole,
+  requireReadAnyPermission,
+];
+
 // Zod schemas for validation
 const adminCreateRoleSchema = z.object({
   name: z.string().min(2).max(100),
@@ -81,7 +120,7 @@ export class AdminRoleRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'role', action: PermissionAction.READ, scope: PermissionScope.ANY })
+    requireReadAnyRole
   )
   @Query({
     input: getAllRolesQuerySchema,
@@ -110,7 +149,7 @@ export class AdminRoleRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'role', action: PermissionAction.READ, scope: PermissionScope.ANY })
+    requireReadAnyRole
   )
   @Query({
     input: getRoleByIdSchema,
@@ -135,7 +174,7 @@ export class AdminRoleRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'role', action: PermissionAction.CREATE, scope: PermissionScope.ANY })
+    requireCreateAnyRole
   )
   @Mutation({
     input: adminCreateRoleSchema,
@@ -160,7 +199,7 @@ export class AdminRoleRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'role', action: PermissionAction.UPDATE, scope: PermissionScope.ANY })
+    requireUpdateAnyRole
   )
   @Mutation({
     input: z.object({
@@ -188,7 +227,7 @@ export class AdminRoleRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'role', action: PermissionAction.DELETE, scope: PermissionScope.ANY })
+    requireDeleteAnyRole
   )
   @Mutation({
     input: deleteRoleSchema,
@@ -213,7 +252,7 @@ export class AdminRoleRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'permission', action: PermissionAction.READ, scope: PermissionScope.ANY })
+    requireReadAnyPermission
   )
   @Query({
     output: apiResponseSchema,
@@ -235,7 +274,7 @@ export class AdminRoleRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'role', action: PermissionAction.READ, scope: PermissionScope.ANY })
+    requireReadAnyRole
   )
   @Query({
     output: apiResponseSchema,
@@ -257,7 +296,7 @@ export class AdminRoleRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'role', action: PermissionAction.UPDATE, scope: PermissionScope.ANY })
+    requireUpdateAnyRole
   )
   @Mutation({
     input: toggleRoleStatusSchema,
@@ -282,7 +321,7 @@ export class AdminRoleRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'role', action: PermissionAction.CREATE, scope: PermissionScope.ANY })
+    requireCreateAnyRole
   )
   @Mutation({
     input: duplicateRoleSchema,
@@ -307,7 +346,7 @@ export class AdminRoleRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'role', action: PermissionAction.UPDATE, scope: PermissionScope.ANY })
+    requireUpdateAnyRole
   )
   @Mutation({
     input: addPermissionsToRoleSchema,
@@ -332,7 +371,7 @@ export class AdminRoleRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'role', action: PermissionAction.READ, scope: PermissionScope.ANY })
+    requireReadAnyRole
   )
   @Query({
     input: searchUsersForRoleSchema,
@@ -361,7 +400,7 @@ export class AdminRoleRouter {
   @UseMiddlewares(
     AuthMiddleware,
     AdminRoleMiddleware,
-    RequirePermission({ resource: 'role', action: PermissionAction.UPDATE, scope: PermissionScope.ANY })
+    requireUpdateAnyRole
   )
   @Mutation({
     input: addUsersToRoleSchema,

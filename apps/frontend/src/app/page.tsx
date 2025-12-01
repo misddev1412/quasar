@@ -1,16 +1,8 @@
 import { Metadata } from 'next';
-import { SectionType } from '@shared/enums/section.enums';
 import { getServerSideSEOWithFallback } from '../lib/seo-server';
 import Layout from '../components/layout/Layout';
 import { fetchSections } from '../services/sections.service';
-import {
-  HeroSlider,
-  FeaturedProducts,
-  ProductsByCategory,
-  NewsSection,
-  CustomHtmlSection,
-  CTABannerSection,
-} from '../components/sections';
+import { renderSections } from '../components/sections';
 import type { SectionListItem } from '../types/sections';
 import type { SEOData } from '../types/trpc';
 import { getPreferredLocale } from '../lib/server-locale';
@@ -49,15 +41,6 @@ export async function generateMetadata(): Promise<Metadata> {
     other: seoData.additionalMetaTags || undefined,
   };
 }
-
-const sectionComponentMap: Record<SectionType, React.ComponentType<any>> = {
-  [SectionType.HERO_SLIDER]: HeroSlider,
-  [SectionType.FEATURED_PRODUCTS]: FeaturedProducts,
-  [SectionType.PRODUCTS_BY_CATEGORY]: ProductsByCategory,
-  [SectionType.NEWS]: NewsSection,
-  [SectionType.CUSTOM_HTML]: CustomHtmlSection,
-  [SectionType.CTA]: CTABannerSection,
-};
 
 function renderFallbackContent() {
   return (
@@ -156,30 +139,7 @@ export default async function RootPage({
   const sections = await fetchSections('home', locale);
   const orderedSections = [...sections].sort((a, b) => a.position - b.position);
 
-  const renderedSections = orderedSections
-    .map((section: SectionListItem) => {
-      const Component = sectionComponentMap[section.type as SectionType];
-      if (!Component) {
-        return null;
-      }
-      const translation = section.translation
-        ? {
-            title: section.translation.title ?? undefined,
-            subtitle: section.translation.subtitle ?? undefined,
-            description: section.translation.description ?? undefined,
-            heroDescription: section.translation.heroDescription ?? undefined,
-          }
-        : undefined;
-
-      return (
-        <Component
-          key={section.id}
-          config={section.config as any}
-          translation={translation}
-        />
-      );
-    })
-    .filter(Boolean);
+  const renderedSections = renderSections(orderedSections);
 
   return (
     <Layout>

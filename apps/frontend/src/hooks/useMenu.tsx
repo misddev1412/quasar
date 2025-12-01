@@ -16,6 +16,8 @@ export interface MenuItem {
   icon?: string | null;
   textColor?: string | null;
   backgroundColor?: string | null;
+  borderColor?: string | null;
+  borderWidth?: string | null;
   config: Record<string, unknown>;
   isMegaMenu: boolean;
   megaMenuColumns?: number | null;
@@ -192,6 +194,8 @@ export const useMenu = (menuGroup: string = 'main') => {
         isMegaMenu: item.isMegaMenu,
         megaMenuColumns: item.megaMenuColumns,
         description: getDescription(item),
+        borderColor: item.borderColor || null,
+        borderWidth: item.borderWidth || null,
         children: item.children
           .filter(child => child.isEnabled)
           .map(child => ({
@@ -206,6 +210,8 @@ export const useMenu = (menuGroup: string = 'main') => {
             image: (child.config?.image as string) || null,
             badge: (child.config?.badge as string) || null,
             featured: (child.config?.featured as boolean) || false,
+            borderColor: child.borderColor || null,
+            borderWidth: child.borderWidth || null,
             children: child.children
               .filter(grandChild => grandChild.isEnabled)
               .map(grandChild => ({
@@ -220,6 +226,8 @@ export const useMenu = (menuGroup: string = 'main') => {
                 image: (grandChild.config?.image as string) || null,
                 badge: (grandChild.config?.badge as string) || null,
                 featured: (grandChild.config?.featured as boolean) || false,
+                borderColor: grandChild.borderColor || null,
+                borderWidth: grandChild.borderWidth || null,
               }))
               .sort((a, b) => {
                 const grandChildA = child.children.find(gc => gc.id === a.id);

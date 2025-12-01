@@ -1,6 +1,28 @@
 import { formatZodError, isZodError } from './utils/zod-error-formatter';
 
 /**
+ * Map TRPC error code to HTTP status code
+ */
+function mapTRPCErrorCodeToStatus(code: string): number {
+  switch (code) {
+    case 'BAD_REQUEST': return 400;
+    case 'UNAUTHORIZED': return 401;
+    case 'FORBIDDEN': return 403;
+    case 'NOT_FOUND': return 404;
+    case 'TIMEOUT': return 408;
+    case 'CONFLICT': return 409;
+    case 'PRECONDITION_FAILED': return 412;
+    case 'PAYLOAD_TOO_LARGE': return 413;
+    case 'METHOD_NOT_SUPPORTED': return 405;
+    case 'UNPROCESSABLE_CONTENT': return 422;
+    case 'TOO_MANY_REQUESTS': return 429;
+    case 'CLIENT_CLOSED_REQUEST': return 499;
+    case 'INTERNAL_SERVER_ERROR': 
+    default: return 500;
+  }
+}
+
+/**
  * Shared error formatter for tRPC
  * Can be used in both initTRPC.create() and TRPCModule.forRoot()
  */
@@ -26,12 +48,14 @@ export const createErrorFormatter = (source = 'unknown') => {
       return errorCause.errorData;
     }
     
-    // Fallback for errors not created by ResponseService
-    const code = errorCause?.httpStatus || 500;
-    const status = error.code || 'INTERNAL_SERVER_ERROR';
+    // Map TRPC error code to HTTP status code
+    // If httpStatus is provided in cause, use it; otherwise map from TRPC error code
+    const trpcErrorCode = error.code || 'INTERNAL_SERVER_ERROR';
+    const code = errorCause?.httpStatus || mapTRPCErrorCodeToStatus(trpcErrorCode);
+    const status = trpcErrorCode;
     const errors = [{
       '@type': 'ErrorInfo',
-      reason: error.code || 'INTERNAL_SERVER_ERROR',
+      reason: trpcErrorCode,
       domain: 'quasar.com',
       metadata: shape.data || {}
     }];

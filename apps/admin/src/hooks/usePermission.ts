@@ -25,14 +25,26 @@ export function usePermission(permission?: RequiredPermission) {
   const hasPermission = useMemo(() => {
     if (!permission || !isAuthenticated || !user) return false;
 
-    // SUPER_ADMIN has all permissions
-    if (user.role === 'SUPER_ADMIN' || user.role === 'super_admin' || user.role === 'SUPER_ADMIN') {
+    // Get role value - handle both string and object with code property
+    const roleValue = typeof user.role === 'string' 
+      ? user.role 
+      : (user.role as any)?.code || (user.role as any)?.name || '';
+    
+    // Normalize role value to lowercase for comparison
+    const normalizedRole = roleValue?.toLowerCase() || '';
+
+    // SUPER_ADMIN has all permissions (check various formats)
+    if (
+      normalizedRole === 'super_admin' || 
+      normalizedRole === 'superadmin' ||
+      roleValue === 'SUPER_ADMIN'
+    ) {
       return true;
     }
 
     // ADMIN role has access to most admin resources
     // For now, we allow ADMIN access. Backend middleware will enforce specific permissions.
-    if (user.role === 'ADMIN' || user.role === 'admin') {
+    if (normalizedRole === 'admin' || roleValue === 'ADMIN') {
       // Allow access - backend will check specific permissions
       return true;
     }
@@ -76,8 +88,18 @@ export function usePermissions(permissions: RequiredPermission[]) {
     if (!isAuthenticated || permissions.length === 0) return false;
     if (!userPermissions || userPermissions.length === 0) return false;
 
+    // Get role value - handle both string and object with code property
+    const roleValue = typeof user?.role === 'string' 
+      ? user.role 
+      : (user?.role as any)?.code || (user?.role as any)?.name || '';
+    const normalizedRole = roleValue?.toLowerCase() || '';
+
     // SUPER_ADMIN has all permissions
-    if (user?.role === 'SUPER_ADMIN' || user?.role === 'super_admin') {
+    if (
+      normalizedRole === 'super_admin' || 
+      normalizedRole === 'superadmin' ||
+      roleValue === 'SUPER_ADMIN'
+    ) {
       return true;
     }
 
@@ -97,8 +119,18 @@ export function usePermissions(permissions: RequiredPermission[]) {
     if (!isAuthenticated || permissions.length === 0) return false;
     if (!userPermissions || userPermissions.length === 0) return false;
 
+    // Get role value - handle both string and object with code property
+    const roleValue = typeof user?.role === 'string' 
+      ? user.role 
+      : (user?.role as any)?.code || (user?.role as any)?.name || '';
+    const normalizedRole = roleValue?.toLowerCase() || '';
+
     // SUPER_ADMIN has all permissions
-    if (user?.role === 'SUPER_ADMIN' || user?.role === 'super_admin') {
+    if (
+      normalizedRole === 'super_admin' || 
+      normalizedRole === 'superadmin' ||
+      roleValue === 'SUPER_ADMIN'
+    ) {
       return true;
     }
 
