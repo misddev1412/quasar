@@ -8,6 +8,7 @@ import { Modal } from '../common/Modal';
 import { ComponentConfigForm, type ComponentConfigFormValues } from './ComponentConfigForm';
 import { useToast } from '../../context/ToastContext';
 import { Input } from '../common/Input';
+import type { ApiResponse } from '@backend/trpc/schemas/response.schemas';
 
 type ComponentConfigNode = {
   id: string;
@@ -33,6 +34,8 @@ type ComponentConfigNode = {
 type FormState =
   | { mode: 'create'; parent?: ComponentConfigNode | null }
   | { mode: 'edit'; component: ComponentConfigNode };
+
+type ComponentConfigsApiResponse = ApiResponse<ComponentConfigNode[]>;
 
 const categoryFilterOptions = [
   { value: 'all', label: 'All categories' },
@@ -98,14 +101,14 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
     onlyEnabled: filters.showDisabled ? false : true,
   };
 
-  const listQuery = trpc.adminComponentConfigs.list.useQuery(queryInput);
+  const listQuery = trpc.adminComponentConfigs.list.useQuery<ComponentConfigsApiResponse>(queryInput);
   const createMutation = trpc.adminComponentConfigs.create.useMutation();
   const updateMutation = trpc.adminComponentConfigs.update.useMutation();
   const deleteMutation = trpc.adminComponentConfigs.delete.useMutation();
 
-  const isMutating = createMutation.isLoading || updateMutation.isLoading || deleteMutation.isLoading;
+  const isMutating = createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
 
-  const components = (listQuery.data?.data as ComponentConfigNode[]) ?? [];
+  const components = listQuery.data?.data ?? [];
 
   const flattened = useMemo(() => flattenComponents(components), [components]);
 
