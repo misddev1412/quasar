@@ -292,7 +292,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <div
-      className={`group relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 ${className}`}
+      className={`group relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 flex flex-col h-full ${className}`}
     >
       {/* Product Image */}
       <div className={`relative overflow-hidden ${imageHeight} bg-white dark:bg-gray-800`}>
@@ -356,48 +356,52 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </div>
 
       {/* Product Info */}
-      <div className="p-5 space-y-3">
-        {/* Product Name */}
-        <Link href={`/products/${productSlug}`} className="block">
-          <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-lg leading-tight h-14 overflow-hidden">
-            {name}
-          </h3>
-        </Link>
+      <div className="p-5 flex flex-col flex-1">
+        <div className="flex flex-col gap-3 flex-1 min-h-[180px] sm:min-h-[200px]">
+          {/* Product Name */}
+          <Link href={`/products/${productSlug}`} className="block">
+            <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-lg leading-tight h-14 overflow-hidden">
+              {name}
+            </h3>
+          </Link>
 
-        {/* SKU */}
-        {sku && (
-          <div className="text-xs text-gray-500 dark:text-gray-400 font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded inline-block">
-            SKU: {sku}
-          </div>
-        )}
+          {/* SKU */}
+          {sku && (
+            <div className="text-xs text-gray-500 dark:text-gray-400 font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded inline-block">
+              SKU: {sku}
+            </div>
+          )}
 
-      {/* Price */}
-      <div className="h-16">
-        {currentPrice && (
-          <div className="mt-2">
-            <PriceDisplay price={currentPrice} size="lg" />
-            {variants && variants.length > 0 && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {t('ecommerce.productCard.startingFrom', { price: `$${currentPrice}` })}
-              </p>
+          {/* Price */}
+          <div className="h-16">
+            {currentPrice && (
+              <div className="mt-2">
+                <PriceDisplay price={currentPrice} size="lg" />
+                {variants && variants.length > 0 && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {t('ecommerce.productCard.startingFrom', { price: `$${currentPrice}` })}
+                  </p>
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
+        </div>
 
         {/* Add to Cart Button */}
-        <div className="h-16 flex items-end">
-          {showAddToCart && inStock && (
-            <AddToCartButton
-              product={product}
-              onAddToCart={handleAddToCartDirect}
-              quantity={1}
-              fullWidth
-              size="md"
-              useInternalVariantSelection={false}
-              className="relative group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] before:transition-transform before:duration-700 hover:before:translate-x-[100%] overflow-hidden"
-            />
-          )}
+        <div className="mt-auto pt-4">
+          <div className="h-16 flex items-end">
+            {showAddToCart && inStock && (
+              <AddToCartButton
+                product={product}
+                onAddToCart={handleAddToCartDirect}
+                quantity={1}
+                fullWidth
+                size="md"
+                useInternalVariantSelection={false}
+                className="relative group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] before:transition-transform before:duration-700 hover:before:translate-x-[100%] overflow-hidden"
+              />
+            )}
+          </div>
         </div>
       </div>
 

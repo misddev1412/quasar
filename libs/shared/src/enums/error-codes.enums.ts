@@ -71,6 +71,7 @@ export enum ModuleCode {
   SYSTEM = 90,            // System Configuration
   CONFIG = 91,            // Application Config
   AUDIT = 92,             // Audit Logging
+  COMPONENT = 93,         // Component configuration management
 }
 
 /**

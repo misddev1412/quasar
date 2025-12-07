@@ -83,6 +83,7 @@ import SectionsPage from '../pages/sections';
 import MenusPage from '../pages/menus';
 import HelpPage from '../pages/help';
 import StorefrontFooterPage from '../pages/storefront/footer';
+import ComponentConfigsPage from '../pages/component-configs';
 // Order Management
 import OrdersIndexPage from '../pages/orders';
 import OrderCreatePage from '../pages/orders/create';
@@ -240,6 +241,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/sections/:page" element={<ProtectedRoute><SectionsPage /></ProtectedRoute>} />
       <Route path="/menus" element={<Navigate to="/menus/main" replace />} />
       <Route path="/menus/:group" element={<ProtectedRoute><MenusPage /></ProtectedRoute>} />
+      <Route path="/component-configs" element={<ProtectedRoute><ComponentConfigsPage /></ProtectedRoute>} />
       <Route path="/storefront/footer" element={<ProtectedRoute><StorefrontFooterPage /></ProtectedRoute>} />
       <Route path="/products/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
       <Route path="/products/categories/create" element={<ProtectedRoute><CategoryCreatePage /></ProtectedRoute>} />

@@ -22,15 +22,18 @@ export const useSettings = () => {
     const setting = settings.find((s: Setting) => s.key === key);
     if (!setting) return defaultValue;
 
-    // Convert value based on type
-    switch (setting.type) {
-      case 'number':
-        return setting.value || defaultValue;
-      case 'boolean':
-        return setting.value || 'false';
-      default:
-        return setting.value || defaultValue;
+    // For boolean type, return the actual value (could be 'true' or 'false')
+    // Don't fallback to 'false' if value exists
+    if (setting.type === 'boolean') {
+      // If value is explicitly set, return it; otherwise return defaultValue
+      if (setting.value !== null && setting.value !== undefined && setting.value !== '') {
+        return setting.value;
+      }
+      return defaultValue;
     }
+
+    // For other types
+    return setting.value || defaultValue;
   };
 
   const getSettingAsBoolean = (key: string, defaultValue: boolean = false): boolean => {

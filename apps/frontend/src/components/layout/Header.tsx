@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import clsx from 'clsx';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
@@ -198,21 +197,38 @@ const Icons = {
 // Logo Component
 const Logo: React.FC<{ currentLocale: string }> = ({ currentLocale }) => {
   const t = useTranslations();
-  const { getSiteLogo, getSetting, getSettingAsBoolean } = useSettings();
+  const { getSiteLogo, getSetting, settings, isLoading } = useSettings();
   const siteLogo = getSiteLogo();
   const siteName = getSetting('site.name');
-  const showText = getSettingAsBoolean('site.logo_show_text', true); // Default to true for backward compatibility
-  const logoText = getSetting('site.logo_text');
-  const displayText = logoText || siteName;
+  
+  // Get alt text from brand-assets config, fallback to site name
   const logoAltText = getSetting('site.logo_alt') || siteName;
+  
+  // Check if logo image should be shown (default: true when no setting exists)
+  const logoShowLogoSetting = settings.find((s: any) => s.key === 'site.logo_show_logo');
+  // If setting exists, check its value; if not exists or still loading, default to true
+  const showLogoImage = logoShowLogoSetting 
+    ? logoShowLogoSetting.value === 'true' 
+    : true; // Default to true when setting doesn't exist
+  
+  // Check if text should be shown next to logo (default: true when no setting exists)
+  const logoShowTextSetting = settings.find((s: any) => s.key === 'site.logo_show_text');
+  const showLogoText = logoShowTextSetting 
+    ? logoShowTextSetting.value === 'true' 
+    : true; // Default to true when setting doesn't exist
+  
+  // Get text content from brand-assets config, fallback to site name
+  const logoTextContent = getSetting('site.logo_text') || siteName;
+
 
   return (
-    <Link href="/" className="flex items-center gap-2 group">
-      {siteLogo ? (
+    <Link href="/" className="flex items-center gap-3 group">
+      {/* Logo Image - Only render if showLogoImage is enabled and siteLogo exists */}
+      {showLogoImage && siteLogo && (
         <img
           src={siteLogo}
           alt={logoAltText}
-          className="w-9 h-9 object-contain"
+          className="w-[8.75rem] h-auto min-w-[8.75rem] object-contain flex-shrink-0"
           onError={(e) => {
             // Fallback to default logo if image fails to load
             e.currentTarget.style.display = 'none';
@@ -221,17 +237,17 @@ const Logo: React.FC<{ currentLocale: string }> = ({ currentLocale }) => {
               ?.classList.remove('hidden');
           }}
         />
-      ) : null}
-      <div
-        className={`w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow ${
-          siteLogo ? 'hidden default-logo' : ''
-        }`}
-      >
-        <span className="text-white font-bold text-lg">Q</span>
-      </div>
-      {showText && (
+      )}
+      {/* Default Logo - Show when logo is enabled but no siteLogo uploaded */}
+      {showLogoImage && !siteLogo && (
+        <div className="w-11 h-11 min-w-[44px] min-h-[44px] bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow default-logo flex-shrink-0">
+          <span className="text-white font-bold text-xl">Q</span>
+        </div>
+      )}
+      {/* Site Name Text - Only show if enabled */}
+      {showLogoText && (
         <p className="font-bold text-xl bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent m-0">
-          {displayText}
+          {logoTextContent}
         </p>
       )}
     </Link>
@@ -316,8 +332,6 @@ const convertToNavigationItems = (items: any[]): NavigationItem[] => {
     badge: item.badge,
     featured: item.featured,
     config: item.config,
-    borderColor: item.borderColor,
-    borderWidth: item.borderWidth,
     children: item.children ? convertToNavigationItems(item.children) : [],
   }));
 };
@@ -450,7 +464,6 @@ const Header: React.FC = () => {
   const [minPriceFilter, setMinPriceFilter] = useState('');
   const [maxPriceFilter, setMaxPriceFilter] = useState('');
   const [mounted, setMounted] = useState(false);
-  const [isStickyVisible, setIsStickyVisible] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const { summary, openCart } = useCart(); // Add cart hook
   const { navigationItems } = useMenu('main');
@@ -751,23 +764,6 @@ const Header: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const handleScroll = () => {
-      setIsStickyVisible(window.scrollY > 220);
-    };
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-  useEffect(() => {
     if (!isSearchOpen) {
       return;
     }
@@ -836,21 +832,10 @@ const Header: React.FC = () => {
     }
   }, [isAdvancedOpen]);
 
-  const renderHeaderSection = (variant: 'default' | 'sticky') => {
-    const headerClassName = clsx(
-      'bg-white dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm',
-      variant === 'sticky'
-        ? [
-            'hidden lg:block fixed top-0 left-0 right-0 z-[65] w-full transition-all duration-300 ease-out',
-            isStickyVisible
-              ? 'translate-y-0 opacity-100 pointer-events-auto'
-              : '-translate-y-full opacity-0 pointer-events-none',
-          ]
-        : 'relative z-40',
-    );
-
-    return (
-      <header className={headerClassName}>
+  return (
+    <>
+      <TopMenuBar />
+      <header className="sticky top-0 z-50 bg-white dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
         <Container className="py-0">
           <Navbar
             onMenuOpenChange={setIsMenuOpen}
@@ -863,317 +848,309 @@ const Header: React.FC = () => {
             }}
             height="4rem"
           >
-            {/* Left Section: Menu Toggle + Logo */}
-            <NavbarContent justify="start">
-              <NavbarMenuToggle
-                aria-label={
-                  isMenuOpen ? t('layout.header.menu.close') : t('layout.header.menu.open')
-                }
-                className="sm:hidden text-gray-600 dark:text-gray-400"
-              />
-              <NavbarBrand>
-                <Logo currentLocale={currentLocale} />
-              </NavbarBrand>
-            </NavbarContent>
+          {/* Left Section: Logo - 15% width */}
+          <NavbarContent justify="start" className="!flex-grow-0 !basis-[15%] max-w-[15%]">
+            <NavbarMenuToggle
+              aria-label={isMenuOpen ? t('layout.header.menu.close') : t('layout.header.menu.open')}
+              className="sm:hidden text-gray-600 dark:text-gray-400"
+            />
+            <NavbarBrand>
+              <Logo currentLocale={currentLocale} />
+            </NavbarBrand>
+          </NavbarContent>
 
-            {/* Center Section: Desktop Navigation */}
-            <NavbarContent className="hidden lg:flex gap-2 header-nav" justify="center">
+          {/* Right Section: Navigation + Actions - 85% width */}
+          <NavbarContent justify="end" className="!flex-grow-0 !basis-[85%] max-w-[85%] gap-2 hidden lg:flex">
+            <div className="flex-1 flex items-center justify-evenly">
               <MenuNavigation items={navigationItemsConverted} renderers={navigationRenderers} />
-            </NavbarContent>
+            </div>
+          </NavbarContent>
 
-            {/* Right Section: Actions */}
-            <NavbarContent justify="end" className="gap-2">
-              {/* Action Buttons */}
-              {isAuthenticated && (
-                <>
-                  <NavbarItem>
-                    <NotificationDropdown />
-                  </NavbarItem>
-                  <NavbarItem className="hidden sm:flex">
-                    <IconButtonWithBadge
-                      icon={<Icons.Heart />}
-                      badge="5"
-                      badgeColor="secondary"
-                      label={t('layout.header.actions.wishlist')}
-                      onClick={() => router.push('/wishlist')}
-                    />
-                  </NavbarItem>
-                </>
-              )}
+          {/* Mobile: Actions only */}
+          <NavbarContent justify="end" className="gap-2 lg:hidden">
+            {/* Action Buttons */}
+            {isAuthenticated && (
+              <>
+                <NavbarItem>
+                  <NotificationDropdown />
+                </NavbarItem>
+                <NavbarItem className="hidden sm:flex">
+                  <IconButtonWithBadge
+                    icon={<Icons.Heart />}
+                    badge="5"
+                    badgeColor="secondary"
+                    label={t('layout.header.actions.wishlist')}
+                    onClick={() => router.push('/wishlist')}
+                  />
+                </NavbarItem>
+              </>
+            )}
 
-              {/* Cart, profile, search, locale, and theme actions are only rendered when configured in the storefront menu */}
-            </NavbarContent>
+            {/* Cart, profile, search, locale, and theme actions are only rendered when configured in the storefront menu */}
+          </NavbarContent>
 
-            {/* Mobile Menu */}
-            <NavbarMenu className="px-0 pt-0 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md">
-              {/* Mobile Search */}
-              <div className="px-4 pt-6 pb-4">
-                <SearchInput
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                  onSubmit={(e) => {
-                    handleSearch(e);
-                    setIsMenuOpen(false);
-                  }}
-                  size="lg"
-                  placeholder={t('layout.header.search.placeholder')}
-                  fullWidth
-                />
-              </div>
-
-              {/* Navigation Items */}
-              <MenuNavigation
-                items={navigationItemsConverted}
-                isMobileMenuOpen={isMenuOpen}
-                onMobileMenuClose={() => setIsMenuOpen(false)}
-                renderers={navigationRenderers}
+          {/* Mobile Menu */}
+          <NavbarMenu className="px-0 pt-0 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md">
+            {/* Mobile Search */}
+            <div className="px-4 pt-6 pb-4">
+              <SearchInput
+                value={searchQuery}
+                onChange={setSearchQuery}
+                onSubmit={(e) => {
+                  handleSearch(e);
+                  setIsMenuOpen(false);
+                }}
+                size="lg"
+                placeholder={t('layout.header.search.placeholder')}
+                fullWidth
               />
+            </div>
 
-              {/* Cart, profile, search, locale, and theme entries are managed entirely via storefront navigation */}
-            </NavbarMenu>
+            {/* Navigation Items */}
+            <MenuNavigation
+              items={navigationItemsConverted}
+              isMobileMenuOpen={isMenuOpen}
+              onMobileMenuClose={() => setIsMenuOpen(false)}
+              renderers={navigationRenderers}
+            />
 
-            {/* Shopping Cart Modal - disabled since we're using dropdown */}
-            {/* <ShoppingCart /> */}
-          </Navbar>
+            {/* Cart, profile, search, locale, and theme entries are managed entirely via storefront navigation */}
+          </NavbarMenu>
 
-          {variant === 'default' && mounted && isSearchOpen
-            ? createPortal(
-                <div
-                  className="hidden lg:flex fixed inset-0 z-[70] items-center justify-center px-4 py-16"
-                  onClick={() => setIsSearchOpen(false)}
-                >
-                  <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
-                  <div
-                    className="relative w-full max-w-3xl rounded-3xl border border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-950/95 shadow-2xl"
-                    onClick={(event) => event.stopPropagation()}
-                  >
-                    <Button
-                      isIconOnly
-                      type="button"
-                      variant="light"
-                      aria-label={t('layout.header.search.close')}
-                      className="absolute top-4 right-4 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                      onPress={() => setIsSearchOpen(false)}
-                    >
-                      <Icons.Close />
-                    </Button>
-
-                    <form
-                      className="space-y-6 sm:space-y-8 p-6 sm:p-10 pt-14 sm:pt-16"
-                      onSubmit={handleSearch}
-                    >
-                      <div className="space-y-2">
-                        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-gray-100">
-                          {t('layout.header.search.title')}
-                        </h2>
-                        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
-                          {t('layout.header.search.subtitle')}
-                        </p>
-                      </div>
-
-                      <Input
-                        ref={searchInputRef}
-                        type="search"
-                        value={searchQuery}
-                        onValueChange={setSearchQuery}
-                        placeholder={t('layout.header.search.placeholder')}
-                        size="lg"
-                        variant="bordered"
-                        radius="lg"
-                        icon={
-                          <span className="text-gray-400 dark:text-gray-500">
-                            <Icons.Search />
-                          </span>
-                        }
-                        classNames={{
-                          inputWrapper:
-                            'h-14 sm:h-16 px-4 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/70 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
-                          input: 'text-base sm:text-lg text-gray-900 dark:text-gray-100',
-                        }}
-                      />
-
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <Button
-                          size="sm"
-                          variant="light"
-                          type="button"
-                          aria-expanded={isAdvancedOpen}
-                          aria-controls={advancedSectionId}
-                          onPress={() => setIsAdvancedOpen((prev) => !prev)}
-                          className="self-start"
-                        >
-                          {isAdvancedOpen
-                            ? t('layout.header.search.hide_advanced')
-                            : t('layout.header.search.show_advanced')}
-                        </Button>
-                        <Button color="primary" type="submit">
-                          {t('layout.header.search.submit')}
-                        </Button>
-                      </div>
-
-                      {isAdvancedOpen && (
-                        <div
-                          id={advancedSectionId}
-                          className="space-y-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/85 p-6 shadow-inner"
-                        >
-                          <div className="flex flex-wrap items-start justify-between gap-3">
-                            <div className="space-y-1">
-                              <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">
-                                {t('layout.header.search.filters.heading')}
-                              </h3>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {t('layout.header.search.filters.description')}
-                              </p>
-                            </div>
-                            <Button
-                              variant="light"
-                              size="sm"
-                              type="button"
-                              onPress={() => {
-                                setCategoryFilter('');
-                                setMinPriceFilter('');
-                                setMaxPriceFilter('');
-                                setCategorySearch('');
-                                setIsCategoryDropdownOpen(false);
-                              }}
-                            >
-                              {t('layout.header.search.filters.reset')}
-                            </Button>
-                          </div>
-
-                          <div className="grid gap-4 sm:grid-cols-3">
-                            <div className="sm:col-span-1 relative">
-                              <Input
-                                label={t('layout.header.search.filters.category.label')}
-                                placeholder={t(
-                                  'layout.header.search.filters.category.placeholder',
-                                )}
-                                value={categorySearch}
-                                onValueChange={(value) => {
-                                  setCategorySearch(value);
-                                  if (!value) {
-                                    setCategoryFilter('');
-                                  }
-                                  setIsCategoryDropdownOpen(true);
-                                }}
-                                onFocus={() => setIsCategoryDropdownOpen(true)}
-                                onBlur={() => {
-                                  // delay closing to allow click events on dropdown items
-                                  setTimeout(() => setIsCategoryDropdownOpen(false), 150);
-                                }}
-                                variant="bordered"
-                                radius="lg"
-                                size="md"
-                                classNames={{
-                                  label: 'text-sm font-medium text-gray-600 dark:text-gray-300',
-                                  inputWrapper:
-                                    'h-12 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/60 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
-                                  input: 'text-sm text-gray-900 dark:text-gray-100',
-                                }}
-                                fullWidth
-                              />
-                              {isCategoryDropdownOpen && (
-                                <div className="absolute z-40 mt-2 max-h-56 w-full overflow-y-auto rounded-xl border border-gray-200 bg-white/95 shadow-xl dark:border-gray-800 dark:bg-gray-950">
-                                  {isLoadingCategories ? (
-                                    <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
-                                      {t('layout.header.search.filters.loading')}
-                                    </div>
-                                  ) : normalizedCategories.length === 0 ? (
-                                    <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
-                                      {t('layout.header.search.filters.empty')}
-                                    </div>
-                                  ) : filteredCategories.length === 0 ? (
-                                    <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
-                                      {t('layout.header.search.filters.no_results')}
-                                    </div>
-                                  ) : (
-                                    filteredCategories.map((category) => {
-                                      const isSelected = category.id === categoryFilter;
-                                      return (
-                                        <button
-                                          key={category.id}
-                                          type="button"
-                                          className={`w-full px-4 py-2 text-left text-sm transition-colors ${
-                                            isSelected
-                                              ? 'bg-blue-500/10 text-blue-600 dark:text-blue-300'
-                                              : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-                                          }`}
-                                          onMouseDown={() => {
-                                            setCategoryFilter(category.id);
-                                            setCategorySearch(category.name);
-                                            setIsCategoryDropdownOpen(false);
-                                          }}
-                                        >
-                                          {category.name}
-                                        </button>
-                                      );
-                                    })
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                            <Input
-                              label={t('layout.header.search.filters.min_price.label')}
-                              placeholder={t('layout.header.search.filters.min_price.placeholder')}
-                              type="number"
-                              value={minPriceFilter}
-                              onChange={(event) => setMinPriceFilter(event.target.value)}
-                              variant="bordered"
-                              radius="lg"
-                              size="md"
-                              inputMode="numeric"
-                              fullWidth
-                              classNames={{
-                                label: 'text-sm font-medium text-gray-600 dark:text-gray-300',
-                                inputWrapper:
-                                  'h-12 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/60 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
-                                input: 'text-sm text-gray-900 dark:text-gray-100',
-                              }}
-                            />
-                            <Input
-                              label={t('layout.header.search.filters.max_price.label')}
-                              placeholder={t('layout.header.search.filters.max_price.placeholder')}
-                              type="number"
-                              value={maxPriceFilter}
-                              onChange={(event) => setMaxPriceFilter(event.target.value)}
-                              variant="bordered"
-                              radius="lg"
-                              size="md"
-                              inputMode="numeric"
-                              fullWidth
-                              classNames={{
-                                label: 'text-sm font-medium text-gray-600 dark:text-gray-300',
-                                inputWrapper:
-                                  'h-12 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/60 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
-                                input: 'text-sm text-gray-900 dark:text-gray-100',
-                              }}
-                            />
-                          </div>
-
-                          <div className="flex justify-end">
-                            <Button color="primary" type="submit">
-                              {t('layout.header.search.filters.apply')}
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </form>
-                  </div>
-                </div>,
-                document.body,
-              )
-            : null}
+          {/* Shopping Cart Modal - disabled since we're using dropdown */}
+          {/* <ShoppingCart /> */}
+        </Navbar>
         </Container>
       </header>
-    );
-  };
 
-  return (
-    <>
-      <TopMenuBar />
-      {renderHeaderSection('default')}
+      {/* SubMenuBar is placed outside header so it doesn't stick with the main header */}
       <SubMenuBar />
-      {renderHeaderSection('sticky')}
+
+      {mounted && isSearchOpen
+          ? createPortal(
+              <div
+                className="hidden lg:flex fixed inset-0 z-[70] items-center justify-center px-4 py-16"
+                onClick={() => setIsSearchOpen(false)}
+              >
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
+                <div
+                  className="relative w-full max-w-3xl rounded-3xl border border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-950/95 shadow-2xl"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <Button
+                    isIconOnly
+                    type="button"
+                    variant="light"
+                    aria-label={t('layout.header.search.close')}
+                    className="absolute top-4 right-4 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    onPress={() => setIsSearchOpen(false)}
+                  >
+                    <Icons.Close />
+                  </Button>
+
+                  <form
+                    className="space-y-6 sm:space-y-8 p-6 sm:p-10 pt-14 sm:pt-16"
+                    onSubmit={handleSearch}
+                  >
+                    <div className="space-y-2">
+                      <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-gray-100">
+                        {t('layout.header.search.title')}
+                      </h2>
+                      <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
+                        {t('layout.header.search.subtitle')}
+                      </p>
+                    </div>
+
+                    <Input
+                      ref={searchInputRef}
+                      type="search"
+                      value={searchQuery}
+                      onValueChange={setSearchQuery}
+                      placeholder={t('layout.header.search.placeholder')}
+                      size="lg"
+                      variant="bordered"
+                      radius="lg"
+                      icon={
+                        <span className="text-gray-400 dark:text-gray-500">
+                          <Icons.Search />
+                        </span>
+                      }
+                      classNames={{
+                        inputWrapper:
+                          'h-14 sm:h-16 px-4 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/70 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
+                        input: 'text-base sm:text-lg text-gray-900 dark:text-gray-100',
+                      }}
+                    />
+
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <Button
+                        size="sm"
+                        variant="light"
+                        type="button"
+                        aria-expanded={isAdvancedOpen}
+                        aria-controls={advancedSectionId}
+                        onPress={() => setIsAdvancedOpen((prev) => !prev)}
+                        className="self-start"
+                      >
+                        {isAdvancedOpen
+                          ? t('layout.header.search.hide_advanced')
+                          : t('layout.header.search.show_advanced')}
+                      </Button>
+                      <Button color="primary" type="submit">
+                        {t('layout.header.search.submit')}
+                      </Button>
+                    </div>
+
+                    {isAdvancedOpen && (
+                      <div
+                        id={advancedSectionId}
+                        className="space-y-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/85 p-6 shadow-inner"
+                      >
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div className="space-y-1">
+                            <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">
+                              {t('layout.header.search.filters.heading')}
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {t('layout.header.search.filters.description')}
+                            </p>
+                          </div>
+                          <Button
+                            variant="light"
+                            size="sm"
+                            type="button"
+                            onPress={() => {
+                              setCategoryFilter('');
+                              setMinPriceFilter('');
+                              setMaxPriceFilter('');
+                              setCategorySearch('');
+                              setIsCategoryDropdownOpen(false);
+                            }}
+                          >
+                            {t('layout.header.search.filters.reset')}
+                          </Button>
+                        </div>
+
+                        <div className="grid gap-4 sm:grid-cols-3">
+                          <div className="sm:col-span-1 relative">
+                            <Input
+                              label={t('layout.header.search.filters.category.label')}
+                              placeholder={t('layout.header.search.filters.category.placeholder')}
+                              value={categorySearch}
+                              onValueChange={(value) => {
+                                setCategorySearch(value);
+                                if (!value) {
+                                  setCategoryFilter('');
+                                }
+                                setIsCategoryDropdownOpen(true);
+                              }}
+                              onFocus={() => setIsCategoryDropdownOpen(true)}
+                              onBlur={() => {
+                                // delay closing to allow click events on dropdown items
+                                setTimeout(() => setIsCategoryDropdownOpen(false), 150);
+                              }}
+                              variant="bordered"
+                              radius="lg"
+                              size="md"
+                              classNames={{
+                                label: 'text-sm font-medium text-gray-600 dark:text-gray-300',
+                                inputWrapper:
+                                  'h-12 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/60 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
+                                input: 'text-sm text-gray-900 dark:text-gray-100',
+                              }}
+                              fullWidth
+                            />
+                            {isCategoryDropdownOpen && (
+                              <div className="absolute z-40 mt-2 max-h-56 w-full overflow-y-auto rounded-xl border border-gray-200 bg-white/95 shadow-xl dark:border-gray-800 dark:bg-gray-950">
+                                {isLoadingCategories ? (
+                                  <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                                    {t('layout.header.search.filters.loading')}
+                                  </div>
+                                ) : normalizedCategories.length === 0 ? (
+                                  <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                                    {t('layout.header.search.filters.empty')}
+                                  </div>
+                                ) : filteredCategories.length === 0 ? (
+                                  <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                                    {t('layout.header.search.filters.no_results')}
+                                  </div>
+                                ) : (
+                                  filteredCategories.map((category) => {
+                                    const isSelected = category.id === categoryFilter;
+                                    return (
+                                      <button
+                                        key={category.id}
+                                        type="button"
+                                        className={`w-full px-4 py-2 text-left text-sm transition-colors ${
+                                          isSelected
+                                            ? 'bg-blue-500/10 text-blue-600 dark:text-blue-300'
+                                            : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                                        }`}
+                                        onMouseDown={() => {
+                                          setCategoryFilter(category.id);
+                                          setCategorySearch(category.name);
+                                          setIsCategoryDropdownOpen(false);
+                                        }}
+                                      >
+                                        {category.name}
+                                      </button>
+                                    );
+                                  })
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          <Input
+                            label={t('layout.header.search.filters.min_price.label')}
+                            placeholder={t('layout.header.search.filters.min_price.placeholder')}
+                            type="number"
+                            value={minPriceFilter}
+                            onChange={(event) => setMinPriceFilter(event.target.value)}
+                            variant="bordered"
+                            radius="lg"
+                            size="md"
+                            inputMode="numeric"
+                            fullWidth
+                            classNames={{
+                              label: 'text-sm font-medium text-gray-600 dark:text-gray-300',
+                              inputWrapper:
+                                'h-12 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/60 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
+                              input: 'text-sm text-gray-900 dark:text-gray-100',
+                            }}
+                          />
+                          <Input
+                            label={t('layout.header.search.filters.max_price.label')}
+                            placeholder={t('layout.header.search.filters.max_price.placeholder')}
+                            type="number"
+                            value={maxPriceFilter}
+                            onChange={(event) => setMaxPriceFilter(event.target.value)}
+                            variant="bordered"
+                            radius="lg"
+                            size="md"
+                            inputMode="numeric"
+                            fullWidth
+                            classNames={{
+                              label: 'text-sm font-medium text-gray-600 dark:text-gray-300',
+                              inputWrapper:
+                                'h-12 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/60 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
+                              input: 'text-sm text-gray-900 dark:text-gray-100',
+                            }}
+                          />
+                        </div>
+
+                        <div className="flex justify-end">
+                          <Button color="primary" type="submit">
+                            {t('layout.header.search.filters.apply')}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </form>
+                </div>
+              </div>,
+              document.body
+            )
+          : null}
     </>
   );
 };

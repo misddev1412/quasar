@@ -1,4 +1,5 @@
 import React from 'react';
+import { DynamicIcon, iconNames, type IconName } from 'lucide-react/dynamic';
 
 // Import react-icons for admin compatibility
 import {
@@ -36,7 +37,11 @@ interface UnifiedIconProps {
   className?: string;
   size?: number;
   fallback?: string;
+  color?: string;
+  style?: React.CSSProperties;
 }
+
+const LUCIDE_ICON_NAMES = new Set<string>(iconNames);
 
 // Icon mapping for react-icons compatibility
 const REACT_ICONS_MAP: Record<string, React.ReactElement> = {
@@ -149,6 +154,9 @@ const REACT_ICONS_MAP: Record<string, React.ReactElement> = {
   'md-check': <MdCheck />
 };
 
+const normalizeIconName = (icon: string) =>
+  icon.trim().toLowerCase().replace(/[_\s]+/g, '-');
+
 // Get variant classes
 const getVariantClasses = (variant: IconVariant) => {
   switch (variant) {
@@ -172,20 +180,46 @@ export const UnifiedIcon: React.FC<UnifiedIconProps> = ({
   variant = 'default',
   className = '',
   size = 18,
-  fallback
+  fallback,
+  color,
+  style,
 }) => {
   if (!icon) {
     return null;
   }
 
+  const normalized = normalizeIconName(icon);
   const baseClasses = getVariantClasses(variant);
   const combinedClassName = [baseClasses, className].filter(Boolean).join(' ');
+  const iconStyle = color ? { ...(style || {}), color } : style;
+
+  if (LUCIDE_ICON_NAMES.has(normalized)) {
+    const iconName = normalized as IconName;
+    return (
+      <DynamicIcon
+        name={iconName}
+        size={size}
+        strokeWidth={1.8}
+        className={combinedClassName}
+        color={color}
+        style={iconStyle}
+        aria-hidden="true"
+      />
+    );
+  }
 
   // Use react-icons for admin
   const reactIcon = REACT_ICONS_MAP[icon];
   if (reactIcon) {
     return (
-      <span className={combinedClassName} style={{ fontSize: `${size}px`, lineHeight: 1 }}>
+      <span
+        className={combinedClassName}
+        style={
+          iconStyle
+            ? { fontSize: `${size}px`, lineHeight: 1, ...iconStyle }
+            : { fontSize: `${size}px`, lineHeight: 1 }
+        }
+      >
         {reactIcon}
       </span>
     );
@@ -193,11 +227,19 @@ export const UnifiedIcon: React.FC<UnifiedIconProps> = ({
 
   // Ultimate fallback
   if (fallback) {
-    return <span className={combinedClassName}>{fallback}</span>;
+    return (
+      <span className={combinedClassName} style={iconStyle}>
+        {fallback}
+      </span>
+    );
   }
 
   return (
-    <span className={`${combinedClassName} text-xs opacity-50`} title={`Unknown icon: ${icon}`}>
+    <span
+      className={`${combinedClassName} text-xs opacity-50`}
+      title={`Unknown icon: ${icon}`}
+      style={iconStyle}
+    >
       ?
     </span>
   );

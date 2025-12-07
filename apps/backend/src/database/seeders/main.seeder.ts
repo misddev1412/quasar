@@ -20,6 +20,7 @@ import { AdministrativeDivisionsSeeder } from './administrative-divisions.seeder
 import { WarehouseSeeder } from './warehouse.seeder';
 import { MenusSeeder } from './menus.seeder';
 import { SiteContentSeeder } from './site-content.seeder';
+import { ComponentConfigsSeeder } from './component-configs.seeder';
 import databaseConfig from '../../config/database.config';
 
 @Module({
@@ -52,6 +53,7 @@ export async function bootstrap() {
     const warehouseSeeder = app.get(WarehouseSeeder);
     const menusSeeder = app.get(MenusSeeder);
     const siteContentSeeder = app.get(SiteContentSeeder);
+    const componentConfigsSeeder = app.get(ComponentConfigsSeeder);
 
     // Run seeders in order (countries first, then currencies, then administrative divisions, then permissions and admin, then warehouses, then user activities)
     await countriesSeeder.seed();
@@ -62,6 +64,7 @@ export async function bootstrap() {
     await adminSeeder.seed();
     await settingsSeeder.seed();
     await sectionsSeeder.seed();
+    await componentConfigsSeeder.seed();
     await menusSeeder.seed();
     await warehouseSeeder.seed();
     await siteContentSeeder.seed();

@@ -20,6 +20,7 @@ import { Warehouse } from '../../modules/products/entities/warehouse.entity';
 import { MenuEntity } from '../../modules/menus/entities/menu.entity';
 import { MenuTranslationEntity } from '../../modules/menus/entities/menu-translation.entity';
 import { SiteContentEntity } from '../../modules/site-content/entities/site-content.entity';
+import { ComponentConfigEntity } from '../../modules/component-configs/entities/component-config.entity';
 import { PermissionRepository } from '../../modules/user/repositories/permission.repository';
 import { AdminPermissionService } from '../../modules/user/services/admin/admin-permission.service';
 import { PermissionCheckerService } from '../../modules/shared/services/permission-checker.service';
@@ -35,6 +36,7 @@ import { WarehouseSeeder } from './warehouse.seeder';
 import { MenusSeeder } from './menus.seeder';
 import { CurrencySeeder } from './currency.seeder';
 import { SiteContentSeeder } from './site-content.seeder';
+import { ComponentConfigsSeeder } from './component-configs.seeder';
 
 @Module({
   imports: [
@@ -58,7 +60,8 @@ import { SiteContentSeeder } from './site-content.seeder';
       Warehouse,
       MenuEntity,
       MenuTranslationEntity,
-      SiteContentEntity
+      SiteContentEntity,
+      ComponentConfigEntity,
     ]),
   ],
   providers: [
@@ -76,8 +79,23 @@ import { SiteContentSeeder } from './site-content.seeder';
     AdministrativeDivisionsSeeder,
     WarehouseSeeder,
     MenusSeeder,
-    SiteContentSeeder
+    SiteContentSeeder,
+    ComponentConfigsSeeder,
   ],
-  exports: [PermissionSeeder, SeoSeeder, AdminSeeder, SettingsSeeder, SectionsSeeder, UserActivitySeeder, CountriesSeeder, CurrencySeeder, AdministrativeDivisionsSeeder, WarehouseSeeder, MenusSeeder, SiteContentSeeder],
+  exports: [
+    PermissionSeeder,
+    SeoSeeder,
+    AdminSeeder,
+    SettingsSeeder,
+    SectionsSeeder,
+    UserActivitySeeder,
+    CountriesSeeder,
+    CurrencySeeder,
+    AdministrativeDivisionsSeeder,
+    WarehouseSeeder,
+    MenusSeeder,
+    SiteContentSeeder,
+    ComponentConfigsSeeder,
+  ],
 })
 export class SeederModule {} 

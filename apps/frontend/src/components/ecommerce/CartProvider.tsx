@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { CartProvider as CartContextProvider } from '../../contexts/CartContext';
 import { useCart } from '../../contexts/CartContext';
 import ShoppingCart from './ShoppingCart';
@@ -87,14 +87,77 @@ export const CartIcon: React.FC<{ className?: string }> = ({ className = '' }) =
 export const CartDropdownIcon: React.FC<{ className?: string }> = ({ className = '' }) => {
   const t = useTranslations('ecommerce.cart');
   const { summary } = useCart();
+  const [isOpen, setIsOpen] = useState(false);
 
   const cartLabel =
     summary.totalItems > 0
       ? t('aria_labels.cart_button', { count: summary.totalItems })
       : t('aria_labels.cart_button_empty');
 
+  // Function to restore body scroll
+  const restoreBodyScroll = () => {
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+    document.documentElement.style.overflow = '';
+    document.body.classList.remove('overflow-hidden');
+    document.documentElement.classList.remove('overflow-hidden');
+  };
+
+  // Monitor and restore scroll when dropdown closes
+  useEffect(() => {
+    if (!isOpen) {
+      // Use multiple timeouts to ensure HeroUI has finished its cleanup
+      const timeout1 = setTimeout(() => {
+        restoreBodyScroll();
+      }, 0);
+      
+      const timeout2 = setTimeout(() => {
+        restoreBodyScroll();
+      }, 50);
+      
+      const timeout3 = setTimeout(() => {
+        restoreBodyScroll();
+      }, 200);
+
+      // Also use MutationObserver to catch any late changes
+      const observer = new MutationObserver(() => {
+        if (document.body.style.overflow === 'hidden' || 
+            document.documentElement.style.overflow === 'hidden') {
+          restoreBodyScroll();
+        }
+      });
+
+      observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['style', 'class'],
+      });
+
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['style', 'class'],
+      });
+
+      return () => {
+        clearTimeout(timeout1);
+        clearTimeout(timeout2);
+        clearTimeout(timeout3);
+        observer.disconnect();
+        restoreBodyScroll();
+      };
+    }
+  }, [isOpen]);
+
   return (
-    <Dropdown placement="bottom-end">
+    <Dropdown 
+      placement="bottom-end"
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) {
+          // Immediately restore scroll when closing
+          restoreBodyScroll();
+        }
+      }}
+    >
       <DropdownTrigger>
         <button
           className={`relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${className}`}

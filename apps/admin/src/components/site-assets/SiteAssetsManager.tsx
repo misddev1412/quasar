@@ -103,14 +103,16 @@ interface AssetUploadCardProps {
   isUploading: boolean;
   onUploadStart: (key: string) => void;
   onUploadEnd: (key: string) => void;
-  logoTextSettings?: {
+  logoSettings?: {
+    showLogo: boolean;
     showText: boolean;
     textContent: string;
-    onShowTextChange: (show: boolean) => void;
+    isSavingShowLogo?: boolean;
+    isSavingShowText?: boolean;
+    onShowLogoChange: (show: boolean) => Promise<void>;
+    onShowTextChange: (show: boolean) => Promise<void>;
     onTextContentChange: (text: string) => void;
-    onSaveShowText: () => Promise<void>;
     onSaveTextContent: () => Promise<void>;
-    hasShowTextChanges?: boolean;
     hasTextContentChanges?: boolean;
   };
   altTextSettings?: {
@@ -128,7 +130,7 @@ const AssetUploadCard: React.FC<AssetUploadCardProps> = ({
   isUploading,
   onUploadStart,
   onUploadEnd,
-  logoTextSettings,
+  logoSettings,
   altTextSettings
 }) => {
   const { t } = useTranslationWithBackend();
@@ -275,13 +277,37 @@ const AssetUploadCard: React.FC<AssetUploadCardProps> = ({
         </div>
       </div>
 
-      {/* Logo Text Settings - Only for main logo */}
-      {config.key === 'site.logo' && logoTextSettings && (
+      {/* Logo Display Settings - Only for main logo */}
+      {config.key === 'site.logo' && logoSettings && (
         <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <h5 className="text-sm font-medium text-gray-900 dark:text-white mb-4">
-            {t('brand.logo_text_settings', 'Logo Text Settings')}
+            {t('brand.logo_display_settings', 'Logo Display Settings')}
           </h5>
           <div className="space-y-4">
+            {/* Toggle for showing logo image */}
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">
+                  {t('brand.show_logo_image', 'Show logo image')}
+                </label>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {t('brand.show_logo_image_desc', 'Display the logo image in the header')}
+                </p>
+              </div>
+              <div className="flex-shrink-0 pt-1 flex items-center gap-2">
+                <Switch
+                  checked={logoSettings.showLogo}
+                  onChange={logoSettings.onShowLogoChange}
+                  disabled={logoSettings.isSavingShowLogo}
+                  className="ml-auto"
+                />
+                {logoSettings.isSavingShowLogo && (
+                  <span className="text-xs text-gray-400">{t('common.saving', 'Saving...')}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Toggle for showing text next to logo */}
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">
@@ -293,30 +319,27 @@ const AssetUploadCard: React.FC<AssetUploadCardProps> = ({
               </div>
               <div className="flex-shrink-0 pt-1 flex items-center gap-2">
                 <Switch
-                  checked={logoTextSettings.showText}
-                  onChange={logoTextSettings.onShowTextChange}
+                  checked={logoSettings.showText}
+                  onChange={logoSettings.onShowTextChange}
+                  disabled={logoSettings.isSavingShowText}
                   className="ml-auto"
                 />
-                {logoTextSettings.hasShowTextChanges && (
-                  <Button
-                    onClick={logoTextSettings.onSaveShowText}
-                    variant="primary"
-                    size="sm"
-                  >
-                    {t('common.save', 'Save')}
-                  </Button>
+                {logoSettings.isSavingShowText && (
+                  <span className="text-xs text-gray-400">{t('common.saving', 'Saving...')}</span>
                 )}
               </div>
             </div>
-            {logoTextSettings.showText && (
+
+            {/* Text content input - only show when text is enabled */}
+            {logoSettings.showText && (
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {t('brand.logo_text_content', 'Text Content')}
                   </label>
-                  {logoTextSettings.hasTextContentChanges && (
+                  {logoSettings.hasTextContentChanges && (
                     <Button
-                      onClick={logoTextSettings.onSaveTextContent}
+                      onClick={logoSettings.onSaveTextContent}
                       variant="primary"
                       size="sm"
                     >
@@ -326,8 +349,8 @@ const AssetUploadCard: React.FC<AssetUploadCardProps> = ({
                 </div>
                 <Input
                   type="text"
-                  value={logoTextSettings.textContent}
-                  onChange={(e) => logoTextSettings.onTextContentChange(e.target.value)}
+                  value={logoSettings.textContent}
+                  onChange={(e) => logoSettings.onTextContentChange(e.target.value)}
                   placeholder={t('brand.logo_text_placeholder', 'Enter text to display next to logo')}
                   className="w-full"
                 />
@@ -414,16 +437,21 @@ export const SiteAssetsManager: React.FC = () => {
   const [assetSettingIds, setAssetSettingIds] = useState<Record<string, string>>({});
   const [uploadingAssets, setUploadingAssets] = useState<Set<string>>(new Set());
   
-  // Logo text settings
-  const [logoShowText, setLogoShowText] = useState<boolean>(false);
+  // Logo display settings
+  const [logoShowLogo, setLogoShowLogo] = useState<boolean>(true);
+  const [logoShowText, setLogoShowText] = useState<boolean>(true);
   const [logoTextContent, setLogoTextContent] = useState<string>('');
-  const [logoTextSettingIds, setLogoTextSettingIds] = useState<{
+  const [logoSettingIds, setLogoSettingIds] = useState<{
+    showLogo: string | null;
     showText: string | null;
     textContent: string | null;
-  }>({ showText: null, textContent: null });
+  }>({ showLogo: null, showText: null, textContent: null });
   
-  // Pending changes for logo text
-  const [pendingLogoShowText, setPendingLogoShowText] = useState<boolean | null>(null);
+  // Saving states for logo toggles
+  const [isSavingShowLogo, setIsSavingShowLogo] = useState(false);
+  const [isSavingShowText, setIsSavingShowText] = useState(false);
+  
+  // Pending changes for logo text content (only text content needs manual save)
   const [pendingLogoTextContent, setPendingLogoTextContent] = useState<string | null>(null);
 
   // Alt text settings
@@ -450,18 +478,22 @@ export const SiteAssetsManager: React.FC = () => {
         }
       });
 
-      // Load logo text settings
+      // Load logo display settings
+      const showLogoSetting = generalSettings.find(s => s.key === 'site.logo_show_logo');
       const showTextSetting = generalSettings.find(s => s.key === 'site.logo_show_text');
       const textContentSetting = generalSettings.find(s => s.key === 'site.logo_text');
       
-      const initialShowText = showTextSetting?.value === 'true' || false;
+      // Default to true if setting doesn't exist
+      const initialShowLogo = showLogoSetting?.value !== 'false';
+      const initialShowText = showTextSetting?.value !== 'false';
       const initialTextContent = textContentSetting?.value || '';
       
+      setLogoShowLogo(initialShowLogo);
       setLogoShowText(initialShowText);
       setLogoTextContent(initialTextContent);
-      setPendingLogoShowText(null);
       setPendingLogoTextContent(null);
-      setLogoTextSettingIds({
+      setLogoSettingIds({
+        showLogo: showLogoSetting?.id || null,
         showText: showTextSetting?.id || null,
         textContent: textContentSetting?.id || null
       });
@@ -527,22 +559,58 @@ export const SiteAssetsManager: React.FC = () => {
     });
   };
 
-  // Logo text handlers - only update local state
-  const handleLogoShowTextChange = (show: boolean) => {
-    setPendingLogoShowText(show);
-  };
-
-  const handleLogoTextContentChange = (text: string) => {
-    setPendingLogoTextContent(text);
-  };
-
-  // Save show text setting only
-  const handleSaveShowText = async () => {
-    if (pendingLogoShowText === null) return;
+  // Logo settings handlers - auto save on toggle change
+  const handleLogoShowLogoChange = async (show: boolean) => {
+    setIsSavingShowLogo(true);
+    // Optimistically update UI
+    setLogoShowLogo(show);
     
     try {
-      const settingId = logoTextSettingIds.showText;
-      const value = pendingLogoShowText ? 'true' : 'false';
+      const settingId = logoSettingIds.showLogo;
+      const value = show ? 'true' : 'false';
+
+      if (settingId) {
+        await updateSetting(settingId, { value });
+      } else {
+        await createSetting({
+          key: 'site.logo_show_logo',
+          value,
+          type: 'boolean',
+          description: 'Show logo image in header',
+          group: 'general',
+          isPublic: true
+        });
+        // Note: createSetting calls refetch() internally, so groupedSettings will update
+        // and useEffect will update logoSettingIds
+      }
+
+      addToast({
+        title: t('assets.setting_updated', 'Setting updated'),
+        description: t('brand.logo_setting_updated', 'Logo display setting has been updated'),
+        type: 'success'
+      });
+    } catch (error) {
+      // Revert on error
+      setLogoShowLogo(!show);
+      console.error('Failed to save show logo setting:', error);
+      addToast({
+        title: t('assets.setting_update_failed', 'Update failed'),
+        description: t('brand.logo_setting_update_failed', 'Failed to update logo display setting'),
+        type: 'error'
+      });
+    } finally {
+      setIsSavingShowLogo(false);
+    }
+  };
+
+  const handleLogoShowTextChange = async (show: boolean) => {
+    setIsSavingShowText(true);
+    // Optimistically update UI
+    setLogoShowText(show);
+    
+    try {
+      const settingId = logoSettingIds.showText;
+      const value = show ? 'true' : 'false';
 
       if (settingId) {
         await updateSetting(settingId, { value });
@@ -555,10 +623,9 @@ export const SiteAssetsManager: React.FC = () => {
           group: 'general',
           isPublic: true
         });
+        // Note: createSetting calls refetch() internally, so groupedSettings will update
+        // and useEffect will update logoSettingIds
       }
-
-      setLogoShowText(pendingLogoShowText);
-      setPendingLogoShowText(null);
 
       addToast({
         title: t('assets.setting_updated', 'Setting updated'),
@@ -566,13 +633,21 @@ export const SiteAssetsManager: React.FC = () => {
         type: 'success'
       });
     } catch (error) {
+      // Revert on error
+      setLogoShowText(!show);
       console.error('Failed to save show text setting:', error);
       addToast({
         title: t('assets.setting_update_failed', 'Update failed'),
         description: t('brand.logo_text_setting_update_failed', 'Failed to update logo text setting'),
         type: 'error'
       });
+    } finally {
+      setIsSavingShowText(false);
     }
+  };
+
+  const handleLogoTextContentChange = (text: string) => {
+    setPendingLogoTextContent(text);
   };
 
   // Save text content setting only
@@ -580,7 +655,7 @@ export const SiteAssetsManager: React.FC = () => {
     if (pendingLogoTextContent === null) return;
     
     try {
-      const settingId = logoTextSettingIds.textContent;
+      const settingId = logoSettingIds.textContent;
 
       if (settingId) {
         await updateSetting(settingId, { value: pendingLogoTextContent });
@@ -685,16 +760,18 @@ export const SiteAssetsManager: React.FC = () => {
           isUploading={uploadingAssets.has(config.key)}
           onUploadStart={handleUploadStart}
           onUploadEnd={handleUploadEnd}
-          logoTextSettings={
+          logoSettings={
             config.key === 'site.logo'
               ? {
-                  showText: pendingLogoShowText !== null ? pendingLogoShowText : logoShowText,
+                  showLogo: logoShowLogo,
+                  showText: logoShowText,
                   textContent: pendingLogoTextContent !== null ? pendingLogoTextContent : logoTextContent,
+                  isSavingShowLogo,
+                  isSavingShowText,
+                  onShowLogoChange: handleLogoShowLogoChange,
                   onShowTextChange: handleLogoShowTextChange,
                   onTextContentChange: handleLogoTextContentChange,
-                  onSaveShowText: handleSaveShowText,
                   onSaveTextContent: handleSaveTextContent,
-                  hasShowTextChanges: pendingLogoShowText !== null,
                   hasTextContentChanges: pendingLogoTextContent !== null
                 }
               : undefined

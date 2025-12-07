@@ -42,6 +42,8 @@ import { AdminVisitorStatisticsRouter } from '../modules/visitor/routers/admin-v
 import { ClientVisitorStatsRouter } from '../modules/visitor/routers/client-visitor-stats.router';
 import { AdminNotificationTelegramConfigsRouter } from '../modules/notifications/routers/admin-notification-telegram-configs.router';
 import { AdminSupportClientsRouter } from '../modules/support/routers/admin-support-clients.router';
+import { ComponentConfigsModule } from '../modules/component-configs/component-configs.module';
+import { AdminComponentConfigsRouter } from '../modules/component-configs/routers/admin-component-configs.router';
 
 @Module({
   imports: [
@@ -68,6 +70,7 @@ import { AdminSupportClientsRouter } from '../modules/support/routers/admin-supp
     LoyaltyModule,
     VisitorModule,
     SharedModule,
+    ComponentConfigsModule,
   ],
   providers: [
     ClientNewsRouter,
@@ -89,6 +92,7 @@ import { AdminSupportClientsRouter } from '../modules/support/routers/admin-supp
     ClientVisitorStatsRouter,
     AdminNotificationTelegramConfigsRouter,
     AdminSupportClientsRouter,
+    AdminComponentConfigsRouter,
     ResponseService,
   ],
 })

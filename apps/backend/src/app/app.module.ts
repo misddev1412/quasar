@@ -78,6 +78,8 @@ import { VisitorModule } from '../modules/visitor/visitor.module';
 import { Visitor } from '../modules/visitor/entities/visitor.entity';
 import { VisitorSession } from '../modules/visitor/entities/visitor-session.entity';
 import { PageView } from '../modules/visitor/entities/page-view.entity';
+import { ComponentConfigsModule } from '../modules/component-configs/component-configs.module';
+import { ComponentConfigEntity } from '../modules/component-configs/entities/component-config.entity';
 
 @Module({
   imports: [
@@ -138,6 +140,7 @@ import { PageView } from '../modules/visitor/entities/page-view.entity';
           Visitor,
           VisitorSession,
           PageView,
+          ComponentConfigEntity,
         ],
         autoLoadEntities: true
       }),
@@ -169,6 +172,7 @@ import { PageView } from '../modules/visitor/entities/page-view.entity';
     SiteContentModule,
     LoyaltyModule,
     VisitorModule,
+    ComponentConfigsModule,
     AppRouterModule,
   ],
   controllers: [AppController],

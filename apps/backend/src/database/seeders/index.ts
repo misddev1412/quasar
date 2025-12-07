@@ -4,6 +4,7 @@ export { AdminSeeder } from './admin.seeder';
 export { SettingsSeeder } from './settings.seeder';
 export { SectionsSeeder } from './sections.seeder';
 export { UserActivitySeeder } from './user-activity.seeder';
+export { ComponentConfigsSeeder } from './component-configs.seeder';
 export { SeederModule } from './seeder.module';
 export { MainSeederApp, bootstrap } from './main.seeder';
 

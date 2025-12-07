@@ -22,3 +22,6 @@ export * from './menu.enums';
 
 // Site content enums
 export * from './site-content.enums';
+
+// Component configuration enums
+export * from './component.enums';

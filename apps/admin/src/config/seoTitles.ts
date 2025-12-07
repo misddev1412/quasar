@@ -958,6 +958,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     }
   },
   {
+    path: '/component-configs',
+    titles: {
+      en: 'Component Library | Quasar Admin',
+      vi: 'Thư Viện Component | Quasar Admin',
+    },
+    description: {
+      en: 'Control storefront component defaults, schema, and nesting rules.',
+      vi: 'Quản lý cấu hình mặc định, schema và quan hệ cha-con của component storefront.',
+    },
+  },
+  {
     path: '/menus',
     titles: {
       en: 'Menu Management | Quasar Admin',

@@ -142,6 +142,11 @@ export class NavigationService implements INavigationService {
             path: '/sections/home'
           },
           {
+            icon: React.createElement(AccountTreeIcon),
+            label: t('componentConfigs.navigation', 'Component Library'),
+            path: '/component-configs',
+          },
+          {
             icon: React.createElement(MenuIcon),
             label: t('admin.menus', 'Menu Management'),
             path: '/menus/main'

@@ -84,7 +84,7 @@ class ProgressBar {
     style.textContent = `
       .navigation-progress-container {
         position: fixed;
-        top: 0;
+        bottom: 0;
         left: 0;
         right: 0;
         height: 3px;
@@ -171,22 +171,91 @@ class ProgressBar {
 
 let progressBar: ProgressBar | null = null;
 
+const ensureProgressBar = () => {
+  if (!progressBar) {
+    progressBar = new ProgressBar();
+  }
+  return progressBar;
+};
+
+const isModifiedClick = (event: MouseEvent) =>
+  event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+
+const shouldHandleAnchorNavigation = (anchor: HTMLAnchorElement, event: MouseEvent) => {
+  if (isModifiedClick(event)) return false;
+
+  const href = anchor.getAttribute('href');
+  if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+    return false;
+  }
+
+  const targetAttr = anchor.getAttribute('target');
+  if (targetAttr && targetAttr !== '_self') {
+    return false;
+  }
+
+  try {
+    const targetUrl = new URL(href, window.location.href);
+    const currentUrl = new URL(window.location.href);
+
+    if (targetUrl.origin !== currentUrl.origin) {
+      return false;
+    }
+
+    const targetPath = `${targetUrl.pathname}${targetUrl.search}`;
+    const currentPath = `${currentUrl.pathname}${currentUrl.search}`;
+
+    return targetPath !== currentPath;
+  } catch {
+    return false;
+  }
+};
+
 export const useNavigationProgress = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const isFirstRender = useRef(true);
 
   useEffect(() => {
-    if (!progressBar) {
-      progressBar = new ProgressBar();
-    }
+    const progress = ensureProgressBar();
 
+    const handleLinkClick = (event: MouseEvent) => {
+      const element = event.target as HTMLElement | null;
+      const anchor = element?.closest?.('a');
+
+      if (!(anchor instanceof HTMLAnchorElement)) {
+        return;
+      }
+
+      if (!shouldHandleAnchorNavigation(anchor, event)) {
+        return;
+      }
+
+      progress.start();
+    };
+
+    const handlePopState = () => {
+      progress.start();
+    };
+
+    document.addEventListener('click', handleLinkClick, true);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      document.removeEventListener('click', handleLinkClick, true);
+      window.removeEventListener('popstate', handlePopState);
+      if (progressBar) {
+        progressBar.destroy();
+        progressBar = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
-
-    progressBar.start();
 
     const timer = setTimeout(() => {
       progressBar?.done();
@@ -196,13 +265,4 @@ export const useNavigationProgress = () => {
       clearTimeout(timer);
     };
   }, [pathname, searchParams]);
-
-  useEffect(() => {
-    return () => {
-      if (progressBar) {
-        progressBar.destroy();
-        progressBar = null;
-      }
-    };
-  }, []);
 };

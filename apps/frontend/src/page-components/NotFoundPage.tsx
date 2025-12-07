@@ -1,27 +1,44 @@
 'use client';
 
-import React, { Suspense } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
-import { Button } from '@heroui/react';
-import LanguageSwitcher from '../components/common/LanguageSwitcher';
-import {
-  HiOutlineHome,
-  HiOutlineShoppingBag,
-  HiOutlineSearch,
-  HiOutlineArrowLeft,
-} from 'react-icons/hi';
+import { useTranslations } from 'next-intl';
+import { UnifiedIcon } from '../components/common/UnifiedIcon';
 
 const NotFoundPage: React.FC = () => {
   const router = useRouter();
-  const { t } = useTranslation();
+  const t = useTranslations();
 
   const popularCategories = [
-    { name: t('pages.notFound.categories.electronics'), path: '/categories/electronics', emoji: '📱' },
-    { name: t('pages.notFound.categories.fashion'), path: '/categories/fashion', emoji: '👕' },
-    { name: t('pages.notFound.categories.homeGarden'), path: '/categories/home-garden', emoji: '🏠' },
-    { name: t('pages.notFound.categories.sports'), path: '/categories/sports', emoji: '⚽' },
+    { 
+      name: t.has('pages.notFound.categories.electronics') 
+        ? t('pages.notFound.categories.electronics') 
+        : 'Electronics', 
+      path: '/categories/electronics', 
+      icon: 'smartphone' 
+    },
+    { 
+      name: t.has('pages.notFound.categories.fashion') 
+        ? t('pages.notFound.categories.fashion') 
+        : 'Fashion', 
+      path: '/categories/fashion', 
+      icon: 'shirt' 
+    },
+    { 
+      name: t.has('pages.notFound.categories.homeGarden') 
+        ? t('pages.notFound.categories.homeGarden') 
+        : 'Home & Garden', 
+      path: '/categories/home-garden', 
+      icon: 'home' 
+    },
+    { 
+      name: t.has('pages.notFound.categories.sports') 
+        ? t('pages.notFound.categories.sports') 
+        : 'Sports', 
+      path: '/categories/sports', 
+      icon: 'dumbbell' 
+    },
   ];
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -30,99 +47,167 @@ const NotFoundPage: React.FC = () => {
     }
   };
 
-  return (
-    <div className="min-h-[70vh] flex items-center justify-center py-12">
-      <div className="max-w-4xl mx-auto px-4 text-center">
-        {/* Simple 404 Section */}
-        <div className="mb-12">
-          {/* Large 404 Text */}
-          <h1 className="text-8xl sm:text-9xl font-bold text-gray-200 dark:text-gray-700 mb-4">
-            404
-          </h1>
+  const heading = t.has('pages.notFound.heading') 
+    ? t('pages.notFound.heading') 
+    : 'Page Not Found';
+  const description = t.has('pages.notFound.description') 
+    ? t('pages.notFound.description') 
+    : 'The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.';
+  const backToHome = t.has('pages.notFound.backToHome') 
+    ? t('pages.notFound.backToHome') 
+    : 'Back to Home';
+  const browseProducts = t.has('pages.notFound.browseProducts') 
+    ? t('pages.notFound.browseProducts') 
+    : 'Browse Products';
+  const goBack = t.has('pages.notFound.goBack') 
+    ? t('pages.notFound.goBack') 
+    : 'Go Back';
+  const searchTitle = t.has('pages.notFound.searchTitle') 
+    ? t('pages.notFound.searchTitle') 
+    : 'Search for something';
+  const searchPlaceholder = t.has('pages.notFound.searchPlaceholder') 
+    ? t('pages.notFound.searchPlaceholder') 
+    : 'Search products, categories...';
+  const categoriesTitle = t.has('pages.notFound.categoriesTitle') 
+    ? t('pages.notFound.categoriesTitle') 
+    : 'Popular Categories';
+  const helpTitle = t.has('pages.notFound.helpTitle') 
+    ? t('pages.notFound.helpTitle') 
+    : 'Need help?';
+  const contactSupport = t.has('pages.notFound.contactSupport') 
+    ? t('pages.notFound.contactSupport') 
+    : 'Contact Support';
+  const helpCenter = t.has('pages.notFound.helpCenter') 
+    ? t('pages.notFound.helpCenter') 
+    : 'Help Center';
+  const faq = t.has('pages.notFound.faq') 
+    ? t('pages.notFound.faq') 
+    : 'FAQ';
 
-          {/* Simple Icon */}
-          <div className="mb-6">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">
-              <span className="text-3xl">🤖</span>
+  return (
+    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
+      <div className="max-w-4xl mx-auto w-full text-center">
+        {/* 404 Section with Modern Design */}
+        <div className="mb-12">
+          {/* Large 404 Text with Gradient */}
+          <div className="relative mb-8">
+            <h1 className="text-8xl sm:text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 dark:from-gray-700 dark:via-gray-600 dark:to-gray-500 mb-4">
+              404
+            </h1>
+            <div className="absolute inset-0 blur-3xl opacity-20 bg-gradient-to-br from-blue-400 to-indigo-600 dark:from-blue-500 dark:to-indigo-700"></div>
+          </div>
+
+          {/* Icon with Modern Styling */}
+          <div className="mb-8 flex justify-center">
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl shadow-lg mb-4 border border-blue-100 dark:border-blue-800/50">
+              <UnifiedIcon
+                icon="alert-circle"
+                variant="default"
+                size={40}
+                className="text-blue-600 dark:text-blue-400"
+              />
             </div>
           </div>
 
           {/* Error Message */}
           <div className="space-y-4 mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-              {t('pages.notFound.heading')}
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100">
+              {heading}
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              {t('pages.notFound.description')}
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+              {description}
             </p>
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons with Modern Styling */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-          <Button
-            color="primary"
-            size="lg"
-            onPress={() => router.push('/')}
-            startContent={<HiOutlineHome className="text-xl" />}
-            className="font-semibold"
+          <button
+            onClick={() => router.push('/')}
+            className="group inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
           >
-            {t('pages.notFound.backToHome')}
-          </Button>
+            <UnifiedIcon
+              icon="home"
+              variant="button"
+              size={20}
+              className="text-white"
+            />
+            {backToHome}
+          </button>
 
-          <Button
-            variant="bordered"
-            size="lg"
-            onPress={() => router.push('/products')}
-            startContent={<HiOutlineShoppingBag className="text-xl" />}
-            className="font-semibold"
+          <button
+            onClick={() => router.push('/products')}
+            className="group inline-flex items-center justify-center gap-3 px-6 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 text-gray-900 dark:text-gray-100 font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50"
           >
-            {t('pages.notFound.browseProducts')}
-          </Button>
+            <UnifiedIcon
+              icon="shopping-bag"
+              variant="button"
+              size={20}
+              className="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+            />
+            {browseProducts}
+          </button>
 
-          <Button
-            variant="flat"
-            size="lg"
-            onPress={() => router.back()}
-            startContent={<HiOutlineArrowLeft className="text-xl" />}
-            className="font-semibold"
+          <button
+            onClick={() => router.back()}
+            className="group inline-flex items-center justify-center gap-3 px-6 py-3 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg transition-all duration-200"
           >
-            {t('pages.notFound.goBack')}
-          </Button>
+            <UnifiedIcon
+              icon="arrow-left"
+              variant="button"
+              size={20}
+              className="text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+            />
+            {goBack}
+          </button>
         </div>
 
-        {/* Search Bar */}
+        {/* Search Bar with Modern Styling */}
         <div className="mb-12">
           <div className="max-w-md mx-auto">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              {t('pages.notFound.searchTitle')}
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              {searchTitle}
             </h3>
             <div className="relative">
               <input
                 type="text"
-                placeholder={t('pages.notFound.searchPlaceholder')}
-                className="w-full px-4 py-3 pl-4 pr-12 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder={searchPlaceholder}
+                className="w-full px-4 py-3 pl-12 pr-4 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
                 onKeyDown={handleSearch}
               />
-              <HiOutlineSearch className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 text-xl" />
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                <UnifiedIcon
+                  icon="search"
+                  variant="default"
+                  size={20}
+                  className="text-gray-400 dark:text-gray-500"
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Popular Categories */}
+        {/* Popular Categories with Modern Card Design */}
         <div className="mb-12">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-            {t('pages.notFound.categoriesTitle')}
+          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+            {categoriesTitle}
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto">
-            {popularCategories.map((category) => (
+            {popularCategories.map((category, index) => (
               <Link
-                key={category.name}
+                key={index}
                 href={category.path}
-                className="p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 text-center group"
+                className="group flex flex-col items-center gap-3 p-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-900/20 dark:hover:to-indigo-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 shadow-sm hover:shadow-md"
               >
-                <div className="text-2xl mb-2">{category.emoji}</div>
-                <div className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-200 dark:group-hover:bg-blue-800/40 transition-colors">
+                  <UnifiedIcon
+                    icon={category.icon}
+                    variant="default"
+                    size={24}
+                    className="text-blue-600 dark:text-blue-400"
+                  />
+                </div>
+                <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center">
                   {category.name}
                 </div>
               </Link>
@@ -130,29 +215,47 @@ const NotFoundPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Help Links */}
+        {/* Help Links with Modern Styling */}
         <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            {t('pages.notFound.helpTitle')}
+            {helpTitle}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/contact"
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+              className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors duration-200"
             >
-              {t('pages.notFound.contactSupport')}
+              <UnifiedIcon
+                icon="mail"
+                variant="default"
+                size={16}
+                className="text-blue-600 dark:text-blue-400"
+              />
+              {contactSupport}
             </Link>
             <Link
               href="/support"
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+              className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors duration-200"
             >
-              {t('pages.notFound.helpCenter')}
+              <UnifiedIcon
+                icon="help-circle"
+                variant="default"
+                size={16}
+                className="text-blue-600 dark:text-blue-400"
+              />
+              {helpCenter}
             </Link>
             <Link
               href="/faq"
-              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+              className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors duration-200"
             >
-              {t('pages.notFound.faq')}
+              <UnifiedIcon
+                icon="message-circle"
+                variant="default"
+                size={16}
+                className="text-blue-600 dark:text-blue-400"
+              />
+              {faq}
             </Link>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { router, procedure } from '../trpc/trpc';
 import { z } from 'zod';
 import { MenuTarget, MenuType } from '@shared/enums/menu.enums';
+import { ComponentCategory, ComponentStructureType } from '@shared/enums/component.enums';
 import { apiResponseSchema, paginatedResponseSchema, ApiResponse } from '../trpc/schemas/response.schemas';
 import { createSectionSchema, updateSectionSchema, reorderSectionsSchema } from '../modules/sections/dto/section.dto';
 import { AdministrativeDivisionType } from '../modules/products/entities/administrative-division.entity';
@@ -848,6 +849,90 @@ export const appRouter = router({
 
     delete: procedure
       .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  // Admin Component Configs router
+  adminComponentConfigs: router({
+    list: procedure
+      .input(z.object({
+        parentId: z.string().uuid().optional().nullable(),
+        category: z.nativeEnum(ComponentCategory).optional(),
+        componentType: z.nativeEnum(ComponentStructureType).optional(),
+        onlyEnabled: z.boolean().optional(),
+        includeChildren: z.boolean().optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    byId: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    byKey: procedure
+      .input(z.object({ componentKey: z.string().min(1).max(150) }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    create: procedure
+      .input(z.object({
+        componentKey: z.string().min(1).max(150),
+        displayName: z.string().min(1).max(255),
+        description: z.string().max(1000).optional().nullable(),
+        componentType: z.nativeEnum(ComponentStructureType),
+        category: z.nativeEnum(ComponentCategory),
+        position: z.number().int().min(0).optional(),
+        isEnabled: z.boolean().optional(),
+        defaultConfig: z.record(z.unknown()).optional(),
+        configSchema: z.record(z.unknown()).optional(),
+        metadata: z.record(z.unknown()).optional(),
+        allowedChildKeys: z.array(z.string().min(1)).optional(),
+        previewMediaUrl: z.string().url().optional().nullable(),
+        parentId: z.string().uuid().optional().nullable(),
+        slotKey: z.string().max(100).optional().nullable(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    update: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        data: z.object({
+          componentKey: z.string().min(1).max(150).optional(),
+          displayName: z.string().min(1).max(255).optional(),
+          description: z.string().max(1000).optional().nullable(),
+          componentType: z.nativeEnum(ComponentStructureType).optional(),
+          category: z.nativeEnum(ComponentCategory).optional(),
+          position: z.number().int().min(0).optional(),
+          isEnabled: z.boolean().optional(),
+          defaultConfig: z.record(z.unknown()).optional(),
+          configSchema: z.record(z.unknown()).optional(),
+          metadata: z.record(z.unknown()).optional(),
+          allowedChildKeys: z.array(z.string().min(1)).optional(),
+          previewMediaUrl: z.string().url().optional().nullable(),
+          parentId: z.string().uuid().optional().nullable(),
+          slotKey: z.string().max(100).optional().nullable(),
+        }),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    delete: procedure
+      .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
         return {} as ApiResponse;
