@@ -4,40 +4,53 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { UnifiedIcon } from '../components/common/UnifiedIcon';
+import type { LucideIcon } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowLeft,
+  Dumbbell,
+  HelpCircle,
+  Home as HomeIcon,
+  Mail,
+  MessageCircle,
+  Search,
+  Shirt,
+  ShoppingBag,
+  Smartphone,
+} from 'lucide-react';
 
 const NotFoundPage: React.FC = () => {
   const router = useRouter();
   const t = useTranslations();
 
-  const popularCategories = [
-    { 
-      name: t.has('pages.notFound.categories.electronics') 
-        ? t('pages.notFound.categories.electronics') 
-        : 'Electronics', 
-      path: '/categories/electronics', 
-      icon: 'smartphone' 
+  const popularCategories: { name: string; path: string; Icon: LucideIcon }[] = [
+    {
+      name: t.has('pages.notFound.categories.electronics')
+        ? t('pages.notFound.categories.electronics')
+        : 'Electronics',
+      path: '/categories/electronics',
+      Icon: Smartphone,
     },
-    { 
-      name: t.has('pages.notFound.categories.fashion') 
-        ? t('pages.notFound.categories.fashion') 
-        : 'Fashion', 
-      path: '/categories/fashion', 
-      icon: 'shirt' 
+    {
+      name: t.has('pages.notFound.categories.fashion')
+        ? t('pages.notFound.categories.fashion')
+        : 'Fashion',
+      path: '/categories/fashion',
+      Icon: Shirt,
     },
-    { 
-      name: t.has('pages.notFound.categories.homeGarden') 
-        ? t('pages.notFound.categories.homeGarden') 
-        : 'Home & Garden', 
-      path: '/categories/home-garden', 
-      icon: 'home' 
+    {
+      name: t.has('pages.notFound.categories.homeGarden')
+        ? t('pages.notFound.categories.homeGarden')
+        : 'Home & Garden',
+      path: '/categories/home-garden',
+      Icon: HomeIcon,
     },
-    { 
-      name: t.has('pages.notFound.categories.sports') 
-        ? t('pages.notFound.categories.sports') 
-        : 'Sports', 
-      path: '/categories/sports', 
-      icon: 'dumbbell' 
+    {
+      name: t.has('pages.notFound.categories.sports')
+        ? t('pages.notFound.categories.sports')
+        : 'Sports',
+      path: '/categories/sports',
+      Icon: Dumbbell,
     },
   ];
 
@@ -100,11 +113,10 @@ const NotFoundPage: React.FC = () => {
           {/* Icon with Modern Styling */}
           <div className="mb-8 flex justify-center">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl shadow-lg mb-4 border border-blue-100 dark:border-blue-800/50">
-              <UnifiedIcon
-                icon="alert-circle"
-                variant="default"
-                size={40}
-                className="text-blue-600 dark:text-blue-400"
+              <AlertCircle
+                className="w-10 h-10 text-blue-600 dark:text-blue-400"
+                strokeWidth={1.8}
+                aria-hidden="true"
               />
             </div>
           </div>
@@ -126,11 +138,10 @@ const NotFoundPage: React.FC = () => {
             onClick={() => router.push('/')}
             className="group inline-flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
           >
-            <UnifiedIcon
-              icon="home"
-              variant="button"
-              size={20}
-              className="text-white"
+            <HomeIcon
+              className="w-5 h-5 text-white"
+              strokeWidth={1.8}
+              aria-hidden="true"
             />
             {backToHome}
           </button>
@@ -139,11 +150,10 @@ const NotFoundPage: React.FC = () => {
             onClick={() => router.push('/products')}
             className="group inline-flex items-center justify-center gap-3 px-6 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 text-gray-900 dark:text-gray-100 font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/50"
           >
-            <UnifiedIcon
-              icon="shopping-bag"
-              variant="button"
-              size={20}
-              className="text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+            <ShoppingBag
+              className="w-5 h-5 text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+              strokeWidth={1.8}
+              aria-hidden="true"
             />
             {browseProducts}
           </button>
@@ -152,11 +162,10 @@ const NotFoundPage: React.FC = () => {
             onClick={() => router.back()}
             className="group inline-flex items-center justify-center gap-3 px-6 py-3 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg transition-all duration-200"
           >
-            <UnifiedIcon
-              icon="arrow-left"
-              variant="button"
-              size={20}
-              className="text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+            <ArrowLeft
+              className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+              strokeWidth={1.8}
+              aria-hidden="true"
             />
             {goBack}
           </button>
@@ -176,11 +185,10 @@ const NotFoundPage: React.FC = () => {
                 onKeyDown={handleSearch}
               />
               <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                <UnifiedIcon
-                  icon="search"
-                  variant="default"
-                  size={20}
-                  className="text-gray-400 dark:text-gray-500"
+                <Search
+                  className="w-5 h-5 text-gray-400 dark:text-gray-500"
+                  strokeWidth={1.8}
+                  aria-hidden="true"
                 />
               </div>
             </div>
@@ -200,11 +208,10 @@ const NotFoundPage: React.FC = () => {
                 className="group flex flex-col items-center gap-3 p-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-900/20 dark:hover:to-indigo-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 shadow-sm hover:shadow-md"
               >
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg group-hover:bg-blue-200 dark:group-hover:bg-blue-800/40 transition-colors">
-                  <UnifiedIcon
-                    icon={category.icon}
-                    variant="default"
-                    size={24}
-                    className="text-blue-600 dark:text-blue-400"
+                  <category.Icon
+                    className="w-6 h-6 text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors"
+                    strokeWidth={1.8}
+                    aria-hidden="true"
                   />
                 </div>
                 <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-center">
@@ -225,11 +232,10 @@ const NotFoundPage: React.FC = () => {
               href="/contact"
               className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors duration-200"
             >
-              <UnifiedIcon
-                icon="mail"
-                variant="default"
-                size={16}
-                className="text-blue-600 dark:text-blue-400"
+              <Mail
+                className="w-4 h-4 text-blue-600 dark:text-blue-400"
+                strokeWidth={1.8}
+                aria-hidden="true"
               />
               {contactSupport}
             </Link>
@@ -237,11 +243,10 @@ const NotFoundPage: React.FC = () => {
               href="/support"
               className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors duration-200"
             >
-              <UnifiedIcon
-                icon="help-circle"
-                variant="default"
-                size={16}
-                className="text-blue-600 dark:text-blue-400"
+              <HelpCircle
+                className="w-4 h-4 text-blue-600 dark:text-blue-400"
+                strokeWidth={1.8}
+                aria-hidden="true"
               />
               {helpCenter}
             </Link>
@@ -249,11 +254,10 @@ const NotFoundPage: React.FC = () => {
               href="/faq"
               className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors duration-200"
             >
-              <UnifiedIcon
-                icon="message-circle"
-                variant="default"
-                size={16}
-                className="text-blue-600 dark:text-blue-400"
+              <MessageCircle
+                className="w-4 h-4 text-blue-600 dark:text-blue-400"
+                strokeWidth={1.8}
+                aria-hidden="true"
               />
               {faq}
             </Link>
