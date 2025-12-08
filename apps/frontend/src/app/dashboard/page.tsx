@@ -1,8 +1,12 @@
-export default function Page() {
+import { getTranslations } from 'next-intl/server';
+
+export default async function Page() {
+  const t = await getTranslations('pages.dashboard');
+
   return (
     <div>
-      <h1>Dashboard Page</h1>
-      <p>This is the Dashboard page for locale routing</p>
+      <h1>{t('title')}</h1>
+      <p>{t('description')}</p>
     </div>
   );
 }

@@ -26,7 +26,7 @@ export default function Page() {
           }}
         >
           <div className="p-6">
-            <p>Security component temporarily disabled for testing</p>
+            <p>{t('pages.profile.security.disabled_message')}</p>
           </div>
         </ProfileLayout>
       </Layout>

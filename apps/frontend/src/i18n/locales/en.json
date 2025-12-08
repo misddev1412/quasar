@@ -45,6 +45,13 @@
     "brand_name": "Quasar",
     "enabled": "Enabled",
     "disabled": "Disabled",
+    "error_boundary": {
+      "title": "Oops! Something went wrong",
+      "description": "We're sorry, but something unexpected happened. Please try refreshing the page or contact support if the problem persists.",
+      "details_label": "Error details (Development only)",
+      "refresh": "Refresh Page",
+      "retry": "Try Again"
+    },
     "help": "Help",
     "saving": "Saving...",
     "empty": "Empty",
@@ -344,6 +351,16 @@
           "description": "Optimized for speed and smooth user experience."
         }
       }
+    },
+    "dashboard": {
+      "title": "Dashboard Page",
+      "description": "This is the Dashboard page for locale routing"
+    },
+    "test_simple": {
+      "title": "Simple Test Page",
+      "description": "If you can see this, basic routing works.",
+      "link_self": "Test Simple",
+      "link_profile": "Profile"
     },
     "help": {
       "seo": {
@@ -939,6 +956,7 @@
       "security": {
         "title": "Security Settings",
         "description": "Manage your account security and privacy",
+        "disabled_message": "Security component temporarily disabled for testing",
         "password": "Password",
         "password_set": "Your password is set",
         "password_not_set": "No password set",
@@ -1021,7 +1039,14 @@
         "coming_soon": "Preferences Coming Soon",
         "coming_soon_desc": "Preference settings will be available here",
         "language": "Language & Region",
-        "appearance": "Appearance"
+        "language_label": "Language",
+        "language_value": "English (US)",
+        "timezone_label": "Time Zone",
+        "timezone_value": "UTC-8 (Pacific Time)",
+        "change": "Change",
+        "appearance": "Appearance",
+        "theme_label": "Theme",
+        "theme_value": "Light Mode"
       },
       "loading": "Loading profile...",
       "errors": {
@@ -1049,6 +1074,21 @@
         "homeGarden": "Home & Garden",
         "sports": "Sports"
       }
+    }
+  },
+  "loyalty": {
+    "banner": {
+      "progress_label": "Progress",
+      "progress_to_tier": "Progress to {tier}",
+      "progress_top_tier": "You have reached the highest tier",
+      "points_to_go": "{points} pts to go",
+      "current_points": "{points} pts",
+      "tooltip_next_tier": "{tier} unlocks in {points} pts",
+      "tooltip_top_tier": "Enjoy platinum benefits!",
+      "progress_aria": "Loyalty tier progress",
+      "keep_shopping": "Keep shopping to unlock {tier}.",
+      "top_tier": "You are enjoying the top loyalty tier.",
+      "view_rewards": "View rewards"
     }
   },
   "auth": {

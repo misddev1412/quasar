@@ -239,7 +239,7 @@ const OrderFulfillmentsPage: React.FC = () => {
             </div>
           )}
           {!fulfillment.trackingNumber && (
-            <div className="text-gray-500">No tracking</div>
+            <div className="text-gray-500">{t('fulfillments.no_tracking')}</div>
           )}
         </div>
       ),
@@ -273,20 +273,20 @@ const OrderFulfillmentsPage: React.FC = () => {
         <div className="text-sm">
           {fulfillment.estimatedDeliveryDate && (
             <div>
-              <span className="text-gray-600">Est:</span>{' '}
+              <span className="text-gray-600">{t('fulfillments.est_prefix')}</span>{' '}
               {new Date(fulfillment.estimatedDeliveryDate).toLocaleDateString()}
             </div>
           )}
           {fulfillment.actualDeliveryDate && (
             <div className="text-green-600">
-              <span>Delivered:</span>{' '}
+              <span>{t('fulfillments.delivered_prefix')}</span>{' '}
               {new Date(fulfillment.actualDeliveryDate).toLocaleDateString()}
             </div>
           )}
           {fulfillment.isOverdue && (
             <div className="text-red-600 flex items-center">
               <FiAlertCircle className="mr-1" />
-              Overdue
+              {t('fulfillments.overdue')}
             </div>
           )}
         </div>

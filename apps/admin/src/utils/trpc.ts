@@ -10,6 +10,7 @@ import {
 import type { AppRouter } from '../../../backend/src/types/app-router';
 import { errorLink } from './trpc-error-link';
 import { getCurrentLocale } from '../i18n';
+import { getTrpcUrl } from './apiConfig';
 
 // Simple auth token management (you might want to use a state management library)
 function getAuthToken(): string | null {
@@ -17,9 +18,7 @@ function getAuthToken(): string | null {
   return localStorage.getItem('admin_access_token');
 }
 
-function getBaseUrl() {
-  return `http://localhost:3000`; // Backend port (changed to match our running backend)
-}
+const trpcUrl = getTrpcUrl();
 
 // For use in React components with hooks
 export const trpc = createTRPCReact<AppRouter>();
@@ -35,7 +34,7 @@ export const links: TRPCLink<AppRouter>[] = [
       return op.type === 'mutation';
     },
     true: httpBatchLink({
-      url: `${getBaseUrl()}/trpc`,
+      url: trpcUrl,
       headers() {
         const headers: Record<string, string> = {};
         const token = getAuthToken();
@@ -54,7 +53,7 @@ export const links: TRPCLink<AppRouter>[] = [
       },
     }),
     false: httpLink({
-      url: `${getBaseUrl()}/trpc`,
+      url: trpcUrl,
       headers() {
         const headers: Record<string, string> = {};
         const token = getAuthToken();

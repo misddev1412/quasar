@@ -45,6 +45,13 @@
     "brand_name": "Quasar",
     "enabled": "Đã kích hoạt",
     "disabled": "Đã vô hiệu hóa",
+    "error_boundary": {
+      "title": "Rất tiếc! Đã xảy ra lỗi",
+      "description": "Xin lỗi, đã có lỗi bất ngờ xảy ra. Vui lòng thử tải lại trang hoặc liên hệ hỗ trợ nếu vấn đề tiếp tục.",
+      "details_label": "Chi tiết lỗi (chỉ khi phát triển)",
+      "refresh": "Tải lại trang",
+      "retry": "Thử lại"
+    },
     "help": "Trợ giúp",
     "saving": "Đang lưu...",
     "empty": "Trống",
@@ -341,6 +348,16 @@
           "description": "Được tối ưu hóa về tốc độ và trải nghiệm người dùng mượt mà."
         }
       }
+    },
+    "dashboard": {
+      "title": "Trang Dashboard",
+      "description": "Đây là trang Dashboard phục vụ định tuyến đa ngôn ngữ"
+    },
+    "test_simple": {
+      "title": "Trang kiểm tra đơn giản",
+      "description": "Nếu bạn thấy trang này, việc định tuyến cơ bản đang hoạt động.",
+      "link_self": "Kiểm tra đơn giản",
+      "link_profile": "Hồ sơ"
     },
     "help": {
       "seo": {
@@ -916,6 +933,7 @@
       "security": {
         "title": "Cài đặt bảo mật",
         "description": "Quản lý bảo mật và quyền riêng tư tài khoản",
+        "disabled_message": "Thành phần bảo mật tạm thời được tắt để kiểm tra",
         "password": "Mật khẩu",
         "password_set": "Mật khẩu của bạn đã được đặt",
         "password_not_set": "Chưa đặt mật khẩu",
@@ -998,7 +1016,14 @@
         "coming_soon": "Tùy chọn sắp ra mắt",
         "coming_soon_desc": "Cài đặt tùy chọn sẽ có sẵn tại đây",
         "language": "Ngôn ngữ & Khu vực",
-        "appearance": "Giao diện"
+        "language_label": "Ngôn ngữ",
+        "language_value": "Tiếng Anh (Mỹ)",
+        "timezone_label": "Múi giờ",
+        "timezone_value": "UTC-8 (Pacific Time)",
+        "change": "Thay đổi",
+        "appearance": "Giao diện",
+        "theme_label": "Chủ đề",
+        "theme_value": "Chế độ sáng"
       },
       "loading": "Đang tải hồ sơ...",
       "errors": {
@@ -1026,6 +1051,21 @@
         "homeGarden": "Nhà cửa & Vườn",
         "sports": "Thể thao"
       }
+    }
+  },
+  "loyalty": {
+    "banner": {
+      "progress_label": "Tiến độ",
+      "progress_to_tier": "Tiến tới hạng {tier}",
+      "progress_top_tier": "Bạn đã đạt hạng cao nhất",
+      "points_to_go": "Còn {points} điểm",
+      "current_points": "{points} điểm",
+      "tooltip_next_tier": "{tier} sẽ mở khi đạt {points} điểm",
+      "tooltip_top_tier": "Tận hưởng quyền lợi cao nhất!",
+      "progress_aria": "Tiến độ hạng thành viên",
+      "keep_shopping": "Tiếp tục mua sắm để mở khóa {tier}.",
+      "top_tier": "Bạn đang ở hạng thành viên cao nhất.",
+      "view_rewards": "Xem ưu đãi"
     }
   },
   "auth": {

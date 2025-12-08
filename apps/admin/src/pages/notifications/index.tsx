@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -45,6 +45,8 @@ type SendFormState = {
   eventKey: NotificationEventKey;
 };
 
+const eventKeyToTranslationKey = (value: NotificationEventKey) => value.replace(/\./g, '_');
+
 const NotificationsPage: React.FC = () => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
@@ -83,8 +85,8 @@ const NotificationsPage: React.FC = () => {
   const sendNotificationMutation = trpc.adminNotification.sendNotificationToUser.useMutation({
     onSuccess: () => {
       addToast({
-        title: 'Success',
-        description: 'Notification sent successfully',
+        title: t('common.success'),
+        description: t('notifications_page.feedback.send_success'),
         type: 'success'
       });
       refetch();
@@ -92,8 +94,8 @@ const NotificationsPage: React.FC = () => {
     },
     onError: (error) => {
       addToast({
-        title: 'Error',
-        description: `Failed to send notification: ${error.message}`,
+        title: t('common.error'),
+        description: t('notifications_page.feedback.send_error', { message: error.message }),
         type: 'error'
       });
     },
@@ -102,8 +104,8 @@ const NotificationsPage: React.FC = () => {
   const sendBulkNotificationMutation = trpc.adminNotification.sendBulkNotifications.useMutation({
     onSuccess: () => {
       addToast({
-        title: 'Success',
-        description: 'Bulk notifications sent successfully',
+        title: t('common.success'),
+        description: t('notifications_page.feedback.send_bulk_success'),
         type: 'success'
       });
       refetch();
@@ -111,8 +113,8 @@ const NotificationsPage: React.FC = () => {
     },
     onError: (error) => {
       addToast({
-        title: 'Error',
-        description: `Failed to send bulk notifications: ${error.message}`,
+        title: t('common.error'),
+        description: t('notifications_page.feedback.send_bulk_error', { message: error.message }),
         type: 'error'
       });
     },
@@ -121,8 +123,8 @@ const NotificationsPage: React.FC = () => {
   const sendTopicNotificationMutation = trpc.adminNotification.sendTopicNotification.useMutation({
     onSuccess: () => {
       addToast({
-        title: 'Success',
-        description: 'Topic notification sent successfully',
+        title: t('common.success'),
+        description: t('notifications_page.feedback.send_topic_success'),
         type: 'success'
       });
       refetch();
@@ -130,8 +132,8 @@ const NotificationsPage: React.FC = () => {
     },
     onError: (error) => {
       addToast({
-        title: 'Error',
-        description: `Failed to send topic notification: ${error.message}`,
+        title: t('common.error'),
+        description: t('notifications_page.feedback.send_topic_error', { message: error.message }),
         type: 'error'
       });
     },
@@ -143,8 +145,8 @@ const NotificationsPage: React.FC = () => {
     },
     onError: (error) => {
       addToast({
-        title: 'Error',
-        description: `Failed to mark as read: ${error.message}`,
+        title: t('common.error'),
+        description: t('notifications_page.feedback.mark_read_error', { message: error.message }),
         type: 'error'
       });
     },
@@ -153,16 +155,16 @@ const NotificationsPage: React.FC = () => {
   const deleteNotificationMutation = trpc.adminNotification.deleteNotification.useMutation({
     onSuccess: () => {
       addToast({
-        title: 'Success',
-        description: 'Notification deleted successfully',
+        title: t('common.success'),
+        description: t('notifications_page.feedback.delete_success'),
         type: 'success'
       });
       refetch();
     },
     onError: (error) => {
       addToast({
-        title: 'Error',
-        description: `Failed to delete notification: ${error.message}`,
+        title: t('common.error'),
+        description: t('notifications_page.feedback.delete_error', { message: error.message }),
         type: 'error'
       });
     },
@@ -174,6 +176,19 @@ const NotificationsPage: React.FC = () => {
 
   const stats = (statsData as any)?.data || {};
 
+  const getTypeLabel = (type: string) =>
+    t(`notifications_page.types.${type}`, { defaultValue: type });
+
+  const eventOptions = useMemo(
+    () =>
+      NOTIFICATION_EVENT_OPTIONS.map(option => ({
+        value: option.value,
+        label: t(`notifications_page.events.${eventKeyToTranslationKey(option.value)}`, {
+          defaultValue: option.label,
+        }),
+      })),
+    [t],
+  );
 
   const handleSendNotification = () => {
     setSendDialogOpen(true);
@@ -251,28 +266,28 @@ const NotificationsPage: React.FC = () => {
   const statistics: StatisticData[] = [
     {
       id: 'total',
-      title: 'Total Notifications',
+      title: t('notifications_page.stats.total'),
       value: stats.total || 0,
       icon: <FiBell className="w-6 h-6" />,
       trend: stats.totalTrend ? { value: stats.totalTrend.value, isPositive: stats.totalTrend.isPositive, label: stats.totalTrend.label } : undefined,
     },
     {
       id: 'unread',
-      title: 'Unread',
+      title: t('notifications_page.stats.unread'),
       value: stats.unread || 0,
       icon: <FiBellOff className="w-6 h-6" />,
       trend: stats.unreadTrend ? { value: stats.unreadTrend.value, isPositive: stats.unreadTrend.isPositive, label: stats.unreadTrend.label } : undefined,
     },
     {
       id: 'sent',
-      title: 'Sent Today',
+      title: t('notifications_page.stats.sent_today'),
       value: stats.sentToday || 0,
       icon: <FiSend className="w-6 h-6" />,
       trend: stats.sentTodayTrend ? { value: stats.sentTodayTrend.value, isPositive: stats.sentTodayTrend.isPositive, label: stats.sentTodayTrend.label } : undefined,
     },
     {
       id: 'failed',
-      title: 'Failed',
+      title: t('notifications_page.stats.failed'),
       value: stats.failed || 0,
       icon: <FiBellOff className="w-6 h-6" />,
       trend: stats.failedTrend ? { value: stats.failedTrend.value, isPositive: stats.failedTrend.isPositive, label: stats.failedTrend.label } : undefined,
@@ -281,7 +296,7 @@ const NotificationsPage: React.FC = () => {
 
   const columns: Column<any>[] = [
     {
-      header: 'Title',
+      header: t('notifications_page.table.title'),
       accessor: (notification: any) => (
         <div>
           <div className="font-medium text-gray-900 dark:text-gray-100">
@@ -295,37 +310,37 @@ const NotificationsPage: React.FC = () => {
       isSortable: true,
     },
     {
-      header: 'Type',
+      header: t('notifications_page.table.type'),
       accessor: (notification: any) => (
         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getNotificationColorClass(notification.type)}`}>
-          {notification.type}
+          {getTypeLabel(notification.type)}
         </span>
       ),
       isSortable: true,
     },
     {
-      header: 'User',
+      header: t('notifications_page.table.user'),
       accessor: (notification: any) => notification.user.email,
     },
     {
-      header: 'Status',
+      header: t('notifications_page.table.status'),
       accessor: (notification: any) => (
         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
           notification.read
             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
             : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
         }`}>
-          {notification.read ? 'Read' : 'Unread'}
+          {notification.read ? t('notifications_page.table.read') : t('notifications_page.table.unread')}
         </span>
       ),
     },
     {
-      header: 'Created',
+      header: t('notifications_page.table.created'),
       accessor: (notification: any) => formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true }),
       isSortable: true,
     },
     {
-      header: 'Actions',
+      header: t('notifications_page.table.actions'),
       accessor: (notification: any) => (
         <div className="flex space-x-2">
           {!notification.read && (
@@ -333,7 +348,7 @@ const NotificationsPage: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={() => markAsReadMutation.mutate({ id: notification.id })}
-              title="Mark as Read"
+              title={t('notifications_page.table.mark_as_read')}
             >
               <FiEye className="w-4 h-4" />
             </Button>
@@ -343,7 +358,7 @@ const NotificationsPage: React.FC = () => {
             size="sm"
             onClick={() => deleteNotificationMutation.mutate({ id: notification.id })}
             className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-            title="Delete"
+            title={t('common.delete')}
           >
             <FiTrash2 className="w-4 h-4" />
           </Button>
@@ -354,15 +369,15 @@ const NotificationsPage: React.FC = () => {
 
   return (
     <BaseLayout
-      title="Notifications"
+      title={t('notifications_page.title')}
       breadcrumbs={[
         {
-          label: 'Home',
+          label: t('navigation.home'),
           href: '/',
           icon: <FiHome className="h-4 w-4" />,
         },
         {
-          label: 'Notifications',
+          label: t('notifications_page.title'),
           icon: <FiBell className="h-4 w-4" />,
         },
       ]}
@@ -373,10 +388,10 @@ const NotificationsPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              Notifications
+              {t('notifications_page.title')}
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Manage and send notifications to users
+              {t('notifications_page.description')}
             </p>
           </div>
           <div className="flex space-x-3">
@@ -387,14 +402,14 @@ const NotificationsPage: React.FC = () => {
               disabled={isLoading}
             >
               <FiRefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-              <span>Refresh</span>
+              <span>{t('common.refresh')}</span>
             </Button>
             <Button
               onClick={handleSendNotification}
               className="flex items-center space-x-2"
             >
               <FiSend className="w-4 h-4" />
-              <span>Send Notification</span>
+              <span>{t('notifications_page.actions.send')}</span>
             </Button>
           </div>
         </div>
@@ -417,39 +432,39 @@ const NotificationsPage: React.FC = () => {
 
       {/* Send Notification Dialog */}
       <Dialog open={sendDialogOpen} onClose={handleSendDialogClose} maxWidth="md" fullWidth>
-        <DialogTitle>Send Notification</DialogTitle>
+        <DialogTitle>{t('notifications_page.dialog.title')}</DialogTitle>
         <DialogContent>
           <div className="space-y-4 mt-4">
             <FormControl fullWidth>
-              <InputLabel>Notification Type</InputLabel>
+              <InputLabel>{t('notifications_page.dialog.type_label')}</InputLabel>
               <Select
                 value={sendForm.type}
-                label="Notification Type"
+                label={t('notifications_page.dialog.type_label')}
                 onChange={(e) => setSendForm({ ...sendForm, type: e.target.value })}
               >
                 <MenuItem value="single">
                   <div className="flex items-center space-x-2">
                     <FiUser className="w-4 h-4" />
-                    <span>Single User</span>
+                    <span>{t('notifications_page.dialog.single')}</span>
                   </div>
                 </MenuItem>
                 <MenuItem value="bulk">
                   <div className="flex items-center space-x-2">
                     <FiUsers className="w-4 h-4" />
-                    <span>Multiple Users</span>
+                    <span>{t('notifications_page.dialog.bulk')}</span>
                   </div>
                 </MenuItem>
                 <MenuItem value="topic">
                   <div className="flex items-center space-x-2">
                     <FiRadio className="w-4 h-4" />
-                    <span>Topic Broadcast</span>
+                    <span>{t('notifications_page.dialog.topic')}</span>
                   </div>
                 </MenuItem>
               </Select>
             </FormControl>
 
             <TextField
-              label="Title"
+              label={t('notifications_page.dialog.message_title')}
               fullWidth
               value={sendForm.title}
               onChange={(e) => setSendForm({ ...sendForm, title: e.target.value })}
@@ -457,7 +472,7 @@ const NotificationsPage: React.FC = () => {
             />
 
             <TextField
-              label="Message Body"
+              label={t('notifications_page.dialog.message_body')}
               fullWidth
               multiline
               rows={3}
@@ -467,30 +482,30 @@ const NotificationsPage: React.FC = () => {
             />
 
             <FormControl fullWidth>
-              <InputLabel>Category</InputLabel>
+              <InputLabel>{t('notifications_page.dialog.category')}</InputLabel>
               <Select
                 value={sendForm.notificationType}
-                label="Category"
+                label={t('notifications_page.dialog.category')}
                 onChange={(e) => setSendForm({ ...sendForm, notificationType: e.target.value })}
               >
-                <MenuItem value="info">Info</MenuItem>
-                <MenuItem value="success">Success</MenuItem>
-                <MenuItem value="warning">Warning</MenuItem>
-                <MenuItem value="error">Error</MenuItem>
-                <MenuItem value="product">Product</MenuItem>
-                <MenuItem value="order">Order</MenuItem>
-                <MenuItem value="system">System</MenuItem>
+                <MenuItem value="info">{t('notifications_page.types.info')}</MenuItem>
+                <MenuItem value="success">{t('notifications_page.types.success')}</MenuItem>
+                <MenuItem value="warning">{t('notifications_page.types.warning')}</MenuItem>
+                <MenuItem value="error">{t('notifications_page.types.error')}</MenuItem>
+                <MenuItem value="product">{t('notifications_page.types.product')}</MenuItem>
+                <MenuItem value="order">{t('notifications_page.types.order')}</MenuItem>
+                <MenuItem value="system">{t('notifications_page.types.system')}</MenuItem>
               </Select>
             </FormControl>
 
             <FormControl fullWidth>
-              <InputLabel>Event</InputLabel>
+              <InputLabel>{t('notifications_page.dialog.event')}</InputLabel>
               <Select
                 value={sendForm.eventKey}
-                label="Event"
+                label={t('notifications_page.dialog.event')}
                 onChange={(e) => setSendForm({ ...sendForm, eventKey: e.target.value as NotificationEventKey })}
               >
-                {NOTIFICATION_EVENT_OPTIONS.map(option => (
+                {eventOptions.map(option => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>
@@ -499,44 +514,46 @@ const NotificationsPage: React.FC = () => {
             </FormControl>
 
             <TextField
-              label="Action URL (Optional)"
+              label={t('notifications_page.dialog.action_url')}
               fullWidth
               value={sendForm.actionUrl}
               onChange={(e) => setSendForm({ ...sendForm, actionUrl: e.target.value })}
-              placeholder="https://example.com/action"
+              placeholder={t('notifications_page.dialog.action_url_placeholder')}
             />
 
             {sendForm.type === 'single' || sendForm.type === 'bulk' ? (
               <TextField
-                label="User IDs or Emails"
+                label={t('notifications_page.dialog.user_ids')}
                 fullWidth
                 multiline
                 rows={2}
                 value={sendForm.userIds}
                 onChange={(e) => setSendForm({ ...sendForm, userIds: e.target.value })}
-                placeholder="user1@example.com, user2@example.com"
-                helperText="Separate multiple users with commas"
+                placeholder={t('notifications_page.dialog.user_ids_placeholder')}
+                helperText={t('notifications_page.dialog.user_ids_help')}
               />
             ) : (
               <TextField
-                label="Topic Name"
+                label={t('notifications_page.dialog.topic_name')}
                 fullWidth
                 value={sendForm.topic}
                 onChange={(e) => setSendForm({ ...sendForm, topic: e.target.value })}
-                placeholder="all-users"
+                placeholder={t('notifications_page.dialog.topic_placeholder')}
               />
             )}
           </div>
         </DialogContent>
         <DialogActions>
           <Button variant="ghost" onClick={handleSendDialogClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             onClick={handleSendFormSubmit}
             disabled={!sendForm.title || !sendForm.body || sendNotificationMutation.isPending || sendBulkNotificationMutation.isPending || sendTopicNotificationMutation.isPending}
           >
-            {sendNotificationMutation.isPending || sendBulkNotificationMutation.isPending || sendTopicNotificationMutation.isPending ? 'Sending...' : 'Send Notification'}
+            {sendNotificationMutation.isPending || sendBulkNotificationMutation.isPending || sendTopicNotificationMutation.isPending
+              ? t('notifications_page.dialog.sending')
+              : t('notifications_page.dialog.send')}
           </Button>
         </DialogActions>
       </Dialog>

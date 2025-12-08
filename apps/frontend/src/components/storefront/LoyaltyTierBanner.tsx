@@ -7,6 +7,7 @@ import { Progress, Tooltip } from '@heroui/react';
 import { Crown, Medal, Star, ChevronRight } from 'lucide-react';
 import Container from '../common/Container';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslations } from 'next-intl';
 
 interface LoyaltyBalance {
   currentPoints: number;
@@ -82,6 +83,7 @@ const formatPoints = (value?: number | null) => {
 
 export const LoyaltyTierBanner = () => {
   const { isAuthenticated } = useAuth();
+  const t = useTranslations('loyalty');
   const [balance, setBalance] = useState<LoyaltyBalance | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -214,20 +216,23 @@ export const LoyaltyTierBanner = () => {
             <div className="mb-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
               <span>
                 {showNextTier
-                  ? `Progress to ${balance.nextTier}`
-                  : 'You have reached the highest tier'}
+                  ? t('banner.progress_to_tier', { tier: balance.nextTier })
+                  : t('banner.progress_top_tier')}
               </span>
               <span>
                 {showNextTier
-                  ? `${formatPoints(balance.pointsToNextTier)} pts to go`
-                  : `${formatPoints(balance.currentPoints)} pts`}
+                  ? t('banner.points_to_go', { points: formatPoints(balance.pointsToNextTier) })
+                  : t('banner.current_points', { points: formatPoints(balance.currentPoints) })}
               </span>
             </div>
             <Tooltip
               content={
                 showNextTier
-                  ? `${balance.nextTier} unlocks in ${formatPoints(balance.pointsToNextTier)} pts`
-                  : 'Enjoy platinum benefits!'
+                  ? t('banner.tooltip_next_tier', {
+                      tier: balance.nextTier,
+                      points: formatPoints(balance.pointsToNextTier),
+                    })
+                  : t('banner.tooltip_top_tier')}
               }
               placement="top"
               delay={250}
@@ -238,7 +243,7 @@ export const LoyaltyTierBanner = () => {
                 classNames={{
                   indicator: 'bg-gradient-to-r from-amber-500 to-orange-500',
                 }}
-                aria-label="Loyalty tier progress"
+                aria-label={t('banner.progress_aria')}
                 color="warning"
               />
             </Tooltip>
@@ -247,22 +252,16 @@ export const LoyaltyTierBanner = () => {
           <div className="flex items-center gap-3">
             <div className="text-sm text-gray-600 dark:text-gray-300">
               {showNextTier ? (
-                <>
-                  Keep shopping to unlock{' '}
-                  <span className="font-semibold text-gray-900 dark:text-white">
-                    {balance.nextTier}
-                  </span>
-                  .
-                </>
+                t('banner.keep_shopping', { tier: balance.nextTier })
               ) : (
-                <>You are enjoying the top loyalty tier.</>
+                t('banner.top_tier')
               )}
             </div>
             <Link
               href="/profile/loyalty"
               className="inline-flex items-center rounded-full border border-amber-400/60 bg-white/80 px-4 py-2 text-sm font-medium text-amber-700 shadow-sm transition hover:bg-white dark:bg-gray-900 dark:text-amber-300"
             >
-              View rewards
+              {t('banner.view_rewards')}
               <ChevronRight className="ml-1 h-4 w-4" />
             </Link>
           </div>

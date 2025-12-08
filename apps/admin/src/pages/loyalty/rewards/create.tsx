@@ -24,6 +24,8 @@ const ImageUpload: React.FC<{
   placeholder?: string;
   description?: string;
 }> = ({ value, onChange, onRemove, placeholder, description }) => {
+  const { t } = useTranslationWithBackend();
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -43,7 +45,7 @@ const ImageUpload: React.FC<{
               <div className="relative">
                 <img
                   src={value}
-                  alt="Reward preview"
+                  alt={t('loyalty.reward_preview_alt')}
                   className="w-full h-full object-cover rounded-lg max-h-48"
                 />
                 <button
@@ -62,9 +64,9 @@ const ImageUpload: React.FC<{
                   <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                 </svg>
                 <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                  <span className="font-semibold">Click to upload</span> or drag and drop
+                  <span className="font-semibold">{t('loyalty.upload_image_cta')}</span> {t('loyalty.upload_image_helper')}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF up to 5MB</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t('loyalty.upload_image_formats')}</p>
               </>
             )}
           </div>

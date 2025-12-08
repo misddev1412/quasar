@@ -1,7 +1,8 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button, Card, CardBody } from '@heroui/react';
+import { withTranslation, WithTranslation } from 'react-i18next';
 
-interface Props {
+interface Props extends WithTranslation {
   children: ReactNode;
   fallback?: ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
@@ -33,6 +34,8 @@ export class ErrorBoundary extends Component<Props, State> {
   };
 
   public render() {
+    const { t } = this.props;
+
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;
@@ -57,15 +60,16 @@ export class ErrorBoundary extends Component<Props, State> {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Oops! Something went wrong</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                {t('common.error_boundary.title')}
+              </h2>
               <p className="text-gray-600 mb-6">
-                We're sorry, but something unexpected happened. Please try refreshing the page or
-                contact support if the problem persists.
+                {t('common.error_boundary.description')}
               </p>
               {process.env.NODE_ENV === 'development' && this.state.error && (
                 <details className="text-left mb-6">
                   <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
-                    Error details (Development only)
+                    {t('common.error_boundary.details_label')}
                   </summary>
                   <pre className="mt-2 p-3 bg-gray-100 rounded text-xs overflow-auto">
                     {this.state.error.toString()}
@@ -75,10 +79,10 @@ export class ErrorBoundary extends Component<Props, State> {
               )}
               <div className="flex gap-3 justify-center">
                 <Button color="primary" onPress={() => window.location.reload()}>
-                  Refresh Page
+                  {t('common.error_boundary.refresh')}
                 </Button>
                 <Button variant="bordered" onPress={this.handleReset}>
-                  Try Again
+                  {t('common.error_boundary.retry')}
                 </Button>
               </div>
             </CardBody>
@@ -91,4 +95,4 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 }
 
-export default ErrorBoundary;
+export default withTranslation()(ErrorBoundary);

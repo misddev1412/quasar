@@ -28,6 +28,7 @@ import { useToast } from '../../context/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { InputWithIcon } from './InputWithIcon';
 import clsx from 'clsx';
+import { buildApiUrl } from '@admin/utils/apiConfig';
 
 interface MediaFile {
   id: string;
@@ -308,7 +309,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
       }
 
       // Upload to server using fetch (since tRPC doesn't handle file uploads well)
-      const response = await fetch('http://localhost:3000/api/upload/multiple', {
+      const response = await fetch(buildApiUrl('/api/upload/multiple'), {
         method: 'POST',
         body: formData,
         headers: {

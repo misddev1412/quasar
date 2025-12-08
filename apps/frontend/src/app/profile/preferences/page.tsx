@@ -65,24 +65,32 @@ export default function Page() {
                   <div className="flex items-center space-x-3">
                     <Globe className="w-5 h-5 text-gray-600" />
                     <div>
-                      <p className="font-medium text-gray-900 mb-0">Language</p>
-                      <p className="text-sm text-gray-600 mb-0">English (US)</p>
+                      <p className="font-medium text-gray-900 mb-0">
+                        {t('pages.profile.preferences.language_label')}
+                      </p>
+                      <p className="text-sm text-gray-600 mb-0">
+                        {t('pages.profile.preferences.language_value')}
+                      </p>
                     </div>
                   </div>
                   <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                    Change
+                    {t('pages.profile.preferences.change')}
                   </button>
                 </div>
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div className="flex items-center space-x-3">
                     <Smartphone className="w-5 h-5 text-gray-600" />
                     <div>
-                      <p className="font-medium text-gray-900 mb-0">Time Zone</p>
-                      <p className="text-sm text-gray-600 mb-0">UTC-8 (Pacific Time)</p>
+                      <p className="font-medium text-gray-900 mb-0">
+                        {t('pages.profile.preferences.timezone_label')}
+                      </p>
+                      <p className="text-sm text-gray-600 mb-0">
+                        {t('pages.profile.preferences.timezone_value')}
+                      </p>
                     </div>
                   </div>
                   <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                    Change
+                    {t('pages.profile.preferences.change')}
                   </button>
                 </div>
               </div>
@@ -101,12 +109,16 @@ export default function Page() {
                   <div className="flex items-center space-x-3">
                     <Moon className="w-5 h-5 text-gray-600" />
                     <div>
-                      <p className="font-medium text-gray-900 mb-0">Theme</p>
-                      <p className="text-sm text-gray-600 mb-0">Light Mode</p>
+                      <p className="font-medium text-gray-900 mb-0">
+                        {t('pages.profile.preferences.theme_label')}
+                      </p>
+                      <p className="text-sm text-gray-600 mb-0">
+                        {t('pages.profile.preferences.theme_value')}
+                      </p>
                     </div>
                   </div>
                   <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                    Change
+                    {t('pages.profile.preferences.change')}
                   </button>
                 </div>
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">

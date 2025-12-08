@@ -1,7 +1,4 @@
-// Get base URL for API calls
-function getBaseURL(): string {
-  return 'http://localhost:3000'; // Backend port
-}
+import { buildApiUrl } from './apiConfig';
 
 interface UploadResponse {
   success: boolean;
@@ -64,7 +61,7 @@ export class UploadService {
   ): Promise<UploadResponse> {
     // Step 1: Generate presigned URL
     const token = this.getAuthToken();
-    const presignedResponse = await fetch(`${getBaseURL()}/api/upload/presigned-url/single`, {
+    const presignedResponse = await fetch(buildApiUrl('/api/upload/presigned-url/single'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -100,7 +97,7 @@ export class UploadService {
     }
 
     // Step 3: Confirm upload and save media record
-    const confirmResponse = await fetch(`${getBaseURL()}/api/upload/confirm-upload`, {
+    const confirmResponse = await fetch(buildApiUrl('/api/upload/confirm-upload'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -150,7 +147,7 @@ export class UploadService {
     }
 
     const token = this.getAuthToken();
-    const response = await fetch(`${getBaseURL()}/api/upload/single`, {
+    const response = await fetch(buildApiUrl('/api/upload/single'), {
       method: 'POST',
       body: formData,
       signal: options.signal,
@@ -199,7 +196,7 @@ export class UploadService {
   ): Promise<UploadResponse> {
     // Step 1: Generate presigned URLs for all files
     const token = this.getAuthToken();
-    const presignedResponse = await fetch(`${getBaseURL()}/api/upload/presigned-url/gallery`, {
+    const presignedResponse = await fetch(buildApiUrl('/api/upload/presigned-url/gallery'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -249,7 +246,7 @@ export class UploadService {
 
     // Step 3: Confirm uploads and save media records
     const confirmPromises = uploadResults.map(async ({ file, presignedUrl }) => {
-      const confirmResponse = await fetch(`${getBaseURL()}/api/upload/confirm-upload`, {
+      const confirmResponse = await fetch(buildApiUrl('/api/upload/confirm-upload'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -299,7 +296,7 @@ export class UploadService {
     }
 
     const token = this.getAuthToken();
-    const response = await fetch(`${getBaseURL()}/api/upload/multiple`, {
+    const response = await fetch(buildApiUrl('/api/upload/multiple'), {
       method: 'POST',
       body: formData,
       signal: options.signal,
@@ -348,7 +345,7 @@ export class UploadService {
   ): Promise<UploadResponse> {
     // Step 1: Generate presigned URLs for all files
     const token = this.getAuthToken();
-    const presignedResponse = await fetch(`${getBaseURL()}/api/upload/presigned-url/gallery`, {
+    const presignedResponse = await fetch(buildApiUrl('/api/upload/presigned-url/gallery'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -398,7 +395,7 @@ export class UploadService {
 
     // Step 3: Confirm uploads and save media records
     const confirmPromises = uploadResults.map(async ({ file, presignedUrl }) => {
-      const confirmResponse = await fetch(`${getBaseURL()}/api/upload/confirm-upload`, {
+      const confirmResponse = await fetch(buildApiUrl('/api/upload/confirm-upload'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -448,7 +445,7 @@ export class UploadService {
     }
 
     const token = this.getAuthToken();
-    const response = await fetch(`${getBaseURL()}/api/upload/gallery`, {
+    const response = await fetch(buildApiUrl('/api/upload/gallery'), {
       method: 'POST',
       body: formData,
       signal: options.signal,
@@ -537,7 +534,7 @@ export class UploadService {
       const token = this.getAuthToken();
       const endpoint = files.length === 1 ? 'single' : 'multiple';
       
-      xhr.open('POST', `${getBaseURL()}/api/upload/${endpoint}`);
+      xhr.open('POST', buildApiUrl(`/api/upload/${endpoint}`));
       
       if (token) {
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);

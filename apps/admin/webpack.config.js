@@ -4,6 +4,10 @@ const { join } = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const webpack = require('webpack');
+const dotenv = require('dotenv');
+
+// Load project-specific environment variables for the admin app
+dotenv.config({ path: join(__dirname, '.env') });
 
 module.exports = {
   output: {
@@ -72,6 +76,9 @@ module.exports = {
       resourceRegExp: /^node:/,
     }),
     new NodePolyfillPlugin(),
+    new webpack.EnvironmentPlugin({
+      REACT_APP_API_URL: process.env.REACT_APP_API_URL || '',
+    }),
     new NxAppWebpackPlugin({
       tsConfig: './tsconfig.app.json',
       compiler: 'babel',

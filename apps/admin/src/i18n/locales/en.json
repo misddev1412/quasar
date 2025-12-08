@@ -2855,10 +2855,13 @@
     "tracking": "Tracking",
     "tracking_number": "Tracking Number",
     "tracking_history": "Tracking History",
+    "no_tracking": "No tracking",
     "progress": "Progress",
     "delivery": "Delivery",
     "estimated_delivery": "Est. Delivery",
     "actual_delivery": "Actual Delivery",
+    "est_prefix": "Est:",
+    "delivered_prefix": "Delivered:",
     "items": "Items",
     "quantity": "Quantity",
     "fulfilled": "Fulfilled",
@@ -2898,6 +2901,7 @@
     "tracking_updated": "Tracking number updated successfully",
     "enter_tracking_number": "Enter tracking number",
     "manage_order_fulfillments": "Manage order fulfillment and shipping",
+    "overdue": "Overdue",
     "fulfillment_details": "Fulfillment Details",
     "create_title": "Create Fulfillment",
     "create_description": "Prepare shipment details, shipping addresses, and items to fulfill an order.",
@@ -3863,6 +3867,10 @@
     "reward_image": "Reward Image",
     "upload_image_placeholder": "Click to upload image",
     "upload_image_description": "Upload an image for this reward. Recommended size: 300x300px, max 5MB.",
+    "reward_preview_alt": "Reward preview",
+    "upload_image_cta": "Click to upload",
+    "upload_image_helper": "or drag and drop",
+    "upload_image_formats": "PNG, JPG, GIF up to 5MB",
     "terms_conditions": "Terms & Conditions",
     "terms_conditions_placeholder": "Enter terms and conditions for this reward...",
     "is_limited": "Is Limited",
@@ -3996,6 +4004,89 @@
       "isActive_description": "When active, this currency can be selected throughout the system.",
       "isDefault_description": "Mark as the default currency for pricing and conversions."
     }
+  },
+  "notifications_page": {
+    "title": "Notifications",
+    "description": "Manage and send notifications to users",
+    "actions": {
+      "send": "Send Notification"
+    },
+    "stats": {
+      "total": "Total Notifications",
+      "unread": "Unread",
+      "sent_today": "Sent Today",
+      "failed": "Failed"
+    },
+    "table": {
+      "title": "Title",
+      "type": "Type",
+      "user": "User",
+      "status": "Status",
+      "created": "Created",
+      "actions": "Actions",
+      "read": "Read",
+      "unread": "Unread",
+      "mark_as_read": "Mark as Read"
+    },
+    "types": {
+      "info": "Info",
+      "success": "Success",
+      "warning": "Warning",
+      "error": "Error",
+      "product": "Product",
+      "order": "Order",
+      "system": "System",
+      "user": "User"
+    },
+    "dialog": {
+      "title": "Send Notification",
+      "type_label": "Notification Type",
+      "single": "Single User",
+      "bulk": "Multiple Users",
+      "topic": "Topic Broadcast",
+      "message_title": "Title",
+      "message_body": "Message Body",
+      "category": "Category",
+      "event": "Event",
+      "action_url": "Action URL (Optional)",
+      "action_url_placeholder": "https://example.com/action",
+      "user_ids": "User IDs or Emails",
+      "user_ids_placeholder": "user1@example.com, user2@example.com",
+      "user_ids_help": "Separate multiple users with commas",
+      "topic_name": "Topic Name",
+      "topic_placeholder": "all-users",
+      "send": "Send Notification",
+      "sending": "Sending..."
+    },
+    "events": {
+      "custom_manual": "Custom / Manual",
+      "user_registered": "User Registered",
+      "user_verified": "User Verified",
+      "order_created": "Order Created",
+      "order_shipped": "Order Shipped",
+      "system_announcement": "System Announcement",
+      "marketing_campaign": "Marketing Campaign"
+    },
+    "feedback": {
+      "send_success": "Notification sent successfully",
+      "send_bulk_success": "Bulk notifications sent successfully",
+      "send_topic_success": "Topic notification sent successfully",
+      "send_error": "Failed to send notification: {{message}}",
+      "send_bulk_error": "Failed to send bulk notifications: {{message}}",
+      "send_topic_error": "Failed to send topic notification: {{message}}",
+      "mark_read_error": "Failed to mark as read: {{message}}",
+      "delete_success": "Notification deleted successfully",
+      "delete_error": "Failed to delete notification: {{message}}"
+    }
+  },
+  "not_found_page": {
+    "seo_title": "404 - Page Not Found | Quasar Admin",
+    "og_title": "404 - Page Not Found",
+    "og_description": "The page you are looking for does not exist.",
+    "description": "The page you are looking for does not exist.",
+    "heading": "Page Not Found",
+    "helper_text": "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.",
+    "back_to_dashboard": "Back to Dashboard"
   },
   "shippingProviders": {
     "shippingProviders": "Shipping Provider Management",
