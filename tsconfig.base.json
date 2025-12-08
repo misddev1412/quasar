@@ -30,6 +30,9 @@
       "@backend/config/*": ["apps/backend/src/config/*"],
       "@backend/modules/*": ["apps/backend/src/modules/*"],
       "@backend/trpc/*": ["apps/backend/src/trpc/*"],
+      "@worker/config/*": ["apps/worker/src/config/*"],
+      "@worker/queues/*": ["apps/worker/src/queues/*"],
+      "@worker/processors/*": ["apps/worker/src/processors/*"],
       "@shared": ["libs/shared/src/index.ts"],
       "@shared/classes/*": ["libs/shared/src/classes/*"],
       "@shared/entities/*": ["libs/shared/src/entities/*"],
@@ -37,6 +40,7 @@
       "@shared/repositories/*": ["libs/shared/src/repositories/*"],
       "@shared/styles/*": ["libs/shared/src/styles/*"],
       "@shared/types/*": ["libs/shared/src/types/*"],
+      "@shared/queues/*": ["libs/shared/src/queues/*"],
       "ui": ["libs/ui/src/index.ts"]
     }
   },

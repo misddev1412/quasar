@@ -35,4 +35,7 @@ export * from './styles';
 export * from './api/seo.api';
 
 // Hooks
-export * from './hooks/useSeo'; 
+export * from './hooks/useSeo';
+
+// Queue utilities
+export * from './queues'; 
