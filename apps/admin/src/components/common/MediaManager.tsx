@@ -85,6 +85,12 @@ interface MediaManagerProps {
   title?: string;
 }
 
+interface StorageConfig {
+  provider?: 'local' | 's3';
+  localBaseUrl?: string;
+  s3Bucket?: string;
+}
+
 type ViewMode = 'grid' | 'list';
 type MediaType = 'all' | 'image' | 'video' | 'audio' | 'document' | 'other';
 type TabMode = 'library' | 'upload';
@@ -138,6 +144,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
     error,
     isError,
   } = trpc.adminMedia.getUserMedia.useQuery();
+  const { data: storageConfigData } = trpc.adminStorage.getStorageConfig.useQuery(undefined);
 
 
   const deleteMediaMutation = trpc.adminMedia.deleteMedia.useMutation({
@@ -429,6 +436,23 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
       }
     }
   }
+
+  const storageConfig = (storageConfigData as { data?: StorageConfig })?.data;
+  const storageProvider = storageConfig?.provider;
+  const storageProviderLabel =
+    storageProvider === 's3'
+      ? 'S3 / Cloud Storage'
+      : storageProvider === 'local'
+      ? 'Local Storage'
+      : undefined;
+  const storageProviderMeta =
+    storageProvider === 's3'
+      ? storageConfig?.s3Bucket
+        ? `Bucket ${storageConfig.s3Bucket}`
+        : 'S3-compatible provider'
+      : storageProvider === 'local'
+      ? storageConfig?.localBaseUrl || 'Server filesystem'
+      : undefined;
 
   // Calculate z-index based on position in modal stack
   const modalIndex = modalStack.indexOf(modalId);
@@ -911,6 +935,19 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
             >
+              {storageProviderLabel && (
+                <div className="absolute top-3 left-3 z-10 flex flex-col rounded-lg bg-primary-600/95 px-3 py-2 text-white shadow-lg">
+                  <span className="text-[11px] font-semibold tracking-wide uppercase">
+                    {t('media.uploading_to_provider', 'Uploading to')}
+                  </span>
+                  <span className="text-sm font-bold leading-tight">{storageProviderLabel}</span>
+                  {storageProviderMeta && (
+                    <span className="text-[10px] font-medium opacity-80">
+                      {storageProviderMeta}
+                    </span>
+                  )}
+                </div>
+              )}
               <div className="p-8 sm:p-12 text-center">
                 <div className={clsx(
                   'w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center transition-all duration-300',
@@ -975,6 +1012,22 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                 />
               </div>
             </div>
+            {storageProviderLabel && (
+              <div className="mb-6 text-center text-sm text-gray-600 dark:text-gray-400">
+                <span className="font-medium text-gray-900 dark:text-gray-100">
+                  {t('media.current_storage_provider', 'Current storage provider')}:
+                </span>{' '}
+                <span className="font-semibold text-primary-600 dark:text-primary-400">
+                  {storageProviderLabel}
+                </span>
+                {storageProviderMeta && (
+                  <span className="text-gray-500 dark:text-gray-400">
+                    {' '}
+                    • {storageProviderMeta}
+                  </span>
+                )}
+              </div>
+            )}
 
             {/* Uploaded Files */}
             {uploadedFiles.length > 0 && (
