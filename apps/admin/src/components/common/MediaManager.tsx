@@ -676,6 +676,11 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                         <p className="text-xs font-medium text-gray-900 dark:text-white truncate" title={file.originalName}>
                           {file.originalName}
                         </p>
+                        {file.provider && (
+                          <p className="mt-0.5 text-[10px] font-semibold uppercase text-primary-600 dark:text-primary-400 tracking-wide">
+                            Provider: {file.provider}
+                          </p>
+                        )}
                         <div className="flex items-center justify-between mt-1">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
                             {formatFileSize(typeof file.size === 'string' ? parseInt(file.size) : file.size)}
@@ -774,6 +779,11 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                         <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                           {file.originalName}
                         </p>
+                        {file.provider && (
+                          <p className="text-[11px] font-semibold uppercase text-primary-600 dark:text-primary-400 tracking-wide">
+                            Provider: {file.provider}
+                          </p>
+                        )}
                         <p className="text-xs text-gray-500 dark:text-gray-400">
                           {formatFileSize(typeof file.size === 'string' ? parseInt(file.size) : file.size)} • {file.type} • {new Date(file.createdAt).toLocaleDateString()}
                         </p>
