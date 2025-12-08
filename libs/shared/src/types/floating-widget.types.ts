@@ -44,3 +44,63 @@ export type FloatingWidgetActionConfig = z.infer<typeof floatingWidgetActionSche
 export const floatingWidgetActionListSchema = z.array(floatingWidgetActionSchema);
 
 export type FloatingWidgetActionConfigList = z.infer<typeof floatingWidgetActionListSchema>;
+
+export const DEFAULT_FLOATING_WIDGET_ACTIONS: FloatingWidgetActionConfigList = [
+  {
+    id: 'floating-call',
+    label: 'Call us',
+    type: 'call',
+    icon: 'phone',
+    description: 'Call our support team',
+    order: 0,
+    isActive: true,
+    backgroundColor: '#0ea5e9',
+    textColor: '#ffffff',
+    tooltip: 'Call now',
+    metadata: {
+      phoneNumber: '0987654321',
+    },
+  },
+  {
+    id: 'floating-zalo',
+    label: 'Chat on Zalo',
+    type: 'zalo',
+    icon: 'chat',
+    description: 'Message us on Zalo',
+    order: 1,
+    isActive: true,
+    backgroundColor: '#0b93f6',
+    textColor: '#ffffff',
+    tooltip: 'Zalo chat',
+    metadata: {
+      zaloPhone: 'https://zalo.me/0987654321',
+    },
+  },
+  {
+    id: 'floating-messenger',
+    label: 'Messenger',
+    type: 'messenger',
+    icon: 'chat',
+    description: 'Contact via Facebook Messenger',
+    order: 2,
+    isActive: true,
+    backgroundColor: '#0084ff',
+    textColor: '#ffffff',
+    tooltip: 'Messenger chat',
+    metadata: {
+      messengerLink: 'https://m.me/yourpage',
+    },
+  },
+  {
+    id: 'floating-back-to-top',
+    label: 'Back to top',
+    type: 'back_to_top',
+    icon: 'arrow-up',
+    description: 'Scroll back to the top',
+    order: 3,
+    isActive: true,
+    backgroundColor: '#111827',
+    textColor: '#ffffff',
+    tooltip: 'Back to top',
+  },
+];

@@ -8,6 +8,7 @@ import {
   TRPCLink,
 } from '@trpc/client';
 import { errorLink } from './trpc-error-link';
+import { apiBaseUrl } from './apiBase';
 import type { AppRouter } from '../../../backend/src/types/app-router';
 
 // Token management for frontend users (not admin)
@@ -152,13 +153,7 @@ export async function refreshToken(): Promise<boolean> {
 }
 
 function getBaseUrl() {
-  // Use environment variable or default to localhost
-  if (typeof window !== 'undefined') {
-    // Browser should use relative path or env variable
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-  }
-  // SSR should use localhost
-  return 'http://localhost:3000';
+  return apiBaseUrl;
 }
 
 // Create tRPC React hooks

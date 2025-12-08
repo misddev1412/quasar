@@ -23,6 +23,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { trpc } from '../../utils/trpc';
+import { buildApiUrl } from '../../utils/apiBase';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslation } from 'react-i18next';
 import { Input } from './Input';
@@ -293,7 +294,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
       }
 
       // Upload to server using fetch
-      const response = await fetch('http://localhost:3000/api/upload/multiple', {
+      const response = await fetch(buildApiUrl('/api/upload/multiple'), {
         method: 'POST',
         body: formData,
         headers: {

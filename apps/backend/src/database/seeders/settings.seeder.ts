@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SettingEntity } from '../../modules/settings/entities/setting.entity';
 import { DEFAULT_FOOTER_CONFIG } from '@shared/types/footer.types';
+import { DEFAULT_FLOATING_WIDGET_ACTIONS } from '@shared/types/floating-widget.types';
 
 @Injectable()
 export class SettingsSeeder {
@@ -80,6 +81,14 @@ export class SettingsSeeder {
         group: 'storefront-ui',
         isPublic: true,
         description: 'Storefront footer configuration',
+      },
+      {
+        key: 'storefront.float_icons',
+        value: JSON.stringify(DEFAULT_FLOATING_WIDGET_ACTIONS),
+        type: 'json' as const,
+        group: 'storefront-ui',
+        isPublic: true,
+        description: 'Storefront floating quick actions',
       },
       {
         key: 'admin.theme',

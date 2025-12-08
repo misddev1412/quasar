@@ -1,5 +1,6 @@
 import { createTRPCProxyClient, httpLink } from '@trpc/client';
 import type { AppRouter } from '../../../backend/src/types/app-router';
+import { apiBaseUrl } from '../utils/apiBase';
 import type { SEOData, ApiResponse } from '../types/trpc';
 
 /**
@@ -10,7 +11,7 @@ export function createServerTRPCClient() {
   return createTRPCProxyClient<AppRouter>({
     links: [
       httpLink({
-        url: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/trpc`,
+        url: `${apiBaseUrl}/trpc`,
         headers: {
           'X-Client-Type': 'frontend',
         },

@@ -232,7 +232,7 @@ export const LoyaltyTierBanner = () => {
                       tier: balance.nextTier,
                       points: formatPoints(balance.pointsToNextTier),
                     })
-                  : t('banner.tooltip_top_tier')}
+                  : t('banner.tooltip_top_tier')
               }
               placement="top"
               delay={250}

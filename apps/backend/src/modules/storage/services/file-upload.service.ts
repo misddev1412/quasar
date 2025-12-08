@@ -1,6 +1,7 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { StorageService } from './storage.service';
-import { UploadResult, FileUploadOptions } from '../interfaces/storage.interface';
+import { UploadResult, FileUploadOptions, S3StorageConfig } from '../interfaces/storage.interface';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as crypto from 'crypto';
@@ -101,52 +102,87 @@ export class FileUploadService {
     folder: string,
     config: any
   ): Promise<UploadResult> {
-    // Note: This is a placeholder for S3 upload implementation
-    // You would need to install AWS SDK and implement actual S3 upload
-    // For now, we'll throw an error to indicate it's not implemented
-    throw new BadRequestException('S3 upload not yet implemented. Please install AWS SDK and implement S3 upload logic.');
+    const s3Config = config as S3StorageConfig;
 
-    /*
-    // Example S3 implementation (requires AWS SDK):
-    const AWS = require('aws-sdk');
-    
-    const s3 = new AWS.S3({
-      accessKeyId: config.accessKey,
-      secretAccessKey: config.secretKey,
-      region: config.region,
-      endpoint: config.endpoint,
-      s3ForcePathStyle: config.forcePathStyle,
+    if (!s3Config.accessKey || !s3Config.secretKey || !s3Config.bucket) {
+      throw new BadRequestException('S3 is selected but credentials or bucket are missing in configuration');
+    }
+
+    const s3Client = new S3Client({
+      region: s3Config.region,
+      credentials: {
+        accessKeyId: s3Config.accessKey,
+        secretAccessKey: s3Config.secretKey,
+      },
+      endpoint: s3Config.endpoint || undefined,
+      forcePathStyle: s3Config.forcePathStyle || false,
     });
 
     const key = `${folder}/${filename}`;
-    
-    const uploadParams = {
-      Bucket: config.bucket,
-      Key: key,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-      ACL: 'public-read', // or whatever ACL you need
-    };
 
-    const result = await s3.upload(uploadParams).promise();
+    try {
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket: s3Config.bucket,
+          Key: key,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+          ACL: 'public-read',
+        })
+      );
 
-    return {
-      url: result.Location,
-      filename,
-      originalName: file.originalname,
-      size: file.size,
-      mimeType: file.mimetype,
-      provider: 's3',
-    };
-    */
+      const endpoint = s3Config.endpoint ? s3Config.endpoint.replace(/\/$/, '') : '';
+      const url = endpoint
+        ? `${endpoint}/${s3Config.bucket}/${key}`
+        : `https://${s3Config.bucket}.s3.${s3Config.region}.amazonaws.com/${key}`;
+
+      return {
+        url,
+        filename,
+        originalName: file.originalname,
+        size: file.size,
+        mimeType: file.mimetype,
+        provider: 's3',
+      };
+    } catch (error: any) {
+      this.logger.error('Failed to upload file to S3', error);
+      throw new BadRequestException(error?.message || 'S3 upload failed');
+    }
   }
 
   async deleteFile(url: string): Promise<void> {
     const config = await this.storageService.getStorageConfig();
 
     if (config.provider === 's3') {
-      // Implement S3 deletion
-      throw new BadRequestException('S3 file deletion not yet implemented');
+      const s3Config = config as S3StorageConfig;
+      const key = this.extractKeyFromUrl(url, s3Config.bucket);
+
+      if (!key) {
+        throw new BadRequestException('Unable to determine S3 object key from URL');
+      }
+
+      const s3Client = new S3Client({
+        region: s3Config.region,
+        credentials: {
+          accessKeyId: s3Config.accessKey,
+          secretAccessKey: s3Config.secretKey,
+        },
+        endpoint: s3Config.endpoint || undefined,
+        forcePathStyle: s3Config.forcePathStyle || false,
+      });
+
+      try {
+        await s3Client.send(
+          new DeleteObjectCommand({
+            Bucket: s3Config.bucket,
+            Key: key,
+          })
+        );
+        this.logger.log(`Deleted S3 object: ${key}`);
+      } catch (error: any) {
+        this.logger.error(`Failed to delete S3 object: ${key}`, error);
+        throw new BadRequestException(error?.message || 'Failed to delete S3 file');
+      }
     } else {
       // Local file deletion
       try {
@@ -160,6 +196,22 @@ export class FileUploadService {
       } catch (error) {
         this.logger.error(`Failed to delete file: ${url}`, error);
       }
+    }
+  }
+
+  private extractKeyFromUrl(url: string, bucket: string): string | null {
+    try {
+      const parsed = new URL(url);
+      let key = parsed.pathname.startsWith('/') ? parsed.pathname.slice(1) : parsed.pathname;
+
+      if (key.startsWith(`${bucket}/`)) {
+        key = key.slice(bucket.length + 1);
+      }
+
+      return key || null;
+    } catch (error) {
+      this.logger.error('Failed to parse S3 URL', error);
+      return null;
     }
   }
 }

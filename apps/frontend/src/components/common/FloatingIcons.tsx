@@ -18,8 +18,30 @@ const DEFAULT_ICON_BY_TYPE: Record<string, string> = {
   custom: 'star',
 };
 
+const emptyMetadata = (): NonNullable<FloatingWidgetActionConfig['metadata']> => ({
+  phoneNumber: undefined,
+  email: undefined,
+  messengerLink: undefined,
+  zaloPhone: undefined,
+  customUrl: undefined,
+  note: undefined,
+});
+
+const normalizeFloatingIcons = (items: FloatingWidgetActionConfigList): FloatingWidgetActionConfigList =>
+  items
+    .map((item) => ({
+      ...item,
+      icon: item.icon || DEFAULT_ICON_BY_TYPE[item.type] || 'star',
+      metadata: { ...emptyMetadata(), ...(item.metadata || {}) },
+    }))
+    .filter((item) => item.isActive)
+    .sort((a, b) => a.order - b.order)
+    .map((item, index) => ({
+      ...item,
+      order: index,
+    }));
+
 const FloatingIcons: React.FC = () => {
-  const [isVisible, setIsVisible] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   const { data: settingsResponse, isLoading, error } = trpc.settings.getPublicSetting.useQuery({
@@ -28,20 +50,19 @@ const FloatingIcons: React.FC = () => {
 
   // Parse and validate floating icons data
   const floatingIcons: FloatingWidgetActionConfigList = React.useMemo(() => {
-    if (!settingsResponse?.data?.value) {
+    const rawValue = settingsResponse?.data?.value;
+    if (!rawValue) {
       return [];
     }
 
     try {
-      const parsed = JSON.parse(settingsResponse.data.value);
+      const parsed = JSON.parse(rawValue);
       const validated = floatingWidgetActionListSchema.safeParse(parsed);
       if (validated.success) {
-        return validated.data
-          .filter(item => item.isActive)
-          .sort((a, b) => a.order - b.order);
+        return normalizeFloatingIcons(validated.data);
       }
-    } catch (error) {
-      console.error('Failed to parse floating icons setting:', error);
+    } catch (parseError) {
+      console.error('Failed to parse floating icons setting:', parseError);
     }
 
     return [];

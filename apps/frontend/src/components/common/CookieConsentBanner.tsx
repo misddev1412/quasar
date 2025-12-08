@@ -14,7 +14,7 @@ export function CookieConsentBanner() {
     <div className="fixed inset-x-4 bottom-6 z-50 flex justify-center sm:bottom-10">
       <div className="max-w-2xl rounded-2xl border border-gray-200 bg-white/95 px-6 py-4 text-sm shadow-xl backdrop-blur dark:border-gray-800 dark:bg-gray-900/95">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-gray-700 dark:text-gray-300">
+          <p className="text-gray-700 dark:text-gray-300 mb-0">
             Cookie giúp Quasar nâng cao trải nghiệm.{' '}
             <Link href="/cookies" className="font-semibold text-blue-600 hover:underline dark:text-blue-400">
               Tìm hiểu thêm
