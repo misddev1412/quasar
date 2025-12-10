@@ -91,6 +91,14 @@ export class SettingsSeeder {
         description: 'Storefront floating quick actions',
       },
       {
+        key: 'storefront.checkout_default_country_id',
+        value: '239',
+        type: 'string' as const,
+        group: 'storefront',
+        isPublic: true,
+        description: 'Default country (ID or ISO code) preselected on storefront checkout',
+      },
+      {
         key: 'admin.theme',
         value: 'light',
         type: 'string' as const,
@@ -121,6 +129,14 @@ export class SettingsSeeder {
         group: 'general',
         isPublic: true,
         description: 'Default country for phone input fields',
+      },
+      {
+        key: 'orders.order_number_format',
+        value: 'ORD{{YY}}{{MM}}{{DD}}{{SEQ4}}',
+        type: 'string' as const,
+        group: 'orders',
+        isPublic: false,
+        description: 'Order number format using tokens like {{YYYY}}, {{YY}}, {{MM}}, {{DD}}, {{SEQ4}}, {{RAND4}}',
       },
       // File Storage Configuration
       {

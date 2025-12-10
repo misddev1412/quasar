@@ -14,6 +14,7 @@ import { useTranslations } from 'next-intl';
 import { trpc, trpcClient } from '../../utils/trpc';
 import { useAuth } from '../../contexts/AuthContext';
 import PageBreadcrumbs from '../../components/common/PageBreadcrumbs';
+import { useSettings } from '../../hooks/useSettings';
 import type { Product, ProductVariant } from '../../types/product';
 
 const currencySymbolMap: Record<string, string> = {
@@ -50,8 +51,13 @@ const CheckoutPageClient = () => {
   const { showToast } = useToast();
   const { items, summary, validation, clearCart } = useCart();
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const { getSetting } = useSettings();
   const { mutateAsync: placeOrder, isPending: isSubmitting } = trpc.clientOrders.create.useMutation();
   const [isPreparingOrder, setIsPreparingOrder] = useState(false);
+  const defaultCheckoutCountryId = useMemo(
+    () => (getSetting('storefront.checkout_default_country_id', '') || '').trim(),
+    [getSetting]
+  );
 
   const addressesQuery = trpc.clientAddressBook.getAddresses.useQuery(undefined, {
     staleTime: 5 * 60 * 1000,
@@ -412,6 +418,7 @@ const CheckoutPageClient = () => {
           authLoading={authLoading}
           userEmail={user?.email}
           userName={user?.name}
+          defaultCountryId={defaultCheckoutCountryId}
         />
           )}
         </div>

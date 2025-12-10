@@ -289,6 +289,31 @@ export class MenusSeeder implements SeederModule {
               },
             ],
           },
+          {
+            menu: {
+              menuGroup: 'main',
+              type: MenuType.LINK,
+              url: '/order-tracking',
+              target: MenuTarget.SELF,
+              position: 1,
+              isEnabled: true,
+              icon: 'package-search',
+              config: {},
+              isMegaMenu: false,
+            },
+            translations: [
+              {
+                locale: 'en',
+                label: 'Track Order',
+                description: 'Check your order status',
+              },
+              {
+                locale: 'vi',
+                label: 'Tra cứu đơn hàng',
+                description: 'Kiểm tra trạng thái đơn hàng',
+              },
+            ],
+          },
         ],
       },
       // Footer menu
@@ -421,6 +446,29 @@ export class MenusSeeder implements SeederModule {
           {
             locale: 'vi',
             label: 'Điều khoản dịch vụ',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'footer',
+          type: MenuType.LINK,
+          url: '/order-tracking',
+          target: MenuTarget.SELF,
+          position: 6,
+          isEnabled: true,
+          icon: 'package-search',
+          config: {},
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Track Order',
+          },
+          {
+            locale: 'vi',
+            label: 'Tra cứu đơn hàng',
           },
         ],
       },
@@ -644,7 +692,7 @@ export class MenusSeeder implements SeederModule {
         menu: {
           menuGroup: 'top',
           type: MenuType.LINK,
-          url: '/track-order',
+          url: '/order-tracking',
           target: MenuTarget.SELF,
           position: 3,
           isEnabled: true,
@@ -664,7 +712,7 @@ export class MenusSeeder implements SeederModule {
           },
           {
             locale: 'vi',
-            label: 'Theo dõi đơn hàng',
+            label: 'Tra cứu đơn hàng',
             description: 'Kiểm tra tình trạng giao hàng',
           },
         ],

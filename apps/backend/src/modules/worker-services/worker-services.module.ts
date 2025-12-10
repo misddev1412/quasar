@@ -30,7 +30,8 @@ import { NotificationService } from '../notifications/services/notification.serv
 import { NotificationPreferenceService } from '../notifications/services/notification-preference.service';
 import { NotificationChannelConfigService } from '../notifications/services/notification-channel-config.service';
 import { FirebaseMessagingService } from '../notifications/services/firebase-messaging.service';
-import { FirebaseService } from '../firebase/services/firebase.service';
+import { FirebaseAuthService } from '../firebase/services/firebase-auth.service';
+import { FirebaseConfigService } from '../firebase/services/firebase-config.service';
 import { FirebaseConfigRepository } from '../firebase/repositories/firebase-config.repository';
 import { ResponseService } from '../shared/services/response.service';
 
@@ -74,7 +75,8 @@ import { WorkerReportService } from './services/worker-report.service';
     MailProviderService,
     MailTemplateService,
     MailLogService,
-    FirebaseService,
+    FirebaseConfigService,
+    FirebaseAuthService,
     FirebaseMessagingService,
     NotificationPreferenceService,
     NotificationChannelConfigService,

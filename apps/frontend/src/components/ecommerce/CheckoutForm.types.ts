@@ -115,4 +115,5 @@ export interface CheckoutFormProps {
   userName?: string;
   initialFormData?: Partial<CheckoutFormData>;
   onFormDataChange?: (data: CheckoutFormData) => void;
+  defaultCountryId?: string;
 }

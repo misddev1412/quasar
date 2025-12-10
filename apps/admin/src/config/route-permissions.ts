@@ -144,6 +144,7 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   '/menus/:group': { resource: 'menu', action: PermissionAction.READ, scope: PermissionScope.ANY },
   
   // Storefront Footer
+  '/storefront/checkout': { resource: 'storefront', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/storefront/footer': { resource: 'storefront', action: PermissionAction.READ, scope: PermissionScope.ANY },
   // Component Configs
   '/component-configs': { resource: 'component_config', action: PermissionAction.READ, scope: PermissionScope.ANY },
@@ -206,7 +207,6 @@ export function getRoutePermission(path: string): RoutePermission | null {
     scope: PermissionScope.ANY,
   };
 }
-
 
 
 

@@ -5574,6 +5574,125 @@ export const appRouter = router({
       }),
   }),
 
+  // Client Orders router (for storefront)
+  clientOrders: router({
+    lookup: procedure
+      .input(z.object({
+        orderNumber: z.string().min(1),
+        emailOrPhone: z.string().min(1),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    list: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(50).default(20),
+        status: z.enum(['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURNED', 'REFUNDED']).optional(),
+        paymentStatus: z.enum(['PENDING', 'PAID', 'PARTIALLY_PAID', 'FAILED', 'REFUNDED', 'CANCELLED']).optional(),
+        sortBy: z.enum(['orderDate', 'totalAmount', 'status']).default('orderDate'),
+        sortOrder: z.enum(['ASC', 'DESC']).default('DESC'),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+    detail: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    create: procedure
+      .input(z.object({
+        email: z.string().email(),
+        shippingAddress: z.object({
+          firstName: z.string().min(1),
+          lastName: z.string().min(1),
+          company: z.string().optional(),
+          address1: z.string().min(1),
+          address2: z.string().optional(),
+          city: z.string().min(1),
+          state: z.string().min(1),
+          postalCode: z.string().optional(),
+          country: z.string().min(1),
+          phone: z.string().optional(),
+        }),
+        billingAddress: z.object({
+          firstName: z.string().min(1),
+          lastName: z.string().min(1),
+          company: z.string().optional(),
+          address1: z.string().min(1),
+          address2: z.string().optional(),
+          city: z.string().min(1),
+          state: z.string().min(1),
+          postalCode: z.string().optional(),
+          country: z.string().min(1),
+          phone: z.string().optional(),
+        }).optional(),
+        shippingMethodId: z.string().optional(),
+        paymentMethod: z.object({
+          type: z.string().min(1),
+          cardholderName: z.string().optional(),
+          last4: z.string().optional(),
+          provider: z.string().optional(),
+          reference: z.string().optional(),
+        }),
+        orderNotes: z.string().optional(),
+        items: z.array(z.object({
+          productId: z.string(),
+          productVariantId: z.string().optional(),
+          quantity: z.number().min(1),
+          unitPrice: z.number().min(0).optional(),
+          discountAmount: z.number().min(0).optional(),
+          taxAmount: z.number().min(0).optional(),
+          productName: z.string().optional(),
+          productSku: z.string().optional(),
+          variantName: z.string().optional(),
+          variantSku: z.string().optional(),
+          productImage: z.string().optional(),
+          productAttributes: z.record(z.string()).optional(),
+        })).min(1),
+        totals: z.object({
+          subtotal: z.number().min(0),
+          taxAmount: z.number().min(0).optional(),
+          shippingCost: z.number().min(0).optional(),
+          discountAmount: z.number().min(0).optional(),
+          totalAmount: z.number().min(0).optional(),
+          currency: z.string().max(3).optional(),
+        }).optional(),
+        agreeToMarketing: z.boolean().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    recent: procedure
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+    active: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(50).default(20),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as any;
+      }),
+    cancelOrder: procedure
+      .input(z.object({
+        id: z.string(),
+        reason: z.string().min(1).max(500),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
   });
 
 // For nestjs-trpc, the actual router structure is generated at runtime

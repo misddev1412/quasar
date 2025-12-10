@@ -101,6 +101,7 @@ interface UseCheckoutFormParams {
   defaultEmail?: string;
   initialData?: Partial<CheckoutFormData>;
   onFormDataChange?: (data: CheckoutFormData) => void;
+  defaultCountryId?: string;
 }
 
 interface UseCheckoutFormResult {
@@ -153,6 +154,7 @@ export const useCheckoutForm = ({
   defaultEmail,
   initialData,
   onFormDataChange,
+  defaultCountryId,
 }: UseCheckoutFormParams): UseCheckoutFormResult => {
   const clampStep = useCallback((value: number) => {
     const numericValue = Number(value);
@@ -296,6 +298,34 @@ export const useCheckoutForm = ({
       })
       .filter((option): option is PhoneInputCountryOption => Boolean(option?.code));
   }, [countries]);
+
+  const normalizedDefaultCountryId = useMemo(
+    () => (defaultCountryId || '').trim(),
+    [defaultCountryId]
+  );
+
+  const resolveDefaultCountryId = useCallback(() => {
+    if (!normalizedDefaultCountryId) {
+      return null;
+    }
+
+    const directMatch = countryOptions.find(
+      (country) => country.id === normalizedDefaultCountryId
+    );
+    if (directMatch) {
+      return directMatch.id;
+    }
+
+    const normalizedCode = normalizedDefaultCountryId.toUpperCase();
+    const matchByCode = countries.find((country) =>
+      [country.code, country.iso2, country.iso3]
+        .filter(Boolean)
+        .map((value) => String(value).toUpperCase())
+        .includes(normalizedCode)
+    );
+
+    return matchByCode?.id ?? null;
+  }, [countries, countryOptions, normalizedDefaultCountryId]);
 
   const countriesById = useMemo(() => {
     const map = new Map<string, CheckoutCountry>();
@@ -605,10 +635,25 @@ export const useCheckoutForm = ({
   );
 
   useEffect(() => {
-    if (!formData.shippingAddress.country && countryOptions.length > 0) {
-      updateFormData('shippingAddress.country', countryOptions[0].id);
+    if (formData.shippingAddress.country) {
+      return;
     }
-  }, [countryOptions, formData.shippingAddress.country, updateFormData]);
+    if (countryOptions.length === 0) {
+      return;
+    }
+
+    const resolved = resolveDefaultCountryId();
+    const fallbackCountryId = resolved || countryOptions[0].id;
+
+    if (fallbackCountryId) {
+      updateFormData('shippingAddress.country', fallbackCountryId);
+    }
+  }, [
+    countryOptions,
+    formData.shippingAddress.country,
+    resolveDefaultCountryId,
+    updateFormData,
+  ]);
 
   useEffect(() => {
     if (savedAddresses.length === 0) {

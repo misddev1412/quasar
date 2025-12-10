@@ -304,6 +304,52 @@
     }
   },
   "pages": {
+    "order_tracking": {
+      "page_title": "Tra cứu đơn hàng",
+      "page_description": "Theo dõi trạng thái đơn hàng và thông tin vận chuyển",
+      "badge": "Tra cứu đơn hàng",
+      "title": "Tra cứu đơn hàng",
+      "subtitle": "Nhập mã đơn hàng và email để kiểm tra trạng thái đơn hàng",
+      "breadcrumb": "Tra cứu đơn hàng",
+      "form_title": "Tìm đơn hàng của bạn",
+      "form_description": "Nhập mã đơn hàng và email hoặc số điện thoại đã sử dụng khi đặt hàng",
+      "order_number_label": "Mã đơn hàng",
+      "order_number_placeholder": "VD: ORD-20241209-001",
+      "email_or_phone_label": "Email hoặc Số điện thoại",
+      "email_or_phone_placeholder": "Nhập email hoặc số điện thoại của bạn",
+      "searching": "Đang tìm kiếm...",
+      "search_button": "Tra cứu đơn hàng",
+      "not_found_title": "Không tìm thấy đơn hàng",
+      "not_found_description": "Chúng tôi không tìm thấy đơn hàng với mã và email này. Vui lòng kiểm tra lại thông tin và thử lại.",
+      "search_another": "Tìm đơn hàng khác",
+      "order_number_prefix": "Đơn hàng #",
+      "placed_on": "Đặt ngày",
+      "status_pending": "Đã đặt hàng",
+      "status_processing": "Đang xử lý",
+      "status_shipped": "Đang giao",
+      "status_delivered": "Đã giao",
+      "tracking_number": "Mã vận đơn",
+      "estimated_delivery": "Dự kiến giao hàng",
+      "order_items": "Sản phẩm đã đặt",
+      "quantity": "SL",
+      "order_summary": "Tóm tắt đơn hàng",
+      "subtotal": "Tạm tính",
+      "discount": "Giảm giá",
+      "shipping": "Phí vận chuyển",
+      "free_shipping": "Miễn phí",
+      "tax": "Thuế",
+      "total": "Tổng cộng",
+      "shipping_address": "Địa chỉ giao hàng",
+      "shipping_method": "Phương thức vận chuyển",
+      "shipments": "Kiện hàng",
+      "shipment": "Kiện hàng",
+      "tracking": "Mã vận đơn",
+      "carrier": "Đơn vị vận chuyển",
+      "shipped_at": "Ngày gửi",
+      "estimated": "Dự kiến giao",
+      "need_help": "Cần hỗ trợ về đơn hàng?",
+      "contact_support": "Liên hệ hỗ trợ"
+    },
     "profile": {
       "orders": {
         "title": "Đơn hàng của tôi",
@@ -1211,8 +1257,11 @@
         "actions": {
           "continueShopping": "Tiếp tục mua sắm",
           "viewOrders": "Xem đơn hàng của tôi",
-          "createAccount": "Đăng ký tài khoản để theo dõi đơn hàng"
+          "trackOrder": "Tra cứu đơn hàng",
+          "createAccount": "Đăng ký tài khoản"
         },
+        "trackOrderTip": "Mẹo:",
+        "trackOrderTipDescription": "Lưu lại mã đơn hàng và email để tra cứu trạng thái đơn hàng bất cứ lúc nào tại trang Tra cứu đơn hàng.",
         "helpText": "Cần hỗ trợ? Chỉ cần trả lời email xác nhận và đội ngũ của chúng tôi sẽ hỗ trợ bạn."
       },
       "form": {

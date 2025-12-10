@@ -135,11 +135,25 @@ const CheckoutSuccessPageClient: React.FC<CheckoutSuccessPageClientProps> = ({
                     {t('success.actions.viewOrders')}
                   </Button>
                 ) : (
-                  <Button variant="flat" onPress={() => router.push('/login')}>
-                    {t('success.actions.createAccount')}
-                  </Button>
+                  <>
+                    <Button variant="flat" onPress={() => router.push('/order-tracking')}>
+                      {t('success.actions.trackOrder')}
+                    </Button>
+                    <Button variant="bordered" onPress={() => router.push('/login')}>
+                      {t('success.actions.createAccount')}
+                    </Button>
+                  </>
                 )}
               </div>
+
+              {!isAuthenticated && (
+                <div className="mt-6 p-4 bg-indigo-50 rounded-xl text-left">
+                  <p className="text-sm text-indigo-800">
+                    <span className="font-medium">{t('success.trackOrderTip')}</span>{' '}
+                    {t('success.trackOrderTipDescription')}
+                  </p>
+                </div>
+              )}
 
               <p className="mt-6 text-xs text-gray-500">
                 {t('success.helpText')}

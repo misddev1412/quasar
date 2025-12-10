@@ -365,6 +365,46 @@ export class ClientOrderService {
     return order;
   }
 
+  /**
+   * Lookup order by order number and email or phone (for guest order tracking)
+   * This allows customers to track their orders without logging in
+   * @param orderNumber - The order number to search for
+   * @param emailOrPhone - Either email address or phone number used during checkout
+   */
+  async lookupOrderByNumberAndContact(orderNumber: string, emailOrPhone: string): Promise<Order | null> {
+    const sanitizedContact = emailOrPhone?.trim().toLowerCase();
+    const sanitizedOrderNumber = orderNumber?.trim().toUpperCase();
+
+    if (!sanitizedContact || !sanitizedOrderNumber) {
+      return null;
+    }
+
+    // Check if the contact looks like an email or phone
+    const isEmail = sanitizedContact.includes('@');
+    
+    // Build query based on contact type
+    const queryBuilder = this.orderOrmRepository.createQueryBuilder('order')
+      .leftJoinAndSelect('order.items', 'items')
+      .leftJoinAndSelect('items.product', 'product')
+      .leftJoinAndSelect('order.fulfillments', 'fulfillments')
+      .where('order.orderNumber = :orderNumber', { orderNumber: sanitizedOrderNumber });
+
+    if (isEmail) {
+      queryBuilder.andWhere('LOWER(order.customerEmail) = :contact', { contact: sanitizedContact });
+    } else {
+      // For phone, remove common formatting characters and search
+      const cleanPhone = sanitizedContact.replace(/[\s\-\(\)\+\.]/g, '');
+      queryBuilder.andWhere(
+        `REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(order.customerPhone, ' ', ''), '-', ''), '(', ''), ')', ''), '+', '') LIKE :phone`,
+        { phone: `%${cleanPhone}%` }
+      );
+    }
+
+    const order = await queryBuilder.getOne();
+
+    return order;
+  }
+
   async cancelOrder(orderId: string, userId: string, reason: string): Promise<void> {
     // Find customer associated with the user
     const customer = await this.customerOrmRepository.findOne({

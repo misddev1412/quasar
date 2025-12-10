@@ -448,6 +448,7 @@ const appRouter = t.router({
     list: t.procedure.input(z.any()).query(() => null),
   }),
   clientOrders: t.router({
+    lookup: t.procedure.input(z.any()).query(() => null),
     list: t.procedure.input(z.any()).query(() => null),
     detail: t.procedure.input(z.any()).query(() => null),
     create: t.procedure.input(z.any()).mutation(() => null),

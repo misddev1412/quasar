@@ -9,6 +9,7 @@ import NotFound from '../pages/NotFound';
 import Unauthorized from '../pages/Unauthorized';
 import SeoPage from '../pages/seo';
 import SettingsPage from '../pages/settings';
+import OrderSettingsPage from '../pages/settings/orders';
 import SettingsVisibilityPage from '../pages/settings/visibility';
 import FloatingIconsSettingsPage from '../pages/settings/floating-icons';
 import BrandAssetsPage from '../pages/brand-assets';
@@ -83,6 +84,7 @@ import SectionsPage from '../pages/sections';
 import MenusPage from '../pages/menus';
 import HelpPage from '../pages/help';
 import StorefrontFooterPage from '../pages/storefront/footer';
+import StorefrontCheckoutSettingsPage from '../pages/storefront/checkout';
 import ComponentConfigsPage from '../pages/component-configs';
 // Order Management
 import OrdersIndexPage from '../pages/orders';
@@ -158,6 +160,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/brand-assets" element={<ProtectedRoute><BrandAssetsPage /></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><AnalyticsConfigurationPage /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+      <Route path="/settings/orders" element={<ProtectedRoute><OrderSettingsPage /></ProtectedRoute>} />
       <Route path="/settings/floating-icons" element={<ProtectedRoute><FloatingIconsSettingsPage /></ProtectedRoute>} />
       <Route path="/settings/visibility" element={<ProtectedRoute><SettingsVisibilityPage /></ProtectedRoute>} />
       <Route path="/storage" element={<ProtectedRoute><StorageConfigPage /></ProtectedRoute>} />
@@ -242,6 +245,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/menus" element={<Navigate to="/menus/main" replace />} />
       <Route path="/menus/:group" element={<ProtectedRoute><MenusPage /></ProtectedRoute>} />
       <Route path="/component-configs" element={<ProtectedRoute><ComponentConfigsPage /></ProtectedRoute>} />
+      <Route path="/storefront/checkout" element={<ProtectedRoute><StorefrontCheckoutSettingsPage /></ProtectedRoute>} />
       <Route path="/storefront/footer" element={<ProtectedRoute><StorefrontFooterPage /></ProtectedRoute>} />
       <Route path="/products/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
       <Route path="/products/categories/create" element={<ProtectedRoute><CategoryCreatePage /></ProtectedRoute>} />

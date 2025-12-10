@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiUser, FiEdit2, FiMail, FiPhone, FiMapPin, FiCalendar, FiAward, FiCreditCard, FiPackage, FiTag, FiFileText, FiArrowLeft, FiHome, FiPlus } from 'react-icons/fi';
+import { FiUser, FiEdit2, FiMail, FiPhone, FiMapPin, FiCalendar, FiAward, FiCreditCard, FiPackage, FiTag, FiFileText, FiArrowLeft, FiHome, FiPlus, FiCopy } from 'react-icons/fi';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
@@ -9,10 +9,12 @@ import { Card } from '../../components/common/Card';
 import { AddressBookModal } from '../../components/customers/AddressBookModal';
 import { AddressBookList } from '../../components/customers/AddressBookList';
 import { AddressBook } from '../../types/address-book';
+import { useToast } from '../../context/ToastContext';
 
 const CustomerDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslationWithBackend();
+  const { addToast } = useToast();
   const { id } = useParams<{ id: string }>();
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<AddressBook | undefined>(undefined);
@@ -138,6 +140,67 @@ const CustomerDetailPage: React.FC = () => {
     return customer.totalSpent >= 1000 || customer.totalOrders >= 10;
   };
 
+  const fallbackCopy = (value: string) => {
+    const textarea = document.createElement('textarea');
+    textarea.value = value;
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    const success = document.execCommand('copy');
+    document.body.removeChild(textarea);
+    return success;
+  };
+
+  const handleCopy = async (value?: string | null, label?: string) => {
+    if (!value) {
+      return;
+    }
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value);
+      } else {
+        const ok = fallbackCopy(value);
+        if (!ok) {
+          throw new Error('fallback failed');
+        }
+      }
+      addToast({
+        title: label ? t('admin.copied_field', { field: label }) : t('admin.copied_to_clipboard'),
+        type: 'success',
+      });
+    } catch {
+      addToast({
+        title: t('admin.copy_failed'),
+        type: 'error',
+      });
+    }
+  };
+
+  const renderCopyButton = (value?: string | null, label?: string) => {
+    if (!value) {
+      return null;
+    }
+
+    return (
+      <button
+        type="button"
+        onClick={() => handleCopy(value, label)}
+        className="ml-1 p-1 rounded-md text-gray-500 hover:text-primary-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-primary-300 dark:hover:bg-gray-800"
+        aria-label={label ? t('admin.copy_field', { field: label }) : t('admin.copy_to_clipboard')}
+      >
+        <FiCopy className="w-4 h-4" />
+      </button>
+    );
+  };
+
+  const customerTypeLabel = t(`admin.customer_type.${customer.type.toLowerCase()}`);
+  const customerStatusLabel = t(`admin.customer_status.${customer.status.toLowerCase()}`);
+  const formattedDateOfBirth = customer.dateOfBirth ? formatDate(customer.dateOfBirth) : '-';
+  const formattedCreatedAt = customer.createdAt ? formatDate(customer.createdAt) : '-';
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -215,52 +278,64 @@ const CustomerDetailPage: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     {t('admin.email')}
                   </label>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center flex-wrap gap-2">
                     <FiMail className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-900 dark:text-white">{customer.email}</span>
+                    <span className="text-gray-900 dark:text-white break-all">{customer.email}</span>
+                    {renderCopyButton(customer.email, t('admin.email'))}
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     {t('admin.phone')}
                   </label>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center flex-wrap gap-2">
                     <FiPhone className="w-4 h-4 text-gray-400" />
                     <span className="text-gray-900 dark:text-white">{customer.phone || '-'}</span>
+                    {renderCopyButton(customer.phone, t('admin.phone'))}
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     {t('admin.customer_type')}
                   </label>
-                  <span className="text-gray-900 dark:text-white">
-                    {t(`admin.customer_type.${customer.type.toLowerCase()}`)}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-900 dark:text-white">
+                      {customerTypeLabel}
+                    </span>
+                    {renderCopyButton(customerTypeLabel, t('admin.customer_type'))}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     {t('admin.status')}
                   </label>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(customer.status)}`}>
-                    {t(`admin.customer_status.${customer.status.toLowerCase()}`)}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(customer.status)}`}>
+                      {customerStatusLabel}
+                    </span>
+                    {renderCopyButton(customerStatusLabel, t('admin.status'))}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     {t('admin.date_of_birth')}
                   </label>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
                     <FiCalendar className="w-4 h-4 text-gray-400" />
                     <span className="text-gray-900 dark:text-white">
-                      {customer.dateOfBirth ? formatDate(customer.dateOfBirth) : '-'}
+                      {formattedDateOfBirth}
                     </span>
+                    {customer.dateOfBirth && renderCopyButton(formattedDateOfBirth, t('admin.date_of_birth'))}
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     {t('admin.customer_since')}
                   </label>
-                  <span className="text-gray-900 dark:text-white">{formatDate(customer.createdAt)}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-900 dark:text-white">{formattedCreatedAt}</span>
+                    {customer.createdAt && renderCopyButton(formattedCreatedAt, t('admin.customer_since'))}
+                  </div>
                 </div>
               </div>
             </Card>

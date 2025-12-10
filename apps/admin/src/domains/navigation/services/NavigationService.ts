@@ -153,6 +153,11 @@ export class NavigationService implements INavigationService {
           },
           {
             icon: React.createElement(ViewQuiltIcon),
+            label: t('storefront.checkout.nav', 'Checkout storefront'),
+            path: '/storefront/checkout'
+          },
+          {
+            icon: React.createElement(ViewQuiltIcon),
             label: t('storefront.footer.nav', 'Footer Builder'),
             path: '/storefront/footer'
           },
@@ -393,6 +398,11 @@ export class NavigationService implements INavigationService {
                 path: '/settings'
               },
               {
+                icon: React.createElement(ShoppingCartIcon),
+                label: t('navigation.order_settings', 'Cài đặt đơn hàng'),
+                path: '/settings/orders'
+              },
+              {
                 icon: React.createElement(FlashOnIcon),
                 label: t('floating_icons.navigation', 'Biểu tượng nổi'),
                 path: '/settings/floating-icons'
@@ -519,7 +529,7 @@ export class NavigationService implements INavigationService {
              currentPath.startsWith('/notifications/event-flows/');
     }
 
-    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats'];
+    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/orders', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats'];
     if (exactMatchPaths.includes(path)) {
       return currentPath === path;
     }

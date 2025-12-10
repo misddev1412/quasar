@@ -307,6 +307,52 @@
     }
   },
   "pages": {
+    "order_tracking": {
+      "page_title": "Track Your Order",
+      "page_description": "Track your order status and shipping information",
+      "badge": "Order Tracking",
+      "title": "Track Your Order",
+      "subtitle": "Enter your order number and email to check your order status",
+      "breadcrumb": "Order Tracking",
+      "form_title": "Find Your Order",
+      "form_description": "Enter the order number and email or phone number used during checkout",
+      "order_number_label": "Order Number",
+      "order_number_placeholder": "e.g., ORD-20241209-001",
+      "email_or_phone_label": "Email or Phone Number",
+      "email_or_phone_placeholder": "Enter your email or phone number",
+      "searching": "Searching...",
+      "search_button": "Track Order",
+      "not_found_title": "Order Not Found",
+      "not_found_description": "We couldn't find an order with that number and email. Please check your information and try again.",
+      "search_another": "Search for another order",
+      "order_number_prefix": "Order #",
+      "placed_on": "Placed on",
+      "status_pending": "Order Placed",
+      "status_processing": "Processing",
+      "status_shipped": "Shipped",
+      "status_delivered": "Delivered",
+      "tracking_number": "Tracking Number",
+      "estimated_delivery": "Estimated Delivery",
+      "order_items": "Order Items",
+      "quantity": "Qty",
+      "order_summary": "Order Summary",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "shipping": "Shipping",
+      "free_shipping": "Free",
+      "tax": "Tax",
+      "total": "Total",
+      "shipping_address": "Shipping Address",
+      "shipping_method": "Shipping Method",
+      "shipments": "Shipments",
+      "shipment": "Shipment",
+      "tracking": "Tracking",
+      "carrier": "Carrier",
+      "shipped_at": "Shipped",
+      "estimated": "Est. Delivery",
+      "need_help": "Need help with your order?",
+      "contact_support": "Contact Support"
+    },
     "profile": {
       "orders": {
         "title": "My Orders",
@@ -1234,8 +1280,11 @@
         "actions": {
           "continueShopping": "Continue shopping",
           "viewOrders": "View my orders",
-          "createAccount": "Create an account to track orders"
+          "trackOrder": "Track your order",
+          "createAccount": "Create account"
         },
+        "trackOrderTip": "Tip:",
+        "trackOrderTipDescription": "Save your order number and email to track your order status anytime at our Order Tracking page.",
         "helpText": "Need help? Reply to the confirmation email and our team will assist you."
       },
       "form": {

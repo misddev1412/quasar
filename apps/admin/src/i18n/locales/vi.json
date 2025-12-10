@@ -592,6 +592,17 @@
     "create_category": "Tạo danh mục",
     "create_new_order": "Tạo Đơn Hàng Mới",
     "create_order_description": "Tạo đơn hàng mới với thông tin khách hàng, sản phẩm và chi tiết thanh toán",
+    "copy_to_clipboard": "Sao chép vào bộ nhớ tạm",
+    "copy_field": "Sao chép {field}",
+    "copied_to_clipboard": "Đã sao chép vào bộ nhớ tạm",
+    "copied_field": "Đã sao chép {field}",
+    "copy_failed": "Sao chép thất bại",
+    "email": "Email",
+    "last_order": "Đơn hàng gần nhất",
+    "average_order_value": "Giá trị đơn hàng trung bình",
+    "order_statistics": "Thống kê đơn hàng",
+    "total_orders": "Tổng số đơn hàng",
+    "customer_detail": "Chi tiết khách hàng",
     "customer_information": "Thông Tin Khách Hàng",
     "customer_name": "Tên Khách Hàng",
     "customer_email": "Email Khách Hàng",
@@ -861,7 +872,30 @@
     "quick_actions": "Thao tác nhanh",
     "back_to_top": "Về đầu trang",
     "firebase_configs": "Cấu hình Firebase",
-    "storage": "Cấu hình lưu trữ"
+    "storage": "Cấu hình lưu trữ",
+    "general_settings": "Cài đặt chung",
+    "order_settings": "Cài đặt đơn hàng",
+    "order_settings_description": "Quản lý định dạng mã đơn hàng và các cấu hình liên quan",
+    "order_number_format_label": "Định dạng mã đơn hàng",
+    "order_number_format_hint": "Dùng các token {{YYYY}}, {{YY}}, {{MM}}, {{DD}}, {{SEQn}} để tạo mã đơn tự động.",
+    "order_format_saved": "Đã cập nhật định dạng mã đơn hàng.",
+    "order_format_save_failed": "Không thể lưu định dạng mã đơn hàng.",
+    "pattern": "Mẫu định dạng",
+    "require_sequence": "Bắt buộc kèm {{SEQn}} để tránh trùng lặp",
+    "live_preview": "Xem trước",
+    "preview_note": "Minh họa với ngày hôm nay và số thứ tự 1.",
+    "available_tokens": "Token khả dụng",
+    "tokens": {
+      "year_full": "Năm 4 chữ số",
+      "year_short": "Năm 2 chữ số",
+      "month": "Tháng 2 chữ số",
+      "day": "Ngày 2 chữ số",
+      "sequence": "Số thứ tự, pad 4",
+      "random": "Chuỗi ngẫu nhiên, mặc định 4 ký tự"
+    },
+    "sequence_warning": "Khuyến nghị thêm {{SEQn}} để đảm bảo mã không trùng.",
+    "settings_visibility": "Hiển thị cài đặt",
+    "platform_settings": "Thiết lập hệ thống"
   },
   "validation": {
     "required": "Trường này là bắt buộc",
@@ -1009,7 +1043,8 @@
       "general": "Chung",
       "other": "Khác",
       "pagination": "Phân trang",
-      "appearance": "Giao diện"
+      "appearance": "Giao diện",
+      "orders": "Đơn hàng"
     },
     "placeholders": {
       "site_name_desc": "Tên trang web",
@@ -1026,6 +1061,7 @@
       "site.name": "Tên trang web",
       "site.favicon": "Favicon trang web",
       "site.logo": "Logo trang web",
+      "orders.order_number_format": "Định dạng mã đơn hàng",
       "maintenance_mode": "Chế độ bảo trì",
       "contact_email": "Email liên hệ",
       "default_pagination": "Phân trang mặc định"
@@ -1038,6 +1074,7 @@
       "site.name": "Tên của trang web",
       "site.favicon": "Đường dẫn đến favicon của trang web (tệp .ico)",
       "site.logo": "Đường dẫn đến hình ảnh logo của trang web",
+      "orders.order_number_format": "Mẫu định dạng để tạo mã đơn hàng. Dùng các token như {{YYYY}}, {{YY}}, {{MM}}, {{DD}} và {{SEQ4}} cho số thứ tự có thêm số 0 ở đầu.",
       "maintenance_mode": "Bật hoặc tắt chế độ bảo trì",
       "contact_email": "Email liên hệ cho quản trị viên",
       "default_pagination": "Số lượng mục mặc định trên mỗi trang để phân trang"

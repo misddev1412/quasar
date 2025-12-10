@@ -22,6 +22,11 @@ const getOrderByIdSchema = z.object({
   id: z.string(),
 });
 
+const lookupOrderSchema = z.object({
+  orderNumber: z.string().min(1),
+  emailOrPhone: z.string().min(1),
+});
+
 const checkoutAddressSchema = z.object({
   firstName: z.string().min(1),
   lastName: z.string().min(1),
@@ -131,6 +136,89 @@ export class ClientOrdersRouter {
         OperationCode.READ,
         ErrorLevelCode.NOT_FOUND,
         error.message || 'Failed to retrieve orders'
+      );
+    }
+  }
+
+  /**
+   * Public endpoint for guest order lookup
+   * Allows customers to track their orders using order number and email or phone
+   * No authentication required
+   */
+  @Query({
+    input: lookupOrderSchema,
+    output: apiResponseSchema,
+  })
+  async lookup(
+    @Input() input: z.infer<typeof lookupOrderSchema>
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const order = await this.orderService.lookupOrderByNumberAndContact(
+        input.orderNumber,
+        input.emailOrPhone
+      );
+
+      if (!order) {
+        throw this.responseHandler.createTRPCError(
+          ModuleCode.PRODUCT,
+          OperationCode.READ,
+          ErrorLevelCode.NOT_FOUND,
+          'Order not found. Please check your order number and email address.'
+        );
+      }
+
+      // Return sanitized order data for public view
+      const sanitizedOrder = {
+        id: order.id,
+        orderNumber: order.orderNumber,
+        status: order.status,
+        paymentStatus: order.paymentStatus,
+        orderDate: order.orderDate,
+        totalAmount: Number(order.totalAmount ?? 0),
+        subtotal: Number(order.subtotal ?? 0),
+        taxAmount: Number(order.taxAmount ?? 0),
+        shippingCost: Number(order.shippingCost ?? 0),
+        discountAmount: Number(order.discountAmount ?? 0),
+        currency: order.currency,
+        customerName: order.customerName,
+        customerEmail: order.customerEmail,
+        shippingAddress: order.shippingAddress,
+        shippingMethod: order.shippingMethod,
+        trackingNumber: order.trackingNumber,
+        shippedDate: order.shippedDate,
+        deliveredDate: order.deliveredDate,
+        estimatedDeliveryDate: order.estimatedDeliveryDate,
+        items: order.items?.map(item => ({
+          id: item.id,
+          productName: item.productName,
+          productImage: item.productImage,
+          variantName: item.variantName,
+          quantity: item.quantity,
+          unitPrice: Number(item.unitPrice ?? 0),
+          totalPrice: Number(item.totalPrice ?? 0),
+          productAttributes: item.productAttributes,
+        })) || [],
+        fulfillments: order.fulfillments?.map(fulfillment => ({
+          id: fulfillment.id,
+          status: fulfillment.status,
+          trackingNumber: fulfillment.trackingNumber,
+          carrier: fulfillment.shippingProvider?.name || fulfillment.shippingProvider?.code,
+          shippedAt: fulfillment.shippedDate,
+          deliveredAt: fulfillment.actualDeliveryDate,
+          estimatedDeliveryDate: fulfillment.estimatedDeliveryDate,
+        })) || [],
+      };
+
+      return this.responseHandler.createTrpcSuccess(sanitizedOrder);
+    } catch (error) {
+      if (error.statusCode) {
+        throw error;
+      }
+      throw this.responseHandler.createTRPCError(
+        ModuleCode.PRODUCT,
+        OperationCode.READ,
+        ErrorLevelCode.NOT_FOUND,
+        error.message || 'Failed to lookup order'
       );
     }
   }

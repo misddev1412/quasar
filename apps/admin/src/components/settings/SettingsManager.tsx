@@ -337,17 +337,23 @@ interface SettingsManagerProps {
   isModalOpen?: boolean;
   onOpenCreateModal?: () => void;
   onCloseModal?: () => void;
+  group?: string | null;
 }
 
 export const SettingsManager: React.FC<SettingsManagerProps> = ({
   isModalOpen = false,
   onOpenCreateModal,
-  onCloseModal
+  onCloseModal,
+  group = null
 }) => {
-  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(group);
   // 如果外部没有提供模态框控制，则使用内部状态
   const [internalModalOpen, setInternalModalOpen] = useState(false);
-  const { groupedSettings: rawGroupedSettings, isLoading, updateSetting } = useSettings();
+  const { groupedSettings: rawGroupedSettings, isLoading, updateSetting } = useSettings({ group: group || undefined });
+
+  React.useEffect(() => {
+    setSelectedGroup(group);
+  }, [group]);
 
   // Filter out settings that have dedicated management pages
   const excludedKeys = [

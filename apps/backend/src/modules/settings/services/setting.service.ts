@@ -141,6 +141,14 @@ export class SettingService {
   }
 
   /**
+   * Retrieve a setting value without throwing when missing
+   */
+  async getValueByKey(key: string): Promise<string | null> {
+    const setting = await this.settingRepository.findByKey(key);
+    return setting?.value ?? null;
+  }
+
+  /**
    * 通过组获取设置
    */
   async findByGroup(group: string): Promise<SettingEntity[]> {

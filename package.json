@@ -61,6 +61,7 @@
     "copy-webpack-plugin": "^13.0.1",
     "core-js": "^3.36.1",
     "node-polyfill-webpack-plugin": "^4.1.0",
+    "nodemon": "^3.1.11",
     "nx": "21.2.2",
     "postcss": "8.4.31",
     "prettier": "^2.6.2",
@@ -76,8 +77,6 @@
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
-    "@types/amqplib": "^0.10.5",
-    "amqplib": "^0.10.4",
     "@anthropic-ai/claude-code": "^1.0.96",
     "@aws-sdk/client-s3": "^3.879.0",
     "@aws-sdk/s3-request-presigner": "^3.879.0",
@@ -125,9 +124,11 @@
     "@trpc/next": "^11.4.3",
     "@trpc/react-query": "^11.4.3",
     "@trpc/server": "^11.4.3",
+    "@types/amqplib": "^0.10.5",
     "@types/bcrypt": "^5.0.2",
     "@types/qrcode": "^1.5.5",
     "@types/react-select": "^5.0.0",
+    "amqplib": "^0.10.4",
     "aws-sdk": "^2.1692.0",
     "axios": "^1.6.0",
     "bcrypt": "^6.0.0",

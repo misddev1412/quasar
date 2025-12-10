@@ -24,7 +24,7 @@ export interface QueuePublisherConfig {
 }
 
 export class QueuePublisher {
-  private connection: amqp.Connection | null = null;
+  private connection: amqp.ChannelModel | null = null;
   private channel: amqp.Channel | null = null;
   private config: QueuePublisherConfig;
 
@@ -43,8 +43,10 @@ export class QueuePublisher {
       connectionUrl += vhost;
     }
 
-    this.connection = await amqp.connect(connectionUrl);
-    this.channel = await this.connection.createChannel();
+    const connection = await amqp.connect(connectionUrl);
+
+    this.connection = connection;
+    this.channel = await connection.createChannel();
   }
 
   async disconnect(): Promise<void> {

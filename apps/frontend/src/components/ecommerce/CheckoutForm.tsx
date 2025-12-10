@@ -425,6 +425,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   authLoading = false,
   userEmail,
   userName,
+  defaultCountryId,
 }) => {
   const t = useTranslations('ecommerce.checkout');
   const stepLabels = useMemo<Record<(typeof CHECKOUT_STEP_KEYS)[number], string>>(
@@ -572,6 +573,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     defaultEmail: isAuthenticated && userEmail ? userEmail : undefined,
     initialData: persistedFormState,
     onFormDataChange: handlePersistedFormStateUpdate,
+    defaultCountryId,
   });
 
   const handleLoginRedirect = useCallback(() => {

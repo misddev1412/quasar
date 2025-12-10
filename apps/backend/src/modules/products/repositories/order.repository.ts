@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOptionsWhere, Between } from 'typeorm';
 import { Order, OrderStatus, PaymentStatus, OrderSource } from '../entities/order.entity';
 import { OrderItem } from '../entities/order-item.entity';
+import { SettingService } from '@backend/modules/settings/services/setting.service';
 
 export interface OrderFilters {
   search?: string;
@@ -40,6 +41,10 @@ export interface PaginatedOrders {
   totalPages: number;
 }
 
+const ORDER_NUMBER_FORMAT_KEY = 'orders.order_number_format';
+const DEFAULT_ORDER_NUMBER_FORMAT = 'ORD{{YY}}{{MM}}{{DD}}{{SEQ4}}';
+const RANDOM_TOKEN_REGEX = /{{RAND(\d*)}}/gi;
+
 @Injectable()
 export class OrderRepository {
   constructor(
@@ -47,6 +52,7 @@ export class OrderRepository {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
+    private readonly settingService: SettingService,
   ) {}
 
   async findAll(options: OrderQueryOptions = {}): Promise<PaginatedOrders> {
@@ -422,27 +428,113 @@ export class OrderRepository {
     return this.orderItemRepository.findOne(findOptions);
   }
 
+  private normalizeFormat(formatFromSetting?: string | null): string {
+    const trimmedFormat = formatFromSetting?.trim();
+    const format = trimmedFormat && trimmedFormat.length > 0 ? trimmedFormat : DEFAULT_ORDER_NUMBER_FORMAT;
+
+    return /{{SEQ(\d*)}}/i.test(format) ? format : `${format}{{SEQ4}}`;
+  }
+
+  private applyDateTokens(format: string, date: Date): string {
+    const yearFull = date.getFullYear().toString();
+    const yearShort = yearFull.slice(-2);
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+
+    return format
+      .replace(/{{YYYY}}/g, yearFull)
+      .replace(/{{YY}}/g, yearShort)
+      .replace(/{{MM}}/g, month)
+      .replace(/{{DD}}/g, day);
+  }
+
+  private generateRandomString(length: number): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  private applyRandomTokens(format: string): string {
+    return format.replace(RANDOM_TOKEN_REGEX, (_match, len) => {
+      const length = len ? parseInt(len, 10) || 4 : 4;
+      return this.generateRandomString(length);
+    });
+  }
+
+  private replaceRandomWithMask(format: string): string {
+    return format.replace(RANDOM_TOKEN_REGEX, (_match, len) => {
+      const length = len ? parseInt(len, 10) || 4 : 4;
+      return '_'.repeat(length);
+    });
+  }
+
+  private replaceRandomWithLengthPlaceholders(format: string, placeholderChar: string): string {
+    return format.replace(RANDOM_TOKEN_REGEX, (_match, len) => {
+      const length = len ? parseInt(len, 10) || 4 : 4;
+      return placeholderChar.repeat(length);
+    });
+  }
+
+  private extractSequenceLength(formatWithPlaceholder: string): number {
+    const match = /{{SEQ(\d*)}}/i.exec(formatWithPlaceholder);
+    const parsedLength = match && match[1] ? parseInt(match[1], 10) : 4;
+    return Number.isInteger(parsedLength) && parsedLength > 0 ? parsedLength : 4;
+  }
+
+  private async buildFormatParts(date: Date): Promise<{
+    formatWithDate: string;
+    sequenceLength: number;
+    sequenceStartIndex: number;
+    queryPattern: string;
+  }> {
+    const rawFormat = await this.settingService.getValueByKey(ORDER_NUMBER_FORMAT_KEY);
+    const normalizedFormat = this.normalizeFormat(rawFormat);
+    const formatWithDate = this.applyDateTokens(normalizedFormat, date);
+    const sequenceMatch = /{{SEQ(\d*)}}/i.exec(formatWithDate);
+    const placeholder = sequenceMatch?.[0] ?? '{{SEQ4}}';
+
+    const beforeSequence = sequenceMatch ? formatWithDate.slice(0, sequenceMatch.index) : formatWithDate;
+    const afterSequence = sequenceMatch ? formatWithDate.slice((sequenceMatch.index || 0) + placeholder.length) : '';
+    const sequenceLength = this.extractSequenceLength(placeholder);
+
+    const formatWithRandomMask = this.replaceRandomWithMask(formatWithDate);
+    const seqPlaceholderForIndex = 'S'.repeat(sequenceLength);
+    const expandedForIndex = this.replaceRandomWithLengthPlaceholders(
+      formatWithDate.replace(sequenceMatch?.[0] || '{{SEQ4}}', seqPlaceholderForIndex),
+      'R'
+    );
+    const sequenceStartIndex = Math.max(expandedForIndex.indexOf('S'), 0);
+
+    const queryPattern = formatWithRandomMask.replace(sequenceMatch?.[0] || '{{SEQ4}}', '_'.repeat(sequenceLength));
+
+    return { formatWithDate, sequenceLength, sequenceStartIndex, queryPattern };
+  }
+
   async generateOrderNumber(): Promise<string> {
     const today = new Date();
-    const year = today.getFullYear().toString().slice(-2);
-    const month = (today.getMonth() + 1).toString().padStart(2, '0');
-    const day = today.getDate().toString().padStart(2, '0');
+    const { formatWithDate, sequenceLength, sequenceStartIndex, queryPattern } = await this.buildFormatParts(today);
 
-    const prefix = `ORD${year}${month}${day}`;
-
-    // Find the highest order number for today
-    const lastOrder = await this.orderRepository
+    const candidates = await this.orderRepository
       .createQueryBuilder('order')
-      .where('order.orderNumber LIKE :prefix', { prefix: `${prefix}%` })
-      .orderBy('order.orderNumber', 'DESC')
-      .getOne();
+      .select(['order.orderNumber'])
+      .where('order.orderNumber LIKE :pattern', { pattern: queryPattern })
+      .getMany();
 
     let sequence = 1;
-    if (lastOrder && lastOrder.orderNumber) {
-      const lastSequence = parseInt(lastOrder.orderNumber.slice(-4));
-      sequence = lastSequence + 1;
+    for (const candidate of candidates) {
+      if (!candidate.orderNumber) continue;
+      const sequencePart = candidate.orderNumber.slice(sequenceStartIndex, sequenceStartIndex + sequenceLength);
+      const lastSequence = parseInt(sequencePart, 10);
+      if (!isNaN(lastSequence) && lastSequence >= sequence) {
+        sequence = lastSequence + 1;
+      }
     }
 
-    return `${prefix}${sequence.toString().padStart(4, '0')}`;
+    const paddedSequence = sequence.toString().padStart(sequenceLength, '0');
+    const withRandom = this.applyRandomTokens(formatWithDate);
+    return withRandom.replace(/{{SEQ(\d*)}}/i, paddedSequence);
   }
 }
