@@ -543,7 +543,6 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
         title={t('roles.role_management', 'Role Management')}
         description={t('roles.manage_roles_description', 'Manage user roles and permissions')}
         fullWidth={true}
-        breadcrumbs={breadcrumbs}
       >
         <Loading />
       </BaseLayout>

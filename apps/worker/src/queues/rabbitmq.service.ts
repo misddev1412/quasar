@@ -14,7 +14,7 @@ export interface QueueMessage<T = unknown> {
 @Injectable()
 export class RabbitMQService implements OnModuleDestroy {
   private readonly logger = new Logger(RabbitMQService.name);
-  private connection: amqp.Connection | null = null;
+  private connection: amqp.ChannelModel | null = null;
   private channel: amqp.Channel | null = null;
   private isConnected = false;
 
@@ -179,15 +179,15 @@ export class RabbitMQService implements OnModuleDestroy {
     return this.channel.consume(
       queueName,
       async (msg) => {
-        if (msg) {
-          try {
-            await callback(msg);
-            this.channel?.ack(msg);
-          } catch (error) {
-            this.logger.error(`Error processing message from ${queueName}`, error);
-            // Reject and requeue if processing fails
-            this.channel?.nack(msg, false, true);
-          }
+        if (!msg) {
+          return;
+        }
+
+        try {
+          await callback(msg);
+          this.channel?.ack(msg);
+        } catch (error) {
+          await this.handleProcessingError(queueName, msg, error);
         }
       },
       {
@@ -195,6 +195,60 @@ export class RabbitMQService implements OnModuleDestroy {
         ...options,
       }
     );
+  }
+
+  private getDefaultMaxRetries(): number {
+    return this.configService.get<number>('rabbitmq.maxRetries') ?? 5;
+  }
+
+  private getRetryDelayMs(): number {
+    return this.configService.get<number>('rabbitmq.retryDelayMs') ?? 0;
+  }
+
+  private async handleProcessingError(
+    queueName: string,
+    msg: amqp.ConsumeMessage,
+    error: unknown
+  ): Promise<void> {
+    this.logger.error(`Error processing message from ${queueName}`, error);
+
+    const message = this.parseMessage(msg);
+    const currentRetry = message.retryCount ?? 0;
+    const maxRetries = message.maxRetries ?? this.getDefaultMaxRetries();
+    const retryDelay = this.getRetryDelayMs();
+
+    if (currentRetry >= maxRetries) {
+      this.logger.error(
+        `Message ${message.id} exceeded max retries (${maxRetries}). Discarding.`
+      );
+      this.channel?.ack(msg);
+      return;
+    }
+
+    const updatedMessage: QueueMessage = {
+      ...message,
+      retryCount: currentRetry + 1,
+      maxRetries,
+      timestamp: new Date(),
+    };
+
+    try {
+      if (retryDelay > 0) {
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+      }
+
+      await this.publish(queueName, updatedMessage);
+      this.channel?.ack(msg);
+      this.logger.warn(
+        `Requeued message ${message.id} (${updatedMessage.retryCount}/${maxRetries}).`
+      );
+    } catch (publishError) {
+      this.logger.error(
+        `Failed to requeue message ${message.id}. Nacking original message for retry.`,
+        publishError
+      );
+      this.channel?.nack(msg, false, true);
+    }
   }
 
   ack(message: amqp.ConsumeMessage): void {

@@ -278,16 +278,22 @@ export class AdminUserController {
     @Param('format') format: string,
     @Query('filters') filters?: string,
   ) {
-    const exportData = await this.adminUserService.exportUsers(format, filters);
+    const exportJob = await this.adminUserService.exportUsers(format, filters, currentUser?.id);
 
     // Track export operation
     await this.activityTrackingService.trackDataExport(
       context,
-      'users',
-      exportData.recordCount
+      'users'
     );
 
-    return exportData;
+    return exportJob;
+  }
+
+  @Get('export/estimate')
+  async estimateExportUsers(
+    @Query('filters') filters?: string,
+  ) {
+    return this.adminUserService.estimateUserExport(filters);
   }
 
   /**

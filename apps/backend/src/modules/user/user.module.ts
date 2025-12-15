@@ -62,6 +62,7 @@ import { SharedModule } from '../shared/shared.module';
 import { AuthModule } from '../../auth/auth.module';
 import { FirebaseModule } from '../firebase/firebase.module';
 import { ProductsModule } from '../products/products.module';
+import { DataExportModule } from '../export/data-export.module';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { ProductsModule } from '../products/products.module';
     forwardRef(() => AuthModule),
     FirebaseModule,
     forwardRef(() => ProductsModule),
+    DataExportModule,
   ],
   controllers: [AdminUserController],
   providers: [

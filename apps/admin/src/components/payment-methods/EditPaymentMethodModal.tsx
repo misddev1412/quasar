@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiX, FiSave, FiCreditCard, FiDollarSign, FiSettings, FiGlobe, FiInfo } from 'react-icons/fi';
+import { FiX, FiSave, FiCreditCard, FiDollarSign, FiSettings, FiGlobe, FiInfo, FiShield, FiTrash2 } from 'react-icons/fi';
 import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
 import { FormInput } from '../common/FormInput';
@@ -34,6 +34,25 @@ interface EditPaymentMethodModalProps {
   onSuccess: () => void;
 }
 
+interface PaymentProviderFormState {
+  id?: string;
+  providerKey: string;
+  displayName: string;
+  providerType: string;
+  description: string;
+  environment: string;
+  apiKey: string;
+  apiSecret: string;
+  clientId: string;
+  clientSecret: string;
+  checksumKey: string;
+  publicKey: string;
+  webhookUrl: string;
+  webhookSecret: string;
+  callbackUrl: string;
+  isActive: boolean;
+}
+
 const PAYMENT_METHOD_TYPES = [
   { value: 'CREDIT_CARD', label: 'Credit Card' },
   { value: 'DEBIT_CARD', label: 'Debit Card' },
@@ -43,6 +62,7 @@ const PAYMENT_METHOD_TYPES = [
   { value: 'CHECK', label: 'Check' },
   { value: 'CRYPTOCURRENCY', label: 'Cryptocurrency' },
   { value: 'BUY_NOW_PAY_LATER', label: 'Buy Now Pay Later' },
+  { value: 'PAYOS', label: 'PayOS' },
   { value: 'OTHER', label: 'Other' },
 ];
 
@@ -54,6 +74,24 @@ const PROCESSING_FEE_TYPES = [
 const COMMON_CURRENCIES = [
   'USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'HKD', 'SGD'
 ];
+
+const buildDefaultProviderForm = (): PaymentProviderFormState => ({
+  providerKey: '',
+  displayName: '',
+  providerType: '',
+  description: '',
+  environment: 'production',
+  apiKey: '',
+  apiSecret: '',
+  clientId: '',
+  clientSecret: '',
+  checksumKey: '',
+  publicKey: '',
+  webhookUrl: '',
+  webhookSecret: '',
+  callbackUrl: '',
+  isActive: true,
+});
 
 export const EditPaymentMethodModal: React.FC<EditPaymentMethodModalProps> = ({
   isOpen,
@@ -80,6 +118,7 @@ export const EditPaymentMethodModal: React.FC<EditPaymentMethodModalProps> = ({
 
   const [supportedCurrencies, setSupportedCurrencies] = useState<string[]>([]);
   const [newCurrency, setNewCurrency] = useState('');
+  const [providerForm, setProviderForm] = useState<PaymentProviderFormState>(() => buildDefaultProviderForm());
 
   // Initialize form with payment method data
   useEffect(() => {
@@ -98,6 +137,7 @@ export const EditPaymentMethodModal: React.FC<EditPaymentMethodModalProps> = ({
         isDefault: paymentMethod.isDefault,
       });
       setSupportedCurrencies(paymentMethod.supportedCurrencies || []);
+      setProviderForm(buildDefaultProviderForm());
     }
   }, [paymentMethod]);
 
@@ -119,8 +159,86 @@ export const EditPaymentMethodModal: React.FC<EditPaymentMethodModalProps> = ({
     },
   });
 
+  const {
+    data: providerConfigData,
+    isFetching: providerConfigLoading,
+    refetch: refetchProviderConfig,
+  } = trpc.adminPaymentMethods.providerConfig.useQuery(
+    { paymentMethodId: paymentMethod?.id || '' },
+    {
+      enabled: isOpen && Boolean(paymentMethod?.id),
+    }
+  );
+
+  useEffect(() => {
+    const provider = (providerConfigData as any)?.data;
+    if (provider) {
+      setProviderForm({
+        id: provider.id,
+        providerKey: provider.providerKey || '',
+        displayName: provider.displayName || provider.providerKey || '',
+        providerType: provider.providerType || '',
+        description: provider.description || '',
+        environment: provider.environment || 'production',
+        apiKey: provider.apiKey || '',
+        apiSecret: provider.apiSecret || '',
+        clientId: provider.clientId || '',
+        clientSecret: provider.clientSecret || '',
+        checksumKey: provider.checksumKey || '',
+        publicKey: provider.publicKey || '',
+        webhookUrl: provider.webhookUrl || '',
+        webhookSecret: provider.webhookSecret || '',
+        callbackUrl: provider.callbackUrl || '',
+        isActive: provider.isActive ?? true,
+      });
+    } else {
+      setProviderForm(buildDefaultProviderForm());
+    }
+  }, [providerConfigData]);
+
+  const saveProviderConfigMutation = trpc.adminPaymentMethods.saveProviderConfig.useMutation({
+    onSuccess: () => {
+      addToast({
+        title: 'Success',
+        description: 'Payment provider configuration saved successfully',
+        type: 'success',
+      });
+      refetchProviderConfig();
+    },
+    onError: (error) => {
+      addToast({
+        title: 'Error',
+        description: error.message || 'Failed to update provider configuration',
+        type: 'error',
+      });
+    },
+  });
+
+  const deleteProviderConfigMutation = trpc.adminPaymentMethods.deleteProviderConfig.useMutation({
+    onSuccess: () => {
+      addToast({
+        title: 'Success',
+        description: 'Payment provider configuration deleted successfully',
+        type: 'success',
+      });
+      setProviderForm(buildDefaultProviderForm());
+      refetchProviderConfig();
+    },
+    onError: (error) => {
+      addToast({
+        title: 'Error',
+        description: error.message || 'Failed to delete provider configuration',
+        type: 'error',
+      });
+    },
+  });
+
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleProviderInputChange = (field: keyof PaymentProviderFormState, value: any) => {
+    setProviderForm(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -153,6 +271,21 @@ export const EditPaymentMethodModal: React.FC<EditPaymentMethodModalProps> = ({
   const addCommonCurrency = (currency: string) => {
     if (!supportedCurrencies.includes(currency)) {
       setSupportedCurrencies(prev => [...prev, currency]);
+    }
+  };
+
+  const handleSaveProviderConfig = () => {
+    if (!paymentMethod?.id) return;
+    saveProviderConfigMutation.mutate({
+      ...providerForm,
+      paymentMethodId: paymentMethod.id,
+    } as any);
+  };
+
+  const handleDeleteProviderConfig = () => {
+    if (!providerForm.id) return;
+    if (window.confirm('Are you sure you want to delete this provider configuration?')) {
+      deleteProviderConfigMutation.mutate({ id: providerForm.id });
     }
   };
 
@@ -251,6 +384,187 @@ export const EditPaymentMethodModal: React.FC<EditPaymentMethodModalProps> = ({
                 min="0"
               />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Provider Configuration */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center space-x-2">
+              <FiShield className="w-4 h-4" />
+              <h4 className="font-medium">{t('admin.payment_provider_configuration', 'Payment Provider Configuration')}</h4>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Configure gateway credentials (PayOS, Stripe, etc.) associated with this payment method.
+            </p>
+
+            {providerConfigLoading ? (
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                {t('loading', 'Loading...')}
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormInput
+                    id="provider-key"
+                    type="text"
+                    label="Provider Key"
+                    value={providerForm.providerKey}
+                    onChange={(e) => handleProviderInputChange('providerKey', e.target.value.toUpperCase())}
+                    placeholder={t('admin.provider_key_placeholder', 'PROVIDER_KEY')}
+                  />
+                  <FormInput
+                    id="provider-display-name"
+                    type="text"
+                    label="Display Name"
+                    value={providerForm.displayName}
+                    onChange={(e) => handleProviderInputChange('displayName', e.target.value)}
+                    placeholder={t('admin.provider_display_name_placeholder', 'Provider display name')}
+                  />
+                  <FormInput
+                    id="provider-type"
+                    type="text"
+                    label="Provider Type"
+                    value={providerForm.providerType}
+                    onChange={(e) => handleProviderInputChange('providerType', e.target.value)}
+                    placeholder={t('admin.provider_type_placeholder', 'PAYMENT_GATEWAY')}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Environment
+                    </label>
+                    <select
+                      value={providerForm.environment}
+                      onChange={(e) => handleProviderInputChange('environment', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                    >
+                      <option value="production">Production</option>
+                      <option value="sandbox">Sandbox</option>
+                      <option value="staging">Staging</option>
+                    </select>
+                  </div>
+
+                  <FormInput
+                    id="provider-webhook-url"
+                    type="text"
+                    label="Webhook URL"
+                    value={providerForm.webhookUrl}
+                    onChange={(e) => handleProviderInputChange('webhookUrl', e.target.value)}
+                    placeholder="https://your-domain.com/webhook"
+                  />
+                  <FormInput
+                    id="provider-callback-url"
+                    type="text"
+                    label="Callback URL"
+                    value={providerForm.callbackUrl}
+                    onChange={(e) => handleProviderInputChange('callbackUrl', e.target.value)}
+                    placeholder="https://your-domain.com/callback"
+                  />
+                </div>
+
+                <FormInput
+                  id="provider-description"
+                  type="textarea"
+                  label={t('admin.description')}
+                  value={providerForm.description}
+                  onChange={(e) => handleProviderInputChange('description', e.target.value)}
+                  placeholder="Describe how this provider is used"
+                  rows={3}
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormInput
+                    id="provider-client-id"
+                    type="text"
+                    label="Client ID"
+                    value={providerForm.clientId}
+                    onChange={(e) => handleProviderInputChange('clientId', e.target.value)}
+                  />
+                  <FormInput
+                    id="provider-client-secret"
+                    type="text"
+                    label="Client Secret"
+                    value={providerForm.clientSecret}
+                    onChange={(e) => handleProviderInputChange('clientSecret', e.target.value)}
+                  />
+                  <FormInput
+                    id="provider-api-key"
+                    type="text"
+                    label="API Key"
+                    value={providerForm.apiKey}
+                    onChange={(e) => handleProviderInputChange('apiKey', e.target.value)}
+                  />
+                  <FormInput
+                    id="provider-api-secret"
+                    type="text"
+                    label="API Secret"
+                    value={providerForm.apiSecret}
+                    onChange={(e) => handleProviderInputChange('apiSecret', e.target.value)}
+                  />
+                  <FormInput
+                    id="provider-checksum-key"
+                    type="text"
+                    label="Checksum Key"
+                    value={providerForm.checksumKey}
+                    onChange={(e) => handleProviderInputChange('checksumKey', e.target.value)}
+                    placeholder="Secret checksum/signature key"
+                  />
+                  <FormInput
+                    id="provider-public-key"
+                    type="text"
+                    label="Public Key"
+                    value={providerForm.publicKey}
+                    onChange={(e) => handleProviderInputChange('publicKey', e.target.value)}
+                  />
+                  <FormInput
+                    id="provider-webhook-secret"
+                    type="text"
+                    label="Webhook Secret"
+                    value={providerForm.webhookSecret}
+                    onChange={(e) => handleProviderInputChange('webhookSecret', e.target.value)}
+                  />
+                </div>
+
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    checked={providerForm.isActive}
+                    onCheckedChange={(checked) => handleProviderInputChange('isActive', Boolean(checked))}
+                    id="provider-active"
+                  />
+                  <label htmlFor="provider-active" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('admin.active')}
+                  </label>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    type="button"
+                    onClick={handleSaveProviderConfig}
+                    isLoading={saveProviderConfigMutation.isPending}
+                    disabled={!providerForm.providerKey || !providerForm.displayName}
+                  >
+                    <FiSave className="w-4 h-4 mr-2" />
+                    {providerForm.id ? t('admin.save_changes') : t('admin.save_configuration', 'Save Configuration')}
+                  </Button>
+                  {providerForm.id && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleDeleteProviderConfig}
+                      isLoading={deleteProviderConfigMutation.isPending}
+                    >
+                      <FiTrash2 className="w-4 h-4 mr-2" />
+                      {t('admin.delete_configuration', 'Delete Configuration')}
+                    </Button>
+                  )}
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 

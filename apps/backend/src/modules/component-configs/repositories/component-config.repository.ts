@@ -22,6 +22,19 @@ export class ComponentConfigRepository extends BaseRepository<ComponentConfigEnt
     });
   }
 
+  async findEnabledByKeys(componentKeys: string[]): Promise<ComponentConfigEntity[]> {
+    if (!Array.isArray(componentKeys) || componentKeys.length === 0) {
+      return [];
+    }
+
+    return this.repository
+      .createQueryBuilder('component')
+      .where('component.componentKey IN (:...componentKeys)', { componentKeys })
+      .andWhere('component.isEnabled = :isEnabled', { isEnabled: true })
+      .andWhere('component.deletedAt IS NULL')
+      .getMany();
+  }
+
   async findChildren(parentId: string, onlyEnabled = true): Promise<ComponentConfigEntity[]> {
     const qb = this.repository
       .createQueryBuilder('component')

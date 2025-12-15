@@ -94,6 +94,7 @@ export const QUEUE_NAMES = {
   NOTIFICATION: 'notification_queue',
   ORDER: 'order_queue',
   REPORT: 'report_queue',
+  EXPORT: 'export_queue',
 } as const;
 
 // Message types
@@ -121,4 +122,7 @@ export const MESSAGE_TYPES = {
   REPORT_INVENTORY: 'report:inventory',
   REPORT_USERS: 'report:users',
   REPORT_ANALYTICS: 'report:analytics',
+
+  // Export types
+  EXPORT_GENERATE: 'export:generate',
 } as const;

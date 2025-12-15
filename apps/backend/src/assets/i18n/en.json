@@ -156,6 +156,11 @@
       "empty": "No products are available in this category yet.",
       "carousel_prev": "Scroll left",
       "carousel_next": "Scroll right",
+      "sidebar_label": "Mega menu",
+      "sidebar_default_title": "Shop by collection",
+      "sidebar_default_description": "Quickly jump between featured categories and curated collections.",
+      "sidebar_section_title": "Menu group",
+      "sidebar_link_aria": "Go to {{label}}",
       "strategies": {
         "latest": "Latest products",
         "featured": "Featured picks",

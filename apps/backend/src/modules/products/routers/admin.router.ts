@@ -11,6 +11,7 @@ import { AuthenticatedContext } from '../../../trpc/context';
 import { ProductStatus } from '../entities/product.entity';
 
 export const productStatusSchema = z.nativeEnum(ProductStatus);
+const exportFormatSchema = z.enum(['csv', 'json']);
 
 export const getProductsQuerySchema = z.object({
   page: z.number().min(1).default(1),
@@ -250,6 +251,79 @@ export class AdminProductsRouter {
     }
   }
 
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      format: exportFormatSchema.default('csv'),
+      filters: z.record(z.any()).optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  async exportProducts(
+    @Ctx() ctx: AuthenticatedContext,
+    @Input() input: { format: z.infer<typeof exportFormatSchema>; filters?: Record<string, any> }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const job = await this.productService.exportProducts(input.format, input.filters, ctx.user.id);
+      return this.responseHandler.createTrpcSuccess(job);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15,
+        1,
+        30,
+        (error as any)?.message || 'Failed to start export job',
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({
+      filters: z.record(z.any()).optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  async estimateExportProducts(
+    @Input() input: { filters?: Record<string, any> }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const estimate = await this.productService.estimateProductExport(input.filters);
+      return this.responseHandler.createTrpcSuccess(estimate);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15,
+        2,
+        30,
+        (error as any)?.message || 'Failed to estimate export records',
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({
+      limit: z.number().min(1).max(50).default(10),
+      page: z.number().min(1).default(1),
+    }),
+    output: apiResponseSchema,
+  })
+  async listExportJobs(
+    @Ctx() ctx: AuthenticatedContext,
+    @Input() input: { limit: number; page: number }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const jobs = await this.productService.listProductExportJobs(input.limit, ctx.user.id, input.page);
+      return this.responseHandler.createTrpcSuccess(jobs);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15,
+        2,
+        30,
+        (error as any)?.message || 'Failed to load export jobs',
+      );
+    }
+  }
+
   // @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware) // Temporarily commented for debugging
   @Mutation({
     input: z.object({
@@ -406,6 +480,39 @@ export class AdminProductsRouter {
         1,  // OperationCode.CREATE
         30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
         error.message || 'Failed to import products from Excel'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({}),
+    output: z.object({
+      data: z.string(), // base64 encoded file
+      filename: z.string(),
+      mimeType: z.string(),
+    }),
+  })
+  async downloadExcelTemplate(
+    @Input() input: {},
+    @Ctx() ctx: AuthenticatedContext,
+  ): Promise<{ data: string; filename: string; mimeType: string }> {
+    try {
+      const buffer = await this.productService.generateExcelTemplate();
+      const base64Data = buffer.toString('base64');
+      const filename = `product-import-template-${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      return {
+        data: base64Data,
+        filename,
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      };
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15, // ModuleCode.PRODUCT
+        4,  // OperationCode.READ (assuming 4 for read operations)
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+        error.message || 'Failed to generate Excel template'
       );
     }
   }

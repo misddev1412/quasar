@@ -9,6 +9,8 @@ interface ModalProps {
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'fullscreen';
   modalId?: string;
   preventCloseWhenChildActive?: boolean;
+  hideCloseButton?: boolean;
+  closeButtonClassName?: string;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -18,6 +20,8 @@ export const Modal: React.FC<ModalProps> = ({
   size = 'md',
   modalId: providedModalId,
   preventCloseWhenChildActive = true,
+  hideCloseButton = false,
+  closeButtonClassName,
 }) => {
   const { pushModal, popModal, modalStack } = useModalContext();
   const wasOpenRef = useRef(false);
@@ -83,6 +87,8 @@ export const Modal: React.FC<ModalProps> = ({
         style={{
           zIndex: 9999 + modalStack.indexOf(modalId),
         }}
+        hideCloseButton={hideCloseButton}
+        closeButtonClassName={closeButtonClassName}
       >
         {children}
       </DialogContent>

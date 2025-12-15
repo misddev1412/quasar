@@ -1,10 +1,11 @@
 import React, { useCallback, useId, useMemo, useState } from 'react';
-import { FiUpload, FiDownload, FiFileText, FiAlertTriangle, FiCheckCircle } from 'react-icons/fi';
+import { FiUpload, FiDownload, FiFileText, FiAlertTriangle, FiCheckCircle, FiX } from 'react-icons/fi';
 import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
 import { Card, CardContent } from '../common/Card';
 import { Select } from '../common/Select';
 import { Checkbox } from '../common/Checkbox';
+import { DialogClose } from '../common/Dialog';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -312,9 +313,15 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
   const isBusy = importMutation.isPending || readingFile;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="xl" modalId="product-import-modal">
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      size="xl"
+      modalId="product-import-modal"
+      hideCloseButton
+    >
       <form onSubmit={handleSubmit} className="space-y-6">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:pr-10">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1">
             <h2 className="text-xl font-semibold">
               {t('products.import.title', 'Import products from Excel')}
@@ -323,16 +330,24 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
               {t('products.import.subtitle', 'Upload an Excel (.xlsx) or CSV file exported from Excel to create or update products in bulk.')}
             </p>
           </div>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            startIcon={<FiDownload />}
-            onClick={handleDownloadTemplate}
-            className="self-start sm:self-auto"
-          >
-            {t('products.import.download_template', 'Download template')}
-          </Button>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              startIcon={<FiDownload />}
+              onClick={handleDownloadTemplate}
+            >
+              {t('products.import.download_template', 'Download template')}
+            </Button>
+            <DialogClose
+              type="button"
+              className="grid h-10 w-10 place-items-center rounded-full border border-gray-200 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-background dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+            >
+              <FiX className="h-5 w-5" />
+              <span className="sr-only">{t('common.close', 'Close')}</span>
+            </DialogClose>
+          </div>
         </header>
 
         <div className="space-y-4">

@@ -157,21 +157,37 @@ const CheckoutPageClient = () => {
         phone: address.phone || undefined,
       });
 
+      const paymentType = data.paymentMethod.type;
+      const isCardPayment = paymentType === 'credit_card';
+      const isPayosPayment = paymentType === 'payos';
+      const siteOrigin =
+        typeof window !== 'undefined'
+          ? window.location.origin
+          : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001';
+
       const paymentMethodPayload = {
-        type: data.paymentMethod.type,
-        cardholderName: data.paymentMethod.cardholderName?.trim() || undefined,
-        last4: data.paymentMethod.cardNumber ? data.paymentMethod.cardNumber.slice(-4) : undefined,
-        provider: data.paymentMethod.type,
+        type: paymentType,
+        cardholderName: isCardPayment ? data.paymentMethod.cardholderName?.trim() || undefined : undefined,
+        last4: isCardPayment && data.paymentMethod.cardNumber ? data.paymentMethod.cardNumber.slice(-4) : undefined,
+        provider: isPayosPayment ? 'PAYOS' : paymentType,
         reference:
-          data.paymentMethod.type === 'paypal'
+          paymentType === 'paypal'
             ? data.paymentMethod.paypalEmail || undefined
-            : data.paymentMethod.type === 'bank_transfer'
+            : paymentType === 'bank_transfer'
               ? data.paymentMethod.bankAccountNumber
                 ? data.paymentMethod.bankAccountNumber.slice(-4)
                 : undefined
-            : data.paymentMethod.type === 'cash_on_delivery'
+            : paymentType === 'cash_on_delivery'
               ? 'COD'
               : undefined,
+        metadata: isPayosPayment
+          ? {
+              returnUrl: `${siteOrigin}/checkout/success`,
+              cancelUrl: `${siteOrigin}/checkout?status=cancelled`,
+              customerEmail: data.email,
+              customerName: `${data.shippingAddress.firstName} ${data.shippingAddress.lastName}`.trim(),
+            }
+          : undefined,
       };
 
       try {
@@ -292,6 +308,18 @@ const CheckoutPageClient = () => {
         }
         if (currency) {
           queryParams.set('currency', currency);
+        }
+
+        const paymentInstruction = responseData?.payment;
+        if (paymentInstruction?.provider === 'PAYOS' && paymentInstruction.checkoutUrl) {
+          showToast({
+            type: 'info',
+            title: t('toast.redirect.title'),
+            message: t('toast.redirect.message'),
+          });
+          await clearCart();
+          window.location.href = paymentInstruction.checkoutUrl;
+          return;
         }
 
         showToast({

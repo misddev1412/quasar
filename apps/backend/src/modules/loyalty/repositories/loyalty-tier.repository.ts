@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { LoyaltyTier } from '../entities/loyalty-tier.entity';
 import { BaseRepository } from '@shared/repositories/base-repository.abstract';
+import { Customer } from '@backend/modules/products/entities/customer.entity';
 
 @Injectable()
 export class LoyaltyTierRepository extends BaseRepository<LoyaltyTier> {
@@ -37,8 +38,12 @@ export class LoyaltyTierRepository extends BaseRepository<LoyaltyTier> {
   async findWithStats() {
     return this.repository
       .createQueryBuilder('tier')
-      .leftJoin('tier.customers', 'customer')
       .select('tier.*')
+      .leftJoin(
+        Customer,
+        'customer',
+        'customer.loyalty_points >= tier.min_points AND (tier.max_points IS NULL OR customer.loyalty_points <= tier.max_points) AND customer.deleted_at IS NULL',
+      )
       .addSelect('COUNT(customer.id)', 'customerCount')
       .groupBy('tier.id')
       .orderBy('tier.sortOrder', 'ASC')

@@ -38,6 +38,15 @@ export class Attribute extends BaseEntity {
   @Expose()
   @Column({
     type: 'varchar',
+    length: 100,
+    nullable: true,
+    unique: true,
+  })
+  code?: string;
+
+  @Expose()
+  @Column({
+    type: 'varchar',
     length: 20,
     enum: AttributeType,
   })

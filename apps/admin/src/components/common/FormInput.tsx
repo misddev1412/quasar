@@ -23,7 +23,10 @@ interface FormInputProps {
   useIconSpacing?: boolean;
   /** Icon spacing size when useIconSpacing is true */
   iconSpacing?: IconSpacing;
+  labelClassName?: string;
 }
+
+const BASE_LABEL_CLASS = 'block text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400';
 
 export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
   id,
@@ -43,6 +46,7 @@ export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
   inputRef,
   useIconSpacing = false,
   iconSpacing = 'standard',
+  labelClassName,
   ...rest
 }) => {
   // Explicit height classes for pixel-perfect consistency across all input types
@@ -60,10 +64,10 @@ export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
   };
 
   return (
-    <div className={label ? "space-y-2" : ""}>
+    <div className={label ? 'space-y-1.5' : ''}>
       {label && (
         <div className="flex items-center justify-between">
-          <label htmlFor={id} className="block text-sm font-medium text-neutral-800 dark:text-neutral-200">
+          <label htmlFor={id} className={clsx(BASE_LABEL_CLASS, labelClassName)}>
             {label}
           </label>
           {rightElement && rightElement}

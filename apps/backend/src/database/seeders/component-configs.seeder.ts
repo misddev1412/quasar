@@ -445,6 +445,228 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
       },
     ],
   },
+  {
+    componentKey: 'featured_products',
+    displayName: 'Featured Products Section',
+    description: 'Showcase a curated list of products in a grid or carousel.',
+    componentType: ComponentStructureType.COMPOSITE,
+    category: ComponentCategory.PRODUCT,
+    position: 3,
+    defaultConfig: {
+      productIds: ['SKU-1001', 'SKU-1002', 'SKU-1003', 'SKU-1004'],
+      displayStyle: 'grid',
+      itemsPerRow: 4,
+    },
+    configSchema: {
+      productIds: { type: 'array', items: 'string', description: 'Product IDs to render in order' },
+      displayStyle: { type: 'enum', options: ['grid', 'carousel'] },
+      itemsPerRow: { type: 'number', minimum: 2, maximum: 4 },
+    },
+    metadata: {
+      componentPath: 'apps/frontend/src/components/sections/FeaturedProducts.tsx',
+      sectionType: 'featured_products',
+      dataSource: 'products',
+    },
+    allowedChildKeys: ['product_card'],
+  },
+  {
+    componentKey: 'products_by_category',
+    displayName: 'Products By Category Section',
+    description: 'Rows of products driven by category or merchandising strategy.',
+    componentType: ComponentStructureType.COMPOSITE,
+    category: ComponentCategory.PRODUCT,
+    position: 4,
+    defaultConfig: {
+      displayStyle: 'grid',
+      rows: [
+        {
+          id: 'home-products-latest',
+          strategy: 'latest',
+          limit: 6,
+          title: 'Latest arrivals',
+        },
+        {
+          id: 'home-products-featured',
+          strategy: 'featured',
+          limit: 6,
+          title: 'Featured picks',
+        },
+        {
+          id: 'home-products-custom',
+          strategy: 'custom',
+          productIds: ['SKU-2001', 'SKU-2002'],
+          limit: 6,
+          title: 'Editorial set',
+        },
+      ],
+      sidebar: {
+        enabled: true,
+        title: 'Khám phá theo danh mục',
+        description: 'Chọn nhanh bộ sưu tập nổi bật hoặc danh mục yêu thích.',
+        sections: [
+          {
+            id: 'collections',
+            title: 'Bộ sưu tập đặc biệt',
+            description: 'Những nhóm sản phẩm được đề xuất.',
+            items: [
+              {
+                id: 'collection-premium',
+                label: 'Premium Essentials',
+                href: '/collections/premium-essentials',
+                description: 'Phong cách tối giản với chất liệu cao cấp.',
+                icon: 'lucide:sparkles',
+              },
+              {
+                id: 'collection-sport',
+                label: 'Sport Capsule',
+                href: '/collections/sport-capsule',
+                description: 'Trang phục linh hoạt cho mọi hoạt động.',
+                icon: 'lucide:activity',
+              },
+            ],
+          },
+          {
+            id: 'categories',
+            title: 'Danh mục nổi bật',
+            items: [
+              {
+                id: 'category-men',
+                label: 'Thời trang nam',
+                href: '/categories/mens-fashion',
+                icon: 'lucide:user',
+              },
+              {
+                id: 'category-women',
+                label: 'Thời trang nữ',
+                href: '/categories/womens-fashion',
+                icon: 'lucide:user-round',
+              },
+            ],
+          },
+        ],
+      },
+    },
+    configSchema: {
+      displayStyle: { type: 'enum', options: ['grid', 'carousel'] },
+      rows: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            categoryId: { type: 'string' },
+            title: { type: 'string' },
+            strategy: { type: 'enum', options: ['latest', 'featured', 'bestsellers', 'custom'] },
+            productIds: { type: 'array', items: 'string' },
+            limit: { type: 'number' },
+            displayStyle: { type: 'enum', options: ['grid', 'carousel'] },
+          },
+        },
+      },
+      sidebar: {
+        type: 'object',
+        properties: {
+          enabled: { type: 'boolean' },
+          title: { type: 'string' },
+          description: { type: 'string' },
+          sections: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                title: { type: 'string' },
+                description: { type: 'string' },
+                items: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'string' },
+                      label: { type: 'string' },
+                      href: { type: 'string' },
+                      description: { type: 'string' },
+                      icon: { type: 'string' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    metadata: {
+      componentPath: 'apps/frontend/src/components/sections/ProductsByCategory.tsx',
+      sectionType: 'products_by_category',
+      dataSource: 'products/categories',
+    },
+  },
+  {
+    componentKey: 'news_section',
+    displayName: 'News / Blog Section',
+    description: 'Editorial feed that pulls latest or featured news with optional category scoping.',
+    componentType: ComponentStructureType.COMPOSITE,
+    category: ComponentCategory.CONTENT,
+    position: 5,
+    defaultConfig: {
+      limit: 3,
+      categories: ['press', 'product'],
+      strategy: 'latest',
+      rows: [
+        { id: 'news-latest', title: 'Latest news', strategy: 'latest', limit: 3 },
+        { id: 'news-featured', title: 'Featured stories', strategy: 'featured', limit: 3 },
+      ],
+    },
+    configSchema: {
+      limit: { type: 'number', minimum: 1, maximum: 12 },
+      categories: { type: 'array', items: 'string' },
+      strategy: { type: 'enum', options: ['latest', 'most_viewed', 'featured'] },
+      rows: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            categoryId: { type: 'string' },
+            title: { type: 'string' },
+            strategy: { type: 'enum', options: ['latest', 'most_viewed', 'featured'] },
+            limit: { type: 'number' },
+          },
+        },
+      },
+    },
+    metadata: {
+      componentPath: 'apps/frontend/src/components/sections/NewsSection.tsx',
+      sectionType: 'news',
+      dataSource: 'articles',
+    },
+  },
+  {
+    componentKey: 'custom_html_section',
+    displayName: 'Custom HTML Section',
+    description: 'Raw HTML block with gradient background used for bespoke storytelling.',
+    componentType: ComponentStructureType.ATOMIC,
+    category: ComponentCategory.CONTENT,
+    position: 6,
+    defaultConfig: {
+      html:
+        '<div class="rounded-3xl bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-500 p-10 text-white shadow-xl">' +
+        '<div class="max-w-3xl">' +
+        '<p class="text-sm uppercase tracking-[0.3em] text-white/70">CUSTOM BLOCK</p>' +
+        '<h2 class="mt-4 text-3xl font-semibold">Compose HTML snippets for bespoke campaigns</h2>' +
+        '<p class="mt-4 text-white/80 text-base">Use this slot for legal copy, brand storytelling, or campaign-specific layouts.</p>' +
+        '</div>' +
+        '</div>',
+    },
+    configSchema: {
+      html: { type: 'string', description: 'HTML content rendered as-is on the storefront' },
+    },
+    metadata: {
+      componentPath: 'apps/frontend/src/components/sections/CustomHtmlSection.tsx',
+      sectionType: 'custom_html',
+    },
+  },
 ];
 
 @Injectable()

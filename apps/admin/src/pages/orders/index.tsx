@@ -215,6 +215,34 @@ const OrdersPage: React.FC = () => {
     refetchOrders();
   }, [refetchOrders]);
 
+  const exportFiltersPayload = useMemo(() => {
+    const payload: Record<string, unknown> = {};
+    if (debouncedSearchValue) {
+      payload.search = debouncedSearchValue;
+    }
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value === undefined || value === null) {
+        return;
+      }
+
+      if (typeof value === 'string' && value.trim() === '') {
+        return;
+      }
+
+      payload[key] = value;
+    });
+
+    return payload;
+  }, [filters, debouncedSearchValue]);
+
+  const handleOpenExportCenter = useCallback(() => {
+    const payload = exportFiltersPayload;
+    navigate('/orders/exports', {
+      state: Object.keys(payload).length ? { filters: payload } : undefined,
+    });
+  }, [navigate, exportFiltersPayload]);
+
   // Get status badge variant
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
@@ -476,9 +504,7 @@ const OrdersPage: React.FC = () => {
     },
     {
       label: t('orders.export'),
-      onClick: () => {
-        // Handle export
-      },
+      onClick: handleOpenExportCenter,
       icon: <FiDownload />,
     },
     {
@@ -492,7 +518,7 @@ const OrdersPage: React.FC = () => {
       icon: <FiFilter />,
       active: showFilters,
     },
-  ], [navigate, handleRefresh, showFilters, t]);
+  ], [navigate, handleRefresh, showFilters, t, handleOpenExportCenter]);
 
   const breadcrumbs = useMemo(() => ([
     {

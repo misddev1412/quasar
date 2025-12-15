@@ -83,9 +83,9 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
   const displayValue = inputValue ? (isTransparentValue ? 'transparent' : inputValue) : '#000000';
 
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn('space-y-1', className)}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
           {label}
         </label>
       )}

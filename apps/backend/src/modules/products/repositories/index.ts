@@ -16,4 +16,14 @@ export { SupplierRepository, type SupplierFilters, type SupplierQueryOptions } f
 export { WarehouseRepository } from './warehouse.repository';
 export { OrderRepository, type OrderFilters, type OrderQueryOptions, type PaginatedOrders } from './order.repository';
 export { CustomerRepository } from './customer.repository';
-export { PaymentMethodRepository, type CreatePaymentMethodDto, type UpdatePaymentMethodDto, type PaymentMethodFilters } from './payment-method.repository';
+export {
+  PaymentMethodRepository,
+  type CreatePaymentMethodDto,
+  type UpdatePaymentMethodDto,
+  type PaymentMethodFilters,
+} from './payment-method.repository';
+export {
+  PaymentMethodProviderRepository,
+  type CreatePaymentMethodProviderDto,
+  type UpdatePaymentMethodProviderDto,
+} from './payment-method-provider.repository';

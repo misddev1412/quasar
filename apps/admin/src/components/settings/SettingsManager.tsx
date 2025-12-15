@@ -382,7 +382,10 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
     'analytics.mixpanel_token',
     'analytics.mixpanel_api_host',
     'analytics.track_admin_actions',
-    'analytics.anonymize_ip'
+    'analytics.anonymize_ip',
+    // Admin branding - managed in dedicated page
+    'admin.branding.login',
+    'admin.branding.sidebar'
   ];
 
   const groupedSettings = React.useMemo(() => {

@@ -66,7 +66,7 @@ const SidebarSubMenuItem: React.FC<SidebarSubMenuItemProps> = ({
 
     return (
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding>
+        <List component="div" disablePadding sx={{ p: 0, m: 0 }}>
           {subItem.subItems!.map((childItem, childIndex) => (
             <SidebarSubMenuItem
               key={childIndex}
@@ -240,7 +240,12 @@ const SidebarSubMenuItem: React.FC<SidebarSubMenuItemProps> = ({
 
   return (
     <>
-      <ListItem ref={subMenuItemRef} data-menu-path={subItem.path} disablePadding>
+      <ListItem
+        ref={subMenuItemRef}
+        data-menu-path={subItem.path}
+        disablePadding
+        sx={{ width: '100%', p: 0, m: 0 }}
+      >
         <Tooltip title={tooltipTitle} placement="top" arrow>
           {linkContent}
         </Tooltip>

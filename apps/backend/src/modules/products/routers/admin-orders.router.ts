@@ -1,11 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
+import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { AdminOrderService } from '../services/admin-order.service';
 import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
 import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '../../../trpc/context';
 import { OrderStatus, PaymentStatus, OrderSource } from '../entities/order.entity';
 
 export const orderStatusSchema = z.nativeEnum(OrderStatus);
@@ -143,6 +144,8 @@ export const refundOrderSchema = z.object({
 export const fulfillOrderItemSchema = z.object({
   quantity: z.number().min(1),
 });
+
+const exportFormatSchema = z.enum(['csv', 'json']);
 
 @Router({ alias: 'adminOrders' })
 @Injectable()
@@ -625,6 +628,79 @@ export class AdminOrdersRouter {
         4,  // OperationCode.DELETE
         30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
         error.message || 'Failed to delete order item'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({
+      filters: z.record(z.any()).optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  async estimateExportOrders(
+    @Input() input: { filters?: Record<string, any> }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const estimate = await this.orderService.estimateOrderExport(input.filters);
+      return this.responseHandler.createTrpcSuccess(estimate);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15,
+        2,
+        30,
+        (error as any)?.message || 'Failed to estimate export records',
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      format: exportFormatSchema.default('csv'),
+      filters: z.record(z.any()).optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  async exportOrders(
+    @Ctx() ctx: AuthenticatedContext,
+    @Input() input: { format: z.infer<typeof exportFormatSchema>; filters?: Record<string, any> }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const job = await this.orderService.exportOrders(input.format, input.filters, ctx.user.id);
+      return this.responseHandler.createTrpcSuccess(job);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15,
+        1,
+        30,
+        (error as any)?.message || 'Failed to start export job',
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({
+      limit: z.number().min(1).max(50).default(10),
+      page: z.number().min(1).default(1),
+    }),
+    output: apiResponseSchema,
+  })
+  async listExportJobs(
+    @Ctx() ctx: AuthenticatedContext,
+    @Input() input: { limit: number; page: number }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const jobs = await this.orderService.listOrderExportJobs(input.limit, ctx.user.id, input.page);
+      return this.responseHandler.createTrpcSuccess(jobs);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15,
+        2,
+        30,
+        (error as any)?.message || 'Failed to load export jobs',
       );
     }
   }

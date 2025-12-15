@@ -86,6 +86,7 @@ const storageConfigSchema: z.ZodSchema<StorageConfigFormData> = z.object({
   s3Bucket: z.string().optional(),
   s3Endpoint: z.string().optional(),
   s3ForcePathStyle: z.boolean().optional(),
+  s3CdnUrl: z.string().optional(),
 }) as z.ZodSchema<StorageConfigFormData>;
 
 type StorageConfigFormData = {
@@ -101,6 +102,7 @@ type StorageConfigFormData = {
   s3Bucket?: string;
   s3Endpoint?: string;
   s3ForcePathStyle?: boolean;
+  s3CdnUrl?: string;
 };
 
 const StorageConfigPage: React.FC = () => {
@@ -193,6 +195,9 @@ const StorageConfigPage: React.FC = () => {
         ...(formData.s3ForcePathStyle !== undefined && { 
           s3ForcePathStyle: formData.s3ForcePathStyle 
         }),
+        ...(formData.s3CdnUrl && formData.s3CdnUrl.trim() !== '' && {
+          s3CdnUrl: formData.s3CdnUrl.trim()
+        }),
       };
       
       console.log('🔄 [FRONTEND] Processed data being sent:', processedData);
@@ -231,6 +236,7 @@ const StorageConfigPage: React.FC = () => {
       s3Bucket: formValues.s3Bucket || config.s3Bucket || '',
       s3Endpoint: formValues.s3Endpoint || config.s3Endpoint || '',
       s3ForcePathStyle: formValues.s3ForcePathStyle !== undefined ? formValues.s3ForcePathStyle : (config.s3ForcePathStyle || false),
+      s3CdnUrl: formValues.s3CdnUrl || config.s3CdnUrl || '',
     };
 
     const settings: Record<string, string> = {
@@ -249,6 +255,7 @@ const StorageConfigPage: React.FC = () => {
       if (testData.s3Bucket) settings['storage.s3.bucket'] = testData.s3Bucket;
       if (testData.s3Endpoint) settings['storage.s3.endpoint'] = testData.s3Endpoint;
       if (testData.s3ForcePathStyle !== undefined) settings['storage.s3.force_path_style'] = testData.s3ForcePathStyle.toString();
+      if (testData.s3CdnUrl) settings['storage.s3.cdn_url'] = testData.s3CdnUrl;
     }
 
     testConnectionMutation.mutate({
@@ -582,6 +589,14 @@ const StorageConfigPage: React.FC = () => {
               dependsOn: { field: 's3Provider', value: 'custom' },
             },
             {
+              name: 's3CdnUrl',
+              label: 'CDN Base URL',
+              type: 'text',
+              placeholder: 'https://cdn.example.com',
+              required: false,
+              description: 'Optional CDN domain that should be used when sharing file URLs',
+            },
+            {
               name: 's3ForcePathStyle',
               label: 'Force Path Style',
               type: 'checkbox',
@@ -672,6 +687,7 @@ const StorageConfigPage: React.FC = () => {
     s3Bucket: config.s3Bucket || '',
     s3Endpoint: config.s3Endpoint || '',
     s3ForcePathStyle: config.s3ForcePathStyle || false,
+    s3CdnUrl: config.s3CdnUrl || '',
     // Don't include sensitive keys in initial values
     s3AccessKey: '',
     s3SecretKey: '',

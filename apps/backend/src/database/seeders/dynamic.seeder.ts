@@ -18,6 +18,7 @@ import { AdministrativeDivisionsSeeder } from './administrative-divisions.seeder
 import databaseConfig from '../../config/database.config';
 import { SectionsSeeder } from './sections.seeder';
 import { MenusSeeder } from './menus.seeder';
+import { ComponentConfigsSeeder } from './component-configs.seeder';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ const AVAILABLE_SEEDERS = {
   'user-activity': UserActivitySeeder,
   section: SectionsSeeder,
   menus: MenusSeeder,
+  'component-configs': ComponentConfigsSeeder,
 } as const;
 
 type SeederKey = keyof typeof AVAILABLE_SEEDERS;
@@ -57,6 +59,7 @@ function showUsageAndExit(code = 1) {
   console.log('   yarn seed --tables=seo,settings');
   console.log('   yarn seed --tables countries');
   console.log('   yarn seed seo');
+  console.log('   yarn seed component-configs');
   console.log('\nOptions:');
   console.log('   --tables=<names>  Comma separated list of seeder names');
   console.log('   --tables <names>  Space separated seeder names');

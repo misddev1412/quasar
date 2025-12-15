@@ -74,6 +74,26 @@ export const DEFAULT_CHANNEL_CONFIGS: Array<Omit<UpsertChannelConfigDto, 'isActi
     ],
   },
   {
+    eventKey: NotificationEvent.DATA_EXPORT_COMPLETED,
+    displayName: 'Data Export Completed',
+    description: 'Notify administrators when their requested export file is ready',
+    allowedChannels: [
+      NotificationChannel.EMAIL,
+      NotificationChannel.IN_APP,
+      NotificationChannel.PUSH,
+    ],
+  },
+  {
+    eventKey: NotificationEvent.DATA_EXPORT_FAILED,
+    displayName: 'Data Export Failed',
+    description: 'Alert administrators when an export fails to complete',
+    allowedChannels: [
+      NotificationChannel.EMAIL,
+      NotificationChannel.IN_APP,
+      NotificationChannel.PUSH,
+    ],
+  },
+  {
     eventKey: NotificationEvent.CUSTOM,
     displayName: 'Manual / Custom',
     description: 'Fallback event for ad-hoc notifications',

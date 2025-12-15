@@ -43,6 +43,7 @@
     "createdFrom": "Tạo từ",
     "createdTo": "Tạo đến",
     "hideFilters": "Ẩn bộ lọc",
+    "showFilters": "Hiển thị bộ lọc",
     "options": "tùy chọn",
     "reset": "Đặt lại",
     "menu": "Menu",
@@ -659,6 +660,9 @@
     "edit_payment_method_description": "Chỉnh sửa cài đặt và cấu hình phương thức thanh toán",
     "enter_payment_method_name": "Nhập tên phương thức thanh toán",
     "enter_payment_method_description": "Nhập mô tả phương thức thanh toán",
+    "provider_key_placeholder": "MA_NHA_CUNG_CAP",
+    "provider_display_name_placeholder": "Tên hiển thị nhà cung cấp thanh toán",
+    "provider_type_placeholder": "LOAI_NHA_CUNG_CAP (ví dụ: PAYMENT_GATEWAY)",
     "total_payment_methods": "Tổng Phương Thức Thanh Toán",
     "active_payment_methods": "Phương Thức Thanh Toán Hoạt Động",
     "inactive_payment_methods": "Phương Thức Thanh Toán Không Hoạt Động",
@@ -1586,7 +1590,161 @@
         "no_role_data": "Chưa có dữ liệu phân bổ vai trò.",
         "no_recent_users": "Chưa có người dùng mới đăng ký gần đây."
       }
-    }
+    },
+    "table": {
+      "columns": {
+        "user": "Người dùng",
+        "username": "Tên đăng nhập",
+        "email": "Email",
+        "role": "Vai trò",
+        "status": "Trạng thái",
+        "createdAt": "Ngày tạo",
+        "actions": "Hành động"
+      },
+      "status": {
+        "active": "Hoạt động",
+        "inactive": "Không hoạt động"
+      },
+      "search_placeholder": "Tìm kiếm người dùng theo tên, email hoặc tên đăng nhập...",
+      "no_data": "Không tìm thấy người dùng nào"
+    },
+    "export": {
+      "queue_title": "Hàng đợi xuất dữ liệu",
+      "queue_description_processing": "Các lần xuất dữ liệu gần đây đang được xử lý. Danh sách này sẽ tự động làm mới khi công việc đang chạy.",
+      "queue_description_ready": "Theo dõi các công việc xuất dữ liệu gần đây và tải xuống tệp khi sẵn sàng.",
+      "select_format": "Chọn định dạng",
+      "format_csv": "CSV",
+      "format_json": "JSON",
+      "request_export": "Yêu cầu xuất dữ liệu",
+      "queuing_export": "Đang xếp hàng xuất dữ liệu",
+      "refresh": "Làm mới",
+      "requested": "Đã yêu cầu",
+      "records": "bản ghi",
+      "preparing_records": "Đang chuẩn bị bản ghi",
+      "download": "Tải xuống",
+      "no_jobs": "Chưa có công việc xuất dữ liệu. Sử dụng nút bên trên để xếp hàng lần xuất đầu tiên.",
+      "status_pending": "Đang chờ",
+      "status_processing": "Đang xử lý",
+      "status_completed": "Hoàn thành",
+      "status_failed": "Thất bại",
+      "queued_success": "Đã xếp hàng xuất dữ liệu",
+      "queued_description": "Chúng tôi sẽ thông báo khi tệp sẵn sàng tải xuống.",
+      "queue_failed": "Không thể xếp hàng xuất dữ liệu",
+      "queue_failed_description": "Vui lòng thử lại sau vài giây."
+    },
+    "exports": {
+      "page_title": "Xuất dữ liệu người dùng",
+      "page_description": "Theo dõi các công việc xuất dữ liệu và tải xuống khi hoàn tất.",
+      "breadcrumb": {
+        "exports": "Xuất dữ liệu"
+      },
+      "actions": {
+        "back_to_users": "Quay lại người dùng",
+        "queueing": "Đang xếp hàng xuất dữ liệu...",
+        "queue_export": "Xếp hàng xuất dữ liệu",
+        "refresh_jobs": "Làm mới công việc",
+        "download": "Tải xuống"
+      },
+      "filters": {
+        "imported_title": "Bộ lọc được nhập từ trang Người dùng",
+        "imported_description": "Lần xuất chỉ bao gồm người dùng khớp với các tiêu chí này.",
+        "applied_title": "Đang áp dụng bộ lọc cho lần xuất này",
+        "applied_description": "Lần xuất chỉ bao gồm người dùng khớp với các tiêu chí này.",
+        "none_title": "Chưa có bộ lọc nào",
+        "clear": "Xóa bộ lọc",
+        "none": "Không có bộ lọc nào. Lần xuất sẽ bao gồm tất cả người dùng.",
+        "status_all": "Tất cả trạng thái",
+        "hide_builder": "Ẩn trình tạo bộ lọc",
+        "edit_builder": "Chỉnh sửa bộ lọc",
+        "add_builder": "Thêm bộ lọc"
+      },
+      "fields": {
+        "format": "Định dạng",
+        "status": "Trạng thái"
+      },
+      "format": {
+        "csv": "CSV",
+        "json": "JSON"
+      },
+      "status": {
+        "pending": "Đang chờ",
+        "processing": "Đang xử lý",
+        "completed": "Hoàn thành",
+        "failed": "Thất bại"
+      },
+      "notifications": {
+        "queue_success_title": "Đã xếp hàng xuất dữ liệu",
+        "queue_success_description": "Chúng tôi sẽ thông báo khi tệp sẵn sàng tải xuống.",
+        "queue_failed_title": "Không thể xếp hàng xuất dữ liệu",
+        "queue_failed_description": "Vui lòng thử lại sau vài giây."
+      },
+      "request": {
+        "title": "Yêu cầu lần xuất mới",
+        "description": "Chọn định dạng và bộ lọc tùy chọn để xếp hàng công việc xuất dữ liệu."
+      },
+      "queue": {
+        "title": "Hàng đợi xuất dữ liệu",
+        "auto_refresh": "Các công việc sẽ tự động làm mới khi đang xử lý.",
+        "description": "Theo dõi các công việc gần đây và tải xuống khi hoàn tất.",
+        "filter_title": "Lọc công việc xuất dữ liệu",
+        "filter_description": "Thu hẹp hàng đợi theo trạng thái.",
+        "clear_status_filter": "Xóa bộ lọc trạng thái"
+      },
+      "table": {
+        "file": "Tệp",
+        "job_id": "Mã công việc: {{id}}…",
+        "format": "Định dạng",
+        "created": "Thời gian tạo",
+        "total_records": "Tổng số bản ghi",
+        "pending": "Đang chờ",
+        "status": "Trạng thái",
+        "actions": "Hành động",
+        "empty": "Chưa có công việc xuất dữ liệu. Hãy xếp hàng lần xuất đầu tiên ở trên."
+      },
+      "summary": {
+        "filtered": "Đang hiển thị {{count}} {{label}} đã lọc",
+        "job_singular": "công việc",
+        "job_plural": "công việc",
+        "range": "Hiển thị {{start}}-{{end}} trong tổng {{total}} công việc"
+      },
+      "estimate": {
+        "loading": "Đang ước tính số bản ghi...",
+        "result": "Số bản ghi dự kiến: {{count}}",
+        "unavailable": "Không thể ước tính số bản ghi lúc này.",
+        "filtered_hint": "Dựa trên các bộ lọc hiện tại",
+        "zero": "Không có người dùng nào khớp với bộ lọc đã chọn."
+      }
+    },
+    "bulk_actions": {
+      "activate_selected": "Kích hoạt đã chọn",
+      "deactivate_selected": "Vô hiệu hóa đã chọn",
+      "delete_selected": "Xóa đã chọn"
+    },
+    "confirmations": {
+      "delete_user": "Bạn có chắc chắn muốn xóa người dùng này? Hành động này không thể hoàn tác.",
+      "delete_success": "Đã xóa người dùng",
+      "delete_failed": "Xóa thất bại",
+      "delete_error": "Không thể xóa người dùng",
+      "failed_to_update_status": "Cập nhật trạng thái người dùng thất bại"
+    },
+    "actions": {
+      "export_users": "Xuất dữ liệu người dùng",
+      "view_profile": "Xem hồ sơ",
+      "activate": "Kích hoạt",
+      "deactivate": "Vô hiệu hóa",
+      "delete": "Xóa",
+      "default_role": "NGƯỜI_DÙNG"
+    },
+    "descriptions": {
+      "active_last_15_min": "Hoạt động trong 15 phút qua",
+      "active_last_24_hours": "Hoạt động trong 24 giờ qua"
+    },
+    "errors": {
+      "generic_error": "Đã xảy ra lỗi khi cập nhật trạng thái người dùng. Vui lòng thử lại.",
+      "error_title": "Lỗi"
+    },
+    "page_title": "Quản lý người dùng",
+    "page_description": "Quản lý tất cả người dùng trong hệ thống"
   },
   "mail_templates": {
     "mail_template_management": "Quản lý mẫu email",
@@ -1915,6 +2073,14 @@
     "specifications": "Thông số kỹ thuật",
     "specifications_title": "Thông số sản phẩm",
     "specifications_description": "Thiết lập các thông tin chi tiết hoặc thuộc tính kỹ thuật sẽ hiển thị cho khách hàng.",
+    "specifications_empty_description": "Thêm thông tin sản phẩm có cấu trúc như chất liệu, kích thước hoặc chi tiết kỹ thuật.",
+    "add_specification": "Thêm thông số",
+    "specification_number": "Thông số #{number}",
+    "specification_help": "Cung cấp nhãn rõ ràng và giá trị. Thứ tự sắp xếp kiểm soát ưu tiên hiển thị.",
+    "specification_label": "Nhãn",
+    "specification_label_placeholder": "ví dụ: Chất liệu",
+    "specification_value": "Giá trị",
+    "specification_value_placeholder": "Mô tả chi tiết thông số",
     "images": "Hình ảnh",
     "description": "Mô tả",
     "search_placeholder": "Tìm kiếm sản phẩm theo tên, SKU hoặc mô tả...",
@@ -1933,6 +2099,9 @@
     "deleteSuccess": "Xóa sản phẩm thành công",
     "deleteError": "Xóa sản phẩm thất bại",
     "deleteConfirm": "Bạn có chắc chắn muốn xóa sản phẩm này không?",
+    "actions": {
+      "export_products": "Xuất dữ liệu sản phẩm"
+    },
     "noProducts": "Không tìm thấy sản phẩm",
     "productsCount": "Sản phẩm",
     "status": {
@@ -2154,7 +2323,101 @@
     "combinations_auto_generated": "Kết hợp tự động tạo",
     "selected_values": "Giá trị đã chọn",
     "available_values": "Giá trị có sẵn",
-    "all_values_selected": "Tất cả giá trị có sẵn đã được chọn"
+    "all_values_selected": "Tất cả giá trị có sẵn đã được chọn",
+    "exports": {
+      "page_title": "Xuất dữ liệu sản phẩm",
+      "page_description": "Theo dõi các công việc xuất dữ liệu và tải xuống khi hoàn tất.",
+      "breadcrumb": {
+        "exports": "Xuất dữ liệu"
+      },
+      "actions": {
+        "back_to_products": "Quay lại sản phẩm",
+        "queueing": "Đang xếp hàng xuất dữ liệu...",
+        "queue_export": "Xếp hàng xuất dữ liệu",
+        "refresh_jobs": "Làm mới công việc",
+        "download": "Tải xuống"
+      },
+      "filters": {
+        "imported_title": "Bộ lọc được nhập từ trang Sản phẩm",
+        "imported_description": "Lần xuất chỉ bao gồm sản phẩm khớp với các tiêu chí này.",
+        "applied_title": "Đang áp dụng bộ lọc cho lần xuất này",
+        "applied_description": "Lần xuất chỉ bao gồm sản phẩm khớp với các tiêu chí này.",
+        "none_title": "Chưa có bộ lọc nào",
+        "clear": "Xóa bộ lọc",
+        "none": "Không có bộ lọc nào. Lần xuất sẽ bao gồm tất cả sản phẩm.",
+        "status_all": "Tất cả trạng thái",
+        "hide_builder": "Ẩn trình tạo bộ lọc",
+        "edit_builder": "Chỉnh sửa bộ lọc",
+        "add_builder": "Thêm bộ lọc"
+      },
+      "fields": {
+        "format": "Định dạng",
+        "status": "Trạng thái"
+      },
+      "format": {
+        "csv": "CSV",
+        "json": "JSON"
+      },
+      "status": {
+        "pending": "Đang chờ",
+        "processing": "Đang xử lý",
+        "completed": "Hoàn thành",
+        "failed": "Thất bại"
+      },
+      "notifications": {
+        "queue_success_title": "Đã xếp hàng xuất dữ liệu",
+        "queue_success_description": "Chúng tôi sẽ thông báo khi tệp sẵn sàng tải xuống.",
+        "queue_failed_title": "Không thể xếp hàng xuất dữ liệu",
+        "queue_failed_description": "Vui lòng thử lại sau vài giây."
+      },
+      "request": {
+        "title": "Yêu cầu lần xuất mới",
+        "description": "Chọn định dạng và bộ lọc tùy chọn để xếp hàng công việc xuất dữ liệu."
+      },
+      "queue": {
+        "title": "Hàng đợi xuất dữ liệu",
+        "auto_refresh": "Các công việc sẽ tự động làm mới khi đang xử lý.",
+        "description": "Theo dõi các công việc gần đây và tải xuống khi hoàn tất.",
+        "filter_title": "Lọc công việc xuất dữ liệu",
+        "filter_description": "Thu hẹp hàng đợi theo trạng thái.",
+        "clear_status_filter": "Xóa bộ lọc trạng thái"
+      },
+      "table": {
+        "file": "Tệp",
+        "job_id": "Mã công việc: {{id}}…",
+        "format": "Định dạng",
+        "created": "Thời gian tạo",
+        "total_records": "Tổng số bản ghi",
+        "pending": "Đang chờ",
+        "status": "Trạng thái",
+        "actions": "Hành động",
+        "empty": "Chưa có công việc xuất dữ liệu. Hãy xếp hàng lần xuất đầu tiên ở trên."
+      },
+      "summary": {
+        "filtered": "Đang hiển thị {{count}} {{label}} đã lọc",
+        "job_singular": "công việc",
+        "job_plural": "công việc",
+        "range": "Hiển thị {{start}}-{{end}} trong tổng {{total}} công việc"
+      },
+      "estimate": {
+        "loading": "Đang ước tính số bản ghi...",
+        "result": "Số bản ghi dự kiến: {{count}}",
+        "unavailable": "Không thể ước tính số bản ghi lúc này.",
+        "filtered_hint": "Dựa trên các bộ lọc hiện tại",
+        "zero": "Không có sản phẩm nào khớp với bộ lọc đã chọn."
+      }
+    }
+  },
+  "componentConfigs": {
+    "title": "Thư viện thành phần",
+    "editTitle": "Chỉnh sửa thành phần",
+    "editDescription": "Điều chỉnh schema thành phần, giá trị mặc định, siêu dữ liệu và quy tắc lồng nhau trên trang tập trung.",
+    "updateSuccess": "Đã cập nhật thành phần",
+    "updateSuccessDescription": "Các thay đổi đã được lưu thành công.",
+    "updateFailed": "Không thể cập nhật thành phần",
+    "backToList": "Quay lại thư viện thành phần",
+    "componentNotFound": "Không tìm thấy cấu hình thành phần",
+    "componentNotFoundDescription": "Nó có thể đã bị xóa hoặc bạn không có quyền truy cập."
   },
   "brands": {
     "title": "Thương hiệu",

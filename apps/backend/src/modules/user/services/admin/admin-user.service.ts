@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { UserRepository } from '../../repositories/user.repository';
+import { UserFilters, UserRepository } from '../../repositories/user.repository';
 import { AuthService } from '../../../../auth/auth.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { User } from '../../entities/user.entity';
@@ -11,6 +11,8 @@ import {
   AdminUpdateUserProfileDto
 } from '../../dto/admin/admin-user.dto';
 import { PaginatedDto } from '@shared/classes/pagination.dto';
+import { DataExportService, ExportFormat } from '@backend/modules/export';
+import { USER_EXPORT_COLUMNS } from '../../export/user-export.columns';
 
 export interface AdminUserFilters {
   page: number;
@@ -26,6 +28,7 @@ export class AdminUserService {
     private readonly userRepository: UserRepository,
     private readonly authService: AuthService,
     private readonly responseHandler: ResponseService,
+    private readonly dataExportService: DataExportService,
   ) {}
 
   async createUser(createUserDto: AdminCreateUserDto): Promise<AdminUserResponseDto> {
@@ -243,19 +246,37 @@ export class AdminUserService {
     return true;
   }
 
-  async exportUsers(format: string, filters?: string): Promise<{ data: any; recordCount: number }> {
-    // Basic implementation - can be enhanced later
-    const parsedFilters = filters ? JSON.parse(filters) : {};
-    const result = await this.getAllUsers({
-      page: 1,
-      limit: 10000, // Large limit for export
-      ...parsedFilters,
-    });
+  async exportUsers(format: string, filters?: string | Record<string, any>, requestedBy?: string) {
+    const parsedFilters = this.parseFilters(filters);
+    const sanitizedFilters = this.sanitizeExportFilters(parsedFilters);
+    const resolvedFormat: ExportFormat = format === 'json' ? 'json' : 'csv';
 
-    return {
-      data: result.items,
-      recordCount: result.total,
-    };
+    return this.dataExportService.requestExportJob({
+      resource: 'users',
+      format: resolvedFormat,
+      filters: sanitizedFilters,
+      columns: USER_EXPORT_COLUMNS,
+      options: {
+        pageSize: 500,
+      },
+      requestedBy,
+    });
+  }
+
+  async estimateUserExport(filters?: string | Record<string, any>) {
+    const parsedFilters = this.parseFilters(filters);
+    const sanitizedFilters = this.sanitizeExportFilters(parsedFilters);
+    const repoFilters = this.buildUserFilterParams(sanitizedFilters, { page: 1, limit: 1 });
+    const result = await this.userRepository.findUsersWithFilters(repoFilters);
+    return { total: result.total };
+  }
+
+  async listUserExportJobs(limit = 10, requestedBy?: string, page = 1) {
+    return this.dataExportService.listJobs('users', {
+      limit,
+      page,
+      requestedBy,
+    });
   }
 
   async assignRole(userId: string, roleId: string): Promise<AdminUserResponseDto> {
@@ -310,6 +331,91 @@ export class AdminUserService {
     }
 
     return { success: true, affectedCount: users.length };
+  }
+
+  private parseFilters(filters?: string | Record<string, any>): Record<string, any> | undefined {
+    if (!filters) {
+      return undefined;
+    }
+
+    if (typeof filters === 'object') {
+      return filters;
+    }
+
+    try {
+      return JSON.parse(filters);
+    } catch (error) {
+      throw this.responseHandler.createError(
+        ApiStatusCodes.BAD_REQUEST,
+        'Invalid filters payload',
+        'INVALID_FILTERS'
+      );
+    }
+  }
+
+  private sanitizeExportFilters(filters?: Record<string, any>): Record<string, any> | undefined {
+    if (!filters) {
+      return undefined;
+    }
+
+    const sanitized: Record<string, any> = {};
+
+    if (typeof filters.search === 'string' && filters.search.trim()) {
+      sanitized.search = filters.search.trim();
+    }
+
+    const isActive = this.parseBooleanFilter(filters.isActive);
+    if (typeof isActive === 'boolean') {
+      sanitized.isActive = isActive;
+    }
+
+    const role = this.parseRoleFilter(filters.role);
+    if (role) {
+      sanitized.role = role;
+    }
+
+    return Object.keys(sanitized).length ? sanitized : undefined;
+  }
+
+  private buildUserFilterParams(
+    filters: Record<string, any> | undefined,
+    pagination: { page?: number; limit?: number },
+  ): UserFilters {
+    return {
+      page: pagination.page ?? 1,
+      limit: pagination.limit ?? 10,
+      search: typeof filters?.search === 'string' ? filters.search : undefined,
+      role: filters?.role,
+      isActive: typeof filters?.isActive === 'boolean' ? filters.isActive : undefined,
+    };
+  }
+
+  private parseBooleanFilter(value: unknown): boolean | undefined {
+    if (typeof value === 'boolean') {
+      return value;
+    }
+
+    if (typeof value === 'string') {
+      if (value === 'true') return true;
+      if (value === 'false') return false;
+    }
+
+    return undefined;
+  }
+
+  private parseRoleFilter(value: unknown): UserRole | undefined {
+    if (!value) {
+      return undefined;
+    }
+
+    const roleValue = typeof value === 'string' ? value : (value as any)?.toString?.();
+    if (!roleValue) {
+      return undefined;
+    }
+
+    return Object.values(UserRole).includes(roleValue as UserRole)
+      ? (roleValue as UserRole)
+      : undefined;
   }
 
   private toAdminUserResponse(user: User): AdminUserResponseDto {

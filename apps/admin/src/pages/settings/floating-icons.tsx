@@ -15,8 +15,10 @@ import {
   FloatingWidgetActionConfig,
   FloatingWidgetActionConfigList,
   FloatingWidgetActionType,
+  FloatingWidgetActionEffect,
   floatingWidgetActionListSchema,
   floatingWidgetActionTypeValues,
+  floatingWidgetActionEffectValues,
 } from '@shared/types/floating-widget.types';
 import { FiArrowDown, FiArrowUp, FiEdit2, FiPlus, FiRefreshCw, FiSave, FiTrash2 } from 'react-icons/fi';
 import UnifiedIcon from '../../components/common/UnifiedIcon';
@@ -62,6 +64,13 @@ const TYPE_OPTIONS = floatingWidgetActionTypeValues.map((value) => ({
     .replace(/^(.)/, (match) => match.toUpperCase()),
 }));
 
+const EFFECT_LABELS: Record<FloatingWidgetActionEffect, string> = {
+  none: 'No animation',
+  pulse: 'Soft pulse',
+  ring: 'Call ring',
+  bounce: 'Bounce',
+};
+
 const emptyMetadata = (): NonNullable<FloatingWidgetActionConfig['metadata']> => ({
   phoneNumber: undefined,
   email: undefined,
@@ -76,6 +85,7 @@ const normalizeItems = (items: FloatingWidgetActionConfig[]): FloatingWidgetActi
     .map((item) => ({
       ...item,
       icon: item.icon || DEFAULT_ICON_BY_TYPE[item.type],
+      effect: item.effect || 'none',
       metadata: { ...emptyMetadata(), ...(item.metadata || {}) },
     }))
     .sort((a, b) => a.order - b.order)
@@ -107,6 +117,14 @@ const FloatingIconFormModal: React.FC<FloatingIconFormModalProps> = ({
   nextOrder,
 }) => {
   const { t } = useTranslationWithBackend();
+  const effectOptions = useMemo(
+    () =>
+      floatingWidgetActionEffectValues.map((value) => ({
+        value,
+        label: t(`floating_icons.form.effect_option.${value}`, EFFECT_LABELS[value]),
+      })),
+    [t]
+  );
   const [draft, setDraft] = useState<FloatingWidgetActionConfig>(() =>
     initialItem ?? {
       id: generateId(),
@@ -118,6 +136,7 @@ const FloatingIconFormModal: React.FC<FloatingIconFormModalProps> = ({
       isActive: true,
       backgroundColor: '#0ea5e9',
       textColor: '#ffffff',
+      effect: 'none',
       tooltip: '',
       href: '',
       metadata: emptyMetadata(),
@@ -129,6 +148,7 @@ const FloatingIconFormModal: React.FC<FloatingIconFormModalProps> = ({
     if (initialItem) {
       setDraft({
         ...initialItem,
+        effect: initialItem.effect || 'none',
         metadata: { ...emptyMetadata(), ...(initialItem.metadata || {}) },
       });
     } else {
@@ -142,6 +162,7 @@ const FloatingIconFormModal: React.FC<FloatingIconFormModalProps> = ({
         isActive: true,
         backgroundColor: '#0ea5e9',
         textColor: '#ffffff',
+        effect: 'none',
         tooltip: '',
         href: '',
         metadata: emptyMetadata(),
@@ -307,8 +328,27 @@ const FloatingIconFormModal: React.FC<FloatingIconFormModalProps> = ({
             />
             <div className="flex items-center gap-2 text-xs text-gray-500">
               <span>{t('floating_icons.form.icon_preview', 'Preview')}:</span>
-              <UnifiedIcon icon={draft.icon || DEFAULT_ICON_BY_TYPE[draft.type]} />
+              <UnifiedIcon
+                icon={draft.icon || DEFAULT_ICON_BY_TYPE[draft.type]}
+                style={{ color: draft.textColor || '#ffffff' }}
+              />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-effect">
+              {t('floating_icons.form.effect', 'Icon animation')}
+            </label>
+            <Select
+              id="floating-icon-effect"
+              value={draft.effect || 'none'}
+              options={effectOptions}
+              onChange={(value) => handleChange('effect', value as FloatingWidgetActionEffect)}
+              placeholder={t('floating_icons.form.effect_placeholder', 'Select animation')}
+            />
+            <p className="text-xs text-gray-500">
+              {t('floating_icons.form.effect_hint', 'Use animations to highlight important actions like hotlines.')}
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -687,13 +727,15 @@ const FloatingIconsSettingsPage: React.FC = () => {
             >
               <div className="flex items-start gap-4">
                 <div
-                  className="flex h-12 w-12 items-center justify-center rounded-full text-white"
+                  className="flex h-12 w-12 items-center justify-center rounded-full"
                   style={{
                     backgroundColor: item.backgroundColor || '#0ea5e9',
-                    color: item.textColor || '#ffffff',
                   }}
                 >
-                  <UnifiedIcon icon={item.icon || DEFAULT_ICON_BY_TYPE[item.type]} />
+                  <UnifiedIcon
+                    icon={item.icon || DEFAULT_ICON_BY_TYPE[item.type]}
+                    style={{ color: item.textColor || '#ffffff' }}
+                  />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -711,6 +753,13 @@ const FloatingIconsSettingsPage: React.FC = () => {
                     <p className="mt-1 text-sm text-gray-600">{item.description}</p>
                   )}
                   <div className="mt-2 space-y-1 text-xs text-gray-500">
+                    <p>
+                      <strong>{t('floating_icons.labels.effect', 'Animation')}:</strong>{' '}
+                      {t(
+                        `floating_icons.form.effect_option.${item.effect || 'none'}`,
+                        EFFECT_LABELS[item.effect || 'none']
+                      )}
+                    </p>
                     {item.tooltip && (
                       <p>
                         <strong>{t('floating_icons.labels.tooltip', 'Tooltip')}:</strong> {item.tooltip}

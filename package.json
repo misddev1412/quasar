@@ -21,7 +21,10 @@
     "frontend:dev:3002": "PORT=3002 nx serve frontend",
     "worker:build": "nx build worker",
     "worker:dev": "nx run worker:dev",
-    "worker:serve": "nx serve worker"
+    "worker:serve": "nx serve worker",
+    "cron:build": "nx build cron",
+    "cron:dev": "nx run cron:dev",
+    "cron:serve": "nx serve cron"
   },
   "devDependencies": {
     "@babel/core": "^7.14.5",

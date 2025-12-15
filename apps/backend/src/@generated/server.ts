@@ -1,7 +1,7 @@
 // AppRouter types for tRPC client
 // This file is auto-generated from actual nestjs-trpc routers
 // Run 'npm run sync:trpc-types' to regenerate this file
-// Generated on: 2025-11-27T15:42:23.031Z
+// Generated on: 2025-12-12T14:40:17.049Z
 
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
@@ -15,6 +15,14 @@ const appRouter = t.router({
   adminChartData: t.router({
     getChartData: t.procedure.query(() => null),
     getAvailableChartTypes: t.procedure.query(() => null),
+  }),
+  adminComponentConfigs: t.router({
+    list: t.procedure.input(z.any()).query(() => null),
+    byId: t.procedure.query(() => null),
+    byKey: t.procedure.query(() => null),
+    create: t.procedure.input(z.any()).mutation(() => null),
+    update: t.procedure.input(z.any()).mutation(() => null),
+    delete: t.procedure.input(z.any()).mutation(() => null),
   }),
   adminEmailChannel: t.router({
     createChannel: t.procedure.input(z.any()).mutation(() => null),
@@ -433,11 +441,15 @@ const appRouter = t.router({
   }),
   adminProducts: t.router({
     list: t.procedure.input(z.any()).query(() => null),
+    exportProducts: t.procedure.input(z.any()).mutation(() => null),
+    estimateExportProducts: t.procedure.query(() => null),
+    listExportJobs: t.procedure.query(() => null),
     addTestMedia: t.procedure.input(z.any()).mutation(() => null),
     detail: t.procedure.input(z.any()).query(() => null),
     variantDetail: t.procedure.query(() => null),
     create: t.procedure.input(z.any()).mutation(() => null),
     importFromExcel: t.procedure.input(z.any()).mutation(() => null),
+    downloadExcelTemplate: t.procedure.query(() => null),
     update: t.procedure.input(z.any()).mutation(() => null),
     updateVariant: t.procedure.input(z.any()).mutation(() => null),
     delete: t.procedure.input(z.any()).mutation(() => null),
@@ -448,8 +460,8 @@ const appRouter = t.router({
     list: t.procedure.input(z.any()).query(() => null),
   }),
   clientOrders: t.router({
-    lookup: t.procedure.input(z.any()).query(() => null),
     list: t.procedure.input(z.any()).query(() => null),
+    lookup: t.procedure.query(() => null),
     detail: t.procedure.input(z.any()).query(() => null),
     create: t.procedure.input(z.any()).mutation(() => null),
     recent: t.procedure.query(() => null),
@@ -463,6 +475,7 @@ const appRouter = t.router({
     byCategory: t.procedure.query(() => null),
     byBrand: t.procedure.query(() => null),
     search: t.procedure.query(() => null),
+    downloadExcelTemplate: t.procedure.query(() => null),
   }),
   'admin.seo': t.router({
     getAll: t.procedure.query(() => null),
@@ -529,6 +542,16 @@ const appRouter = t.router({
     getWidgetPositions: t.procedure.query(() => null),
     getWidgetThemes: t.procedure.query(() => null),
     testAvailability: t.procedure.query(() => null),
+  }),
+  adminTranslation: t.router({
+    getTranslations: t.procedure.query(() => null),
+    getTranslationById: t.procedure.query(() => null),
+    getLocales: t.procedure.query(() => null),
+    getNamespaces: t.procedure.query(() => null),
+    createTranslation: t.procedure.input(z.any()).mutation(() => null),
+    updateTranslation: t.procedure.input(z.any()).mutation(() => null),
+    deleteTranslation: t.procedure.input(z.any()).mutation(() => null),
+    toggleTranslationStatus: t.procedure.input(z.any()).mutation(() => null),
   }),
   adminAddressBook: t.router({
     list: t.procedure.input(z.any()).query(() => null),
@@ -598,6 +621,9 @@ const appRouter = t.router({
     getProfile: t.procedure.query(() => null),
     updateProfile: t.procedure.input(z.any()).mutation(() => null),
     updatePassword: t.procedure.input(z.any()).mutation(() => null),
+    estimateExportUsers: t.procedure.query(() => null),
+    exportUsers: t.procedure.input(z.any()).mutation(() => null),
+    listExportJobs: t.procedure.query(() => null),
   }),
   clientAddressBook: t.router({
     getAddresses: t.procedure.query(() => null),

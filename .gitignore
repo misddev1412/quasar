@@ -27,8 +27,14 @@ out/
 .env.production.local
 .env.*.local
 
+# Script environment files
+scripts/.env.*.local
+scripts/.env.run
+
 # Allow environment templates
 !.env.example
+scripts/.env.build
+scripts/.env.deploy
 !env.template
 
 # Logs

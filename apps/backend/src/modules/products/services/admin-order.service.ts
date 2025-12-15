@@ -6,6 +6,9 @@ import { ResponseService } from '@backend/modules/shared/services/response.servi
 import { Order, OrderStatus, PaymentStatus, OrderSource } from '../entities/order.entity';
 import { OrderItem } from '../entities/order-item.entity';
 import { ApiStatusCodes } from '@shared';
+import { DataExportService } from '../../export/services/data-export.service';
+import { ExportFormat } from '../../export/entities/data-export-job.entity';
+import { ORDER_EXPORT_COLUMNS } from '../export/order-export.columns';
 
 export interface AdminOrderFilters {
   page: number;
@@ -118,6 +121,7 @@ export class AdminOrderService {
     private readonly productRepository: ProductRepository,
     private readonly productVariantRepository: ProductVariantRepository,
     private readonly responseHandler: ResponseService,
+    private readonly dataExportService: DataExportService,
   ) {}
 
   async getProductPriceInfo(productId: string, productVariantId?: string) {
@@ -220,6 +224,135 @@ export class AdminOrderService {
       throw new NotFoundException('Order not found');
     }
     return order;
+  }
+
+  private parseExportFilters(filters?: string | Record<string, any>): Record<string, any> | undefined {
+    if (!filters) {
+      return undefined;
+    }
+
+    if (typeof filters === 'object') {
+      return filters;
+    }
+
+    try {
+      return JSON.parse(filters);
+    } catch (error) {
+      throw this.responseHandler.createError(
+        ApiStatusCodes.BAD_REQUEST,
+        'Invalid filters payload',
+        'INVALID_FILTERS'
+      );
+    }
+  }
+
+  private sanitizeExportFilters(filters?: Record<string, any>): OrderFilters | undefined {
+    if (!filters) {
+      return undefined;
+    }
+
+    const sanitized: OrderFilters = {};
+
+    if (typeof filters.search === 'string' && filters.search.trim()) {
+      sanitized.search = filters.search.trim();
+    }
+
+    const status = typeof filters.status === 'string' ? filters.status.toUpperCase() : undefined;
+    if (status && Object.values(OrderStatus).includes(status as OrderStatus)) {
+      sanitized.status = status as OrderStatus;
+    }
+
+    const paymentStatus =
+      typeof filters.paymentStatus === 'string' ? filters.paymentStatus.toUpperCase() : undefined;
+    if (paymentStatus && Object.values(PaymentStatus).includes(paymentStatus as PaymentStatus)) {
+      sanitized.paymentStatus = paymentStatus as PaymentStatus;
+    }
+
+    const source = typeof filters.source === 'string' ? filters.source.toUpperCase() : undefined;
+    if (source && Object.values(OrderSource).includes(source as OrderSource)) {
+      sanitized.source = source as OrderSource;
+    }
+
+    if (typeof filters.customerId === 'string' && filters.customerId.trim()) {
+      sanitized.customerId = filters.customerId.trim();
+    }
+
+    if (typeof filters.customerEmail === 'string' && filters.customerEmail.trim()) {
+      sanitized.customerEmail = filters.customerEmail.trim();
+    }
+
+    if (typeof filters.orderNumber === 'string' && filters.orderNumber.trim()) {
+      sanitized.orderNumber = filters.orderNumber.trim();
+    }
+
+    const parseNumber = (value: unknown): number | undefined => {
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        return value;
+      }
+      if (typeof value === 'string' && value.trim()) {
+        const parsed = Number(value);
+        if (Number.isFinite(parsed)) {
+          return parsed;
+        }
+      }
+      return undefined;
+    };
+
+    const minAmount = parseNumber(filters.minAmount);
+    if (minAmount !== undefined) {
+      sanitized.minAmount = minAmount;
+    }
+
+    const maxAmount = parseNumber(filters.maxAmount);
+    if (maxAmount !== undefined) {
+      sanitized.maxAmount = maxAmount;
+    }
+
+    const normalizeBoolean = (value: unknown): boolean | undefined => {
+      if (typeof value === 'boolean') {
+        return value;
+      }
+      if (typeof value === 'string') {
+        if (value.toLowerCase() === 'true') return true;
+        if (value.toLowerCase() === 'false') return false;
+      }
+      return undefined;
+    };
+
+    const isPaid = normalizeBoolean(filters.isPaid);
+    if (isPaid !== undefined) {
+      sanitized.isPaid = isPaid;
+    }
+
+    const isCompleted = normalizeBoolean(filters.isCompleted);
+    if (isCompleted !== undefined) {
+      sanitized.isCompleted = isCompleted;
+    }
+
+    const isCancelled = normalizeBoolean(filters.isCancelled);
+    if (isCancelled !== undefined) {
+      sanitized.isCancelled = isCancelled;
+    }
+
+    const assignDate = (sourceValue: unknown): string | undefined => {
+      if (typeof sourceValue === 'string' && sourceValue.trim()) {
+        return sourceValue;
+      }
+      return undefined;
+    };
+
+    sanitized.dateFrom = assignDate(filters.dateFrom);
+    sanitized.dateTo = assignDate(filters.dateTo);
+    sanitized.shippedDateFrom = assignDate(filters.shippedDateFrom);
+    sanitized.shippedDateTo = assignDate(filters.shippedDateTo);
+    sanitized.deliveredDateFrom = assignDate(filters.deliveredDateFrom);
+    sanitized.deliveredDateTo = assignDate(filters.deliveredDateTo);
+
+    const hasFilters = Object.values(sanitized as Record<string, unknown>).some(
+      (value) => value !== undefined && value !== null
+    );
+
+    return hasFilters ? sanitized : undefined;
   }
 
   async createOrder(orderData: CreateOrderDto): Promise<Order> {
@@ -579,5 +712,42 @@ export class AdminOrderService {
     }
 
     return item;
+  }
+
+  async exportOrders(format: string, filters?: string | Record<string, any>, requestedBy?: string) {
+    const parsedFilters = this.parseExportFilters(filters);
+    const sanitizedFilters = this.sanitizeExportFilters(parsedFilters);
+    const resolvedFormat: ExportFormat = format === 'json' ? 'json' : 'csv';
+
+    return this.dataExportService.requestExportJob({
+      resource: 'orders',
+      format: resolvedFormat,
+      filters: sanitizedFilters as Record<string, any> | undefined,
+      columns: ORDER_EXPORT_COLUMNS,
+      options: {
+        pageSize: 500,
+      },
+      requestedBy,
+    });
+  }
+
+  async estimateOrderExport(filters?: string | Record<string, any>) {
+    const parsedFilters = this.parseExportFilters(filters);
+    const sanitizedFilters = this.sanitizeExportFilters(parsedFilters);
+    const result = await this.orderRepository.findAll({
+      page: 1,
+      limit: 1,
+      filters: sanitizedFilters || {},
+    });
+
+    return { total: result.total };
+  }
+
+  async listOrderExportJobs(limit = 10, requestedBy?: string, page = 1) {
+    return this.dataExportService.listJobs('orders', {
+      limit,
+      page,
+      requestedBy,
+    });
   }
 }

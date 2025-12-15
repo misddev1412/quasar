@@ -127,41 +127,57 @@ export class LoyaltyTransactionRepository extends BaseRepository<LoyaltyTransact
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    return this.repository
+    const results = await this.repository
       .createQueryBuilder('transaction')
       .leftJoin('transaction.customer', 'customer')
       .select('customer.id', 'customerId')
       .addSelect('customer.email', 'customerEmail')
       .addSelect('customer.firstName', 'customerFirstName')
       .addSelect('customer.lastName', 'customerLastName')
-      .addSelect('SUM(transaction.points)', 'totalPoints')
-      .addSelect('COUNT(transaction.id)', 'transactionCount')
+      .addSelect('SUM(transaction.points)', 'total_points')
+      .addSelect('COUNT(transaction.id)', 'transaction_count')
       .where('transaction.type = :type', { type: TransactionType.EARNED })
       .andWhere('transaction.createdAt >= :startDate', { startDate })
       .groupBy('customer.id')
-      .orderBy('totalPoints', 'DESC')
+      .orderBy('total_points', 'DESC')
       .take(limit)
       .getRawMany();
+
+    return results.map(result => ({
+      customerId: result.customerId,
+      customerEmail: result.customerEmail,
+      customerFirstName: result.customerFirstName,
+      customerLastName: result.customerLastName,
+      totalPoints: parseInt(result.total_points || result.totalPoints || '0', 10),
+      transactionCount: parseInt(result.transaction_count || result.transactionCount || '0', 10),
+    }));
   }
 
   async getPopularRewards(days: number = 30, limit: number = 10): Promise<any[]> {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    return this.repository
+    const results = await this.repository
       .createQueryBuilder('transaction')
       .leftJoin('transaction.reward', 'reward')
       .select('reward.id', 'rewardId')
       .addSelect('reward.name', 'rewardName')
-      .addSelect('COUNT(transaction.id)', 'redemptionCount')
-      .addSelect('SUM(transaction.points)', 'totalPointsSpent')
+      .addSelect('COUNT(transaction.id)', 'redemption_count')
+      .addSelect('SUM(transaction.points)', 'total_points_spent')
       .where('transaction.type = :type', { type: TransactionType.REDEEMED })
       .andWhere('transaction.createdAt >= :startDate', { startDate })
       .andWhere('reward.id IS NOT NULL')
       .groupBy('reward.id')
-      .orderBy('redemptionCount', 'DESC')
+      .orderBy('redemption_count', 'DESC')
       .take(limit)
       .getRawMany();
+
+    return results.map(result => ({
+      rewardId: result.rewardId,
+      rewardName: result.rewardName,
+      redemptionCount: parseInt(result.redemption_count || result.redemptionCount || '0', 10),
+      totalPointsSpent: parseInt(result.total_points_spent || result.totalPointsSpent || '0', 10),
+    }));
   }
 
   // Remove method is not in BaseRepository, so we need to add it

@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, OneToMany, ManyToOne, JoinColumn, DeleteDateColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
 import { Order } from './order.entity';
@@ -275,7 +275,7 @@ export class Customer extends BaseEntity {
   taxId?: string;
 
   // Relations
-  @ManyToOne(() => User, user => user.customers, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
@@ -291,6 +291,22 @@ export class Customer extends BaseEntity {
 
   @OneToMany(() => CustomerTransaction, (transaction) => transaction.customer)
   transactions?: CustomerTransaction[];
+
+  @Expose()
+  @DeleteDateColumn({
+    name: 'deleted_at',
+    type: 'timestamp',
+    nullable: true,
+  })
+  deletedAt?: Date;
+
+  @Expose()
+  @Column({
+    name: 'deleted_by',
+    type: 'uuid',
+    nullable: true,
+  })
+  deletedBy?: string;
 
   // Virtual properties
   get fullName(): string {

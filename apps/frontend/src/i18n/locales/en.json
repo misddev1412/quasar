@@ -200,6 +200,10 @@
         "validation": {
           "title": "Cart needs attention",
           "message": "Please resolve the highlighted issues before placing your order."
+        },
+        "redirect": {
+          "title": "Redirecting to PayOS",
+          "message": "Hang tight, we’re taking you to the secure PayOS checkout page to finish your payment."
         }
       },
       "orderSummary": {
@@ -1367,7 +1371,8 @@
           "credit_card": "Credit Card",
           "paypal": "PayPal",
           "bank_transfer": "Bank Transfer",
-          "cash_on_delivery": "Cash on Delivery"
+          "cash_on_delivery": "Cash on Delivery",
+          "payos": "PayOS"
         },
         "support": {
           "title": "Need Help?",
@@ -1676,6 +1681,14 @@
     "business_information": "Business Information",
     "address_information": "Address Information",
     "additional_info": "Additional Information",
+    "sections": {
+      "basic_information": "Basic Information",
+      "notification_settings": "Notification Settings",
+      "notification_settings_description": "Configure your notification preferences"
+    },
+    "tabs": {
+      "preferences": "Preferences"
+    },
     "required_field": "Required field",
     "optional_field": "Optional",
     "choose_file": "Choose file",
@@ -1810,6 +1823,11 @@
       "empty": "No products are available in this category yet.",
       "carousel_prev": "Scroll left",
       "carousel_next": "Scroll right",
+      "sidebar_label": "Mega menu",
+      "sidebar_default_title": "Shop by collection",
+      "sidebar_default_description": "Quickly jump between featured categories and curated collections.",
+      "sidebar_section_title": "Menu group",
+      "sidebar_link_aria": "Go to {{label}}",
       "strategies": {
         "latest": "Latest products",
         "featured": "Featured picks",

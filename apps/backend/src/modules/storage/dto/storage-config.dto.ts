@@ -48,6 +48,10 @@ export class UpdateStorageConfigDto {
   @IsOptional()
   @IsBoolean()
   s3ForcePathStyle?: boolean;
+
+  @IsOptional()
+  @IsString()
+  s3CdnUrl?: string;
 }
 
 export class FileUploadDto {
@@ -86,4 +90,5 @@ export class StorageConfigResponseDto {
   s3Endpoint?: string;
   s3ForcePathStyle?: boolean;
   s3HasCredentials?: boolean; // indicate if credentials are configured
+  s3CdnUrl?: string;
 }

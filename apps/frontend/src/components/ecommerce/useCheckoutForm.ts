@@ -491,7 +491,7 @@ export const useCheckoutForm = ({
   );
 
   const deliveryMethodsQuery = trpc.clientDeliveryMethods.list.useQuery(deliveryMethodInput, {
-    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
   });
 
   const deliveryMethods = useMemo<DeliveryMethodOption[]>(() => {

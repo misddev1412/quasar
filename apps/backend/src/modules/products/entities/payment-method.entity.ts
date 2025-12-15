@@ -6,7 +6,9 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   Index,
+  OneToOne,
 } from 'typeorm';
+import { PaymentMethodProvider } from './payment-method-provider.entity';
 
 export enum PaymentMethodType {
   CREDIT_CARD = 'CREDIT_CARD',
@@ -17,23 +19,13 @@ export enum PaymentMethodType {
   CHECK = 'CHECK',
   CRYPTOCURRENCY = 'CRYPTOCURRENCY',
   BUY_NOW_PAY_LATER = 'BUY_NOW_PAY_LATER',
+  PAYOS = 'PAYOS',
   OTHER = 'OTHER',
 }
 
 export enum ProcessingFeeType {
   FIXED = 'FIXED',
   PERCENTAGE = 'PERCENTAGE',
-}
-
-export interface PaymentMethodConfiguration {
-  apiKey?: string;
-  secretKey?: string;
-  endpoint?: string;
-  merchantId?: string;
-  publicKey?: string;
-  webhookUrl?: string;
-  testMode?: boolean;
-  [key: string]: any; // Allow additional configuration fields
 }
 
 @Entity('payment_methods')
@@ -108,13 +100,6 @@ export class PaymentMethod {
   })
   supportedCurrencies?: string[];
 
-  @Column({
-    type: 'json',
-    nullable: true,
-    comment: 'Payment method specific configuration (API keys, endpoints, etc.)',
-  })
-  configuration?: PaymentMethodConfiguration;
-
   @Column({ name: 'icon_url', type: 'varchar', length: 500, nullable: true })
   iconUrl?: string;
 
@@ -130,6 +115,9 @@ export class PaymentMethod {
 
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamp', nullable: true })
   deletedAt?: Date;
+
+  @OneToOne(() => PaymentMethodProvider, (provider) => provider.paymentMethod, { cascade: true })
+  providerConfig?: PaymentMethodProvider;
 
   // Helper methods
   calculateProcessingFee(amount: number): number {

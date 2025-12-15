@@ -14,7 +14,6 @@ export interface CreatePaymentMethodDto {
   minAmount?: number;
   maxAmount?: number;
   supportedCurrencies?: string[];
-  configuration?: any;
   iconUrl?: string;
   isDefault?: boolean;
 }
@@ -30,7 +29,6 @@ export interface UpdatePaymentMethodDto {
   minAmount?: number;
   maxAmount?: number;
   supportedCurrencies?: string[];
-  configuration?: any;
   iconUrl?: string;
   isDefault?: boolean;
 }

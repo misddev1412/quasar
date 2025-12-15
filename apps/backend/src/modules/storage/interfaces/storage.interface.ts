@@ -27,6 +27,7 @@ export interface S3StorageConfig extends StorageConfig {
   bucket: string;
   endpoint?: string;
   forcePathStyle?: boolean;
+  cdnUrl?: string;
 }
 
 export interface FileUploadOptions {

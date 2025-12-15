@@ -1,6 +1,8 @@
 import React from 'react';
 import clsx from 'clsx';
 
+const BASE_LABEL_CLASS = 'block text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400';
+
 interface DateInputProps {
   id?: string;
   label?: string;
@@ -14,6 +16,7 @@ interface DateInputProps {
   min?: string;
   max?: string;
   size?: 'sm' | 'md' | 'lg';
+  labelClassName?: string;
 }
 
 export const DateInput: React.FC<DateInputProps> = ({
@@ -29,6 +32,7 @@ export const DateInput: React.FC<DateInputProps> = ({
   min,
   max,
   size = 'md',
+  labelClassName,
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange?.(e.target.value);
@@ -46,7 +50,7 @@ export const DateInput: React.FC<DateInputProps> = ({
       {label && (
         <label
           htmlFor={id}
-          className="block text-sm font-medium text-neutral-800 dark:text-neutral-200"
+          className={clsx(BASE_LABEL_CLASS, labelClassName)}
         >
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}

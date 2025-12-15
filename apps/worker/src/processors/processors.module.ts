@@ -5,6 +5,7 @@ import { EmailProcessor } from './email.processor';
 import { NotificationProcessor } from './notification.processor';
 import { OrderProcessor } from './order.processor';
 import { ReportProcessor } from './report.processor';
+import { ExportProcessor } from './export.processor';
 
 @Module({
   providers: [
@@ -12,12 +13,14 @@ import { ReportProcessor } from './report.processor';
     NotificationProcessor,
     OrderProcessor,
     ReportProcessor,
+    ExportProcessor,
   ],
   exports: [
     EmailProcessor,
     NotificationProcessor,
     OrderProcessor,
     ReportProcessor,
+    ExportProcessor,
   ],
 })
 export class ProcessorsModule implements OnModuleInit {
@@ -29,7 +32,8 @@ export class ProcessorsModule implements OnModuleInit {
     private readonly emailProcessor: EmailProcessor,
     private readonly notificationProcessor: NotificationProcessor,
     private readonly orderProcessor: OrderProcessor,
-    private readonly reportProcessor: ReportProcessor
+    private readonly reportProcessor: ReportProcessor,
+    private readonly exportProcessor: ExportProcessor,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -56,6 +60,11 @@ export class ProcessorsModule implements OnModuleInit {
     if (queues?.report) {
       this.consumer.registerHandler(queues.report, this.reportProcessor);
       this.logger.log(`Registered ReportProcessor for queue: ${queues.report}`);
+    }
+
+    if (queues?.export) {
+      this.consumer.registerHandler(queues.export, this.exportProcessor);
+      this.logger.log(`Registered ExportProcessor for queue: ${queues.export}`);
     }
 
     // Start consuming messages

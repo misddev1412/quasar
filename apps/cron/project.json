@@ -1,0 +1,51 @@
+{
+  "name": "cron",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/cron/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/cron",
+        "command": "webpack-cli build",
+        "args": ["--node-env=production"]
+      },
+      "configurations": {
+        "development": {
+          "args": ["--node-env=development", "--watch"]
+        }
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "defaultConfiguration": "development",
+      "configurations": {
+        "development": {
+          "cwd": "apps/cron",
+          "commands": [
+            "webpack-cli build --node-env=development",
+            "node ../../dist/apps/cron/main.js"
+          ],
+          "parallel": false
+        },
+        "production": {
+          "cwd": "apps/cron",
+          "commands": [
+            "webpack-cli build --node-env=production",
+            "node ../../dist/apps/cron/main.js"
+          ],
+          "parallel": false
+        }
+      }
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/cron",
+        "command": "nodemon --watch src --ext ts --exec \"webpack-cli build --node-env=development && node ../../dist/apps/cron/main.js\""
+      }
+    }
+  },
+  "tags": []
+}

@@ -28,9 +28,11 @@ import { Order } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { Customer } from './entities/customer.entity';
 import { User } from '../user/entities/user.entity';
+import { CustomerTransaction, CustomerTransactionEntry } from '../user/entities/customer-transaction.entity';
 import { Country } from './entities/country.entity';
 import { AdministrativeDivision } from './entities/administrative-division.entity';
 import { PaymentMethod } from './entities/payment-method.entity';
+import { PaymentMethodProvider } from './entities/payment-method-provider.entity';
 import { DeliveryMethod } from './entities/delivery-method.entity';
 import { Wishlist } from './entities/wishlist.entity';
 import { ShippingProvider } from './entities/shipping-provider.entity';
@@ -56,6 +58,7 @@ import { CustomerRepository } from './repositories/customer.repository';
 import { CountryRepository } from './repositories/country.repository';
 import { AdministrativeDivisionRepository } from './repositories/administrative-division.repository';
 import { PaymentMethodRepository } from './repositories/payment-method.repository';
+import { PaymentMethodProviderRepository } from './repositories/payment-method-provider.repository';
 import { DeliveryMethodRepository } from './repositories/delivery-method.repository';
 import { WishlistRepository } from './repositories/wishlist.repository';
 import { ShippingProviderRepository } from './repositories/shipping-provider.repository';
@@ -93,10 +96,12 @@ import { AdminDeliveryMethodsRouter } from './routers/admin-delivery-methods.rou
 import { AdminWishlistRouter } from './routers/admin-wishlist.router';
 import { ClientOrdersRouter } from './routers/client-orders.router';
 import { ClientDeliveryMethodsRouter } from './routers/client-delivery-methods.router';
-import { ClientProductsRouter } from '../../trpc/routers/client/products.router';
 import { StorageModule } from '../storage/storage.module';
 import { TranslationModule } from '../translation/translation.module';
 import { SettingsModule } from '../settings/settings.module';
+import { DataExportModule } from '../export/data-export.module';
+import { PayosService } from './services/payos.service';
+import { PayosWebhookController } from './controllers/payos-webhook.controller';
 
 @Module({
   imports: [
@@ -128,10 +133,13 @@ import { SettingsModule } from '../settings/settings.module';
       Order,
       OrderItem,
       Customer,
+      CustomerTransaction,
+      CustomerTransactionEntry,
       Country,
       Currency,
       AdministrativeDivision,
       PaymentMethod,
+      PaymentMethodProvider,
       DeliveryMethod,
       Wishlist,
       User,
@@ -144,7 +152,9 @@ import { SettingsModule } from '../settings/settings.module';
     StorageModule,
     TranslationModule,
     SettingsModule,
+    DataExportModule,
   ],
+  controllers: [PayosWebhookController],
   providers: [
     AttributeRepository,
     BrandRepository,
@@ -164,6 +174,7 @@ import { SettingsModule } from '../settings/settings.module';
     CountryRepository,
     AdministrativeDivisionRepository,
     PaymentMethodRepository,
+    PaymentMethodProviderRepository,
     DeliveryMethodRepository,
     WishlistRepository,
     ShippingProviderRepository,
@@ -179,6 +190,7 @@ import { SettingsModule } from '../settings/settings.module';
     AdminCurrencyService,
     AdminShippingProviderService,
     PaymentMethodService,
+    PayosService,
     DeliveryMethodService,
     ClientOrderService,
     OrderFulfillmentService,
@@ -200,7 +212,6 @@ import { SettingsModule } from '../settings/settings.module';
     AdminWishlistRouter,
     ClientOrdersRouter,
     ClientOrderService,
-    ClientProductsRouter,
     ClientDeliveryMethodsRouter,
   ],
   exports: [
@@ -223,6 +234,7 @@ import { SettingsModule } from '../settings/settings.module';
     CountryRepository,
     AdministrativeDivisionRepository,
     PaymentMethodRepository,
+    PaymentMethodProviderRepository,
     DeliveryMethodRepository,
     WishlistRepository,
     ShippingProviderRepository,
@@ -237,6 +249,7 @@ import { SettingsModule } from '../settings/settings.module';
     AdminCustomerService,
     AdminCurrencyService,
     PaymentMethodService,
+    PayosService,
     DeliveryMethodService,
     AdminProductsRouter,
     AdminProductAttributesRouter,
@@ -255,7 +268,6 @@ import { SettingsModule } from '../settings/settings.module';
     AdminWishlistRouter,
     ClientOrdersRouter,
     ClientOrderService,
-    ClientProductsRouter,
     ClientDeliveryMethodsRouter,
     OrderFulfillmentService,
     ShippingProviderService,

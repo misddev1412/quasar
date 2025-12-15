@@ -529,7 +529,13 @@ const Footer: React.FC<FooterProps> = ({
         </div>
         {lastUpdated && (
           <p className={clsx('text-xs', themeClasses.subtle)} style={getTextStyle(0.75)}>
-            Cập nhật: {new Date(lastUpdated).toLocaleString()}
+            Cập nhật: {new Date(lastUpdated).toLocaleString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
           </p>
         )}
       </div>

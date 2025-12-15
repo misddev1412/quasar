@@ -12,6 +12,7 @@ import SettingsPage from '../pages/settings';
 import OrderSettingsPage from '../pages/settings/orders';
 import SettingsVisibilityPage from '../pages/settings/visibility';
 import FloatingIconsSettingsPage from '../pages/settings/floating-icons';
+import AdminBrandingPage from '../pages/settings/admin-branding';
 import BrandAssetsPage from '../pages/brand-assets';
 import AnalyticsConfigurationPage from '../pages/analytics';
 import UserProfilePage from '../pages/profile';
@@ -19,6 +20,7 @@ import UserListPage from '../pages/users';
 import UserDashboardPage from '../pages/users/dashboard';
 import UserCreatePage from '../pages/users/create';
 import UserUpdatePage from '../pages/users/update';
+import UserExportsPage from '../pages/users/exports';
 import RoleIndexPage from '../pages/roles';
 import RoleCreatePage from '../pages/roles/create';
 import RoleUpdatePage from '../pages/roles/update';
@@ -49,6 +51,10 @@ import SiteContentEditPage from '../pages/site-content/edit';
 import LanguagesIndexPage from '../pages/languages';
 import LanguagesCreatePage from '../pages/languages/create';
 import LanguagesEditPage from '../pages/languages/edit';
+// Translation Management
+import TranslationsIndexPage from '../pages/translations';
+import TranslationsCreatePage from '../pages/translations/create';
+import TranslationsEditPage from '../pages/translations/edit';
 // Currency Management
 import CurrenciesIndexPage from '../pages/currencies';
 import CurrenciesCreatePage from '../pages/currencies/create';
@@ -66,6 +72,7 @@ import CreateShippingProviderPage from '../pages/shipping-providers/create';
 import EditShippingProviderPage from '../pages/shipping-providers/[id]/edit';
 // Product Management
 import ProductsIndexPage from '../pages/products';
+import ProductExportsPage from '../pages/products/exports';
 import AttributesPage from '../pages/products/attributes';
 import BrandsPage from '../pages/products/brands';
 import SuppliersPage from '../pages/products/suppliers';
@@ -86,8 +93,11 @@ import HelpPage from '../pages/help';
 import StorefrontFooterPage from '../pages/storefront/footer';
 import StorefrontCheckoutSettingsPage from '../pages/storefront/checkout';
 import ComponentConfigsPage from '../pages/component-configs';
+import ComponentConfigCreatePage from '../pages/component-configs/create';
+import ComponentConfigEditPage from '../pages/component-configs/[id]/edit';
 // Order Management
 import OrdersIndexPage from '../pages/orders';
+import OrdersExportsPage from '../pages/orders/exports';
 import OrderCreatePage from '../pages/orders/create';
 import OrderEditPage from '../pages/orders/edit';
 import OrderDetailPage from '../pages/orders/detail';
@@ -163,10 +173,12 @@ const AppRoutes: React.FC = () => {
       <Route path="/settings/orders" element={<ProtectedRoute><OrderSettingsPage /></ProtectedRoute>} />
       <Route path="/settings/floating-icons" element={<ProtectedRoute><FloatingIconsSettingsPage /></ProtectedRoute>} />
       <Route path="/settings/visibility" element={<ProtectedRoute><SettingsVisibilityPage /></ProtectedRoute>} />
+      <Route path="/settings/admin-branding" element={<ProtectedRoute><AdminBrandingPage /></ProtectedRoute>} />
       <Route path="/storage" element={<ProtectedRoute><StorageConfigPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
       <Route path="/help" element={<ProtectedRoute><HelpPage /></ProtectedRoute>} />
       <Route path="/users/dashboard" element={<ProtectedRoute><UserDashboardPage /></ProtectedRoute>} />
+      <Route path="/users/exports" element={<ProtectedRoute><UserExportsPage /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute><UserListPage /></ProtectedRoute>} />
       <Route path="/users/create" element={<ProtectedRoute><UserCreatePage /></ProtectedRoute>} />
       <Route path="/users/:id" element={<ProtectedRoute><UserUpdatePage /></ProtectedRoute>} />
@@ -203,6 +215,10 @@ const AppRoutes: React.FC = () => {
       <Route path="/languages" element={<ProtectedRoute><LanguagesIndexPage /></ProtectedRoute>} />
       <Route path="/languages/create" element={<ProtectedRoute><LanguagesCreatePage /></ProtectedRoute>} />
       <Route path="/languages/:id/edit" element={<ProtectedRoute><LanguagesEditPage /></ProtectedRoute>} />
+      {/* Translations */}
+      <Route path="/translations" element={<ProtectedRoute><TranslationsIndexPage /></ProtectedRoute>} />
+      <Route path="/translations/create" element={<ProtectedRoute><TranslationsCreatePage /></ProtectedRoute>} />
+      <Route path="/translations/:id/edit" element={<ProtectedRoute><TranslationsEditPage /></ProtectedRoute>} />
       {/* Currencies */}
       <Route path="/currencies" element={<ProtectedRoute><CurrenciesIndexPage /></ProtectedRoute>} />
       <Route path="/currencies/create" element={<ProtectedRoute><CurrenciesCreatePage /></ProtectedRoute>} />
@@ -222,7 +238,8 @@ const AppRoutes: React.FC = () => {
       {/* Telegram Configs */}
       <Route path="/telegram-configs" element={<ProtectedRoute><TelegramConfigsPage /></ProtectedRoute>} />
       {/* Product Management */}
-      <Route path="/products" element={<ProtectedRoute><ProductsIndexPage /></ProtectedRoute>} />
+        <Route path="/products" element={<ProtectedRoute><ProductsIndexPage /></ProtectedRoute>} />
+        <Route path="/products/exports" element={<ProtectedRoute><ProductExportsPage /></ProtectedRoute>} />
       <Route path="/products/create" element={<ProtectedRoute><CreateProductPage /></ProtectedRoute>} />
       <Route path="/products/:id/edit" element={<ProtectedRoute><EditProductPage /></ProtectedRoute>} />
       <Route path="/products/attributes" element={<ProtectedRoute><AttributesPage /></ProtectedRoute>} />
@@ -245,6 +262,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/menus" element={<Navigate to="/menus/main" replace />} />
       <Route path="/menus/:group" element={<ProtectedRoute><MenusPage /></ProtectedRoute>} />
       <Route path="/component-configs" element={<ProtectedRoute><ComponentConfigsPage /></ProtectedRoute>} />
+      <Route path="/component-configs/create" element={<ProtectedRoute><ComponentConfigCreatePage /></ProtectedRoute>} />
+      <Route path="/component-configs/:id/edit" element={<ProtectedRoute><ComponentConfigEditPage /></ProtectedRoute>} />
       <Route path="/storefront/checkout" element={<ProtectedRoute><StorefrontCheckoutSettingsPage /></ProtectedRoute>} />
       <Route path="/storefront/footer" element={<ProtectedRoute><StorefrontFooterPage /></ProtectedRoute>} />
       <Route path="/products/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
@@ -252,6 +271,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/products/categories/:id/edit" element={<ProtectedRoute><EditCategoryPage /></ProtectedRoute>} />
       {/* Order Management */}
       <Route path="/orders" element={<ProtectedRoute><OrdersIndexPage /></ProtectedRoute>} />
+      <Route path="/orders/exports" element={<ProtectedRoute><OrdersExportsPage /></ProtectedRoute>} />
       <Route path="/orders/new" element={<ProtectedRoute><OrderCreatePage /></ProtectedRoute>} />
       <Route path="/orders/:id" element={<ProtectedRoute><OrderDetailPage /></ProtectedRoute>} />
       <Route path="/orders/:id/edit" element={<ProtectedRoute><OrderEditPage /></ProtectedRoute>} />

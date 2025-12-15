@@ -48,6 +48,7 @@
     "createdFrom": "Created From",
     "createdTo": "Created To",
     "hideFilters": "Hide Filters",
+    "showFilters": "Show Filters",
     "options": "options",
     "reset": "Reset",
     "menu": "Menu",
@@ -461,6 +462,9 @@
     "edit_payment_method_description": "Modify payment method settings and configuration",
     "enter_payment_method_name": "Enter payment method name",
     "enter_payment_method_description": "Enter payment method description",
+    "provider_key_placeholder": "PROVIDER_KEY",
+    "provider_display_name_placeholder": "Payment provider display name",
+    "provider_type_placeholder": "PROVIDER_TYPE (e.g. PAYMENT_GATEWAY)",
     "total_payment_methods": "Total Payment Methods",
     "active_payment_methods": "Active Payment Methods",
     "inactive_payment_methods": "Inactive Payment Methods",
@@ -1420,7 +1424,161 @@
         "no_role_data": "No role distribution data available.",
         "no_recent_users": "No users have signed up recently."
       }
-    }
+    },
+    "table": {
+      "columns": {
+        "user": "User",
+        "username": "Username",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "createdAt": "Created At",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "search_placeholder": "Search users by name, email, or username...",
+      "no_data": "No users found"
+    },
+    "export": {
+      "queue_title": "Export queue",
+      "queue_description_processing": "Your latest exports are processing. This list refreshes automatically while jobs are running.",
+      "queue_description_ready": "Track the most recent export jobs and download the files when they are ready.",
+      "select_format": "Select format",
+      "format_csv": "CSV",
+      "format_json": "JSON",
+      "request_export": "Request export",
+      "queuing_export": "Queuing export",
+      "refresh": "Refresh",
+      "requested": "Requested",
+      "records": "records",
+      "preparing_records": "Preparing records",
+      "download": "Download",
+      "no_jobs": "No export jobs yet. Use the button above to queue your first export.",
+      "status_pending": "Pending",
+      "status_processing": "Processing",
+      "status_completed": "Completed",
+      "status_failed": "Failed",
+      "queued_success": "Export queued",
+      "queued_description": "We will notify you once the file is ready to download.",
+      "queue_failed": "Failed to queue export",
+      "queue_failed_description": "Please try again in a few seconds."
+    },
+    "exports": {
+      "page_title": "User exports",
+      "page_description": "Track your export jobs and download completed files.",
+      "breadcrumb": {
+        "exports": "Exports"
+      },
+      "actions": {
+        "back_to_users": "Back to users",
+        "queueing": "Queuing export...",
+        "queue_export": "Queue export",
+        "refresh_jobs": "Refresh jobs",
+        "download": "Download"
+      },
+      "filters": {
+        "imported_title": "Filters imported from the Users page",
+        "imported_description": "The export will only include users matching these criteria.",
+        "applied_title": "Filters applied to this export",
+        "applied_description": "The export will only include users matching these criteria.",
+        "none_title": "No filters applied yet",
+        "clear": "Clear filters",
+        "none": "No filters applied. The export will include all users.",
+        "status_all": "All statuses",
+        "hide_builder": "Hide filter builder",
+        "edit_builder": "Edit filters",
+        "add_builder": "Add filters"
+      },
+      "fields": {
+        "format": "Format",
+        "status": "Status"
+      },
+      "format": {
+        "csv": "CSV",
+        "json": "JSON"
+      },
+      "status": {
+        "pending": "Pending",
+        "processing": "Processing",
+        "completed": "Completed",
+        "failed": "Failed"
+      },
+      "notifications": {
+        "queue_success_title": "Export queued",
+        "queue_success_description": "We will notify you once your file is ready to download.",
+        "queue_failed_title": "Failed to queue export",
+        "queue_failed_description": "Please try again in a few seconds."
+      },
+      "request": {
+        "title": "Request a new export",
+        "description": "Choose the format and optional filters to queue a new export job."
+      },
+      "queue": {
+        "title": "Export queue",
+        "auto_refresh": "Jobs refresh automatically while processing.",
+        "description": "Monitor recent jobs and download completed files.",
+        "filter_title": "Filter exports",
+        "filter_description": "Narrow down the export queue by status.",
+        "clear_status_filter": "Clear status filter"
+      },
+      "table": {
+        "file": "File",
+        "job_id": "Job ID: {{id}}…",
+        "format": "Format",
+        "created": "Created",
+        "total_records": "Total records",
+        "pending": "Pending",
+        "status": "Status",
+        "actions": "Actions",
+        "empty": "No export jobs found yet. Queue your first export above."
+      },
+      "summary": {
+        "filtered": "Showing {{count}} filtered {{label}}",
+        "job_singular": "job",
+        "job_plural": "jobs",
+        "range": "Showing {{start}}-{{end}} of {{total}} jobs"
+      },
+      "estimate": {
+        "loading": "Estimating records...",
+        "result": "Estimated records: {{count}}",
+        "unavailable": "Unable to estimate record count right now.",
+        "filtered_hint": "Based on current filters",
+        "zero": "No users match the selected filters."
+      }
+    },
+    "bulk_actions": {
+      "activate_selected": "Activate Selected",
+      "deactivate_selected": "Deactivate Selected",
+      "delete_selected": "Delete Selected"
+    },
+    "confirmations": {
+      "delete_user": "Are you sure you want to delete this user? This action cannot be undone.",
+      "delete_success": "User deleted",
+      "delete_failed": "Delete failed",
+      "delete_error": "Failed to delete user",
+      "failed_to_update_status": "Failed to update user status"
+    },
+    "actions": {
+      "export_users": "Export Users",
+      "view_profile": "View Profile",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "delete": "Delete",
+      "default_role": "USER"
+    },
+    "descriptions": {
+      "active_last_15_min": "Active in last 15 minutes",
+      "active_last_24_hours": "Active in last 24 hours"
+    },
+    "errors": {
+      "generic_error": "An error occurred while updating the user status. Please try again.",
+      "error_title": "Error"
+    },
+    "page_title": "User Management",
+    "page_description": "Manage all users in the system"
   },
   "mail_templates": {
     "mail_template_management": "Mail Template Management",
@@ -1884,6 +2042,17 @@
       }
     }
   },
+  "componentConfigs": {
+    "title": "Component Library",
+    "editTitle": "Edit Component",
+    "editDescription": "Adjust component schema, defaults, metadata, and nesting rules on a focused page.",
+    "updateSuccess": "Component updated",
+    "updateSuccessDescription": "Changes saved successfully.",
+    "updateFailed": "Unable to update component",
+    "backToList": "Back to Component Library",
+    "componentNotFound": "Component configuration not found",
+    "componentNotFoundDescription": "It may have been deleted or you may not have access."
+  },
   "assets": {
     "upload_success": "Asset uploaded successfully",
     "upload_failed": "Asset upload failed",
@@ -2012,6 +2181,14 @@
     "specifications": "Specifications",
     "specifications_title": "Product Specifications",
     "specifications_description": "Define structured attributes or technical details that will be displayed on the product page.",
+    "specifications_empty_description": "Add structured product information such as materials, dimensions, or technical details.",
+    "add_specification": "Add Specification",
+    "specification_number": "Specification #{number}",
+    "specification_help": "Provide a clear label and value. Sort order controls display priority.",
+    "specification_label": "Label",
+    "specification_label_placeholder": "e.g., Material",
+    "specification_value": "Value",
+    "specification_value_placeholder": "Describe the specification detail",
     "images": "Images",
     "description": "Description",
     "searchPlaceholder": "Search products by name or SKU...",
@@ -2022,6 +2199,9 @@
     "deleteSuccess": "Product deleted successfully",
     "deleteError": "Failed to delete product",
     "deleteConfirm": "Are you sure you want to delete this product?",
+    "actions": {
+      "export_products": "Export Products"
+    },
     "noProducts": "No products found",
     "productsCount": "Products",
     "status": {
@@ -2287,7 +2467,90 @@
     "invalid_price": "Please enter a valid price (0 or greater)",
     "invalid_quantity": "Please enter a valid quantity (0 or greater)",
     "no_bulk_values": "Please enter at least one value to apply",
-    "no_enabled_variants": "No enabled variants to update"
+    "no_enabled_variants": "No enabled variants to update",
+    "exports": {
+      "page_title": "Product exports",
+      "page_description": "Track your export jobs and download completed files.",
+      "breadcrumb": {
+        "exports": "Exports"
+      },
+      "actions": {
+        "back_to_products": "Back to products",
+        "queueing": "Queuing export...",
+        "queue_export": "Queue export",
+        "refresh_jobs": "Refresh jobs",
+        "download": "Download"
+      },
+      "filters": {
+        "imported_title": "Filters imported from the Products page",
+        "imported_description": "The export will only include products matching these criteria.",
+        "applied_title": "Filters applied to this export",
+        "applied_description": "The export will only include products matching these criteria.",
+        "none_title": "No filters applied yet",
+        "clear": "Clear filters",
+        "none": "No filters applied. The export will include all products.",
+        "status_all": "All statuses",
+        "hide_builder": "Hide filter builder",
+        "edit_builder": "Edit filters",
+        "add_builder": "Add filters"
+      },
+      "fields": {
+        "format": "Format",
+        "status": "Status"
+      },
+      "format": {
+        "csv": "CSV",
+        "json": "JSON"
+      },
+      "status": {
+        "pending": "Pending",
+        "processing": "Processing",
+        "completed": "Completed",
+        "failed": "Failed"
+      },
+      "notifications": {
+        "queue_success_title": "Export queued",
+        "queue_success_description": "We will notify you once your file is ready to download.",
+        "queue_failed_title": "Failed to queue export",
+        "queue_failed_description": "Please try again in a few seconds."
+      },
+      "request": {
+        "title": "Request a new export",
+        "description": "Choose the format and optional filters to queue a new export job."
+      },
+      "queue": {
+        "title": "Export queue",
+        "auto_refresh": "Jobs refresh automatically while processing.",
+        "description": "Monitor recent jobs and download completed files.",
+        "filter_title": "Filter exports",
+        "filter_description": "Narrow down the export queue by status.",
+        "clear_status_filter": "Clear status filter"
+      },
+      "table": {
+        "file": "File",
+        "job_id": "Job ID: {{id}}…",
+        "format": "Format",
+        "created": "Created",
+        "total_records": "Total records",
+        "pending": "Pending",
+        "status": "Status",
+        "actions": "Actions",
+        "empty": "No export jobs found yet. Queue your first export above."
+      },
+      "summary": {
+        "filtered": "Showing {{count}} filtered {{label}}",
+        "job_singular": "job",
+        "job_plural": "jobs",
+        "range": "Showing {{start}}-{{end}} of {{total}} jobs"
+      },
+      "estimate": {
+        "loading": "Estimating records...",
+        "result": "Estimated records: {{count}}",
+        "unavailable": "Unable to estimate record count right now.",
+        "filtered_hint": "Based on current filters",
+        "zero": "No products match the selected filters."
+      }
+    }
   },
   "brands": {
     "title": "Brands",

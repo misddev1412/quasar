@@ -8,6 +8,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import * as crypto from 'crypto';
 import * as path from 'path';
+import { buildS3PublicUrl } from '../utils/storage-url.util';
 
 @Injectable()
 export class StorageService {
@@ -48,6 +49,7 @@ export class StorageService {
         bucket: settings['storage.s3.bucket'] || '',
         endpoint: settings['storage.s3.endpoint'] || undefined,
         forcePathStyle: settings['storage.s3.force_path_style'] === 'true',
+        cdnUrl: settings['storage.s3.cdn_url'] || undefined,
       } as S3StorageConfig;
     }
 
@@ -87,6 +89,7 @@ export class StorageService {
       bucket: settings['storage.s3.bucket'] || '',
       endpoint: settings['storage.s3.endpoint'] || '',
       forcePathStyle: settings['storage.s3.force_path_style'] === 'true',
+      cdnUrl: settings['storage.s3.cdn_url'] || '',
     };
   }
 
@@ -191,9 +194,7 @@ export class StorageService {
       const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn });
 
       // Construct download URL (public URL after upload)
-      const downloadUrl = s3Config.endpoint 
-        ? `${s3Config.endpoint}/${s3Config.bucket}/${key}`
-        : `https://${s3Config.bucket}.s3.${s3Config.region}.amazonaws.com/${key}`;
+      const downloadUrl = buildS3PublicUrl(s3Config, key);
 
       return {
         uploadUrl,

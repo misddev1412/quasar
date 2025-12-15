@@ -7,6 +7,9 @@ import type { CreateSectionDto, UpdateSectionDto, ReorderSectionsDto } from '../
 import { SectionEntity } from '../entities/section.entity';
 import { SectionTranslationEntity } from '../entities/section-translation.entity';
 import { LanguageRepository } from '@backend/modules/language/repositories/language.repository';
+import { ComponentConfigRepository } from '@backend/modules/component-configs/repositories/component-config.repository';
+import { ComponentConfigDefaults } from '@backend/modules/component-configs/entities/component-config.entity';
+import { SectionType } from '@shared/enums/section.enums';
 
 interface SectionWithResolvedTranslation {
   section: SectionEntity;
@@ -20,6 +23,7 @@ export class SectionsService {
     private readonly sectionRepository: SectionRepository,
     private readonly sectionTranslationRepository: SectionTranslationRepository,
     private readonly languageRepository: LanguageRepository,
+    private readonly componentConfigRepository: ComponentConfigRepository,
     private readonly responseService: ResponseService,
   ) {}
 
@@ -74,13 +78,49 @@ export class SectionsService {
     };
   }
 
+  private async getComponentDefaultsMap(sectionTypes: SectionType[]): Promise<Record<string, ComponentConfigDefaults>> {
+    if (!Array.isArray(sectionTypes) || sectionTypes.length === 0) {
+      return {};
+    }
+
+    const uniqueKeys = Array.from(new Set(sectionTypes));
+    const components = await this.componentConfigRepository.findEnabledByKeys(uniqueKeys);
+
+    return components.reduce<Record<string, ComponentConfigDefaults>>((map, component) => {
+      map[component.componentKey] = component.defaultConfig ?? {};
+      return map;
+    }, {});
+  }
+
+  private mergeWithComponentDefaults(
+    sectionType: SectionType,
+    config: Record<string, any>,
+    defaultsMap: Record<string, ComponentConfigDefaults>,
+  ): Record<string, any> {
+    const defaults = defaultsMap[sectionType];
+    if (!defaults) {
+      return config;
+    }
+
+    const merged = { ...(config ?? {}) };
+    if (defaults.sidebar && !merged.sidebar) {
+      merged.sidebar = defaults.sidebar;
+    }
+
+    return merged;
+  }
+
   async list(page: string, locale: string) {
     try {
       const fallbackLocale = await this.getFallbackLocale();
       const sections = await this.sectionRepository.findEnabledByPage(page);
+      const defaultsMap = await this.getComponentDefaultsMap(sections.map((section) => section.type));
 
       return sections.map((section) => {
         const { translation } = this.mapSectionForPublic(section, locale, fallbackLocale);
+        const baseConfig = this.mergeConfig(section.config ?? {}, translation?.configOverride ?? null);
+        const configWithDefaults = this.mergeWithComponentDefaults(section.type, baseConfig, defaultsMap);
+
         return {
           id: section.id,
           page: section.page,
@@ -89,7 +129,7 @@ export class SectionsService {
           isEnabled: section.isEnabled,
           version: section.version,
           updatedAt: section.updatedAt,
-          config: this.mergeConfig(section.config ?? {}, translation?.configOverride ?? null),
+          config: configWithDefaults,
           translation: translation
             ? {
                 locale: translation.locale,

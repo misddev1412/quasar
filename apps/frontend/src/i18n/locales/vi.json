@@ -200,6 +200,10 @@
         "validation": {
           "title": "Vui lòng kiểm tra lại giỏ hàng",
           "message": "Hãy xử lý các vấn đề được đánh dấu trước khi đặt hàng."
+        },
+        "redirect": {
+          "title": "Đang chuyển đến PayOS",
+          "message": "Vui lòng chờ trong giây lát, chúng tôi sẽ đưa bạn đến trang thanh toán PayOS để hoàn tất."
         }
       },
       "orderSummary": {
@@ -1344,7 +1348,8 @@
           "credit_card": "Thẻ tín dụng",
           "paypal": "PayPal",
           "bank_transfer": "Chuyển khoản ngân hàng",
-          "cash_on_delivery": "Thanh toán khi nhận hàng"
+          "cash_on_delivery": "Thanh toán khi nhận hàng",
+          "payos": "PayOS"
         },
         "support": {
           "title": "Cần hỗ trợ?",
@@ -1653,6 +1658,14 @@
     "business_information": "Thông tin doanh nghiệp",
     "address_information": "Thông tin địa chỉ",
     "additional_info": "Thông tin thêm",
+    "sections": {
+      "basic_information": "Thông tin cơ bản",
+      "notification_settings": "Cài đặt thông báo",
+      "notification_settings_description": "Cấu hình tùy chọn thông báo của bạn"
+    },
+    "tabs": {
+      "preferences": "Tùy chọn"
+    },
     "required_field": "Trường bắt buộc",
     "optional_field": "Tùy chọn",
     "choose_file": "Chọn tệp",
@@ -1787,6 +1800,11 @@
       "empty": "Chưa có sản phẩm nào trong danh mục này.",
       "carousel_prev": "Cuộn sang trái",
       "carousel_next": "Cuộn sang phải",
+      "sidebar_label": "Mega menu",
+      "sidebar_default_title": "Khám phá theo bộ sưu tập",
+      "sidebar_default_description": "Đi nhanh giữa các danh mục nổi bật và bộ sưu tập được tuyển chọn.",
+      "sidebar_section_title": "Nhóm menu",
+      "sidebar_link_aria": "Đi tới {{label}}",
       "strategies": {
         "latest": "Sản phẩm mới nhất",
         "featured": "Sản phẩm nổi bật",

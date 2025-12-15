@@ -70,6 +70,8 @@ const checkoutPaymentMethodSchema = z.object({
   last4: z.string().optional(),
   provider: z.string().optional(),
   reference: z.string().optional(),
+  paymentMethodId: z.string().uuid().optional(),
+  metadata: z.record(z.any()).optional(),
 });
 
 const createClientOrderSchema = z.object({
@@ -271,7 +273,7 @@ export class ClientOrdersRouter {
     @Ctx() ctx: AuthenticatedContext
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const order = await this.orderService.createOrder(input as CreateClientOrderDto, ctx.user?.id);
+      const { order, paymentInstruction } = await this.orderService.createOrder(input as CreateClientOrderDto, ctx.user?.id);
 
       const sanitizedOrder = {
         id: order.id,
@@ -288,8 +290,21 @@ export class ClientOrdersRouter {
             : order.createdAt,
       };
 
+      const payment = paymentInstruction
+        ? {
+            provider: paymentInstruction.provider,
+            displayName: paymentInstruction.providerDisplayName,
+            checkoutUrl: paymentInstruction.checkoutUrl,
+            qrCode: paymentInstruction.qrCode,
+            paymentLinkId: paymentInstruction.paymentLinkId,
+            orderCode: paymentInstruction.orderCode,
+            expiresAt: paymentInstruction.expiresAt,
+          }
+        : undefined;
+
       return this.responseHandler.createTrpcSuccess({
         order: sanitizedOrder,
+        payment,
         isGuestCheckout: !ctx.user?.id,
       });
     } catch (error) {

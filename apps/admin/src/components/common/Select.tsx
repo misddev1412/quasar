@@ -8,6 +8,8 @@ export interface SelectOption {
   description?: string;
 }
 
+const BASE_LABEL_CLASS = 'block text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400';
+
 interface SelectProps {
   id?: string;
   label?: string;
@@ -22,6 +24,7 @@ interface SelectProps {
   required?: boolean;
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
+  labelClassName?: string;
 }
 
 export const Select: React.FC<SelectProps> = ({
@@ -38,6 +41,7 @@ export const Select: React.FC<SelectProps> = ({
   required = false,
   size = 'md',
   isLoading = false,
+  labelClassName,
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onChange?.(e.target.value);
@@ -55,7 +59,7 @@ export const Select: React.FC<SelectProps> = ({
       {label && (
         <label
           htmlFor={id}
-          className="block text-sm font-medium text-neutral-800 dark:text-neutral-200"
+          className={clsx(BASE_LABEL_CLASS, labelClassName)}
         >
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}

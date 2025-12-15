@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { Order, OrderStatus, PaymentStatus, OrderSource } from '../entities/order.entity';
@@ -8,6 +8,7 @@ import { OrderRepository } from '../repositories/order.repository';
 import { ProductRepository } from '../repositories/product.repository';
 import { ProductVariantRepository } from '../repositories/product-variant.repository';
 import { DeliveryMethodService } from './delivery-method.service';
+import { PayosService } from './payos.service';
 import {
   CustomerTransaction,
   CustomerTransactionEntry,
@@ -68,6 +69,8 @@ export interface ClientCheckoutPaymentMethod {
   last4?: string;
   provider?: string;
   reference?: string;
+  paymentMethodId?: string;
+  metadata?: Record<string, any>;
 }
 
 export interface CreateClientOrderItemDto {
@@ -108,6 +111,16 @@ export interface CreateClientOrderDto {
   agreeToMarketing?: boolean;
 }
 
+export interface ExternalPaymentInstruction {
+  provider: string;
+  providerDisplayName?: string;
+  checkoutUrl?: string;
+  qrCode?: string;
+  paymentLinkId?: string;
+  orderCode?: number;
+  expiresAt?: number;
+}
+
 @Injectable()
 export class ClientOrderService {
   constructor(
@@ -119,6 +132,7 @@ export class ClientOrderService {
     private readonly productRepository: ProductRepository,
     private readonly productVariantRepository: ProductVariantRepository,
     private readonly deliveryMethodService: DeliveryMethodService,
+    private readonly payosService: PayosService,
   ) {}
 
   private mapOrderAddress(address?: ClientOrderAddress | null) {
@@ -440,7 +454,10 @@ export class ClientOrderService {
     await this.orderOrmRepository.save(order);
   }
 
-  async createOrder(payload: CreateClientOrderDto, userId?: string): Promise<Order> {
+  async createOrder(
+    payload: CreateClientOrderDto,
+    userId?: string
+  ): Promise<{ order: Order; paymentInstruction?: ExternalPaymentInstruction }> {
     if (!payload?.items || payload.items.length === 0) {
       throw new Error('Order must contain at least one item');
     }
@@ -484,8 +501,12 @@ export class ClientOrderService {
 
     const orderNumber = await this.orderRepository.generateOrderNumber();
     const customerDisplayName = `${shippingAddress.firstName ?? ''} ${shippingAddress.lastName ?? ''}`.trim();
+    let externalPaymentInstruction: ExternalPaymentInstruction | undefined;
 
-    return this.orderOrmRepository.manager.transaction(async (manager) => {
+    const wantsPayos = this.shouldUsePayos(payload.paymentMethod);
+    const payosOrderCode = wantsPayos ? this.generatePayosOrderCode(orderNumber) : undefined;
+
+    const createdOrderId = await this.orderOrmRepository.manager.transaction(async (manager) => {
       const customerRepository = manager.getRepository(Customer);
       const orderRepository = manager.getRepository(Order);
       const orderItemRepository = manager.getRepository(OrderItem);
@@ -582,6 +603,51 @@ export class ClientOrderService {
       customer.updateOrderStats(Number(totalAmount));
       await customerRepository.save(customer);
 
+      if (wantsPayos && payosOrderCode) {
+        const payosResult = await this.payosService.createPaymentRequest({
+          paymentMethodId: payload.paymentMethod?.paymentMethodId,
+          amount: totalAmount,
+          currency,
+          orderCode: payosOrderCode,
+          description: `Payment for order ${orderNumber}`,
+          returnUrl: payload.paymentMethod?.metadata?.returnUrl,
+          cancelUrl: payload.paymentMethod?.metadata?.cancelUrl,
+          buyerName: customerDisplayName || sanitizedEmail,
+          buyerEmail: sanitizedEmail,
+          buyerPhone: shippingAddress.phone,
+          items: enrichedItems.map((item) => ({
+            name: item.productName || item.variantName || 'Item',
+            quantity: item.quantity,
+            price: Number(item.unitPrice),
+          })),
+          metadata: payload.paymentMethod?.metadata,
+        });
+
+        externalPaymentInstruction = {
+          provider: 'PAYOS',
+          providerDisplayName: payosResult.displayName,
+          checkoutUrl: payosResult.checkoutUrl,
+          qrCode: payosResult.qrCode,
+          paymentLinkId: payosResult.paymentLinkId,
+          orderCode: payosResult.orderCode,
+          expiresAt: payosResult.expiresAt,
+        };
+
+        savedOrder.paymentMethod = payosResult.displayName;
+        savedOrder.paymentReference = String(payosResult.orderCode);
+        savedOrder.paymentData = {
+          provider: payosResult.providerKey,
+          providerId: payosResult.providerId,
+          orderCode: payosResult.orderCode,
+          paymentLinkId: payosResult.paymentLinkId,
+          checkoutUrl: payosResult.checkoutUrl,
+          qrCode: payosResult.qrCode,
+          payload: payosResult.payload,
+        };
+
+        await orderRepository.save(savedOrder);
+      }
+
       await this.recordOrderPaymentTransaction(manager, {
         customerId: customer.id,
         order: savedOrder,
@@ -595,11 +661,42 @@ export class ClientOrderService {
         itemCount: enrichedItems.length,
       });
 
-      return orderRepository.findOne({
-        where: { id: savedOrder.id },
-        relations: ['items'],
-      }) as Promise<Order>;
+      return savedOrder.id;
     });
+
+    const createdOrder = await this.orderOrmRepository.findOne({
+      where: { id: createdOrderId },
+      relations: ['items'],
+    });
+
+    if (!createdOrder) {
+      throw new InternalServerErrorException('Failed to load created order');
+    }
+
+    return {
+      order: createdOrder,
+      paymentInstruction: externalPaymentInstruction,
+    };
+  }
+
+  private shouldUsePayos(paymentMethod?: ClientCheckoutPaymentMethod): boolean {
+    if (!paymentMethod) {
+      return false;
+    }
+    const type = paymentMethod.type?.toLowerCase();
+    const provider = paymentMethod.provider?.toLowerCase();
+    return type === 'payos' || provider === 'payos';
+  }
+
+  private generatePayosOrderCode(orderNumber: string): number {
+    const digitsOnly = (orderNumber || '').replace(/\D/g, '');
+    const trimmed = digitsOnly.slice(-9);
+    const parsed = Number(trimmed);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return parsed;
+    }
+    const fallback = Number(String(Date.now()).slice(-9));
+    return Number.isFinite(fallback) ? fallback : Math.floor(Date.now());
   }
 
   async getOrderStats(userId: string): Promise<{
@@ -722,6 +819,7 @@ export class ClientOrderService {
         paymentMethod: params.paymentMethod?.type ?? params.order.paymentMethod,
         paymentReference: params.paymentMethod?.reference ?? params.order.paymentReference,
         provider: params.paymentMethod?.provider,
+        providerMetadata: params.paymentMethod?.metadata,
         last4: params.paymentMethod?.last4,
         totals: {
           subtotal: this.normalizeCurrencyValue(params.subtotal),

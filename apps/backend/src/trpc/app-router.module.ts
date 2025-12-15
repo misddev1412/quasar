@@ -23,6 +23,7 @@ import { SharedModule } from '../modules/shared/shared.module';
 import { ResponseService } from '../modules/shared/services/response.service';
 import { ClientNewsRouter } from './routers/client/news.router';
 import { ClientCategoriesRouter } from './routers/client/categories.router';
+import { ClientProductsRouter } from './routers/client/products.router';
 import { SectionsRouter } from './routers/sections.router';
 import { AdminMenuRouter } from '../modules/menus/routers/admin-menu.router';
 import { ClientMenuRouter } from '../modules/menus/routers/client-menu.router';
@@ -75,6 +76,7 @@ import { AdminComponentConfigsRouter } from '../modules/component-configs/router
   providers: [
     ClientNewsRouter,
     ClientCategoriesRouter,
+    ClientProductsRouter,
     SectionsRouter,
     AdminMenuRouter,
     ClientMenuRouter,

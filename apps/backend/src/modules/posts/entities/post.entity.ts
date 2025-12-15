@@ -15,6 +15,61 @@ import { PostTranslation } from './post-translation.entity';
 import { PostCategory } from './post-category.entity';
 import { PostTag } from './post-tag.entity';
 
+export interface PostGalleryImage {
+  id?: string;
+  url: string;
+  alt?: string;
+  caption?: string;
+  order?: number;
+  focalPoint?: { x: number; y: number };
+  dominantColor?: string;
+}
+
+export interface PostContentHeading {
+  id?: string;
+  title: string;
+  slug: string;
+  level: number;
+  position: number;
+  children?: PostContentHeading[];
+}
+
+export interface PostCategoryTocItem {
+  id?: string;
+  categoryId?: string;
+  title: string;
+  slug: string;
+  url?: string;
+  description?: string;
+  keywords?: string[];
+  children?: PostCategoryTocItem[];
+}
+
+export interface PostSocialMetadata {
+  og?: {
+    title?: string;
+    description?: string;
+    type?: string;
+    url?: string;
+    image?: string;
+  };
+  twitter?: {
+    card?: 'summary' | 'summary_large_image' | 'app' | 'player';
+    title?: string;
+    description?: string;
+    image?: string;
+    site?: string;
+    creator?: string;
+  };
+  shareImage?: string;
+}
+
+export interface StructuredDataBlock {
+  '@context'?: string;
+  '@type': string;
+  data: Record<string, unknown>;
+}
+
 export enum PostStatus {
   DRAFT = 'draft',
   PUBLISHED = 'published',
@@ -34,6 +89,7 @@ export enum PostType {
 @Index(['type'])
 @Index(['published_at'])
 @Index(['author_id'])
+@Index(['is_featured'])
 export class Post extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -81,6 +137,52 @@ export class Post extends BaseEntity {
 
   @Column({ type: 'text', nullable: true })
   meta_keywords: string;
+
+  @Column({ length: 500, nullable: true, name: 'canonical_url' })
+  canonical_url?: string;
+
+  @Column({ length: 255, nullable: true, name: 'meta_robots' })
+  meta_robots?: string;
+
+  @Column({ type: 'jsonb', nullable: true, name: 'social_metadata' })
+  social_metadata?: PostSocialMetadata;
+
+  @Column({
+    type: 'jsonb',
+    nullable: true,
+    name: 'structured_data',
+  })
+  structured_data?: StructuredDataBlock[];
+
+  @Column({
+    type: 'jsonb',
+    nullable: true,
+    name: 'image_gallery',
+  })
+  image_gallery?: PostGalleryImage[];
+
+  @Column({
+    type: 'jsonb',
+    nullable: true,
+    name: 'content_table_of_contents',
+  })
+  content_table_of_contents?: PostContentHeading[];
+
+  @Column({
+    type: 'jsonb',
+    nullable: true,
+    name: 'category_table_of_contents',
+  })
+  category_table_of_contents?: PostCategoryTocItem[];
+
+  @Column({ type: 'jsonb', nullable: true, name: 'additional_meta' })
+  additional_meta?: Record<string, string>;
+
+  @Column({ type: 'int', default: 0, name: 'seo_score' })
+  seo_score: number;
+
+  @Column({ type: 'int', nullable: true, name: 'reading_time_minutes' })
+  reading_time_minutes?: number;
 
   // Relations
   @ManyToOne(() => User, { eager: false })

@@ -9,6 +9,8 @@ export enum NotificationEvent {
   ORDER_REFUNDED = 'order.refunded',
   SYSTEM_ANNOUNCEMENT = 'system.announcement',
   MARKETING_CAMPAIGN = 'marketing.campaign',
+  DATA_EXPORT_COMPLETED = 'export.completed',
+  DATA_EXPORT_FAILED = 'export.failed',
   CUSTOM = 'custom.manual',
 }
 
@@ -23,5 +25,7 @@ export const NOTIFICATION_EVENT_LABELS: Record<NotificationEvent, string> = {
   [NotificationEvent.ORDER_REFUNDED]: 'Order Refunded',
   [NotificationEvent.SYSTEM_ANNOUNCEMENT]: 'System Announcement',
   [NotificationEvent.MARKETING_CAMPAIGN]: 'Marketing Campaign',
+  [NotificationEvent.DATA_EXPORT_COMPLETED]: 'Data Export Completed',
+  [NotificationEvent.DATA_EXPORT_FAILED]: 'Data Export Failed',
   [NotificationEvent.CUSTOM]: 'Manual / Custom',
 };

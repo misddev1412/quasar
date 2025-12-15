@@ -2,6 +2,8 @@
  * Worker Service Payloads
  * These interfaces define the structure of messages processed by worker queues
  */
+import { ExportJobPayload } from '../../export/interfaces/export-payload.interface';
+import { ExportFormat } from '../../export/entities/data-export-job.entity';
 
 // Email Payloads
 export interface EmailPayload {
@@ -136,6 +138,21 @@ export interface ReportResult {
   generatedAt?: Date;
 }
 
+// Export payloads
+export type ExportPayload = ExportJobPayload;
+
+export interface ExportResult {
+  jobId: string;
+  success: boolean;
+  resource: string;
+  format: ExportFormat;
+  fileUrl?: string;
+  fileName?: string;
+  fileSize?: number;
+  totalRecords?: number;
+  error?: string;
+}
+
 // Queue Message Wrapper
 export interface QueueMessage<T = unknown> {
   id: string;
@@ -154,6 +171,7 @@ export const QUEUE_NAMES = {
   NOTIFICATION: 'notification_queue',
   ORDER: 'order_queue',
   REPORT: 'report_queue',
+  EXPORT: 'export_queue',
 } as const;
 
 export const MESSAGE_TYPES = {
@@ -183,4 +201,7 @@ export const MESSAGE_TYPES = {
   REPORT_INVENTORY: 'report:inventory',
   REPORT_USERS: 'report:users',
   REPORT_ANALYTICS: 'report:analytics',
+
+  // Export types
+  EXPORT_GENERATE: 'export:generate',
 } as const;

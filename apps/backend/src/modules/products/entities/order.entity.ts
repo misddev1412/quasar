@@ -241,6 +241,14 @@ export class Order extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'payment_data',
+    type: 'jsonb',
+    nullable: true,
+  })
+  paymentData?: Record<string, any>;
+
+  @Expose()
+  @Column({
     name: 'shipping_method',
     type: 'varchar',
     length: 100,

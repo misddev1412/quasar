@@ -148,6 +148,8 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   '/storefront/footer': { resource: 'storefront', action: PermissionAction.READ, scope: PermissionScope.ANY },
   // Component Configs
   '/component-configs': { resource: 'component_config', action: PermissionAction.READ, scope: PermissionScope.ANY },
+  '/component-configs/create': { resource: 'component_config', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
+  '/component-configs/:id/edit': { resource: 'component_config', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
   
   // Orders
   '/orders': { resource: 'order', action: PermissionAction.READ, scope: PermissionScope.ANY },
@@ -207,7 +209,6 @@ export function getRoutePermission(path: string): RoutePermission | null {
     scope: PermissionScope.ANY,
   };
 }
-
 
 
 

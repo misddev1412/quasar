@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPlus, FiMoreVertical, FiUsers, FiUserCheck, FiUserPlus, FiUser, FiActivity, FiClock, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiUserX, FiTrash2, FiEye, FiHome } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '../../components/common/Card';
 import { Dropdown } from '../../components/common/Dropdown';
 import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
 import { Table, Column, SortDescriptor } from '../../components/common/Table';
@@ -15,7 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from '../../components/common/Ale
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { UserFilters } from '../../components/features/UserFilters';
 import { User, UserRole, UserFiltersType } from '../../types/user';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
+
 
 // Helper functions for URL parameter validation
 const validateUserRole = (role: string | null): UserRole | undefined => {
@@ -260,6 +260,7 @@ const UserListPage = () => {
   const goToUser = (id: string) => navigate(`/users/${id}`);
 
   const { t } = useTranslationWithBackend();
+  const { addToast } = useToast();
   const handleOpenUserDashboard = useCallback(() => {
     navigate('/users/dashboard');
   }, [navigate]);
@@ -434,7 +435,6 @@ const UserListPage = () => {
   };
 
   // Row actions: delete, activate/deactivate
-  const { addToast } = useToast();
   const updateUserStatusMutation = trpc.adminUser.updateUserStatus.useMutation();
   const deleteUserMutation = trpc.adminUser.deleteUser.useMutation();
 
@@ -456,23 +456,23 @@ const UserListPage = () => {
       // Show error toast with detailed information
       addToast({
         type: 'error',
-        title: 'Failed to update user status',
-        description: e?.message || 'An error occurred while updating the user status. Please try again.'
+        title: t('users.confirmations.failed_to_update_status', 'Failed to update user status'),
+        description: e?.message || t('users.errors.generic_error', 'An error occurred while updating the user status. Please try again.')
       });
     }
   }, [updateUserStatusMutation, addToast, refetch]);
 
   const handleDeleteUser = useCallback(async (userId: string) => {
     try {
-      const ok = window.confirm('Are you sure you want to delete this user? This action cannot be undone.');
+      const ok = window.confirm(t('users.confirmations.delete_user', 'Are you sure you want to delete this user? This action cannot be undone.'));
       if (!ok) return;
       await deleteUserMutation.mutateAsync({ id: userId });
-      addToast({ type: 'success', title: 'User deleted' });
+      addToast({ type: 'success', title: t('users.confirmations.delete_success', 'User deleted') });
       refetch();
     } catch (e: any) {
-      addToast({ type: 'error', title: 'Delete failed', description: e?.message || 'Failed to delete user' });
+      addToast({ type: 'error', title: t('users.confirmations.delete_failed', 'Delete failed'), description: e?.message || t('users.confirmations.delete_error', 'Failed to delete user') });
     }
-  }, [deleteUserMutation, addToast, refetch]);
+  }, [deleteUserMutation, addToast, refetch, t]);
 
   // Handle bulk actions
   const handleBulkAction = useCallback((action: string) => {
@@ -501,42 +501,26 @@ const UserListPage = () => {
     }
   }, [refetch]);
 
-  const handleExportCsv = useCallback(() => {
-    try {
-      const items: any[] = ((data as any)?.data?.items) ?? [];
-      if (!items.length) {
-        console.warn('No users to export');
-      }
-      const headers = ['Name', 'Username', 'Email', 'Role', 'Status', 'Created At'];
-      const escape = (val: any) => {
-        const s = String(val ?? '');
-        const needsQuotes = s.includes(',') || s.includes('"') || s.includes('\n');
-        const escaped = s.replace(/"/g, '""');
-        return needsQuotes ? `"${escaped}"` : escaped;
-      };
-      const rows = items.map((item) => {
-        const name = item?.profile?.firstName && item?.profile?.lastName
-          ? `${item.profile.firstName} ${item.profile.lastName}`
-          : (item?.username ?? '');
-        const created = item?.createdAt ? new Date(item.createdAt).toLocaleString() : '';
-        const status = item?.isActive ? 'Active' : 'Inactive';
-        return [name, item?.username ?? '', item?.email ?? '', item?.role ?? 'USER', status, created]
-          .map(escape)
-          .join(',');
-      });
-      const csv = [headers.join(','), ...rows].join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      const ts = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
-      link.download = `users-${ts}.csv`;
-      link.click();
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      console.error('Export CSV failed', e);
+  const exportFiltersPayload = useMemo(() => {
+    const payload: Record<string, unknown> = {};
+    if (debouncedSearchValue) {
+      payload.search = debouncedSearchValue;
     }
-  }, [data]);
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        payload[key] = value;
+      }
+    });
+    return payload;
+  }, [filters, debouncedSearchValue]);
+
+  const handleOpenExportCenter = useCallback(() => {
+    const payload = exportFiltersPayload;
+    navigate('/users/exports', {
+      state: Object.keys(payload).length ? { filters: payload } : undefined,
+    });
+  }, [navigate, exportFiltersPayload]);
+
   // Count active filters for display (search is handled separately by Table component)
   const activeFilterCount = useMemo(() =>
     Object.values(filters).filter(value =>
@@ -545,35 +529,35 @@ const UserListPage = () => {
     [filters]
   );
 
-  const actions = useMemo(() => [
+  const pageActions = useMemo(() => [
     {
       label: t('users.dashboard.title', 'User Management Dashboard'),
       onClick: handleOpenUserDashboard,
       icon: <FiActivity />,
     },
     {
-      label: 'Create User',
+      label: t('users.create_user', 'Create User'),
       onClick: handleCreateUser,
       primary: true,
       icon: <FiPlus />,
     },
     {
-      label: 'Export CSV',
-      onClick: handleExportCsv,
+      label: t('users.actions.export_users', 'Export Users'),
+      onClick: handleOpenExportCenter,
       icon: <FiDownload />,
     },
     {
-      label: 'Refresh',
+      label: t('common.refresh', 'Refresh'),
       onClick: handleRefresh,
       icon: <FiRefreshCw />,
     },
     {
-      label: showFilters ? 'Hide Filters' : 'Show Filters',
+      label: showFilters ? t('common.hideFilters', 'Hide Filters') : t('common.showFilters', 'Show Filters'),
       onClick: handleFilterToggle,
       icon: <FiFilter />,
       active: showFilters,
     },
-  ], [handleOpenUserDashboard, handleCreateUser, handleExportCsv, handleRefresh, handleFilterToggle, showFilters, t]);
+  ], [handleOpenUserDashboard, handleCreateUser, handleOpenExportCenter, handleRefresh, handleFilterToggle, showFilters, t]);
 
   // Prepare statistics data
   const statisticsCards: StatisticData[] = useMemo(() => {
@@ -584,7 +568,7 @@ const UserListPage = () => {
     return [
       {
         id: 'total-users',
-        title: 'Total Users',
+        title: t('users.dashboard.cards.total_users', 'Total Users'),
         value: stats.totalUsers.value,
         icon: <FiUsers className="w-5 h-5" />,
         trend: stats.totalUsers.trend,
@@ -592,7 +576,7 @@ const UserListPage = () => {
       },
       {
         id: 'active-users',
-        title: 'Active Users',
+        title: t('users.dashboard.cards.active_users', 'Active Users'),
         value: stats.activeUsers.value,
         icon: <FiUserCheck className="w-5 h-5" />,
         trend: stats.activeUsers.trend,
@@ -600,7 +584,7 @@ const UserListPage = () => {
       },
       {
         id: 'new-users',
-        title: 'New This Month',
+        title: t('users.dashboard.cards.new_this_month', 'New This Month'),
         value: stats.newUsersThisMonth.value,
         icon: <FiUserPlus className="w-5 h-5" />,
         trend: stats.newUsersThisMonth.trend,
@@ -608,25 +592,25 @@ const UserListPage = () => {
       },
       {
         id: 'users-with-profiles',
-        title: 'Profile Completion',
+        title: t('users.dashboard.cards.profile_completion', 'Profile Completion'),
         value: `${stats.usersWithProfiles.percentage}%`,
         icon: <FiUser className="w-5 h-5" />,
         enableChart: true,
       },
       {
         id: 'currently-active',
-        title: 'Currently Active',
+        title: t('users.dashboard.cards.currently_active', 'Currently Active'),
         value: stats.currentlyActiveUsers?.value || 0,
         icon: <FiActivity className="w-5 h-5" />,
-        description: stats.currentlyActiveUsers?.description || 'Active in last 15 minutes',
+        description: stats.currentlyActiveUsers?.description || t('users.descriptions.active_last_15_min', 'Active in last 15 minutes'),
         enableChart: false,
       },
       {
         id: 'recent-activity',
-        title: 'Recent Activity',
+        title: t('users.dashboard.cards.recent_activity', 'Recent Activity'),
         value: stats.recentActivity?.value || 0,
         icon: <FiClock className="w-5 h-5" />,
-        description: stats.recentActivity?.description || 'Active in last 24 hours',
+        description: stats.recentActivity?.description || t('users.descriptions.active_last_24_hours', 'Active in last 24 hours'),
         enableChart: false,
       },
     ];
@@ -636,7 +620,7 @@ const UserListPage = () => {
   const columns: Column<User>[] = useMemo(() => [
     {
       id: 'user',
-      header: 'User',
+      header: t('users.table.columns.user', 'User'),
       accessor: (item) => (
         <div className="flex flex-col">
           <span className="font-medium text-gray-900 dark:text-gray-100">
@@ -655,24 +639,24 @@ const UserListPage = () => {
     },
     {
       id: 'username',
-      header: 'Username',
+      header: t('users.table.columns.username', 'Username'),
       accessor: 'username',
       isSortable: true,
       hideable: true,
     },
     {
       id: 'email',
-      header: 'Email',
+      header: t('users.table.columns.email', 'Email'),
       accessor: 'email',
       isSortable: true,
       hideable: true,
     },
     {
       id: 'role',
-      header: 'Role',
+      header: t('users.table.columns.role', 'Role'),
       accessor: (item) => (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-          {item.role || 'USER'}
+          {item.role || t('users.actions.default_role', 'USER')}
         </span>
       ),
       isSortable: true,
@@ -680,7 +664,7 @@ const UserListPage = () => {
     },
     {
       id: 'status',
-      header: 'Status',
+      header: t('users.table.columns.status', 'Status'),
       accessor: (item) => (
         <span
           className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -689,7 +673,7 @@ const UserListPage = () => {
               : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
           }`}
         >
-          {item.isActive ? 'Active' : 'Inactive'}
+          {item.isActive ? t('users.table.status.active', 'Active') : t('users.table.status.inactive', 'Inactive')}
         </span>
       ),
       isSortable: true,
@@ -697,7 +681,7 @@ const UserListPage = () => {
     },
     {
       id: 'createdAt',
-      header: 'Created At',
+      header: t('users.table.columns.createdAt', 'Created At'),
       accessor: 'createdAt',
       type: 'datetime',
       isSortable: true,
@@ -705,7 +689,7 @@ const UserListPage = () => {
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('users.table.columns.actions', 'Actions'),
       accessor: (item) => (
         <Dropdown
           button={
@@ -720,19 +704,19 @@ const UserListPage = () => {
               onClick: () => goToUser(item.id)
             },
             {
-              label: item.isActive ? 'Deactivate' : 'Activate',
+              label: item.isActive ? t('users.actions.deactivate', 'Deactivate') : t('users.actions.activate', 'Activate'),
               icon: item.isActive
                 ? <FiUserX className="w-4 h-4" aria-hidden="true" />
                 : <FiUserCheck className="w-4 h-4" aria-hidden="true" />,
               onClick: () => handleToggleStatus(item.id, item.isActive),
             },
             {
-              label: 'View Profile',
+              label: t('users.actions.view_profile', 'View Profile'),
               icon: <FiEye className="w-4 h-4" aria-hidden="true" />,
               onClick: () => navigate(`/users/${item.id}`)
             },
             {
-              label: 'Delete',
+              label: t('users.actions.delete', 'Delete'),
               icon: <FiTrash2 className="w-4 h-4" aria-hidden="true" />,
               onClick: () => handleDeleteUser(item.id),
               className: 'text-red-500 hover:text-red-700'
@@ -754,25 +738,37 @@ const UserListPage = () => {
   // Bulk actions for selected users - MOVED BEFORE EARLY RETURNS
   const bulkActions = useMemo(() => [
     {
-      label: 'Activate Selected',
+      label: t('users.bulk_actions.activate_selected', 'Activate Selected'),
       value: 'activate',
       variant: 'primary' as const,
     },
     {
-      label: 'Deactivate Selected',
+      label: t('users.bulk_actions.deactivate_selected', 'Deactivate Selected'),
       value: 'deactivate',
       variant: 'outline' as const,
     },
     {
-      label: 'Delete Selected',
+      label: t('users.bulk_actions.delete_selected', 'Delete Selected'),
       value: 'delete',
       variant: 'danger' as const,
     },
-  ], []);
+  ], [t]);
+
+  const breadcrumbs = useMemo(() => ([
+    {
+      label: t('navigation.home', 'Home'),
+      href: '/',
+      icon: <FiHome className="w-4 h-4" />
+    },
+    {
+      label: t('navigation.users', 'Users'),
+      icon: <FiUsers className="w-4 h-4" />
+    }
+  ]), [t]);
 
   if (isLoading) {
     return (
-      <BaseLayout title="User Management" description="Manage all users in the system" actions={actions} fullWidth={true}>
+      <BaseLayout title={t('users.page_title', 'User Management')} description={t('users.page_description', 'Manage all users in the system')} fullWidth={true} breadcrumbs={breadcrumbs}>
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
@@ -782,9 +778,9 @@ const UserListPage = () => {
 
   if (error) {
     return (
-      <BaseLayout title="User Management" description="Manage all users in the system" actions={actions} fullWidth={true}>
+      <BaseLayout title={t('users.page_title', 'User Management')} description={t('users.page_description', 'Manage all users in the system')} fullWidth={true}>
         <Alert variant="destructive">
-          <AlertTitle>Error</AlertTitle>
+          <AlertTitle>{t('users.errors.error_title', 'Error')}</AlertTitle>
           <AlertDescription>{(error as any).message}</AlertDescription>
         </Alert>
       </BaseLayout>
@@ -796,22 +792,8 @@ const UserListPage = () => {
   const totalPages = Math.ceil(totalUsers / limit);
 
   return (
-    <BaseLayout title="User Management" description="Manage all users in the system" actions={actions} fullWidth={true}>
+    <BaseLayout title={t('users.page_title', 'User Management')} description={t('users.page_description', 'Manage all users in the system')} fullWidth={true} breadcrumbs={breadcrumbs} actions={pageActions}>
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: t('navigation.home', 'Home'),
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: t('navigation.users', 'Users'),
-              icon: <FiUsers className="w-4 h-4" />
-            }
-          ]}
-        />
 
         {/* Statistics Cards */}
         <StatisticsGrid
@@ -839,7 +821,7 @@ const UserListPage = () => {
           onSearchChange={setSearchValue}
           onFilterClick={handleFilterToggle}
           isFilterActive={showFilters}
-          searchPlaceholder="Search users by name, email, or username..."
+          searchPlaceholder={t('users.table.search_placeholder', 'Search users by name, email, or username...')}
           // Column visibility features
           visibleColumns={visibleColumns}
           onColumnVisibilityChange={handleColumnVisibilityChange}

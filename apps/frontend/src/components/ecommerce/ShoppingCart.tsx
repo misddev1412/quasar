@@ -59,6 +59,9 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
     summary.totalItems > 0
       ? t('aria_labels.cart_button', { count: summary.totalItems })
       : t('aria_labels.cart_button_empty');
+  const hasCartItems = !summary.isEmpty;
+  const hasDiscount = summary.totals.discount > 0;
+  const formatMoney = (value: number) => `${summary.totals.currency}${value.toFixed(2)}`;
 
   // Sample shipping options - in production, these would come from an API
   const shippingOptions: ShippingOption[] = [
@@ -126,11 +129,13 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
   };
 
   const renderEmptyCart = () => (
-    <div className="flex flex-col items-center justify-center py-12">
-      <div className="text-6xl mb-4">🛒</div>
-      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t('empty.title')}</h3>
-      <p className="text-gray-500 dark:text-gray-400 mb-6">{t('empty.description')}</p>
-      <Button color="primary" onPress={closeCartAndNotify}>
+    <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-gray-200 bg-white/80 px-6 py-12 text-center dark:border-gray-700 dark:bg-gray-900/50">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary-50 text-3xl dark:bg-primary-500/10">
+        🛒
+      </div>
+      <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">{t('empty.title')}</h3>
+      <p className="mb-6 max-w-sm text-sm text-gray-500 dark:text-gray-400">{t('empty.description')}</p>
+      <Button color="primary" onPress={closeCartAndNotify} size="lg" className="px-8">
         {t('empty.continue')}
       </Button>
     </div>
@@ -161,13 +166,19 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
     if (!showShippingOptions || summary.isEmpty) return null;
 
     return (
-      <div className="space-y-3 mb-6">
-        <h4 className="font-medium text-gray-900 dark:text-white">Shipping Options</h4>
+      <div className="mb-6 space-y-3 rounded-2xl border border-gray-200/70 bg-white/80 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900/60">
+        <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-300">
+          Shipping Options
+        </h4>
         <div className="space-y-2">
           {shippingOptions.map((option) => (
             <label
               key={option.id}
-              className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className={`flex cursor-pointer items-center justify-between rounded-xl border p-3 transition-all ${
+                shippingOption?.id === option.id
+                  ? 'border-primary-200 bg-primary-50/70 shadow-sm dark:border-primary-500/40 dark:bg-primary-500/10'
+                  : 'border-gray-200 bg-white/70 hover:border-primary-100 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900/50 dark:hover:border-primary-500/20'
+              }`}
             >
               <div className="flex items-center gap-3">
                 <input
@@ -220,51 +231,95 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
             Apply
           </Button>
         </div>
-        {appliedDiscounts.map((discount, index) => (
-          <div key={index} className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <div className="flex items-center gap-2">
-              <Chip color="success" variant="flat" size="sm">
-                {discount.code}
-              </Chip>
-              <span className="text-sm text-gray-600 dark:text-gray-300">{discount.description}</span>
-            </div>
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              color="danger"
-              onPress={() => removeDiscount(discount.code)}
+        <div className="space-y-2">
+          {appliedDiscounts.map((discount, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50/80 p-2 dark:border-emerald-500/40 dark:bg-emerald-500/10"
             >
-              <span className="text-lg">✕</span>
-            </Button>
+              <div className="flex items-center gap-2">
+                <Chip color="success" variant="flat" size="sm">
+                  {discount.code}
+                </Chip>
+                <span className="text-sm text-gray-600 dark:text-gray-300">{discount.description}</span>
+              </div>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                color="danger"
+                onPress={() => removeDiscount(discount.code)}
+              >
+                <span className="text-lg">✕</span>
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderCartHighlights = () => {
+    if (!hasCartItems) return null;
+
+    const itemLabel = summary.totalItems === 1 ? 'Item' : 'Items';
+
+    return (
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 px-4 py-3 text-white shadow-md">
+          <p className="text-xs uppercase tracking-[0.2em] text-white/80">Current total</p>
+          <p className="text-2xl font-semibold leading-tight">
+            {formatMoney(summary.totals.total)}
+          </p>
+          <p className="text-xs text-white/70">Tax &amp; shipping included</p>
+        </div>
+        <div className="rounded-2xl border border-gray-200/70 bg-white/80 px-4 py-3 text-gray-900 shadow-sm dark:border-gray-700 dark:bg-gray-900/80 dark:text-white">
+          <p className="text-xs uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">Items</p>
+          <p className="text-2xl font-semibold leading-tight">{summary.totalItems}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{itemLabel}</p>
+        </div>
+        {hasDiscount && (
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 px-4 py-3 text-emerald-700 shadow-sm dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200 sm:col-span-2">
+            <p className="text-xs uppercase tracking-[0.2em] text-emerald-700/80 dark:text-emerald-200/80">Savings applied</p>
+            <p className="text-2xl font-semibold leading-tight">
+              -{formatMoney(summary.totals.discount)}
+            </p>
+            <p className="text-xs text-emerald-700/80 dark:text-emerald-200/80">Automatically deducted from your total.</p>
           </div>
-        ))}
+        )}
       </div>
     );
   };
 
   const renderCartContent = () => (
-    <div className="flex flex-col h-full max-h-[80vh]">
+    <div className="flex h-full max-h-[85vh] min-h-0 flex-col">
       {/* Cart Header */}
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between w-full">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            {cartLabel}
-          </h2>
+      <CardHeader className="border-b border-gray-100 px-4 pb-4 sm:px-6 dark:border-gray-800">
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">{t('title')}</p>
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">{cartLabel}</h2>
+            {hasCartItems && (
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {summary.totalItems} {summary.totalItems === 1 ? 'item' : 'items'} · {formatMoney(summary.totals.subtotal)} subtotal
+              </p>
+            )}
+          </div>
           {isModal && (
             <Button isIconOnly variant="light" size="sm" onPress={closeCartAndNotify}>
               <span className="text-lg">✕</span>
             </Button>
           )}
         </div>
+        {renderCartHighlights()}
       </CardHeader>
 
       {/* Cart Items */}
-      <CardBody className="flex-1 overflow-y-auto py-4">
+      <CardBody className="flex-1 min-h-0 overflow-y-auto px-4 py-4 sm:px-6">
         {summary.isEmpty ? (
           renderEmptyCart()
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 pb-6">
             {renderValidationAlerts()}
             {items.map((item) => (
               <CartItem
@@ -282,37 +337,37 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
       </CardBody>
 
       {/* Cart Footer */}
-      {!summary.isEmpty && (
-        <CardFooter className="flex-col gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+      {hasCartItems && (
+        <CardFooter className="flex-col gap-4 border-t border-gray-100 px-4 pb-6 pt-4 sm:px-6 dark:border-gray-800">
           {/* Cart Summary */}
-          <div className="w-full space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
+          <div className="w-full space-y-3 rounded-2xl border border-gray-200/70 bg-gray-50/80 p-4 dark:border-gray-700 dark:bg-gray-900/60">
+            <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+              <span>Subtotal</span>
               <PriceDisplay price={summary.totals.subtotal} currency={summary.totals.currency} />
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600 dark:text-gray-400">Shipping</span>
+            <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+              <span>Shipping</span>
               <PriceDisplay price={summary.totals.shipping} currency={summary.totals.currency} />
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600 dark:text-gray-400">Tax</span>
+            <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+              <span>Tax</span>
               <PriceDisplay price={summary.totals.tax} currency={summary.totals.currency} />
             </div>
             {summary.totals.discount > 0 && (
-              <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
+              <div className="flex justify-between text-sm text-emerald-600 dark:text-emerald-400">
                 <span>Discount</span>
                 <span>-${summary.totals.discount.toFixed(2)}</span>
               </div>
             )}
-            <div className="h-px bg-gray-200 dark:bg-gray-700 my-2" />
-            <div className="flex justify-between font-semibold text-lg">
+            <div className="h-px bg-gray-200 dark:bg-gray-700" />
+            <div className="flex items-center justify-between text-lg font-semibold text-gray-900 dark:text-white">
               <span>Total</span>
               <PriceDisplay price={summary.totals.total} currency={summary.totals.currency} size="lg" />
             </div>
           </div>
 
           {/* Cart Actions */}
-          <div className="flex flex-col gap-2 w-full">
+          <div className="flex w-full flex-col gap-2">
             {showCheckoutButton && (
               <Button
                 color="primary"

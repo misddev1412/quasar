@@ -156,6 +156,11 @@
       "empty": "Chưa có sản phẩm nào trong danh mục này.",
       "carousel_prev": "Cuộn sang trái",
       "carousel_next": "Cuộn sang phải",
+      "sidebar_label": "Mega menu",
+      "sidebar_default_title": "Khám phá theo bộ sưu tập",
+      "sidebar_default_description": "Đi nhanh giữa các danh mục nổi bật và bộ sưu tập được tuyển chọn.",
+      "sidebar_section_title": "Nhóm menu",
+      "sidebar_link_aria": "Đi tới {{label}}",
       "strategies": {
         "latest": "Sản phẩm mới nhất",
         "featured": "Sản phẩm nổi bật",

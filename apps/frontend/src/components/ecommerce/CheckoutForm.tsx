@@ -918,6 +918,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     <Radio value="paypal">{t('form.paymentMethods.paypal')}</Radio>
                     <Radio value="bank_transfer">{t('form.paymentMethods.bank_transfer')}</Radio>
                     <Radio value="cash_on_delivery">{t('form.paymentMethods.cash_on_delivery')}</Radio>
+                    <Radio value="payos">{t('form.paymentMethods.payos')}</Radio>
                   </RadioGroup>
 
                   {formData.paymentMethod.type === 'credit_card' && (

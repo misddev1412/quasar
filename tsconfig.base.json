@@ -37,6 +37,7 @@
       "@shared/classes/*": ["libs/shared/src/classes/*"],
       "@shared/entities/*": ["libs/shared/src/entities/*"],
       "@shared/enums/*": ["libs/shared/src/enums/*"],
+      "@shared/queues": ["libs/shared/src/queues/index.ts"],
       "@shared/repositories/*": ["libs/shared/src/repositories/*"],
       "@shared/styles/*": ["libs/shared/src/styles/*"],
       "@shared/types/*": ["libs/shared/src/types/*"],

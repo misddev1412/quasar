@@ -14,6 +14,7 @@ export { InventoryItem } from './inventory-item.entity';
 export { Order, OrderStatus, PaymentStatus, OrderSource } from './order.entity';
 export { OrderItem } from './order-item.entity';
 export { PaymentMethod, PaymentMethodType, ProcessingFeeType } from './payment-method.entity';
+export { PaymentMethodProvider } from './payment-method-provider.entity';
 export { Product, ProductStatus } from './product.entity';
 export { ProductAttribute } from './product-attribute.entity';
 export { ProductMedia, MediaType } from './product-media.entity';

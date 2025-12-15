@@ -9,6 +9,7 @@ import ProductCard from '../../components/ecommerce/ProductCard';
 import type { Category, Product } from '../../types/product';
 import { ProductService } from '../../services/product.service';
 import { CategoryService } from '../../services/category.service';
+import { ProductsByCategorySidebar } from './ProductsByCategorySidebar';
 
 export type ProductsByCategoryStrategy = 'latest' | 'featured' | 'bestsellers' | 'custom';
 
@@ -25,11 +26,49 @@ export interface ProductsByCategoryRowConfig {
 export interface ProductsByCategoryConfig {
   rows?: ProductsByCategoryRowConfig[];
   displayStyle?: 'grid' | 'carousel';
+  sidebarEnabled?: boolean;
   // Legacy fields kept for backward compatibility
   categoryId?: string;
   productIds?: string[];
   sort?: string;
   limit?: number;
+  sidebar?: ProductsByCategorySidebarConfig;
+}
+
+export interface ProductsByCategorySidebarItemConfig {
+  id?: string;
+  label?: string;
+  href?: string;
+  description?: string;
+  icon?: string;
+  linkType?: 'custom' | 'category' | 'product' | 'brand';
+  referenceId?: string;
+  children?: ProductsByCategorySidebarItemConfig[];
+}
+
+type SidebarTitleFontWeight = 'normal' | 'medium' | 'semibold' | 'bold';
+type SidebarTitleFontSize = 'xs' | 'sm' | 'base' | 'lg';
+
+export interface ProductsByCategorySidebarSectionConfig {
+  id?: string;
+  title?: string;
+  description?: string;
+  backgroundColor?: string;
+  titleFontColor?: string;
+  titleFontWeight?: SidebarTitleFontWeight;
+  titleFontSize?: SidebarTitleFontSize;
+  titleUppercase?: boolean;
+  titleIcon?: string;
+  items?: ProductsByCategorySidebarItemConfig[];
+}
+
+export interface ProductsByCategorySidebarConfig {
+  enabled?: boolean;
+  title?: string;
+  description?: string;
+  showTitle?: boolean;
+  showDescription?: boolean;
+  sections?: ProductsByCategorySidebarSectionConfig[];
 }
 
 interface ProductsByCategoryProps {
@@ -67,6 +106,18 @@ interface CategoryReference {
 }
 
 const DEFAULT_LIMIT = 6;
+const SIDEBAR_TITLE_FONT_WEIGHT_VALUES: SidebarTitleFontWeight[] = ['normal', 'medium', 'semibold', 'bold'];
+const SIDEBAR_TITLE_FONT_SIZE_VALUES: SidebarTitleFontSize[] = ['xs', 'sm', 'base', 'lg'];
+
+const normalizeSidebarFontWeight = (value?: string | null): SidebarTitleFontWeight => {
+  const normalized = normalizeString(value) as SidebarTitleFontWeight;
+  return SIDEBAR_TITLE_FONT_WEIGHT_VALUES.includes(normalized) ? normalized : 'semibold';
+};
+
+const normalizeSidebarFontSize = (value?: string | null): SidebarTitleFontSize => {
+  const normalized = normalizeString(value) as SidebarTitleFontSize;
+  return SIDEBAR_TITLE_FONT_SIZE_VALUES.includes(normalized) ? normalized : 'sm';
+};
 
 const isValidUuid = (value?: string | null): boolean => {
   if (!value) return false;
@@ -107,9 +158,114 @@ const normalizeDisplayStyle = (value?: string | null): 'grid' | 'carousel' => {
   return normalized === 'carousel' ? 'carousel' : 'grid';
 };
 
+export interface NormalizedSidebarItem {
+  id: string;
+  label: string;
+  href: string;
+  description: string;
+  icon: string;
+  children: NormalizedSidebarItem[];
+}
+
+export interface NormalizedSidebarSection {
+  id: string;
+  title: string;
+  description: string;
+  backgroundColor: string;
+  titleFontColor: string;
+  titleFontWeight: SidebarTitleFontWeight;
+  titleFontSize: SidebarTitleFontSize;
+  titleUppercase: boolean;
+  titleIcon: string;
+  items: NormalizedSidebarItem[];
+}
+
+export interface NormalizedSidebarConfig {
+  enabled: boolean;
+  title: string;
+  description: string;
+  showTitle: boolean;
+  showDescription: boolean;
+  sections: NormalizedSidebarSection[];
+}
+
 const toLowerCaseOrNull = (value?: string | null): string | null => {
   const normalized = normalizeString(value);
   return normalized ? normalized.toLowerCase() : null;
+};
+
+const normalizeSidebarItems = (
+  items?: ProductsByCategorySidebarItemConfig[],
+  sectionId?: string,
+): NormalizedSidebarItem[] => {
+  if (!Array.isArray(items)) {
+    return [];
+  }
+
+  return items
+    .map((item, index) => {
+      const baseId = normalizeString(item?.id) || `${sectionId || 'sidebar'}-item-${index}`;
+      const id = index === 0 ? baseId : `${baseId}-${index}`;
+      const label = normalizeString(item?.label);
+      const href = normalizeString(item?.href);
+      const description = normalizeString(item?.description);
+      const icon = normalizeString(item?.icon);
+      const children = normalizeSidebarItems(item?.children, id);
+
+      return {
+        id,
+        label,
+        href,
+        description,
+        icon,
+        children,
+      };
+    })
+    .filter((item) => item.label.length > 0);
+};
+
+const normalizeSidebarConfig = (sidebar?: ProductsByCategorySidebarConfig | null): NormalizedSidebarConfig => {
+  const rawSections = Array.isArray(sidebar?.sections) ? sidebar?.sections : [];
+  const showTitle = sidebar?.showTitle !== false;
+  const showDescription = sidebar?.showDescription !== false;
+
+  const sections = rawSections
+    .map((section, index) => {
+      const baseId = normalizeString(section?.id) || `sidebar-section-${index}`;
+      const id = index === 0 ? baseId : `${baseId}-${index}`;
+      const title = normalizeString(section?.title);
+      const description = normalizeString(section?.description);
+      const backgroundColor = normalizeString(section?.backgroundColor);
+      const titleFontColor = normalizeString(section?.titleFontColor);
+      const titleFontWeight = normalizeSidebarFontWeight(section?.titleFontWeight);
+      const titleFontSize = normalizeSidebarFontSize(section?.titleFontSize);
+      const titleUppercase = Boolean(section?.titleUppercase);
+      const titleIcon = normalizeString(section?.titleIcon);
+      const items = normalizeSidebarItems(section?.items, id);
+
+      return {
+        id,
+        title,
+        description,
+        backgroundColor,
+        titleFontColor,
+        titleFontWeight,
+        titleFontSize,
+        titleUppercase,
+        titleIcon,
+        items,
+      };
+    })
+    .filter((section) => section.items.length > 0 || section.title.length > 0 || section.description.length > 0);
+
+  return {
+    enabled: Boolean(sidebar?.enabled) && sections.length > 0,
+    title: normalizeString(sidebar?.title),
+    description: normalizeString(sidebar?.description),
+    showTitle,
+    showDescription,
+    sections,
+  };
 };
 
 const getCategoryName = (category?: Category | null): string | null => {
@@ -296,6 +452,8 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
 
   const configKey = useMemo(() => JSON.stringify(config ?? {}), [config]);
   const rows = useMemo(() => normalizeRows(config), [configKey]);
+  const sidebarConfig = useMemo(() => normalizeSidebarConfig(config?.sidebar), [configKey]);
+  const sectionSidebarEnabled = typeof config.sidebarEnabled === 'boolean' ? config.sidebarEnabled : true;
   const normalizedRowsKey = useMemo(
     () => JSON.stringify(rows.map((row) => ({
       id: row.id,
@@ -518,6 +676,12 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
 
   const sectionHeading = translation?.title || t('sections.products_by_category.title');
   const sectionDescription = translation?.description || t('sections.products_by_category.description');
+  const isSidebarEnabled = sectionSidebarEnabled && sidebarConfig.enabled;
+  const sidebarTitleText = sidebarConfig.title || t('sections.products_by_category.sidebar_default_title');
+  const sidebarDescriptionText = sidebarConfig.description || t('sections.products_by_category.sidebar_default_description');
+  const sidebarShowTitle = sidebarConfig.showTitle;
+  const sidebarShowDescription = sidebarConfig.showDescription;
+  const sidebarSectionFallback = t('sections.products_by_category.sidebar_section_title');
 
   if (rows.length === 0) {
     return null;
@@ -536,8 +700,21 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
           </div>
         </div>
 
-        <div className="space-y-16">
-          {rows.map((row) => {
+        <div className={`flex flex-col gap-12 ${isSidebarEnabled ? 'lg:flex-row' : ''}`}>
+          {isSidebarEnabled && (
+            <ProductsByCategorySidebar
+              sidebarLabel={t('sections.products_by_category.sidebar_label')}
+              title={sidebarTitleText}
+              description={sidebarDescriptionText}
+              showTitle={sidebarShowTitle}
+              showDescription={sidebarShowDescription}
+              sections={sidebarConfig.sections}
+              sectionFallbackTitle={sidebarSectionFallback}
+              getLinkAriaLabel={(label) => t('sections.products_by_category.sidebar_link_aria', { label })}
+            />
+          )}
+          <div className={`${isSidebarEnabled ? 'w-full lg:w-4/5' : 'w-full'} space-y-16`}>
+            {rows.map((row) => {
             const state = rowStates[row.id] ?? {
               products: [],
               isLoading: true,
@@ -750,6 +927,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
               </div>
             );
           })}
+          </div>
         </div>
       </div>
     </section>

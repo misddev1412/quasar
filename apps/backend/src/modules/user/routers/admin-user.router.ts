@@ -99,6 +99,8 @@ const getUsersResponseSchema = z.object({
   limit: z.number(),
 });
 
+const exportFormatSchema = z.enum(['csv', 'json']);
+
 // Create permission middleware classes at module level so they can be registered as providers
 const requireCreateAnyUser = RequirePermission({
   resource: 'user',
@@ -437,6 +439,91 @@ export class AdminUserRouter {
         3,
         30,
         error.message || 'Failed to update password'
+      );
+    }
+  }
+
+  @UseMiddlewares(
+    AuthMiddleware,
+    AdminRoleMiddleware,
+    requireReadAnyUser
+  )
+  @Query({
+    input: z.object({
+      filters: z.record(z.any()).optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  async estimateExportUsers(
+    @Input() input: { filters?: Record<string, any> }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const estimate = await this.adminUserService.estimateUserExport(input.filters);
+      return this.responseHandler.createTrpcSuccess(estimate);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        10,
+        2,
+        30,
+        (error as any)?.message || 'Failed to estimate export records',
+      );
+    }
+  }
+
+  @UseMiddlewares(
+    AuthMiddleware,
+    AdminRoleMiddleware,
+    requireReadAnyUser
+  )
+  @Mutation({
+    input: z.object({
+      format: exportFormatSchema.default('csv'),
+      filters: z.record(z.any()).optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  async exportUsers(
+    @Ctx() ctx: AuthenticatedContext,
+    @Input() input: { format: z.infer<typeof exportFormatSchema>; filters?: Record<string, any> }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const job = await this.adminUserService.exportUsers(input.format, input.filters, ctx.user.id);
+      return this.responseHandler.createTrpcSuccess(job);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        10,
+        1,
+        30,
+        (error as any)?.message || 'Failed to start export job',
+      );
+    }
+  }
+
+  @UseMiddlewares(
+    AuthMiddleware,
+    AdminRoleMiddleware,
+    requireReadAnyUser
+  )
+  @Query({
+    input: z.object({
+      limit: z.number().min(1).max(50).default(10),
+      page: z.number().min(1).default(1),
+    }),
+    output: apiResponseSchema,
+  })
+  async listExportJobs(
+    @Ctx() ctx: AuthenticatedContext,
+    @Input() input: { limit: number; page: number }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const jobs = await this.adminUserService.listUserExportJobs(input.limit, ctx.user.id, input.page);
+      return this.responseHandler.createTrpcSuccess(jobs);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        10,
+        2,
+        30,
+        (error as any)?.message || 'Failed to load export jobs',
       );
     }
   }

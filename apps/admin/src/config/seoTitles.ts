@@ -969,6 +969,28 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     },
   },
   {
+    path: '/component-configs/create',
+    titles: {
+      en: 'Create Component | Quasar Admin',
+      vi: 'Tạo Component | Quasar Admin',
+    },
+    description: {
+      en: 'Add a new building block with default content, schema, and placement metadata.',
+      vi: 'Tạo component mới với nội dung mặc định, schema và thông tin vị trí.',
+    },
+  },
+  {
+    path: '/component-configs/:id/edit',
+    titles: {
+      en: 'Edit Component | Quasar Admin',
+      vi: 'Chỉnh Sửa Component | Quasar Admin',
+    },
+    description: {
+      en: 'Update component defaults, schema, and allowed relationships on a dedicated page.',
+      vi: 'Chỉnh sửa cấu hình component, schema và quan hệ cho phép trên trang riêng.',
+    },
+  },
+  {
     path: '/menus',
     titles: {
       en: 'Menu Management | Quasar Admin',

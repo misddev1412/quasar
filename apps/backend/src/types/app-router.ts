@@ -57,6 +57,40 @@ const getUsersResponseSchema = apiResponseSchema.extend({
   }),
 });
 
+const exportFormatSchema = z.enum(['csv', 'json']);
+const exportJobStatusSchema = z.enum(['pending', 'processing', 'completed', 'failed']);
+const exportJobSchema = z.object({
+  id: z.string(),
+  resource: z.string(),
+  format: exportFormatSchema,
+  status: exportJobStatusSchema,
+  fileUrl: z.string().nullable().optional(),
+  fileName: z.string().nullable().optional(),
+  totalRecords: z.number().nullable().optional(),
+  createdAt: z.date(),
+  completedAt: z.date().nullable().optional(),
+});
+
+const exportJobResponseSchema = apiResponseSchema.extend({
+  data: exportJobSchema.optional(),
+});
+
+const exportJobListResponseSchema = apiResponseSchema.extend({
+  data: z.object({
+    items: z.array(exportJobSchema),
+    total: z.number(),
+    page: z.number(),
+    limit: z.number(),
+    totalPages: z.number(),
+  }),
+});
+
+const exportEstimateResponseSchema = apiResponseSchema.extend({
+  data: z.object({
+    total: z.number(),
+  }).optional(),
+});
+
 const menuTranslationSchema = z.object({
   label: z.string().optional(),
   description: z.string().optional(),
@@ -532,6 +566,35 @@ export const appRouter = router({
       .input(z.object({ id: z.string() }))
       .output(apiResponseSchema)
       .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    exportUsers: procedure
+      .input(z.object({
+        format: exportFormatSchema.default('csv'),
+        filters: z.record(z.unknown()).optional(),
+      }))
+      .output(exportJobResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    estimateExportUsers: procedure
+      .input(z.object({
+        filters: z.record(z.unknown()).optional(),
+      }))
+      .output(exportEstimateResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    listExportJobs: procedure
+      .input(z.object({
+        limit: z.number().min(1).max(50).default(10),
+        page: z.number().min(1).default(1),
+      }))
+      .output(exportJobListResponseSchema)
+      .query(() => {
         return {} as ApiResponse;
       }),
 
@@ -2172,6 +2235,7 @@ export const appRouter = router({
         s3Bucket: z.string().optional(),
         s3Endpoint: z.string().optional(),
         s3ForcePathStyle: z.boolean().optional(),
+        s3CdnUrl: z.string().optional(),
       }))
       .output(apiResponseSchema)
       .mutation(() => {
@@ -2289,6 +2353,85 @@ export const appRouter = router({
       }),
   }),
 
+  // Admin Translation router
+  adminTranslation: router({
+    getTranslations: procedure
+      .input(z.object({
+        page: z.number().int().min(1).optional().default(1),
+        limit: z.number().int().min(1).max(100).optional().default(10),
+        search: z.string().optional(),
+        locale: z.string().optional(),
+        namespace: z.string().optional(),
+        isActive: z.boolean().optional(),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getTranslationById: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getLocales: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getNamespaces: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    createTranslation: procedure
+      .input(z.object({
+        key: z.string().min(1).max(255),
+        locale: z.string().length(5),
+        value: z.string(),
+        namespace: z.string().max(100).optional(),
+        isActive: z.boolean().optional().default(true),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    updateTranslation: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        data: z.object({
+          key: z.string().min(1).max(255).optional(),
+          locale: z.string().length(5).optional(),
+          value: z.string().optional(),
+          namespace: z.string().max(100).optional(),
+          isActive: z.boolean().optional(),
+        }),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    deleteTranslation: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    toggleTranslationStatus: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
   // Client Language router
   clientLanguage: router({
     getActiveLanguages: procedure
@@ -2396,6 +2539,35 @@ export const appRouter = router({
         sortOrder: z.enum(['ASC', 'DESC']).default('DESC'),
       }).optional())
       .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    exportProducts: procedure
+      .input(z.object({
+        format: exportFormatSchema.default('csv'),
+        filters: z.record(z.unknown()).optional(),
+      }))
+      .output(exportJobResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    estimateExportProducts: procedure
+      .input(z.object({
+        filters: z.record(z.unknown()).optional(),
+      }))
+      .output(exportEstimateResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    listExportJobs: procedure
+      .input(z.object({
+        limit: z.number().min(1).max(50).default(10),
+        page: z.number().min(1).default(1),
+      }))
+      .output(exportJobListResponseSchema)
       .query(() => {
         return {} as ApiResponse;
       }),
@@ -3622,9 +3794,15 @@ export const appRouter = router({
           'user.registered',
           'user.verified',
           'order.created',
+          'order.confirmed',
           'order.shipped',
+          'order.delivered',
+          'order.cancelled',
+          'order.refunded',
           'system.announcement',
           'marketing.campaign',
+          'export.completed',
+          'export.failed',
           'custom.manual',
         ]).optional(),
       }))
@@ -3647,9 +3825,15 @@ export const appRouter = router({
           'user.registered',
           'user.verified',
           'order.created',
+          'order.confirmed',
           'order.shipped',
+          'order.delivered',
+          'order.cancelled',
+          'order.refunded',
           'system.announcement',
           'marketing.campaign',
+          'export.completed',
+          'export.failed',
           'custom.manual',
         ]).optional(),
       }))
@@ -3695,9 +3879,15 @@ export const appRouter = router({
           'user.registered',
           'user.verified',
           'order.created',
+          'order.confirmed',
           'order.shipped',
+          'order.delivered',
+          'order.cancelled',
+          'order.refunded',
           'system.announcement',
           'marketing.campaign',
+          'export.completed',
+          'export.failed',
           'custom.manual',
         ]).optional(),
         isActive: z.boolean().optional(),
@@ -3714,9 +3904,15 @@ export const appRouter = router({
           'user.registered',
           'user.verified',
           'order.created',
+          'order.confirmed',
           'order.shipped',
+          'order.delivered',
+          'order.cancelled',
+          'order.refunded',
           'system.announcement',
           'marketing.campaign',
+          'export.completed',
+          'export.failed',
           'custom.manual',
         ]).optional(),
       }))
@@ -3732,9 +3928,15 @@ export const appRouter = router({
           'user.registered',
           'user.verified',
           'order.created',
+          'order.confirmed',
           'order.shipped',
+          'order.delivered',
+          'order.cancelled',
+          'order.refunded',
           'system.announcement',
           'marketing.campaign',
+          'export.completed',
+          'export.failed',
           'custom.manual',
         ]),
         displayName: z.string().min(3).max(150),
@@ -3934,9 +4136,15 @@ export const appRouter = router({
           'user.registered',
           'user.verified',
           'order.created',
+          'order.confirmed',
           'order.shipped',
+          'order.delivered',
+          'order.cancelled',
+          'order.refunded',
           'system.announcement',
           'marketing.campaign',
+          'export.completed',
+          'export.failed',
           'custom.manual',
         ]),
         displayName: z.string().min(3).max(150),
@@ -3956,9 +4164,15 @@ export const appRouter = router({
           'user.registered',
           'user.verified',
           'order.created',
+          'order.confirmed',
           'order.shipped',
+          'order.delivered',
+          'order.cancelled',
+          'order.refunded',
           'system.announcement',
           'marketing.campaign',
+          'export.completed',
+          'export.failed',
           'custom.manual',
         ]),
         channels: z.array(z.enum(['push', 'email', 'in_app', 'sms', 'telegram'])).min(1),
@@ -4612,6 +4826,35 @@ export const appRouter = router({
       .mutation(() => {
         return {} as ApiResponse;
       }),
+
+    estimateExportOrders: procedure
+      .input(z.object({
+        filters: z.record(z.any()).optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    exportOrders: procedure
+      .input(z.object({
+        format: exportFormatSchema.default('csv'),
+        filters: z.record(z.any()).optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    listExportJobs: procedure
+      .input(z.object({
+        limit: z.number().min(1).max(50).default(10),
+        page: z.number().min(1).default(1),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
   }),
 
   // Admin Payment Methods router
@@ -4666,7 +4909,6 @@ export const appRouter = router({
         minAmount: z.number().min(0).optional(),
         maxAmount: z.number().min(0).optional(),
         supportedCurrencies: z.array(z.string()).optional(),
-        configuration: z.record(z.any()).optional(),
         iconUrl: z.string().url().optional(),
         isDefault: z.boolean().optional().default(false),
       }))
@@ -4689,7 +4931,6 @@ export const appRouter = router({
           minAmount: z.number().min(0).optional(),
           maxAmount: z.number().min(0).optional(),
           supportedCurrencies: z.array(z.string()).optional(),
-          configuration: z.record(z.any()).optional(),
           iconUrl: z.string().url().optional(),
           isDefault: z.boolean().optional(),
         }),
@@ -4746,6 +4987,50 @@ export const appRouter = router({
     stats: procedure
       .output(apiResponseSchema)
       .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    providerConfig: procedure
+      .input(z.object({
+        paymentMethodId: z.string().uuid(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    saveProviderConfig: procedure
+      .input(z.object({
+        id: z.string().uuid().optional(),
+        paymentMethodId: z.string().uuid(),
+        providerKey: z.string().min(1).max(100),
+        displayName: z.string().min(1).max(255),
+        providerType: z.string().min(1).max(100).optional(),
+        description: z.string().optional(),
+        environment: z.string().min(2).max(50).optional(),
+        apiKey: z.string().optional(),
+        apiSecret: z.string().optional(),
+        clientId: z.string().optional(),
+        clientSecret: z.string().optional(),
+        checksumKey: z.string().optional(),
+        publicKey: z.string().optional(),
+        webhookUrl: z.string().optional(),
+        webhookSecret: z.string().optional(),
+        callbackUrl: z.string().optional(),
+        credentials: z.record(z.any()).optional(),
+        settings: z.record(z.any()).optional(),
+        metadata: z.record(z.any()).optional(),
+        isActive: z.boolean().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    deleteProviderConfig: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
         return {} as ApiResponse;
       }),
   }),
@@ -5638,6 +5923,8 @@ export const appRouter = router({
           last4: z.string().optional(),
           provider: z.string().optional(),
           reference: z.string().optional(),
+          paymentMethodId: z.string().uuid().optional(),
+          metadata: z.record(z.any()).optional(),
         }),
         orderNotes: z.string().optional(),
         items: z.array(z.object({

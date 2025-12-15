@@ -1,6 +1,12 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PaymentMethodRepository, CreatePaymentMethodDto, UpdatePaymentMethodDto, PaymentMethodFilters } from '../repositories/payment-method.repository';
+import {
+  PaymentMethodProviderRepository,
+  CreatePaymentMethodProviderDto,
+  UpdatePaymentMethodProviderDto,
+} from '../repositories/payment-method-provider.repository';
 import { PaymentMethod, PaymentMethodType } from '../entities/payment-method.entity';
+import { PaymentMethodProvider } from '../entities/payment-method-provider.entity';
 
 export interface PaymentMethodListResponse {
   items: PaymentMethod[];
@@ -17,10 +23,15 @@ export interface PaymentCalculation {
   paymentMethod: PaymentMethod;
 }
 
+export type SavePaymentMethodProviderDto = Omit<CreatePaymentMethodProviderDto, 'paymentMethodId'> & {
+  id?: string;
+};
+
 @Injectable()
 export class PaymentMethodService {
   constructor(
     private readonly paymentMethodRepository: PaymentMethodRepository,
+    private readonly paymentMethodProviderRepository: PaymentMethodProviderRepository,
   ) {}
 
   async create(data: CreatePaymentMethodDto): Promise<PaymentMethod> {
@@ -284,6 +295,68 @@ export class PaymentMethodService {
 
     if (data.sortOrder !== undefined && data.sortOrder < 0) {
       throw new BadRequestException('Sort order cannot be negative');
+    }
+  }
+
+  async getProviderConfig(paymentMethodId: string): Promise<PaymentMethodProvider | null> {
+    await this.findById(paymentMethodId);
+    return await this.paymentMethodProviderRepository.findByPaymentMethod(paymentMethodId);
+  }
+
+  async saveProvider(paymentMethodId: string, data: SavePaymentMethodProviderDto): Promise<PaymentMethodProvider> {
+    const paymentMethod = await this.findById(paymentMethodId);
+
+    const payload: CreatePaymentMethodProviderDto = {
+      paymentMethodId: paymentMethod.id,
+      providerKey: data.providerKey,
+      displayName: data.displayName,
+      providerType: data.providerType ?? 'PAYMENT_GATEWAY',
+      description: data.description,
+      environment: data.environment ?? 'production',
+      apiKey: data.apiKey,
+      apiSecret: data.apiSecret,
+      clientId: data.clientId,
+      clientSecret: data.clientSecret,
+      checksumKey: data.checksumKey,
+      publicKey: data.publicKey,
+      webhookUrl: data.webhookUrl,
+      webhookSecret: data.webhookSecret,
+      callbackUrl: data.callbackUrl,
+      credentials: data.credentials,
+      settings: data.settings,
+      metadata: data.metadata,
+      isActive: data.isActive ?? true,
+    };
+
+    if (data.id) {
+      const updated = await this.paymentMethodProviderRepository.update(data.id, payload as UpdatePaymentMethodProviderDto);
+      if (!updated) {
+        throw new NotFoundException(`Payment method provider with ID ${data.id} not found`);
+      }
+      return updated;
+    }
+
+    const existing = await this.paymentMethodProviderRepository.findByPaymentMethod(paymentMethod.id);
+    if (existing) {
+      const updated = await this.paymentMethodProviderRepository.update(existing.id, payload as UpdatePaymentMethodProviderDto);
+      if (!updated) {
+        throw new NotFoundException(`Payment method provider with ID ${existing.id} not found`);
+      }
+      return updated;
+    }
+
+    return await this.paymentMethodProviderRepository.create(payload);
+  }
+
+  async deleteProvider(providerId: string): Promise<void> {
+    const provider = await this.paymentMethodProviderRepository.findById(providerId);
+    if (!provider) {
+      throw new NotFoundException(`Payment method provider with ID ${providerId} not found`);
+    }
+
+    const deleted = await this.paymentMethodProviderRepository.delete(providerId);
+    if (!deleted) {
+      throw new NotFoundException(`Payment method provider with ID ${providerId} not found`);
     }
   }
 }

@@ -27,6 +27,7 @@ const updateStorageConfigSchema = z.object({
   s3Bucket: z.string().optional(),
   s3Endpoint: z.string().optional(),
   s3ForcePathStyle: z.boolean().optional(),
+  s3CdnUrl: z.string().optional(),
 });
 
 const testStorageConnectionSchema = z.object({
@@ -68,6 +69,7 @@ export class AdminStorageRouter {
         s3Bucket: config.bucket || '',
         s3Endpoint: config.endpoint || '',
         s3ForcePathStyle: config.forcePathStyle || false,
+        s3CdnUrl: config.cdnUrl || '',
         s3HasCredentials: !!(config.accessKey && config.secretKey),
       };
 
@@ -140,6 +142,10 @@ export class AdminStorageRouter {
       if (input.s3ForcePathStyle !== undefined) {
         settings['storage.s3.force_path_style'] = input.s3ForcePathStyle.toString();
         console.log('💾 [STORAGE UPDATE] S3 force path style:', input.s3ForcePathStyle);
+      }
+      if (input.s3CdnUrl !== undefined && input.s3CdnUrl !== '') {
+        settings['storage.s3.cdn_url'] = input.s3CdnUrl;
+        console.log('💾 [STORAGE UPDATE] S3 CDN URL:', input.s3CdnUrl);
       }
 
       console.log('💾 [STORAGE UPDATE] Final settings to save:', Object.keys(settings).map(key => 

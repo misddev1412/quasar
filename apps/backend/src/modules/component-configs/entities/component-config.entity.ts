@@ -2,6 +2,44 @@ import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm
 import { SoftDeletableEntity } from '@shared';
 import { ComponentStructureType, ComponentCategory } from '@shared/enums/component.enums';
 
+export type ComponentSidebarLinkType = 'custom' | 'category' | 'product' | 'brand';
+
+export interface ComponentSidebarMenuItem {
+  id: string;
+  label: string;
+  href?: string;
+  description?: string;
+  icon?: string;
+  linkType?: ComponentSidebarLinkType;
+  referenceId?: string;
+}
+
+export interface ComponentSidebarMenuSection {
+  id: string;
+  title?: string;
+  description?: string;
+  backgroundColor?: string;
+  titleFontColor?: string;
+  titleFontWeight?: 'normal' | 'medium' | 'semibold' | 'bold';
+  titleFontSize?: 'xs' | 'sm' | 'base' | 'lg';
+  titleUppercase?: boolean;
+  titleIcon?: string;
+  items: ComponentSidebarMenuItem[];
+}
+
+export interface ComponentSidebarMenuConfig {
+  enabled?: boolean;
+  title?: string;
+  description?: string;
+  showTitle?: boolean;
+  showDescription?: boolean;
+  sections?: ComponentSidebarMenuSection[];
+}
+
+export interface ComponentConfigDefaults extends Record<string, unknown> {
+  sidebar?: ComponentSidebarMenuConfig;
+}
+
 @Entity('component_configs')
 @Index('IDX_component_configs_parent_id', ['parentId'])
 @Index('IDX_component_configs_category', ['category'])
@@ -61,7 +99,7 @@ export class ComponentConfigEntity extends SoftDeletableEntity {
     type: 'jsonb',
     default: () => "'{}'::jsonb",
   })
-  defaultConfig!: Record<string, unknown>;
+  defaultConfig!: ComponentConfigDefaults;
 
   @Column({
     name: 'config_schema',

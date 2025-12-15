@@ -2,6 +2,7 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { StorageService } from './storage.service';
 import { UploadResult, FileUploadOptions, S3StorageConfig } from '../interfaces/storage.interface';
+import { buildS3PublicUrl, extractS3KeyFromUrl } from '../utils/storage-url.util';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as crypto from 'crypto';
@@ -29,9 +30,10 @@ export class FileUploadService {
     options: FileUploadOptions = {}
   ): Promise<UploadResult> {
     const config = await this.storageService.getStorageConfig();
+    const allowedTypes = options.allowedTypes ?? config.allowedFileTypes;
     
     // Validate file
-    this.validateFile(file, config.allowedFileTypes, options.maxSize || config.maxFileSize);
+    this.validateFile(file, allowedTypes, options.maxSize || config.maxFileSize);
 
     // Generate filename
     const filename = options.filename || this.generateFilename(file.originalname);
@@ -131,10 +133,7 @@ export class FileUploadService {
         })
       );
 
-      const endpoint = s3Config.endpoint ? s3Config.endpoint.replace(/\/$/, '') : '';
-      const url = endpoint
-        ? `${endpoint}/${s3Config.bucket}/${key}`
-        : `https://${s3Config.bucket}.s3.${s3Config.region}.amazonaws.com/${key}`;
+      const url = buildS3PublicUrl(s3Config, key);
 
       return {
         url,
@@ -155,7 +154,11 @@ export class FileUploadService {
 
     if (config.provider === 's3') {
       const s3Config = config as S3StorageConfig;
-      const key = this.extractKeyFromUrl(url, s3Config.bucket);
+      const key = extractS3KeyFromUrl(url, {
+        bucket: s3Config.bucket,
+        cdnUrl: s3Config.cdnUrl,
+        endpoint: s3Config.endpoint,
+      });
 
       if (!key) {
         throw new BadRequestException('Unable to determine S3 object key from URL');
@@ -199,19 +202,4 @@ export class FileUploadService {
     }
   }
 
-  private extractKeyFromUrl(url: string, bucket: string): string | null {
-    try {
-      const parsed = new URL(url);
-      let key = parsed.pathname.startsWith('/') ? parsed.pathname.slice(1) : parsed.pathname;
-
-      if (key.startsWith(`${bucket}/`)) {
-        key = key.slice(bucket.length + 1);
-      }
-
-      return key || null;
-    } catch (error) {
-      this.logger.error('Failed to parse S3 URL', error);
-      return null;
-    }
-  }
 }

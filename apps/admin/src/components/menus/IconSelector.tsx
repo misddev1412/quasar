@@ -277,9 +277,10 @@ export const IconSelector: React.FC<IconSelectorProps> = ({ value, onChange }) =
   };
 
   return (
-    <div className="relative">
-      <label className="block text-sm font-medium text-gray-700 mb-1">Icon</label>
-
+    <div className="relative space-y-1">
+      <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        Icon
+      </label>
       <div className="flex gap-2">
         <div className="flex-1">
           <InputWithIcon
@@ -287,7 +288,7 @@ export const IconSelector: React.FC<IconSelectorProps> = ({ value, onChange }) =
             onChange={handleCustomIconChange}
             placeholder="Enter icon class name (e.g., fa-home, home)"
             leftIcon={value ? renderIconPreview(value, 20) : undefined}
-            className="w-full h-11"
+            className={cn('w-full h-11', !value && 'pl-3')}
             iconSpacing="compact"
           />
         </div>

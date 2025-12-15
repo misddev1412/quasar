@@ -45,7 +45,7 @@ export class ComponentConfigsService {
         });
       }
 
-      if (filter.onlyEnabled ?? true) {
+      if (filter.onlyEnabled === true) {
         qb.andWhere('component.isEnabled = :isEnabled', { isEnabled: true });
       }
 

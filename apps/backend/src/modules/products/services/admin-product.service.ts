@@ -13,6 +13,8 @@ import * as XLSX from 'xlsx';
 import axios from 'axios';
 import * as path from 'path';
 import { FileUploadService } from '@backend/modules/storage/services/file-upload.service';
+import { DataExportService, ExportFormat } from '@backend/modules/export';
+import { PRODUCT_EXPORT_COLUMNS } from '../export/product-export.columns';
 
 export interface AdminProductFilters {
   page: number;
@@ -85,6 +87,7 @@ export class AdminProductService {
     private readonly responseHandler: ResponseService,
     private readonly productTransformer: ProductTransformer,
     private readonly fileUploadService: FileUploadService,
+    private readonly dataExportService: DataExportService,
   ) {}
 
   async getAllProducts(filters: AdminProductFilters) {
@@ -671,6 +674,7 @@ export class AdminProductService {
       const attributeKeys = [
         normalizeKey(attribute?.name || ''),
         normalizeKey(attribute?.displayName || ''),
+        normalizeKey(attribute?.code || ''),
         normalizeKey(attribute?.id || ''),
       ].filter((key) => key);
 
@@ -1322,5 +1326,345 @@ export class AdminProductService {
     } catch (error) {
       throw new Error('Failed to update product categories: ' + error.message);
     }
+  }
+
+  async generateExcelTemplate(): Promise<Buffer> {
+    // Get all select attributes with their values
+    const selectAttributes = await this.attributeRepository.getSelectAttributes();
+
+    // Create workbook
+    const workbook = XLSX.utils.book_new();
+
+    // Sheet 1: Template (sample data)
+    const templateData = [
+      {
+        'Name': 'Sample T-Shirt',
+        'SKU': 'TSHIRT001',
+        'Description': 'Comfortable cotton t-shirt',
+        'Status': 'active',
+        'Is Active': 'true',
+        'Is Featured': 'false',
+        'Brand ID': '',
+        'Category IDs': '',
+        'Tags': 'clothing,summer',
+        'Product Images': 'https://example.com/image1.jpg,https://example.com/image2.jpg',
+        'Variant Name': 'Red Medium',
+        'Variant SKU': 'TSHIRT001-RED-M',
+        'Variant Barcode': '123456789',
+        'Price': 25.99,
+        'Compare At Price': 29.99,
+        'Cost Price': 15.00,
+        'Stock Quantity': 100,
+        'Low Stock Threshold': 10,
+        'Track Inventory': 'true',
+        'Allow Backorders': 'false',
+        'Variant Image': 'https://example.com/variant-image.jpg',
+        'Variant Is Active': 'true',
+        'Variant Sort Order': 1,
+        'Variant Attribute: color': 'Red',
+        'Variant Attribute: size': 'M',
+      },
+      {
+        'Name': 'Sample T-Shirt',
+        'SKU': 'TSHIRT002',
+        'Description': 'Comfortable cotton t-shirt',
+        'Status': 'active',
+        'Is Active': 'true',
+        'Is Featured': 'false',
+        'Brand ID': '',
+        'Category IDs': '',
+        'Tags': 'clothing,summer',
+        'Product Images': '',
+        'Variant Name': 'Blue Large',
+        'Variant SKU': 'TSHIRT002-BLUE-L',
+        'Variant Barcode': '987654321',
+        'Price': 25.99,
+        'Compare At Price': '',
+        'Cost Price': 15.00,
+        'Stock Quantity': 50,
+        'Low Stock Threshold': 10,
+        'Track Inventory': 'true',
+        'Allow Backorders': 'false',
+        'Variant Image': '',
+        'Variant Is Active': 'true',
+        'Variant Sort Order': 2,
+        'Variant Attribute: color': 'Blue',
+        'Variant Attribute: size': 'L',
+      },
+    ];
+
+    const templateSheet = XLSX.utils.json_to_sheet(templateData);
+    XLSX.utils.book_append_sheet(workbook, templateSheet, 'Template');
+
+    // Sheet 2: Attribute Codes
+    const attributeCodesData = [
+      ['Attribute Code', 'Attribute Name', 'Value Code', 'Value Name', 'Display Value'],
+    ];
+
+    for (const attribute of selectAttributes) {
+      const values = attribute.values ? await attribute.values : [];
+      if (values.length > 0) {
+        for (const value of values) {
+          attributeCodesData.push([
+            attribute.code || '',
+            attribute.name || '',
+            value.value || '',
+            value.value || '',
+            value.displayValue || '',
+          ]);
+        }
+      } else {
+        // Add attribute even if no values
+        attributeCodesData.push([
+          attribute.code || '',
+          attribute.name || '',
+          '',
+          '',
+          '',
+        ]);
+      }
+    }
+
+    const attributeCodesSheet = XLSX.utils.aoa_to_sheet(attributeCodesData);
+    XLSX.utils.book_append_sheet(workbook, attributeCodesSheet, 'Attribute Codes');
+
+    // Sheet 3: Instructions
+    const instructionsData = [
+      ['Product Import Template Instructions'],
+      [''],
+      ['1. BASIC INFORMATION'],
+      ['- Name: Required. Product name'],
+      ['- SKU: Optional but recommended. Unique identifier'],
+      ['- Description: Optional. Product description'],
+      ['- Status: active/inactive/discontinued/draft (default: draft)'],
+      ['- Is Active: true/false (default: true)'],
+      ['- Is Featured: true/false (default: false)'],
+      ['- Brand ID: Optional. Brand identifier'],
+      ['- Category IDs: Optional. Comma-separated category UUIDs'],
+      ['- Tags: Optional. Comma-separated tag names'],
+      [''],
+      ['2. PRODUCT IMAGES'],
+      ['- Product Images: Optional. Comma-separated image URLs'],
+      ['- Images will be automatically downloaded and reuploaded'],
+      [''],
+      ['3. VARIANT INFORMATION (required for each product)'],
+      ['- Variant Name: Optional. Defaults to product name'],
+      ['- Variant SKU: Optional. Variant-specific SKU'],
+      ['- Variant Barcode: Optional. Product barcode'],
+      ['- Price: Required. Selling price'],
+      ['- Compare At Price: Optional. Original price'],
+      ['- Cost Price: Optional. Purchase cost'],
+      ['- Stock Quantity: Optional. Available stock (default: 0)'],
+      ['- Low Stock Threshold: Optional. Alert threshold'],
+      ['- Track Inventory: true/false (default: true)'],
+      ['- Allow Backorders: true/false (default: false)'],
+      ['- Variant Image: Optional. Variant image URL'],
+      ['- Variant Is Active: true/false (default: true)'],
+      ['- Variant Sort Order: Optional. Display order'],
+      [''],
+      ['4. VARIANT ATTRIBUTES'],
+      ['- Use format: "Variant Attribute: {attribute_code}"'],
+      ['- Example: "Variant Attribute: color", "Variant Attribute: size"'],
+      ['- Values must match those in the "Attribute Codes" sheet'],
+      [''],
+      ['5. GROUPING'],
+      ['- Products with same SKU/Name are grouped as variants'],
+      ['- Each row represents one variant'],
+      [''],
+      ['6. IMPORTANT NOTES'],
+      ['- Image URLs will be reuploaded to active storage'],
+      ['- Use the "Attribute Codes" sheet to find valid values'],
+      ['- Required fields: Name, Price'],
+      ['- Use dry-run first to validate data'],
+    ];
+
+    const instructionsSheet = XLSX.utils.aoa_to_sheet(instructionsData);
+    XLSX.utils.book_append_sheet(workbook, instructionsSheet, 'Instructions');
+
+    // Generate buffer
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    return buffer;
+  }
+
+  async exportProducts(format: string, filters?: string | Record<string, any>, requestedBy?: string) {
+    const parsedFilters = this.parseFilters(filters);
+    const sanitizedFilters = this.sanitizeExportFilters(parsedFilters);
+    const resolvedFormat: ExportFormat = format === 'json' ? 'json' : 'csv';
+
+    return this.dataExportService.requestExportJob({
+      resource: 'products',
+      format: resolvedFormat,
+      filters: sanitizedFilters,
+      columns: PRODUCT_EXPORT_COLUMNS,
+      options: {
+        pageSize: 500,
+      },
+      requestedBy,
+    });
+  }
+
+  async estimateProductExport(filters?: string | Record<string, any>) {
+    const parsedFilters = this.parseFilters(filters);
+    const sanitizedFilters = this.sanitizeExportFilters(parsedFilters);
+    const result = await this.productRepository.findAll({
+      page: 1,
+      limit: 1,
+      filters: sanitizedFilters || {},
+    });
+    return { total: result.total };
+  }
+
+  async listProductExportJobs(limit = 10, requestedBy?: string, page = 1) {
+    return this.dataExportService.listJobs('products', {
+      limit,
+      page,
+      requestedBy,
+    });
+  }
+
+  private parseFilters(filters?: string | Record<string, any>): Record<string, any> | undefined {
+    if (!filters) {
+      return undefined;
+    }
+
+    if (typeof filters === 'object') {
+      return filters;
+    }
+
+    try {
+      return JSON.parse(filters);
+    } catch (error) {
+      throw this.responseHandler.createError(
+        ApiStatusCodes.BAD_REQUEST,
+        'Invalid filters payload',
+        'INVALID_FILTERS'
+      );
+    }
+  }
+
+  private sanitizeExportFilters(filters?: Record<string, any>): ProductFilters | undefined {
+    if (!filters) {
+      return undefined;
+    }
+
+    const sanitized: ProductFilters = {};
+
+    if (typeof filters.search === 'string' && filters.search.trim()) {
+      sanitized.search = filters.search.trim();
+    }
+
+    if (typeof filters.brandId === 'string' && filters.brandId.trim()) {
+      sanitized.brandId = filters.brandId.trim();
+    }
+
+    if (filters.categoryIds) {
+      sanitized.categoryIds = this.parseCategoryIds(filters.categoryIds);
+    }
+
+    const status = this.parseStatusFilter(filters.status);
+    if (status) {
+      sanitized.status = status;
+    }
+
+    const isActive = this.parseBooleanFilter(filters.isActive);
+    if (typeof isActive === 'boolean') {
+      sanitized.isActive = isActive;
+    }
+
+    const isFeatured = this.parseBooleanFilter(filters.isFeatured);
+    if (typeof isFeatured === 'boolean') {
+      sanitized.isFeatured = isFeatured;
+    }
+
+    const hasStock = this.parseBooleanFilter(filters.hasStock);
+    if (typeof hasStock === 'boolean') {
+      sanitized.hasStock = hasStock;
+    }
+
+    const minPrice = this.parseNumberFilter(filters.minPrice);
+    if (typeof minPrice === 'number') {
+      sanitized.minPrice = minPrice;
+    }
+
+    const maxPrice = this.parseNumberFilter(filters.maxPrice);
+    if (typeof maxPrice === 'number') {
+      sanitized.maxPrice = maxPrice;
+    }
+
+    const createdFrom = this.parseDateFilter(filters.createdFrom);
+    if (createdFrom) {
+      sanitized.createdFrom = createdFrom;
+    }
+
+    const createdTo = this.parseDateFilter(filters.createdTo);
+    if (createdTo) {
+      sanitized.createdTo = createdTo;
+    }
+
+    return Object.keys(sanitized).length ? sanitized : undefined;
+  }
+
+  private parseBooleanFilter(value: unknown): boolean | undefined {
+    if (typeof value === 'boolean') {
+      return value;
+    }
+
+    if (typeof value === 'string') {
+      if (value === 'true') return true;
+      if (value === 'false') return false;
+    }
+
+    return undefined;
+  }
+
+  private parseNumberFilter(value: unknown): number | undefined {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value;
+    }
+
+    if (typeof value === 'string' && value.trim() !== '') {
+      const parsed = Number(value);
+      if (Number.isFinite(parsed)) {
+        return parsed;
+      }
+    }
+
+    return undefined;
+  }
+
+  private parseDateFilter(value: unknown): string | undefined {
+    if (typeof value !== 'string') {
+      return undefined;
+    }
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return undefined;
+    }
+
+    return date.toISOString();
+  }
+
+  private parseStatusFilter(value: unknown): ProductStatus | undefined {
+    if (typeof value !== 'string') {
+      return undefined;
+    }
+
+    return Object.values(ProductStatus).includes(value as ProductStatus)
+      ? (value as ProductStatus)
+      : undefined;
+  }
+
+  private parseCategoryIds(value: unknown): string[] | undefined {
+    if (!value) {
+      return undefined;
+    }
+
+    const rawArray = Array.isArray(value) ? value : typeof value === 'string' ? value.split(',') : [];
+    const normalized = rawArray
+      .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+      .filter((entry) => entry.length > 0);
+
+    return normalized.length ? Array.from(new Set(normalized)) : undefined;
   }
 }

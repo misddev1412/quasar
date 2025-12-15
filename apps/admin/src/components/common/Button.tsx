@@ -9,6 +9,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
   active?: boolean;
+  icon?: React.ReactNode;
 }
 
 const Spinner = ({ className = "" }) => (
@@ -31,9 +32,11 @@ export const Button: React.FC<ButtonProps> = ({
   startIcon,
   active = false,
   endIcon,
+  icon,
   ...props
 }) => {
   const { isDarkMode, currentMode } = useTheme();
+  const resolvedStartIcon = startIcon ?? icon;
 
   // 检查是否在登录页面
   const isLoginPage = typeof document !== 'undefined' && 
@@ -113,7 +116,7 @@ export const Button: React.FC<ButtonProps> = ({
       {...props}
     >
       {isLoading && <Spinner className="animate-spin -ml-1 mr-2 h-5 w-5" />}
-      {!isLoading && startIcon && <span className="mr-2">{startIcon}</span>}
+      {!isLoading && resolvedStartIcon && <span className="mr-2">{resolvedStartIcon}</span>}
       {children}
       {!isLoading && endIcon && <span className="ml-2">{endIcon}</span>}
     </button>

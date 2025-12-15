@@ -11,6 +11,15 @@ export const floatingWidgetActionTypeValues = [
 
 export type FloatingWidgetActionType = typeof floatingWidgetActionTypeValues[number];
 
+export const floatingWidgetActionEffectValues = [
+  'none',
+  'pulse',
+  'ring',
+  'bounce',
+] as const;
+
+export type FloatingWidgetActionEffect = typeof floatingWidgetActionEffectValues[number];
+
 export const floatingWidgetActionMetadataSchema = z
   .object({
     phoneNumber: z.string().optional(),
@@ -34,6 +43,7 @@ export const floatingWidgetActionSchema = z.object({
   isActive: z.boolean().default(true),
   backgroundColor: z.string().optional(),
   textColor: z.string().optional(),
+  effect: z.enum(floatingWidgetActionEffectValues).default('none'),
   tooltip: z.string().optional(),
   href: z.string().optional(),
   metadata: floatingWidgetActionMetadataSchema.optional(),
@@ -56,6 +66,7 @@ export const DEFAULT_FLOATING_WIDGET_ACTIONS: FloatingWidgetActionConfigList = [
     isActive: true,
     backgroundColor: '#0ea5e9',
     textColor: '#ffffff',
+    effect: 'ring',
     tooltip: 'Call now',
     metadata: {
       phoneNumber: '0987654321',
@@ -71,6 +82,7 @@ export const DEFAULT_FLOATING_WIDGET_ACTIONS: FloatingWidgetActionConfigList = [
     isActive: true,
     backgroundColor: '#0b93f6',
     textColor: '#ffffff',
+    effect: 'none',
     tooltip: 'Zalo chat',
     metadata: {
       zaloPhone: 'https://zalo.me/0987654321',
@@ -86,6 +98,7 @@ export const DEFAULT_FLOATING_WIDGET_ACTIONS: FloatingWidgetActionConfigList = [
     isActive: true,
     backgroundColor: '#0084ff',
     textColor: '#ffffff',
+    effect: 'pulse',
     tooltip: 'Messenger chat',
     metadata: {
       messengerLink: 'https://m.me/yourpage',
@@ -101,6 +114,7 @@ export const DEFAULT_FLOATING_WIDGET_ACTIONS: FloatingWidgetActionConfigList = [
     isActive: true,
     backgroundColor: '#111827',
     textColor: '#ffffff',
+    effect: 'none',
     tooltip: 'Back to top',
   },
 ];

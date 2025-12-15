@@ -2192,6 +2192,8 @@ const parseRowsFromValue = (raw: Record<string, unknown>): ProductsByCategoryAdm
 const sanitizeConfigValue = (
   base: Record<string, unknown>,
   rows: ProductsByCategoryAdminRow[],
+  sidebar: unknown,
+  sidebarEnabled: boolean,
 ): Record<string, unknown> => {
   const sanitizedRows = rows.map((row) => {
     const trimmedTitle = typeof row.title === 'string' ? row.title.trim() : '';
@@ -2214,8 +2216,23 @@ const sanitizeConfigValue = (
   delete next.displayStyle;
 
   next.rows = sanitizedRows;
+  if (typeof sidebar !== 'undefined') {
+    next.sidebar = sidebar;
+  }
+  next.sidebarEnabled = sidebarEnabled;
 
   return next;
+};
+
+const removeSidebarFromConfig = (raw?: Record<string, unknown>): Record<string, unknown> => {
+  if (!raw || typeof raw !== 'object') {
+    return {};
+  }
+  const base = { ...raw };
+  if ('sidebar' in base) {
+    delete base.sidebar;
+  }
+  return base;
 };
 
 const rowsAreEqual = (
@@ -2249,20 +2266,36 @@ const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEditorPro
     return flattenCategoryOptions(categories);
   }, [categoriesData]);
 
-  const [rows, setRows] = useState<ProductsByCategoryAdminRow[]>(() => parseRowsFromValue(value));
+  const sidebarConfig = value?.sidebar;
+  const sanitizedValue = useMemo(() => removeSidebarFromConfig(value), [value]);
+  const initialSidebarEnabled = typeof value?.sidebarEnabled === 'boolean' ? value.sidebarEnabled : true;
+
+  const [rows, setRows] = useState<ProductsByCategoryAdminRow[]>(() => parseRowsFromValue(sanitizedValue));
+  const [sidebarEnabled, setSidebarEnabled] = useState<boolean>(initialSidebarEnabled);
 
   useEffect(() => {
-    const nextRows = parseRowsFromValue(value);
+    const nextRows = parseRowsFromValue(sanitizedValue);
     setRows((prev) => (rowsAreEqual(prev, nextRows) ? prev : nextRows));
-  }, [value]);
+  }, [sanitizedValue]);
+
+  useEffect(() => {
+    setSidebarEnabled(initialSidebarEnabled);
+  }, [initialSidebarEnabled]);
+
+  const commitConfig = useCallback(
+    (nextRows: ProductsByCategoryAdminRow[], nextSidebarEnabled: boolean) => {
+      const nextValue = sanitizeConfigValue(sanitizedValue, nextRows, sidebarConfig, nextSidebarEnabled);
+      onChange(nextValue);
+    },
+    [onChange, sanitizedValue, sidebarConfig],
+  );
 
   const applyUpdate = useCallback(
     (nextRows: ProductsByCategoryAdminRow[]) => {
       setRows(nextRows);
-      const nextValue = sanitizeConfigValue(value, nextRows);
-      onChange(nextValue);
+      commitConfig(nextRows, sidebarEnabled);
     },
-    [onChange, value],
+    [commitConfig, sidebarEnabled],
   );
 
   const handleAddRow = useCallback(() => {
@@ -2285,8 +2318,28 @@ const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEditorPro
     [applyUpdate, rows],
   );
 
+  const handleSidebarToggle = useCallback(
+    (enabled: boolean) => {
+      setSidebarEnabled(enabled);
+      commitConfig(rows, enabled);
+    },
+    [commitConfig, rows],
+  );
+
   return (
     <div className="space-y-6">
+      <div className="rounded-xl border border-gray-200/80 bg-white shadow-sm px-5 py-4">
+        <Toggle
+          checked={sidebarEnabled}
+          onChange={handleSidebarToggle}
+          label="Bật sidebar mega menu"
+          description="Sidebar sẽ dùng cấu hình từ Component Configs và ghim bên trái section."
+        />
+        <p className="mt-1 text-xs text-gray-500">
+          Chỉnh sửa nội dung mega menu tại mục Component Configs &gt; products_by_category.
+        </p>
+      </div>
+
       <div className="space-y-1">
         <h4 className="text-sm font-semibold text-gray-700">Danh mục hiển thị</h4>
         <p className="text-xs text-gray-500">Thêm nhiều danh mục để hiển thị sản phẩm nổi bật theo từng nhóm.</p>

@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { firebaseService } from '../services/firebase.service';
 import { MessagePayload } from 'firebase/messaging';
+import { firebaseService } from '../services/firebase.service';
+import { trpcClient } from '../utils/trpc';
+import { TrpcApiResponse } from '@shared/types/api-response.types';
+import { useFirebaseAuth } from './useFirebaseAuth';
 
 export interface NotificationData {
   id: string;
@@ -15,6 +18,49 @@ export interface NotificationData {
   createdAt: string;
   readAt?: string;
 }
+
+interface NotificationApiEntity {
+  id: string;
+  title: string;
+  body: string;
+  type: string;
+  actionUrl?: string | null;
+  icon?: string | null;
+  image?: string | null;
+  data?: Record<string, unknown> | null;
+  read: boolean;
+  createdAt: string;
+  readAt?: string | null;
+}
+
+interface NotificationsApiPayload {
+  notifications: NotificationApiEntity[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+const mapNotificationFromApi = (notification: NotificationApiEntity): NotificationData => ({
+  id: notification.id,
+  title: notification.title,
+  body: notification.body,
+  type: notification.type || 'info',
+  actionUrl: notification.actionUrl ?? undefined,
+  icon: notification.icon ?? undefined,
+  image: notification.image ?? undefined,
+  data: notification.data ?? undefined,
+  read: Boolean(notification.read),
+  createdAt: notification.createdAt,
+  readAt: notification.readAt ?? undefined,
+});
+
+const extractData = <T,>(response: unknown): T | null => {
+  const trpcResponse = response as TrpcApiResponse<T> | undefined;
+  return trpcResponse?.data ?? null;
+};
 
 export interface NotificationState {
   notifications: NotificationData[];
@@ -58,19 +104,91 @@ export function useNotifications(): UseNotificationsReturn {
   const [hasPermission, setHasPermission] = useState(false);
   const [fcmToken, setFcmToken] = useState<string | null>(null);
   const [isSupported, setIsSupported] = useState(false);
+  const { initialized: firebaseInitialized } = useFirebaseAuth();
+
+  const refreshNotifications = useCallback(async (): Promise<void> => {
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
+
+    try {
+      const [notificationsResponse, unreadResponse] = await Promise.all([
+        (trpcClient as any).userNotification.getMyNotifications.query({
+          page: 1,
+          limit: 20,
+          sortBy: 'createdAt',
+          sortOrder: 'DESC',
+        }),
+        (trpcClient as any).userNotification.getMyUnreadCount.query(),
+      ]);
+
+      const notificationsData = extractData<NotificationsApiPayload>(notificationsResponse);
+      const unreadData = extractData<{ count: number }>(unreadResponse);
+
+      setState(prev => ({
+        ...prev,
+        notifications: notificationsData?.notifications?.map(mapNotificationFromApi) ?? [],
+        unreadCount: unreadData?.count ?? 0,
+        isLoading: false
+      }));
+    } catch (error) {
+      console.error('Error refreshing notifications:', error);
+      setState(prev => ({
+        ...prev,
+        error: 'Failed to load notifications',
+        isLoading: false
+      }));
+    }
+  }, []);
+
+  const getFCMToken = useCallback(async (): Promise<string | null> => {
+    if (!firebaseInitialized || !firebaseService.isInitialized()) {
+      setState(prev => ({
+        ...prev,
+        error: 'Firebase is not initialized yet'
+      }));
+      return null;
+    }
+
+    try {
+      const token = await firebaseService.getFCMToken();
+      setFcmToken(token);
+
+      if (token) {
+        try {
+          await (trpcClient as any).userNotification.registerFCMToken.mutate({
+            token,
+            deviceInfo: {
+              platform: 'web' as const,
+              browser: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+              version: typeof navigator !== 'undefined' ? navigator.appVersion : undefined,
+            },
+          });
+        } catch (registerError) {
+          console.error('Error registering FCM token:', registerError);
+        }
+      }
+
+      return token;
+    } catch (error) {
+      console.error('Error getting FCM token:', error);
+      setState(prev => ({
+        ...prev,
+        error: 'Failed to get FCM token'
+      }));
+      return null;
+    }
+  }, [firebaseInitialized]);
 
   // Initialize notification system
   useEffect(() => {
     const initializeNotifications = async () => {
       try {
-        if (!firebaseService.isInitialized()) {
-          return;
+        if (firebaseInitialized && firebaseService.isInitialized()) {
+          setIsSupported(firebaseService.isMessagingSupported());
+          setHasPermission(firebaseService.getNotificationPermission() === 'granted');
+        } else {
+          setIsSupported(false);
         }
 
-        setIsSupported(firebaseService.isMessagingSupported());
-        setHasPermission(firebaseService.getNotificationPermission() === 'granted');
-
-        // Get initial notifications
         await refreshNotifications();
       } catch (error) {
         console.error('Error initializing notifications:', error);
@@ -82,9 +200,31 @@ export function useNotifications(): UseNotificationsReturn {
     };
 
     initializeNotifications();
-  }, []);
+  }, [firebaseInitialized, refreshNotifications]);
+
+  useEffect(() => {
+    if (
+      firebaseInitialized &&
+      firebaseService.isInitialized() &&
+      isSupported &&
+      hasPermission &&
+      !fcmToken
+    ) {
+      getFCMToken().catch(error => {
+        console.error('Error getting FCM token after permission granted:', error);
+      });
+    }
+  }, [firebaseInitialized, isSupported, hasPermission, fcmToken, getFCMToken]);
 
   const requestPermission = useCallback(async (): Promise<boolean> => {
+    if (!firebaseInitialized || !firebaseService.isInitialized() || !isSupported) {
+      setState(prev => ({
+        ...prev,
+        error: 'Push notifications are not available in this environment'
+      }));
+      return false;
+    }
+
     try {
       const permission = await firebaseService.requestNotificationPermission();
       const granted = permission === 'granted';
@@ -103,74 +243,27 @@ export function useNotifications(): UseNotificationsReturn {
       }));
       return false;
     }
-  }, [fcmToken]);
-
-  const getFCMToken = useCallback(async (): Promise<string | null> => {
-    try {
-      // You should get the VAPID key from your Firebase console
-      const token = await firebaseService.getFCMToken();
-      setFcmToken(token);
-
-      // Register token with your backend
-      if (token) {
-        // TODO: Call your API to register the FCM token
-        // await api.registerFCMToken({ token });
-        console.log('FCM Token:', token);
-      }
-
-      return token;
-    } catch (error) {
-      console.error('Error getting FCM token:', error);
-      setState(prev => ({
-        ...prev,
-        error: 'Failed to get FCM token'
-      }));
-      return null;
-    }
-  }, []);
-
-  const refreshNotifications = useCallback(async (): Promise<void> => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-    try {
-      // TODO: Replace with actual API calls to your backend
-      // const response = await api.getMyNotifications();
-      // const unreadResponse = await api.getMyUnreadCount();
-
-      // Mock data for now
-      const mockNotifications: NotificationData[] = [];
-      const mockUnreadCount = 0;
-
-      setState(prev => ({
-        ...prev,
-        notifications: mockNotifications,
-        unreadCount: mockUnreadCount,
-        isLoading: false
-      }));
-    } catch (error) {
-      console.error('Error refreshing notifications:', error);
-      setState(prev => ({
-        ...prev,
-        error: 'Failed to load notifications',
-        isLoading: false
-      }));
-    }
-  }, []);
+  }, [firebaseInitialized, isSupported, fcmToken, getFCMToken]);
 
   const markAsRead = useCallback(async (id: string): Promise<void> => {
     try {
-      // TODO: Call your API to mark notification as read
-      // await api.markNotificationAsRead({ id });
+      const response = await (trpcClient as any).userNotification.markMyNotificationAsRead.mutate({ id });
+      const updatedNotification = extractData<NotificationApiEntity>(response);
 
-      setState(prev => ({
-        ...prev,
-        notifications: prev.notifications.map(notif =>
-          notif.id === id
-            ? { ...notif, read: true, readAt: new Date().toISOString() }
-            : notif
-        ),
-        unreadCount: Math.max(0, prev.unreadCount - 1)
-      }));
+      setState(prev => {
+        const wasUnread = prev.notifications.some(notif => notif.id === id && !notif.read);
+        return {
+          ...prev,
+          notifications: prev.notifications.map(notif =>
+            notif.id === id
+              ? updatedNotification
+                ? mapNotificationFromApi(updatedNotification)
+                : { ...notif, read: true, readAt: notif.readAt || new Date().toISOString() }
+              : notif
+          ),
+          unreadCount: wasUnread ? Math.max(0, prev.unreadCount - 1) : prev.unreadCount
+        };
+      });
     } catch (error) {
       console.error('Error marking notification as read:', error);
       setState(prev => ({
@@ -182,8 +275,7 @@ export function useNotifications(): UseNotificationsReturn {
 
   const markAllAsRead = useCallback(async (): Promise<void> => {
     try {
-      // TODO: Call your API to mark all notifications as read
-      // await api.markAllNotificationsAsRead();
+      await (trpcClient as any).userNotification.markAllMyNotificationsAsRead.mutate();
 
       setState(prev => ({
         ...prev,
@@ -205,8 +297,7 @@ export function useNotifications(): UseNotificationsReturn {
 
   const deleteNotification = useCallback(async (id: string): Promise<void> => {
     try {
-      // TODO: Call your API to delete notification
-      // await api.deleteNotification({ id });
+      await (trpcClient as any).userNotification.deleteMyNotification.mutate({ id });
 
       setState(prev => {
         const notification = prev.notifications.find(n => n.id === id);
@@ -228,14 +319,13 @@ export function useNotifications(): UseNotificationsReturn {
   }, []);
 
   const setupMessageListener = useCallback((): (() => void) | null => {
-    if (!isSupported) {
+    if (!isSupported || !firebaseInitialized || !firebaseService.isInitialized()) {
       return null;
     }
 
     const unsubscribe = firebaseService.onMessage((payload: MessagePayload) => {
       console.log('Message received in foreground:', payload);
 
-      // Show browser notification
       if (hasPermission && payload.notification) {
         firebaseService.showNotification(
           payload.notification.title || 'New notification',
@@ -248,31 +338,11 @@ export function useNotifications(): UseNotificationsReturn {
         );
       }
 
-      // Add to local state
-      if (payload.notification) {
-        const newNotification: NotificationData = {
-          id: Date.now().toString(), // Temporary ID
-          title: payload.notification.title || 'Notification',
-          body: payload.notification.body || '',
-          type: payload.data?.type || 'info',
-          actionUrl: payload.data?.actionUrl,
-          icon: payload.notification.icon,
-          image: payload.notification.image,
-          data: payload.data,
-          read: false,
-          createdAt: new Date().toISOString(),
-        };
-
-        setState(prev => ({
-          ...prev,
-          notifications: [newNotification, ...prev.notifications],
-          unreadCount: prev.unreadCount + 1
-        }));
-      }
+      refreshNotifications();
     });
 
     return unsubscribe;
-  }, [isSupported, hasPermission]);
+  }, [isSupported, firebaseInitialized, hasPermission, refreshNotifications]);
 
   return {
     // State

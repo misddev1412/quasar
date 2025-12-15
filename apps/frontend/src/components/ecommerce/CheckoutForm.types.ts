@@ -30,7 +30,7 @@ export interface CheckoutFormData {
   };
   shippingMethod: string;
   paymentMethod: {
-    type: 'credit_card' | 'paypal' | 'bank_transfer' | 'cash_on_delivery';
+    type: 'credit_card' | 'paypal' | 'bank_transfer' | 'cash_on_delivery' | 'payos';
     cardNumber?: string;
     expiryDate?: string;
     cvv?: string;
@@ -38,6 +38,9 @@ export interface CheckoutFormData {
     paypalEmail?: string;
     bankAccountNumber?: string;
     bankName?: string;
+    provider?: string;
+    metadata?: Record<string, any>;
+    paymentMethodId?: string;
   };
   orderNotes?: string;
   agreeToTerms: boolean;

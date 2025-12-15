@@ -80,6 +80,8 @@ import { VisitorSession } from '../modules/visitor/entities/visitor-session.enti
 import { PageView } from '../modules/visitor/entities/page-view.entity';
 import { ComponentConfigsModule } from '../modules/component-configs/component-configs.module';
 import { ComponentConfigEntity } from '../modules/component-configs/entities/component-config.entity';
+import { DataExportModule } from '../modules/export/data-export.module';
+import { DataExportJob } from '../modules/export/entities/data-export-job.entity';
 
 @Module({
   imports: [
@@ -141,6 +143,7 @@ import { ComponentConfigEntity } from '../modules/component-configs/entities/com
           VisitorSession,
           PageView,
           ComponentConfigEntity,
+          DataExportJob,
         ],
         autoLoadEntities: true
       }),
@@ -173,6 +176,7 @@ import { ComponentConfigEntity } from '../modules/component-configs/entities/com
     LoyaltyModule,
     VisitorModule,
     ComponentConfigsModule,
+    DataExportModule,
     AppRouterModule,
   ],
   controllers: [AppController],

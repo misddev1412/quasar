@@ -1,4 +1,7 @@
 import React from 'react';
+import clsx from 'clsx';
+
+const BASE_LABEL_CLASS = 'block text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400';
 
 interface TextareaProps {
   id?: string;
@@ -10,6 +13,7 @@ interface TextareaProps {
   error?: string;
   className?: string;
   rows?: number;
+  labelClassName?: string;
 }
 
 export const Textarea: React.FC<TextareaProps & { [key: string]: any }> = ({
@@ -22,12 +26,13 @@ export const Textarea: React.FC<TextareaProps & { [key: string]: any }> = ({
   error,
   className = '',
   rows = 4,
+  labelClassName,
   ...rest
 }) => {
   return (
     <div className="space-y-2">
       {label && (
-        <label htmlFor={id} className="block text-sm font-medium text-neutral-800 dark:text-neutral-200">
+        <label htmlFor={id} className={clsx(BASE_LABEL_CLASS, labelClassName)}>
           {label}
         </label>
       )}

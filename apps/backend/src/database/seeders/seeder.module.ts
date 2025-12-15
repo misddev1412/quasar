@@ -21,6 +21,8 @@ import { MenuEntity } from '../../modules/menus/entities/menu.entity';
 import { MenuTranslationEntity } from '../../modules/menus/entities/menu-translation.entity';
 import { SiteContentEntity } from '../../modules/site-content/entities/site-content.entity';
 import { ComponentConfigEntity } from '../../modules/component-configs/entities/component-config.entity';
+import { Attribute } from '../../modules/products/entities/attribute.entity';
+import { AttributeValue } from '../../modules/products/entities/attribute-value.entity';
 import { PermissionRepository } from '../../modules/user/repositories/permission.repository';
 import { AdminPermissionService } from '../../modules/user/services/admin/admin-permission.service';
 import { PermissionCheckerService } from '../../modules/shared/services/permission-checker.service';
@@ -37,6 +39,7 @@ import { MenusSeeder } from './menus.seeder';
 import { CurrencySeeder } from './currency.seeder';
 import { SiteContentSeeder } from './site-content.seeder';
 import { ComponentConfigsSeeder } from './component-configs.seeder';
+import { AttributesSeeder } from './attributes.seeder';
 
 @Module({
   imports: [
@@ -62,6 +65,8 @@ import { ComponentConfigsSeeder } from './component-configs.seeder';
       MenuTranslationEntity,
       SiteContentEntity,
       ComponentConfigEntity,
+      Attribute,
+      AttributeValue,
     ]),
   ],
   providers: [
@@ -81,6 +86,7 @@ import { ComponentConfigsSeeder } from './component-configs.seeder';
     MenusSeeder,
     SiteContentSeeder,
     ComponentConfigsSeeder,
+    AttributesSeeder,
   ],
   exports: [
     PermissionSeeder,
@@ -96,6 +102,7 @@ import { ComponentConfigsSeeder } from './component-configs.seeder';
     MenusSeeder,
     SiteContentSeeder,
     ComponentConfigsSeeder,
+    AttributesSeeder,
   ],
 })
 export class SeederModule {} 

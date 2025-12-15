@@ -5,6 +5,7 @@ import { trpc } from '../../utils/trpc';
 import {
   FloatingWidgetActionConfig,
   FloatingWidgetActionConfigList,
+  FloatingWidgetActionEffect,
   floatingWidgetActionListSchema,
 } from '@shared/types/floating-widget.types';
 import UnifiedIcon from './UnifiedIcon';
@@ -27,11 +28,21 @@ const emptyMetadata = (): NonNullable<FloatingWidgetActionConfig['metadata']> =>
   note: undefined,
 });
 
+const DEFAULT_EFFECT: FloatingWidgetActionEffect = 'none';
+
+const EFFECT_CLASS_MAP: Record<FloatingWidgetActionEffect, string> = {
+  none: '',
+  pulse: 'animate-pulse',
+  ring: '',
+  bounce: 'animate-bounce',
+};
+
 const normalizeFloatingIcons = (items: FloatingWidgetActionConfigList): FloatingWidgetActionConfigList =>
   items
     .map((item) => ({
       ...item,
       icon: item.icon || DEFAULT_ICON_BY_TYPE[item.type] || 'star',
+      effect: item.effect || DEFAULT_EFFECT,
       metadata: { ...emptyMetadata(), ...(item.metadata || {}) },
     }))
     .filter((item) => item.isActive)
@@ -40,6 +51,8 @@ const normalizeFloatingIcons = (items: FloatingWidgetActionConfigList): Floating
       ...item,
       order: index,
     }));
+
+const getItemKey = (item: FloatingWidgetActionConfig) => item.id || `${item.type}-${item.order}`;
 
 const FloatingIcons: React.FC = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -104,6 +117,15 @@ const FloatingIcons: React.FC = () => {
     }
   };
 
+  const actionItems = React.useMemo(
+    () => floatingIcons.filter((item) => item.type !== 'back_to_top'),
+    [floatingIcons]
+  );
+  const scrollTopItems = React.useMemo(
+    () => floatingIcons.filter((item) => item.type === 'back_to_top'),
+    [floatingIcons]
+  );
+
   // Handle click action
   const handleClick = (item: FloatingWidgetActionConfig) => {
     if (item.type === 'back_to_top') {
@@ -113,8 +135,14 @@ const FloatingIcons: React.FC = () => {
 
     const url = generateActionUrl(item);
     if (url && url !== '#') {
-      if (url.startsWith('tel:') || url.startsWith('mailto:') || url.startsWith('https://')) {
-        window.open(url, '_blank');
+      const isExternalLink = /^https?:\/\//i.test(url);
+      if (url.startsWith('tel:') || url.startsWith('mailto:') || url.startsWith('sms:')) {
+        window.location.href = url;
+        return;
+      }
+
+      if (isExternalLink) {
+        window.open(url, '_blank', 'noopener');
       } else {
         window.location.href = url;
       }
@@ -122,73 +150,80 @@ const FloatingIcons: React.FC = () => {
   };
 
   // Don't render if loading, error, or no icons
-  if (isLoading || error || floatingIcons.length === 0) {
+  const noActions = actionItems.length === 0 && scrollTopItems.length === 0;
+  if (isLoading || error || noActions) {
     return null;
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
-      {/* Filter out back_to_top icons and render them separately */}
-      {floatingIcons
-        .filter(item => item.type !== 'back_to_top')
-        .map((item) => (
+    <div className="pointer-events-none fixed bottom-5 right-5 z-50 flex flex-col gap-3">
+      {actionItems.map((item) => {
+        const effect = item.effect || DEFAULT_EFFECT;
+        const iconColor = item.textColor || '#ffffff';
+        const isRing = effect === 'ring';
+        return (
           <button
-            key={item.id}
+            key={getItemKey(item)}
+            type="button"
             onClick={() => handleClick(item)}
-            className="group relative flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
+            className={`pointer-events-auto relative flex h-12 w-12 items-center justify-center overflow-visible rounded-full shadow-[0_10px_25px_rgba(15,23,42,0.2)] transition-transform duration-200 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 ${EFFECT_CLASS_MAP[effect]}`}
             style={{
               backgroundColor: item.backgroundColor || '#0ea5e9',
-              color: item.textColor || '#ffffff',
             }}
-            title={item.tooltip || item.label}
+            aria-label={item.label || item.tooltip || 'Floating action button'}
           >
+            {isRing && (
+              <span
+                aria-hidden="true"
+                className="absolute inset-0 -z-10 rounded-full opacity-60 animate-ping"
+                style={{
+                  border: `2px solid ${iconColor}`,
+                }}
+              ></span>
+            )}
             <UnifiedIcon
               icon={item.icon || DEFAULT_ICON_BY_TYPE[item.type]}
-              className="h-6 w-6"
+              className="h-5 w-5"
+              style={{ color: iconColor }}
             />
-
-            {/* Tooltip */}
-            {item.tooltip && (
-              <span className="absolute right-full mr-3 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                {item.tooltip}
-                <span className="absolute left-full top-1/2 -translate-y-1/2 border-4 border-transparent border-l-gray-900"></span>
-              </span>
-            )}
           </button>
-        ))
-      }
+        );
+      })}
 
-      {/* Back to top button - show only when scrolled */}
-      {floatingIcons
-        .filter(item => item.type === 'back_to_top')
-        .map((item) => (
-          showScrollTop && (
+      {scrollTopItems.length > 0 && showScrollTop && (
+        scrollTopItems.map((item) => {
+          const effect = item.effect || DEFAULT_EFFECT;
+          const iconColor = item.textColor || '#ffffff';
+          const isRing = effect === 'ring';
+          return (
             <button
-              key={item.id}
+              key={getItemKey(item)}
+              type="button"
               onClick={() => handleClick(item)}
-              className="group relative flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
+              className={`pointer-events-auto relative flex h-12 w-12 items-center justify-center overflow-visible rounded-full shadow-[0_10px_25px_rgba(15,23,42,0.2)] transition-transform duration-200 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 ${EFFECT_CLASS_MAP[effect]}`}
               style={{
                 backgroundColor: item.backgroundColor || '#0ea5e9',
-                color: item.textColor || '#ffffff',
               }}
-              title={item.tooltip || item.label}
+              aria-label={item.label || item.tooltip || 'Back to top'}
             >
+              {isRing && (
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-0 -z-10 rounded-full opacity-60 animate-ping"
+                  style={{
+                    border: `2px solid ${iconColor}`,
+                  }}
+                ></span>
+              )}
               <UnifiedIcon
                 icon={item.icon || DEFAULT_ICON_BY_TYPE[item.type]}
-                className="h-6 w-6"
+                className="h-5 w-5"
+                style={{ color: iconColor }}
               />
-
-              {/* Tooltip */}
-              {item.tooltip && (
-                <span className="absolute right-full mr-3 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                  {item.tooltip}
-                  <span className="absolute left-full top-1/2 -translate-y-1/2 border-4 border-transparent border-l-gray-900"></span>
-                </span>
-              )}
             </button>
-          )
-        ))
-      }
+          );
+        })
+      )}
     </div>
   );
 };

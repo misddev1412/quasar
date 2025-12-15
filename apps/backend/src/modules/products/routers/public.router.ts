@@ -213,4 +213,35 @@ export class PublicProductsRouter {
       );
     }
   }
+
+  @Query({
+    input: z.object({}),
+    output: z.object({
+      data: z.string(), // base64 encoded file
+      filename: z.string(),
+      mimeType: z.string(),
+    }),
+  })
+  async downloadExcelTemplate(
+    @Input() input: {},
+  ): Promise<{ data: string; filename: string; mimeType: string }> {
+    try {
+      const buffer = await this.productService.generateExcelTemplate();
+      const base64Data = buffer.toString('base64');
+      const filename = `product-import-template-${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      return {
+        data: base64Data,
+        filename,
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      };
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15, // ModuleCode.PRODUCT
+        4,  // OperationCode.READ
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+        error.message || 'Failed to generate Excel template'
+      );
+    }
+  }
 }

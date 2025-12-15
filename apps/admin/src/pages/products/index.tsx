@@ -462,6 +462,33 @@ const ProductsPage: React.FC = () => {
     refetch();
   }, [refetch]);
 
+  const exportFiltersPayload = useMemo(() => {
+    const payload: Record<string, unknown> = {};
+    if (debouncedSearchValue) {
+      payload.search = debouncedSearchValue;
+    }
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value === undefined || value === null) {
+        return;
+      }
+      if (typeof value === 'string' && value.trim() === '') {
+        return;
+      }
+      if (Array.isArray(value) && value.length === 0) {
+        return;
+      }
+      payload[key] = value as unknown;
+    });
+    return payload;
+  }, [filters, debouncedSearchValue]);
+
+  const handleOpenExportCenter = useCallback(() => {
+    const payload = exportFiltersPayload;
+    navigate('/products/exports', {
+      state: Object.keys(payload).length ? { filters: payload } : undefined,
+    });
+  }, [navigate, exportFiltersPayload]);
+
   const handleFilterToggle = () => {
     setShowFilters(!showFilters);
   };
@@ -702,6 +729,11 @@ const ProductsPage: React.FC = () => {
       icon: <FiPlus />,
     },
     {
+      label: t('products.actions.export_products', 'Export Products'),
+      onClick: handleOpenExportCenter,
+      icon: <FiDownload />,
+    },
+    {
       label: t('common.refresh', 'Refresh'),
       onClick: handleRefresh,
       icon: <FiRefreshCw />,
@@ -712,7 +744,7 @@ const ProductsPage: React.FC = () => {
       icon: <FiFilter />,
       active: showFilters,
     },
-  ], [handleCreateProduct, handleRefresh, handleFilterToggle, handleOpenImportModal, showFilters, t]);
+  ], [handleCreateProduct, handleOpenExportCenter, handleRefresh, handleFilterToggle, handleOpenImportModal, showFilters, t]);
 
   // Prepare statistics data
   const statisticsCards: StatisticData[] = useMemo(() => {

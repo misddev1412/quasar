@@ -4,6 +4,11 @@ import { ShieldIcon, BoltIcon, ChartIcon } from '../common/Icons';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useTheme } from '../../context/ThemeContext';
 import LocaleSwitcher from '../LocaleSwitcher';
+import { useBrandingSetting } from '../../hooks/useBrandingSetting';
+import {
+  ADMIN_LOGIN_BRANDING_KEY,
+  DEFAULT_ADMIN_LOGIN_BRANDING,
+} from '../../constants/adminBranding';
 
 interface AuthCardProps {
   title?: string;
@@ -50,6 +55,11 @@ export const AuthCard: React.FC<AuthCardProps> = ({
   const { t } = useTranslationWithBackend();
   const { isDarkMode } = useTheme();
   const currentYear = new Date().getFullYear();
+
+  const { config: loginBranding } = useBrandingSetting(
+    ADMIN_LOGIN_BRANDING_KEY,
+    DEFAULT_ADMIN_LOGIN_BRANDING,
+  );
 
   // 为登录页面应用特定样式
   useEffect(() => {
@@ -125,16 +135,32 @@ export const AuthCard: React.FC<AuthCardProps> = ({
           {/* Logo和标题 */}
           <div className="relative z-10">
             <div className="mb-6 flex items-center justify-between">
-              <div className={`h-12 w-12 ${isDarkMode ? 'bg-white/30' : 'bg-primary-100'} backdrop-blur-sm rounded-xl flex items-center justify-center ${isDarkMode ? 'border border-white/20' : 'border border-primary-200'} shadow-lg`}>
-                <span className={`${isDarkMode ? 'text-white' : 'text-primary-800'} text-2xl font-bold ${isDarkMode ? 'text-shadow-enhanced' : ''}`}>Q</span>
-              </div>
+              {loginBranding.logoUrl ? (
+                <div className={`${isDarkMode ? 'bg-white/30' : 'bg-primary-100'} backdrop-blur-sm rounded-xl flex items-center justify-center ${isDarkMode ? 'border border-white/20' : 'border border-primary-200'} shadow-lg p-2`}>
+                  <img
+                    src={loginBranding.logoUrl}
+                    alt="Logo"
+                    style={{
+                      width: `${loginBranding.width || 48}px`,
+                      height: `${loginBranding.height || 48}px`,
+                      objectFit: 'contain'
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className={`h-12 w-12 ${isDarkMode ? 'bg-white/30' : 'bg-primary-100'} backdrop-blur-sm rounded-xl flex items-center justify-center ${isDarkMode ? 'border border-white/20' : 'border border-primary-200'} shadow-lg`}>
+                  <span className={`${isDarkMode ? 'text-white' : 'text-primary-800'} text-2xl font-bold ${isDarkMode ? 'text-shadow-enhanced' : ''}`}>
+                    {loginBranding.logoText || 'Q'}
+                  </span>
+                </div>
+              )}
               
               {/* 主题切换和语言切换 */}
               <div className="flex items-center space-x-3">
                 <ThemeToggleButton />
-                <LocaleSwitcher 
-                  className="auth-locale-switcher min-w-[5rem] max-w-[7rem]"
-                  selectClassName={`${getControlButtonStyle(isDarkMode)} min-h-[40px] relative overflow-hidden`}
+                <LocaleSwitcher
+                  className="auth-locale-switcher min-w-[9rem]"
+                  selectClassName={`${getControlButtonStyle(isDarkMode)} min-h-[40px] relative overflow-hidden whitespace-nowrap`}
                 />
               </div>
             </div>

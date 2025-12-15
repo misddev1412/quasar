@@ -3,6 +3,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import { Button } from '../common/Button';
 import { FormInput } from '../common/FormInput';
 import { TextareaInput } from '../common/TextareaInput';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 export interface ProductSpecificationFormItem {
   id?: string;
@@ -25,6 +26,7 @@ export const ProductSpecificationsEditor: React.FC<ProductSpecificationsEditorPr
   onRemove,
   onChange,
 }) => {
+  const { t } = useTranslationWithBackend();
   const handleSortOrderChange = (tempId: string, value: string) => {
     onChange(tempId, 'sortOrder', value);
   };
@@ -34,10 +36,10 @@ export const ProductSpecificationsEditor: React.FC<ProductSpecificationsEditorPr
       {items.length === 0 ? (
         <div className="rounded-lg border border-dashed border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/40 p-6 text-center space-y-3">
           <p className="text-sm text-neutral-600 dark:text-neutral-300">
-            Add structured product information such as materials, dimensions, or technical details.
+            {t('products.specifications_empty_description', 'Add structured product information such as materials, dimensions, or technical details.')}
           </p>
           <Button variant="primary" size="sm" startIcon={<Plus size={16} />} onClick={onAdd}>
-            Add Specification
+            {t('products.add_specification', 'Add Specification')}
           </Button>
         </div>
       ) : (
@@ -50,10 +52,10 @@ export const ProductSpecificationsEditor: React.FC<ProductSpecificationsEditorPr
               <div className="flex items-start justify-between gap-3 mb-4">
                 <div>
                   <h4 className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-                    Specification #{index + 1}
+                    {t('products.specification_number', 'Specification #{number}', { number: index + 1 })}
                   </h4>
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                    Provide a clear label and value. Sort order controls display priority.
+                    {t('products.specification_help', 'Provide a clear label and value. Sort order controls display priority.')}
                   </p>
                 </div>
                 <Button
@@ -62,23 +64,23 @@ export const ProductSpecificationsEditor: React.FC<ProductSpecificationsEditorPr
                   onClick={() => onRemove(spec._tempId)}
                   startIcon={<Trash2 size={16} />}
                 >
-                  Remove
+                  {t('common.remove', 'Remove')}
                 </Button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormInput
                   id={`${spec._tempId}-name`}
-                  label="Label"
+                  label={t('products.specification_label', 'Label')}
                   type="text"
-                  placeholder="e.g., Material"
+                  placeholder={t('products.specification_label_placeholder', 'e.g., Material')}
                   value={spec.name}
                   onChange={(event) => onChange(spec._tempId, 'name', event.target.value)}
                   required
                 />
                 <FormInput
                   id={`${spec._tempId}-sortOrder`}
-                  label="Sort Order"
+                  label={t('products.sort_order', 'Sort Order')}
                   type="number"
                   placeholder="0"
                   value={spec.sortOrder?.toString() ?? ''}
@@ -89,8 +91,8 @@ export const ProductSpecificationsEditor: React.FC<ProductSpecificationsEditorPr
 
               <TextareaInput
                 id={`${spec._tempId}-value`}
-                label="Value"
-                placeholder="Describe the specification detail"
+                label={t('products.specification_value', 'Value')}
+                placeholder={t('products.specification_value_placeholder', 'Describe the specification detail')}
                 value={spec.value}
                 onChange={(event) => onChange(spec._tempId, 'value', event.target.value)}
                 rows={3}

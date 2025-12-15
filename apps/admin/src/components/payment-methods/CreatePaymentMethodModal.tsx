@@ -24,6 +24,7 @@ const PAYMENT_METHOD_TYPES = [
   { value: 'CHECK', label: 'Check' },
   { value: 'CRYPTOCURRENCY', label: 'Cryptocurrency' },
   { value: 'BUY_NOW_PAY_LATER', label: 'Buy Now Pay Later' },
+  { value: 'PAYOS', label: 'PayOS' },
   { value: 'OTHER', label: 'Other' },
 ];
 

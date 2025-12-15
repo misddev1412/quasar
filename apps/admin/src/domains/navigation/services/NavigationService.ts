@@ -398,6 +398,11 @@ export class NavigationService implements INavigationService {
                 path: '/settings'
               },
               {
+                icon: React.createElement(BrandingWatermarkIcon),
+                label: t('settings.branding.nav', 'Giao diện Admin'),
+                path: '/settings/admin-branding'
+              },
+              {
                 icon: React.createElement(ShoppingCartIcon),
                 label: t('navigation.order_settings', 'Cài đặt đơn hàng'),
                 path: '/settings/orders'

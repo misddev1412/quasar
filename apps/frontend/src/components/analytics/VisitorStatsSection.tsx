@@ -78,7 +78,13 @@ export function VisitorStatsSection({
 
       {/* Last Updated */}
       <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-        Last updated: {new Date(stats.lastUpdated).toLocaleString()}
+        Last updated: {new Date(stats.lastUpdated).toLocaleString(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })}
       </div>
     </section>
   );

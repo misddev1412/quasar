@@ -316,14 +316,20 @@ const PaymentMethodsPage: React.FC = () => {
       header: t('admin.processing_fee'),
       isSortable: true,
       className: 'w-32',
-      accessor: (item) => (
-        <div className="text-sm">
-          {item.processingFeeType === 'PERCENTAGE'
-            ? `${item.processingFee}%`
-            : `$${item.processingFee.toFixed(2)}`
-          }
-        </div>
-      ),
+      accessor: (item) => {
+        const rawFee = Number(item.processingFee ?? 0);
+        const fee = Number.isNaN(rawFee) ? 0 : rawFee;
+        const feeDisplay =
+          item.processingFeeType === 'PERCENTAGE'
+            ? `${fee}%`
+            : `$${fee.toFixed(2)}`;
+
+        return (
+          <div className="text-sm">
+            {feeDisplay}
+          </div>
+        );
+      },
     },
     {
       id: 'status',
