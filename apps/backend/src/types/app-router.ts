@@ -260,7 +260,7 @@ export const appRouter = router({
       }),
 
     listAll: procedure
-      .input(z.object({ page: z.string() }))
+      .input(z.object({ page: z.string().optional().nullable() }))
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;
@@ -927,6 +927,7 @@ export const appRouter = router({
         componentType: z.nativeEnum(ComponentStructureType).optional(),
         onlyEnabled: z.boolean().optional(),
         includeChildren: z.boolean().optional(),
+        sectionId: z.string().uuid().optional().nullable(),
       }))
       .output(apiResponseSchema)
       .query(() => {
@@ -963,6 +964,7 @@ export const appRouter = router({
         previewMediaUrl: z.string().url().optional().nullable(),
         parentId: z.string().uuid().optional().nullable(),
         slotKey: z.string().max(100).optional().nullable(),
+        sectionIds: z.array(z.string().uuid()).optional(),
       }))
       .output(apiResponseSchema)
       .mutation(() => {
@@ -987,6 +989,7 @@ export const appRouter = router({
           previewMediaUrl: z.string().url().optional().nullable(),
           parentId: z.string().uuid().optional().nullable(),
           slotKey: z.string().max(100).optional().nullable(),
+          sectionIds: z.array(z.string().uuid()).optional(),
         }),
       }))
       .output(apiResponseSchema)
@@ -2142,8 +2145,8 @@ export const appRouter = router({
       }),
   }),
 
-  // Admin Email Flow router
-  adminEmailFlow: router({
+  // Admin Mail Channel Priority router
+  adminMailChannelPriority: router({
     createFlow: procedure
       .input(z.object({
         name: z.string().min(2).max(255),
@@ -2152,6 +2155,7 @@ export const appRouter = router({
         isActive: z.boolean().optional().default(true),
         priority: z.number().int().min(1).max(10).optional().default(5),
         config: z.record(z.any()).optional(),
+        mailTemplateId: z.string().uuid().optional(),
       }))
       .output(apiResponseSchema)
       .mutation(() => {
@@ -2165,6 +2169,7 @@ export const appRouter = router({
         search: z.string().max(255).optional(),
         isActive: z.boolean().optional(),
         mailProviderId: z.string().uuid().optional(),
+        mailTemplateId: z.string().uuid().optional(),
       }))
       .output(paginatedResponseSchema)
       .query(() => {
@@ -2200,6 +2205,7 @@ export const appRouter = router({
         isActive: z.boolean().optional(),
         priority: z.number().int().min(1).max(10).optional(),
         config: z.record(z.any()).optional(),
+        mailTemplateId: z.string().uuid().optional(),
       }))
       .output(apiResponseSchema)
       .mutation(() => {
@@ -2704,6 +2710,16 @@ export const appRouter = router({
       .input(z.object({
         id: z.string().uuid(),
         status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE', 'DISCONTINUED']),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    bulkAction: procedure
+      .input(z.object({
+        ids: z.array(z.string().uuid()).min(1),
+        action: z.enum(['activate', 'deactivate', 'delete']),
       }))
       .output(apiResponseSchema)
       .mutation(() => {

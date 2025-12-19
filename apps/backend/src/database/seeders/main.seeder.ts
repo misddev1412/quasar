@@ -22,6 +22,7 @@ import { MenusSeeder } from './menus.seeder';
 import { SiteContentSeeder } from './site-content.seeder';
 import { ComponentConfigsSeeder } from './component-configs.seeder';
 import { AttributesSeeder } from './attributes.seeder';
+import { NotificationEventFlowSeeder } from './notification-event-flow.seeder';
 import databaseConfig from '../../config/database.config';
 
 @Module({
@@ -56,6 +57,7 @@ export async function bootstrap() {
     const siteContentSeeder = app.get(SiteContentSeeder);
     const componentConfigsSeeder = app.get(ComponentConfigsSeeder);
     const attributesSeeder = app.get(AttributesSeeder);
+    const notificationEventFlowSeeder = app.get(NotificationEventFlowSeeder);
 
     // Run seeders in order (countries first, then currencies, then administrative divisions, then permissions and admin, then warehouses, then user activities)
     await countriesSeeder.seed();
@@ -66,6 +68,7 @@ export async function bootstrap() {
     await adminSeeder.seed();
     await settingsSeeder.seed();
     await sectionsSeeder.seed();
+    await notificationEventFlowSeeder.seed();
     await componentConfigsSeeder.seed();
     await attributesSeeder.seed();
     await menusSeeder.seed();

@@ -53,7 +53,7 @@ const MailTemplateEditPage: React.FC = () => {
   const { t } = useTranslationWithBackend();
   const trpcContext = trpc.useContext();
   const { channels, defaultChannel, isLoading: isLoadingChannels } = useEmailChannels();
-  const { data: flowsData, isLoading: isLoadingFlows } = trpc.adminEmailFlow.getActiveFlows.useQuery();
+  const { data: flowsData, isLoading: isLoadingFlows } = trpc.adminMailChannelPriority.getActiveFlows.useQuery();
 
   // Use URL tabs hook with tab keys for clean URLs
   const { activeTab, handleTabChange } = useUrlTabs({
@@ -302,16 +302,16 @@ const MailTemplateEditPage: React.FC = () => {
           fields: [
             {
               name: 'emailFlowId',
-              label: t('mail_templates.email_flow', 'Email Flow'),
+              label: t('mail_templates.email_flow', 'Mail Channel Priority'),
               type: 'select',
-              placeholder: t('mail_templates.select_email_flow', 'Select email flow'),
+              placeholder: t('mail_templates.select_email_flow', 'Select mail channel priority'),
               required: true,
               options: (flowsData as any)?.data ? ((flowsData as any).data as any[]).map((flow: any) => ({
                 value: flow.id,
                 label: `${flow.name} (${flow.mailProvider?.name || 'N/A'})`,
               })) : [],
               icon: <Send className="w-4 h-4" />,
-              description: t('mail_templates.email_flow_description', 'Email flow to use for sending this template. Only active flows with active providers are shown.'),
+              description: t('mail_templates.email_flow_description', 'Mail channel priority to use for sending this template. Only active priorities with active providers are shown.'),
               disabled: isLoadingFlows,
             },
             {
@@ -325,7 +325,7 @@ const MailTemplateEditPage: React.FC = () => {
                 ...channels,
               ] : [],
               icon: <Send className="w-4 h-4" />,
-              description: t('mail_templates.email_channel_description', 'Email channel to use for sending this template (deprecated, use Email Flow instead).'),
+              description: t('mail_templates.email_channel_description', 'Email channel to use for sending this template (deprecated, use Mail Channel Priority instead).'),
               disabled: isLoadingChannels,
             },
             {

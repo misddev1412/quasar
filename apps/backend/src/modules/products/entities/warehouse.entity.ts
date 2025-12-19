@@ -4,6 +4,7 @@ import { Expose } from 'class-transformer';
 import { WarehouseLocation } from './warehouse-location.entity';
 import { InventoryItem } from './inventory-item.entity';
 import { StockMovement } from './stock-movement.entity';
+import { ProductWarehouseQuantity } from './product-warehouse-quantity.entity';
 
 @Entity('warehouses')
 export class Warehouse extends BaseEntity {
@@ -119,6 +120,9 @@ export class Warehouse extends BaseEntity {
 
   @OneToMany(() => StockMovement, (movement) => movement.warehouse)
   stockMovements: StockMovement[];
+
+  @OneToMany(() => ProductWarehouseQuantity, (productQuantity) => productQuantity.warehouse)
+  productQuantities: ProductWarehouseQuantity[];
 
   // Virtual properties
   get locationCount(): number {

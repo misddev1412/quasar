@@ -127,7 +127,7 @@ const MailLogDetailPage: React.FC = () => {
               <DetailRow label={t('mail_logs.details.from', 'From')} value={log.fromEmail || '—'} />
               <DetailRow label={t('mail_logs.columns.provider', 'Provider')} value={log.mailProvider?.name || '—'} />
               <DetailRow label={t('mail_logs.details.template', 'Template')} value={log.mailTemplate?.name || '—'} />
-              <DetailRow label={t('mail_logs.details.flow', 'Email flow')} value={log.emailFlow?.name || '—'} />
+              <DetailRow label={t('mail_logs.details.flow', 'Mail channel priority')} value={log.emailFlow?.name || '—'} />
               <DetailRow label={t('mail_logs.details.sent_by', 'Sent by')} value={getSenderLabel(log)} />
               <DetailRow label={t('mail_logs.columns.sent_at', 'Sent at')} value={log.sentAt || log.createdAt} type="datetime" />
               <DetailRow label={t('mail_logs.details.message_id', 'Provider message ID')} value={log.providerMessageId || '—'} />

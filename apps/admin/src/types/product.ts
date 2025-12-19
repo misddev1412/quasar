@@ -93,6 +93,19 @@ export interface ProductSpecification {
   updatedAt: Date;
 }
 
+export interface ProductWarehouseQuantity {
+  id?: string;
+  warehouseId: string;
+  warehouse?: {
+    id: string;
+    name: string;
+    code: string;
+  };
+  quantity: number;
+  reservedQuantity?: number;
+  availableQuantity?: number;
+}
+
 export interface ProductSpecificationInput {
   id?: string;
   productId?: string;
@@ -141,6 +154,8 @@ export interface Product {
   metaKeywords?: string;
   price?: number;
   stockQuantity?: number;
+  enableWarehouseQuantity: boolean;
+  warehouseQuantities?: ProductWarehouseQuantity[];
   isActive: boolean;
   isFeatured: boolean;
   isDigital?: boolean;

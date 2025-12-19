@@ -37,7 +37,7 @@ const appRouter = t.router({
     testChannel: t.procedure.input(z.any()).mutation(() => null),
     cloneChannel: t.procedure.input(z.any()).mutation(() => null),
   }),
-  adminEmailFlow: t.router({
+  adminMailChannelPriority: t.router({
     createFlow: t.procedure.input(z.any()).mutation(() => null),
     getFlows: t.procedure.query(() => null),
     getFlowById: t.procedure.query(() => null),
@@ -455,6 +455,7 @@ const appRouter = t.router({
     delete: t.procedure.input(z.any()).mutation(() => null),
     stats: t.procedure.query(() => null),
     updateStatus: t.procedure.input(z.any()).mutation(() => null),
+    bulkAction: t.procedure.input(z.any()).mutation(() => null),
   }),
   clientDeliveryMethods: t.router({
     list: t.procedure.input(z.any()).query(() => null),

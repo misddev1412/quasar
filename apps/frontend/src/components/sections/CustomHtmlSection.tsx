@@ -3,6 +3,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { SectionTranslationContent } from './HeroSlider';
+import SectionContainer from './SectionContainer';
 
 export interface CustomHtmlConfig {
   html?: string;
@@ -20,20 +21,24 @@ export const CustomHtmlSection: React.FC<CustomHtmlSectionProps> = ({ config, tr
   <p class="mt-2 text-sm opacity-90">${t('sections.custom_html.default_description')}</p>
 </div>`;
 
+  // null means field is hidden by admin, undefined/empty means visible but no value
+  const sectionTitle = translation?.title === null ? null : translation?.title;
+  const sectionDescription = translation?.description === null ? null : translation?.description;
+
   return (
     <section className="py-16 bg-transparent text-gray-900 dark:text-gray-100">
-      <div className="w-full px-4 sm:px-6 lg:px-12">
-        {(translation?.title || translation?.description) && (
+      <SectionContainer paddingClassName="px-4 sm:px-6 lg:px-8">
+        {(sectionTitle || sectionDescription) && (
           <div className="mb-6 max-w-3xl">
-            {translation.title && <h2 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">{translation.title}</h2>}
-            {translation.description && <p className="mt-2 text-gray-600 dark:text-gray-400">{translation.description}</p>}
+            {sectionTitle && <h2 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">{sectionTitle}</h2>}
+            {sectionDescription && <p className="mt-2 text-gray-600 dark:text-gray-400">{sectionDescription}</p>}
           </div>
         )}
         <div
           className="custom-html-content prose prose-lg max-w-none text-black prose-headings:text-black prose-p:text-gray-800 dark:text-gray-100 dark:prose-invert"
           dangerouslySetInnerHTML={{ __html: html }}
         />
-      </div>
+      </SectionContainer>
     </section>
   );
 };

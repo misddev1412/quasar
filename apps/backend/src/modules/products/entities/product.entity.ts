@@ -12,6 +12,7 @@ import { ProductMedia } from './product-media.entity';
 import { ProductCategory } from './product-category.entity';
 import { Wishlist } from './wishlist.entity';
 import { ProductSpecification } from './product-specification.entity';
+import { ProductWarehouseQuantity } from './product-warehouse-quantity.entity';
 
 export enum ProductStatus {
   DRAFT = 'DRAFT',
@@ -112,6 +113,15 @@ export class Product extends BaseEntity {
 
   @Expose()
   @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0,
+  })
+  price: number;
+
+  @Expose()
+  @Column({
     name: 'is_active',
     type: 'boolean',
     default: true,
@@ -125,6 +135,22 @@ export class Product extends BaseEntity {
     default: false,
   })
   isFeatured: boolean;
+
+  @Expose()
+  @Column({
+    name: 'stock_quantity',
+    type: 'int',
+    default: 0,
+  })
+  stockQuantity: number;
+
+  @Expose()
+  @Column({
+    name: 'enable_warehouse_quantity',
+    type: 'boolean',
+    default: false,
+  })
+  enableWarehouseQuantity: boolean;
 
   @Expose()
   @Column({
@@ -181,6 +207,9 @@ export class Product extends BaseEntity {
 
   @OneToMany(() => Wishlist, (wishlist) => wishlist.product)
   wishlists: Wishlist[];
+
+  @OneToMany(() => ProductWarehouseQuantity, (warehouseQuantity) => warehouseQuantity.product, { eager: true })
+  warehouseQuantities: ProductWarehouseQuantity[];
 
   // Getter for categories through ProductCategory junction
   async getCategories(): Promise<Category[]> {

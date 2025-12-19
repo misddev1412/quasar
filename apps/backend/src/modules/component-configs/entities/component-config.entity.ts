@@ -1,6 +1,7 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
 import { SoftDeletableEntity } from '@shared';
 import { ComponentStructureType, ComponentCategory } from '@shared/enums/component.enums';
+import { SectionEntity } from '../../sections/entities/section.entity';
 
 export type ComponentSidebarLinkType = 'custom' | 'category' | 'product' | 'brand';
 
@@ -152,4 +153,14 @@ export class ComponentConfigEntity extends SoftDeletableEntity {
 
   @OneToMany(() => ComponentConfigEntity, (component) => component.parent)
   children?: ComponentConfigEntity[];
+
+  @ManyToMany(() => SectionEntity, (section) => section.components, {
+    cascade: false,
+  })
+  @JoinTable({
+    name: 'component_config_sections',
+    joinColumn: { name: 'component_config_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'section_id', referencedColumnName: 'id' },
+  })
+  sections?: SectionEntity[];
 }

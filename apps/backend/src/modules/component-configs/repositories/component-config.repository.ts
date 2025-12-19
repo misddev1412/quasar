@@ -18,21 +18,34 @@ export class ComponentConfigRepository extends BaseRepository<ComponentConfigEnt
       where: {
         componentKey,
       },
-      relations: ['children'],
+      relations: ['children', 'sections'],
     });
   }
 
-  async findEnabledByKeys(componentKeys: string[]): Promise<ComponentConfigEntity[]> {
+  async findEnabledByKeys(
+    componentKeys: string[],
+    options?: { sectionIds?: string[] | null },
+  ): Promise<ComponentConfigEntity[]> {
     if (!Array.isArray(componentKeys) || componentKeys.length === 0) {
       return [];
     }
 
-    return this.repository
+    const qb = this.repository
       .createQueryBuilder('component')
+      .distinct(true)
+      .leftJoinAndSelect('component.sections', 'sections')
       .where('component.componentKey IN (:...componentKeys)', { componentKeys })
       .andWhere('component.isEnabled = :isEnabled', { isEnabled: true })
-      .andWhere('component.deletedAt IS NULL')
-      .getMany();
+      .andWhere('component.deletedAt IS NULL');
+
+    if (options?.sectionIds && options.sectionIds.length > 0) {
+      qb.andWhere(
+        '(sections.id IS NULL OR sections.id IN (:...sectionIds))',
+        { sectionIds: options.sectionIds },
+      );
+    }
+
+    return qb.getMany();
   }
 
   async findChildren(parentId: string, onlyEnabled = true): Promise<ComponentConfigEntity[]> {

@@ -502,6 +502,17 @@
     text-wrap: balance;
   }
 
+  /* Multi-line Clamp Helpers (Tailwind plugin alternative) */
+  @for $lines from 1 through 3 {
+    .line-clamp-#{$lines} {
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: #{$lines};
+      line-clamp: #{$lines};
+    }
+  }
+
   /* Animation Utilities */
   .animate-in {
     animation: animateIn 0.3s ease-out;

@@ -36,7 +36,7 @@ import MailLogDetailPage from '../pages/mail-logs/[id]';
 import MailProviderIndexPage from '../pages/mail-providers';
 import CreateMailProviderPage from '../pages/mail-providers/create';
 import EditMailProviderPage from '../pages/mail-providers/[id]/edit';
-// Email Flows
+// Mail Channel Priority
 import EmailFlowIndexPage from '../pages/email-flows';
 import CreateEmailFlowPage from '../pages/email-flows/create';
 import EditEmailFlowPage from '../pages/email-flows/[id]/edit';
@@ -86,8 +86,11 @@ import WarehouseLocationEditPage from '../pages/warehouses/locations/edit';
 import PaymentMethodsPage from '../pages/payment-methods';
 import DeliveryMethodsPage from '../pages/delivery-methods';
 import TransactionsPage from '../pages/transactions';
+import TransactionDetailPage from '../pages/transactions/[id]';
 import SupportClientsPage from '../pages/support-clients';
 import SectionsPage from '../pages/sections';
+import CreateSectionPage from '../pages/sections/[page]/create';
+import EditSectionPage from '../pages/sections/[page]/[sectionId]/edit';
 import MenusPage from '../pages/menus';
 import HelpPage from '../pages/help';
 import StorefrontFooterPage from '../pages/storefront/footer';
@@ -198,7 +201,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/mail-providers" element={<ProtectedRoute><MailProviderIndexPage /></ProtectedRoute>} />
       <Route path="/mail-providers/create" element={<ProtectedRoute><CreateMailProviderPage /></ProtectedRoute>} />
       <Route path="/mail-providers/:id/edit" element={<ProtectedRoute><EditMailProviderPage /></ProtectedRoute>} />
-      {/* Email Flows */}
+      {/* Mail Channel Priority */}
       <Route path="/email-flows" element={<ProtectedRoute><EmailFlowIndexPage /></ProtectedRoute>} />
       <Route path="/email-flows/create" element={<ProtectedRoute><CreateEmailFlowPage /></ProtectedRoute>} />
       <Route path="/email-flows/:id/edit" element={<ProtectedRoute><EditEmailFlowPage /></ProtectedRoute>} />
@@ -254,11 +257,14 @@ const AppRoutes: React.FC = () => {
       <Route path="/warehouses/locations/:id" element={<ProtectedRoute><WarehouseLocationEditPage /></ProtectedRoute>} />
       <Route path="/payment-methods" element={<ProtectedRoute><PaymentMethodsPage /></ProtectedRoute>} />
       <Route path="/transactions" element={<ProtectedRoute><TransactionsPage /></ProtectedRoute>} />
+      <Route path="/transactions/:id" element={<ProtectedRoute><TransactionDetailPage /></ProtectedRoute>} />
       <Route path="/delivery-methods" element={<ProtectedRoute><DeliveryMethodsPage /></ProtectedRoute>} />
       <Route path="/support-clients" element={<ProtectedRoute><SupportClientsPage /></ProtectedRoute>} />
       <Route path="/visitor-analytics" element={<ProtectedRoute><VisitorAnalyticsPageWrapper /></ProtectedRoute>} />
       <Route path="/sections" element={<Navigate to="/sections/home" replace />} />
       <Route path="/sections/:page" element={<ProtectedRoute><SectionsPage /></ProtectedRoute>} />
+      <Route path="/sections/:page/create" element={<ProtectedRoute><CreateSectionPage /></ProtectedRoute>} />
+      <Route path="/sections/:page/:sectionId/edit" element={<ProtectedRoute><EditSectionPage /></ProtectedRoute>} />
       <Route path="/menus" element={<Navigate to="/menus/main" replace />} />
       <Route path="/menus/:group" element={<ProtectedRoute><MenusPage /></ProtectedRoute>} />
       <Route path="/component-configs" element={<ProtectedRoute><ComponentConfigsPage /></ProtectedRoute>} />

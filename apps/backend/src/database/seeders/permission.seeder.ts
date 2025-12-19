@@ -399,7 +399,7 @@ export class PermissionSeeder {
         scope: PermissionScope.ANY,
         attributes: ['*'],
       },
-      // Email Flows
+      // Mail Channel Priority
       {
         role: UserRole.ADMIN,
         resource: 'email_flow',
@@ -1656,7 +1656,7 @@ export class PermissionSeeder {
         scope: PermissionScope.ANY,
         attributes: ['*'],
       },
-      // Email Flows
+      // Mail Channel Priority
       {
         role: UserRole.SUPER_ADMIN,
         resource: 'email_flow',

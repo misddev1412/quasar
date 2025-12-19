@@ -1,4 +1,13 @@
 import { ComponentCategory, ComponentStructureType } from '@shared/enums/component.enums';
+import { SectionType } from '@shared/enums/section.enums';
+
+export interface ComponentSectionLink {
+  id: string;
+  page: string;
+  type: SectionType;
+  position?: number;
+  isEnabled?: boolean;
+}
 
 export interface ComponentConfigNode {
   id: string;
@@ -19,6 +28,7 @@ export interface ComponentConfigNode {
   children?: ComponentConfigNode[];
   createdAt?: string;
   updatedAt?: string;
+  sections?: ComponentSectionLink[];
 }
 
 export type FlattenedComponentNode = {

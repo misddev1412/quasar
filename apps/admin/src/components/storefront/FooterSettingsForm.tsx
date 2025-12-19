@@ -16,6 +16,9 @@ import {
   FooterSocialType,
   FooterWidgetConfig,
   FooterWidgetType,
+  VisitorAnalyticsConfig,
+  VisitorAnalyticsMetricType,
+  DEFAULT_VISITOR_ANALYTICS_CONFIG,
   createFooterConfig,
 } from '@shared/types/footer.types';
 
@@ -37,6 +40,58 @@ const clampWidgetHeight = (value?: number) => {
     return 280;
   }
   return Math.min(640, Math.max(160, Math.round(value)));
+};
+
+const visitorAnalyticsMetricOrder: VisitorAnalyticsMetricType[] =
+  DEFAULT_VISITOR_ANALYTICS_CONFIG.cards.map((card) => card.metric);
+
+const createDefaultVisitorAnalytics = (): VisitorAnalyticsConfig => ({
+  ...DEFAULT_VISITOR_ANALYTICS_CONFIG,
+  cards: DEFAULT_VISITOR_ANALYTICS_CONFIG.cards.map((card) => ({ ...card })),
+});
+
+const clampVisitorAnalyticsColumns = (value?: number) => {
+  if (!value || Number.isNaN(value)) {
+    return DEFAULT_VISITOR_ANALYTICS_CONFIG.columns;
+  }
+  return Math.min(4, Math.max(1, Math.round(value)));
+};
+
+const ensureVisitorAnalyticsCards = (
+  cards: VisitorAnalyticsConfig['cards'] | undefined,
+  columns: number
+): VisitorAnalyticsConfig['cards'] => {
+  const normalizedColumns = clampVisitorAnalyticsColumns(columns);
+  const sourceCards = cards && cards.length ? cards : createDefaultVisitorAnalytics().cards;
+  const normalized = sourceCards.map((card, index) => ({
+    id: card.id || `visitor-card-${index}`,
+    metric: visitorAnalyticsMetricOrder.includes(card.metric as VisitorAnalyticsMetricType)
+      ? (card.metric as VisitorAnalyticsMetricType)
+      : visitorAnalyticsMetricOrder[index % visitorAnalyticsMetricOrder.length],
+  }));
+
+  const limited = normalized.slice(0, normalizedColumns);
+  const result = [...limited];
+  while (result.length < normalizedColumns) {
+    const metric = visitorAnalyticsMetricOrder[result.length % visitorAnalyticsMetricOrder.length];
+    result.push({
+      id: generateId(),
+      metric,
+    });
+  }
+
+  return result;
+};
+
+const normalizeVisitorAnalyticsState = (config?: VisitorAnalyticsConfig): VisitorAnalyticsConfig => {
+  const base = config ?? createDefaultVisitorAnalytics();
+  const columns = clampVisitorAnalyticsColumns(base.columns);
+  return {
+    enabled: base.enabled ?? DEFAULT_VISITOR_ANALYTICS_CONFIG.enabled,
+    columns,
+    backgroundColor: base.backgroundColor?.trim() || '',
+    cards: ensureVisitorAnalyticsCards(base.cards, columns),
+  };
 };
 
 const defaultWidgetDraft = (): FooterWidgetConfig => ({
@@ -139,6 +194,7 @@ const FooterSettingsForm: React.FC = () => {
   }, [previewOrigin, previewConfigParam]);
 
   const widgetDraft = withWidgetDefaults(draft.widget);
+  const visitorAnalyticsDraft = normalizeVisitorAnalyticsState(draft.visitorAnalytics);
 
   const reloadPreview = () => {
     const frameWindow = iframeRef.current?.contentWindow;
@@ -192,6 +248,26 @@ const FooterSettingsForm: React.FC = () => {
     [t]
   );
 
+  const visitorAnalyticsColumnOptions = useMemo<SelectOption[]>(
+    () => [
+      { value: '1', label: t('storefront.footer.visitor_analytics.columns.option_1', '1 column') },
+      { value: '2', label: t('storefront.footer.visitor_analytics.columns.option_2', '2 columns') },
+      { value: '3', label: t('storefront.footer.visitor_analytics.columns.option_3', '3 columns') },
+      { value: '4', label: t('storefront.footer.visitor_analytics.columns.option_4', '4 columns') },
+    ],
+    [t]
+  );
+
+  const visitorAnalyticsMetricOptions = useMemo<SelectOption[]>(
+    () => [
+      { value: 'visitors', label: t('storefront.footer.visitor_analytics.metrics.visitors', 'Total visitors') },
+      { value: 'pageViews', label: t('storefront.footer.visitor_analytics.metrics.pageViews', 'Page views') },
+      { value: 'topPage', label: t('storefront.footer.visitor_analytics.metrics.topPage', 'Top page') },
+      { value: 'lastUpdated', label: t('storefront.footer.visitor_analytics.metrics.lastUpdated', 'Last updated') },
+    ],
+    [t]
+  );
+
   const handleUpdate = <K extends keyof FooterConfig>(key: K, value: FooterConfig[K]) => {
     setDraft((prev) => ({
       ...prev,
@@ -229,6 +305,61 @@ const FooterSettingsForm: React.FC = () => {
       },
     }));
     setIsDirty(true);
+  };
+
+  const updateVisitorAnalytics = (updater: (current: VisitorAnalyticsConfig) => VisitorAnalyticsConfig) => {
+    setDraft((prev) => {
+      const current = normalizeVisitorAnalyticsState(prev.visitorAnalytics);
+      const next = normalizeVisitorAnalyticsState(updater(current));
+      return {
+        ...prev,
+        visitorAnalytics: next,
+      };
+    });
+    setIsDirty(true);
+  };
+
+  const handleVisitorAnalyticsToggle = (enabled: boolean) => {
+    updateVisitorAnalytics((current) => ({
+      ...current,
+      enabled,
+    }));
+  };
+
+  const handleVisitorAnalyticsBackgroundChange = (value: string) => {
+    updateVisitorAnalytics((current) => ({
+      ...current,
+      backgroundColor: value,
+    }));
+  };
+
+  const handleVisitorAnalyticsColumnsChange = (value: number) => {
+    updateVisitorAnalytics((current) => ({
+      ...current,
+      columns: clampVisitorAnalyticsColumns(value),
+    }));
+  };
+
+  const handleVisitorAnalyticsCardMetricChange = (cardId: string, metric: VisitorAnalyticsMetricType) => {
+    updateVisitorAnalytics((current) => ({
+      ...current,
+      cards: current.cards.map((card) => (card.id === cardId ? { ...card, metric } : card)),
+    }));
+  };
+
+  const moveVisitorAnalyticsCard = (index: number, direction: number) => {
+    updateVisitorAnalytics((current) => {
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= current.cards.length) {
+        return current;
+      }
+      const cards = [...current.cards];
+      [cards[index], cards[targetIndex]] = [cards[targetIndex], cards[index]];
+      return {
+        ...current,
+        cards,
+      };
+    });
   };
 
   const addSocialLink = () => {
@@ -337,15 +468,17 @@ const FooterSettingsForm: React.FC = () => {
           .map((link) => ({ ...link, url: link.url?.trim() || '', label: link.label?.trim() || '' }))
       ),
       widget: sanitizeWidgetConfig(draft.widget),
+      visitorAnalytics: visitorAnalyticsDraft,
     };
+    const normalizedPayload = createFooterConfig(payload);
 
     try {
       if (footerSetting?.id) {
-        await updateSetting(footerSetting.id, { value: JSON.stringify(payload) });
+        await updateSetting(footerSetting.id, { value: JSON.stringify(normalizedPayload) });
       } else {
         await createSetting({
           key: FOOTER_SETTING_KEY,
-          value: JSON.stringify(payload),
+          value: JSON.stringify(normalizedPayload),
           type: 'json',
           group: 'storefront-ui',
           isPublic: true,
@@ -358,6 +491,7 @@ const FooterSettingsForm: React.FC = () => {
         title: t('storefront.footer.messages.saved', 'Footer updated'),
         description: t('storefront.footer.messages.saved_description', 'Your changes are live on the storefront.'),
       });
+      setDraft(normalizedPayload);
       setIsDirty(false);
     } catch (error) {
       console.error('Failed to save footer config', error);
@@ -542,7 +676,87 @@ const FooterSettingsForm: React.FC = () => {
               </div>
             )}
           </div>
+      </div>
+    </div>
+
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            {t('storefront.footer.visitor_analytics.heading', 'Visitor analytics bar')}
+          </h3>
+          <p className="text-sm text-gray-500">
+            {t('storefront.footer.visitor_analytics.description', 'Control the stat strip shown above the footer.')}
+          </p>
         </div>
+        <Toggle
+          checked={visitorAnalyticsDraft.enabled}
+          onChange={(checked) => handleVisitorAnalyticsToggle(checked)}
+          label={t('storefront.footer.visitor_analytics.enable', 'Show visitor analytics')}
+          description={t('storefront.footer.visitor_analytics.enable_hint', 'Display daily visitors, page views, or other metrics above the footer.')}
+        />
+        {visitorAnalyticsDraft.enabled && (
+          <div className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Select
+                label={t('storefront.footer.visitor_analytics.columns.label', 'Columns')}
+                value={String(visitorAnalyticsDraft.columns)}
+                onChange={(value) => handleVisitorAnalyticsColumnsChange(Number(value))}
+                options={visitorAnalyticsColumnOptions}
+              />
+              <label className="flex flex-col gap-1 text-sm text-gray-600">
+                {t('storefront.footer.visitor_analytics.background', 'Background color')}
+                <Input
+                  value={visitorAnalyticsDraft.backgroundColor || ''}
+                  onChange={(event) => handleVisitorAnalyticsBackgroundChange(event.target.value)}
+                  placeholder="#0F172A or rgba(15,23,42,0.95)"
+                  className="text-sm"
+                />
+                <span className="text-xs text-gray-400">
+                  {t('storefront.footer.visitor_analytics.background_hint', 'Leave blank to reuse the footer colors.')}
+                </span>
+              </label>
+            </div>
+            <div className="space-y-3">
+              {visitorAnalyticsDraft.cards.map((card, index) => (
+                <div key={card.id} className="rounded-xl border border-gray-100 p-4 shadow-sm">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-medium text-gray-900">
+                      {t('storefront.footer.visitor_analytics.card_label', 'Column {{index}}', { index: index + 1 })}
+                    </p>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => moveVisitorAnalyticsCard(index, -1)}
+                        disabled={index === 0}
+                        aria-label={t('common.move_up', 'Move up')}
+                      >
+                        <FiArrowUp />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => moveVisitorAnalyticsCard(index, 1)}
+                        disabled={index === visitorAnalyticsDraft.cards.length - 1}
+                        aria-label={t('common.move_down', 'Move down')}
+                      >
+                        <FiArrowDown />
+                      </Button>
+                    </div>
+                  </div>
+                  <Select
+                    label={t('storefront.footer.visitor_analytics.metric_label', 'Metric')}
+                    value={card.metric}
+                    onChange={(value) =>
+                      handleVisitorAnalyticsCardMetricChange(card.id, value as VisitorAnalyticsMetricType)
+                    }
+                    options={visitorAnalyticsMetricOptions}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">

@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image as ImageIcon } from 'lucide-react';
-import { FiPlus, FiRefreshCw, FiEdit, FiTrash2, FiMoreVertical } from 'react-icons/fi';
+import { FiPlus, FiRefreshCw, FiEdit, FiTrash2, FiMoreVertical, FiChevronUp, FiChevronDown } from 'react-icons/fi';
 import { useSectionsManager, AdminSection, ActiveLanguage } from '../../hooks/useSectionsManager';
 import { SectionType, SECTION_TYPE_LABELS } from '@shared/enums/section.enums';
 import { Button } from '../common/Button';
 import { Select, SelectOption } from '../common/Select';
 import { Toggle } from '../common/Toggle';
-import { Modal } from '../common/Modal';
 import { Input } from '../common/Input';
+import { MeasurementPresetInput } from '../common/MeasurementPresetInput';
 import { useToast } from '../../context/ToastContext';
 import { cn } from '@admin/lib/utils';
 import { MediaManager } from '../common/MediaManager';
@@ -19,6 +19,9 @@ import { trpc } from '../../utils/trpc';
 import '../common/CountrySelector.css';
 import { SearchSelect } from '../common/SearchSelect';
 import { RichTextEditor } from '../common/RichTextEditor';
+import { useNavigate } from 'react-router-dom';
+import { CategorySelector } from '../menus/CategorySelector';
+import { ProductSelector } from '../menus/ProductSelector';
 
 interface SectionsManagerProps {
   page: string;
@@ -42,6 +45,22 @@ interface HeroSlideConfig {
   ctaLabel?: string;
   ctaUrl?: string;
   [key: string]: unknown;
+}
+
+type BannerLinkType = 'custom' | 'category' | 'product';
+
+interface BannerCardLink {
+  href?: string;
+  label?: string;
+  target?: '_self' | '_blank';
+  type?: BannerLinkType;
+  referenceId?: string;
+}
+
+interface BannerCardConfig {
+  id?: string;
+  imageUrl?: string;
+  link?: BannerCardLink;
 }
 
 interface HeroSliderLocaleEditorProps {
@@ -72,7 +91,7 @@ const TextArea = ({ className = '', ...props }: React.TextareaHTMLAttributes<HTM
   />
 );
 
-interface SectionFormState {
+export interface SectionFormState {
   page: string;
   type: SectionType;
   isEnabled: boolean;
@@ -109,15 +128,46 @@ const ensureNumber = (value: unknown, fallback: number) => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
+const buildBannerLinkHref = (type: BannerLinkType, referenceId?: string) => {
+  if (!referenceId) {
+    return '';
+  }
+  switch (type) {
+    case 'category':
+      return `/categories/${referenceId}`;
+    case 'product':
+      return `/products/${referenceId}`;
+    default:
+      return referenceId;
+  }
+};
+
 const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, value, onChange }) => {
   const { t } = useTranslation();
   const [jsonView, setJsonView] = useState(false);
   const [rawJson, setRawJson] = useState(JSON.stringify(value ?? {}, null, 2));
   const [jsonError, setJsonError] = useState<string | null>(null);
+  const [bannerMediaState, setBannerMediaState] = useState<{ isOpen: boolean; cardIndex: number | null }>({
+    isOpen: false,
+    cardIndex: null,
+  });
+  const [galleryMediaState, setGalleryMediaState] = useState<{ isOpen: boolean; imageIndex: number | null }>({
+    isOpen: false,
+    imageIndex: null,
+  });
 
   useEffect(() => {
     setRawJson(JSON.stringify(value ?? {}, null, 2));
   }, [value]);
+
+  useEffect(() => {
+    if (type !== SectionType.BANNER) {
+      setBannerMediaState({ isOpen: false, cardIndex: null });
+    }
+    if (type !== SectionType.GALLERY) {
+      setGalleryMediaState({ isOpen: false, imageIndex: null });
+    }
+  }, [type]);
 
   const handleJsonApply = () => {
     try {
@@ -364,61 +414,306 @@ const renderCustomHtml = () => (
   );
 
   const renderBanner = () => {
-    const handleLayoutChange = (layout: 'full-width' | 'container') => {
+    const updateConfig = (partial: Record<string, unknown>) => {
       onChange({
         ...(value ?? {}),
-        layout,
+        ...partial,
       });
     };
 
-    const handleHeightChange = (height: string) => {
-      onChange({
-        ...(value ?? {}),
-        height,
-      });
+    const cards = Array.isArray(value?.cards) ? (value.cards as BannerCardConfig[]) : [];
+    const cardBorderRadius = typeof value?.cardBorderRadius === 'string' ? value.cardBorderRadius : '';
+    const cardGap = typeof value?.cardGap === 'string' ? value.cardGap : '';
+    const clampCardCount = (count: number) => Math.min(Math.max(count, 1), 4);
+    const rawCount = ensureNumber(value?.cardCount, cards.length > 0 ? cards.length : 1);
+    const cardCount = clampCardCount(rawCount);
+
+    const buildCardSlots = (count = cardCount) => {
+      const next: BannerCardConfig[] = [];
+      for (let i = 0; i < count; i += 1) {
+        next.push(cards[i] ? { ...cards[i] } : { id: `banner-card-${i}` });
+      }
+      return next;
     };
 
-    const currentLayout = (value?.layout as string) || 'full-width';
-    const currentHeight = (value?.height as string) || '400px';
+    const normalizedCards = buildCardSlots();
+
+    const handleCardCountChange = (count: number) => {
+      const sanitized = clampCardCount(count);
+      const nextCards = buildCardSlots(sanitized);
+      updateConfig({ cardCount: sanitized, cards: nextCards });
+    };
+
+    const handleCardChange = (index: number, payload: Partial<BannerCardConfig>) => {
+      const nextCards = buildCardSlots().map((card, idx) => (idx === index ? { ...card, ...payload } : card));
+      updateConfig({ cards: nextCards });
+    };
+
+    const handleCardLinkChange = (index: number, payload: Partial<BannerCardLink>) => {
+      const currentLink = (normalizedCards[index]?.link ?? {}) as BannerCardLink;
+      handleCardChange(index, { link: { ...currentLink, ...payload } });
+    };
+
+    const handleBannerMediaClose = () => setBannerMediaState({ isOpen: false, cardIndex: null });
+
+    const handleBannerMediaSelect = (selection: any) => {
+      if (bannerMediaState.cardIndex === null) {
+        handleBannerMediaClose();
+        return;
+      }
+
+      const selected = Array.isArray(selection) ? selection[0] : selection;
+      if (!selected || typeof selected.url !== 'string') {
+        handleBannerMediaClose();
+        return;
+      }
+
+      handleCardChange(bannerMediaState.cardIndex, { imageUrl: selected.url });
+      handleBannerMediaClose();
+    };
+
+    const handleLinkTypeChange = (index: number, nextType: BannerLinkType) => {
+      const resolvedType: BannerLinkType = nextType || 'custom';
+      if (resolvedType === 'custom') {
+        handleCardLinkChange(index, {
+          type: resolvedType,
+          referenceId: '',
+          href: (normalizedCards[index]?.link?.href as string) || '',
+        });
+        return;
+      }
+      handleCardLinkChange(index, { type: resolvedType, referenceId: '', href: '' });
+    };
+
+    const handleLinkReferenceChange = (index: number, type: BannerLinkType, referenceId?: string) => {
+      const normalizedId = referenceId?.trim() ?? '';
+      const nextHref = normalizedId ? buildBannerLinkHref(type, normalizedId) : '';
+      handleCardLinkChange(index, { type, referenceId: normalizedId, href: nextHref });
+    };
+
+    const linkTypeOptions: SelectOption[] = [
+      { value: 'custom', label: t('sections.manager.config.banner.linkTypeCustom') },
+      { value: 'category', label: t('sections.manager.config.banner.linkTypeCategory') },
+      { value: 'product', label: t('sections.manager.config.banner.linkTypeProduct') },
+    ];
+
+    const handleBorderRadiusChange = (radius: string) => {
+      const trimmed = radius.trim();
+      if (!trimmed) {
+        const next = { ...(value ?? {}) };
+        delete next.cardBorderRadius;
+        onChange(next);
+        return;
+      }
+      updateConfig({ cardBorderRadius: trimmed });
+    };
+
+    const handleGapChange = (gapValue: string) => {
+      const trimmed = gapValue.trim();
+      if (!trimmed) {
+        const next = { ...(value ?? {}) };
+        delete next.cardGap;
+        onChange(next);
+        return;
+      }
+      updateConfig({ cardGap: trimmed });
+    };
 
     return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <label className="flex flex-col gap-1 text-sm text-gray-600">
-            {t('sections.manager.config.banner.layoutType')}
-            <Select
-              value={currentLayout}
-              onChange={(layout) => handleLayoutChange(layout as 'full-width' | 'container')}
-              options={[
-                { value: 'full-width', label: t('sections.manager.config.banner.fullWidth') },
-                { value: 'container', label: t('sections.manager.config.banner.container') },
-              ]}
-              className="text-sm"
-            />
-            <span className="text-xs text-gray-500">
-              {currentLayout === 'full-width'
-                ? t('sections.manager.config.banner.fullWidthDescription')
-                : t('sections.manager.config.banner.containerDescription')}
-            </span>
-          </label>
+      <div className="space-y-6">
+        <label className="flex flex-col gap-1 text-sm text-gray-600">
+          {t('sections.manager.config.banner.cardCount')}
+          <Select
+            value={String(cardCount)}
+            onChange={(valueOption) => handleCardCountChange(Number(valueOption) || cardCount)}
+            options={[1, 2, 3, 4].map((count) => ({
+              value: String(count),
+              label: t('sections.manager.config.banner.cardCountOption', { count }),
+            }))}
+            className="text-sm"
+          />
+          <span className="text-xs text-gray-500">{t('sections.manager.config.banner.cardCountDescription')}</span>
+        </label>
 
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <label className="flex flex-col gap-1 text-sm text-gray-600">
-            {t('sections.manager.config.banner.bannerHeight')}
+            {t('sections.manager.config.banner.cardBorderRadius')}
             <Input
-              type="text"
-              value={currentHeight}
-              onChange={(e) => handleHeightChange(e.target.value)}
-              placeholder={t('sections.manager.config.banner.heightPlaceholder')}
+              value={cardBorderRadius}
+              placeholder={t('sections.manager.config.banner.cardBorderRadiusPlaceholder')}
+              onChange={(e) => handleBorderRadiusChange(e.target.value)}
               className="text-sm"
               inputSize="md"
             />
-            <span className="text-xs text-gray-500">{t('sections.manager.config.banner.heightDescription')}</span>
+            <span className="text-xs text-gray-500">{t('sections.manager.config.banner.cardBorderRadiusDescription')}</span>
+          </label>
+          <label className="flex flex-col gap-1 text-sm text-gray-600">
+            {t('sections.manager.config.banner.cardGap')}
+            <Input
+              value={cardGap}
+              placeholder={t('sections.manager.config.banner.cardGapPlaceholder')}
+              onChange={(e) => handleGapChange(e.target.value)}
+              className="text-sm"
+              inputSize="md"
+            />
+            <span className="text-xs text-gray-500">{t('sections.manager.config.banner.cardGapDescription')}</span>
           </label>
         </div>
 
-        <p className="text-xs text-gray-500">
-          {t('sections.manager.config.banner.contentDescription')}
-        </p>
+        <div className="space-y-4">
+          {normalizedCards.map((card, idx) => {
+            const cardId = typeof card.id === 'string' ? card.id : `banner-card-${idx}`;
+            const imageUrl = typeof card.imageUrl === 'string' ? card.imageUrl : '';
+            const linkConfig = (card.link ?? {}) as BannerCardLink;
+            const openInNewTab = (linkConfig.target ?? '_self') === '_blank';
+            const linkType: BannerLinkType = (linkConfig.type as BannerLinkType) || 'custom';
+            const linkHref = typeof linkConfig.href === 'string' ? linkConfig.href : '';
+            const linkReferenceId = typeof linkConfig.referenceId === 'string' ? linkConfig.referenceId : '';
+
+            return (
+              <div key={cardId} className="space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800">
+                      {t('sections.manager.config.banner.cardLabel', { index: idx + 1 })}
+                    </p>
+                    <p className="text-xs text-gray-500">{t('sections.manager.config.banner.cardDescription')}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    {t('sections.manager.config.banner.cardImage')}
+                  </span>
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <div className="flex h-36 w-full items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 sm:w-56">
+                      {imageUrl ? (
+                        <img src={imageUrl} alt={cardId} className="h-full w-full rounded-lg object-cover" />
+                      ) : (
+                        <div className="flex flex-col items-center gap-1 text-gray-400">
+                          <ImageIcon className="h-10 w-10" />
+                          <span className="text-xs">{t('sections.manager.config.banner.noImage')}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setBannerMediaState({ isOpen: true, cardIndex: idx })}
+                        >
+                          {imageUrl
+                            ? t('sections.manager.config.banner.changeImage')
+                            : t('sections.manager.config.banner.selectImage')}
+                        </Button>
+                        {imageUrl && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            startIcon={<FiTrash2 className="h-4 w-4" />}
+                            onClick={() => handleCardChange(idx, { imageUrl: '' })}
+                          >
+                            {t('sections.manager.config.banner.removeImage')}
+                          </Button>
+                        )}
+                      </div>
+                      <Input value={imageUrl} readOnly className="text-sm" inputSize="md" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('sections.manager.config.banner.linkLabel')}
+                    <Input
+                      value={linkConfig.label || ''}
+                      onChange={(e) => handleCardLinkChange(idx, { label: e.target.value })}
+                      className="text-sm"
+                      inputSize="md"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('sections.manager.config.banner.linkType')}
+                    <Select
+                      value={linkType}
+                      onChange={(valueOption) => handleLinkTypeChange(idx, (valueOption as BannerLinkType) || 'custom')}
+                      options={linkTypeOptions}
+                      className="text-sm"
+                    />
+                    <span className="text-xs text-gray-500">{t('sections.manager.config.banner.linkTypeDescription')}</span>
+                  </label>
+                </div>
+
+                {linkType === 'custom' ? (
+                  <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('sections.manager.config.banner.linkUrl')}
+                    <Input
+                      value={linkHref}
+                      onChange={(e) => handleCardLinkChange(idx, {
+                        type: 'custom',
+                        referenceId: '',
+                        href: e.target.value,
+                      })}
+                      placeholder={t('sections.manager.config.banner.linkUrlPlaceholder')}
+                      className="text-sm"
+                      inputSize="md"
+                    />
+                  </label>
+                ) : null}
+
+                {linkType === 'category' && (
+                  <div className="space-y-1 text-sm text-gray-600">
+                    <span>{t('sections.manager.config.banner.linkCategory')}</span>
+                    <CategorySelector
+                      value={linkReferenceId || undefined}
+                      onChange={(categoryId) => handleLinkReferenceChange(idx, 'category', categoryId)}
+                    />
+                    <p className="text-xs text-gray-500">{t('sections.manager.config.banner.linkResourceDescription')}</p>
+                  </div>
+                )}
+
+                {linkType === 'product' && (
+                  <div className="space-y-1 text-sm text-gray-600">
+                    <span>{t('sections.manager.config.banner.linkProduct')}</span>
+                    <ProductSelector
+                      value={linkReferenceId || undefined}
+                      onChange={(productId) => handleLinkReferenceChange(idx, 'product', productId)}
+                    />
+                    <p className="text-xs text-gray-500">{t('sections.manager.config.banner.linkResourceDescription')}</p>
+                  </div>
+                )}
+
+                {linkType !== 'custom' && (
+                  <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('sections.manager.config.banner.linkPreview')}
+                    <Input value={linkHref} readOnly className="text-sm" inputSize="md" />
+                  </label>
+                )}
+
+                <label className="flex items-center gap-2 text-sm text-gray-600">
+                  <input
+                    type="checkbox"
+                    checked={openInNewTab}
+                    onChange={(e) => handleCardLinkChange(idx, { target: e.target.checked ? '_blank' : '_self' })}
+                  />
+                  {t('sections.manager.config.banner.openInNewTab')}
+                </label>
+              </div>
+            );
+          })}
+        </div>
+
+        <MediaManager
+          isOpen={bannerMediaState.isOpen}
+          onClose={handleBannerMediaClose}
+          onSelect={handleBannerMediaSelect}
+          multiple={false}
+          accept="image/*"
+          title={t('sections.manager.config.banner.mediaManagerTitle')}
+        />
       </div>
     );
   };
@@ -572,12 +867,22 @@ const renderCustomHtml = () => (
 
           <label className="flex flex-col gap-1 text-sm text-gray-600">
             {t('sections.manager.config.cta.borderRadius')}
-            <Input
-              type="text"
+            <MeasurementPresetInput
               value={currentBorderRadius}
-              onChange={(e) => handleBorderRadiusChange(e.target.value)}
-              placeholder={t('sections.manager.config.cta.borderRadiusPlaceholder')}
-              className="text-sm"
+              onChange={(val) => handleBorderRadiusChange(val)}
+              presets={{
+                small: '8px',
+                medium: '16px',
+                large: '32px',
+              }}
+              labels={{
+                default: t('sections.manager.config.cta.borderRadiusDefault', 'Giữ mặc định'),
+                small: t('sections.manager.config.cta.borderRadiusSmall', 'Nhỏ'),
+                medium: t('sections.manager.config.cta.borderRadiusMedium', 'Vừa'),
+                large: t('sections.manager.config.cta.borderRadiusLarge', 'Lớn'),
+                custom: t('sections.manager.config.cta.borderRadiusCustom', 'Tùy chỉnh'),
+              }}
+              selectPlaceholder={t('sections.manager.config.cta.borderRadiusSelect', 'Chọn độ bo góc')}
             />
             <span className="text-xs text-gray-500">{t('sections.manager.config.cta.borderRadiusDescription')}</span>
           </label>
@@ -664,11 +969,100 @@ const renderCustomHtml = () => (
       });
     };
 
+    const handleGutterChange = (gutter: string) => {
+      onChange({
+        ...(value ?? {}),
+        gutter,
+      });
+    };
+
+    const handleAddImage = () => {
+      const images = (value?.images as unknown[]) ?? [];
+      const newImage = {
+        id: `gallery-${Date.now()}`,
+        imageUrl: '',
+        label: '',
+        description: '',
+        link: {
+          label: '',
+          href: '',
+        },
+      };
+      onChange({
+        ...(value ?? {}),
+        images: [...images, newImage],
+      });
+    };
+
+    const handleImageChange = (index: number, imageData: Record<string, unknown>) => {
+      const images = [...((value?.images as unknown[]) ?? [])];
+      images[index] = {
+        ...(images[index] as Record<string, unknown>),
+        ...imageData,
+      };
+      onChange({
+        ...(value ?? {}),
+        images,
+      });
+    };
+
+    const handleImageLinkChange = (index: number, linkData: Record<string, unknown>) => {
+      const images = [...((value?.images as unknown[]) ?? [])];
+      const currentImage = images[index] as Record<string, unknown>;
+      images[index] = {
+        ...currentImage,
+        link: {
+          ...((currentImage.link as Record<string, unknown>) ?? {}),
+          ...linkData,
+        },
+      };
+      onChange({
+        ...(value ?? {}),
+        images,
+      });
+    };
+
+    const handleRemoveImage = (index: number) => {
+      const images = [...((value?.images as unknown[]) ?? [])];
+      images.splice(index, 1);
+      onChange({
+        ...(value ?? {}),
+        images,
+      });
+    };
+
+    const handleOpenGalleryMedia = (index: number) => {
+      setGalleryMediaState({ isOpen: true, imageIndex: index });
+    };
+
+    const handleGalleryMediaClose = () => {
+      setGalleryMediaState({ isOpen: false, imageIndex: null });
+    };
+
+    const handleGalleryMediaSelect = (selected: { url: string } | { url: string }[]) => {
+      if (galleryMediaState.imageIndex === null) {
+        handleGalleryMediaClose();
+        return;
+      }
+
+      const selectedFile = Array.isArray(selected) ? selected[0] : selected;
+      if (!selectedFile) {
+        handleGalleryMediaClose();
+        return;
+      }
+
+      handleImageChange(galleryMediaState.imageIndex, { imageUrl: selectedFile.url });
+      handleGalleryMediaClose();
+    };
+
     const currentLayout = (value?.layout as string) || 'grid';
     const currentColumns = ensureNumber(value?.columns, 3);
+    const currentGutter = (value?.gutter as string) || '1.25rem';
+    const images = (value?.images as Record<string, unknown>[]) ?? [];
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
+        {/* Layout Configuration */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="flex flex-col gap-1 text-sm text-gray-600">
             {t('sections.manager.config.gallery.galleryLayout')}
@@ -701,9 +1095,169 @@ const renderCustomHtml = () => (
           )}
         </div>
 
-        <p className="text-xs text-gray-500">
-          {t('sections.manager.config.gallery.contentDescription')}
-        </p>
+        <label className="flex flex-col gap-1 text-sm text-gray-600">
+          {t('sections.manager.config.gallery.gutter', 'Gap between images')}
+          <Input
+            value={currentGutter}
+            onChange={(e) => handleGutterChange(e.target.value)}
+            placeholder="1.25rem"
+            className="text-sm"
+            inputSize="md"
+          />
+          <span className="text-xs text-gray-500">{t('sections.manager.config.gallery.gutterDescription', 'CSS value for spacing (e.g., 1rem, 20px)')}</span>
+        </label>
+
+        {/* Gallery Images */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium text-gray-700">
+              {t('sections.manager.config.gallery.images', 'Gallery Images')}
+            </label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              startIcon={<FiPlus className="h-4 w-4" />}
+              onClick={handleAddImage}
+            >
+              {t('sections.manager.config.gallery.addImage', 'Add Image')}
+            </Button>
+          </div>
+
+          {images.length === 0 ? (
+            <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
+              <p className="text-sm text-gray-500">{t('sections.manager.config.gallery.noImages', 'No images added yet. Click "Add Image" to start.')}</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {images.map((image, idx) => {
+                const imageUrl = (image.imageUrl as string) || '';
+                const label = (image.label as string) || '';
+                const description = (image.description as string) || '';
+                const link = (image.link as Record<string, unknown>) ?? {};
+                const linkLabel = (link.label as string) || '';
+                const linkHref = (link.href as string) || '';
+
+                return (
+                  <div key={idx} className="border border-gray-200 rounded-lg p-4 space-y-4 bg-gray-50">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-medium text-gray-900">
+                        {t('sections.manager.config.gallery.image', 'Image')} #{idx + 1}
+                      </h4>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        startIcon={<FiTrash2 className="h-4 w-4" />}
+                        onClick={() => handleRemoveImage(idx)}
+                      >
+                        {t('sections.manager.config.gallery.removeImage', 'Remove')}
+                      </Button>
+                    </div>
+
+                    {/* Image Selection */}
+                    <div className="space-y-2">
+                      <label className="text-xs text-gray-600">
+                        {t('sections.manager.config.gallery.imageUrl', 'Image URL')}
+                      </label>
+                      {imageUrl && (
+                        <div className="relative aspect-video w-full max-w-xs overflow-hidden rounded-lg border border-gray-200">
+                          <img
+                            src={imageUrl}
+                            alt={label || `Gallery image ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          startIcon={<ImageIcon className="h-4 w-4" />}
+                          onClick={() => handleOpenGalleryMedia(idx)}
+                        >
+                          {imageUrl
+                            ? t('sections.manager.config.gallery.changeImage', 'Change Image')
+                            : t('sections.manager.config.gallery.selectImage', 'Select Image')}
+                        </Button>
+                        {imageUrl && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            startIcon={<FiTrash2 className="h-4 w-4" />}
+                            onClick={() => handleImageChange(idx, { imageUrl: '' })}
+                          >
+                            {t('sections.manager.config.gallery.removeImage', 'Remove Image')}
+                          </Button>
+                        )}
+                      </div>
+                      <Input value={imageUrl} readOnly className="text-sm" inputSize="md" />
+                    </div>
+
+                    {/* Image Details */}
+                    <div className="grid grid-cols-1 gap-4">
+                      <label className="flex flex-col gap-1 text-sm text-gray-600">
+                        {t('sections.manager.config.gallery.imageLabel', 'Label')}
+                        <Input
+                          value={label}
+                          onChange={(e) => handleImageChange(idx, { label: e.target.value })}
+                          placeholder={t('sections.manager.config.gallery.imageLabelPlaceholder', 'Image title or caption')}
+                          className="text-sm"
+                          inputSize="md"
+                        />
+                      </label>
+                      <label className="flex flex-col gap-1 text-sm text-gray-600">
+                        {t('sections.manager.config.gallery.imageDescription', 'Description')}
+                        <TextArea
+                          value={description}
+                          onChange={(e) => handleImageChange(idx, { description: e.target.value })}
+                          placeholder={t('sections.manager.config.gallery.imageDescriptionPlaceholder', 'Additional description')}
+                          className="text-sm"
+                          rows={2}
+                        />
+                      </label>
+                    </div>
+
+                    {/* Link Configuration */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <label className="flex flex-col gap-1 text-sm text-gray-600">
+                        {t('sections.manager.config.gallery.linkLabel', 'Link Label')}
+                        <Input
+                          value={linkLabel}
+                          onChange={(e) => handleImageLinkChange(idx, { label: e.target.value })}
+                          placeholder={t('sections.manager.config.gallery.linkLabelPlaceholder', 'View more')}
+                          className="text-sm"
+                          inputSize="md"
+                        />
+                      </label>
+                      <label className="flex flex-col gap-1 text-sm text-gray-600">
+                        {t('sections.manager.config.gallery.linkUrl', 'Link URL')}
+                        <Input
+                          value={linkHref}
+                          onChange={(e) => handleImageLinkChange(idx, { href: e.target.value })}
+                          placeholder={t('sections.manager.config.gallery.linkUrlPlaceholder', 'https://example.com')}
+                          className="text-sm"
+                          inputSize="md"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <MediaManager
+          isOpen={galleryMediaState.isOpen}
+          onClose={handleGalleryMediaClose}
+          onSelect={handleGalleryMediaSelect}
+          multiple={false}
+          accept="image/*"
+          title={t('sections.manager.config.gallery.mediaManagerTitle', 'Select Gallery Image')}
+        />
       </div>
     );
   };
@@ -2993,12 +3547,12 @@ interface SectionFormProps {
   languages: ActiveLanguage[];
   initialState: SectionFormState;
   onSubmit: (payload: SectionFormState) => Promise<void>;
-  onClose: () => void;
+  onCancel: () => void;
   submitLabel: string;
   isSubmitting: boolean;
 }
 
-const SectionForm: React.FC<SectionFormProps> = ({ languages, initialState, onSubmit, onClose, submitLabel, isSubmitting }) => {
+export const SectionForm: React.FC<SectionFormProps> = ({ languages, initialState, onSubmit, onCancel, submitLabel, isSubmitting }) => {
   const { t } = useTranslation();
   const [formState, setFormState] = useState<SectionFormState>(initialState);
   const [activeLocale, setActiveLocale] = useState<string>(() => {
@@ -3120,6 +3674,26 @@ const SectionForm: React.FC<SectionFormProps> = ({ languages, initialState, onSu
     configOverride: '',
   };
 
+  const fieldVisibility = (formState.config?.fieldVisibility as Record<string, boolean>) || {
+    title: true,
+    subtitle: true,
+    description: true,
+    heroDescription: true,
+  };
+
+  const handleFieldVisibilityChange = (field: string, visible: boolean) => {
+    setFormState((prev) => ({
+      ...prev,
+      config: {
+        ...prev.config,
+        fieldVisibility: {
+          ...(prev.config?.fieldVisibility as Record<string, boolean> || {}),
+          [field]: visible,
+        },
+      },
+    }));
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3167,6 +3741,39 @@ const SectionForm: React.FC<SectionFormProps> = ({ languages, initialState, onSu
         onChange={(config) => setFormState((prev) => ({ ...prev, config }))}
       />
 
+      <div className="space-y-3 border rounded-lg p-4 bg-white">
+        <h4 className="text-sm font-semibold text-gray-700">{t('sections.manager.form.fieldVisibility', 'Field Visibility')}</h4>
+        <p className="text-xs text-gray-500">{t('sections.manager.form.fieldVisibilityDescription', 'Control which fields are visible in the translation section')}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <Toggle
+            checked={fieldVisibility.title ?? true}
+            onChange={(checked) => handleFieldVisibilityChange('title', checked)}
+            label={t('sections.manager.form.showTitle', 'Show Title')}
+            description={t('sections.manager.form.showTitleDescription', 'Display title field in translations')}
+          />
+          <Toggle
+            checked={fieldVisibility.subtitle ?? true}
+            onChange={(checked) => handleFieldVisibilityChange('subtitle', checked)}
+            label={t('sections.manager.form.showSubtitle', 'Show Subtitle')}
+            description={t('sections.manager.form.showSubtitleDescription', 'Display subtitle field in translations')}
+          />
+          <Toggle
+            checked={fieldVisibility.description ?? true}
+            onChange={(checked) => handleFieldVisibilityChange('description', checked)}
+            label={t('sections.manager.form.showDescription', 'Show Description')}
+            description={t('sections.manager.form.showDescriptionDescription', 'Display description field in translations')}
+          />
+          {formState.type === SectionType.HERO_SLIDER && (
+            <Toggle
+              checked={fieldVisibility.heroDescription ?? true}
+              onChange={(checked) => handleFieldVisibilityChange('heroDescription', checked)}
+              label={t('sections.manager.form.showHeroDescription', 'Show Hero Description')}
+              description={t('sections.manager.form.showHeroDescriptionDescription', 'Display hero description field in translations')}
+            />
+          )}
+        </div>
+      </div>
+
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h4 className="text-sm font-semibold text-gray-700">{t('sections.manager.form.translations')}</h4>
@@ -3190,33 +3797,39 @@ const SectionForm: React.FC<SectionFormProps> = ({ languages, initialState, onSu
         </div>
 
         <div className="space-y-3 border rounded-lg p-4 bg-gray-50">
-          <label className="flex flex-col gap-1 text-sm text-gray-600">
-            {t('sections.manager.form.title')}
-            <Input
-              value={activeTranslation.title || ''}
-              onChange={(e) => handleTranslationChange(activeLocale, 'title', e.target.value)}
-              className="text-sm"
-              inputSize="md"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-gray-600">
-            {t('sections.manager.form.subtitle')}
-            <Input
-              value={activeTranslation.subtitle || ''}
-              onChange={(e) => handleTranslationChange(activeLocale, 'subtitle', e.target.value)}
-              className="text-sm"
-              inputSize="md"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-gray-600">
-            {t('sections.manager.form.description')}
-            <TextArea
-              rows={4}
-              value={activeTranslation.description || ''}
-              onChange={(e) => handleTranslationChange(activeLocale, 'description', e.target.value)}
-            />
-          </label>
-          {formState.type === SectionType.HERO_SLIDER && (
+          {fieldVisibility.title !== false && (
+            <label className="flex flex-col gap-1 text-sm text-gray-600">
+              {t('sections.manager.form.title')}
+              <Input
+                value={activeTranslation.title || ''}
+                onChange={(e) => handleTranslationChange(activeLocale, 'title', e.target.value)}
+                className="text-sm"
+                inputSize="md"
+              />
+            </label>
+          )}
+          {fieldVisibility.subtitle !== false && (
+            <label className="flex flex-col gap-1 text-sm text-gray-600">
+              {t('sections.manager.form.subtitle')}
+              <Input
+                value={activeTranslation.subtitle || ''}
+                onChange={(e) => handleTranslationChange(activeLocale, 'subtitle', e.target.value)}
+                className="text-sm"
+                inputSize="md"
+              />
+            </label>
+          )}
+          {fieldVisibility.description !== false && (
+            <label className="flex flex-col gap-1 text-sm text-gray-600">
+              {t('sections.manager.form.description')}
+              <TextArea
+                rows={4}
+                value={activeTranslation.description || ''}
+                onChange={(e) => handleTranslationChange(activeLocale, 'description', e.target.value)}
+              />
+            </label>
+          )}
+          {formState.type === SectionType.HERO_SLIDER && fieldVisibility.heroDescription !== false && (
             <label className="flex flex-col gap-1 text-sm text-gray-600">
               {t('sections.manager.form.heroDescription')}
               <TextArea
@@ -3251,20 +3864,62 @@ const SectionForm: React.FC<SectionFormProps> = ({ languages, initialState, onSu
       </div>
 
       <div className="flex justify-end gap-3">
-        <Button variant="secondary" onClick={onClose} type="button">{t('sections.manager.form.cancel')}</Button>
+        <Button variant="secondary" onClick={onCancel} type="button">{t('sections.manager.form.cancel')}</Button>
         <Button type="submit" isLoading={isSubmitting}>{submitLabel}</Button>
       </div>
     </form>
   );
 };
 
+const safeParseJson = (value: string) => {
+  if (!value) return undefined;
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    return undefined;
+  }
+};
+
+export const buildSectionPayload = (state: SectionFormState) => ({
+  page: state.page,
+  type: state.type,
+  isEnabled: state.isEnabled,
+  position: state.position,
+  config: state.config,
+  translations: Object.entries(state.translations).map(([locale, translation]) => ({
+    locale,
+    title: translation.title || undefined,
+    subtitle: translation.subtitle || undefined,
+    description: translation.description || undefined,
+    heroDescription: translation.heroDescription || undefined,
+    configOverride: translation.configOverride ? safeParseJson(translation.configOverride) : undefined,
+  })),
+});
+
+export const sectionToFormState = (section: AdminSection): SectionFormState => ({
+  page: section.page,
+  type: section.type,
+  isEnabled: section.isEnabled,
+  position: section.position,
+  config: section.config || {},
+  translations: section.translations.reduce<Record<string, SectionTranslationForm>>((acc, translation) => {
+    acc[translation.locale] = {
+      title: translation.title || '',
+      subtitle: translation.subtitle || '',
+      description: translation.description || '',
+      heroDescription: translation.heroDescription || '',
+      configOverride: translation.configOverride ? JSON.stringify(translation.configOverride, null, 2) : '',
+    };
+    return acc;
+  }, {}),
+});
+
 export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageChange }) => {
   const { t } = useTranslation();
-  const { sections, languages, sectionsQuery, languagesQuery, createSection, updateSection, deleteSection, reorderSections } = useSectionsManager(page);
+  const navigate = useNavigate();
+  const { sections, languages, sectionsQuery, languagesQuery, updateSection, deleteSection, reorderSections } = useSectionsManager(page);
   const { addToast } = useToast();
   const [localSections, setLocalSections] = useState<AdminSection[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingSection, setEditingSection] = useState<AdminSection | null>(null);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
 
@@ -3275,15 +3930,9 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
 
   const defaultLanguage = useMemo(() => languages.find((language) => language.isDefault)?.code || languages[0]?.code || 'en', [languages]);
 
-  const handleOpenCreate = () => {
-    setEditingSection(null);
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (section: AdminSection) => {
-    setEditingSection(section);
-    setIsModalOpen(true);
-  };
+  const handleEditNavigate = useCallback((section: AdminSection) => {
+    navigate(`/sections/${section.page}/${section.id}/edit`);
+  }, [navigate]);
 
   const handleDelete = async (section: AdminSection) => {
     if (!window.confirm(t('sections.manager.deleteConfirm'))) {
@@ -3374,79 +4023,6 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
     resetDragState();
   }, [resetDragState]);
 
-  const handleFormSubmit = async (state: SectionFormState) => {
-    const translationsPayload = Object.entries(state.translations).map(([locale, translation]) => ({
-      locale,
-      title: translation.title || undefined,
-      subtitle: translation.subtitle || undefined,
-      description: translation.description || undefined,
-      heroDescription: translation.heroDescription || undefined,
-      configOverride: translation.configOverride ? safeParseJson(translation.configOverride) : undefined,
-    }));
-
-    if (editingSection) {
-      try {
-        await updateSection.mutateAsync({
-          id: editingSection.id,
-          data: {
-            page: state.page,
-            type: state.type,
-            isEnabled: state.isEnabled,
-            position: state.position,
-            config: state.config,
-            translations: translationsPayload,
-          },
-        });
-        addToast({ type: 'success', title: t('sections.manager.sectionSaved'), description: t('sections.manager.changesApplied') });
-        setIsModalOpen(false);
-      } catch (error: any) {
-        addToast({ type: 'error', title: t('sections.manager.updateFailed'), description: error.message || t('sections.manager.unableToUpdate') });
-      }
-      return;
-    }
-
-    try {
-      await createSection.mutateAsync({
-        page: state.page,
-        type: state.type,
-        isEnabled: state.isEnabled,
-        position: state.position,
-        config: state.config,
-        translations: translationsPayload,
-      });
-      addToast({ type: 'success', title: t('sections.manager.sectionCreated'), description: t('sections.manager.sectionAvailable') });
-      setIsModalOpen(false);
-    } catch (error: any) {
-      addToast({ type: 'error', title: t('sections.manager.createFailed'), description: error.message || t('sections.manager.unableToCreate') });
-    }
-  };
-
-  const initialFormState: SectionFormState = editingSection
-    ? {
-        page: editingSection.page,
-        type: editingSection.type,
-        isEnabled: editingSection.isEnabled,
-        position: editingSection.position,
-        config: editingSection.config || {},
-        translations: editingSection.translations.reduce<Record<string, SectionTranslationForm>>((acc, translation) => {
-          acc[translation.locale] = {
-            title: translation.title || '',
-            subtitle: translation.subtitle || '',
-            description: translation.description || '',
-            heroDescription: translation.heroDescription || '',
-            configOverride: translation.configOverride ? JSON.stringify(translation.configOverride, null, 2) : '',
-          };
-          return acc;
-        }, {}),
-      }
-    : {
-        page,
-        type: SectionType.HERO_SLIDER,
-        isEnabled: true,
-        config: {},
-        translations: {},
-      };
-
   const isLoading = sectionsQuery.isLoading || languagesQuery.isLoading;
 
   const sectionColumns = useMemo<ReorderableColumn<AdminSection>[]>(() => [
@@ -3516,7 +4092,7 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
             {
               label: t('sections.manager.edit'),
               icon: <FiEdit className="w-4 h-4" />,
-              onClick: () => handleEdit(section),
+              onClick: () => handleEditNavigate(section),
             },
             {
               label: t('sections.manager.delete'),
@@ -3530,7 +4106,7 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
       align: 'right',
       hideable: false,
     },
-  ], [t, defaultLanguage, reorderSections.isPending, draggedId, handleToggleEnabled, handleEdit, handleDelete]);
+  ], [t, defaultLanguage, reorderSections.isPending, draggedId, handleToggleEnabled, handleEditNavigate, handleDelete]);
 
   return (
     <div className="space-y-6">
@@ -3554,7 +4130,7 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
         <Button
           variant="primary"
           size="md"
-          onClick={handleOpenCreate}
+          onClick={() => navigate(`/sections/${page}/create`)}
           startIcon={<FiPlus className="w-4 h-4" />}
         >
           {t('sections.manager.newSection')}
@@ -3586,37 +4162,8 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
         }}
       />
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} size="xl">
-        <div className="space-y-6">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              {editingSection ? t('sections.manager.modal.editTitle') : t('sections.manager.modal.createTitle')}
-            </h3>
-            <p className="text-sm text-gray-500">
-              {t('sections.manager.modal.description')}
-            </p>
-          </div>
-          <SectionForm
-            languages={languages}
-            initialState={initialFormState}
-            onSubmit={handleFormSubmit}
-            onClose={() => setIsModalOpen(false)}
-            submitLabel={editingSection ? t('sections.manager.form.saveChanges') : t('sections.manager.form.create')}
-            isSubmitting={createSection.isPending || updateSection.isPending}
-          />
-        </div>
-      </Modal>
     </div>
   );
-};
-
-const safeParseJson = (value: string) => {
-  if (!value) return undefined;
-  try {
-    return JSON.parse(value);
-  } catch (error) {
-    return undefined;
-  }
 };
 
 export default SectionsManager;

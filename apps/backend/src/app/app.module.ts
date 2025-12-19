@@ -49,6 +49,7 @@ import { EmailChannel } from '../modules/email-channel/entities/email-channel.en
 import { MailProvider } from '../modules/mail-provider/entities/mail-provider.entity';
 import { EmailFlow } from '../modules/email-flow/entities/email-flow.entity';
 import { MailLog } from '../modules/mail-log/entities/mail-log.entity';
+import { MailQueue } from '../modules/mail-queue/entities/mail-queue.entity';
 import { Language } from '../modules/language/entities/language.entity';
 import { Media } from '../modules/storage/entities/media.entity';
 import { FirebaseConfigEntity } from '../modules/firebase/entities/firebase-config.entity';
@@ -82,6 +83,7 @@ import { ComponentConfigsModule } from '../modules/component-configs/component-c
 import { ComponentConfigEntity } from '../modules/component-configs/entities/component-config.entity';
 import { DataExportModule } from '../modules/export/data-export.module';
 import { DataExportJob } from '../modules/export/entities/data-export-job.entity';
+import { MailQueueModule } from '../modules/mail-queue/mail-queue.module';
 
 @Module({
   imports: [
@@ -116,6 +118,7 @@ import { DataExportJob } from '../modules/export/entities/data-export-job.entity
           EmailChannel,
           MailProvider,
           EmailFlow,
+          MailQueue,
           MailLog,
           Language,
           Media,
@@ -177,6 +180,7 @@ import { DataExportJob } from '../modules/export/entities/data-export-job.entity
     VisitorModule,
     ComponentConfigsModule,
     DataExportModule,
+    MailQueueModule,
     AppRouterModule,
   ],
   controllers: [AppController],

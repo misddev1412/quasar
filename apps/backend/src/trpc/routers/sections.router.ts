@@ -21,7 +21,7 @@ const listInputSchema = z.object({
 });
 
 const adminListInputSchema = z.object({
-  page: z.string().min(1),
+  page: z.string().min(1).optional().nullable(),
 });
 
 const updateInputSchema = z.object({
@@ -69,7 +69,7 @@ export class SectionsRouter {
   })
   async listAll(@Input() input: z.infer<typeof adminListInputSchema>) {
     try {
-      const sections = await this.sectionsService.adminList(input.page);
+      const sections = await this.sectionsService.adminList(input?.page ?? undefined);
       return this.responseService.createReadResponse(ModuleCode.CONFIG, 'sections', sections);
     } catch (error) {
       throw this.responseService.createTRPCError(

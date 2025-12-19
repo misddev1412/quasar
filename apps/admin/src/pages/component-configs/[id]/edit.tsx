@@ -62,7 +62,7 @@ const ComponentConfigEditPage: React.FC = () => {
 
   const parentOptions = useMemo(
     () => [
-      { value: '', label: 'Top-level component' },
+      { value: '', label: t('componentConfigs.topLevelComponent', 'Top-level component') },
       ...flattenedComponents.map(({ node, depth }) => ({
         value: node.id,
         label: `${'— '.repeat(depth)}${node.displayName}`,

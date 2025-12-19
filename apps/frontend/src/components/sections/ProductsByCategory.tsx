@@ -10,6 +10,7 @@ import type { Category, Product } from '../../types/product';
 import { ProductService } from '../../services/product.service';
 import { CategoryService } from '../../services/category.service';
 import { ProductsByCategorySidebar } from './ProductsByCategorySidebar';
+import SectionContainer from './SectionContainer';
 
 export type ProductsByCategoryStrategy = 'latest' | 'featured' | 'bestsellers' | 'custom';
 
@@ -674,8 +675,11 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
     };
   }, [rows, normalizedRowsKey, i18n.language]);
 
-  const sectionHeading = translation?.title || t('sections.products_by_category.title');
-  const sectionDescription = translation?.description || t('sections.products_by_category.description');
+  // null means field is hidden by admin, undefined/empty means visible but no value
+  const sectionHeading = translation?.title === null ? '' : (translation?.title || t('sections.products_by_category.title'));
+  const sectionDescription = translation?.description === null ? '' : (translation?.description || t('sections.products_by_category.description'));
+  const sectionCuratedLabel = translation?.subtitle === null ? '' : normalizeString(translation?.subtitle);
+  const hasHeaderContent = sectionHeading || sectionDescription || sectionCuratedLabel;
   const isSidebarEnabled = sectionSidebarEnabled && sidebarConfig.enabled;
   const sidebarTitleText = sidebarConfig.title || t('sections.products_by_category.sidebar_default_title');
   const sidebarDescriptionText = sidebarConfig.description || t('sections.products_by_category.sidebar_default_description');
@@ -689,16 +693,22 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
 
   return (
     <section className="py-16 bg-white dark:bg-gray-950">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-blue-500 dark:text-blue-300">
-              {t('sections.products_by_category.curated_category')}
-            </p>
-            <h2 className="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{sectionHeading}</h2>
-            {sectionDescription && <p className="mt-2 text-gray-500 dark:text-gray-400">{sectionDescription}</p>}
+      <SectionContainer paddingClassName="px-6 lg:px-8">
+        {hasHeaderContent && (
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
+            <div>
+              {sectionCuratedLabel && (
+                <p className="text-xs uppercase tracking-widest text-blue-500 dark:text-blue-300">
+                  {sectionCuratedLabel}
+                </p>
+              )}
+              {sectionHeading && (
+                <h2 className="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">{sectionHeading}</h2>
+              )}
+              {sectionDescription && <p className="mt-2 text-gray-500 dark:text-gray-400">{sectionDescription}</p>}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className={`flex flex-col gap-12 ${isSidebarEnabled ? 'lg:flex-row' : ''}`}>
           {isSidebarEnabled && (
@@ -926,10 +936,10 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
                 {bodyContent}
               </div>
             );
-          })}
+            })}
           </div>
         </div>
-      </div>
+      </SectionContainer>
     </section>
   );
 };

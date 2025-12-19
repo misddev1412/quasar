@@ -2,12 +2,14 @@ import { Injectable, BadRequestException, NotFoundException, ConflictException }
 import { EmailFlow } from '../entities/email-flow.entity';
 import { EmailFlowRepository } from '../repositories/email-flow.repository';
 import { MailProviderRepository } from '../../mail-provider/repositories/mail-provider.repository';
+import { MailTemplateRepository } from '../../mail-template/repositories/mail-template.repository';
 
 @Injectable()
 export class EmailFlowService {
   constructor(
     private readonly emailFlowRepository: EmailFlowRepository,
     private readonly mailProviderRepository: MailProviderRepository,
+    private readonly mailTemplateRepository: MailTemplateRepository,
   ) {}
 
   async getFlows(params: {
@@ -16,6 +18,7 @@ export class EmailFlowService {
     search?: string;
     isActive?: boolean;
     mailProviderId?: string;
+    mailTemplateId?: string;
   }) {
     try {
       const result = await this.emailFlowRepository.findPaginated(params);
@@ -23,10 +26,10 @@ export class EmailFlowService {
       return {
         success: true,
         data: result,
-        message: 'Email flows retrieved successfully',
+        message: 'Mail channel priorities retrieved successfully',
       };
     } catch (error) {
-      throw new BadRequestException(`Failed to retrieve email flows: ${error.message}`);
+      throw new BadRequestException(`Failed to retrieve mail channel priorities: ${error.message}`);
     }
   }
 
@@ -35,19 +38,19 @@ export class EmailFlowService {
       const flow = await this.emailFlowRepository.findByIdWithProvider(id);
       
       if (!flow) {
-        throw new NotFoundException('Email flow not found');
+        throw new NotFoundException('Mail channel priority not found');
       }
 
       return {
         success: true,
         data: flow,
-        message: 'Email flow retrieved successfully',
+        message: 'Mail channel priority retrieved successfully',
       };
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
       }
-      throw new BadRequestException(`Failed to retrieve email flow: ${error.message}`);
+      throw new BadRequestException(`Failed to retrieve mail channel priority: ${error.message}`);
     }
   }
 
@@ -58,10 +61,10 @@ export class EmailFlowService {
       return {
         success: true,
         data: flows,
-        message: 'Active email flows retrieved successfully',
+        message: 'Active mail channel priorities retrieved successfully',
       };
     } catch (error) {
-      throw new BadRequestException(`Failed to retrieve active email flows: ${error.message}`);
+      throw new BadRequestException(`Failed to retrieve active mail channel priorities: ${error.message}`);
     }
   }
 
@@ -73,7 +76,7 @@ export class EmailFlowService {
         throw new NotFoundException('Mail provider not found');
       }
       if (!provider.isActive) {
-        throw new BadRequestException('Cannot get flows for inactive mail provider');
+        throw new BadRequestException('Cannot get priorities for inactive mail provider');
       }
 
       const flows = await this.emailFlowRepository.findActiveFlowsByProvider(mailProviderId);
@@ -81,13 +84,13 @@ export class EmailFlowService {
       return {
         success: true,
         data: flows,
-        message: 'Email flows retrieved successfully',
+        message: 'Mail channel priorities retrieved successfully',
       };
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof BadRequestException) {
         throw error;
       }
-      throw new BadRequestException(`Failed to retrieve email flows by provider: ${error.message}`);
+      throw new BadRequestException(`Failed to retrieve mail channel priorities by provider: ${error.message}`);
     }
   }
 
@@ -105,7 +108,7 @@ export class EmailFlowService {
         throw new NotFoundException('Mail provider not found');
       }
       if (!provider.isActive) {
-        throw new BadRequestException('Cannot create flow for inactive mail provider');
+        throw new BadRequestException('Cannot create priority for inactive mail provider');
       }
 
       const flow = await this.emailFlowRepository.createEmailFlow(createDto);
@@ -113,13 +116,13 @@ export class EmailFlowService {
       return {
         success: true,
         data: flow,
-        message: 'Email flow created successfully',
+        message: 'Mail channel priority created successfully',
       };
     } catch (error) {
       if (error instanceof ConflictException || error instanceof BadRequestException || error instanceof NotFoundException) {
         throw error;
       }
-      throw new BadRequestException(`Failed to create email flow: ${error.message}`);
+      throw new BadRequestException(`Failed to create mail channel priority: ${error.message}`);
     }
   }
 
@@ -128,7 +131,7 @@ export class EmailFlowService {
       // Check if flow exists
       const existingFlow = await this.emailFlowRepository.findById(id);
       if (!existingFlow) {
-        throw new NotFoundException('Email flow not found');
+        throw new NotFoundException('Mail channel priority not found');
       }
 
       // Validate unique constraints if name is being updated
@@ -146,7 +149,14 @@ export class EmailFlowService {
           throw new NotFoundException('Mail provider not found');
         }
         if (!provider.isActive) {
-          throw new BadRequestException('Cannot update flow to use inactive mail provider');
+          throw new BadRequestException('Cannot update priority to use inactive mail provider');
+        }
+      }
+
+      if (updateDto.mailTemplateId) {
+        const template = await this.mailTemplateRepository.findById(updateDto.mailTemplateId);
+        if (!template) {
+          throw new NotFoundException('Mail template not found');
         }
       }
 
@@ -155,13 +165,13 @@ export class EmailFlowService {
       return {
         success: true,
         data: flow,
-        message: 'Email flow updated successfully',
+        message: 'Mail channel priority updated successfully',
       };
     } catch (error) {
       if (error instanceof NotFoundException || error instanceof ConflictException || error instanceof BadRequestException) {
         throw error;
       }
-      throw new BadRequestException(`Failed to update email flow: ${error.message}`);
+      throw new BadRequestException(`Failed to update mail channel priority: ${error.message}`);
     }
   }
 
@@ -169,7 +179,7 @@ export class EmailFlowService {
     try {
       const flow = await this.emailFlowRepository.findById(id);
       if (!flow) {
-        throw new NotFoundException('Email flow not found');
+        throw new NotFoundException('Mail channel priority not found');
       }
 
       await this.emailFlowRepository.deleteEmailFlow(id);
@@ -177,22 +187,13 @@ export class EmailFlowService {
       return {
         success: true,
         data: { id },
-        message: 'Email flow deleted successfully',
+        message: 'Mail channel priority deleted successfully',
       };
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
       }
-      throw new BadRequestException(`Failed to delete email flow: ${error.message}`);
+      throw new BadRequestException(`Failed to delete mail channel priority: ${error.message}`);
     }
   }
 }
-
-
-
-
-
-
-
-
-

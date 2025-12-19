@@ -5,16 +5,16 @@ import { Expose } from 'class-transformer';
 import { MailProvider } from '../../mail-provider/entities/mail-provider.entity';
 import { MailTemplate } from '../../mail-template/entities/mail-template.entity';
 
-@Entity('email_flows')
-@Index('IDX_EMAIL_FLOW_NAME', ['name'], { unique: true })
-@Index('IDX_EMAIL_FLOW_ACTIVE', ['isActive'])
-@Index('IDX_EMAIL_FLOW_PROVIDER', ['mailProviderId'])
+@Entity('mail_channel_priorities')
+@Index('IDX_MAIL_CHANNEL_PRIORITY_NAME', ['name'], { unique: true })
+@Index('IDX_MAIL_CHANNEL_PRIORITY_ACTIVE', ['isActive'])
+@Index('IDX_MAIL_CHANNEL_PRIORITY_PROVIDER', ['mailProviderId'])
 export class EmailFlow extends BaseEntity {
   @Expose()
   @Column({ 
     unique: true, 
     length: 255,
-    comment: 'Unique name for the email flow'
+    comment: 'Unique name for the mail channel priority'
   })
   @IsString()
   @MinLength(2)
@@ -25,7 +25,7 @@ export class EmailFlow extends BaseEntity {
   @Column({ 
     length: 1000,
     nullable: true,
-    comment: 'Description of the email flow'
+    comment: 'Description of the mail channel priority'
   })
   @IsOptional()
   @IsString()
@@ -36,7 +36,7 @@ export class EmailFlow extends BaseEntity {
   @Column({ 
     name: 'mail_provider_id',
     nullable: false,
-    comment: 'Mail provider to use for this flow'
+    comment: 'Mail provider associated with this priority'
   })
   @IsString()
   mailProviderId: string;
@@ -47,10 +47,25 @@ export class EmailFlow extends BaseEntity {
   mailProvider: MailProvider;
 
   @Expose()
+  @Column({
+    name: 'mail_template_id',
+    nullable: true,
+    comment: 'Optional mail template scope for this priority',
+  })
+  @IsOptional()
+  @IsString()
+  mailTemplateId?: string | null;
+
+  @Expose({ name: 'mailTemplate' })
+  @ManyToOne(() => MailTemplate, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'mail_template_id' })
+  mailTemplate?: MailTemplate | null;
+
+  @Expose()
   @Column({ 
     name: 'is_active',
     default: true,
-    comment: 'Whether the email flow is active'
+    comment: 'Whether the priority configuration is active'
   })
   @IsBoolean()
   isActive: boolean;
@@ -60,7 +75,7 @@ export class EmailFlow extends BaseEntity {
     name: 'priority',
     type: 'int',
     default: 5,
-    comment: 'Flow priority (1=highest, 10=lowest)'
+    comment: 'Priority order (1=highest, 10=lowest)'
   })
   @IsOptional()
   priority?: number;
@@ -69,7 +84,7 @@ export class EmailFlow extends BaseEntity {
   @Column({ 
     type: 'json',
     nullable: true,
-    comment: 'Additional flow configuration'
+    comment: 'Additional priority configuration'
   })
   @IsOptional()
   config?: Record<string, any>;
@@ -78,10 +93,6 @@ export class EmailFlow extends BaseEntity {
   @OneToMany(() => MailTemplate, (template) => template.emailFlow)
   mailTemplates: MailTemplate[];
 }
-
-
-
-
 
 
 

@@ -187,7 +187,7 @@ export const ProductVariantsSection: React.FC<ProductVariantsSectionProps> = ({
                         {t('products.image', 'Image')}
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        {t('products.status', 'Status')}
+                        {t('common.status', 'Status')}
                       </th>
                     </tr>
                   </thead>

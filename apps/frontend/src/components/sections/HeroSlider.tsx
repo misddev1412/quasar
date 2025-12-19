@@ -2,6 +2,7 @@
 
 import React, { CSSProperties, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import SectionContainer from './SectionContainer';
 
 export interface HeroSlideConfig {
   id?: string;
@@ -199,22 +200,23 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   }, [autoplay, interval, slides.length]);
 
   const activeSlide = slides[activeIndex] ?? slides[0];
-  const heading = activeSlide?.title?.trim() || translation?.title || defaultSlides[0].title;
-  const subheading = activeSlide?.subtitle?.trim() || translation?.subtitle || t('sections.hero.curated_sections');
-  const heroDescription = translation?.heroDescription?.trim();
+  // null means field is hidden by admin, undefined/empty means visible but no value
+  const heading = activeSlide?.title?.trim() || (translation?.title === null ? '' : (translation?.title || defaultSlides[0].title));
+  const subheading = activeSlide?.subtitle?.trim() || (translation?.subtitle === null ? '' : (translation?.subtitle || t('sections.hero.curated_sections')));
+  const heroDescription = translation?.heroDescription === null ? undefined : translation?.heroDescription?.trim();
   const slideDescription = activeSlide?.description?.trim();
-  const sectionDescription = translation?.description?.trim();
+  const sectionDescription = translation?.description === null ? undefined : translation?.description?.trim();
   const description = heroDescription
     || sectionDescription
     || slideDescription
-    || t('sections.hero.latest_stories');
+    || (translation?.description === null && translation?.heroDescription === null ? '' : t('sections.hero.latest_stories'));
   const secondaryDescription = heroDescription && slideDescription && heroDescription !== slideDescription
     ? slideDescription
     : undefined;
-  const layoutPaddingClass = layout === 'full-width'
-    ? 'w-full px-4 sm:px-8 lg:px-12 xl:px-16'
-    : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8';
-  const contentWrapperClass = `${layoutPaddingClass} py-12 sm:py-16 lg:py-20 xl:py-24 min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[550px] xl:min-h-[600px] 2xl:min-h-[650px] flex flex-col justify-center`;
+  const contentPaddingClass = layout === 'full-width'
+    ? 'px-4 sm:px-8 lg:px-12 xl:px-16'
+    : undefined;
+  const contentWrapperClass = 'py-12 sm:py-16 lg:py-20 xl:py-24 min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[550px] xl:min-h-[600px] 2xl:min-h-[650px] flex flex-col justify-center';
 
   return (
     <section className="relative overflow-hidden text-white" style={containerStyle}>
@@ -229,17 +231,27 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
       />
       {overlayEnabled && <div className="absolute inset-0" style={overlayStyle} />}
 
-      <div className={`relative ${contentWrapperClass}`}>
+      <SectionContainer
+        fullWidth={layout === 'full-width'}
+        paddingClassName={contentPaddingClass}
+        className={`relative ${contentWrapperClass}`}
+      >
         <div className="max-w-2xl space-y-4">
-          <p className="text-sm uppercase tracking-widest text-blue-100 mb-3">
-            {subheading}
-          </p>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
-            {heading}
-          </h1>
-          <p className="mt-4 sm:mt-6 text-base sm:text-lg text-blue-100 leading-relaxed">
-            {description}
-          </p>
+          {subheading && (
+            <p className="text-sm uppercase tracking-widest text-blue-100 mb-3">
+              {subheading}
+            </p>
+          )}
+          {heading && (
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
+              {heading}
+            </h1>
+          )}
+          {description && (
+            <p className="mt-4 sm:mt-6 text-base sm:text-lg text-blue-100 leading-relaxed">
+              {description}
+            </p>
+          )}
           {secondaryDescription && (
             <p className="mt-3 text-sm sm:text-base text-blue-100/90 leading-relaxed">
               {secondaryDescription}
@@ -274,7 +286,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
             />
           ))}
         </div>
-      </div>
+      </SectionContainer>
     </section>
   );
 };

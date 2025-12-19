@@ -356,6 +356,53 @@ export class ProductRepository {
     return result.affected > 0;
   }
 
+  async bulkUpdateStatus(ids: string[], status: ProductStatus): Promise<number> {
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return 0;
+    }
+
+    const sanitizedIds = ids
+      .map(id => (typeof id === 'string' ? id.trim() : ''))
+      .filter(id => id && ProductRepository.UUID_REGEX.test(id));
+
+    if (sanitizedIds.length === 0) {
+      return 0;
+    }
+
+    const result = await this.productRepository.createQueryBuilder()
+      .update(Product)
+      .set({
+        status,
+        isActive: status === ProductStatus.ACTIVE,
+      })
+      .where('id IN (:...ids)', { ids: sanitizedIds })
+      .execute();
+
+    return result.affected ?? 0;
+  }
+
+  async bulkDelete(ids: string[]): Promise<number> {
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return 0;
+    }
+
+    const sanitizedIds = ids
+      .map(id => (typeof id === 'string' ? id.trim() : ''))
+      .filter(id => id && ProductRepository.UUID_REGEX.test(id));
+
+    if (sanitizedIds.length === 0) {
+      return 0;
+    }
+
+    const result = await this.productRepository.createQueryBuilder()
+      .delete()
+      .from(Product)
+      .where('id IN (:...ids)', { ids: sanitizedIds })
+      .execute();
+
+    return result.affected ?? 0;
+  }
+
   async getStats() {
     // For stats, we need to eagerly load relations
     const queryBuilder = this.productRepository.createQueryBuilder('product')

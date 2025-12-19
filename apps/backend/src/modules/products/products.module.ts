@@ -16,6 +16,7 @@ import { ProductVariant } from './entities/product-variant.entity';
 import { ProductVariantItem } from './entities/product-variant-item.entity';
 import { ProductMedia } from './entities/product-media.entity';
 import { ProductSpecification } from './entities/product-specification.entity';
+import { ProductWarehouseQuantity } from './entities/product-warehouse-quantity.entity';
 import { PurchaseOrder } from './entities/purchase-order.entity';
 import { PurchaseOrderItem } from './entities/purchase-order-item.entity';
 import { StockMovement } from './entities/stock-movement.entity';
@@ -48,6 +49,7 @@ import { ProductMediaRepository } from './repositories/product-media.repository'
 import { ProductVariantRepository } from './repositories/product-variant.repository';
 import { ProductVariantItemRepository } from './repositories/product-variant-item.repository';
 import { ProductSpecificationRepository } from './repositories/product-specification.repository';
+import { ProductWarehouseQuantityRepository } from './repositories/product-warehouse-quantity.repository';
 import { PurchaseOrderRepository } from './repositories/purchase-order.repository';
 import { StockMovementRepository } from './repositories/stock-movement.repository';
 import { CategoryRepository } from './repositories/category.repository';
@@ -122,6 +124,7 @@ import { PayosWebhookController } from './controllers/payos-webhook.controller';
       ProductVariantItem,
       ProductMedia,
       ProductSpecification,
+      ProductWarehouseQuantity,
       PurchaseOrder,
       PurchaseOrderItem,
       StockMovement,
@@ -164,6 +167,7 @@ import { PayosWebhookController } from './controllers/payos-webhook.controller';
     ProductVariantRepository,
     ProductVariantItemRepository,
     ProductSpecificationRepository,
+    ProductWarehouseQuantityRepository,
     PurchaseOrderRepository,
     StockMovementRepository,
     CategoryRepository,
@@ -224,6 +228,7 @@ import { PayosWebhookController } from './controllers/payos-webhook.controller';
     ProductVariantRepository,
     ProductVariantItemRepository,
     ProductSpecificationRepository,
+    ProductWarehouseQuantityRepository,
     PurchaseOrderRepository,
     StockMovementRepository,
     CategoryRepository,

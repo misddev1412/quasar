@@ -6,8 +6,19 @@ const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const webpack = require('webpack');
 const dotenv = require('dotenv');
 
+process.env.WATCHPACK_POLLING = process.env.WATCHPACK_POLLING || 'true';
+process.env.CHOKIDAR_USEPOLLING = process.env.CHOKIDAR_USEPOLLING || 'true';
+process.env.CHOKIDAR_INTERVAL = process.env.CHOKIDAR_INTERVAL || '1000';
+
 // Load project-specific environment variables for the admin app
 dotenv.config({ path: join(__dirname, '.env') });
+
+const largeStaticDirs = [
+  join(__dirname, 'public/tinymce'),
+  join(__dirname, 'public/assets/tinymce'),
+];
+const watchIgnored = largeStaticDirs.map((dir) => `${dir}/**`);
+const pollInterval = Number(process.env.WEBPACK_POLL_INTERVAL || '1000');
 
 module.exports = {
   output: {
@@ -108,11 +119,17 @@ module.exports = {
     }),
   ],
 
+  watchOptions: {
+    ignored: watchIgnored,
+    poll: pollInterval,
+  },
+
   devServer: {
     static: [
       {
         directory: join(__dirname, 'public'),
         publicPath: '/',
+        watch: false,
         staticOptions: {
           setHeaders: (res, path) => {
             if (path.endsWith('.js')) {
@@ -122,6 +139,14 @@ module.exports = {
         },
       },
     ],
+    watchFiles: {
+      paths: [join(__dirname, 'src/**/*')],
+      options: {
+        ignored: watchIgnored,
+        usePolling: true,
+        interval: pollInterval,
+      },
+    },
     historyApiFallback: true,
     headers: {
       'Access-Control-Allow-Origin': '*',

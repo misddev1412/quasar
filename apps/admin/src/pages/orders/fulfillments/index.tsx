@@ -247,24 +247,33 @@ const OrderFulfillmentsPage: React.FC = () => {
     {
       id: 'progress',
       header: t('fulfillments.progress'),
-      accessor: (fulfillment) => (
-        <div className="text-sm">
-          <div className="flex items-center justify-between mb-1">
-            <span>{fulfillment.fulfilledItems}/{fulfillment.totalItems}</span>
-            <span className="text-gray-500">
-              {Math.round((fulfillment.fulfilledItems / fulfillment.totalItems) * 100)}%
-            </span>
+      accessor: (fulfillment) => {
+        const progressPercent = fulfillment.totalItems > 0 ? (fulfillment.fulfilledItems / fulfillment.totalItems) * 100 : 0;
+        return (
+          <div className="text-sm">
+            <div className="flex items-center justify-between mb-1">
+              {fulfillment.totalItems > 0 ? (
+                <>
+                  <span>{fulfillment.fulfilledItems}/{fulfillment.totalItems}</span>
+                  <span className="text-gray-500">
+                    {Math.round(progressPercent)}%
+                  </span>
+                </>
+              ) : (
+                <span className="text-gray-500">0%</span>
+              )}
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-blue-600 h-2 rounded-full"
+                style={{
+                  width: `${progressPercent}%`,
+                }}
+              />
+            </div>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-blue-600 h-2 rounded-full"
-              style={{
-                width: `${(fulfillment.fulfilledItems / fulfillment.totalItems) * 100}%`,
-              }}
-            />
-          </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       id: 'delivery',

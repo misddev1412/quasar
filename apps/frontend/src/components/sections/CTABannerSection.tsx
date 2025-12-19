@@ -3,8 +3,8 @@
 import React, { CSSProperties } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-import Container from '../common/Container';
 import type { SectionTranslationContent } from './HeroSlider';
+import SectionContainer from './SectionContainer';
 
 export interface CTAActionConfig {
   label?: string;
@@ -112,9 +112,10 @@ export const CTABannerSection: React.FC<CTABannerSectionProps> = ({ config, tran
   const containerRadiusClass = borderRadiusValue ? '' : 'rounded-3xl';
 
   const overlayOpacity = clampOpacity(config.overlayOpacity);
-  const headingText = translation?.title?.trim() || t('sections.cta_banner.default_title');
-  const descriptionText = translation?.description?.trim() || t('sections.cta_banner.default_description');
-  const badgeText = (config.badge && config.badge.trim()) || translation?.subtitle || '';
+  // null means field is hidden by admin, undefined/empty means visible but no value
+  const headingText = translation?.title === null ? '' : (translation?.title?.trim() || t('sections.cta_banner.default_title'));
+  const descriptionText = translation?.description === null ? '' : (translation?.description?.trim() || t('sections.cta_banner.default_description'));
+  const badgeText = translation?.subtitle === null ? '' : ((config.badge && config.badge.trim()) || translation?.subtitle || '');
   const accentColor = config.accentColor?.trim() || undefined;
   const textColor = config.textColor?.trim();
 
@@ -207,9 +208,11 @@ export const CTABannerSection: React.FC<CTABannerSectionProps> = ({ config, tran
               {badgeText.toUpperCase()}
             </span>
           )}
-          <h2 className={`text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight ${isLightVariant ? 'text-gray-900 dark:text-gray-100' : 'text-white'}`} style={headingStyle}>
-            {headingText}
-          </h2>
+          {headingText && (
+            <h2 className={`text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight ${isLightVariant ? 'text-gray-900 dark:text-gray-100' : 'text-white'}`} style={headingStyle}>
+              {headingText}
+            </h2>
+          )}
           {descriptionText && (
             <p
               className={`text-lg ${isLightVariant ? 'text-gray-600 dark:text-gray-300' : 'text-white/80'}`}
@@ -230,9 +233,9 @@ export const CTABannerSection: React.FC<CTABannerSectionProps> = ({ config, tran
   return (
     <section className="py-16 bg-transparent dark:bg-gray-950">
       {layout === 'container' ? (
-        <Container className="max-w-6xl">{content}</Container>
+        <SectionContainer className="max-w-6xl">{content}</SectionContainer>
       ) : (
-        <div className="w-full">{content}</div>
+        <SectionContainer fullWidth disablePadding>{content}</SectionContainer>
       )}
     </section>
   );

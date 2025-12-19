@@ -1,9 +1,28 @@
 import React from 'react';
 import Link from 'next/link';
 import { Button, Image, Input } from '@heroui/react';
-import { FiMinus, FiPlus, FiX } from 'react-icons/fi';
 import PriceDisplay from './PriceDisplay';
 import type { CartItemDetails } from '../../types/cart';
+
+const MinusIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" aria-hidden="true" {...props}>
+    <path d="M5 12h14" />
+  </svg>
+);
+
+const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" aria-hidden="true" {...props}>
+    <path d="M12 5v14" />
+    <path d="M5 12h14" />
+  </svg>
+);
+
+const CloseIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+    <path d="m6 6 12 12" />
+    <path d="M6 18 18 6" />
+  </svg>
+);
 
 interface CartItemProps {
   item: CartItemDetails;
@@ -65,13 +84,13 @@ const CartItem: React.FC<CartItemProps> = ({
 
   return (
     <div
-      className={`flex gap-3 rounded-md border border-gray-200 bg-white p-3 transition-colors hover:border-primary-300 hover:shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:hover:border-primary-500/60 dark:hover:bg-gray-900/70 ${
+      className={`flex gap-3 rounded-lg border border-gray-200/80 bg-white/90 px-3 py-3 text-sm transition-colors hover:border-primary-300 dark:border-gray-700 dark:bg-gray-900/70 ${
         !inStock ? 'opacity-80' : ''
       } ${className}`}
     >
       {/* Product Image */}
       {showImage && (
-        <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 dark:border-gray-700">
+        <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
           <Link href={slug ? `/products/${slug}` : '#'}>
             <Image
               src={getProductImage()}
@@ -97,10 +116,10 @@ const CartItem: React.FC<CartItemProps> = ({
               <p className="truncate text-xs text-gray-500 dark:text-gray-400">{variantText}</p>
             )}
             {lowStock && inStock && (
-              <span className="mt-1 inline-block text-xs text-amber-500">Low stock</span>
+              <span className="mt-0.5 inline-block text-[0.65rem] uppercase tracking-wide text-amber-500">Low stock</span>
             )}
             {!inStock && (
-              <span className="mt-1 inline-block text-xs text-red-500">Unavailable</span>
+              <span className="mt-0.5 inline-block text-[0.65rem] uppercase tracking-wide text-red-500">Unavailable</span>
             )}
           </div>
           <div className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -110,17 +129,17 @@ const CartItem: React.FC<CartItemProps> = ({
 
         {showControls && (
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 rounded-lg border border-transparent bg-white px-2 py-1 dark:bg-gray-900">
+            <div className="flex items-center gap-1 rounded-md border border-gray-200 bg-white px-1.5 py-1 dark:border-gray-700 dark:bg-gray-900">
               <Button
                 isIconOnly
                 size="sm"
                 variant="light"
-                className="h-7 w-7 min-w-0 rounded-md bg-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:bg-transparent dark:text-gray-300 dark:hover:bg-gray-800"
+                className="h-7 w-7 min-w-0 rounded-md bg-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                 onPress={() => handleQuantityStep(-1)}
                 isDisabled={!inStock || !canDecrease}
                 aria-label="Decrease quantity"
               >
-                <FiMinus className="text-sm" />
+                <MinusIcon className="h-3.5 w-3.5" />
               </Button>
               <Input
                 type="number"
@@ -132,7 +151,7 @@ const CartItem: React.FC<CartItemProps> = ({
                 onValueChange={handleQuantityInputChange}
                 classNames={{
                   inputWrapper:
-                    'h-8 w-16 min-w-[4rem] border border-transparent bg-transparent px-0 shadow-none data-[focus=true]:border-primary-200 data-[focus=true]:bg-transparent dark:data-[focus=true]:border-primary-500/40 data-[hover=true]:border-transparent data-[hover=true]:bg-transparent',
+                    'h-8 w-14 min-w-[3.5rem] border border-transparent bg-transparent px-0 shadow-none data-[focus=true]:border-primary-200 dark:data-[focus=true]:border-primary-500/40',
                   input: 'text-center text-sm font-semibold text-gray-900 dark:text-white',
                 }}
                 isDisabled={!inStock}
@@ -142,12 +161,12 @@ const CartItem: React.FC<CartItemProps> = ({
                 isIconOnly
                 size="sm"
                 variant="light"
-                className="h-7 w-7 min-w-0 rounded-md bg-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:bg-transparent dark:text-gray-300 dark:hover:bg-gray-800"
+                className="h-7 w-7 min-w-0 rounded-md bg-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                 onPress={() => handleQuantityStep(1)}
                 isDisabled={!inStock || !canIncrease}
                 aria-label="Increase quantity"
               >
-                <FiPlus className="text-sm" />
+                <PlusIcon className="h-3.5 w-3.5" />
               </Button>
             </div>
             <Button
@@ -157,8 +176,9 @@ const CartItem: React.FC<CartItemProps> = ({
               color="danger"
               onPress={handleRemove}
               className="text-red-500 hover:text-red-600"
+              aria-label="Remove item"
             >
-              <FiX className="text-base" />
+              <CloseIcon className="h-3.5 w-3.5" />
             </Button>
           </div>
         )}

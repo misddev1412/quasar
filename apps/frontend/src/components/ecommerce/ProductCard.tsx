@@ -75,6 +75,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
     variants,
     media,
   } = product;
+  const displayName = useMemo(() => (name || '').replace(/\s+/g, ' ').trim(), [name]);
+  const titleClampStyle = useMemo<React.CSSProperties>(() => {
+    const lineHeight = 1.3;
+    const height = `calc(${lineHeight}em * 2)`;
+
+    return {
+      display: '-webkit-box',
+      WebkitLineClamp: 2,
+      WebkitBoxOrient: 'vertical',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      lineHeight,
+      minHeight: height,
+      maxHeight: height,
+    };
+  }, []);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isImageHovered, setIsImageHovered] = useState(false);
@@ -299,7 +315,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <Link href={`/products/${productSlug}`}>
           <Image
             src={getPrimaryImage()}
-            alt={name || t('ecommerce.productCard.imageAlt', 'Product Image')}
+            alt={displayName || t('ecommerce.productCard.imageAlt', 'Product Image')}
             className={`w-full h-full object-cover transition-transform duration-500 cursor-pointer rounded-t-xl ${
               isImageHovered ? 'scale-110' : 'scale-100'
             }`}
@@ -360,8 +376,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <div className="flex flex-col gap-3 flex-1 min-h-[180px] sm:min-h-[200px]">
           {/* Product Name */}
           <Link href={`/products/${productSlug}`} className="block">
-            <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-lg leading-tight h-14 overflow-hidden">
-              {name}
+            <h3
+              className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-lg leading-tight"
+              style={titleClampStyle}
+            >
+              {displayName}
             </h3>
           </Link>
 

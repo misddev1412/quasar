@@ -36,7 +36,7 @@ import { AdminLoyaltyTransactionsRouter } from '../modules/loyalty/routers/admin
 import { AdminLoyaltyStatsRouter } from '../modules/loyalty/routers/admin-loyalty-stats.router';
 import { AdminCustomerTransactionsRouter } from '../modules/user/routers/admin-customer-transactions.router';
 import { AdminMailProviderRouter } from '../modules/mail-provider/routers/admin-mail-provider.router';
-import { AdminEmailFlowRouter } from '../modules/email-flow/routers/admin-email-flow.router';
+import { AdminMailChannelPriorityRouter } from '../modules/email-flow/routers/admin-mail-channel-priority.router';
 import { AdminMailLogRouter } from '../modules/mail-log/routers/admin-mail-log.router';
 import { VisitorModule } from '../modules/visitor/visitor.module';
 import { AdminVisitorStatisticsRouter } from '../modules/visitor/routers/admin-visitor-statistics.router';
@@ -88,7 +88,7 @@ import { AdminComponentConfigsRouter } from '../modules/component-configs/router
     AdminLoyaltyStatsRouter,
     AdminCustomerTransactionsRouter,
     AdminMailProviderRouter,
-    AdminEmailFlowRouter,
+    AdminMailChannelPriorityRouter,
     AdminMailLogRouter,
     AdminVisitorStatisticsRouter,
     ClientVisitorStatsRouter,

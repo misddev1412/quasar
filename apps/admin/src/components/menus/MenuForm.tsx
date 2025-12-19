@@ -9,6 +9,7 @@ import { BrandSelector } from './BrandSelector';
 import ParentMenuSelector from './ParentMenuSelector';
 import { IconSelector } from './IconSelector';
 import { ColorSelector } from '../common/ColorSelector';
+import { MeasurementPresetInput } from '../common/MeasurementPresetInput';
 import { AdminMenu, MenuTreeNode } from '../../hooks/useMenusManager';
 import {
   MenuType,
@@ -837,14 +838,22 @@ export const MenuForm: React.FC<MenuFormProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Button Border Radius</label>
-                  <Input
+                  <MeasurementPresetInput
                     value={formData.buttonBorderRadius || ''}
-                    onChange={(e) => updateFormData('buttonBorderRadius', e.target.value)}
-                    placeholder="9999px"
+                    onChange={(val) => updateFormData('buttonBorderRadius', val || undefined)}
+                    presets={{ small: '4px', medium: '12px', large: '9999px' }}
+                    labels={{
+                      default: 'Use default',
+                      small: 'Small',
+                      medium: 'Medium',
+                      large: 'Large',
+                      custom: 'Custom',
+                      customHelper: 'Enter a number and choose px, rem, or em.',
+                    }}
                     className="mt-1"
-                    inputSize="md"
+                    selectPlaceholder="Choose a preset"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Accepts any valid CSS radius (px, rem, etc.).</p>
+                  <p className="text-xs text-gray-500 mt-1">Pick a preset or use Custom to enter your own radius with px, rem, or em.</p>
                 </div>
 
                 <div>

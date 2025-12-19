@@ -103,7 +103,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
   accept = 'image/*,video/*',
   maxSize = 10,
   selectedFiles = [],
-  title = 'Media Manager',
+  title,
 }) => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
@@ -143,7 +143,12 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
     refetch,
     error,
     isError,
-  } = trpc.adminMedia.getUserMedia.useQuery();
+  } = trpc.adminMedia.getUserMedia.useQuery({
+    page,
+    limit: 15,
+    search: searchQuery || undefined,
+    type: selectedType !== 'all' ? selectedType : undefined,
+  });
   const { data: storageConfigData } = trpc.adminStorage.getStorageConfig.useQuery(undefined);
 
 
@@ -181,7 +186,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
 
   const validateFile = (file: File): string | null => {
     if (file.size > maxSize * 1024 * 1024) {
-      return `File "${file.name}" is too large. Maximum size is ${maxSize}MB.`;
+      return t('media.file_too_large', `File "${file.name}" is too large. Maximum size is ${maxSize}MB.`);
     }
 
     if (accept !== '*') {
@@ -193,9 +198,9 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
         }
         return file.type === type;
       });
-      
+
       if (!isAccepted) {
-        return `File "${file.name}" has an unsupported format. Accepted: ${accept.replace(/,/g, ', ')}`;
+        return t('media.unsupported_format', `File "${file.name}" has an unsupported format. Accepted: ${accept.replace(/,/g, ', ')}`);
       }
     }
 
@@ -207,7 +212,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
     if (validationError) {
       addToast({
         type: 'error',
-        title: 'Upload Error',
+        title: t('media.upload_error'),
         description: validationError,
       });
       return;
@@ -230,7 +235,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
     };
 
     setUploadedFiles(prev => [...prev, uploadedFile]);
-  }, [addToast, maxSize, accept]);
+  }, [addToast, maxSize, accept, t]);
 
   // Handle file selection from library
   const handleFileSelect = (file: MediaFile) => {
@@ -312,7 +317,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
       const token = typeof window !== 'undefined' ? localStorage.getItem('admin_access_token') : null;
 
       if (!token) {
-        throw new Error('Authentication required');
+        throw new Error(t('media.authentication_required'));
       }
 
       // Upload to server using fetch (since tRPC doesn't handle file uploads well)
@@ -326,15 +331,15 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Upload failed');
+        throw new Error(errorData.message || t('media.upload_failed'));
       }
 
       const result = await response.json();
 
       addToast({
         type: 'success',
-        title: 'Upload complete',
-        description: `${uploadedFiles.length} file${uploadedFiles.length !== 1 ? 's' : ''} uploaded successfully`,
+        title: t('media.upload_complete'),
+        description: `${uploadedFiles.length} ${uploadedFiles.length !== 1 ? t('media.files') : t('media.file')} ${t('media.uploaded_successfully')}`,
       });
 
       // Clean up preview URLs
@@ -354,13 +359,13 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
       console.error('Upload error:', error);
       addToast({
         type: 'error',
-        title: 'Upload failed',
-        description: error instanceof Error ? error.message : 'An error occurred while uploading files',
+        title: t('media.upload_failed'),
+        description: error instanceof Error ? error.message : t('media.upload_error_generic'),
       });
     } finally {
       setIsUploading(false);
     }
-  }, [uploadedFiles, addToast, refetch]);
+  }, [uploadedFiles, addToast, refetch, t]);
 
   // Handle delete file
   const handleDeleteFile = (fileId: string) => {
@@ -484,7 +489,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
               <Image className="w-4 h-4 text-primary-600 dark:text-primary-400" />
             </div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-0">
-              {title}
+              {title || t('media.title')}
             </h2>
           </div>
           <div className="flex items-center gap-2">
@@ -499,7 +504,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                 }`}
               >
                 <FolderOpen className="w-4 h-4" />
-                <span className="hidden sm:inline">Library</span>
+                <span className="hidden sm:inline">{t('media.library')}</span>
               </button>
               <button
                 onClick={() => setActiveTab('upload')}
@@ -510,7 +515,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                 }`}
               >
                 <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Upload</span>
+                <span className="hidden sm:inline">{t('media.upload')}</span>
               </button>
             </div>
 
@@ -524,7 +529,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                       ? 'bg-primary-600 dark:bg-primary-600 text-white shadow-sm hover:bg-primary-700 dark:hover:bg-primary-700'
                       : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
                   }`}
-                  title="Grid view"
+                  title={t('media.grid_view')}
                 >
                   <Grid className="w-4 h-4" />
                 </button>
@@ -535,7 +540,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                       ? 'bg-primary-600 dark:bg-primary-600 text-white shadow-sm hover:bg-primary-700 dark:hover:bg-primary-700'
                       : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
                   }`}
-                  title="List view"
+                  title={t('media.list_view')}
                 >
                   <List className="w-4 h-4" />
                 </button>
@@ -545,7 +550,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
             <button
               onClick={onClose}
               className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              title="Close"
+              title={t('media.close')}
             >
               <X className="w-5 h-5" />
             </button>
@@ -562,7 +567,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                 <div className="flex-1">
                   <InputWithIcon
                     type="text"
-                    placeholder={`${t('common.search')} files...`}
+                    placeholder={`${t('common.search')} ${t('media.search_files')}`}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     leftIcon={<Search className="w-4 h-4 text-gray-400" />}
@@ -579,12 +584,12 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                     onChange={(e) => setSelectedType(e.target.value as MediaType)}
                     className="pl-10 pr-8 py-2 h-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors appearance-none cursor-pointer min-w-[140px] flex items-center"
                   >
-                    <option value="all">All Types</option>
-                    <option value="image">Images</option>
-                    <option value="video">Videos</option>
-                    <option value="audio">Audio</option>
-                    <option value="document">Documents</option>
-                    <option value="other">Other</option>
+                    <option value="all">{t('media.all_types')}</option>
+                    <option value="image">{t('media.images')}</option>
+                    <option value="video">{t('media.videos')}</option>
+                    <option value="audio">{t('media.audio')}</option>
+                    <option value="document">{t('media.documents')}</option>
+                    <option value="other">{t('media.other')}</option>
                   </select>
                 </div>
               </div>
@@ -593,13 +598,13 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
               {(searchQuery || selectedType !== 'all') && mediaResponse && (
                 <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
                   {searchQuery && (
-                    <span>Searching for "{searchQuery}"</span>
+                    <span>{t('media.searching_for')} "{searchQuery}"</span>
                   )}
-                  {searchQuery && selectedType !== 'all' && <span> in </span>}
+                  {searchQuery && selectedType !== 'all' && <span> {t('media.in')} </span>}
                   {selectedType !== 'all' && (
-                    <span>{selectedType} files</span>
+                    <span>{selectedType} {t('media.files')}</span>
                   )}
-                  <span> • {mediaResponse.total} result{mediaResponse.total !== 1 ? 's' : ''} found</span>
+                  <span> • {mediaResponse.total} {mediaResponse.total !== 1 ? t('media.results') : t('media.result')} {t('media.found')}</span>
                   {(searchQuery || selectedType !== 'all') && (
                     <button
                       onClick={() => {
@@ -608,7 +613,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                       }}
                       className="ml-3 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 hover:text-gray-800 dark:hover:text-gray-200 rounded-md border border-gray-300 dark:border-gray-600 transition-all duration-200 hover:shadow-sm"
                     >
-                      Clear filters
+                      {t('media.clear_filters')}
                     </button>
                   )}
                 </div>
@@ -620,7 +625,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center p-12">
                   <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600 mb-4"></div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Loading your media files...</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t('media.loading_media')}</p>
                 </div>
               ) : media.length === 0 ? (
                 <div className="flex flex-col items-center justify-center p-12 text-center">
@@ -632,12 +637,12 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                     )}
                   </div>
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                    {searchQuery || selectedType !== 'all' ? 'No files match your search' : 'No files yet'}
+                    {searchQuery || selectedType !== 'all' ? t('media.no_files_match') : t('media.no_files_yet')}
                   </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-sm">
-                    {searchQuery || selectedType !== 'all' 
-                      ? 'Try adjusting your search terms or filters to find what you\'re looking for.'
-                      : 'Upload your first files to get started with your media library.'
+                    {searchQuery || selectedType !== 'all'
+                      ? t('media.adjust_search_terms')
+                      : t('media.upload_first_files')
                     }
                   </p>
                   {!searchQuery && selectedType === 'all' && (
@@ -646,7 +651,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                       className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
                     >
                       <Plus className="w-4 h-4" />
-                      Upload Files
+                      {t('media.upload_files')}
                     </button>
                   )}
                 </div>
@@ -725,7 +730,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                               window.open(file.url, '_blank');
                             }}
                             className="p-1.5 bg-white/20 backdrop-blur-sm rounded-md text-white hover:bg-white/30 transition-colors"
-                            title="Preview"
+                            title={t('media.preview')}
                           >
                             <Download className="w-3 h-3" />
                           </button>
@@ -735,7 +740,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                               // Handle edit
                             }}
                             className="p-1.5 bg-white/20 backdrop-blur-sm rounded-md text-white hover:bg-white/30 transition-colors"
-                            title="Edit"
+                            title={t('media.edit')}
                           >
                             <Edit className="w-3 h-3" />
                           </button>
@@ -745,7 +750,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                               handleDeleteFile(file.id);
                             }}
                             className="p-1.5 bg-white/20 backdrop-blur-sm rounded-md text-white hover:bg-white/30 transition-colors"
-                            title="Delete"
+                            title={t('media.delete')}
                           >
                             <Trash2 className="w-3 h-3" />
                           </button>
@@ -834,7 +839,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
               {mediaResponse && mediaResponse.totalPages > 1 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-gray-200 dark:border-gray-700">
                   <div className="text-sm text-gray-500 dark:text-gray-400">
-                    Showing {((page - 1) * 15) + 1} to {Math.min(page * 15, mediaResponse.total)} of {mediaResponse.total} files
+                    {t('media.showing')} {((page - 1) * 15) + 1} {t('media.to')} {Math.min(page * 15, mediaResponse.total)} {t('media.of')} {mediaResponse.total} {t('media.files')}
                   </div>
 
                   <div className="flex items-center space-x-1 sm:space-x-2">
@@ -845,7 +850,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                       className="flex items-center gap-1 px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700"
                     >
                       <ChevronLeft className="w-4 h-4" />
-                      Previous
+                      {t('media.previous')}
                     </button>
 
                     {/* Page numbers */}
@@ -902,7 +907,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                       disabled={page >= mediaResponse.totalPages}
                       className="flex items-center gap-1 px-3 py-1 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700"
                     >
-                      Next
+                      {t('media.next')}
                       <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>
@@ -972,12 +977,12 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                 ) : (
                   <>
                     <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                      {dragActive ? 'Drop your files here!' : `Upload ${multiple ? 'files' : 'a file'}`}
+                      {dragActive ? t('media.drop_files_here') : `${t('media.upload')} ${multiple ? t('media.upload_multiple') : t('media.upload_file')}`}
                     </h3>
                     <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                      {dragActive 
-                        ? 'Release to upload your files'
-                        : 'Drag and drop files here, or click the button below to browse'
+                      {dragActive
+                        ? t('media.release_to_upload')
+                        : t('media.drag_and_drop')
                       }
                     </p>
                     {!dragActive && (
@@ -991,11 +996,11 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                           className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:scale-105"
                         >
                           <Upload className="w-4 h-4" />
-                          Choose Files
+                          {t('media.choose_files')}
                         </button>
                         <div className="mt-6 text-xs text-gray-500 dark:text-gray-400 space-y-1">
-                          <p>Maximum file size: <span className="font-medium">{maxSize}MB</span></p>
-                          <p>Accepted formats: <span className="font-medium">{accept === '*' ? 'All files' : accept.replace(/,/g, ', ')}</span></p>
+                          <p>{t('media.maximum_file_size')} <span className="font-medium">{maxSize}MB</span></p>
+                          <p>{t('media.accepted_formats')} <span className="font-medium">{accept === '*' ? t('media.all_files') : accept.replace(/,/g, ', ')}</span></p>
                         </div>
                       </>
                     )}
@@ -1034,7 +1039,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Ready to Upload ({uploadedFiles.length})
+                    {t('media.ready_to_upload')} ({uploadedFiles.length})
                   </h3>
                   {uploadedFiles.length > 1 && (
                     <button
@@ -1045,9 +1050,10 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                         });
                         setUploadedFiles([]);
                       }}
-                      className="text-sm text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 hover:bg-red-600 dark:hover:bg-red-600 hover:text-white dark:hover:text-white rounded-lg border border-gray-300 dark:border-gray-600 hover:border-red-600 dark:hover:border-red-600 transition-all duration-200 shadow-sm hover:shadow-md"
                     >
-                      Clear all
+                      <X className="w-4 h-4" />
+                      {t('media.clear_all')}
                     </button>
                   )}
                 </div>
@@ -1098,7 +1104,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                         type="button"
                         onClick={() => handleRemoveUploadedFile(index)}
                         className="text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors p-2 rounded-lg"
-                        title="Remove file"
+                        title={t('media.remove_file')}
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -1119,12 +1125,12 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                   <>
                     <div className="w-2 h-2 bg-primary-500 rounded-full"></div>
                     <span className="text-gray-700 dark:text-gray-300 font-medium">
-                      {selectedMediaIds.length} file{selectedMediaIds.length !== 1 ? 's' : ''} selected
+                      {selectedMediaIds.length} {selectedMediaIds.length !== 1 ? t('media.files') : t('media.file')} {t('media.selected')}
                     </span>
                   </>
                 ) : (
                   <span className="text-gray-500 dark:text-gray-400">
-                    No files selected
+                    {t('media.no_files_selected')}
                   </span>
                 )}
               </div>
@@ -1135,12 +1141,12 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                   <>
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span className="text-gray-700 dark:text-gray-300 font-medium">
-                      {uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''} ready to upload
+                      {uploadedFiles.length} {uploadedFiles.length !== 1 ? t('media.files') : t('media.file')} {t('media.ready_to_upload_status')}
                     </span>
                   </>
                 ) : (
                   <span className="text-gray-500 dark:text-gray-400">
-                    No files uploaded yet
+                    {t('media.no_files_uploaded')}
                   </span>
                 )}
               </div>
@@ -1151,7 +1157,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
               onClick={onClose}
               className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors font-medium"
             >
-              Cancel
+              {t('media.cancel')}
             </button>
             {activeTab === 'library' && (
               <button
@@ -1164,7 +1170,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                 className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-md hover:shadow-lg disabled:hover:shadow-md flex items-center gap-2"
               >
                 <Check className="w-4 h-4" />
-                Select {selectedMediaIds.length > 0 && `(${selectedMediaIds.length})`}
+                {t('media.select')} {selectedMediaIds.length > 0 && `(${selectedMediaIds.length})`}
               </button>
             )}
             {activeTab === 'upload' && (
@@ -1182,15 +1188,15 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
                 {isUploading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Uploading...
+                    {t('media.uploading')}
                   </>
                 ) : uploadedFiles.length > 0 ? (
                   <>
                     <Upload className="w-4 h-4" />
-                    Complete Upload ({uploadedFiles.length})
+                    {t('media.complete_upload')} ({uploadedFiles.length})
                   </>
                 ) : (
-                  'Close'
+                  t('media.close')
                 )}
               </button>
             )}

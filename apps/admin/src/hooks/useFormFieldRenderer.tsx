@@ -448,7 +448,13 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                       type="button"
                       role="switch"
                       aria-checked={formField.value || false}
-                      onClick={() => formField.onChange(!formField.value)}
+                      onClick={() => {
+                        const newValue = !formField.value;
+                        formField.onChange(newValue);
+                        if (field.onValueChange) {
+                          field.onValueChange(newValue);
+                        }
+                      }}
                       disabled={field.disabled}
                       id={commonProps.id}
                       className="w-full h-full rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
@@ -747,28 +753,31 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                   )}
                 </div>
               </div>
-              {section.customContent ? (
-                <div className="w-full">
-                  {section.customContent}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {visibleFields.map((field) => {
-                    // Checkbox fields should only span 1 column to allow them to be placed side by side
-                    // Other wide fields (textarea, richtext, etc.) span full width
-                    const shouldSpanFullWidth = field.type !== 'checkbox' && 
-                      (field.type === 'textarea' || field.type === 'richtext' || field.type === 'role-multiselect' || 
-                       field.type === 'custom' || field.type === 'file-types' || field.type === 'media-upload' || 
-                       field.type === 'image-gallery' || field.type === 'product-media');
-                    
-                    return (
-                      <div key={field.name} className={clsx(shouldSpanFullWidth && 'md:col-span-2')}>
-                        {renderField(field, tabIndex)}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+              <div className="space-y-6">
+                {visibleFields.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {visibleFields.map((field) => {
+                      // Checkbox fields should only span 1 column to allow them to be placed side by side
+                      // Other wide fields (textarea, richtext, etc.) span full width
+                      const shouldSpanFullWidth = field.type !== 'checkbox' &&
+                        (field.type === 'textarea' || field.type === 'richtext' || field.type === 'role-multiselect' ||
+                         field.type === 'custom' || field.type === 'file-types' || field.type === 'media-upload' ||
+                         field.type === 'image-gallery' || field.type === 'product-media');
+
+                      return (
+                        <div key={field.name} className={clsx(shouldSpanFullWidth && 'md:col-span-2')}>
+                          {renderField(field, tabIndex)}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                {section.customContent && (
+                  <div className="w-full">
+                    {section.customContent}
+                  </div>
+                )}
+              </div>
             </div>
           );
         }).filter(Boolean)

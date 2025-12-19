@@ -423,6 +423,8 @@ export interface BulkAction {
   variant?: 'primary' | 'secondary' | 'danger' | 'outline';
   /** Action icon */
   icon?: React.ReactNode;
+  /** Whether the action is disabled */
+  disabled?: boolean;
 }
 
 /**
@@ -523,8 +525,8 @@ const TableToolbar = memo(({
   }, [columns, visibleColumns, onColumnVisibilityChange]);
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-1 min-w-0 w-full sm:w-auto">
+    <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 p-6 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-1 min-w-0 w-full">
         {/* Enhanced Search - Always show if onSearchChange is provided */}
         {/* Spacing: Icon at 12px, Icon width 16px, Icon ends at 28px, Text starts at 60px = 32px clear gap */}
         {onSearchChange && (
@@ -581,6 +583,36 @@ const TableToolbar = memo(({
           />
         )}
       </div>
+
+      {selectedCount !== undefined && selectedCount > 0 && bulkActions.length > 0 && (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full lg:w-auto">
+          <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            {t('table.toolbar.selected_count', '{{count}} selected').replace('{{count}}', String(selectedCount))}
+          </div>
+          <Dropdown
+            button={
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={bulkActions.every(action => action.disabled)}
+              >
+                {t('table.toolbar.bulk_actions', 'Bulk actions')}
+              </Button>
+            }
+            items={bulkActions.map(action => ({
+              label: action.label,
+              onClick: () => handleBulkActionClick(action.value),
+              icon: action.icon,
+              disabled: action.disabled,
+              className: clsx(
+                action.variant === 'danger' ? 'text-red-600 dark:text-red-400' : undefined,
+                action.variant === 'primary' ? 'text-blue-600 dark:text-blue-300' : undefined
+              ),
+            }))}
+            menuClassName="w-56"
+          />
+        </div>
+      )}
     </div>
   );
 });

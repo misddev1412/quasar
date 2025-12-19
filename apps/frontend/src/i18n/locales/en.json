@@ -1860,6 +1860,47 @@
       "default_description": "Use CTA banners to highlight launches, promos, or the next best action on your storefront.",
       "primary_label": "Talk to our team",
       "secondary_label": "Explore docs"
+    },
+    "banner": {
+      "title": "Campaign spotlights",
+      "subtitle": "Fresh drops & editorial",
+      "description": "Blend rich imagery and quick CTAs to keep shoppers in the loop.",
+      "empty": "Add banner cards in the admin to showcase them here.",
+      "cta": "Learn more"
+    },
+    "features": {
+      "title": "Merchandising advantages",
+      "subtitle": "Give shoppers every reason to convert",
+      "description": "Highlight fulfillment benefits, concierge service, and storefront perks.",
+      "empty": "Add feature cards in the admin to display them here.",
+      "untitledCard": "Untitled feature"
+    },
+    "testimonials": {
+      "title": "Loved by customers",
+      "subtitle": "Real stories from merch teams and VIP shoppers",
+      "description": "Use testimonials to reinforce trust and highlight impact."
+    },
+    "video": {
+      "title": "Crafted with intention",
+      "subtitle": "Behind the scenes",
+      "description": "Blend editorial storytelling with direct commerce moments."
+    },
+    "stats": {
+      "title": "Proof in numbers",
+      "subtitle": "Metrics your buyers understand",
+      "description": "Showcase fulfillment scale, loyalty, and satisfaction data.",
+      "untitled": "Metric"
+    },
+    "gallery": {
+      "title": "Lookbook highlights",
+      "subtitle": "Visual merchandising moments",
+      "description": "Create moodboards linked to live inventory."
+    },
+    "contact_form": {
+      "title": "Need tailored support?",
+      "subtitle": "Connect with our sales concierge",
+      "description": "Capture high-intent leads directly from the homepage.",
+      "submit": "Send request"
     }
   },
   "notifications": {

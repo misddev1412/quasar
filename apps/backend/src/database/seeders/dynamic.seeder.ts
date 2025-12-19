@@ -19,6 +19,7 @@ import databaseConfig from '../../config/database.config';
 import { SectionsSeeder } from './sections.seeder';
 import { MenusSeeder } from './menus.seeder';
 import { ComponentConfigsSeeder } from './component-configs.seeder';
+import { NotificationEventFlowSeeder } from './notification-event-flow.seeder';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ const AVAILABLE_SEEDERS = {
   section: SectionsSeeder,
   menus: MenusSeeder,
   'component-configs': ComponentConfigsSeeder,
+  'notification-event-flows': NotificationEventFlowSeeder,
 } as const;
 
 type SeederKey = keyof typeof AVAILABLE_SEEDERS;

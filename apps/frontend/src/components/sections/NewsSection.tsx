@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { SectionTranslationContent } from './HeroSlider';
 import type { ApiResponse } from '../../types/api';
+import SectionContainer from './SectionContainer';
 
 export type NewsSectionStrategy = 'latest' | 'most_viewed' | 'featured';
 
@@ -234,24 +235,32 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation })
     };
   }, [normalizedRowConfigs, errorFallback]);
 
+  // null means field is hidden by admin, undefined/empty means visible but no value
+  const sectionTitle = translation?.title === null ? '' : (translation?.title || t('sections.news.latest_stories', 'Latest stories'));
+  const sectionDescription = translation?.description === null ? '' : (translation?.description || '');
+  const hasHeaderContent = sectionTitle || sectionDescription;
+
   return (
     <section className="py-16 bg-white dark:bg-gray-950">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
-          <div>
-
-            <h2 className="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">
-              {translation?.title || t('sections.news.latest_stories', 'Latest stories')}
-            </h2>
-            {translation?.description && <p className="mt-2 text-gray-500 dark:text-gray-400">{translation.description}</p>}
-          </div>
-          <Link
-            href="/news"
-            className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
-          >
+      <SectionContainer paddingClassName="px-6 lg:px-8">
+        {hasHeaderContent && (
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
+            <div>
+              {sectionTitle && (
+                <h2 className="mt-2 text-3xl font-semibold text-gray-900 dark:text-gray-100">
+                  {sectionTitle}
+                </h2>
+              )}
+              {sectionDescription && <p className="mt-2 text-gray-500 dark:text-gray-400">{sectionDescription}</p>}
+            </div>
+            <Link
+              href="/news"
+              className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
             {t('sections.news.view_newsroom', 'View newsroom')}
           </Link>
-        </div>
+          </div>
+        )}
 
         <div className="space-y-10">
           {normalizedRowConfigs.map((row) => {
@@ -326,7 +335,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation })
             );
           })}
         </div>
-      </div>
+      </SectionContainer>
     </section>
   );
 };

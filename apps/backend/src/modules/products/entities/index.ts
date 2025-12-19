@@ -17,10 +17,13 @@ export { PaymentMethod, PaymentMethodType, ProcessingFeeType } from './payment-m
 export { PaymentMethodProvider } from './payment-method-provider.entity';
 export { Product, ProductStatus } from './product.entity';
 export { ProductAttribute } from './product-attribute.entity';
+export { ProductCategory } from './product-category.entity';
 export { ProductMedia, MediaType } from './product-media.entity';
+export { ProductSpecification } from './product-specification.entity';
 export { ProductTag } from './product-tag.entity';
 export { ProductVariant } from './product-variant.entity';
 export { ProductVariantItem } from './product-variant-item.entity';
+export { ProductWarehouseQuantity } from './product-warehouse-quantity.entity';
 export { PurchaseOrder, PurchaseOrderStatus } from './purchase-order.entity';
 export { PurchaseOrderItem } from './purchase-order-item.entity';
 export { StockMovement, MovementType, MovementReason } from './stock-movement.entity';

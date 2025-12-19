@@ -1,7 +1,8 @@
-import { Column, Entity, OneToMany, Index } from 'typeorm';
+import { Column, Entity, OneToMany, Index, ManyToMany } from 'typeorm';
 import { SoftDeletableEntity } from '@shared';
 import { SectionType } from '@shared/enums/section.enums';
 import { SectionTranslationEntity } from './section-translation.entity';
+import { ComponentConfigEntity } from '../../component-configs/entities/component-config.entity';
 
 @Entity('sections')
 @Index(['page', 'position'])
@@ -41,4 +42,7 @@ export class SectionEntity extends SoftDeletableEntity {
     cascade: ['insert', 'update'],
   })
   translations!: SectionTranslationEntity[];
+
+  @ManyToMany(() => ComponentConfigEntity, (component) => component.sections)
+  components?: ComponentConfigEntity[];
 }

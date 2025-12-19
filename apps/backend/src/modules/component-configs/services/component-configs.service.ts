@@ -8,6 +8,7 @@ import type {
   ListComponentConfigDto,
 } from '../dto/component-config.dto';
 import { ComponentConfigEntity } from '../entities/component-config.entity';
+import { SectionEntity } from '../../sections/entities/section.entity';
 
 @Injectable()
 export class ComponentConfigsService {
@@ -16,14 +17,30 @@ export class ComponentConfigsService {
     private readonly responseService: ResponseService,
   ) {}
 
+  private mapSectionRelations(sectionIds?: string[]): SectionEntity[] {
+    if (!Array.isArray(sectionIds) || sectionIds.length === 0) {
+      return [];
+    }
+
+    const uniqueIds = Array.from(new Set(sectionIds));
+
+    return uniqueIds.map((sectionId) => {
+      const section = new SectionEntity();
+      section.id = sectionId;
+      return section;
+    });
+  }
+
   async list(filter: ListComponentConfigDto): Promise<ComponentConfigEntity[]> {
     try {
       const qb = this.componentConfigRepository
         .createQueryBuilder('component')
         .leftJoinAndSelect('component.parent', 'parent')
+        .leftJoinAndSelect('component.sections', 'sections')
         .where('component.deletedAt IS NULL')
         .orderBy('component.position', 'ASC')
         .addOrderBy('component.createdAt', 'ASC');
+      qb.distinct(true);
 
       if (filter.includeChildren) {
         qb.leftJoinAndSelect('component.children', 'children');
@@ -43,6 +60,12 @@ export class ComponentConfigsService {
         qb.andWhere('component.componentType = :componentType', {
           componentType: filter.componentType,
         });
+      }
+
+      if (filter.sectionId === null) {
+        qb.andWhere('sections.id IS NULL');
+      } else if (filter.sectionId) {
+        qb.andWhere('(sections.id IS NULL OR sections.id = :sectionId)', { sectionId: filter.sectionId });
       }
 
       if (filter.onlyEnabled === true) {
@@ -65,7 +88,7 @@ export class ComponentConfigsService {
     try {
       const component = await this.componentConfigRepository.findOne({
         where: { id },
-        relations: ['parent', 'children'],
+        relations: ['parent', 'children', 'sections'],
       });
 
       if (!component || component.deletedAt) {
@@ -97,7 +120,7 @@ export class ComponentConfigsService {
     try {
       const component = await this.componentConfigRepository.findOne({
         where: { componentKey },
-        relations: ['parent', 'children'],
+        relations: ['parent', 'children', 'sections'],
       });
 
       if (!component || component.deletedAt) {
@@ -158,11 +181,13 @@ export class ComponentConfigsService {
         previewMediaUrl: dto.previewMediaUrl ?? null,
         parentId: dto.parentId ?? null,
         slotKey: dto.slotKey ?? null,
+        sections: this.mapSectionRelations(dto.sectionIds),
         createdBy: userId,
         updatedBy: userId,
       });
 
-      return await this.componentConfigRepository.save(component);
+      const saved = await this.componentConfigRepository.save(component);
+      return await this.getById(saved.id);
     } catch (error) {
       if (error?.code) {
         throw error;
@@ -269,6 +294,10 @@ export class ComponentConfigsService {
         updatePayload.parentId = dto.parentId ?? null;
       }
 
+      if (dto.sectionIds !== undefined) {
+        updatePayload.sections = this.mapSectionRelations(dto.sectionIds);
+      }
+
       if (dto.position !== undefined) {
         updatePayload.position = dto.position;
       } else if (dto.parentId !== undefined && dto.parentId !== existing.parentId) {
@@ -281,7 +310,8 @@ export class ComponentConfigsService {
         ...updatePayload,
       });
 
-      return await this.componentConfigRepository.save(merged);
+      const saved = await this.componentConfigRepository.save(merged);
+      return await this.getById(saved.id);
     } catch (error) {
       if (error?.code) {
         throw error;

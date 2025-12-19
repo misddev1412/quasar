@@ -14,6 +14,7 @@ import { Table, type Column, type SortDescriptor } from '../common/Table';
 import { StatisticsGrid, type StatisticData } from '../common/StatisticsGrid';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { flattenComponents, type ComponentConfigNode } from './componentConfigTree';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import {
   FiBox,
   FiEdit2,
@@ -102,6 +103,7 @@ interface ComponentConfigsManagerProps {
 }
 
 export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = ({ className }) => {
+  const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
   const navigate = useNavigate();
   const [filters, setFilters] = useState<FiltersState>({ ...DEFAULT_FILTERS });
@@ -274,25 +276,25 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
   const statisticsCards: StatisticData[] = [
     {
       id: 'total-components',
-      title: 'Total Components',
+      title: t('componentConfigs.totalComponents', 'Total Components'),
       value: stats.total,
       icon: <FiBox className="w-5 h-5" />,
     },
     {
       id: 'composites',
-      title: 'Composite',
+      title: t('componentConfigs.composite', 'Composite'),
       value: stats.composites,
       icon: <FiLayers className="w-5 h-5" />,
     },
     {
       id: 'atomics',
-      title: 'Atomic',
+      title: t('componentConfigs.atomic', 'Atomic'),
       value: stats.atomics,
       icon: <FiGrid className="w-5 h-5" />,
     },
     {
       id: 'disabled',
-      title: 'Disabled',
+      title: t('componentConfigs.disabled', 'Disabled'),
       value: stats.disabled,
       icon: <FiSlash className="w-5 h-5" />,
     },
@@ -339,14 +341,14 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
         await updateMutation.mutateAsync({ id: component.id, data: { isEnabled: nextValue } });
         listQuery.refetch();
         addToast({
-          title: nextValue ? 'Component enabled' : 'Component disabled',
+          title: nextValue ? t('componentConfigs.componentEnabled', 'Component enabled') : t('componentConfigs.componentDisabled', 'Component disabled'),
           description: component.displayName,
           type: 'success',
         });
       } catch (error) {
         addToast({
-          title: 'Unable to update status',
-          description: error instanceof Error ? error.message : 'Please try again later.',
+          title: t('componentConfigs.unableToUpdateStatus', 'Unable to update status'),
+          description: error instanceof Error ? error.message : t('common.pleaseTryAgainLater', 'Please try again later.'),
           type: 'error',
         });
       }
@@ -363,12 +365,12 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
 
       try {
         await deleteMutation.mutateAsync({ id: component.id });
-        addToast({ title: 'Component deleted', description: component.displayName, type: 'success' });
+        addToast({ title: t('componentConfigs.componentDeleted', 'Component deleted'), description: component.displayName, type: 'success' });
         listQuery.refetch();
       } catch (error) {
         addToast({
-          title: 'Unable to delete component',
-          description: error instanceof Error ? error.message : 'Please try again later.',
+          title: t('componentConfigs.unableToDeleteComponent', 'Unable to delete component'),
+          description: error instanceof Error ? error.message : t('common.pleaseTryAgainLater', 'Please try again later.'),
           type: 'error',
         });
       }
@@ -380,7 +382,7 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
     () => [
       {
         id: 'component',
-        header: 'Component',
+        header: t('componentConfigs.component', 'Component'),
         accessor: 'displayName',
         hideable: false,
         minWidth: '260px',
@@ -392,7 +394,7 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
             {item.description && <p className="text-xs text-neutral-500">{item.description}</p>}
             {item.parentName && (
               <p className="text-xs text-neutral-500">
-                Parent:&nbsp;<span className="font-medium text-neutral-700">{item.parentName}</span>
+                {t('componentConfigs.parent', 'Parent')}:&nbsp;<span className="font-medium text-neutral-700">{item.parentName}</span>
               </p>
             )}
           </div>
@@ -400,7 +402,7 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
       },
       {
         id: 'category',
-        header: 'Category',
+        header: t('componentConfigs.category', 'Category'),
         accessor: 'category',
         width: '150px',
         isSortable: true,
@@ -412,20 +414,20 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
       },
       {
         id: 'structure',
-        header: 'Structure',
+        header: t('componentConfigs.structure', 'Structure'),
         accessor: 'componentType',
         width: '160px',
         isSortable: true,
         render: (value, item) => (
           <div className="flex flex-col text-sm text-neutral-700">
             <span className="capitalize">{String(value)}</span>
-            {item.slotKey && <span className="text-xs text-neutral-500">Slot {item.slotKey}</span>}
+            {item.slotKey && <span className="text-xs text-neutral-500">{t('componentConfigs.slot', 'Slot')} {item.slotKey}</span>}
           </div>
         ),
       },
       {
         id: 'status',
-        header: 'Status',
+        header: t('componentConfigs.status', 'Status'),
         accessor: 'isEnabled',
         width: '190px',
         isSortable: true,
@@ -436,7 +438,7 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
             onKeyDown={(event) => event.stopPropagation()}
           >
             <Badge variant={value ? 'success' : 'destructive'} size="sm">
-              {value ? 'Enabled' : 'Disabled'}
+              {value ? t('common.enabled', 'Enabled') : t('common.disabled', 'Disabled')}
             </Badge>
             <Toggle
               checked={item.isEnabled}
@@ -449,7 +451,7 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
       },
       {
         id: 'updatedAt',
-        header: 'Updated',
+        header: t('componentConfigs.updated', 'Updated'),
         accessor: 'updatedAt',
         type: 'datetime',
         width: '200px',
@@ -457,7 +459,7 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
       },
       {
         id: 'actions',
-        header: 'Actions',
+        header: t('componentConfigs.actions', 'Actions'),
         accessor: 'id',
         hideable: false,
         width: '80px',
@@ -472,12 +474,12 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
               }
               items={[
                 {
-                  label: 'Edit',
+                  label: t('common.edit', 'Edit'),
                   icon: <FiEdit2 className="w-4 h-4" />,
                   onClick: () => navigateToEdit(item.id),
                 },
                 {
-                  label: 'Add child',
+                  label: t('componentConfigs.addChild', 'Add child'),
                   icon: <FiPlus className="w-4 h-4" />,
                   onClick: () => navigateToCreateWithParent(item.id),
                 },
@@ -487,12 +489,12 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
                   disabled: true,
                 },
                 {
-                  label: item.isEnabled ? 'Disable' : 'Enable',
+                  label: item.isEnabled ? t('common.disable', 'Disable') : t('common.enable', 'Enable'),
                   icon: <FiRefreshCw className="w-4 h-4" />,
                   onClick: () => handleToggleEnabled(item, !item.isEnabled),
                 },
                 {
-                  label: 'Delete',
+                  label: t('common.delete', 'Delete'),
                   icon: <FiTrash2 className="w-4 h-4" />,
                   className: 'text-red-600',
                   onClick: () => handleDelete(item),
@@ -600,9 +602,9 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
             className: item.isEnabled ? undefined : 'opacity-60 bg-neutral-50',
           })}
           enableRowHover
-          emptyMessage="No component configurations found"
+          emptyMessage={t('componentConfigs.noComponentsFound', 'No component configurations found')}
           emptyAction={{
-            label: 'Create component',
+            label: t('componentConfigs.createComponent', 'Create component'),
             onClick: navigateToCreate,
             icon: <FiPlus />,
           }}

@@ -18,6 +18,7 @@ export const createComponentConfigSchema = z.object({
   previewMediaUrl: z.string().url().optional().nullable(),
   parentId: z.string().uuid().optional().nullable(),
   slotKey: z.string().max(100).optional().nullable(),
+  sectionIds: z.array(z.string().uuid()).optional(),
 });
 
 export type CreateComponentConfigDto = z.infer<typeof createComponentConfigSchema>;
@@ -31,6 +32,7 @@ export const listComponentConfigSchema = z.object({
   componentType: z.nativeEnum(ComponentStructureType).optional(),
   onlyEnabled: z.boolean().optional(),
   includeChildren: z.boolean().optional(),
+  sectionId: z.string().uuid().optional().nullable(),
 });
 
 export type ListComponentConfigDto = z.infer<typeof listComponentConfigSchema>;

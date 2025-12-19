@@ -8,29 +8,31 @@ import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middle
 import { ErrorLevelCode, ModuleCode, OperationCode } from '@shared/enums/error-codes.enums';
 import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
 
-// Zod schemas for email flow operations
-const createEmailFlowSchema = z.object({
+// Zod schemas for mail channel priority operations
+const createMailChannelPrioritySchema = z.object({
   name: z.string().min(2).max(255),
   description: z.string().max(1000).optional(),
   mailProviderId: z.string().uuid(),
   isActive: z.boolean().optional().default(true),
   priority: z.number().int().min(1).max(10).optional().default(5),
   config: z.record(z.any()).optional(),
+  mailTemplateId: z.string().uuid().optional(),
 });
 
-const updateEmailFlowSchema = createEmailFlowSchema.partial();
+const updateMailChannelPrioritySchema = createMailChannelPrioritySchema.partial();
 
-const getEmailFlowsQuerySchema = z.object({
+const getMailChannelPrioritiesQuerySchema = z.object({
   page: z.number().int().min(1).optional().default(1),
   limit: z.number().int().min(1).max(100).optional().default(10),
   search: z.string().max(255).optional(),
   isActive: z.boolean().optional(),
   mailProviderId: z.string().uuid().optional(),
+  mailTemplateId: z.string().uuid().optional(),
 });
 
-@Router({ alias: 'adminEmailFlow' })
+@Router({ alias: 'adminMailChannelPriority' })
 @Injectable()
-export class AdminEmailFlowRouter {
+export class AdminMailChannelPriorityRouter {
   constructor(
     @Inject(EmailFlowService)
     private readonly emailFlowService: EmailFlowService,
@@ -40,11 +42,11 @@ export class AdminEmailFlowRouter {
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Mutation({
-    input: createEmailFlowSchema,
+    input: createMailChannelPrioritySchema,
     output: apiResponseSchema,
   })
   async createFlow(
-    @Input() input: z.infer<typeof createEmailFlowSchema>
+    @Input() input: z.infer<typeof createMailChannelPrioritySchema>
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const result = await this.emailFlowService.createFlow(input as any);
@@ -54,18 +56,18 @@ export class AdminEmailFlowRouter {
         ModuleCode.EMAIL_CHANNEL,
         OperationCode.CREATE,
         error?.status === 409 ? ErrorLevelCode.CONFLICT : ErrorLevelCode.BUSINESS_LOGIC_ERROR,
-        error.message || 'Failed to create email flow'
+        error.message || 'Failed to create mail channel priority'
       );
     }
   }
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
-    input: getEmailFlowsQuerySchema,
+    input: getMailChannelPrioritiesQuerySchema,
     output: paginatedResponseSchema,
   })
   async getFlows(
-    @Input() input: z.infer<typeof getEmailFlowsQuerySchema>
+    @Input() input: z.infer<typeof getMailChannelPrioritiesQuerySchema>
   ): Promise<z.infer<typeof paginatedResponseSchema>> {
     try {
       const result = await this.emailFlowService.getFlows(input as any);
@@ -81,7 +83,7 @@ export class AdminEmailFlowRouter {
         ModuleCode.EMAIL_CHANNEL,
         OperationCode.READ,
         ErrorLevelCode.BUSINESS_LOGIC_ERROR,
-        error.message || 'Failed to retrieve email flows'
+        error.message || 'Failed to retrieve mail channel priorities'
       );
     }
   }
@@ -102,7 +104,7 @@ export class AdminEmailFlowRouter {
         ModuleCode.EMAIL_CHANNEL,
         OperationCode.READ,
         error?.status === 404 ? ErrorLevelCode.NOT_FOUND : ErrorLevelCode.BUSINESS_LOGIC_ERROR,
-        error.message || 'Email flow not found'
+        error.message || 'Mail channel priority not found'
       );
     }
   }
@@ -120,7 +122,7 @@ export class AdminEmailFlowRouter {
         ModuleCode.EMAIL_CHANNEL,
         OperationCode.READ,
         ErrorLevelCode.BUSINESS_LOGIC_ERROR,
-        error.message || 'Failed to retrieve active email flows'
+        error.message || 'Failed to retrieve active mail channel priorities'
       );
     }
   }
@@ -141,18 +143,18 @@ export class AdminEmailFlowRouter {
         ModuleCode.EMAIL_CHANNEL,
         OperationCode.READ,
         error?.status === 404 ? ErrorLevelCode.NOT_FOUND : ErrorLevelCode.BUSINESS_LOGIC_ERROR,
-        error.message || 'Failed to retrieve email flows by provider'
+        error.message || 'Failed to retrieve mail channel priorities by provider'
       );
     }
   }
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Mutation({
-    input: z.object({ id: z.string().uuid() }).merge(updateEmailFlowSchema),
+    input: z.object({ id: z.string().uuid() }).merge(updateMailChannelPrioritySchema),
     output: apiResponseSchema,
   })
   async updateFlow(
-    @Input() input: { id: string } & z.infer<typeof updateEmailFlowSchema>
+    @Input() input: { id: string } & z.infer<typeof updateMailChannelPrioritySchema>
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const { id, ...updateDto } = input;
@@ -166,7 +168,7 @@ export class AdminEmailFlowRouter {
         ModuleCode.EMAIL_CHANNEL,
         OperationCode.UPDATE,
         errorLevel,
-        error.message || 'Failed to update email flow'
+        error.message || 'Failed to update mail channel priority'
       );
     }
   }
@@ -188,13 +190,11 @@ export class AdminEmailFlowRouter {
         ModuleCode.EMAIL_CHANNEL,
         OperationCode.DELETE,
         errorLevel,
-        error.message || 'Failed to delete email flow'
+        error.message || 'Failed to delete mail channel priority'
       );
     }
   }
 }
-
-
 
 
 

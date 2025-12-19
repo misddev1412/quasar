@@ -3,6 +3,7 @@ import { ProductRepository, ProductFilters, PaginatedProducts } from '../reposit
 import { ProductMediaRepository, CreateProductMediaDto } from '../repositories/product-media.repository';
 import { ProductVariantRepository, CreateProductVariantDto, UpdateProductVariantDto } from '../repositories/product-variant.repository';
 import { ProductSpecificationRepository, CreateProductSpecificationDto } from '../repositories/product-specification.repository';
+import { ProductWarehouseQuantityRepository } from '../repositories/product-warehouse-quantity.repository';
 import { AttributeRepository } from '../repositories/attribute.repository';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { Product, ProductStatus } from '../entities/product.entity';
@@ -83,6 +84,7 @@ export class AdminProductService {
     private readonly productMediaRepository: ProductMediaRepository,
     private readonly productVariantRepository: ProductVariantRepository,
     private readonly productSpecificationRepository: ProductSpecificationRepository,
+    private readonly productWarehouseQuantityRepository: ProductWarehouseQuantityRepository,
     private readonly attributeRepository: AttributeRepository,
     private readonly responseHandler: ResponseService,
     private readonly productTransformer: ProductTransformer,
@@ -196,12 +198,15 @@ export class AdminProductService {
         description: productData.description || null,
         sku: productData.sku || null,
         status: productData.status || 'DRAFT',
+        price: productData.price !== undefined ? productData.price : 0,
         brandId: cleanUuid(productData.brandId),
         warrantyId: cleanUuid(productData.warrantyId),
         metaTitle: productData.metaTitle || null,
         metaDescription: productData.metaDescription || null,
         metaKeywords: productData.metaKeywords || null,
         isFeatured: productData.isFeatured || false,
+        stockQuantity: productData.stockQuantity !== undefined ? productData.stockQuantity : 0,
+        enableWarehouseQuantity: productData.enableWarehouseQuantity || false,
         isActive: true, // Default to active
       };
 
@@ -229,6 +234,11 @@ export class AdminProductService {
       // Handle category assignments
       if (productData.categoryIds && Array.isArray(productData.categoryIds)) {
         await this.handleProductCategories(product.id, productData.categoryIds);
+      }
+
+      // Handle warehouse quantities
+      if (productData.enableWarehouseQuantity && productData.warehouseQuantities && Array.isArray(productData.warehouseQuantities)) {
+        await this.handleWarehouseQuantities(product.id, productData.warehouseQuantities);
       }
 
       // TODO: Handle tags after product creation
@@ -268,12 +278,15 @@ export class AdminProductService {
         description: productData.description || null,
         sku: productData.sku || null,
         status: productData.status || 'DRAFT',
+        price: productData.price !== undefined ? productData.price : existingProduct.price,
         brandId: cleanUuid(productData.brandId),
         warrantyId: cleanUuid(productData.warrantyId),
         metaTitle: productData.metaTitle || null,
         metaDescription: productData.metaDescription || null,
         metaKeywords: productData.metaKeywords || null,
         isFeatured: productData.isFeatured || false,
+        stockQuantity: productData.stockQuantity !== undefined ? productData.stockQuantity : existingProduct.stockQuantity,
+        enableWarehouseQuantity: productData.enableWarehouseQuantity !== undefined ? productData.enableWarehouseQuantity : existingProduct.enableWarehouseQuantity,
         isActive: productData.isActive !== undefined ? productData.isActive : true,
       };
 
@@ -329,6 +342,16 @@ export class AdminProductService {
         }
       }
 
+      // Handle warehouse quantities - only if explicitly provided
+      if (productData.warehouseQuantities !== undefined) {
+        if (productData.enableWarehouseQuantity && Array.isArray(productData.warehouseQuantities)) {
+          await this.handleWarehouseQuantities(id, productData.warehouseQuantities);
+        } else {
+          // If not using warehouse quantities, clear them
+          await this.productWarehouseQuantityRepository.deleteByProductId(id);
+        }
+      }
+
       return updatedProduct;
     } catch (error) {
       if (error.statusCode === ApiStatusCodes.CONFLICT) {
@@ -354,6 +377,32 @@ export class AdminProductService {
       throw this.responseHandler.createError(
         ApiStatusCodes.INTERNAL_SERVER_ERROR,
         error.message || 'Failed to delete product',
+        'INTERNAL_SERVER_ERROR'
+      );
+    }
+  }
+
+  async bulkUpdateStatus(ids: string[], status: ProductStatus): Promise<{ updated: number }> {
+    try {
+      const updated = await this.productRepository.bulkUpdateStatus(ids, status);
+      return { updated };
+    } catch (error) {
+      throw this.responseHandler.createError(
+        ApiStatusCodes.INTERNAL_SERVER_ERROR,
+        error.message || 'Failed to bulk update product status',
+        'INTERNAL_SERVER_ERROR'
+      );
+    }
+  }
+
+  async bulkDelete(ids: string[]): Promise<{ deleted: number }> {
+    try {
+      const deleted = await this.productRepository.bulkDelete(ids);
+      return { deleted };
+    } catch (error) {
+      throw this.responseHandler.createError(
+        ApiStatusCodes.INTERNAL_SERVER_ERROR,
+        error.message || 'Failed to bulk delete products',
         'INTERNAL_SERVER_ERROR'
       );
     }
@@ -1325,6 +1374,20 @@ export class AdminProductService {
       await this.productRepository.updateProductCategories(productId, categoryIds);
     } catch (error) {
       throw new Error('Failed to update product categories: ' + error.message);
+    }
+  }
+
+  private async handleWarehouseQuantities(
+    productId: string,
+    warehouseQuantities: Array<{ warehouseId: string; quantity: number }>,
+  ): Promise<void> {
+    try {
+      await this.productWarehouseQuantityRepository.upsertWarehouseQuantities(
+        productId,
+        warehouseQuantities,
+      );
+    } catch (error) {
+      throw new Error('Failed to update warehouse quantities: ' + error.message);
     }
   }
 

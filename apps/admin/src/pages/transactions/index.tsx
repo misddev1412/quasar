@@ -390,7 +390,12 @@ const TransactionsPage: React.FC = () => {
       header: t('transactions.table.transaction', 'Transaction'),
       accessor: (transaction) => (
         <div className="flex flex-col">
-          <span className="font-medium text-gray-900 dark:text-white">{transaction.transactionCode}</span>
+          <Link
+            to={`/transactions/${transaction.id}`}
+            className="font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            {transaction.transactionCode}
+          </Link>
           {transaction.referenceId && (
             <span className="text-xs text-gray-500 dark:text-gray-400">
               {t('transactions.table.reference', 'Reference')}: {transaction.referenceId}

@@ -1,6 +1,23 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiPlus, FiMoreVertical, FiPackage, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiShoppingBag, FiStar, FiHome, FiUpload } from 'react-icons/fi';
+import {
+  FiPlus,
+  FiMoreVertical,
+  FiPackage,
+  FiActivity,
+  FiEdit2,
+  FiDownload,
+  FiFilter,
+  FiRefreshCw,
+  FiTrash2,
+  FiEye,
+  FiShoppingBag,
+  FiStar,
+  FiHome,
+  FiUpload,
+  FiCheckCircle,
+  FiPauseCircle,
+} from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { Dropdown } from '../../components/common/Dropdown';
@@ -20,7 +37,7 @@ import { ProductVariantQuickEditModal } from '../../components/products/ProductV
 import { ProductImportModal } from '../../components/products/ProductImportModal';
 
 
-const ProductsPage: React.FC = () => {
+export const ProductsPage: React.FC = () => {
   const navigate = useNavigate();
   const { addToast } = useToast();
   const { t } = useTranslationWithBackend();
@@ -29,7 +46,7 @@ const ProductsPage: React.FC = () => {
   // Table preferences with persistence
   const { preferences, updatePageSize, updateVisibleColumns } = useTablePreferences('products-table', {
     pageSize: parseInt(searchParams.get('limit') || '10'),
-    visibleColumns: new Set(['product', 'sku', 'brand', 'category', 'status', 'variants', 'createdAt']),
+    visibleColumns: new Set(['product', 'sku', 'brand', 'category', 'status', 'variants', 'warehouseQuantity', 'createdAt']),
   });
 
   // Initialize state from URL parameters
@@ -150,6 +167,7 @@ const ProductsPage: React.FC = () => {
   });
 
   const updateVariantMutation = trpc.adminProducts.updateVariant.useMutation();
+  const bulkActionMutation = trpc.adminProducts.bulkAction.useMutation();
 
   const handleOpenVariantsModal = useCallback((product: Product) => {
     setProductForVariants(product);
@@ -438,25 +456,54 @@ const ProductsPage: React.FC = () => {
   };
 
   // Handle bulk actions
-  const handleBulkAction = useCallback((action: string) => {
-    console.log(`Bulk action: ${action} on ${selectedProductIds.size} products`);
-    switch (action) {
-      case 'activate':
-        addToast({ type: 'info', title: t('common.feature_coming_soon', 'Feature coming soon'), description: t('products.bulk_activate_coming_soon', 'Bulk activate will be available soon') });
-        break;
-      case 'deactivate':
-        addToast({ type: 'info', title: t('common.feature_coming_soon', 'Feature coming soon'), description: t('products.bulk_deactivate_coming_soon', 'Bulk deactivate will be available soon') });
-        break;
-      case 'delete':
-        const confirmDelete = window.confirm(t('products.bulk_delete_confirm', `Are you sure you want to delete ${selectedProductIds.size} products? This action cannot be undone.`));
-        if (confirmDelete) {
-          addToast({ type: 'info', title: t('common.feature_coming_soon', 'Feature coming soon'), description: t('products.bulk_delete_coming_soon', 'Bulk delete will be available soon') });
-        }
-        break;
-      default:
-        break;
+  const handleBulkAction = useCallback(async (action: 'activate' | 'deactivate' | 'delete') => {
+    if (!selectedProductIds || selectedProductIds.size === 0) {
+      addToast({
+        type: 'info',
+        title: t('products.no_selection_title', 'Select products'),
+        description: t('products.no_selection_description', 'Choose at least one product to use bulk actions.'),
+      });
+      return;
     }
-  }, [selectedProductIds.size, addToast]);
+
+    if (action === 'delete') {
+      const confirmDelete = window.confirm(
+        t('products.bulk_delete_confirm', `Are you sure you want to delete ${selectedProductIds.size} products? This action cannot be undone.`)
+      );
+      if (!confirmDelete) {
+        return;
+      }
+    }
+
+    try {
+      const ids = Array.from(selectedProductIds).map(String);
+      const response = await bulkActionMutation.mutateAsync({ ids, action });
+      const result = (response as any)?.data || {};
+      const affected = result.updated ?? result.deleted ?? ids.length;
+
+      const successMessages = {
+        activate: t('products.bulk_activate_success', 'Activated {{count}} products').replace('{{count}}', String(affected)),
+        deactivate: t('products.bulk_deactivate_success', 'Deactivated {{count}} products').replace('{{count}}', String(affected)),
+        delete: t('products.bulk_delete_success', 'Deleted {{count}} products').replace('{{count}}', String(affected)),
+      };
+
+      addToast({
+        type: 'success',
+        title: t('common.success', 'Success'),
+        description: successMessages[action],
+      });
+
+      setSelectedProductIds(new Set<string | number>());
+      await trpcContext.adminProducts.list.invalidate();
+      refetch();
+    } catch (mutationError: any) {
+      addToast({
+        type: 'error',
+        title: t('common.error', 'Error'),
+        description: mutationError?.message || t('products.bulk_action_error', 'Failed to perform bulk action.'),
+      });
+    }
+  }, [selectedProductIds, addToast, t, bulkActionMutation, trpcContext, refetch]);
 
   const handleRefresh = useCallback(() => {
     refetch();
@@ -649,6 +696,19 @@ const ProductsPage: React.FC = () => {
       hideable: true,
     },
     {
+      id: 'warehouseQuantity',
+      header: t('products.warehouse_quantity', 'Warehouse Quantity'),
+      accessor: (product) => {
+        if (!product.enableWarehouseQuantity || !product.warehouseQuantities) {
+          return product.stockQuantity || 0;
+        }
+        const totalQuantity = product.warehouseQuantities.reduce((sum, wq) => sum + wq.quantity, 0);
+        return totalQuantity;
+      },
+      isSortable: false,
+      hideable: true,
+    },
+    {
       id: 'createdAt',
       header: t('common.created_at', 'Created At'),
       accessor: 'createdAt',
@@ -703,18 +763,24 @@ const ProductsPage: React.FC = () => {
       label: t('products.activate_selected', 'Activate Selected'),
       value: 'activate',
       variant: 'primary' as const,
+      disabled: bulkActionMutation.isPending,
+      icon: <FiCheckCircle className="w-4 h-4" />,
     },
     {
       label: t('products.deactivate_selected', 'Deactivate Selected'), 
       value: 'deactivate',
       variant: 'outline' as const,
+      disabled: bulkActionMutation.isPending,
+      icon: <FiPauseCircle className="w-4 h-4" />,
     },
     {
       label: t('products.delete_selected', 'Delete Selected'),
       value: 'delete',
       variant: 'danger' as const,
+      disabled: bulkActionMutation.isPending,
+      icon: <FiTrash2 className="w-4 h-4" />,
     },
-  ], [t]);
+  ], [t, bulkActionMutation.isPending]);
 
   const actions = useMemo(() => [
     {

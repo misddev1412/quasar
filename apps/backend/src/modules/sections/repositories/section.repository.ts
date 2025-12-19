@@ -28,9 +28,22 @@ export class SectionRepository extends BaseRepository<SectionEntity> {
     return this.repository
       .createQueryBuilder('section')
       .leftJoinAndSelect('section.translations', 'translation')
+      .leftJoinAndSelect('section.components', 'components')
       .where('section.page = :page', { page })
       .andWhere('section.deletedAt IS NULL')
       .orderBy('section.position', 'ASC')
+      .addOrderBy('section.createdAt', 'ASC')
+      .getMany();
+  }
+
+  async findAll(): Promise<SectionEntity[]> {
+    return this.repository
+      .createQueryBuilder('section')
+      .leftJoinAndSelect('section.translations', 'translation')
+      .leftJoinAndSelect('section.components', 'components')
+      .where('section.deletedAt IS NULL')
+      .orderBy('section.page', 'ASC')
+      .addOrderBy('section.position', 'ASC')
       .addOrderBy('section.createdAt', 'ASC')
       .getMany();
   }
@@ -45,4 +58,5 @@ export class SectionRepository extends BaseRepository<SectionEntity> {
 
     return max ?? 0;
   }
+
 }

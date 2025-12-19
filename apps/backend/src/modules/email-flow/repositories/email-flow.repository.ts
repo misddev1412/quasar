@@ -11,6 +11,7 @@ export interface IEmailFlowRepository {
     search?: string;
     isActive?: boolean;
     mailProviderId?: string;
+    mailTemplateId?: string;
   }): Promise<{
     items: EmailFlow[];
     meta: {
@@ -50,6 +51,7 @@ export class EmailFlowRepository extends BaseRepository<EmailFlow> implements IE
     search?: string;
     isActive?: boolean;
     mailProviderId?: string;
+    mailTemplateId?: string;
   }): Promise<{
     items: EmailFlow[];
     meta: {
@@ -61,15 +63,16 @@ export class EmailFlowRepository extends BaseRepository<EmailFlow> implements IE
       hasPreviousPage: boolean;
     };
   }> {
-    const { page, limit, search, isActive, mailProviderId } = params;
+    const { page, limit, search, isActive, mailProviderId, mailTemplateId } = params;
 
     const queryBuilder = this.emailFlowRepository
       .createQueryBuilder('emailFlow')
       .leftJoinAndSelect('emailFlow.mailProvider', 'mailProvider')
+      .leftJoinAndSelect('emailFlow.mailTemplate', 'mailTemplate')
       .orderBy('emailFlow.priority', 'ASC')
       .addOrderBy('emailFlow.name', 'ASC');
 
-    this.applyFilters(queryBuilder, { search, isActive, mailProviderId });
+    this.applyFilters(queryBuilder, { search, isActive, mailProviderId, mailTemplateId });
 
     const [items, total] = await queryBuilder
       .skip((page - 1) * limit)
@@ -98,7 +101,7 @@ export class EmailFlowRepository extends BaseRepository<EmailFlow> implements IE
   async findByIdWithProvider(id: string): Promise<EmailFlow | null> {
     return await this.emailFlowRepository.findOne({
       where: { id },
-      relations: ['mailProvider'],
+      relations: ['mailProvider', 'mailTemplate'],
     });
   }
 
@@ -109,7 +112,7 @@ export class EmailFlowRepository extends BaseRepository<EmailFlow> implements IE
   async findActiveFlows(): Promise<EmailFlow[]> {
     return await this.emailFlowRepository.find({
       where: { isActive: true },
-      relations: ['mailProvider'],
+      relations: ['mailProvider', 'mailTemplate'],
       order: { priority: 'ASC', name: 'ASC' },
     });
   }
@@ -117,7 +120,7 @@ export class EmailFlowRepository extends BaseRepository<EmailFlow> implements IE
   async findByMailProvider(mailProviderId: string): Promise<EmailFlow[]> {
     return await this.emailFlowRepository.find({
       where: { mailProviderId },
-      relations: ['mailProvider'],
+      relations: ['mailProvider', 'mailTemplate'],
       order: { priority: 'ASC', name: 'ASC' },
     });
   }
@@ -125,7 +128,7 @@ export class EmailFlowRepository extends BaseRepository<EmailFlow> implements IE
   async findActiveFlowsByProvider(mailProviderId: string): Promise<EmailFlow[]> {
     return await this.emailFlowRepository.find({
       where: { mailProviderId, isActive: true },
-      relations: ['mailProvider'],
+      relations: ['mailProvider', 'mailTemplate'],
       order: { priority: 'ASC', name: 'ASC' },
     });
   }
@@ -158,7 +161,7 @@ export class EmailFlowRepository extends BaseRepository<EmailFlow> implements IE
 
     const existingFlow = await queryBuilder.getOne();
     if (existingFlow) {
-      errors.push('Email flow name must be unique');
+      errors.push('Mail channel priority name must be unique');
     }
 
     return {
@@ -173,9 +176,10 @@ export class EmailFlowRepository extends BaseRepository<EmailFlow> implements IE
       search?: string;
       isActive?: boolean;
       mailProviderId?: string;
+      mailTemplateId?: string | null;
     },
   ): void {
-    const { search, isActive, mailProviderId } = filters;
+    const { search, isActive, mailProviderId, mailTemplateId } = filters;
 
     if (search) {
       queryBuilder.andWhere(
@@ -191,12 +195,12 @@ export class EmailFlowRepository extends BaseRepository<EmailFlow> implements IE
     if (mailProviderId) {
       queryBuilder.andWhere('emailFlow.mailProviderId = :mailProviderId', { mailProviderId });
     }
+
+    if (mailTemplateId) {
+      queryBuilder.andWhere('emailFlow.mailTemplateId = :mailTemplateId', { mailTemplateId });
+    }
   }
 }
-
-
-
-
 
 
 

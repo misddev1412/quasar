@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { FolderPlus, Package, Image, Settings, Globe, Tag, Layers, Zap } from 'lucide-react';
+import React, { useState } from 'react';
+import { FolderPlus, Package, Image, Settings, Globe, Tag, Layers, Zap, Warehouse } from 'lucide-react';
 import { EntityForm } from '../common/EntityForm';
 import { FormTabConfig } from '../../types/forms';
-import { CreateProductFormData, Product, ProductVariant, ProductMedia } from '../../types/product';
+import { CreateProductFormData, Product, ProductVariant, ProductMedia, ProductWarehouseQuantity } from '../../types/product';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -10,6 +10,8 @@ import { z } from 'zod';
 import { ProductVariantsSection, VariantMatrixItem } from './ProductVariantsSection';
 import { MediaType } from '../common/ProductMediaUpload';
 import { ProductSpecificationsEditor, ProductSpecificationFormItem } from './ProductSpecificationsEditor';
+import { ProductWarehouseQuantityManager } from './ProductWarehouseQuantityManager';
+import { Input } from '../common/Input';
 
 // MediaItem interface for frontend form - compatible with ProductMediaUpload component
 interface MediaItem {
@@ -86,6 +88,13 @@ const productSchema = z.object({
   metaDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
   isFeatured: z.boolean().default(false),
+  price: z.number().min(0).optional(),
+  stockQuantity: z.number().min(0).optional(),
+  enableWarehouseQuantity: z.boolean().default(false),
+  warehouseQuantities: z.array(z.object({
+    warehouseId: z.string(),
+    quantity: z.number().min(0),
+  })).optional(),
   variants: z.any().optional(), // Add variants validation
 }).passthrough();
 
@@ -139,7 +148,11 @@ export interface ProductFormData {
   metaTitle?: string;
   metaDescription?: string;
   metaKeywords?: string;
+  price?: number;
   isFeatured: boolean;
+  stockQuantity?: number;
+  enableWarehouseQuantity: boolean;
+  warehouseQuantities?: ProductWarehouseQuantity[];
   variants?: VariantMatrixItem[] | BackendVariant[];
   specifications?: SpecificationFormValue[];
 }
@@ -197,6 +210,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       };
     });
   });
+
+  const [enableWarehouseQuantity, setEnableWarehouseQuantity] = useState(() => product?.enableWarehouseQuantity || false);
+  const [warehouseQuantities, setWarehouseQuantities] = useState<ProductWarehouseQuantity[]>(() => product?.warehouseQuantities || []);
+  const [price, setPrice] = useState(() => product?.price ?? 0);
+  const [stockQuantity, setStockQuantity] = useState(() => product?.stockQuantity || 0);
 
   const [specifications, setSpecifications] = useState<ProductSpecificationFormItem[]>(() => {
     if (!product?.specifications || product.specifications.length === 0) {
@@ -304,13 +322,85 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             },
             {
               name: 'status',
-              label: t('products.status', 'Status'),
+              label: t('common.status', 'Status'),
               type: 'select',
               placeholder: t('products.select_status', 'Select status'),
               required: true,
               options: statusOptions,
             },
           ],
+          customContent: variants.length > 0 ? (
+            <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800 p-4">
+              <div className="flex items-start gap-3">
+                <Package className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                    {t('products.variants_quantity_notice', 'Product has variants')}
+                  </h4>
+                  <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                    {t('products.variants_quantity_description', 'Stock quantity is managed per variant. Please go to the Variants tab to set quantities for each variant.')}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className={`grid grid-cols-1 ${!enableWarehouseQuantity ? 'md:grid-cols-2' : ''} gap-6`}>
+                <div className="space-y-2">
+                  <label htmlFor="price" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {t('products.price', 'Price')}
+                  </label>
+                  <Input
+                    id="price"
+                    type="number"
+                    step="0.01"
+                    min={0}
+                    value={price}
+                    onChange={(e) => setPrice(parseFloat(e.target.value) || 0)}
+                    placeholder={t('products.price_placeholder', '0.00')}
+                    className="w-full"
+                  />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {t('products.price_description', 'Base selling price for this product when no variants exist.')}
+                  </p>
+                </div>
+                {!enableWarehouseQuantity && (
+                  <div className="space-y-2">
+                    <label htmlFor="stockQuantity" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {t('products.stock_quantity', 'Stock Quantity')}
+                    </label>
+                    <Input
+                      id="stockQuantity"
+                      type="number"
+                      value={stockQuantity}
+                      onChange={(e) => setStockQuantity(parseInt(e.target.value) || 0)}
+                      placeholder={t('products.stock_quantity_placeholder', '0')}
+                      min={0}
+                      className="w-full"
+                    />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {t('products.stock_quantity_description', 'Total available stock for this product. For warehouse-specific inventory, enable warehouse quantity tracking.')}
+                    </p>
+                  </div>
+                )}
+              </div>
+              {enableWarehouseQuantity && (
+                <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800 p-4">
+                  <div className="flex items-start gap-3">
+                    <Warehouse className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                    <div className="flex-1">
+                      <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                        {t('products.warehouse_quantity_notice', 'Warehouse tracking enabled')}
+                      </h4>
+                      <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                        {t('products.warehouse_quantity_description', 'Stock quantity is managed by warehouse. Please go to the Inventory tab to set quantities for each warehouse.')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ),
         },
         {
           title: t('products.categorization', 'Categorization'),
@@ -395,6 +485,34 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               productId={product?.id}
             />
           ),
+        },
+      ],
+    },
+    {
+      id: 'inventory',
+      label: t('products.inventory', 'Inventory'),
+      icon: <Warehouse className="w-4 h-4" />,
+      sections: [
+        {
+          title: t('products.inventory_management', 'Inventory Management'),
+          description: t('products.inventory_description', 'Manage product stock across warehouses.'),
+          icon: <Warehouse className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
+          fields: [
+            {
+              name: 'enableWarehouseQuantity',
+              label: t('products.enable_warehouse_quantity', 'Enable Warehouse Quantity'),
+              type: 'checkbox',
+              description: t('products.enable_warehouse_quantity_description', 'When enabled, track inventory by warehouse instead of a single quantity.'),
+              required: false,
+              onValueChange: (value: boolean) => setEnableWarehouseQuantity(value),
+            },
+          ],
+          customContent: enableWarehouseQuantity ? (
+            <ProductWarehouseQuantityManager
+              warehouseQuantities={warehouseQuantities}
+              onChange={setWarehouseQuantities}
+            />
+          ) : null,
         },
       ],
     },
@@ -510,6 +628,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     brandId: product?.brandId || '',
     categoryIds: product?.categoryIds || [],
     warrantyId: product?.warrantyId || '',
+    stockQuantity: product?.stockQuantity || 0,
     media: (() => {
       // Check both media and __media__ fields (backend may use __media__ due to TypeORM lazy loading)
       const mediaData = product?.media || (product as any)?.__media__;
@@ -527,7 +646,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     metaTitle: product?.metaTitle || '',
     metaDescription: product?.metaDescription || '',
     metaKeywords: product?.metaKeywords || '',
+    price: product?.price || 0,
     isFeatured: product?.isFeatured || false,
+    enableWarehouseQuantity: enableWarehouseQuantity,
+    warehouseQuantities: warehouseQuantities,
     variants: variants,
     specifications: specifications,
   };
@@ -539,6 +661,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         ...data,
         // Transform media back to backend format
         media: data.media ? data.media.map(transformMediaItemForBackend) : [],
+        // Use local state for warehouse quantities, stock quantity, and enable flag
+        stockQuantity: !enableWarehouseQuantity && variants.length === 0 ? stockQuantity : undefined,
+        price: variants.length === 0 ? (Number(price) || 0) : undefined,
+        enableWarehouseQuantity: enableWarehouseQuantity,
+        warehouseQuantities: warehouseQuantities,
       };
 
       // Only include variants if there are any to avoid validation issues

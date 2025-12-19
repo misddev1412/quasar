@@ -302,7 +302,7 @@ export class NavigationService implements INavigationService {
           },
           {
             icon: React.createElement(AccountTreeIcon),
-            label: t('admin.email_flows', 'Email Flows'),
+            label: t('admin.email_flows', 'Mail Channel Priority'),
             path: '/email-flows'
           },
           {

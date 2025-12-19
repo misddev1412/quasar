@@ -64,7 +64,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   const { name, brand, sku, status, isActive, variants, tags } = product;
 
   const currentPrice = selectedVariant?.price ||
-    (variants && variants.length > 0 ? Math.min(...variants.map(v => v.price)) : 0);
+    (variants && variants.length > 0 ? Math.min(...variants.map(v => v.price)) : product.price);
 
   const originalPrice = selectedVariant?.compareAtPrice ||
     (variants && variants.length > 0 ? variants[0].compareAtPrice : undefined);
@@ -236,7 +236,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
             color="primary"
             className="flex-1 font-semibold"
             onPress={onAddToCart}
-            isDisabled={!inStock || (variantAttributes.length > 0 && !selectedVariant)}
+            isDisabled={!inStock || (hasAttributeBasedVariants && !selectedVariant)}
           >
             {!inStock ? t('actions.outOfStock') : t('actions.addToCart')}
           </Button>
@@ -245,7 +245,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
             color="secondary"
             className="flex-1 font-semibold"
             onPress={onBuyNow}
-            isDisabled={!inStock || (variantAttributes.length > 0 && !selectedVariant)}
+            isDisabled={!inStock || (hasAttributeBasedVariants && !selectedVariant)}
           >
             {t('actions.buyNow')}
           </Button>

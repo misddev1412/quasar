@@ -204,7 +204,7 @@ export class CreateMailLogsTable1768300000000 implements MigrationInterface {
       }),
       new TableForeignKey({
         columnNames: ['email_flow_id'],
-        referencedTableName: 'email_flows',
+        referencedTableName: 'mail_channel_priorities',
         referencedColumnNames: ['id'],
         onDelete: 'SET NULL',
         onUpdate: 'CASCADE',

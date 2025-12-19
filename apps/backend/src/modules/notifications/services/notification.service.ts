@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { NotificationRepository, CreateNotificationDto, NotificationFilters } from '../repositories/notification.repository';
 import { NotificationEntity, NotificationType } from '../entities/notification.entity';
 import { FirebaseMessagingService, FCMPayload, SendToUserOptions } from './firebase-messaging.service';
@@ -6,6 +7,10 @@ import { NotificationPreferenceService } from './notification-preference.service
 import { NotificationChannel } from '../entities/notification-preference.entity';
 import { NotificationChannelConfigService } from './notification-channel-config.service';
 import { NotificationEvent } from '../entities/notification-event.enum';
+import {
+  FirebaseRealtimeDatabaseService,
+  RealtimeOrderNotificationPayload,
+} from '../../firebase/services/firebase-realtime.service';
 
 export interface NotificationWithPagination {
   notifications: NotificationEntity[];
@@ -50,6 +55,7 @@ export class NotificationService {
     private readonly firebaseMessagingService: FirebaseMessagingService,
     private readonly notificationPreferenceService: NotificationPreferenceService,
     private readonly notificationChannelConfigService: NotificationChannelConfigService,
+    private readonly firebaseRealtimeDatabaseService: FirebaseRealtimeDatabaseService,
   ) {}
 
   async createNotification(data: CreateNotificationDto): Promise<NotificationEntity> {
@@ -215,6 +221,18 @@ export class NotificationService {
       };
 
       await this.firebaseMessagingService.sendToUser(payload, options);
+    }
+
+    if (this.shouldPublishRealtimeOrderEvent(resolvedEvent, type)) {
+      await this.publishRealtimeOrderNotification({
+        notification,
+        eventKey: resolvedEvent,
+        userId,
+        title,
+        body,
+        actionUrl,
+        additionalData,
+      });
     }
 
     return notification;
@@ -440,5 +458,55 @@ export class NotificationService {
 
   async initializeUserNotificationPreferences(userId: string): Promise<void> {
     await this.notificationPreferenceService.initializeUserPreferences(userId);
+  }
+
+  private shouldPublishRealtimeOrderEvent(
+    eventKey?: NotificationEvent,
+    type?: NotificationType,
+  ): boolean {
+    if (type === NotificationType.ORDER) {
+      return true;
+    }
+    return Boolean(eventKey && String(eventKey).startsWith('order.'));
+  }
+
+  private async publishRealtimeOrderNotification(params: {
+    notification: NotificationEntity | null;
+    eventKey: NotificationEvent;
+    userId: string;
+    title: string;
+    body: string;
+    actionUrl?: string;
+    additionalData?: Record<string, unknown>;
+  }): Promise<void> {
+    if (!this.firebaseRealtimeDatabaseService) {
+      return;
+    }
+
+    const { notification, eventKey, userId, title, body, actionUrl, additionalData } = params;
+    const orderId =
+      typeof additionalData?.orderId === 'string'
+        ? (additionalData.orderId as string)
+        : undefined;
+    const status =
+      typeof additionalData?.status === 'string'
+        ? (additionalData.status as string)
+        : undefined;
+
+    const payload: RealtimeOrderNotificationPayload = {
+      id: notification?.id ?? randomUUID(),
+      userId,
+      title,
+      body,
+      eventKey,
+      orderId,
+      status,
+      actionUrl,
+      read: notification?.read ?? false,
+      createdAt: (notification?.createdAt ?? new Date()).toISOString(),
+      metadata: additionalData,
+    };
+
+    await this.firebaseRealtimeDatabaseService.publishOrderNotification(userId, payload);
   }
 }

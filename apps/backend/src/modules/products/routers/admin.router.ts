@@ -36,6 +36,7 @@ export const createProductSchema = z.object({
   status: productStatusSchema.optional(),
   isActive: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
+  price: z.number().optional(),
   brandId: z.string().optional(),
   categoryId: z.string().optional(),
   categoryIds: z.array(z.string()).optional(),
@@ -60,6 +61,12 @@ export const createProductSchema = z.object({
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
+  stockQuantity: z.number().optional(),
+  enableWarehouseQuantity: z.boolean().optional(),
+  warehouseQuantities: z.array(z.object({
+    warehouseId: z.string(),
+    quantity: z.number(),
+  })).optional(),
   specifications: z.array(z.object({
     id: z.string().optional(),
     name: z.string().min(1),
@@ -96,6 +103,7 @@ export const updateProductSchema = z.object({
   status: productStatusSchema.optional(),
   isActive: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
+  price: z.number().optional(),
   brandId: z.string().optional(),
   categoryId: z.string().optional(),
   categoryIds: z.array(z.string()).optional(),
@@ -119,6 +127,12 @@ export const updateProductSchema = z.object({
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
+  stockQuantity: z.number().optional(),
+  enableWarehouseQuantity: z.boolean().optional(),
+  warehouseQuantities: z.array(z.object({
+    warehouseId: z.string(),
+    quantity: z.number(),
+  })).optional(),
   specifications: z.array(z.object({
     id: z.string().optional(),
     name: z.string().min(1),
@@ -643,6 +657,45 @@ export class AdminProductsRouter {
         3,  // OperationCode.UPDATE
         30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
         error.message || 'Failed to update product status'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      ids: z.array(z.string()).min(1),
+      action: z.enum(['activate', 'deactivate', 'delete']),
+    }),
+    output: apiResponseSchema,
+  })
+  async bulkAction(
+    @Input() input: { ids: string[]; action: 'activate' | 'deactivate' | 'delete' }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      let result: { updated?: number; deleted?: number };
+
+      switch (input.action) {
+        case 'activate':
+          result = await this.productService.bulkUpdateStatus(input.ids, ProductStatus.ACTIVE);
+          break;
+        case 'deactivate':
+          result = await this.productService.bulkUpdateStatus(input.ids, ProductStatus.INACTIVE);
+          break;
+        case 'delete':
+          result = await this.productService.bulkDelete(input.ids);
+          break;
+        default:
+          throw new Error('Unsupported bulk action');
+      }
+
+      return this.responseHandler.createTrpcSuccess(result);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15,
+        input.action === 'delete' ? 4 : 3,
+        30,
+        error.message || 'Failed to perform bulk action on products'
       );
     }
   }

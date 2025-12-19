@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ComponentCategory, ComponentStructureType } from '@shared/enums/component.enums';
+import { SECTION_TYPE_LABELS } from '@shared/enums/section.enums';
 import { Input } from '../common/Input';
 import { Select, type SelectOption } from '../common/Select';
 import { Textarea } from '../common/Textarea';
@@ -16,6 +17,12 @@ import { UnifiedIcon } from '../common/UnifiedIcon';
 import Tabs from '../common/Tabs';
 import { Link } from 'react-router-dom';
 import type { ComponentConfigNode } from './componentConfigTree';
+import { SearchSelect } from '../common/SearchSelect';
+import type { MultiValue } from 'react-select';
+import { trpc } from '../../utils/trpc';
+import type { ApiResponse } from '@backend/trpc/schemas/response.schemas';
+import type { AdminSection } from '../../hooks/useSectionsManager';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 type SidebarLinkType = 'custom' | 'category' | 'product' | 'brand';
 type SidebarTitleFontWeight = 'normal' | 'medium' | 'semibold' | 'bold';
@@ -59,6 +66,12 @@ interface ComponentOption {
   componentKey: string;
   displayName: string;
   depth: number;
+}
+
+interface SectionSelectOption {
+  value: string;
+  label: string;
+  data: AdminSection;
 }
 
 const SIDEBAR_TITLE_FONT_WEIGHT_VALUES: SidebarTitleFontWeight[] = ['normal', 'medium', 'semibold', 'bold'];
@@ -128,6 +141,9 @@ const createSidebarSection = (): SidebarMenuSection => ({
   titleIcon: '',
   items: [createSidebarItem()],
 });
+
+const formatPageLabel = (page: string) =>
+  page.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 
 const isSidebarLinkType = (value: unknown): value is SidebarLinkType =>
   value === 'custom' || value === 'category' || value === 'product' || value === 'brand';
@@ -357,101 +373,7 @@ const createKeyValueEntry = (overrides?: Partial<KeyValueEntry>): KeyValueEntry 
   ...overrides,
 });
 
-const KEY_VALUE_TYPE_OPTIONS: SelectOption[] = [
-  { value: 'string', label: 'Text' },
-  { value: 'number', label: 'Number' },
-  { value: 'boolean', label: 'Toggle' },
-  { value: 'json', label: 'JSON' },
-];
 
-const objectToKeyValueEntries = (value?: Record<string, unknown>): KeyValueEntry[] => {
-  if (!value || typeof value !== 'object' || Object.keys(value).length === 0) {
-    return [createKeyValueEntry()];
-  }
-
-  return Object.entries(value).map(([key, entryValue]) => {
-    if (typeof entryValue === 'number') {
-      return createKeyValueEntry({ key, value: String(entryValue), type: 'number' });
-    }
-    if (typeof entryValue === 'boolean') {
-      return createKeyValueEntry({ key, value: entryValue ? 'true' : 'false', type: 'boolean' });
-    }
-    if (typeof entryValue === 'string') {
-      return createKeyValueEntry({ key, value: entryValue, type: 'string' });
-    }
-    return createKeyValueEntry({
-      key,
-      value: JSON.stringify(entryValue, null, 2),
-      type: 'json',
-    });
-  });
-};
-
-const parseEntriesToObject = (
-  entries: KeyValueEntry[],
-): { data: Record<string, unknown>; errors: Record<string, string | undefined>; isValid: boolean } => {
-  const data: Record<string, unknown> = {};
-  const errors: Record<string, string | undefined> = {};
-
-  entries.forEach((entry) => {
-    const trimmedKey = entry.key.trim();
-    const trimmedValue = entry.value.trim();
-
-    if (!trimmedKey) {
-      if (!trimmedValue) {
-        errors[entry.id] = undefined;
-      } else {
-        errors[entry.id] = 'Field name is required';
-      }
-      return;
-    }
-
-    switch (entry.type) {
-      case 'boolean':
-        data[trimmedKey] = entry.value === 'true';
-        errors[entry.id] = undefined;
-        break;
-      case 'number': {
-        if (!trimmedValue) {
-          errors[entry.id] = 'Enter a number';
-          break;
-        }
-        const parsedNumber = Number(trimmedValue);
-        if (Number.isNaN(parsedNumber)) {
-          errors[entry.id] = 'Invalid number';
-          break;
-        }
-        data[trimmedKey] = parsedNumber;
-        errors[entry.id] = undefined;
-        break;
-      }
-      case 'json': {
-        if (!trimmedValue) {
-          errors[entry.id] = 'Provide a JSON value';
-          break;
-        }
-        try {
-          data[trimmedKey] = JSON.parse(trimmedValue);
-          errors[entry.id] = undefined;
-        } catch (error) {
-          errors[entry.id] = 'Invalid JSON';
-        }
-        break;
-      }
-      default:
-        data[trimmedKey] = entry.value;
-        errors[entry.id] = undefined;
-        break;
-    }
-  });
-
-  const isValid = Object.values(errors).every((error) => !error);
-  return {
-    data: isValid ? data : {},
-    errors,
-    isValid,
-  };
-};
 
 export interface ComponentConfigFormValues {
   componentKey: string;
@@ -468,6 +390,8 @@ export interface ComponentConfigFormValues {
   previewMediaUrl?: string | null;
   parentId?: string | null;
   slotKey?: string | null;
+  sectionIds?: string[];
+  sections?: ComponentConfigNode['sections'];
 }
 
 interface ComponentConfigFormProps {
@@ -509,6 +433,104 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
   activeTab: controlledActiveTab,
   onTabChange,
 }) => {
+  const { t } = useTranslationWithBackend();
+
+  const KEY_VALUE_TYPE_OPTIONS = [
+    { value: 'string', label: t('componentConfigs.keyValueTypeText', 'Text') },
+    { value: 'number', label: t('componentConfigs.keyValueTypeNumber', 'Number') },
+    { value: 'boolean', label: t('componentConfigs.keyValueTypeToggle', 'Toggle') },
+    { value: 'json', label: t('componentConfigs.keyValueTypeJson', 'JSON') },
+  ];
+
+  const objectToKeyValueEntries = (value?: Record<string, unknown>): KeyValueEntry[] => {
+    if (!value || typeof value !== 'object' || Object.keys(value).length === 0) {
+      return [createKeyValueEntry()];
+    }
+
+    return Object.entries(value).map(([key, entryValue]) => {
+      if (typeof entryValue === 'number') {
+        return createKeyValueEntry({ key, value: String(entryValue), type: 'number' });
+      }
+      if (typeof entryValue === 'boolean') {
+        return createKeyValueEntry({ key, value: entryValue ? 'true' : 'false', type: 'boolean' });
+      }
+      if (typeof entryValue === 'string') {
+        return createKeyValueEntry({ key, value: entryValue, type: 'string' });
+      }
+      return createKeyValueEntry({
+        key,
+        value: JSON.stringify(entryValue, null, 2),
+        type: 'json',
+      });
+    });
+  };
+
+  const parseEntriesToObject = (
+    entries: KeyValueEntry[],
+  ): { data: Record<string, unknown>; errors: Record<string, string | undefined>; isValid: boolean } => {
+    const data: Record<string, unknown> = {};
+    const errors: Record<string, string | undefined> = {};
+
+    for (const entry of entries) {
+      const trimmedKey = entry.key.trim();
+      const trimmedValue = entry.value.trim();
+
+      if (!trimmedKey) {
+        if (!trimmedValue) {
+          errors[entry.id] = undefined;
+        } else {
+          errors[entry.id] = t('componentConfigs.fieldNameRequired', 'Field name is required');
+        }
+        return;
+      }
+
+      switch (entry.type) {
+        case 'boolean':
+          data[trimmedKey] = entry.value === 'true';
+          errors[entry.id] = undefined;
+          break;
+        case 'number': {
+          if (!trimmedValue) {
+            errors[entry.id] = t('componentConfigs.enterNumber', 'Enter a number');
+            break;
+          }
+          const parsedNumber = Number(trimmedValue);
+          if (Number.isNaN(parsedNumber)) {
+            errors[entry.id] = t('componentConfigs.invalidNumber', 'Invalid number');
+            break;
+          }
+          data[trimmedKey] = parsedNumber;
+          errors[entry.id] = undefined;
+          break;
+        }
+        case 'json': {
+          if (!trimmedValue) {
+            errors[entry.id] = t('componentConfigs.provideJsonValue', 'Provide a JSON value');
+            break;
+          }
+          try {
+            data[trimmedKey] = JSON.parse(trimmedValue);
+            errors[entry.id] = undefined;
+          } catch (error) {
+            errors[entry.id] = t('componentConfigs.invalidJson', 'Invalid JSON');
+          }
+          break;
+        }
+        default:
+          data[trimmedKey] = entry.value;
+          errors[entry.id] = undefined;
+          break;
+      }
+    }
+
+    const isValid = Object.values(errors).every((error) => !error);
+    return {
+      data: isValid ? data : {},
+      errors,
+      isValid,
+    };
+  };
+
   const sanitizedInitialDefaultConfig = useMemo(
     () => extractDefaultConfigWithoutSidebar(initialValues?.defaultConfig),
     [initialValues?.defaultConfig],
@@ -600,6 +622,53 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
         label: `${'— '.repeat(option.depth)}${option.displayName} (${option.componentKey})`,
       }))
   ), [componentOptions, allowedChildKeysArray]);
+
+  const sectionsQuery = trpc.sections.listAll.useQuery<ApiResponse<AdminSection[]>>(
+    {},
+    { staleTime: 5 * 60 * 1000 },
+  );
+
+  const sectionOptions = useMemo<SectionSelectOption[]>(() => {
+    const records = sectionsQuery.data?.data ?? [];
+    return records.map((section) => ({
+      value: section.id,
+      label: `${formatPageLabel(section.page)} • ${SECTION_TYPE_LABELS[section.type] ?? section.type}`,
+      data: section,
+    }));
+  }, [sectionsQuery.data]);
+
+  const initialSectionIds = useMemo(() => {
+    if (Array.isArray(initialValues?.sectionIds) && initialValues.sectionIds.length > 0) {
+      return initialValues.sectionIds;
+    }
+    const linkedSections = (initialValues as ComponentConfigNode | undefined)?.sections;
+    if (Array.isArray(linkedSections)) {
+      return linkedSections
+        .map((section) => section?.id)
+        .filter((id): id is string => Boolean(id));
+    }
+    return [];
+  }, [initialValues]);
+
+  const [selectedSectionIds, setSelectedSectionIds] = useState<string[]>(initialSectionIds);
+
+  useEffect(() => {
+    setSelectedSectionIds(initialSectionIds);
+  }, [initialSectionIds]);
+
+  const selectedSectionOptions = useMemo(() => {
+    const optionMap = new Map(sectionOptions.map((option) => [option.value, option]));
+    return selectedSectionIds
+      .map((id) => optionMap.get(id))
+      .filter((option): option is SectionSelectOption => Boolean(option));
+  }, [sectionOptions, selectedSectionIds]);
+
+  const handleSectionAssignmentsChange = useCallback(
+    (options: MultiValue<SectionSelectOption>) => {
+      setSelectedSectionIds(options.map((option) => option.value));
+    },
+    [],
+  );
 
   const updateField = useCallback((field: keyof typeof formState, value: string | boolean) => {
     setFormState((prev) => ({
@@ -700,6 +769,7 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
       configSchema: parsedSchema,
       metadata: parsedMetadata,
       allowedChildKeys,
+      sectionIds: selectedSectionIds,
     };
 
     onSubmit(payload);
@@ -896,6 +966,33 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
             placeholder="media / content / actions"
           />
         </div>
+        <div className="space-y-2 md:col-span-2">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-neutral-700">Section assignments</p>
+            {sectionsQuery.isFetching && (
+              <span className="text-xs text-neutral-500">Refreshing…</span>
+            )}
+          </div>
+          <SearchSelect<SectionSelectOption, true>
+            isMulti
+            options={sectionOptions}
+            value={selectedSectionOptions}
+            onChange={handleSectionAssignmentsChange}
+            placeholder="Applies to every section"
+            isLoading={sectionsQuery.isLoading}
+            closeMenuOnSelect={false}
+            hideSelectedOptions={false}
+            noOptionsMessage={() => t('componentConfigs.noSectionsAvailable', 'No sections available')}
+          />
+          <p className="text-xs text-neutral-500">
+            Leave empty to apply this component globally. Selecting sections scopes defaults to those areas.
+          </p>
+          {sectionsQuery.error && (
+            <p className="text-xs text-red-500">
+              {t('componentConfigs.unableToLoadSections', 'Unable to load sections: ')}{sectionsQuery.error.message ?? t('componentConfigs.unknownError', 'Unknown error')}
+            </p>
+          )}
+        </div>
         <div className="space-y-2">
           <label className="text-sm font-medium text-neutral-700">Preview Media URL</label>
           <Input
@@ -1033,12 +1130,18 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
               defaultConfigMode === 'friendly' ? <FiCode className="h-3.5 w-3.5" /> : <FiList className="h-3.5 w-3.5" />
             }
           >
-            {defaultConfigMode === 'friendly' ? 'Edit JSON' : 'Simple mode'}
+            {defaultConfigMode === 'friendly' ? t('componentConfigs.editJson', 'Edit JSON') : t('componentConfigs.simpleMode', 'Simple mode')}
           </Button>
         </div>
         <div className="mt-4">
           {defaultConfigMode === 'friendly' ? (
-            <KeyValueEditor entries={defaultConfigEntries} errors={defaultConfigEntryErrors} onChange={handleDefaultEntriesChange} />
+            <KeyValueEditor
+              entries={defaultConfigEntries}
+              errors={defaultConfigEntryErrors}
+              onChange={handleDefaultEntriesChange}
+              t={t}
+              keyValueTypeOptions={KEY_VALUE_TYPE_OPTIONS}
+            />
           ) : (
             <Textarea
               value={defaultConfigRaw}
@@ -1066,12 +1169,18 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
               metadataMode === 'friendly' ? <FiCode className="h-3.5 w-3.5" /> : <FiList className="h-3.5 w-3.5" />
             }
           >
-            {metadataMode === 'friendly' ? 'Edit JSON' : 'Simple mode'}
+            {metadataMode === 'friendly' ? t('componentConfigs.editJson', 'Edit JSON') : t('componentConfigs.simpleMode', 'Simple mode')}
           </Button>
         </div>
         <div className="mt-4">
           {metadataMode === 'friendly' ? (
-            <KeyValueEditor entries={metadataEntries} errors={metadataEntryErrors} onChange={handleMetadataEntriesChange} />
+            <KeyValueEditor
+              entries={metadataEntries}
+              errors={metadataEntryErrors}
+              onChange={handleMetadataEntriesChange}
+              t={t}
+              keyValueTypeOptions={KEY_VALUE_TYPE_OPTIONS}
+            />
           ) : (
             <Textarea
               value={metadataRaw}
@@ -1121,15 +1230,15 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     resolvedActiveTab === index ? 'text-primary-500' : 'text-gray-400 dark:text-gray-500';
 
   const tabs = [
-    { label: 'Structure', icon: <Layers className={`w-4 h-4 ${getTabIconClass(0)}`} />, content: structureTab },
-    { label: 'Defaults', icon: <SlidersHorizontal className={`w-4 h-4 ${getTabIconClass(1)}`} />, content: defaultsTab },
-    { label: 'Advanced', icon: <Database className={`w-4 h-4 ${getTabIconClass(2)}`} />, content: advancedTab },
+    { label: t('componentConfigs.tabStructure', 'Structure'), icon: <Layers className={`w-4 h-4 ${getTabIconClass(0)}`} />, content: structureTab },
+    { label: t('componentConfigs.tabDefaults', 'Defaults'), icon: <SlidersHorizontal className={`w-4 h-4 ${getTabIconClass(1)}`} />, content: defaultsTab },
+    { label: t('componentConfigs.tabAdvanced', 'Advanced'), icon: <Database className={`w-4 h-4 ${getTabIconClass(2)}`} />, content: advancedTab },
   ];
 
   if (isProductsByCategory) {
     const sidebarIndex = tabs.length;
     tabs.push({
-      label: 'Sidebar',
+      label: t('componentConfigs.tabSidebar', 'Sidebar'),
       icon: <PanelLeft className={`w-4 h-4 ${getTabIconClass(sidebarIndex)}`} />,
       content: (
         <div className="space-y-4">
@@ -1147,10 +1256,10 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
       <Tabs tabs={tabs} activeTab={resolvedActiveTab} onTabChange={handleTabChange} />
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-end border-t border-neutral-200 pt-4">
         <Button type="button" variant="ghost" onClick={onCancel}>
-          Cancel
+          {t('common.cancel', 'Cancel')}
         </Button>
         <Button type="submit" variant="primary" isLoading={isSubmitting}>
-          {mode === 'create' ? 'Create Component' : 'Save Changes'}
+          {mode === 'create' ? t('componentConfigs.createComponent', 'Create Component') : t('componentConfigs.saveChanges', 'Save Changes')}
         </Button>
       </div>
     </form>
@@ -1169,9 +1278,11 @@ interface KeyValueEditorProps {
   entries: KeyValueEntry[];
   errors: Record<string, string | undefined>;
   onChange: (entries: KeyValueEntry[]) => void;
+  t: (key: string, fallback: string) => string;
+  keyValueTypeOptions: Array<{ value: string; label: string }>;
 }
 
-const KeyValueEditor: React.FC<KeyValueEditorProps> = ({ entries, errors, onChange }) => {
+const KeyValueEditor: React.FC<KeyValueEditorProps> = ({ entries, errors, onChange, t, keyValueTypeOptions }) => {
   const resolvedEntries = entries.length > 0 ? entries : [createKeyValueEntry()];
 
   const handleEntryChange = (id: string, updates: Partial<KeyValueEntry>) => {
@@ -1202,7 +1313,7 @@ const KeyValueEditor: React.FC<KeyValueEditorProps> = ({ entries, errors, onChan
             label=""
             size="sm"
           />
-          <span className="text-sm text-neutral-600">{entry.value === 'true' ? 'Enabled' : 'Disabled'}</span>
+          <span className="text-sm text-neutral-600">{entry.value === 'true' ? t('common.enabled', 'Enabled') : t('common.disabled', 'Disabled')}</span>
         </div>
       );
     }
@@ -1222,7 +1333,7 @@ const KeyValueEditor: React.FC<KeyValueEditorProps> = ({ entries, errors, onChan
       <Input
         value={entry.value}
         onChange={(event) => handleEntryChange(entry.id, { value: event.target.value })}
-        placeholder={entry.type === 'number' ? 'e.g. 12' : 'Value'}
+        placeholder={entry.type === 'number' ? t('componentConfigs.exampleNumber', 'e.g. 12') : t('componentConfigs.valuePlaceholder', 'Value')}
       />
     );
   };
@@ -1245,7 +1356,7 @@ const KeyValueEditor: React.FC<KeyValueEditorProps> = ({ entries, errors, onChan
               <Select
                 value={entry.type}
                 onChange={(value) => handleEntryChange(entry.id, { type: (value as KeyValueType) || 'string' })}
-                options={KEY_VALUE_TYPE_OPTIONS}
+                options={keyValueTypeOptions}
                 size="sm"
               />
             </div>

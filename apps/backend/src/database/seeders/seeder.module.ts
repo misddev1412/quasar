@@ -40,6 +40,8 @@ import { CurrencySeeder } from './currency.seeder';
 import { SiteContentSeeder } from './site-content.seeder';
 import { ComponentConfigsSeeder } from './component-configs.seeder';
 import { AttributesSeeder } from './attributes.seeder';
+import { NotificationEventFlow } from '../../modules/notifications/entities/notification-event-flow.entity';
+import { NotificationEventFlowSeeder } from './notification-event-flow.seeder';
 
 @Module({
   imports: [
@@ -67,6 +69,7 @@ import { AttributesSeeder } from './attributes.seeder';
       ComponentConfigEntity,
       Attribute,
       AttributeValue,
+      NotificationEventFlow,
     ]),
   ],
   providers: [
@@ -87,6 +90,7 @@ import { AttributesSeeder } from './attributes.seeder';
     SiteContentSeeder,
     ComponentConfigsSeeder,
     AttributesSeeder,
+    NotificationEventFlowSeeder,
   ],
   exports: [
     PermissionSeeder,
@@ -103,6 +107,7 @@ import { AttributesSeeder } from './attributes.seeder';
     SiteContentSeeder,
     ComponentConfigsSeeder,
     AttributesSeeder,
+    NotificationEventFlowSeeder,
   ],
 })
-export class SeederModule {} 
+export class SeederModule {}

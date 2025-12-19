@@ -12657,3 +12657,14 @@ a:hover {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 250ms;
 }
+
+@keyframes testimonialsSlide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-slide {
+  animation-name: testimonialsSlide;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}

@@ -61,7 +61,7 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   '/mail-providers/create': { resource: 'mail_provider', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
   '/mail-providers/:id/edit': { resource: 'mail_provider', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
   
-  // Email Flows
+  // Mail Channel Priority
   '/email-flows': { resource: 'email_flow', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/email-flows/create': { resource: 'email_flow', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
   '/email-flows/:id/edit': { resource: 'email_flow', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
@@ -133,12 +133,15 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   
   // Transactions
   '/transactions': { resource: 'transaction', action: PermissionAction.READ, scope: PermissionScope.ANY },
+  '/transactions/:id': { resource: 'transaction', action: PermissionAction.READ, scope: PermissionScope.ANY },
   
   // Support Clients
   '/support-clients': { resource: 'support_client', action: PermissionAction.READ, scope: PermissionScope.ANY },
   
   // Sections
   '/sections/:page': { resource: 'section', action: PermissionAction.READ, scope: PermissionScope.ANY },
+  '/sections/:page/create': { resource: 'section', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
+  '/sections/:page/:sectionId/edit': { resource: 'section', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
   
   // Menus
   '/menus/:group': { resource: 'menu', action: PermissionAction.READ, scope: PermissionScope.ANY },
@@ -209,7 +212,5 @@ export function getRoutePermission(path: string): RoutePermission | null {
     scope: PermissionScope.ANY,
   };
 }
-
-
 
 

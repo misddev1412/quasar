@@ -14,6 +14,7 @@ export interface TransformedProduct {
   status: string;
   isActive: boolean;
   isFeatured: boolean;
+  price: number;
   sortOrder: number;
   brandId: string | null;
   categoryIds: string[];
@@ -21,6 +22,8 @@ export interface TransformedProduct {
   metaTitle: string | null;
   metaDescription: string | null;
   metaKeywords: string | null;
+  stockQuantity: number;
+  enableWarehouseQuantity: boolean;
   createdAt: Date;
   updatedAt: Date;
 
@@ -30,6 +33,7 @@ export interface TransformedProduct {
   media: TransformedMedia[];
   variants: TransformedVariant[];
   specifications: TransformedSpecification[];
+  warehouseQuantities: any[];
 
   // Computed properties
   primaryImage: string | null;
@@ -153,10 +157,17 @@ export class ProductTransformer {
 
     const primaryImage = imageUrls.length > 0 ? imageUrls[0] : null;
     const totalStock = variants.reduce((sum, v) => sum + v.stockQuantity, 0);
-    const prices = variants.map(v => v.price).filter(p => p > 0);
-    const lowestPrice = prices.length > 0 ? Math.min(...prices) : null;
-    const highestPrice = prices.length > 0 ? Math.max(...prices) : null;
+    const hasVariants = variants.length > 0;
+    const priceCandidates = hasVariants
+      ? variants.map(v => v.price).filter(p => p > 0)
+      : [Number(product.price) || 0].filter(p => p > 0);
+    const lowestPrice = priceCandidates.length > 0 ? Math.min(...priceCandidates) : null;
+    const highestPrice = priceCandidates.length > 0 ? Math.max(...priceCandidates) : null;
     const priceRange = this.calculatePriceRange(lowestPrice, highestPrice);
+    const warehouseStock = product.warehouseQuantities?.reduce((sum, wq) => sum + (wq.quantity || 0), 0) || 0;
+    const resolvedTotalStock = hasVariants
+      ? totalStock
+      : (product.enableWarehouseQuantity ? warehouseStock : (product.stockQuantity || 0));
 
     return {
       id: product.id,
@@ -166,6 +177,7 @@ export class ProductTransformer {
       status: product.status,
       isActive: product.isActive,
       isFeatured: product.isFeatured,
+      price: Number(product.price) || 0,
       sortOrder: product.sortOrder || 0,
       brandId: product.brandId || null,
       categoryIds: categories.map(c => c.id),
@@ -173,6 +185,8 @@ export class ProductTransformer {
       metaTitle: product.metaTitle || null,
       metaDescription: product.metaDescription || null,
       metaKeywords: product.metaKeywords || null,
+      stockQuantity: product.stockQuantity || 0,
+      enableWarehouseQuantity: product.enableWarehouseQuantity || false,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
 
@@ -182,13 +196,14 @@ export class ProductTransformer {
       media,
       variants,
       specifications,
+      warehouseQuantities: product.warehouseQuantities || [],
 
       // Computed properties
       primaryImage,
       imageUrls,
       hasVariants: variants.length > 0,
       variantCount: variants.length,
-      totalStock,
+      totalStock: resolvedTotalStock,
       lowestPrice,
       highestPrice,
       priceRange,

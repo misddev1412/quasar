@@ -3,7 +3,8 @@
 import React, { useMemo } from 'react';
 import Link from 'next/link';
 import clsx from 'clsx';
-import Container from '../common/Container';
+import { FiUsers, FiEye, FiTrendingUp, FiClock } from 'react-icons/fi';
+import SectionContainer from '../sections/SectionContainer';
 import { useSettings } from '../../hooks/useSettings';
 import useMenu from '../../hooks/useMenu';
 import {
@@ -11,6 +12,9 @@ import {
   FooterSocialLink,
   FooterSocialType,
   FooterWidgetConfig,
+  DEFAULT_VISITOR_ANALYTICS_CONFIG,
+  VisitorAnalyticsMetricType,
+  createFooterConfig,
 } from '@shared/types/footer.types';
 import { MenuTarget } from '@shared/enums/menu.enums';
 import { trpc } from '../../utils/trpc';
@@ -35,6 +39,16 @@ interface FooterMenuColumn {
   id: string;
   title?: string;
   links: FooterMenuLink[];
+}
+
+interface VisitorStatsCard {
+  id: string;
+  label: string;
+  value: string;
+  helper?: string;
+  icon: React.ComponentType<{ className?: string }>;
+  isTextValue?: boolean;
+  valueTitle?: string;
 }
 
 const SOCIAL_ICON_MAP: Record<FooterSocialType, JSX.Element> = {
@@ -147,6 +161,20 @@ const getGridClass = (columnsPerRow?: number): string => {
   }
 };
 
+const getVisitorAnalyticsGridClass = (columns: number): string => {
+  const count = Math.max(1, Math.min(4, Math.round(columns) || 1));
+  switch (count) {
+    case 1:
+      return 'grid grid-cols-1 gap-4';
+    case 2:
+      return 'grid grid-cols-1 gap-4 sm:grid-cols-2';
+    case 3:
+      return 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3';
+    default:
+      return 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4';
+  }
+};
+
 const clampWidgetHeight = (value?: number) => {
   if (!value || Number.isNaN(value)) {
     return 280;
@@ -188,12 +216,16 @@ const Footer: React.FC<FooterProps> = ({
   configOverride,
 }) => {
   const { getFooterLogo, getSetting, getFooterConfig } = useSettings();
+  const footerConfig = configOverride ? createFooterConfig(configOverride) : getFooterConfig();
+  const visitorAnalyticsConfig = footerConfig.visitorAnalytics ?? DEFAULT_VISITOR_ANALYTICS_CONFIG;
+  const shouldFetchVisitorStats = visitorAnalyticsConfig.enabled !== false;
   const { navigationItems } = useMenu('footer');
   const visitorStatsQuery = (trpc as any).clientVisitorStats.getPublicStats.useQuery(
     {},
     {
       staleTime: 60 * 1000,
       cacheTime: 5 * 60 * 1000,
+      enabled: shouldFetchVisitorStats,
     }
   );
   const visitorStatsPayload = visitorStatsQuery?.data;
@@ -205,9 +237,13 @@ const Footer: React.FC<FooterProps> = ({
     visitorStats && typeof visitorStats.totalVisitors === 'number'
       ? visitorStats.totalVisitors
       : null;
+  const totalPageViews =
+    visitorStats && typeof visitorStats.totalPageViews === 'number'
+      ? visitorStats.totalPageViews
+      : null;
+  const topPages = Array.isArray(visitorStats?.topPages) ? visitorStats.topPages : [];
   const lastUpdated = visitorStats?.lastUpdated;
 
-  const footerConfig = configOverride ?? getFooterConfig();
   const footerLogo = getFooterLogo();
   const customBackgroundColor = footerConfig.backgroundColor?.trim() || '';
   const customTextColor = footerConfig.textColor?.trim() || '';
@@ -261,6 +297,7 @@ const Footer: React.FC<FooterProps> = ({
     [navigationItems, footerConfig]
   );
   const menuGridClass = getGridClass(footerConfig.columnsPerRow);
+  const contentWrapperClass = 'w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8';
 
   const themeClasses = theme === 'dark'
     ? {
@@ -505,40 +542,178 @@ const Footer: React.FC<FooterProps> = ({
     </div>
   );
 
-  const renderVisitorBadge = () => {
-    if (totalVisitors === null) {
+  const renderVisitorStatsSection = () => {
+    if (!visitorAnalyticsConfig?.enabled) {
       return null;
     }
 
-    return (
-      <div
-        className={clsx(
-          'rounded-2xl border px-4 py-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between',
-          themeClasses.border,
-          theme === 'dark' ? 'bg-white/5' : 'bg-white'
-        )}
-        style={customTextColor ? { borderColor: customTextColor } : undefined}
-      >
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide">
-            Lượt truy cập hôm nay
-          </p>
-          <p className="text-2xl font-bold">
-            {totalVisitors.toLocaleString('vi-VN')}
-          </p>
-        </div>
-        {lastUpdated && (
-          <p className={clsx('text-xs', themeClasses.subtle)} style={getTextStyle(0.75)}>
-            Cập nhật: {new Date(lastUpdated).toLocaleString(undefined, {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
+    const isDark = theme === 'dark';
+    const analyticsBackgroundColor =
+      visitorAnalyticsConfig.backgroundColor?.trim() || customBackgroundColor || '';
+    const sectionBorderClass = isDark ? 'border-gray-800/70' : 'border-gray-200';
+    const cardBgClass = isDark
+      ? 'bg-gray-900/70 text-gray-100 border-white/10'
+      : 'bg-white text-gray-900 border-gray-200';
+    const labelClass = isDark ? 'text-gray-400' : 'text-gray-600';
+    const helperClass = 'text-gray-500';
+    const iconBaseClass = isDark
+      ? 'bg-white/10 text-white border border-white/15'
+      : 'bg-blue-50 text-blue-600 border border-blue-100';
+    const sectionBackgroundClass = analyticsBackgroundColor
+      ? ''
+      : isDark
+        ? 'bg-gradient-to-r from-gray-950 via-gray-900 to-gray-950'
+        : 'bg-gradient-to-r from-white via-gray-50 to-white';
+
+    const topPage = topPages[0];
+    const lastUpdatedDate = lastUpdated ? new Date(lastUpdated) : null;
+    const topPageViews =
+      topPage && typeof topPage.views === 'number'
+        ? topPage.views
+        : topPage?.views && !Number.isNaN(Number(topPage.views))
+          ? Number(topPage.views)
+          : null;
+
+    const metricBuilders: Record<VisitorAnalyticsMetricType, () => VisitorStatsCard> = {
+      visitors: () => ({
+        id: 'visitors',
+        label: 'Lượt truy cập',
+        value: totalVisitors !== null ? totalVisitors.toLocaleString('vi-VN') : '—',
+        helper: '7 ngày gần nhất',
+        icon: FiUsers,
+      }),
+      pageViews: () => ({
+        id: 'pageViews',
+        label: 'Lượt xem trang',
+        value: totalPageViews !== null ? totalPageViews.toLocaleString('vi-VN') : '—',
+        helper: totalPageViews !== null ? 'Trong cùng kỳ' : 'Chưa có dữ liệu',
+        icon: FiEye,
+      }),
+      topPage: () => ({
+        id: 'topPage',
+        label: 'Trang nổi bật',
+        value: topPage ? (topPage.title || topPage.url || 'Trang chưa đặt tên') : 'Đang cập nhật',
+        helper:
+          topPageViews !== null ? `${topPageViews.toLocaleString('vi-VN')} lượt xem` : 'Chưa có thống kê',
+        icon: FiTrendingUp,
+        isTextValue: true,
+        valueTitle: topPage ? (topPage.title || topPage.url) : undefined,
+      }),
+      lastUpdated: () => ({
+        id: 'updated',
+        label: 'Cập nhật',
+        value: lastUpdatedDate
+          ? lastUpdatedDate.toLocaleTimeString('vi-VN', {
               hour: '2-digit',
               minute: '2-digit',
-            })}
-          </p>
-        )}
-      </div>
+            })
+          : 'Đang cập nhật',
+        helper: lastUpdatedDate
+          ? lastUpdatedDate.toLocaleDateString('vi-VN', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+            })
+          : '',
+        icon: FiClock,
+        isTextValue: true,
+        valueTitle: lastUpdatedDate?.toLocaleString('vi-VN', {
+          year: 'numeric',
+          month: 'short',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+      }),
+    };
+
+    const rawCards = visitorAnalyticsConfig.cards?.length
+      ? visitorAnalyticsConfig.cards
+      : DEFAULT_VISITOR_ANALYTICS_CONFIG.cards;
+
+    const metrics: VisitorStatsCard[] = rawCards
+      .map((card, index) => {
+        const metricKey = card?.metric as VisitorAnalyticsMetricType;
+        const builder = metricBuilders[metricKey];
+        if (!builder) {
+          return null;
+        }
+        const built = builder();
+        return {
+          ...built,
+          id: card?.id || `${metricKey}-${index}`,
+        };
+      })
+      .filter((card): card is VisitorStatsCard => Boolean(card));
+
+    const desiredColumns = Math.max(
+      1,
+      Math.min(4, visitorAnalyticsConfig.columns || metrics.length || DEFAULT_VISITOR_ANALYTICS_CONFIG.columns)
+    );
+    const visibleCards = metrics.slice(0, desiredColumns);
+
+    if (!visibleCards.length) {
+      return null;
+    }
+
+    const gridClass = getVisitorAnalyticsGridClass(Math.min(visibleCards.length, desiredColumns));
+
+    const sectionStyle =
+      analyticsBackgroundColor || customTextColor
+        ? ({
+            ...(analyticsBackgroundColor ? { backgroundColor: analyticsBackgroundColor } : {}),
+            ...(customTextColor ? { color: customTextColor } : {}),
+          } as React.CSSProperties)
+        : undefined;
+
+    return (
+      <section
+        className={clsx('w-full border-b', sectionBackgroundClass, sectionBorderClass)}
+        style={sectionStyle}
+      >
+        <SectionContainer disablePadding>
+          <div className={clsx(contentWrapperClass, 'py-6')}>
+            <div className={gridClass}>
+              {visibleCards.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div
+                    key={item.id}
+                    className={clsx(
+                      'flex h-full flex-col gap-2 rounded-2xl border px-4 py-3 shadow-sm',
+                      cardBgClass
+                    )}
+                    style={customTextColor ? { borderColor: customTextColor } : undefined}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={clsx('flex h-10 w-10 items-center justify-center rounded-full', iconBaseClass)}>
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className={clsx('text-xs font-semibold uppercase tracking-wide', labelClass)}>
+                          {item.label}
+                        </p>
+                        <p
+                          className={clsx(
+                            'font-semibold leading-tight',
+                            item.isTextValue ? 'text-base truncate' : 'text-xl'
+                          )}
+                          title={item.valueTitle}
+                        >
+                          {item.value}
+                        </p>
+                      </div>
+                    </div>
+                    {item.helper && (
+                      <p className={clsx('text-xs', helperClass)}>{item.helper}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </SectionContainer>
+      </section>
     );
   };
 
@@ -547,8 +722,7 @@ const Footer: React.FC<FooterProps> = ({
       className={clsx(themeClasses.background, 'border-t', themeClasses.border, className)}
       style={rootStyle}
     >
-      <Container className="py-12 space-y-10">
-        {renderVisitorBadge()}
+      <div className={clsx(contentWrapperClass, 'py-12 space-y-10')}>
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
           <div className="lg:col-span-4">{renderBrandSection()}</div>
           <div className={clsx('lg:col-span-8', menuGridClass)}>
@@ -572,7 +746,7 @@ const Footer: React.FC<FooterProps> = ({
         </div>
 
         {renderFooterBottom()}
-      </Container>
+      </div>
     </footer>
   );
 
@@ -581,8 +755,7 @@ const Footer: React.FC<FooterProps> = ({
       className={clsx(themeClasses.background, 'border-t', themeClasses.border, className)}
       style={rootStyle}
     >
-      <Container className="py-12 space-y-10">
-        {renderVisitorBadge()}
+      <div className={clsx(contentWrapperClass, 'py-12 space-y-10')}>
         {renderBrandSection()}
         <div className={menuGridClass}>
           {menuColumns.length > 0 ? (
@@ -605,7 +778,7 @@ const Footer: React.FC<FooterProps> = ({
           )}
         </div>
         {renderFooterBottom()}
-      </Container>
+      </div>
     </footer>
   );
 
@@ -614,8 +787,7 @@ const Footer: React.FC<FooterProps> = ({
       className={clsx(themeClasses.background, 'border-t', themeClasses.border, className)}
       style={rootStyle}
     >
-      <Container className="py-8 space-y-6">
-        {renderVisitorBadge()}
+      <div className={clsx(contentWrapperClass, 'py-8 space-y-6')}>
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             {logo && <div className="w-10 h-10">{logo}</div>}
@@ -632,19 +804,23 @@ const Footer: React.FC<FooterProps> = ({
           )}
           {renderSocialLinks(socialLinks)}
         </div>
-      </Container>
+      </div>
     </footer>
   );
 
-  if (variant === 'simple') {
-    return renderSimpleLayout();
-  }
+  const footerContent =
+    variant === 'simple'
+      ? renderSimpleLayout()
+      : variant === 'split'
+        ? renderSplitLayout()
+        : renderColumnsLayout();
 
-  if (variant === 'split') {
-    return renderSplitLayout();
-  }
-
-  return renderColumnsLayout();
+  return (
+    <>
+      {renderVisitorStatsSection()}
+      {footerContent}
+    </>
+  );
 };
 
 export { Footer };

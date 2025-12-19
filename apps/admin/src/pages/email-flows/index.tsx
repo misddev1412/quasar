@@ -13,7 +13,7 @@ import { useToast } from '../../context/ToastContext';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { trpc } from '../../utils/trpc';
 
-type EmailFlowListItem = {
+type MailChannelPriorityItem = {
   id: string;
   name: string;
   description?: string | null;
@@ -22,7 +22,12 @@ type EmailFlowListItem = {
     name: string;
     providerType?: string;
   };
+  mailTemplate?: {
+    id: string;
+    name: string;
+  } | null;
   mailProviderId?: string | null;
+  mailTemplateId?: string | null;
   isActive: boolean;
   priority?: number | null;
   updatedAt?: string | null;
@@ -37,6 +42,7 @@ const STATUS_FILTER_OPTIONS = [
 const DEFAULT_VISIBLE_COLUMNS = [
   'name',
   'mailProvider',
+  'mailTemplate',
   'isActive',
   'priority',
   'updatedAt',
@@ -53,15 +59,15 @@ const parseNumberParam = (value: string | null, fallback: number): number => {
   return parsed;
 };
 
-const EmailFlowIndexPage: React.FC = () => {
+const MailChannelPriorityIndexPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { addToast } = useToast();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [flowToDelete, setFlowToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [priorityToDelete, setPriorityToDelete] = useState<{ id: string; name: string } | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  const { preferences, updatePageSize, updateVisibleColumns } = useTablePreferences('email-flows-table', {
+  const { preferences, updatePageSize, updateVisibleColumns } = useTablePreferences('mail-channel-priority-table', {
     pageSize: parseInt(searchParams.get('limit') || '10', 10),
     visibleColumns: createDefaultColumnSet(),
   });
@@ -105,7 +111,7 @@ const EmailFlowIndexPage: React.FC = () => {
     setSearchParams(params);
   }, [searchParams, setSearchParams]);
 
-  const { data: flowsData, isLoading, error, refetch } = trpc.adminEmailFlow.getFlows.useQuery(filters);
+  const { data: priorityData, isLoading, error, refetch } = trpc.adminMailChannelPriority.getFlows.useQuery(filters);
   const { data: mailProvidersData } = trpc.adminMailProvider.getActiveProviders.useQuery();
   const providerOptions = useMemo(() => {
     const base = [{ value: 'all', label: 'All mail providers' }];
@@ -122,28 +128,28 @@ const EmailFlowIndexPage: React.FC = () => {
     return base;
   }, [mailProvidersData]);
 
-  const deleteMutation = trpc.adminEmailFlow.deleteFlow.useMutation({
+  const deleteMutation = trpc.adminMailChannelPriority.deleteFlow.useMutation({
     onSuccess: () => {
-      addToast({ title: 'Success', description: 'Email flow deleted successfully', type: 'success' });
+      addToast({ title: 'Success', description: 'Mail channel priority deleted successfully', type: 'success' });
       refetch();
       setShowDeleteModal(false);
-      setFlowToDelete(null);
+      setPriorityToDelete(null);
     },
     onError: (error) => {
       addToast({ title: 'Error', description: error.message, type: 'error' });
     },
   });
 
-  const handleDelete = useCallback((flow: EmailFlowListItem) => {
-    setFlowToDelete({ id: flow.id, name: flow.name });
+  const handleDelete = useCallback((flow: MailChannelPriorityItem) => {
+    setPriorityToDelete({ id: flow.id, name: flow.name });
     setShowDeleteModal(true);
   }, []);
 
   const confirmDelete = useCallback(() => {
-    if (flowToDelete) {
-      deleteMutation.mutate({ id: flowToDelete.id });
+    if (priorityToDelete) {
+      deleteMutation.mutate({ id: priorityToDelete.id });
     }
-  }, [deleteMutation, flowToDelete]);
+  }, [deleteMutation, priorityToDelete]);
 
   const handleSearchChange = useCallback((value: string) => {
     updateQueryParams({
@@ -199,34 +205,34 @@ const EmailFlowIndexPage: React.FC = () => {
     });
   }, [updateVisibleColumns]);
 
-  const flows: EmailFlowListItem[] = useMemo(() => {
-    const items = (flowsData as any)?.data?.items;
+  const priorities: MailChannelPriorityItem[] = useMemo(() => {
+    const items = (priorityData as any)?.data?.items;
     return Array.isArray(items) ? items : [];
-  }, [flowsData]);
+  }, [priorityData]);
 
   const paginationMeta = useMemo(() => (
-    (flowsData as any)?.data || {
+    (priorityData as any)?.data || {
       page,
       limit,
       total: 0,
       totalPages: 0,
     }
-  ), [flowsData, page, limit]);
+  ), [priorityData, page, limit]);
 
   const hasActiveFilters = Boolean(statusParam || providerParam);
 
-  const columns: Column<EmailFlowListItem>[] = useMemo(() => [
+  const columns: Column<MailChannelPriorityItem>[] = useMemo(() => [
     {
       id: 'name',
-      header: 'Flow Name',
+      header: 'Priority Config',
       accessor: 'name',
       isSortable: true,
     },
     {
       id: 'mailProvider',
-      header: 'Mail Provider',
+      header: 'Mail Channel',
       accessor: 'mailProvider',
-      render: (value: EmailFlowListItem['mailProvider']) => {
+      render: (value: MailChannelPriorityItem['mailProvider']) => {
         if (!value) {
           return <span className="text-gray-400">No provider</span>;
         }
@@ -244,6 +250,17 @@ const EmailFlowIndexPage: React.FC = () => {
       },
     },
     {
+      id: 'mailTemplate',
+      header: 'Mail Template',
+      accessor: 'mailTemplate',
+      render: (value: MailChannelPriorityItem['mailTemplate']) => {
+        if (!value) {
+          return <span className="text-gray-500">All templates</span>;
+        }
+        return <span className="font-medium text-gray-900 dark:text-gray-100">{value.name}</span>;
+      },
+    },
+    {
       id: 'isActive',
       header: 'Status',
       accessor: 'isActive',
@@ -255,7 +272,7 @@ const EmailFlowIndexPage: React.FC = () => {
     },
     {
       id: 'priority',
-      header: 'Priority',
+      header: 'Priority Order',
       accessor: 'priority',
       align: 'center',
     },
@@ -270,7 +287,7 @@ const EmailFlowIndexPage: React.FC = () => {
       header: 'Actions',
       accessor: () => '',
       hideable: false,
-      render: (_: unknown, row: EmailFlowListItem) => (
+      render: (_: unknown, row: MailChannelPriorityItem) => (
         <div className="flex items-center justify-end gap-2">
           <Button
             variant="ghost"
@@ -293,7 +310,7 @@ const EmailFlowIndexPage: React.FC = () => {
 
   const actions = useMemo(() => [
     {
-      label: 'Create Flow',
+      label: 'Add Priority Config',
       onClick: () => navigate('/email-flows/create'),
       primary: true,
       icon: <FiPlus className="h-4 w-4" />,
@@ -307,22 +324,22 @@ const EmailFlowIndexPage: React.FC = () => {
       icon: <FiHome className="h-4 w-4" />,
     },
     {
-      label: 'Email Flows',
+      label: 'Mail Channel Priority',
       icon: <FiMail className="h-4 w-4" />,
     },
   ]), []);
 
   return (
     <BaseLayout
-      title="Email Flows"
-      description="Monitor and orchestrate automated email delivery sequences."
+      title="Mail Channel Priority"
+      description="Configure and prioritize the channels that deliver transactional email."
       actions={actions}
       breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
         {error && (
           <Alert variant="destructive">
-            <AlertTitle>Unable to load email flows</AlertTitle>
+            <AlertTitle>Unable to load mail channel priorities</AlertTitle>
             <AlertDescription>{error.message}</AlertDescription>
           </Alert>
         )}
@@ -354,21 +371,21 @@ const EmailFlowIndexPage: React.FC = () => {
           </Card>
         )}
 
-        <Table<EmailFlowListItem>
-          tableId="email-flows-table"
+        <Table<MailChannelPriorityItem>
+          tableId="mail-channel-priority-table"
           columns={columns}
-          data={flows}
+          data={priorities}
           isLoading={isLoading}
           searchValue={searchValue}
           onSearchChange={handleSearchChange}
           onFilterClick={() => setShowFilters((prev) => !prev)}
           isFilterActive={showFilters || hasActiveFilters}
-          searchPlaceholder="Search by email flow name"
+          searchPlaceholder="Search by priority configuration name"
           visibleColumns={visibleColumns}
           onColumnVisibilityChange={handleColumnVisibilityChange}
           showColumnVisibility
           enableRowHover
-          onRowClick={(flow) => navigate(`/email-flows/${flow.id}/edit`)}
+          onRowClick={(priority) => navigate(`/email-flows/${priority.id}/edit`)}
           pagination={{
             currentPage: paginationMeta.page || page,
             totalPages: paginationMeta.totalPages || 0,
@@ -377,9 +394,9 @@ const EmailFlowIndexPage: React.FC = () => {
             onPageChange: handlePageChange,
             onItemsPerPageChange: handleItemsPerPageChange,
           }}
-          emptyMessage="No email flows found."
+          emptyMessage="No mail channel priority configurations found."
           emptyAction={{
-            label: 'Create Flow',
+            label: 'Add Priority Config',
             onClick: () => navigate('/email-flows/create'),
             icon: <FiPlus className="h-4 w-4" />,
           }}
@@ -389,8 +406,8 @@ const EmailFlowIndexPage: React.FC = () => {
           isOpen={showDeleteModal}
           onClose={() => setShowDeleteModal(false)}
           onConfirm={confirmDelete}
-          title="Delete Email Flow"
-          message={`Are you sure you want to delete "${flowToDelete?.name}"?`}
+          title="Delete Priority Config"
+          message={`Are you sure you want to delete priority config "${priorityToDelete?.name}"?`}
           confirmVariant="danger"
           confirmText="Delete"
           cancelText="Cancel"
@@ -401,4 +418,4 @@ const EmailFlowIndexPage: React.FC = () => {
   );
 };
 
-export default EmailFlowIndexPage;
+export default MailChannelPriorityIndexPage;

@@ -42,6 +42,20 @@ export interface FooterExtraLink {
   isActive: boolean;
 }
 
+export type VisitorAnalyticsMetricType = 'visitors' | 'pageViews' | 'topPage' | 'lastUpdated';
+
+export interface VisitorAnalyticsCardConfig {
+  id: string;
+  metric: VisitorAnalyticsMetricType;
+}
+
+export interface VisitorAnalyticsConfig {
+  enabled: boolean;
+  columns: number;
+  backgroundColor?: string;
+  cards: VisitorAnalyticsCardConfig[];
+}
+
 export interface FooterConfig {
   variant: FooterVariant;
   theme: FooterTheme;
@@ -59,6 +73,7 @@ export interface FooterConfig {
   backgroundColor?: string;
   textColor?: string;
   widget?: FooterWidgetConfig;
+  visitorAnalytics?: VisitorAnalyticsConfig;
 }
 
 const DEFAULT_WIDGET_CONFIG: FooterWidgetConfig = {
@@ -70,6 +85,20 @@ const DEFAULT_WIDGET_CONFIG: FooterWidgetConfig = {
   googleMapEmbedUrl: '',
   facebookPageUrl: '',
   facebookTabs: 'timeline',
+};
+
+const DEFAULT_VISITOR_ANALYTICS_CARDS: VisitorAnalyticsCardConfig[] = [
+  { id: 'visitors', metric: 'visitors' },
+  { id: 'pageViews', metric: 'pageViews' },
+  { id: 'topPage', metric: 'topPage' },
+  { id: 'lastUpdated', metric: 'lastUpdated' },
+];
+
+export const DEFAULT_VISITOR_ANALYTICS_CONFIG: VisitorAnalyticsConfig = {
+  enabled: true,
+  columns: 4,
+  backgroundColor: '',
+  cards: DEFAULT_VISITOR_ANALYTICS_CARDS,
 };
 
 export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
@@ -136,6 +165,61 @@ export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
   backgroundColor: '',
   textColor: '',
   widget: DEFAULT_WIDGET_CONFIG,
+  visitorAnalytics: DEFAULT_VISITOR_ANALYTICS_CONFIG,
+};
+
+const VISITOR_ANALYTICS_METRICS: VisitorAnalyticsMetricType[] = [
+  'visitors',
+  'pageViews',
+  'topPage',
+  'lastUpdated',
+];
+
+const clampVisitorAnalyticsColumns = (value?: number) => {
+  if (!value || Number.isNaN(value)) {
+    return 4;
+  }
+  return Math.min(4, Math.max(1, Math.round(value)));
+};
+
+const sanitizeVisitorAnalyticsCards = (
+  cards: VisitorAnalyticsCardConfig[] | undefined,
+  desiredColumns: number
+): VisitorAnalyticsCardConfig[] => {
+  const normalized =
+    cards && Array.isArray(cards)
+      ? cards
+          .filter((card): card is VisitorAnalyticsCardConfig => Boolean(card))
+          .map((card, index) => ({
+            id: card.id || `visitor-card-${index}`,
+            metric: VISITOR_ANALYTICS_METRICS.includes(card.metric) ? card.metric : 'visitors',
+          }))
+      : [];
+
+  const trimmed = normalized.slice(0, desiredColumns);
+  if (trimmed.length === desiredColumns) {
+    return trimmed;
+  }
+
+  const result = [...trimmed];
+  for (let index = result.length; index < desiredColumns; index += 1) {
+    const metric = VISITOR_ANALYTICS_METRICS[index % VISITOR_ANALYTICS_METRICS.length];
+    result.push({
+      id: `visitor-card-${index}`,
+      metric,
+    });
+  }
+  return result;
+};
+
+const withVisitorAnalyticsDefaults = (config?: VisitorAnalyticsConfig): VisitorAnalyticsConfig => {
+  const columns = clampVisitorAnalyticsColumns(config?.columns);
+  return {
+    enabled: config?.enabled !== undefined ? Boolean(config.enabled) : DEFAULT_VISITOR_ANALYTICS_CONFIG.enabled,
+    columns,
+    backgroundColor: (config?.backgroundColor || '').trim(),
+    cards: sanitizeVisitorAnalyticsCards(config?.cards, columns),
+  };
 };
 
 export const createFooterConfig = (override?: Partial<FooterConfig>): FooterConfig => {
@@ -144,6 +228,10 @@ export const createFooterConfig = (override?: Partial<FooterConfig>): FooterConf
     socialLinks: DEFAULT_FOOTER_CONFIG.socialLinks.map((link) => ({ ...link })),
     extraLinks: DEFAULT_FOOTER_CONFIG.extraLinks.map((link) => ({ ...link })),
     widget: DEFAULT_WIDGET_CONFIG ? { ...DEFAULT_WIDGET_CONFIG } : undefined,
+    visitorAnalytics: {
+      ...DEFAULT_VISITOR_ANALYTICS_CONFIG,
+      cards: DEFAULT_VISITOR_ANALYTICS_CONFIG.cards.map((card) => ({ ...card })),
+    },
   };
 
   if (!override) {
@@ -182,5 +270,6 @@ export const createFooterConfig = (override?: Partial<FooterConfig>): FooterConf
           facebookTabs: override.widget.facebookTabs?.trim() || DEFAULT_WIDGET_CONFIG.facebookTabs,
         }
       : base.widget,
+    visitorAnalytics: withVisitorAnalyticsDefaults(override.visitorAnalytics ?? base.visitorAnalytics),
   };
 };

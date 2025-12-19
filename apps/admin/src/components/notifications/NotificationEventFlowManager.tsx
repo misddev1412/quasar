@@ -565,7 +565,7 @@ const NotificationEventFlowManager: React.FC = () => {
                 value={formState.displayName}
                 onChange={(e) => setFormState((prev) => ({ ...prev, displayName: e.target.value }))}
                 error={errors.displayName}
-                placeholder="Welcome email flow"
+                placeholder="Welcome mail channel priority"
                 size="md"
               />
             </div>

@@ -147,7 +147,7 @@ export class MailTemplate extends BaseEntity {
   @Column({ 
     name: 'email_flow_id',
     nullable: false,
-    comment: 'Email flow to use for sending (required)'
+    comment: 'Mail channel priority to use for sending (required)'
   })
   @IsString()
   emailFlowId: string;

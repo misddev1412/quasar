@@ -1,4 +1,16 @@
+const path = require('path');
 const createNextIntlPlugin = require('next-intl/plugin');
+
+const ensureEnv = (key, value) => {
+  if (!process.env[key]) {
+    process.env[key] = value;
+  }
+};
+
+// Force polling-based file watching to avoid EMFILE limits in restricted environments
+ensureEnv('WATCHPACK_POLLING', 'true');
+ensureEnv('CHOKIDAR_USEPOLLING', 'true');
+ensureEnv('CHOKIDAR_INTERVAL', '1000');
 
 const withNextIntl = createNextIntlPlugin();
 
@@ -28,12 +40,32 @@ const nextConfig = {
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': '/src',
-      '@components': '/src/components',
-      '@pages': '/src/pages',
-      '@utils': '/src/utils',
-      '@contexts': '/src/contexts',
-      '@hooks': '/src/hooks',
+      '@': path.join(__dirname, 'src'),
+      '@components': path.join(__dirname, 'src/components'),
+      '@pages': path.join(__dirname, 'src/pages'),
+      '@utils': path.join(__dirname, 'src/utils'),
+      '@contexts': path.join(__dirname, 'src/contexts'),
+      '@hooks': path.join(__dirname, 'src/hooks'),
+    };
+    const repoRoot = path.join(__dirname, '..', '..');
+    const toPosixGlob = (value) => value.replace(/\\/g, '/');
+    const ignoredGlobs = [
+      '**/node_modules/**',
+      path.join(__dirname, '.next', '**'),
+      path.join(__dirname, 'dist', '**'),
+      path.join(__dirname, 'tmp', '**'),
+      path.join(__dirname, 'prd', '**'),
+      path.join(repoRoot, 'dist', '**'),
+      path.join(repoRoot, 'tmp', '**'),
+      path.join(repoRoot, 'prd', '**'),
+      path.join(repoRoot, '.git', '**'),
+    ].map(toPosixGlob);
+
+    config.watchOptions = {
+      ...config.watchOptions,
+      poll: config.watchOptions?.poll ?? 1000,
+      aggregateTimeout: config.watchOptions?.aggregateTimeout ?? 300,
+      ignored: ignoredGlobs,
     };
     return config;
   },

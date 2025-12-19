@@ -676,16 +676,8 @@ const OrderFulfillmentEditPage: React.FC = () => {
         </section>
 
         <div className="flex justify-end gap-3">
-          <Button type="button" variant="outline" onClick={() => navigate(`/orders/fulfillments/${id}`)}>
-            {t('common.cancel')}
-          </Button>
-          <Button
-            type="submit"
-            isLoading={updateFulfillmentMutation.isPending || isSubmitting}
-            disabled={updateFulfillmentMutation.isPending || isSubmitting}
-          >
-            {t('common.save_changes', 'Save changes')}
-          </Button>
+          <Button type="button" variant="outline" onClick={() => navigate(`/orders/fulfillments/${id}`)}>{t('common.cancel')}</Button>
+          <Button type="submit" isLoading={updateFulfillmentMutation.isPending || isSubmitting} disabled={updateFulfillmentMutation.isPending || isSubmitting}>{t('common.save_changes', 'Save changes')}</Button>
         </div>
       </form>
     </CreatePageTemplate>

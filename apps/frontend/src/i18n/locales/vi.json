@@ -1837,6 +1837,47 @@
       "default_description": "Dùng banner CTA để nhấn mạnh thông điệp ra mắt, ưu đãi hoặc hành động tiếp theo trên storefront.",
       "primary_label": "Trao đổi với đội ngũ",
       "secondary_label": "Xem tài liệu"
+    },
+    "banner": {
+      "title": "Chiến dịch nổi bật",
+      "subtitle": "Cập nhật xu hướng mới nhất",
+      "description": "Kết hợp hình ảnh trực quan với CTA ngắn gọn để kể câu chuyện thương hiệu.",
+      "empty": "Hãy thêm các banner card trong admin để hiển thị tại đây.",
+      "cta": "Tìm hiểu thêm"
+    },
+    "features": {
+      "title": "Lợi thế bán hàng",
+      "subtitle": "Đủ lý do để khách chốt đơn",
+      "description": "Nhấn mạnh dịch vụ giao nhanh, concierge và ưu đãi riêng trên storefront.",
+      "empty": "Hãy thêm các thẻ tính năng trong admin để hiển thị tại đây.",
+      "untitledCard": "Tính năng chưa đặt tên"
+    },
+    "testimonials": {
+      "title": "Khách hàng yêu thích",
+      "subtitle": "Câu chuyện thực tế từ đội ngũ bán hàng và khách VIP",
+      "description": "Dùng testimonial để tăng niềm tin và chứng minh hiệu quả chiến dịch."
+    },
+    "video": {
+      "title": "Hậu trường sản xuất",
+      "subtitle": "Câu chuyện phía sau sản phẩm",
+      "description": "Kết hợp nội dung truyền cảm hứng với hành động mua hàng trực tiếp."
+    },
+    "stats": {
+      "title": "Chứng minh bằng con số",
+      "subtitle": "Những chỉ số khách hàng quan tâm",
+      "description": "Trình bày quy mô fulfillment, tỷ lệ quay lại và mức độ hài lòng.",
+      "untitled": "Chỉ số"
+    },
+    "gallery": {
+      "title": "Lookbook nổi bật",
+      "subtitle": "Khoảnh khắc lên đồ truyền cảm hứng",
+      "description": "Tạo moodboard và liên kết trực tiếp đến kho hàng sống."
+    },
+    "contact_form": {
+      "title": "Cần tư vấn riêng?",
+      "subtitle": "Kết nối với đội ngũ concierge",
+      "description": "Thu thập khách hàng tiềm năng ngay trên trang chủ.",
+      "submit": "Gửi yêu cầu"
     }
   },
   "notifications": {

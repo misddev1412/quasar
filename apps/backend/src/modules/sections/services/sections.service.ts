@@ -11,6 +11,11 @@ import { ComponentConfigRepository } from '@backend/modules/component-configs/re
 import { ComponentConfigDefaults } from '@backend/modules/component-configs/entities/component-config.entity';
 import { SectionType } from '@shared/enums/section.enums';
 
+interface ComponentDefaultsLookup {
+  global: Record<string, ComponentConfigDefaults>;
+  overrides: Record<string, ComponentConfigDefaults>;
+}
+
 interface SectionWithResolvedTranslation {
   section: SectionEntity;
   translation: SectionTranslationEntity | null;
@@ -78,26 +83,41 @@ export class SectionsService {
     };
   }
 
-  private async getComponentDefaultsMap(sectionTypes: SectionType[]): Promise<Record<string, ComponentConfigDefaults>> {
-    if (!Array.isArray(sectionTypes) || sectionTypes.length === 0) {
-      return {};
+  private async getComponentDefaultsMap(sections: SectionEntity[]): Promise<ComponentDefaultsLookup> {
+    if (!Array.isArray(sections) || sections.length === 0) {
+      return { global: {}, overrides: {} };
     }
 
-    const uniqueKeys = Array.from(new Set(sectionTypes));
-    const components = await this.componentConfigRepository.findEnabledByKeys(uniqueKeys);
+    const uniqueKeys = Array.from(new Set(sections.map((section) => section.type)));
+    const sectionIds = sections.map((section) => section.id);
+    const components = await this.componentConfigRepository.findEnabledByKeys(uniqueKeys, {
+      sectionIds,
+    });
 
-    return components.reduce<Record<string, ComponentConfigDefaults>>((map, component) => {
-      map[component.componentKey] = component.defaultConfig ?? {};
-      return map;
-    }, {});
+    return components.reduce<ComponentDefaultsLookup>(
+      (map, component) => {
+        if (component.sections && component.sections.length > 0) {
+          for (const section of component.sections) {
+            if (section?.id) {
+              map.overrides[section.id] = component.defaultConfig ?? {};
+            }
+          }
+        } else {
+          map.global[component.componentKey] = component.defaultConfig ?? {};
+        }
+
+        return map;
+      },
+      { global: {}, overrides: {} },
+    );
   }
 
   private mergeWithComponentDefaults(
-    sectionType: SectionType,
+    section: SectionEntity,
     config: Record<string, any>,
-    defaultsMap: Record<string, ComponentConfigDefaults>,
+    defaultsMap: ComponentDefaultsLookup,
   ): Record<string, any> {
-    const defaults = defaultsMap[sectionType];
+    const defaults = defaultsMap.overrides[section.id] ?? defaultsMap.global[section.type];
     if (!defaults) {
       return config;
     }
@@ -114,12 +134,12 @@ export class SectionsService {
     try {
       const fallbackLocale = await this.getFallbackLocale();
       const sections = await this.sectionRepository.findEnabledByPage(page);
-      const defaultsMap = await this.getComponentDefaultsMap(sections.map((section) => section.type));
+      const defaultsMap = await this.getComponentDefaultsMap(sections);
 
       return sections.map((section) => {
         const { translation } = this.mapSectionForPublic(section, locale, fallbackLocale);
         const baseConfig = this.mergeConfig(section.config ?? {}, translation?.configOverride ?? null);
-        const configWithDefaults = this.mergeWithComponentDefaults(section.type, baseConfig, defaultsMap);
+        const configWithDefaults = this.mergeWithComponentDefaults(section, baseConfig, defaultsMap);
 
         return {
           id: section.id,
@@ -152,9 +172,11 @@ export class SectionsService {
     }
   }
 
-  async adminList(page: string) {
+  async adminList(page?: string) {
     try {
-      const sections = await this.sectionRepository.findAllByPage(page);
+      const sections = page
+        ? await this.sectionRepository.findAllByPage(page)
+        : await this.sectionRepository.findAll();
       return sections.map((section) => ({
         ...section,
         translations: section.translations ?? [],

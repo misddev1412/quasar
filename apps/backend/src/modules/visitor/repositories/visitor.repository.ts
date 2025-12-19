@@ -221,7 +221,7 @@ export class VisitorRepository implements IVisitorRepository {
       .addSelect('COUNT(DISTINCT pageView.sessionId)', 'uniqueViews')
       .addSelect('COUNT(*)', 'totalViews')
       .groupBy('pageView.pageUrl, pageView.pageTitle')
-      .orderBy('uniqueViews', 'DESC')
+      .orderBy('COUNT(DISTINCT pageView.sessionId)', 'DESC')
       .take(limit);
 
     if (startDate && endDate) {

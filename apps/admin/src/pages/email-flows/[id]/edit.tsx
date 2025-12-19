@@ -9,35 +9,43 @@ import { trpc } from '../../../utils/trpc';
 import { z } from 'zod';
 import { Loading } from '../../../components/common/Loading';
 
-type EmailFlowFormData = {
+type MailChannelPriorityFormData = {
   name: string;
   description?: string;
   mailProviderId: string;
+  mailTemplateId?: string;
   isActive?: boolean;
   priority?: number;
   config?: Record<string, any>;
 };
 
-const emailFlowSchema: z.ZodSchema<EmailFlowFormData> = z.object({
+const mailChannelPrioritySchema: z.ZodSchema<MailChannelPriorityFormData> = z.object({
   name: z.string().min(2).max(255),
   description: z.string().max(1000).optional(),
   mailProviderId: z.string().uuid(),
   isActive: z.boolean().optional().default(true),
   priority: z.number().int().min(1).max(10).optional().default(5),
   config: z.record(z.any()).optional(),
-}) as z.ZodSchema<EmailFlowFormData>;
+}) as z.ZodSchema<MailChannelPriorityFormData>;
 
-const EditEmailFlowPage: React.FC = () => {
+const EditMailChannelPriorityPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToast } = useToast();
   const [providerOptions, setProviderOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [templateOptions, setTemplateOptions] = useState<Array<{ value: string; label: string }>>([]);
 
-  const { data: flowData, isLoading } = trpc.adminEmailFlow.getFlowById.useQuery({ id: id! }, { enabled: !!id });
+  const { data: flowData, isLoading } = trpc.adminMailChannelPriority.getFlowById.useQuery({ id: id! }, { enabled: !!id });
   const { data: providersData } = trpc.adminMailProvider.getActiveProviders.useQuery();
-  const updateMutation = trpc.adminEmailFlow.updateFlow.useMutation({
+  const { data: templatesData } = trpc.adminMailTemplate.getTemplates.useQuery({
+    page: 1,
+    limit: 100,
+    sortBy: 'name',
+    sortOrder: 'ASC',
+  });
+  const updateMutation = trpc.adminMailChannelPriority.updateFlow.useMutation({
     onSuccess: () => {
-      addToast({ title: 'Success', description: 'Email flow updated successfully', type: 'success' });
+      addToast({ title: 'Success', description: 'Mail channel priority updated successfully', type: 'success' });
       navigate('/email-flows');
     },
     onError: (error) => {
@@ -56,10 +64,21 @@ const EditEmailFlowPage: React.FC = () => {
     }
   }, [providersData]);
 
+  useEffect(() => {
+    const items = (templatesData as any)?.data?.items;
+    if (Array.isArray(items)) {
+      const options = items.map((template: any) => ({
+        value: template.id,
+        label: template.name,
+      }));
+      setTemplateOptions(options);
+    }
+  }, [templatesData]);
+
   const tabs: FormTabConfig[] = [
     {
       id: 'general',
-      label: 'General Settings',
+      label: 'Priority Settings',
       icon: <Settings className="w-4 h-4" />,
       sections: [
         {
@@ -67,7 +86,7 @@ const EditEmailFlowPage: React.FC = () => {
           fields: [
             {
               name: 'name',
-              label: 'Flow Name',
+              label: 'Priority Name',
               type: 'text',
               required: true,
             },
@@ -78,11 +97,21 @@ const EditEmailFlowPage: React.FC = () => {
             },
             {
               name: 'mailProviderId',
-              label: 'Mail Provider',
+              label: 'Mail Channel',
               type: 'select',
               required: true,
               options: providerOptions,
-              description: 'Select an active mail provider',
+              description: 'Select an active mail channel',
+            },
+            {
+              name: 'mailTemplateId',
+              label: 'Mail Template',
+              type: 'select',
+              options: [
+                { value: '', label: 'All templates (default)' },
+                ...templateOptions,
+              ],
+              description: 'Optional: restrict this priority to a single template',
             },
             {
               name: 'isActive',
@@ -91,7 +120,7 @@ const EditEmailFlowPage: React.FC = () => {
             },
             {
               name: 'priority',
-              label: 'Priority',
+              label: 'Priority Order',
               type: 'number',
             },
           ],
@@ -108,29 +137,32 @@ const EditEmailFlowPage: React.FC = () => {
 
   return (
     <CreatePageTemplate
-      title="Edit Email Flow"
-      description="Update email flow configuration"
+      title="Edit Mail Channel Priority"
+      description="Update how this mail channel participates in your priority strategy."
       icon={<Mail className="w-5 h-5" />}
-      entityName="Email Flow"
-      entityNamePlural="Email Flows"
+      entityName="Mail Channel Priority"
+      entityNamePlural="Mail Channel Priorities"
       backUrl="/email-flows"
       onBack={() => navigate('/email-flows')}
       isSubmitting={updateMutation.isPending}
     >
-      <EntityForm<EmailFlowFormData>
+      <EntityForm<MailChannelPriorityFormData>
         tabs={tabs}
         initialValues={flow as any}
         onSubmit={async (formData) => {
-          await updateMutation.mutateAsync({ id: id!, ...formData } as any);
+          const payload = {
+            ...formData,
+            mailTemplateId: formData.mailTemplateId || undefined,
+          };
+          await updateMutation.mutateAsync({ id: id!, ...payload } as any);
         }}
         onCancel={() => navigate('/email-flows')}
         isSubmitting={updateMutation.isPending}
-        validationSchema={emailFlowSchema}
-        submitButtonText="Update Flow"
+        validationSchema={mailChannelPrioritySchema}
+        submitButtonText="Update Priority"
       />
     </CreatePageTemplate>
   );
 };
 
-export default EditEmailFlowPage;
-
+export default EditMailChannelPriorityPage;

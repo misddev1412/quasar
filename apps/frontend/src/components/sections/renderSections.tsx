@@ -7,6 +7,13 @@ import {
   NewsSection,
   CustomHtmlSection,
   CTABannerSection,
+  BannerGridSection,
+  FeaturesSection,
+  TestimonialsSection,
+  VideoSection,
+  StatsSection,
+  GallerySection,
+  ContactFormSection,
 } from '.';
 import type { SectionListItem } from '../../types/sections';
 
@@ -16,7 +23,14 @@ const sectionComponentMap: Record<SectionType, React.ComponentType<any>> = {
   [SectionType.PRODUCTS_BY_CATEGORY]: ProductsByCategory,
   [SectionType.NEWS]: NewsSection,
   [SectionType.CUSTOM_HTML]: CustomHtmlSection,
+  [SectionType.BANNER]: BannerGridSection,
   [SectionType.CTA]: CTABannerSection,
+  [SectionType.FEATURES]: FeaturesSection,
+  [SectionType.TESTIMONIALS]: TestimonialsSection,
+  [SectionType.VIDEO]: VideoSection,
+  [SectionType.STATS]: StatsSection,
+  [SectionType.GALLERY]: GallerySection,
+  [SectionType.CONTACT_FORM]: ContactFormSection,
 };
 
 const buildTranslationPayload = (section: SectionListItem) => {
@@ -25,11 +39,13 @@ const buildTranslationPayload = (section: SectionListItem) => {
   }
 
   const { title, subtitle, description, heroDescription } = section.translation;
+  const fieldVisibility = (section.config as Record<string, unknown>)?.fieldVisibility as Record<string, boolean> | undefined;
+
   return {
-    title: title ?? undefined,
-    subtitle: subtitle ?? undefined,
-    description: description ?? undefined,
-    heroDescription: heroDescription ?? undefined,
+    title: fieldVisibility?.title === false ? null : (title ?? undefined),
+    subtitle: fieldVisibility?.subtitle === false ? null : (subtitle ?? undefined),
+    description: fieldVisibility?.description === false ? null : (description ?? undefined),
+    heroDescription: fieldVisibility?.heroDescription === false ? null : (heroDescription ?? undefined),
   };
 };
 

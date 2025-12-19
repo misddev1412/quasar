@@ -11,7 +11,7 @@ import { ToastProvider } from '../contexts/ToastContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
 import { AppInitProvider, useAppInit } from '../contexts/AppInitContext';
 import { AppLoadingOverlay } from '../components/common/AppLoadingOverlay';
-import { CartProvider } from '../components/ecommerce/CartProvider';
+import { CartWrapper } from '../components/ecommerce/CartProvider';
 import '../lib/i18n';
 
 const queryClient = new QueryClient({
@@ -42,9 +42,9 @@ function AppProviders({ children }: { children: React.ReactNode }) {
             <ThemeProvider>
               <ToastProvider>
                 <AuthProvider>
-                  <CartProvider currency="USD" taxRate={0.08} defaultShippingCost={5.99}>
+                  <CartWrapper currency="USD" taxRate={0.08} defaultShippingCost={5.99}>
                     {children}
-                  </CartProvider>
+                  </CartWrapper>
                 </AuthProvider>
               </ToastProvider>
             </ThemeProvider>

@@ -23,6 +23,14 @@ export interface AdminSection {
   translations: AdminSectionTranslation[];
   updatedAt: string;
   version: number;
+  components?: SectionComponentSummary[];
+}
+
+export interface SectionComponentSummary {
+  id: string;
+  componentKey: string;
+  displayName: string;
+  parentId?: string | null;
 }
 
 export interface ActiveLanguage {

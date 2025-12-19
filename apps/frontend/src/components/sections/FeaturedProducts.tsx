@@ -7,6 +7,7 @@ import { SectionTranslationContent } from './HeroSlider';
 import ProductCard from '../../components/ecommerce/ProductCard';
 import type { Product } from '../../types/product';
 import { ProductService } from '../../services/product.service';
+import SectionContainer from './SectionContainer';
 
 export interface FeaturedProductsConfig {
   productIds?: string[];
@@ -72,30 +73,40 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
     };
   }, [productIds]);
 
+  // null means field is hidden by admin, undefined/empty means visible but no value
+  const sectionTitle = translation?.title === null ? '' : (translation?.title || t('sections.featured_products.title'));
+  const sectionSubtitle = translation?.subtitle === null ? '' : (translation?.subtitle || '');
+  const sectionDescription = translation?.description === null ? '' : (translation?.description || '');
+  const hasContent = sectionTitle || sectionSubtitle || sectionDescription;
+
   return (
     <section id="sections" className="py-16 bg-white dark:bg-gray-950">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
-          <div>
-            <h2 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
-              {translation?.title || t('sections.featured_products.title')}
-            </h2>
-            {translation?.subtitle && (
-              <p className="mt-2 text-gray-500 dark:text-gray-400">{translation.subtitle}</p>
-            )}
-            {translation?.description && (
-              <p className="mt-3 text-sm text-gray-500 dark:text-gray-400 max-w-2xl">
-                {translation.description}
-              </p>
-            )}
+      <SectionContainer paddingClassName="px-6 lg:px-8">
+        {hasContent && (
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
+            <div>
+              {sectionTitle && (
+                <h2 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
+                  {sectionTitle}
+                </h2>
+              )}
+              {sectionSubtitle && (
+                <p className="mt-2 text-gray-500 dark:text-gray-400">{sectionSubtitle}</p>
+              )}
+              {sectionDescription && (
+                <p className="mt-3 text-sm text-gray-500 dark:text-gray-400 max-w-2xl">
+                  {sectionDescription}
+                </p>
+              )}
+            </div>
+            <Link
+              href="/products"
+              className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800"
+            >
+              {t('sections.featured_products.browse_catalog')}
+            </Link>
           </div>
-          <Link
-            href="/products"
-            className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800"
-          >
-            {t('sections.featured_products.browse_catalog')}
-          </Link>
-        </div>
+        )}
 
         {productIds.length === 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -140,7 +151,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
             ))}
           </div>
         )}
-      </div>
+      </SectionContainer>
     </section>
   );
 };

@@ -29,6 +29,7 @@ export interface FormFieldConfig {
   defaultCountry?: string; // for phone input
   dependsOn?: { field: string; value: any }; // for conditional fields
   component?: ReactNode; // for custom components
+  onValueChange?: (value: unknown) => void; // callback when field value changes
   // Media upload specific options
   accept?: string; // file types to accept
   maxSize?: number; // max file size in MB
