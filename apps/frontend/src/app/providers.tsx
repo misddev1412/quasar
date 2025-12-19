@@ -14,6 +14,8 @@ import { AppLoadingOverlay } from '../components/common/AppLoadingOverlay';
 import { CartWrapper } from '../components/ecommerce/CartProvider';
 import '../lib/i18n';
 
+import { useFCM } from '../hooks/useFCM';
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -23,6 +25,11 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+function FCMListener() {
+  useFCM();
+  return null;
+}
 
 function AppProviders({ children }: { children: React.ReactNode }) {
   const { isLoading, initializationProgress, initializationMessage } = useAppInit();
@@ -42,6 +49,7 @@ function AppProviders({ children }: { children: React.ReactNode }) {
             <ThemeProvider>
               <ToastProvider>
                 <AuthProvider>
+                  <FCMListener />
                   <CartWrapper currency="USD" taxRate={0.08} defaultShippingCost={5.99}>
                     {children}
                   </CartWrapper>

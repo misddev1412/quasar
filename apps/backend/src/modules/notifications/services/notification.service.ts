@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { NotificationRepository, CreateNotificationDto, NotificationFilters } from '../repositories/notification.repository';
 import { NotificationEntity, NotificationType } from '../entities/notification.entity';
 import { FirebaseMessagingService, FCMPayload, SendToUserOptions } from './firebase-messaging.service';
+import { UserDeviceRepository } from '../repositories/user-device.repository';
 import { NotificationPreferenceService } from './notification-preference.service';
 import { NotificationChannel } from '../entities/notification-preference.entity';
 import { NotificationChannelConfigService } from './notification-channel-config.service';
@@ -52,11 +53,12 @@ export interface BulkNotificationDto {
 export class NotificationService {
   constructor(
     private readonly notificationRepository: NotificationRepository,
+    private readonly userDeviceRepository: UserDeviceRepository,
     private readonly firebaseMessagingService: FirebaseMessagingService,
     private readonly notificationPreferenceService: NotificationPreferenceService,
     private readonly notificationChannelConfigService: NotificationChannelConfigService,
     private readonly firebaseRealtimeDatabaseService: FirebaseRealtimeDatabaseService,
-  ) {}
+  ) { }
 
   async createNotification(data: CreateNotificationDto): Promise<NotificationEntity> {
     return await this.notificationRepository.create(data);
@@ -382,7 +384,27 @@ export class NotificationService {
   }
 
   async validateFCMToken(token: string): Promise<boolean> {
-    return await this.firebaseMessagingService.validateToken(token);
+    // Validate with Firebase first
+    const isValid = await this.firebaseMessagingService.validateToken(token);
+    if (!isValid) {
+      // If invalid in Firebase, remove from our DB if it exists
+      await this.userDeviceRepository.removeByToken(token);
+      return false;
+    }
+    return true;
+  }
+
+  async registerFCMToken(userId: string, token: string, deviceInfo?: any): Promise<void> {
+    const isValid = await this.validateFCMToken(token);
+    if (isValid) {
+      await this.userDeviceRepository.createOrUpdate(userId, token, deviceInfo);
+    } else {
+      throw new Error('Invalid FCM token');
+    }
+  }
+
+  async removeFCMToken(userId: string, token: string): Promise<void> {
+    await this.userDeviceRepository.removeByUserAndToken(userId, token);
   }
 
   async sendTestNotification(token: string, title?: string, body?: string): Promise<string | null> {

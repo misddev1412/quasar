@@ -39,7 +39,7 @@ export const FirebaseAuthProvider: React.FC<FirebaseAuthProviderProps> = ({ chil
   // Using safe access with fallback for when endpoint isn't available yet
   let configData = null;
   let configError = null;
-  
+
   try {
     // Try to use the public endpoint if available
     const result = ((trpc as any).publicAuth?.getFirebaseConfig?.useQuery?.() || { data: null, error: null });
@@ -50,7 +50,7 @@ export const FirebaseAuthProvider: React.FC<FirebaseAuthProviderProps> = ({ chil
     console.warn('⚠️ Public Firebase endpoint not available yet. Backend needs restart.');
     configError = error;
   }
-  
+
   // Log configuration status
   React.useEffect(() => {
     if (configData?.data) {
@@ -64,7 +64,7 @@ export const FirebaseAuthProvider: React.FC<FirebaseAuthProviderProps> = ({ chil
       console.warn('⚠️ No active Firebase configuration found');
     }
   }, [configData, configError]);
-  
+
   // Firebase login mutation using tRPC
   const loginWithFirebaseMutation = trpc.adminAuth.loginWithFirebase.useMutation();
 
@@ -75,13 +75,13 @@ export const FirebaseAuthProvider: React.FC<FirebaseAuthProviderProps> = ({ chil
       try {
         // Check if we have active Firebase config data
         const activeConfig = (configData as any)?.data;
-        
+
         console.log('Firebase initialization check:', {
           hasConfigData: !!configData,
           hasActiveConfig: !!activeConfig,
           isAlreadyInitialized: firebaseService.isInitialized()
         });
-        
+
         if (activeConfig && !firebaseService.isInitialized()) {
           console.log('🔥 useFirebaseAuth: Initializing Firebase with config:', activeConfig);
           try {
@@ -126,6 +126,36 @@ export const FirebaseAuthProvider: React.FC<FirebaseAuthProviderProps> = ({ chil
       }
     };
   }, [configData]);
+
+  const registerFCMTokenMutation = trpc.userNotification.registerFCMToken.useMutation();
+
+  // Handle FCM token registration when user is logged in
+  useEffect(() => {
+    const registerToken = async () => {
+      if (firebaseUser && initialized && firebaseService.isMessagingSupported()) {
+        try {
+          const permission = await firebaseService.requestNotificationPermission();
+          if (permission === 'granted') {
+            const token = await firebaseService.getFCMToken();
+            if (token) {
+              await registerFCMTokenMutation.mutateAsync({
+                token,
+                deviceInfo: {
+                  platform: 'web',
+                  userAgent: navigator.userAgent
+                }
+              });
+              console.log('✅ FCM token registered with backend');
+            }
+          }
+        } catch (error) {
+          console.error('❌ Failed to register FCM token:', error);
+        }
+      }
+    };
+
+    registerToken();
+  }, [firebaseUser, initialized]);
 
   const signInWithEmail = async (email: string, password: string) => {
     if (!initialized) {

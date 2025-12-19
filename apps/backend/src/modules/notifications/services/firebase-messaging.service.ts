@@ -1,9 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { FirebaseAuthService } from '../../firebase/services/firebase-auth.service';
 import { FirebaseConfigService } from '../../firebase/services/firebase-config.service';
 import * as admin from 'firebase-admin';
 import { NotificationRepository, CreateNotificationDto } from '../repositories/notification.repository';
 import { NotificationEntity, NotificationType } from '../entities/notification.entity';
+import { UserDeviceRepository } from '../repositories/user-device.repository';
 
 export interface FCMPayload {
   title: string;
@@ -49,7 +50,9 @@ export class FirebaseMessagingService {
     private readonly firebaseAuthService: FirebaseAuthService,
     private readonly firebaseConfigService: FirebaseConfigService,
     private readonly notificationRepository: NotificationRepository,
-  ) {}
+    @Inject(forwardRef(() => UserDeviceRepository))
+    private readonly userDeviceRepository: UserDeviceRepository,
+  ) { }
 
   private async getMessaging(): Promise<admin.messaging.Messaging | null> {
     try {
@@ -132,8 +135,12 @@ export class FirebaseMessagingService {
       const response = await messaging.send(message);
       this.logger.log(`Successfully sent message to token: ${response}`);
       return response;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error(`Error sending message to token ${token}:`, error);
+      if (error.code === 'messaging/registration-token-not-registered' || error.code === 'messaging/invalid-registration-token') {
+        this.logger.log(`Removing invalid token: ${token}`);
+        await this.userDeviceRepository.removeByToken(token);
+      }
       return null;
     }
   }
@@ -182,13 +189,24 @@ export class FirebaseMessagingService {
       );
 
       if (response.failureCount > 0) {
+        const tokensToRemove: string[] = [];
         response.responses.forEach((resp, idx) => {
           if (!resp.success) {
             this.logger.warn(
               `Failed to send to token ${tokens[idx]}: ${resp.error?.message}`
             );
+            if (resp.error?.code === 'messaging/registration-token-not-registered' || resp.error?.code === 'messaging/invalid-registration-token') {
+              tokensToRemove.push(tokens[idx]);
+            }
           }
         });
+
+        if (tokensToRemove.length > 0) {
+          this.logger.log(`Removing ${tokensToRemove.length} invalid tokens`);
+          for (const token of tokensToRemove) {
+            await this.userDeviceRepository.removeByToken(token);
+          }
+        }
       }
 
       return response;
@@ -251,7 +269,7 @@ export class FirebaseMessagingService {
   ): Promise<NotificationEntity | null> {
     const {
       userId,
-      userFcmTokens = [],
+      userFcmTokens: explicitTokens,
       saveToDatabase = true,
       notificationType = NotificationType.INFO,
       actionUrl,
@@ -259,6 +277,13 @@ export class FirebaseMessagingService {
     } = options;
 
     let notificationEntity: NotificationEntity | null = null;
+    let tokensToSend = explicitTokens || [];
+
+    // If no tokens provided, fetch from database
+    if (tokensToSend.length === 0) {
+      const UserDevices = await this.userDeviceRepository.findByUserId(userId);
+      tokensToSend = UserDevices.map(d => d.token);
+    }
 
     if (saveToDatabase) {
       try {
@@ -279,14 +304,19 @@ export class FirebaseMessagingService {
       }
     }
 
-    if (userFcmTokens.length > 0) {
-      const response = await this.sendToMultipleTokens(userFcmTokens, payload);
+    if (tokensToSend.length > 0) {
+      const response = await this.sendToMultipleTokens(tokensToSend, payload);
 
-      if (response && notificationEntity) {
+      if (response && notificationEntity && response.successCount > 0) {
         try {
+          // We mark as sent if at least one token succeeded
           await this.notificationRepository.markAsSent(
             notificationEntity.id,
-            userFcmTokens[0]
+            // Just storing the first successful token if available, or just the first attempted one
+            // as a record that it was sent to this device.
+            // In a multi-device scenario, this field might be less relevant or need to be a list.
+            // For now, keeping existing behavior of storing one token.
+            tokensToSend[0]
           );
         } catch (error) {
           this.logger.error('Error updating notification sent status:', error);

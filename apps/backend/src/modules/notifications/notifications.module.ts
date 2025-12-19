@@ -7,12 +7,14 @@ import { NotificationPreferenceEntity } from './entities/notification-preference
 import { NotificationChannelConfigEntity } from './entities/notification-channel-config.entity';
 import { NotificationTelegramConfigEntity } from './entities/notification-telegram-config.entity';
 import { NotificationEventFlow } from './entities/notification-event-flow.entity';
+import { UserDeviceEntity } from './entities/user-device.entity';
 import { MailTemplate } from '../mail-template/entities/mail-template.entity';
 import { NotificationRepository } from './repositories/notification.repository';
 import { NotificationPreferenceRepository } from './repositories/notification-preference.repository';
 import { NotificationChannelConfigRepository } from './repositories/notification-channel-config.repository';
 import { NotificationTelegramConfigRepository } from './repositories/notification-telegram-config.repository';
 import { NotificationEventFlowRepository } from './repositories/notification-event-flow.repository';
+import { UserDeviceRepository } from './repositories/user-device.repository';
 import { NotificationService } from './services/notification.service';
 import { NotificationPreferenceService } from './services/notification-preference.service';
 import { NotificationChannelConfigService } from './services/notification-channel-config.service';
@@ -39,7 +41,9 @@ import { UserModule } from '../user/user.module';
       NotificationChannelConfigEntity,
       NotificationTelegramConfigEntity,
       NotificationEventFlow,
+      NotificationEventFlow,
       MailTemplate,
+      UserDeviceEntity,
     ]),
     SharedModule,
     FirebaseModule,
@@ -50,7 +54,9 @@ import { UserModule } from '../user/user.module';
     NotificationPreferenceRepository,
     NotificationChannelConfigRepository,
     NotificationTelegramConfigRepository,
+    NotificationTelegramConfigRepository,
     NotificationEventFlowRepository,
+    UserDeviceRepository,
     NotificationService,
     NotificationPreferenceService,
     NotificationChannelConfigService,
@@ -78,7 +84,9 @@ import { UserModule } from '../user/user.module';
     NotificationPreferenceRepository,
     NotificationChannelConfigRepository,
     NotificationTelegramConfigRepository,
+    NotificationTelegramConfigRepository,
     NotificationEventFlowRepository,
+    UserDeviceRepository,
     AdminNotificationRouter,
     UserNotificationRouter,
     AdminNotificationPreferencesRouter,
@@ -87,4 +95,4 @@ import { UserModule } from '../user/user.module';
     ClientNotificationRouter,
   ],
 })
-export class NotificationsModule {}
+export class NotificationsModule { }

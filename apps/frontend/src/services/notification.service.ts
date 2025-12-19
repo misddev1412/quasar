@@ -30,6 +30,7 @@ export interface NotificationService {
     data?: Record<string, unknown>;
   }) => Promise<Notification>;
   getNotificationTypes: () => Promise<Array<{ value: NotificationType; label: string }>>;
+  registerFCMToken: (token: string, deviceInfo?: any) => Promise<void>;
 }
 
 class NotificationServiceImpl implements NotificationService {
@@ -150,6 +151,18 @@ class NotificationServiceImpl implements NotificationService {
     } catch (error) {
       console.error('Failed to get notification types:', error);
       return [];
+    }
+  }
+
+  async registerFCMToken(token: string, deviceInfo?: any): Promise<void> {
+    try {
+      await (trpcClient as any).userNotification.registerFCMToken.mutate({
+        token,
+        deviceInfo
+      });
+    } catch (error) {
+      console.error('Failed to register FCM token:', error);
+      throw error;
     }
   }
 }
