@@ -10,6 +10,7 @@ import { FormInput } from '../common/FormInput';
 import { Badge } from '../common/Badge';
 import { MediaManager } from '../common/MediaManager';
 import { AttributeValuesSelector } from './AttributeValuesSelector';
+import { stripNumberLeadingZeros } from '../../utils/inputUtils';
 
 const serializeCombination = (combo: Record<string, string>) =>
   JSON.stringify(Object.entries(combo).sort(([a], [b]) => a.localeCompare(b)));
@@ -43,6 +44,24 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
 }) => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
+  const sanitizeNumberInputEvent = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedValue = stripNumberLeadingZeros(event.target.value);
+    if (sanitizedValue !== event.target.value) {
+      event.target.value = sanitizedValue;
+    }
+    return sanitizedValue;
+  };
+  const getSanitizedInputElementValue = (input?: HTMLInputElement | null) => {
+    if (!input) {
+      return '';
+    }
+    const trimmedValue = input.value?.trim() || '';
+    const sanitizedValue = stripNumberLeadingZeros(trimmedValue);
+    if (sanitizedValue !== input.value) {
+      input.value = sanitizedValue;
+    }
+    return sanitizedValue;
+  };
 
 
   // Selected attributes for matrix generation
@@ -559,8 +578,8 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                     const priceInput = document.getElementById('bulk-price') as HTMLInputElement;
                     const quantityInput = document.getElementById('bulk-quantity') as HTMLInputElement;
 
-                    const priceValue = priceInput?.value?.trim();
-                    const quantityValue = quantityInput?.value?.trim();
+                    const priceValue = getSanitizedInputElementValue(priceInput);
+                    const quantityValue = getSanitizedInputElementValue(quantityInput);
 
                     const price = priceValue ? parseFloat(priceValue) : undefined;
                     const quantity = quantityValue ? parseInt(quantityValue) : undefined;
@@ -657,7 +676,10 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                           min="0"
                           step="0.01"
                           value={variant.price.toString()}
-                          onChange={(e) => updateVariant(index, 'price', parseFloat(e.target.value) || 0)}
+                          onChange={(e) => {
+                            const sanitizedValue = sanitizeNumberInputEvent(e);
+                            updateVariant(index, 'price', parseFloat(sanitizedValue) || 0);
+                          }}
                           placeholder="0.00"
                           className="w-24"
                           disabled={!variant.isEnabled}
@@ -671,7 +693,10 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                           type="number"
                           min="0"
                           value={variant.quantity.toString()}
-                          onChange={(e) => updateVariant(index, 'quantity', parseInt(e.target.value) || 0)}
+                          onChange={(e) => {
+                            const sanitizedValue = sanitizeNumberInputEvent(e);
+                            updateVariant(index, 'quantity', parseInt(sanitizedValue) || 0);
+                          }}
                           placeholder="0"
                           className="w-20"
                           disabled={!variant.isEnabled}

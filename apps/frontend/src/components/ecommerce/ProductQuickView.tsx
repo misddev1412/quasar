@@ -36,11 +36,17 @@ const ProductQuickView: React.FC<ProductQuickViewProps> = ({
     return '/placeholder-product.png';
   };
 
-  const currentPrice = selectedVariant?.price ||
-    (product.variants && product.variants.length > 0 ? Math.min(...product.variants.map(v => v.price)) : 0);
+  const currentPrice = selectedVariant?.price ??
+    (product.variants && product.variants.length > 0 ? Math.min(...product.variants.map(v => v.price)) : product.price);
 
-  const originalPrice = selectedVariant?.compareAtPrice ||
-    (product.variants && product.variants.length > 0 ? product.variants[0].compareAtPrice : undefined);
+  const variantOriginalPrice = product.variants && product.variants.length > 0
+    ? product.variants.find(variant => typeof variant.compareAtPrice === 'number')?.compareAtPrice
+    : undefined;
+
+  const originalPrice = selectedVariant?.compareAtPrice
+    ?? variantOriginalPrice
+    ?? product.compareAtPrice
+    ?? undefined;
 
   return (
     <Modal
@@ -63,7 +69,12 @@ const ProductQuickView: React.FC<ProductQuickViewProps> = ({
               />
             </div>
             <div className="space-y-5">
-              <PriceDisplay price={currentPrice} originalPrice={originalPrice} size="lg" />
+              <PriceDisplay
+                price={currentPrice}
+                originalPrice={originalPrice}
+                size="lg"
+                currency={product.currencyCode}
+              />
               <p className="text-base text-gray-600 line-clamp-3">{description}</p>
               <Button
                 color="primary"

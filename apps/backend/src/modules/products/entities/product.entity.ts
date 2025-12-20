@@ -122,6 +122,15 @@ export class Product extends BaseEntity {
 
   @Expose()
   @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+  })
+  compareAtPrice?: number;
+
+  @Expose()
+  @Column({
     name: 'is_active',
     type: 'boolean',
     default: true,

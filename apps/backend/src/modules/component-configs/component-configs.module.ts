@@ -4,11 +4,17 @@ import { ComponentConfigEntity } from './entities/component-config.entity';
 import { ComponentConfigRepository } from './repositories/component-config.repository';
 import { ComponentConfigsService } from './services/component-configs.service';
 import { AdminComponentConfigsRouter } from './routers/admin-component-configs.router';
+import { ClientComponentConfigsRouter } from './routers/client-component-configs.router';
 import { SharedModule } from '../shared/shared.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ComponentConfigEntity]), SharedModule],
-  providers: [ComponentConfigRepository, ComponentConfigsService, AdminComponentConfigsRouter],
+  providers: [
+    ComponentConfigRepository,
+    ComponentConfigsService,
+    AdminComponentConfigsRouter,
+    ClientComponentConfigsRouter,
+  ],
   exports: [ComponentConfigRepository, ComponentConfigsService],
 })
 export class ComponentConfigsModule {}

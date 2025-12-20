@@ -6,6 +6,7 @@ import ProductGrid from '../../components/ecommerce/ProductGrid';
 import type { Product } from '../../types/product';
 import type { PaginationInfo } from '../../types/api';
 import { serverTrpc } from '../../utils/trpc-server';
+import { formatCurrencyValue } from '../../utils/currency';
 
 const RESULTS_PER_PAGE = 12;
 const UUID_PATTERN = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
@@ -33,12 +34,6 @@ const defaultPagination = (page = 1): PaginationInfo => ({
 const defaultSearchResult = (page = 1): SearchResult => ({
   items: [],
   pagination: defaultPagination(page),
-});
-
-const priceFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  maximumFractionDigits: 2,
 });
 
 const getFirstParam = (value: string | string[] | undefined): string | undefined => {
@@ -239,6 +234,16 @@ export default async function SearchPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const resolved = (await searchParams) || {};
+  const currencyResponse = await serverTrpc.clientCurrency.getDefaultCurrency.query();
+  const currencyData = (currencyResponse as any)?.data ?? {};
+  const currencyCode = currencyData?.code || 'USD';
+  const formatSearchPrice = (value: number) =>
+    formatCurrencyValue(value, {
+      currency: currencyCode,
+      symbol: currencyData?.symbol,
+      decimalPlaces: currencyData?.decimalPlaces,
+      format: currencyData?.format,
+    });
 
   const rawQuery = getFirstParam(resolved.q) ?? '';
   const query = rawQuery.trim();
@@ -333,11 +338,11 @@ export default async function SearchPage({
       typeof normalizedMinPrice === 'number' &&
       typeof normalizedMaxPrice === 'number'
     ) {
-      label = `Price: ${priceFormatter.format(normalizedMinPrice)} - ${priceFormatter.format(normalizedMaxPrice)}`;
+      label = `Price: ${formatSearchPrice(normalizedMinPrice)} - ${formatSearchPrice(normalizedMaxPrice)}`;
     } else if (typeof normalizedMinPrice === 'number') {
-      label = `Price: From ${priceFormatter.format(normalizedMinPrice)}`;
+      label = `Price: From ${formatSearchPrice(normalizedMinPrice)}`;
     } else if (typeof normalizedMaxPrice === 'number') {
-      label = `Price: Up to ${priceFormatter.format(normalizedMaxPrice)}`;
+      label = `Price: Up to ${formatSearchPrice(normalizedMaxPrice)}`;
     }
 
     appliedFilterChips.push({

@@ -285,4 +285,22 @@ export class AdminCurrencyService {
       return manager.save(currency);
     });
   }
+
+  async getDefaultCurrency() {
+    const defaultCurrency = await this.currencyRepository.findOne({ where: { isDefault: true } });
+    if (defaultCurrency) {
+      return defaultCurrency;
+    }
+
+    const fallbackCurrency = await this.currencyRepository.findOne({
+      where: { isActive: true },
+      order: { updatedAt: 'DESC' },
+    });
+
+    if (fallbackCurrency) {
+      return fallbackCurrency;
+    }
+
+    throw new NotFoundException('No active currency configured');
+  }
 }

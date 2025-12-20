@@ -38,7 +38,7 @@ const CartItem: React.FC<CartItemProps> = ({
   item,
   onUpdateQuantity,
   onRemove,
-  currency = '$',
+  currency = 'USD',
   className = '',
   showImage = true,
   showControls = true,
@@ -108,12 +108,12 @@ const CartItem: React.FC<CartItemProps> = ({
           <div className="min-w-0">
             <Link
               href={slug ? `/products/${slug}` : '#'}
-              className="block truncate text-sm font-medium text-gray-900 transition-colors hover:text-primary-500 dark:text-white"
+              className="block text-sm font-medium text-gray-900 transition-colors hover:text-primary-500 dark:text-white line-clamp-2 leading-tight break-words"
             >
               {name}
             </Link>
             {variantText && (
-              <p className="truncate text-xs text-gray-500 dark:text-gray-400">{variantText}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{variantText}</p>
             )}
             {lowStock && inStock && (
               <span className="mt-0.5 inline-block text-[0.65rem] uppercase tracking-wide text-amber-500">Low stock</span>
@@ -122,24 +122,24 @@ const CartItem: React.FC<CartItemProps> = ({
               <span className="mt-0.5 inline-block text-[0.65rem] uppercase tracking-wide text-red-500">Unavailable</span>
             )}
           </div>
-          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+          <div className="shrink-0 text-right text-sm font-semibold text-gray-900 dark:text-white">
             <PriceDisplay price={totalPrice} currency={currency} />
           </div>
         </div>
 
         {showControls && (
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-1 rounded-md border border-gray-200 bg-white px-1.5 py-1 dark:border-gray-700 dark:bg-gray-900">
+            <div className="flex items-center gap-1 rounded-md border border-gray-200 bg-white px-1 py-0.5 dark:border-gray-700 dark:bg-gray-900">
               <Button
                 isIconOnly
                 size="sm"
                 variant="light"
-                className="h-7 w-7 min-w-0 rounded-md bg-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                className="h-6 w-6 min-w-0 rounded-md bg-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                 onPress={() => handleQuantityStep(-1)}
                 isDisabled={!inStock || !canDecrease}
                 aria-label="Decrease quantity"
               >
-                <MinusIcon className="h-3.5 w-3.5" />
+                <MinusIcon className="h-3 w-3" />
               </Button>
               <Input
                 type="number"
@@ -151,8 +151,8 @@ const CartItem: React.FC<CartItemProps> = ({
                 onValueChange={handleQuantityInputChange}
                 classNames={{
                   inputWrapper:
-                    'h-8 w-14 min-w-[3.5rem] border border-transparent bg-transparent px-0 shadow-none data-[focus=true]:border-primary-200 dark:data-[focus=true]:border-primary-500/40',
-                  input: 'text-center text-sm font-semibold text-gray-900 dark:text-white',
+                    'h-7 w-11 min-w-[2.5rem] border border-transparent bg-transparent px-0 shadow-none data-[focus=true]:border-primary-200 dark:data-[focus=true]:border-primary-500/40',
+                  input: 'text-center text-xs font-semibold text-gray-900 dark:text-white',
                 }}
                 isDisabled={!inStock}
                 aria-label="Cart item quantity"
@@ -161,12 +161,12 @@ const CartItem: React.FC<CartItemProps> = ({
                 isIconOnly
                 size="sm"
                 variant="light"
-                className="h-7 w-7 min-w-0 rounded-md bg-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                className="h-6 w-6 min-w-0 rounded-md bg-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                 onPress={() => handleQuantityStep(1)}
                 isDisabled={!inStock || !canIncrease}
                 aria-label="Increase quantity"
               >
-                <PlusIcon className="h-3.5 w-3.5" />
+                <PlusIcon className="h-3 w-3" />
               </Button>
             </div>
             <Button

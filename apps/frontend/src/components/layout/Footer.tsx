@@ -215,7 +215,7 @@ const Footer: React.FC<FooterProps> = ({
   copyright: propCopyright,
   configOverride,
 }) => {
-  const { getFooterLogo, getSetting, getFooterConfig } = useSettings();
+  const { getSetting, getFooterConfig } = useSettings();
   const footerConfig = configOverride ? createFooterConfig(configOverride) : getFooterConfig();
   const visitorAnalyticsConfig = footerConfig.visitorAnalytics ?? DEFAULT_VISITOR_ANALYTICS_CONFIG;
   const shouldFetchVisitorStats = visitorAnalyticsConfig.enabled !== false;
@@ -244,14 +244,17 @@ const Footer: React.FC<FooterProps> = ({
   const topPages = Array.isArray(visitorStats?.topPages) ? visitorStats.topPages : [];
   const lastUpdated = visitorStats?.lastUpdated;
 
-  const footerLogo = getFooterLogo();
   const customBackgroundColor = footerConfig.backgroundColor?.trim() || '';
   const customTextColor = footerConfig.textColor?.trim() || '';
-  const resolvedLogoUrl = (footerConfig.logoUrl || footerLogo || '').trim();
+  const fallbackFooterLogo = getSetting('site.footer_logo', '');
+  const siteLogoUrl = getSetting('site.logo', '');
+  const resolvedLogoUrl = (footerConfig.logoUrl || fallbackFooterLogo || siteLogoUrl || '').trim();
   const siteName = getSetting('site.name', getSetting('site_name', propBrandName));
   const brandDescription = footerConfig.brandDescription || propDescription;
   const variant = footerConfig.variant ?? 'columns';
   const theme = footerConfig.theme ?? 'dark';
+  const shouldShowLogo = footerConfig.showBrandLogo !== false;
+  const shouldShowBrandTitle = footerConfig.showBrandTitle !== false;
   const copyrightText =
     propCopyright || `© ${new Date().getFullYear()} ${siteName}. All rights reserved.`;
   const linkStyle = customTextColor ? { color: customTextColor } : undefined;
@@ -322,17 +325,19 @@ const Footer: React.FC<FooterProps> = ({
       };
 
   const footerLogoAltText = getSetting('site.footer_logo_alt') || siteName;
-  const logo = propLogo
-    || (resolvedLogoUrl ? (
-      <img
-        src={resolvedLogoUrl}
-        alt={footerLogoAltText}
-        className="w-full h-full object-contain"
-        onError={(event) => {
-          event.currentTarget.style.display = 'none';
-        }}
-      />
-    ) : null);
+  const footerLogoNode =
+    shouldShowLogo &&
+    (propLogo ||
+      (resolvedLogoUrl ? (
+        <img
+          src={resolvedLogoUrl}
+          alt={footerLogoAltText}
+          className="w-full h-full object-contain"
+          onError={(event) => {
+            event.currentTarget.style.display = 'none';
+          }}
+        />
+      ) : null));
 
   const renderNavLink = (link: FooterMenuLink) => {
     if (!link.href) return null;
@@ -498,31 +503,38 @@ const Footer: React.FC<FooterProps> = ({
     return null;
   };
 
-  const renderBrandSection = () => (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        {logo && <div className="w-12 h-12">{logo}</div>}
-        <div>
-          <p className="text-lg font-semibold">{siteName}</p>
-          {footerConfig.showBrandDescription && brandDescription && (
-            <p className={clsx('text-sm mt-2 max-w-md', themeClasses.subtle)} style={getTextStyle(0.8)}>
-              {brandDescription}
-            </p>
-          )}
-        </div>
+  const renderBrandSection = () => {
+    const shouldRenderHeading = Boolean(footerLogoNode) || shouldShowBrandTitle;
+    return (
+      <div className="space-y-4">
+        {shouldRenderHeading && (
+          <div className="flex items-center gap-3 flex-wrap">
+            {footerLogoNode && <div className="w-12 h-12 shrink-0">{footerLogoNode}</div>}
+            {shouldShowBrandTitle && (
+              <p className="text-lg font-semibold" style={getTextStyle()}>
+                {siteName}
+              </p>
+            )}
+          </div>
+        )}
+        {footerConfig.showBrandDescription && brandDescription && (
+          <p className={clsx('text-sm max-w-md', themeClasses.subtle)} style={getTextStyle(0.8)}>
+            {brandDescription}
+          </p>
+        )}
+        {footerConfig.customHtml && (
+          <div
+            className={clsx('text-sm leading-relaxed', themeClasses.subtle)}
+            style={getTextStyle(0.8)}
+            dangerouslySetInnerHTML={{ __html: footerConfig.customHtml }}
+          />
+        )}
+        {renderNewsletterForm()}
+        {renderSocialLinks(socialLinks)}
+        {renderEmbeddedWidget()}
       </div>
-      {footerConfig.customHtml && (
-        <div
-          className={clsx('text-sm leading-relaxed', themeClasses.subtle)}
-          style={getTextStyle(0.8)}
-          dangerouslySetInnerHTML={{ __html: footerConfig.customHtml }}
-        />
-      )}
-      {renderNewsletterForm()}
-      {renderSocialLinks(socialLinks)}
-      {renderEmbeddedWidget()}
-    </div>
-  );
+    );
+  };
 
   const renderFooterBottom = () => (
     <div
@@ -790,7 +802,7 @@ const Footer: React.FC<FooterProps> = ({
       <div className={clsx(contentWrapperClass, 'py-8 space-y-6')}>
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
-            {logo && <div className="w-10 h-10">{logo}</div>}
+            {footerLogoNode && <div className="w-10 h-10 shrink-0">{footerLogoNode}</div>}
             <p className={clsx('text-sm', themeClasses.subtle)} style={getTextStyle(0.75)}>
               {copyrightText}
             </p>

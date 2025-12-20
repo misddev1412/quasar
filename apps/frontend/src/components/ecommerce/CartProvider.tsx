@@ -8,6 +8,7 @@ import CartDropdown from './CartDropdown';
 import { Button, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
 import { FiShoppingCart } from 'react-icons/fi';
 import { useTranslations } from 'next-intl';
+import { useCurrency } from '../../contexts/CurrencyContext';
 
 interface CartProviderProps {
   children: React.ReactNode;
@@ -27,9 +28,24 @@ interface CartButtonProps {
 
 export const CartProvider: React.FC<CartProviderProps> = ({
   children,
-  ...cartProps
+  currency,
+  taxRate = 0.08,
+  defaultShippingCost = 5.99,
+  maxQuantity = 99,
 }) => {
-  return <CartContextProvider {...cartProps}>{children}</CartContextProvider>;
+  const { currency: globalCurrency } = useCurrency();
+  const resolvedCurrency = currency || globalCurrency.code || 'USD';
+
+  return (
+    <CartContextProvider
+      currency={resolvedCurrency}
+      taxRate={taxRate}
+      defaultShippingCost={defaultShippingCost}
+      maxQuantity={maxQuantity}
+    >
+      {children}
+    </CartContextProvider>
+  );
 };
 
 export const CartButton: React.FC<CartButtonProps> = ({

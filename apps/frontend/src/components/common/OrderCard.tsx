@@ -5,6 +5,7 @@ import { Card, CardBody } from '@heroui/react';
 import { Eye, Package, Calendar, DollarSign } from 'lucide-react';
 import { format } from 'date-fns';
 import { StatusBadge } from './StatusBadge';
+import { formatCurrencyValue } from '../../utils/currency';
 
 interface OrderItem {
   id: string;
@@ -53,12 +54,8 @@ export function OrderCard({ order, onViewOrder, className = '' }: OrderCardProps
     return format(new Date(date), 'MMM dd, yyyy');
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency || 'USD'
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number, currencyCode: string) =>
+    formatCurrencyValue(amount, { currency: currencyCode || 'USD' });
 
   return (
     <Card

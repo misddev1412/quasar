@@ -369,7 +369,10 @@ export class FirebaseMessagingService {
 
   async validateToken(token: string): Promise<boolean> {
     const messaging = await this.getMessaging();
-    if (!messaging) return false;
+    if (!messaging) {
+      this.logger.warn('Firebase messaging is not configured; skipping token validation.');
+      return true;
+    }
 
     try {
       await messaging.send({

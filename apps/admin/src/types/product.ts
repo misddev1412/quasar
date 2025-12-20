@@ -153,6 +153,8 @@ export interface Product {
   metaDescription?: string;
   metaKeywords?: string;
   price?: number;
+  compareAtPrice?: number | null;
+  currencyCode?: string;
   stockQuantity?: number;
   enableWarehouseQuantity: boolean;
   warehouseQuantities?: ProductWarehouseQuantity[];

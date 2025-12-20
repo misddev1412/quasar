@@ -126,6 +126,7 @@ import CategoriesPage from '../pages/products/categories';
 import EditCategoryPage from '../pages/products/categories/edit';
 import CategoryCreatePage from '../pages/products/categories/create';
 import CreateProductPage from '../pages/products/create';
+import ProductDetailPage from '../pages/products/[id]';
 import EditProductPage from '../pages/products/[id]/edit';
 import DateInputTest from '../pages/test/DateInputTest';
 import { PhoneInputTest } from '../components/test/PhoneInputTest';
@@ -244,6 +245,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/products" element={<ProtectedRoute><ProductsIndexPage /></ProtectedRoute>} />
         <Route path="/products/exports" element={<ProtectedRoute><ProductExportsPage /></ProtectedRoute>} />
       <Route path="/products/create" element={<ProtectedRoute><CreateProductPage /></ProtectedRoute>} />
+      <Route path="/products/:id" element={<ProtectedRoute><ProductDetailPage /></ProtectedRoute>} />
       <Route path="/products/:id/edit" element={<ProtectedRoute><EditProductPage /></ProtectedRoute>} />
       <Route path="/products/attributes" element={<ProtectedRoute><AttributesPage /></ProtectedRoute>} />
       <Route path="/products/brands" element={<ProtectedRoute><BrandsPage /></ProtectedRoute>} />

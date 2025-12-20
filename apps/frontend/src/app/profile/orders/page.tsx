@@ -26,6 +26,7 @@ import { Pagination } from '../../../components/common/Pagination';
 import { SearchFilter, FilterOption } from '../../../components/common/SearchFilter';
 import { OrderStats } from '../../../components/common/OrderStats';
 import { OrderCard } from '../../../components/common/OrderCard';
+import { formatCurrencyValue } from '../../../utils/currency';
 
 interface OrderItem {
   id: string;
@@ -115,12 +116,8 @@ export default function Page() {
     return format(new Date(date), 'MMM dd, yyyy');
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency || 'USD'
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number, currency: string) =>
+    formatCurrencyValue(amount, { currency: currency || 'USD' });
 
   const handleViewOrder = (order: Order) => {
     setSelectedOrder(order);
@@ -292,7 +289,6 @@ export default function Page() {
                 pendingOrders={ordersData?.items?.filter((order: Order) => order.status === 'PENDING').length || 0}
                 deliveredOrders={ordersData?.items?.filter((order: Order) => order.status === 'DELIVERED').length || 0}
                 inTransitOrders={ordersData?.items?.filter((order: Order) => order.status === 'SHIPPED').length || 0}
-                currency="USD"
               />
             </div>
 

@@ -17,25 +17,6 @@ import PageBreadcrumbs from '../../components/common/PageBreadcrumbs';
 import { useSettings } from '../../hooks/useSettings';
 import type { Product, ProductVariant } from '../../types/product';
 
-const currencySymbolMap: Record<string, string> = {
-  USD: '$',
-  EUR: '€',
-  GBP: '£',
-  VND: '₫',
-  JPY: '¥',
-  CNY: '¥',
-  AUD: 'A$',
-  CAD: 'C$',
-};
-
-function getCurrencySymbol(currency?: string): string {
-  if (!currency) {
-    return '$';
-  }
-  const upper = currency.toUpperCase();
-  return currencySymbolMap[upper] || (upper.length <= 3 ? upper : '$');
-}
-
 const normalizeCurrencyValue = (value: number | null | undefined) => {
   if (!Number.isFinite(Number(value))) {
     return 0;
@@ -113,7 +94,6 @@ const CheckoutPageClient = () => {
 
   const hasCartIssues = validation.errors.length > 0 || validation.warnings.length > 0;
 
-  const currencySymbol = useMemo(() => getCurrencySymbol(summary.totals.currency), [summary.totals.currency]);
 
   const handleContinueShopping = useCallback(() => {
     router.push('/products');
@@ -439,15 +419,15 @@ const CheckoutPageClient = () => {
               total={summary.totals.total}
               onSubmit={handleCheckoutSubmit}
               loading={isSubmitting || isPreparingOrder}
-          currency={currencySymbol}
-          savedAddresses={savedAddresses}
-          countries={availableCountries}
-          isAuthenticated={isAuthenticated}
-          authLoading={authLoading}
-          userEmail={user?.email}
-          userName={user?.name}
-          defaultCountryId={defaultCheckoutCountryId}
-        />
+              currency={summary.totals.currency}
+              savedAddresses={savedAddresses}
+              countries={availableCountries}
+              isAuthenticated={isAuthenticated}
+              authLoading={authLoading}
+              userEmail={user?.email}
+              userName={user?.name}
+              defaultCountryId={defaultCheckoutCountryId}
+            />
           )}
         </div>
       </section>

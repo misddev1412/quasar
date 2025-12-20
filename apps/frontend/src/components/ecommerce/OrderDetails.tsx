@@ -246,7 +246,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
 
                   <div className="flex justify-between items-center mt-2">
                     <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
-                    <p className="font-medium">${item.totalPrice.toFixed(2)}</p>
+                    <PriceDisplay price={item.totalPrice} currency={order.currency} />
                   </div>
                 </div>
               </div>
@@ -262,31 +262,33 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Subtotal</span>
-                <PriceDisplay price={order.subtotal} />
+                <PriceDisplay price={order.subtotal} currency={order.currency} />
               </div>
 
               {order.discount && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Discount</span>
-                  <span className="text-green-600">-${order.discount.toFixed(2)}</span>
+                  <span className="text-green-600">
+                    -<PriceDisplay price={order.discount} currency={order.currency} showDiscount={false} />
+                  </span>
                 </div>
               )}
 
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Shipping</span>
-                <PriceDisplay price={order.shippingCost} />
+                <PriceDisplay price={order.shippingCost} currency={order.currency} />
               </div>
 
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Tax</span>
-                <PriceDisplay price={order.tax} />
+                <PriceDisplay price={order.tax} currency={order.currency} />
               </div>
 
               <Divider className="my-2" />
 
               <div className="flex justify-between font-semibold">
                 <span>Total</span>
-                <PriceDisplay price={order.total} size="lg" />
+                <PriceDisplay price={order.total} size="lg" currency={order.currency} />
               </div>
             </div>
 

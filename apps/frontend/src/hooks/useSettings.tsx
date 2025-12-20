@@ -74,10 +74,6 @@ export const useSettings = () => {
     return getSetting('site.favicon', '');
   };
 
-  const getFooterLogo = (): string => {
-    return getSetting('site.footer_logo', '');
-  };
-
   return {
     settings,
     isLoading,
@@ -88,7 +84,6 @@ export const useSettings = () => {
     getSettingAsJson,
     getSiteLogo,
     getSiteFavicon,
-    getFooterLogo,
     getFooterConfig,
   };
 };

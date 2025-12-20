@@ -1005,6 +1005,19 @@ export const appRouter = router({
       }),
   }),
 
+  // Client Component Configs router
+  clientComponentConfigs: router({
+    listByKeys: procedure
+      .input(z.object({
+        componentKeys: z.array(z.string().min(1).max(150)).min(1),
+        sectionId: z.string().uuid().optional().nullable(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
   adminMenus: router({
     list: procedure
       .input(z.object({ menuGroup: z.string().optional() }))
@@ -2581,6 +2594,17 @@ export const appRouter = router({
     detail: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getPurchaseHistory: procedure
+      .input(z.object({
+        productId: z.string(),
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(20),
+      }))
+      .output(paginatedResponseSchema)
       .query(() => {
         return {} as ApiResponse;
       }),
@@ -5492,6 +5516,14 @@ export const appRouter = router({
         menuGroup: z.string().min(1),
         locale: z.string().optional().default('en')
       }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  clientCurrency: router({
+    getDefaultCurrency: procedure
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;

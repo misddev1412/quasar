@@ -12,6 +12,8 @@ import { MediaType } from '../common/ProductMediaUpload';
 import { ProductSpecificationsEditor, ProductSpecificationFormItem } from './ProductSpecificationsEditor';
 import { ProductWarehouseQuantityManager } from './ProductWarehouseQuantityManager';
 import { Input } from '../common/Input';
+import { InputWithIcon } from '../common/InputWithIcon';
+import { stripNumberLeadingZeros } from '../../utils/inputUtils';
 
 // MediaItem interface for frontend form - compatible with ProductMediaUpload component
 interface MediaItem {
@@ -89,6 +91,7 @@ const productSchema = z.object({
   metaKeywords: z.string().optional(),
   isFeatured: z.boolean().default(false),
   price: z.number().min(0).optional(),
+  compareAtPrice: z.number().min(0).nullable().optional(),
   stockQuantity: z.number().min(0).optional(),
   enableWarehouseQuantity: z.boolean().default(false),
   warehouseQuantities: z.array(z.object({
@@ -149,6 +152,7 @@ export interface ProductFormData {
   metaDescription?: string;
   metaKeywords?: string;
   price?: number;
+  compareAtPrice?: number | null;
   isFeatured: boolean;
   stockQuantity?: number;
   enableWarehouseQuantity: boolean;
@@ -214,6 +218,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const [enableWarehouseQuantity, setEnableWarehouseQuantity] = useState(() => product?.enableWarehouseQuantity || false);
   const [warehouseQuantities, setWarehouseQuantities] = useState<ProductWarehouseQuantity[]>(() => product?.warehouseQuantities || []);
   const [price, setPrice] = useState(() => product?.price ?? 0);
+  const [compareAtPrice, setCompareAtPrice] = useState<number | ''>(() => {
+    if (product?.compareAtPrice === undefined || product?.compareAtPrice === null) {
+      return '';
+    }
+    return product.compareAtPrice;
+  });
   const [stockQuantity, setStockQuantity] = useState(() => product?.stockQuantity || 0);
 
   const [specifications, setSpecifications] = useState<ProductSpecificationFormItem[]>(() => {
@@ -229,9 +239,17 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         name: spec.name,
         value: spec.value,
         sortOrder: spec.sortOrder,
-        _tempId: spec.id || generateTempId(),
-      }));
+      _tempId: spec.id || generateTempId(),
+    }));
   });
+
+  const sanitizeNumberInputEvent = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedValue = stripNumberLeadingZeros(event.target.value);
+    if (sanitizedValue !== event.target.value) {
+      event.target.value = sanitizedValue;
+    }
+    return sanitizedValue;
+  };
 
   // Fetch options for dropdowns
   const { data: categoriesData } = trpc.adminProductCategories.getTree.useQuery({
@@ -279,6 +297,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     { value: 'INACTIVE', label: t('products.status.inactive', 'Inactive') },
     { value: 'DISCONTINUED', label: t('products.status.discontinued', 'Discontinued') },
   ];
+  const { data: currenciesResponseData } = trpc.adminCurrency.getCurrencies.useQuery({
+    page: 1,
+    limit: 10,
+    isActive: true,
+  });
+  const currenciesItems = ((currenciesResponseData as any)?.data?.items ?? []) as Array<{ code: string; symbol: string; isDefault?: boolean }>;
+  const resolvedCurrency = currenciesItems.find((currency) => currency?.isDefault) || currenciesItems[0];
+  const currencyCode = resolvedCurrency?.code || 'USD';
+  const currencySymbol = resolvedCurrency?.symbol || '$';
+  const currencyDisplay = currencySymbol || currencyCode;
 
   const tabs: FormTabConfig[] = [
     {
@@ -345,45 +373,80 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             </div>
           ) : (
             <div className="space-y-6">
-              <div className={`grid grid-cols-1 ${!enableWarehouseQuantity ? 'md:grid-cols-2' : ''} gap-6`}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label htmlFor="price" className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {t('products.price', 'Price')}
+                    {t('products.price', 'Price')}{' '}
+                    <span className="text-xs text-gray-500 dark:text-gray-400">({currencyCode})</span>
                   </label>
-                  <Input
+                  <InputWithIcon
                     id="price"
                     type="number"
                     step="0.01"
                     min={0}
                     value={price}
-                    onChange={(e) => setPrice(parseFloat(e.target.value) || 0)}
+                    onChange={(e) => {
+                      const sanitizedValue = sanitizeNumberInputEvent(e);
+                      setPrice(parseFloat(sanitizedValue) || 0);
+                    }}
                     placeholder={t('products.price_placeholder', '0.00')}
+                    iconSpacing="standard"
+                    leftIcon={<span className="text-gray-500 dark:text-gray-400">{currencyDisplay}</span>}
+                  />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {t('products.price_description', 'Base selling price for this product when no variants exist.')} ({currencyCode})
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="compareAtPrice" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {t('products.sale_price', 'Sale Price')}{' '}
+                    <span className="text-xs text-gray-500 dark:text-gray-400">({currencyCode})</span>
+                  </label>
+                  <InputWithIcon
+                    id="compareAtPrice"
+                    type="number"
+                    step="0.01"
+                    min={0}
+                    value={compareAtPrice === '' ? '' : compareAtPrice}
+                    onChange={(e) => {
+                      const sanitizedValue = sanitizeNumberInputEvent(e);
+                      if (sanitizedValue === '') {
+                        setCompareAtPrice('');
+                        return;
+                      }
+                      setCompareAtPrice(parseFloat(sanitizedValue) || 0);
+                    }}
+                    placeholder={t('products.sale_price_placeholder', 'Optional')}
+                    iconSpacing="standard"
+                    leftIcon={<span className="text-gray-500 dark:text-gray-400">{currencyDisplay}</span>}
+                  />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {t('products.sale_price_description', 'Set a promotional price to highlight discounts. Leave blank to use the regular price.')} ({currencyCode})
+                  </p>
+                </div>
+              </div>
+              {!enableWarehouseQuantity && (
+                <div className="space-y-2">
+                  <label htmlFor="stockQuantity" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {t('products.stock_quantity', 'Stock Quantity')}
+                  </label>
+                  <Input
+                    id="stockQuantity"
+                    type="number"
+                    value={stockQuantity}
+                    onChange={(e) => {
+                      const sanitizedValue = sanitizeNumberInputEvent(e);
+                      setStockQuantity(parseInt(sanitizedValue) || 0);
+                    }}
+                    placeholder={t('products.stock_quantity_placeholder', '0')}
+                    min={0}
                     className="w-full"
                   />
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {t('products.price_description', 'Base selling price for this product when no variants exist.')}
+                    {t('products.stock_quantity_description', 'Total available stock for this product. For warehouse-specific inventory, enable warehouse quantity tracking.')}
                   </p>
                 </div>
-                {!enableWarehouseQuantity && (
-                  <div className="space-y-2">
-                    <label htmlFor="stockQuantity" className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {t('products.stock_quantity', 'Stock Quantity')}
-                    </label>
-                    <Input
-                      id="stockQuantity"
-                      type="number"
-                      value={stockQuantity}
-                      onChange={(e) => setStockQuantity(parseInt(e.target.value) || 0)}
-                      placeholder={t('products.stock_quantity_placeholder', '0')}
-                      min={0}
-                      className="w-full"
-                    />
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {t('products.stock_quantity_description', 'Total available stock for this product. For warehouse-specific inventory, enable warehouse quantity tracking.')}
-                    </p>
-                  </div>
-                )}
-              </div>
+              )}
               {enableWarehouseQuantity && (
                 <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800 p-4">
                   <div className="flex items-start gap-3">
@@ -483,6 +546,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               variants={variants as VariantMatrixItem[]}
               onVariantsChange={setVariants}
               productId={product?.id}
+              currencyCode={currencyCode}
             />
           ),
         },
@@ -647,6 +711,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     metaDescription: product?.metaDescription || '',
     metaKeywords: product?.metaKeywords || '',
     price: product?.price || 0,
+    compareAtPrice: product?.compareAtPrice ?? null,
     isFeatured: product?.isFeatured || false,
     enableWarehouseQuantity: enableWarehouseQuantity,
     warehouseQuantities: warehouseQuantities,
@@ -656,6 +721,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   const handleSubmit = async (data: ProductFormData) => {
     try {
+      const normalizedCompareAtPrice = compareAtPrice === '' ? null : Number(compareAtPrice) || 0;
       // Transform variants from VariantMatrixItem to backend format only if there are variants
       let submitData: any = {
         ...data,
@@ -664,6 +730,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         // Use local state for warehouse quantities, stock quantity, and enable flag
         stockQuantity: !enableWarehouseQuantity && variants.length === 0 ? stockQuantity : undefined,
         price: variants.length === 0 ? (Number(price) || 0) : undefined,
+        compareAtPrice: variants.length === 0 ? normalizedCompareAtPrice : undefined,
         enableWarehouseQuantity: enableWarehouseQuantity,
         warehouseQuantities: warehouseQuantities,
       };

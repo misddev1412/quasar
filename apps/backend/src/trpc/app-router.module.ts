@@ -45,6 +45,7 @@ import { AdminNotificationTelegramConfigsRouter } from '../modules/notifications
 import { AdminSupportClientsRouter } from '../modules/support/routers/admin-support-clients.router';
 import { ComponentConfigsModule } from '../modules/component-configs/component-configs.module';
 import { AdminComponentConfigsRouter } from '../modules/component-configs/routers/admin-component-configs.router';
+import { ClientComponentConfigsRouter } from '../modules/component-configs/routers/client-component-configs.router';
 
 @Module({
   imports: [
@@ -95,6 +96,7 @@ import { AdminComponentConfigsRouter } from '../modules/component-configs/router
     AdminNotificationTelegramConfigsRouter,
     AdminSupportClientsRouter,
     AdminComponentConfigsRouter,
+    ClientComponentConfigsRouter,
     ResponseService,
   ],
 })

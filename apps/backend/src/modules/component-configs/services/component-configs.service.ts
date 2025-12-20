@@ -148,6 +148,22 @@ export class ComponentConfigsService {
     }
   }
 
+  async listEnabledByKeys(componentKeys: string[], sectionId?: string): Promise<ComponentConfigEntity[]> {
+    try {
+      return await this.componentConfigRepository.findEnabledByKeys(componentKeys, {
+        sectionIds: sectionId ? [sectionId] : undefined,
+      });
+    } catch (error) {
+      throw this.responseService.createTRPCError(
+        ModuleCode.COMPONENT,
+        OperationCode.READ,
+        ErrorLevelCode.SERVER_ERROR,
+        error.message || 'Unable to load component configurations',
+        error,
+      );
+    }
+  }
+
   async create(dto: CreateComponentConfigDto, userId?: string): Promise<ComponentConfigEntity> {
     try {
       if (dto.parentId) {

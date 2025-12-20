@@ -37,6 +37,7 @@ export const createProductSchema = z.object({
   isActive: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
   price: z.number().optional(),
+  compareAtPrice: z.number().nullable().optional(),
   brandId: z.string().optional(),
   categoryId: z.string().optional(),
   categoryIds: z.array(z.string()).optional(),
@@ -104,6 +105,7 @@ export const updateProductSchema = z.object({
   isActive: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
   price: z.number().optional(),
+  compareAtPrice: z.number().nullable().optional(),
   brandId: z.string().optional(),
   categoryId: z.string().optional(),
   categoryIds: z.array(z.string()).optional(),
@@ -399,6 +401,35 @@ export class AdminProductsRouter {
         2,  // OperationCode.READ
         4,  // ErrorLevelCode.NOT_FOUND
         error.message || 'Product not found'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({
+      productId: z.string(),
+      page: z.number().min(1).default(1),
+      limit: z.number().min(1).max(100).default(20),
+    }),
+    output: paginatedResponseSchema,
+  })
+  async getPurchaseHistory(
+    @Input() input: { productId: string; page: number; limit: number }
+  ): Promise<z.infer<typeof paginatedResponseSchema>> {
+    try {
+      const result = await this.productService.getProductPurchaseHistory(
+        input.productId,
+        input.page,
+        input.limit
+      );
+      return this.responseHandler.createTrpcSuccess(result);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15, // ModuleCode.PRODUCT
+        2,  // OperationCode.READ
+        10, // ErrorLevelCode.SERVER_ERROR
+        error.message || 'Failed to retrieve purchase history'
       );
     }
   }

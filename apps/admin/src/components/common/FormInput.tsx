@@ -64,7 +64,7 @@ export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
   };
 
   return (
-    <div className={label ? 'space-y-1.5' : ''}>
+    <div className={label ? 'space-y-2' : ''}>
       {label && (
         <div className="flex items-center justify-between">
           <label htmlFor={id} className={clsx(BASE_LABEL_CLASS, labelClassName)}>

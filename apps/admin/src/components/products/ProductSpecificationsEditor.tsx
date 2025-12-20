@@ -4,6 +4,7 @@ import { Button } from '../common/Button';
 import { FormInput } from '../common/FormInput';
 import { TextareaInput } from '../common/TextareaInput';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { stripNumberLeadingZeros } from '../../utils/inputUtils';
 
 export interface ProductSpecificationFormItem {
   id?: string;
@@ -84,7 +85,13 @@ export const ProductSpecificationsEditor: React.FC<ProductSpecificationsEditorPr
                   type="number"
                   placeholder="0"
                   value={spec.sortOrder?.toString() ?? ''}
-                  onChange={(event) => handleSortOrderChange(spec._tempId, event.target.value)}
+                  onChange={(event) => {
+                    const sanitizedValue = stripNumberLeadingZeros(event.target.value);
+                    if (sanitizedValue !== event.target.value) {
+                      event.target.value = sanitizedValue;
+                    }
+                    handleSortOrderChange(spec._tempId, sanitizedValue);
+                  }}
                   min={0}
                 />
               </div>

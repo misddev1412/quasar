@@ -199,6 +199,9 @@ export class AdminProductService {
         sku: productData.sku || null,
         status: productData.status || 'DRAFT',
         price: productData.price !== undefined ? productData.price : 0,
+        compareAtPrice: productData.compareAtPrice !== undefined && productData.compareAtPrice !== null
+          ? productData.compareAtPrice
+          : null,
         brandId: cleanUuid(productData.brandId),
         warrantyId: cleanUuid(productData.warrantyId),
         metaTitle: productData.metaTitle || null,
@@ -279,6 +282,9 @@ export class AdminProductService {
         sku: productData.sku || null,
         status: productData.status || 'DRAFT',
         price: productData.price !== undefined ? productData.price : existingProduct.price,
+        compareAtPrice: productData.compareAtPrice !== undefined
+          ? productData.compareAtPrice
+          : existingProduct.compareAtPrice ?? null,
         brandId: cleanUuid(productData.brandId),
         warrantyId: cleanUuid(productData.warrantyId),
         metaTitle: productData.metaTitle || null,
@@ -1729,5 +1735,67 @@ export class AdminProductService {
       .filter((entry) => entry.length > 0);
 
     return normalized.length ? Array.from(new Set(normalized)) : undefined;
+  }
+
+  async getProductPurchaseHistory(
+    productId: string,
+    page: number = 1,
+    limit: number = 20
+  ): Promise<{
+    items: Array<{
+      id: string;
+      orderId: string;
+      orderNumber: string;
+      orderDate: Date;
+      customerName: string;
+      customerEmail: string;
+      quantity: number;
+      unitPrice: number;
+      totalPrice: number;
+      orderStatus: string;
+      variantName?: string;
+    }>;
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const dataSource = this.productRepository['manager'].connection;
+
+    const skip = (page - 1) * limit;
+
+    // Query order items with order information
+    const queryBuilder = dataSource
+      .getRepository('OrderItem')
+      .createQueryBuilder('orderItem')
+      .leftJoinAndSelect('orderItem.order', 'order')
+      .where('orderItem.product_id = :productId', { productId })
+      .orderBy('order.order_date', 'DESC')
+      .skip(skip)
+      .take(limit);
+
+    const [items, total] = await queryBuilder.getManyAndCount();
+
+    const formattedItems = items.map((item: Record<string, unknown>) => ({
+      id: item['id'] as string,
+      orderId: (item['order'] as Record<string, unknown>)?.['id'] as string,
+      orderNumber: (item['order'] as Record<string, unknown>)?.['orderNumber'] as string,
+      orderDate: (item['order'] as Record<string, unknown>)?.['orderDate'] as Date,
+      customerName: (item['order'] as Record<string, unknown>)?.['customerName'] as string,
+      customerEmail: (item['order'] as Record<string, unknown>)?.['customerEmail'] as string,
+      quantity: item['quantity'] as number,
+      unitPrice: Number(item['unitPrice']),
+      totalPrice: Number(item['totalPrice']),
+      orderStatus: (item['order'] as Record<string, unknown>)?.['status'] as string,
+      variantName: item['variantName'] as string | undefined,
+    }));
+
+    return {
+      items: formattedItems,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 }

@@ -9,6 +9,62 @@ import type {
   ProductFilters
 } from '../types/product';
 
+type MaybePricedProduct = Product & { price?: number | null };
+
+const coercePriceValue = (value: unknown): number | null => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+};
+
+const deriveVariantPrice = (product: Product): number | null => {
+  if (!Array.isArray(product.variants) || product.variants.length === 0) {
+    return null;
+  }
+
+  const variantPrices = product.variants
+    .map((variant) => coercePriceValue(variant.price))
+    .filter((price): price is number => price !== null);
+
+  if (variantPrices.length === 0) {
+    return null;
+  }
+
+  return Math.min(...variantPrices);
+};
+
+const normalizeProductPricing = (product: Product): Product => {
+  const source = product as MaybePricedProduct;
+  const directPrice = coercePriceValue(source.price);
+
+  if (directPrice !== null) {
+    if (source.price === directPrice) {
+      return product;
+    }
+
+    return {
+      ...product,
+      price: directPrice,
+    };
+  }
+
+  const fallbackPrice =
+    coercePriceValue(product.lowestPrice) ??
+    deriveVariantPrice(product) ??
+    coercePriceValue(product.highestPrice) ??
+    0;
+
+  return {
+    ...product,
+    price: fallbackPrice,
+  };
+};
+
 export interface GetProductsParams {
   page?: number;
   limit?: number;
@@ -38,7 +94,7 @@ export class ProductService {
 
       if (paginateData?.items && paginateData.pagination) {
         return {
-          items: paginateData.items,
+          items: paginateData.items.map(normalizeProductPricing),
           pagination: paginateData.pagination
         };
       }
@@ -62,7 +118,8 @@ export class ProductService {
     try {
       const response = await trpcClient.clientProducts.getProductById.query({ id }) as unknown as ApiResponse<{ product: Product }>;
       // For single product responses, the data is wrapped in a product object
-      return response.data?.product || null;
+      const product = response.data?.product;
+      return product ? normalizeProductPricing(product) : null;
     } catch (error) {
       console.error('Error fetching product by ID:', error);
       throw error;
@@ -73,7 +130,8 @@ export class ProductService {
     try {
       const response = await trpcClient.clientProducts.getProductBySlug.query({ slug }) as unknown as ApiResponse<{ product: Product }>;
       // For single product responses, the data is wrapped in a product object
-      return response.data?.product || null;
+      const product = response.data?.product;
+      return product ? normalizeProductPricing(product) : null;
     } catch (error) {
       console.error('Error fetching product by slug:', error);
       throw error;
@@ -88,7 +146,7 @@ export class ProductService {
       const paginateData = response.data;
       if (paginateData?.items && paginateData.pagination) {
         return {
-          items: paginateData.items,
+          items: paginateData.items.map(normalizeProductPricing),
           pagination: paginateData.pagination
         };
       }
@@ -119,13 +177,7 @@ export class ProductService {
           const response = await trpcClient.clientProducts.getProductById.query({ id }) as unknown as ApiResponse<{ product: Product }>;
           const product = response.data?.product;
           if (!product) return null;
-
-          const normalized: Product = { ...product } as Product;
-          if (normalized.price == null) {
-            const fallbackPrice = (product as any).lowestPrice ?? 0;
-            normalized.price = fallbackPrice;
-          }
-          return normalized;
+          return normalizeProductPricing(product);
         } catch (error) {
           console.error(`Error fetching product ${id}:`, error);
           return null;
@@ -144,7 +196,7 @@ export class ProductService {
       const paginateData = response.data;
       if (paginateData?.items && paginateData.pagination) {
         return {
-          items: paginateData.items,
+          items: paginateData.items.map(normalizeProductPricing),
           pagination: paginateData.pagination
         };
       }
@@ -178,7 +230,7 @@ export class ProductService {
       const paginateData = response.data;
       if (paginateData?.items && paginateData.pagination) {
         return {
-          items: paginateData.items,
+          items: paginateData.items.map(normalizeProductPricing),
           pagination: paginateData.pagination
         };
       }

@@ -7,6 +7,8 @@ import { SharedModule } from '../shared/shared.module';
 import { TranslationModule } from '../translation/translation.module';
 import { AdminSettingsRouter } from './routers/admin-settings.router';
 import { ClientSettingsRouter } from '../../trpc/routers/client';
+import { MaintenanceService } from './services/maintenance.service';
+import { MaintenanceController } from './controllers/maintenance.controller';
 
 @Module({
   imports: [
@@ -17,11 +19,14 @@ import { ClientSettingsRouter } from '../../trpc/routers/client';
   providers: [
     SettingRepository, 
     SettingService,
+    MaintenanceService,
     AdminSettingsRouter,
     ClientSettingsRouter
   ],
+  controllers: [MaintenanceController],
   exports: [
     SettingService,
+    MaintenanceService,
     AdminSettingsRouter,
     ClientSettingsRouter
   ],

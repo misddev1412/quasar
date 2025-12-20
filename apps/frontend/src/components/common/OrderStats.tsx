@@ -3,6 +3,8 @@
 import React from 'react';
 import { Card, CardBody } from '@heroui/react';
 import { Package, DollarSign, Clock, CheckCircle, Truck } from 'lucide-react';
+import { useCurrency } from '../../contexts/CurrencyContext';
+import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
 
 interface OrderStatsProps {
   totalOrders?: number;
@@ -20,15 +22,11 @@ export function OrderStats({
   pendingOrders = 0,
   deliveredOrders = 0,
   inTransitOrders = 0,
-  currency = 'USD',
+  currency,
   className = ''
 }: OrderStatsProps) {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency
-    }).format(amount);
-  };
+  const { currency: defaultCurrency } = useCurrency();
+  const { formatCurrency } = useCurrencyFormatter({ currency: currency || defaultCurrency.code });
 
   const stats = [
     {

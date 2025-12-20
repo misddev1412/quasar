@@ -15,6 +15,7 @@ export interface TransformedProduct {
   isActive: boolean;
   isFeatured: boolean;
   price: number;
+  compareAtPrice: number | null;
   sortOrder: number;
   brandId: string | null;
   categoryIds: string[];
@@ -178,6 +179,9 @@ export class ProductTransformer {
       isActive: product.isActive,
       isFeatured: product.isFeatured,
       price: Number(product.price) || 0,
+      compareAtPrice: product.compareAtPrice !== undefined && product.compareAtPrice !== null
+        ? Number(product.compareAtPrice)
+        : null,
       sortOrder: product.sortOrder || 0,
       brandId: product.brandId || null,
       categoryIds: categories.map(c => c.id),

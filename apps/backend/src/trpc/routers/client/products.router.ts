@@ -11,8 +11,7 @@ import {
   productDetailResponseSchema
 } from '../../schemas/product.schemas';
 import { ProductStatus } from '@backend/modules/products/entities/product.entity';
-
-const currencyFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+import { AdminCurrencyService } from '../../../modules/products/services/admin-currency.service';
 
 @Router({ alias: 'clientProducts' })
 @Injectable()
@@ -24,6 +23,8 @@ export class ClientProductsRouter {
     private readonly categoryRepository: CategoryRepository,
     @Inject(ResponseService)
     private readonly responseHandler: ResponseService,
+    @Inject(AdminCurrencyService)
+    private readonly currencyService: AdminCurrencyService,
   ) {}
 
   private isUuid(value: string): boolean {
@@ -119,9 +120,9 @@ export class ClientProductsRouter {
         ],
       });
 
-      // Format response
+      const { formatter, currencyCode } = await this.resolveCurrencyFormat();
       const formattedResult = {
-        items: result.items.map(product => this.formatProductForResponse(product)),
+        items: result.items.map(product => this.formatProductForResponse(product, formatter, currencyCode)),
         pagination: {
           page: result.page,
           limit: result.limit,
@@ -170,7 +171,8 @@ export class ClientProductsRouter {
         throw new Error('Product not found');
       }
 
-      const formattedProduct = this.formatProductForResponse(product);
+      const { formatter, currencyCode } = await this.resolveCurrencyFormat();
+      const formattedProduct = this.formatProductForResponse(product, formatter, currencyCode);
 
       return this.responseHandler.createTrpcSuccess({
         product: formattedProduct,
@@ -221,7 +223,8 @@ export class ClientProductsRouter {
         throw new Error('Product not found');
       }
 
-      const formattedProduct = this.formatProductForResponse(product.items[0]);
+      const { formatter, currencyCode } = await this.resolveCurrencyFormat();
+      const formattedProduct = this.formatProductForResponse(product.items[0], formatter, currencyCode);
 
       return this.responseHandler.createTrpcSuccess({
         product: formattedProduct,
@@ -264,8 +267,9 @@ export class ClientProductsRouter {
         ],
       });
 
+      const { formatter, currencyCode } = await this.resolveCurrencyFormat();
       const formattedResult = {
-        items: result.items.map(product => this.formatProductForResponse(product)),
+        items: result.items.map(product => this.formatProductForResponse(product, formatter, currencyCode)),
         pagination: {
           page: result.page,
           limit: result.limit,
@@ -314,8 +318,9 @@ export class ClientProductsRouter {
         ],
       });
 
+      const { formatter, currencyCode } = await this.resolveCurrencyFormat();
       const formattedResult = {
-        items: result.items.map(product => this.formatProductForResponse(product)),
+        items: result.items.map(product => this.formatProductForResponse(product, formatter, currencyCode)),
         pagination: {
           page: result.page,
           limit: result.limit,
@@ -354,7 +359,8 @@ export class ClientProductsRouter {
         'media',
       ]);
 
-      const formattedProducts = products.map((product) => this.formatProductForResponse(product));
+      const { formatter, currencyCode } = await this.resolveCurrencyFormat();
+      const formattedProducts = products.map((product) => this.formatProductForResponse(product, formatter, currencyCode));
 
       return this.responseHandler.createTrpcSuccess({ items: formattedProducts });
     } catch (error) {
@@ -438,8 +444,9 @@ export class ClientProductsRouter {
         ],
       });
 
+      const { formatter, currencyCode } = await this.resolveCurrencyFormat();
       const formattedResult = {
-        items: result.items.map(product => this.formatProductForResponse(product)),
+        items: result.items.map(product => this.formatProductForResponse(product, formatter, currencyCode)),
         pagination: {
           page: result.page,
           limit: result.limit,
@@ -551,7 +558,30 @@ export class ClientProductsRouter {
     }
   }
 
-  private formatProductForResponse(product: any): any {
+  private async resolveCurrencyFormat() {
+    try {
+      const currency = await this.currencyService.getDefaultCurrency();
+      const currencyCode = currency?.code || 'USD';
+      return {
+        formatter: new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: currencyCode,
+        }),
+        currencyCode,
+      };
+    } catch (error) {
+      console.warn('Failed to load default currency, falling back to USD:', error);
+      return {
+        formatter: new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+        }),
+        currencyCode: 'USD',
+      };
+    }
+  }
+
+  private formatProductForResponse(product: any, currencyFormatter: Intl.NumberFormat, currencyCode: string): any {
     const tags = Array.isArray(product.tags)
       ? product.tags.map((tag: any) => ({
           id: tag.id,
@@ -647,9 +677,12 @@ export class ClientProductsRouter {
     const prices = variants.map((v) => v.price).filter((price) => Number.isFinite(price));
     const lowestPrice = prices.length > 0 ? Math.min(...prices) : null;
     const highestPrice = prices.length > 0 ? Math.max(...prices) : null;
-    const priceRange = lowestPrice != null && highestPrice != null && lowestPrice !== highestPrice
-      ? `${currencyFormatter.format(lowestPrice)} - ${currencyFormatter.format(highestPrice)}`
-      : null;
+    let priceRange: string | null = null;
+    if (lowestPrice != null && highestPrice != null) {
+      priceRange = lowestPrice === highestPrice
+        ? currencyFormatter.format(lowestPrice)
+        : `${currencyFormatter.format(lowestPrice)} - ${currencyFormatter.format(highestPrice)}`;
+    }
 
     const categories = Array.isArray(product.productCategories)
       ? product.productCategories.map((pc: any) => ({
@@ -727,6 +760,7 @@ export class ClientProductsRouter {
       lowestPrice,
       highestPrice,
       priceRange,
+      currencyCode,
       price: lowestPrice ?? product.price ?? 0,
       hasVariants: variants.length > 1,
       variantCount: variants.length,

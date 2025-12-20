@@ -2,13 +2,15 @@
 
 import React, { useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
+import clsx from 'clsx';
 import { Button, Image, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from '@heroui/react';
 import PriceDisplay from './PriceDisplay';
-import Rating from './Rating';
 import AddToCartButton from './AddToCartButton';
 import type { Product, ProductMedia, ProductVariant } from '../../types/product';
 import { useAddToCart } from '../../hooks/useAddToCart';
 import { useTranslation } from 'react-i18next';
+import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
+import { useProductCardConfig } from '../../hooks/useProductCardConfig';
 
 // Legacy ProductVariant interface for backward compatibility
 export interface LegacyProductVariant {
@@ -54,13 +56,41 @@ interface ProductCardProps {
   onQuickView?: (product: Product) => void;
 }
 
+const FONT_WEIGHT_CLASS_MAP: Record<string, string> = {
+  normal: 'font-normal',
+  medium: 'font-medium',
+  semibold: 'font-semibold',
+  bold: 'font-bold',
+};
+
+const TITLE_FONT_SIZE_CLASS_MAP: Record<string, string> = {
+  sm: 'text-sm',
+  base: 'text-base',
+  lg: 'text-lg',
+  xl: 'text-xl',
+};
+
+const PRICE_FONT_SIZE_CLASS_MAP: Record<string, string> = {
+  sm: 'text-sm',
+  base: 'text-base',
+  lg: 'text-lg',
+  xl: 'text-2xl',
+};
+
+const PRICE_TONE_CLASS_MAP: Record<string, string> = {
+  muted: 'text-gray-500 dark:text-gray-400',
+  default: 'text-gray-900 dark:text-white',
+  emphasis: 'text-blue-600 dark:text-blue-400',
+  custom: '',
+};
+
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
-  showAddToCart = true,
-  showWishlist = true,
-  showQuickView = false,
+  showAddToCart,
+  showWishlist,
+  showQuickView,
   className = '',
-  imageHeight = 'h-72',
+  imageHeight,
   onAddToCart,
   onWishlistToggle,
   onQuickView,
@@ -75,22 +105,33 @@ const ProductCard: React.FC<ProductCardProps> = ({
     variants,
     media,
   } = product;
+  const { config: productCardConfig } = useProductCardConfig();
+  const cardSettings = productCardConfig.card;
+  const titleSettings = productCardConfig.title;
+  const priceSettings = productCardConfig.price;
+  const resolvedImageHeight = imageHeight ?? cardSettings.imageHeight;
+  const resolvedShowAddToCart = typeof showAddToCart === 'boolean' ? showAddToCart : cardSettings.showAddToCart;
+  const resolvedShowWishlist = typeof showWishlist === 'boolean' ? showWishlist : cardSettings.showWishlist;
+  const resolvedShowQuickView = typeof showQuickView === 'boolean' ? showQuickView : cardSettings.showQuickView;
+  const isHorizontalLayout = cardSettings.layout === 'horizontal';
   const displayName = useMemo(() => (name || '').replace(/\s+/g, ' ').trim(), [name]);
-  const titleClampStyle = useMemo<React.CSSProperties>(() => {
+  const titleStyle = useMemo<React.CSSProperties>(() => {
     const lineHeight = 1.3;
-    const height = `calc(${lineHeight}em * 2)`;
+    const clampLines = Math.max(1, Math.min(5, titleSettings.clampLines ?? 2));
+    const height = `calc(${lineHeight}em * ${clampLines})`;
 
     return {
       display: '-webkit-box',
-      WebkitLineClamp: 2,
+      WebkitLineClamp: clampLines,
       WebkitBoxOrient: 'vertical',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       lineHeight,
       minHeight: height,
       maxHeight: height,
+      color: titleSettings.textColor || undefined,
     };
-  }, []);
+  }, [titleSettings.clampLines, titleSettings.textColor]);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isImageHovered, setIsImageHovered] = useState(false);
@@ -99,6 +140,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [quantity, setQuantity] = useState(1);
   const { addToCart, isAdding } = useAddToCart();
   const { t } = useTranslation();
+  const { formatCurrency } = useCurrencyFormatter({
+    currency: priceSettings.currency || product.currencyCode,
+    locale: priceSettings.locale,
+  });
 
   // Get primary image or first image
   const getPrimaryImage = () => {
@@ -113,7 +158,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const inStock = isActive && status === 'ACTIVE';
 
   // Get current price from variants (show lowest price if multiple variants)
-  const currentPrice = variants && variants.length > 0 ? Math.min(...variants.map(v => v.price)) : null;
+  const currentPrice = variants && variants.length > 0 ? Math.min(...variants.map(v => v.price)) : product.price;
+  const variantOriginalPrice = variants && variants.length > 0
+    ? variants.find(variant => typeof variant.compareAtPrice === 'number')?.compareAtPrice
+    : undefined;
+  const displayOriginalPrice = variantOriginalPrice ?? product.compareAtPrice ?? undefined;
 
   // Generate slug if not provided
   const productSlug = name?.toLowerCase().replace(/\s+/g, '-') || id;
@@ -178,6 +227,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const selectedCount = Object.keys(selectedAttributes).length;
     return attributeGroups.length > 0 && selectedCount === attributeGroups.length;
   }, [attributeGroups, selectedAttributes]);
+
+  const shortDescription = useMemo(() => {
+    if (!product.description) {
+      return '';
+    }
+    const textOnly = product.description.replace(/<[^>]+>/g, '').trim();
+    if (textOnly.length <= 140) {
+      return textOnly;
+    }
+    return `${textOnly.slice(0, 140).trim()}…`;
+  }, [product.description]);
 
   const canPurchaseVariant = useCallback((variantOption: ProductVariant | null) => {
     if (!variantOption) return false;
@@ -306,12 +366,51 @@ const ProductCard: React.FC<ProductCardProps> = ({
     onOpen();
   };
 
+  const TitleTag = (titleSettings.htmlTag || 'h3') as keyof JSX.IntrinsicElements;
+  const titleHoverClass = titleSettings.textColor ? '' : 'group-hover:text-blue-600 dark:group-hover:text-blue-400';
+  const titleBaseColorClass = titleSettings.textColor ? '' : 'text-gray-900 dark:text-white';
+  const titleClassName = clsx(
+    titleHoverClass,
+    'transition-colors leading-tight',
+    FONT_WEIGHT_CLASS_MAP[titleSettings.fontWeight] ?? FONT_WEIGHT_CLASS_MAP.semibold,
+    TITLE_FONT_SIZE_CLASS_MAP[titleSettings.fontSize] ?? TITLE_FONT_SIZE_CLASS_MAP.lg,
+    titleSettings.uppercase && 'uppercase tracking-wide',
+    titleBaseColorClass,
+  );
+  const priceWrapperClasses =
+    cardSettings.priceDisplay === 'inline'
+      ? 'flex flex-row items-baseline gap-3 flex-wrap'
+      : 'flex flex-col gap-1';
+  const priceValueClass = clsx(
+    PRICE_FONT_SIZE_CLASS_MAP[priceSettings.fontSize] ?? PRICE_FONT_SIZE_CLASS_MAP.lg,
+    FONT_WEIGHT_CLASS_MAP[priceSettings.fontWeight] ?? FONT_WEIGHT_CLASS_MAP.bold,
+    priceSettings.colorTone !== 'custom' ? PRICE_TONE_CLASS_MAP[priceSettings.colorTone] : '',
+    'leading-tight',
+  );
+  const priceColorStyle =
+    priceSettings.colorTone === 'custom' && priceSettings.customColor ? { color: priceSettings.customColor } : undefined;
+  const shouldShowOriginalPrice = Boolean(priceSettings.showCompareAtPrice && displayOriginalPrice);
+  const showPriceDivider = Boolean(
+    priceSettings.showDivider && shouldShowOriginalPrice && cardSettings.priceDisplay === 'inline',
+  );
+  const featuredBadgeShape = cardSettings.badgeStyle === 'square' ? 'rounded-lg' : 'rounded-full';
+
   return (
     <div
-      className={`group relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 flex flex-col h-full ${className}`}
+      className={clsx(
+        'group relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 flex h-full',
+        isHorizontalLayout ? 'flex-col md:flex-row' : 'flex-col',
+        className,
+      )}
     >
       {/* Product Image */}
-      <div className={`relative overflow-hidden ${imageHeight} bg-white dark:bg-gray-800`}>
+      <div
+        className={clsx(
+          'relative overflow-hidden bg-white dark:bg-gray-800',
+          resolvedImageHeight,
+          isHorizontalLayout && 'md:w-1/2',
+        )}
+      >
         <Link href={`/products/${productSlug}`}>
           <Image
             src={getPrimaryImage()}
@@ -328,7 +427,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Featured Badge */}
         {isFeatured && (
-          <div className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+          <div
+            className={clsx(
+              'absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-3 py-1 shadow-lg',
+              featuredBadgeShape,
+            )}
+          >
             <span className="flex items-center gap-1">
               ⭐ Featured
             </span>
@@ -346,7 +450,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Action Buttons */}
         <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-0">
-          {showWishlist && (
+          {resolvedShowWishlist && (
             <Button
               isIconOnly
               size="sm"
@@ -357,7 +461,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               <span className="text-lg text-red-500">❤️</span>
             </Button>
           )}
-          {showQuickView && (
+          {resolvedShowQuickView && (
             <Button
               isIconOnly
               size="sm"
@@ -372,16 +476,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </div>
 
       {/* Product Info */}
-      <div className="p-5 flex flex-col flex-1">
+      <div className={clsx('p-5 flex flex-col flex-1', isHorizontalLayout && 'md:w-1/2')}>
         <div className="flex flex-col gap-3 flex-1 min-h-[180px] sm:min-h-[200px]">
           {/* Product Name */}
           <Link href={`/products/${productSlug}`} className="block">
-            <h3
-              className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-lg leading-tight"
-              style={titleClampStyle}
-            >
+            <TitleTag className={titleClassName} style={titleStyle}>
               {displayName}
-            </h3>
+            </TitleTag>
           </Link>
 
           {/* SKU */}
@@ -391,14 +492,30 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </div>
           )}
 
+          {cardSettings.showShortDescription && shortDescription && (
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {shortDescription}
+            </p>
+          )}
+
           {/* Price */}
           <div className="h-16">
-            {currentPrice && (
-              <div className="mt-2">
-                <PriceDisplay price={currentPrice} size="lg" />
+            {currentPrice !== undefined && currentPrice !== null && (
+              <div className="mt-2 space-y-1">
+                <div className={priceWrapperClasses}>
+                  <span className={priceValueClass} style={priceColorStyle}>
+                    {formatCurrency(currentPrice)}
+                  </span>
+                  {showPriceDivider && <span className="w-px h-4 bg-gray-200 dark:bg-gray-700" />}
+                  {shouldShowOriginalPrice && displayOriginalPrice !== undefined && displayOriginalPrice !== null && (
+                    <span className="text-sm text-gray-500 dark:text-gray-400 line-through">
+                      {formatCurrency(displayOriginalPrice)}
+                    </span>
+                  )}
+                </div>
                 {variants && variants.length > 0 && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {t('ecommerce.productCard.startingFrom', { price: `$${currentPrice}` })}
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t('ecommerce.productCard.startingFrom', { price: formatCurrency(currentPrice) })}
                   </p>
                 )}
               </div>
@@ -409,7 +526,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {/* Add to Cart Button */}
         <div className="mt-auto pt-4">
           <div className="h-16 flex items-end">
-            {showAddToCart && inStock && (
+            {resolvedShowAddToCart && inStock && (
               <AddToCartButton
                 product={product}
                 onAddToCart={handleAddToCartDirect}
@@ -519,9 +636,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-gray-600 dark:text-gray-400">Price:</span>
-                      <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                        ${matchingVariant.price}
-                      </span>
+                      <PriceDisplay price={matchingVariant.price} size="lg" currency={product.currencyCode} />
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 dark:text-gray-400">{t('ecommerce.productCard.stock', 'Stock')}:</span>
@@ -568,7 +683,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                           : isAdding
                             ? t('ecommerce.cart.adding', 'Adding...')
                             : t('ecommerce.cart.addWithPrice', {
-                              price: `$${(((matchingVariant.price || 0) * quantity).toFixed(2))}`,
+                              price: formatCurrency((matchingVariant.price || 0) * quantity),
                             })
                   }
                   </button>

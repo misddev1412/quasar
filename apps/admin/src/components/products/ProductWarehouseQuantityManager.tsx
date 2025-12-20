@@ -7,6 +7,7 @@ import { ProductWarehouseQuantity } from '../../types/product';
 import { Warehouse } from '../../types/warehouse';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
+import { stripNumberLeadingZeros } from '../../utils/inputUtils';
 
 interface ProductWarehouseQuantityManagerProps {
   warehouseQuantities: ProductWarehouseQuantity[];
@@ -18,6 +19,13 @@ export const ProductWarehouseQuantityManager: React.FC<ProductWarehouseQuantityM
   onChange,
 }) => {
   const { t } = useTranslationWithBackend();
+  const sanitizeNumberInputEvent = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const sanitizedValue = stripNumberLeadingZeros(event.target.value);
+    if (sanitizedValue !== event.target.value) {
+      event.target.value = sanitizedValue;
+    }
+    return sanitizedValue;
+  };
 
   // Fetch warehouses
   const { data: warehousesData, isLoading } = trpc.adminWarehouses.getAll.useQuery(undefined, {
@@ -117,7 +125,10 @@ export const ProductWarehouseQuantityManager: React.FC<ProductWarehouseQuantityM
                   type="number"
                   min="0"
                   value={wq.quantity}
-                  onChange={(e) => updateWarehouse(index, 'quantity', parseInt(e.target.value) || 0)}
+                  onChange={(e) => {
+                    const sanitizedValue = sanitizeNumberInputEvent(e);
+                    updateWarehouse(index, 'quantity', parseInt(sanitizedValue) || 0);
+                  }}
                   placeholder="0"
                   className="w-full"
                 />

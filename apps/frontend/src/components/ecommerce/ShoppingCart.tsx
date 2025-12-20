@@ -8,6 +8,7 @@ import { useCart } from '../../contexts/CartContext';
 import { useTranslations } from 'next-intl';
 import type { ShippingOption } from '../../types/cart';
 import { useRouter } from 'next/navigation';
+import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
 
 const CartIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
@@ -101,6 +102,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
   const [isConfirmingClear, setIsConfirmingClear] = useState(false);
   const [discountCode, setDiscountCode] = useState('');
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
+  const { formatCurrency } = useCurrencyFormatter({ currency: summary.totals.currency });
 
   const cartLabel =
     summary.totalItems > 0
@@ -108,7 +110,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
       : t('aria_labels.cart_button_empty');
   const hasCartItems = !summary.isEmpty;
   const hasDiscount = summary.totals.discount > 0;
-  const formatMoney = (value: number) => `${summary.totals.currency}${value.toFixed(2)}`;
+  const formatMoney = (value: number) => formatCurrency(value);
 
   // Sample shipping options - in production, these would come from an API
   const shippingOptions: ShippingOption[] = [
@@ -253,7 +255,9 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm font-semibold text-gray-900 dark:text-white">${option.cost.toFixed(2)}</div>
+                  <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {formatMoney(option.cost)}
+                  </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">{option.estimatedDays} days</div>
                 </div>
               </label>
@@ -360,9 +364,9 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
               <p className="text-[0.65rem] uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">{t('title')}</p>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{cartLabel}</h2>
               {hasCartItems && (
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
                   {summary.totalItems} {summary.totalItems === 1 ? 'item' : 'items'} · {formatMoney(summary.totals.subtotal)}
-                </p>
+            </p>
               )}
             </div>
           </div>

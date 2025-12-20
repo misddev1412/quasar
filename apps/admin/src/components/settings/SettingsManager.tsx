@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSettings, SettingData } from '../../hooks/useSettings';
 import { CreateSettingForm } from './CreateSettingForm';
 import cn from 'classnames';
@@ -13,21 +13,39 @@ interface SettingItemProps {
   onUpdate: (id: string, data: Partial<Omit<SettingData, 'id'>>) => Promise<void>;
 }
 
+const SECRET_SETTING_KEYS = ['storefront.maintenance_password'];
+
 const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
+  const isSecret = SECRET_SETTING_KEYS.includes(setting.key);
   const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState(setting.value || '');
+  const [value, setValue] = useState(() => (isSecret ? '' : (setting.value || '')));
+  const [secretTouched, setSecretTouched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
 
+  useEffect(() => {
+    if (isSecret) {
+      setValue('');
+      setSecretTouched(false);
+    } else {
+      setValue(setting.value || '');
+    }
+  }, [setting.value, isSecret]);
+
   const handleUpdate = async () => {
-    if (value === setting.value) return;
+    if (!isSecret && value === (setting.value || '')) return;
+    if (isSecret && !secretTouched) return;
     
     setIsLoading(true);
     try {
       await onUpdate(setting.id, { value });
       addToast({ type: 'success', title: t('settings.update_success_title', '更新成功'), description: t('settings.update_success_desc', '设置项已成功更新。') });
       setIsEditing(false);
+      if (isSecret) {
+        setValue('');
+        setSecretTouched(false);
+      }
     } catch (error) {
       console.error('Failed to update setting:', error);
       addToast({ type: 'error', title: t('settings.update_failed_title', '更新失败'), description: t('settings.update_failed_desc', '无法更新设置项，请稍后重试。') });
@@ -67,6 +85,21 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
   };
 
   const renderInput = () => {
+    if (isSecret) {
+      return (
+        <input
+          type="password"
+          value={value}
+          placeholder={t('settings.maintenance_password_placeholder', 'Enter new maintenance password')}
+          onChange={(e) => {
+            setSecretTouched(true);
+            setValue(e.target.value);
+          }}
+          className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        />
+      );
+    }
+
     switch (setting.type) {
       case 'boolean':
         return (
@@ -132,7 +165,8 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
                 variant="secondary"
                 size="sm"
                 onClick={() => {
-                  setValue(setting.value || '');
+                  setValue(isSecret ? '' : (setting.value || ''));
+                  setSecretTouched(false);
                   setIsEditing(false);
                 }}
                 disabled={isLoading}
@@ -144,7 +178,7 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
                 size="sm"
                 onClick={handleUpdate}
                 isLoading={isLoading}
-                disabled={value === setting.value}
+                disabled={isSecret ? !secretTouched : value === (setting.value || '')}
               >
                 {t('common.save', '保存')}
               </Button>
@@ -167,7 +201,13 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
                 </>
               ) : (
                 <span className="truncate max-w-md inline-block">
-                  {setting.value || <span className="text-gray-400 italic">{t('common.empty', '空')}</span>}
+                  {isSecret ? (
+                    setting.value
+                      ? '••••••'
+                      : <span className="text-gray-400 italic">{t('settings.no_password_set', 'No maintenance password configured')}</span>
+                  ) : (
+                    setting.value || <span className="text-gray-400 italic">{t('common.empty', '空')}</span>
+                  )}
                 </span>
               )}
             </div>

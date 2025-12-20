@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Button, Card, Chip } from '@heroui/react';
 import { useTranslations } from 'next-intl';
@@ -8,6 +10,7 @@ import Input from '../common/Input';
 import AttributeSelector from './AttributeSelector';
 import VariantSelector from './VariantSelector';
 import type { Product, ProductVariant } from '../../types/product';
+import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
 
 interface ProductInfoProps {
   product: Product;
@@ -62,12 +65,19 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
 }) => {
   const t = useTranslations('product.detail');
   const { name, brand, sku, status, isActive, variants, tags } = product;
+  const { formatCurrency } = useCurrencyFormatter({ currency: product.currencyCode });
 
   const currentPrice = selectedVariant?.price ||
     (variants && variants.length > 0 ? Math.min(...variants.map(v => v.price)) : product.price);
 
-  const originalPrice = selectedVariant?.compareAtPrice ||
-    (variants && variants.length > 0 ? variants[0].compareAtPrice : undefined);
+  const variantOriginalPrice = variants && variants.length > 0
+    ? variants.find(variant => typeof variant.compareAtPrice === 'number')?.compareAtPrice
+    : undefined;
+
+  const originalPrice = selectedVariant?.compareAtPrice
+    ?? variantOriginalPrice
+    ?? product.compareAtPrice
+    ?? undefined;
 
   const inStock = isActive && status === 'ACTIVE';
 
@@ -122,10 +132,11 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
           originalPrice={originalPrice}
           size="lg"
           className="text-3xl md:text-4xl"
+          currency={product.currencyCode}
         />
         {variants && variants.length > 1 && (
           <p className={typography.meta}>
-            Starting from ${Math.min(...variants.map(v => v.price)).toFixed(2)}
+            Starting from {formatCurrency(Math.min(...variants.map(v => v.price)))}
           </p>
         )}
       </div>

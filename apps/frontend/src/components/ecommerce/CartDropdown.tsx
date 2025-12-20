@@ -12,6 +12,7 @@ import { useCart } from '../../contexts/CartContext';
 import { useTranslations } from 'next-intl';
 import type { ShippingOption } from '../../types/cart';
 import { useRouter } from 'next/navigation';
+import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
 
 interface CartDropdownProps {
   showCheckoutButton?: boolean;
@@ -51,6 +52,7 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
   const [isConfirmingClear, setIsConfirmingClear] = useState(false);
   const [discountCode, setDiscountCode] = useState('');
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
+  const { formatCurrency } = useCurrencyFormatter({ currency: summary.totals.currency });
 
   const cartLabel =
     summary.totalItems > 0
@@ -173,7 +175,7 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
               <label
                 key={option.id}
                 className={clsx(
-                  'flex items-start justify-between gap-4 rounded-xl border px-4 py-3 transition-colors',
+                  'flex items-start justify-between gap-3 rounded-xl border px-4 py-3 transition-colors',
                   isSelected
                     ? 'border-primary-200 bg-primary-50/60 ring-2 ring-primary-500/15 dark:border-primary-500/40 dark:bg-primary-500/10'
                     : 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900/50'
@@ -183,15 +185,15 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
                   <input
                     type="radio"
                     name="shipping"
-                  checked={isSelected}
-                  onChange={() => setShippingOption(option)}
-                  className="mt-1.5 text-primary-500"
-                />
+                    checked={isSelected}
+                    onChange={() => setShippingOption(option)}
+                    className="mt-1 text-primary-500"
+                  />
                 <div>
                   <div className="flex items-center gap-3 text-sm font-medium text-gray-900 dark:text-white">
                     <span
                       className={clsx(
-                        'inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400',
+                        'inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400',
                         isSelected && 'bg-primary-100 text-primary-600 dark:bg-primary-500/20 dark:text-primary-200'
                       )}
                     >
@@ -202,8 +204,10 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
                   <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{option.description}</p>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-sm font-semibold text-gray-900 dark:text-white">${option.cost.toFixed(2)}</div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {formatCurrency(option.cost)}
+                  </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">{t('shipping.days', { days: option.estimatedDays })}</div>
               </div>
             </label>
@@ -228,7 +232,7 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
             onChange={(e) => setDiscountCode(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleApplyDiscount()}
             className="flex-1"
-            size="sm"
+            size="md"
           />
           <Button
             color="primary"
@@ -271,7 +275,7 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
 
   const renderCartContent = () => {
     const containerClasses = clsx(
-      'w-[22rem] max-h-[32rem] overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg dark:border-gray-800 dark:bg-gray-900',
+      'flex w-full max-w-[22rem] sm:max-w-[25rem] max-h-[80vh] sm:max-h-[34rem] flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg dark:border-gray-800 dark:bg-gray-900',
       className
     );
 
@@ -284,7 +288,7 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
         >
           <div className="flex items-center justify-between gap-4">
             <div className="flex min-w-0 items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600 shadow-inner dark:bg-primary-500/20 dark:text-primary-200">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-50 text-primary-600 shadow-inner dark:bg-primary-500/20 dark:text-primary-200">
                 <FiShoppingCart className="text-lg" />
               </span>
               <div>
@@ -296,22 +300,17 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
                 </p>
               </div>
             </div>
-            {!summary.isEmpty && (
-              <span className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-600 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
-                {summary.totalItems}
-              </span>
-            )}
           </div>
         </div>
 
         {/* Cart Items */}
-        <div className="flex flex-col gap-4 px-5 py-4">
+        <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-5 py-4">
           {summary.isEmpty ? (
             renderEmptyCart()
           ) : (
             <>
               {renderValidationAlerts()}
-              <div className="flex flex-col gap-3 overflow-y-auto pr-1" style={{ maxHeight: '12rem' }}>
+              <div className="flex flex-col gap-3">
                 {items.map((item) => (
                   <CartItem
                     key={item.id}

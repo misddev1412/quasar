@@ -60,6 +60,8 @@ export interface FooterConfig {
   variant: FooterVariant;
   theme: FooterTheme;
   brandDescription: string;
+  showBrandLogo: boolean;
+  showBrandTitle: boolean;
   showBrandDescription: boolean;
   menuLayout: FooterMenuLayout;
   columnsPerRow: number;
@@ -105,6 +107,8 @@ export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
   variant: 'columns',
   theme: 'dark',
   brandDescription: 'Discover curated products, helpful resources, and dedicated support from our team.',
+  showBrandLogo: true,
+  showBrandTitle: true,
   showBrandDescription: true,
   menuLayout: 'columns',
   columnsPerRow: 3,

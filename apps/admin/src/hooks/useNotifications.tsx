@@ -34,13 +34,13 @@ interface NotificationApiEntity {
 }
 
 interface NotificationsApiPayload {
-  notifications: NotificationApiEntity[];
+  items: NotificationApiEntity[];
   total: number;
   page: number;
   limit: number;
   totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
+  hasNext?: boolean;
+  hasPrev?: boolean;
 }
 
 const mapNotificationFromApi = (notification: NotificationApiEntity): NotificationData => ({
@@ -125,7 +125,7 @@ export function useNotifications(): UseNotificationsReturn {
 
       setState(prev => ({
         ...prev,
-        notifications: notificationsData?.notifications?.map(mapNotificationFromApi) ?? [],
+        notifications: notificationsData?.items?.map(mapNotificationFromApi) ?? [],
         unreadCount: unreadData?.count ?? 0,
         isLoading: false
       }));

@@ -1,7 +1,7 @@
 // AppRouter types for tRPC client
 // This file is auto-generated from actual nestjs-trpc routers
 // Run 'npm run sync:trpc-types' to regenerate this file
-// Generated on: 2025-12-12T14:40:17.049Z
+// Generated on: 2025-12-20T06:09:47.098Z
 
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
@@ -366,6 +366,9 @@ const appRouter = t.router({
     fulfillItem: t.procedure.input(z.any()).mutation(() => null),
     refundItem: t.procedure.input(z.any()).mutation(() => null),
     deleteItem: t.procedure.input(z.any()).mutation(() => null),
+    estimateExportOrders: t.procedure.query(() => null),
+    exportOrders: t.procedure.input(z.any()).mutation(() => null),
+    listExportJobs: t.procedure.query(() => null),
   }),
   adminPaymentMethods: t.router({
     list: t.procedure.input(z.any()).query(() => null),
@@ -380,6 +383,9 @@ const appRouter = t.router({
     reorder: t.procedure.input(z.any()).mutation(() => null),
     calculatePayment: t.procedure.query(() => null),
     stats: t.procedure.query(() => null),
+    providerConfig: t.procedure.query(() => null),
+    saveProviderConfig: t.procedure.input(z.any()).mutation(() => null),
+    deleteProviderConfig: t.procedure.input(z.any()).mutation(() => null),
   }),
   adminPurchaseOrders: t.router({
     list: t.procedure.input(z.any()).query(() => null),
@@ -446,6 +452,7 @@ const appRouter = t.router({
     listExportJobs: t.procedure.query(() => null),
     addTestMedia: t.procedure.input(z.any()).mutation(() => null),
     detail: t.procedure.input(z.any()).query(() => null),
+    getPurchaseHistory: t.procedure.query(() => null),
     variantDetail: t.procedure.query(() => null),
     create: t.procedure.input(z.any()).mutation(() => null),
     importFromExcel: t.procedure.input(z.any()).mutation(() => null),
@@ -456,6 +463,9 @@ const appRouter = t.router({
     stats: t.procedure.query(() => null),
     updateStatus: t.procedure.input(z.any()).mutation(() => null),
     bulkAction: t.procedure.input(z.any()).mutation(() => null),
+  }),
+  clientCurrency: t.router({
+    getDefaultCurrency: t.procedure.query(() => null),
   }),
   clientDeliveryMethods: t.router({
     list: t.procedure.input(z.any()).query(() => null),

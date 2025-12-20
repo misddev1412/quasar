@@ -68,6 +68,19 @@ export const FirebaseAuthProvider: React.FC<FirebaseAuthProviderProps> = ({ chil
   // Firebase login mutation using tRPC
   const loginWithFirebaseMutation = trpc.adminAuth.loginWithFirebase.useMutation();
 
+  type RegisterFCMTokenInput = {
+    token: string;
+    deviceInfo?: {
+      platform?: 'web' | 'android' | 'ios';
+      userAgent?: string;
+      [key: string]: unknown;
+    };
+  };
+
+  type RegisterFCMTokenMutation = {
+    mutateAsync: (input: RegisterFCMTokenInput) => Promise<unknown>;
+  };
+
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
 
@@ -127,7 +140,13 @@ export const FirebaseAuthProvider: React.FC<FirebaseAuthProviderProps> = ({ chil
     };
   }, [configData]);
 
-  const registerFCMTokenMutation = trpc.userNotification.registerFCMToken.useMutation();
+  const registerFCMTokenMutation: RegisterFCMTokenMutation =
+    ((trpc as any).userNotification?.registerFCMToken?.useMutation?.() as RegisterFCMTokenMutation | undefined) ??
+    {
+      mutateAsync: async () => {
+        console.warn('⚠️ userNotification.registerFCMToken mutation is not available yet.');
+      },
+    };
 
   // Handle FCM token registration when user is logged in
   useEffect(() => {

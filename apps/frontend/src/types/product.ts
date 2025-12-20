@@ -4,6 +4,7 @@ export interface Product {
   slug: string;
   description?: string;
   price: number;
+  compareAtPrice?: number | null;
   stock?: number;
   category?: string;
   images?: string[];
@@ -33,6 +34,7 @@ export interface Product {
   lowestPrice?: number | null;
   highestPrice?: number | null;
   priceRange?: string | null;
+  currencyCode?: string;
   hasVariants?: boolean;
   variantCount?: number;
   viewCount?: number;

@@ -73,7 +73,22 @@ export class UserNotificationRouter {
       sortOrder,
     });
 
-    return this.responseService.createTrpcSuccess(result);
+    const cleanNotifications = result.notifications.map(notification => {
+      const { user, ...cleanNotification } = notification;
+      return cleanNotification;
+    });
+
+    const transformedResult = {
+      items: cleanNotifications,
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+      hasNext: result.hasNext,
+      hasPrev: result.hasPrev,
+    };
+
+    return this.responseService.createTrpcSuccess(transformedResult);
   }
 
   @Query({
@@ -237,15 +252,21 @@ export class UserNotificationRouter {
     @Input() input: z.infer<typeof registerFCMTokenSchema>,
     @Ctx() ctx: AuthenticatedContext,
   ) {
-    const isValid = await this.notificationService.validateFCMToken(input.token);
-
-    if (!isValid) {
-      throw new Error('Invalid FCM token provided');
-    }
+    await this.notificationService.registerFCMToken(
+      ctx.user.id,
+      input.token,
+      input.deviceInfo
+        ? {
+            platform: input.deviceInfo.platform,
+            deviceModel: input.deviceInfo.browser,
+            appVersion: input.deviceInfo.version,
+          }
+        : undefined,
+    );
 
     return this.responseService.createTrpcSuccess({
       token: input.token,
-      isValid,
+      isValid: true,
       registered: true
     });
   }

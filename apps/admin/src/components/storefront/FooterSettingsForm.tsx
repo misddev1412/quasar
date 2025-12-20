@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
-import { FiArrowDown, FiArrowUp, FiInfo, FiPlus, FiRefreshCw, FiTrash2 } from 'react-icons/fi';
+import { FiArrowDown, FiArrowUp, FiImage, FiInfo, FiPlus, FiRefreshCw, FiTrash2 } from 'react-icons/fi';
 import { useSettings } from '../../hooks/useSettings';
 import { useToast } from '../../context/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -21,6 +21,7 @@ import {
   DEFAULT_VISITOR_ANALYTICS_CONFIG,
   createFooterConfig,
 } from '@shared/types/footer.types';
+import { MediaManager } from '../common/MediaManager';
 
 const FOOTER_SETTING_KEY = 'storefront.footer_config';
 
@@ -141,6 +142,7 @@ const FooterSettingsForm: React.FC = () => {
   const [previewOrigin, setPreviewOrigin] = useState(initialPreviewOrigin);
   const [previewConfigParam, setPreviewConfigParam] = useState('');
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const [isLogoMediaManagerOpen, setIsLogoMediaManagerOpen] = useState(false);
 
   useEffect(() => {
     if (!settings) return;
@@ -199,6 +201,16 @@ const FooterSettingsForm: React.FC = () => {
   const reloadPreview = () => {
     const frameWindow = iframeRef.current?.contentWindow;
     frameWindow?.location?.reload();
+  };
+
+  const handleLogoMediaSelect = (media: any | any[]) => {
+    const selected = Array.isArray(media) ? media[0] : media;
+    if (!selected || !selected.url) {
+      setIsLogoMediaManagerOpen(false);
+      return;
+    }
+    handleUpdate('logoUrl', selected.url);
+    setIsLogoMediaManagerOpen(false);
   };
 
   const variantOptions = useMemo<SelectOption[]>(
@@ -593,18 +605,85 @@ const FooterSettingsForm: React.FC = () => {
 
         <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">{t('storefront.footer.brand.heading', 'Brand & messaging')}</h3>
-          <label className="flex flex-col gap-1 text-sm text-gray-600">
-            {t('storefront.footer.brand.logo_url', 'Footer logo URL')}
-            <Input
-              value={draft.logoUrl || ''}
-              onChange={(event) => handleUpdate('logoUrl', event.target.value)}
-              placeholder="https://cdn.example.com/footer-logo.svg"
-              className="text-sm"
+          <div className="rounded-xl border border-gray-100 bg-gray-50/40 p-4 space-y-3">
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col">
+                <p className="text-sm font-semibold text-gray-900">
+                  {t('storefront.footer.brand.logo_label', 'Footer logo')}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {t(
+                    'storefront.footer.brand.logo_description',
+                    'Upload a version that pairs well with your footer background.'
+                  )}
+                </p>
+              </div>
+              {draft.logoUrl ? (
+                <img
+                  src={draft.logoUrl}
+                  alt="Footer logo preview"
+                  className="h-14 w-14 rounded-lg border border-gray-200 object-contain bg-white"
+                />
+              ) : (
+                <div className="h-14 w-14 rounded-lg border border-dashed border-gray-300 bg-white flex items-center justify-center text-gray-400">
+                  <FiImage className="h-6 w-6" />
+                </div>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="secondary" size="sm" onClick={() => setIsLogoMediaManagerOpen(true)}>
+                {t('storefront.footer.brand.logo_choose', 'Choose logo')}
+              </Button>
+              {draft.logoUrl && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleUpdate('logoUrl', '')}
+                  className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+                >
+                  {t('storefront.footer.brand.logo_remove', 'Remove')}
+                </Button>
+              )}
+            </div>
+            <label className="flex flex-col gap-1 text-sm text-gray-600">
+              {t('storefront.footer.brand.logo_url', 'Image URL')}
+              <Input
+                value={draft.logoUrl || ''}
+                onChange={(event) => handleUpdate('logoUrl', event.target.value)}
+                placeholder={t(
+                  'storefront.footer.brand.logo_url_placeholder',
+                  'https://cdn.example.com/footer-logo.svg'
+                )}
+                className="text-sm"
+              />
+              <span className="text-xs text-gray-400">
+                {t(
+                  'storefront.footer.brand.logo_hint',
+                  'Paste a link if you host assets elsewhere. Leave blank to reuse your main logo.'
+                )}
+              </span>
+            </label>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Toggle
+              checked={draft.showBrandLogo !== false}
+              onChange={(checked) => handleUpdate('showBrandLogo', checked)}
+              label={t('storefront.footer.brand.show_logo', 'Show logo')}
+              description={t(
+                'storefront.footer.brand.show_logo_hint',
+                'Hide the logo without deleting the image.'
+              )}
             />
-            <span className="text-xs text-gray-400">
-              {t('storefront.footer.brand.logo_hint', 'Leave blank to reuse your primary logo.')}
-            </span>
-          </label>
+            <Toggle
+              checked={draft.showBrandTitle !== false}
+              onChange={(checked) => handleUpdate('showBrandTitle', checked)}
+              label={t('storefront.footer.brand.show_title', 'Show footer title')}
+              description={t(
+                'storefront.footer.brand.show_title_hint',
+                'Toggle the store name that sits next to the logo.'
+              )}
+            />
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-1 text-sm text-gray-600">
               {t('storefront.footer.brand.background_color', 'Background color')}
@@ -1056,6 +1135,13 @@ const FooterSettingsForm: React.FC = () => {
           </div>
         )}
       </div>
+
+      <MediaManager
+        isOpen={isLogoMediaManagerOpen}
+        onClose={() => setIsLogoMediaManagerOpen(false)}
+        onSelect={handleLogoMediaSelect}
+        accept="image/*"
+      />
     </div>
   );
 };

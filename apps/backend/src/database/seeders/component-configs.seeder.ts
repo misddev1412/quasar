@@ -36,8 +36,19 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
       showWishlist: true,
       showQuickView: false,
       showRating: true,
+      showShortDescription: false,
       badgeStyle: 'pill',
       priceDisplay: 'stacked',
+      titleStyle: {
+        fontWeight: 'semibold',
+        fontSize: 'lg',
+      },
+      priceStyle: {
+        colorTone: 'emphasis',
+      },
+      thumbnail: {
+        orientation: 'portrait',
+      },
       analytics: {
         impressionEvent: 'product_card_impression',
         clickEvent: 'product_card_click',
@@ -50,8 +61,29 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
       showWishlist: { type: 'boolean' },
       showQuickView: { type: 'boolean' },
       showRating: { type: 'boolean' },
+      showShortDescription: { type: 'boolean' },
       badgeStyle: { type: 'enum', options: ['pill', 'square'] },
       priceDisplay: { type: 'enum', options: ['stacked', 'inline'] },
+      titleStyle: {
+        type: 'object',
+        properties: {
+          fontWeight: { type: 'enum', options: ['normal', 'medium', 'semibold', 'bold'] },
+          fontSize: { type: 'enum', options: ['sm', 'base', 'lg', 'xl'] },
+        },
+      },
+      priceStyle: {
+        type: 'object',
+        properties: {
+          colorTone: { type: 'enum', options: ['muted', 'default', 'emphasis', 'custom'] },
+          customColor: { type: 'string' },
+        },
+      },
+      thumbnail: {
+        type: 'object',
+        properties: {
+          orientation: { type: 'enum', options: ['portrait', 'landscape'] },
+        },
+      },
     },
     metadata: {
       componentPath: 'apps/frontend/src/components/ecommerce/ProductCard.tsx',
@@ -144,6 +176,18 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
             defaultConfig: {
               clampLines: 2,
               htmlTag: 'h3',
+              fontWeight: 'semibold',
+              fontSize: 'lg',
+              textColor: '',
+              uppercase: false,
+            },
+            configSchema: {
+              clampLines: { type: 'number', min: 1, max: 5 },
+              htmlTag: { type: 'enum', options: ['h2', 'h3', 'h4', 'h5', 'p', 'span'] },
+              fontWeight: { type: 'enum', options: ['normal', 'medium', 'semibold', 'bold'] },
+              fontSize: { type: 'enum', options: ['sm', 'base', 'lg', 'xl'] },
+              textColor: { type: 'string' },
+              uppercase: { type: 'boolean' },
             },
             metadata: {
               dataSource: 'product.name',
@@ -161,6 +205,20 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
               currency: 'VND',
               showCompareAtPrice: true,
               showDivider: false,
+              fontWeight: 'bold',
+              fontSize: 'lg',
+              colorTone: 'emphasis',
+              customColor: '',
+            },
+            configSchema: {
+              locale: { type: 'string' },
+              currency: { type: 'string' },
+              showCompareAtPrice: { type: 'boolean' },
+              showDivider: { type: 'boolean' },
+              fontWeight: { type: 'enum', options: ['normal', 'medium', 'semibold', 'bold'] },
+              fontSize: { type: 'enum', options: ['sm', 'base', 'lg', 'xl'] },
+              colorTone: { type: 'enum', options: ['muted', 'default', 'emphasis', 'custom'] },
+              customColor: { type: 'string' },
             },
             metadata: {
               dataSource: 'product.variants',

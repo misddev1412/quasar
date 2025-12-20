@@ -279,6 +279,163 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ maxNotifications = 
 
   const displayNotifications = notifications.slice(0, maxNotifications);
 
+  const notificationList = displayNotifications.map((notification) => (
+    <NotificationItem
+      key={notification.id}
+      className={!notification.read ? 'unread' : ''}
+      onClick={() => handleNotificationClick(notification)}
+    >
+      <ListItemAvatar sx={{ mt: 1 }}>
+        <Avatar sx={(theme) => ({
+          bgcolor: alpha(
+            getNotificationColor(notification.type) === 'error'
+              ? theme.palette.error.main
+              : getNotificationColor(notification.type) === 'warning'
+              ? theme.palette.warning.main
+              : getNotificationColor(notification.type) === 'success'
+              ? theme.palette.success.main
+              : theme.palette.primary.main,
+            0.1
+          ),
+          color: getNotificationColor(notification.type) === 'error'
+            ? theme.palette.error.main
+            : getNotificationColor(notification.type) === 'warning'
+            ? theme.palette.warning.main
+            : getNotificationColor(notification.type) === 'success'
+            ? theme.palette.success.main
+            : theme.palette.primary.main,
+          fontSize: '1.2rem',
+          width: 44,
+          height: 44,
+          border: `2px solid ${alpha(theme.palette.divider, 0.1)}`
+        })}>
+          {notification.icon || getNotificationIcon(notification.type)}
+        </Avatar>
+      </ListItemAvatar>
+      <ListItemText
+        sx={{
+          margin: 0,
+          '& .MuiListItemText-primary': {
+            marginBottom: 1.5
+          },
+        }}
+        primary={
+          <Box>
+            <Box display="flex" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  flex: 1,
+                  mr: 2,
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  lineHeight: 1.3,
+                  color: 'text.primary'
+                }}
+              >
+                {notification.title}
+              </Typography>
+              <Box display="flex" alignItems="center" gap={1}>
+                <Chip
+                  label={notification.type.toUpperCase()}
+                  size="small"
+                  color={getNotificationColor(notification.type) as any}
+                  variant="filled"
+                  sx={{
+                    fontSize: '0.625rem',
+                    height: 20,
+                    fontWeight: 600,
+                    '& .MuiChip-label': {
+                      px: 1
+                    }
+                  }}
+                />
+                <Stack direction="row" spacing={0.5}>
+                  {!notification.read && (
+                    <Tooltip title="Mark as read">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => handleMarkAsRead(e, notification.id)}
+                        sx={(theme) => ({
+                          p: 0.5,
+                          '&:hover': {
+                            backgroundColor: alpha(theme.palette.success.main, 0.1),
+                            color: theme.palette.success.main
+                          }
+                        })}
+                      >
+                        <MarkAsUnreadIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                  <Tooltip title="Delete">
+                    <IconButton
+                      size="small"
+                      onClick={(e) => handleDelete(e, notification.id)}
+                      sx={(theme) => ({
+                        p: 0.5,
+                        '&:hover': {
+                          backgroundColor: alpha(theme.palette.error.main, 0.1),
+                          color: theme.palette.error.main
+                        }
+                      })}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+              </Box>
+            </Box>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{
+                mb: 1.5,
+                lineHeight: 1.5,
+                fontSize: '0.85rem',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden'
+              }}
+            >
+              {notification.body}
+            </Typography>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  opacity: 0.8
+                }}
+              >
+                {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+              </Typography>
+              {notification.actionUrl && (
+                <Typography
+                  variant="caption"
+                  color="primary.main"
+                  sx={{
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    '&:hover': {
+                      textDecoration: 'underline'
+                    }
+                  }}
+                >
+                  View Details →
+                </Typography>
+              )}
+            </Box>
+          </Box>
+        }
+      />
+    </NotificationItem>
+  ));
+
   return (
     <>
       <Tooltip title="Notifications">
@@ -456,172 +613,7 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ maxNotifications = 
 
         {/* Notifications list */}
         {displayNotifications.length > 0 ? (
-          <>
-            {displayNotifications.map((notification) => (
-              <NotificationItem
-                key={notification.id}
-                className={!notification.read ? 'unread' : ''}
-                onClick={() => handleNotificationClick(notification)}
-              >
-                <ListItemAvatar sx={{ mt: 1 }}>
-                  <Avatar sx={(theme) => ({
-                    bgcolor: alpha(
-                      getNotificationColor(notification.type) === 'error'
-                        ? theme.palette.error.main
-                        : getNotificationColor(notification.type) === 'warning'
-                        ? theme.palette.warning.main
-                        : getNotificationColor(notification.type) === 'success'
-                        ? theme.palette.success.main
-                        : theme.palette.primary.main,
-                      0.1
-                    ),
-                    color: getNotificationColor(notification.type) === 'error'
-                      ? theme.palette.error.main
-                      : getNotificationColor(notification.type) === 'warning'
-                      ? theme.palette.warning.main
-                      : getNotificationColor(notification.type) === 'success'
-                      ? theme.palette.success.main
-                      : theme.palette.primary.main,
-                    fontSize: '1.2rem',
-                    width: 44,
-                    height: 44,
-                    border: `2px solid ${alpha(theme.palette.divider, 0.1)}`
-                  })}>
-                    {notification.icon || getNotificationIcon(notification.type)}
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  sx={{
-                    margin: 0,
-                    '& .MuiListItemText-primary': {
-                      marginBottom: 1.5
-                    },
-                  }}
-                  primary={
-                    <Box>
-                      <Box display="flex" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }}>
-                        <Typography
-                          variant="subtitle2"
-                          sx={{
-                            flex: 1,
-                            mr: 2,
-                            fontWeight: 600,
-                            fontSize: '0.95rem',
-                            lineHeight: 1.3,
-                            color: 'text.primary'
-                          }}
-                        >
-                          {notification.title}
-                        </Typography>
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <Chip
-                            label={notification.type.toUpperCase()}
-                            size="small"
-                            color={getNotificationColor(notification.type) as any}
-                            variant="filled"
-                            sx={{
-                              fontSize: '0.625rem',
-                              height: 20,
-                              fontWeight: 600,
-                              '& .MuiChip-label': {
-                                px: 1
-                              }
-                            }}
-                          />
-                          <Stack direction="row" spacing={0.5}>
-                            {!notification.read && (
-                              <Tooltip title="Mark as read">
-                                <IconButton
-                                  size="small"
-                                  onClick={(e) => handleMarkAsRead(e, notification.id)}
-                                  sx={(theme) => ({
-                                    p: 0.5,
-                                    '&:hover': {
-                                      backgroundColor: alpha(theme.palette.success.main, 0.1),
-                                      color: theme.palette.success.main
-                                    }
-                                  })}
-                                >
-                                  <MarkAsUnreadIcon fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                            )}
-                            <Tooltip title="Delete">
-                              <IconButton
-                                size="small"
-                                onClick={(e) => handleDelete(e, notification.id)}
-                                sx={(theme) => ({
-                                  p: 0.5,
-                                  '&:hover': {
-                                    backgroundColor: alpha(theme.palette.error.main, 0.1),
-                                    color: theme.palette.error.main
-                                  }
-                                })}
-                              >
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          </Stack>
-                        </Box>
-                      </Box>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          mb: 1.5,
-                          lineHeight: 1.5,
-                          fontSize: '0.85rem',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden'
-                        }}
-                      >
-                        {notification.body}
-                      </Typography>
-                      <Box display="flex" justifyContent="space-between" alignItems="center">
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{
-                            fontSize: '0.75rem',
-                            fontWeight: 500,
-                            opacity: 0.8
-                          }}
-                        >
-                          {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
-                        </Typography>
-                        {notification.actionUrl && (
-                          <Typography
-                            variant="caption"
-                            color="primary.main"
-                            sx={{
-                              fontSize: '0.75rem',
-                              fontWeight: 600,
-                              cursor: 'pointer',
-                              '&:hover': {
-                                textDecoration: 'underline'
-                              }
-                            }}
-                          >
-                            View Details →
-                          </Typography>
-                        )}
-                      </Box>
-                    </Box>
-                  }
-                />
-              </NotificationItem>
-            ))}
-
-            {notifications.length > maxNotifications && (
-              <MenuItem onClick={handleViewAllNotifications}>
-                <Typography variant="body2" color="primary" textAlign="center" width="100%">
-                  View all {notifications.length} notifications
-                </Typography>
-              </MenuItem>
-            )}
-          </>
+          notificationList
         ) : (
           <EmptyState>
             <NotificationsNoneIcon sx={{
@@ -636,6 +628,14 @@ const NotificationBell: React.FC<NotificationBellProps> = ({ maxNotifications = 
               No new notifications at the moment
             </Typography>
           </EmptyState>
+        )}
+
+        {displayNotifications.length > 0 && notifications.length > maxNotifications && (
+          <MenuItem onClick={handleViewAllNotifications}>
+            <Typography variant="body2" color="primary" textAlign="center" width="100%">
+              View all {notifications.length} notifications
+            </Typography>
+          </MenuItem>
         )}
 
         {/* Actions */}

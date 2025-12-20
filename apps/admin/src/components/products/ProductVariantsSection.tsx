@@ -15,12 +15,14 @@ export interface ProductVariantsSectionProps {
   variants: VariantMatrixItem[];
   onVariantsChange: (variants: VariantMatrixItem[]) => void;
   productId?: string;
+  currencyCode?: string;
 }
 
 export const ProductVariantsSection: React.FC<ProductVariantsSectionProps> = ({
   variants,
   onVariantsChange,
   productId,
+  currencyCode = 'USD',
 }) => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
@@ -34,10 +36,15 @@ export const ProductVariantsSection: React.FC<ProductVariantsSectionProps> = ({
   const attributes = (attributesData as any)?.data || [];
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(price);
+    try {
+      return new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: currencyCode || 'USD',
+      }).format(price);
+    } catch (error) {
+      console.warn('Failed to format variant price', error);
+      return `${currencyCode || 'USD'} ${price.toFixed(2)}`;
+    }
   };
 
   return (
@@ -252,4 +259,3 @@ export const ProductVariantsSection: React.FC<ProductVariantsSectionProps> = ({
     </div>
   );
 };
-

@@ -7,6 +7,9 @@ import { ErrorLevelCode, ModuleCode, OperationCode } from '@shared/enums/error-c
 import { TranslationService } from '../../translation/services/translation.service';
 import { SupportedLocale } from '@shared';
 import { DEFAULT_LOCALE } from '../../shared/utils/locale.util';
+import * as bcrypt from 'bcryptjs';
+
+const MAINTENANCE_PASSWORD_KEY = 'storefront.maintenance_password';
 
 @Injectable()
 export class SettingService {
@@ -46,7 +49,15 @@ export class SettingService {
       );
     }
 
-    const settingEntity = this.settingRepository.create(createSettingDto);
+    const normalizedValue = await this.normalizeValueForStorage(
+      createSettingDto.key,
+      createSettingDto.value ?? null
+    );
+
+    const settingEntity = this.settingRepository.create({
+      ...createSettingDto,
+      value: normalizedValue ?? undefined,
+    });
     return this.settingRepository.save(settingEntity);
   }
 
@@ -70,17 +81,21 @@ export class SettingService {
     // 创建或更新每个设置
     for (const settingData of bulkUpdateDto.settings) {
       const existingSetting = keyToSettingMap.get(settingData.key);
+      const normalizedValue = await this.normalizeValueForStorage(
+        settingData.key,
+        settingData.value ?? null
+      );
       
       if (existingSetting) {
         // 更新现有设置
         await this.settingRepository.update(existingSetting.id, {
-          value: settingData.value
+          value: normalizedValue
         });
       } else {
         // 创建新设置
         await this.create({
           key: settingData.key,
-          value: settingData.value,
+          value: normalizedValue ?? undefined,
           type: 'string',
         }, locale);
       }
@@ -182,7 +197,16 @@ export class SettingService {
       );
     }
 
-    return this.settingRepository.update(id, updateSettingDto);
+    const dataToUpdate: UpdateSettingDto = { ...updateSettingDto };
+
+    if (Object.prototype.hasOwnProperty.call(updateSettingDto, 'value')) {
+      dataToUpdate.value = await this.normalizeValueForStorage(
+        setting.key,
+        updateSettingDto.value ?? null
+      ) ?? undefined;
+    }
+
+    return this.settingRepository.update(id, dataToUpdate);
   }
 
   /**
@@ -226,5 +250,17 @@ export class SettingService {
       limit: params.limit,
       totalPages
     };
+  }
+
+  private async normalizeValueForStorage(key: string, rawValue: string | null): Promise<string | null> {
+    if (key === MAINTENANCE_PASSWORD_KEY) {
+      if (!rawValue) {
+        return '';
+      }
+
+      return bcrypt.hash(rawValue, 10);
+    }
+
+    return rawValue;
   }
 } 

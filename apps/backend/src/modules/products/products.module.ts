@@ -93,6 +93,7 @@ import { AdminOrderFulfillmentsRouter } from './routers/admin-order-fulfillments
 import { AdminCustomersRouter } from './routers/admin-customers.router';
 import { AdminPaymentMethodsRouter } from './routers/admin-payment-methods.router';
 import { AdminCurrencyRouter } from './routers/admin-currency.router';
+import { ClientCurrencyRouter } from './routers/client-currency.router';
 import { AdminShippingProviderRouter } from './routers/admin-shipping-provider.router';
 import { AdminDeliveryMethodsRouter } from './routers/admin-delivery-methods.router';
 import { AdminWishlistRouter } from './routers/admin-wishlist.router';
@@ -211,6 +212,7 @@ import { PayosWebhookController } from './controllers/payos-webhook.controller';
     AdminCustomersRouter,
     AdminPaymentMethodsRouter,
     AdminCurrencyRouter,
+    ClientCurrencyRouter,
     AdminShippingProviderRouter,
     AdminDeliveryMethodsRouter,
     AdminWishlistRouter,
@@ -268,6 +270,7 @@ import { PayosWebhookController } from './controllers/payos-webhook.controller';
     AdminCustomersRouter,
     AdminPaymentMethodsRouter,
     AdminCurrencyRouter,
+    ClientCurrencyRouter,
     AdminShippingProviderRouter,
     AdminDeliveryMethodsRouter,
     AdminWishlistRouter,

@@ -74,6 +74,63 @@ interface SectionSelectOption {
   data: AdminSection;
 }
 
+type ProductCardLayout = 'vertical' | 'horizontal';
+type ProductCardBadgeStyle = 'pill' | 'square';
+type ProductCardPriceDisplay = 'stacked' | 'inline';
+type ProductCardFontWeight = 'normal' | 'medium' | 'semibold' | 'bold';
+type ProductCardFontSize = 'sm' | 'base' | 'lg' | 'xl';
+type ProductCardPriceTone = 'muted' | 'default' | 'emphasis' | 'custom';
+type ProductCardThumbnailOrientation = 'portrait' | 'landscape';
+
+interface ProductCardTitleStyle {
+  fontWeight: ProductCardFontWeight;
+  fontSize: ProductCardFontSize;
+}
+
+interface ProductCardPriceStyle {
+  colorTone: ProductCardPriceTone;
+  customColor?: string;
+}
+
+interface ProductCardThumbnailSettings {
+  orientation: ProductCardThumbnailOrientation;
+}
+
+interface ProductCardConfigState extends Record<string, unknown> {
+  layout: ProductCardLayout;
+  imageHeight: string;
+  showAddToCart: boolean;
+  showWishlist: boolean;
+  showQuickView: boolean;
+  showRating: boolean;
+  showShortDescription: boolean;
+  badgeStyle: ProductCardBadgeStyle;
+  priceDisplay: ProductCardPriceDisplay;
+  titleStyle: ProductCardTitleStyle;
+  priceStyle: ProductCardPriceStyle;
+  thumbnail: ProductCardThumbnailSettings;
+}
+
+interface ProductCardTitleConfigState extends Record<string, unknown> {
+  clampLines: number;
+  htmlTag: string;
+  fontWeight: ProductCardFontWeight;
+  fontSize: ProductCardFontSize;
+  textColor: string;
+  uppercase: boolean;
+}
+
+interface ProductCardPriceConfigState extends Record<string, unknown> {
+  locale: string;
+  currency: string;
+  showCompareAtPrice: boolean;
+  showDivider: boolean;
+  fontWeight: ProductCardFontWeight;
+  fontSize: ProductCardFontSize;
+  colorTone: ProductCardPriceTone;
+  customColor: string;
+}
+
 const SIDEBAR_TITLE_FONT_WEIGHT_VALUES: SidebarTitleFontWeight[] = ['normal', 'medium', 'semibold', 'bold'];
 const SIDEBAR_TITLE_FONT_SIZE_VALUES: SidebarTitleFontSize[] = ['xs', 'sm', 'base', 'lg'];
 
@@ -222,6 +279,118 @@ const parseSidebarConfig = (raw?: PersistedSidebarConfig | null): SidebarMenuCon
     showDescription: raw.showDescription !== false,
     sections: sections.length > 0 ? sections : [createSidebarSection()],
   };
+};
+
+const PRODUCT_CARD_FONT_WEIGHTS: ProductCardFontWeight[] = ['normal', 'medium', 'semibold', 'bold'];
+const PRODUCT_CARD_FONT_SIZES: ProductCardFontSize[] = ['sm', 'base', 'lg', 'xl'];
+const PRODUCT_CARD_PRICE_TONES: ProductCardPriceTone[] = ['muted', 'default', 'emphasis', 'custom'];
+const PRODUCT_CARD_ORIENTATIONS: ProductCardThumbnailOrientation[] = ['portrait', 'landscape'];
+
+const isProductCardFontWeight = (value: unknown): value is ProductCardFontWeight =>
+  typeof value === 'string' && PRODUCT_CARD_FONT_WEIGHTS.includes(value as ProductCardFontWeight);
+
+const isProductCardFontSize = (value: unknown): value is ProductCardFontSize =>
+  typeof value === 'string' && PRODUCT_CARD_FONT_SIZES.includes(value as ProductCardFontSize);
+
+const isProductCardPriceTone = (value: unknown): value is ProductCardPriceTone =>
+  typeof value === 'string' && PRODUCT_CARD_PRICE_TONES.includes(value as ProductCardPriceTone);
+
+const isProductCardOrientation = (value: unknown): value is ProductCardThumbnailOrientation =>
+  typeof value === 'string' && PRODUCT_CARD_ORIENTATIONS.includes(value as ProductCardThumbnailOrientation);
+
+const normalizeStringValue = (value: unknown, fallback = ''): string => {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : fallback;
+  }
+  return fallback;
+};
+
+const normalizeBooleanValue = (value: unknown, fallback: boolean): boolean =>
+  typeof value === 'boolean' ? value : fallback;
+
+const normalizeProductCardConfig = (raw?: Record<string, unknown>): ProductCardConfigState => {
+  const source = (raw ?? {}) as Record<string, unknown>;
+  const titleStyleSource =
+    typeof source.titleStyle === 'object' && source.titleStyle !== null ? (source.titleStyle as Record<string, unknown>) : {};
+  const priceStyleSource =
+    typeof source.priceStyle === 'object' && source.priceStyle !== null ? (source.priceStyle as Record<string, unknown>) : {};
+  const thumbnailSource =
+    typeof source.thumbnail === 'object' && source.thumbnail !== null ? (source.thumbnail as Record<string, unknown>) : {};
+
+  const normalized: ProductCardConfigState = {
+    ...source,
+    layout: source.layout === 'horizontal' ? 'horizontal' : 'vertical',
+    imageHeight: normalizeStringValue(source.imageHeight, 'h-72'),
+    showAddToCart: normalizeBooleanValue(source.showAddToCart, true),
+    showWishlist: normalizeBooleanValue(source.showWishlist, true),
+    showQuickView: normalizeBooleanValue(source.showQuickView, false),
+    showRating: normalizeBooleanValue(source.showRating, true),
+    showShortDescription: normalizeBooleanValue(source.showShortDescription, false),
+    badgeStyle: source.badgeStyle === 'square' ? 'square' : 'pill',
+    priceDisplay: source.priceDisplay === 'inline' ? 'inline' : 'stacked',
+    titleStyle: {
+      fontWeight: isProductCardFontWeight(titleStyleSource.fontWeight) ? titleStyleSource.fontWeight : 'semibold',
+      fontSize: isProductCardFontSize(titleStyleSource.fontSize) ? titleStyleSource.fontSize : 'lg',
+    },
+    priceStyle: {
+      colorTone: isProductCardPriceTone(priceStyleSource.colorTone) ? priceStyleSource.colorTone : 'emphasis',
+      customColor: normalizeStringValue(priceStyleSource.customColor || priceStyleSource.color),
+    },
+    thumbnail: {
+      orientation: isProductCardOrientation(thumbnailSource.orientation) ? thumbnailSource.orientation : 'portrait',
+    },
+  };
+
+  if (normalized.priceStyle.colorTone !== 'custom') {
+    normalized.priceStyle.customColor = '';
+  }
+
+  return normalized;
+};
+
+const clampWithinRange = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+
+const normalizeClampLines = (value: unknown, fallback = 2) => {
+  const parsed = Number(value);
+  if (Number.isFinite(parsed)) {
+    return clampWithinRange(Math.floor(parsed), 1, 6);
+  }
+  return fallback;
+};
+
+const normalizeProductCardTitleConfig = (raw?: Record<string, unknown>): ProductCardTitleConfigState => {
+  const source = (raw ?? {}) as Record<string, unknown>;
+  const normalized: ProductCardTitleConfigState = {
+    clampLines: normalizeClampLines(source.clampLines, 2),
+    htmlTag: normalizeStringValue(source.htmlTag, 'h3') || 'h3',
+    fontWeight: isProductCardFontWeight(source.fontWeight) ? source.fontWeight : 'semibold',
+    fontSize: isProductCardFontSize(source.fontSize) ? source.fontSize : 'lg',
+    textColor: normalizeStringValue(source.textColor),
+    uppercase: normalizeBooleanValue(source.uppercase, false),
+  };
+
+  return normalized;
+};
+
+const normalizeProductCardPriceConfig = (raw?: Record<string, unknown>): ProductCardPriceConfigState => {
+  const source = (raw ?? {}) as Record<string, unknown>;
+  const normalized: ProductCardPriceConfigState = {
+    locale: normalizeStringValue(source.locale, 'vi-VN'),
+    currency: normalizeStringValue(source.currency, 'VND') || 'VND',
+    showCompareAtPrice: normalizeBooleanValue(source.showCompareAtPrice, true),
+    showDivider: normalizeBooleanValue(source.showDivider, false),
+    fontWeight: isProductCardFontWeight(source.fontWeight) ? source.fontWeight : 'bold',
+    fontSize: isProductCardFontSize(source.fontSize) ? source.fontSize : 'lg',
+    colorTone: isProductCardPriceTone(source.colorTone) ? source.colorTone : 'emphasis',
+    customColor: normalizeStringValue(source.customColor),
+  };
+
+  if (normalized.colorTone !== 'custom') {
+    normalized.customColor = '';
+  }
+
+  return normalized;
 };
 
 const sanitizeSidebarItem = (item: SidebarMenuItem): PersistedSidebarItem | null => {
@@ -373,6 +542,29 @@ const createKeyValueEntry = (overrides?: Partial<KeyValueEntry>): KeyValueEntry 
   ...overrides,
 });
 
+const objectToKeyValueEntries = (value?: Record<string, unknown>): KeyValueEntry[] => {
+  if (!value || typeof value !== 'object' || Object.keys(value).length === 0) {
+    return [createKeyValueEntry()];
+  }
+
+  return Object.entries(value).map(([key, entryValue]) => {
+    if (typeof entryValue === 'number') {
+      return createKeyValueEntry({ key, value: String(entryValue), type: 'number' });
+    }
+    if (typeof entryValue === 'boolean') {
+      return createKeyValueEntry({ key, value: entryValue ? 'true' : 'false', type: 'boolean' });
+    }
+    if (typeof entryValue === 'string') {
+      return createKeyValueEntry({ key, value: entryValue, type: 'string' });
+    }
+    return createKeyValueEntry({
+      key,
+      value: JSON.stringify(entryValue, null, 2),
+      type: 'json',
+    });
+  });
+};
+
 
 
 export interface ComponentConfigFormValues {
@@ -441,29 +633,6 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     { value: 'boolean', label: t('componentConfigs.keyValueTypeToggle', 'Toggle') },
     { value: 'json', label: t('componentConfigs.keyValueTypeJson', 'JSON') },
   ];
-
-  const objectToKeyValueEntries = (value?: Record<string, unknown>): KeyValueEntry[] => {
-    if (!value || typeof value !== 'object' || Object.keys(value).length === 0) {
-      return [createKeyValueEntry()];
-    }
-
-    return Object.entries(value).map(([key, entryValue]) => {
-      if (typeof entryValue === 'number') {
-        return createKeyValueEntry({ key, value: String(entryValue), type: 'number' });
-      }
-      if (typeof entryValue === 'boolean') {
-        return createKeyValueEntry({ key, value: entryValue ? 'true' : 'false', type: 'boolean' });
-      }
-      if (typeof entryValue === 'string') {
-        return createKeyValueEntry({ key, value: entryValue, type: 'string' });
-      }
-      return createKeyValueEntry({
-        key,
-        value: JSON.stringify(entryValue, null, 2),
-        type: 'json',
-      });
-    });
-  };
 
   const parseEntriesToObject = (
     entries: KeyValueEntry[],
@@ -566,6 +735,15 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
   const [metadataEntries, setMetadataEntries] = useState<KeyValueEntry[]>(() =>
     objectToKeyValueEntries(initialMetadata),
   );
+  const [productCardConfig, setProductCardConfig] = useState<ProductCardConfigState>(() =>
+    normalizeProductCardConfig(sanitizedInitialDefaultConfig),
+  );
+  const [productCardTitleConfig, setProductCardTitleConfig] = useState<ProductCardTitleConfigState>(() =>
+    normalizeProductCardTitleConfig(sanitizedInitialDefaultConfig),
+  );
+  const [productCardPriceConfig, setProductCardPriceConfig] = useState<ProductCardPriceConfigState>(() =>
+    normalizeProductCardPriceConfig(sanitizedInitialDefaultConfig),
+  );
   const [defaultConfigEntryErrors, setDefaultConfigEntryErrors] = useState<Record<string, string | undefined>>({});
   const [metadataEntryErrors, setMetadataEntryErrors] = useState<Record<string, string | undefined>>({});
   const [defaultConfigMode, setDefaultConfigMode] = useState<'friendly' | 'json'>('friendly');
@@ -586,11 +764,46 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
   );
 
   const isProductsByCategory = formState.componentKey === 'products_by_category';
+  const isProductCard = formState.componentKey === 'product_card';
+  const isProductCardTitle = formState.componentKey === 'product_card.info.title';
+  const isProductCardPrice = formState.componentKey === 'product_card.info.price';
   const [pendingChildKey, setPendingChildKey] = useState('');
+
+  const syncDefaultConfigState = useCallback((config: Record<string, unknown>) => {
+    setDefaultConfigRaw(JSON.stringify(config, null, 2));
+    setDefaultConfigEntries(objectToKeyValueEntries(config));
+  }, []);
 
   useEffect(() => {
     setSidebarConfig(parseSidebarConfig(extractPersistedSidebar(initialValues?.defaultConfig as Record<string, unknown> | undefined)));
   }, [initialValues?.defaultConfig]);
+
+  useEffect(() => {
+    if (!isProductCard) {
+      return;
+    }
+    const normalized = normalizeProductCardConfig(sanitizedInitialDefaultConfig);
+    setProductCardConfig(normalized);
+    syncDefaultConfigState(normalized);
+  }, [isProductCard, sanitizedInitialDefaultConfig, syncDefaultConfigState]);
+
+  useEffect(() => {
+    if (!isProductCardTitle) {
+      return;
+    }
+    const normalized = normalizeProductCardTitleConfig(sanitizedInitialDefaultConfig);
+    setProductCardTitleConfig(normalized);
+    syncDefaultConfigState(normalized);
+  }, [isProductCardTitle, sanitizedInitialDefaultConfig, syncDefaultConfigState]);
+
+  useEffect(() => {
+    if (!isProductCardPrice) {
+      return;
+    }
+    const normalized = normalizeProductCardPriceConfig(sanitizedInitialDefaultConfig);
+    setProductCardPriceConfig(normalized);
+    syncDefaultConfigState(normalized);
+  }, [isProductCardPrice, sanitizedInitialDefaultConfig, syncDefaultConfigState]);
 
   const parentSelectOptions = useMemo(() => {
     return parentOptions.map((option) => ({
@@ -677,6 +890,45 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     }));
   }, []);
 
+  const handleProductCardConfigChange = (
+    nextValue: ProductCardConfigState | ((prev: ProductCardConfigState) => ProductCardConfigState),
+  ) => {
+    setProductCardConfig((prev) => {
+      const resolved = typeof nextValue === 'function' ? nextValue(prev) : nextValue;
+      const normalized = normalizeProductCardConfig(resolved);
+      if (isProductCard) {
+        syncDefaultConfigState(normalized);
+      }
+      return normalized;
+    });
+  };
+
+  const handleProductCardTitleConfigChange = (
+    nextValue: ProductCardTitleConfigState | ((prev: ProductCardTitleConfigState) => ProductCardTitleConfigState),
+  ) => {
+    setProductCardTitleConfig((prev) => {
+      const resolved = typeof nextValue === 'function' ? nextValue(prev) : nextValue;
+      const normalized = normalizeProductCardTitleConfig(resolved);
+      if (isProductCardTitle) {
+        syncDefaultConfigState(normalized);
+      }
+      return normalized;
+    });
+  };
+
+  const handleProductCardPriceConfigChange = (
+    nextValue: ProductCardPriceConfigState | ((prev: ProductCardPriceConfigState) => ProductCardPriceConfigState),
+  ) => {
+    setProductCardPriceConfig((prev) => {
+      const resolved = typeof nextValue === 'function' ? nextValue(prev) : nextValue;
+      const normalized = normalizeProductCardPriceConfig(resolved);
+      if (isProductCardPrice) {
+        syncDefaultConfigState(normalized);
+      }
+      return normalized;
+    });
+  };
+
   const handleAddAllowedChildKey = useCallback((childKey: string) => {
     const trimmedKey = childKey.trim();
     if (!trimmedKey || allowedChildKeysArray.includes(trimmedKey)) {
@@ -714,6 +966,12 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
         setJsonErrors((prev) => ({ ...prev, defaultConfig: (error as Error)?.message || 'Invalid JSON' }));
         return;
       }
+    } else if (isProductCard) {
+      parsedDefault = productCardConfig;
+    } else if (isProductCardTitle) {
+      parsedDefault = productCardTitleConfig;
+    } else if (isProductCardPrice) {
+      parsedDefault = productCardPriceConfig;
     } else {
       const result = parseEntriesToObject(defaultConfigEntries);
       setDefaultConfigEntryErrors(result.errors);
@@ -814,6 +1072,56 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
 
   const switchDefaultConfigMode = (nextMode: 'friendly' | 'json') => {
     if (nextMode === defaultConfigMode) {
+      return;
+    }
+
+    if (isProductCard || isProductCardTitle || isProductCardPrice) {
+      const currentConfig = isProductCard
+        ? productCardConfig
+        : isProductCardTitle
+          ? productCardTitleConfig
+          : productCardPriceConfig;
+
+      const normalizeCustomConfig = (value: Record<string, unknown>) => {
+        if (isProductCard) {
+          return normalizeProductCardConfig(value);
+        }
+        if (isProductCardTitle) {
+          return normalizeProductCardTitleConfig(value);
+        }
+        return normalizeProductCardPriceConfig(value);
+      };
+
+      const applyNormalizedConfig = (config: Record<string, unknown>) => {
+        if (isProductCard) {
+          setProductCardConfig(config as ProductCardConfigState);
+        } else if (isProductCardTitle) {
+          setProductCardTitleConfig(config as ProductCardTitleConfigState);
+        } else if (isProductCardPrice) {
+          setProductCardPriceConfig(config as ProductCardPriceConfigState);
+        }
+        syncDefaultConfigState(config);
+      };
+
+      if (nextMode === 'json') {
+        syncDefaultConfigState(currentConfig);
+        setJsonErrors((prev) => ({ ...prev, defaultConfig: undefined }));
+        setDefaultConfigMode('json');
+        return;
+      }
+
+      try {
+        const parsed = defaultConfigRaw.trim() ? JSON.parse(defaultConfigRaw) : {};
+        const normalized = normalizeCustomConfig(parsed);
+        applyNormalizedConfig(normalized);
+        setJsonErrors((prev) => ({ ...prev, defaultConfig: undefined }));
+        setDefaultConfigMode('friendly');
+      } catch (error) {
+        setJsonErrors((prev) => ({
+          ...prev,
+          defaultConfig: (error as Error)?.message || 'Invalid JSON',
+        }));
+      }
       return;
     }
 
@@ -1135,13 +1443,30 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
         </div>
         <div className="mt-4">
           {defaultConfigMode === 'friendly' ? (
-            <KeyValueEditor
-              entries={defaultConfigEntries}
-              errors={defaultConfigEntryErrors}
-              onChange={handleDefaultEntriesChange}
-              t={t}
-              keyValueTypeOptions={KEY_VALUE_TYPE_OPTIONS}
-            />
+            isProductCard ? (
+              <ProductCardDefaultsEditor
+                value={productCardConfig}
+                onChange={(next) => handleProductCardConfigChange(next)}
+              />
+            ) : isProductCardTitle ? (
+              <ProductCardTitleEditor
+                value={productCardTitleConfig}
+                onChange={(next) => handleProductCardTitleConfigChange(next)}
+              />
+            ) : isProductCardPrice ? (
+              <ProductCardPriceEditor
+                value={productCardPriceConfig}
+                onChange={(next) => handleProductCardPriceConfigChange(next)}
+              />
+            ) : (
+              <KeyValueEditor
+                entries={defaultConfigEntries}
+                errors={defaultConfigEntryErrors}
+                onChange={handleDefaultEntriesChange}
+                t={t}
+                keyValueTypeOptions={KEY_VALUE_TYPE_OPTIONS}
+              />
+            )
           ) : (
             <Textarea
               value={defaultConfigRaw}
@@ -1274,6 +1599,11 @@ interface ProductsByCategorySidebarEditorProps {
   onChange: (config: SidebarMenuConfig) => void;
 }
 
+interface ProductCardDefaultsEditorProps {
+  value: ProductCardConfigState;
+  onChange: (config: ProductCardConfigState) => void;
+}
+
 interface KeyValueEditorProps {
   entries: KeyValueEntry[];
   errors: Record<string, string | undefined>;
@@ -1282,6 +1612,491 @@ interface KeyValueEditorProps {
   keyValueTypeOptions: Array<{ value: string; label: string }>;
 }
 
+const PRODUCT_CARD_LAYOUT_OPTIONS: SelectOption[] = [
+  { value: 'vertical', label: 'Dọc • Ảnh ở trên, nội dung ở dưới' },
+  { value: 'horizontal', label: 'Ngang • Ảnh bên trái, nội dung bên phải' },
+];
+
+const PRODUCT_CARD_BADGE_STYLE_OPTIONS: SelectOption[] = [
+  { value: 'pill', label: 'Bo tròn (pill)' },
+  { value: 'square', label: 'Vuông vức' },
+];
+
+const PRODUCT_CARD_PRICE_DISPLAY_OPTIONS: SelectOption[] = [
+  { value: 'stacked', label: 'Stacked • Giá dưới nhau' },
+  { value: 'inline', label: 'Inline • Giá trên cùng một dòng' },
+];
+
+const PRODUCT_CARD_FONT_WEIGHT_OPTIONS: SelectOption[] = [
+  { value: 'normal', label: 'Mảnh (400)' },
+  { value: 'medium', label: 'Medium (500)' },
+  { value: 'semibold', label: 'Semi-bold (600)' },
+  { value: 'bold', label: 'Đậm (700)' },
+];
+
+const PRODUCT_CARD_FONT_SIZE_OPTIONS: SelectOption[] = [
+  { value: 'sm', label: 'Nhỏ (SM)' },
+  { value: 'base', label: 'Trung bình (Base)' },
+  { value: 'lg', label: 'Lớn (LG)' },
+  { value: 'xl', label: 'Rất lớn (XL)' },
+];
+
+const PRODUCT_CARD_PRICE_TONE_OPTIONS: SelectOption[] = [
+  { value: 'muted', label: 'Nhạt • Giảm độ tương phản' },
+  { value: 'default', label: 'Theo theme' },
+  { value: 'emphasis', label: 'Nổi bật' },
+  { value: 'custom', label: 'Màu tùy chỉnh' },
+];
+
+const PRODUCT_CARD_ORIENTATION_OPTIONS: SelectOption[] = [
+  { value: 'portrait', label: 'Dọc (3:4)' },
+  { value: 'landscape', label: 'Ngang (4:3)' },
+];
+
+const PRICE_TONE_DESCRIPTIONS: Record<ProductCardPriceTone, string> = {
+  muted: 'Áp dụng màu xám nhạt để giảm độ ưu tiên cho giá.',
+  default: 'Tái sử dụng màu chữ mặc định của theme.',
+  emphasis: 'Dùng màu thương hiệu để nhấn mạnh giá bán.',
+  custom: 'Chọn màu cụ thể phù hợp với chiến dịch.',
+};
+
+const PRODUCT_TITLE_HTML_TAG_OPTIONS: SelectOption[] = [
+  { value: 'h2', label: '<h2>' },
+  { value: 'h3', label: '<h3>' },
+  { value: 'h4', label: '<h4>' },
+  { value: 'h5', label: '<h5>' },
+  { value: 'p', label: '<p>' },
+  { value: 'span', label: '<span>' },
+];
+
+const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ value, onChange }) => {
+  const handleChange = (updates: Partial<ProductCardConfigState>) => {
+    onChange({
+      ...value,
+      ...updates,
+    });
+  };
+
+  const handleTitleStyleChange = (updates: Partial<ProductCardTitleStyle>) => {
+    handleChange({
+      titleStyle: {
+        ...value.titleStyle,
+        ...updates,
+      },
+    });
+  };
+
+  const handlePriceStyleChange = (updates: Partial<ProductCardPriceStyle>) => {
+    handleChange({
+      priceStyle: {
+        ...value.priceStyle,
+        ...updates,
+      },
+    });
+  };
+
+  const handleThumbnailChange = (updates: Partial<ProductCardThumbnailSettings>) => {
+    handleChange({
+      thumbnail: {
+        ...value.thumbnail,
+        ...updates,
+      },
+    });
+  };
+
+  const handleToneChange = (tone: ProductCardPriceTone) => {
+    handlePriceStyleChange({
+      colorTone: tone,
+      customColor: tone === 'custom' ? value.priceStyle.customColor : '',
+    });
+  };
+
+  const handleToggleChange = (key: keyof ProductCardConfigState, checked: boolean) => {
+    handleChange({ [key]: checked } as Partial<ProductCardConfigState>);
+  };
+
+  const toggleItems: Array<{ key: keyof ProductCardConfigState; label: string; description: string }> = [
+    { key: 'showShortDescription', label: 'Hiển thị mô tả ngắn', description: 'Bật để in đoạn mô tả dưới tiêu đề.' },
+    { key: 'showRating', label: 'Hiển thị đánh giá', description: 'Ẩn/hiện cụm đánh giá và số lượt.' },
+    { key: 'showAddToCart', label: 'Nút thêm giỏ hàng', description: 'Ẩn để chuyển sang flow chọn biến thể.' },
+    { key: 'showWishlist', label: 'Nút wishlist', description: 'Ẩn khi không hỗ trợ danh sách yêu thích.' },
+    { key: 'showQuickView', label: 'Nút xem nhanh', description: 'Hiển thị icon mở modal preview.' },
+  ];
+
+  const layoutHelper =
+    value.layout === 'horizontal'
+      ? 'Bố cục ngang phù hợp với danh sách rộng, chú trọng vào nội dung.'
+      : 'Bố cục dọc phù hợp với các lưới sản phẩm chuẩn.';
+
+  return (
+    <div className="space-y-5">
+      <div className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-neutral-900">Trình bày tổng quan</p>
+            <p className="text-xs text-neutral-500">{layoutHelper}</p>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Bố cục</label>
+            <Select
+              value={value.layout}
+              onChange={(next) => handleChange({ layout: (next as ProductCardLayout) || 'vertical' })}
+              options={PRODUCT_CARD_LAYOUT_OPTIONS}
+              placeholder="Chọn bố cục"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Chiều cao ảnh (Tailwind)</label>
+            <Input
+              value={value.imageHeight}
+              onChange={(event) => handleChange({ imageHeight: event.target.value })}
+              placeholder="e.g. h-72"
+            />
+            <p className="text-[11px] text-neutral-500 mb-0">Nhập class Tailwind hợp lệ, ví dụ: h-64, h-80.</p>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Kiểu badge</label>
+            <Select
+              value={value.badgeStyle}
+              onChange={(next) => handleChange({ badgeStyle: (next as ProductCardBadgeStyle) || 'pill' })}
+              options={PRODUCT_CARD_BADGE_STYLE_OPTIONS}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Cách hiển thị giá</label>
+            <Select
+              value={value.priceDisplay}
+              onChange={(next) => handleChange({ priceDisplay: (next as ProductCardPriceDisplay) || 'stacked' })}
+              options={PRODUCT_CARD_PRICE_DISPLAY_OPTIONS}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Định dạng thumbnail</label>
+            <Select
+              value={value.thumbnail.orientation}
+              onChange={(next) =>
+                handleThumbnailChange({
+                  orientation: (next as ProductCardThumbnailOrientation) || 'portrait',
+                })
+              }
+              options={PRODUCT_CARD_ORIENTATION_OPTIONS}
+            />
+            <p className="text-[11px] text-neutral-500 mb-0">
+              Chọn chiều ảnh mặc định: portrait cho gạch đứng, landscape cho bố cục ngang.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+        <p className="text-sm font-semibold text-neutral-900">Tiêu đề sản phẩm</p>
+        <p className="text-xs text-neutral-500">Điều chỉnh độ đậm nhạt và kích thước.</p>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Độ đậm</label>
+            <Select
+              value={value.titleStyle.fontWeight}
+              onChange={(next) =>
+                handleTitleStyleChange({
+                  fontWeight: (next as ProductCardFontWeight) || 'semibold',
+                })
+              }
+              options={PRODUCT_CARD_FONT_WEIGHT_OPTIONS}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Kích thước</label>
+            <Select
+              value={value.titleStyle.fontSize}
+              onChange={(next) =>
+                handleTitleStyleChange({
+                  fontSize: (next as ProductCardFontSize) || 'lg',
+                })
+              }
+              options={PRODUCT_CARD_FONT_SIZE_OPTIONS}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-5">
+        <p className="text-sm font-semibold text-neutral-900">Phong cách giá</p>
+        <p className="text-xs text-neutral-500">Tạo mức độ tương phản phù hợp với chiến dịch.</p>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Độ tương phản</label>
+            <Select
+              value={value.priceStyle.colorTone}
+              onChange={(next) => handleToneChange((next as ProductCardPriceTone) || 'emphasis')}
+              options={PRODUCT_CARD_PRICE_TONE_OPTIONS}
+            />
+            <p className="text-[11px] text-neutral-500 mb-0">{PRICE_TONE_DESCRIPTIONS[value.priceStyle.colorTone]}</p>
+          </div>
+          {value.priceStyle.colorTone === 'custom' && (
+            <div className="space-y-1">
+              <ColorSelector
+                value={value.priceStyle.customColor || undefined}
+                onChange={(color) => handlePriceStyleChange({ customColor: color || '' })}
+                label="Màu tuỳ chỉnh"
+                placeholder="#0EA5E9"
+              />
+              <p className="text-[11px] text-neutral-500 mb-0">Để trống để dùng màu mặc định.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+        <p className="text-sm font-semibold text-neutral-900">Nội dung & hành động</p>
+        <p className="text-xs text-neutral-500">Bật tắt từng phần để phù hợp với từng page.</p>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          {toggleItems.map((item) => (
+            <div
+              key={item.key}
+              className="flex items-start justify-between gap-3 rounded-lg border border-neutral-200 px-3 py-2"
+            >
+              <div>
+                <p className="text-sm font-medium text-neutral-900 mb-0">{item.label}</p>
+                <p className="text-xs text-neutral-500 mb-0">{item.description}</p>
+              </div>
+              <Toggle
+                checked={Boolean(value[item.key])}
+                onChange={(checked) => handleToggleChange(item.key, checked)}
+                size="sm"
+                aria-label={item.label}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface ProductCardTitleEditorProps {
+  value: ProductCardTitleConfigState;
+  onChange: (config: ProductCardTitleConfigState) => void;
+}
+
+const ProductCardTitleEditor: React.FC<ProductCardTitleEditorProps> = ({ value, onChange }) => {
+  const handleChange = (updates: Partial<ProductCardTitleConfigState>) => {
+    onChange({
+      ...value,
+      ...updates,
+    });
+  };
+
+  const handleClampChange = (next: string) => {
+    const parsed = Number(next);
+    const clamped = Number.isFinite(parsed) ? clampWithinRange(Math.floor(parsed), 1, 6) : value.clampLines;
+    handleChange({ clampLines: clamped });
+  };
+
+  return (
+    <div className="space-y-5">
+      <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+        <p className="text-sm font-semibold text-neutral-900">Tiêu đề sản phẩm</p>
+        <p className="text-xs text-neutral-500">Kiểm soát tag HTML, số dòng và màu sắc.</p>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Thẻ HTML</label>
+            <Select
+              value={value.htmlTag}
+              onChange={(next) => handleChange({ htmlTag: (next as string) || 'h3' })}
+              options={PRODUCT_TITLE_HTML_TAG_OPTIONS}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Số dòng tối đa</label>
+            <Input
+              type="number"
+              min={1}
+              max={6}
+              value={value.clampLines}
+              onChange={(event) => handleClampChange(event.target.value)}
+            />
+            <p className="text-[11px] text-neutral-500 mb-0">Đặt 1–6 dòng trước khi cắt bằng ellipsis.</p>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Độ đậm</label>
+            <Select
+              value={value.fontWeight}
+              onChange={(next) =>
+                handleChange({
+                  fontWeight: (next as ProductCardFontWeight) || 'semibold',
+                })
+              }
+              options={PRODUCT_CARD_FONT_WEIGHT_OPTIONS}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Kích thước</label>
+            <Select
+              value={value.fontSize}
+              onChange={(next) =>
+                handleChange({
+                  fontSize: (next as ProductCardFontSize) || 'lg',
+                })
+              }
+              options={PRODUCT_CARD_FONT_SIZE_OPTIONS}
+            />
+          </div>
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <ColorSelector
+            value={value.textColor || undefined}
+            onChange={(color) => handleChange({ textColor: color || '' })}
+            label="Màu chữ"
+            placeholder="#111827 hoặc currentColor"
+          />
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-neutral-200 px-3 py-2">
+            <div>
+              <p className="text-sm font-medium text-neutral-900 mb-0">Chữ in hoa</p>
+              <p className="text-xs text-neutral-500 mb-0">Bật để chuyển toàn bộ tiêu đề sang uppercase.</p>
+            </div>
+            <Toggle
+              checked={value.uppercase}
+              onChange={(checked) => handleChange({ uppercase: checked })}
+              size="sm"
+              aria-label="Uppercase title"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface ProductCardPriceEditorProps {
+  value: ProductCardPriceConfigState;
+  onChange: (config: ProductCardPriceConfigState) => void;
+}
+
+const ProductCardPriceEditor: React.FC<ProductCardPriceEditorProps> = ({ value, onChange }) => {
+  const handleChange = (updates: Partial<ProductCardPriceConfigState>) => {
+    onChange({
+      ...value,
+      ...updates,
+    });
+  };
+
+  const handleToneChange = (tone: ProductCardPriceTone) => {
+    handleChange({
+      colorTone: tone,
+      customColor: tone === 'custom' ? value.customColor : '',
+    });
+  };
+
+  const toggleOptions: Array<{ key: keyof ProductCardPriceConfigState; label: string; description: string }> = [
+    { key: 'showCompareAtPrice', label: 'Hiển thị giá gạch', description: 'Bật để hiện compare at price nếu có.' },
+    { key: 'showDivider', label: 'Gạch phân cách', description: 'Hiện đường kẻ nhỏ giữa giá và meta.' },
+  ];
+
+  return (
+    <div className="space-y-5">
+      <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+        <p className="text-sm font-semibold text-neutral-900">Định dạng tiền tệ</p>
+        <p className="text-xs text-neutral-500">Cài đặt locale và currency mặc định.</p>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Locale</label>
+            <Input
+              value={value.locale}
+              onChange={(event) => handleChange({ locale: event.target.value })}
+              placeholder="vi-VN"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Currency</label>
+            <Input
+              value={value.currency}
+              onChange={(event) => handleChange({ currency: event.target.value.toUpperCase() })}
+              placeholder="VND"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-5">
+        <p className="text-sm font-semibold text-neutral-900">Kiểu chữ & màu sắc</p>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Độ đậm</label>
+            <Select
+              value={value.fontWeight}
+              onChange={(next) =>
+                handleChange({
+                  fontWeight: (next as ProductCardFontWeight) || 'bold',
+                })
+              }
+              options={PRODUCT_CARD_FONT_WEIGHT_OPTIONS}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Kích thước</label>
+            <Select
+              value={value.fontSize}
+              onChange={(next) =>
+                handleChange({
+                  fontSize: (next as ProductCardFontSize) || 'lg',
+                })
+              }
+              options={PRODUCT_CARD_FONT_SIZE_OPTIONS}
+            />
+          </div>
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="space-y-1">
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">Độ tương phản</label>
+            <Select
+              value={value.colorTone}
+              onChange={(next) => handleToneChange((next as ProductCardPriceTone) || 'emphasis')}
+              options={PRODUCT_CARD_PRICE_TONE_OPTIONS}
+            />
+            <p className="text-[11px] text-neutral-500 mb-0">{PRICE_TONE_DESCRIPTIONS[value.colorTone]}</p>
+          </div>
+          {value.colorTone === 'custom' && (
+            <ColorSelector
+              value={value.customColor || undefined}
+              onChange={(color) => handleChange({ customColor: color || '' })}
+              label="Màu tuỳ chỉnh"
+              placeholder="#DC2626"
+            />
+          )}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+        <p className="text-sm font-semibold text-neutral-900">Hiển thị nâng cao</p>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          {toggleOptions.map((item) => (
+            <div
+              key={item.key}
+              className="flex items-start justify-between gap-3 rounded-lg border border-neutral-200 px-3 py-2"
+            >
+              <div>
+                <p className="text-sm font-medium text-neutral-900 mb-0">{item.label}</p>
+                <p className="text-xs text-neutral-500 mb-0">{item.description}</p>
+              </div>
+              <Toggle
+                checked={Boolean(value[item.key])}
+                onChange={(checked) => handleChange({ [item.key]: checked } as Partial<ProductCardPriceConfigState>)}
+                size="sm"
+                aria-label={item.label}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 const KeyValueEditor: React.FC<KeyValueEditorProps> = ({ entries, errors, onChange, t, keyValueTypeOptions }) => {
   const resolvedEntries = entries.length > 0 ? entries : [createKeyValueEntry()];
 

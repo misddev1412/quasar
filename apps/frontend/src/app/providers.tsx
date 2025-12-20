@@ -15,6 +15,7 @@ import { CartWrapper } from '../components/ecommerce/CartProvider';
 import '../lib/i18n';
 
 import { useFCM } from '../hooks/useFCM';
+import { CurrencyProvider } from '../contexts/CurrencyContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,18 +46,20 @@ function AppProviders({ children }: { children: React.ReactNode }) {
       />
       <TRPCProvider client={trpcClient} queryClient={queryClient}>
         <QueryClientProvider client={queryClient}>
-          <HeroUIProvider>
-            <ThemeProvider>
-              <ToastProvider>
-                <AuthProvider>
-                  <FCMListener />
-                  <CartWrapper currency="USD" taxRate={0.08} defaultShippingCost={5.99}>
-                    {children}
-                  </CartWrapper>
-                </AuthProvider>
-              </ToastProvider>
-            </ThemeProvider>
-          </HeroUIProvider>
+          <CurrencyProvider>
+            <HeroUIProvider>
+              <ThemeProvider>
+                <ToastProvider>
+                  <AuthProvider>
+                    <FCMListener />
+                    <CartWrapper taxRate={0.08} defaultShippingCost={5.99}>
+                      {children}
+                    </CartWrapper>
+                  </AuthProvider>
+                </ToastProvider>
+              </ThemeProvider>
+            </HeroUIProvider>
+          </CurrencyProvider>
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </TRPCProvider>

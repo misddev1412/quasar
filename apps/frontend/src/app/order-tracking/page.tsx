@@ -6,6 +6,7 @@ import { Helmet } from 'react-helmet-async';
 import Layout from '../../components/layout/Layout';
 import PageBreadcrumbs from '../../components/common/PageBreadcrumbs';
 import { trpc } from '../../utils/trpc';
+import { formatCurrencyValue } from '../../utils/currency';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { format } from 'date-fns';
 import {
@@ -124,12 +125,8 @@ const OrderTrackingPage: React.FC = () => {
     return format(new Date(date), 'MMM dd, yyyy HH:mm');
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency || 'USD',
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number, currency: string) =>
+    formatCurrencyValue(amount, { currency: currency || 'USD' });
 
   const getOrderStatusStep = (status: string): number => {
     const steps: Record<string, number> = {
@@ -638,4 +635,3 @@ const OrderTrackingPage: React.FC = () => {
 };
 
 export default OrderTrackingPage;
-
