@@ -48,7 +48,8 @@ build_service() {
         exit 1
     fi
 
-    docker build -t $service:$IMAGE_TAG ./apps/$service
+    # Use repo root as build context so Dockerfiles can access shared configs
+    docker build -t $service:$IMAGE_TAG -f apps/$service/Dockerfile .
 
     echo -e "${GREEN}Successfully built $service${NC}"
 }
