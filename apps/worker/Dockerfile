@@ -1,5 +1,24 @@
-# Dockerfile for worker service
-FROM node:18-alpine AS builder
+# Dockerfile for worker service using Ubuntu 24.04 base
+
+FROM ubuntu:24.04 AS node-base
+
+ARG NODE_MAJOR=20
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates curl gnupg \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && npm install -g npm@10 \
+    && rm -rf /var/lib/apt/lists/*
+
+FROM node-base AS builder
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential python3 \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -19,7 +38,7 @@ COPY . .
 RUN npx nx build worker
 
 # Production stage
-FROM node:18-alpine AS runner
+FROM node-base AS runner
 
 WORKDIR /app
 
