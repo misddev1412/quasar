@@ -58,6 +58,7 @@ import { Currency } from '../products/entities/currency.entity';
 import { AddressBook } from '../user/entities/address-book.entity';
 import { AddressBookConfig } from '../user/entities/address-book-config.entity';
 import { CustomerTransaction, CustomerTransactionEntry } from '../user/entities/customer-transaction.entity';
+import { ProductTranslation } from '../products/entities/product-translation.entity';
 
 // Repositories
 import { MailProviderRepository } from '../mail-provider/repositories/mail-provider.repository';
@@ -135,6 +136,7 @@ import { OrderExportHandler } from './handlers/order-export.handler';
       ProductVariantItem,
       ProductMedia,
       ProductSpecification,
+      ProductTranslation,
       PurchaseOrder,
       PurchaseOrderItem,
       StockMovement,

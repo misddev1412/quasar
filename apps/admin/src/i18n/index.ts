@@ -3,9 +3,10 @@ import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { SupportedLocale } from '@shared';
 
-// Import translation files
-import vi from './locales/vi.json';
-import en from './locales/en.json';
+// Import aggregated translation files
+import vi from './locales/vi';
+import en from './locales/en';
+import zh from './locales/zh';
 
 const resources = {
   vi: {
@@ -13,6 +14,9 @@ const resources = {
   },
   en: {
     translation: en
+  },
+  zh: {
+    translation: zh
   }
 };
 

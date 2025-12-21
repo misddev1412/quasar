@@ -235,27 +235,28 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     };
 
     const autoLabels = {
-      brand: t('specifications.autoLabels.brand'),
-      sku: t('specifications.autoLabels.sku'),
       category: t('specifications.autoLabels.category'),
-      status: t('specifications.autoLabels.status'),
-      weight: t('specifications.autoLabels.weight'),
-      dimensions: t('specifications.autoLabels.dimensions'),
     };
 
-    appendAuto(autoLabels.brand, (brand as any)?.name);
-    appendAuto(autoLabels.sku, sku);
     appendAuto(autoLabels.category, (categories?.[0] as any)?.name);
-    appendAuto(autoLabels.status, status);
-    appendAuto(autoLabels.weight, variants?.[0]?.weight);
-    appendAuto(autoLabels.dimensions, variants?.[0]?.dimensions);
 
     return [...explicit, ...autoEntries];
-  }, [specifications, brand, sku, categories, status, variants, t]);
+  }, [specifications, categories, t]);
 
   const formatSpecificationLabel = (label: string) => {
-    const withSpaces = label.replace(/([A-Z])/g, ' $1').replace(/[_-]/g, ' ');
-    return withSpaces.replace(/\b\w/g, (char) => char.toUpperCase()).trim();
+    const withSpaces = label
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/[_-]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    const normalized = withSpaces.toLocaleLowerCase('vi-VN');
+
+    return normalized
+      .split(' ')
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toLocaleUpperCase('vi-VN') + word.slice(1))
+      .join(' ');
   };
 
   // Product details

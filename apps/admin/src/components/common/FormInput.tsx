@@ -1,5 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
+import { BASE_LABEL_CLASS } from './styles';
 
 export type IconSpacing = 'compact' | 'standard' | 'large';
 
@@ -25,8 +26,6 @@ interface FormInputProps {
   iconSpacing?: IconSpacing;
   labelClassName?: string;
 }
-
-const BASE_LABEL_CLASS = 'block text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400';
 
 export const FormInput: React.FC<FormInputProps & { [key: string]: any }> = ({
   id,

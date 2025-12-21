@@ -13,6 +13,10 @@ import {
   bulkDeleteSiteContentSchema,
 } from '../modules/site-content/dto/site-content.dto';
 import { SiteContentCategory, SiteContentStatus } from '@shared/enums/site-content.enums';
+import {
+  searchSpecificationLabelsSchema,
+  createSpecificationLabelSchema,
+} from '../modules/products/routers/admin-product-specification-labels.router';
 
 // Zod schemas for validation
 const userRoleSchema = z.enum([
@@ -236,6 +240,15 @@ const fulfillmentStatusSchema = z.enum([
 ]);
 
 const fulfillmentPrioritySchema = z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT']);
+
+const brandShowcaseStrategySchema = z.enum(['newest', 'alphabetical', 'custom']);
+
+const brandShowcaseRequestSchema = z.object({
+  strategy: brandShowcaseStrategySchema.optional(),
+  limit: z.number().min(1).max(30).optional(),
+  brandIds: z.array(z.string().uuid()).optional(),
+  locale: z.string().min(2).max(10).optional(),
+});
 
 
 // This creates the combined app router
@@ -2751,6 +2764,15 @@ export const appRouter = router({
       }),
   }),
 
+  clientBrands: router({
+    list: procedure
+      .input(brandShowcaseRequestSchema.optional())
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
   clientProducts: router({
     list: procedure
       .input(z.object({
@@ -3130,6 +3152,23 @@ export const appRouter = router({
         brandId: z.string().uuid(),
         locale: z.string().min(2).max(5),
       }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  // Admin Product Specification Labels router
+  adminProductSpecificationLabels: router({
+    search: procedure
+      .input(searchSpecificationLabelsSchema)
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    create: procedure
+      .input(createSpecificationLabelSchema)
       .output(apiResponseSchema)
       .mutation(() => {
         return {} as ApiResponse;

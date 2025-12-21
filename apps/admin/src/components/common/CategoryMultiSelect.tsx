@@ -3,6 +3,7 @@ import { ChevronDown, X, Search, Check, Folder } from 'lucide-react';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
 import { InputWithIcon } from './InputWithIcon';
+import { BASE_LABEL_CLASS } from './styles';
 
 interface Category {
   id: string;
@@ -195,7 +196,7 @@ export const CategoryMultiSelect: React.FC<CategoryMultiSelectProps> = ({
     <div className={`relative ${className}`} ref={containerRef}>
       {label && (
         <div className="flex items-center justify-between mb-2">
-          <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200">
+          <label className={BASE_LABEL_CLASS}>
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
           </label>

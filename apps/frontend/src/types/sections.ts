@@ -14,6 +14,7 @@ import {
   GallerySectionConfig,
   ContactFormConfig,
   SectionTranslationContent,
+  BrandShowcaseConfig,
 } from '../components/sections';
 
 export interface SectionTranslation extends SectionTranslationContent {
@@ -46,6 +47,7 @@ export type SectionComponentConfigMap = {
   [SectionType.STATS]: StatsSectionConfig;
   [SectionType.GALLERY]: GallerySectionConfig;
   [SectionType.CONTACT_FORM]: ContactFormConfig;
+  [SectionType.BRAND_SHOWCASE]: BrandShowcaseConfig;
 };
 
 export type SectionConfigByType<T extends SectionType> = SectionComponentConfigMap[T];

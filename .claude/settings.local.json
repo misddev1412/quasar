@@ -8,7 +8,19 @@
       "Bash(npx nx run:*)",
       "Bash(git checkout:*)",
       "Bash(grep:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(done)",
+      "Bash(pgrep:*)",
+      "Bash(echo:*)",
+      "Bash(jq:*)",
+      "Bash(kill:*)",
+      "Bash(pkill:*)",
+      "Bash(find:*)",
+      "Bash(python3:*)",
+      "Bash(test:*)",
+      "Bash(for key in \"image\" \"variant\" \"add_attribute\" \"add_image\" \"enabled\")",
+      "Bash(do echo \"=== $key ===\")",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []

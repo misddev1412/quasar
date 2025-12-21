@@ -1,0 +1,261 @@
+{
+  "settings": {
+    "add_setting": "Thêm cài đặt",
+    "categories": "Danh mục cài đặt",
+    "all_settings": "Tất cả cài đặt",
+    "create_new_setting": "Tạo cài đặt mới",
+    "no_settings": "Chưa có cài đặt",
+    "empty_state_message": "Bạn chưa tạo bất kỳ cài đặt hệ thống nào. Nhấp vào nút bên dưới để thêm cài đặt đầu tiên của bạn.",
+    "no_real_data": "Hiện đang hiển thị dữ liệu mẫu. Bạn có thể nhấp vào nút 'Thêm cài đặt' để tạo cài đặt hệ thống thực.",
+    "groups": {
+      "general": "Chung",
+      "other": "Khác",
+      "pagination": "Phân trang",
+      "appearance": "Giao diện",
+      "orders": "Đơn hàng",
+      "storefront": "Gian hàng"
+    },
+    "placeholders": {
+      "site_name_desc": "Tên trang web",
+      "site_desc": "Mô tả trang web",
+      "maintenance_mode_desc": "Chế độ bảo trì",
+      "contact_email_desc": "Email liên hệ",
+      "default_pagination_desc": "Số lượng phân trang mặc định"
+    },
+    "keys": {
+      "admin.items_per_page": "Số mục mỗi trang",
+      "admin.sidebar_collapsed": "Thu gọn thanh bên",
+      "admin.theme": "Chủ đề quản trị",
+      "site.description": "Mô tả trang web",
+      "site.name": "Tên trang web",
+      "site.favicon": "Favicon trang web",
+      "site.logo": "Logo trang web",
+      "storefront.maintenance_enabled": "Kích hoạt chế độ bảo trì storefront",
+      "storefront.maintenance_password": "Mật khẩu bảo trì",
+      "storefront.maintenance_message": "Thông báo bảo trì",
+      "orders.order_number_format": "Định dạng mã đơn hàng",
+      "maintenance_mode": "Chế độ bảo trì",
+      "contact_email": "Email liên hệ",
+      "default_pagination": "Phân trang mặc định"
+    },
+    "descriptions": {
+      "admin.items_per_page": "Số lượng mục hiển thị trên mỗi trang",
+      "admin.sidebar_collapsed": "Thanh bên có được thu gọn theo mặc định hay không",
+      "admin.theme": "Chủ đề trực quan cho bảng điều khiển quản trị",
+      "site.description": "Mô tả ngắn về trang web",
+      "site.name": "Tên của trang web",
+      "site.favicon": "Đường dẫn đến favicon của trang web (tệp .ico)",
+      "site.logo": "Đường dẫn đến hình ảnh logo của trang web",
+      "storefront.maintenance_enabled": "Bắt khách truy cập nhìn thấy trang bảo trì cho đến khi nhập đúng mật khẩu",
+      "storefront.maintenance_password": "Mật khẩu cần nhập để bỏ qua trang bảo trì",
+      "storefront.maintenance_message": "Thông điệp hiển thị trên trang bảo trì",
+      "orders.order_number_format": "Mẫu định dạng để tạo mã đơn hàng. Dùng các token như {{YYYY}}, {{YY}}, {{MM}}, {{DD}} và {{SEQ4}} cho số thứ tự có thêm số 0 ở đầu.",
+      "maintenance_mode": "Bật hoặc tắt chế độ bảo trì",
+      "contact_email": "Email liên hệ cho quản trị viên",
+      "default_pagination": "Số lượng mục mặc định trên mỗi trang để phân trang"
+    },
+    "update_success_title": "Cập nhật thành công",
+    "update_success_desc": "Cài đặt đã được cập nhật thành công.",
+    "update_failed_title": "Cập nhật thất bại",
+    "update_failed_desc": "Không thể cập nhật cài đặt. Vui lòng thử lại sau.",
+    "boolean_toggle_success_desc": "Cài đặt đã được chuyển đổi.",
+    "boolean_toggle_failed_desc": "Không thể chuyển đổi cài đặt.",
+    "public_toggle_success_desc": "Chế độ hiển thị đã được cập nhật.",
+    "public_toggle_failed_desc": "Không thể cập nhật chế độ hiển thị.",
+    "maintenance_password_placeholder": "Nhập mật khẩu bảo trì mới",
+    "no_password_set": "Chưa cấu hình mật khẩu bảo trì",
+    "language_settings": "Cài đặt ngôn ngữ",
+    "choose_display_language": "Chọn ngôn ngữ hiển thị ưa thích của bạn.",
+    "theme_preference": "Tùy chọn chủ đề",
+    "choose_light_or_dark_mode": "Chọn giữa chế độ sáng và tối.",
+    "form": {
+      "key": "Tên khóa",
+      "value": "Giá trị",
+      "type": "Kiểu dữ liệu",
+      "group": "Nhóm",
+      "description": "Mô tả",
+      "is_public": "Công khai (hiển thị cho tất cả người dùng)",
+      "group_placeholder": "Ví dụ: Cài đặt cơ bản, Cài đặt nâng cao",
+      "type_string": "Chuỗi",
+      "type_number": "Số",
+      "type_boolean": "Boolean",
+      "type_json": "JSON",
+      "type_array": "Mảng",
+      "create": "Tạo cài đặt",
+      "creating": "Đang tạo..."
+    },
+    "maintenance": {
+      "title": "Chế độ bảo trì",
+      "description": "Quản lý trang bảo trì và thông điệp hiển thị trên storefront.",
+      "status": {
+        "heading": "Trạng thái bảo trì",
+        "description": "Yêu cầu nhập mật khẩu trước khi truy cập storefront.",
+        "enabled": "Đang bật chế độ bảo trì",
+        "disabled": "Đang tắt chế độ bảo trì",
+        "enabledHint": "Khách sẽ thấy trang bảo trì cho đến khi nhập đúng mật khẩu.",
+        "disabledHint": "Khách có thể duyệt storefront bình thường."
+      },
+      "message": {
+        "heading": "Thông báo bảo trì",
+        "description": "Hiển thị dưới logo trên trang bảo trì. Viết ngắn gọn, súc tích.",
+        "placeholder": "Chúng tôi đang bảo trì hệ thống và sẽ quay lại trong giây lát."
+      },
+      "password": {
+        "heading": "Mật khẩu bảo trì",
+        "description": "Chia sẻ cho nội bộ để bỏ qua tường bảo trì.",
+        "configured": "Đã cấu hình mật khẩu",
+        "notConfigured": "Chưa đặt mật khẩu",
+        "placeholder": "Nhập mật khẩu bảo trì mới",
+        "hint": "Để trống nếu muốn giữ nguyên mật khẩu hiện tại.",
+        "saveAction": "Cập nhật mật khẩu"
+      },
+      "toasts": {
+        "enabled": "Trang bảo trì đã được bật.",
+        "disabled": "Trang bảo trì đã được tắt.",
+        "toggleFailed": "Không thể cập nhật trạng thái chế độ bảo trì.",
+        "messageSaved": "Đã cập nhật thông báo bảo trì.",
+        "messageFailed": "Không thể cập nhật thông báo bảo trì.",
+        "passwordSaved": "Đã cập nhật mật khẩu bảo trì.",
+        "passwordFailed": "Không thể cập nhật mật khẩu bảo trì.",
+        "passwordRequired": "Hãy nhập mật khẩu trước khi lưu."
+      }
+    }
+  },
+  "storefront": {
+    "footer": {
+      "title": "Footer storefront",
+      "description": "Tuỳ chỉnh bố cục, thông điệp thương hiệu, mạng xã hội và các liên kết pháp lý.",
+      "nav": "Trình dựng footer",
+      "menu_hint": {
+        "title": "Các liên kết footer được lấy từ menu footer.",
+        "description": "Tạo cột bằng cách thêm mục cha cùng các mục con bên dưới.",
+        "btn": "Quản lý menu footer"
+      },
+      "actions": {
+        "reset": "Khôi phục",
+        "save": "Lưu thay đổi"
+      },
+      "messages": {
+        "load_error": "Không thể tải cài đặt footer",
+        "reset": "Đã khôi phục mặc định",
+        "reset_description": "Những thay đổi này chưa được lưu.",
+        "saved": "Đã cập nhật footer",
+        "saved_description": "Thay đổi đã hiển thị trên storefront.",
+        "save_error": "Không thể lưu thay đổi",
+        "loading": "Đang tải cài đặt footer..."
+      },
+      "layout": {
+        "heading": "Bố cục & chủ đề"
+      },
+      "variant": {
+        "label": "Kiểu bố cục",
+        "simple": "Thanh đơn giản",
+        "columns": "Lưới cột",
+        "split": "Bố cục chia đôi"
+      },
+      "theme": {
+        "label": "Giao diện",
+        "dark": "Tối",
+        "light": "Sáng"
+      },
+      "menu_layout": {
+        "label": "Cách hiển thị menu",
+        "columns": "Nhóm theo cột",
+        "inline": "Chia đều các liên kết"
+      },
+      "columns": {
+        "label": "Số cột mỗi hàng",
+        "helper": "Chọn từ 1 đến 4 cột."
+      },
+      "visitor_analytics": {
+        "heading": "Thanh thống kê truy cập",
+        "description": "Tuỳ chỉnh dải thống kê hiển thị phía trên footer.",
+        "enable": "Hiển thị thống kê truy cập",
+        "enable_hint": "Bật/tắt hiển thị lượt truy cập, lượt xem trang hoặc trang nổi bật trước footer.",
+        "columns": {
+          "label": "Số cột",
+          "option_1": "1 cột",
+          "option_2": "2 cột",
+          "option_3": "3 cột",
+          "option_4": "4 cột"
+        },
+        "background": "Màu nền",
+        "background_hint": "Để trống để dùng màu nền của footer.",
+        "card_label": "Cột {{index}}",
+        "metric_label": "Loại hiển thị",
+        "metrics": {
+          "visitors": "Tổng lượt truy cập",
+          "pageViews": "Lượt xem trang",
+          "topPage": "Trang nổi bật",
+          "lastUpdated": "Thời điểm cập nhật"
+        }
+      },
+      "brand": {
+        "heading": "Thương hiệu & thông điệp",
+        "logo_label": "Logo footer",
+        "logo_description": "Tải lên hoặc chọn logo riêng cho footer.",
+        "logo_choose": "Chọn logo",
+        "logo_remove": "Xoá",
+        "logo_url": "Đường dẫn ảnh",
+        "logo_url_placeholder": "https://cdn.example.com/footer-logo.svg",
+        "logo_hint": "Có thể dán liên kết ảnh nếu lưu ở nơi khác. Để trống để dùng logo chính.",
+        "show_logo": "Hiển thị logo",
+        "show_logo_hint": "Ẩn logo mà không cần xoá file.",
+        "show_title": "Hiển thị tiêu đề footer",
+        "show_title_hint": "Bật/tắt tên cửa hàng nằm cạnh logo.",
+        "show_description": "Hiển thị mô tả thương hiệu",
+        "show_description_hint": "Bật/tắt đoạn văn dưới logo.",
+        "description_label": "Mô tả",
+        "custom_html": "HTML tuỳ chỉnh (tuỳ chọn)"
+      },
+      "newsletter": {
+        "enable": "Hiện form đăng ký email",
+        "description": "Hiển thị ô email và nút trong cột thương hiệu.",
+        "heading_label": "Tiêu đề newsletter",
+        "copy": "Nội dung newsletter"
+      },
+      "social": {
+        "heading": "Liên kết mạng xã hội",
+        "description": "Các liên kết hiển thị dưới dạng biểu tượng. Để trống URL để ẩn.",
+        "add": "Thêm liên kết",
+        "label": "Tiêu đề",
+        "url": "Đường dẫn",
+        "type": "Mạng xã hội",
+        "visible": "Hiển thị",
+        "visible_hint": "Tắt để ẩn mà không cần xoá.",
+        "item_label": "Liên kết {{index}}",
+        "empty": "Chưa có liên kết nào. Hãy thêm ít nhất một liên kết để hiển thị dãy biểu tượng.",
+        "custom": "Tuỳ chỉnh",
+        "new_label": "Liên kết mới"
+      },
+      "links": {
+        "heading": "Liên kết pháp lý & tiện ích",
+        "description": "Hiển thị ở hàng cuối cùng cạnh phần bản quyền.",
+        "add": "Thêm liên kết",
+        "label": "Tiêu đề",
+        "url": "Đường dẫn",
+        "visible": "Hiển thị",
+        "item_label": "Liên kết {{index}}",
+        "empty": "Hãy thêm các liên kết như Chính sách bảo mật, Điều khoản dịch vụ...",
+        "new_label": "Liên kết mới"
+      },
+      "preview": {
+        "heading": "Xem trước trực tiếp",
+        "description": "Xem chính xác footer trên storefront mà khách hàng sẽ thấy.",
+        "reload": "Tải lại",
+        "missing_origin": "Thiết lập NEXT_PUBLIC_SITE_URL để bật xem trước."
+      }
+    }
+  },
+  "componentConfigs": {
+    "title": "Thư viện thành phần",
+    "editTitle": "Chỉnh sửa thành phần",
+    "editDescription": "Điều chỉnh schema thành phần, giá trị mặc định, siêu dữ liệu và quy tắc lồng nhau trên trang tập trung.",
+    "updateSuccess": "Đã cập nhật thành phần",
+    "updateSuccessDescription": "Các thay đổi đã được lưu thành công.",
+    "updateFailed": "Không thể cập nhật thành phần",
+    "backToList": "Quay lại thư viện thành phần",
+    "componentNotFound": "Không tìm thấy cấu hình thành phần",
+    "componentNotFoundDescription": "Nó có thể đã bị xóa hoặc bạn không có quyền truy cập."
+  }
+}

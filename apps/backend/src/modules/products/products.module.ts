@@ -16,7 +16,9 @@ import { ProductVariant } from './entities/product-variant.entity';
 import { ProductVariantItem } from './entities/product-variant-item.entity';
 import { ProductMedia } from './entities/product-media.entity';
 import { ProductSpecification } from './entities/product-specification.entity';
+import { ProductSpecificationLabel } from './entities/product-specification-label.entity';
 import { ProductWarehouseQuantity } from './entities/product-warehouse-quantity.entity';
+import { ProductTranslation } from './entities/product-translation.entity';
 import { PurchaseOrder } from './entities/purchase-order.entity';
 import { PurchaseOrderItem } from './entities/purchase-order-item.entity';
 import { StockMovement } from './entities/stock-movement.entity';
@@ -49,6 +51,7 @@ import { ProductMediaRepository } from './repositories/product-media.repository'
 import { ProductVariantRepository } from './repositories/product-variant.repository';
 import { ProductVariantItemRepository } from './repositories/product-variant-item.repository';
 import { ProductSpecificationRepository } from './repositories/product-specification.repository';
+import { ProductSpecificationLabelRepository } from './repositories/product-specification-label.repository';
 import { ProductWarehouseQuantityRepository } from './repositories/product-warehouse-quantity.repository';
 import { PurchaseOrderRepository } from './repositories/purchase-order.repository';
 import { StockMovementRepository } from './repositories/stock-movement.repository';
@@ -82,6 +85,7 @@ import { ShippingProviderService } from './services/shipping-provider.service';
 import { ProductTransformer } from './transformers/product.transformer';
 import { SharedModule } from '../shared/shared.module';
 import { AdminProductsRouter } from './routers/admin.router';
+import { AdminProductSpecificationLabelsRouter } from './routers/admin-product-specification-labels.router';
 import { AdminProductAttributesRouter } from './routers/admin-attributes.router';
 import { AdminProductBrandsRouter } from './routers/admin-brands.router';
 import { AdminProductCategoriesRouter } from './routers/admin-categories.router';
@@ -125,7 +129,9 @@ import { PayosWebhookController } from './controllers/payos-webhook.controller';
       ProductVariantItem,
       ProductMedia,
       ProductSpecification,
+      ProductSpecificationLabel,
       ProductWarehouseQuantity,
+      ProductTranslation,
       PurchaseOrder,
       PurchaseOrderItem,
       StockMovement,
@@ -168,6 +174,7 @@ import { PayosWebhookController } from './controllers/payos-webhook.controller';
     ProductVariantRepository,
     ProductVariantItemRepository,
     ProductSpecificationRepository,
+    ProductSpecificationLabelRepository,
     ProductWarehouseQuantityRepository,
     PurchaseOrderRepository,
     StockMovementRepository,
@@ -205,6 +212,7 @@ import { PayosWebhookController } from './controllers/payos-webhook.controller';
     AdminProductBrandsRouter,
     AdminProductCategoriesRouter,
     AdminProductSuppliersRouter,
+    AdminProductSpecificationLabelsRouter,
     AdminWarehousesRouter,
     PublicProductsRouter,
     AdminOrdersRouter,
@@ -230,6 +238,7 @@ import { PayosWebhookController } from './controllers/payos-webhook.controller';
     ProductVariantRepository,
     ProductVariantItemRepository,
     ProductSpecificationRepository,
+    ProductSpecificationLabelRepository,
     ProductWarehouseQuantityRepository,
     PurchaseOrderRepository,
     StockMovementRepository,
@@ -263,6 +272,7 @@ import { PayosWebhookController } from './controllers/payos-webhook.controller';
     AdminProductBrandsRouter,
     AdminProductCategoriesRouter,
     AdminProductSuppliersRouter,
+    AdminProductSpecificationLabelsRouter,
     AdminWarehousesRouter,
     PublicProductsRouter,
     AdminOrdersRouter,

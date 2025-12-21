@@ -1,0 +1,419 @@
+{
+  "users": {
+    "create_user": "Create User",
+    "edit_user": "Edit User",
+    "delete_user": "Delete User",
+    "user_list": "User List",
+    "no_users_found": "No users found",
+    "no_users_description": "Get started by creating your first user.",
+    "search_placeholder": "Search users...",
+    "create_user_description": "Create a new user account with basic information and preferences.",
+    "edit_user_description": "Update user information and settings",
+    "edit_user_subtitle": "Update user details and settings",
+    "user_information": "User Information",
+    "user_information_description": "Define the user details and access level",
+    "back_to_users": "Back to Users",
+    "user_status_updated": "User status updated successfully",
+    "failed_to_update_user_status": "Failed to update user status",
+    "user_deleted_successfully": "User deleted successfully",
+    "failed_to_delete_user": "Failed to delete user",
+    "delete_user_confirmation": "Are you sure you want to delete the user \"{{userName}}\"? This action cannot be undone.",
+    "statistics": {
+      "total_users": "Total Users",
+      "active_users": "Active Users",
+      "inactive_users": "Inactive Users",
+      "verified_users": "Verified Users"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "dashboard": {
+      "title": "User Management Dashboard",
+      "subtitle": "Understand how your user base is growing and behaving in real time.",
+      "cards": {
+        "total_users": "Total Users",
+        "active_users": "Active Users",
+        "new_this_month": "New This Month",
+        "profile_completion": "Profile Completion",
+        "currently_active": "Currently Active",
+        "recent_activity": "Active (24h)"
+      },
+      "actions": {
+        "invite_user": "Invite User",
+        "invite_user_desc": "Create a new account for a teammate or partner.",
+        "view_all_users": "View all users",
+        "view_all_users_desc": "Open the complete directory with filters and bulk actions.",
+        "manage_roles": "Manage roles & permissions",
+        "manage_roles_desc": "Review access policies and assignments."
+      },
+      "activity_overview": {
+        "title": "Activity overview",
+        "subtitle": "Live view of engagement health.",
+        "currently_active": "Currently active",
+        "recent_active": "Active last 24h",
+        "profile_completion": "Profile completion rate",
+        "complete": "{{count}} complete",
+        "missing_profiles": "{{count}} profiles still missing key info"
+      },
+      "charts": {
+        "user_growth": "User growth (90 days)",
+        "user_growth_description": "Track cumulative user count to catch growth inflection points.",
+        "new_signups": "New signups (30 days)",
+        "new_signups_description": "See acquisition spikes from launches and campaigns.",
+        "role_distribution": "Role distribution",
+        "role_distribution_description": "Understand how access levels are distributed."
+      },
+      "recent_signups": {
+        "title": "Recent signups",
+        "subtitle": "Newest accounts created within your workspace.",
+        "joined": "Joined {{timeAgo}}"
+      },
+      "profile_completion": {
+        "title": "Profile completeness",
+        "subtitle": "Encourage richer customer context by nudging users to complete their profile.",
+        "completed": "{{completed}} of {{total}} profiles complete",
+        "missing": "{{count}} profiles missing optional details"
+      },
+      "quick_actions": {
+        "title": "Quick actions",
+        "subtitle": "Move faster with shortcuts tailored for people operations.",
+        "go": "Open"
+      },
+      "errors": {
+        "stats_failed": "Failed to load user statistics.",
+        "recent_users_failed": "Unable to load recent users."
+      },
+      "empty_states": {
+        "no_growth_data": "No growth data available for this period.",
+        "no_signup_data": "No signup data for this range.",
+        "no_role_data": "No role distribution data available.",
+        "no_recent_users": "No users have signed up recently."
+      }
+    },
+    "table": {
+      "columns": {
+        "user": "User",
+        "username": "Username",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "createdAt": "Created At",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "search_placeholder": "Search users by name, email, or username...",
+      "no_data": "No users found"
+    },
+    "export": {
+      "queue_title": "Export queue",
+      "queue_description_processing": "Your latest exports are processing. This list refreshes automatically while jobs are running.",
+      "queue_description_ready": "Track the most recent export jobs and download the files when they are ready.",
+      "select_format": "Select format",
+      "format_csv": "CSV",
+      "format_json": "JSON",
+      "request_export": "Request export",
+      "queuing_export": "Queuing export",
+      "refresh": "Refresh",
+      "requested": "Requested",
+      "records": "records",
+      "preparing_records": "Preparing records",
+      "download": "Download",
+      "no_jobs": "No export jobs yet. Use the button above to queue your first export.",
+      "status_pending": "Pending",
+      "status_processing": "Processing",
+      "status_completed": "Completed",
+      "status_failed": "Failed",
+      "queued_success": "Export queued",
+      "queued_description": "We will notify you once the file is ready to download.",
+      "queue_failed": "Failed to queue export",
+      "queue_failed_description": "Please try again in a few seconds."
+    },
+    "exports": {
+      "page_title": "User exports",
+      "page_description": "Track your export jobs and download completed files.",
+      "breadcrumb": {
+        "exports": "Exports"
+      },
+      "actions": {
+        "back_to_users": "Back to users",
+        "queueing": "Queuing export...",
+        "queue_export": "Queue export",
+        "refresh_jobs": "Refresh jobs",
+        "download": "Download"
+      },
+      "filters": {
+        "imported_title": "Filters imported from the Users page",
+        "imported_description": "The export will only include users matching these criteria.",
+        "applied_title": "Filters applied to this export",
+        "applied_description": "The export will only include users matching these criteria.",
+        "none_title": "No filters applied yet",
+        "clear": "Clear filters",
+        "none": "No filters applied. The export will include all users.",
+        "status_all": "All statuses",
+        "hide_builder": "Hide filter builder",
+        "edit_builder": "Edit filters",
+        "add_builder": "Add filters"
+      },
+      "fields": {
+        "format": "Format",
+        "status": "Status"
+      },
+      "format": {
+        "csv": "CSV",
+        "json": "JSON"
+      },
+      "status": {
+        "pending": "Pending",
+        "processing": "Processing",
+        "completed": "Completed",
+        "failed": "Failed"
+      },
+      "notifications": {
+        "queue_success_title": "Export queued",
+        "queue_success_description": "We will notify you once your file is ready to download.",
+        "queue_failed_title": "Failed to queue export",
+        "queue_failed_description": "Please try again in a few seconds."
+      },
+      "request": {
+        "title": "Request a new export",
+        "description": "Choose the format and optional filters to queue a new export job."
+      },
+      "queue": {
+        "title": "Export queue",
+        "auto_refresh": "Jobs refresh automatically while processing.",
+        "description": "Monitor recent jobs and download completed files.",
+        "filter_title": "Filter exports",
+        "filter_description": "Narrow down the export queue by status.",
+        "clear_status_filter": "Clear status filter"
+      },
+      "table": {
+        "file": "File",
+        "job_id": "Job ID: {{id}}…",
+        "format": "Format",
+        "created": "Created",
+        "total_records": "Total records",
+        "pending": "Pending",
+        "status": "Status",
+        "actions": "Actions",
+        "empty": "No export jobs found yet. Queue your first export above."
+      },
+      "summary": {
+        "filtered": "Showing {{count}} filtered {{label}}",
+        "job_singular": "job",
+        "job_plural": "jobs",
+        "range": "Showing {{start}}-{{end}} of {{total}} jobs"
+      },
+      "estimate": {
+        "loading": "Estimating records...",
+        "result": "Estimated records: {{count}}",
+        "unavailable": "Unable to estimate record count right now.",
+        "filtered_hint": "Based on current filters",
+        "zero": "No users match the selected filters."
+      }
+    },
+    "bulk_actions": {
+      "activate_selected": "Activate Selected",
+      "deactivate_selected": "Deactivate Selected",
+      "delete_selected": "Delete Selected"
+    },
+    "confirmations": {
+      "delete_user": "Are you sure you want to delete this user? This action cannot be undone.",
+      "delete_success": "User deleted",
+      "delete_failed": "Delete failed",
+      "delete_error": "Failed to delete user",
+      "failed_to_update_status": "Failed to update user status"
+    },
+    "actions": {
+      "export_users": "Export Users",
+      "view_profile": "View Profile",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "delete": "Delete",
+      "default_role": "USER"
+    },
+    "descriptions": {
+      "active_last_15_min": "Active in last 15 minutes",
+      "active_last_24_hours": "Active in last 24 hours"
+    },
+    "errors": {
+      "generic_error": "An error occurred while updating the user status. Please try again.",
+      "error_title": "Error"
+    },
+    "page_title": "User Management",
+    "page_description": "Manage all users in the system"
+  },
+  "user": {
+    "profile": "Profile",
+    "settings": "Settings",
+    "permissions": "Permissions",
+    "role": "Role",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "created_at": "Created At",
+    "updated_at": "Updated At",
+    "full_name": "Full Name",
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "phone": "Phone Number",
+    "email": "Email",
+    "email_address": "Email Address",
+    "generate_password": "Generate",
+    "username": "Username",
+    "password": "Password",
+    "user_role": "User Role",
+    "account_active": "Account Active",
+    "address": "Address",
+    "current_password": "Current Password",
+    "new_password": "New Password",
+    "confirm_new_password": "Confirm New Password",
+    "password_requirements": "Password requirements",
+    "email_notifications": "Email Notifications",
+    "sms_notifications": "SMS Notifications",
+    "marketing_emails": "Marketing Emails",
+    "roles": {
+      "user": "User",
+      "manager": "Manager",
+      "admin": "Admin",
+      "super_admin": "Super Admin"
+    },
+    "password_strength": {
+      "title": "Password strength",
+      "very_weak": "Very Weak",
+      "weak": "Weak",
+      "medium": "Medium",
+      "strong": "Strong",
+      "very_strong": "Very Strong"
+    }
+  },
+  "roles": {
+    "create_role": "Create Role",
+    "edit_role": "Edit Role",
+    "edit_role_description": "Update role information and permissions",
+    "edit_role_subtitle": "Update role permissions and settings",
+    "delete_role": "Delete Role",
+    "role_list": "Role List",
+    "no_roles_found": "No roles found",
+    "no_roles_description": "Get started by creating your first role.",
+    "search_placeholder": "Search roles...",
+    "create_role_description": "Create a new role with specific permissions and settings.",
+    "quick_add_permissions": "Quick Add Permissions",
+    "quick_add_users": "Quick Add Users",
+    "add_permissions_to_role": "Add permissions to role: {{roleName}}",
+    "add_users_to_role": "Add users to role: {{roleName}}",
+    "users_added_successfully": "Successfully added {{added}} user(s) to role. {{skipped}} user(s) were skipped.",
+    "role_deleted_successfully": "Role deleted successfully",
+    "failed_to_delete_role": "Failed to delete role",
+    "role_status_updated": "Role status updated successfully",
+    "failed_to_update_role_status": "Failed to update role status",
+    "role_duplicated_successfully": "Role duplicated successfully",
+    "failed_to_duplicate_role": "Failed to duplicate role",
+    "delete_role_confirmation": "Are you sure you want to delete the role \"{{roleName}}\"? This action cannot be undone.",
+    "permissions_added_successfully": "Permissions added successfully",
+    "role_management": "Role Management",
+    "manage_roles_description": "Manage system roles and access controls",
+    "role_information": "Role Information",
+    "role_information_description": "Define the role details and permissions",
+    "back_to_roles": "Back to Roles",
+    "statistics": {
+      "total_roles": "Total Roles",
+      "active_roles": "Active Roles",
+      "inactive_roles": "Inactive Roles",
+      "default_roles": "Default Roles"
+    },
+    "cannot_delete_role_with_users": "Cannot delete role. It is assigned to {{count}} user(s). Remove all users first."
+  },
+  "role": {
+    "name": "Role Name",
+    "code": "Code",
+    "description": "Description",
+    "permissions": "Permissions",
+    "users": "Users",
+    "is_active": "Active",
+    "is_default": "Default Role",
+    "created_at": "Created At",
+    "updated_at": "Updated At",
+    "permission_count": "Permission Count",
+    "user_count": "User Count"
+  },
+  "permissions": {
+    "create_permission": "Create Permission",
+    "edit_permission": "Edit Permission",
+    "delete_permission": "Delete Permission",
+    "permission_list": "Permission List",
+    "no_permissions_found": "No permissions found",
+    "no_permissions_description": "Get started by creating your first permission.",
+    "search_placeholder": "Search permissions...",
+    "create_new_permission": "Create New Permission",
+    "create_permission_description": "Define a new system permission for access control",
+    "permission_management": "Permission Management",
+    "manage_permissions_description": "Manage system permissions and access controls",
+    "edit_permission_description": "Update permission information and settings",
+    "edit_permission_subtitle": "Update permission details and settings",
+    "permission_information": "Permission Information",
+    "permission_information_description": "Define the permission details and access level",
+    "back_to_permissions": "Back to Permissions",
+    "search_permissions": "Search permissions...",
+    "no_permissions_available": "No permissions are available",
+    "no_permissions_match_filter": "No permissions match your current filter",
+    "selected_count": "{{count}} permission(s) selected",
+    "currently_assigned": "Currently Assigned",
+    "total_selected": "Total permissions: {{count}}",
+    "to_add_count": "{{count}} permission(s) to add",
+    "to_remove_count": "{{count}} permission(s) to remove",
+    "existing_count": "{{count}} permission(s) already assigned",
+    "update_permissions": "Update Permissions",
+    "statistics": {
+      "total_permissions": "Total Permissions",
+      "active_permissions": "Active Permissions",
+      "inactive_permissions": "Inactive Permissions",
+      "resources": "Resources"
+    },
+    "names": {
+      "CREATE:OWN:user": "Create Own User Profile",
+      "READ:OWN:user": "View Own User Profile",
+      "UPDATE:OWN:user": "Update Own User Profile",
+      "DELETE:OWN:user": "Delete Own User Profile",
+      "CREATE:ANY:user": "Create Any User",
+      "READ:ANY:user": "View Any User",
+      "UPDATE:ANY:user": "Update Any User",
+      "DELETE:ANY:user": "Delete Any User",
+      "CREATE:OWN:user-profile": "Create Own Profile",
+      "READ:OWN:user-profile": "View Own Profile",
+      "UPDATE:OWN:user-profile": "Update Own Profile",
+      "DELETE:OWN:user-profile": "Delete Own Profile",
+      "CREATE:ANY:user-profile": "Create Any User Profile",
+      "READ:ANY:user-profile": "View Any User Profile",
+      "UPDATE:ANY:user-profile": "Update Any User Profile",
+      "DELETE:ANY:user-profile": "Delete Any User Profile",
+      "CREATE:ANY:permission": "Create Permissions",
+      "READ:ANY:permission": "View Permissions",
+      "UPDATE:ANY:permission": "Update Permissions",
+      "DELETE:ANY:permission": "Delete Permissions",
+      "READ:ANY:role-permission": "View Role Permissions",
+      "CREATE:ANY:role-permission": "Assign Permissions to Roles",
+      "UPDATE:ANY:role-permission": "Update Role Permissions",
+      "DELETE:ANY:role-permission": "Remove Permissions from Roles",
+      "any.user": "Manage Any User",
+      "own.user": "Manage Own User Profile",
+      "any.user-profile": "Manage Any User Profile",
+      "own.user-profile": "Manage Own Profile",
+      "any.permission": "Manage Permissions",
+      "any.role-permission": "Manage Role Permissions"
+    }
+  },
+  "permission": {
+    "name": "Permission Name",
+    "resource": "Resource",
+    "action": "Action",
+    "scope": "Scope",
+    "description": "Description",
+    "is_active": "Active",
+    "created_at": "Created At",
+    "updated_at": "Updated At"
+  }
+}

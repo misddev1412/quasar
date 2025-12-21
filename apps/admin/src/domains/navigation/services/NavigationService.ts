@@ -47,6 +47,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import CloudQueueIcon from '@mui/icons-material/CloudQueue';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import BuildIcon from '@mui/icons-material/Build';
 
 export class NavigationService implements INavigationService {
   constructor(private translate: (key: string, fallback?: string) => string) {}
@@ -403,6 +404,11 @@ export class NavigationService implements INavigationService {
                 path: '/settings/admin-branding'
               },
               {
+                icon: React.createElement(BuildIcon),
+                label: t('navigation.maintenance_settings', 'Maintenance Mode'),
+                path: '/settings/maintenance'
+              },
+              {
                 icon: React.createElement(ShoppingCartIcon),
                 label: t('navigation.order_settings', 'Cài đặt đơn hàng'),
                 path: '/settings/orders'
@@ -534,7 +540,7 @@ export class NavigationService implements INavigationService {
              currentPath.startsWith('/notifications/event-flows/');
     }
 
-    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/orders', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats'];
+    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/maintenance', '/settings/orders', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats'];
     if (exactMatchPaths.includes(path)) {
       return currentPath === path;
     }

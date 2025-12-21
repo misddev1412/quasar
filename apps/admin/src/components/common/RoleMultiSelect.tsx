@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, ChevronDown, X, Users, Search, Shield, UserCheck } from 'lucide-react';
 import { trpc } from '../../utils/trpc';
+import { BASE_LABEL_CLASS } from './styles';
 
 interface Role {
   id: string;
@@ -98,7 +99,7 @@ export const RoleMultiSelect: React.FC<RoleMultiSelectProps> = ({
   return (
     <div className={`space-y-2 ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+        <label className={BASE_LABEL_CLASS}>
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>

@@ -2,6 +2,7 @@ import React from 'react';
 import { ChartTypeSelectorProps, ChartType } from '@admin/types/chart.types';
 import { BarChart3, LineChart, PieChart, AreaChart } from 'lucide-react';
 import { cn } from '@admin/lib/utils';
+import { BASE_LABEL_CLASS } from '../styles';
 
 const chartTypeConfig = {
   line: {
@@ -33,7 +34,7 @@ export const ChartTypeSelector: React.FC<ChartTypeSelectorProps> = ({
 }) => {
   return (
     <div className="flex flex-col space-y-2">
-      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+      <label className={BASE_LABEL_CLASS}>
         Chart Type
       </label>
       <div className="flex flex-wrap gap-2">

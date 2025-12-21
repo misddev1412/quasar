@@ -2,6 +2,7 @@ import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
 import { Product } from './product.entity';
+import { ProductSpecificationLabel } from './product-specification-label.entity';
 
 @Entity('product_specifications')
 export class ProductSpecification extends BaseEntity {
@@ -33,10 +34,26 @@ export class ProductSpecification extends BaseEntity {
   })
   sortOrder!: number;
 
+  @Expose()
+  @Column({
+    name: 'label_id',
+    type: 'uuid',
+    nullable: true,
+  })
+  labelId?: string;
+
   @ManyToOne(() => Product, (product) => product.specifications, {
     lazy: true,
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'product_id' })
   product!: Promise<Product>;
+
+  @ManyToOne(() => ProductSpecificationLabel, (label) => label.specifications, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    eager: true,
+  })
+  @JoinColumn({ name: 'label_id' })
+  label?: ProductSpecificationLabel | null;
 }

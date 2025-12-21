@@ -291,6 +291,12 @@ const ProductDetailPage: React.FC = () => {
                 </div>
               </div>
               <div className="p-6 space-y-4">
+                {product.shortDescription && (
+                  <div>
+                    <h3 className="font-medium text-gray-900 mb-2">{t('products.short_description', 'Short Description')}</h3>
+                    <p className="text-gray-600 whitespace-pre-wrap">{product.shortDescription}</p>
+                  </div>
+                )}
                 {product.description && (
                   <div>
                     <h3 className="font-medium text-gray-900 mb-2">{t('products.description', 'Description')}</h3>

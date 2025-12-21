@@ -755,6 +755,12 @@ export interface TableProps<T> {
   tableId?: string;
   /** Optional row-level props (e.g., drag and drop handlers) */
   rowProps?: (item: T, index: number) => React.HTMLAttributes<HTMLTableRowElement>;
+  /** Expanded row identifiers */
+  expandedRowIds?: Set<string | number>;
+  /** Renderer for expanded row content */
+  renderExpandedRow?: (item: T) => React.ReactNode;
+  /** Additional className for expanded row wrapper */
+  expandedRowClassName?: string;
 }
 
 /**
@@ -816,6 +822,9 @@ export function Table<T extends { id: string | number }>({
   showColumnVisibility = true,
   tableId,
   rowProps,
+  expandedRowIds,
+  renderExpandedRow,
+  expandedRowClassName,
 }: TableProps<T>) {
   const { t } = useTranslationWithBackend();
   // Refs and state
@@ -861,6 +870,10 @@ export function Table<T extends { id: string | number }>({
         return { cell: 'px-6 py-4', header: 'px-6 py-4' };
     }
   }, [density]);
+
+  const expandedRowColSpan = useMemo(() => {
+    return visibleColumnsFiltered.length + (isSelectable ? 1 : 0);
+  }, [visibleColumnsFiltered, isSelectable]);
 
   // Enhanced cell renderer with proper typing
   const renderCell = useCallback((item: T, column: Column<T>, index: number): React.ReactNode => {
@@ -1303,63 +1316,77 @@ export function Table<T extends { id: string | number }>({
               };
 
               return (
-                <tr
-                  key={item.id}
-                  {...restRowProps}
-                  onClick={handleRowClick}
-                  onKeyDown={handleRowKeyDown}
-                  onMouseEnter={handleRowMouseEnter}
-                  onMouseLeave={handleRowMouseLeave}
-                  tabIndex={additionalTabIndex ?? (onRowClick ? 0 : undefined)}
-                  className={clsx(getRowClassName(item), additionalRowClassName)}
-                  role={additionalRole ?? (onRowClick ? 'row button' : 'row')}
-                  aria-selected={selectedIds?.has(item.id)}
-                  aria-rowindex={index + 2} // +2 because header is row 1
-                >
-                {isSelectable && (
-                  <td className={clsx("relative w-12", densityClasses.cell)}>
-                    <div className="flex items-center justify-center">
-                      <input
-                        id={`checkbox-${item.id}`}
-                        type="checkbox"
-                        className="w-4 h-4 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 transition-colors duration-200"
-                        checked={selectedIds?.has(item.id) ?? false}
-                        onChange={(e) => handleRowSelect(item, e.target.checked)}
-                        onClick={(e) => e.stopPropagation()}
-                        aria-label={t('table.selection.select_row', {
-                          index: index + 1,
-                          name: typeof item.id === 'string' ? item.id : `Item ${item.id}`
-                        })}
-                      />
-                    </div>
-                  </td>
-                )}
-                {visibleColumnsFiltered.map((col, colIndex) => (
-                  <td
-                    key={`${item.id}-${col.id}-${colIndex}`}
-                    className={clsx(
-                      densityClasses.cell,
-                      'text-sm text-gray-900 dark:text-gray-100',
-                      colIndex === 0 && 'font-medium', // First column emphasis
-                      col.align === 'center' && 'text-center',
-                      col.align === 'right' && 'text-right',
-                      col.className
-                    )}
-                    style={{
-                      width: col.width,
-                      minWidth: col.minWidth,
-                    }}
+                <React.Fragment key={item.id}>
+                  <tr
+                    {...restRowProps}
+                    onClick={handleRowClick}
+                    onKeyDown={handleRowKeyDown}
+                    onMouseEnter={handleRowMouseEnter}
+                    onMouseLeave={handleRowMouseLeave}
+                    tabIndex={additionalTabIndex ?? (onRowClick ? 0 : undefined)}
+                    className={clsx(getRowClassName(item), additionalRowClassName)}
+                    role={additionalRole ?? (onRowClick ? 'row button' : 'row')}
+                    aria-selected={selectedIds?.has(item.id)}
+                    aria-rowindex={index + 2} // +2 because header is row 1
                   >
-                    <div className={clsx(
-                      "flex items-center",
-                      col.align === 'center' && 'justify-center',
-                      col.align === 'right' && 'justify-end'
-                    )}>
-                      {renderCell(item, col, index)}
-                    </div>
-                  </td>
-                ))}
-                </tr>
+                  {isSelectable && (
+                    <td className={clsx("relative w-12", densityClasses.cell)}>
+                      <div className="flex items-center justify-center">
+                        <input
+                          id={`checkbox-${item.id}`}
+                          type="checkbox"
+                          className="w-4 h-4 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 transition-colors duration-200"
+                          checked={selectedIds?.has(item.id) ?? false}
+                          onChange={(e) => handleRowSelect(item, e.target.checked)}
+                          onClick={(e) => e.stopPropagation()}
+                          aria-label={t('table.selection.select_row', {
+                            index: index + 1,
+                            name: typeof item.id === 'string' ? item.id : `Item ${item.id}`
+                          })}
+                        />
+                      </div>
+                    </td>
+                  )}
+                  {visibleColumnsFiltered.map((col, colIndex) => (
+                    <td
+                      key={`${item.id}-${col.id}-${colIndex}`}
+                      className={clsx(
+                        densityClasses.cell,
+                        'text-sm text-gray-900 dark:text-gray-100',
+                        colIndex === 0 && 'font-medium', // First column emphasis
+                        col.align === 'center' && 'text-center',
+                        col.align === 'right' && 'text-right',
+                        col.className
+                      )}
+                      style={{
+                        width: col.width,
+                        minWidth: col.minWidth,
+                      }}
+                    >
+                      <div className={clsx(
+                        "flex items-center",
+                        col.align === 'center' && 'justify-center',
+                        col.align === 'right' && 'justify-end'
+                      )}>
+                        {renderCell(item, col, index)}
+                      </div>
+                    </td>
+                  ))}
+                  </tr>
+                  {renderExpandedRow && expandedRowIds?.has(item.id) && (
+                    <tr
+                      className={clsx(
+                        'bg-gray-50/80 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-800',
+                        expandedRowClassName
+                      )}
+                      role="row"
+                    >
+                      <td colSpan={expandedRowColSpan} className="px-6 py-4">
+                        {renderExpandedRow(item)}
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               );
             })}
           </tbody>

@@ -5,3 +5,4 @@ export { ClientAddressBookRouter } from './address-book.router';
 export { ClientProductsRouter } from './products.router';
 export { ClientCategoriesRouter } from './categories.router';
 export { ClientNewsRouter } from './news.router';
+export { ClientBrandsRouter } from './brands.router';

@@ -4,6 +4,8 @@ import clsx from 'clsx';
 import { MediaManager } from './MediaManager';
 import { MediaEditModal } from './MediaEditModal';
 import { UploadService } from '../../utils/upload';
+import { BASE_LABEL_CLASS } from './styles';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 export enum MediaType {
   IMAGE = 'image',
@@ -60,6 +62,7 @@ export const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
   required = false,
   className = '',
 }) => {
+  const { t } = useTranslationWithBackend();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [media, setMedia] = useState<MediaItem[]>(Array.isArray(value) ? value : []);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -93,12 +96,12 @@ export const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
 
   const validateFile = (file: File): string | null => {
     if (file.size > maxSize * 1024 * 1024) {
-      return `File size must be less than ${maxSize}MB`;
+      return t('products.media_upload.file_size_error', { maxSize });
     }
 
     const mediaType = getMediaType(file);
     if (!allowedTypes.includes(mediaType)) {
-      return `File type ${mediaType} is not allowed`;
+      return t('products.media_upload.file_type_error', { mediaType });
     }
 
     return null;
@@ -325,7 +328,7 @@ export const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
   return (
     <div className={clsx('space-y-4', className)}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className={BASE_LABEL_CLASS}>
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -371,7 +374,7 @@ export const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
                   <div className="text-center text-white">
                     <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                     <div className="text-xs">
-                      {mediaItem.uploadProgress ? `${mediaItem.uploadProgress}%` : 'Uploading...'}
+                      {mediaItem.uploadProgress ? `${mediaItem.uploadProgress}%` : t('products.media_upload.uploading')}
                     </div>
                   </div>
                 </div>
@@ -381,7 +384,7 @@ export const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
                 <div className="absolute inset-0 bg-red-500 bg-opacity-75 flex items-center justify-center">
                   <div className="text-center text-white">
                     <X className="w-6 h-6 mx-auto mb-1" />
-                    <div className="text-xs">Upload Failed</div>
+                    <div className="text-xs">{t('products.media_upload.upload_failed')}</div>
                   </div>
                 </div>
               )}
@@ -394,7 +397,7 @@ export const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
                       type="button"
                       onClick={() => setEditingMedia(mediaItem)}
                       className="p-2 bg-white bg-opacity-80 rounded-full text-gray-700 hover:bg-opacity-100 transition-all"
-                      title="Edit media"
+                      title={t('products.media_upload.edit_media')}
                       disabled={mediaItem.uploadStatus === 'error'}
                     >
                       <Edit className="w-4 h-4" />
@@ -403,7 +406,7 @@ export const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
                       type="button"
                       onClick={() => handleRemoveMedia(index)}
                       className="p-2 bg-white bg-opacity-80 rounded-full text-red-600 hover:bg-opacity-100 transition-all"
-                      title="Remove media"
+                      title={t('products.media_upload.remove_media')}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -420,7 +423,7 @@ export const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
               {/* Primary Badge */}
               {mediaItem.isPrimary && (
                 <div className="absolute top-2 right-2 bg-primary-500 text-white text-xs px-2 py-1 rounded">
-                  Primary
+                  {t('products.media_upload.primary')}
                 </div>
               )}
 
@@ -443,7 +446,7 @@ export const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
                   onClick={() => setPrimary(index)}
                   className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white bg-opacity-80 rounded text-xs px-2 py-1 hover:bg-opacity-100"
                 >
-                  Set Primary
+                  {t('products.media_upload.set_primary')}
                 </button>
               )}
             </div>
@@ -484,7 +487,7 @@ export const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
               {isUploading ? (
                 <div className="flex items-center space-x-2">
                   <div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Uploading...</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{t('products.media_upload.uploading')}</span>
                 </div>
               ) : (
                 <>
@@ -495,8 +498,11 @@ export const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
                       : 'text-gray-600 dark:text-gray-400'
                   )}>
                     {isDragOver
-                      ? 'Drop files here to upload'
-                      : `Add up to ${maxItems - media.length} more ${maxItems - media.length === 1 ? 'file' : 'files'}`
+                      ? t('products.media_upload.drop_files_here')
+                      : t('products.media_upload.add_more_files', {
+                          count: maxItems - media.length,
+                          label: maxItems - media.length === 1 ? t('products.media_upload.file') : t('products.media_upload.files')
+                        })
                     }
                   </p>
 
@@ -508,7 +514,7 @@ export const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
                       className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Upload className="w-4 h-4" />
-                      Upload Files
+                      {t('products.media_upload.upload_files')}
                     </button>
 
                     <span className="text-gray-400">or</span>
@@ -520,12 +526,12 @@ export const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
                       className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 rounded-md hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Grid className="w-4 h-4" />
-                      Browse Gallery
+                      {t('products.media_upload.browse_gallery')}
                     </button>
                   </div>
 
                   <p className="text-xs text-gray-500 mt-3">
-                    Max {maxSize}MB per file • {allowedTypes.join(', ')} supported
+                    {t('products.media_upload.max_size_per_file', { maxSize, types: allowedTypes.join(', ') })}
                   </p>
                 </>
               )}
@@ -548,11 +554,11 @@ export const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
       {media.length > 0 && (
         <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
           <span>
-            {media.length} of {maxItems} files added
+            {t('products.media_upload.files_added', { count: media.length, max: maxItems })}
           </span>
           {media.length === maxItems && (
             <span className="text-amber-600 dark:text-amber-400">
-              Maximum files reached
+              {t('products.media_upload.maximum_files_reached')}
             </span>
           )}
         </div>
@@ -576,7 +582,7 @@ export const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
         multiple={true}
         accept={allowedTypes.includes(MediaType.IMAGE) ? 'image/*' : '*/*'}
         maxSize={maxSize}
-        title="Select Media for Product"
+        title={t('products.media_upload.select_media_for_product')}
       />
 
       {/* Edit Media Modal */}
@@ -585,7 +591,7 @@ export const ProductMediaUpload: React.FC<ProductMediaUploadProps> = ({
         isOpen={!!editingMedia}
         onClose={() => setEditingMedia(null)}
         onSave={handleMediaEdit}
-        title="Edit Media Details"
+        title={t('products.media_upload.edit_media_details')}
       />
     </div>
   );

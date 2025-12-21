@@ -1,0 +1,68 @@
+import { MigrationInterface, QueryRunner } from 'typeorm';
+
+export class AddBrandShowcaseSectionType1767000000000 implements MigrationInterface {
+  private readonly newSectionTypeValues = [
+    'hero_slider',
+    'featured_products',
+    'products_by_category',
+    'news',
+    'custom_html',
+    'banner',
+    'testimonials',
+    'cta',
+    'features',
+    'gallery',
+    'team',
+    'contact_form',
+    'video',
+    'stats',
+    'brand_showcase',
+  ];
+
+  private readonly previousSectionTypeValues = [
+    'hero_slider',
+    'featured_products',
+    'products_by_category',
+    'news',
+    'custom_html',
+    'banner',
+    'testimonials',
+    'cta',
+    'features',
+    'gallery',
+    'team',
+    'contact_form',
+    'video',
+    'stats',
+  ];
+
+  private formatEnum(values: string[]): string {
+    return values.map((value) => `'${value}'`).join(', ');
+  }
+
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
+      CREATE TYPE "section_type_enum_new" AS ENUM (${this.formatEnum(this.newSectionTypeValues)});
+    `);
+    await queryRunner.query(`
+      ALTER TABLE "sections"
+      ALTER COLUMN "type" TYPE "section_type_enum_new"
+      USING "type"::text::"section_type_enum_new";
+    `);
+    await queryRunner.query(`DROP TYPE "section_type_enum";`);
+    await queryRunner.query(`ALTER TYPE "section_type_enum_new" RENAME TO "section_type_enum";`);
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
+      CREATE TYPE "section_type_enum_old" AS ENUM (${this.formatEnum(this.previousSectionTypeValues)});
+    `);
+    await queryRunner.query(`
+      ALTER TABLE "sections"
+      ALTER COLUMN "type" TYPE "section_type_enum_old"
+      USING "type"::text::"section_type_enum_old";
+    `);
+    await queryRunner.query(`DROP TYPE "section_type_enum";`);
+    await queryRunner.query(`ALTER TYPE "section_type_enum_old" RENAME TO "section_type_enum";`);
+  }
+}

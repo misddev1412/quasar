@@ -397,6 +397,25 @@
           "title": "Hiệu suất nhanh",
           "description": "Được tối ưu hóa về tốc độ và trải nghiệm người dùng mượt mà."
         }
+      },
+      "video_section": {
+        "title": "Video nổi bật",
+        "description": "Xem những đoạn demo ngắn cho thấy Quasar giúp đội nhóm xây dựng trải nghiệm mua sắm hiện đại nhanh thế nào.",
+        "pagination_label": "Chuyển tới video {{index}}",
+        "videos": {
+          "overview": {
+            "title": "Làm quen với Quasar",
+            "description": "Cái nhìn tổng quan về giao diện mua sắm và bộ công cụ vận hành phía sau."
+          },
+          "components": {
+            "title": "Hệ thống thiết kế",
+            "description": "Trình diễn cách HeroUI và Tailwind phối hợp để tạo bố cục hấp dẫn chỉ trong vài phút."
+          },
+          "automation": {
+            "title": "Tự động hóa & phân tích",
+            "description": "Khám phá cách tự động hóa, báo cáo và AI giúp đội nhóm luôn dẫn đầu."
+          }
+        }
       }
     },
     "dashboard": {
@@ -1860,13 +1879,27 @@
     "video": {
       "title": "Hậu trường sản xuất",
       "subtitle": "Câu chuyện phía sau sản phẩm",
-      "description": "Kết hợp nội dung truyền cảm hứng với hành động mua hàng trực tiếp."
+      "description": "Kết hợp nội dung truyền cảm hứng với hành động mua hàng trực tiếp.",
+      "pagination_label": "Chuyển đến video {{index}}"
     },
     "stats": {
       "title": "Chứng minh bằng con số",
       "subtitle": "Những chỉ số khách hàng quan tâm",
       "description": "Trình bày quy mô fulfillment, tỷ lệ quay lại và mức độ hài lòng.",
       "untitled": "Chỉ số"
+    },
+    "brands": {
+      "title": "Brands that launch with you",
+      "subtitle": "Flagship partners & private labels",
+      "description": "Reinforce credibility by highlighting the manufacturers, designers, or local brands your storefront represents.",
+      "empty": "Brands will appear once the merchandising team assigns them to this section.",
+      "empty_custom": "Select specific brands in the admin to feature them here.",
+      "error_loading": "Unable to load brands right now.",
+      "visit": "Visit site",
+      "untitled": "Untitled brand",
+      "product_count": "{{count}} products",
+      "carousel_prev": "Scroll brands left",
+      "carousel_next": "Scroll brands right"
     },
     "gallery": {
       "title": "Lookbook nổi bật",

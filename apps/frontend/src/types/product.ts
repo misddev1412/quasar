@@ -3,6 +3,7 @@ export interface Product {
   name: string;
   slug: string;
   description?: string;
+  shortDescription?: string;
   price: number;
   compareAtPrice?: number | null;
   stock?: number;
@@ -38,6 +39,7 @@ export interface Product {
   hasVariants?: boolean;
   variantCount?: number;
   viewCount?: number;
+  translations?: ProductTranslation[];
 }
 
 export interface ProductSpecification {
@@ -45,6 +47,10 @@ export interface ProductSpecification {
   name: string;
   value: string;
   sortOrder?: number;
+  labelId?: string | null;
+  labelName?: string | null;
+  labelGroupName?: string | null;
+  labelGroupCode?: string | null;
 }
 
 export interface Attribute {
@@ -89,6 +95,18 @@ export interface ProductVariant {
   isActive: boolean;
   sortOrder: number;
   variantItems?: ProductVariantItem[];
+}
+
+export interface ProductTranslation {
+  id: string;
+  locale: string;
+  name?: string;
+  description?: string;
+  shortDescription?: string;
+  slug?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
 }
 
 export interface ProductMedia {

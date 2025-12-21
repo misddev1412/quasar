@@ -89,6 +89,10 @@ export interface ProductSpecification {
   name: string;
   value: string;
   sortOrder: number;
+  labelId?: string | null;
+  labelName?: string | null;
+  labelGroupName?: string | null;
+  labelGroupCode?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -112,6 +116,7 @@ export interface ProductSpecificationInput {
   name: string;
   value: string;
   sortOrder?: number;
+  labelId?: string | null;
 }
 
 export interface Warranty {
@@ -130,7 +135,9 @@ export interface Warranty {
 export interface Product {
   id: string;
   name: string;
+  slug?: string;
   description?: string;
+  shortDescription?: string;
   sku?: string;
   status: 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'DISCONTINUED';
   brandId?: string;
@@ -165,6 +172,20 @@ export interface Product {
   viewCount: number;
   createdAt: Date;
   updatedAt: Date;
+  translations?: ProductTranslation[];
+}
+
+export interface ProductTranslation {
+  id: string;
+  productId?: string;
+  locale: string;
+  name?: string;
+  description?: string;
+  shortDescription?: string;
+  slug?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
 }
 
 export interface ProductVariantItem {
@@ -339,7 +360,9 @@ export interface CreateCategoryFormData {
 
 export interface CreateProductFormData {
   name: string;
+  slug?: string;
   description?: string;
+  shortDescription?: string;
   sku?: string;
   status: 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'DISCONTINUED';
   brandId?: string;

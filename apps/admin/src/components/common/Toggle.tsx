@@ -1,5 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
+import { BASE_LABEL_CLASS } from './styles';
 
 interface ToggleProps {
   checked: boolean;
@@ -86,10 +87,8 @@ export const Toggle: React.FC<ToggleProps> = ({
             <label
               htmlFor={id}
               className={cn(
-                'text-sm font-medium cursor-pointer',
-                disabled
-                  ? 'text-gray-400 cursor-not-allowed'
-                  : 'text-gray-900 dark:text-gray-100'
+                BASE_LABEL_CLASS,
+                disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
               )}
               onClick={!disabled ? handleChange : undefined}
             >

@@ -139,7 +139,7 @@ export default async function RootPage({
   const sections = await fetchSections('home', locale);
   const orderedSections = [...sections].sort((a, b) => a.position - b.position);
 
-  const renderedSections = renderSections(orderedSections);
+  const renderedSections = await renderSections(orderedSections);
 
   return (
     <Layout>

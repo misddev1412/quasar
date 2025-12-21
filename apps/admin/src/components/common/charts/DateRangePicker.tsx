@@ -2,6 +2,7 @@ import React from 'react';
 import { DateRangePickerProps, TimePeriod } from '@admin/types/chart.types';
 import { cn } from '@admin/lib/utils';
 import { Calendar } from 'lucide-react';
+import { BASE_LABEL_CLASS } from '../styles';
 
 const periodOptions: { value: TimePeriod; label: string; description: string }[] = [
   { value: '7d', label: '7 Days', description: 'Last 7 days' },
@@ -52,7 +53,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
   return (
     <div className="flex flex-col space-y-3">
-      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+      <label className={BASE_LABEL_CLASS}>
         Time Period
       </label>
       
@@ -84,7 +85,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
       {period === 'custom' && (
         <div className="flex flex-col sm:flex-row gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
           <div className="flex flex-col space-y-1">
-            <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+            <label className={BASE_LABEL_CLASS}>
               Start Date
             </label>
             <div className="relative">
@@ -100,7 +101,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
           </div>
           
           <div className="flex flex-col space-y-1">
-            <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+            <label className={BASE_LABEL_CLASS}>
               End Date
             </label>
             <div className="relative">

@@ -1,0 +1,81 @@
+{
+  "navigation": {
+    "home": "Trang chủ",
+    "dashboard": "Bảng điều khiển",
+    "profile": "Hồ sơ",
+    "settings": "Cài đặt",
+    "help": "Trợ giúp",
+    "documentation": "Tài liệu",
+    "logout": "Đăng xuất",
+    "open_menu": "Mở menu điều hướng",
+    "overview": "Tổng quan",
+    "content_management": "Quản lý nội dung",
+    "communication": "Liên lạc",
+    "system": "Hệ thống",
+    "notifications": "Thông báo",
+    "messages": "Tin nhắn",
+    "quick_actions": "Thao tác nhanh",
+    "back_to_top": "Về đầu trang",
+    "firebase_configs": "Cấu hình Firebase",
+    "storage": "Cấu hình lưu trữ",
+    "general_settings": "Cài đặt chung",
+    "order_settings": "Cài đặt đơn hàng",
+    "maintenance_settings": "Chế độ bảo trì",
+    "order_settings_description": "Quản lý định dạng mã đơn hàng và các cấu hình liên quan",
+    "order_number_format_label": "Định dạng mã đơn hàng",
+    "order_number_format_hint": "Dùng các token {{YYYY}}, {{YY}}, {{MM}}, {{DD}}, {{SEQn}} để tạo mã đơn tự động.",
+    "order_format_saved": "Đã cập nhật định dạng mã đơn hàng.",
+    "order_format_save_failed": "Không thể lưu định dạng mã đơn hàng.",
+    "pattern": "Mẫu định dạng",
+    "require_sequence": "Bắt buộc kèm {{SEQn}} để tránh trùng lặp",
+    "live_preview": "Xem trước",
+    "preview_note": "Minh họa với ngày hôm nay và số thứ tự 1.",
+    "available_tokens": "Token khả dụng",
+    "tokens": {
+      "year_full": "Năm 4 chữ số",
+      "year_short": "Năm 2 chữ số",
+      "month": "Tháng 2 chữ số",
+      "day": "Ngày 2 chữ số",
+      "sequence": "Số thứ tự, pad 4",
+      "random": "Chuỗi ngẫu nhiên, mặc định 4 ký tự"
+    },
+    "sequence_warning": "Khuyến nghị thêm {{SEQn}} để đảm bảo mã không trùng.",
+    "settings_visibility": "Hiển thị cài đặt",
+    "platform_settings": "Thiết lập hệ thống"
+  },
+  "sidebar": {
+    "collapseSidebar": "Thu gọn thanh bên",
+    "expandSidebar": "Mở rộng thanh bên",
+    "switchToLightMode": "Chuyển sang chế độ sáng",
+    "switchToDarkMode": "Chuyển sang chế độ tối"
+  },
+  "header": {
+    "search": "Tìm kiếm...",
+    "toggleToHorizontal": "Chuyển sang điều hướng ngang",
+    "toggleToVertical": "Chuyển sang điều hướng dọc",
+    "documentation": "Tài liệu",
+    "help": "Trợ giúp",
+    "switchToLightMode": "Chuyển sang chế độ sáng",
+    "switchToDarkMode": "Chuyển sang chế độ tối",
+    "notifications": "Thông báo",
+    "userSettings": "Cài đặt người dùng"
+  },
+  "footer": {
+    "allRightsReserved": "Tất cả quyền được bảo lưu.",
+    "terms": "Điều khoản",
+    "privacy": "Riêng tư",
+    "help": "Trợ giúp"
+  },
+  "search": {
+    "search": "Tìm kiếm",
+    "searchPlaceholder": "Tìm kiếm...",
+    "noMatchingResults": "Không có kết quả phù hợp"
+  },
+  "userInfo": {
+    "notLoggedIn": "Chưa đăng nhập",
+    "profile": "Hồ sơ",
+    "settings": "Cài đặt",
+    "helpCenter": "Trung tâm trợ giúp",
+    "logout": "Đăng xuất"
+  }
+}

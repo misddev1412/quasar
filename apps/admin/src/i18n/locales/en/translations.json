@@ -1,0 +1,17 @@
+{
+  "translations": {
+    "table": {
+      "key": "Key",
+      "locale": "Locale",
+      "value": "Value",
+      "namespace": "Namespace",
+      "status": "Status",
+      "createdAt": "Created At"
+    },
+    "noTranslationsFound": "No translations found",
+    "stats": {
+      "active": "Active",
+      "total": "Total"
+    }
+  }
+}

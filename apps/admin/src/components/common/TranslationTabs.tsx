@@ -3,16 +3,19 @@ import { Button } from './Button';
 import { Input } from './Input';
 import { Card } from './Card';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { BASE_LABEL_CLASS } from './styles';
+import { RichTextEditor } from './RichTextEditor';
 
 interface TranslationField {
   name: string;
   label: string;
   value: string;
   onChange: (value: string) => void;
-  type?: 'text' | 'textarea' | 'slug';
+  type?: 'text' | 'textarea' | 'slug' | 'richtext';
   placeholder?: string;
   required?: boolean;
   rows?: number;
+  minHeight?: string;
   validation?: {
     maxLength?: number;
     minLength?: number;
@@ -20,9 +23,11 @@ interface TranslationField {
   description?: string;
 }
 
+type TranslationValue = string | undefined;
+
 interface TranslationTabsProps {
-  translations: Record<string, Record<string, string>>;
-  onTranslationsChange: (translations: Record<string, Record<string, string>>) => void;
+  translations: Record<string, Record<string, TranslationValue>>;
+  onTranslationsChange: (translations: Record<string, Record<string, TranslationValue>>) => void;
   fields: TranslationField[];
   entityName?: string; // Name of the entity being translated (e.g., "Color Attribute")
   supportedLocales?: Array<{
@@ -48,10 +53,11 @@ export const TranslationTabs: React.FC<TranslationTabsProps> = ({
   const [activeLocale, setActiveLocale] = useState(supportedLocales[0].code);
 
   const handleTranslationChange = (locale: string, field: string, value: string) => {
+    const localeTranslations = translations[locale] || {};
     const updatedTranslations = {
       ...translations,
       [locale]: {
-        ...translations[locale],
+        ...localeTranslations,
         [field]: value,
       },
     };
@@ -96,12 +102,19 @@ export const TranslationTabs: React.FC<TranslationTabsProps> = ({
           
           {fields.map((field) => (
             <div key={field.name} className="space-y-2">
-              <label className="text-sm font-medium">
+              <label className={BASE_LABEL_CLASS}>
                 {field.label}
                 {field.required && <span className="text-red-500 ml-1">*</span>}
               </label>
               
-              {field.type === 'textarea' ? (
+              {field.type === 'richtext' ? (
+                <RichTextEditor
+                  value={getFieldValue(activeLocale, field.name)}
+                  onChange={(value) => handleTranslationChange(activeLocale, field.name, value)}
+                  placeholder={field.placeholder}
+                  minHeight={field.minHeight || '240px'}
+                />
+              ) : field.type === 'textarea' ? (
                 <textarea
                   value={getFieldValue(activeLocale, field.name)}
                   onChange={(e) => handleTranslationChange(activeLocale, field.name, e.target.value)}

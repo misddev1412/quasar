@@ -1,0 +1,206 @@
+{
+  "payment_methods": {
+    "title": "Phương Thức Thanh Toán",
+    "description": "Quản lý các phương thức thanh toán cho khách hàng"
+  },
+  "payment_method": "Phương Thức Thanh Toán",
+  "payment_information": "Thông Tin Thanh Toán",
+  "payment_reference": "Mã Tham Chiếu Thanh Toán",
+  "transactions": {
+    "title": "Giao dịch",
+    "description": "Theo dõi và quản lý giao dịch tài chính của khách hàng",
+    "page_title": "Giao dịch",
+    "page_subtitle": "Toàn cảnh ghi nhận các khoản thu và chi của khách hàng.",
+    "actions": {
+      "filters": "Bộ lọc",
+      "refresh": "Làm mới",
+      "record": "Tạo giao dịch",
+      "select_customer": "Chọn khách hàng",
+      "change_customer": "Đổi khách hàng",
+      "select_order": "Chọn đơn hàng",
+      "change_order": "Đổi đơn hàng"
+    },
+    "notifications": {
+      "create_success_title": "Đã ghi nhận giao dịch",
+      "create_success_message": "Giao dịch đã được tạo thành công.",
+      "create_error_title": "Không thể ghi nhận giao dịch",
+      "create_error_message": "Vui lòng kiểm tra lại thông tin và thử lại."
+    },
+    "filters": {
+      "title": "Bộ lọc",
+      "status": "Trạng thái",
+      "all_statuses": "Tất cả trạng thái",
+      "type": "Loại giao dịch",
+      "all_types": "Tất cả loại",
+      "direction": "Chiều giao dịch",
+      "all_directions": "Tất cả",
+      "currency": "Tiền tệ",
+      "customer_id": "Mã khách hàng",
+      "customer_id_placeholder": "Tìm theo mã khách hàng",
+      "min_amount": "Số tiền tối thiểu",
+      "max_amount": "Số tiền tối đa",
+      "date_from": "Từ ngày",
+      "date_to": "Đến ngày"
+    },
+    "status": {
+      "pending": "Chờ xử lý",
+      "processing": "Đang xử lý",
+      "completed": "Hoàn tất",
+      "failed": "Thất bại",
+      "cancelled": "Đã hủy"
+    },
+    "types": {
+      "order_payment": "Thanh toán đơn hàng",
+      "refund": "Hoàn tiền",
+      "wallet_topup": "Nạp ví",
+      "withdrawal": "Rút tiền",
+      "adjustment": "Điều chỉnh",
+      "subscription": "Gia hạn gói"
+    },
+    "directions": {
+      "credit": "Ghi có",
+      "debit": "Ghi nợ"
+    },
+    "table": {
+      "transaction": "Giao dịch",
+      "reference": "Tham chiếu",
+      "customer": "Khách hàng",
+      "unknown_customer": "Không xác định",
+      "amount": "Số tiền",
+      "status": "Trạng thái",
+      "type": "Loại",
+      "created_at": "Thời gian tạo",
+      "order": "Đơn hàng",
+      "view_order": "Xem đơn hàng",
+      "no_order": "—"
+    },
+    "stats": {
+      "total_volume": "Dòng tiền ròng",
+      "total_inflow": "Tổng tiền vào",
+      "total_outflow": "Tổng tiền ra",
+      "unique_customers": "Khách hàng duy nhất"
+    },
+    "modal": {
+      "title": "Ghi nhận giao dịch",
+      "description": "Thêm thủ công giao dịch ghi có hoặc ghi nợ cho khách hàng."
+    },
+    "fields": {
+      "customer_id": "Mã khách hàng",
+      "amount": "Số tiền",
+      "currency": "Tiền tệ",
+      "type": "Loại",
+      "direction": "Chiều giao dịch",
+      "status": "Trạng thái",
+      "description": "Mô tả",
+      "description_placeholder": "Ghi chú bổ sung...",
+      "related_order": "Đơn hàng liên quan (không bắt buộc)",
+      "related_order_placeholder": "Nhập ID đơn hàng để liên kết thanh toán",
+      "related_order_helper": "Nếu nhập, giao dịch sẽ được gắn với đơn hàng này.",
+      "type_locked": "Giao dịch liên kết đơn hàng luôn được ghi nhận là Thanh toán đơn hàng.",
+      "customer_locked_by_order": "Khách hàng sẽ cố định theo đơn hàng đã chọn."
+    },
+    "order_modal": {
+      "title": "Liên kết đơn hàng",
+      "description": "Tìm kiếm đơn hàng có sẵn và gắn với giao dịch này.",
+      "search_placeholder": "Tìm theo số đơn, email hoặc khách hàng",
+      "loading": "Đang tải danh sách đơn hàng...",
+      "empty_title": "Không có đơn hàng phù hợp",
+      "empty_description": "Hãy đổi từ khóa tìm kiếm và thử lại.",
+      "select": "Chọn",
+      "filter_all": "Tất cả đơn hàng",
+      "filter_pending": "Chờ thanh toán",
+      "filter_paid": "Đã thanh toán",
+      "items_label": "Đơn hàng",
+      "amount_label": "Số tiền",
+      "created_label": "Ngày tạo",
+      "amount_placeholder": "—",
+      "customer_missing_title": "Không tìm thấy khách hàng",
+      "customer_missing_description": "Đơn hàng này chưa được gắn với khách hàng nào."
+    },
+    "validation": {
+      "customer_id": "Vui lòng nhập mã khách hàng",
+      "amount": "Số tiền phải lớn hơn 0"
+    },
+    "errors": {
+      "load_failed": "Không thể tải danh sách giao dịch"
+    },
+    "empty_state": "Không có giao dịch phù hợp với bộ lọc hiện tại"
+  },
+  "bank_transfer": "Chuyển Khoản Ngân Hàng",
+  "currencies": {
+    "currencies": "Tiền tệ",
+    "currency": "Tiền tệ",
+    "create": "Tạo tiền tệ",
+    "createDescription": "Thêm một loại tiền tệ mới vào hệ thống",
+    "createSuccess": "Tạo tiền tệ thành công",
+    "createSuccessDescription": "Tiền tệ mới đã sẵn sàng sử dụng.",
+    "createError": "Không thể tạo tiền tệ",
+    "createErrorDescription": "Đã xảy ra lỗi khi tạo tiền tệ.",
+    "edit": "Chỉnh sửa tiền tệ",
+    "editDescription": "Cập nhật thông tin tiền tệ",
+    "updateSuccess": "Cập nhật tiền tệ thành công",
+    "updateSuccessDescription": "Tiền tệ đã được cập nhật.",
+    "updateError": "Không thể cập nhật tiền tệ",
+    "updateErrorDescription": "Đã xảy ra lỗi khi cập nhật tiền tệ.",
+    "fetchError": "Lỗi tải tiền tệ",
+    "fetchErrorDescription": "Không thể tải dữ liệu tiền tệ",
+    "notFound": "Không tìm thấy tiền tệ",
+    "notFoundDescription": "Tiền tệ bạn muốn chỉnh sửa không tồn tại",
+    "backToList": "Quay lại danh sách tiền tệ",
+    "deleteSuccess": "Xóa tiền tệ thành công",
+    "deleteError": "Không thể xóa tiền tệ",
+    "statusUpdateSuccess": "Cập nhật trạng thái tiền tệ thành công",
+    "statusUpdateError": "Không thể cập nhật trạng thái tiền tệ",
+    "setDefaultSuccess": "Đã cập nhật tiền tệ mặc định",
+    "setDefaultError": "Không thể đặt tiền tệ mặc định",
+    "setAsDefault": "Đặt làm mặc định",
+    "default": "Mặc định",
+    "search": "Tìm kiếm",
+    "searchPlaceholder": "Tìm kiếm tiền tệ...",
+    "status": "Trạng thái",
+    "filterTitle": "Bộ lọc tiền tệ",
+    "noCurrenciesFound": "Không tìm thấy tiền tệ nào",
+    "confirmDelete": "Xóa tiền tệ",
+    "confirmDeleteDescription": "Bạn có chắc muốn xóa \"{name}\"? Hành động này không thể hoàn tác.",
+    "stats": {
+      "total": "Tổng số tiền tệ",
+      "active": "Tiền tệ đang hoạt động",
+      "inactive": "Tiền tệ không hoạt động",
+      "hasDefault": "Có tiền tệ mặc định"
+    },
+    "table": {
+      "currency": "Tiền tệ",
+      "status": "Trạng thái",
+      "exchangeRate": "Tỷ giá",
+      "exchangeRateLabel": "Tỷ giá",
+      "format": "Định dạng",
+      "createdAt": "Ngày tạo"
+    },
+    "code": "Mã tiền tệ",
+    "name": "Tên tiền tệ",
+    "symbol": "Ký hiệu",
+    "exchangeRate": "Tỷ giá",
+    "decimalPlaces": "Số chữ số thập phân",
+    "format": "Định dạng",
+    "isActive": "Hoạt động",
+    "isDefault": "Mặc định",
+    "form": {
+      "basic_information_description": "Nhập các thông tin cơ bản cho loại tiền tệ này.",
+      "code_placeholder": "Nhập mã tiền tệ (ví dụ: USD)",
+      "code_description": "Ba ký tự viết hoa xác định loại tiền tệ.",
+      "name_placeholder": "Nhập tên tiền tệ",
+      "symbol_placeholder": "Nhập ký hiệu (ví dụ: $)",
+      "symbol_description": "Ký hiệu hiển thị trước hoặc sau số tiền.",
+      "exchangeRate_placeholder": "Nhập tỷ giá",
+      "exchangeRate_description": "Giá trị quy đổi so với tiền tệ mặc định.",
+      "display_settings_description": "Thiết lập cách hiển thị số tiền.",
+      "decimalPlaces_placeholder": "Chọn số chữ số thập phân",
+      "decimalPlaces_description": "Số lượng chữ số sau dấu thập phân.",
+      "format_placeholder": "Nhập mẫu định dạng (ví dụ: {symbol}{amount})",
+      "format_description": "Mẫu được dùng để hiển thị số tiền.",
+      "status_settings_description": "Quản lý khả năng sử dụng và trạng thái mặc định.",
+      "isActive_description": "Khi bật, tiền tệ này có thể được sử dụng trên toàn hệ thống.",
+      "isDefault_description": "Đặt làm tiền tệ mặc định cho việc định giá và quy đổi."
+    }
+  }
+}

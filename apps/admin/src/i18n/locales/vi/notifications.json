@@ -1,0 +1,87 @@
+{
+  "notificationPreferences": {
+    "title": "Tùy chọn thông báo",
+    "subtitle": "Tùy chỉnh cách thức và thời điểm nhận thông báo",
+    "userRequired": "Vui lòng đăng nhập để quản lý tùy chọn thông báo của bạn",
+    "signInRequired": "Yêu cầu đăng nhập",
+    "saved": "Đã lưu tùy chọn",
+    "savedDescription": "Tùy chọn thông báo của bạn đã được cập nhật thành công.",
+    "reset": "Đã đặt lại tùy chọn",
+    "resetDescription": "Tùy chọn thông báo của bạn đã được đặt lại về mặc định.",
+    "lastSaved": "Lần lưu cuối lúc"
+  },
+  "notifications_page": {
+    "title": "Thông báo",
+    "description": "Quản lý và gửi thông báo tới người dùng",
+    "actions": {
+      "send": "Gửi thông báo"
+    },
+    "stats": {
+      "total": "Tổng số thông báo",
+      "unread": "Chưa đọc",
+      "sent_today": "Đã gửi hôm nay",
+      "failed": "Thất bại"
+    },
+    "table": {
+      "title": "Tiêu đề",
+      "type": "Loại",
+      "user": "Người dùng",
+      "status": "Trạng thái",
+      "created": "Tạo lúc",
+      "actions": "Hành động",
+      "read": "Đã đọc",
+      "unread": "Chưa đọc",
+      "mark_as_read": "Đánh dấu đã đọc"
+    },
+    "types": {
+      "info": "Thông tin",
+      "success": "Thành công",
+      "warning": "Cảnh báo",
+      "error": "Lỗi",
+      "product": "Sản phẩm",
+      "order": "Đơn hàng",
+      "system": "Hệ thống",
+      "user": "Người dùng"
+    },
+    "dialog": {
+      "title": "Gửi thông báo",
+      "type_label": "Hình thức thông báo",
+      "single": "Một người dùng",
+      "bulk": "Nhiều người dùng",
+      "topic": "Thông báo theo chủ đề",
+      "message_title": "Tiêu đề",
+      "message_body": "Nội dung",
+      "category": "Phân loại",
+      "event": "Sự kiện",
+      "action_url": "URL hành động (tuỳ chọn)",
+      "action_url_placeholder": "https://example.com/action",
+      "user_ids": "ID người dùng hoặc email",
+      "user_ids_placeholder": "user1@example.com, user2@example.com",
+      "user_ids_help": "Ngăn cách nhiều người bằng dấu phẩy",
+      "topic_name": "Tên chủ đề",
+      "topic_placeholder": "all-users",
+      "send": "Gửi thông báo",
+      "sending": "Đang gửi..."
+    },
+    "events": {
+      "custom_manual": "Tuỳ chỉnh / Thủ công",
+      "user_registered": "Người dùng đăng ký",
+      "user_verified": "Người dùng xác minh",
+      "order_created": "Đơn hàng được tạo",
+      "order_shipped": "Đơn hàng đã giao đi",
+      "system_announcement": "Thông báo hệ thống",
+      "marketing_campaign": "Chiến dịch marketing"
+    },
+    "feedback": {
+      "send_success": "Gửi thông báo thành công",
+      "send_bulk_success": "Gửi thông báo hàng loạt thành công",
+      "send_topic_success": "Gửi thông báo theo chủ đề thành công",
+      "send_error": "Gửi thông báo thất bại: {{message}}",
+      "send_bulk_error": "Gửi thông báo hàng loạt thất bại: {{message}}",
+      "send_topic_error": "Gửi thông báo theo chủ đề thất bại: {{message}}",
+      "mark_read_error": "Không thể đánh dấu đã đọc: {{message}}",
+      "delete_success": "Xoá thông báo thành công",
+      "delete_error": "Xoá thông báo thất bại: {{message}}"
+    }
+  }
+}

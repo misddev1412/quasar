@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '../../utils/cn';
 import { InputWithIcon } from './InputWithIcon';
+import { BASE_LABEL_CLASS } from './styles';
 
 const TRANSPARENT_COLOR = 'transparent';
 
@@ -85,7 +86,7 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
   return (
     <div className={cn('space-y-1', className)}>
       {label && (
-        <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        <label className={BASE_LABEL_CLASS}>
           {label}
         </label>
       )}
@@ -154,7 +155,7 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
             style={{ minWidth: '280px' }}
           >
             <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-2">
+              <label className={`${BASE_LABEL_CLASS} mb-2`}>
                 Preset Colors
               </label>
               <div className="grid grid-cols-6 gap-2">
@@ -190,7 +191,7 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
             </div>
 
             <div className="mb-3">
-              <label className="block text-xs font-medium text-gray-700 mb-2">
+              <label className={`${BASE_LABEL_CLASS} mb-2`}>
                 Custom Color
               </label>
               <div className="space-y-2">

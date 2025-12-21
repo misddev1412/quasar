@@ -549,7 +549,7 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                     type="number"
                     min="0"
                     step="0.01"
-                    placeholder="0.00"
+                    placeholder={t('products.placeholders.price', '0.00')}
                     className="w-32"
                   />
                 </div>
@@ -564,7 +564,7 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                     label=""
                     type="number"
                     min="0"
-                    placeholder="0"
+                    placeholder={t('products.placeholders.quantity', '0')}
                     className="w-32"
                   />
                 </div>
@@ -680,7 +680,7 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                             const sanitizedValue = sanitizeNumberInputEvent(e);
                             updateVariant(index, 'price', parseFloat(sanitizedValue) || 0);
                           }}
-                          placeholder="0.00"
+                          placeholder={t('products.placeholders.price', '0.00')}
                           className="w-24"
                           disabled={!variant.isEnabled}
                         />
@@ -697,7 +697,7 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                             const sanitizedValue = sanitizeNumberInputEvent(e);
                             updateVariant(index, 'quantity', parseInt(sanitizedValue) || 0);
                           }}
-                          placeholder="0"
+                          placeholder={t('products.placeholders.quantity', '0')}
                           className="w-20"
                           disabled={!variant.isEnabled}
                         />
@@ -709,7 +709,7 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                           type="text"
                           value={variant.sku || ''}
                           onChange={(e) => updateVariant(index, 'sku', e.target.value)}
-                          placeholder="Optional"
+                          placeholder={t('products.placeholders.sku_optional', 'Optional')}
                           className="w-32"
                           disabled={!variant.isEnabled}
                         />

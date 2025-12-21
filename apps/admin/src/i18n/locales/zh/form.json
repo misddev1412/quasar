@@ -1,0 +1,153 @@
+{
+  "form": {
+    "placeholders": {
+      "enter_title": "输入标题...",
+      "select_language": "选择语言",
+      "select_status": "选择状态",
+      "select_type": "选择类型",
+      "add_tags": "输入并按Enter或逗号添加标签..."
+    },
+    "descriptions": {
+      "post_language_description": "选择此帖子的主要语言",
+      "slug_requirements": "仅使用小写字母、数字和连字符",
+      "featured_image_description": "此帖子的精选图片URL",
+      "featured_post_description": "将此帖子标记为精选以突出显示",
+      "allow_comments_description": "允许用户对此帖子发表评论",
+      "meta_title_description": "搜索引擎的自定义标题（推荐：50-60个字符）",
+      "meta_description_description": "搜索结果的简短描述（推荐：150-160个字符）",
+      "meta_keywords_description": "搜索引擎的关键词，用标签分隔"
+    },
+    "sections": {
+      "post_settings_description": "配置帖子可见性、类型和发布设置",
+      "seo_description": "优化您的帖子以适应搜索引擎",
+      "tracking_configuration": "跟踪配置",
+      "api_configuration": "API配置",
+      "status_settings": "状态设置"
+    },
+    "tabs": {
+      "configuration": "配置"
+    }
+  },
+  "validation": {
+    "required": "此字段为必填项",
+    "email_invalid": "请输入有效的电子邮箱地址",
+    "username_min_length": "用户名至少需要3个字符",
+    "username_max_length": "用户名不得超过50个字符",
+    "username_invalid_chars": "用户名只能包含字母、数字、下划线和连字符",
+    "password_min_length": "密码至少需要8个字符",
+    "password_requirements": "密码必须包含至少一个大写字母、一个小写字母和一个数字",
+    "first_name_min_length": "名至少需要2个字符",
+    "first_name_max_length": "名不得超过50个字符",
+    "last_name_min_length": "姓至少需要2个字符",
+    "last_name_max_length": "姓不得超过50个字符",
+    "phone_invalid": "请输入有效的电话号码",
+    "passwords_not_match": "密码不匹配",
+    "password_one_lowercase": "必须包含至少一个小写字母",
+    "password_one_uppercase": "必须包含至少一个大写字母",
+    "password_one_number": "必须包含至少一个数字",
+    "password_one_special": "必须包含至少一个特殊字符",
+    "invalid_value": "无效值"
+  },
+  "filters": {
+    "quick_filters": {
+      "title": "快速筛选器",
+      "registration_date_title": "注册日期筛选器",
+      "subtitle": "按注册日期和其他条件筛选用户",
+      "date_subtitle": "快速访问常见注册日期范围"
+    },
+    "categories": {
+      "current_period": "当前期间",
+      "recent_period": "最近期间",
+      "user_status": "用户状态",
+      "user_roles": "用户角色",
+      "email_verification": "邮箱验证"
+    },
+    "date": {
+      "today": "今天",
+      "this_week": "本周",
+      "this_month": "本月",
+      "last_7_days": "过去7天",
+      "last_30_days": "过去30天",
+      "last_90_days": "过去90天",
+      "last_year": "去年"
+    },
+    "status": {
+      "active": "活跃用户",
+      "inactive": "非活跃用户",
+      "all": "所有用户"
+    },
+    "roles": {
+      "super_admin": "超级管理员",
+      "admin": "管理员",
+      "manager": "经理",
+      "user": "普通用户",
+      "guest": "访客"
+    },
+    "verification": {
+      "verified": "邮箱已验证",
+      "unverified": "邮箱未验证",
+      "pending": "验证待处理"
+    }
+  },
+  "table": {
+    "search_placeholder": "搜索...",
+    "no_data": "无可用数据",
+    "loading": "加载表格数据中...",
+    "empty_state": {
+      "title": "未找到数据",
+      "message": "无可用数据"
+    },
+    "pagination": {
+      "per_page_10": "每页10条",
+      "per_page_20": "每页20条",
+      "per_page_25": "每页25条",
+      "per_page_50": "每页50条",
+      "per_page_100": "每页100条",
+      "show": "显示",
+      "showing": "显示",
+      "to": "至",
+      "of": "共",
+      "results": "结果",
+      "previous": "上一页",
+      "next": "下一页",
+      "first": "第一页",
+      "last": "最后一页",
+      "page": "页",
+      "go_to_page": "转到第{page}页",
+      "go_to_previous_page": "转到上一页",
+      "go_to_next_page": "转到下一页"
+    },
+    "selection": {
+      "select_all": "选择此页面上的所有{count}行",
+      "all_rows_selected": "已选择所有行",
+      "some_rows_selected": "已选择部分行",
+      "no_rows_selected": "未选择行",
+      "select_row": "选择第{index}行：{name}"
+    },
+    "sorting": {
+      "sort_by": "按{column}排序",
+      "sorted_ascending": "升序排序",
+      "sorted_descending": "降序排序",
+      "sort_ascending": "升序排序",
+      "sort_descending": "降序排序"
+    },
+    "toolbar": {
+      "search": "搜索表格数据",
+      "filter": "筛选",
+      "open_filters": "打开筛选器",
+      "close_filters": "关闭筛选器",
+      "columns": "列",
+      "toggle_column_visibility": "切换列可见性"
+    },
+    "density": {
+      "compact": "紧凑",
+      "normal": "正常",
+      "comfortable": "舒适"
+    },
+    "accessibility": {
+      "table_region": "数据表",
+      "loading_table": "加载表格数据中",
+      "table_pagination": "表格分页"
+    }
+  }
+}

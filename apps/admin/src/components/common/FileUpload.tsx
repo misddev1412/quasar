@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { BASE_LABEL_CLASS } from './styles';
 
 interface FileUploadProps {
   id?: string;
@@ -109,7 +110,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   return (
     <div className={`space-y-2 ${className}`}>
       {label && (
-        <label htmlFor={id} className="block text-sm font-medium text-neutral-800 dark:text-neutral-200">
+        <label htmlFor={id} className={BASE_LABEL_CLASS}>
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>

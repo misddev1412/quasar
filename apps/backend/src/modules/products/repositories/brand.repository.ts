@@ -25,6 +25,13 @@ export interface BrandFindManyOptions {
   sortOrder?: 'ASC' | 'DESC';
 }
 
+export interface PublicBrandQueryOptions {
+  limit?: number;
+  strategy?: 'newest' | 'alphabetical' | 'custom';
+  brandIds?: string[];
+  locale?: string | null;
+}
+
 @Injectable()
 export class BrandRepository {
   constructor(
@@ -193,6 +200,88 @@ export class BrandRepository {
   async delete(id: string): Promise<boolean> {
     const result = await this.brandRepository.delete(id);
     return result.affected > 0;
+  }
+
+  async findPublicBrands(options: PublicBrandQueryOptions = {}) {
+    const {
+      limit = 12,
+      strategy = 'newest',
+      brandIds,
+      locale,
+    } = options;
+
+    const queryBuilder = this.brandRepository.createQueryBuilder('brand')
+      .distinct(true)
+      .leftJoinAndSelect('brand.translations', 'translations')
+      .loadRelationCountAndMap('brand._productCount', 'brand.products')
+      .where('brand.is_active = :isActive', { isActive: true });
+
+    const normalizedBrandIds = Array.isArray(brandIds) ? brandIds.filter(Boolean) : [];
+    const useCustomOrder = strategy === 'custom' && normalizedBrandIds.length > 0;
+
+    if (useCustomOrder) {
+      queryBuilder.andWhere('brand.id IN (:...brandIds)', { brandIds: normalizedBrandIds });
+    }
+
+    if (!useCustomOrder) {
+      if (strategy === 'alphabetical') {
+        queryBuilder.orderBy('LOWER(COALESCE(translations.name, brand.name))', 'ASC');
+      } else {
+        queryBuilder.orderBy('brand.createdAt', 'DESC');
+      }
+      queryBuilder.take(limit);
+    }
+
+    const brands = await queryBuilder.getMany();
+    const items = (useCustomOrder ? this.sortBrandsByIds(brands, normalizedBrandIds) : brands).slice(0, limit);
+    const normalizedLocale = this.normalizeLocale(locale);
+
+    return items.map((brand: Brand & { _productCount?: number }) => {
+      const translation = this.resolveTranslation(brand.translations ?? [], normalizedLocale);
+      return {
+        id: brand.id || '',
+        name: translation?.name || brand.name || '',
+        description: translation?.description || brand.description || null,
+        logo: brand.logo || null,
+        website: brand.website || null,
+        productCount: typeof brand._productCount === 'number' ? brand._productCount : brand.productCount || 0,
+      };
+    });
+  }
+
+  private sortBrandsByIds(brands: Brand[], ids: string[]) {
+    const orderMap = ids.reduce<Map<string, number>>((map, id, index) => {
+      map.set(id, index);
+      return map;
+    }, new Map());
+    return [...brands].sort((a, b) => {
+      const orderA = orderMap.get(a.id) ?? Number.MAX_SAFE_INTEGER;
+      const orderB = orderMap.get(b.id) ?? Number.MAX_SAFE_INTEGER;
+      return orderA - orderB;
+    });
+  }
+
+  private normalizeLocale(locale?: string | null): string | null {
+    if (!locale || typeof locale !== 'string') {
+      return null;
+    }
+    const trimmed = locale.trim().toLowerCase();
+    if (!trimmed) {
+      return null;
+    }
+    const [base] = trimmed.split(/[-_]/);
+    return base || trimmed;
+  }
+
+  private resolveTranslation(translations: BrandTranslation[], locale?: string | null) {
+    if (!translations || translations.length === 0) {
+      return null;
+    }
+    const normalizedLocale = this.normalizeLocale(locale);
+    const match = normalizedLocale
+      ? translations.find((translation) => this.normalizeLocale(translation.locale) === normalizedLocale)
+      : null;
+    return match || translations[0] || null;
   }
 
   async getStats() {

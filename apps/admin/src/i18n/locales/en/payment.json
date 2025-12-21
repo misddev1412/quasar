@@ -1,0 +1,206 @@
+{
+  "payment_methods": {
+    "title": "Payment Methods",
+    "description": "Manage payment methods available for customers"
+  },
+  "payment_method": "Payment Method",
+  "payment_information": "Payment Information",
+  "payment_reference": "Payment Reference",
+  "transactions": {
+    "title": "Transactions",
+    "description": "Monitor and manage customer financial transactions",
+    "page_title": "Transactions",
+    "page_subtitle": "Comprehensive view of customer debits and credits.",
+    "actions": {
+      "filters": "Filters",
+      "refresh": "Refresh",
+      "record": "Record Transaction",
+      "select_customer": "Select customer",
+      "change_customer": "Change customer",
+      "select_order": "Select order",
+      "change_order": "Change order"
+    },
+    "notifications": {
+      "create_success_title": "Transaction recorded",
+      "create_success_message": "The transaction has been recorded successfully.",
+      "create_error_title": "Unable to record transaction",
+      "create_error_message": "Please verify the information and try again."
+    },
+    "filters": {
+      "title": "Filters",
+      "status": "Status",
+      "all_statuses": "All statuses",
+      "type": "Type",
+      "all_types": "All types",
+      "direction": "Direction",
+      "all_directions": "All directions",
+      "currency": "Currency",
+      "customer_id": "Customer ID",
+      "customer_id_placeholder": "Search by customer id",
+      "min_amount": "Min Amount",
+      "max_amount": "Max Amount",
+      "date_from": "Date From",
+      "date_to": "Date To"
+    },
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "types": {
+      "order_payment": "Order Payment",
+      "refund": "Refund",
+      "wallet_topup": "Wallet Top-up",
+      "withdrawal": "Withdrawal",
+      "adjustment": "Adjustment",
+      "subscription": "Subscription"
+    },
+    "directions": {
+      "credit": "Credit",
+      "debit": "Debit"
+    },
+    "table": {
+      "transaction": "Transaction",
+      "reference": "Reference",
+      "customer": "Customer",
+      "unknown_customer": "Unknown customer",
+      "amount": "Amount",
+      "status": "Status",
+      "type": "Type",
+      "created_at": "Created At",
+      "order": "Order",
+      "view_order": "View order",
+      "no_order": "—"
+    },
+    "stats": {
+      "total_volume": "Net Volume",
+      "total_inflow": "Total Inflow",
+      "total_outflow": "Total Outflow",
+      "unique_customers": "Unique Customers"
+    },
+    "modal": {
+      "title": "Record transaction",
+      "description": "Manually credit or debit a customer balance."
+    },
+    "fields": {
+      "customer_id": "Customer ID",
+      "amount": "Amount",
+      "currency": "Currency",
+      "type": "Type",
+      "direction": "Direction",
+      "status": "Status",
+      "description": "Description",
+      "description_placeholder": "Optional description...",
+      "related_order": "Related order (optional)",
+      "related_order_placeholder": "Enter order ID to link payment",
+      "related_order_helper": "When provided, the transaction will be tied to the specified order.",
+      "type_locked": "Order-linked transactions are recorded as Order Payment.",
+      "customer_locked_by_order": "Customer is fixed based on the selected order."
+    },
+    "order_modal": {
+      "title": "Link an order",
+      "description": "Search existing orders and attach one to this transaction.",
+      "search_placeholder": "Search by order number, email, or customer",
+      "loading": "Loading orders...",
+      "empty_title": "No matching orders",
+      "empty_description": "Adjust the search keywords and try again.",
+      "select": "Select",
+      "filter_all": "All orders",
+      "filter_pending": "Pending payment",
+      "filter_paid": "Paid orders",
+      "items_label": "Order",
+      "amount_label": "Amount",
+      "created_label": "Created",
+      "amount_placeholder": "—",
+      "customer_missing_title": "Customer not linked",
+      "customer_missing_description": "The selected order does not have a customer reference."
+    },
+    "validation": {
+      "customer_id": "Customer ID is required",
+      "amount": "Amount must be greater than 0"
+    },
+    "errors": {
+      "load_failed": "Unable to load transactions"
+    },
+    "empty_state": "No transactions found for the selected filters"
+  },
+  "bank_transfer": "Bank Transfer",
+  "currencies": {
+    "currencies": "Currencies",
+    "currency": "Currency",
+    "create": "Create Currency",
+    "createDescription": "Add a new currency to the system",
+    "createSuccess": "Currency created successfully",
+    "createSuccessDescription": "Your new currency is now available.",
+    "createError": "Failed to create currency",
+    "createErrorDescription": "An error occurred while creating the currency.",
+    "edit": "Edit Currency",
+    "editDescription": "Update currency information",
+    "updateSuccess": "Currency updated successfully",
+    "updateSuccessDescription": "The currency has been updated.",
+    "updateError": "Failed to update currency",
+    "updateErrorDescription": "An error occurred while updating the currency.",
+    "fetchError": "Error Loading Currency",
+    "fetchErrorDescription": "Failed to load currency data",
+    "notFound": "Currency Not Found",
+    "notFoundDescription": "The currency you are trying to edit does not exist",
+    "backToList": "Back to Currencies",
+    "deleteSuccess": "Currency deleted successfully",
+    "deleteError": "Failed to delete currency",
+    "statusUpdateSuccess": "Currency status updated",
+    "statusUpdateError": "Failed to update currency status",
+    "setDefaultSuccess": "Default currency updated",
+    "setDefaultError": "Failed to set default currency",
+    "setAsDefault": "Set as Default",
+    "default": "Default",
+    "search": "Search",
+    "searchPlaceholder": "Search currencies...",
+    "status": "Status",
+    "filterTitle": "Currency Filters",
+    "noCurrenciesFound": "No currencies found",
+    "confirmDelete": "Delete Currency",
+    "confirmDeleteDescription": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+    "stats": {
+      "total": "Total Currencies",
+      "active": "Active Currencies",
+      "inactive": "Inactive Currencies",
+      "hasDefault": "Has Default Currency"
+    },
+    "table": {
+      "currency": "Currency",
+      "status": "Status",
+      "exchangeRate": "Exchange Rate",
+      "exchangeRateLabel": "Exchange Rate",
+      "format": "Format",
+      "createdAt": "Created At"
+    },
+    "code": "Code",
+    "name": "Name",
+    "symbol": "Symbol",
+    "exchangeRate": "Exchange Rate",
+    "decimalPlaces": "Decimal Places",
+    "format": "Format",
+    "isActive": "Active",
+    "isDefault": "Default",
+    "form": {
+      "basic_information_description": "Provide the core details for this currency.",
+      "code_placeholder": "Enter currency code (e.g. USD)",
+      "code_description": "Three uppercase letters identifying the currency.",
+      "name_placeholder": "Enter currency name",
+      "symbol_placeholder": "Enter symbol (e.g. $)",
+      "symbol_description": "Symbol shown before or after amounts.",
+      "exchangeRate_placeholder": "Enter exchange rate",
+      "exchangeRate_description": "Relative value compared to the default currency.",
+      "display_settings_description": "Control how currency amounts are formatted.",
+      "decimalPlaces_placeholder": "Select decimal places",
+      "decimalPlaces_description": "Number of digits displayed after the decimal point.",
+      "format_placeholder": "Enter format pattern (e.g. {symbol}{amount})",
+      "format_description": "Pattern used to display amounts.",
+      "status_settings_description": "Manage availability and default status.",
+      "isActive_description": "When active, this currency can be selected throughout the system.",
+      "isDefault_description": "Mark as the default currency for pricing and conversions."
+    }
+  }
+}

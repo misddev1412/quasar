@@ -179,19 +179,35 @@ export class TranslationService {
 
   async createOrUpdateTranslation(key: string, locale: SupportedLocale, value: string, namespace?: string): Promise<Translation> {
     const existing = await this.translationRepository.findByKeyAndLocale(key, locale);
-    
+    const normalizedNamespace = namespace === '' ? null : namespace;
+
     if (existing) {
-      return this.translationRepository.update(existing.id, { value });
+      const updateData: Partial<Translation> = { value };
+      if (normalizedNamespace !== undefined) {
+        updateData.namespace = normalizedNamespace;
+      }
+
+      const updated = await this.translationRepository.update(existing.id, updateData);
+      if (updated) {
+        this.clearCache();
+        return updated;
+      }
+
+      // If we failed to update for any reason, fall back to returning the existing entity
+      this.clearCache();
+      return existing;
     }
 
     const newTranslation = this.translationRepository.create({
       key,
       locale,
       value,
-      namespace
+      namespace: normalizedNamespace,
     });
     
-    return this.translationRepository.save(newTranslation);
+    const saved = await this.translationRepository.save(newTranslation);
+    this.clearCache();
+    return saved;
   }
 
   async deleteTranslation(key: string, locale: SupportedLocale): Promise<boolean> {
@@ -200,7 +216,11 @@ export class TranslationService {
       return false;
     }
 
-    return this.translationRepository.delete(translation.id);
+    const deleted = await this.translationRepository.delete(translation.id);
+    if (deleted) {
+      this.clearCache();
+    }
+    return deleted;
   }
 
   clearCache(): void {

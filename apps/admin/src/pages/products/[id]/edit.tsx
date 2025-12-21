@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Package } from 'lucide-react';
 import { FiHome, FiPackage } from 'react-icons/fi';
 import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
-import { ProductForm, ProductFormData } from '../../../components/products/ProductForm';
+import { ProductForm, ProductFormData, ProductFormSubmitOptions, ProductFormSubmitAction } from '../../../components/products/ProductForm';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { useToast } from '../../../context/ToastContext';
 import { useUrlTabs } from '../../../hooks/useUrlTabs';
@@ -16,12 +16,13 @@ const EditProductPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const trpcContext = trpc.useContext();
+  const lastSubmitActionRef = useRef<ProductFormSubmitAction>('save');
 
   // Use URL tabs hook with tab keys for clean URLs
   const { activeTab, handleTabChange } = useUrlTabs({
     defaultTab: 0,
     tabParam: 'tab',
-    tabKeys: ['general', 'media', 'variants', 'specifications', 'seo'] // Maps to ProductForm tab IDs
+    tabKeys: ['general', 'media', 'variants', 'specifications', 'translations', 'seo'] // Maps to ProductForm tab IDs
   });
 
   const {
@@ -53,7 +54,10 @@ const EditProductPage: React.FC = () => {
         title: t('products.product_updated', 'Product updated'),
         description: t('products.product_updated_desc', 'The product has been updated successfully.'),
       });
-      navigate('/products');
+      const shouldNavigateAway = lastSubmitActionRef.current !== 'save_and_continue';
+      if (shouldNavigateAway) {
+        navigate('/products');
+      }
     },
     onError: (error: any) => {
       addToast({
@@ -64,11 +68,14 @@ const EditProductPage: React.FC = () => {
     },
   });
 
-  const handleSubmit = async (data: ProductFormData) => {
+  const handleSubmit = async (data: ProductFormData, options?: ProductFormSubmitOptions) => {
     if (!id) return;
 
     try {
-      await updateProductMutation.mutateAsync({
+      lastSubmitActionRef.current =
+        options?.submitAction === 'save_and_continue' ? 'save_and_continue' : 'save';
+
+      return await updateProductMutation.mutateAsync({
         id,
         ...data,
       });
@@ -119,6 +126,7 @@ const EditProductPage: React.FC = () => {
           isSubmitting={updateProductMutation.isPending}
           activeTab={activeTab}
           onTabChange={handleTabChange}
+          actionsAlignment="end"
         />
       )}
     </CreatePageTemplate>

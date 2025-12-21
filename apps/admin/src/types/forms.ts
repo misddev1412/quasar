@@ -64,12 +64,15 @@ export interface FormTabConfig {
   customContent?: ReactNode;
 }
 
+export type FormActionsAlignment = 'start' | 'center' | 'end' | 'middle';
+
 // Generic entity form props
 export interface EntityFormProps<T extends FieldValues = FieldValues> {
   tabs: FormTabConfig[];
   initialValues?: Partial<T>;
   onSubmit: (values: T) => Promise<void>;
   isSubmitting?: boolean;
+  customActions?: ReactNode;
   submitButtonText?: string;
   cancelButtonText?: string;
   onCancel?: () => void;
@@ -78,6 +81,7 @@ export interface EntityFormProps<T extends FieldValues = FieldValues> {
   // Optional external tab control (for URL persistence)
   activeTab?: number;
   onTabChange?: (index: number) => void;
+  actionsAlignment?: FormActionsAlignment;
 }
 
 // Form validation result

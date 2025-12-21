@@ -4,6 +4,7 @@ import { Modal } from './Modal';
 import { Button } from './Button';
 import { MediaType } from './ProductMediaUpload';
 import { Z_INDEX } from '../../utils/zIndex';
+import { BASE_LABEL_CLASS } from './styles';
 
 interface MediaItem {
   id: string;
@@ -148,7 +149,7 @@ export const MediaEditModal: React.FC<MediaEditModalProps> = ({
 
               <div className="flex-1 space-y-3">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">
+                  <label className={BASE_LABEL_CLASS}>
                     Alt Text / Title
                   </label>
                   <input
@@ -164,7 +165,7 @@ export const MediaEditModal: React.FC<MediaEditModalProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">
+                  <label className={BASE_LABEL_CLASS}>
                     Caption
                   </label>
                   <textarea

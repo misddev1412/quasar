@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { AdminProductService } from '../services/admin-product.service';
 import { UpdateProductVariantDto } from '../repositories/product-variant.repository';
+import { ProductRepository } from '../repositories/product.repository';
 import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
 import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
@@ -31,8 +32,10 @@ export const getProductsQuerySchema = z.object({
 
 export const createProductSchema = z.object({
   name: z.string().min(1),
+  slug: z.string().min(1).max(150).optional(),
   sku: z.string().optional(),
   description: z.string().optional(),
+  shortDescription: z.string().max(500).optional(),
   status: productStatusSchema.optional(),
   isActive: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
@@ -73,6 +76,7 @@ export const createProductSchema = z.object({
     name: z.string().min(1),
     value: z.string().min(1),
     sortOrder: z.number().optional(),
+    labelId: z.string().uuid().optional(),
   })).optional(),
   variants: z.array(z.object({
     name: z.string(),
@@ -99,8 +103,10 @@ export const createProductSchema = z.object({
 
 export const updateProductSchema = z.object({
   name: z.string().optional(),
+  slug: z.string().min(1).max(150).optional(),
   sku: z.string().optional(),
   description: z.string().optional(),
+  shortDescription: z.string().max(500).optional(),
   status: productStatusSchema.optional(),
   isActive: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
@@ -140,6 +146,7 @@ export const updateProductSchema = z.object({
     name: z.string().min(1),
     value: z.string().min(1),
     sortOrder: z.number().optional(),
+    labelId: z.string().uuid().optional(),
   })).optional(),
   variants: z.array(z.object({
     id: z.string().optional(), // Include ID for updates
@@ -188,6 +195,33 @@ export const updateProductVariantSchema = z.object({
   })).optional(),
 });
 
+const translationSlugSchema = z
+  .string()
+  .max(255)
+  .optional();
+
+export const createProductTranslationSchema = z.object({
+  productId: z.string().uuid(),
+  locale: z.string().min(2).max(5),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  shortDescription: z.string().max(500).optional(),
+  slug: translationSlugSchema,
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
+  metaKeywords: z.string().optional(),
+});
+
+export const updateProductTranslationSchema = z.object({
+  name: z.string().optional(),
+  description: z.string().optional(),
+  shortDescription: z.string().max(500).optional(),
+  slug: translationSlugSchema,
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
+  metaKeywords: z.string().optional(),
+});
+
 const normalizeCategoryIdsInput = (
   categoryIds?: unknown,
   categoryId?: unknown,
@@ -228,6 +262,8 @@ export class AdminProductsRouter {
     private readonly responseHandler: ResponseService,
     @Inject(AdminProductService)
     private readonly productService: AdminProductService,
+    @Inject(ProductRepository)
+    private readonly productRepository: ProductRepository,
   ) {}
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware) // Temporarily commented for debugging
@@ -336,6 +372,123 @@ export class AdminProductsRouter {
         2,
         30,
         (error as any)?.message || 'Failed to load export jobs',
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({ productId: z.string().uuid() }),
+    output: apiResponseSchema,
+  })
+  async getProductTranslations(
+    @Input() input: { productId: string }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const translations = await this.productRepository.findProductTranslations(input.productId);
+      return this.responseHandler.createTrpcSuccess(translations);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15,
+        2,
+        10,
+        error.message || 'Failed to retrieve product translations'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: createProductTranslationSchema,
+    output: apiResponseSchema,
+  })
+  async createProductTranslation(
+    @Input() input: z.infer<typeof createProductTranslationSchema>
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const translation = await this.productRepository.createProductTranslation({
+        product_id: input.productId,
+        locale: input.locale,
+        name: input.name,
+        description: input.description,
+        shortDescription: input.shortDescription,
+        slug: input.slug,
+        metaTitle: input.metaTitle,
+        metaDescription: input.metaDescription,
+        metaKeywords: input.metaKeywords,
+      });
+      return this.responseHandler.createTrpcSuccess(translation);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15,
+        1,
+        30,
+        error.message || 'Failed to create product translation'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      productId: z.string().uuid(),
+      locale: z.string().min(2).max(5),
+    }).merge(updateProductTranslationSchema),
+    output: apiResponseSchema,
+  })
+  async updateProductTranslation(
+    @Input() input: { productId: string; locale: string } & z.infer<typeof updateProductTranslationSchema>
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const { productId, locale, ...updateData } = input;
+      const translation = await this.productRepository.updateProductTranslation(productId, locale, updateData);
+      if (!translation) {
+        throw this.responseHandler.createTRPCError(
+          15,
+          3,
+          4,
+          'Product translation not found'
+        );
+      }
+      return this.responseHandler.createTrpcSuccess(translation);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15,
+        3,
+        30,
+        error.message || 'Failed to update product translation'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      productId: z.string().uuid(),
+      locale: z.string().min(2).max(5),
+    }),
+    output: apiResponseSchema,
+  })
+  async deleteProductTranslation(
+    @Input() input: { productId: string; locale: string }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const deleted = await this.productRepository.deleteProductTranslation(input.productId, input.locale);
+      if (!deleted) {
+        throw this.responseHandler.createTRPCError(
+          15,
+          4,
+          4,
+          'Product translation not found'
+        );
+      }
+      return this.responseHandler.createTrpcSuccess({ success: true });
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        15,
+        4,
+        30,
+        error.message || 'Failed to delete product translation'
       );
     }
   }

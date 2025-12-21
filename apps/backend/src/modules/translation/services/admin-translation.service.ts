@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { TranslationRepository } from '../repositories/translation.repository';
 import { Translation } from '../entities/translation.entity';
 import { PaginatedResult } from '@shared';
+import { TranslationService } from './translation.service';
 
 interface TranslationFilters {
   page?: number;
@@ -16,7 +17,7 @@ interface CreateTranslationDto {
   key: string;
   locale: string;
   value: string;
-  namespace?: string;
+  namespace?: string | null;
   isActive?: boolean;
 }
 
@@ -24,14 +25,15 @@ interface UpdateTranslationDto {
   key?: string;
   locale?: string;
   value?: string;
-  namespace?: string;
+  namespace?: string | null;
   isActive?: boolean;
 }
 
 @Injectable()
 export class AdminTranslationService {
   constructor(
-    private readonly translationRepository: TranslationRepository
+    private readonly translationRepository: TranslationRepository,
+    private readonly translationService: TranslationService,
   ) {}
 
   async getTranslations(filters: TranslationFilters): Promise<PaginatedResult<Translation>> {
@@ -132,7 +134,9 @@ export class AdminTranslationService {
       isActive: createDto.isActive !== undefined ? createDto.isActive : true,
     });
 
-    return this.translationRepository.save(translation);
+    const saved = await this.translationRepository.save(translation);
+    this.translationService.clearCache();
+    return saved;
   }
 
   async updateTranslation(id: string, updateDto: UpdateTranslationDto): Promise<Translation> {
@@ -154,17 +158,22 @@ export class AdminTranslationService {
 
     Object.assign(translation, updateDto);
 
-    return this.translationRepository.save(translation);
+    const saved = await this.translationRepository.save(translation);
+    this.translationService.clearCache();
+    return saved;
   }
 
   async deleteTranslation(id: string): Promise<void> {
     const translation = await this.getTranslationById(id);
     await this.translationRepository.delete(translation.id);
+    this.translationService.clearCache();
   }
 
   async toggleTranslationStatus(id: string): Promise<Translation> {
     const translation = await this.getTranslationById(id);
     translation.isActive = !translation.isActive;
-    return this.translationRepository.save(translation);
+    const saved = await this.translationRepository.save(translation);
+    this.translationService.clearCache();
+    return saved;
   }
 }

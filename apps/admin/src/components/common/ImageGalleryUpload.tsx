@@ -3,6 +3,7 @@ import { Upload, X, Image as ImageIcon, Move, Eye, Trash2, Plus, Grid, Edit, Cam
 import clsx from 'clsx';
 import { MediaManager } from './MediaManager';
 import { UploadService } from '../../utils/upload';
+import { BASE_LABEL_CLASS } from './styles';
 
 interface GalleryImage {
   id: string;
@@ -370,7 +371,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
   return (
     <div className={clsx('space-y-4', className)}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className={BASE_LABEL_CLASS}>
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -632,7 +633,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
                   
                   <div className="flex-1 space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <label className={`${BASE_LABEL_CLASS} mb-1`}>
                         Alt Text
                       </label>
                       <input
@@ -648,7 +649,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <label className={`${BASE_LABEL_CLASS} mb-1`}>
                         Caption
                       </label>
                       <textarea

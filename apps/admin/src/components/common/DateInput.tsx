@@ -1,7 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-
-const BASE_LABEL_CLASS = 'block text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400';
+import { BASE_LABEL_CLASS } from './styles';
 
 interface DateInputProps {
   id?: string;

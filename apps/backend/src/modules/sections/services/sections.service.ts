@@ -50,17 +50,39 @@ export class SectionsService {
       return null;
     }
 
-    const exactMatch = translations.find((translation) => translation.locale === locale);
+    const normalizedLocale = this.normalizeLocale(locale);
+    const normalizedFallback = this.normalizeLocale(fallbackLocale);
+
+    const matchByLocale = (target?: string | null) => {
+      if (!target) {
+        return undefined;
+      }
+      return translations.find((translation) => this.normalizeLocale(translation.locale) === target);
+    };
+
+    const exactMatch = matchByLocale(normalizedLocale);
     if (exactMatch) {
       return exactMatch;
     }
 
-    const fallbackMatch = translations.find((translation) => translation.locale === fallbackLocale);
+    const fallbackMatch = matchByLocale(normalizedFallback);
     if (fallbackMatch) {
       return fallbackMatch;
     }
 
     return translations[0] ?? null;
+  }
+
+  private normalizeLocale(locale?: string | null): string | null {
+    if (!locale) {
+      return null;
+    }
+    const trimmed = locale.trim().toLowerCase();
+    if (!trimmed) {
+      return null;
+    }
+    const [base] = trimmed.split(/[-_]/);
+    return base || trimmed;
   }
 
   private mergeConfig(baseConfig: Record<string, any>, override?: Record<string, any> | null) {

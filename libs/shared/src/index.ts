@@ -16,6 +16,7 @@ export * from './types/api-response.types';
 export * from './types/seo.types';
 export * from './types/floating-widget.types';
 export * from './types/footer.types';
+export * from './types/component.types';
 
 // Enums (all enums from index)
 export * from './enums';

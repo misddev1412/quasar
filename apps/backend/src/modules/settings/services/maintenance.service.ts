@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { SettingService } from './setting.service';
 import * as bcrypt from 'bcryptjs';
-import { createHmac, randomBytes } from 'crypto';
+import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
 
 const MAINTENANCE_ENABLED_KEY = 'storefront.maintenance_enabled';
 const MAINTENANCE_PASSWORD_KEY = 'storefront.maintenance_password';
@@ -55,16 +55,46 @@ export class MaintenanceService {
     return this.generateToken();
   }
 
+  async validateToken(token: string | undefined | null): Promise<boolean> {
+    if (!token) {
+      return false;
+    }
+
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      return false;
+    }
+
+    const [nonce, expiresAt, signature] = parts;
+    if (!nonce || !expiresAt || !signature) {
+      return false;
+    }
+
+    const expiresAtMs = Number(expiresAt);
+    if (!Number.isFinite(expiresAtMs) || Date.now() > expiresAtMs) {
+      return false;
+    }
+
+    const payload = `${nonce}.${expiresAt}`;
+    const expectedSignature = this.signPayload(payload);
+
+    return this.safeCompare(expectedSignature, signature);
+  }
+
   private generateToken(): { token: string; expiresAt: number } {
     const nonce = randomBytes(8).toString('hex');
     const expiresAt = Date.now() + this.getTokenTtlMs();
     const payload = `${nonce}.${expiresAt}`;
-    const signature = createHmac('sha256', this.getTokenSecret()).update(payload).digest('hex');
+    const signature = this.signPayload(payload);
 
     return {
       token: `${payload}.${signature}`,
       expiresAt,
     };
+  }
+
+  private signPayload(payload: string): string {
+    return createHmac('sha256', this.getTokenSecret()).update(payload).digest('hex');
   }
 
   private getTokenSecret(): string {
@@ -75,5 +105,16 @@ export class MaintenanceService {
     const ttlMinutes = Number(process.env.MAINTENANCE_TOKEN_TTL_MINUTES ?? 720);
     const safeMinutes = Number.isFinite(ttlMinutes) && ttlMinutes > 0 ? ttlMinutes : 720;
     return safeMinutes * 60 * 1000;
+  }
+
+  private safeCompare(expected: string, actual: string): boolean {
+    const a = Buffer.from(expected);
+    const b = Buffer.from(actual);
+
+    if (a.length !== b.length) {
+      return false;
+    }
+
+    return timingSafeEqual(a, b);
   }
 }

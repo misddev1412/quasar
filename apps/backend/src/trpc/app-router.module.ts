@@ -24,6 +24,7 @@ import { ResponseService } from '../modules/shared/services/response.service';
 import { ClientNewsRouter } from './routers/client/news.router';
 import { ClientCategoriesRouter } from './routers/client/categories.router';
 import { ClientProductsRouter } from './routers/client/products.router';
+import { ClientBrandsRouter } from './routers/client/brands.router';
 import { SectionsRouter } from './routers/sections.router';
 import { AdminMenuRouter } from '../modules/menus/routers/admin-menu.router';
 import { ClientMenuRouter } from '../modules/menus/routers/client-menu.router';
@@ -46,6 +47,7 @@ import { AdminSupportClientsRouter } from '../modules/support/routers/admin-supp
 import { ComponentConfigsModule } from '../modules/component-configs/component-configs.module';
 import { AdminComponentConfigsRouter } from '../modules/component-configs/routers/admin-component-configs.router';
 import { ClientComponentConfigsRouter } from '../modules/component-configs/routers/client-component-configs.router';
+import { AdminProductSpecificationLabelsRouter } from '../modules/products/routers/admin-product-specification-labels.router';
 
 @Module({
   imports: [
@@ -78,6 +80,7 @@ import { ClientComponentConfigsRouter } from '../modules/component-configs/route
     ClientNewsRouter,
     ClientCategoriesRouter,
     ClientProductsRouter,
+    ClientBrandsRouter,
     SectionsRouter,
     AdminMenuRouter,
     ClientMenuRouter,
@@ -97,6 +100,7 @@ import { ClientComponentConfigsRouter } from '../modules/component-configs/route
     AdminSupportClientsRouter,
     AdminComponentConfigsRouter,
     ClientComponentConfigsRouter,
+    AdminProductSpecificationLabelsRouter,
     ResponseService,
   ],
 })

@@ -36,7 +36,7 @@ async function ProductPageContent({ params, searchParams }: ProductPageProps) {
   ]);
 
   const orderedSections = [...sections].sort((a, b) => a.position - b.position);
-  const renderedSections = renderSections(orderedSections);
+  const renderedSections = await renderSections(orderedSections);
 
   return (
     <Layout>

@@ -1,0 +1,87 @@
+{
+  "notificationPreferences": {
+    "title": "Notification Preferences",
+    "subtitle": "Customize when and how you receive notifications",
+    "userRequired": "Please log in to manage your notification preferences",
+    "signInRequired": "Sign In Required",
+    "saved": "Preferences Saved",
+    "savedDescription": "Your notification preferences have been updated successfully.",
+    "reset": "Preferences Reset",
+    "resetDescription": "Your notification preferences have been reset to defaults.",
+    "lastSaved": "Last saved at"
+  },
+  "notifications_page": {
+    "title": "Notifications",
+    "description": "Manage and send notifications to users",
+    "actions": {
+      "send": "Send Notification"
+    },
+    "stats": {
+      "total": "Total Notifications",
+      "unread": "Unread",
+      "sent_today": "Sent Today",
+      "failed": "Failed"
+    },
+    "table": {
+      "title": "Title",
+      "type": "Type",
+      "user": "User",
+      "status": "Status",
+      "created": "Created",
+      "actions": "Actions",
+      "read": "Read",
+      "unread": "Unread",
+      "mark_as_read": "Mark as Read"
+    },
+    "types": {
+      "info": "Info",
+      "success": "Success",
+      "warning": "Warning",
+      "error": "Error",
+      "product": "Product",
+      "order": "Order",
+      "system": "System",
+      "user": "User"
+    },
+    "dialog": {
+      "title": "Send Notification",
+      "type_label": "Notification Type",
+      "single": "Single User",
+      "bulk": "Multiple Users",
+      "topic": "Topic Broadcast",
+      "message_title": "Title",
+      "message_body": "Message Body",
+      "category": "Category",
+      "event": "Event",
+      "action_url": "Action URL (Optional)",
+      "action_url_placeholder": "https://example.com/action",
+      "user_ids": "User IDs or Emails",
+      "user_ids_placeholder": "user1@example.com, user2@example.com",
+      "user_ids_help": "Separate multiple users with commas",
+      "topic_name": "Topic Name",
+      "topic_placeholder": "all-users",
+      "send": "Send Notification",
+      "sending": "Sending..."
+    },
+    "events": {
+      "custom_manual": "Custom / Manual",
+      "user_registered": "User Registered",
+      "user_verified": "User Verified",
+      "order_created": "Order Created",
+      "order_shipped": "Order Shipped",
+      "system_announcement": "System Announcement",
+      "marketing_campaign": "Marketing Campaign"
+    },
+    "feedback": {
+      "send_success": "Notification sent successfully",
+      "send_bulk_success": "Bulk notifications sent successfully",
+      "send_topic_success": "Topic notification sent successfully",
+      "send_error": "Failed to send notification: {{message}}",
+      "send_bulk_error": "Failed to send bulk notifications: {{message}}",
+      "send_topic_error": "Failed to send topic notification: {{message}}",
+      "mark_read_error": "Failed to mark as read: {{message}}",
+      "delete_success": "Notification deleted successfully",
+      "delete_error": "Failed to delete notification: {{message}}"
+    }
+  }
+}

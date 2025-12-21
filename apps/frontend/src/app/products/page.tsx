@@ -52,7 +52,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const locale = await getPreferredLocale(resolvedSearchParams);
   const sections = await fetchSections('product', locale);
   const orderedSections = [...sections].sort((a, b) => a.position - b.position);
-  const renderedSections = renderSections(orderedSections);
+  const renderedSections = await renderSections(orderedSections);
 
   return (
     <Layout>

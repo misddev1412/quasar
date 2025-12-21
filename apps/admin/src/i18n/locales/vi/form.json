@@ -1,0 +1,153 @@
+{
+  "form": {
+    "placeholders": {
+      "enter_title": "Nhập tiêu đề...",
+      "select_language": "Chọn ngôn ngữ",
+      "select_status": "Chọn trạng thái",
+      "select_type": "Chọn loại",
+      "add_tags": "Nhập và ấn Enter hoặc dấu phẩy để thêm thẻ..."
+    },
+    "descriptions": {
+      "post_language_description": "Chọn ngôn ngữ chính cho bài viết này",
+      "slug_requirements": "Chỉ sử dụng chữ thường, số và dấu gạch ngang",
+      "featured_image_description": "URL hình ảnh đại diện cho bài viết này",
+      "featured_post_description": "Đánh dấu bài viết nổi bật để làm nổi bật",
+      "allow_comments_description": "Cho phép người dùng bình luận trên bài viết này",
+      "meta_title_description": "Tiêu đề tùy chỉnh cho công cụ tìm kiếm (khuyến nghị: 50-60 ký tự)",
+      "meta_description_description": "Mô tả ngắn cho kết quả tìm kiếm (khuyến nghị: 150-160 ký tự)",
+      "meta_keywords_description": "Từ khóa cho công cụ tìm kiếm, phân cách bằng thẻ"
+    },
+    "sections": {
+      "post_settings_description": "Cấu hình khả năng hiển thị, loại và cài đặt xuất bản bài viết",
+      "seo_description": "Tối ưu hóa bài viết cho công cụ tìm kiếm",
+      "tracking_configuration": "Cấu hình theo dõi",
+      "api_configuration": "Cấu hình API",
+      "status_settings": "Cài đặt trạng thái"
+    },
+    "tabs": {
+      "configuration": "Cấu hình"
+    }
+  },
+  "validation": {
+    "required": "Trường này là bắt buộc",
+    "email_invalid": "Vui lòng nhập địa chỉ email hợp lệ",
+    "username_min_length": "Tên đăng nhập phải có ít nhất 3 ký tự",
+    "username_max_length": "Tên đăng nhập không được vượt quá 50 ký tự",
+    "username_invalid_chars": "Tên đăng nhập chỉ có thể chứa chữ cái, số, dấu gạch dưới và dấu gạch ngang",
+    "password_min_length": "Mật khẩu phải có ít nhất 8 ký tự",
+    "password_requirements": "Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường và một số",
+    "first_name_min_length": "Tên phải có ít nhất 2 ký tự",
+    "first_name_max_length": "Tên không được vượt quá 50 ký tự",
+    "last_name_min_length": "Họ phải có ít nhất 2 ký tự",
+    "last_name_max_length": "Họ không được vượt quá 50 ký tự",
+    "phone_invalid": "Vui lòng nhập số điện thoại hợp lệ",
+    "passwords_not_match": "Mật khẩu không khớp",
+    "password_one_lowercase": "Phải chứa ít nhất một chữ cái viết thường",
+    "password_one_uppercase": "Phải chứa ít nhất một chữ cái viết hoa",
+    "password_one_number": "Phải chứa ít nhất một chữ số",
+    "password_one_special": "Phải chứa ít nhất một ký tự đặc biệt",
+    "invalid_value": "Giá trị không hợp lệ"
+  },
+  "filters": {
+    "quick_filters": {
+      "title": "Bộ lọc nhanh",
+      "registration_date_title": "Bộ lọc ngày đăng ký",
+      "subtitle": "Lọc người dùng theo ngày đăng ký và các tiêu chí khác",
+      "date_subtitle": "Truy cập nhanh các khoảng thời gian đăng ký phổ biến"
+    },
+    "categories": {
+      "current_period": "Thời gian hiện tại",
+      "recent_period": "Thời gian gần đây",
+      "user_status": "Trạng thái người dùng",
+      "user_roles": "Vai trò người dùng",
+      "email_verification": "Xác thực email"
+    },
+    "date": {
+      "today": "Hôm nay",
+      "this_week": "Tuần này",
+      "this_month": "Tháng này",
+      "last_7_days": "7 ngày qua",
+      "last_30_days": "30 ngày qua",
+      "last_90_days": "90 ngày qua",
+      "last_year": "1 năm qua"
+    },
+    "status": {
+      "active": "Người dùng hoạt động",
+      "inactive": "Người dùng không hoạt động",
+      "all": "Tất cả người dùng"
+    },
+    "roles": {
+      "super_admin": "Quản trị viên cấp cao",
+      "admin": "Quản trị viên",
+      "manager": "Người quản lý",
+      "user": "Người dùng thường",
+      "guest": "Khách"
+    },
+    "verification": {
+      "verified": "Email đã xác thực",
+      "unverified": "Email chưa xác thực",
+      "pending": "Đang chờ xác thực"
+    }
+  },
+  "table": {
+    "search_placeholder": "Tìm kiếm...",
+    "no_data": "Không có dữ liệu",
+    "loading": "Đang tải dữ liệu bảng...",
+    "empty_state": {
+      "title": "Không tìm thấy dữ liệu",
+      "message": "Không có dữ liệu khả dụng"
+    },
+    "pagination": {
+      "per_page_10": "10 mỗi trang",
+      "per_page_20": "20 mỗi trang",
+      "per_page_25": "25 mỗi trang",
+      "per_page_50": "50 mỗi trang",
+      "per_page_100": "100 mỗi trang",
+      "show": "Hiển thị",
+      "showing": "Hiển thị",
+      "to": "đến",
+      "of": "trong tổng số",
+      "results": "kết quả",
+      "previous": "Trước",
+      "next": "Tiếp theo",
+      "first": "Đầu tiên",
+      "last": "Cuối cùng",
+      "page": "Trang",
+      "go_to_page": "Đi đến trang {page}",
+      "go_to_previous_page": "Đi đến trang trước",
+      "go_to_next_page": "Đi đến trang tiếp theo"
+    },
+    "selection": {
+      "select_all": "Chọn tất cả {count} hàng trên trang này",
+      "all_rows_selected": "Tất cả hàng đã được chọn",
+      "some_rows_selected": "Một số hàng đã được chọn",
+      "no_rows_selected": "Không có hàng nào được chọn",
+      "select_row": "Chọn hàng {index}: {name}"
+    },
+    "sorting": {
+      "sort_by": "Sắp xếp theo {column}",
+      "sorted_ascending": "Đã sắp xếp tăng dần",
+      "sorted_descending": "Đã sắp xếp giảm dần",
+      "sort_ascending": "Sắp xếp tăng dần",
+      "sort_descending": "Sắp xếp giảm dần"
+    },
+    "toolbar": {
+      "search": "Tìm kiếm dữ liệu bảng",
+      "filter": "Lọc",
+      "open_filters": "Mở bộ lọc",
+      "close_filters": "Đóng bộ lọc",
+      "columns": "Cột",
+      "toggle_column_visibility": "Chuyển đổi hiển thị cột"
+    },
+    "density": {
+      "compact": "Gọn",
+      "normal": "Bình thường",
+      "comfortable": "Thoải mái"
+    },
+    "accessibility": {
+      "table_region": "Bảng dữ liệu",
+      "loading_table": "Đang tải dữ liệu bảng",
+      "table_pagination": "Phân trang bảng"
+    }
+  }
+}

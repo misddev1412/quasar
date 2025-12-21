@@ -1,0 +1,86 @@
+{
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "help": "Help",
+    "documentation": "Documentation",
+    "logout": "Logout",
+    "open_menu": "Open navigation menu",
+    "overview": "Overview",
+    "content_management": "Content Management",
+    "communication": "Communication",
+    "system": "System",
+    "messages": "Messages",
+    "quick_actions": "Quick Actions",
+    "back_to_top": "Back to Top",
+    "firebase_configs": "Firebase Configurations",
+    "storage": "Storage Configuration",
+    "general_settings": "General Settings",
+    "order_settings": "Order Settings",
+    "maintenance_settings": "Maintenance Mode",
+    "order_settings_description": "Manage order number format and related order configuration",
+    "order_number_format_label": "Order number format",
+    "order_number_format_hint": "Use tokens like {{YYYY}}, {{YY}}, {{MM}}, {{DD}}, {{SEQn}} to generate order codes.",
+    "order_format_saved": "Order number format updated successfully.",
+    "order_format_save_failed": "Could not save order number format.",
+    "pattern": "Format pattern",
+    "require_sequence": "Require {{SEQn}} to avoid duplicates",
+    "live_preview": "Live preview",
+    "preview_note": "Preview uses today’s date and sequence 1 for illustration.",
+    "available_tokens": "Available tokens",
+    "tokens": {
+      "year_full": "4-digit year",
+      "year_short": "2-digit year",
+      "month": "2-digit month",
+      "day": "2-digit day",
+      "sequence": "Sequence padded to 4 digits",
+      "random": "Random alphanumeric, default 4 characters"
+    },
+    "sequence_warning": "Add {{SEQn}} to keep codes unique.",
+    "settings_visibility": "Settings Visibility",
+    "people_access": "People & Access",
+    "content_experience": "Content & Marketing",
+    "commerce": "Commerce",
+    "sales_operations": "Sales & Operations",
+    "communication_support": "Communication & Support",
+    "platform_settings": "Platform Settings"
+  },
+  "sidebar": {
+    "collapseSidebar": "Collapse Sidebar",
+    "expandSidebar": "Expand Sidebar",
+    "switchToLightMode": "Switch to Light Mode",
+    "switchToDarkMode": "Switch to Dark Mode"
+  },
+  "header": {
+    "search": "Search...",
+    "toggleToHorizontal": "Switch to horizontal navigation",
+    "toggleToVertical": "Switch to vertical navigation",
+    "documentation": "Documentation",
+    "help": "Help",
+    "switchToLightMode": "Switch to light mode",
+    "switchToDarkMode": "Switch to dark mode",
+    "notifications": "Notifications",
+    "userSettings": "User settings"
+  },
+  "footer": {
+    "allRightsReserved": "All rights reserved.",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "help": "Help"
+  },
+  "search": {
+    "search": "Search",
+    "searchPlaceholder": "Search...",
+    "noMatchingResults": "No matching results"
+  },
+  "userInfo": {
+    "notLoggedIn": "Not logged in",
+    "profile": "Profile",
+    "settings": "Settings",
+    "helpCenter": "Help Center",
+    "logout": "Logout"
+  }
+}

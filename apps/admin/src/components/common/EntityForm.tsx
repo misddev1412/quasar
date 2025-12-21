@@ -5,11 +5,18 @@ import clsx from 'clsx';
 import { Button } from './Button';
 import Tabs from './Tabs';
 import { FormSection } from './FormSection';
-import { EntityFormProps, FormTabConfig } from '../../types/forms';
 import { useDefaultCountry } from '../../hooks/useDefaultCountry';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useEntityForm } from '../../hooks/useEntityForm';
 import { useFormFieldRenderer } from '../../hooks/useFormFieldRenderer';
+import { EntityFormProps, FormActionsAlignment } from '../../types/forms';
+
+const alignmentClassMap: Record<FormActionsAlignment, string> = {
+  start: 'justify-start',
+  center: 'justify-center',
+  middle: 'justify-center',
+  end: 'justify-end',
+};
 
 interface EntityFormComponentProps<T extends FieldValues = FieldValues> extends EntityFormProps<T> {
   validationSchema?: z.ZodSchema<T>;
@@ -21,6 +28,7 @@ export function EntityForm<T extends FieldValues = FieldValues>({
   initialValues = {} as Partial<T>,
   onSubmit,
   isSubmitting = false,
+  customActions,
   submitButtonText = 'Create',
   cancelButtonText = 'Cancel',
   onCancel,
@@ -30,6 +38,7 @@ export function EntityForm<T extends FieldValues = FieldValues>({
   activeTab: externalActiveTab,
   onTabChange: externalOnTabChange,
   formRef,
+  actionsAlignment = 'end',
 }: EntityFormComponentProps<T>) {
   const [internalActiveTab, setInternalActiveTab] = useState(0);
   
@@ -93,30 +102,39 @@ export function EntityForm<T extends FieldValues = FieldValues>({
       />
 
       {/* Form Actions */}
-      <div className="flex justify-end space-x-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-        {showCancelButton && onCancel && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
-            {cancelButtonText}
-          </Button>
+      <div
+        className={clsx(
+          'flex items-center space-x-4 pt-4 border-t border-gray-200 dark:border-gray-700',
+          alignmentClassMap[actionsAlignment] || alignmentClassMap.end,
         )}
-        <Button
-          type="submit"
-          variant="primary"
-          isLoading={isSubmitting}
-          disabled={isSubmitting}
-          onClick={(e) => {
-            console.log('🔥 [EntityForm] Submit button clicked!');
-            console.log('🔥 [EntityForm] Event:', e);
-            // Don't prevent default - let form handle it
-          }}
-        >
-          {submitButtonText}
-        </Button>
+      >
+        {customActions ?? (
+          <>
+            {showCancelButton && onCancel && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                disabled={isSubmitting}
+              >
+                {cancelButtonText}
+              </Button>
+            )}
+            <Button
+              type="submit"
+              variant="primary"
+              isLoading={isSubmitting}
+              disabled={isSubmitting}
+              onClick={(e) => {
+                console.log('🔥 [EntityForm] Submit button clicked!');
+                console.log('🔥 [EntityForm] Event:', e);
+                // Don't prevent default - let form handle it
+              }}
+            >
+              {submitButtonText}
+            </Button>
+          </>
+        )}
       </div>
     </form>
   );

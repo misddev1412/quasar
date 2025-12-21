@@ -3,7 +3,7 @@ export interface Translation {
   key: string;
   locale: string;
   value: string;
-  namespace?: string;
+  namespace?: string | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -13,7 +13,7 @@ export interface CreateTranslationData {
   key: string;
   locale: string;
   value: string;
-  namespace?: string;
+  namespace?: string | null;
   isActive?: boolean;
 }
 
@@ -21,7 +21,7 @@ export interface UpdateTranslationData {
   key?: string;
   locale?: string;
   value?: string;
-  namespace?: string;
+  namespace?: string | null;
   isActive?: boolean;
 }
 

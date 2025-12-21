@@ -1,5 +1,6 @@
 import React from 'react';
 import { SectionType } from '@shared/enums/section.enums';
+import type { ViewMoreButtonConfig } from '@shared/types/component.types';
 import {
   HeroSlider,
   FeaturedProducts,
@@ -14,6 +15,7 @@ import {
   StatsSection,
   GallerySection,
   ContactFormSection,
+  BrandShowcaseSection,
 } from '.';
 import type { SectionListItem } from '../../types/sections';
 
@@ -31,6 +33,7 @@ const sectionComponentMap: Record<SectionType, React.ComponentType<any>> = {
   [SectionType.STATS]: StatsSection,
   [SectionType.GALLERY]: GallerySection,
   [SectionType.CONTACT_FORM]: ContactFormSection,
+  [SectionType.BRAND_SHOWCASE]: BrandShowcaseSection,
 };
 
 const buildTranslationPayload = (section: SectionListItem) => {
@@ -49,8 +52,29 @@ const buildTranslationPayload = (section: SectionListItem) => {
   };
 };
 
-export const renderSections = (sections: SectionListItem[]): React.ReactNode[] =>
-  sections
+async function fetchViewMoreButtonConfig(): Promise<ViewMoreButtonConfig | undefined> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/trpc/clientComponentConfigs.getByKey?input=${encodeURIComponent(JSON.stringify({ componentKey: 'view_more_button' }))}`, {
+      next: { revalidate: 3600 }, // Cache for 1 hour
+    });
+
+    if (!response.ok) {
+      return undefined;
+    }
+
+    const data = await response.json();
+    return data?.result?.data?.defaultConfig?.viewMoreButton as ViewMoreButtonConfig | undefined;
+  } catch (error) {
+    console.error('Failed to fetch ViewMoreButton config:', error);
+    return undefined;
+  }
+}
+
+export const renderSections = async (sections: SectionListItem[]): Promise<React.ReactNode[]> => {
+  const viewMoreButtonConfig = await fetchViewMoreButtonConfig();
+
+  return sections
     .map((section) => {
       const Component = sectionComponentMap[section.type as SectionType];
       if (!Component) {
@@ -59,14 +83,23 @@ export const renderSections = (sections: SectionListItem[]): React.ReactNode[] =
 
       const translation = buildTranslationPayload(section);
 
+      // Pass viewMoreButtonConfig to sections that support it
+      const shouldPassButtonConfig = [
+        SectionType.FEATURED_PRODUCTS,
+        SectionType.NEWS,
+        SectionType.PRODUCTS_BY_CATEGORY,
+      ].includes(section.type as SectionType);
+
       return (
         <Component
           key={section.id}
           config={section.config as Record<string, unknown>}
           translation={translation}
+          {...(shouldPassButtonConfig && { viewMoreButtonConfig })}
         />
       );
     })
     .filter(Boolean) as React.ReactNode[];
+};
 
 export { sectionComponentMap };

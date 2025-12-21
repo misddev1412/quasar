@@ -1,0 +1,14 @@
+{
+  "common": {
+    "success": "成功",
+    "error": "错误",
+    "cancel": "取消",
+    "media": {
+      "dragDropOrClick": "拖放或点击上传",
+      "maxSize": "最大{{maxSize}}MB",
+      "fileTooLarge": "文件太大。最大大小为{{maxSize}}MB",
+      "uploadSuccess": "文件上传成功",
+      "invalidFileType": "无效的文件类型"
+    }
+  }
+}

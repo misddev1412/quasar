@@ -400,6 +400,25 @@
           "title": "Fast Performance",
           "description": "Optimized for speed and smooth user experience."
         }
+      },
+      "video_section": {
+        "title": "Product Video Highlights",
+        "description": "Watch quick demos that showcase how Quasar helps teams create modern shopping experiences in minutes.",
+        "pagination_label": "Go to video {{index}}",
+        "videos": {
+          "overview": {
+            "title": "Get to Know Quasar",
+            "description": "A top-level view of the storefront experience and the tools that power it."
+          },
+          "components": {
+            "title": "Design System in Action",
+            "description": "See how HeroUI components and Tailwind styling combine to build rich layouts fast."
+          },
+          "automation": {
+            "title": "Automation & Analytics",
+            "description": "Understand how automation, reporting, and AI insights keep your team ahead."
+          }
+        }
       }
     },
     "dashboard": {
@@ -1883,13 +1902,27 @@
     "video": {
       "title": "Crafted with intention",
       "subtitle": "Behind the scenes",
-      "description": "Blend editorial storytelling with direct commerce moments."
+      "description": "Blend editorial storytelling with direct commerce moments.",
+      "pagination_label": "Go to video {{index}}"
     },
     "stats": {
       "title": "Proof in numbers",
       "subtitle": "Metrics your buyers understand",
       "description": "Showcase fulfillment scale, loyalty, and satisfaction data.",
       "untitled": "Metric"
+    },
+    "brands": {
+      "title": "Brands that launch with you",
+      "subtitle": "Flagship partners & private labels",
+      "description": "Reinforce credibility by highlighting the manufacturers, designers, or local brands your storefront represents.",
+      "empty": "Brands will appear once the merchandising team assigns them to this section.",
+      "empty_custom": "Select specific brands in the admin to feature them here.",
+      "error_loading": "Unable to load brands right now.",
+      "visit": "Visit site",
+      "untitled": "Untitled brand",
+      "product_count": "{{count}} products",
+      "carousel_prev": "Scroll brands left",
+      "carousel_next": "Scroll brands right"
     },
     "gallery": {
       "title": "Lookbook highlights",

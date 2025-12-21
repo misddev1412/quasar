@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { GroupBase, Props as ReactSelectProps, StylesConfig } from 'react-select';
 import './CountrySelector.css';
 import ModalReactSelect from './ModalReactSelect';
+import { BASE_LABEL_CLASS } from './styles';
 
 type SearchSelectSize = 'sm' | 'md' | 'lg';
 
@@ -188,7 +189,7 @@ export function SearchSelect<
   return (
     <div className={clsx('space-y-2', containerClassName)}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700">
+        <label className={BASE_LABEL_CLASS}>
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>

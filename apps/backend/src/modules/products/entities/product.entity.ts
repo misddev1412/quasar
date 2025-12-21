@@ -13,6 +13,7 @@ import { ProductCategory } from './product-category.entity';
 import { Wishlist } from './wishlist.entity';
 import { ProductSpecification } from './product-specification.entity';
 import { ProductWarehouseQuantity } from './product-warehouse-quantity.entity';
+import { ProductTranslation } from './product-translation.entity';
 
 export enum ProductStatus {
   DRAFT = 'DRAFT',
@@ -36,6 +37,24 @@ export class Product extends BaseEntity {
     nullable: true,
   })
   description?: string;
+
+  @Expose()
+  @Column({
+    name: 'short_description',
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+  })
+  shortDescription?: string;
+
+  @Expose()
+  @Column({
+    type: 'varchar',
+    length: 255,
+    unique: true,
+    nullable: true,
+  })
+  slug?: string;
 
   @Expose()
   @Column({
@@ -219,6 +238,12 @@ export class Product extends BaseEntity {
 
   @OneToMany(() => ProductWarehouseQuantity, (warehouseQuantity) => warehouseQuantity.product, { eager: true })
   warehouseQuantities: ProductWarehouseQuantity[];
+
+  @OneToMany(() => ProductTranslation, (translation) => translation.product, {
+    cascade: true,
+    eager: false,
+  })
+  translations: ProductTranslation[];
 
   // Getter for categories through ProductCategory junction
   async getCategories(): Promise<Category[]> {

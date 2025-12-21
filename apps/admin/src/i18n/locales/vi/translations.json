@@ -1,0 +1,17 @@
+{
+  "translations": {
+    "table": {
+      "key": "Khóa",
+      "locale": "Ngôn ngữ",
+      "value": "Giá trị",
+      "namespace": "Không gian tên",
+      "status": "Trạng thái",
+      "createdAt": "Ngày tạo"
+    },
+    "noTranslationsFound": "Không tìm thấy bản dịch",
+    "stats": {
+      "active": "Hoạt động",
+      "total": "Tổng cộng"
+    }
+  }
+}

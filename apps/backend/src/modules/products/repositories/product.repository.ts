@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere, FindManyOptions } from 'typeorm';
+import { Repository, FindOptionsWhere, FindManyOptions, SelectQueryBuilder } from 'typeorm';
 import { Product, ProductStatus } from '../entities/product.entity';
 import { ProductCategory } from '../entities/product-category.entity';
+import { ProductTranslation } from '../entities/product-translation.entity';
 
 export interface ProductFilters {
   search?: string;
@@ -51,6 +52,8 @@ export class ProductRepository {
     private readonly productRepository: Repository<Product>,
     @InjectRepository(ProductCategory)
     private readonly productCategoryRepository: Repository<ProductCategory>,
+    @InjectRepository(ProductTranslation)
+    private readonly productTranslationRepository: Repository<ProductTranslation>,
   ) {}
 
   async findAll(options: ProductQueryOptions = {}): Promise<PaginatedProducts> {
@@ -89,53 +92,14 @@ export class ProductRepository {
 
       // Add relations if requested with support for nested relations
       if (relations.length > 0) {
-        const addedJoins = new Set<string>(); // Track added joins to avoid duplicates
-
-        relations.forEach(relation => {
-          // Handle nested relations like 'variants.variantItems.attribute'
-          const relationParts = relation.split('.');
-
-          if (relationParts.length === 1) {
-            // Simple relation: product.variants
-            const joinKey = `product.${relation}`;
-            if (!addedJoins.has(joinKey)) {
-              queryBuilder.leftJoinAndSelect(joinKey, relation);
-              addedJoins.add(joinKey);
-            }
-          } else {
-            // Nested relation: variants.variantItems or variants.variantItems.attribute
-            let currentAlias = 'product';
-
-            relationParts.forEach((part, index) => {
-              if (index === 0) {
-                // First level: product.variants
-                const joinKey = `${currentAlias}.${part}`;
-                if (!addedJoins.has(joinKey)) {
-                  queryBuilder.leftJoinAndSelect(joinKey, part);
-                  addedJoins.add(joinKey);
-                }
-                currentAlias = part;
-              } else {
-                // Nested levels: variants.variantItems, variantItems.attribute
-                const parentAlias = currentAlias;
-                const relationAlias = relationParts.slice(0, index + 1).join('_');
-                const joinKey = `${parentAlias}.${part}`;
-
-                if (!addedJoins.has(joinKey)) {
-                  queryBuilder.leftJoinAndSelect(joinKey, relationAlias);
-                  addedJoins.add(joinKey);
-                }
-                currentAlias = relationAlias;
-              }
-            });
-          }
-        });
+        const addedJoins = new Set<string>();
+        this.addRelationJoins(queryBuilder, relations, addedJoins);
       }
 
       // Apply filters
       if (filters.search) {
         queryBuilder.andWhere(
-          '(product.name ILIKE :search OR product.sku ILIKE :search OR product.description ILIKE :search)',
+          `(product.name ILIKE :search OR product.sku ILIKE :search OR product.description ILIKE :search OR product.shortDescription ILIKE :search OR product.slug ILIKE :search)`,
           { search: `%${filters.search}%` }
         );
       }
@@ -198,7 +162,7 @@ export class ProductRepository {
       // Apply same filters to count query
       if (filters.search) {
         countQueryBuilder.andWhere(
-          '(product.name ILIKE :search OR product.sku ILIKE :search OR product.description ILIKE :search)',
+          `(product.name ILIKE :search OR product.sku ILIKE :search OR product.description ILIKE :search OR product.shortDescription ILIKE :search OR product.slug ILIKE :search)`,
           { search: `%${filters.search}%` }
         );
       }
@@ -275,53 +239,10 @@ export class ProductRepository {
     const queryBuilder = this.productRepository.createQueryBuilder('product');
     queryBuilder.where('product.id = :id', { id });
 
-    // Add relations using leftJoinAndSelect with support for nested relations
-    const addedJoins = new Set<string>(); // Track added joins to avoid duplicates
-
-    relations.forEach(relation => {
-      console.log('🔍 DEBUG REPO - Adding relation:', relation);
-
-      // Handle nested relations like 'variants.variantItems.attribute'
-      const relationParts = relation.split('.');
-
-      if (relationParts.length === 1) {
-        // Simple relation: product.variants
-        const joinKey = `product.${relation}`;
-        if (!addedJoins.has(joinKey)) {
-          queryBuilder.leftJoinAndSelect(joinKey, relation);
-          addedJoins.add(joinKey);
-          console.log('🔍 DEBUG REPO - Added simple join:', joinKey, 'as', relation);
-        }
-      } else {
-        // Nested relation: variants.variantItems or variants.variantItems.attribute
-        let currentAlias = 'product';
-
-        relationParts.forEach((part, index) => {
-          if (index === 0) {
-            // First level: product.variants
-            const joinKey = `${currentAlias}.${part}`;
-            if (!addedJoins.has(joinKey)) {
-              queryBuilder.leftJoinAndSelect(joinKey, part);
-              addedJoins.add(joinKey);
-              console.log('🔍 DEBUG REPO - Added nested join level 0:', joinKey, 'as', part);
-            }
-            currentAlias = part;
-          } else {
-            // Nested levels: variants.variantItems, variantItems.attribute
-            const parentAlias = currentAlias;
-            const relationAlias = relationParts.slice(0, index + 1).join('_');
-            const joinKey = `${parentAlias}.${part}`;
-
-            if (!addedJoins.has(joinKey)) {
-              queryBuilder.leftJoinAndSelect(joinKey, relationAlias);
-              addedJoins.add(joinKey);
-              console.log('🔍 DEBUG REPO - Added nested join level', index, ':', joinKey, 'as', relationAlias);
-            }
-            currentAlias = relationAlias;
-          }
-        });
-      }
-    });
+    if (relations.length > 0) {
+      const addedJoins = new Set<string>();
+      this.addRelationJoins(queryBuilder, relations, addedJoins);
+    }
 
     console.log('🔍 DEBUG REPO - Final SQL:', queryBuilder.getSql());
     const result = await queryBuilder.getOne();
@@ -339,6 +260,36 @@ export class ProductRepository {
     return this.productRepository.findOne({
       where: { sku },
     });
+  }
+
+  async findBySlug(
+    slug: string,
+    relations: string[] = [],
+    locale?: string,
+    fallbackLocale?: string,
+  ): Promise<Product | null> {
+    if (!slug) {
+      return null;
+    }
+
+    if (relations.length === 0) {
+      const direct = await this.productRepository.findOne({ where: { slug } });
+      if (direct) {
+        return direct;
+      }
+      return this.findBySlugInTranslations(slug, [], locale, fallbackLocale);
+    }
+
+    const queryBuilder = this.productRepository.createQueryBuilder('product');
+    queryBuilder.where('product.slug = :slug', { slug });
+
+    this.addRelationJoins(queryBuilder, relations, new Set<string>());
+    const direct = await queryBuilder.getOne();
+    if (direct) {
+      return direct;
+    }
+
+    return this.findBySlugInTranslations(slug, relations, locale, fallbackLocale);
   }
 
   async create(productData: Partial<Product>): Promise<Product> {
@@ -516,9 +467,25 @@ export class ProductRepository {
 
     const queryBuilder = this.productRepository.createQueryBuilder('product');
 
-    const addedJoins = new Set<string>();
-    relations.forEach((relation) => {
+    if (relations.length > 0) {
+      this.addRelationJoins(queryBuilder, relations, new Set<string>());
+    }
+
+    const products = await queryBuilder
+      .where('product.id IN (:...ids)', { ids })
+      .getMany();
+
+    return products.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+  }
+
+  private addRelationJoins(
+    queryBuilder: SelectQueryBuilder<Product>,
+    relations: string[],
+    addedJoins: Set<string> = new Set<string>(),
+  ): void {
+    relations.forEach(relation => {
       const relationParts = relation.split('.');
+
       if (relationParts.length === 1) {
         const joinKey = `product.${relation}`;
         if (!addedJoins.has(joinKey)) {
@@ -527,27 +494,29 @@ export class ProductRepository {
         }
       } else {
         let currentAlias = 'product';
+
         relationParts.forEach((part, index) => {
-          const joinKey = `${currentAlias}.${part}`;
-          const alias = relationParts.slice(0, index + 1).join('_');
-          if (!addedJoins.has(joinKey)) {
-            if (index === relationParts.length - 1) {
-              queryBuilder.leftJoinAndSelect(joinKey, alias);
-            } else {
-              queryBuilder.leftJoin(joinKey, alias);
+          if (index === 0) {
+            const joinKey = `${currentAlias}.${part}`;
+            if (!addedJoins.has(joinKey)) {
+              queryBuilder.leftJoinAndSelect(joinKey, part);
+              addedJoins.add(joinKey);
             }
-            addedJoins.add(joinKey);
+            currentAlias = part;
+          } else {
+            const parentAlias = currentAlias;
+            const relationAlias = relationParts.slice(0, index + 1).join('_');
+            const joinKey = `${parentAlias}.${part}`;
+
+            if (!addedJoins.has(joinKey)) {
+              queryBuilder.leftJoinAndSelect(joinKey, relationAlias);
+              addedJoins.add(joinKey);
+            }
+            currentAlias = relationAlias;
           }
-          currentAlias = alias;
         });
       }
     });
-
-    const products = await queryBuilder
-      .where('product.id IN (:...ids)', { ids })
-      .getMany();
-
-    return products.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
   }
 
   /**
@@ -607,7 +576,7 @@ export class ProductRepository {
       }
       if (filters.search) {
         productQueryBuilder.andWhere(
-          '(product.name ILIKE :search OR product.sku ILIKE :search)',
+          '(product.name ILIKE :search OR product.sku ILIKE :search OR product.description ILIKE :search OR product.shortDescription ILIKE :search OR product.slug ILIKE :search)',
           { search: `%${filters.search}%` }
         );
       }
@@ -650,42 +619,7 @@ export class ProductRepository {
 
       // Add relations if requested
       if (relations.length > 0) {
-        const addedJoins = new Set<string>();
-
-        relations.forEach(relation => {
-          const relationParts = relation.split('.');
-
-          if (relationParts.length === 1) {
-            const joinKey = `product.${relation}`;
-            if (!addedJoins.has(joinKey)) {
-              finalQueryBuilder.leftJoinAndSelect(joinKey, relation);
-              addedJoins.add(joinKey);
-            }
-          } else {
-            let currentAlias = 'product';
-
-            relationParts.forEach((part, index) => {
-              if (index === 0) {
-                const joinKey = `${currentAlias}.${part}`;
-                if (!addedJoins.has(joinKey)) {
-                  finalQueryBuilder.leftJoinAndSelect(joinKey, part);
-                  addedJoins.add(joinKey);
-                }
-                currentAlias = part;
-              } else {
-                const parentAlias = currentAlias;
-                const relationAlias = relationParts.slice(0, index + 1).join('_');
-                const joinKey = `${parentAlias}.${part}`;
-
-                if (!addedJoins.has(joinKey)) {
-                  finalQueryBuilder.leftJoinAndSelect(joinKey, relationAlias);
-                  addedJoins.add(joinKey);
-                }
-                currentAlias = relationAlias;
-              }
-            });
-          }
-        });
+        this.addRelationJoins(finalQueryBuilder, relations, new Set<string>());
       }
 
       const items = await finalQueryBuilder.getMany();
@@ -702,5 +636,113 @@ export class ProductRepository {
     } catch (error) {
       throw error;
     }
+  }
+
+  private async findBySlugInTranslations(
+    slug: string,
+    relations: string[],
+    locale?: string,
+    fallbackLocale?: string,
+  ): Promise<Product | null> {
+    const localesToTry: Array<string | undefined> = [];
+
+    if (locale) {
+      localesToTry.push(locale);
+    }
+
+    if (fallbackLocale && fallbackLocale !== locale) {
+      localesToTry.push(fallbackLocale);
+    }
+
+    localesToTry.push(undefined);
+
+    for (const targetLocale of localesToTry) {
+      const queryBuilder = this.productRepository.createQueryBuilder('product');
+      queryBuilder.leftJoin('product.translations', 'slugTranslations');
+      queryBuilder.where('slugTranslations.slug = :slug', { slug });
+
+      if (targetLocale) {
+        queryBuilder.andWhere('slugTranslations.locale = :locale', { locale: targetLocale });
+      }
+
+      if (relations.length > 0) {
+        this.addRelationJoins(queryBuilder, relations, new Set<string>());
+      }
+
+      const product = await queryBuilder.getOne();
+      if (product) {
+        return product;
+      }
+    }
+
+    return null;
+  }
+
+  // Translation helpers
+  async findProductTranslations(productId: string): Promise<ProductTranslation[]> {
+    return this.productTranslationRepository.find({
+      where: { product_id: productId },
+      order: { locale: 'ASC' },
+    });
+  }
+
+  async findProductTranslation(productId: string, locale: string): Promise<ProductTranslation | null> {
+    return this.productTranslationRepository.findOne({
+      where: { product_id: productId, locale },
+    });
+  }
+
+  async createProductTranslation(translationData: Partial<ProductTranslation>): Promise<ProductTranslation> {
+    const normalizedData = this.normalizeTranslationInput(translationData);
+    const translation = this.productTranslationRepository.create(normalizedData);
+    return this.productTranslationRepository.save(translation);
+  }
+
+  async updateProductTranslation(
+    productId: string,
+    locale: string,
+    translationData: Partial<ProductTranslation>
+  ): Promise<ProductTranslation | null> {
+    const existingTranslation = await this.findProductTranslation(productId, locale);
+    if (!existingTranslation) {
+      return null;
+    }
+
+    Object.assign(existingTranslation, this.normalizeTranslationInput(translationData));
+    return this.productTranslationRepository.save(existingTranslation);
+  }
+
+  async deleteProductTranslation(productId: string, locale: string): Promise<boolean> {
+    const result = await this.productTranslationRepository.delete({ product_id: productId, locale });
+    return result.affected > 0;
+  }
+
+  private normalizeTranslationInput(
+    translationData: Partial<ProductTranslation>
+  ): Partial<ProductTranslation> {
+    if (!translationData) {
+      return translationData;
+    }
+
+    const sanitized: Partial<ProductTranslation> = { ...translationData };
+    const optionalFields: Array<keyof Pick<ProductTranslation, 'name' | 'description' | 'shortDescription' | 'slug' | 'metaTitle' | 'metaDescription' | 'metaKeywords'>> = [
+      'name',
+      'description',
+      'shortDescription',
+      'slug',
+      'metaTitle',
+      'metaDescription',
+      'metaKeywords',
+    ];
+
+    optionalFields.forEach((field) => {
+      const value = sanitized[field];
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        sanitized[field] = trimmed.length > 0 ? trimmed : undefined;
+      }
+    });
+
+    return sanitized;
   }
 }

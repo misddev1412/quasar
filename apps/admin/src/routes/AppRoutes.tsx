@@ -13,6 +13,7 @@ import OrderSettingsPage from '../pages/settings/orders';
 import SettingsVisibilityPage from '../pages/settings/visibility';
 import FloatingIconsSettingsPage from '../pages/settings/floating-icons';
 import AdminBrandingPage from '../pages/settings/admin-branding';
+import MaintenanceSettingsPage from '../pages/settings/maintenance';
 import BrandAssetsPage from '../pages/brand-assets';
 import AnalyticsConfigurationPage from '../pages/analytics';
 import UserProfilePage from '../pages/profile';
@@ -174,6 +175,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/brand-assets" element={<ProtectedRoute><BrandAssetsPage /></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><AnalyticsConfigurationPage /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+      <Route path="/settings/maintenance" element={<ProtectedRoute><MaintenanceSettingsPage /></ProtectedRoute>} />
       <Route path="/settings/orders" element={<ProtectedRoute><OrderSettingsPage /></ProtectedRoute>} />
       <Route path="/settings/floating-icons" element={<ProtectedRoute><FloatingIconsSettingsPage /></ProtectedRoute>} />
       <Route path="/settings/visibility" element={<ProtectedRoute><SettingsVisibilityPage /></ProtectedRoute>} />

@@ -1,0 +1,153 @@
+{
+  "form": {
+    "placeholders": {
+      "enter_title": "Enter title...",
+      "select_language": "Select language",
+      "select_status": "Select status",
+      "select_type": "Select type",
+      "add_tags": "Type and press Enter or comma to add tags..."
+    },
+    "descriptions": {
+      "post_language_description": "Select the primary language for this post",
+      "slug_requirements": "Use only lowercase letters, numbers, and hyphens",
+      "featured_image_description": "URL to the featured image for this post",
+      "featured_post_description": "Mark this post as featured to highlight it",
+      "allow_comments_description": "Allow users to comment on this post",
+      "meta_title_description": "Custom title for search engines (recommended: 50-60 characters)",
+      "meta_description_description": "Brief description for search results (recommended: 150-160 characters)",
+      "meta_keywords_description": "Keywords for search engines, separated by tags"
+    },
+    "sections": {
+      "post_settings_description": "Configure post visibility, type, and publishing settings",
+      "seo_description": "Optimize your post for search engines",
+      "tracking_configuration": "Tracking Configuration",
+      "api_configuration": "API Configuration",
+      "status_settings": "Status Settings"
+    },
+    "tabs": {
+      "configuration": "Configuration"
+    }
+  },
+  "validation": {
+    "required": "This field is required",
+    "email_invalid": "Please enter a valid email address",
+    "username_min_length": "Username must be at least 3 characters",
+    "username_max_length": "Username must not exceed 50 characters",
+    "username_invalid_chars": "Username can only contain letters, numbers, underscores, and hyphens",
+    "password_min_length": "Password must be at least 8 characters",
+    "password_requirements": "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+    "first_name_min_length": "First name must be at least 2 characters",
+    "first_name_max_length": "First name must not exceed 50 characters",
+    "last_name_min_length": "Last name must be at least 2 characters",
+    "last_name_max_length": "Last name must not exceed 50 characters",
+    "phone_invalid": "Please enter a valid phone number",
+    "passwords_not_match": "Passwords do not match",
+    "password_one_lowercase": "Must contain at least one lowercase letter",
+    "password_one_uppercase": "Must contain at least one uppercase letter",
+    "password_one_number": "Must contain at least one number",
+    "password_one_special": "Must contain at least one special character",
+    "invalid_value": "Invalid value"
+  },
+  "filters": {
+    "quick_filters": {
+      "title": "Quick Filters",
+      "registration_date_title": "Registration Date Filters",
+      "subtitle": "Filter users by registration date and other criteria",
+      "date_subtitle": "Quick access to common registration date ranges"
+    },
+    "categories": {
+      "current_period": "Current Period",
+      "recent_period": "Recent Period",
+      "user_status": "User Status",
+      "user_roles": "User Roles",
+      "email_verification": "Email Verification"
+    },
+    "date": {
+      "today": "Today",
+      "this_week": "This Week",
+      "this_month": "This Month",
+      "last_7_days": "Last 7 Days",
+      "last_30_days": "Last 30 Days",
+      "last_90_days": "Last 90 Days",
+      "last_year": "Last Year"
+    },
+    "status": {
+      "active": "Active Users",
+      "inactive": "Inactive Users",
+      "all": "All Users"
+    },
+    "roles": {
+      "super_admin": "Super Admins",
+      "admin": "Administrators",
+      "manager": "Managers",
+      "user": "Regular Users",
+      "guest": "Guests"
+    },
+    "verification": {
+      "verified": "Email Verified",
+      "unverified": "Email Unverified",
+      "pending": "Verification Pending"
+    }
+  },
+  "table": {
+    "search_placeholder": "Search...",
+    "no_data": "No data available",
+    "loading": "Loading table data...",
+    "empty_state": {
+      "title": "No data found",
+      "message": "No data available"
+    },
+    "pagination": {
+      "per_page_10": "10 per page",
+      "per_page_20": "20 per page",
+      "per_page_25": "25 per page",
+      "per_page_50": "50 per page",
+      "per_page_100": "100 per page",
+      "show": "Show",
+      "showing": "Showing",
+      "to": "to",
+      "of": "of",
+      "results": "results",
+      "previous": "Previous",
+      "next": "Next",
+      "first": "First",
+      "last": "Last",
+      "page": "Page",
+      "go_to_page": "Go to page {page}",
+      "go_to_previous_page": "Go to previous page",
+      "go_to_next_page": "Go to next page"
+    },
+    "selection": {
+      "select_all": "Select all {count} rows on this page",
+      "all_rows_selected": "All rows selected",
+      "some_rows_selected": "Some rows selected",
+      "no_rows_selected": "No rows selected",
+      "select_row": "Select row {index}: {name}"
+    },
+    "sorting": {
+      "sort_by": "Sort by {column}",
+      "sorted_ascending": "Sorted ascending",
+      "sorted_descending": "Sorted descending",
+      "sort_ascending": "Sort ascending",
+      "sort_descending": "Sort descending"
+    },
+    "toolbar": {
+      "search": "Search table data",
+      "filter": "Filter",
+      "open_filters": "Open filters",
+      "close_filters": "Close filters",
+      "columns": "Columns",
+      "toggle_column_visibility": "Toggle column visibility"
+    },
+    "density": {
+      "compact": "Compact",
+      "normal": "Normal",
+      "comfortable": "Comfortable"
+    },
+    "accessibility": {
+      "table_region": "Data table",
+      "loading_table": "Loading table data",
+      "table_pagination": "Table pagination"
+    }
+  }
+}

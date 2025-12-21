@@ -8,12 +8,14 @@ export interface CreateProductSpecificationDto {
   name: string;
   value: string;
   sortOrder?: number;
+  labelId?: string | null;
 }
 
 export interface UpdateProductSpecificationDto {
   name?: string;
   value?: string;
   sortOrder?: number;
+  labelId?: string | null;
 }
 
 @Injectable()
@@ -41,6 +43,7 @@ export class ProductSpecificationRepository {
         name: spec.name,
         value: spec.value,
         sortOrder: spec.sortOrder ?? 0,
+        labelId: spec.labelId ?? null,
       }),
     );
 

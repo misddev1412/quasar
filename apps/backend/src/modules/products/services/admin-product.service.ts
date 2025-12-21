@@ -16,6 +16,7 @@ import * as path from 'path';
 import { FileUploadService } from '@backend/modules/storage/services/file-upload.service';
 import { DataExportService, ExportFormat } from '@backend/modules/export';
 import { PRODUCT_EXPORT_COLUMNS } from '../export/product-export.columns';
+import slugify from 'slugify';
 
 export interface AdminProductFilters {
   page: number;
@@ -79,6 +80,26 @@ interface ReuploadedImageResult {
 
 @Injectable()
 export class AdminProductService {
+  private static readonly UUID_REGEX = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
+  private readonly vietnameseCharMap: Record<string, string> = {
+    đ: 'd',
+    Đ: 'D',
+    ă: 'a',
+    Ă: 'A',
+    â: 'a',
+    Â: 'A',
+    ê: 'e',
+    Ê: 'E',
+    ô: 'o',
+    Ô: 'O',
+    ơ: 'o',
+    Ơ: 'O',
+    ư: 'u',
+    Ư: 'U',
+    ý: 'y',
+    Ý: 'Y',
+  };
+
   constructor(
     private readonly productRepository: ProductRepository,
     private readonly productMediaRepository: ProductMediaRepository,
@@ -91,6 +112,40 @@ export class AdminProductService {
     private readonly fileUploadService: FileUploadService,
     private readonly dataExportService: DataExportService,
   ) {}
+
+  private isUuid(value: string): boolean {
+    if (typeof value !== 'string') {
+      return false;
+    }
+    return AdminProductService.UUID_REGEX.test(value.trim());
+  }
+
+  private async findProductByIdentifier(identifier: string, relations: string[] = []): Promise<Product | null> {
+    const normalized = typeof identifier === 'string' ? identifier.trim() : '';
+    if (!normalized) {
+      return null;
+    }
+
+    if (this.isUuid(normalized)) {
+      return this.productRepository.findById(normalized, relations);
+    }
+
+    return this.productRepository.findBySlug(normalized, relations);
+  }
+
+  private async resolveProductId(identifier: string): Promise<string | null> {
+    const normalized = typeof identifier === 'string' ? identifier.trim() : '';
+    if (!normalized) {
+      return null;
+    }
+
+    if (this.isUuid(normalized)) {
+      return normalized;
+    }
+
+    const product = await this.productRepository.findBySlug(normalized);
+    return product?.id ?? null;
+  }
 
   async getAllProducts(filters: AdminProductFilters) {
     try {
@@ -138,8 +193,66 @@ export class AdminProductService {
     }
   }
 
-  async getProductById(id: string, relations: string[] = ['media', 'variants', 'variants.variantItems', 'variants.variantItems.attribute', 'variants.variantItems.attributeValue', 'brand', 'productCategories', 'productCategories.category', 'specifications']): Promise<TransformedProduct> {
-    const product = await this.productRepository.findById(id, relations);
+  private generateProductSlug(text?: string, fallbackBase: string = 'product'): string {
+    const source = (text || '').trim();
+    let slug = slugify(source || fallbackBase, {
+      lower: true,
+      strict: false,
+      trim: true,
+      replacement: '-',
+      remove: /[*+~()'"]/g,
+      locale: 'vi',
+    });
+
+    Object.keys(this.vietnameseCharMap).forEach(char => {
+      const regex = new RegExp(char, 'g');
+      slug = slug.replace(regex, this.vietnameseCharMap[char]);
+    });
+
+    slug = slug
+      .replace(/[,;.:!?@#$%^&<>{}[\]\\|`=]/g, '-')
+      .replace(/-{2,}/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    if (!slug) {
+      slug = `${fallbackBase}-${Date.now()}`;
+    }
+
+    return slug.substring(0, 120).replace(/-+$/, '');
+  }
+
+  private async ensureUniqueProductSlug(baseSlug: string, excludeId?: string): Promise<string> {
+    const safeBase = baseSlug && baseSlug.trim().length > 0 ? baseSlug.trim() : `product-${Date.now()}`;
+    let slug = safeBase;
+    let counter = 1;
+
+    while (true) {
+      const existing = await this.productRepository.findBySlug(slug);
+      if (!existing || (excludeId && existing.id === excludeId)) {
+        return slug;
+      }
+
+      slug = `${safeBase}-${counter}`;
+      counter += 1;
+    }
+  }
+
+  async getProductById(
+    id: string,
+    relations: string[] = [
+      'media',
+      'variants',
+      'variants.variantItems',
+      'variants.variantItems.attribute',
+      'variants.variantItems.attributeValue',
+      'brand',
+      'productCategories',
+      'productCategories.category',
+      'specifications',
+      'translations',
+    ],
+  ): Promise<TransformedProduct> {
+    const product = await this.findProductByIdentifier(id, relations);
     if (!product) {
       throw new NotFoundException('Product not found');
     }
@@ -191,11 +304,19 @@ export class AdminProductService {
         }
         return value;
       };
+      const cleanText = (value: any): string | null => {
+        if (typeof value !== 'string') {
+          return null;
+        }
+        const trimmed = value.trim();
+        return trimmed.length > 0 ? trimmed : null;
+      };
 
       // Transform the data to match the entity structure
       const transformedData: Partial<Product> = {
         name: productData.name,
-        description: productData.description || null,
+        description: cleanText(productData.description),
+        shortDescription: cleanText(productData.shortDescription),
         sku: productData.sku || null,
         status: productData.status || 'DRAFT',
         price: productData.price !== undefined ? productData.price : 0,
@@ -213,12 +334,21 @@ export class AdminProductService {
         isActive: true, // Default to active
       };
 
+      const slugSource = typeof productData.slug === 'string' ? productData.slug.trim() : '';
+      const normalizedSlug = this.generateProductSlug(slugSource || productData.name || 'product');
+      const ensuredSlug = await this.ensureUniqueProductSlug(normalizedSlug);
+      transformedData.slug = ensuredSlug;
+
       // Handle media - will be processed after product creation
 
       // For now, skip tags and variants processing - these will need separate handling
       // as they involve relations that should be created after the product is saved
 
       const product = await this.productRepository.create(transformedData);
+      if (ensuredSlug && product.slug !== ensuredSlug) {
+        await this.productRepository.update(product.id, { slug: ensuredSlug });
+        product.slug = ensuredSlug;
+      }
 
       // Handle media creation
       if (productData.media && Array.isArray(productData.media)) {
@@ -274,11 +404,19 @@ export class AdminProductService {
         }
         return value;
       };
+      const cleanText = (value: any): string | null => {
+        if (typeof value !== 'string') {
+          return null;
+        }
+        const trimmed = value.trim();
+        return trimmed.length > 0 ? trimmed : null;
+      };
 
       // Transform the data to match the entity structure
       const transformedData: Partial<Product> = {
         name: productData.name,
-        description: productData.description || null,
+        description: cleanText(productData.description),
+        shortDescription: cleanText(productData.shortDescription),
         sku: productData.sku || null,
         status: productData.status || 'DRAFT',
         price: productData.price !== undefined ? productData.price : existingProduct.price,
@@ -295,6 +433,30 @@ export class AdminProductService {
         enableWarehouseQuantity: productData.enableWarehouseQuantity !== undefined ? productData.enableWarehouseQuantity : existingProduct.enableWarehouseQuantity,
         isActive: productData.isActive !== undefined ? productData.isActive : true,
       };
+
+      const providedSlugValue = typeof productData.slug === 'string' ? productData.slug.trim() : undefined;
+      const fallbackSlugSource = productData.name || existingProduct.name || 'product';
+
+      if (providedSlugValue !== undefined) {
+        if (providedSlugValue.length === 0) {
+          transformedData.slug = await this.ensureUniqueProductSlug(
+            this.generateProductSlug(fallbackSlugSource),
+            id,
+          );
+        } else if (providedSlugValue !== existingProduct.slug) {
+          transformedData.slug = await this.ensureUniqueProductSlug(
+            this.generateProductSlug(providedSlugValue),
+            id,
+          );
+        } else {
+          transformedData.slug = existingProduct.slug;
+        }
+      } else if (!existingProduct.slug) {
+        transformedData.slug = await this.ensureUniqueProductSlug(
+          this.generateProductSlug(fallbackSlugSource),
+          id,
+        );
+      }
 
       // Handle media - will be processed after product update
 
@@ -313,6 +475,9 @@ export class AdminProductService {
       const updatedProduct = await this.productRepository.update(id, transformedData);
       if (!updatedProduct) {
         throw new NotFoundException('Product not found after update');
+      }
+      if (transformedData.slug && updatedProduct.slug !== transformedData.slug) {
+        updatedProduct.slug = transformedData.slug;
       }
 
       // Handle media update
@@ -1353,16 +1518,22 @@ export class AdminProductService {
 
   private async handleProductSpecifications(productId: string, specifications: any[]): Promise<void> {
     const normalized = specifications
-      .filter((spec) => spec && typeof spec.name === 'string' && spec.name.trim() !== '' && spec.value !== undefined && spec.value !== null)
+      .filter((spec) => {
+        const hasName = spec && typeof spec.name === 'string' && spec.name.trim() !== '';
+        const hasValue = spec && spec.value !== undefined && spec.value !== null && String(spec.value).trim() !== '';
+        return hasName && hasValue;
+      })
       .map((spec, index): CreateProductSpecificationDto => {
         const parsedOrder = spec.sortOrder !== undefined ? Number(spec.sortOrder) : index;
         const sortOrder = Number.isFinite(parsedOrder) ? parsedOrder : index;
+        const labelId = typeof spec.labelId === 'string' && spec.labelId ? spec.labelId : undefined;
 
         return {
           productId,
           name: String(spec.name).trim(),
           value: String(spec.value).trim(),
           sortOrder,
+          labelId,
         };
       });
 
@@ -1760,6 +1931,11 @@ export class AdminProductService {
     limit: number;
     totalPages: number;
   }> {
+    const normalizedProductId = await this.resolveProductId(productId);
+    if (!normalizedProductId) {
+      throw new NotFoundException('Product not found');
+    }
+
     const dataSource = this.productRepository['manager'].connection;
 
     const skip = (page - 1) * limit;
@@ -1769,7 +1945,7 @@ export class AdminProductService {
       .getRepository('OrderItem')
       .createQueryBuilder('orderItem')
       .leftJoinAndSelect('orderItem.order', 'order')
-      .where('orderItem.product_id = :productId', { productId })
+      .where('orderItem.product_id = :productId', { productId: normalizedProductId })
       .orderBy('order.order_date', 'DESC')
       .skip(skip)
       .take(limit);

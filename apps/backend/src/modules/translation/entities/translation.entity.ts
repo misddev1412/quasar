@@ -14,7 +14,7 @@ export class Translation extends BaseEntity {
   value: string;
 
   @Column({ nullable: true })
-  namespace?: string;
+  namespace?: string | null;
 
   @Column({ name: 'is_active', default: true })
   isActive: boolean;

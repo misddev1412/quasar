@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Package } from 'lucide-react';
 import { FiHome, FiPackage } from 'react-icons/fi';
 import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
-import { ProductForm, ProductFormData } from '../../components/products/ProductForm';
+import { ProductForm, ProductFormData, ProductFormSubmitOptions } from '../../components/products/ProductForm';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
@@ -18,7 +18,7 @@ const CreateProductPage: React.FC = () => {
   const { activeTab, handleTabChange } = useUrlTabs({
     defaultTab: 0,
     tabParam: 'tab',
-    tabKeys: ['general', 'media', 'variants', 'specifications', 'seo'] // Maps to ProductForm tab IDs
+    tabKeys: ['general', 'media', 'variants', 'specifications', 'translations', 'seo'] // Maps to ProductForm tab IDs
   });
 
   const createProductMutation = trpc.adminProducts.create.useMutation({
@@ -39,9 +39,9 @@ const CreateProductPage: React.FC = () => {
     },
   });
 
-  const handleSubmit = async (data: ProductFormData) => {
+  const handleSubmit = async (data: ProductFormData, _options?: ProductFormSubmitOptions) => {
     try {
-      await createProductMutation.mutateAsync(data);
+      return await createProductMutation.mutateAsync(data);
     } catch (error) {
       // Error handling is done in the mutation's onError callback
       console.error('Product creation error:', error);

@@ -1,4 +1,5 @@
 import React from 'react';
+import { BASE_LABEL_CLASS } from './styles';
 
 interface TextareaInputProps {
   id: string;
@@ -26,7 +27,7 @@ export const TextareaInput: React.FC<TextareaInputProps & { [key: string]: any }
 }) => {
   return (
     <div className="space-y-2">
-      <label htmlFor={id} className="block text-sm font-medium text-neutral-800 dark:text-neutral-200">
+      <label htmlFor={id} className={BASE_LABEL_CLASS}>
         {label}
       </label>
       <textarea

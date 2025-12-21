@@ -1,0 +1,17 @@
+{
+  "translations": {
+    "table": {
+      "key": "键",
+      "locale": "语言",
+      "value": "值",
+      "namespace": "命名空间",
+      "status": "状态",
+      "createdAt": "创建时间"
+    },
+    "noTranslationsFound": "未找到翻译",
+    "stats": {
+      "active": "活跃",
+      "total": "总计"
+    }
+  }
+}

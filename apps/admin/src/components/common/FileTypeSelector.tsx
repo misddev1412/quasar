@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Check, ChevronDown, File, Image, FileText, Music, Video, Archive, Code, FileType } from 'lucide-react';
 import clsx from 'clsx';
+import { BASE_LABEL_CLASS } from './styles';
 
 // Common file types with user-friendly names and MIME types
 export const FILE_TYPE_CATEGORIES = {
@@ -194,7 +195,7 @@ export const FileTypeSelector: React.FC<FileTypeSelectorProps> = ({
   return (
     <div className="space-y-2">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className={BASE_LABEL_CLASS}>
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>

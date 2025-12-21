@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { SectionTranslationContent } from './HeroSlider';
 import type { ApiResponse } from '../../types/api';
+import type { ViewMoreButtonConfig } from '@shared/types/component.types';
 import SectionContainer from './SectionContainer';
+import { ViewMoreButton } from '../common/ViewMoreButton';
 
 export type NewsSectionStrategy = 'latest' | 'most_viewed' | 'featured';
 
@@ -84,6 +86,7 @@ const parseNewsRows = (config: NewsSectionConfig): NewsSectionRowConfig[] => {
 interface NewsSectionProps {
   config: NewsSectionConfig;
   translation?: SectionTranslationContent | null;
+  viewMoreButtonConfig?: ViewMoreButtonConfig;
 }
 
 interface NewsItem {
@@ -112,7 +115,7 @@ interface RowState {
   error?: string;
 }
 
-export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation }) => {
+export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, viewMoreButtonConfig }) => {
   const { t } = useTranslation();
   const rows = useMemo(() => parseNewsRows(config), [config]);
   const primaryRow = rows[0];
@@ -253,12 +256,11 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation })
               )}
               {sectionDescription && <p className="mt-2 text-gray-500 dark:text-gray-400">{sectionDescription}</p>}
             </div>
-            <Link
+            <ViewMoreButton
               href="/news"
-              className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-            {t('sections.news.view_newsroom', 'View newsroom')}
-          </Link>
+              label={t('sections.news.view_newsroom', 'View newsroom')}
+              config={viewMoreButtonConfig}
+            />
           </div>
         )}
 

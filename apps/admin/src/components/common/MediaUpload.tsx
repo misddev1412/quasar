@@ -3,6 +3,7 @@ import { Upload, X, Image, File, Video, Music, FileText, FolderOpen } from 'luci
 import clsx from 'clsx';
 import { MediaManager } from './MediaManager';
 import { UploadService } from '../../utils/upload';
+import { BASE_LABEL_CLASS } from './styles';
 
 interface MediaUploadProps {
   value?: string | string[]; // Support single or multiple files
@@ -261,7 +262,7 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
   return (
     <div className={clsx('space-y-2', className)}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className={BASE_LABEL_CLASS}>
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>

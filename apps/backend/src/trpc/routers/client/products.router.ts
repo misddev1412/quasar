@@ -12,6 +12,8 @@ import {
 } from '../../schemas/product.schemas';
 import { ProductStatus } from '@backend/modules/products/entities/product.entity';
 import { AdminCurrencyService } from '../../../modules/products/services/admin-currency.service';
+import { AuthenticatedContext } from '../../context';
+import { SupportedLocale } from '@shared';
 
 @Router({ alias: 'clientProducts' })
 @Injectable()
@@ -71,6 +73,7 @@ export class ClientProductsRouter {
     output: apiResponseSchema,
   })
   async getProducts(
+    @Ctx() ctx: AuthenticatedContext,
     @Input() query: z.infer<typeof productListQuerySchema>
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
@@ -116,13 +119,17 @@ export class ClientProductsRouter {
           'tags',
           'productCategories',
           'productCategories.category',
-          'specifications'
+          'specifications',
+          'translations',
         ],
       });
 
       const { formatter, currencyCode } = await this.resolveCurrencyFormat();
+      const fallbackLocale = this.getFallbackLocale(ctx.locale);
       const formattedResult = {
-        items: result.items.map(product => this.formatProductForResponse(product, formatter, currencyCode)),
+        items: result.items.map(product =>
+          this.formatProductForResponse(product, formatter, currencyCode, ctx.locale, fallbackLocale)
+        ),
         pagination: {
           page: result.page,
           limit: result.limit,
@@ -147,6 +154,7 @@ export class ClientProductsRouter {
     output: apiResponseSchema,
   })
   async getProductById(
+    @Ctx() ctx: AuthenticatedContext,
     @Input() params: { id: string }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
@@ -164,7 +172,8 @@ export class ClientProductsRouter {
         'tags',
         'productCategories',
         'productCategories.category',
-        'specifications'
+        'specifications',
+        'translations',
       ]);
 
       if (!product) {
@@ -172,7 +181,8 @@ export class ClientProductsRouter {
       }
 
       const { formatter, currencyCode } = await this.resolveCurrencyFormat();
-      const formattedProduct = this.formatProductForResponse(product, formatter, currencyCode);
+      const fallbackLocale = this.getFallbackLocale(ctx.locale);
+      const formattedProduct = this.formatProductForResponse(product, formatter, currencyCode, ctx.locale, fallbackLocale);
 
       return this.responseHandler.createTrpcSuccess({
         product: formattedProduct,
@@ -192,39 +202,45 @@ export class ClientProductsRouter {
     output: apiResponseSchema,
   })
   async getProductBySlug(
+    @Ctx() ctx: AuthenticatedContext,
     @Input() params: { slug: string }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const { slug } = params;
 
-      // For now, we'll search by name since slug isn't implemented in the entity
-      // In a real implementation, you'd add a slug field to the Product entity
-      const product = await this.productRepository.findAll({
-        filters: {
-          search: slug.replace(/-/g, ' '),
-        },
-        relations: [
-          'brand',
-          'supplier',
-          'warranty',
-          'variants',
-          'variants.variantItems',
-          'variants.variantItems.attribute',
-          'variants.variantItems.attributeValue',
-          'media',
-          'tags',
-          'productCategories',
-          'productCategories.category',
-          'specifications'
-        ],
-      });
+      const relations = [
+        'brand',
+        'supplier',
+        'warranty',
+        'variants',
+        'variants.variantItems',
+        'variants.variantItems.attribute',
+        'variants.variantItems.attributeValue',
+        'media',
+        'tags',
+        'productCategories',
+        'productCategories.category',
+        'specifications',
+        'translations',
+      ];
 
-      if (!product.items || product.items.length === 0) {
+      const product = await this.productRepository.findBySlug(slug, relations, ctx.locale, this.getFallbackLocale(ctx.locale));
+
+      if (!product) {
         throw new Error('Product not found');
       }
 
+      const slugLocale = this.detectLocaleFromSlug(product, slug);
+      const effectiveLocale = slugLocale ?? ctx.locale;
+      const fallbackLocale = this.getFallbackLocale(effectiveLocale);
       const { formatter, currencyCode } = await this.resolveCurrencyFormat();
-      const formattedProduct = this.formatProductForResponse(product.items[0], formatter, currencyCode);
+      const formattedProduct = this.formatProductForResponse(
+        product,
+        formatter,
+        currencyCode,
+        effectiveLocale,
+        fallbackLocale,
+      );
 
       return this.responseHandler.createTrpcSuccess({
         product: formattedProduct,
@@ -242,7 +258,9 @@ export class ClientProductsRouter {
   @Query({
     output: apiResponseSchema,
   })
-  async getNewProducts(): Promise<z.infer<typeof apiResponseSchema>> {
+  async getNewProducts(
+    @Ctx() ctx: AuthenticatedContext,
+  ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const result = await this.productRepository.findAll({
         page: 1,
@@ -263,13 +281,17 @@ export class ClientProductsRouter {
           'tags',
           'productCategories',
           'productCategories.category',
-          'specifications'
+          'specifications',
+          'translations',
         ],
       });
 
       const { formatter, currencyCode } = await this.resolveCurrencyFormat();
+      const fallbackLocale = this.getFallbackLocale(ctx.locale);
       const formattedResult = {
-        items: result.items.map(product => this.formatProductForResponse(product, formatter, currencyCode)),
+        items: result.items.map(product =>
+          this.formatProductForResponse(product, formatter, currencyCode, ctx.locale, fallbackLocale)
+        ),
         pagination: {
           page: result.page,
           limit: result.limit,
@@ -292,7 +314,9 @@ export class ClientProductsRouter {
   @Query({
     output: apiResponseSchema,
   })
-  async getFeaturedProducts(): Promise<z.infer<typeof apiResponseSchema>> {
+  async getFeaturedProducts(
+    @Ctx() ctx: AuthenticatedContext,
+  ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const result = await this.productRepository.findAll({
         page: 1,
@@ -314,13 +338,17 @@ export class ClientProductsRouter {
           'tags',
           'productCategories',
           'productCategories.category',
-          'specifications'
+          'specifications',
+          'translations',
         ],
       });
 
       const { formatter, currencyCode } = await this.resolveCurrencyFormat();
+      const fallbackLocale = this.getFallbackLocale(ctx.locale);
       const formattedResult = {
-        items: result.items.map(product => this.formatProductForResponse(product, formatter, currencyCode)),
+        items: result.items.map(product =>
+          this.formatProductForResponse(product, formatter, currencyCode, ctx.locale, fallbackLocale)
+        ),
         pagination: {
           page: result.page,
           limit: result.limit,
@@ -347,6 +375,7 @@ export class ClientProductsRouter {
     output: apiResponseSchema,
   })
   async getProductsByIds(
+    @Ctx() ctx: AuthenticatedContext,
     @Input() input: { ids: string[] }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
@@ -357,10 +386,14 @@ export class ClientProductsRouter {
         'variants.variantItems.attribute',
         'variants.variantItems.attributeValue',
         'media',
+        'translations',
       ]);
 
       const { formatter, currencyCode } = await this.resolveCurrencyFormat();
-      const formattedProducts = products.map((product) => this.formatProductForResponse(product, formatter, currencyCode));
+      const fallbackLocale = this.getFallbackLocale(ctx.locale);
+      const formattedProducts = products.map((product) =>
+        this.formatProductForResponse(product, formatter, currencyCode, ctx.locale, fallbackLocale)
+      );
 
       return this.responseHandler.createTrpcSuccess({ items: formattedProducts });
     } catch (error) {
@@ -381,6 +414,7 @@ export class ClientProductsRouter {
     output: apiResponseSchema,
   })
   async getProductsByCategory(
+    @Ctx() ctx: AuthenticatedContext,
     @Input() params: { categoryId?: string; strategy?: 'latest' | 'featured' | 'bestsellers' | 'custom' }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
@@ -440,13 +474,17 @@ export class ClientProductsRouter {
           'tags',
           'productCategories',
           'productCategories.category',
-          'specifications'
+          'specifications',
+          'translations',
         ],
       });
 
       const { formatter, currencyCode } = await this.resolveCurrencyFormat();
+      const fallbackLocale = this.getFallbackLocale(ctx.locale);
       const formattedResult = {
-        items: result.items.map(product => this.formatProductForResponse(product, formatter, currencyCode)),
+        items: result.items.map(product =>
+          this.formatProductForResponse(product, formatter, currencyCode, ctx.locale, fallbackLocale)
+        ),
         pagination: {
           page: result.page,
           limit: result.limit,
@@ -581,7 +619,35 @@ export class ClientProductsRouter {
     }
   }
 
-  private formatProductForResponse(product: any, currencyFormatter: Intl.NumberFormat, currencyCode: string): any {
+  private formatProductForResponse(
+    product: any,
+    currencyFormatter: Intl.NumberFormat,
+    currencyCode: string,
+    locale?: SupportedLocale,
+    fallbackLocale?: SupportedLocale,
+  ): any {
+    const rawTranslations = Array.isArray(product.translations)
+      ? product.translations
+      : Array.isArray((product as any).__translations__)
+        ? (product as any).__translations__
+        : [];
+    const resolvedTranslation = this.resolveProductTranslation(rawTranslations, locale, fallbackLocale);
+    const resolvedName = resolvedTranslation?.name ?? product.name;
+    const resolvedDescription = resolvedTranslation?.description ?? product.description;
+    const resolvedSlug = resolvedTranslation?.slug ?? product.slug ?? product.id;
+    const resolvedMetaTitle = resolvedTranslation?.metaTitle ?? product.metaTitle;
+    const resolvedMetaDescription = resolvedTranslation?.metaDescription ?? product.metaDescription;
+    const resolvedMetaKeywords = resolvedTranslation?.metaKeywords ?? product.metaKeywords;
+    const normalizedTranslations = rawTranslations.map((translation: any) => ({
+      id: translation.id,
+      locale: translation.locale,
+      name: translation.name,
+      description: translation.description,
+      slug: translation.slug,
+      metaTitle: translation.metaTitle,
+      metaDescription: translation.metaDescription,
+      metaKeywords: translation.metaKeywords,
+    }));
     const tags = Array.isArray(product.tags)
       ? product.tags.map((tag: any) => ({
           id: tag.id,
@@ -707,17 +773,18 @@ export class ClientProductsRouter {
 
     return {
       id: product.id,
-      name: product.name,
-      description: product.description,
+      name: resolvedName,
+      slug: resolvedSlug,
+      description: resolvedDescription,
       sku: product.sku,
       status: product.status,
       brandId: product.brandId,
       supplierId: product.supplierId,
       warrantyId: product.warrantyId,
       images: product.images,
-      metaTitle: product.metaTitle,
-      metaDescription: product.metaDescription,
-      metaKeywords: product.metaKeywords,
+      metaTitle: resolvedMetaTitle,
+      metaDescription: resolvedMetaDescription,
+      metaKeywords: resolvedMetaKeywords,
       isActive: product.isActive,
       isFeatured: product.isFeatured,
       sortOrder: product.sortOrder,
@@ -762,8 +829,84 @@ export class ClientProductsRouter {
       priceRange,
       currencyCode,
       price: lowestPrice ?? product.price ?? 0,
+      translations: normalizedTranslations,
       hasVariants: variants.length > 1,
       variantCount: variants.length,
     };
+  }
+
+  private normalizeLocaleCode(value?: string | null): SupportedLocale | undefined {
+    if (!value || typeof value !== 'string') {
+      return undefined;
+    }
+    const normalized = value.trim().toLowerCase();
+    if (!normalized) {
+      return undefined;
+    }
+    const [base] = normalized.split(/[-_]/);
+    if (base === 'vi' || base === 'en') {
+      return base as SupportedLocale;
+    }
+    return undefined;
+  }
+
+  private detectLocaleFromSlug(product: any, slug: string): SupportedLocale | undefined {
+    if (!product || !slug) {
+      return undefined;
+    }
+
+    const normalizedSlug = slug.trim().toLowerCase();
+    if (!normalizedSlug) {
+      return undefined;
+    }
+
+    const translations = Array.isArray(product.translations)
+      ? product.translations
+      : Array.isArray((product as any)?.__translations__)
+        ? (product as any).__translations__
+        : [];
+
+    if (!Array.isArray(translations) || translations.length === 0) {
+      return undefined;
+    }
+
+    const matchedTranslation = translations.find((translation: any) => {
+      if (!translation || typeof translation.slug !== 'string') {
+        return false;
+      }
+      return translation.slug.trim().toLowerCase() === normalizedSlug;
+    });
+
+    return this.normalizeLocaleCode(matchedTranslation?.locale);
+  }
+
+  private getFallbackLocale(locale: SupportedLocale): SupportedLocale {
+    return locale === 'vi' ? 'en' : 'vi';
+  }
+
+  private resolveProductTranslation(
+    translations: any[],
+    locale?: SupportedLocale,
+    fallbackLocale?: SupportedLocale,
+  ) {
+    if (!Array.isArray(translations) || translations.length === 0) {
+      return null;
+    }
+
+    if (locale) {
+      const localeMatch = translations.find((translation) => translation.locale === locale);
+      if (localeMatch) {
+        return localeMatch;
+      }
+    }
+
+    if (fallbackLocale) {
+      const fallbackMatch = translations.find((translation) => translation.locale === fallbackLocale);
+      if (fallbackMatch) {
+        return fallbackMatch;
+      }
+    }
+
+    return translations[0];
   }
 }

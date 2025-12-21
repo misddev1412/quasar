@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FolderPlus, Package, Image, Settings, Globe, Tag, Layers, Zap, Warehouse } from 'lucide-react';
 import { EntityForm } from '../common/EntityForm';
-import { FormTabConfig } from '../../types/forms';
+import { TranslationTabs } from '../common/TranslationTabs';
+import { FormTabConfig, FormActionsAlignment } from '../../types/forms';
 import { CreateProductFormData, Product, ProductVariant, ProductMedia, ProductWarehouseQuantity } from '../../types/product';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
@@ -14,6 +15,7 @@ import { ProductWarehouseQuantityManager } from './ProductWarehouseQuantityManag
 import { Input } from '../common/Input';
 import { InputWithIcon } from '../common/InputWithIcon';
 import { stripNumberLeadingZeros } from '../../utils/inputUtils';
+import { Button } from '../common/Button';
 
 // MediaItem interface for frontend form - compatible with ProductMediaUpload component
 interface MediaItem {
@@ -78,7 +80,9 @@ const transformMediaItemForBackend = (mediaItem: MediaItem) => ({
 
 const productSchema = z.object({
   name: z.string().min(1, 'Product name is required'),
+  slug: z.string().min(1, 'Slug is required'),
   description: z.string().optional(),
+  shortDescription: z.string().max(500).optional(),
   sku: z.string().optional(),
   status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE', 'DISCONTINUED']),
   brandId: z.string().optional(),
@@ -136,11 +140,14 @@ export interface SpecificationFormValue {
   name: string;
   value: string;
   sortOrder?: number;
+  labelId?: string | null;
 }
 
 export interface ProductFormData {
   name: string;
+  slug: string;
   description?: string;
+  shortDescription?: string;
   sku?: string;
   status: 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'DISCONTINUED';
   brandId?: string;
@@ -161,13 +168,48 @@ export interface ProductFormData {
   specifications?: SpecificationFormValue[];
 }
 
+const SUPPORTED_TRANSLATION_LOCALES = ['en', 'vi'] as const;
+type SupportedTranslationLocale = (typeof SUPPORTED_TRANSLATION_LOCALES)[number];
+
+const isSupportedTranslationLocale = (value: string): value is SupportedTranslationLocale =>
+  (SUPPORTED_TRANSLATION_LOCALES as readonly string[]).includes(value);
+
+interface ProductTranslationFormValues {
+  name?: string;
+  description?: string;
+  shortDescription?: string;
+  slug?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
+  [key: string]: string | undefined;
+}
+
+type TranslationState = Record<SupportedTranslationLocale, ProductTranslationFormValues>;
+
+const createEmptyTranslationState = (): TranslationState =>
+  SUPPORTED_TRANSLATION_LOCALES.reduce((acc, locale) => {
+    acc[locale] = {};
+    return acc;
+  }, {} as TranslationState);
+
+const cloneTranslationState = (state: TranslationState): TranslationState =>
+  JSON.parse(JSON.stringify(state));
+
 export interface ProductFormProps {
   product?: Product;
-  onSubmit: (data: ProductFormData) => Promise<void>;
+  onSubmit: (data: ProductFormData, options?: ProductFormSubmitOptions) => Promise<any>;
   onCancel: () => void;
   isSubmitting?: boolean;
   activeTab?: number;
   onTabChange?: (index: number) => void;
+  actionsAlignment?: FormActionsAlignment;
+}
+
+export type ProductFormSubmitAction = 'save' | 'save_and_continue';
+
+export interface ProductFormSubmitOptions {
+  submitAction?: ProductFormSubmitAction;
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({
@@ -177,9 +219,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   isSubmitting = false,
   activeTab,
   onTabChange,
+  actionsAlignment,
 }) => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
+  const showSaveAndContinueActions = Boolean(product?.id);
+  const submitActionRef = useRef<ProductFormSubmitAction>('save');
+  const [lastSubmitAction, setLastSubmitAction] = useState<ProductFormSubmitAction>('save');
+
+  const handleSubmitActionSelect = (action: ProductFormSubmitAction) => {
+    submitActionRef.current = action;
+    setLastSubmitAction(action);
+  };
 
   const [variants, setVariants] = useState<VariantMatrixItem[]>(() => {
     if (!product?.variants) return [];
@@ -215,6 +266,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     });
   });
 
+  const [translations, setTranslations] = useState<TranslationState>(() => createEmptyTranslationState());
+  const [initialTranslations, setInitialTranslations] = useState<TranslationState>(() => createEmptyTranslationState());
+
   const [enableWarehouseQuantity, setEnableWarehouseQuantity] = useState(() => product?.enableWarehouseQuantity || false);
   const [warehouseQuantities, setWarehouseQuantities] = useState<ProductWarehouseQuantity[]>(() => product?.warehouseQuantities || []);
   const [price, setPrice] = useState(() => product?.price ?? 0);
@@ -239,9 +293,75 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         name: spec.name,
         value: spec.value,
         sortOrder: spec.sortOrder,
-      _tempId: spec.id || generateTempId(),
-    }));
+        labelId: spec.labelId ?? null,
+        labelName: spec.labelName ?? spec.name,
+        labelGroupName: spec.labelGroupName ?? null,
+        labelGroupCode: spec.labelGroupCode ?? null,
+        _tempId: spec.id || generateTempId(),
+      }));
   });
+
+  useEffect(() => {
+    if (!product?.translations || product.translations.length === 0) {
+      const emptyState = createEmptyTranslationState();
+      setTranslations(emptyState);
+      setInitialTranslations(cloneTranslationState(emptyState));
+      return;
+    }
+
+    const nextState = createEmptyTranslationState();
+    product.translations.forEach((translation) => {
+      if (!translation?.locale || !isSupportedTranslationLocale(translation.locale)) {
+        return;
+      }
+
+      nextState[translation.locale] = {
+        name: translation.name || '',
+        description: translation.description || '',
+        shortDescription: translation.shortDescription || '',
+        slug: translation.slug || '',
+        metaTitle: translation.metaTitle || '',
+        metaDescription: translation.metaDescription || '',
+        metaKeywords: translation.metaKeywords || '',
+      };
+    });
+
+    setTranslations(nextState);
+    setInitialTranslations(cloneTranslationState(nextState));
+  }, [product?.translations]);
+
+  const hasTranslationContent = (data?: ProductTranslationFormValues) => {
+    if (!data) {
+      return false;
+    }
+
+    return Boolean(
+      data.name ||
+      data.description ||
+      data.shortDescription ||
+      data.slug ||
+      data.metaTitle ||
+      data.metaDescription ||
+      data.metaKeywords
+    );
+  };
+
+  const isTranslationDifferent = (
+    previous: ProductTranslationFormValues = {},
+    current: ProductTranslationFormValues = {}
+  ) => {
+    const fields: Array<keyof ProductTranslationFormValues> = [
+      'name',
+      'description',
+      'shortDescription',
+      'slug',
+      'metaTitle',
+      'metaDescription',
+      'metaKeywords',
+    ];
+
+    return fields.some((field) => (previous[field] || '') !== (current[field] || ''));
+  };
 
   const sanitizeNumberInputEvent = (event: React.ChangeEvent<HTMLInputElement>) => {
     const sanitizedValue = stripNumberLeadingZeros(event.target.value);
@@ -308,6 +428,81 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const currencySymbol = resolvedCurrency?.symbol || '$';
   const currencyDisplay = currencySymbol || currencyCode;
 
+  const adminProductsRouterAny = trpc.adminProducts as any;
+  const ensureMutation = (mutation: any) => mutation ?? { mutateAsync: async () => undefined };
+  const createTranslationMutation = ensureMutation(adminProductsRouterAny?.createProductTranslation?.useMutation?.());
+  const updateTranslationMutation = ensureMutation(adminProductsRouterAny?.updateProductTranslation?.useMutation?.());
+  const deleteTranslationMutation = ensureMutation(adminProductsRouterAny?.deleteProductTranslation?.useMutation?.());
+
+  const handleTranslationChanges = async (targetProductId: string) => {
+    for (const locale of SUPPORTED_TRANSLATION_LOCALES) {
+      const current = translations[locale];
+      const initial = initialTranslations[locale];
+      const hasInitial = hasTranslationContent(initial);
+      const hasCurrent = hasTranslationContent(current);
+
+      if (!hasInitial && !hasCurrent) {
+        continue;
+      }
+
+      if (!hasInitial && hasCurrent) {
+        try {
+          await createTranslationMutation.mutateAsync({
+            productId: targetProductId,
+            locale,
+            ...current,
+          });
+        } catch (error) {
+          console.warn('Failed to create product translation', error);
+        }
+        continue;
+      }
+
+      if (hasInitial && !hasCurrent) {
+        try {
+          await deleteTranslationMutation.mutateAsync({
+            productId: targetProductId,
+            locale,
+          });
+        } catch (error) {
+          console.warn('Failed to delete product translation', error);
+        }
+        continue;
+      }
+
+      if (hasInitial && hasCurrent && isTranslationDifferent(initial, current)) {
+        try {
+          await updateTranslationMutation.mutateAsync({
+            productId: targetProductId,
+            locale,
+            ...current,
+          });
+        } catch (error) {
+          console.warn('Failed to update product translation', error);
+        }
+      }
+    }
+
+    setInitialTranslations(cloneTranslationState(translations));
+  };
+
+  const handleTranslationTabsChange = (updated: Record<string, Record<string, string | undefined>>) => {
+    const nextState = cloneTranslationState(translations);
+
+    Object.entries(updated).forEach(([locale, values]) => {
+      if (!isSupportedTranslationLocale(locale)) {
+        return;
+      }
+
+      nextState[locale] = {
+        ...nextState[locale],
+        ...values,
+      };
+    });
+
+    setTranslations(nextState);
+  };
+
   const tabs: FormTabConfig[] = [
     {
       id: 'general',
@@ -331,12 +526,33 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               },
             },
             {
+              name: 'slug',
+              label: t('products.slug', 'Slug'),
+              type: 'slug',
+              placeholder: t('products.slug_placeholder', 'product-slug'),
+              required: true,
+              sourceField: 'name',
+              description: t('products.slug_description', 'URL-friendly identifier (auto-generated from name if left blank).'),
+            },
+            {
               name: 'description',
               label: t('products.description', 'Description'),
               type: 'richtext',
               placeholder: t('products.description_placeholder', 'Enter product description'),
               required: false,
               minHeight: '200px',
+            },
+            {
+              name: 'shortDescription',
+              label: t('products.short_description', 'Short Description'),
+              type: 'textarea',
+              placeholder: t('products.short_description_placeholder', 'Enter a short summary for product cards'),
+              required: false,
+              rows: 3,
+              validation: {
+                maxLength: 500,
+              },
+              description: t('products.short_description_help', 'Plain text shown on product cards.'),
             },
             {
               name: 'sku',
@@ -525,7 +741,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               maxSize: 100,
               maxItems: 10,
               allowedTypes: [MediaType.IMAGE, MediaType.VIDEO],
-              description: t('products.media_help', 'Upload up to 10 media files (max 100MB each). Supports images and videos. First item will be the primary media.'),
+              description: t('products.media_help', 'Upload up to 10 media files (max 100MB each). Supports images and videos. First item will be the primary media.', {
+                maxItems: 10,
+                maxSize: 100,
+                types: t('products.media_types.images_and_videos', 'images and videos')
+              }),
             },
           ],
         },
@@ -601,6 +821,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     name: '',
                     value: '',
                     sortOrder: prev.length,
+                    labelId: null,
+                    labelName: null,
+                    labelGroupName: null,
+                    labelGroupCode: null,
                   },
                 ]);
               }}
@@ -626,12 +850,133 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     };
                   }
 
+                  if (field === 'labelId') {
+                    return {
+                      ...item,
+                      labelId: value ? value : null,
+                    };
+                  }
+
+                  if (field === 'labelName') {
+                    return {
+                      ...item,
+                      labelName: value || null,
+                    };
+                  }
+
+                  if (field === 'labelGroupName') {
+                    return {
+                      ...item,
+                      labelGroupName: value || null,
+                    };
+                  }
+
+                  if (field === 'labelGroupCode') {
+                    return {
+                      ...item,
+                      labelGroupCode: value || null,
+                    };
+                  }
+
                   return {
                     ...item,
                     [field]: value,
                   } as ProductSpecificationFormItem;
                 }));
               }}
+            />
+          ),
+        },
+      ],
+    },
+    {
+      id: 'translations',
+      label: t('admin.translations', 'Translations'),
+      icon: <Globe className="w-4 h-4" />,
+      sections: [
+        {
+          title: t('products.translations_title', 'Product Translations'),
+          description: t('products.translations_description', 'Manage localized content for product details and SEO metadata.'),
+          icon: <Globe className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
+          fields: [],
+          customContent: (
+            <TranslationTabs
+              translations={translations}
+              onTranslationsChange={handleTranslationTabsChange}
+              entityName={product?.name || ''}
+              fields={[
+                {
+                  name: 'name',
+                  label: t('products.name', 'Product Name'),
+                  value: '',
+                  onChange: () => {},
+                  type: 'text',
+                  placeholder: t('products.name_placeholder', 'Enter product name'),
+                  required: false,
+                },
+                {
+                  name: 'description',
+                  label: t('products.description', 'Description'),
+                  value: '',
+                  onChange: () => {},
+                  type: 'richtext',
+                  placeholder: t('products.description_placeholder', 'Enter product description'),
+                  required: false,
+                  minHeight: '200px',
+                },
+                {
+                  name: 'shortDescription',
+                  label: t('products.short_description', 'Short Description'),
+                  value: '',
+                  onChange: () => {},
+                  type: 'textarea',
+                  placeholder: t('products.short_description_placeholder', 'Enter a short summary for product cards'),
+                  required: false,
+                  rows: 3,
+                  validation: { maxLength: 500 },
+                  description: t('products.short_description_help', 'Plain text shown on product cards.'),
+                },
+                {
+                  name: 'slug',
+                  label: t('products.slug', 'Slug'),
+                  value: '',
+                  onChange: () => {},
+                  type: 'text',
+                  placeholder: t('products.slug_placeholder', 'product-slug'),
+                  required: false,
+                  description: t('products.slug_description', 'URL-friendly identifier'),
+                },
+                {
+                  name: 'metaTitle',
+                  label: t('products.meta_title', 'Meta Title'),
+                  value: '',
+                  onChange: () => {},
+                  type: 'text',
+                  placeholder: t('products.meta_title_placeholder', 'Enter SEO title'),
+                  required: false,
+                  validation: { maxLength: 60 },
+                },
+                {
+                  name: 'metaDescription',
+                  label: t('products.meta_description', 'Meta Description'),
+                  value: '',
+                  onChange: () => {},
+                  type: 'textarea',
+                  placeholder: t('products.meta_description_placeholder', 'Enter SEO description'),
+                  required: false,
+                  rows: 3,
+                  validation: { maxLength: 160 },
+                },
+                {
+                  name: 'metaKeywords',
+                  label: t('products.meta_keywords', 'Meta Keywords'),
+                  value: '',
+                  onChange: () => {},
+                  type: 'text',
+                  placeholder: t('products.meta_keywords_placeholder', 'keyword1, keyword2'),
+                  required: false,
+                },
+              ]}
             />
           ),
         },
@@ -686,7 +1031,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
   const initialValues: Partial<ProductFormData> = {
     name: product?.name || '',
+    slug: product?.slug || '',
     description: product?.description || '',
+    shortDescription: product?.shortDescription || '',
     sku: product?.sku || '',
     status: product?.status || 'DRAFT',
     brandId: product?.brandId || '',
@@ -722,9 +1069,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const handleSubmit = async (data: ProductFormData) => {
     try {
       const normalizedCompareAtPrice = compareAtPrice === '' ? null : Number(compareAtPrice) || 0;
+      const normalizedSlug = (data.slug || '').trim();
       // Transform variants from VariantMatrixItem to backend format only if there are variants
       let submitData: any = {
         ...data,
+        slug: normalizedSlug,
         // Transform media back to backend format
         media: data.media ? data.media.map(transformMediaItemForBackend) : [],
         // Use local state for warehouse quantities, stock quantity, and enable flag
@@ -798,23 +1147,78 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             name,
             value,
             sortOrder,
+            labelId: spec.labelId ?? undefined,
           } as SpecificationFormValue;
         })
         .filter((spec): spec is SpecificationFormValue => Boolean(spec));
 
       submitData.specifications = normalizedSpecifications.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
 
-      await onSubmit(submitData);
+      const currentSubmitAction: ProductFormSubmitAction = showSaveAndContinueActions
+        ? submitActionRef.current
+        : 'save';
+
+      const submitResult = await onSubmit(submitData, { submitAction: currentSubmitAction });
+
+      const resolvedProductId =
+        product?.id ||
+        ((submitResult as any)?.data?.id ??
+          (submitResult && typeof submitResult === 'object' && 'id' in submitResult
+            ? (submitResult as any).id
+            : undefined));
+
+      if (resolvedProductId) {
+        await handleTranslationChanges(resolvedProductId);
+      }
     } catch (error) {
       console.error('❌ Product form submission error:', error);
       addToast({
         type: 'error',
-        title: 'Form Submission Error',
-        description: error instanceof Error ? error.message : 'Failed to submit form',
+        title: t('common.error'),
+        description: error instanceof Error ? error.message : t('common.error'),
       });
       throw error;
     }
   };
+
+  const primarySubmitText = product
+    ? t('products.update_product', 'Update Product')
+    : t('products.create_product', 'Create Product');
+
+  const customActions = showSaveAndContinueActions ? (
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onCancel}
+        disabled={isSubmitting}
+      >
+        {t('common.cancel', 'Cancel')}
+      </Button>
+      <Button
+        type="submit"
+        variant="secondary"
+        onClick={() => handleSubmitActionSelect('save_and_continue')}
+        isLoading={isSubmitting && lastSubmitAction === 'save_and_continue'}
+        disabled={isSubmitting}
+      >
+        {isSubmitting && lastSubmitAction === 'save_and_continue'
+          ? t('common.saving', 'Saving...')
+          : t('common.save_and_continue', 'Save and Continue')}
+      </Button>
+      <Button
+        type="submit"
+        variant="primary"
+        onClick={() => handleSubmitActionSelect('save')}
+        isLoading={isSubmitting && lastSubmitAction === 'save'}
+        disabled={isSubmitting && lastSubmitAction !== 'save'}
+      >
+        {isSubmitting && lastSubmitAction === 'save'
+          ? t('common.saving', 'Saving...')
+          : primarySubmitText}
+      </Button>
+    </>
+  ) : undefined;
 
   return (
     <EntityForm<ProductFormData>
@@ -824,11 +1228,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       onCancel={onCancel}
       isSubmitting={isSubmitting}
       validationSchema={productSchema as any}
-      submitButtonText={product ? t('products.update_product', 'Update Product') : t('products.create_product', 'Create Product')}
+      submitButtonText={primarySubmitText}
       cancelButtonText={t('common.cancel', 'Cancel')}
       showCancelButton={true}
       activeTab={activeTab}
       onTabChange={onTabChange}
+      actionsAlignment={actionsAlignment}
+      customActions={customActions}
     />
   );
 };

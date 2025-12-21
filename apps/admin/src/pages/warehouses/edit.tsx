@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiArrowLeft, FiSave, FiHome, FiMapPin, FiPhone, FiMail, FiUser } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
@@ -68,6 +68,8 @@ const WarehouseEditPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitBehaviorRef = useRef<'redirect' | 'stay'>('redirect');
+  const lastSubmitBehaviorRef = useRef<'redirect' | 'stay'>('redirect');
 
   const getErrorMessage = (fieldError: unknown) => {
     if (!fieldError) {
@@ -126,6 +128,11 @@ const WarehouseEditPage: React.FC = () => {
         title: t('warehouses.updateSuccess', 'Warehouse updated successfully'),
         description: t('warehouses.updateSuccessDescription', 'The warehouse has been updated.'),
       });
+      if (lastSubmitBehaviorRef.current === 'stay') {
+        setIsSubmitting(false);
+        return;
+      }
+      setIsSubmitting(false);
       navigate('/warehouses');
     },
     onError: (error) => {
@@ -143,10 +150,13 @@ const WarehouseEditPage: React.FC = () => {
     if (!id) return;
 
     setIsSubmitting(true);
+    lastSubmitBehaviorRef.current = submitBehaviorRef.current;
     try {
       await updateWarehouseMutation.mutateAsync({ id, ...values });
     } catch (error) {
       setIsSubmitting(false);
+    } finally {
+      submitBehaviorRef.current = 'redirect';
     }
   };
 
@@ -545,8 +555,31 @@ const WarehouseEditPage: React.FC = () => {
                       type="submit"
                       disabled={isSubmitting}
                       className="flex items-center space-x-2"
+                      onClick={() => {
+                        submitBehaviorRef.current = 'stay';
+                      }}
                     >
-                      {isSubmitting ? (
+                      {isSubmitting && lastSubmitBehaviorRef.current === 'stay' ? (
+                        <>
+                          <Loading size="small" />
+                          <span>{t('common.saving', 'Saving...')}</span>
+                        </>
+                      ) : (
+                        <>
+                          <FiSave className="w-4 h-4" />
+                          <span>{t('common.save_and_continue', 'Save and Continue')}</span>
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="flex items-center space-x-2"
+                      onClick={() => {
+                        submitBehaviorRef.current = 'redirect';
+                      }}
+                    >
+                      {isSubmitting && lastSubmitBehaviorRef.current !== 'stay' ? (
                         <>
                           <Loading size="small" />
                           <span>{t('common.saving', 'Saving...')}</span>

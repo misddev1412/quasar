@@ -1,0 +1,261 @@
+{
+  "settings": {
+    "add_setting": "Add Setting",
+    "categories": "Setting Categories",
+    "all_settings": "All Settings",
+    "create_new_setting": "Create New Setting",
+    "no_settings": "No Settings Yet",
+    "empty_state_message": "You haven't created any system settings yet. Click the button below to add your first setting.",
+    "no_real_data": "Currently displaying sample data. You can click the 'Add Setting' button to create real system settings.",
+    "groups": {
+      "general": "General",
+      "other": "Other",
+      "pagination": "Pagination",
+      "appearance": "Appearance",
+      "orders": "Orders",
+      "storefront": "Storefront"
+    },
+    "placeholders": {
+      "site_name_desc": "Site Name",
+      "site_desc": "Site Description",
+      "maintenance_mode_desc": "Maintenance Mode",
+      "contact_email_desc": "Contact Email",
+      "default_pagination_desc": "Default Pagination Count"
+    },
+    "keys": {
+      "admin.items_per_page": "Items Per Page",
+      "admin.sidebar_collapsed": "Sidebar Collapsed",
+      "admin.theme": "Admin Theme",
+      "site.description": "Site Description",
+      "site.name": "Site Name",
+      "site.favicon": "Site Favicon",
+      "site.logo": "Site Logo",
+      "storefront.maintenance_enabled": "Storefront maintenance mode",
+      "storefront.maintenance_password": "Maintenance password",
+      "storefront.maintenance_message": "Maintenance message",
+      "orders.order_number_format": "Order number format",
+      "maintenance_mode": "Maintenance Mode",
+      "contact_email": "Contact Email",
+      "default_pagination": "Default Pagination"
+    },
+    "descriptions": {
+      "admin.items_per_page": "Number of items to display per page",
+      "admin.sidebar_collapsed": "Whether the sidebar is collapsed by default",
+      "admin.theme": "The visual theme for the admin dashboard",
+      "site.description": "A short description of the site",
+      "site.name": "The name of the website",
+      "site.favicon": "Path to the site's favicon (.ico file)",
+      "site.logo": "Path to the site's logo image",
+      "storefront.maintenance_enabled": "Require the storefront to show a maintenance screen until a password is entered",
+      "storefront.maintenance_password": "Password required to bypass the maintenance screen",
+      "storefront.maintenance_message": "Short message shown on the maintenance screen",
+      "orders.order_number_format": "Format pattern for generated order numbers. Use tokens like {{YYYY}}, {{YY}}, {{MM}}, {{DD}}, and {{SEQ4}} for a zero-padded sequence.",
+      "maintenance_mode": "Enable or disable maintenance mode",
+      "contact_email": "The contact email for the admin",
+      "default_pagination": "The default number of items per page for pagination"
+    },
+    "update_success_title": "Update Successful",
+    "update_success_desc": "The setting has been successfully updated.",
+    "update_failed_title": "Update Failed",
+    "update_failed_desc": "Could not update the setting. Please try again later.",
+    "boolean_toggle_success_desc": "The setting has been toggled.",
+    "boolean_toggle_failed_desc": "Could not toggle the setting.",
+    "public_toggle_success_desc": "Visibility has been updated.",
+    "public_toggle_failed_desc": "Could not update visibility.",
+    "maintenance_password_placeholder": "Enter new maintenance password",
+    "no_password_set": "No maintenance password configured",
+    "language_settings": "Language Settings",
+    "choose_display_language": "Choose your preferred display language.",
+    "theme_preference": "Theme Preference",
+    "choose_light_or_dark_mode": "Choose between light and dark mode.",
+    "form": {
+      "key": "Key",
+      "value": "Value",
+      "type": "Type",
+      "group": "Group",
+      "description": "Description",
+      "is_public": "Public (visible to all users)",
+      "group_placeholder": "Example: Basic Settings, Advanced Settings",
+      "type_string": "String",
+      "type_number": "Number",
+      "type_boolean": "Boolean",
+      "type_json": "JSON",
+      "type_array": "Array",
+      "create": "Create Setting",
+      "creating": "Creating..."
+    },
+    "maintenance": {
+      "title": "Maintenance Mode",
+      "description": "Control the storefront maintenance lock screen and messaging.",
+      "status": {
+        "heading": "Maintenance status",
+        "description": "Require a password before anyone can browse storefront pages.",
+        "enabled": "Maintenance mode enabled",
+        "disabled": "Maintenance mode disabled",
+        "enabledHint": "Visitors see the maintenance screen until they enter the password.",
+        "disabledHint": "Customers can browse the storefront normally."
+      },
+      "message": {
+        "heading": "Maintenance message",
+        "description": "Displayed under the logo on the maintenance screen. Keep it short and informative.",
+        "placeholder": "We’re performing scheduled maintenance and will be back soon."
+      },
+      "password": {
+        "heading": "Maintenance password",
+        "description": "Share it with internal teammates to bypass the maintenance wall.",
+        "configured": "Password configured",
+        "notConfigured": "No password set",
+        "placeholder": "Enter new maintenance password",
+        "hint": "Leave blank to keep the existing password unchanged.",
+        "saveAction": "Update password"
+      },
+      "toasts": {
+        "enabled": "Maintenance page is now visible to visitors.",
+        "disabled": "Maintenance page is no longer displayed.",
+        "toggleFailed": "Could not update maintenance status.",
+        "messageSaved": "Maintenance message updated.",
+        "messageFailed": "Could not update maintenance message.",
+        "passwordSaved": "Maintenance password updated.",
+        "passwordFailed": "Could not update maintenance password.",
+        "passwordRequired": "Enter a password before saving."
+      }
+    }
+  },
+  "storefront": {
+    "footer": {
+      "title": "Storefront footer",
+      "description": "Control layout, branding, social links, and legal information.",
+      "nav": "Footer builder",
+      "menu_hint": {
+        "title": "Footer links are powered by the footer menu.",
+        "description": "Create columns by adding parent menu items with children.",
+        "btn": "Open footer menu"
+      },
+      "actions": {
+        "reset": "Reset",
+        "save": "Save changes"
+      },
+      "messages": {
+        "load_error": "Unable to load footer settings",
+        "reset": "Defaults restored",
+        "reset_description": "Changes have not been saved yet.",
+        "saved": "Footer updated",
+        "saved_description": "Your changes are live on the storefront.",
+        "save_error": "Unable to save changes",
+        "loading": "Loading footer settings..."
+      },
+      "layout": {
+        "heading": "Layout & theme"
+      },
+      "variant": {
+        "label": "Layout variant",
+        "simple": "Simple bar",
+        "columns": "Column layout",
+        "split": "Split layout"
+      },
+      "theme": {
+        "label": "Theme",
+        "dark": "Dark",
+        "light": "Light"
+      },
+      "menu_layout": {
+        "label": "Menu layout",
+        "columns": "Use column groups",
+        "inline": "Distribute links evenly"
+      },
+      "columns": {
+        "label": "Columns per row",
+        "helper": "Choose between 1 and 4 columns."
+      },
+      "visitor_analytics": {
+        "heading": "Visitor analytics bar",
+        "description": "Control the stat strip shown above the footer.",
+        "enable": "Show visitor analytics",
+        "enable_hint": "Display real visitor data above the footer such as visits, views, or top pages.",
+        "columns": {
+          "label": "Columns",
+          "option_1": "1 column",
+          "option_2": "2 columns",
+          "option_3": "3 columns",
+          "option_4": "4 columns"
+        },
+        "background": "Background color",
+        "background_hint": "Leave blank to inherit the footer theme colors.",
+        "card_label": "Column {{index}}",
+        "metric_label": "Metric",
+        "metrics": {
+          "visitors": "Total visitors",
+          "pageViews": "Page views",
+          "topPage": "Top page",
+          "lastUpdated": "Last updated"
+        }
+      },
+      "brand": {
+        "heading": "Brand & messaging",
+        "logo_label": "Footer logo",
+        "logo_description": "Upload or select an image just for the footer.",
+        "logo_choose": "Choose logo",
+        "logo_remove": "Remove",
+        "logo_url": "Image URL",
+        "logo_url_placeholder": "https://cdn.example.com/footer-logo.svg",
+        "logo_hint": "Paste a link if you host assets elsewhere. Leave blank to reuse your main logo.",
+        "show_logo": "Show logo",
+        "show_logo_hint": "Hide the logo without deleting it.",
+        "show_title": "Show footer title",
+        "show_title_hint": "Toggle the store name text next to the logo.",
+        "show_description": "Show brand description",
+        "show_description_hint": "Toggle the paragraph below the logo.",
+        "description_label": "Description",
+        "custom_html": "Custom HTML (optional)"
+      },
+      "newsletter": {
+        "enable": "Show newsletter signup",
+        "description": "Displays an email field and button in the brand column.",
+        "heading_label": "Newsletter heading",
+        "copy": "Newsletter copy"
+      },
+      "social": {
+        "heading": "Social links",
+        "description": "Links display as icon buttons. Leave URL blank to hide.",
+        "add": "Add social link",
+        "label": "Label",
+        "url": "URL",
+        "type": "Network",
+        "visible": "Visible",
+        "visible_hint": "Hide without deleting by turning this off.",
+        "item_label": "Social link {{index}}",
+        "empty": "No social links yet. Add at least one link to show the icon row.",
+        "custom": "Custom",
+        "new_label": "New social link"
+      },
+      "links": {
+        "heading": "Legal & utility links",
+        "description": "Shown in the bottom row next to the copyright text.",
+        "add": "Add link",
+        "label": "Label",
+        "url": "URL",
+        "visible": "Visible",
+        "item_label": "Link {{index}}",
+        "empty": "Add at least one link for privacy, terms, or support pages.",
+        "new_label": "New link"
+      },
+      "preview": {
+        "heading": "Live preview",
+        "description": "See the storefront footer exactly as customers will see it.",
+        "reload": "Reload",
+        "missing_origin": "Set NEXT_PUBLIC_SITE_URL to enable preview."
+      }
+    }
+  },
+  "componentConfigs": {
+    "title": "Component Library",
+    "editTitle": "Edit Component",
+    "editDescription": "Adjust component schema, defaults, metadata, and nesting rules on a focused page.",
+    "updateSuccess": "Component updated",
+    "updateSuccessDescription": "Changes saved successfully.",
+    "updateFailed": "Unable to update component",
+    "backToList": "Back to Component Library",
+    "componentNotFound": "Component configuration not found",
+    "componentNotFoundDescription": "It may have been deleted or you may not have access."
+  }
+}

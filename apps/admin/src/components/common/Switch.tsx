@@ -1,4 +1,5 @@
 import React from 'react';
+import { BASE_LABEL_CLASS } from './styles';
 
 interface SwitchProps {
   id?: string;
@@ -51,7 +52,7 @@ export const Switch: React.FC<SwitchProps> = ({
         {switchButton}
         <div className="flex flex-col">
           {label && (
-            <label htmlFor={id} className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+            <label htmlFor={id} className={BASE_LABEL_CLASS}>
               {label}
             </label>
           )}

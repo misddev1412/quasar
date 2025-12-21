@@ -4,6 +4,7 @@ import { ProductStatus } from '@backend/modules/products/entities/product.entity
 // Product base schema
 const productBaseSchema = z.object({
   name: z.string().min(1).max(255),
+  slug: z.string().min(1).max(255).nullable().optional(),
   description: z.string().optional(),
   sku: z.string().max(100).optional(),
   status: z.nativeEnum(ProductStatus).optional(),

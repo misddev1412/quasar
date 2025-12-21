@@ -1,9 +1,4 @@
 {
-  "common": {
-    "success": "成功",
-    "error": "错误",
-    "cancel": "取消"
-  },
   "support_clients": {
     "form": {
       "name_required": "名称是必填项",
@@ -49,5 +44,6 @@
         "validation_title": "配置验证错误"
       }
     }
-  }
+  },
+  "admin": {}
 }

@@ -45,6 +45,7 @@ interface ProductVariantInlineListProps {
   onOpenQuickView: (product: Product) => void;
   onQuickUpdate: (payload: { id: string; price: number; stockQuantity: number; isActive: boolean }) => Promise<void>;
   updatingVariantId?: string | null;
+  className?: string;
 }
 
 interface VariantQuickEditState {
@@ -60,6 +61,7 @@ const ProductVariantInlineList: React.FC<ProductVariantInlineListProps> = ({
   onOpenQuickView,
   onQuickUpdate,
   updatingVariantId,
+  className,
 }) => {
   const { t } = useTranslationWithBackend();
   const variants = product.variants || [];
@@ -89,23 +91,29 @@ const ProductVariantInlineList: React.FC<ProductVariantInlineListProps> = ({
     field: keyof Omit<VariantQuickEditState, 'isActive'>,
     value: string
   ) => {
-    setVariantStates((prev) => ({
-      ...prev,
-      [variantId]: {
-        ...prev[variantId],
-        [field]: value,
-      },
-    }));
+    setVariantStates((prev) => {
+      const existing = prev[variantId] || { price: '', stockQuantity: '', isActive: true };
+      return {
+        ...prev,
+        [variantId]: {
+          ...existing,
+          [field]: value,
+        },
+      };
+    });
   };
 
   const handleActiveToggle = (variantId: string, checked: boolean) => {
-    setVariantStates((prev) => ({
-      ...prev,
-      [variantId]: {
-        ...prev[variantId],
-        isActive: checked,
-      },
-    }));
+    setVariantStates((prev) => {
+      const existing = prev[variantId] || { price: '', stockQuantity: '', isActive: true };
+      return {
+        ...prev,
+        [variantId]: {
+          ...existing,
+          isActive: checked,
+        },
+      };
+    });
   };
 
   const resetVariantState = (variantId: string) => {
@@ -167,10 +175,12 @@ const ProductVariantInlineList: React.FC<ProductVariantInlineListProps> = ({
     onOpenQuickView(product);
   };
 
+  const containerClassName = className ?? 'mt-3 space-y-3';
+
   return (
-    <div className="mt-3 space-y-3">
+    <div className={containerClassName}>
       {variants.length > 0 ? (
-        <ul className="space-y-3 list-none p-0 m-0">
+        <div className="space-y-3">
           {variants.map((variant, index) => {
             const variantId = String(variant.id || `${product.id}-${index}`);
             const defaultState: VariantQuickEditState = {
@@ -187,7 +197,7 @@ const ProductVariantInlineList: React.FC<ProductVariantInlineListProps> = ({
             const isSaving = updatingVariantId === variant.id;
 
             return (
-              <li
+              <div
                 key={variantId}
                 className="text-sm text-gray-700 dark:text-gray-200 border border-gray-100 dark:border-gray-700 rounded-lg px-4 py-3 bg-white dark:bg-gray-900/40 shadow-sm"
               >
@@ -213,7 +223,7 @@ const ProductVariantInlineList: React.FC<ProductVariantInlineListProps> = ({
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-[repeat(2,_minmax(0,_1fr))_auto]">
                     <label className="flex flex-col text-xs font-semibold text-gray-600 dark:text-gray-300 gap-1">
                       <span>{t('products.price', 'Price')}</span>
                       <input
@@ -238,37 +248,44 @@ const ProductVariantInlineList: React.FC<ProductVariantInlineListProps> = ({
                         onChange={(event) => handleInputChange(variantId, 'stockQuantity', event.target.value)}
                       />
                     </label>
-                    <div className="flex items-end justify-end gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={!hasChanges || isSaving}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          resetVariantState(variantId);
-                        }}
-                      >
-                        {t('common.reset', 'Reset')}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="primary"
-                        disabled={!hasChanges || isSaving}
-                        isLoading={isSaving}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          handleQuickSave(variant, variantId, state);
-                        }}
-                      >
-                        {t('common.save', 'Save')}
-                      </Button>
+                    <div className="flex flex-col gap-1 md:col-span-2 lg:col-span-1">
+                      <span className="text-xs font-semibold text-transparent select-none" aria-hidden="true">
+                        {t('common.actions', 'Actions')}
+                      </span>
+                      <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-start md:flex-nowrap md:justify-end">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={!hasChanges || isSaving}
+                          className="w-full sm:w-auto h-[50px]"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            resetVariantState(variantId);
+                          }}
+                        >
+                          {t('common.reset', 'Reset')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="primary"
+                          disabled={!hasChanges || isSaving}
+                          isLoading={isSaving}
+                          className="w-full sm:w-auto h-[50px]"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleQuickSave(variant, variantId, state);
+                          }}
+                        >
+                          {t('common.save', 'Save')}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </li>
+              </div>
             );
           })}
-        </ul>
+        </div>
       ) : (
         <p className="text-sm text-gray-500 dark:text-gray-400">{emptyMessage}</p>
       )}
@@ -321,7 +338,7 @@ export const ProductsPage: React.FC = () => {
 
   // Selected products for bulk actions
   const [selectedProductIds, setSelectedProductIds] = useState<Set<string | number>>(new Set());
-  const [expandedVariantProductIds, setExpandedVariantProductIds] = useState<Set<string>>(new Set());
+  const [expandedVariantProductIds, setExpandedVariantProductIds] = useState<Set<string | number>>(new Set());
   const trpcContext = trpc.useContext();
 
   const [isVariantsModalOpen, setVariantsModalOpen] = useState(false);
@@ -449,7 +466,7 @@ export const ProductsPage: React.FC = () => {
     refetch();
   }, [trpcContext, refetch]);
 
-  const toggleVariantExpansion = useCallback((productId: string) => {
+  const toggleVariantExpansion = useCallback((productId: string | number) => {
     setExpandedVariantProductIds((prev) => {
       const next = new Set(prev);
       if (next.has(productId)) {
@@ -584,6 +601,33 @@ export const ProductsPage: React.FC = () => {
       setTogglingVariantId(null);
     }
   }, [updateVariantMutation, addToast, t, trpcContext]);
+
+  const renderExpandedProductRow = useCallback((product: Product) => {
+    const hasVariants = Boolean(product.variants && product.variants.length > 0);
+    if (!hasVariants) {
+      return (
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+          {t('products.no_variants_message', 'This product does not have any variants yet.')}
+        </div>
+      );
+    }
+
+    return (
+      <div className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
+        <div className="px-4 py-4">
+          <ProductVariantInlineList
+            product={product}
+            emptyMessage={t('products.no_variants_message', 'This product does not have any variants yet.')}
+            viewAllLabel={t('products.manage_variants', 'Manage Variants')}
+            onOpenQuickView={handleOpenVariantsModal}
+            onQuickUpdate={handleInlineVariantUpdate}
+            updatingVariantId={inlineVariantSavingId}
+            className="space-y-4"
+          />
+        </div>
+      </div>
+    );
+  }, [handleInlineVariantUpdate, handleOpenVariantsModal, inlineVariantSavingId, t]);
 
   const products = (productsData as any)?.data?.products || (productsData as any)?.data?.items || [];
   const totalProducts = (productsData as any)?.data?.total || 0;
@@ -891,7 +935,7 @@ export const ProductsPage: React.FC = () => {
       id: 'product',
       header: t('products.name', 'Product'),
       accessor: (product) => {
-        const productIdKey = String(product.id);
+        const productIdKey = product.id;
         const hasVariants = Boolean(product.variants && product.variants.length > 0);
         const isExpanded = hasVariants && expandedVariantProductIds.has(productIdKey);
 
@@ -942,16 +986,6 @@ export const ProductsPage: React.FC = () => {
               <div className="text-sm text-gray-500 dark:text-gray-400">
                 SKU: {product.sku}
               </div>
-            )}
-            {hasVariants && isExpanded && (
-              <ProductVariantInlineList
-                product={product}
-                emptyMessage={t('products.no_variants_message', 'This product does not have any variants yet.')}
-                viewAllLabel={t('products.manage_variants', 'Manage Variants')}
-                onOpenQuickView={handleOpenVariantsModal}
-                onQuickUpdate={handleInlineVariantUpdate}
-                updatingVariantId={inlineVariantSavingId}
-              />
             )}
           </div>
         </div>
@@ -1041,11 +1075,6 @@ export const ProductsPage: React.FC = () => {
           }
           items={[
             {
-              label: t('common.view', 'View'),
-              icon: <FiEye className="w-4 h-4" aria-hidden="true" />,
-              onClick: () => goToProduct(product)
-            },
-            {
               label: t('products.view_details', 'View Details'),
               icon: <FiInfo className="w-4 h-4" aria-hidden="true" />,
               onClick: () => navigate(`/products/${product.id}`)
@@ -1067,7 +1096,7 @@ export const ProductsPage: React.FC = () => {
       hideable: false,
       width: '80px',
     },
-  ], [navigate, handleDeleteProduct, handleOpenVariantsModal, handleInlineVariantUpdate, goToProduct, toggleVariantExpansion, expandedVariantProductIds, inlineVariantSavingId, t]);
+  ], [navigate, handleDeleteProduct, goToProduct, toggleVariantExpansion, expandedVariantProductIds, t]);
 
   // Current sort descriptor for the table
   const sortDescriptor: SortDescriptor<Product> = useMemo(() => ({
@@ -1285,6 +1314,9 @@ export const ProductsPage: React.FC = () => {
           enableRowHover={true}
           density="normal"
           onRowClick={(product) => goToProduct(product)}
+          expandedRowIds={expandedVariantProductIds}
+          renderExpandedRow={renderExpandedProductRow}
+          expandedRowClassName="bg-transparent border-none"
           // Empty state
           emptyMessage={t('products.no_products_found', 'No products found')}
           emptyAction={{

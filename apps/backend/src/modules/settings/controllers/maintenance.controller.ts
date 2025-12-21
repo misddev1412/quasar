@@ -14,4 +14,10 @@ export class MaintenanceController {
   async verify(@Body('password') password: string) {
     return this.maintenanceService.verifyPassword(password);
   }
+
+  @Post('validate')
+  async validate(@Body('token') token: string) {
+    const valid = await this.maintenanceService.validateToken(token);
+    return { valid };
+  }
 }

@@ -164,8 +164,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
     : undefined;
   const displayOriginalPrice = variantOriginalPrice ?? product.compareAtPrice ?? undefined;
 
-  // Generate slug if not provided
-  const productSlug = name?.toLowerCase().replace(/\s+/g, '-') || id;
+  // Prefer backend slug, fallback to generated value
+  const productSlug = product.slug || name?.toLowerCase().replace(/\s+/g, '-') || id;
 
   const attributeGroups = useMemo(() => {
     if (!variants || variants.length === 0) return [] as Array<{ name: string; values: string[] }>;
@@ -229,6 +229,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
   }, [attributeGroups, selectedAttributes]);
 
   const shortDescription = useMemo(() => {
+    const rawShort = typeof product.shortDescription === 'string' ? product.shortDescription.trim() : '';
+    if (rawShort) {
+      return rawShort.length <= 140 ? rawShort : `${rawShort.slice(0, 140).trim()}…`;
+    }
     if (!product.description) {
       return '';
     }
@@ -237,7 +241,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       return textOnly;
     }
     return `${textOnly.slice(0, 140).trim()}…`;
-  }, [product.description]);
+  }, [product.shortDescription, product.description]);
 
   const canPurchaseVariant = useCallback((variantOption: ProductVariant | null) => {
     if (!variantOption) return false;
@@ -477,7 +481,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
       {/* Product Info */}
       <div className={clsx('p-5 flex flex-col flex-1', isHorizontalLayout && 'md:w-1/2')}>
-        <div className="flex flex-col gap-3 flex-1 min-h-[180px] sm:min-h-[200px]">
+        <div className="flex flex-col gap-1 flex-1 min-h-[120px] sm:min-h-[140px]">
           {/* Product Name */}
           <Link href={`/products/${productSlug}`} className="block">
             <TitleTag className={titleClassName} style={titleStyle}>
@@ -499,9 +503,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
           )}
 
           {/* Price */}
-          <div className="h-16">
+          <div className="h-10">
             {currentPrice !== undefined && currentPrice !== null && (
-              <div className="mt-2 space-y-1">
+              <div className="mt-1 space-y-1">
                 <div className={priceWrapperClasses}>
                   <span className={priceValueClass} style={priceColorStyle}>
                     {formatCurrency(currentPrice)}
@@ -513,19 +517,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     </span>
                   )}
                 </div>
-                {variants && variants.length > 0 && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {t('ecommerce.productCard.startingFrom', { price: formatCurrency(currentPrice) })}
-                  </p>
-                )}
               </div>
             )}
           </div>
         </div>
 
         {/* Add to Cart Button */}
-        <div className="mt-auto pt-4">
-          <div className="h-16 flex items-end">
+        <div className="mt-1 pt-1">
+          <div className="h-10 flex items-end">
             {resolvedShowAddToCart && inStock && (
               <AddToCartButton
                 product={product}

@@ -9,8 +9,10 @@ import { ProductSpecification } from '../entities/product-specification.entity';
 export interface TransformedProduct {
   id: string;
   name: string;
+  slug: string | null;
   sku: string | null;
   description: string | null;
+  shortDescription: string | null;
   status: string;
   isActive: boolean;
   isFeatured: boolean;
@@ -45,6 +47,19 @@ export interface TransformedProduct {
   lowestPrice: number | null;
   highestPrice: number | null;
   priceRange: string | null;
+  translations: TransformedProductTranslation[];
+}
+
+export interface TransformedProductTranslation {
+  id: string;
+  locale: string;
+  name: string | null;
+  description: string | null;
+  shortDescription: string | null;
+  slug: string | null;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  metaKeywords: string | null;
 }
 
 export interface TransformedBrand {
@@ -126,6 +141,10 @@ export interface TransformedSpecification {
   name: string;
   value: string;
   sortOrder: number;
+  labelId: string | null;
+  labelName: string | null;
+  labelGroupName: string | null;
+  labelGroupCode: string | null;
 }
 
 @Injectable()
@@ -145,6 +164,19 @@ export class ProductTransformer {
     const brand = this.extractAndTransformBrand(product);
     const categories = this.extractAndTransformCategories(product);
     const specifications = this.extractAndTransformSpecifications(product);
+    const translations = Array.isArray(product.translations)
+      ? product.translations.map((translation) => ({
+          id: translation.id,
+          locale: translation.locale,
+          name: translation.name || null,
+          description: translation.description || null,
+          shortDescription: translation.shortDescription || null,
+          slug: translation.slug || null,
+          metaTitle: translation.metaTitle || null,
+          metaDescription: translation.metaDescription || null,
+          metaKeywords: translation.metaKeywords || null,
+        }))
+      : [];
 
     // Calculate computed properties
     const imageUrls = media
@@ -173,8 +205,10 @@ export class ProductTransformer {
     return {
       id: product.id,
       name: product.name,
+      slug: product.slug || null,
       sku: product.sku || null,
       description: product.description || null,
+      shortDescription: product.shortDescription || null,
       status: product.status,
       isActive: product.isActive,
       isFeatured: product.isFeatured,
@@ -211,6 +245,7 @@ export class ProductTransformer {
       lowestPrice,
       highestPrice,
       priceRange,
+      translations,
     };
   }
 
@@ -277,6 +312,7 @@ export class ProductTransformer {
     return {
       id: product.id,
       name: product.name,
+      slug: product.slug || null,
       sku: product.sku || null,
       status: product.status,
       isActive: product.isActive,
@@ -305,7 +341,7 @@ export class ProductTransformer {
    * Fix TypeORM lazy loading serialization issues
    */
   private fixLazyLoadingSerialization(product: Product): void {
-    const relations = ['media', 'variants', 'brand', 'productCategories', 'tags', 'specifications'];
+    const relations = ['media', 'variants', 'brand', 'productCategories', 'tags', 'specifications', 'translations'];
 
     relations.forEach(relation => {
       const underscoreKey = `__${relation}__`;
@@ -494,6 +530,10 @@ export class ProductTransformer {
         name: spec.name,
         value: spec.value,
         sortOrder: spec.sortOrder ?? 0,
+        labelId: spec.labelId ?? null,
+        labelName: spec.label ? spec.label.label : null,
+        labelGroupName: spec.label ? spec.label.groupName : null,
+        labelGroupCode: spec.label ? spec.label.groupCode ?? null : null,
       }));
   }
 

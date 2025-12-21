@@ -4,10 +4,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { SectionTranslationContent } from './HeroSlider';
+import type { ViewMoreButtonConfig } from '@shared/types/component.types';
 import ProductCard from '../../components/ecommerce/ProductCard';
 import type { Product } from '../../types/product';
 import { ProductService } from '../../services/product.service';
 import SectionContainer from './SectionContainer';
+import { ViewMoreButton } from '../common/ViewMoreButton';
 
 export interface FeaturedProductsConfig {
   productIds?: string[];
@@ -18,9 +20,10 @@ export interface FeaturedProductsConfig {
 interface FeaturedProductsProps {
   config: FeaturedProductsConfig;
   translation?: SectionTranslationContent | null;
+  viewMoreButtonConfig?: ViewMoreButtonConfig;
 }
 
-export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, translation }) => {
+export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, translation, viewMoreButtonConfig }) => {
   const { t } = useTranslation();
   const itemsPerRow = config.itemsPerRow ?? 4;
 
@@ -99,12 +102,11 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
                 </p>
               )}
             </div>
-            <Link
+            <ViewMoreButton
               href="/products"
-              className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              {t('sections.featured_products.browse_catalog')}
-            </Link>
+              label={t('sections.featured_products.browse_catalog')}
+              config={viewMoreButtonConfig}
+            />
           </div>
         )}
 

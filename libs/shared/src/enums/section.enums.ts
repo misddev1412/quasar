@@ -20,6 +20,7 @@ export enum SectionType {
   CONTACT_FORM = 'contact_form',
   VIDEO = 'video',
   STATS = 'stats',
+  BRAND_SHOWCASE = 'brand_showcase',
 }
 
 export const SECTION_TYPE_LABELS: Record<SectionType, string> = {
@@ -37,4 +38,5 @@ export const SECTION_TYPE_LABELS: Record<SectionType, string> = {
   [SectionType.CONTACT_FORM]: 'Contact Form',
   [SectionType.VIDEO]: 'Video',
   [SectionType.STATS]: 'Statistics',
+  [SectionType.BRAND_SHOWCASE]: 'Brand showcase',
 };

@@ -4,6 +4,7 @@ import { CountrySelector } from './CountrySelector';
 import clsx from 'clsx';
 import { useDefaultCountry } from '../../hooks/useDefaultCountry';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { BASE_LABEL_CLASS } from './styles';
 
 interface PhoneInputFieldProps {
   id: string;
@@ -137,7 +138,7 @@ export const PhoneInputField: React.FC<PhoneInputFieldProps> = ({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label htmlFor={id} className="block text-sm font-medium text-neutral-800 dark:text-neutral-200">
+        <label htmlFor={id} className={BASE_LABEL_CLASS}>
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
