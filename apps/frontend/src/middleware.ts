@@ -14,10 +14,12 @@ type StatusCacheEntry = {
 };
 
 declare global {
-  // eslint-disable-next-line no-var
-  var __maintenanceGlobals?: {
+  interface GlobalMaintenanceState {
     statusCache: Map<string, StatusCacheEntry>;
-  };
+  }
+
+  // eslint-disable-next-line no-var
+  var __maintenanceGlobals: GlobalMaintenanceState | undefined;
 }
 
 const maintenanceStatusCache =

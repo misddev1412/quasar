@@ -21,11 +21,12 @@ async function fetchMaintenanceStatus(): Promise<MaintenanceStatus | null> {
 }
 
 interface MaintenancePageProps {
-  searchParams?: Record<string, string | string[]>;
+  searchParams?: Promise<Record<string, string | string[]>>;
 }
 
 export default async function MaintenancePage({ searchParams }: MaintenancePageProps) {
   const status = await fetchMaintenanceStatus();
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
   if (status && !status.enabled) {
     redirect('/');
@@ -37,7 +38,10 @@ export default async function MaintenancePage({ searchParams }: MaintenancePageP
     message: null,
   };
 
-  const rawRedirect = typeof searchParams?.redirect === 'string' ? searchParams.redirect : '/';
+  const rawRedirect =
+    typeof resolvedSearchParams?.redirect === 'string'
+      ? resolvedSearchParams.redirect
+      : '/';
   const safeRedirect = normalizeRedirect(rawRedirect);
 
   return (
