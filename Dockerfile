@@ -5,10 +5,10 @@ WORKDIR /app
 RUN corepack enable
 
 COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
 COPY . .
 
-RUN yarn install --frozen-lockfile
-RUN yarn build
+RUN SKIP_BUILD_INSTALL=1 bash deploy/build.sh
 
 # Runner stage
 FROM node:20-bookworm-slim AS runner
