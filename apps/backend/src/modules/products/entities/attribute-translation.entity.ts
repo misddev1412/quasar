@@ -1,11 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  Index,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, Index } from 'typeorm';
 import { BaseEntity } from '@shared';
 import { Attribute } from './attribute.entity';
 
@@ -14,8 +7,6 @@ import { Attribute } from './attribute.entity';
 @Index(['locale'])
 @Index(['attribute_id'])
 export class AttributeTranslation extends BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
 
   @Column('uuid')
   attribute_id: string;
