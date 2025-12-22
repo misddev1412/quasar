@@ -1,5 +1,7 @@
 {
   "scripts": {
+    "build": "nx run-many -t build --projects=backend,frontend,admin --configuration=production",
+    "start": "bash deploy/start.sh",
     "migration:generate": "cd apps/backend && npx typeorm-ts-node-esm migration:generate -d migration-data-source.ts",
     "migration:run": "cd apps/backend && npx typeorm-ts-node-commonjs migration:run -d migration-data-source.ts",
     "migration:revert": "cd apps/backend && npx typeorm-ts-node-commonjs migration:revert -d migration-data-source.ts",
@@ -145,7 +147,6 @@
     "firebase": "^12.2.1",
     "firebase-admin": "^13.5.0",
     "formik": "^2.4.6",
-    "express": "^4.21.2",
     "framer-motion": "^12.23.18",
     "i18next": "^25.3.1",
     "i18next-browser-languagedetector": "^8.2.0",

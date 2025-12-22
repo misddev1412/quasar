@@ -1,4 +1,4 @@
-const express = require('express');
+const http = require('http');
 const path = require('path');
 const fs = require('fs');
 
@@ -17,19 +17,64 @@ if (!fs.existsSync(staticDir)) {
   process.exit(1);
 }
 
-const app = express();
+const mimeTypes = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.txt': 'text/plain; charset=utf-8',
+};
 
-app.use(express.static(staticDir));
+const safeJoin = (base, target) => {
+  const normalized = path.normalize(target).replace(/^(\.\.(\/|\\|$))+/, '');
+  return path.join(base, normalized);
+};
 
-app.get('*', (req, res) => {
-  const indexFile = path.join(staticDir, 'index.html');
-  if (!fs.existsSync(indexFile)) {
-    res.status(404).send('index.html not found in static directory');
-    return;
+const server = http.createServer((req, res) => {
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  let pathname = url.pathname;
+  if (pathname.endsWith('/')) {
+    pathname += 'index.html';
   }
-  res.sendFile(indexFile);
+
+  const filePath = safeJoin(staticDir, pathname);
+
+  const serveFile = (resolvedPath) => {
+    fs.stat(resolvedPath, (statErr, stats) => {
+      if (statErr || !stats.isFile()) {
+        return serveIndex();
+      }
+
+      const ext = path.extname(resolvedPath).toLowerCase();
+      const contentType = mimeTypes[ext] || 'application/octet-stream';
+
+      res.writeHead(200, { 'Content-Type': contentType });
+      fs.createReadStream(resolvedPath).pipe(res);
+    });
+  };
+
+  const serveIndex = () => {
+    const indexFile = path.join(staticDir, 'index.html');
+    fs.stat(indexFile, (err, stats) => {
+      if (err || !stats.isFile()) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('index.html not found in static directory');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': mimeTypes['.html'] });
+      fs.createReadStream(indexFile).pipe(res);
+    });
+  };
+
+  serveFile(filePath);
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`Serving static files from ${staticDir} on port ${PORT}`);
 });

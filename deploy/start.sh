@@ -62,7 +62,7 @@ ensure_build_artifacts() {
       corepack enable >/dev/null 2>&1 || true
     fi
     yarn install --frozen-lockfile
-    yarn nx run-many -t build --projects=backend,frontend,admin --configuration=production
+    yarn build
     for file in "${required_files[@]}"; do
       if [[ ! -f "${file}" ]]; then
         echo "Required build artifact missing after build: ${file}" >&2
