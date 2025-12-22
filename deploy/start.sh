@@ -9,18 +9,30 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${REPO_ROOT}"
 
 ensure_build_artifacts() {
-  local missing=false
-  [[ -f "dist/apps/api/server.js" ]] || missing=true
-  [[ -f "dist/apps/web/server.js" ]] || missing=true
-  [[ -f "dist/apps/admin/server.js" ]] || missing=true
+  local required_files=(
+    "dist/apps/backend/main.js"
+    "dist/apps/frontend/.next/standalone/server.js"
+    "dist/apps/admin/index.html"
+  )
 
-  if [[ "${missing}" == true ]]; then
+  local needs_build=false
+  for file in "${required_files[@]}"; do
+    [[ -f "${file}" ]] || needs_build=true
+  done
+
+  if [[ "${needs_build}" == true ]]; then
     echo "Build artifacts missing – installing dependencies and building apps..."
     if command -v corepack >/dev/null 2>&1; then
       corepack enable >/dev/null 2>&1 || true
     fi
     yarn install --frozen-lockfile
-    yarn nx run-many -t build --projects=api,web,admin --configuration=production
+    yarn nx run-many -t build --projects=backend,frontend,admin --configuration=production
+    for file in "${required_files[@]}"; do
+      if [[ ! -f "${file}" ]]; then
+        echo "Required build artifact missing after build: ${file}" >&2
+        exit 1
+      fi
+    done
   fi
 }
 

@@ -2,7 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'api',
-      script: 'dist/apps/api/server.js',
+      script: 'dist/apps/backend/main.js',
+      interpreter: 'node',
       env: {
         NODE_ENV: 'production',
         PORT: 4000,
@@ -13,10 +14,12 @@ module.exports = {
     },
     {
       name: 'web',
-      script: 'dist/apps/web/server.js',
+      script: 'dist/apps/frontend/.next/standalone/server.js',
+      interpreter: 'node',
       env: {
         NODE_ENV: 'production',
         PORT: 3000,
+        HOSTNAME: '0.0.0.0',
       },
       instances: 1,
       autorestart: true,
@@ -24,7 +27,9 @@ module.exports = {
     },
     {
       name: 'admin',
-      script: 'dist/apps/admin/server.js',
+      script: 'deploy/serve-static.js',
+      interpreter: 'node',
+      args: ['dist/apps/admin'],
       env: {
         NODE_ENV: 'production',
         PORT: 3001,
