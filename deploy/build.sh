@@ -56,6 +56,8 @@ load_env_file() {
 
 load_env_file "${REPO_ROOT}/.env"
 
+export NX_DAEMON=false
+
 TEMP_BUILD_BACKEND_PID=""
 
 is_port_in_use() {
@@ -170,13 +172,13 @@ EOF
 build_artifacts() {
   install_dependencies
 
-  build_with_fallback "Building backend" "dist/apps/backend/main.js" bash -c "cd apps/backend && NX_TASK_TARGET_PROJECT=backend NX_TASK_TARGET_TARGET=build NX_TASK_TARGET_CONFIGURATION=production npx webpack-cli build --node-env=production"
+  build_with_fallback "Building backend" "dist/apps/backend/main.js" bash -c "npx nx build backend --configuration=production"
 
-  build_with_fallback "Building admin" "dist/apps/admin/index.html" bash -c "cd apps/admin && NX_TASK_TARGET_PROJECT=admin NX_TASK_TARGET_TARGET=build NX_TASK_TARGET_CONFIGURATION=production npx webpack-cli build --node-env=production"
+  build_with_fallback "Building admin" "dist/apps/admin/index.html" bash -c "npx nx build admin --configuration=production"
 
   start_temp_backend_for_frontend_build
   local frontend_status=0
-  if run_build_step "Building frontend (Next.js)" bash -c '(cd apps/frontend && npx next build)'; then
+  if run_build_step "Building frontend (Next.js)" bash -c 'npx nx build frontend --configuration=production'; then
     frontend_status=0
   else
     frontend_status=$?

@@ -10,13 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.meta.outputs.tag }}
+      cache-key: ${{ steps.meta.outputs.cache-key }}
     steps:
       - name: Prepare image metadata
         id: meta
         run: |
           echo "tag=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "cache-key=docker-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
     needs: metadata
     permissions:
@@ -37,13 +39,63 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ needs.metadata.outputs.cache-key }}
+
+      - name: Build image
+        run: |
+          docker buildx build \
+            --tag $REGISTRY/$IMAGE:$TAG \
+            --tag $REGISTRY/$IMAGE:latest \
+            --load \
+            --cache-from type=local,src=/tmp/.buildx-cache \
+            --cache-to type=local,dest=/tmp/.buildx-cache-new \
+            .
+
+      - name: Move build cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      - name: Save image as artifact
+        run: |
+          mkdir -p /tmp/images
+          docker save $REGISTRY/$IMAGE:$TAG | gzip > /tmp/images/image.tar.gz
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: /tmp/images/image.tar.gz
+
+  push:
+    runs-on: ubuntu-latest
+    needs: [metadata, build]
+    permissions:
+      contents: read
+    env:
+      REGISTRY: registry.digitalocean.com/${{ secrets.DOCR_REGISTRY }}
+      IMAGE: ${{ secrets.IMAGE_NAME }}
+      TAG: ${{ needs.metadata.outputs.tag }}
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
       - name: Login to DO Container Registry
         run: doctl registry login --expiry-seconds 600
 
-      - name: Build and push image
+      - name: Download image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+          path: /tmp/images
+
+      - name: Load and push image
         run: |
-          docker buildx build \
-            --push \
-            -t $REGISTRY/$IMAGE:$TAG \
-            -t $REGISTRY/$IMAGE:latest \
-            .
+          zcat /tmp/images/image.tar.gz | docker load
+          docker push $REGISTRY/$IMAGE:$TAG
+          docker push $REGISTRY/$IMAGE:latest
