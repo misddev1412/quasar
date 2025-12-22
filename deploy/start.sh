@@ -45,6 +45,11 @@ REPO_ROOT="$(find_repo_root)"
 cd "${REPO_ROOT}"
 
 ensure_build_artifacts() {
+  if [[ "${SKIP_RUNTIME_BUILD:-0}" == "1" ]]; then
+    echo "SKIP_RUNTIME_BUILD=1 -> skipping runtime yarn install/build."
+    return
+  fi
+
   local required_files=(
     "dist/apps/backend/main.js"
     "dist/apps/frontend/.next/standalone/server.js"
