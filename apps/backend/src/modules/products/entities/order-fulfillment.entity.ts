@@ -446,9 +446,11 @@ export class OrderFulfillment extends BaseEntity {
 
   getLatestTrackingEvent(): DeliveryTracking | null {
     if (!this.tracking || this.tracking.length === 0) return null;
-    return this.tracking.reduce((latest, event) =>
-      event.eventDate > latest.eventDate ? event : latest
-    );
+    return this.tracking.reduce((latest, event) => {
+      const latestDate = latest.eventDate?.getTime() ?? 0;
+      const eventDate = event.eventDate?.getTime() ?? 0;
+      return eventDate > latestDate ? event : latest;
+    });
   }
 
   getFormattedShippingCost(): string {

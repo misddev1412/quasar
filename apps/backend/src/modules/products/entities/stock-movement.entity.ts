@@ -164,7 +164,7 @@ export class StockMovement extends BaseEntity {
   }
 
   get quantityChange(): number {
-    if (this.previousQuantity !== null && this.newQuantity !== null) {
+    if (this.previousQuantity != null && this.newQuantity != null) {
       return this.newQuantity - this.previousQuantity;
     }
     return this.isInbound ? this.quantity : -this.quantity;
