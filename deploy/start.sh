@@ -5,10 +5,31 @@ export PORT="${PORT:-8080}"
 
 SCRIPT_PATH="${BASH_SOURCE[0]:-$0}"
 SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+cd "${REPO_ROOT}"
+
+ensure_build_artifacts() {
+  local missing=false
+  [[ -f "dist/apps/api/server.js" ]] || missing=true
+  [[ -f "dist/apps/web/server.js" ]] || missing=true
+  [[ -f "dist/apps/admin/server.js" ]] || missing=true
+
+  if [[ "${missing}" == true ]]; then
+    echo "Build artifacts missing – installing dependencies and building apps..."
+    if command -v corepack >/dev/null 2>&1; then
+      corepack enable >/dev/null 2>&1 || true
+    fi
+    yarn install --frozen-lockfile
+    yarn nx run-many -t build --projects=api,web,admin --configuration=production
+  fi
+}
+
+ensure_build_artifacts
 
 POSSIBLE_TEMPLATE_DIRS=(
   "${TEMPLATE_DIR:-}"
   "${SCRIPT_DIR}"
+  "${REPO_ROOT}/deploy"
   "/deploy"
   "/app/deploy"
   "./deploy"
