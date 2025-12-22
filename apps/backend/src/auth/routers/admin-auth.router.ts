@@ -223,17 +223,32 @@ export class AdminAuthRouter {
    * Extract activity context from TRPC context
    */
   private extractActivityContext(ctx: AuthenticatedContext, startTime: number) {
+    const rawRequest = ctx.req || {};
+    const headers = rawRequest.headers || {};
+    const request = {
+      ...rawRequest,
+      path: '/admin/auth/login',
+      method: 'POST',
+      headers,
+      query: rawRequest.query || {},
+      get:
+        typeof rawRequest.get === 'function'
+          ? (header: string) => rawRequest.get(header)
+          : (header: string) => {
+              if (!header) return undefined;
+              const key = header.toLowerCase();
+              return headers[key] || headers[header];
+            },
+    } as any;
+
     return {
       userId: 'unknown', // Will be set after authentication
       sessionId: undefined,
       ipAddress: this.extractIpAddress(ctx.req),
-      userAgent: ctx.req.headers['user-agent'] || 'unknown',
+      userAgent: headers['user-agent'] || 'unknown',
       startTime,
       endTime: 0, // Will be set when activity is tracked
-      request: {
-        path: '/admin/auth/login',
-        method: 'POST',
-      },
+      request,
       response: undefined,
     };
   }
@@ -242,10 +257,14 @@ export class AdminAuthRouter {
    * Extract IP address from request
    */
   private extractIpAddress(req: any): string {
+    if (!req) {
+      return 'unknown';
+    }
+    const headers = req.headers || {};
     return (
-      req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
-      req.headers['x-real-ip'] ||
-      req.headers['x-client-ip'] ||
+      headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+      headers['x-real-ip'] ||
+      headers['x-client-ip'] ||
       req.connection?.remoteAddress ||
       req.socket?.remoteAddress ||
       req.ip ||

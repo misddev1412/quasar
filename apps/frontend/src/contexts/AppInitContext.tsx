@@ -44,10 +44,10 @@ export const AppInitProvider: React.FC<{ children: React.ReactNode }> = ({ child
           message: 'Loading theme preferences...',
           action: async () => {
             if (typeof window !== 'undefined') {
-              const savedTheme = localStorage.getItem('theme');
-              const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-              const theme = savedTheme || systemTheme;
+              const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+              const theme = savedTheme || 'light';
               document.documentElement.classList.toggle('dark', theme === 'dark');
+              document.documentElement.style.colorScheme = theme === 'dark' ? 'dark' : 'light';
             }
             await new Promise(resolve => setTimeout(resolve, 100));
           }

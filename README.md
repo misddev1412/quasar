@@ -10338,3 +10338,52 @@ The slider will automatically adapt to dark mode when the `dark` class is applie
 8. ✅ **Excellent accessibility** features
 
 The implementation examples above provide a solid foundation for creating range sliders that meet all your requirements: min/max values, step control, dark mode support, Tailwind styling, and TypeScript compatibility.
+
+## 🚀 Deploying on DigitalOcean App Platform
+
+The repository already ships with a production-ready `Dockerfile` and `/deploy/start.sh` entrypoint. DigitalOcean App Platform can build and run the image without extra commands.
+
+### 1. Prepare the repository
+
+1. Commit all changes and push to the branch you want to deploy.
+2. Ensure the root `.env` file is **not** committed (it is ignored) and that `.env.example` reflects the variables you plan to supply.
+
+### 2. Create the App Platform service
+
+1. In the DigitalOcean control panel choose **Apps → Create App**.
+2. Select this GitHub repo and branch, then pick the root `Dockerfile` as the source.
+3. Leave the build and run commands empty (App Platform uses the Dockerfile `CMD /start.sh`).
+4. Expose HTTP on port 80. App Platform injects its own `PORT` environment variable; the startup script respects it.
+
+### 3. Configure environment variables / secrets
+
+Add the following variables under **Settings → Environment Variables**. Mark sensitive values (passwords, tokens, keys) as **Encrypt at rest**.
+
+| Variable | Purpose | Example |
+| --- | --- | --- |
+| `PORT` | External HTTP port. Usually `${PORT}` provided by App Platform. | `${PORT}` |
+| `BACKEND_PORT` | Internal NestJS listener used by nginx (`/api`). | `3000` |
+| `ADMIN_PORT` | Internal admin static server (`/admin`). | `4000` |
+| `FRONTEND_PORT` | Internal Next.js server behind nginx (`/`). | `3000` |
+| `REACT_APP_API_URL` / `NEXT_PUBLIC_API_URL` | Public API base so frontend fetches the right host. | `https://api.example.com/api` |
+| `NEXT_PUBLIC_SITE_URL` | Canonical storefront URL for SEO + metadata. | `https://shop.example.com` |
+| `NEXT_PUBLIC_SITE_NAME` | Text label used in SEO + social tags. | `Quasar` |
+| `DB_HOST` / `DB_PORT` / `DB_DATABASE` / `DB_SCHEMA` | Managed PostgreSQL connection. | `db-postgresql-nyc3-12345-do-user-1.db.ondigitalocean.com`, `25060`, `quasar_prod`, `public` |
+| `DB_USERNAME` / `DB_PASSWORD` | Database credentials. | `doadmin`, `••••` |
+| `JWT_SECRET` / `JWT_REFRESH_SECRET` | Secrets for access/refresh tokens. | long random strings |
+| `AWS_*` (if S3 uploads) | AWS credentials + bucket settings. | See `.env.example` |
+| `SMTP_*` / `EMAIL_FROM` | Outgoing email service (optional). |  |
+| `REDIS_*` | Cache/session backend (optional). |  |
+| `SKIP_RUNTIME_BUILD`, `SKIP_RUNTIME_SERVERS` | Leave at `0` unless you only need build artifacts. | `0` |
+
+Copy any additional variables you rely on (maintenance tokens, analytics IDs, etc.) from `.env.example`. Avoid storing secrets in Git—App Platform’s dashboard keeps them encrypted.
+
+### 4. Deploy
+
+After the first deployment succeeds, App Platform will rebuild automatically when you push to the tracked branch. The startup script will:
+
+1. Install dependencies and rebuild backend/admin/frontend artifacts.
+2. Spin up backend/admin/frontends plus nginx on the provided `PORT`.
+3. Stream logs via the App Platform UI (backend, frontend, and nginx logs show up under Components → Logs).
+
+If you ever need to update environment variables, change them in App Platform, hit **Save**, and trigger a redeploy. No code changes are required.
