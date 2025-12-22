@@ -151,7 +151,8 @@ prepare_frontend_artifacts() {
 
   mkdir -p dist/apps/frontend
   rm -rf dist/apps/frontend/.next
-  ln -sfn "${REPO_ROOT}/apps/frontend/.next" "dist/apps/frontend/.next"
+  mkdir -p dist/apps/frontend/.next
+  cp -R "${REPO_ROOT}/apps/frontend/.next/." "dist/apps/frontend/.next"
 
   if [[ -f "${nested_server}" ]]; then
     cat > "${expected_server}" <<'EOF'
