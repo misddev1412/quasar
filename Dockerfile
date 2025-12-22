@@ -8,7 +8,7 @@ COPY package.json yarn.lock ./
 COPY . .
 
 RUN yarn install --frozen-lockfile
-RUN yarn nx run-many -t build --projects=api,web,admin --configuration=production
+RUN yarn build
 
 # Runner stage
 FROM node:20-bookworm-slim AS runner
@@ -27,9 +27,9 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/yarn.lock ./yarn.lock
 COPY --from=builder /app/ecosystem.config.cjs ./ecosystem.config.cjs
-COPY --from=builder /app/deploy /deploy
+COPY --from=builder /app/deploy ./deploy
 
-RUN cp /deploy/start.sh /start.sh \
+RUN cp ./deploy/start.sh /start.sh \
   && chmod +x /start.sh
 
 EXPOSE 8080

@@ -107,10 +107,7 @@ fi
 envsubst '${PORT}' < "${NGINX_TEMPLATE}" > "${NGINX_CONF}"
 
 echo "Starting nginx on port ${PORT}..."
-nginx -g "daemon off;" &
-NGINX_PID=$!
-
-trap 'kill ${NGINX_PID} 2>/dev/null || true' EXIT
+nginx
 
 echo "Starting PM2 processes..."
 exec pm2-runtime ecosystem.config.cjs
