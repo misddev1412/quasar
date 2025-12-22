@@ -227,7 +227,6 @@ const AttributesPage: React.FC = () => {
   };
 
   const handleBulkAction = useCallback((action: string) => {
-    console.log(`Bulk action: ${action} on ${selectedAttributeIds.size} attributes`);
     switch (action) {
       case 'delete':
         const confirmDelete = window.confirm(`Are you sure you want to delete ${selectedAttributeIds.size} attributes? This action cannot be undone.`);
@@ -389,7 +388,7 @@ const AttributesPage: React.FC = () => {
             {
               label: 'View',
               icon: <FiEye className="w-4 h-4" aria-hidden="true" />,
-              onClick: () => console.log('View attribute:', item.id)
+              onClick: () => {}
             },
             {
               label: 'Delete',

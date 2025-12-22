@@ -126,9 +126,6 @@ const PostTagsPage: React.FC = () => {
     refetch,
   } = trpc.adminPostTags.getTags.useQuery();
 
-  // Debug logging
-  console.log('tagsData:', tagsData);
-
   // Type-safe data access - try multiple possible paths
   let tagsResponse;
   let rawTags;
@@ -147,9 +144,7 @@ const PostTagsPage: React.FC = () => {
     tagsResponse = data;
   }
 
-  console.log('Final tagsResponse:', tagsResponse);
   rawTags = tagsResponse as PostTag[] | undefined || [];
-  console.log('Final rawTags:', rawTags, 'Length:', rawTags.length);
   const totalTags = rawTags.length;
 
   // Form setup
@@ -253,9 +248,7 @@ const PostTagsPage: React.FC = () => {
 
   const paginatedTags = useMemo(() => {
     const start = (currentPage - 1) * limit;
-    const result = filteredTags.slice(start, start + limit);
-    console.log('filteredTags:', filteredTags, 'currentPage:', currentPage, 'limit:', limit, 'paginatedTags:', result);
-    return result;
+    return filteredTags.slice(start, start + limit);
   }, [filteredTags, currentPage, limit]);
 
   // Statistics
@@ -328,24 +321,6 @@ const PostTagsPage: React.FC = () => {
 
     return finalSlug;
   }, [rawTags]);
-
-  // Test Vietnamese slug generation (for debugging)
-  const testVietnameseSlug = useCallback(() => {
-    const testCases = [
-      'Thẻ Tiếng Việt',
-      'Sản Phẩm Mới',
-      'Tin Tức Công Nghệ',
-      'Đồ Ăn Ngon',
-      'Cửa Hàng Online',
-    ];
-
-    console.log('=== Vietnamese Slug Test ===');
-    testCases.forEach(testCase => {
-      const result = generateSlug(testCase);
-      console.log(`"${testCase}" → "${result}"`);
-    });
-    console.log('=== End Test ===');
-  }, [generateSlug]);
 
   // Handle form submissions
   const onSubmit = useCallback((data: TagFormData) => {

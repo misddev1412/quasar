@@ -191,7 +191,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     // Setup function with enhanced initialization
     setup: (editor: any) => {
       editor.on('init', () => {
-        console.log('Self-hosted TinyMCE editor initialized successfully');
         if (content) {
           editor.setContent(content);
         }
@@ -366,7 +365,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               licenseKey="gpl"
               onInit={(evt, editor) => {
                 editorRef.current = editor;
-                console.log('Self-hosted TinyMCE React Editor initialized');
               }}
               value={content}
               init={editorConfig}

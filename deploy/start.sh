@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-export PORT="${PORT:-8080}"
+export PORT="${PORT:-80}"
 
 SCRIPT_PATH="${BASH_SOURCE[0]:-$0}"
 SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
@@ -43,6 +43,20 @@ find_repo_root() {
 
 REPO_ROOT="$(find_repo_root)"
 cd "${REPO_ROOT}"
+
+load_env_file() {
+  local env_file="${1:-.env}"
+  if [[ -f "${env_file}" ]]; then
+    echo "Loading environment variables from ${env_file}"
+    # shellcheck disable=SC2046
+    set -a
+    # shellcheck disable=SC1090
+    source "${env_file}"
+    set +a
+  fi
+}
+
+load_env_file "${REPO_ROOT}/.env"
 
 TEMP_BUILD_BACKEND_PID=""
 
@@ -300,7 +314,7 @@ else
     start_nginx || true
     echo "Proxy configured: '/' → frontend:${INTERNAL_FRONTEND_PORT}, '/admin' → admin:${INTERNAL_ADMIN_PORT}, '/api' → backend:${INTERNAL_BACKEND_PORT}"
   else
-    DIRECT_PORT="${PORT:-8080}"
+    DIRECT_PORT="${PORT:-80}"
     echo "Warning: nginx unavailable. Serving storefront directly on port ${DIRECT_PORT}; admin remains on port ${INTERNAL_ADMIN_PORT}."
     start_frontend_process "${DIRECT_PORT}" || exit 1
   fi

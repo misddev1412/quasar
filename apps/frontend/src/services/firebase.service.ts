@@ -73,7 +73,6 @@ export class FirebaseService {
     }
 
     try {
-      console.log('🔥 Attempting Firebase initialization with config:', JSON.stringify(config, null, 2));
       this.app = initializeApp(config);
       this.auth = getAuth(this.app);
 
@@ -82,13 +81,9 @@ export class FirebaseService {
       if (this.messagingSupported) {
         this.messaging = getMessaging(this.app);
         this.notificationPermission = Notification.permission;
-        console.log('✅ Firebase Messaging initialized successfully');
-      } else {
-        console.log('⚠️ Firebase Messaging not supported in this environment');
       }
 
       this.initialized = true;
-      console.log('✅ Firebase initialized successfully');
     } catch (error) {
       console.error('❌ Firebase initialization failed:', error);
       console.error('❌ Config that failed:', JSON.stringify(config, null, 2));
@@ -294,7 +289,6 @@ export class FirebaseService {
     try {
       const permission = await Notification.requestPermission();
       this.notificationPermission = permission;
-      console.log('🔔 Notification permission:', permission);
       return permission;
     } catch (error) {
       console.error('❌ Error requesting notification permission:', error);
@@ -317,10 +311,8 @@ export class FirebaseService {
     try {
       const token = await getToken(this.messaging, vapidKey ? { vapidKey } : undefined);
       if (token) {
-        console.log('✅ FCM token generated:', token.substring(0, 20) + '...');
         return token;
       } else {
-        console.log('⚠️ No registration token available');
         return null;
       }
     } catch (error) {
@@ -337,7 +329,6 @@ export class FirebaseService {
 
     try {
       const unsubscribe = onMessage(this.messaging, (payload) => {
-        console.log('📨 Message received:', payload);
         callback(payload);
       });
 

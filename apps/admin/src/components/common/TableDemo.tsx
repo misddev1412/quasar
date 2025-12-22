@@ -161,17 +161,11 @@ export const TableDemo: React.FC = () => {
   const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize);
     setCurrentPage(1); // Reset to first page when changing page size
-    
-    // In a real application, you would make an API call here
-    console.log(`Page size changed to: ${newPageSize}`);
   };
 
   // Handle page change
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    
-    // In a real application, you would make an API call here
-    console.log(`Page changed to: ${page}`);
   };
 
   return (
@@ -215,9 +209,7 @@ export const TableDemo: React.FC = () => {
             variant: 'outline',
           },
         ]}
-        onBulkAction={(action) => {
-          console.log(`Bulk action: ${action} on ${selectedIds.size} items`);
-        }}
+        onBulkAction={() => undefined}
         searchPlaceholder="Search users..."
         enableRowHover={true}
         density="normal"

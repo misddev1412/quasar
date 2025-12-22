@@ -272,7 +272,6 @@ const LoyaltyTiersPage: React.FC = () => {
 
   // Handle bulk actions
   const handleBulkAction = useCallback((action: string) => {
-    console.log(`Bulk action: ${action} on ${selectedTierIds.size} tiers`);
     switch (action) {
       case 'activate':
         addToast({ type: 'info', title: t('common.feature_coming_soon', 'Feature coming soon'), description: t('loyalty.tiers.bulk_activate_coming_soon', 'Bulk activate will be available soon') });

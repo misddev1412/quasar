@@ -186,7 +186,6 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
   }, [fetchProducts]);
 
   const handleAddToCart = (product: Product) => {
-    console.log('Adding to cart:', product);
     // Implement add to cart logic
   };
 

@@ -25,24 +25,13 @@ export function useEntityForm<T extends FieldValues = FieldValues>({
   });
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    console.log('🔥 [useEntityForm] handleSubmit called with data:', data);
-    console.log('🔥 [useEntityForm] Form state:', {
-      errors: form.formState.errors,
-      isValid: form.formState.isValid,
-      isDirty: form.formState.isDirty,
-      touchedFields: form.formState.touchedFields,
-    });
     setIsSubmitting(true);
     try {
       await onSubmit(data as T);
     } finally {
       setIsSubmitting(false);
     }
-  }, (errors) => {
-    console.log('❌ [useEntityForm] Form validation errors:', errors);
-    console.log('❌ [useEntityForm] Form is invalid, submission blocked');
   });
 
   return { form, handleSubmit, isSubmitting };
 }
-

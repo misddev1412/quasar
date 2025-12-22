@@ -29,11 +29,7 @@ const ProductDetailClient: React.FC<ProductDetailClientProps> = ({
   const { addToCart } = useAddToCart();
 
   const handleAddToCart = (product: Product, quantity?: number, variant?: ProductVariant | null): void => {
-    addToCart({ product, quantity, variant }).then(result => {
-      if (result.success) {
-        console.log('Added to cart:', { product, quantity, variant });
-      }
-    }).catch(error => {
+    addToCart({ product, quantity, variant }).catch(error => {
       console.error('Failed to add to cart:', error);
     });
   };

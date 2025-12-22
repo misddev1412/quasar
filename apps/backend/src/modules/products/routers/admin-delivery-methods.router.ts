@@ -214,7 +214,6 @@ export class AdminDeliveryMethodsRouter {
     output: apiResponseSchema,
   })
   async update(@Input() input: z.infer<typeof deliveryMethodUpdateSchema>) {
-    console.log('Backend received update input:', JSON.stringify(input, null, 2));
     const deliveryMethod = await this.deliveryMethodService.update(input.id, input.data as any);
     return this.responseService.createTrpcSuccess({
       data: deliveryMethod,

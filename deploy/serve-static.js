@@ -76,5 +76,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Serving static files from ${staticDir} on port ${PORT}`);
+  process.stdout.write(`Serving static files from ${staticDir} on port ${PORT}\n`);
 });

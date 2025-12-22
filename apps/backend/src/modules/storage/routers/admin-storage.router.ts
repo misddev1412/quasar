@@ -93,69 +93,46 @@ export class AdminStorageRouter {
     @Input() input: z.infer<typeof updateStorageConfigSchema>
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      console.log('🔍 [STORAGE UPDATE] Received input:', JSON.stringify(input, null, 2));
-      
       const settings: Record<string, string> = {};
 
       // Always save base configuration
       settings['storage.provider'] = input.provider;
       settings['storage.max_file_size'] = input.maxFileSize.toString();
       settings['storage.allowed_file_types'] = JSON.stringify(input.allowedFileTypes);
-      
-      console.log('💾 [STORAGE UPDATE] Base settings:', {
-        provider: input.provider,
-        maxFileSize: input.maxFileSize,
-        allowedFileTypes: input.allowedFileTypes
-      });
-
       // Process local storage settings - save if provided (not empty)
       if (input.localUploadPath !== undefined && input.localUploadPath !== '') {
         settings['storage.local.upload_path'] = input.localUploadPath;
-        console.log('💾 [STORAGE UPDATE] Local upload path:', input.localUploadPath);
       }
       if (input.localBaseUrl !== undefined && input.localBaseUrl !== '') {
         settings['storage.local.base_url'] = input.localBaseUrl;
-        console.log('💾 [STORAGE UPDATE] Local base URL:', input.localBaseUrl);
       }
 
       // Process S3 settings - save if provided (not empty or undefined)
       if (input.s3AccessKey !== undefined && input.s3AccessKey !== '') {
         settings['storage.s3.access_key'] = input.s3AccessKey;
-        console.log('💾 [STORAGE UPDATE] S3 access key: [REDACTED]');
       }
       if (input.s3SecretKey !== undefined && input.s3SecretKey !== '') {
         settings['storage.s3.secret_key'] = input.s3SecretKey;
-        console.log('💾 [STORAGE UPDATE] S3 secret key: [REDACTED]');
       }
       if (input.s3Region !== undefined && input.s3Region !== '') {
         settings['storage.s3.region'] = input.s3Region;
-        console.log('💾 [STORAGE UPDATE] S3 region:', input.s3Region);
       }
       if (input.s3Bucket !== undefined && input.s3Bucket !== '') {
         settings['storage.s3.bucket'] = input.s3Bucket;
-        console.log('💾 [STORAGE UPDATE] S3 bucket:', input.s3Bucket);
       }
       if (input.s3Endpoint !== undefined && input.s3Endpoint !== '') {
         settings['storage.s3.endpoint'] = input.s3Endpoint;
-        console.log('💾 [STORAGE UPDATE] S3 endpoint:', input.s3Endpoint);
       }
       if (input.s3ForcePathStyle !== undefined) {
         settings['storage.s3.force_path_style'] = input.s3ForcePathStyle.toString();
-        console.log('💾 [STORAGE UPDATE] S3 force path style:', input.s3ForcePathStyle);
       }
       if (input.s3CdnUrl !== undefined && input.s3CdnUrl !== '') {
         settings['storage.s3.cdn_url'] = input.s3CdnUrl;
-        console.log('💾 [STORAGE UPDATE] S3 CDN URL:', input.s3CdnUrl);
       }
-
-      console.log('💾 [STORAGE UPDATE] Final settings to save:', Object.keys(settings).map(key => 
-        key.includes('key') ? `${key}: [REDACTED]` : `${key}: ${settings[key]}`
-      ));
 
       // Save all settings
       await this.storageService.updateStorageSettings(settings);
 
-      console.log('✅ [STORAGE UPDATE] Successfully saved all settings');
       return this.responseHandler.createTrpcSuccess({ 
         message: 'Storage configuration updated successfully' 
       });

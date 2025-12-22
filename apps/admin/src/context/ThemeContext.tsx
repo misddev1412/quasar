@@ -234,8 +234,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         document.documentElement.classList.add('light');
       }
       
-      console.log(`Dark mode is: ${isDarkMode ? "enabled" : "disabled"}`);
-      
       // Remove transition effect after theme change completes
       const timer = setTimeout(() => {
         removeThemeTransitionCSS();

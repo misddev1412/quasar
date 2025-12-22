@@ -217,7 +217,6 @@ export const EditDeliveryMethodModal: React.FC<EditDeliveryMethodModalProps> = (
           isDefault: formData.isDefault,
         },
       };
-      console.log('Sending update data:', updateData);
       await updateMutation.mutateAsync(updateData as any);
     } catch (error) {
       // Error handling is done in onError callback

@@ -86,7 +86,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Check if token is expired and we have a refresh token
     if (isTokenExpired(token) && refreshTokenValue) {
-      console.log('Access token expired, attempting refresh...');
       const refreshSuccess = await refreshToken();
 
       if (!refreshSuccess) {
@@ -182,7 +181,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const { isTokenExpired } = await import('../utils/trpc');
 
           if (isTokenExpired(token)) {
-            console.log('Page became visible, refreshing expired token...');
             const refreshSuccess = await refreshToken();
 
             if (!refreshSuccess) {
@@ -206,7 +204,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const { isTokenExpired } = await import('../utils/trpc');
 
         if (isTokenExpired(token)) {
-          console.log('Token expired during periodic check, refreshing...');
           const refreshSuccess = await refreshToken();
 
           if (!refreshSuccess) {

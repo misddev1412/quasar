@@ -227,9 +227,6 @@ export class ProductRepository {
   }
 
   async findById(id: string, relations: string[] = []): Promise<Product | null> {
-    console.log('🔍 DEBUG REPO - Finding product by ID:', id);
-    console.log('🔍 DEBUG REPO - Relations requested:', relations);
-
     if (relations.length === 0) {
       // No relations requested, use simple findOne
       return this.productRepository.findOne({ where: { id } });
@@ -244,14 +241,7 @@ export class ProductRepository {
       this.addRelationJoins(queryBuilder, relations, addedJoins);
     }
 
-    console.log('🔍 DEBUG REPO - Final SQL:', queryBuilder.getSql());
     const result = await queryBuilder.getOne();
-
-    console.log('🔍 DEBUG REPO - Result:', result ? 'Found' : 'Not found');
-    if (result) {
-      console.log('🔍 DEBUG REPO - Result media:', (result as any).media);
-      console.log('🔍 DEBUG REPO - Result media type:', typeof (result as any).media);
-    }
 
     return result;
   }

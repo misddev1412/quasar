@@ -18,8 +18,6 @@ if (typeof firebaseConfig.apiKey !== 'undefined') {
 
   // Handle background messages
   messaging.onBackgroundMessage((payload) => {
-    console.log('[firebase-messaging-sw.js] Received background message ', payload);
-
     // Customize notification here
     const notificationTitle = payload.notification?.title || 'New notification';
     const notificationOptions = {
@@ -49,8 +47,6 @@ if (typeof firebaseConfig.apiKey !== 'undefined') {
 
   // Handle notification click events
   self.addEventListener('notificationclick', (event) => {
-    console.log('[firebase-messaging-sw.js] Notification click received.');
-
     event.notification.close();
 
     if (event.action === 'close') {
@@ -82,12 +78,8 @@ if (typeof firebaseConfig.apiKey !== 'undefined') {
 
   // Handle push events (for when the app is closed)
   self.addEventListener('push', (event) => {
-    console.log('[firebase-messaging-sw.js] Push event received.');
-
     if (event.data) {
       const payload = event.data.json();
-      console.log('[firebase-messaging-sw.js] Push payload: ', payload);
-
       const notificationTitle = payload.notification?.title || 'New notification';
       const notificationOptions = {
         body: payload.notification?.body || 'You have a new notification',

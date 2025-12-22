@@ -73,18 +73,7 @@ const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({
   const handleLocaleChange = async (locale: SupportedLocale) => {
     if (locale !== currentLocale && !isLoading) {
       try {
-        console.log('🔄 Changing language from', currentLocale, 'to', locale);
-        console.log('🔄 localStorage BEFORE change:', localStorage.getItem(LOCALE_STORAGE_KEY));
-        
-        // Change language directly via i18n to ensure LanguageDetector caching works
         await i18n.changeLanguage(locale);
-        console.log('✅ Language changed successfully via i18n to:', i18n.language);
-        
-        // Verify it was saved to localStorage
-        setTimeout(() => {
-          console.log('💾 localStorage AFTER change:', localStorage.getItem(LOCALE_STORAGE_KEY));
-        }, 100);
-        
       } catch (error) {
         console.error('❌ Failed to change language:', error);
       }

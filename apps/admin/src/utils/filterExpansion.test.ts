@@ -59,10 +59,6 @@ const parseUrlToFilters = (searchParams: URLSearchParams): UserFiltersType => {
 
 // Test cases demonstrating the expanded functionality
 export const testFilterExpansion = () => {
-  console.log('=== Testing URL Filter Expansion (FIXED VERSION) ===\n');
-
-  // Test Case 1: Basic filters (existing functionality)
-  console.log('Test Case 1: Basic filters');
   const basicParams = createMockSearchParams({
     dateFrom: '2025-08-11',
     dateTo: '2025-08-12',
@@ -71,12 +67,7 @@ export const testFilterExpansion = () => {
     isActive: 'true'
   });
   const basicFilters = parseUrlToFilters(basicParams);
-  console.log('URL: ?dateFrom=2025-08-11&dateTo=2025-08-12&page=1&role=admin&isActive=true');
-  console.log('Parsed filters:', JSON.stringify(basicFilters, null, 2));
-  console.log('');
 
-  // Test Case 2: Expanded filters with additional parameters
-  console.log('Test Case 2: Expanded filters');
   const expandedParams = createMockSearchParams({
     dateFrom: '2025-08-01',
     dateTo: '2025-08-31',
@@ -92,12 +83,7 @@ export const testFilterExpansion = () => {
     sortBy: 'email'
   });
   const expandedFilters = parseUrlToFilters(expandedParams);
-  console.log('URL: ?dateFrom=2025-08-01&dateTo=2025-08-31&email=@company.com&username=admin&hasProfile=true&isVerified=false&country=United States&city=New York&lastLoginFrom=2025-08-10&lastLoginTo=2025-08-12&page=2&sortBy=email');
-  console.log('Parsed filters:', JSON.stringify(expandedFilters, null, 2));
-  console.log('');
 
-  // Test Case 3: Alternative date parameter names (createdFrom/createdTo)
-  console.log('Test Case 3: Alternative date parameters');
   const altDateParams = createMockSearchParams({
     createdFrom: '2025-07-01',
     createdTo: '2025-07-31',
@@ -105,12 +91,7 @@ export const testFilterExpansion = () => {
     page: '1'
   });
   const altDateFilters = parseUrlToFilters(altDateParams);
-  console.log('URL: ?createdFrom=2025-07-01&createdTo=2025-07-31&role=user&page=1');
-  console.log('Parsed filters:', JSON.stringify(altDateFilters, null, 2));
-  console.log('');
 
-  // Test Case 4: Mixed valid and invalid parameters
-  console.log('Test Case 4: Mixed valid and invalid parameters');
   const mixedParams = createMockSearchParams({
     dateFrom: '2025-08-11',
     dateTo: 'invalid-date',
@@ -122,13 +103,7 @@ export const testFilterExpansion = () => {
     page: '1'
   });
   const mixedFilters = parseUrlToFilters(mixedParams);
-  console.log('URL: ?dateFrom=2025-08-11&dateTo=invalid-date&role=invalid-role&isActive=maybe&email=  @valid.com  &username=&hasProfile=true&page=1');
-  console.log('Parsed filters:', JSON.stringify(mixedFilters, null, 2));
-  console.log('Note: Invalid values are filtered out, whitespace is trimmed');
-  console.log('');
 
-  // Test Case 5: All possible filter combinations
-  console.log('Test Case 5: All possible filters');
   const allParams = createMockSearchParams({
     role: 'super_admin',
     isActive: 'false',
@@ -144,20 +119,13 @@ export const testFilterExpansion = () => {
     lastLoginTo: '2025-08-12',
     createdFrom: '2025-01-01',
     createdTo: '2025-01-31',
-    // Non-filter parameters (should be ignored by filter parsing)
     page: '3',
     limit: '25',
     sortBy: 'createdAt',
     sortOrder: 'asc'
   });
   const allFilters = parseUrlToFilters(allParams);
-  console.log('URL with all possible filters + pagination/sorting parameters');
-  console.log('Parsed filters:', JSON.stringify(allFilters, null, 2));
-  console.log('Note: dateFrom takes precedence over createdFrom when both are present');
-  console.log('');
 
-  console.log('=== Filter Expansion Test Complete ===');
-  
   return {
     basicFilters,
     expandedFilters,

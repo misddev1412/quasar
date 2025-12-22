@@ -476,7 +476,6 @@ const UserListPage = () => {
 
   // Handle bulk actions
   const handleBulkAction = useCallback((action: string) => {
-    console.log(`Bulk action: ${action} on ${selectedUserIds.size} users`);
     // Implement bulk actions here
     switch (action) {
       case 'activate':

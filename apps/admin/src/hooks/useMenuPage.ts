@@ -207,7 +207,6 @@ export const useMenuPage = (initialGroup: string = 'main') => {
       void fetchChildren({ menuGroup: selectedMenuGroup, parentId: nodeId })
         .then(data => {
           const children = (data?.data ?? []) as unknown as MenuTreeNode[];
-          console.log('Children loaded for node:', nodeId, 'count:', children.length);
           setLoadedChildren(prev => {
             const newMap = new Map(prev);
             newMap.set(nodeId, children);
@@ -318,13 +317,11 @@ export const useMenuPage = (initialGroup: string = 'main') => {
         next.add(nodeId);
 
         // Always fetch children from server when expanding to ensure fresh data
-        console.log('Expanding node:', nodeId, 'for menuGroup:', selectedMenuGroup);
         setLoadingChildren(prev => new Set(prev).add(nodeId));
 
         void fetchChildren({ menuGroup: selectedMenuGroup, parentId: nodeId })
             .then(data => {
               const children = (data?.data ?? []) as unknown as MenuTreeNode[];
-              console.log('Children loaded for node:', nodeId, 'count:', children.length);
               setLoadedChildren(prev => {
                 const newMap = new Map(prev);
                 newMap.set(nodeId, children);

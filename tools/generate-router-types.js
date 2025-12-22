@@ -57,8 +57,8 @@ export type RouterAliases = keyof AppRouter;
 `;
 
   fs.writeFileSync(OUTPUT_FILE, generatedContent);
-  console.log(`✅ Generated router types at ${OUTPUT_FILE}`);
-  console.log(`📊 Found ${routers.length} routers`);
+  process.stdout.write(`Generated router types at ${OUTPUT_FILE}\n`);
+  process.stdout.write(`Found ${routers.length} routers\n`);
 }
 
 if (require.main === module) {

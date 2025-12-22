@@ -114,9 +114,8 @@ const RegisterPage = () => {
     }
   };
 
-  const handleSocialSignup = (provider: string) => {
+  const handleSocialSignup = (_provider: string) => {
     // TODO: Implement social signup
-    console.log(`Sign up with ${provider}`);
   };
 
   return (

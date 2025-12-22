@@ -281,7 +281,6 @@ const BrandsPage: React.FC = () => {
 
   // Handle bulk actions
   const handleBulkAction = useCallback((action: string) => {
-    console.log(`Bulk action: ${action} on ${selectedBrandIds.size} brands`);
     switch (action) {
       case 'activate':
         addToast({ type: 'info', title: 'Feature coming soon', description: 'Bulk activate will be available soon' });

@@ -290,9 +290,7 @@ const DeliveryMethodsPage: React.FC = () => {
 
   // Table data
   const tableData = useMemo(() => {
-    const items = (deliveryMethodsData as any)?.data?.items || [];
-    console.log('Delivery methods table data:', items);
-    return items;
+    return (deliveryMethodsData as any)?.data?.items || [];
   }, [deliveryMethodsData]);
 
   const totalItems = (deliveryMethodsData as any)?.data?.total || 0;
@@ -370,14 +368,6 @@ const DeliveryMethodsPage: React.FC = () => {
       className: 'w-32',
       accessor: (item) => {
         try {
-          console.log('Delivery cost item:', {
-            id: item.id,
-            name: item.name,
-            deliveryCost: item.deliveryCost,
-            deliveryCostType: typeof item.deliveryCost,
-            costCalculationType: item.costCalculationType
-          });
-
           return (
             <div className="text-sm">
               {item.costCalculationType === 'FREE' ? (

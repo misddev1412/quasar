@@ -457,8 +457,8 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                     <ReviewList
                       productId={id}
                       reviews={reviews}
-                      onHelpfulVote={(reviewId) => console.log('Helpful vote:', reviewId)}
-                      onReportReview={(reviewId) => console.log('Report review:', reviewId)}
+                      onHelpfulVote={() => undefined}
+                      onReportReview={() => undefined}
                     />
                     <div className="space-y-4 rounded-2xl border border-dashed border-gray-300 bg-gray-50/80 p-5 dark:border-gray-700/60 dark:bg-gray-900/40">
                       <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{t('reviews.shareTitle')}</h4>

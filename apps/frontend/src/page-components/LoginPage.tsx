@@ -80,9 +80,8 @@ const LoginPage = () => {
     }
   };
 
-  const handleSocialLogin = (provider: string) => {
+  const handleSocialLogin = (_provider: string) => {
     // TODO: Implement social login
-    console.log(`Login with ${provider}`);
   };
 
   return (

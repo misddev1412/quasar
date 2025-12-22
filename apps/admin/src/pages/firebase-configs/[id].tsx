@@ -230,7 +230,6 @@ const EditFirebaseConfigPage: React.FC = () => {
         reader.onload = (e) => {
           try {
             const config = JSON.parse(e.target?.result as string);
-            console.log('Imported config:', config);
             
             if (formData) {
               // Clear any existing errors
@@ -247,8 +246,6 @@ const EditFirebaseConfigPage: React.FC = () => {
                 appId: config.appId || config.app_id || formData.appId,
                 measurementId: config.measurementId || config.measurement_id || formData.measurementId,
               };
-              
-              console.log('Updated form data:', updatedFormData);
               
               setFormData(updatedFormData);
               

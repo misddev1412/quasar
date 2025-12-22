@@ -385,27 +385,12 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
 
   const isAddToCartDisabled = !selectedVariant || selectedVariant.stockQuantity <= 0 || missingRequiredSelections || isAdding;
 
-  // Debug logging for button state
-  console.log('Button State Debug:', {
-    selectedVariant: selectedVariant?.name || 'None',
-    selectedVariantId: selectedVariant?.id,
-    stockQuantity: selectedVariant?.stockQuantity,
-    variantAttributesLength: variantAttributes.length,
-    selectedAttributesLength: Object.keys(selectedAttributes).length,
-    isAddToCartDisabled
-  });
-
   // Fallback: If no variant is selected but attributes are selected, try to find a fallback variant
   const handleAddToCartWithFallback = async () => {
-    console.log('handleAddToCartWithFallback called');
-
     if (!selectedVariant && product.variants && product.variants.length > 0 && Object.keys(selectedAttributes).length > 0) {
-      console.log('No variant selected, trying fallback selection');
-
       // Try to find any variant that has stock
       const availableVariant = product.variants.find(v => v.stockQuantity > 0);
       if (availableVariant) {
-        console.log('Using available variant as fallback:', availableVariant.name);
         await handleAddToCart();
         return;
       }

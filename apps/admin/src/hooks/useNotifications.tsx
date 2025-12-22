@@ -324,8 +324,6 @@ export function useNotifications(): UseNotificationsReturn {
     }
 
     const unsubscribe = firebaseService.onMessage((payload: MessagePayload) => {
-      console.log('Message received in foreground:', payload);
-
       if (hasPermission && payload.notification) {
         firebaseService.showNotification(
           payload.notification.title || 'New notification',

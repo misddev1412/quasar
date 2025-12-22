@@ -162,8 +162,6 @@ const StorageConfigPage: React.FC = () => {
 
   const handleSubmit = async (formData: StorageConfigFormData) => {
     try {
-      console.log('🚀 [FRONTEND] Form data before processing:', formData);
-      
       // Convert string to number for maxFileSize and clean up empty values
       const processedData = {
         provider: formData.provider,
@@ -199,8 +197,7 @@ const StorageConfigPage: React.FC = () => {
           s3CdnUrl: formData.s3CdnUrl.trim()
         }),
       };
-      
-      console.log('🔄 [FRONTEND] Processed data being sent:', processedData);
+
       await updateConfigMutation.mutateAsync(processedData);
     } catch (error) {
       console.error('❌ [FRONTEND] Storage config update error:', error);
@@ -729,12 +726,7 @@ const StorageConfigPage: React.FC = () => {
         <EntityForm<StorageConfigFormData>
           tabs={tabs}
           initialValues={initialValues}
-          onSubmit={async (data) => {
-            console.log('🔥 [FRONTEND DEBUG] EntityForm onSubmit triggered with data:', data);
-            console.log('🔥 [FRONTEND DEBUG] Current activeTab:', activeTab);
-            console.log('🔥 [FRONTEND DEBUG] Available tabs:', tabs.map((t, i) => `${i}: ${t.id}`));
-            await handleSubmit(data);
-          }}
+          onSubmit={handleSubmit}
           onCancel={handleCancel}
           isSubmitting={updateConfigMutation.isPending}
           validationSchema={storageConfigSchema}

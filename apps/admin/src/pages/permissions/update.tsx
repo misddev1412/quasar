@@ -77,7 +77,6 @@ const PermissionUpdatePage: React.FC = () => {
     mutateAsync: async (data: { id: string; data: UpdatePermissionFormData }) => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Updating permission:', data);
       return data;
     },
     isPending: false,
@@ -87,7 +86,6 @@ const PermissionUpdatePage: React.FC = () => {
     mutateAsync: async (data: { id: string }) => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Deleting permission:', data);
       return data;
     },
     isPending: false,

@@ -151,7 +151,6 @@ const CreateFirebaseConfigPage: React.FC = () => {
         reader.onload = (e) => {
           try {
             const config = JSON.parse(e.target?.result as string);
-            console.log('Imported config:', config);
             
             // Clear any existing errors
             setErrors({});
@@ -190,9 +189,6 @@ const CreateFirebaseConfigPage: React.FC = () => {
                 name: formData.name || config.projectId || config.project_id || `${config.projectId || config.project_id}-config`,
               };
             }
-            
-            console.log('Updated form data:', updatedFormData);
-            
             // Update form data
             setFormData(updatedFormData);
             

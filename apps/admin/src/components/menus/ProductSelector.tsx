@@ -80,7 +80,6 @@ export const ProductSelector: React.FC<ProductSelectorProps> = ({ value, onChang
   }, [debouncedSearch]);
 
   useEffect(() => {
-    console.log('productsQuery.data:', productsQuery.data);
     if (productsQuery.data && typeof productsQuery.data === 'object') {
       const data = productsQuery.data as any;
 
@@ -106,9 +105,7 @@ export const ProductSelector: React.FC<ProductSelectorProps> = ({ value, onChang
         hasMore = data.page < data.totalPages;
       }
 
-      console.log('Extracted items:', items);
       const newOptions = items.map(mapProductToOption);
-      console.log('Mapped options:', newOptions);
 
       if (page === 1) {
         setSearchOptions(newOptions);
@@ -173,9 +170,7 @@ export const ProductSelector: React.FC<ProductSelectorProps> = ({ value, onChang
     if (selectedOption && !map.has(selectedOption.value)) {
       map.set(selectedOption.value, selectedOption);
     }
-    const options = Array.from(map.values());
-    console.log('allOptions:', options);
-    return options;
+    return Array.from(map.values());
   }, [searchOptions, selectedOption]);
 
   const productSelectStyles = useMemo(
@@ -368,10 +363,7 @@ export const ProductSelector: React.FC<ProductSelectorProps> = ({ value, onChang
       isClearable={true}
       isLoading={productsQuery.isLoading && page === 1}
       loadingMessage={() => 'Loading products...'}
-      noOptionsMessage={() => {
-        console.log('noOptionsMessage called. debouncedSearch:', debouncedSearch, 'allOptions.length:', allOptions.length);
-        return debouncedSearch ? 'No products found' : 'Start typing to search products';
-      }}
+      noOptionsMessage={() => debouncedSearch ? 'No products found' : 'Start typing to search products'}
       formatOptionLabel={formatOptionLabel}
       menuPortalTarget={menuPortalTarget}
         menuPlacement="auto"

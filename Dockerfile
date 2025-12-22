@@ -32,6 +32,6 @@ COPY --from=builder /app/deploy ./deploy
 RUN cp ./deploy/start.sh /start.sh \
   && chmod +x /start.sh
 
-EXPOSE 8080
+EXPOSE 80
 
 CMD ["/start.sh"]

@@ -24,8 +24,6 @@ export const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({ children }
         // Track initial page view
         const title = document.title;
         analyticsService.trackPageView(location.pathname, title);
-
-        console.log('Analytics initialized successfully');
       } catch (err) {
         const errorMessage = 'Failed to initialize analytics service';
         setError(errorMessage);

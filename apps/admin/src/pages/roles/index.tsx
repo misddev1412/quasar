@@ -238,9 +238,7 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
   };
 
   // Handle bulk actions
-  const handleBulkAction = (action: string) => {
-    console.log('Bulk action:', action, 'for roles:', selectedRoles);
-  };
+  const handleBulkAction = (_action: string) => {};
 
   // Handle search
   const handleSearch = useCallback((searchTerm: string) => {

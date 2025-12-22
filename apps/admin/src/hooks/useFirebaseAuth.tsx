@@ -53,12 +53,7 @@ export const FirebaseAuthProvider: React.FC<FirebaseAuthProviderProps> = ({ chil
 
   // Log configuration status
   React.useEffect(() => {
-    if (configData?.data) {
-      console.log('✅ Firebase config loaded successfully:', {
-        projectId: configData.data.projectId,
-        authDomain: configData.data.authDomain
-      });
-    } else if (configError) {
+    if (configError) {
       console.error('❌ Failed to fetch Firebase config:', configError);
     } else if (configData?.data === null) {
       console.warn('⚠️ No active Firebase configuration found');
@@ -89,18 +84,10 @@ export const FirebaseAuthProvider: React.FC<FirebaseAuthProviderProps> = ({ chil
         // Check if we have active Firebase config data
         const activeConfig = (configData as any)?.data;
 
-        console.log('Firebase initialization check:', {
-          hasConfigData: !!configData,
-          hasActiveConfig: !!activeConfig,
-          isAlreadyInitialized: firebaseService.isInitialized()
-        });
-
         if (activeConfig && !firebaseService.isInitialized()) {
-          console.log('🔥 useFirebaseAuth: Initializing Firebase with config:', activeConfig);
           try {
             await firebaseService.initialize(activeConfig);
             setInitialized(true);
-            console.log('✅ useFirebaseAuth: Firebase initialization completed successfully');
           } catch (error) {
             console.error('❌ useFirebaseAuth: Firebase initialization failed:', error);
             setInitialized(false);
@@ -116,7 +103,6 @@ export const FirebaseAuthProvider: React.FC<FirebaseAuthProviderProps> = ({ chil
           console.warn('❌ No active Firebase configuration found');
           setLoading(false);
         } else {
-          console.log('📝 Firebase already initialized');
           setLoading(false);
         }
       } catch (error) {
@@ -164,7 +150,6 @@ export const FirebaseAuthProvider: React.FC<FirebaseAuthProviderProps> = ({ chil
                   userAgent: navigator.userAgent
                 }
               });
-              console.log('✅ FCM token registered with backend');
             }
           }
         } catch (error) {

@@ -75,17 +75,11 @@ export const EmailEditor: React.FC<EmailEditorProps> = ({
     }
   };
 
-  const onDesignLoad = (data: any) => {
-    console.log('Design loaded:', data);
-  };
+  const onDesignLoad = (_data: any) => {};
 
-  const onLoad = (unlayer: any) => {
-    console.log('Email editor loaded:', unlayer);
-  };
+  const onLoad = (_unlayer: any) => {};
 
   const onReady = (unlayer: any) => {
-    console.log('Email editor ready');
-    
     // Configure editor for better email template support
     unlayer.registerCallback('image', (file: any, done: any) => {
       const reader = new FileReader();

@@ -104,7 +104,6 @@ const ProfilePage = () => {
   const handleNotificationPreferencesChange = (e: React.FormEvent) => {
     e.preventDefault();
     // In a real app, you would save these preferences to the backend
-    console.log('Notification preferences saved:', notificationPreferences);
   };
 
   if (authLoading || profileLoading) {

@@ -20,7 +20,6 @@ export const useFCM = () => {
                 try {
                     await firebaseService.initialize(activeConfig);
                     setInitialized(true);
-                    console.log('✅ FCM: Firebase initialized successfully');
                 } catch (error) {
                     console.error('❌ FCM: Firebase initialization failed:', error);
                 }
@@ -47,7 +46,6 @@ export const useFCM = () => {
                                 platform: 'web',
                                 userAgent: navigator.userAgent
                             });
-                            console.log('✅ FCM: Token registered successfully');
                         }
                     }
                 } catch (error) {

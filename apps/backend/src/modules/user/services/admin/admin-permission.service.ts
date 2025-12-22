@@ -161,7 +161,6 @@ export class AdminPermissionService {
             attributes: grant.attributes || ['*'],
           };
           permission = await this.permissionRepository.createPermission(createPermissionDto);
-          console.log(`   📋 Created permission: ${permissionName}`);
         }
 
         // Get role ID from UserRole enum
@@ -172,14 +171,10 @@ export class AdminPermissionService {
           roleId,
           permissionId: permission.id
         });
-        
-        console.log(`   🔗 Assigned permission '${permissionName}' to role '${grant.role}'`);
-        
+
       } catch (error) {
         // Log but don't fail if permission already exists
-        if (error instanceof ConflictException) {
-          console.log(`   ℹ️  Permission '${grant.action}:${grant.scope}:${grant.resource}' already assigned to role '${grant.role}'`);
-        } else {
+        if (!(error instanceof ConflictException)) {
           console.error(`   ❌ Failed to grant permission to role '${grant.role}':`, error.message);
           throw error;
         }

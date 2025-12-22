@@ -84,12 +84,6 @@ export function EntityForm<T extends FieldValues = FieldValues>({
   }));
 
   const handleFormSubmit = (e: React.FormEvent) => {
-    console.log('🎯 [EntityForm] Form submit event triggered');
-    console.log('🎯 [EntityForm] Form state:', {
-      isValid: form.formState.isValid,
-      errors: form.formState.errors,
-      isDirty: form.formState.isDirty,
-    });
     handleHookSubmit(e);
   };
 
@@ -125,9 +119,7 @@ export function EntityForm<T extends FieldValues = FieldValues>({
               variant="primary"
               isLoading={isSubmitting}
               disabled={isSubmitting}
-              onClick={(e) => {
-                console.log('🔥 [EntityForm] Submit button clicked!');
-                console.log('🔥 [EntityForm] Event:', e);
+              onClick={() => {
                 // Don't prevent default - let form handle it
               }}
             >

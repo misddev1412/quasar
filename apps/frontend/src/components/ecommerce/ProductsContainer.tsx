@@ -107,7 +107,6 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({ initialProducts }
   };
 
   const handleAddToCart = (product: Product) => {
-    console.log('Adding to cart:', product);
     // Simple add to cart logic
   };
 

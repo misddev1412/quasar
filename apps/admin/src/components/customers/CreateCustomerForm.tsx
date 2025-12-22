@@ -427,7 +427,6 @@ export const CreateCustomerForm: React.FC<CreateCustomerFormProps> = ({
       }),
     };
 
-    console.log('Sending customer data:', cleanedData);
     await onSubmit(cleanedData);
   };
 
