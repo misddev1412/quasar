@@ -5,6 +5,8 @@ module.exports = {
   output: {
     path: join(__dirname, '../../dist/apps/backend'),
   },
+  // Force emitting sourcemaps even in production for nestjs-trpc scanners
+  devtool: 'source-map',
   plugins: [
     new NxAppWebpackPlugin({
       target: 'node',

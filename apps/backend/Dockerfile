@@ -42,6 +42,13 @@ FROM node-base AS runner
 
 WORKDIR /app
 
+# Copy package files (needed to install runtime deps, e.g. NestJS)
+COPY package*.json ./
+COPY .npmrc ./
+
+# Install only production dependencies
+RUN npm ci --omit=dev
+
 # Copy built app
 COPY --from=builder /app/dist/apps/backend ./dist
 

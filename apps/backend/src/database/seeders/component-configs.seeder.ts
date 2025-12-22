@@ -21,6 +21,22 @@ interface ComponentConfigSeed {
   children?: ComponentConfigSeed[];
 }
 
+const VIEW_MORE_BUTTON_TEXT_COLOR_PRESETS = [
+  'text-gray-700 hover:text-gray-900 dark:text-gray-200 dark:hover:text-gray-50',
+  'text-gray-900 dark:text-gray-100',
+  'text-indigo-600 hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200',
+  'text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300',
+  'text-white hover:text-white dark:text-white dark:hover:text-white',
+];
+
+const VIEW_MORE_BUTTON_BACKGROUND_COLOR_PRESETS = [
+  'bg-transparent hover:bg-gray-50 dark:bg-transparent dark:hover:bg-gray-900/40',
+  'bg-white hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800',
+  'bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200',
+  'bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600',
+  'bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600',
+];
+
 const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
   {
     componentKey: 'product_card',
@@ -734,62 +750,26 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
     position: 7,
     defaultConfig: {
       size: 'md',
-      uppercase: false,
-      bold: false,
-      variant: 'default',
-      label: 'View More',
-      href: '#',
-      showIcon: false,
-      iconPosition: 'right',
-      lightMode: {
-        textColor: 'text-gray-700',
-        backgroundColor: 'bg-transparent',
-        borderColor: 'border-gray-200',
-        hoverTextColor: 'hover:text-gray-900',
-        hoverBackgroundColor: 'hover:bg-gray-50',
-        hoverBorderColor: 'hover:border-gray-300',
-      },
-      darkMode: {
-        textColor: 'dark:text-gray-200',
-        backgroundColor: 'dark:bg-transparent',
-        borderColor: 'dark:border-gray-700',
-        hoverTextColor: 'dark:hover:text-gray-100',
-        hoverBackgroundColor: 'dark:hover:bg-gray-800',
-        hoverBorderColor: 'dark:hover:border-gray-500',
-      },
+      weight: 'medium',
+      textColor: 'text-indigo-600 hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200',
+      backgroundColor: 'bg-transparent hover:bg-gray-50 dark:bg-transparent dark:hover:bg-gray-900/40',
     },
     configSchema: {
       size: { type: 'enum', options: ['sm', 'md', 'lg'], description: 'Button size preset' },
-      uppercase: { type: 'boolean', description: 'Transform text to uppercase' },
-      bold: { type: 'boolean', description: 'Use bold font weight (semibold)' },
-      variant: { type: 'enum', options: ['default', 'primary', 'ghost', 'outline'], description: 'Visual style preset' },
-      label: { type: 'string', description: 'Button text content' },
-      href: { type: 'string', description: 'Link destination URL' },
-      showIcon: { type: 'boolean', description: 'Display an icon alongside text' },
-      iconPosition: { type: 'enum', options: ['left', 'right'], description: 'Icon placement' },
-      lightMode: {
-        type: 'object',
-        description: 'Light mode color configuration',
-        properties: {
-          textColor: { type: 'string', description: 'Tailwind text color class (e.g., text-gray-700)' },
-          backgroundColor: { type: 'string', description: 'Tailwind background color class' },
-          borderColor: { type: 'string', description: 'Tailwind border color class' },
-          hoverTextColor: { type: 'string', description: 'Hover state text color' },
-          hoverBackgroundColor: { type: 'string', description: 'Hover state background color' },
-          hoverBorderColor: { type: 'string', description: 'Hover state border color' },
-        },
+      weight: {
+        type: 'enum',
+        options: ['thin', 'light', 'normal', 'medium', 'semibold', 'bold', 'extrabold', 'black'],
+        description: 'Font weight for the button label',
       },
-      darkMode: {
-        type: 'object',
-        description: 'Dark mode color configuration',
-        properties: {
-          textColor: { type: 'string', description: 'Tailwind dark mode text color class (e.g., dark:text-gray-200)' },
-          backgroundColor: { type: 'string', description: 'Tailwind dark mode background color class' },
-          borderColor: { type: 'string', description: 'Tailwind dark mode border color class' },
-          hoverTextColor: { type: 'string', description: 'Dark mode hover state text color' },
-          hoverBackgroundColor: { type: 'string', description: 'Dark mode hover state background color' },
-          hoverBorderColor: { type: 'string', description: 'Dark mode hover state border color' },
-        },
+      textColor: {
+        type: 'enum',
+        options: VIEW_MORE_BUTTON_TEXT_COLOR_PRESETS,
+        description: 'Text color utility classes applied to the CTA (includes hover & dark variants)',
+      },
+      backgroundColor: {
+        type: 'enum',
+        options: VIEW_MORE_BUTTON_BACKGROUND_COLOR_PRESETS,
+        description: 'Background utility classes applied to the CTA (includes hover & dark variants)',
       },
     },
     metadata: {

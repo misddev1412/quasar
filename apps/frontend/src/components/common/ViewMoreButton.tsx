@@ -16,106 +16,25 @@ export interface ViewMoreButtonProps {
 
 const DEFAULT_CONFIG: ViewMoreButtonConfig = {
   size: 'md',
-  uppercase: false,
-  bold: false,
-  variant: 'default',
-  lightMode: {
-    textColor: 'text-gray-700',
-    backgroundColor: 'bg-transparent',
-    borderColor: 'border-gray-200',
-    hoverTextColor: 'hover:text-gray-900',
-    hoverBackgroundColor: 'hover:bg-gray-50',
-    hoverBorderColor: 'hover:border-gray-300',
-  },
-  darkMode: {
-    textColor: 'dark:text-gray-200',
-    backgroundColor: 'dark:bg-transparent',
-    borderColor: 'dark:border-gray-700',
-    hoverTextColor: 'dark:hover:text-gray-100',
-    hoverBackgroundColor: 'dark:hover:bg-gray-800',
-    hoverBorderColor: 'dark:hover:border-gray-500',
-  },
+  weight: 'medium',
+  backgroundColor: 'bg-transparent hover:bg-gray-50 dark:bg-transparent dark:hover:bg-gray-900/40',
+  textColor: 'text-indigo-600 hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200',
 };
 
-const SIZE_CLASSES = {
+const SIZE_CLASSES: Record<NonNullable<ViewMoreButtonConfig['size']>, string> = {
   sm: 'px-3 py-1.5 text-xs',
   md: 'px-4 py-2 text-sm',
   lg: 'px-6 py-3 text-base',
 };
-
-const VARIANT_STYLES = {
-  default: {
-    lightMode: {
-      textColor: 'text-gray-700',
-      backgroundColor: 'bg-transparent',
-      borderColor: 'border-gray-200',
-      hoverTextColor: 'hover:text-gray-900',
-      hoverBackgroundColor: 'hover:bg-gray-50',
-      hoverBorderColor: 'hover:border-gray-300',
-    },
-    darkMode: {
-      textColor: 'dark:text-gray-200',
-      backgroundColor: 'dark:bg-transparent',
-      borderColor: 'dark:border-gray-700',
-      hoverTextColor: 'dark:hover:text-gray-100',
-      hoverBackgroundColor: 'dark:hover:bg-gray-800',
-      hoverBorderColor: 'dark:hover:border-gray-500',
-    },
-  },
-  primary: {
-    lightMode: {
-      textColor: 'text-white',
-      backgroundColor: 'bg-primary-600',
-      borderColor: 'border-primary-600',
-      hoverTextColor: 'hover:text-white',
-      hoverBackgroundColor: 'hover:bg-primary-700',
-      hoverBorderColor: 'hover:border-primary-700',
-    },
-    darkMode: {
-      textColor: 'dark:text-white',
-      backgroundColor: 'dark:bg-primary-500',
-      borderColor: 'dark:border-primary-500',
-      hoverTextColor: 'dark:hover:text-white',
-      hoverBackgroundColor: 'dark:hover:bg-primary-600',
-      hoverBorderColor: 'dark:hover:border-primary-600',
-    },
-  },
-  ghost: {
-    lightMode: {
-      textColor: 'text-primary-600',
-      backgroundColor: 'bg-transparent',
-      borderColor: 'border-transparent',
-      hoverTextColor: 'hover:text-primary-700',
-      hoverBackgroundColor: 'hover:bg-primary-50',
-      hoverBorderColor: 'hover:border-transparent',
-    },
-    darkMode: {
-      textColor: 'dark:text-primary-400',
-      backgroundColor: 'dark:bg-transparent',
-      borderColor: 'dark:border-transparent',
-      hoverTextColor: 'dark:hover:text-primary-300',
-      hoverBackgroundColor: 'dark:hover:bg-primary-900/20',
-      hoverBorderColor: 'dark:hover:border-transparent',
-    },
-  },
-  outline: {
-    lightMode: {
-      textColor: 'text-primary-600',
-      backgroundColor: 'bg-transparent',
-      borderColor: 'border-primary-600',
-      hoverTextColor: 'hover:text-white',
-      hoverBackgroundColor: 'hover:bg-primary-600',
-      hoverBorderColor: 'hover:border-primary-600',
-    },
-    darkMode: {
-      textColor: 'dark:text-primary-400',
-      backgroundColor: 'dark:bg-transparent',
-      borderColor: 'dark:border-primary-400',
-      hoverTextColor: 'dark:hover:text-white',
-      hoverBackgroundColor: 'dark:hover:bg-primary-500',
-      hoverBorderColor: 'dark:hover:border-primary-500',
-    },
-  },
+const WEIGHT_CLASSES: Record<NonNullable<ViewMoreButtonConfig['weight']>, string> = {
+  thin: 'font-thin',
+  light: 'font-light',
+  normal: 'font-normal',
+  medium: 'font-medium',
+  semibold: 'font-semibold',
+  bold: 'font-bold',
+  extrabold: 'font-extrabold',
+  black: 'font-black',
 };
 
 export const ViewMoreButton: React.FC<ViewMoreButtonProps> = ({
@@ -128,34 +47,13 @@ export const ViewMoreButton: React.FC<ViewMoreButtonProps> = ({
 }) => {
   const mergedConfig = { ...DEFAULT_CONFIG, ...config };
   const size = mergedConfig.size || 'md';
-  const variant = mergedConfig.variant || 'default';
-  const variantStyles = VARIANT_STYLES[variant];
-
-  const lightMode = { ...variantStyles.lightMode, ...mergedConfig.lightMode };
-  const darkMode = { ...variantStyles.darkMode, ...mergedConfig.darkMode };
 
   const buttonClasses = cn(
-    'inline-flex items-center justify-center',
-    'rounded-lg border',
-    'transition-all duration-200',
-    'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
+    'inline-flex items-center justify-center rounded-lg border border-transparent transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
     SIZE_CLASSES[size],
-    mergedConfig.uppercase && 'uppercase',
-    mergedConfig.bold ? 'font-semibold' : 'font-medium',
-    // Light mode colors
-    lightMode.textColor,
-    lightMode.backgroundColor,
-    lightMode.borderColor,
-    lightMode.hoverTextColor,
-    lightMode.hoverBackgroundColor,
-    lightMode.hoverBorderColor,
-    // Dark mode colors
-    darkMode.textColor,
-    darkMode.backgroundColor,
-    darkMode.borderColor,
-    darkMode.hoverTextColor,
-    darkMode.hoverBackgroundColor,
-    darkMode.hoverBorderColor,
+    WEIGHT_CLASSES[mergedConfig.weight || 'medium'],
+    mergedConfig.textColor,
+    mergedConfig.backgroundColor,
     className
   );
 

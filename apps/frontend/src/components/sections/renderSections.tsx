@@ -1,6 +1,8 @@
 import React from 'react';
 import { SectionType } from '@shared/enums/section.enums';
 import type { ViewMoreButtonConfig } from '@shared/types/component.types';
+import type { ApiResponse } from '../../types/api';
+import { serverTrpc } from '../../utils/trpc-server';
 import {
   HeroSlider,
   FeaturedProducts,
@@ -52,19 +54,29 @@ const buildTranslationPayload = (section: SectionListItem) => {
   };
 };
 
+interface ComponentConfigResponse {
+  componentKey: string;
+  defaultConfig?: Record<string, unknown> | null;
+}
+
 async function fetchViewMoreButtonConfig(): Promise<ViewMoreButtonConfig | undefined> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/trpc/clientComponentConfigs.getByKey?input=${encodeURIComponent(JSON.stringify({ componentKey: 'view_more_button' }))}`, {
-      next: { revalidate: 3600 }, // Cache for 1 hour
-    });
+    const apiResponse = (await serverTrpc.clientComponentConfigs.listByKeys.query({
+      componentKeys: ['view_more_button'],
+    })) as ApiResponse<ComponentConfigResponse[]> | undefined;
+    const items = apiResponse?.data ?? [];
+    const viewMoreConfig = items.find((item) => item.componentKey === 'view_more_button');
+    const rawDefault = viewMoreConfig?.defaultConfig ?? null;
 
-    if (!response.ok) {
-      return undefined;
+    if (rawDefault && typeof rawDefault === 'object') {
+      const nestedConfig = (rawDefault as { viewMoreButton?: ViewMoreButtonConfig | null }).viewMoreButton;
+      if (nestedConfig && typeof nestedConfig === 'object') {
+        return nestedConfig;
+      }
+      return rawDefault as ViewMoreButtonConfig;
     }
 
-    const data = await response.json();
-    return data?.result?.data?.defaultConfig?.viewMoreButton as ViewMoreButtonConfig | undefined;
+    return undefined;
   } catch (error) {
     console.error('Failed to fetch ViewMoreButton config:', error);
     return undefined;

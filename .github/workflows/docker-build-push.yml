@@ -1,0 +1,40 @@
+name: Build and Push Docker image to DOCR
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Login to DO Container Registry
+        run: doctl registry login --expiry-seconds 600
+
+      # (Optional but recommended) cache build layers to speed up + reduce repeated disk usage
+      - name: Build and push
+        env:
+          REGISTRY: registry.digitalocean.com/${{ secrets.DOCR_REGISTRY }}
+          IMAGE: ${{ secrets.IMAGE_NAME }}
+        run: |
+          TAG=${GITHUB_SHA::7}
+          docker buildx build \
+            --push \
+            -t $REGISTRY/$IMAGE:$TAG \
+            -t $REGISTRY/$IMAGE:latest \
+            .
