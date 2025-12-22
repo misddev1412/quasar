@@ -5,7 +5,43 @@ export PORT="${PORT:-8080}"
 
 SCRIPT_PATH="${BASH_SOURCE[0]:-$0}"
 SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_PATH}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+find_repo_root() {
+  local candidates=(
+    "${REPO_ROOT:-}"
+    "${SCRIPT_DIR}"
+    "$(cd "${SCRIPT_DIR}/.." && pwd)"
+    "/workspace"
+    "/workspace/app"
+    "/workspace/src"
+    "/app"
+    "/code"
+    "/src"
+    "$(pwd)"
+  )
+
+  for dir in "${candidates[@]}"; do
+    if [[ -n "${dir}" && -f "${dir}/package.json" ]]; then
+      echo "${dir}"
+      return 0
+    fi
+  done
+
+  local parents=("/workspace" "/app" "/code" "/src")
+  for parent in "${parents[@]}"; do
+    for dir in "${parent}" "${parent}"/*; do
+      if [[ -n "${dir}" && -f "${dir}/package.json" ]]; then
+        echo "${dir}"
+        return 0
+      fi
+    done
+  done
+
+  echo "Unable to locate repository root (package.json not found)" >&2
+  exit 1
+}
+
+REPO_ROOT="$(find_repo_root)"
 cd "${REPO_ROOT}"
 
 ensure_build_artifacts() {
