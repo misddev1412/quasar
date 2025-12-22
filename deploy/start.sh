@@ -105,16 +105,30 @@ stop_temp_backend_for_frontend_build() {
 }
 
 ensure_build_artifacts() {
-  if [[ "${SKIP_RUNTIME_BUILD:-0}" == "1" ]]; then
-    echo "SKIP_RUNTIME_BUILD=1 -> skipping runtime yarn install/build."
-    return
-  fi
-
   local required_files=(
     "dist/apps/backend/main.js"
     "dist/apps/frontend/.next/standalone/server.js"
     "dist/apps/admin/index.html"
   )
+
+  local missing_artifacts=()
+  for file in "${required_files[@]}"; do
+    if [[ ! -e "${file}" ]]; then
+      missing_artifacts+=("${file}")
+    fi
+  done
+
+  if [[ "${SKIP_RUNTIME_BUILD:-0}" == "1" && "${#missing_artifacts[@]}" -gt 0 ]]; then
+    echo "SKIP_RUNTIME_BUILD=1 but missing required build artifacts:"
+    printf '  - %s\n' "${missing_artifacts[@]}"
+    echo "Either set SKIP_RUNTIME_BUILD=0 to rebuild, or ensure these files exist."
+    exit 1
+  fi
+
+  if [[ "${SKIP_RUNTIME_BUILD:-0}" == "1" ]]; then
+    echo "SKIP_RUNTIME_BUILD=1 -> skipping runtime yarn install/build."
+    return
+  fi
 
   echo "Installing dependencies and rebuilding backend/frontend/admin..."
   if command -v corepack >/dev/null 2>&1; then
