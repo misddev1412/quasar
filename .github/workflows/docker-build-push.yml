@@ -63,7 +63,7 @@ jobs:
       - name: Save image as artifact
         run: |
           mkdir -p /tmp/images
-          docker save $REGISTRY/$IMAGE:$TAG | gzip > /tmp/images/image.tar.gz
+          docker save $REGISTRY/$IMAGE:$TAG $REGISTRY/$IMAGE:latest | gzip > /tmp/images/image.tar.gz
       - name: Upload image artifact
         uses: actions/upload-artifact@v4
         with:
@@ -97,5 +97,6 @@ jobs:
       - name: Load and push image
         run: |
           zcat /tmp/images/image.tar.gz | docker load
+          docker tag $REGISTRY/$IMAGE:$TAG $REGISTRY/$IMAGE:latest
           docker push $REGISTRY/$IMAGE:$TAG
           docker push $REGISTRY/$IMAGE:latest
