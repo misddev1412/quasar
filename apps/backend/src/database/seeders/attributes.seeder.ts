@@ -109,8 +109,6 @@ export class AttributesSeeder {
   ];
 
   async seed(): Promise<void> {
-    console.log('Seeding attributes...');
-
     for (const attributeData of this.attributesData) {
       // Check if attribute already exists
       let attribute = await this.attributeRepository.findOne({
@@ -130,9 +128,6 @@ export class AttributesSeeder {
         });
 
         attribute = await this.attributeRepository.save(attribute);
-        console.log(`Created attribute: ${attribute.name} (${attribute.code})`);
-      } else {
-        console.log(`Attribute already exists: ${attribute.name} (${attribute.code})`);
       }
 
       // Seed attribute values
@@ -153,23 +148,16 @@ export class AttributesSeeder {
           });
 
           await this.attributeValueRepository.save(attributeValue);
-          console.log(`Created attribute value: ${valueData.value} for ${attribute.name}`);
         }
       }
     }
-
-    console.log('Attributes seeding completed.');
   }
 
   async clear(): Promise<void> {
-    console.log('Clearing attributes...');
-
     // Delete all attribute values first
     await this.attributeValueRepository.delete({});
 
     // Delete all attributes
     await this.attributeRepository.delete({});
-
-    console.log('Attributes cleared.');
   }
 }

@@ -44,6 +44,52 @@ find_repo_root() {
 REPO_ROOT="$(find_repo_root)"
 cd "${REPO_ROOT}"
 
+TEMP_BUILD_BACKEND_PID=""
+
+is_port_in_use() {
+  local port="$1"
+  if command -v ss >/dev/null 2>&1; then
+    ss -ltn | awk 'NR>1 {print $4}' | grep -Eq "(:|\\.)${port}$"
+    return $?
+  elif command -v lsof >/dev/null 2>&1; then
+    lsof -iTCP -sTCP:LISTEN -Pn | grep -q ":${port} "
+    return $?
+  elif command -v netstat >/dev/null 2>&1; then
+    netstat -ltn | awk 'NR>2 {print $4}' | grep -Eq "(:|\\.)${port}$"
+    return $?
+  fi
+  return 1
+}
+
+start_temp_backend_for_frontend_build() {
+  local port="${BACKEND_PORT:-3000}"
+  if is_port_in_use "${port}"; then
+    echo "Backend port ${port} already in use. Assuming backend is running for frontend build."
+    return 0
+  fi
+  mkdir -p "${REPO_ROOT}/tmp"
+  local log_file="${REPO_ROOT}/tmp/backend-build.log"
+  echo "Starting temporary backend on port ${port} for frontend build..."
+  PORT="${port}" NODE_ENV=production node dist/apps/backend/main.js > "${log_file}" 2>&1 &
+  TEMP_BUILD_BACKEND_PID=$!
+  sleep 5
+  if ! kill -0 "${TEMP_BUILD_BACKEND_PID}" >/dev/null 2>&1; then
+    echo "Failed to start temporary backend. Check ${log_file} for details."
+    TEMP_BUILD_BACKEND_PID=""
+  else
+    echo "Temporary backend started (PID ${TEMP_BUILD_BACKEND_PID}). Logs: ${log_file}"
+  fi
+}
+
+stop_temp_backend_for_frontend_build() {
+  if [[ -n "${TEMP_BUILD_BACKEND_PID}" ]]; then
+    echo "Stopping temporary backend used for frontend build..."
+    kill "${TEMP_BUILD_BACKEND_PID}" >/dev/null 2>&1 || true
+    wait "${TEMP_BUILD_BACKEND_PID}" >/dev/null 2>&1 || true
+    TEMP_BUILD_BACKEND_PID=""
+  fi
+}
+
 ensure_build_artifacts() {
   if [[ "${SKIP_RUNTIME_BUILD:-0}" == "1" ]]; then
     echo "SKIP_RUNTIME_BUILD=1 -> skipping runtime yarn install/build."
@@ -87,12 +133,20 @@ ensure_build_artifacts() {
     exit 1
   }
 
-  build_with_fallback "Building backend" "dist/apps/backend/main.js" npx nx build backend
+  build_with_fallback "Building backend" "dist/apps/backend/main.js" bash -c "cd apps/backend && NX_TASK_TARGET_PROJECT=backend NX_TASK_TARGET_TARGET=build NX_TASK_TARGET_CONFIGURATION=production npx webpack-cli build --node-env=production"
 
-  build_with_fallback "Building admin" "dist/apps/admin/index.html" npx nx build admin
+  build_with_fallback "Building admin" "dist/apps/admin/index.html" bash -c "cd apps/admin && NX_TASK_TARGET_PROJECT=admin NX_TASK_TARGET_TARGET=build NX_TASK_TARGET_CONFIGURATION=production npx webpack-cli build --node-env=production"
 
-  run_build_step "Building frontend (Next.js)" bash -c '(cd apps/frontend && npx next build)'
-  if [[ $? -ne 0 && ! -f "apps/frontend/.next/standalone/apps/frontend/server.js" ]]; then
+  start_temp_backend_for_frontend_build
+  local frontend_status=0
+  if run_build_step "Building frontend (Next.js)" bash -c '(cd apps/frontend && npx next build)'; then
+    frontend_status=0
+  else
+    frontend_status=$?
+  fi
+  stop_temp_backend_for_frontend_build
+
+  if [[ ${frontend_status} -ne 0 && ! -f "apps/frontend/.next/standalone/apps/frontend/server.js" ]]; then
     echo "Error: Frontend build failed and no previous build found." >&2
     exit 1
   fi
@@ -112,6 +166,13 @@ EOF
     chmod +x "${expected_server}"
   fi
 
+  if [[ -d "${standalone_dir}/apps/frontend/.next" ]]; then
+    rm -rf "${standalone_dir}/apps/frontend/.next/static"
+    if [[ -d "${REPO_ROOT}/apps/frontend/.next/static" ]]; then
+      cp -R "${REPO_ROOT}/apps/frontend/.next/static" "${standalone_dir}/apps/frontend/.next/static"
+    fi
+  fi
+
   for file in "${required_files[@]}"; do
     if [[ ! -f "${file}" ]]; then
       echo "Required build artifact missing after build: ${file}" >&2
@@ -127,53 +188,123 @@ if [[ "${SKIP_RUNTIME_SERVERS:-0}" == "1" ]]; then
   exit 0
 fi
 
-POSSIBLE_TEMPLATE_DIRS=(
-  "${TEMPLATE_DIR:-}"
-  "${SCRIPT_DIR}"
-  "${REPO_ROOT}/deploy"
-  "/deploy"
-  "/app/deploy"
-  "./deploy"
-)
-
-NGINX_TEMPLATE=""
-for dir in "${POSSIBLE_TEMPLATE_DIRS[@]}"; do
-  if [[ -n "${dir}" && -f "${dir}/nginx.conf.template" ]]; then
-    NGINX_TEMPLATE="${dir}/nginx.conf.template"
-    break
+start_nginx() {
+  if ! command -v nginx >/dev/null 2>&1; then
+    echo "Warning: nginx not found in PATH, skipping reverse proxy startup."
+    return 1
   fi
-done
 
-NGINX_TEMPLATE="${NGINX_TEMPLATE:-}"
-NGINX_CONF_DIR="/etc/nginx"
-NGINX_CONF_EXTRA_ARGS=()
+  local possible_dirs=(
+    "${TEMPLATE_DIR:-}"
+    "${SCRIPT_DIR}"
+    "${REPO_ROOT}/deploy"
+    "/deploy"
+    "/app/deploy"
+    "./deploy"
+  )
 
-if [[ ! -d "${NGINX_CONF_DIR}" || ! -w "${NGINX_CONF_DIR}" ]]; then
-  NGINX_CONF_DIR="${REPO_ROOT}/tmp/nginx"
-  mkdir -p "${NGINX_CONF_DIR}"
-  NGINX_CONF_EXTRA_ARGS=(-c "${NGINX_CONF_DIR}/nginx.conf")
-fi
+  local template=""
+  for dir in "${possible_dirs[@]}"; do
+    if [[ -n "${dir}" && -f "${dir}/nginx.conf.template" ]]; then
+      template="${dir}/nginx.conf.template"
+      break
+    fi
+  done
 
-NGINX_CONF="${NGINX_CONF_DIR}/nginx.conf"
+  if [[ -z "${template}" ]]; then
+    echo "Warning: nginx.conf.template not found. Skipping nginx startup." >&2
+    return 1
+  fi
 
-if [[ -z "${NGINX_TEMPLATE}" ]]; then
-  echo "Nginx template not found at ${NGINX_TEMPLATE}" >&2
-  exit 1
-fi
+  local nginx_conf_dir="/etc/nginx"
+  local nginx_conf_extra=()
 
-envsubst '${PORT}' < "${NGINX_TEMPLATE}" > "${NGINX_CONF}"
+  if [[ ! -d "${nginx_conf_dir}" || ! -w "${nginx_conf_dir}" ]]; then
+    nginx_conf_dir="${REPO_ROOT}/tmp/nginx"
+    mkdir -p "${nginx_conf_dir}"
+    nginx_conf_extra=(-c "${nginx_conf_dir}/nginx.conf")
+  fi
 
-echo "Starting nginx on port ${PORT}..."
-if command -v nginx >/dev/null 2>&1; then
-  nginx "${NGINX_CONF_EXTRA_ARGS[@]}"
-else
-  echo "Warning: nginx not found in PATH, skipping reverse proxy startup."
-fi
+  local nginx_conf="${nginx_conf_dir}/nginx.conf"
+  envsubst '${PORT}' < "${template}" > "${nginx_conf}"
 
-echo "Starting PM2 processes..."
+  echo "Starting nginx on port ${PORT}..."
+  nginx "${nginx_conf_extra[@]}"
+}
+
+BACKEND_PID=""
+FRONTEND_PID=""
+ADMIN_PID=""
+
+start_backend_process() {
+  local port="${1}"
+  local backend_entry="dist/apps/backend/main.js"
+  if [[ ! -f "${backend_entry}" ]]; then
+    echo "Backend artifact missing (${backend_entry}); skipping backend start." >&2
+    return
+  fi
+  echo "Starting API server on port ${port}..."
+  PORT="${port}" NODE_ENV=production node "${backend_entry}" &
+  BACKEND_PID=$!
+}
+
+start_admin_process() {
+  local port="${1}"
+  local admin_dir="dist/apps/admin"
+  if [[ ! -d "${admin_dir}" ]]; then
+    echo "Admin build not found (${admin_dir}); skipping admin server." >&2
+    return
+  fi
+  echo "Starting admin static server on port ${port}..."
+  ADMIN_PORT="${port}" PORT="${port}" NODE_ENV=production node deploy/serve-static.js "${admin_dir}" &
+  ADMIN_PID=$!
+}
+
+start_frontend_process() {
+  local port="${1}"
+  local entry="dist/apps/frontend/.next/standalone/server.js"
+  if [[ ! -f "${entry}" ]]; then
+    echo "Frontend server entry missing (${entry})." >&2
+    return 1
+  fi
+  echo "Starting storefront server on port ${port}..."
+  PORT="${port}" HOSTNAME="0.0.0.0" NODE_ENV=production node "${entry}" &
+  FRONTEND_PID=$!
+  return 0
+}
+
+terminate_processes() {
+  echo "Shutting down child processes..."
+  for pid in "${FRONTEND_PID:-}" "${ADMIN_PID:-}" "${BACKEND_PID:-}"; do
+    if [[ -n "${pid}" ]]; then
+      kill "${pid}" >/dev/null 2>&1 || true
+    fi
+  done
+}
+
 if command -v pm2-runtime >/dev/null 2>&1; then
+  start_nginx || true
+  echo "Starting PM2 processes..."
   exec pm2-runtime ecosystem.config.cjs
 else
-  echo "pm2-runtime not found. Starting storefront only on port ${PORT} (backend/admin not started)." >&2
-  NODE_ENV=production node dist/apps/frontend/.next/standalone/server.js
+  echo "pm2-runtime not found. Starting processes manually."
+  INTERNAL_BACKEND_PORT="${BACKEND_PORT:-3000}"
+  INTERNAL_ADMIN_PORT="${ADMIN_PORT:-4000}"
+  INTERNAL_FRONTEND_PORT="${FRONTEND_PORT:-3000}"
+
+  start_backend_process "${INTERNAL_BACKEND_PORT}"
+  start_admin_process "${INTERNAL_ADMIN_PORT}"
+
+  if command -v nginx >/dev/null 2>&1; then
+    start_frontend_process "${INTERNAL_FRONTEND_PORT}" || exit 1
+    start_nginx || true
+    echo "Proxy configured: '/' → frontend:${INTERNAL_FRONTEND_PORT}, '/admin' → admin:${INTERNAL_ADMIN_PORT}, '/api' → backend:${INTERNAL_BACKEND_PORT}"
+  else
+    DIRECT_PORT="${PORT:-8080}"
+    echo "Warning: nginx unavailable. Serving storefront directly on port ${DIRECT_PORT}; admin remains on port ${INTERNAL_ADMIN_PORT}."
+    start_frontend_process "${DIRECT_PORT}" || exit 1
+  fi
+
+  trap terminate_processes EXIT
+  wait -n
 fi

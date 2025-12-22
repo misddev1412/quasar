@@ -94,8 +94,6 @@ export class WarehouseSeeder {
   ];
 
   async seed(): Promise<void> {
-    console.log('🏭 Starting warehouses seeding...');
-
     let created = 0;
     let skipped = 0;
 
@@ -108,41 +106,27 @@ export class WarehouseSeeder {
         const warehouse = this.warehouseRepository.create(warehouseData);
         await this.warehouseRepository.save(warehouse);
         created++;
-        console.log(`   ✅ Created warehouse: ${warehouseData.name} (${warehouseData.code})`);
       } else {
         skipped++;
-        console.log(`   ⏭️  Skipped existing warehouse: ${warehouseData.name} (${warehouseData.code})`);
       }
     }
-
-    console.log('✅ Warehouses seeding completed!');
-    console.log(`📊 Results: ${created} created, ${skipped} skipped, ${this.warehousesData.length} total`);
   }
 
   async seedIfEmpty(): Promise<void> {
-    console.log('🔍 Checking if warehouses seeding is needed...');
-
     const existingCount = await this.warehouseRepository.count();
 
     if (existingCount === 0) {
-      console.log(`📋 Found ${existingCount} warehouses. Running seeder...`);
       await this.seed();
-    } else {
-      console.log(`ℹ️  Found ${existingCount} warehouses. Skipping seeder.`);
     }
   }
 
   async reseed(): Promise<void> {
-    console.log('🔄 Reseeding warehouses (this may create duplicates if data already exists)...');
     await this.seed();
   }
 
   async clearAndReseed(): Promise<void> {
-    console.log('🗑️  Clearing existing warehouses...');
-
     try {
       await this.warehouseRepository.query('DELETE FROM warehouses');
-      console.log('✅ Cleared existing warehouses. Running fresh seed...');
       await this.seed();
     } catch (error) {
       console.error('❌ Clear and reseed failed:', error);
@@ -151,12 +135,9 @@ export class WarehouseSeeder {
   }
 
   async seedDefaultWarehouse(): Promise<void> {
-    console.log('🏭 Seeding default warehouse...');
-
     const defaultWarehouseData = this.warehousesData.find(w => w.isDefault);
 
     if (!defaultWarehouseData) {
-      console.log('❌ No default warehouse data found');
       return;
     }
 
@@ -167,11 +148,6 @@ export class WarehouseSeeder {
     if (!existingDefault) {
       const warehouse = this.warehouseRepository.create(defaultWarehouseData);
       await this.warehouseRepository.save(warehouse);
-      console.log(`   ✅ Created default warehouse: ${defaultWarehouseData.name} (${defaultWarehouseData.code})`);
-    } else {
-      console.log(`   ⏭️  Default warehouse already exists: ${existingDefault.name} (${existingDefault.code})`);
     }
-
-    console.log('✅ Default warehouse seeding completed!');
   }
 }

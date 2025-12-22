@@ -76,7 +76,6 @@ export async function bootstrap() {
     await siteContentSeeder.seed();
     await userActivitySeeder.seed();
 
-    console.log('All seeders completed successfully');
   } catch (error) {
     console.error('Error during seeding:', error);
   } finally {

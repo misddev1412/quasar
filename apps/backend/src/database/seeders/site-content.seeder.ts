@@ -12,11 +12,8 @@ export class SiteContentSeeder {
   ) {}
 
   async seed(): Promise<void> {
-    console.log('Seeding site content...');
-
     const existingContent = await this.siteContentRepository.count();
     if (existingContent > 0) {
-      console.log('Site content already exists, skipping seeding');
       return;
     }
 
@@ -412,6 +409,5 @@ export class SiteContentSeeder {
       await this.siteContentRepository.save(content);
     }
 
-    console.log(`Seeded ${siteContentData.length} site content items`);
   }
 }

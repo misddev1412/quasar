@@ -69,7 +69,6 @@ export const createErrorFormatter = (source = 'unknown') => {
       ...(process.env.NODE_ENV !== 'production' && { stack: error.stack })
     };
     
-    console.log(`Fallback result (${source}):`, result);
     return result;
   };
-}; 
+};

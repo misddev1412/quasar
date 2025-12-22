@@ -968,12 +968,8 @@ export class MenusSeeder implements SeederModule {
       for (const menuData of baseMenus) {
         await createMenuWithTranslations(menuData);
       }
-      console.log(`✅ Created ${baseMenus.length} base menu items`);
-    } else {
-      console.log('Menus already seeded, skipping base menu creation');
     }
 
-    let createdActions = 0;
     for (const menuData of headerActionMenus) {
       const actionExists = await menuRepository.findOne({
         where: {
@@ -987,16 +983,8 @@ export class MenusSeeder implements SeederModule {
       }
 
       await createMenuWithTranslations(menuData);
-      createdActions += 1;
     }
 
-    if (createdActions > 0) {
-      console.log(`✅ Created ${createdActions} header action menu items`);
-    } else {
-      console.log('✅ Header action menu items already exist, skipping');
-    }
-
-    let createdTopMenus = 0;
     for (const menuData of topMenuDefaults) {
       const where = buildMenuLookupCriteria(menuData);
       const existingTopMenu = await menuRepository.findOne({ where });
@@ -1005,16 +993,8 @@ export class MenusSeeder implements SeederModule {
       }
 
       await createMenuWithTranslations(menuData);
-      createdTopMenus += 1;
     }
 
-    if (createdTopMenus > 0) {
-      console.log(`✅ Created ${createdTopMenus} top menu items`);
-    } else {
-      console.log('✅ Top menu items already exist, skipping');
-    }
-
-    let createdSubMenus = 0;
     for (const menuData of subMenuDefaults) {
       const where = buildMenuLookupCriteria(menuData);
       const existingSubMenu = await menuRepository.findOne({ where });
@@ -1023,13 +1003,6 @@ export class MenusSeeder implements SeederModule {
       }
 
       await createMenuWithTranslations(menuData);
-      createdSubMenus += 1;
-    }
-
-    if (createdSubMenus > 0) {
-      console.log(`✅ Created ${createdSubMenus} default sub menu items`);
-    } else {
-      console.log('✅ Sub menu defaults already exist, skipping');
     }
   }
 }

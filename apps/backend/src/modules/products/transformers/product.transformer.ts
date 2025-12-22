@@ -154,8 +154,6 @@ export class ProductTransformer {
    * Transform a single product entity to frontend format
    */
   async transformProduct(product: Product): Promise<TransformedProduct> {
-    // console.log('🚀 [ProductTransformer] transformProduct called for:', product.id);
-
     // Fix TypeORM lazy loading serialization issues
     this.fixLazyLoadingSerialization(product);
 
@@ -357,147 +355,8 @@ export class ProductTransformer {
    */
   private extractAndTransformMedia(product: Product): TransformedMedia[] {
     const media = (product as any).media;
-
-    // DEBUG: Log media to see what we're getting
-    console.log('🔍 DEBUG MEDIA - Product ID:', product.id);
-    console.log('🔍 DEBUG MEDIA - Raw media:', media);
-    console.log('🔍 DEBUG MEDIA - Media type:', typeof media);
-    console.log('🔍 DEBUG MEDIA - Is Promise?', media instanceof Promise);
-    console.log('🔍 DEBUG MEDIA - Is Array?', Array.isArray(media));
-
-    // Handle regular array case (most common with leftJoinAndSelect)
-    if (Array.isArray(media)) {
-      console.log('🔍 DEBUG MEDIA - Processing array directly');
-      return this.processMediaArray(media);
-    }
-
-    // Handle case where media is a Promise but has resolved data (from leftJoinAndSelect)
-    if (media instanceof Promise) {
-      // When using leftJoinAndSelect, TypeORM often stores the resolved data directly in the Promise object
-      // Try to extract the resolved data from various Promise internal structures
-
-      // Debug: Log all properties and descriptors of the Promise
-      try {
-        console.log('🔍 DEBUG MEDIA - Promise prototype:', Object.getPrototypeOf(media));
-        console.log('🔍 DEBUG MEDIA - Promise constructor:', media.constructor.name);
-
-        const allKeys = Object.getOwnPropertyNames(media);
-        console.log('🔍 DEBUG MEDIA - All Promise property names:', allKeys);
-
-        const descriptors = Object.getOwnPropertyDescriptors(media);
-        console.log('🔍 DEBUG MEDIA - Promise descriptors:', Object.keys(descriptors));
-
-        // Try to access specific internal properties that might exist
-        const internalProps = ['[[PromiseState]]', '[[PromiseValue]]', '__value__', '_value', 'value', '__fulfilled__', '__result__'];
-        internalProps.forEach(prop => {
-          if (prop in media) {
-            console.log(`🔍 DEBUG MEDIA - Found property ${prop}:`, (media as any)[prop]);
-          }
-        });
-
-        // Check for Symbol properties
-        const symbols = Object.getOwnPropertySymbols(media);
-        console.log('🔍 DEBUG MEDIA - Promise symbols:', symbols.map(s => s.toString()));
-
-        // Try to iterate over the Promise if it's iterable
-        if (Symbol.iterator in media) {
-          console.log('🔍 DEBUG MEDIA - Promise is iterable');
-          try {
-            const iterator = (media as any)[Symbol.iterator]();
-            const iterResult = iterator.next();
-            console.log('🔍 DEBUG MEDIA - Iterator result:', iterResult);
-          } catch (iterError) {
-            console.log('🔍 DEBUG MEDIA - Iterator error:', iterError.message);
-          }
-        }
-      } catch (debugError) {
-        console.log('🔍 DEBUG MEDIA - Debug error:', debugError.message);
-      }
-
-      // Check if the Promise has resolved data stored in internal properties
-      if ((media as any).__value__ && Array.isArray((media as any).__value__)) {
-        console.log('🔍 DEBUG MEDIA - Found resolved data in Promise.__value__');
-        return this.processMediaArray((media as any).__value__);
-      }
-
-      // Check for other TypeORM internal storage patterns
-      if ((media as any).value && Array.isArray((media as any).value)) {
-        console.log('🔍 DEBUG MEDIA - Found resolved data in Promise.value');
-        return this.processMediaArray((media as any).value);
-      }
-
-      // For leftJoinAndSelect queries, the Promise might have numeric keys containing the actual data
-      try {
-        const keys = Object.keys(media);
-        console.log('🔍 DEBUG MEDIA - Promise keys:', keys);
-
-        // Check if it's an array-like object with numeric keys (common with leftJoinAndSelect)
-        const numericKeys = keys.filter(k => !isNaN(Number(k)) && Number(k) >= 0);
-        if (numericKeys.length > 0) {
-          console.log('🔍 DEBUG MEDIA - Converting Promise with numeric keys to array');
-          const mediaArray = numericKeys
-            .map(k => (media as any)[k])
-            .filter(item => item && typeof item === 'object' && item.id);
-          return this.processMediaArray(mediaArray);
-        }
-      } catch (error) {
-        console.log('🔍 DEBUG MEDIA - Error accessing Promise data:', error.message);
-      }
-
-      // Try accessing the Promise directly as it might be resolved synchronously
-      try {
-        // Check if we can access length property
-        if (typeof (media as any).length === 'number') {
-          console.log('🔍 DEBUG MEDIA - Promise has length property:', (media as any).length);
-          const mediaArray = Array.from(media as any);
-          return this.processMediaArray(mediaArray);
-        }
-      } catch (error) {
-        console.log('🔍 DEBUG MEDIA - Cannot access Promise as array-like:', error.message);
-      }
-
-      console.log('🔍 DEBUG MEDIA - Returning empty array (unresolved Promise)');
-      return [];
-    }
-
-    // Handle case where media is loaded but still wrapped in another object
-    let mediaArray = media;
-    if (!Array.isArray(media) && media && typeof media === 'object') {
-      console.log('🔍 DEBUG MEDIA - Trying to unwrap object');
-
-      // Try array-like object with length property
-      if (typeof media.length === 'number' && media.length >= 0) {
-        console.log('🔍 DEBUG MEDIA - Using Array.from on object with length');
-        mediaArray = Array.from(media);
-      }
-      // Try nested value properties
-      else if (media.value && Array.isArray(media.value)) {
-        console.log('🔍 DEBUG MEDIA - Using media.value');
-        mediaArray = media.value;
-      }
-      else if (media.__value__ && Array.isArray(media.__value__)) {
-        console.log('🔍 DEBUG MEDIA - Using media.__value__');
-        mediaArray = media.__value__;
-      }
-      // Try extracting from numeric keys
-      else {
-        const keys = Object.keys(media);
-        const numericKeys = keys.filter(k => !isNaN(Number(k)) && Number(k) >= 0);
-        if (numericKeys.length > 0) {
-          console.log('🔍 DEBUG MEDIA - Extracting from numeric keys');
-          mediaArray = numericKeys
-            .map(k => media[k])
-            .filter(item => item && typeof item === 'object' && item.id);
-        }
-      }
-    }
-
-    if (!mediaArray || !Array.isArray(mediaArray)) {
-      console.log('🔍 DEBUG MEDIA - Returning empty array (not array)');
-      return [];
-    }
-
-    return this.processMediaArray(mediaArray);
+    const normalized = this.unwrapRelationArray(media);
+    return normalized.length ? this.processMediaArray(normalized) : [];
   }
 
   private extractAndTransformSpecifications(product: Product): TransformedSpecification[] {
@@ -541,8 +400,6 @@ export class ProductTransformer {
    * Process media array and transform to TransformedMedia[]
    */
   private processMediaArray(mediaArray: any[]): TransformedMedia[] {
-    console.log('🔍 DEBUG MEDIA - Processing', mediaArray.length, 'media items');
-
     return mediaArray
       .sort((a: any, b: any) => {
         if (a.isPrimary && !b.isPrimary) return -1;
@@ -569,151 +426,37 @@ export class ProductTransformer {
   /**
    * Extract and transform variant relations
    */
-  private extractAndTransformVariants(product: Product): TransformedVariant[] {
+  private async extractAndTransformVariants(product: Product): Promise<TransformedVariant[]> {
     const variants = (product as any).variants;
 
-    // DEBUG: Log variants to see what we're getting (commented out for production)
-    // console.log('🔍 DEBUG VARIANTS - Product ID:', product.id);
-    // console.log('🔍 DEBUG VARIANTS - Raw variants:', variants);
-    // console.log('🔍 DEBUG VARIANTS - Variants type:', typeof variants);
-    // console.log('🔍 DEBUG VARIANTS - Is Promise?', variants instanceof Promise);
-    // console.log('🔍 DEBUG VARIANTS - Is Array?', Array.isArray(variants));
+    if (!variants) {
+      return [];
+    }
 
-    // Check if variants is a Promise (lazy loaded but not resolved)
+    if (Array.isArray(variants)) {
+      return this.processVariantsArray(variants);
+    }
+
     if (variants instanceof Promise) {
-      // console.log('🔍 DEBUG VARIANTS - Promise detected, attempting to await it');
       try {
-        const resolvedVariants = variants;
-        // console.log('🔍 DEBUG VARIANTS - Successfully resolved Promise:', resolvedVariants);
-        if (Array.isArray(resolvedVariants)) {
-          return this.processVariantsArray(resolvedVariants);
+        const resolved = await variants;
+        if (Array.isArray(resolved)) {
+          return this.processVariantsArray(resolved);
         }
       } catch (awaitError) {
         console.error('Error awaiting variants Promise:', awaitError.message);
       }
-      // For leftJoinAndSelect queries, the Promise might have numeric keys containing the actual data
-      try {
-        const keys = Object.keys(variants);
-        console.log('🔍 DEBUG VARIANTS - Promise keys:', keys);
 
-        // Try to access the resolved data directly from the Promise
-        // Check for numeric keys (array-like structure)
-        const numericKeys = keys.filter(k => !isNaN(Number(k)) && Number(k) >= 0);
-        if (numericKeys.length > 0) {
-          console.log('🔍 DEBUG VARIANTS - Converting Promise with numeric keys to array');
-          const variantsArray = numericKeys
-            .map(k => (variants as any)[k])
-            .filter(item => item && typeof item === 'object' && item.id);
-          console.log('🔍 DEBUG VARIANTS - Extracted variants from Promise:', variantsArray);
-          return this.processVariantsArray(variantsArray);
-        }
-
-        // Try to access the Promise data directly by checking if it looks like an array
-        console.log('🔍 DEBUG VARIANTS - Trying to stringify Promise to see structure');
-        try {
-          const promiseString = JSON.stringify(variants, null, 2);
-          console.log('🔍 DEBUG VARIANTS - Promise stringified:', promiseString);
-        } catch (stringifyError) {
-          console.log('🔍 DEBUG VARIANTS - Cannot stringify Promise:', stringifyError.message);
-        }
-
-        // Try accessing index [0] directly since we can see it's an array in the logs
-        console.log('🔍 DEBUG VARIANTS - Trying direct array access');
-        try {
-          console.log('🔍 DEBUG VARIANTS - Checking variants[0]:', (variants as any)[0]);
-          console.log('🔍 DEBUG VARIANTS - Type of variants[0]:', typeof (variants as any)[0]);
-
-          if ((variants as any)[0] && typeof (variants as any)[0] === 'object') {
-            console.log('🔍 DEBUG VARIANTS - Found data at index 0:', (variants as any)[0]);
-            // Try to collect all numeric indices
-            const extractedVariants = [];
-            for (let i = 0; i < 10; i++) { // Try up to 10 variants
-              if ((variants as any)[i] && typeof (variants as any)[i] === 'object' && (variants as any)[i].id) {
-                extractedVariants.push((variants as any)[i]);
-              } else {
-                break; // Stop when we don't find more variants
-              }
-            }
-            if (extractedVariants.length > 0) {
-              console.log('🔍 DEBUG VARIANTS - Extracted variants by direct access:', extractedVariants);
-              return this.processVariantsArray(extractedVariants);
-            }
-          }
-
-          // Try to use Object.getOwnPropertyDescriptors to see all properties
-          console.log('🔍 DEBUG VARIANTS - Trying property descriptors');
-          const descriptors = Object.getOwnPropertyDescriptors(variants);
-          console.log('🔍 DEBUG VARIANTS - Property descriptors:', Object.keys(descriptors));
-
-          // Try to access using Reflect
-          console.log('🔍 DEBUG VARIANTS - Trying Reflect.ownKeys');
-          const ownKeys = Reflect.ownKeys(variants);
-          console.log('🔍 DEBUG VARIANTS - Own keys:', ownKeys);
-
-        } catch (directAccessError) {
-          console.log('🔍 DEBUG VARIANTS - Direct access error:', directAccessError.message);
-        }
-
-        // Try to check if the Promise has a length property (like an array)
-        if (typeof (variants as any).length === 'number' && (variants as any).length > 0) {
-          console.log('🔍 DEBUG VARIANTS - Promise has length property:', (variants as any).length);
-          try {
-            const variantsArray = Array.from(variants as any);
-            console.log('🔍 DEBUG VARIANTS - Converted Promise to array:', variantsArray);
-            return this.processVariantsArray(variantsArray);
-          } catch (arrayError) {
-            console.log('🔍 DEBUG VARIANTS - Error converting Promise to array:', arrayError.message);
-          }
-        }
-
-        // Try to access resolved data from internal properties
-        const internalProps = ['__value__', '_value', 'value', '__fulfilled__', '__result__'];
-        for (const prop of internalProps) {
-          if (prop in variants && Array.isArray((variants as any)[prop])) {
-            console.log(`🔍 DEBUG VARIANTS - Found array in Promise.${prop}`);
-            return this.processVariantsArray((variants as any)[prop]);
-          }
-        }
-
-        // Check if we can iterate over the Promise
-        if (Symbol.iterator in variants) {
-          console.log('🔍 DEBUG VARIANTS - Promise is iterable');
-          try {
-            const variantsArray = Array.from(variants as any);
-            console.log('🔍 DEBUG VARIANTS - Converted iterable Promise to array:', variantsArray);
-            return this.processVariantsArray(variantsArray);
-          } catch (iterError) {
-            console.log('🔍 DEBUG VARIANTS - Iterator error:', iterError.message);
-          }
-        }
-
-      } catch (error) {
-        console.log('🔍 DEBUG VARIANTS - Error accessing Promise data:', error.message);
-      }
-
-      console.log('🔍 DEBUG VARIANTS - Returning empty array (unresolved Promise)');
-      return [];
+      const normalizedPromiseData = this.unwrapRelationArray(variants);
+      return normalizedPromiseData.length ? this.processVariantsArray(normalizedPromiseData) : [];
     }
 
-    // Handle case where variants is loaded but still wrapped
-    let variantsArray = variants;
-
-    // If variants is not an array but has loaded data, try to extract it
-    if (!Array.isArray(variants) && variants && typeof variants === 'object') {
-      if (variants.length !== undefined) {
-        variantsArray = Array.from(variants);
-      } else if (variants.value && Array.isArray(variants.value)) {
-        variantsArray = variants.value;
-      } else if (variants.__value__ && Array.isArray(variants.__value__)) {
-        variantsArray = variants.__value__;
-      }
+    if (typeof variants === 'object') {
+      const normalized = this.unwrapRelationArray(variants);
+      return normalized.length ? this.processVariantsArray(normalized) : [];
     }
 
-    if (!variantsArray || !Array.isArray(variantsArray)) {
-      return [];
-    }
-
-    return this.processVariantsArray(variantsArray);
+    return [];
   }
 
   /**
@@ -899,5 +642,46 @@ export class ProductTransformer {
     }
 
     return `$${lowestPrice.toFixed(2)} - $${highestPrice.toFixed(2)}`;
+  }
+
+  /**
+   * Normalize relation data into an array when it may be wrapped inside promises or array-like structures.
+   */
+  private unwrapRelationArray(source: any): any[] {
+    if (!source) {
+      return [];
+    }
+
+    if (Array.isArray(source)) {
+      return source;
+    }
+
+    const nestedCandidates = [source.value, source.__value__];
+    for (const candidate of nestedCandidates) {
+      if (Array.isArray(candidate)) {
+        return candidate;
+      }
+    }
+
+    if (typeof source === 'object') {
+      const numericValues = Object.keys(source)
+        .filter(key => !isNaN(Number(key)) && Number(key) >= 0)
+        .map(key => source[key])
+        .filter(item => item && typeof item === 'object');
+
+      if (numericValues.length > 0) {
+        return numericValues;
+      }
+    }
+
+    if (typeof source.length === 'number' && source.length >= 0) {
+      try {
+        return Array.from(source);
+      } catch {
+        return [];
+      }
+    }
+
+    return [];
   }
 }

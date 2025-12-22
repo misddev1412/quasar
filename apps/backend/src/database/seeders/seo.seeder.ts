@@ -13,7 +13,6 @@ export class SeoSeeder implements SeederModule {
     // Check if we already have SEO data
     const count = await seoRepository.count();
     if (count > 0) {
-      console.log('SEO data already exists, skipping seed');
       return;
     }
 
@@ -85,6 +84,5 @@ export class SeoSeeder implements SeederModule {
     // Insert sample SEO data
     await seoRepository.save(seoEntries.map(entry => seoRepository.create(entry)));
     
-    console.log(`Seeded ${seoEntries.length} SEO entries`);
   }
-} 
+}

@@ -214,8 +214,6 @@ export class CurrencySeeder {
   ];
 
   async seed(): Promise<void> {
-    console.log('💰 Starting currencies seeding...');
-
     let created = 0;
     let skipped = 0;
     let defaultCurrencyExists = false;
@@ -237,7 +235,6 @@ export class CurrencySeeder {
       if (!existingCurrency) {
         // Ensure only one default currency
         if (currencyData.isDefault && defaultCurrencyExists) {
-          console.log(`   ⚠️  Skipping ${currencyData.code} - default currency already exists`);
           skipped++;
           continue;
         }
@@ -251,7 +248,7 @@ export class CurrencySeeder {
         }
 
         if (created % 5 === 0) {
-          console.log(`   ✅ Created ${created} currencies so far...`);
+          // periodic checkpoint for large inserts
         }
       } else {
         // Update existing currency if needed
@@ -274,41 +271,28 @@ export class CurrencySeeder {
 
         if (updated) {
           await this.currencyRepository.save(existingCurrency);
-          console.log(`   🔄 Updated ${currencyData.code}`);
         }
 
         skipped++;
       }
     }
-
-    console.log('✅ Currencies seeding completed!');
-    console.log(`📊 Results: ${created} created, ${skipped} skipped, ${this.currenciesData.length} total`);
   }
 
   async seedIfEmpty(): Promise<void> {
-    console.log('🔍 Checking if currencies seeding is needed...');
-
     const existingCount = await this.currencyRepository.count();
 
     if (existingCount === 0) {
-      console.log(`📋 Found ${existingCount} currencies. Running seeder...`);
       await this.seed();
-    } else {
-      console.log(`ℹ️  Found ${existingCount} currencies. Skipping seeder.`);
     }
   }
 
   async reseed(): Promise<void> {
-    console.log('🔄 Reseeding currencies (this may create duplicates if data already exists)...');
     await this.seed();
   }
 
   async clearAndReseed(): Promise<void> {
-    console.log('🗑️  Clearing existing currencies...');
-
     try {
       await this.currencyRepository.query('DELETE FROM currencies');
-      console.log('✅ Cleared existing currencies. Running fresh seed...');
       await this.seed();
     } catch (error) {
       console.error('❌ Clear and reseed failed:', error);
@@ -317,8 +301,6 @@ export class CurrencySeeder {
   }
 
   async updateExchangeRates(): Promise<void> {
-    console.log('🔄 Updating exchange rates...');
-
     const currencies = await this.currencyRepository.find();
     let updated = 0;
 
@@ -332,6 +314,5 @@ export class CurrencySeeder {
       }
     }
 
-    console.log(`✅ Exchange rates updated for ${updated} currencies`);
   }
 }

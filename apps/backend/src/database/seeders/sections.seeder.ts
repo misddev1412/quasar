@@ -833,9 +833,6 @@ export class SectionsSeeder implements SeederModule {
       });
 
       if (existingSection) {
-        console.log(
-          `Skipping section seeding for page='${entry.section.page}' type='${entry.section.type}' (already exists)`,
-        );
         continue;
       }
 
@@ -854,6 +851,5 @@ export class SectionsSeeder implements SeederModule {
       createdCount += 1;
     }
 
-    console.log(`Seeded ${createdCount} sections with translations.`);
   }
 }

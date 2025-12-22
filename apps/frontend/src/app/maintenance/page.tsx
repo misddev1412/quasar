@@ -3,6 +3,8 @@ import { MaintenancePageClient } from './MaintenancePageClient';
 import { buildApiUrl } from '../../utils/apiBase';
 import type { MaintenanceStatus } from '../../types/maintenance';
 
+export const dynamic = 'force-dynamic';
+
 async function fetchMaintenanceStatus(): Promise<MaintenanceStatus | null> {
   try {
     const response = await fetch(buildApiUrl('/maintenance/status'), {

@@ -107,32 +107,21 @@ export class StorageService {
   }
 
   async updateStorageSettings(settings: Record<string, string>): Promise<void> {
-    console.log('🔍 [STORAGE SERVICE] updateStorageSettings called with:', JSON.stringify(settings, null, 2));
-    
     for (const [key, value] of Object.entries(settings)) {
       if (key.startsWith('storage.')) {
-        console.log(`⚙️ [STORAGE SERVICE] Processing setting: ${key} = ${key.includes('key') ? '[REDACTED]' : value}`);
         await this.updateSetting(key, value);
-        console.log(`✅ [STORAGE SERVICE] Successfully updated: ${key}`);
-      } else {
-        console.log(`⚠️ [STORAGE SERVICE] Skipping non-storage setting: ${key}`);
       }
     }
-    console.log('🎉 [STORAGE SERVICE] All settings processed successfully');
   }
 
   private async updateSetting(key: string, value: string): Promise<void> {
-    console.log(`🔍 [STORAGE SERVICE] Looking up setting: ${key}`);
     const setting = await this.settingRepository.findOne({ where: { key } });
     
     if (setting) {
-      console.log(`📝 [STORAGE SERVICE] Found existing setting: ${key} (current value: ${key.includes('key') ? '[REDACTED]' : setting.value})`);
       const oldValue = setting.value;
       setting.value = value;
       await this.settingRepository.save(setting);
-      console.log(`✅ [STORAGE SERVICE] Updated setting: ${key} from "${key.includes('key') ? '[REDACTED]' : oldValue}" to "${key.includes('key') ? '[REDACTED]' : value}"`);
     } else {
-      console.log(`🆕 [STORAGE SERVICE] Creating new setting: ${key}`);
       const newSetting = this.settingRepository.create({
         key,
         value,
@@ -142,7 +131,6 @@ export class StorageService {
         description: `Auto-created storage setting: ${key}`
       });
       const savedSetting = await this.settingRepository.save(newSetting);
-      console.log(`✅ [STORAGE SERVICE] Created new setting: ${key} with ID: ${savedSetting.id}`);
       this.logger.log(`Created new setting: ${key}`);
     }
   }

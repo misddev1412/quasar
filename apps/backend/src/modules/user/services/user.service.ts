@@ -48,7 +48,6 @@ export class UserService {
         });
 
         await this.userRoleRepository.save(newUserRole);
-        console.log(`Assigned default role '${userRole.code}' to user ${userId}`);
       }
     } catch (error) {
       console.error('Error assigning default role:', error);

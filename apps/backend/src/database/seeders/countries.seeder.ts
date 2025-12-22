@@ -260,8 +260,6 @@ export class CountriesSeeder {
   ];
 
   async seed(): Promise<void> {
-    console.log('🌍 Starting countries seeding...');
-
     let created = 0;
     let skipped = 0;
 
@@ -274,42 +272,27 @@ export class CountriesSeeder {
         const country = this.countryRepository.create(countryData);
         await this.countryRepository.save(country);
         created++;
-        if (created % 50 === 0) {
-          console.log(`   ✅ Created ${created} countries so far...`);
-        }
       } else {
         skipped++;
       }
     }
-
-    console.log('✅ Countries seeding completed!');
-    console.log(`📊 Results: ${created} created, ${skipped} skipped, ${this.countriesData.length} total`);
   }
 
   async seedIfEmpty(): Promise<void> {
-    console.log('🔍 Checking if countries seeding is needed...');
-
     const existingCount = await this.countryRepository.count();
 
     if (existingCount === 0) {
-      console.log(`📋 Found ${existingCount} countries. Running seeder...`);
       await this.seed();
-    } else {
-      console.log(`ℹ️  Found ${existingCount} countries. Skipping seeder.`);
     }
   }
 
   async reseed(): Promise<void> {
-    console.log('🔄 Reseeding countries (this may create duplicates if data already exists)...');
     await this.seed();
   }
 
   async clearAndReseed(): Promise<void> {
-    console.log('🗑️  Clearing existing countries...');
-
     try {
       await this.countryRepository.query('DELETE FROM countries');
-      console.log('✅ Cleared existing countries. Running fresh seed...');
       await this.seed();
     } catch (error) {
       console.error('❌ Clear and reseed failed:', error);

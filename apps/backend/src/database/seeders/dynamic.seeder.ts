@@ -47,25 +47,29 @@ const AVAILABLE_SEEDERS = {
   'notification-event-flows': NotificationEventFlowSeeder,
 } as const;
 
+const printLine = (text = '') => {
+  process.stdout.write(`${text}\n`);
+};
+
 type SeederKey = keyof typeof AVAILABLE_SEEDERS;
 
 function printAvailableSeeders() {
-  console.log('📋 Available seeders:');
+  printLine('📋 Available seeders:');
   (Object.keys(AVAILABLE_SEEDERS) as SeederKey[]).forEach(name => {
-    console.log(`   - ${name}`);
+    printLine(`   - ${name}`);
   });
 }
 
 function showUsageAndExit(code = 1) {
-  console.log('\n💡 Usage:');
-  console.log('   yarn seed --tables=seo,settings');
-  console.log('   yarn seed --tables countries');
-  console.log('   yarn seed seo');
-  console.log('   yarn seed component-configs');
-  console.log('\nOptions:');
-  console.log('   --tables=<names>  Comma separated list of seeder names');
-  console.log('   --tables <names>  Space separated seeder names');
-  console.log('   --list            Show available seeders');
+  printLine('\n💡 Usage:');
+  printLine('   yarn seed --tables=seo,settings');
+  printLine('   yarn seed --tables countries');
+  printLine('   yarn seed seo');
+  printLine('   yarn seed component-configs');
+  printLine('\nOptions:');
+  printLine('   --tables=<names>  Comma separated list of seeder names');
+  printLine('   --tables <names>  Space separated seeder names');
+  printLine('   --list            Show available seeders');
   process.exit(code);
 }
 
@@ -163,9 +167,9 @@ export async function bootstrap() {
       const SeederClass = AVAILABLE_SEEDERS[table];
       const seeder = app.get(SeederClass);
 
-      console.log(`🌱 Running ${table} seeder...`);
+      printLine(`🌱 Running ${table} seeder...`);
       await seeder.seed();
-      console.log(`✅ ${table} seeder completed successfully`);
+      printLine(`✅ ${table} seeder completed successfully`);
     }
   } catch (error) {
     console.error('❌ Error during seeding:', error);

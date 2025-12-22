@@ -8,8 +8,6 @@ export class VisitorDataSeeder {
   constructor(private dataSource: DataSource) {}
 
   async seed(): Promise<void> {
-    console.log('🌱 Seeding visitor analytics data...');
-
     const visitorRepo = this.dataSource.getRepository(Visitor);
     const sessionRepo = this.dataSource.getRepository(VisitorSession);
     const pageViewRepo = this.dataSource.getRepository(PageView);
@@ -152,10 +150,6 @@ export class VisitorDataSeeder {
       }
     }
 
-    console.log(`✅ Visitor analytics data seeded successfully!`);
-    console.log(`   - ${await visitorRepo.count()} visitors created`);
-    console.log(`   - ${await sessionRepo.count()} sessions created`);
-    console.log(`   - ${await pageViewRepo.count()} page views created`);
   }
 
   private getRandomVisitorSource(): VisitorSource {
@@ -184,8 +178,6 @@ export class VisitorDataSeeder {
   }
 
   async clean(): Promise<void> {
-    console.log('🧹 Cleaning visitor analytics data...');
-
     const visitorRepo = this.dataSource.getRepository(Visitor);
     const sessionRepo = this.dataSource.getRepository(VisitorSession);
     const pageViewRepo = this.dataSource.getRepository(PageView);
@@ -194,6 +186,5 @@ export class VisitorDataSeeder {
     await sessionRepo.clear();
     await visitorRepo.clear();
 
-    console.log('✅ Visitor analytics data cleaned successfully!');
   }
 }

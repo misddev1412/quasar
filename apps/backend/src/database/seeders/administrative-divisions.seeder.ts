@@ -11,18 +11,13 @@ export class AdministrativeDivisionsSeeder {
   ) {}
 
   async seed(): Promise<void> {
-    console.log('🏛️  Starting administrative divisions seeding...');
-
     // Load Vietnam administrative divisions data
     const fs = require('fs');
     const path = require('path');
     const dataPath = path.join(process.cwd(), '../../full_json_generated_data_vn_units.json');
 
     if (!fs.existsSync(dataPath)) {
-      console.log('❌ Vietnam administrative divisions data file not found!');
-      console.log(`📍 Looking for file at: ${dataPath}`);
-      console.log(`📍 Current working directory: ${process.cwd()}`);
-      return;
+      throw new Error(`Vietnam administrative divisions data file not found at ${dataPath}`);
     }
 
     const vietnamData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
@@ -32,7 +27,6 @@ export class AdministrativeDivisionsSeeder {
     let skipped = 0;
 
     // Process provinces first
-    console.log('📍 Processing provinces...');
     for (const province of vietnamData) {
       const provinceId = `VN-${province.Code}`;
 
@@ -54,8 +48,6 @@ export class AdministrativeDivisionsSeeder {
         const provinceDivision = this.administrativeDivisionRepository.create(provinceData);
         await this.administrativeDivisionRepository.save(provinceDivision);
         created++;
-
-        console.log(`   ✅ Created province: ${province.Name}`);
       } else {
         skipped++;
       }
@@ -88,40 +80,25 @@ export class AdministrativeDivisionsSeeder {
           }
         }
 
-        if (created % 100 === 0) {
-          console.log(`   ✅ Created ${created} administrative divisions so far...`);
-        }
       }
     }
-
-    console.log('✅ Administrative divisions seeding completed!');
-    console.log(`📊 Results: ${created} created, ${skipped} skipped`);
   }
 
   async seedIfEmpty(): Promise<void> {
-    console.log('🔍 Checking if administrative divisions seeding is needed...');
-
     const existingCount = await this.administrativeDivisionRepository.count();
 
     if (existingCount === 0) {
-      console.log(`📋 Found ${existingCount} administrative divisions. Running seeder...`);
       await this.seed();
-    } else {
-      console.log(`ℹ️  Found ${existingCount} administrative divisions. Skipping seeder.`);
     }
   }
 
   async reseed(): Promise<void> {
-    console.log('🔄 Reseeding administrative divisions (this may create duplicates if data already exists)...');
     await this.seed();
   }
 
   async clearAndReseed(): Promise<void> {
-    console.log('🗑️  Clearing existing administrative divisions...');
-
     try {
       await this.administrativeDivisionRepository.query('DELETE FROM administrative_divisions');
-      console.log('✅ Cleared existing administrative divisions. Running fresh seed...');
       await this.seed();
     } catch (error) {
       console.error('❌ Clear and reseed failed:', error);
