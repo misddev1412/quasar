@@ -1,0 +1,16 @@
+.git
+.github
+.nx
+dist
+tmp
+prd
+node_modules
+**/node_modules
+apps/frontend/.next
+apps/admin/.cache
+apps/admin/dist
+apps/frontend/out
+coverage
+npm-debug.log
+yarn-debug.log*
+yarn-error.log*
