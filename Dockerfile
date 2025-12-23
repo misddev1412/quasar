@@ -4,6 +4,15 @@ WORKDIR /app
 
 RUN corepack enable
 
+ARG REACT_APP_API_URL="http://localhost:3000/api"
+ARG NEXT_PUBLIC_API_URL="http://localhost:3000/api"
+ARG NEXT_PUBLIC_SITE_URL="http://localhost:3001"
+
+ENV \
+  REACT_APP_API_URL="${REACT_APP_API_URL}" \
+  NEXT_PUBLIC_API_URL="${NEXT_PUBLIC_API_URL}" \
+  NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL}"
+
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 COPY . .

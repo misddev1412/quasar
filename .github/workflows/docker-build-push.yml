@@ -27,6 +27,9 @@ jobs:
       REGISTRY: registry.digitalocean.com/${{ secrets.DOCR_REGISTRY }}
       IMAGE: ${{ secrets.IMAGE_NAME }}
       TAG: ${{ needs.metadata.outputs.tag }}
+      REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+      NEXT_PUBLIC_API_URL: ${{ coalesce(secrets.NEXT_PUBLIC_API_URL, secrets.REACT_APP_API_URL) }}
+      NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,15 +48,32 @@ jobs:
           path: /tmp/.buildx-cache
           key: ${{ needs.metadata.outputs.cache-key }}
 
+      - name: Prepare build environment
+        run: |
+          if [[ -z "${REACT_APP_API_URL}" ]]; then
+            echo "REACT_APP_API_URL secret must be set to bake API URLs into the frontend build." >&2
+            exit 1
+          fi
+          if [[ -z "${NEXT_PUBLIC_API_URL}" ]]; then
+            echo "NEXT_PUBLIC_API_URL not provided; defaulting to REACT_APP_API_URL for frontend build."
+            echo "NEXT_PUBLIC_API_URL=${REACT_APP_API_URL}" >> "$GITHUB_ENV"
+          fi
+
       - name: Build image
         run: |
-          docker buildx build \
-            --tag $REGISTRY/$IMAGE:$TAG \
-            --tag $REGISTRY/$IMAGE:latest \
-            --load \
-            --cache-from type=local,src=/tmp/.buildx-cache \
-            --cache-to type=local,dest=/tmp/.buildx-cache-new \
-            .
+          build_args=(
+            --tag "$REGISTRY/$IMAGE:$TAG"
+            --tag "$REGISTRY/$IMAGE:latest"
+            --load
+            --cache-from "type=local,src=/tmp/.buildx-cache"
+            --cache-to "type=local,dest=/tmp/.buildx-cache-new"
+            --build-arg "REACT_APP_API_URL=${REACT_APP_API_URL}"
+            --build-arg "NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}"
+          )
+          if [[ -n "${NEXT_PUBLIC_SITE_URL}" ]]; then
+            build_args+=(--build-arg "NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}")
+          fi
+          docker buildx build "${build_args[@]}" .
 
       - name: Move build cache
         run: |
