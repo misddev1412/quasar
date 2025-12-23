@@ -4,6 +4,7 @@ module.exports = {
       name: 'api',
       script: 'dist/apps/backend/main.js',
       interpreter: 'node',
+      cwd: '/app',
       env: {
         NODE_ENV: 'production',
         PORT: 4000,
@@ -16,6 +17,7 @@ module.exports = {
       name: 'web',
       script: 'dist/apps/frontend/.next/standalone/server.js',
       interpreter: 'node',
+      cwd: '/app',
       env: {
         NODE_ENV: 'production',
         PORT: 3000,
@@ -29,6 +31,7 @@ module.exports = {
       name: 'admin',
       script: 'deploy/serve-static.js',
       interpreter: 'node',
+      cwd: '/app',
       args: ['dist/apps/admin'],
       env: {
         NODE_ENV: 'production',
