@@ -3,7 +3,8 @@ const path = require('path');
 const fs = require('fs');
 
 const [, , cliStaticDir] = process.argv;
-const staticDirArg = cliStaticDir || process.env.ADMIN_STATIC_DIR;
+const DEFAULT_STATIC_DIR = path.resolve(__dirname, '..', 'dist', 'apps', 'admin');
+const staticDirArg = cliStaticDir || process.env.ADMIN_STATIC_DIR || DEFAULT_STATIC_DIR;
 const PORT = parseInt(process.env.PORT || process.env.ADMIN_PORT || '3001', 10);
 
 if (!staticDirArg) {
