@@ -31,8 +31,11 @@ const mimeTypes = {
   '.txt': 'text/plain; charset=utf-8',
 };
 
+const stripPathTraversal = (target) =>
+  target.replace(/^(\.\.(\/|\\|$))+/, '').replace(/^([/\\])+/, '');
+
 const safeJoin = (base, target) => {
-  const normalized = path.normalize(target).replace(/^(\.\.(\/|\\|$))+/, '');
+  const normalized = stripPathTraversal(path.normalize(target));
   return path.join(base, normalized);
 };
 

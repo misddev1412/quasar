@@ -47,6 +47,11 @@ jobs:
         with:
           path: /tmp/.buildx-cache
           key: ${{ needs.metadata.outputs.cache-key }}
+          restore-keys: |
+            docker-
+
+      - name: Ensure build cache directory
+        run: mkdir -p /tmp/.buildx-cache /tmp/.buildx-cache-new
 
       - name: Prepare build environment
         run: |
