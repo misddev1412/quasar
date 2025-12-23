@@ -31,22 +31,17 @@ const mimeTypes = {
   '.txt': 'text/plain; charset=utf-8',
 };
 
-const stripPathTraversal = (target) =>
-  target.replace(/^(\.\.(\/|\\|$))+/, '').replace(/^([/\\])+/, '');
-
-const safeJoin = (base, target) => {
-  const normalized = stripPathTraversal(path.normalize(target));
-  return path.join(base, normalized);
-};
-
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
-  let pathname = url.pathname;
-  if (pathname.endsWith('/')) {
-    pathname += 'index.html';
+  let pathname = url.pathname.replace(/^\/+/, '');
+  if (!pathname || pathname.endsWith('/')) {
+    pathname = path.join(pathname, 'index.html');
+  }
+  if (pathname.startsWith('../')) {
+    pathname = 'index.html';
   }
 
-  const filePath = safeJoin(staticDir, pathname);
+  const filePath = path.join(staticDir, pathname);
 
   const serveFile = (resolvedPath) => {
     fs.stat(resolvedPath, (statErr, stats) => {
