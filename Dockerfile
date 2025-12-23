@@ -40,8 +40,6 @@ COPY --from=builder /app/deploy ./deploy
 COPY --from=builder /app/apps ./apps
 COPY --from=builder /app/libs ./libs
 COPY --from=builder /app/tsconfig.base.json ./tsconfig.base.json
-COPY --from=builder /app/tsconfig.json ./tsconfig.json
-COPY --from=builder /app/tsconfig.scripts.json ./tsconfig.scripts.json
 
 RUN cp ./deploy/start.sh /start.sh \
   && chmod +x /start.sh
