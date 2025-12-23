@@ -1,7 +1,6 @@
 events {}
 
 http {
-  # Optional: concise log format for easier debugging
   log_format main '$remote_addr - $host [$time_local] "$request" '
                   '$status $body_bytes_sent "$http_referer" '
                   '"$http_user_agent" upstream="$upstream_addr" rt=$request_time';
@@ -9,67 +8,55 @@ http {
   access_log /var/log/nginx/access.log main;
   error_log  /var/log/nginx/error.log warn;
 
+${API_SERVER_BLOCK}
+${ADMIN_SERVER_BLOCK}
+${FRONTEND_SERVER_BLOCK}
+
   server {
-    # App Platform injects the PORT environment variable (HTTPS terminates outside)
     listen ${PORT};
     server_name _;
 
-    # Standard proxy headers
     proxy_set_header Host              $host;
     proxy_set_header X-Real-IP         $remote_addr;
     proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
 
-    # ===================== API =====================
-
-    # Handle /api (NO redirect, avoid :8080 / SSL issues)
+    # ----- API fallback (/api, /api/*) -----
     location = /api {
       proxy_http_version 1.1;
       proxy_set_header Upgrade    $http_upgrade;
       proxy_set_header Connection "upgrade";
-
-      # Backend receives /
-      proxy_pass http://127.0.0.1:4000/;
+      proxy_pass http://127.0.0.1:${INTERNAL_BACKEND_PORT}/;
     }
 
-    # Handle /api/*
-    # Trailing slash in proxy_pass strips /api/
     location ^~ /api/ {
       proxy_http_version 1.1;
       proxy_set_header Upgrade    $http_upgrade;
       proxy_set_header Connection "upgrade";
-
-      # /api/users -> backend receives /users
-      proxy_pass http://127.0.0.1:4000/;
+      proxy_pass http://127.0.0.1:${INTERNAL_BACKEND_PORT}/;
     }
 
-    # ===================== ADMIN =====================
-
-    # Handle /admin (NO redirect)
+    # ----- Admin fallback (/admin, /admin/*) -----
     location = /admin {
       proxy_http_version 1.1;
       proxy_set_header Upgrade    $http_upgrade;
       proxy_set_header Connection "upgrade";
-
-      proxy_pass http://127.0.0.1:3001/;
+      proxy_pass http://127.0.0.1:${INTERNAL_ADMIN_PORT}/;
     }
 
-    # /admin and /admin/* -> keep the /admin prefix (no stripping)
     location ^~ /admin/ {
       proxy_http_version 1.1;
       proxy_set_header Upgrade    $http_upgrade;
       proxy_set_header Connection "upgrade";
-
-      proxy_pass http://127.0.0.1:3001;
+      proxy_pass http://127.0.0.1:${INTERNAL_ADMIN_PORT};
     }
 
-    location = /admin {
+    # ----- Storefront fallback -----
+    location / {
       proxy_http_version 1.1;
       proxy_set_header Upgrade    $http_upgrade;
       proxy_set_header Connection "upgrade";
-
-      proxy_pass http://127.0.0.1:3001;
+      proxy_pass http://127.0.0.1:${INTERNAL_FRONTEND_PORT};
     }
-
   }
 }

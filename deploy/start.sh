@@ -58,6 +58,61 @@ load_env_file() {
 
 load_env_file "${REPO_ROOT}/.env"
 
+INTERNAL_BACKEND_PORT="${BACKEND_PORT:-3000}"
+INTERNAL_ADMIN_PORT="${ADMIN_PORT:-4000}"
+INTERNAL_FRONTEND_PORT="${FRONTEND_PORT:-3000}"
+
+build_host_block() {
+  local host="$1"
+  local upstream="$2"
+  local label="$3"
+  local block
+  block=$(cat <<'EOF'
+  server {
+    listen __PORT__;
+    server_name __HOST__;
+
+    # Host-based routing for __LABEL__
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    location / {
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade    $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_pass __UPSTREAM__;
+    }
+  }
+
+EOF
+)
+  block="${block//__PORT__/${PORT}}"
+  block="${block//__HOST__/${host}}"
+  block="${block//__UPSTREAM__/${upstream}}"
+  block="${block//__LABEL__/${label}}"
+  printf '%s' "${block}"
+}
+
+ADMIN_SERVER_BLOCK=""
+if [[ -n "${ADMIN_HOST:-}" ]]; then
+  ADMIN_SERVER_BLOCK="$(build_host_block "${ADMIN_HOST}" "http://127.0.0.1:${INTERNAL_ADMIN_PORT}/" "admin")"
+fi
+
+API_SERVER_BLOCK=""
+if [[ -n "${API_HOST:-}" ]]; then
+  API_SERVER_BLOCK="$(build_host_block "${API_HOST}" "http://127.0.0.1:${INTERNAL_BACKEND_PORT}/" "api")"
+fi
+
+FRONTEND_SERVER_BLOCK=""
+if [[ -n "${FRONTEND_HOST:-}" ]]; then
+  FRONTEND_SERVER_BLOCK="$(build_host_block "${FRONTEND_HOST}" "http://127.0.0.1:${INTERNAL_FRONTEND_PORT}" "storefront")"
+fi
+
+export ADMIN_SERVER_BLOCK API_SERVER_BLOCK FRONTEND_SERVER_BLOCK
+export INTERNAL_BACKEND_PORT INTERNAL_ADMIN_PORT INTERNAL_FRONTEND_PORT
+
 verify_build_artifacts() {
   local required_files=(
     "dist/apps/backend/main.js"
@@ -130,7 +185,7 @@ start_nginx() {
   fi
 
   local nginx_conf="${nginx_conf_dir}/nginx.conf"
-  envsubst '${PORT}' < "${template}" > "${nginx_conf}"
+  envsubst '${PORT} ${INTERNAL_BACKEND_PORT} ${INTERNAL_ADMIN_PORT} ${INTERNAL_FRONTEND_PORT} ${ADMIN_SERVER_BLOCK} ${API_SERVER_BLOCK} ${FRONTEND_SERVER_BLOCK}' < "${template}" > "${nginx_conf}"
 
   echo "Starting nginx on port ${PORT}..."
   nginx "${nginx_conf_extra[@]}"
@@ -192,10 +247,6 @@ if command -v pm2-runtime >/dev/null 2>&1; then
   exec pm2-runtime ecosystem.config.cjs
 else
   echo "pm2-runtime not found. Starting processes manually."
-  INTERNAL_BACKEND_PORT="${BACKEND_PORT:-3000}"
-  INTERNAL_ADMIN_PORT="${ADMIN_PORT:-4000}"
-  INTERNAL_FRONTEND_PORT="${FRONTEND_PORT:-3000}"
-
   start_backend_process "${INTERNAL_BACKEND_PORT}"
   start_admin_process "${INTERNAL_ADMIN_PORT}"
 
