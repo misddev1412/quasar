@@ -35,7 +35,6 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: 3001,
-        ADMIN_STATIC_DIR: '/app/dist/apps/admin',
       },
       instances: 1,
       autorestart: true,

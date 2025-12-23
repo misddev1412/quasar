@@ -4,15 +4,27 @@ const fs = require('fs');
 
 const [, , cliStaticDir] = process.argv;
 const DEFAULT_STATIC_DIR = path.resolve(__dirname, '..', 'dist', 'apps', 'admin');
-const staticDirArg = cliStaticDir || process.env.ADMIN_STATIC_DIR || DEFAULT_STATIC_DIR;
-const PORT = parseInt(process.env.PORT || process.env.ADMIN_PORT || '3001', 10);
 
-if (!staticDirArg) {
-  console.error('Static directory argument is required');
-  process.exit(1);
+// Helper function to check if a path looks like a valid static directory
+const isValidStaticDir = (dir) => {
+  if (!dir) return false;
+  // Ignore PM2 config files or other config files
+  if (dir.endsWith('.cjs') || dir.endsWith('.js') || dir.endsWith('.json')) {
+    return false;
+  }
+  // Check if directory exists
+  return fs.existsSync(dir) && fs.statSync(dir).isDirectory();
+};
+
+// Use valid CLI arg if provided, otherwise use default
+let staticDir;
+if (cliStaticDir && isValidStaticDir(cliStaticDir)) {
+  staticDir = path.resolve(cliStaticDir);
+} else {
+  staticDir = DEFAULT_STATIC_DIR;
 }
 
-const staticDir = path.resolve(staticDirArg);
+const PORT = parseInt(process.env.PORT || process.env.ADMIN_PORT || '3001', 10);
 
 if (!fs.existsSync(staticDir)) {
   console.error(`Static directory not found: ${staticDir}`);
