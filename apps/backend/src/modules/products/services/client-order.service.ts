@@ -97,6 +97,7 @@ interface EnrichedClientOrderItem extends CreateClientOrderItemDto {
   productImage?: string;
   weight?: number;
   dimensions?: string;
+  isContactPrice?: boolean;
 }
 
 export interface CreateClientOrderDto {
@@ -133,7 +134,7 @@ export class ClientOrderService {
     private readonly productVariantRepository: ProductVariantRepository,
     private readonly deliveryMethodService: DeliveryMethodService,
     private readonly payosService: PayosService,
-  ) {}
+  ) { }
 
   private mapOrderAddress(address?: ClientOrderAddress | null) {
     if (!address) {
@@ -234,6 +235,7 @@ export class ClientOrderService {
         productAttributes,
         weight: variant.weight ?? undefined,
         dimensions: variant.dimensions ?? undefined,
+        isContactPrice: parentProduct?.isContactPrice,
       };
     }
 
@@ -279,6 +281,7 @@ export class ClientOrderService {
       productAttributes,
       weight: availableVariant?.weight ?? undefined,
       dimensions: availableVariant?.dimensions ?? undefined,
+      isContactPrice: product.isContactPrice,
     };
   }
 
@@ -395,7 +398,7 @@ export class ClientOrderService {
 
     // Check if the contact looks like an email or phone
     const isEmail = sanitizedContact.includes('@');
-    
+
     // Build query based on contact type
     const queryBuilder = this.orderOrmRepository.createQueryBuilder('order')
       .leftJoinAndSelect('order.items', 'items')
@@ -573,6 +576,7 @@ export class ClientOrderService {
         shippingMethod: shippingMethodLabel,
         notes: payload.orderNotes,
         customerNotes: payload.orderNotes,
+        isContactOrder: enrichedItems.some((item) => item.isContactPrice),
       });
 
       const savedOrder = await orderRepository.save(orderEntity);

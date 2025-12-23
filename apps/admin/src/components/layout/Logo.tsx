@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useBrandingSetting } from '../../hooks/useBrandingSetting';
@@ -24,6 +24,9 @@ const Logo: React.FC<LogoProps> = ({
     DEFAULT_ADMIN_SIDEBAR_BRANDING,
   );
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
   const logoUrl = brandingConfig.logoUrl;
   const logoText = brandingConfig.logoText || 'Q';
   const brandName = brandingConfig.brandName || t('common.brand_name', 'Quasar');
@@ -36,15 +39,30 @@ const Logo: React.FC<LogoProps> = ({
       onClick={onClick}
       className={`flex items-center transition-all duration-300 ease-in-out ${collapsed ? 'justify-center p-4' : 'p-4 pl-6'}`}
     >
-      {logoUrl ? (
-        <div className="flex items-center justify-center rounded-lg overflow-hidden transition-all duration-300 ease-in-out hover:translate-y-[-2px]">
+      {logoUrl && !error ? (
+        <div className="flex items-center justify-center rounded-lg overflow-hidden transition-all duration-300 ease-in-out hover:translate-y-[-2px] relative">
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 animate-pulse">
+              <div className="flex space-x-1">
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              </div>
+            </div>
+          )}
           <img
             src={logoUrl}
             alt="Logo"
             style={{
               width: `${logoWidth}px`,
               height: `${logoHeight}px`,
-              objectFit: 'contain'
+              objectFit: 'contain',
+              opacity: loading ? 0 : 1
+            }}
+            onLoad={() => setLoading(false)}
+            onError={() => {
+              setLoading(false);
+              setError(true);
             }}
           />
         </div>

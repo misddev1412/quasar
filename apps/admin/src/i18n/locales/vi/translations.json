@@ -12,6 +12,145 @@
     "stats": {
       "active": "Hoạt động",
       "total": "Tổng cộng"
+    },
+    "navigation": {
+      "overview": "Tổng quan",
+      "dashboard": "Bảng điều khiển",
+      "people_access": "Người dùng & Quyền",
+      "content_experience": "Nội dung & Trải nghiệm",
+      "commerce": "Thương mại",
+      "sales_operations": "Bán hàng & Vận hành",
+      "mail_management": "Quản lý Email",
+      "communication_support": "Liên lạc & Hỗ trợ",
+      "platform_settings": "Thiết lập hệ thống",
+      "notifications": "Thông báo",
+      "notification_flows": "Luồng thông báo",
+      "messages": "Tin nhắn",
+      "storage": "Lưu trữ",
+      "firebase_configs": "Cấu hình Firebase",
+      "settings": "Cài đặt",
+      "general_settings": "Cài đặt chung",
+      "maintenance_settings": "Chế độ bảo trì",
+      "order_settings": "Cài đặt đơn hàng",
+      "settings_visibility": "Hiển thị cài đặt",
+      "help": "Trợ giúp"
+    },
+    "admin": {
+      "user_dashboard": "Thống kê người dùng",
+      "user_management": "Quản lý người dùng",
+      "user_list": "Danh sách người dùng",
+      "manage_roles": "Quản lý vai trò",
+      "manage_permissions": "Quản lý quyền",
+      "posts_management": "Quản lý bài viết",
+      "posts_list": "Danh sách bài viết",
+      "categories": "Danh mục",
+      "tags": "Thẻ",
+      "sections": "Sections",
+      "menus": "Quản lý Menu",
+      "seo_management": "Quản lý SEO",
+      "translations": "Bản dịch",
+      "mail_templates": "Mẫu Email",
+      "mail_providers": "Nhà cung cấp Email",
+      "email_flows": "Ưu tiêu kênh Email",
+      "telegram_configs": "Cấu hình Telegram"
+    },
+    "siteContent": {
+      "navigation": {
+        "title": "Nội dung trang",
+        "list": "Tất cả các trang"
+      }
+    },
+    "componentConfigs": {
+      "navigation": "Thư viện thành phần"
+    },
+    "storefront": {
+      "checkout": {
+        "nav": "Checkout Storefront"
+      },
+      "footer": {
+        "nav": "Footer Builder"
+      }
+    },
+    "products": {
+      "title": "Sản phẩm"
+    },
+    "brands": {
+      "title": "Thương hiệu"
+    },
+    "categories": {
+      "title": "Danh mục"
+    },
+    "attributes": {
+      "title": "Thuộc tính"
+    },
+    "suppliers": {
+      "title": "Nhà cung cấp"
+    },
+    "loyalty": {
+      "navigation": {
+        "title": "Chương trình khách hàng thân thiết",
+        "overview": "Tổng quan",
+        "dashboard": "Bảng điều khiển",
+        "tiers": "Hạng thành viên",
+        "rewards": "Phần thưởng",
+        "transactions": "Giao dịch"
+      }
+    },
+    "orders": {
+      "title": "Đơn hàng"
+    },
+    "fulfillments": {
+      "title": "Xử lý đơn hàng"
+    },
+    "customers": {
+      "title": "Khách hàng"
+    },
+    "warehouses": {
+      "title": "Kho hàng"
+    },
+    "warehouse_locations": {
+      "title": "Vị trí kho hàng"
+    },
+    "payment_methods": {
+      "title": "Phương thức thanh toán"
+    },
+    "transactions": {
+      "title": "Giao dịch"
+    },
+    "delivery_methods": {
+      "title": "Phương thức giao hàng"
+    },
+    "mail_logs": {
+      "title": "Nhật ký Email"
+    },
+    "support_clients": {
+      "title": "Hỗ trợ khách hàng"
+    },
+    "visitor_analytics": {
+      "title": "Thống kê người truy cập"
+    },
+    "languages": {
+      "languages": "Ngôn ngữ"
+    },
+    "currencies": {
+      "currencies": "Tiền tệ"
+    },
+    "shippingProviders": {
+      "shippingProviders": "Đơn vị vận chuyển"
+    },
+    "brand": {
+      "assets_title": "Tài sản thương hiệu"
+    },
+    "analytics": {
+      "title": "Phân tích"
+    },
+    "settings": {
+      "branding": {
+        "nav": "Giao diện Admin"
+      }
+    },
+    "floating_icons": {
+      "navigation": "Biểu tượng nổi"
     }
   }
 }

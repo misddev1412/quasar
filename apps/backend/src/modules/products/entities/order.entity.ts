@@ -331,6 +331,14 @@ export class Order extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'is_contact_order',
+    type: 'boolean',
+    default: false,
+  })
+  isContactOrder: boolean;
+
+  @Expose()
+  @Column({
     name: 'gift_message',
     type: 'text',
     nullable: true,

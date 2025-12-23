@@ -16,6 +16,7 @@ import { Input } from '../common/Input';
 import { InputWithIcon } from '../common/InputWithIcon';
 import { stripNumberLeadingZeros } from '../../utils/inputUtils';
 import { Button } from '../common/Button';
+import { Switch } from '../common/Switch';
 
 // MediaItem interface for frontend form - compatible with ProductMediaUpload component
 interface MediaItem {
@@ -93,6 +94,7 @@ const productSchema = z.object({
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
+  isContactPrice: z.boolean().default(false),
   isFeatured: z.boolean().default(false),
   price: z.number().min(0).optional(),
   compareAtPrice: z.number().min(0).nullable().optional(),
@@ -160,6 +162,7 @@ export interface ProductFormData {
   metaKeywords?: string;
   price?: number;
   compareAtPrice?: number | null;
+  isContactPrice: boolean;
   isFeatured: boolean;
   stockQuantity?: number;
   enableWarehouseQuantity: boolean;
@@ -279,6 +282,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     return product.compareAtPrice;
   });
   const [stockQuantity, setStockQuantity] = useState(() => product?.stockQuantity || 0);
+  const [isContactPrice, setIsContactPrice] = useState(() => product?.isContactPrice || false);
 
   const [specifications, setSpecifications] = useState<ProductSpecificationFormItem[]>(() => {
     if (!product?.specifications || product.specifications.length === 0) {
@@ -589,6 +593,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             </div>
           ) : (
             <div className="space-y-6">
+              <Switch
+                id="isContactPrice"
+                label={t('products.contact_price')}
+                description={t('products.contact_price_help')}
+                checked={isContactPrice}
+                onChange={(checked) => setIsContactPrice(checked)}
+              />
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label htmlFor="price" className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -600,6 +612,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     type="number"
                     step="0.01"
                     min={0}
+                    disabled={isContactPrice}
                     value={price}
                     onChange={(e) => {
                       const sanitizedValue = sanitizeNumberInputEvent(e);
@@ -623,6 +636,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     type="number"
                     step="0.01"
                     min={0}
+                    disabled={isContactPrice}
                     value={compareAtPrice === '' ? '' : compareAtPrice}
                     onChange={(e) => {
                       const sanitizedValue = sanitizeNumberInputEvent(e);
@@ -909,7 +923,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   name: 'name',
                   label: t('products.name', 'Product Name'),
                   value: '',
-                  onChange: () => {},
+                  onChange: () => { },
                   type: 'text',
                   placeholder: t('products.name_placeholder', 'Enter product name'),
                   required: false,
@@ -918,7 +932,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   name: 'description',
                   label: t('products.description', 'Description'),
                   value: '',
-                  onChange: () => {},
+                  onChange: () => { },
                   type: 'richtext',
                   placeholder: t('products.description_placeholder', 'Enter product description'),
                   required: false,
@@ -928,7 +942,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   name: 'shortDescription',
                   label: t('products.short_description', 'Short Description'),
                   value: '',
-                  onChange: () => {},
+                  onChange: () => { },
                   type: 'textarea',
                   placeholder: t('products.short_description_placeholder', 'Enter a short summary for product cards'),
                   required: false,
@@ -940,7 +954,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   name: 'slug',
                   label: t('products.slug', 'Slug'),
                   value: '',
-                  onChange: () => {},
+                  onChange: () => { },
                   type: 'text',
                   placeholder: t('products.slug_placeholder', 'product-slug'),
                   required: false,
@@ -950,7 +964,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   name: 'metaTitle',
                   label: t('products.meta_title', 'Meta Title'),
                   value: '',
-                  onChange: () => {},
+                  onChange: () => { },
                   type: 'text',
                   placeholder: t('products.meta_title_placeholder', 'Enter SEO title'),
                   required: false,
@@ -960,7 +974,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   name: 'metaDescription',
                   label: t('products.meta_description', 'Meta Description'),
                   value: '',
-                  onChange: () => {},
+                  onChange: () => { },
                   type: 'textarea',
                   placeholder: t('products.meta_description_placeholder', 'Enter SEO description'),
                   required: false,
@@ -971,7 +985,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   name: 'metaKeywords',
                   label: t('products.meta_keywords', 'Meta Keywords'),
                   value: '',
-                  onChange: () => {},
+                  onChange: () => { },
                   type: 'text',
                   placeholder: t('products.meta_keywords_placeholder', 'keyword1, keyword2'),
                   required: false,
@@ -1059,6 +1073,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     metaKeywords: product?.metaKeywords || '',
     price: product?.price || 0,
     compareAtPrice: product?.compareAtPrice ?? null,
+    isContactPrice: product?.isContactPrice || false,
     isFeatured: product?.isFeatured || false,
     enableWarehouseQuantity: enableWarehouseQuantity,
     warehouseQuantities: warehouseQuantities,
@@ -1082,6 +1097,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         compareAtPrice: variants.length === 0 ? normalizedCompareAtPrice : undefined,
         enableWarehouseQuantity: enableWarehouseQuantity,
         warehouseQuantities: warehouseQuantities,
+        isContactPrice: isContactPrice,
       };
 
       // Only include variants if there are any to avoid validation issues

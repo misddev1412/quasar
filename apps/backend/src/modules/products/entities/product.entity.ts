@@ -150,6 +150,14 @@ export class Product extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'is_contact_price',
+    type: 'boolean',
+    default: false,
+  })
+  isContactPrice: boolean;
+
+  @Expose()
+  @Column({
     name: 'is_active',
     type: 'boolean',
     default: true,

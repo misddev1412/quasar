@@ -120,12 +120,21 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
                 noWrap: true,
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
+                display: 'block',
               }}
               sx={{
                 opacity: collapsed ? 0 : 1,
                 color: (isActive || shouldHighlightParent)
                   ? theme => theme.palette.mode === 'dark' ? 'common.white' : 'primary.main'
                   : 'text.primary',
+                minWidth: 0,
+                flex: 1,
+                '& span': {
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  display: 'block'
+                }
               }}
             />
             {hasSubItems && (isExpanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />)}
@@ -167,7 +176,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
             subIndex={subIndex}
             level={0}
             expandedNodes={expandedNodes}
-            onToggleSubMenu={() => {}}
+            onToggleSubMenu={() => { }}
             onSubItemActiveCheck={onSubItemActiveCheck}
             onRegisterRef={onRegisterRef}
           />
@@ -191,7 +200,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
               subIndex={subIndex}
               level={0}
               expandedNodes={expandedNodes}
-              onToggleSubMenu={() => {}}
+              onToggleSubMenu={() => { }}
               onSubItemActiveCheck={onSubItemActiveCheck}
               onRegisterRef={onRegisterRef}
             />
@@ -203,10 +212,10 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
 
   return (
     <>
-      <ListItem 
-        ref={menuItemRef} 
+      <ListItem
+        ref={menuItemRef}
         data-menu-path={item.path}
-        disablePadding 
+        disablePadding
         sx={{
           display: 'block',
           mb: hasSubItems && collapsed ? 0.5 : (hasSubItems ? 0 : 0.5)
@@ -214,7 +223,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
       >
         {renderMainButton()}
       </ListItem>
-      
+
       {renderExpandedSubItems()}
       {renderCollapsedSubItems()}
     </>

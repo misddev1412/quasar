@@ -64,7 +64,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   onScrollToReviews,
 }) => {
   const t = useTranslations('product.detail');
-  const { name, brand, sku, status, isActive, variants, tags } = product;
+  const { name, brand, sku, status, isActive, variants, tags, isContactPrice } = product;
   const { formatCurrency } = useCurrencyFormatter({ currency: product.currencyCode });
 
   const currentPrice = selectedVariant?.price ||
@@ -127,17 +127,25 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       </div>
 
       <div className="space-y-2">
-        <PriceDisplay
-          price={currentPrice}
-          originalPrice={originalPrice}
-          size="lg"
-          className="text-3xl md:text-4xl"
-          currency={product.currencyCode}
-        />
-        {variants && variants.length > 1 && (
-          <p className={typography.meta}>
-            Starting from {formatCurrency(Math.min(...variants.map(v => v.price)))}
-          </p>
+        {isContactPrice ? (
+          <span className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+            Contact Price
+          </span>
+        ) : (
+          <>
+            <PriceDisplay
+              price={currentPrice}
+              originalPrice={originalPrice}
+              size="lg"
+              className="text-3xl md:text-4xl"
+              currency={product.currencyCode}
+            />
+            {variants && variants.length > 1 && (
+              <p className={typography.meta}>
+                Starting from {formatCurrency(Math.min(...variants.map(v => v.price)))}
+              </p>
+            )}
+          </>
         )}
       </div>
 
@@ -159,30 +167,30 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
         <div className="space-y-6">
           {variantAttributes.length > 0
             ? variantAttributes.map((attribute) => {
-                const attributeIndex = attributeIndexMap.get(attribute.attributeId) ?? 0;
-                const previousAttributeId = attributeIndex > 0
-                  ? variantAttributes[attributeIndex - 1]?.attributeId
-                  : undefined;
-                const hasPreviousSelection = previousAttributeId
-                  ? Boolean(selectedAttributes[previousAttributeId])
-                  : true;
-                const isActiveStep = attributeIndex === 0 || hasPreviousSelection;
-                const selectedValue = selectedAttributes[attribute.attributeId];
+              const attributeIndex = attributeIndexMap.get(attribute.attributeId) ?? 0;
+              const previousAttributeId = attributeIndex > 0
+                ? variantAttributes[attributeIndex - 1]?.attributeId
+                : undefined;
+              const hasPreviousSelection = previousAttributeId
+                ? Boolean(selectedAttributes[previousAttributeId])
+                : true;
+              const isActiveStep = attributeIndex === 0 || hasPreviousSelection;
+              const selectedValue = selectedAttributes[attribute.attributeId];
 
-                return (
-                  <AttributeSelector
-                    key={attribute.attributeId}
-                    attribute={attribute}
-                    selectedValue={selectedValue}
-                    disabled={!isActiveStep}
-                    isActiveStep={isActiveStep}
-                    isOptionDisabled={(valueId) =>
-                      isOptionDisabled(attribute.attributeId, valueId)
-                    }
-                    onSelect={onAttributeSelect}
-                  />
-                );
-              })
+              return (
+                <AttributeSelector
+                  key={attribute.attributeId}
+                  attribute={attribute}
+                  selectedValue={selectedValue}
+                  disabled={!isActiveStep}
+                  isActiveStep={isActiveStep}
+                  isOptionDisabled={(valueId) =>
+                    isOptionDisabled(attribute.attributeId, valueId)
+                  }
+                  onSelect={onAttributeSelect}
+                />
+              );
+            })
             : (
               <VariantSelector
                 variants={variants || []}
@@ -249,7 +257,11 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
             onPress={onAddToCart}
             isDisabled={!inStock || (hasAttributeBasedVariants && !selectedVariant)}
           >
-            {!inStock ? t('actions.outOfStock') : t('actions.addToCart')}
+            {!inStock
+              ? t('actions.outOfStock')
+              : isContactPrice
+                ? t('actions.addToQuote')
+                : t('actions.addToCart')}
           </Button>
 
           <Button

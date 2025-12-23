@@ -248,16 +248,16 @@
         "notifications": "Notifications",
         "settings": "Settings",
         "logout": "Log Out"
-    },
-    "menu": {
-      "open": "Open menu",
-      "close": "Close menu",
-      "megaMenu": {
-        "featuredProducts": "Featured Products",
-        "viewAll": "View All"
-      }
-    },
-    "search": {
+      },
+      "menu": {
+        "open": "Open menu",
+        "close": "Close menu",
+        "megaMenu": {
+          "featuredProducts": "Featured Products",
+          "viewAll": "View All"
+        }
+      },
+      "search": {
         "title": "Advanced product search",
         "subtitle": "Search the catalogue and surface the right items instantly.",
         "placeholder": "Search products...",
@@ -1250,7 +1250,8 @@
   },
   "ecommerce": {
     "product": {
-      "outOfStock": "Out of Stock"
+      "outOfStock": "Out of Stock",
+      "contactPrice": "Contact Price"
     },
     "checkout": {
       "title": "Checkout",
@@ -1316,41 +1317,41 @@
           "shipping": "Shipping",
           "payment": "Payment"
         },
-      "headings": {
-        "contact": "Contact Information",
-        "savedAddresses": "Saved Shipping Addresses",
-        "shippingAddress": "Shipping Address",
-        "billingAddress": "Billing Address",
-        "shippingMethod": "Shipping Method",
-        "orderNotes": "Order Notes (Optional)",
-        "paymentMethod": "Payment Method"
-      },
-      "auth": {
-        "loading": "Checking your account…",
-        "loggedIn": {
-          "title": "You're signed in as {name}",
-          "fallbackName": "your account",
-          "subtitle": "Order updates will be sent to {email}",
-          "subtitle_no_email": "Order updates will be sent to your account email"
+        "headings": {
+          "contact": "Contact Information",
+          "savedAddresses": "Saved Shipping Addresses",
+          "shippingAddress": "Shipping Address",
+          "billingAddress": "Billing Address",
+          "shippingMethod": "Shipping Method",
+          "orderNotes": "Order Notes (Optional)",
+          "paymentMethod": "Payment Method"
         },
-        "guest": {
-          "title": "Prefer to checkout as a guest?",
-          "description": "You can complete your purchase without creating an account, but signing in lets you track orders and save addresses."
+        "auth": {
+          "loading": "Checking your account…",
+          "loggedIn": {
+            "title": "You're signed in as {name}",
+            "fallbackName": "your account",
+            "subtitle": "Order updates will be sent to {email}",
+            "subtitle_no_email": "Order updates will be sent to your account email"
+          },
+          "guest": {
+            "title": "Prefer to checkout as a guest?",
+            "description": "You can complete your purchase without creating an account, but signing in lets you track orders and save addresses."
+          },
+          "actions": {
+            "login": "Sign in",
+            "register": "Create account"
+          },
+          "loginRequired": {
+            "title": "Sign in to continue",
+            "description": "You need an account to complete checkout. Sign in or create one to place your order."
+          }
         },
-        "actions": {
-          "login": "Sign in",
-          "register": "Create account"
-        },
-        "loginRequired": {
-          "title": "Sign in to continue",
-          "description": "You need an account to complete checkout. Sign in or create one to place your order."
-        }
-      },
-      "fields": {
-        "email": {
-          "label": "Email Address",
-          "placeholder": "your.email@example.com"
-        },
+        "fields": {
+          "email": {
+            "label": "Email Address",
+            "placeholder": "your.email@example.com"
+          },
           "orderNotes": {
             "label": "Special instructions for your order",
             "placeholder": "Any special delivery instructions or notes about your order"
@@ -1475,6 +1476,7 @@
     },
     "cart": {
       "add": "Add to Cart",
+      "addToQuote": "Add to Quote",
       "addAriaLabel": "Add to cart",
       "outOfStock": "Out of Stock",
       "adding": "Adding...",
@@ -1622,6 +1624,7 @@
       },
       "actions": {
         "addToCart": "Add to Cart",
+        "addToQuote": "Add to Quote",
         "outOfStock": "Out of Stock",
         "buyNow": "Buy Now",
         "quickView": "Quick View",

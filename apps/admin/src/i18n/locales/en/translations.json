@@ -12,6 +12,145 @@
     "stats": {
       "active": "Active",
       "total": "Total"
+    },
+    "navigation": {
+      "overview": "Overview",
+      "dashboard": "Dashboard",
+      "people_access": "People & Access",
+      "content_experience": "Content & Experience",
+      "commerce": "Commerce",
+      "sales_operations": "Sales & Operations",
+      "mail_management": "Mail Management",
+      "communication_support": "Communication & Support",
+      "platform_settings": "Platform Settings",
+      "notifications": "Notifications",
+      "notification_flows": "Notification Flows",
+      "messages": "Messages",
+      "storage": "Storage",
+      "firebase_configs": "Firebase Configs",
+      "settings": "Settings",
+      "general_settings": "General Settings",
+      "maintenance_settings": "Maintenance Settings",
+      "order_settings": "Order Settings",
+      "settings_visibility": "Settings Visibility",
+      "help": "Help"
+    },
+    "admin": {
+      "user_dashboard": "User Dashboard",
+      "user_management": "User Management",
+      "user_list": "User List",
+      "manage_roles": "Manage Roles",
+      "manage_permissions": "Manage Permissions",
+      "posts_management": "Posts Management",
+      "posts_list": "Posts List",
+      "categories": "Categories",
+      "tags": "Tags",
+      "sections": "Sections",
+      "menus": "Menu Management",
+      "seo_management": "SEO Management",
+      "translations": "Translations",
+      "mail_templates": "Mail Templates",
+      "mail_providers": "Mail Providers",
+      "email_flows": "Mail Channel Priority",
+      "telegram_configs": "Telegram Configs"
+    },
+    "siteContent": {
+      "navigation": {
+        "title": "Site Content",
+        "list": "All Pages"
+      }
+    },
+    "componentConfigs": {
+      "navigation": "Component Library"
+    },
+    "storefront": {
+      "checkout": {
+        "nav": "Checkout Storefront"
+      },
+      "footer": {
+        "nav": "Footer Builder"
+      }
+    },
+    "products": {
+      "title": "Products"
+    },
+    "brands": {
+      "title": "Brands"
+    },
+    "categories": {
+      "title": "Categories"
+    },
+    "attributes": {
+      "title": "Attributes"
+    },
+    "suppliers": {
+      "title": "Suppliers"
+    },
+    "loyalty": {
+      "navigation": {
+        "title": "Loyalty Program",
+        "overview": "Overview",
+        "dashboard": "Dashboard",
+        "tiers": "Tiers",
+        "rewards": "Rewards",
+        "transactions": "Transactions"
+      }
+    },
+    "orders": {
+      "title": "Orders"
+    },
+    "fulfillments": {
+      "title": "Fulfillments"
+    },
+    "customers": {
+      "title": "Customers"
+    },
+    "warehouses": {
+      "title": "Warehouses"
+    },
+    "warehouse_locations": {
+      "title": "Warehouse Locations"
+    },
+    "payment_methods": {
+      "title": "Payment Methods"
+    },
+    "transactions": {
+      "title": "Transactions"
+    },
+    "delivery_methods": {
+      "title": "Delivery Methods"
+    },
+    "mail_logs": {
+      "title": "Mail Logs"
+    },
+    "support_clients": {
+      "title": "Support Clients"
+    },
+    "visitor_analytics": {
+      "title": "Visitor Analytics"
+    },
+    "languages": {
+      "languages": "Languages"
+    },
+    "currencies": {
+      "currencies": "Currencies"
+    },
+    "shippingProviders": {
+      "shippingProviders": "Shipping Providers"
+    },
+    "brand": {
+      "assets_title": "Brand Assets"
+    },
+    "analytics": {
+      "title": "Analytics"
+    },
+    "settings": {
+      "branding": {
+        "nav": "Admin Branding"
+      }
+    },
+    "floating_icons": {
+      "navigation": "Floating Icons"
     }
   }
 }

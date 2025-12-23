@@ -166,6 +166,7 @@ export interface Product {
   enableWarehouseQuantity: boolean;
   warehouseQuantities?: ProductWarehouseQuantity[];
   isActive: boolean;
+  isContactPrice: boolean;
   isFeatured: boolean;
   isDigital?: boolean;
   sortOrder: number;
@@ -377,6 +378,8 @@ export interface CreateProductFormData {
   metaTitle?: string;
   metaDescription?: string;
   metaKeywords?: string;
+
+  isContactPrice: boolean;
   isFeatured: boolean;
 }
 

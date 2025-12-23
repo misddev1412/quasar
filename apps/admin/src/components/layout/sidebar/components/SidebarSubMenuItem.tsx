@@ -99,13 +99,12 @@ const SidebarSubMenuItem: React.FC<SidebarSubMenuItemProps> = ({
           px: 0.5,
           position: 'relative',
           borderRadius: '6px',
-          border: theme => `1px solid ${
-            isActive
+          border: theme => `1px solid ${isActive
               ? 'transparent'
               : theme.palette.mode === 'dark'
                 ? 'rgba(255, 255, 255, 0.08)'
                 : 'rgba(0, 0, 0, 0.08)'
-          }`,
+            }`,
           backgroundColor: theme =>
             isActive
               ? undefined
@@ -213,14 +212,22 @@ const SidebarSubMenuItem: React.FC<SidebarSubMenuItemProps> = ({
         primaryTypographyProps={{
           fontSize: 13,
           fontWeight: isActive ? 'medium' : 'normal',
-          noWrap: true,
           overflow: 'hidden',
           textOverflow: 'ellipsis',
+          display: 'block',
         }}
         sx={{
           color: isActive
             ? theme => theme.palette.mode === 'dark' ? 'common.white' : 'primary.main'
             : 'text.primary',
+          minWidth: 0,
+          flex: 1,
+          '& span': {
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            display: 'block'
+          }
         }}
       />
       {hasSubItems && (isExpanded ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />)}

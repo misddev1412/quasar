@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiTrash2, FiMail, FiHome, FiActivity } from 'react-icons/fi';
+import { useTranslation } from 'react-i18next';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { Table, Column } from '../../components/common/Table';
 import { Button } from '../../components/common/Button';
@@ -25,27 +26,6 @@ type MailProviderListItem = {
   updatedAt?: string | null;
 };
 
-const PROVIDER_TYPE_LABELS: Record<string, string> = {
-  smtp: 'SMTP',
-  sendgrid: 'SendGrid',
-  mailgun: 'Mailgun',
-  ses: 'Amazon SES',
-  postmark: 'Postmark',
-  mandrill: 'Mandrill',
-  custom: 'Custom',
-};
-
-const PROVIDER_TYPE_FILTER_OPTIONS = [
-  { value: 'all', label: 'All provider types' },
-  ...Object.entries(PROVIDER_TYPE_LABELS).map(([value, label]) => ({ value, label })),
-];
-
-const STATUS_FILTER_OPTIONS = [
-  { value: 'all', label: 'All statuses' },
-  { value: 'true', label: 'Active' },
-  { value: 'false', label: 'Inactive' },
-];
-
 const DEFAULT_VISIBLE_COLUMNS = [
   'name',
   'providerType',
@@ -67,6 +47,7 @@ const parseNumberParam = (value: string | null, fallback: number): number => {
 };
 
 const MailProviderIndexPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { addToast } = useToast();
@@ -102,6 +83,19 @@ const MailProviderIndexPage: React.FC = () => {
   const statusParam = searchParams.get('isActive');
   const providerTypeParam = searchParams.get('providerType');
 
+  const PROVIDER_TYPES = ['smtp', 'sendgrid', 'mailgun', 'ses', 'postmark', 'mandrill', 'custom'];
+
+  const PROVIDER_TYPE_FILTER_OPTIONS = useMemo(() => [
+    { value: 'all', label: t('mail_providers.filters.all_types') },
+    ...PROVIDER_TYPES.map((type) => ({ value: type, label: t(`mail_providers.types.${type}`) })),
+  ], [t]);
+
+  const STATUS_FILTER_OPTIONS = useMemo(() => [
+    { value: 'all', label: t('mail_providers.filters.all_statuses') },
+    { value: 'true', label: t('mail_providers.filters.active') },
+    { value: 'false', label: t('mail_providers.filters.inactive') },
+  ], [t]);
+
   const filters = useMemo(() => ({
     page,
     limit,
@@ -126,7 +120,7 @@ const MailProviderIndexPage: React.FC = () => {
 
   const deleteMutation = trpc.adminMailProvider.deleteProvider.useMutation({
     onSuccess: () => {
-      addToast({ title: 'Success', description: 'Mail provider deleted successfully', type: 'success' });
+      addToast({ title: 'Success', description: t('mail_providers.success_deleted'), type: 'success' });
       refetch();
       setShowDeleteModal(false);
       setProviderToDelete(null);
@@ -142,14 +136,14 @@ const MailProviderIndexPage: React.FC = () => {
       if (testResult?.success) {
         addToast({
           type: 'success',
-          title: 'Connection Test Successful',
-          description: testResult.message || 'Connection test passed successfully',
+          title: t('mail_providers.test_success_title'),
+          description: testResult.message || t('mail_providers.test_success_default'),
         });
       } else {
         addToast({
           type: 'error',
-          title: 'Connection Test Failed',
-          description: testResult?.message || 'Connection test failed',
+          title: t('mail_providers.test_failed_title'),
+          description: testResult?.message || t('mail_providers.test_failed_default'),
         });
       }
       setTestingProviderId(null);
@@ -157,8 +151,8 @@ const MailProviderIndexPage: React.FC = () => {
     onError: (error) => {
       addToast({
         type: 'error',
-        title: 'Connection Test Failed',
-        description: error.message || 'Failed to test connection',
+        title: t('mail_providers.test_failed_title'),
+        description: error.message || t('mail_providers.test_failed_generic'),
       });
       setTestingProviderId(null);
     },
@@ -238,14 +232,14 @@ const MailProviderIndexPage: React.FC = () => {
     if (!provider) {
       addToast({
         type: 'error',
-        title: 'Provider not found',
-        description: 'Unable to initiate test for this provider.',
+        title: t('mail_providers.provider_not_found'),
+        description: t('mail_providers.provider_not_found_desc'),
       });
       return;
     }
     setSelectedTestProvider(provider);
     setIsTestDialogOpen(true);
-  }, [addToast]);
+  }, [addToast, t]);
 
   const handleRowTestClick = useCallback((provider: MailProviderListItem) => {
     openTestDialog(provider);
@@ -261,8 +255,8 @@ const MailProviderIndexPage: React.FC = () => {
     if (!selectedTestProvider) {
       addToast({
         type: 'error',
-        title: 'Provider unavailable',
-        description: 'Unable to determine which provider to test.',
+        title: t('mail_providers.provider_unavailable'),
+        description: t('mail_providers.provider_unavailable_desc'),
       });
       return;
     }
@@ -279,7 +273,7 @@ const MailProviderIndexPage: React.FC = () => {
         },
       }
     );
-  }, [addToast, handleCloseTestDialog, selectedTestProvider, testConnectionMutation, testEmail]);
+  }, [addToast, handleCloseTestDialog, selectedTestProvider, testConnectionMutation, testEmail, t]);
 
   const paginationMeta = useMemo(() => (
     (providersData as any)?.data || {
@@ -295,52 +289,52 @@ const MailProviderIndexPage: React.FC = () => {
   const columns: Column<MailProviderListItem>[] = useMemo(() => [
     {
       id: 'name',
-      header: 'Name',
+      header: t('mail_providers.table.name'),
       accessor: 'name',
       isSortable: true,
     },
     {
       id: 'providerType',
-      header: 'Provider Type',
+      header: t('mail_providers.table.type'),
       accessor: 'providerType',
       render: (value: MailProviderListItem['providerType']) => {
         const label = typeof value === 'string'
-          ? PROVIDER_TYPE_LABELS[value.toLowerCase()] || value
-          : 'Unknown';
+          ? t(`mail_providers.types.${value.toLowerCase()}`, { defaultValue: value })
+          : t('mail_providers.table.unknown');
         return <Badge variant="secondary">{label}</Badge>;
       },
     },
     {
       id: 'defaultFromEmail',
-      header: 'From Email',
+      header: t('mail_providers.table.from_email'),
       accessor: 'defaultFromEmail',
       className: 'max-w-xs truncate',
     },
     {
       id: 'isActive',
-      header: 'Status',
+      header: t('mail_providers.table.status'),
       accessor: 'isActive',
       render: (value: boolean) => (
         <Badge variant={value ? 'success' : 'destructive'}>
-          {value ? 'Active' : 'Inactive'}
+          {value ? t('mail_providers.table.active') : t('mail_providers.table.inactive')}
         </Badge>
       ),
     },
     {
       id: 'priority',
-      header: 'Priority',
+      header: t('mail_providers.table.priority'),
       accessor: 'priority',
       align: 'center',
     },
     {
       id: 'updatedAt',
-      header: 'Updated',
+      header: t('mail_providers.table.updated_at'),
       accessor: 'updatedAt',
       type: 'datetime',
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('mail_providers.table.actions'),
       accessor: 'id',
       hideable: false,
       render: (_: unknown, row: MailProviderListItem) => (
@@ -352,8 +346,8 @@ const MailProviderIndexPage: React.FC = () => {
               e.stopPropagation();
               handleRowTestClick(row);
             }}
-            title="Test Connection"
-            aria-label="Test Connection"
+            title={t('mail_providers.test_connection')}
+            aria-label={t('mail_providers.test_connection')}
           >
             <FiActivity className="h-4 w-4" />
           </Button>
@@ -364,7 +358,7 @@ const MailProviderIndexPage: React.FC = () => {
               e.stopPropagation();
               navigate(`/mail-providers/${row.id}/edit`);
             }}
-            title="Edit"
+            title={t('mail_providers.edit')}
           >
             <FiEdit2 className="h-4 w-4" />
           </Button>
@@ -375,23 +369,23 @@ const MailProviderIndexPage: React.FC = () => {
               e.stopPropagation();
               handleDeleteClick(row);
             }}
-            title="Delete"
+            title={t('mail_providers.delete')}
           >
             <FiTrash2 className="h-4 w-4" />
           </Button>
         </div>
       ),
     },
-  ], [handleDeleteClick, handleRowTestClick, navigate]);
+  ], [handleDeleteClick, handleRowTestClick, navigate, t]);
 
   const actions = useMemo(() => [
     {
-      label: 'Create Provider',
+      label: t('mail_providers.create'),
       onClick: () => navigate('/mail-providers/create'),
       primary: true,
       icon: <FiPlus className="h-4 w-4" />,
     },
-  ], [navigate]);
+  ], [navigate, t]);
 
   const breadcrumbs = useMemo(() => ([
     {
@@ -400,22 +394,22 @@ const MailProviderIndexPage: React.FC = () => {
       icon: <FiHome className="h-4 w-4" />,
     },
     {
-      label: 'Mail Providers',
+      label: t('mail_providers.list_title'),
       icon: <FiMail className="h-4 w-4" />,
     },
-  ]), []);
+  ]), [t]);
 
   return (
     <BaseLayout
-      title="Mail Providers"
-      description="Manage the providers powering transactional emails."
+      title={t('mail_providers.title')}
+      description={t('mail_providers.description')}
       actions={actions}
       breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
         {error && (
           <Alert variant="destructive">
-            <AlertTitle>Unable to load mail providers</AlertTitle>
+            <AlertTitle>{t('mail_providers.load_error')}</AlertTitle>
             <AlertDescription>{error.message}</AlertDescription>
           </Alert>
         )}
@@ -424,13 +418,13 @@ const MailProviderIndexPage: React.FC = () => {
           <Card>
             <div className="grid gap-4 md:grid-cols-2">
               <Select
-                label="Status"
+                label={t('mail_providers.filters.status_label')}
                 value={statusParam ?? 'all'}
                 onChange={handleStatusFilterChange}
                 options={STATUS_FILTER_OPTIONS}
               />
               <Select
-                label="Provider Type"
+                label={t('mail_providers.filters.type_label')}
                 value={providerTypeParam ?? 'all'}
                 onChange={handleProviderTypeChange}
                 options={PROVIDER_TYPE_FILTER_OPTIONS}
@@ -438,10 +432,10 @@ const MailProviderIndexPage: React.FC = () => {
             </div>
             <div className="mt-4 flex flex-wrap justify-end gap-3">
               <Button variant="secondary" onClick={handleResetFilters}>
-                Reset filters
+                {t('mail_providers.filters.reset')}
               </Button>
               <Button variant="ghost" onClick={() => setShowFilters(false)}>
-                Hide filters
+                {t('mail_providers.filters.hide')}
               </Button>
             </div>
           </Card>
@@ -456,7 +450,7 @@ const MailProviderIndexPage: React.FC = () => {
           onSearchChange={handleSearchChange}
           onFilterClick={() => setShowFilters((prev) => !prev)}
           isFilterActive={showFilters || hasActiveFilters}
-          searchPlaceholder="Search by provider name or email"
+          searchPlaceholder={t('mail_providers.filters.search_placeholder')}
           visibleColumns={visibleColumns}
           onColumnVisibilityChange={handleColumnVisibilityChange}
           showColumnVisibility
@@ -470,9 +464,9 @@ const MailProviderIndexPage: React.FC = () => {
             onPageChange: handlePageChange,
             onItemsPerPageChange: handleItemsPerPageChange,
           }}
-          emptyMessage="No mail providers found."
+          emptyMessage={t('mail_providers.empty_message')}
           emptyAction={{
-            label: 'Create Provider',
+            label: t('mail_providers.create'),
             onClick: () => navigate('/mail-providers/create'),
             icon: <FiPlus className="h-4 w-4" />,
           }}
@@ -482,19 +476,19 @@ const MailProviderIndexPage: React.FC = () => {
           isOpen={showDeleteModal}
           onClose={() => setShowDeleteModal(false)}
           onConfirm={confirmDelete}
-          title="Delete Mail Provider"
-          message={`Are you sure you want to delete "${providerToDelete?.name}"?`}
+          title={t('mail_providers.delete_title')}
+          message={t('mail_providers.delete_confirm', { name: providerToDelete?.name })}
           confirmVariant="danger"
-          confirmText="Delete"
-          cancelText="Cancel"
+          confirmText={t('mail_providers.delete_button')}
+          cancelText={t('mail_providers.cancel_button')}
           isLoading={deleteMutation.isPending}
         />
 
         <Dialog open={isTestDialogOpen} onOpenChange={(open) => (open ? setIsTestDialogOpen(true) : handleCloseTestDialog())}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Test Mail Provider Connection</DialogTitle>
-              <DialogDescription>Review the provider details below and optionally send a test email.</DialogDescription>
+              <DialogTitle>{t('mail_providers.test_title')}</DialogTitle>
+              <DialogDescription>{t('mail_providers.test_description')}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-900/40">
@@ -503,46 +497,46 @@ const MailProviderIndexPage: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {selectedTestProvider.name || 'Untitled Provider'}
+                          {selectedTestProvider.name || t('mail_providers.untitled_provider')}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {selectedTestProvider.defaultFromEmail || 'No default email configured'}
+                          {selectedTestProvider.defaultFromEmail || t('mail_providers.no_default_email')}
                         </p>
                       </div>
                       <Badge variant="secondary">
-                        {PROVIDER_TYPE_LABELS[selectedTestProvider.providerType?.toLowerCase() as keyof typeof PROVIDER_TYPE_LABELS] ||
-                          selectedTestProvider.providerType ||
-                          'Custom'}
+                        {t(`mail_providers.types.${selectedTestProvider.providerType?.toLowerCase()}`, {
+                          defaultValue: selectedTestProvider.providerType || t('mail_providers.types.custom')
+                        })}
                       </Badge>
                     </div>
                     {typeof selectedTestProvider.priority === 'number' && (
                       <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        Priority: {selectedTestProvider.priority}
+                        {t('mail_providers.priority_label', { priority: selectedTestProvider.priority })}
                       </p>
                     )}
                   </>
                 ) : (
-                  <p className="text-sm text-gray-500">No provider selected.</p>
+                  <p className="text-sm text-gray-500">{t('mail_providers.no_provider_selected')}</p>
                 )}
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-200" htmlFor="test-email-input">
-                  Test Email (optional)
+                  {t('mail_providers.test_email_label')}
                 </label>
                 <Input
                   id="test-email-input"
                   type="email"
                   value={testEmail}
                   onChange={(event) => setTestEmail(event.target.value)}
-                  placeholder="name@example.com"
+                  placeholder={t('mail_providers.test_email_placeholder')}
                   inputSize="md"
                 />
-                <p className="text-xs text-gray-500">Leave blank to run a connection check without sending an email.</p>
+                <p className="text-xs text-gray-500">{t('mail_providers.test_email_help')}</p>
               </div>
             </div>
             <DialogFooter>
               <Button variant="ghost" onClick={handleCloseTestDialog} disabled={testConnectionMutation.isPending}>
-                Cancel
+                {t('mail_providers.cancel_button')}
               </Button>
               <Button
                 variant="primary"
@@ -550,7 +544,7 @@ const MailProviderIndexPage: React.FC = () => {
                 disabled={!selectedTestProvider || testConnectionMutation.isPending}
                 isLoading={Boolean(selectedTestProvider && testConnectionMutation.isPending && testingProviderId === selectedTestProvider.id)}
               >
-                Run Test
+                {t('mail_providers.run_test')}
               </Button>
             </DialogFooter>
           </DialogContent>

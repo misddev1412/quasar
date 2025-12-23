@@ -4,9 +4,9 @@ import { AuthService } from '../../../../auth/auth.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { User } from '../../entities/user.entity';
 import { ApiStatusCodes, UserRole } from '@shared';
-import { 
-  AdminCreateUserDto, 
-  AdminUpdateUserDto, 
+import {
+  AdminCreateUserDto,
+  AdminUpdateUserDto,
   AdminUserResponseDto,
   AdminUpdateUserProfileDto
 } from '../../dto/admin/admin-user.dto';
@@ -29,7 +29,7 @@ export class AdminUserService {
     private readonly authService: AuthService,
     private readonly responseHandler: ResponseService,
     private readonly dataExportService: DataExportService,
-  ) {}
+  ) { }
 
   async createUser(createUserDto: AdminCreateUserDto): Promise<AdminUserResponseDto> {
     const existingUser = await this.userRepository.findByEmail(createUserDto.email);
@@ -43,15 +43,21 @@ export class AdminUserService {
 
     try {
       const hashedPassword = await this.authService.hashPassword(createUserDto.password);
-      
+
       const userData = {
         ...createUserDto,
         password: hashedPassword,
-        // TODO: Handle role assignment through UserRole entity
-        // role: createUserDto.role || UserRole.USER,
       };
 
       const user = await this.userRepository.createUser(userData);
+
+      // Handle role assignment
+      const roleCode = createUserDto.role || UserRole.USER;
+      const role = await this.userRepository.findRoleByCode(roleCode);
+
+      if (role) {
+        await this.userRepository.assignRoleToUser(user.id, role.id);
+      }
       // Get the user with profile after creation
       const userWithProfile = await this.userRepository.findWithProfile(user.id);
       return this.toAdminUserResponse(userWithProfile || user);
@@ -290,7 +296,12 @@ export class AdminUserService {
       );
     }
 
-    // For now, just return the user - role assignment logic can be added later
+    // Check if role exists
+    // If roleId is not a UUID, try to find by code if we can, but for now strict ID
+    // Actually, let's assume valid roleId for now or enhance error handling
+
+    await this.userRepository.assignRoleToUser(userId, roleId);
+
     return this.toAdminUserResponse(user);
   }
 

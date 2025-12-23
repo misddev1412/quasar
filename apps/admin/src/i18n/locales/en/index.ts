@@ -14,6 +14,7 @@ import navigation from './navigation.json';
 import form from './form.json';
 import notifications from './notifications.json';
 import misc from './misc.json';
+import mail_providers from './mail_providers.json';
 
 export default {
   ...common,
@@ -32,4 +33,5 @@ export default {
   ...form,
   ...notifications,
   ...misc,
+  ...mail_providers,
 };

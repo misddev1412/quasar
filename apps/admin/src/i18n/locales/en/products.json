@@ -799,6 +799,8 @@
     "sale_price_description": "Optional promotional price shown to customers. Leave blank to use the regular price.",
     "compare_at_price": "Compare at Price",
     "compare_at_price_help": "Original price to show as crossed out",
+    "contact_price": "Contact Price",
+    "contact_price_help": "Hide price and show \"Contact for price\"",
     "cost_price": "Cost Price",
     "cost_price_help": "Your cost for this variant",
     "inventory": "Inventory",

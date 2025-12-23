@@ -802,6 +802,8 @@
     "price_description": "Giá bán cơ bản cho sản phẩm không có biến thể.",
     "compare_at_price": "Giá so sánh",
     "compare_at_price_help": "Giá gốc để hiển thị bị gạch ngang",
+    "contact_price": "Liên hệ báo giá",
+    "contact_price_help": "Ẩn giá và hiển thị \"Liên hệ báo giá\"",
     "cost_price": "Giá vốn",
     "cost_price_help": "Chi phí của bạn cho biến thể này",
     "inventory": "Tồn kho",

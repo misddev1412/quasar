@@ -21,6 +21,7 @@ export interface Product {
   metaDescription?: string;
   metaKeywords?: string;
   isActive?: boolean;
+  isContactPrice?: boolean;
   isFeatured?: boolean;
   sortOrder?: number;
   brand?: Record<string, unknown>;

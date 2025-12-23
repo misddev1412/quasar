@@ -41,6 +41,11 @@
     },
     "sequence_warning": "Khuyến nghị thêm {{SEQn}} để đảm bảo mã không trùng.",
     "settings_visibility": "Hiển thị cài đặt",
+    "people_access": "Người dùng & Quyền",
+    "content_experience": "Nội dung & Trải nghiệm",
+    "commerce": "Thương mại",
+    "sales_operations": "Bán hàng & Vận hành",
+    "communication_support": "Liên lạc & Hỗ trợ",
     "platform_settings": "Thiết lập hệ thống"
   },
   "sidebar": {

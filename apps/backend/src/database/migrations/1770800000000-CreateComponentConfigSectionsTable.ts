@@ -9,11 +9,15 @@ export class CreateComponentConfigSectionsTable1770800000000 implements Migratio
     await queryRunner.query(`ALTER TABLE "component_configs" DROP COLUMN IF EXISTS "section_id"`);
 
     await queryRunner.query(`
-      DO $$ BEGIN
-        ALTER TABLE "component_configs"
-        ADD CONSTRAINT "component_configs_component_key_key" UNIQUE ("component_key");
-      EXCEPTION
-        WHEN duplicate_object THEN NULL;
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_class c
+          WHERE c.relname = 'component_configs_component_key_key'
+        ) THEN
+          ALTER TABLE "component_configs"
+          ADD CONSTRAINT "component_configs_component_key_key" UNIQUE ("component_key");
+        END IF;
       END $$;
     `);
 

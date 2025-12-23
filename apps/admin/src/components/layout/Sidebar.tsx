@@ -46,13 +46,13 @@ const Sidebar: React.FC = () => {
   const { sidebarCollapsed } = config;
   const { t } = useTranslationWithBackend();
   const { logout } = useAuth();
-  
+
   // Domain services
   const navigationService: INavigationService = new NavigationService(t);
-  
+
   // State
   const [menuCollapseState, setMenuCollapseState] = useState<Record<string, boolean>>({});
-  
+
   // Refs for scrolling to active menu items
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeMenuItemRefs = useRef<Map<string, HTMLElement>>(new Map());
@@ -61,7 +61,7 @@ const Sidebar: React.FC = () => {
   const isProgrammaticExpandRef = useRef<boolean>(false);
   const timeoutIdsRef = useRef<NodeJS.Timeout[]>([]);
   const hasScrolledOnMountRef = useRef<boolean>(false);
-  
+
   // Get menu configuration from domain service
   const menuGroups = navigationService.getMenuGroups();
 
@@ -77,10 +77,10 @@ const Sidebar: React.FC = () => {
   const handleToggleSubMenu = (item: any) => {
     // Check if the item being expanded contains the active route
     const containsActiveItem = item.subItems?.some((subItem: any) => isActiveRoute(subItem.path));
-    
+
     // Mark that user is expanding a menu (only scroll if it contains active item)
     isUserExpandingRef.current = !containsActiveItem;
-    
+
     const newState = navigationService.toggleSubMenu(item, menuCollapseState);
     setMenuCollapseState(newState);
   };
@@ -104,17 +104,17 @@ const Sidebar: React.FC = () => {
   // Function to scroll to an element
   const scrollToElement = (element: HTMLElement) => {
     if (!scrollContainerRef.current) return;
-    
+
     const container = scrollContainerRef.current;
     const containerRect = container.getBoundingClientRect();
     const elementRect = element.getBoundingClientRect();
-    
+
     const elementTopRelativeToContainer = elementRect.top - containerRect.top + container.scrollTop;
     const elementHeight = elementRect.height;
     const containerHeight = containerRect.height;
-    
+
     const targetScrollTop = elementTopRelativeToContainer - (containerHeight / 2) + (elementHeight / 2);
-    
+
     container.scrollTo({
       top: Math.max(0, Math.min(targetScrollTop, container.scrollHeight - containerHeight)),
       behavior: 'smooth',
@@ -125,7 +125,7 @@ const Sidebar: React.FC = () => {
   const registerMenuItemRef = (path: string, element: HTMLElement | null) => {
     if (element) {
       activeMenuItemRefs.current.set(path, element);
-      
+
       // If this is the active item and we haven't scrolled on mount yet, scroll to it
       if (isActiveRoute(path) && !hasScrolledOnMountRef.current && scrollContainerRef.current) {
         // Small delay to ensure container is ready
@@ -158,7 +158,7 @@ const Sidebar: React.FC = () => {
   // Scroll to active menu item on mount (fallback if registerMenuItemRef didn't trigger)
   useEffect(() => {
     if (hasScrolledOnMountRef.current) return;
-    
+
     const attemptScroll = () => {
       // Find the active menu item path
       let activeItemInfo: { path: string; parentPath?: string } | null = null;
@@ -173,7 +173,7 @@ const Sidebar: React.FC = () => {
       if (!activeItemInfo) return;
 
       const activePath = activeItemInfo.path;
-      
+
       // Try to find the active element
       let activeElement: HTMLElement | null = activeMenuItemRefs.current.get(activePath) || null;
 
@@ -195,7 +195,7 @@ const Sidebar: React.FC = () => {
       setTimeout(attemptScroll, 1000),
       setTimeout(attemptScroll, 1500),
     ];
-    
+
     timeoutIdsRef.current.push(...timeouts);
 
     return () => {
@@ -208,12 +208,12 @@ const Sidebar: React.FC = () => {
     const pathnameChanged = lastPathnameRef.current !== location.pathname;
     const wasProgrammaticExpand = isProgrammaticExpandRef.current;
     lastPathnameRef.current = location.pathname;
-    
+
     // Skip first mount - handled by separate useEffect
     if (!hasScrolledOnMountRef.current) {
       return;
     }
-    
+
     // Only scroll if pathname changed, or if user expanded a menu containing active item
     // Don't scroll if user expanded a different menu
     if (!pathnameChanged && isUserExpandingRef.current && !wasProgrammaticExpand) {
@@ -222,59 +222,59 @@ const Sidebar: React.FC = () => {
       isProgrammaticExpandRef.current = false;
       return;
     }
-    
+
     // If this is a programmatic expand (from scrollToActiveItem), allow scroll to continue
     // Also scroll when pathname changed
     const shouldScroll = pathnameChanged || wasProgrammaticExpand;
-    
+
     // Reset user expanding flag
     isUserExpandingRef.current = false;
-    
+
     // Don't scroll if pathname didn't change and it's not a programmatic expand
     if (!shouldScroll) {
       isProgrammaticExpandRef.current = false;
       return;
     }
-    
+
     // Find the active menu item path
-      let activeItemInfo: { path: string; parentPath?: string } | null = null;
-      for (const group of menuGroups) {
-        const found = findActiveItemPath(group.items);
-        if (found) {
-          activeItemInfo = found;
-          break;
-        }
+    let activeItemInfo: { path: string; parentPath?: string } | null = null;
+    for (const group of menuGroups) {
+      const found = findActiveItemPath(group.items);
+      if (found) {
+        activeItemInfo = found;
+        break;
       }
+    }
 
     if (!activeItemInfo) {
       isProgrammaticExpandRef.current = false;
       return;
     }
 
-      const activePath = activeItemInfo.path;
-      
+    const activePath = activeItemInfo.path;
+
     // Ensure parent menu is expanded if there's an active sub-item
     if (activeItemInfo.parentPath && !menuCollapseState[activeItemInfo.parentPath]) {
       // Find the parent item and expand it programmatically
-        for (const group of menuGroups) {
-          for (const item of group.items) {
-            if (item.path === activeItemInfo.parentPath) {
+      for (const group of menuGroups) {
+        for (const item of group.items) {
+          if (item.path === activeItemInfo.parentPath) {
             expandMenuProgrammatically(item);
             // Will retry after expansion via menuCollapseState change
-              return;
-            }
+            return;
           }
         }
       }
+    }
 
     // Try to find the active element
     let activeElement: HTMLElement | null = activeMenuItemRefs.current.get(activePath) || null;
 
-      if (!activeElement && scrollContainerRef.current) {
-        activeElement = scrollContainerRef.current.querySelector(
-          `[data-menu-path="${activePath}"]`
-        ) as HTMLElement;
-      }
+    if (!activeElement && scrollContainerRef.current) {
+      activeElement = scrollContainerRef.current.querySelector(
+        `[data-menu-path="${activePath}"]`
+      ) as HTMLElement;
+    }
 
     if (activeElement && scrollContainerRef.current) {
       scrollToElement(activeElement);
@@ -282,7 +282,7 @@ const Sidebar: React.FC = () => {
     } else {
       // If element not found, try again after a short delay
       const timeoutId = setTimeout(() => {
-        const retryElement = activeMenuItemRefs.current.get(activePath) || 
+        const retryElement = activeMenuItemRefs.current.get(activePath) ||
           scrollContainerRef.current?.querySelector(`[data-menu-path="${activePath}"]`) as HTMLElement;
         if (retryElement) {
           scrollToElement(retryElement);
@@ -321,21 +321,21 @@ const Sidebar: React.FC = () => {
   const drawer = (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
       {/* Logo and collapse button */}
-      <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
+      <Box sx={{
+        display: 'flex',
+        alignItems: 'center',
         justifyContent: 'space-between',
         padding: sidebarCollapsed ? 0 : 2,
-        height: '64px', 
+        height: '64px',
         position: 'relative'
       }}>
         <Logo collapsed={sidebarCollapsed} />
         {!sidebarCollapsed && (
           <Tooltip title={t('sidebar.collapseSidebar', 'Collapse Sidebar')}>
-            <IconButton 
-              onClick={toggleSidebar} 
-              size="small" 
-              sx={{ 
+            <IconButton
+              onClick={toggleSidebar}
+              size="small"
+              sx={{
                 color: 'text.secondary',
                 backgroundColor: theme => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)',
                 '&:hover': {
@@ -388,14 +388,14 @@ const Sidebar: React.FC = () => {
       )}
 
       <Divider />
-      
+
       {/* Search Component */}
       <SidebarSearch
         menuGroups={menuGroups}
         collapsed={sidebarCollapsed}
         onToggleSidebar={toggleSidebar}
       />
-      
+
       {/* Theme toggle button */}
       {sidebarCollapsed ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1, mb: 1 }}>
@@ -432,18 +432,18 @@ const Sidebar: React.FC = () => {
             <ListItemIcon sx={{ minWidth: 0, mr: 3, color: 'text.secondary' }}>
               {isDarkMode ? <LightModeIcon /> : <DarkModeIcon />}
             </ListItemIcon>
-            <ListItemText 
-              primary={isDarkMode ? t('sidebar.switchToLightMode', 'Switch to Light Mode') : t('sidebar.switchToDarkMode', 'Switch to Dark Mode')} 
+            <ListItemText
+              primary={isDarkMode ? t('sidebar.switchToLightMode', 'Switch to Light Mode') : t('sidebar.switchToDarkMode', 'Switch to Dark Mode')}
               primaryTypographyProps={{ fontSize: 14 }}
             />
           </StyledListItemButton>
         </Box>
       )}
-      
+
       <Divider sx={{ my: 0.5 }} />
 
       {/* Navigation menu */}
-      <Box ref={scrollContainerRef} sx={{ overflow: 'auto', flexGrow: 1, pb: 8 }}>
+      <Box ref={scrollContainerRef} sx={{ overflowY: 'auto', overflowX: 'hidden', flexGrow: 1, pb: 8 }}>
         {menuGroups.map((group, groupIndex) => (
           <React.Fragment key={groupIndex}>
             {/* Group title - only show in expanded state */}
@@ -452,13 +452,13 @@ const Sidebar: React.FC = () => {
                 <GroupTitle>{group.title}</GroupTitle>
               </Box>
             )}
-            
+
             {/* Add top margin if first group and collapsed */}
             {sidebarCollapsed && groupIndex === 0 && <Box sx={{ mt: 1 }} />}
-            
+
             {/* Menu items in group */}
-            <List sx={{ 
-              pt: 0.5, 
+            <List sx={{
+              pt: 0.5,
               pb: 0.5,
               // Add separator line if collapsed and not first group
               ...(sidebarCollapsed && groupIndex > 0 ? {

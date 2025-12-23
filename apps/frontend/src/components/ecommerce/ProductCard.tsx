@@ -104,6 +104,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     isFeatured,
     variants,
     media,
+    isContactPrice,
   } = product;
   const { config: productCardConfig } = useProductCardConfig();
   const cardSettings = productCardConfig.card;
@@ -347,7 +348,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     return true;
   }, [addToCart, onAddToCart, variants]);
 
-  
+
   const handleWishlistToggle = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
@@ -419,11 +420,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <Image
             src={getPrimaryImage()}
             alt={displayName || t('ecommerce.productCard.imageAlt', 'Product Image')}
-            className={`w-full h-full object-cover transition-transform duration-500 cursor-pointer rounded-t-xl ${
-              isImageHovered ? 'scale-110' : 'scale-100'
-            }`}
+            className={`w-full h-full object-cover transition-transform duration-500 cursor-pointer rounded-t-xl ${isImageHovered ? 'scale-110' : 'scale-100'
+              }`}
             removeWrapper
-  onClick={handleImageClick}
+            onClick={handleImageClick}
             onMouseEnter={() => setIsImageHovered(true)}
             onMouseLeave={() => setIsImageHovered(false)}
           />
@@ -504,20 +504,28 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
           {/* Price */}
           <div className="h-10">
-            {currentPrice !== undefined && currentPrice !== null && (
-              <div className="mt-1 space-y-1">
-                <div className={priceWrapperClasses}>
-                  <span className={priceValueClass} style={priceColorStyle}>
-                    {formatCurrency(currentPrice)}
-                  </span>
-                  {showPriceDivider && <span className="w-px h-4 bg-gray-200 dark:bg-gray-700" />}
-                  {shouldShowOriginalPrice && displayOriginalPrice !== undefined && displayOriginalPrice !== null && (
-                    <span className="text-sm text-gray-500 dark:text-gray-400 line-through">
-                      {formatCurrency(displayOriginalPrice)}
-                    </span>
-                  )}
-                </div>
+            {isContactPrice ? (
+              <div className="mt-1">
+                <span className="text-lg font-bold text-gray-900 dark:text-white">
+                  {t('ecommerce.product.contactPrice')}
+                </span>
               </div>
+            ) : (
+              currentPrice !== undefined && currentPrice !== null && (
+                <div className="mt-1 space-y-1">
+                  <div className={priceWrapperClasses}>
+                    <span className={priceValueClass} style={priceColorStyle}>
+                      {formatCurrency(currentPrice)}
+                    </span>
+                    {showPriceDivider && <span className="w-px h-4 bg-gray-200 dark:bg-gray-700" />}
+                    {shouldShowOriginalPrice && displayOriginalPrice !== undefined && displayOriginalPrice !== null && (
+                      <span className="text-sm text-gray-500 dark:text-gray-400 line-through">
+                        {formatCurrency(displayOriginalPrice)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )
             )}
           </div>
         </div>
@@ -588,11 +596,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         <button
                           key={value}
                           onClick={() => handleAttributeSelect(attribute.name, value)}
-                          className={`px-4 py-2 rounded-lg border-2 transition-all duration-200 font-medium ${
-                            selectedAttributes[attribute.name] === value
-                              ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-700 dark:text-gray-300'
-                          }`}
+                          className={`px-4 py-2 rounded-lg border-2 transition-all duration-200 font-medium ${selectedAttributes[attribute.name] === value
+                            ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-700 dark:text-gray-300'
+                            }`}
                         >
                           {value}
                         </button>
@@ -635,15 +642,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-gray-600 dark:text-gray-400">Price:</span>
-                      <PriceDisplay price={matchingVariant.price} size="lg" currency={product.currencyCode} />
+                      {isContactPrice ? (
+                        <span className="text-lg font-bold text-gray-900 dark:text-white">
+                          {t('ecommerce.product.contactPrice')}
+                        </span>
+                      ) : (
+                        <PriceDisplay price={matchingVariant.price} size="lg" currency={product.currencyCode} />
+                      )}
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 dark:text-gray-400">{t('ecommerce.productCard.stock', 'Stock')}:</span>
-                      <span className={`text-sm font-medium ${
-                        canPurchaseVariant(matchingVariant)
-                          ? 'text-green-600 dark:text-green-400'
-                          : 'text-red-600 dark:text-red-400'
-                      }`}>
+                      <span className={`text-sm font-medium ${canPurchaseVariant(matchingVariant)
+                        ? 'text-green-600 dark:text-green-400'
+                        : 'text-red-600 dark:text-red-400'
+                        }`}>
                         {getVariantStockMessage(matchingVariant)}
                       </span>
                     </div>
@@ -667,11 +679,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   <button
                     onClick={handleAddToCartWithVariant}
                     disabled={!isCompleteSelection() || !matchingVariant || !canPurchaseVariant(matchingVariant) || isAdding}
-                    className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
-                      !isCompleteSelection() || !matchingVariant || !canPurchaseVariant(matchingVariant) || isAdding
-                        ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transform hover:scale-105 hover:shadow-lg'
-                    }`}
+                    className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${!isCompleteSelection() || !matchingVariant || !canPurchaseVariant(matchingVariant) || isAdding
+                      ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transform hover:scale-105 hover:shadow-lg'
+                      }`}
                   >
                     {!isCompleteSelection()
                       ? t('ecommerce.cart.selectOptions', 'Select Options')
@@ -681,10 +692,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
                           ? t('ecommerce.cart.outOfStock', 'Out of Stock')
                           : isAdding
                             ? t('ecommerce.cart.adding', 'Adding...')
-                            : t('ecommerce.cart.addWithPrice', {
-                              price: formatCurrency((matchingVariant.price || 0) * quantity),
-                            })
-                  }
+                            : isContactPrice
+                              ? t('ecommerce.cart.addToQuote')
+                              : t('ecommerce.cart.addWithPrice', {
+                                price: formatCurrency((matchingVariant.price || 0) * quantity),
+                              })
+                    }
                   </button>
                   <button
                     onClick={() => {
@@ -693,8 +706,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
                       setQuantity(1);
                     }}
                     className="px-6 py-3 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                    >
-                      {t('product.detail.common.cancel', 'Cancel')}
+                  >
+                    {t('product.detail.common.cancel', 'Cancel')}
                   </button>
                 </div>
               </div>

@@ -40,16 +40,17 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     const { firstName, lastName, phoneNumber, role, ...userData } = createUserDto;
-    
+
     // Create user first
     const userToCreate = {
       ...userData,
-      role: role ? (role as UserRole) : UserRole.USER
+      // role column doesn't exist on User entity, it's a relation
+      // role: role ? (role as UserRole) : UserRole.USER 
     };
-    
+
     const user = this.repository.create(userToCreate);
     const savedUser = await this.repository.save(user);
-    
+
     // Create profile
     const profile = this.userProfileRepository.create({
       userId: savedUser.id,
@@ -58,7 +59,7 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
       phoneNumber,
     });
     await this.userProfileRepository.save(profile);
-    
+
     return savedUser;
   }
 
@@ -182,7 +183,7 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
 
   async findByIds(userIds: string[]): Promise<User[]> {
     if (userIds.length === 0) return [];
-    
+
     return await this.repository.findBy({
       id: userIds as any
     });
@@ -239,14 +240,14 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
     // This method assumes you have a UserRole junction table
     // You'll need to implement this based on your database schema
     // For now, I'll add a basic implementation that should be adjusted based on your schema
-    
+
     const userRoleRepository = this.repository.manager.getRepository('UserRole');
-    
+
     // Check if association already exists
     const existing = await userRoleRepository.findOne({
       where: { userId, roleId }
     });
-    
+
     if (!existing) {
       await userRoleRepository.save({
         userId,
@@ -266,14 +267,21 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
 
   async getUserCountByRole(roleId: string): Promise<number> {
     const userRoleRepository = this.repository.manager.getRepository('UserRole');
-    
+
     const count = await userRoleRepository.count({
-      where: { 
+      where: {
         roleId,
         isActive: true
       }
     });
-    
+
     return count;
+  }
+
+  async findRoleByCode(code: UserRole): Promise<any> {
+    const roleRepository = this.repository.manager.getRepository('Role');
+    return await roleRepository.findOne({
+      where: { code }
+    });
   }
 }
