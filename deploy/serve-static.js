@@ -34,9 +34,16 @@ const mimeTypes = {
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   let pathname = url.pathname.replace(/^\/+/, '');
+  if (pathname === 'admin') {
+    pathname = '';
+  } else if (pathname.startsWith('admin/')) {
+    pathname = pathname.slice('admin/'.length);
+  }
+
   if (!pathname || pathname.endsWith('/')) {
     pathname = path.join(pathname, 'index.html');
   }
+
   if (pathname.startsWith('../')) {
     pathname = 'index.html';
   }
