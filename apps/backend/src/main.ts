@@ -29,7 +29,7 @@ async function bootstrap() {
   // 全局启用序列化拦截器，以配合class-transformer使用
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-  const port = process.env.PORT || 3001;
+  const port = Number(process.env.BACKEND_PORT || process.env.PORT || 3000);
   await app.listen(port);
   
   Logger.log(
