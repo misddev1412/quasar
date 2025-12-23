@@ -21,7 +21,7 @@ export function LoginPage() {
   });
 
   return (
-    <AuthCard title={t('auth.admin_platform')}>
+    <AuthCard>
       <LoginForm
         onSubmit={handleLogin}
         isSubmitting={isSubmitting}
