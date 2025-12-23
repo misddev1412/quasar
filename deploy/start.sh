@@ -63,8 +63,6 @@ INTERNAL_ADMIN_PORT="${ADMIN_PORT:-4000}"
 INTERNAL_FRONTEND_PORT="${FRONTEND_PORT:-3000}"
 ADMIN_STATIC_DIR="${REPO_ROOT}/dist/apps/admin"
 
-export ADMIN_STATIC_DIR
-
 build_host_block() {
   local host="$1"
   local upstream="$2"
