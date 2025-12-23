@@ -73,7 +73,7 @@ run_database_migrations() {
   if [[ ! -f "${backend_dir}/migration-data-source.ts" ]]; then
     echo "migration-data-source.ts not found in ${backend_dir}; skipping migrations." >&2
     return
-  }
+  fi
 
   echo "Running database migrations..."
   (

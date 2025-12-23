@@ -34,6 +34,7 @@ const AdminBrandingPage: React.FC = () => {
   const [loginForm, setLoginForm] = useState<AdminLoginBrandingConfig>(loginBrandingQuery.config);
   const [sidebarForm, setSidebarForm] = useState<AdminSidebarBrandingConfig>(sidebarBrandingQuery.config);
   const [isLoginMediaManagerOpen, setIsLoginMediaManagerOpen] = useState(false);
+  const [isLoginBackgroundMediaManagerOpen, setIsLoginBackgroundMediaManagerOpen] = useState(false);
   const [isSidebarMediaManagerOpen, setIsSidebarMediaManagerOpen] = useState(false);
 
   useEffect(() => {
@@ -107,6 +108,13 @@ const AdminBrandingPage: React.FC = () => {
       setSidebarForm((prev) => ({ ...prev, logoUrl: file.url }));
       setIsSidebarMediaManagerOpen(false);
     }
+  };
+
+  const handleBackgroundFromMedia = (selected: any) => {
+    const file = Array.isArray(selected) ? selected[0] : selected;
+    if (!file?.url) return;
+    setLoginForm((prev) => ({ ...prev, backgroundImageUrl: file.url }));
+    setIsLoginBackgroundMediaManagerOpen(false);
   };
 
   if (isLoading) {
@@ -319,6 +327,48 @@ const AdminBrandingPage: React.FC = () => {
                       )}
                     </p>
                   </label>
+                  <label className="block space-y-2">
+                    <span className="text-sm font-medium text-gray-700">
+                      {t('settings.branding.login_background_label', 'Hình nền trang đăng nhập')}
+                    </span>
+                    <div className="flex gap-3 flex-col sm:flex-row">
+                      <Input
+                        value={loginForm.backgroundImageUrl ?? ''}
+                        placeholder="https://cdn.example.com/backgrounds/login.jpg"
+                        onChange={(event) =>
+                          setLoginForm((prev) => ({ ...prev, backgroundImageUrl: event.target.value || undefined }))
+                        }
+                      />
+                      <Button
+                        variant="secondary"
+                        type="button"
+                        onClick={() => setIsLoginBackgroundMediaManagerOpen(true)}
+                        className="shrink-0"
+                      >
+                        {t('settings.branding.choose_background', 'Chọn hình')}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      {t(
+                        'settings.branding.login_background_hint',
+                        'Khuyến nghị ảnh 1600x900px, định dạng JPG/PNG nhẹ để tối ưu tốc độ.',
+                      )}
+                    </p>
+                    {loginForm.backgroundImageUrl && (
+                      <div className="rounded-2xl border border-dashed border-gray-200 overflow-hidden mt-2">
+                        <div
+                          className="h-32 w-full bg-cover bg-center"
+                          style={{ backgroundImage: `url(${loginForm.backgroundImageUrl})` }}
+                        />
+                        <div className="px-4 py-2 bg-gray-50 text-xs text-gray-500">
+                          {t(
+                            'settings.branding.login_background_preview_hint',
+                            'Áp dụng cho toàn bộ hình nền của trang đăng nhập.',
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </label>
                   <div className="grid gap-4 md:grid-cols-2">
                     <label className="block space-y-2">
                       <span className="text-sm font-medium text-gray-700">{t('settings.branding.width', 'Chiều rộng (px)')}</span>
@@ -375,6 +425,29 @@ const AdminBrandingPage: React.FC = () => {
                     </div>
                     <div className="rounded-xl bg-white/10 px-4 py-3 text-xs text-white/80">
                       {t('settings.branding.tip_brand_story', 'Tip: Sử dụng logo nền trong suốt để nổi bật hơn.')}
+                    </div>
+                    <div className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
+                      {loginForm.backgroundImageUrl ? (
+                        <>
+                          <div
+                            className="h-24 w-full bg-cover bg-center"
+                            style={{ backgroundImage: `url(${loginForm.backgroundImageUrl})` }}
+                          />
+                          <p className="px-4 py-2 text-xs text-white/70">
+                            {t(
+                              'settings.branding.login_background_preview_card',
+                              'Ảnh nền này phủ toàn bộ trang đăng nhập phía sau khối nội dung.',
+                            )}
+                          </p>
+                        </>
+                      ) : (
+                        <div className="px-4 py-3 text-xs text-white/70">
+                          {t(
+                            'settings.branding.login_background_empty',
+                            'Chưa thiết lập hình nền, hệ thống sẽ dùng hiệu ứng gradient mặc định.',
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -608,6 +681,14 @@ const AdminBrandingPage: React.FC = () => {
         accept="image/*"
         multiple={false}
         title={t('settings.branding.login_media_title', 'Chọn logo cho trang đăng nhập')}
+      />
+      <MediaManager
+        isOpen={isLoginBackgroundMediaManagerOpen}
+        onClose={() => setIsLoginBackgroundMediaManagerOpen(false)}
+        onSelect={handleBackgroundFromMedia}
+        accept="image/*"
+        multiple={false}
+        title={t('settings.branding.login_background_media_title', 'Chọn hình nền cho trang đăng nhập')}
       />
       <MediaManager
         isOpen={isSidebarMediaManagerOpen}

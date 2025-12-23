@@ -8,6 +8,7 @@ export type AdminLoginBrandingConfig = {
   width?: number;
   height?: number;
   platformTitle?: string;
+  backgroundImageUrl?: string;
 };
 
 export type AdminSidebarBrandingConfig = AdminLoginBrandingConfig & {
@@ -22,6 +23,7 @@ export const DEFAULT_ADMIN_LOGIN_BRANDING: AdminLoginBrandingConfig = Object.fre
   width: 48,
   height: 48,
   platformTitle: 'Quasar Admin Platform',
+  backgroundImageUrl: undefined,
 });
 
 export const DEFAULT_ADMIN_SIDEBAR_BRANDING: AdminSidebarBrandingConfig = Object.freeze({

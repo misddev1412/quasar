@@ -109,8 +109,20 @@ export const AuthCard: React.FC<AuthCardProps> = ({
     return isDarkMode ? "text-white" : "text-primary-700";
   };
 
+  const backgroundImageStyle: React.CSSProperties | undefined = loginBranding.backgroundImageUrl
+    ? {
+        backgroundImage: `linear-gradient(135deg, rgba(15,23,42,${isDarkMode ? 0.85 : 0.45}), rgba(15,23,42,${isDarkMode ? 0.75 : 0.35})), url(${loginBranding.backgroundImageUrl})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }
+    : undefined;
+
   return (
-    <div className={`min-h-screen w-full ${getBgStyles()} flex flex-col items-center justify-center p-4 transition-colors duration-500`}>
+    <div
+      className={`min-h-screen w-full ${getBgStyles()} flex flex-col items-center justify-center p-4 transition-colors duration-500`}
+      style={backgroundImageStyle}
+    >
       <div className="w-full max-w-5xl overflow-hidden bg-theme-surface rounded-2xl shadow-2xl flex flex-col md:flex-row transition-all duration-500">
 
         <div className={`w-full md:w-5/12 ${getLeftPanelBgStyles()} p-8 md:p-12 flex flex-col justify-between relative transition-colors duration-500`}>

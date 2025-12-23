@@ -155,6 +155,7 @@ export class SettingsSeeder {
           width: 48,
           height: 48,
           platformTitle: 'Quasar Admin Platform',
+          backgroundImageUrl: null,
         }),
         type: 'json' as const,
         group: 'admin-branding',
