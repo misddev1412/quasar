@@ -53,6 +53,9 @@ jobs:
       - name: Ensure build cache directory
         run: mkdir -p /tmp/.buildx-cache /tmp/.buildx-cache-new
 
+      - name: Prepare image artifact directory
+        run: mkdir -p /tmp/images
+
       - name: Prepare build environment
         run: |
           if [[ -z "${REACT_APP_API_URL}" ]]; then
@@ -65,11 +68,11 @@ jobs:
           build_args=(
             --tag "$REGISTRY/$IMAGE:$TAG"
             --tag "$REGISTRY/$IMAGE:latest"
-            --load
             --cache-from "type=local,src=/tmp/.buildx-cache"
             --cache-to "type=local,dest=/tmp/.buildx-cache-new"
             --build-arg "REACT_APP_API_URL=${REACT_APP_API_URL}"
             --build-arg "NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}"
+            --output "type=docker,dest=/tmp/images/image.tar"
           )
           if [[ -n "${NEXT_PUBLIC_SITE_URL}" ]]; then
             build_args+=(--build-arg "NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}")
@@ -81,10 +84,10 @@ jobs:
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-      - name: Save image as artifact
+      - name: Compress image artifact
         run: |
-          mkdir -p /tmp/images
-          docker save $REGISTRY/$IMAGE:$TAG $REGISTRY/$IMAGE:latest | gzip > /tmp/images/image.tar.gz
+          gzip -c /tmp/images/image.tar > /tmp/images/image.tar.gz
+          rm -f /tmp/images/image.tar
       - name: Upload image artifact
         uses: actions/upload-artifact@v4
         with:
