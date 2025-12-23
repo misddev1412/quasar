@@ -61,6 +61,9 @@ load_env_file "${REPO_ROOT}/.env"
 INTERNAL_BACKEND_PORT="${BACKEND_PORT:-3000}"
 INTERNAL_ADMIN_PORT="${ADMIN_PORT:-4000}"
 INTERNAL_FRONTEND_PORT="${FRONTEND_PORT:-3000}"
+ADMIN_STATIC_DIR="${REPO_ROOT}/dist/apps/admin"
+
+export ADMIN_STATIC_DIR
 
 build_host_block() {
   local host="$1"
@@ -209,13 +212,13 @@ start_backend_process() {
 
 start_admin_process() {
   local port="${1}"
-  local admin_dir="dist/apps/admin"
+  local admin_dir="${ADMIN_STATIC_DIR}"
   if [[ ! -d "${admin_dir}" ]]; then
     echo "Admin build not found (${admin_dir}); skipping admin server." >&2
     return
   fi
   echo "Starting admin static server on port ${port}..."
-  ADMIN_PORT="${port}" PORT="${port}" NODE_ENV=production node deploy/serve-static.js "${admin_dir}" &
+  ADMIN_PORT="${port}" PORT="${port}" NODE_ENV=production node deploy/serve-static.js "${ADMIN_STATIC_DIR}" &
   ADMIN_PID=$!
 }
 

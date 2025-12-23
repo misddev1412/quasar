@@ -2,7 +2,8 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 
-const [, , staticDirArg] = process.argv;
+const [, , cliStaticDir] = process.argv;
+const staticDirArg = cliStaticDir || process.env.ADMIN_STATIC_DIR;
 const PORT = parseInt(process.env.PORT || process.env.ADMIN_PORT || '3001', 10);
 
 if (!staticDirArg) {
@@ -68,8 +69,10 @@ const server = http.createServer((req, res) => {
     const indexFile = path.join(staticDir, 'index.html');
     fs.stat(indexFile, (err, stats) => {
       if (err || !stats.isFile()) {
+        const message = `index.html not found in static directory (${indexFile})`;
+        console.warn(message);
         res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-        res.end('index.html not found in static directory');
+        res.end(message);
         return;
       }
       res.writeHead(200, { 'Content-Type': mimeTypes['.html'] });

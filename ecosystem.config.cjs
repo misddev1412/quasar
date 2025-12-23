@@ -29,7 +29,7 @@ module.exports = {
       name: 'admin',
       script: 'deploy/serve-static.js',
       interpreter: 'node',
-      args: ['dist/apps/admin'],
+      args: [process.env.ADMIN_STATIC_DIR || 'dist/apps/admin'],
       env: {
         NODE_ENV: 'production',
         PORT: 3001,
