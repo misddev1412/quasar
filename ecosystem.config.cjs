@@ -32,10 +32,10 @@ module.exports = {
       script: 'deploy/serve-static.js',
       interpreter: 'node',
       cwd: '/app',
-      args: ['dist/apps/admin'],
       env: {
         NODE_ENV: 'production',
         PORT: 3001,
+        ADMIN_STATIC_DIR: '/app/dist/apps/admin',
       },
       instances: 1,
       autorestart: true,
