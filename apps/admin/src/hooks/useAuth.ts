@@ -34,13 +34,12 @@ interface AuthActions {
 
 export interface UseAuthReturn extends AuthState, AuthActions {}
 
-// 存储键常量
 const TOKEN_KEY = 'admin_access_token';
 const REFRESH_TOKEN_KEY = 'admin_refresh_token';
 const USER_KEY = 'admin_user';
 
 /**
- * 身份验证Hook，提供登录、登出和令牌刷新功能
+ * Authentication Hook that provides login, logout, and token refresh functionality
  */
 export function useAuth(): UseAuthReturn {
   const [authState, setAuthState] = useState<AuthState>({
@@ -78,7 +77,7 @@ export function useAuth(): UseAuthReturn {
   );
 
   /**
-   * 清除所有身份验证数据
+   * Clear all authentication data
    */
   const clearAuthData = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
@@ -178,7 +177,7 @@ export function useAuth(): UseAuthReturn {
   }, [profileData, updateUserState]);
 
   /**
-   * 从本地存储中恢复身份验证状态
+   * Restore authentication state from local storage
    */
   const restoreAuth = useCallback(async () => {
     try {
@@ -195,8 +194,7 @@ export function useAuth(): UseAuthReturn {
         // The `enabled` flag in useQuery will trigger a fetch.
         return true;
       }
-      
-      // 尝试刷新令牌
+
       const refreshed = await refreshToken();
       if (!refreshed) {
         clearAuthData();
@@ -205,14 +203,14 @@ export function useAuth(): UseAuthReturn {
       
       return true;
     } catch (error) {
-      console.error('恢复身份验证状态失败:', error);
+      console.error('Failed to restore authentication state:', error);
       clearAuthData();
       return false;
     }
   }, [clearAuthData]);
 
   /**
-   * 登录操作
+   * Login operation
    */
   const login = useCallback(async (email: string, password: string, rememberMe: boolean = false): Promise<{success: boolean, errorMessage?: string, isAccountDeactivated?: boolean}> => {
     setAuthState(prev => ({ ...prev, isLoading: true }));
@@ -225,13 +223,11 @@ export function useAuth(): UseAuthReturn {
         const userData = result.data.user as User;
         const accessToken = result.data.accessToken as string;
         const refreshToken = result.data.refreshToken as string;
-        
-        // 存储身份验证数据
+
         localStorage.setItem(TOKEN_KEY, accessToken);
         localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
         localStorage.setItem(USER_KEY, JSON.stringify(userData));
-        
-        // 更新状态
+
         setAuthState({
           user: userData,
           isAuthenticated: true,
@@ -241,14 +237,13 @@ export function useAuth(): UseAuthReturn {
         // The `enabled` flag in useQuery will trigger a /me fetch to verify authentication
         return { success: true };
       }
-      
-      setAuthState(prev => ({ ...prev, isLoading: false }));
-      return { success: false, errorMessage: result.status || '登录失败' };
-    } catch (error: any) {
-      console.error('登录错误:', error);
 
-      // 尝试从错误中提取API错误信息
-      let errorMessage = '登录失败';
+      setAuthState(prev => ({ ...prev, isLoading: false }));
+      return { success: false, errorMessage: result.status || 'Login failed' };
+    } catch (error: any) {
+      console.error('Login error:', error);
+
+      let errorMessage = 'Login failed';
 
       // Try multiple ways to extract the error message
       if (error.message) {
@@ -278,7 +273,7 @@ export function useAuth(): UseAuthReturn {
   }, [loginMutation]);
 
   /**
-   * 刷新令牌操作
+   * Refresh token operation
    */
   const refreshToken = useCallback(async (): Promise<boolean> => {
     const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
@@ -313,14 +308,14 @@ export function useAuth(): UseAuthReturn {
       setAuthState(prev => ({ ...prev, isLoading: false }));
       return false;
     } catch (error) {
-      console.error('令牌刷新错误:', error);
+      console.error('Token refresh error:', error);
       setAuthState(prev => ({ ...prev, isLoading: false }));
       return false;
     }
   }, [refreshMutation]);
 
   /**
-   * 验证当前用户身份验证状态
+   * Verify current user authentication state
    */
   const verifyAuth = useCallback(async () => {
     if (!authState.isAuthenticated) {
@@ -339,14 +334,13 @@ export function useAuth(): UseAuthReturn {
   }, [authState.isAuthenticated, refetchMe, clearAuthData, navigate]);
 
   /**
-   * 登出操作
+   * Logout operation
    */
   const logout = useCallback(() => {
     clearAuthData();
     navigate('/auth/login');
   }, [clearAuthData, navigate]);
 
-  // 初始化时检查身份验证状态
   useEffect(() => {
     restoreAuth();
   }, [restoreAuth]);

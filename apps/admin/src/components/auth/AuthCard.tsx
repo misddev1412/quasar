@@ -15,7 +15,6 @@ interface AuthCardProps {
   children: React.ReactNode;
 }
 
-// 获取统一的控制按钮样式
 const getControlButtonStyle = (isDarkMode: boolean) => {
   return `px-3 py-2 rounded-lg backdrop-blur-sm transition-all duration-300 flex items-center justify-center shadow-lg text-sm font-medium cursor-pointer hover:scale-105 ${
     isDarkMode 
@@ -25,15 +24,15 @@ const getControlButtonStyle = (isDarkMode: boolean) => {
 };
 
 
-// 主题切换按钮组件
 const ThemeToggleButton: React.FC = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
-  
+  const { t } = useTranslationWithBackend();
+
   return (
     <button
       onClick={toggleDarkMode}
       className={getControlButtonStyle(isDarkMode)}
-      aria-label={isDarkMode ? "切换到浅色模式" : "切换到深色模式"}
+      aria-label={isDarkMode ? t('auth.toggle_light_mode') : t('auth.toggle_dark_mode')}
     >
       {isDarkMode ? (
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-200" viewBox="0 0 20 20" fill="currentColor">
@@ -59,30 +58,27 @@ export const AuthCard: React.FC<AuthCardProps> = ({
   const { config: loginBranding } = useBrandingSetting(
     ADMIN_LOGIN_BRANDING_KEY,
     DEFAULT_ADMIN_LOGIN_BRANDING,
+    { publicAccess: true },
   );
+  const resolvedTitle = title || loginBranding.platformTitle || t('auth.admin_platform');
 
-  // 为登录页面应用特定样式
   useEffect(() => {
-    // 应用登录页特定背景
     document.body.classList.add('auth-page');
     
     if (isDarkMode) {
       document.body.classList.add('login-dark-mode');
       document.body.classList.remove('login-light-mode');
-      // 设置登录页面的主题颜色
       document.documentElement.style.setProperty('--login-primary-color', '#60a5fa');
       document.documentElement.style.setProperty('--login-secondary-color', '#38bdf8');
       document.documentElement.style.setProperty('--login-text-color', '#f9fafb');
     } else {
       document.body.classList.add('login-light-mode');
       document.body.classList.remove('login-dark-mode');
-      // 设置登录页面的主题颜色 - 浅色模式下使用更深的颜色提高对比度
       document.documentElement.style.setProperty('--login-primary-color', '#2563eb');
       document.documentElement.style.setProperty('--login-secondary-color', '#0284c7');
       document.documentElement.style.setProperty('--login-text-color', '#0f172a');
     }
-    
-    // 清理函数，恢复原始body类
+
     return () => {
       document.body.classList.remove('auth-page', 'login-light-mode', 'login-dark-mode');
       document.documentElement.style.removeProperty('--login-primary-color');
@@ -91,48 +87,38 @@ export const AuthCard: React.FC<AuthCardProps> = ({
     };
   }, [isDarkMode]);
 
-  // 基于主题的背景样式
   const getBgStyles = () => {
     if (isDarkMode) {
       return "bg-gradient-to-br from-gray-900 via-gray-950 to-blue-950";
     }
-    // 增强浅色模式下的背景对比度
     return "bg-gradient-to-br from-blue-100 via-white to-indigo-100";
   };
 
-  // 左侧面板背景样式
   const getLeftPanelBgStyles = () => {
     if (isDarkMode) {
       return "bg-gradient-to-br from-primary-700 to-primary-900";
     }
-    // 使用浅色背景用于浅色模式，以便文字可以使用深色
     return "bg-gradient-to-br from-slate-50 to-blue-50 border border-slate-200";
   };
 
-  // 获取标题文本颜色
   const getTitleTextColor = () => {
     return isDarkMode ? "text-white" : "text-primary-900";
   };
 
-  // 获取图标颜色
   const getIconColor = () => {
     return isDarkMode ? "text-white" : "text-primary-700";
   };
 
   return (
     <div className={`min-h-screen w-full ${getBgStyles()} flex flex-col items-center justify-center p-4 transition-colors duration-500`}>
-      {/* 身份验证容器 */}
       <div className="w-full max-w-5xl overflow-hidden bg-theme-surface rounded-2xl shadow-2xl flex flex-col md:flex-row transition-all duration-500">
-        
-        {/* 品牌面板 - 左侧 */}
+
         <div className={`w-full md:w-5/12 ${getLeftPanelBgStyles()} p-8 md:p-12 flex flex-col justify-between relative transition-colors duration-500`}>
-          {/* 抽象背景元素 */}
           <div className="absolute inset-0 overflow-hidden opacity-10">
             <div className="absolute -left-40 -top-40 w-80 h-80 rounded-full bg-white blur-3xl"></div>
             <div className="absolute -right-20 -bottom-20 w-60 h-60 rounded-full bg-blue-300 blur-3xl"></div>
           </div>
-          
-          {/* Logo和标题 */}
+
           <div className="relative z-10">
             <div className="mb-6 flex items-center justify-between">
               {loginBranding.logoUrl ? (
@@ -154,8 +140,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({
                   </span>
                 </div>
               )}
-              
-              {/* 主题切换和语言切换 */}
+
               <div className="flex items-center space-x-3">
                 <ThemeToggleButton />
                 <LocaleSwitcher
@@ -164,7 +149,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({
                 />
               </div>
             </div>
-            <h1 className={`text-4xl lg:text-5xl font-bold ${getTitleTextColor()} mb-4 ${isDarkMode ? 'drop-shadow-xl text-shadow-enhanced' : ''}`}>{title || t('auth.admin_platform')}</h1>
+            <h1 className={`text-4xl lg:text-5xl font-bold ${getTitleTextColor()} mb-4 ${isDarkMode ? 'drop-shadow-xl text-shadow-enhanced' : ''}`}>{resolvedTitle}</h1>
             <p className={`${getTitleTextColor()} text-lg mb-6 ${isDarkMode ? 'drop-shadow-xl text-shadow-enhanced' : ''}`}>{t('auth.enter_credentials')}</p>
             
             {/* Main Image */}
@@ -177,7 +162,6 @@ export const AuthCard: React.FC<AuthCardProps> = ({
               />
             </div>
 
-            {/* 功能列表，移到标题下方 */}
             <div className="space-y-4 mt-6">
               <FeatureItem 
                 icon={<ShieldIcon className={`h-6 w-6 ${getIconColor()}`} />} 
@@ -202,18 +186,15 @@ export const AuthCard: React.FC<AuthCardProps> = ({
               />
             </div>
           </div>
-          
-          {/* 占位符，保持底部对齐 */}
+
           <div className="relative z-10"></div>
         </div>
-        
-        {/* 内容 - 右侧 */}
+
         <div className="w-full md:w-7/12 p-8 md:p-12 flex flex-col justify-center bg-theme-surface text-theme-primary transition-colors duration-500">
           <div className="max-w-md mx-auto w-full">
             {children}
           </div>
-          
-          {/* 页脚 */}
+
           <footer className="mt-10 text-center text-xs text-theme-muted">
             {t('common.copyright', { year: currentYear })}
           </footer>

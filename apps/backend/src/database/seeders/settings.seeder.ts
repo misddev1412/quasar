@@ -154,10 +154,11 @@ export class SettingsSeeder {
           showLogoText: true,
           width: 48,
           height: 48,
+          platformTitle: 'Quasar Admin Platform',
         }),
         type: 'json' as const,
         group: 'admin-branding',
-        isPublic: false,
+        isPublic: true,
         description: 'Branding configuration for the admin login experience',
       },
       {
@@ -173,7 +174,7 @@ export class SettingsSeeder {
         }),
         type: 'json' as const,
         group: 'admin-branding',
-        isPublic: false,
+        isPublic: true,
         description: 'Branding configuration for the admin sidebar and shell',
       },
       {

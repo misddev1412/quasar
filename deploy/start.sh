@@ -58,6 +58,34 @@ load_env_file() {
 
 load_env_file "${REPO_ROOT}/.env"
 
+run_database_migrations() {
+  if [[ "${SKIP_DB_MIGRATIONS:-0}" == "1" ]]; then
+    echo "SKIP_DB_MIGRATIONS=1 -> skipping database migrations."
+    return
+  fi
+
+  local backend_dir="${REPO_ROOT}/apps/backend"
+  if [[ ! -d "${backend_dir}" ]]; then
+    echo "Backend directory not found at ${backend_dir}; skipping migrations." >&2
+    return
+  fi
+
+  if [[ ! -f "${backend_dir}/migration-data-source.ts" ]]; then
+    echo "migration-data-source.ts not found in ${backend_dir}; skipping migrations." >&2
+    return
+  }
+
+  echo "Running database migrations..."
+  (
+    cd "${backend_dir}"
+    if ! npx typeorm-ts-node-commonjs migration:run -d migration-data-source.ts; then
+      echo "Database migrations failed." >&2
+      exit 1
+    fi
+  )
+  echo "Database migrations completed."
+}
+
 INTERNAL_BACKEND_PORT="${BACKEND_PORT:-3000}"
 INTERNAL_ADMIN_PORT="${ADMIN_PORT:-4000}"
 INTERNAL_FRONTEND_PORT="${FRONTEND_PORT:-3000}"
@@ -141,6 +169,8 @@ verify_build_artifacts() {
 }
 
 verify_build_artifacts
+
+run_database_migrations
 
 if [[ "${SKIP_RUNTIME_SERVERS:-0}" == "1" ]]; then
   echo "SKIP_RUNTIME_SERVERS=1 -> build artifacts prepared, skipping nginx/pm2 startup."

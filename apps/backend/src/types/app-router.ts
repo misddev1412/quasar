@@ -5472,7 +5472,7 @@ export const appRouter = router({
   }),
 
   // Client Settings router
-  clientSettings: router({
+  settings: router({
     getPublicSettings: procedure
       .output(apiResponseSchema)
       .query(() => {

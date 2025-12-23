@@ -17,19 +17,34 @@ const mergeWithFallback = <T extends JsonRecord>(fallback: T, rawValue?: string 
   }
 };
 
+type UseBrandingSettingOptions = {
+  publicAccess?: boolean;
+};
+
 export const useBrandingSetting = <T extends JsonRecord>(
   key: string,
   fallback: T,
-  options?: Parameters<typeof trpc.adminSettings.getByKey.useQuery>[1],
+  options?: UseBrandingSettingOptions,
 ) => {
-  const query = trpc.adminSettings.getByKey.useQuery(
+  const adminQuery = trpc.adminSettings.getByKey.useQuery(
     { key },
     {
       retry: 1,
       staleTime: 5 * 60 * 1000,
-      ...options,
+      enabled: !options?.publicAccess,
     },
   );
+
+  const publicQuery = trpc.settings.getPublicSetting.useQuery(
+    { key },
+    {
+      retry: 1,
+      staleTime: 5 * 60 * 1000,
+      enabled: Boolean(options?.publicAccess),
+    },
+  );
+
+  const query = options?.publicAccess ? publicQuery : adminQuery;
 
   const setting = (query.data as any)?.data as SettingData | undefined;
 

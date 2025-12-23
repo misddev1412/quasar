@@ -37,6 +37,11 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/yarn.lock ./yarn.lock
 COPY --from=builder /app/ecosystem.config.cjs ./ecosystem.config.cjs
 COPY --from=builder /app/deploy ./deploy
+COPY --from=builder /app/apps ./apps
+COPY --from=builder /app/libs ./libs
+COPY --from=builder /app/tsconfig.base.json ./tsconfig.base.json
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
+COPY --from=builder /app/tsconfig.scripts.json ./tsconfig.scripts.json
 
 RUN cp ./deploy/start.sh /start.sh \
   && chmod +x /start.sh

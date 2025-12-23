@@ -56,8 +56,8 @@ const AdminBrandingPage: React.FC = () => {
     if (!settingId) {
       addToast({
         type: 'error',
-        title: t('settings.save_failed', '保存失败'),
-        description: t('settings.branding.save_missing_setting', 'Không tìm thấy cấu hình để cập nhật.'),
+        title: t('settings.save_failed'),
+        description: t('settings.branding.save_missing_setting'),
       });
       return;
     }
@@ -69,19 +69,19 @@ const AdminBrandingPage: React.FC = () => {
       });
       addToast({
         type: 'success',
-        title: t('settings.update_success_title', '更新成功'),
+        title: t('settings.update_success_title'),
         description:
           scope === 'login'
-            ? t('settings.branding.login_saved', 'Đã lưu cấu hình trang đăng nhập của admin.')
-            : t('settings.branding.sidebar_saved', 'Đã lưu cấu hình thanh điều hướng admin.'),
+            ? t('settings.branding.login_saved')
+            : t('settings.branding.sidebar_saved'),
       });
       target.refetch();
     } catch (error) {
       console.error(error);
       addToast({
         type: 'error',
-        title: t('settings.update_failed_title', '更新失败'),
-        description: t('settings.branding.save_failed', '无法保存配置，请稍后重试。'),
+        title: t('settings.update_failed_title'),
+        description: t('settings.branding.save_failed'),
       });
     }
   };
@@ -298,11 +298,27 @@ const AdminBrandingPage: React.FC = () => {
                           onChange={() => setLoginForm((prev) => ({ ...prev, showLogoText: !prev.showLogoText }))}
                         />
                         <span className="text-xs text-gray-500">
-                          {loginForm.showLogoText ? t('common.enabled', '启用') : t('common.disabled', '禁用')}
+                          {loginForm.showLogoText ? t('common.enabled') : t('common.disabled')}
                         </span>
                       </div>
                     </div>
                   </div>
+                  <label className="block space-y-2">
+                    <span className="text-sm font-medium text-gray-700">
+                      {t('settings.branding.platform_title', 'Tiêu đề hiển thị')}
+                    </span>
+                    <Input
+                      value={loginForm.platformTitle ?? ''}
+                      placeholder={t('settings.branding.platform_title_placeholder', 'Quasar Admin Platform')}
+                      onChange={(event) => setLoginForm((prev) => ({ ...prev, platformTitle: event.target.value }))}
+                    />
+                    <p className="text-xs text-gray-500">
+                      {t(
+                        'settings.branding.platform_title_hint',
+                        'Dòng chữ nổi bật xuất hiện trong hero của trang đăng nhập.',
+                      )}
+                    </p>
+                  </label>
                   <div className="grid gap-4 md:grid-cols-2">
                     <label className="block space-y-2">
                       <span className="text-sm font-medium text-gray-700">{t('settings.branding.width', 'Chiều rộng (px)')}</span>
@@ -349,6 +365,14 @@ const AdminBrandingPage: React.FC = () => {
                         {t('settings.branding.login_preview_desc', 'Hiển thị ở phần hero của trang đăng nhập.')}
                       </p>
                     </div>
+                    <div className="rounded-xl bg-white/10 px-4 py-3">
+                      <p className="text-base font-semibold text-white">
+                        {loginForm.platformTitle?.trim() || t('auth.admin_platform', 'Quasar Admin Platform')}
+                      </p>
+                      <p className="text-xs text-white/70">
+                        {t('settings.branding.platform_title_preview_hint', 'Người dùng thấy nội dung này ngay khi mở trang.')}
+                      </p>
+                    </div>
                     <div className="rounded-xl bg-white/10 px-4 py-3 text-xs text-white/80">
                       {t('settings.branding.tip_brand_story', 'Tip: Sử dụng logo nền trong suốt để nổi bật hơn.')}
                     </div>
@@ -371,7 +395,7 @@ const AdminBrandingPage: React.FC = () => {
                     disabled={!loginHasChanges && !isSaving}
                     onClick={() => handleSave('login', loginForm)}
                   >
-                    {t('common.save', '保存')}
+                    {t('common.save')}
                   </Button>
                 </div>
               </div>
@@ -464,7 +488,7 @@ const AdminBrandingPage: React.FC = () => {
                         onChange={() => setSidebarForm((prev) => ({ ...prev, showLogoText: !prev.showLogoText }))}
                       />
                       <span className="text-xs text-gray-500">
-                        {sidebarForm.showLogoText ? t('common.enabled', '启用') : t('common.disabled', '禁用')}
+                        {sidebarForm.showLogoText ? t('common.enabled') : t('common.disabled')}
                       </span>
                     </div>
                   </div>
@@ -523,7 +547,7 @@ const AdminBrandingPage: React.FC = () => {
                     disabled={!sidebarHasChanges && !isSaving}
                     onClick={() => handleSave('sidebar', sidebarForm)}
                   >
-                    {t('common.save', '保存')}
+                    {t('common.save')}
                   </Button>
                 </div>
               </div>

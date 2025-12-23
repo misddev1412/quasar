@@ -57,11 +57,11 @@ export class NavigationService implements INavigationService {
 
     return [
       {
-        title: t('navigation.overview', '概览'),
+        title: t('navigation.overview'),
         items: [
           {
             icon: React.createElement(DashboardIcon),
-            label: t('navigation.dashboard', '仪表盘'),
+            label: t('navigation.dashboard'),
             path: '/'
           },
           {
@@ -76,24 +76,24 @@ export class NavigationService implements INavigationService {
         items: [
           {
             icon: React.createElement(PeopleIcon),
-            label: t('admin.user_management', '用户管理'),
+            label: t('admin.user_management'),
             path: '/users-management',
             badge: 2,
             subItems: [
               {
                 icon: React.createElement(PermIdentityIcon),
-                label: t('admin.user_list', '用户列表'),
+                label: t('admin.user_list'),
                 path: '/users',
                 badge: 2
               },
               {
                 icon: React.createElement(ManageAccountsIcon),
-                label: t('admin.manage_roles', '角色管理'),
+                label: t('admin.manage_roles'),
                 path: '/roles'
               },
               {
                 icon: React.createElement(SecurityIcon),
-                label: t('admin.manage_permissions', '权限设置'),
+                label: t('admin.manage_permissions'),
                 path: '/permissions'
               }
             ]
@@ -318,7 +318,7 @@ export class NavigationService implements INavigationService {
         items: [
           {
             icon: React.createElement(NotificationsIcon),
-            label: t('navigation.notifications', '通知'),
+            label: t('navigation.notifications'),
             path: '/notifications',
             badge: 5
           },
@@ -334,7 +334,7 @@ export class NavigationService implements INavigationService {
           },
           {
             icon: React.createElement(ChatIcon),
-            label: t('navigation.messages', '消息'),
+            label: t('navigation.messages'),
             path: '/messages',
             badge: 3
           },

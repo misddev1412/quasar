@@ -11,11 +11,11 @@ const SettingsPage: React.FC = () => {
   
   return (
     <BaseLayout
-      title={t('admin.system_settings', '系统设置')}
-      description={t('settings.manage_settings', '管理系统设置和配置')}
+      title={t('admin.system_settings')}
+      description={t('settings.manage_settings')}
       actions={[
         {
-          label: t('settings.add_setting', '添加设置'),
+          label: t('settings.add_setting'),
           onClick: () => setIsModalOpen(true),
           primary: true
         }
@@ -44,7 +44,7 @@ const SettingsPage: React.FC = () => {
 };
 
 export default withSeo(SettingsPage, {
-  title: '系统设置 | Quasar Admin',
-  description: '管理系统设置和配置',
+  title: 'System Settings | Quasar Admin',
+  description: 'Manage system settings and configuration',
   path: '/settings',
 }); 
