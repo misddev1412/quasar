@@ -54,24 +54,22 @@ http {
       proxy_pass http://127.0.0.1:3001/;
     }
 
-    # Handle /admin/*
+    # /admin and /admin/* -> keep the /admin prefix (no stripping)
     location ^~ /admin/ {
       proxy_http_version 1.1;
       proxy_set_header Upgrade    $http_upgrade;
       proxy_set_header Connection "upgrade";
 
-      proxy_pass http://127.0.0.1:3001/;
+      proxy_pass http://127.0.0.1:3001;
     }
 
-    # ===================== FRONTEND =====================
-
-    # All remaining requests go to frontend
-    location / {
+    location = /admin {
       proxy_http_version 1.1;
       proxy_set_header Upgrade    $http_upgrade;
       proxy_set_header Connection "upgrade";
 
-      proxy_pass http://127.0.0.1:3000;
+      proxy_pass http://127.0.0.1:3001;
     }
+
   }
 }
