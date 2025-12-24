@@ -3,6 +3,7 @@ import { BaseEntity } from '@shared';
 import { Expose } from 'class-transformer';
 import { Product } from './product.entity';
 import { ProductVariantItem } from './product-variant-item.entity';
+import { ProductVariantPriceHistory } from './product-variant-price-history.entity';
 
 @Entity('product_variants')
 export class ProductVariant extends BaseEntity {
@@ -155,6 +156,9 @@ export class ProductVariant extends BaseEntity {
     eager: false,
   })
   variantItems: ProductVariantItem[];
+
+  @OneToMany(() => ProductVariantPriceHistory, (history) => history.variant)
+  priceHistory: ProductVariantPriceHistory[];
 
   // Virtual properties
   get primaryImage(): string | null {

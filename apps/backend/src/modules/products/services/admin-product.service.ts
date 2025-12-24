@@ -7,8 +7,12 @@ import { ProductWarehouseQuantityRepository } from '../repositories/product-ware
 import { AttributeRepository } from '../repositories/attribute.repository';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { Product, ProductStatus } from '../entities/product.entity';
+import { ProductPriceHistory } from '../entities/product-price-history.entity';
+import { ProductVariantPriceHistory } from '../entities/product-variant-price-history.entity';
 import { MediaType } from '../entities/product-media.entity';
 import { ApiStatusCodes } from '@shared';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { ProductTransformer, TransformedProduct } from '../transformers/product.transformer';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
@@ -111,7 +115,11 @@ export class AdminProductService {
     private readonly productTransformer: ProductTransformer,
     private readonly fileUploadService: FileUploadService,
     private readonly dataExportService: DataExportService,
-  ) {}
+    @InjectRepository(ProductPriceHistory)
+    private readonly productPriceHistoryRepository: Repository<ProductPriceHistory>,
+    @InjectRepository(ProductVariantPriceHistory)
+    private readonly productVariantPriceHistoryRepository: Repository<ProductVariantPriceHistory>,
+  ) { }
 
   private isUuid(value: string): boolean {
     if (typeof value !== 'string') {
@@ -272,7 +280,26 @@ export class AdminProductService {
 
   async updateVariant(id: string, variantData: UpdateProductVariantDto) {
     try {
+      const existingVariant = await this.productVariantRepository.findById(id);
+      if (!existingVariant) {
+        throw new NotFoundException('Product variant not found');
+      }
+
       const updatedVariant = await this.productVariantRepository.update(id, variantData);
+
+      // Track price history if changed
+      const priceChanged = variantData.price !== undefined && Number(variantData.price) !== Number(existingVariant.price);
+      const compareAtPriceChanged = variantData.compareAtPrice !== undefined && Number(variantData.compareAtPrice) !== Number(existingVariant.compareAtPrice);
+
+      if (priceChanged || compareAtPriceChanged) {
+        await this.productVariantPriceHistoryRepository.save({
+          variantId: id,
+          price: updatedVariant.price,
+          compareAtPrice: updatedVariant.compareAtPrice,
+          createdBy: null,
+        });
+      }
+
       return this.productTransformer.transformVariant(updatedVariant);
     } catch (error) {
       throw this.responseHandler.createError(
@@ -521,6 +548,21 @@ export class AdminProductService {
           // If not using warehouse quantities, clear them
           await this.productWarehouseQuantityRepository.deleteByProductId(id);
         }
+      }
+
+      // Track price history if changed
+      const priceChanged = transformedData.price !== undefined && Number(transformedData.price) !== Number(existingProduct.price);
+      const compareAtPriceChanged = transformedData.compareAtPrice !== undefined && Number(transformedData.compareAtPrice) !== Number(existingProduct.compareAtPrice);
+      // Note: isContactPrice is not yet editable in updateProduct in this code version, skipping for now or adding if available
+
+      if (priceChanged || compareAtPriceChanged) {
+        await this.productPriceHistoryRepository.save({
+          productId: id,
+          price: updatedProduct.price,
+          compareAtPrice: updatedProduct.compareAtPrice,
+          isContactPrice: updatedProduct.isContactPrice,
+          createdBy: null, // User tracking not yet implemented in this context
+        });
       }
 
       return updatedProduct;
@@ -957,9 +999,9 @@ export class AdminProductService {
       const tagsRaw = normalizeString(getFromRow(row, columnMap.tags));
       const tags = tagsRaw
         ? tagsRaw
-            .split(/[;,|]/)
-            .map((tag) => normalizeString(tag))
-            .filter(Boolean)
+          .split(/[;,|]/)
+          .map((tag) => normalizeString(tag))
+          .filter(Boolean)
         : [];
 
       const productImageUrls = parseImageUrls(getFromRow(row, columnMap.productImageUrls));
@@ -1170,10 +1212,10 @@ export class AdminProductService {
             : index,
           variantItems: Array.isArray(entry.variant.variantItems)
             ? entry.variant.variantItems.map((item, itemIndex) => ({
-                attributeId: item.attributeId,
-                attributeValueId: item.attributeValueId,
-                sortOrder: item.sortOrder !== undefined ? item.sortOrder : itemIndex,
-              }))
+              attributeId: item.attributeId,
+              attributeValueId: item.attributeValueId,
+              sortOrder: item.sortOrder !== undefined ? item.sortOrder : itemIndex,
+            }))
             : [],
         };
 

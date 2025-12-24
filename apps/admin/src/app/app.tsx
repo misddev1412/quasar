@@ -12,6 +12,7 @@ import { FirebaseAuthProvider } from '../hooks/useFirebaseAuth';
 import { ModalProvider } from '../context/ModalContext';
 import { RouteLoadingProvider } from '../context/RouteLoadingContext';
 import RouteLoadingIndicator from '../components/common/RouteLoadingIndicator';
+import { DynamicFavicon } from '../components/common/DynamicFavicon';
 
 export function App() {
   // 创建 MUI 主题
@@ -42,6 +43,7 @@ export function App() {
 
   return (
     <HelmetProvider>
+      <DynamicFavicon />
       <Router>
         <MUIThemeProvider theme={muiTheme}>
           <CssBaseline />

@@ -47,8 +47,9 @@ export const StyledMiniDrawer = styled(Drawer)(({ theme }) => ({
 }));
 
 export const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
-  borderRadius: '8px',
-  margin: '4px 8px',
+  borderRadius: 0,
+  margin: 0,
+  width: '100%',
   transition: theme.transitions.create(['background-color', 'box-shadow', 'border-color'], {
     duration: theme.transitions.duration.short,
   }),

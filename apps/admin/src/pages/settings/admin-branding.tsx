@@ -36,6 +36,7 @@ const AdminBrandingPage: React.FC = () => {
   const [isLoginMediaManagerOpen, setIsLoginMediaManagerOpen] = useState(false);
   const [isLoginBackgroundMediaManagerOpen, setIsLoginBackgroundMediaManagerOpen] = useState(false);
   const [isSidebarMediaManagerOpen, setIsSidebarMediaManagerOpen] = useState(false);
+  const [isFaviconMediaManagerOpen, setIsFaviconMediaManagerOpen] = useState(false);
 
   useEffect(() => {
     setLoginForm(loginBrandingQuery.config);
@@ -115,6 +116,13 @@ const AdminBrandingPage: React.FC = () => {
     if (!file?.url) return;
     setLoginForm((prev) => ({ ...prev, backgroundImageUrl: file.url }));
     setIsLoginBackgroundMediaManagerOpen(false);
+  };
+
+  const handleFaviconFromMedia = (selected: any) => {
+    const file = Array.isArray(selected) ? selected[0] : selected;
+    if (!file?.url) return;
+    setLoginForm((prev) => ({ ...prev, faviconUrl: file.url }));
+    setIsFaviconMediaManagerOpen(false);
   };
 
   if (isLoading) {
@@ -286,6 +294,46 @@ const AdminBrandingPage: React.FC = () => {
                     <p className="text-xs text-gray-500">
                       {t('settings.branding.media_hint', 'Hỗ trợ PNG, JPG, SVG. Gợi ý kích thước vuông 1:1.')}
                     </p>
+                  </label>
+                  <label className="block space-y-2">
+                    <span className="text-sm font-medium text-gray-700">
+                      {t('settings.branding.favicon_label', 'Favicon trình duyệt')}
+                    </span>
+                    <div className="flex gap-3 flex-col sm:flex-row">
+                      <Input
+                        value={loginForm.faviconUrl ?? ''}
+                        placeholder="/favicon.ico"
+                        onChange={(event) => setLoginForm((prev) => ({ ...prev, faviconUrl: event.target.value }))}
+                      />
+                      <Button
+                        variant="secondary"
+                        type="button"
+                        onClick={() => setIsFaviconMediaManagerOpen(true)}
+                        className="shrink-0"
+                      >
+                        {t('media.select', 'Chọn ảnh')}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      {t(
+                        'settings.branding.favicon_hint',
+                        'Khuyến nghị biểu tượng 32x32px (ICO/PNG). Nếu để trống hệ thống sẽ dùng favicon mặc định.',
+                      )}
+                    </p>
+                    {loginForm.faviconUrl && (
+                      <div className="flex items-center gap-3 pt-1">
+                        <div className="h-10 w-10 rounded-lg border border-gray-200 flex items-center justify-center bg-white shadow-sm">
+                          <img
+                            src={loginForm.faviconUrl}
+                            alt="Admin favicon preview"
+                            className="h-6 w-6 object-contain"
+                          />
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          {t('settings.branding.favicon_preview_hint', 'Hiển thị trên tab trình duyệt và bookmark.')}
+                        </span>
+                      </div>
+                    )}
                   </label>
                   <div className="grid gap-4 md:grid-cols-2">
                     <label className="block space-y-2">
@@ -681,6 +729,14 @@ const AdminBrandingPage: React.FC = () => {
         accept="image/*"
         multiple={false}
         title={t('settings.branding.login_media_title', 'Chọn logo cho trang đăng nhập')}
+      />
+      <MediaManager
+        isOpen={isFaviconMediaManagerOpen}
+        onClose={() => setIsFaviconMediaManagerOpen(false)}
+        onSelect={handleFaviconFromMedia}
+        accept="image/*"
+        multiple={false}
+        title={t('settings.branding.favicon_media_title', 'Chọn favicon cho admin')}
       />
       <MediaManager
         isOpen={isLoginBackgroundMediaManagerOpen}

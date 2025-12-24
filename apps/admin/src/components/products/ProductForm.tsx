@@ -13,7 +13,8 @@ import { MediaType } from '../common/ProductMediaUpload';
 import { ProductSpecificationsEditor, ProductSpecificationFormItem } from './ProductSpecificationsEditor';
 import { ProductWarehouseQuantityManager } from './ProductWarehouseQuantityManager';
 import { Input } from '../common/Input';
-import { InputWithIcon } from '../common/InputWithIcon';
+import { FormInput } from '../common/FormInput';
+import { BASE_LABEL_CLASS } from '../common/styles';
 import { stripNumberLeadingZeros } from '../../utils/inputUtils';
 import { Button } from '../common/Button';
 import { Switch } from '../common/Switch';
@@ -603,42 +604,46 @@ export const ProductForm: React.FC<ProductFormProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label htmlFor="price" className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {t('products.price', 'Price')}{' '}
-                    <span className="text-xs text-gray-500 dark:text-gray-400">({currencyCode})</span>
-                  </label>
-                  <InputWithIcon
+                  <FormInput
                     id="price"
                     type="number"
-                    step="0.01"
-                    min={0}
+                    label={t('products.price', 'Price')}
+                    rightElement={
+                      <span className="text-[10px] font-normal text-neutral-400 dark:text-neutral-500">
+                        ({currencyCode})
+                      </span>
+                    }
                     disabled={isContactPrice}
-                    value={price}
-                    onChange={(e) => {
+                    value={Number.isFinite(price) ? String(price) : ''}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const sanitizedValue = sanitizeNumberInputEvent(e);
                       setPrice(parseFloat(sanitizedValue) || 0);
                     }}
                     placeholder={t('products.price_placeholder', '0.00')}
+                    icon={<span className="text-gray-500 dark:text-gray-400">{currencyDisplay}</span>}
+                    useIconSpacing
                     iconSpacing="standard"
-                    leftIcon={<span className="text-gray-500 dark:text-gray-400">{currencyDisplay}</span>}
+                    min={0}
+                    step="0.01"
+                    inputMode="decimal"
                   />
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     {t('products.price_description', 'Base selling price for this product when no variants exist.')} ({currencyCode})
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="compareAtPrice" className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {t('products.sale_price', 'Sale Price')}{' '}
-                    <span className="text-xs text-gray-500 dark:text-gray-400">({currencyCode})</span>
-                  </label>
-                  <InputWithIcon
+                  <FormInput
                     id="compareAtPrice"
                     type="number"
-                    step="0.01"
-                    min={0}
+                    label={t('products.sale_price', 'Sale Price')}
+                    rightElement={
+                      <span className="text-[10px] font-normal text-neutral-400 dark:text-neutral-500">
+                        ({currencyCode})
+                      </span>
+                    }
                     disabled={isContactPrice}
-                    value={compareAtPrice === '' ? '' : compareAtPrice}
-                    onChange={(e) => {
+                    value={compareAtPrice === '' ? '' : String(compareAtPrice)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const sanitizedValue = sanitizeNumberInputEvent(e);
                       if (sanitizedValue === '') {
                         setCompareAtPrice('');
@@ -647,8 +652,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       setCompareAtPrice(parseFloat(sanitizedValue) || 0);
                     }}
                     placeholder={t('products.sale_price_placeholder', 'Optional')}
+                    icon={<span className="text-gray-500 dark:text-gray-400">{currencyDisplay}</span>}
+                    useIconSpacing
                     iconSpacing="standard"
-                    leftIcon={<span className="text-gray-500 dark:text-gray-400">{currencyDisplay}</span>}
+                    min={0}
+                    step="0.01"
+                    inputMode="decimal"
                   />
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     {t('products.sale_price_description', 'Set a promotional price to highlight discounts. Leave blank to use the regular price.')} ({currencyCode})
@@ -657,7 +666,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               </div>
               {!enableWarehouseQuantity && (
                 <div className="space-y-2">
-                  <label htmlFor="stockQuantity" className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <label htmlFor="stockQuantity" className={BASE_LABEL_CLASS}>
                     {t('products.stock_quantity', 'Stock Quantity')}
                   </label>
                   <Input

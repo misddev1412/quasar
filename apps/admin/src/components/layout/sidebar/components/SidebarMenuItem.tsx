@@ -155,7 +155,10 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
 
     return (
       <Tooltip title={tooltipTitle} placement="right" arrow>
-        <Link to={item.path} style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Link
+          to={item.path}
+          style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: '100%' }}
+        >
           {buttonContent}
         </Link>
       </Tooltip>
@@ -166,7 +169,17 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
     if (!hasSubItems || !collapsed) return null;
 
     return (
-      <Box sx={{ mt: 0.5, mb: 1, position: 'relative' }}>
+      <Box
+        sx={{
+          mt: 0.5,
+          mb: 1,
+          position: 'relative',
+          width: 'calc(100% + 16px)',
+          ml: '-8px',
+          mr: '-8px',
+          px: 1,
+        }}
+      >
         {item.subItems!.map((subItem, subIndex) => (
           <SidebarSubMenuItem
             key={subIndex}
@@ -174,7 +187,6 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
             isActive={onSubItemActiveCheck(subItem.path)}
             collapsed={true}
             subIndex={subIndex}
-            level={0}
             expandedNodes={expandedNodes}
             onToggleSubMenu={() => { }}
             onSubItemActiveCheck={onSubItemActiveCheck}
@@ -190,7 +202,16 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
 
     return (
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding>
+        <List
+          component="div"
+          disablePadding
+          sx={{
+            width: 'calc(100% + 16px)',
+            ml: '-8px',
+            mr: '-8px',
+            px: 1,
+          }}
+        >
           {item.subItems!.map((subItem, subIndex) => (
             <SidebarSubMenuItem
               key={subIndex}
@@ -198,7 +219,6 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
               isActive={onSubItemActiveCheck(subItem.path)}
               collapsed={false}
               subIndex={subIndex}
-              level={0}
               expandedNodes={expandedNodes}
               onToggleSubMenu={() => { }}
               onSubItemActiveCheck={onSubItemActiveCheck}

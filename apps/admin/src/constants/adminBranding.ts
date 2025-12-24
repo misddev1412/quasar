@@ -9,6 +9,7 @@ export type AdminLoginBrandingConfig = {
   height?: number;
   platformTitle?: string;
   backgroundImageUrl?: string;
+  faviconUrl?: string;
 };
 
 export type AdminSidebarBrandingConfig = AdminLoginBrandingConfig & {
@@ -24,6 +25,7 @@ export const DEFAULT_ADMIN_LOGIN_BRANDING: AdminLoginBrandingConfig = Object.fre
   height: 48,
   platformTitle: 'Quasar Admin Platform',
   backgroundImageUrl: undefined,
+  faviconUrl: '/favicon.ico',
 });
 
 export const DEFAULT_ADMIN_SIDEBAR_BRANDING: AdminSidebarBrandingConfig = Object.freeze({
@@ -34,4 +36,5 @@ export const DEFAULT_ADMIN_SIDEBAR_BRANDING: AdminSidebarBrandingConfig = Object
   showLogoText: true,
   width: 36,
   height: 36,
+  faviconUrl: '/favicon.ico',
 });

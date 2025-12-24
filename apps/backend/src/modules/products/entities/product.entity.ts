@@ -14,6 +14,7 @@ import { Wishlist } from './wishlist.entity';
 import { ProductSpecification } from './product-specification.entity';
 import { ProductWarehouseQuantity } from './product-warehouse-quantity.entity';
 import { ProductTranslation } from './product-translation.entity';
+import { ProductPriceHistory } from './product-price-history.entity';
 
 export enum ProductStatus {
   DRAFT = 'DRAFT',
@@ -252,6 +253,9 @@ export class Product extends BaseEntity {
     eager: false,
   })
   translations: ProductTranslation[];
+
+  @OneToMany(() => ProductPriceHistory, (history) => history.product)
+  priceHistory: ProductPriceHistory[];
 
   // Getter for categories through ProductCategory junction
   async getCategories(): Promise<Category[]> {

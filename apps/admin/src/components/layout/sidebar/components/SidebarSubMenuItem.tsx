@@ -93,11 +93,12 @@ const SidebarSubMenuItem: React.FC<SidebarSubMenuItemProps> = ({
         selected={isActive}
         sx={{
           justifyContent: 'center',
-          minHeight: 36,
+          minHeight: 48,
           mt: subIndex === 0 ? 0 : 0.5,
-          mx: 1,
-          px: 0.5,
+          mx: 0,
+          px: 1,
           position: 'relative',
+          width: '100%',
           borderRadius: '6px',
           border: theme => `1px solid ${isActive
               ? 'transparent'
@@ -163,7 +164,7 @@ const SidebarSubMenuItem: React.FC<SidebarSubMenuItemProps> = ({
     ) : (
       <Link
         to={subItem.path}
-        style={{ textDecoration: 'none', color: 'inherit' }}
+        style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: '100%' }}
       >
         {buttonContent}
       </Link>
@@ -189,15 +190,18 @@ const SidebarSubMenuItem: React.FC<SidebarSubMenuItemProps> = ({
       onClick={hasSubItems ? () => onToggleSubMenu?.(subItem.path) : undefined}
       selected={isActive}
       sx={{
-        pl: 4 + (level * 2), // Dynamic padding based on level
+        pl: 2.5 + (level * 2), // Match parent horizontal padding with additional indent per level
+        pr: 2.5,
         py: 0.75,
-        minHeight: 38,
+        minHeight: 48,
+        width: '100%',
+        mx: 0,
       }}
     >
       <ListItemIcon
         sx={{
           minWidth: 0,
-          mr: 2,
+          mr: 3,
           justifyContent: 'center',
           color: isActive
             ? theme => theme.palette.mode === 'dark' ? 'common.white' : 'primary.main'
@@ -239,7 +243,7 @@ const SidebarSubMenuItem: React.FC<SidebarSubMenuItemProps> = ({
   ) : (
     <Link
       to={subItem.path}
-      style={{ textDecoration: 'none', color: 'inherit' }}
+      style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: '100%' }}
     >
       {buttonContent}
     </Link>

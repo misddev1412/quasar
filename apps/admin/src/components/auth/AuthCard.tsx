@@ -16,11 +16,10 @@ interface AuthCardProps {
 }
 
 const getControlButtonStyle = (isDarkMode: boolean) => {
-  return `px-3 py-2 rounded-lg backdrop-blur-sm transition-all duration-300 flex items-center justify-center shadow-lg text-sm font-medium cursor-pointer hover:scale-105 ${
-    isDarkMode 
-      ? 'bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30' 
-      : 'bg-primary-100/80 hover:bg-primary-200/90 text-primary-900 border border-primary-200 hover:border-primary-300'
-  }`;
+  return `px-3 py-2 rounded-lg backdrop-blur-sm transition-all duration-300 flex items-center justify-center shadow-lg text-sm font-medium cursor-pointer hover:scale-105 ${isDarkMode
+    ? 'bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30'
+    : 'bg-primary-100/80 hover:bg-primary-200/90 text-primary-900 border border-primary-200 hover:border-primary-300'
+    }`;
 };
 
 
@@ -64,7 +63,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({
 
   useEffect(() => {
     document.body.classList.add('auth-page');
-    
+
     if (isDarkMode) {
       document.body.classList.add('login-dark-mode');
       document.body.classList.remove('login-light-mode');
@@ -111,11 +110,11 @@ export const AuthCard: React.FC<AuthCardProps> = ({
 
   const backgroundImageStyle: React.CSSProperties | undefined = loginBranding.backgroundImageUrl
     ? {
-        backgroundImage: `linear-gradient(135deg, rgba(15,23,42,${isDarkMode ? 0.85 : 0.45}), rgba(15,23,42,${isDarkMode ? 0.75 : 0.35})), url(${loginBranding.backgroundImageUrl})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }
+      backgroundImage: `linear-gradient(135deg, rgba(15,23,42,${isDarkMode ? 0.85 : 0.45}), rgba(15,23,42,${isDarkMode ? 0.75 : 0.35})), url(${loginBranding.backgroundImageUrl})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+    }
     : undefined;
 
   return (
@@ -132,66 +131,56 @@ export const AuthCard: React.FC<AuthCardProps> = ({
           </div>
 
           <div className="relative z-10">
-            <div className="mb-6 flex items-center justify-between">
-              {loginBranding.logoUrl ? (
-                <div className={`${isDarkMode ? 'bg-white/30' : 'bg-primary-100'} backdrop-blur-sm rounded-xl flex items-center justify-center ${isDarkMode ? 'border border-white/20' : 'border border-primary-200'} shadow-lg p-2`}>
+            <div className="mb-6 flex flex-col">
+              {/* Logo Section */}
+              {loginBranding.logoUrl && (
+                <div className="mb-4 flex justify-start animate-fade-in-down">
                   <img
                     src={loginBranding.logoUrl}
                     alt="Logo"
+                    className="drop-shadow-lg hover:scale-105 transition-transform duration-300"
                     style={{
-                      width: `${loginBranding.width || 48}px`,
-                      height: `${loginBranding.height || 48}px`,
-                      objectFit: 'contain'
+                      width: `${loginBranding.width || 120}px`, // Increased default from 48
+                      height: 'auto',
+                      objectFit: 'contain',
+                      maxHeight: '120px' // Increased max height from 80
                     }}
                   />
                 </div>
-              ) : (
-                <div className={`h-12 w-12 ${isDarkMode ? 'bg-white/30' : 'bg-primary-100'} backdrop-blur-sm rounded-xl flex items-center justify-center ${isDarkMode ? 'border border-white/20' : 'border border-primary-200'} shadow-lg`}>
-                  <span className={`${isDarkMode ? 'text-white' : 'text-primary-800'} text-2xl font-bold ${isDarkMode ? 'text-shadow-enhanced' : ''}`}>
-                    {loginBranding.logoText || 'Q'}
-                  </span>
-                </div>
               )}
 
-              <div className="flex items-center space-x-3">
-                <ThemeToggleButton />
-                <LocaleSwitcher
-                  className="auth-locale-switcher min-w-[9rem]"
-                  selectClassName={`${getControlButtonStyle(isDarkMode)} min-h-[40px] relative overflow-hidden whitespace-nowrap`}
-                />
-              </div>
             </div>
-            <h1 className={`text-4xl lg:text-5xl font-bold ${getTitleTextColor()} mb-4 ${isDarkMode ? 'drop-shadow-xl text-shadow-enhanced' : ''}`}>{resolvedTitle}</h1>
+            <h1 className={`text-4xl lg:text-5xl font-bold ${getTitleTextColor()} mb-6 leading-tight tracking-tight ${isDarkMode ? 'drop-shadow-xl text-shadow-enhanced' : ''}`}>{resolvedTitle}</h1>
             <p className={`${getTitleTextColor()} text-lg mb-6 ${isDarkMode ? 'drop-shadow-xl text-shadow-enhanced' : ''}`}>{t('auth.enter_credentials')}</p>
-            
+
             {/* Main Image */}
             <div className="flex justify-center mb-8">
-              <img 
-                src="/assets/images/auth-form-main.png" 
-                alt="Admin Platform" 
+              <img
+                src="/assets/images/auth-form-main.png"
+                alt="Admin Platform"
                 className="w-full h-auto"
                 style={{ maxHeight: '400px' }}
               />
             </div>
 
             <div className="space-y-4 mt-6">
-              <FeatureItem 
-                icon={<ShieldIcon className={`h-6 w-6 ${getIconColor()}`} />} 
-                text={t('features.enterprise_security')} 
+              <FeatureItem
+                icon={<ShieldIcon className={`h-6 w-6 ${getIconColor()}`} />}
+                text={t('features.enterprise_security')}
                 className="hover:translate-x-1 transition-transform duration-300 feature-item-enhanced"
                 isDarkMode={isDarkMode}
                 enhancedText={true}
               />
-              <FeatureItem 
-                icon={<BoltIcon className={`h-6 w-6 ${getIconColor()}`} />} 
-                text={t('features.efficient_management')} 
+              <FeatureItem
+                icon={<BoltIcon className={`h-6 w-6 ${getIconColor()}`} />}
+                text={t('features.efficient_management')}
                 className="hover:translate-x-1 transition-transform duration-300 feature-item-enhanced"
                 isDarkMode={isDarkMode}
                 enhancedText={true}
               />
-              <FeatureItem 
-                icon={<ChartIcon className={`h-6 w-6 ${getIconColor()}`} />} 
-                text={t('features.data_analysis')} 
+              <FeatureItem
+                icon={<ChartIcon className={`h-6 w-6 ${getIconColor()}`} />}
+                text={t('features.data_analysis')}
                 className="hover:translate-x-1 transition-transform duration-300 feature-item-enhanced"
                 isDarkMode={isDarkMode}
                 enhancedText={true}
@@ -203,6 +192,13 @@ export const AuthCard: React.FC<AuthCardProps> = ({
         </div>
 
         <div className="w-full md:w-7/12 p-8 md:p-12 flex flex-col justify-center bg-theme-surface text-theme-primary transition-colors duration-500">
+          <div className="flex flex-wrap items-center justify-end gap-3 w-full mb-6">
+            <LocaleSwitcher
+              className="auth-locale-switcher min-w-[9rem]"
+              selectClassName={`${getControlButtonStyle(isDarkMode)} min-h-[40px] relative overflow-hidden whitespace-nowrap`}
+            />
+            <ThemeToggleButton />
+          </div>
           <div className="max-w-md mx-auto w-full">
             {children}
           </div>

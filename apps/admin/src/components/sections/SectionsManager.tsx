@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { Image as ImageIcon } from 'lucide-react';
 import { FiPlus, FiRefreshCw, FiEdit, FiTrash2, FiMoreVertical, FiChevronUp, FiChevronDown } from 'react-icons/fi';
 import { useSectionsManager, AdminSection, ActiveLanguage } from '../../hooks/useSectionsManager';
@@ -108,17 +109,7 @@ export interface SectionFormState {
   translations: Record<string, SectionTranslationForm>;
 }
 
-const PAGE_OPTIONS: SelectOption[] = [
-  { value: 'home', label: 'Home' },
-  { value: 'news', label: 'News' },
-  { value: 'product', label: 'Product' },
-  { value: 'product_detail', label: 'Product Detail' },
-];
 
-const SECTION_TYPE_OPTIONS: SelectOption[] = (Object.entries(SECTION_TYPE_LABELS) as Array<[SectionType, string]>).map(([value, label]) => ({
-  value,
-  label,
-}));
 
 type ConfigChangeHandler = (value: Record<string, unknown>) => void;
 
@@ -324,16 +315,16 @@ const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, value, 
           : 60;
       const nextOverlay = checked
         ? {
-            ...existingOverlay,
-            enabled: true,
-            color: (existingOverlay.color as string) || '#00000080',
-            opacity: existingOpacity,
-            opacityPercent: existingOpacity,
-          }
+          ...existingOverlay,
+          enabled: true,
+          color: (existingOverlay.color as string) || '#00000080',
+          opacity: existingOpacity,
+          opacityPercent: existingOpacity,
+        }
         : {
-            ...existingOverlay,
-            enabled: false,
-          };
+          ...existingOverlay,
+          enabled: false,
+        };
 
       onChange({
         ...(value ?? {}),
@@ -432,12 +423,12 @@ const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, value, 
               checked={overlayEnabled}
               onChange={(e) => handleOverlayToggle(e.target.checked)}
             />
-            Enable overlay
+            {t('sections.manager.heroSlider.enableOverlay')}
           </label>
           {overlayEnabled && (
             <div className="space-y-2">
               <label className="flex flex-col gap-1 text-sm text-gray-600">
-                Overlay color
+                {t('sections.manager.heroSlider.overlayColor')}
                 <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
                   <Input
                     type="color"
@@ -456,7 +447,7 @@ const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, value, 
                 </div>
               </label>
               <label className="flex flex-col gap-1 text-sm text-gray-600">
-                Overlay opacity (%)
+                {t('sections.manager.heroSlider.overlayOpacity')}
                 <div className="flex items-center gap-3">
                   <input
                     type="range"
@@ -475,9 +466,9 @@ const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, value, 
                     className="w-20 text-sm"
                   />
                 </div>
-                <span className="text-xs text-gray-500">0% removes the overlay, 100% makes it fully solid.</span>
+                <span className="text-xs text-gray-500">{t('sections.manager.heroSlider.overlayOpacityHelp')}</span>
               </label>
-              <p className="text-xs text-gray-500">Supports hex or rgba values. Use transparency for softer overlays.</p>
+              <p className="text-xs text-gray-500">{t('sections.manager.heroSlider.overlayColorHelp')}</p>
             </div>
           )}
         </div>
@@ -493,16 +484,16 @@ const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, value, 
     <NewsByCategoryConfigEditor value={value || {}} onChange={onChange} />
   );
 
-const renderCustomHtml = () => (
-  <div className="space-y-2">
-    <label className="flex items-center justify-between text-sm font-medium text-gray-700">
-      Custom HTML
-      <Button variant="ghost" size="sm" onClick={() => setJsonView(true)}>Edit as JSON</Button>
+  const renderCustomHtml = () => (
+    <div className="space-y-2">
+      <label className="flex items-center justify-between text-sm font-medium text-gray-700">
+        {t('sections.manager.config.customHtml.title')}
+        <Button variant="ghost" size="sm" onClick={() => setJsonView(true)}>{t('sections.manager.config.customHtml.editAsJson')}</Button>
       </label>
       <RichTextEditor
         value={(value?.html as string) || ''}
         onChange={(newValue) => handleValueChange('html', newValue)}
-        placeholder="Enter your custom HTML content here..."
+        placeholder={t('sections.manager.config.customHtml.placeholder')}
         minHeight="400px"
       />
     </div>
@@ -1191,7 +1182,7 @@ const renderCustomHtml = () => (
         </div>
 
         <label className="flex flex-col gap-1 text-sm text-gray-600">
-          {t('sections.manager.config.gallery.gutter', 'Gap between images')}
+          {t('sections.manager.config.gallery.gap')}
           <Input
             value={currentGutter}
             onChange={(e) => handleGutterChange(e.target.value)}
@@ -1199,14 +1190,14 @@ const renderCustomHtml = () => (
             className="text-sm"
             inputSize="md"
           />
-          <span className="text-xs text-gray-500">{t('sections.manager.config.gallery.gutterDescription', 'CSS value for spacing (e.g., 1rem, 20px)')}</span>
+          <span className="text-xs text-gray-500">{t('sections.manager.config.gallery.gapDescription')}</span>
         </label>
 
         {/* Gallery Images */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium text-gray-700">
-              {t('sections.manager.config.gallery.images', 'Gallery Images')}
+              {t('sections.manager.config.gallery.title')}
             </label>
             <Button
               type="button"
@@ -1215,13 +1206,13 @@ const renderCustomHtml = () => (
               startIcon={<FiPlus className="h-4 w-4" />}
               onClick={handleAddImage}
             >
-              {t('sections.manager.config.gallery.addImage', 'Add Image')}
+              {t('sections.manager.config.gallery.addImage')}
             </Button>
           </div>
 
           {images.length === 0 ? (
             <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
-              <p className="text-sm text-gray-500">{t('sections.manager.config.gallery.noImages', 'No images added yet. Click "Add Image" to start.')}</p>
+              <p className="text-sm text-gray-500">{t('sections.manager.config.gallery.noImages')}</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -1237,7 +1228,7 @@ const renderCustomHtml = () => (
                   <div key={idx} className="border border-gray-200 rounded-lg p-4 space-y-4 bg-gray-50">
                     <div className="flex items-center justify-between">
                       <h4 className="text-sm font-medium text-gray-900">
-                        {t('sections.manager.config.gallery.image', 'Image')} #{idx + 1}
+                        {t('sections.manager.config.gallery.imageTitle', { index: idx + 1 })}
                       </h4>
                       <Button
                         type="button"
@@ -1246,14 +1237,14 @@ const renderCustomHtml = () => (
                         startIcon={<FiTrash2 className="h-4 w-4" />}
                         onClick={() => handleRemoveImage(idx)}
                       >
-                        {t('sections.manager.config.gallery.removeImage', 'Remove')}
+                        {t('sections.manager.config.gallery.remove')}
                       </Button>
                     </div>
 
                     {/* Image Selection */}
                     <div className="space-y-2">
                       <label className="text-xs text-gray-600">
-                        {t('sections.manager.config.gallery.imageUrl', 'Image URL')}
+                        {t('sections.manager.config.gallery.imageUrl')}
                       </label>
                       {imageUrl && (
                         <div className="relative aspect-video w-full max-w-xs overflow-hidden rounded-lg border border-gray-200">
@@ -1273,8 +1264,8 @@ const renderCustomHtml = () => (
                           onClick={() => handleOpenGalleryMedia(idx)}
                         >
                           {imageUrl
-                            ? t('sections.manager.config.gallery.changeImage', 'Change Image')
-                            : t('sections.manager.config.gallery.selectImage', 'Select Image')}
+                            ? t('sections.manager.config.gallery.changeImage')
+                            : t('sections.manager.config.gallery.selectImage')}
                         </Button>
                         {imageUrl && (
                           <Button
@@ -1284,7 +1275,7 @@ const renderCustomHtml = () => (
                             startIcon={<FiTrash2 className="h-4 w-4" />}
                             onClick={() => handleImageChange(idx, { imageUrl: '' })}
                           >
-                            {t('sections.manager.config.gallery.removeImage', 'Remove Image')}
+                            {t('sections.manager.config.gallery.removeImage')}
                           </Button>
                         )}
                       </div>
@@ -1294,21 +1285,21 @@ const renderCustomHtml = () => (
                     {/* Image Details */}
                     <div className="grid grid-cols-1 gap-4">
                       <label className="flex flex-col gap-1 text-sm text-gray-600">
-                        {t('sections.manager.config.gallery.imageLabel', 'Label')}
+                        {t('sections.manager.config.gallery.label')}
                         <Input
                           value={label}
                           onChange={(e) => handleImageChange(idx, { label: e.target.value })}
-                          placeholder={t('sections.manager.config.gallery.imageLabelPlaceholder', 'Image title or caption')}
+                          placeholder={t('sections.manager.config.gallery.labelPlaceholder')}
                           className="text-sm"
                           inputSize="md"
                         />
                       </label>
                       <label className="flex flex-col gap-1 text-sm text-gray-600">
-                        {t('sections.manager.config.gallery.imageDescription', 'Description')}
+                        {t('sections.manager.config.gallery.description')}
                         <TextArea
                           value={description}
                           onChange={(e) => handleImageChange(idx, { description: e.target.value })}
-                          placeholder={t('sections.manager.config.gallery.imageDescriptionPlaceholder', 'Additional description')}
+                          placeholder={t('sections.manager.config.gallery.descriptionPlaceholder')}
                           className="text-sm"
                           rows={2}
                         />
@@ -1318,21 +1309,21 @@ const renderCustomHtml = () => (
                     {/* Link Configuration */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <label className="flex flex-col gap-1 text-sm text-gray-600">
-                        {t('sections.manager.config.gallery.linkLabel', 'Link Label')}
+                        {t('sections.manager.config.gallery.linkLabel')}
                         <Input
                           value={linkLabel}
                           onChange={(e) => handleImageLinkChange(idx, { label: e.target.value })}
-                          placeholder={t('sections.manager.config.gallery.linkLabelPlaceholder', 'View more')}
+                          placeholder={t('sections.manager.config.gallery.linkLabelPlaceholder')}
                           className="text-sm"
                           inputSize="md"
                         />
                       </label>
                       <label className="flex flex-col gap-1 text-sm text-gray-600">
-                        {t('sections.manager.config.gallery.linkUrl', 'Link URL')}
+                        {t('sections.manager.config.gallery.linkUrl')}
                         <Input
                           value={linkHref}
                           onChange={(e) => handleImageLinkChange(idx, { href: e.target.value })}
-                          placeholder={t('sections.manager.config.gallery.linkUrlPlaceholder', 'https://example.com')}
+                          placeholder={t('sections.manager.config.gallery.linkUrlPlaceholder')}
                           className="text-sm"
                           inputSize="md"
                         />
@@ -1351,7 +1342,7 @@ const renderCustomHtml = () => (
           onSelect={handleGalleryMediaSelect}
           multiple={false}
           accept="image/*"
-          title={t('sections.manager.config.gallery.mediaManagerTitle', 'Select Gallery Image')}
+          title={t('sections.manager.config.gallery.selectMedia')}
         />
       </div>
     );
@@ -1888,14 +1879,14 @@ const renderCustomHtml = () => (
     <>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h4 className="text-sm font-semibold text-gray-700">Section configuration</h4>
-          <Button variant="ghost" size="sm" onClick={() => setJsonView(true)}>Raw JSON</Button>
+          <h4 className="text-sm font-semibold text-gray-700">{t('sections.config.header')}</h4>
+          <Button variant="ghost" size="sm" onClick={() => setJsonView(true)}>{t('sections.manager.rawJson')}</Button>
         </div>
 
-      {type === SectionType.HERO_SLIDER && renderHeroSlider()}
-      {type === SectionType.FEATURED_PRODUCTS && (
-        <FeaturedProductsConfigEditor value={value || {}} onChange={onChange} />
-      )}
+        {type === SectionType.HERO_SLIDER && renderHeroSlider()}
+        {type === SectionType.FEATURED_PRODUCTS && (
+          <FeaturedProductsConfigEditor value={value || {}} onChange={onChange} />
+        )}
         {type === SectionType.PRODUCTS_BY_CATEGORY && renderProductsByCategory()}
         {type === SectionType.NEWS && renderNews()}
         {type === SectionType.CUSTOM_HTML && renderCustomHtml()}
@@ -1903,12 +1894,12 @@ const renderCustomHtml = () => (
         {type === SectionType.TESTIMONIALS && renderTestimonials()}
         {type === SectionType.CTA && renderCta()}
         {type === SectionType.FEATURES && renderFeatures()}
-      {type === SectionType.GALLERY && renderGallery()}
-      {type === SectionType.TEAM && renderTeam()}
-      {type === SectionType.CONTACT_FORM && renderContactForm()}
-      {type === SectionType.VIDEO && renderVideo()}
-      {type === SectionType.STATS && renderStats()}
-      {type === SectionType.BRAND_SHOWCASE && renderBrandShowcase()}
+        {type === SectionType.GALLERY && renderGallery()}
+        {type === SectionType.TEAM && renderTeam()}
+        {type === SectionType.CONTACT_FORM && renderContactForm()}
+        {type === SectionType.VIDEO && renderVideo()}
+        {type === SectionType.STATS && renderStats()}
+        {type === SectionType.BRAND_SHOWCASE && renderBrandShowcase()}
 
         {![
           SectionType.HERO_SLIDER,
@@ -1927,11 +1918,11 @@ const renderCustomHtml = () => (
           SectionType.STATS,
           SectionType.BRAND_SHOWCASE,
         ].includes(type) && (
-          <div className="space-y-2">
-            <p className="text-xs text-gray-500">No dedicated editor for this type yet. Switch to raw JSON mode.</p>
-            <Button variant="ghost" size="sm" onClick={() => setJsonView(true)}>Open JSON editor</Button>
-          </div>
-        )}
+            <div className="space-y-2">
+              <p className="text-xs text-gray-500">{t('sections.manager.configEditor.noDedicatedEditor')}</p>
+              <Button variant="ghost" size="sm" onClick={() => setJsonView(true)}>{t('sections.manager.configEditor.openJsonEditor')}</Button>
+            </div>
+          )}
       </div>
 
     </>
@@ -1939,6 +1930,7 @@ const renderCustomHtml = () => (
 };
 
 const HeroSliderLocaleEditor: React.FC<HeroSliderLocaleEditorProps> = ({ locale, config, onConfigChange, hasParseError }) => {
+  const { t } = useTranslation();
   const [isMediaManagerOpen, setIsMediaManagerOpen] = useState(false);
   const [activeSlideIndex, setActiveSlideIndex] = useState<number | null>(null);
 
@@ -2014,19 +2006,19 @@ const HeroSliderLocaleEditor: React.FC<HeroSliderLocaleEditorProps> = ({ locale,
     <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-          <h4 className="text-sm font-semibold text-gray-700">Slides for {locale.toUpperCase()}</h4>
-          <p className="text-xs text-gray-500">Manage locale-specific campaigns and creatives.</p>
+          <h4 className="text-sm font-semibold text-gray-700">{t('sections.manager.heroSlider.slidesFor', { locale: locale.toUpperCase() })}</h4>
+          <p className="text-xs text-gray-500">{t('sections.manager.heroSlider.manageLocaleCampaigns')}</p>
           {hasParseError && (
             <p className="text-xs text-red-500 mt-1">
-              Existing override contains invalid JSON. Saving slides will replace it for this locale.
+              {t('sections.manager.heroSlider.jsonError')}
             </p>
           )}
         </div>
-        <Button variant="secondary" size="sm" onClick={addSlide} startIcon={<FiPlus className="w-4 h-4" />}>Add slide</Button>
+        <Button variant="secondary" size="sm" onClick={addSlide} startIcon={<FiPlus className="w-4 h-4" />}>{t('sections.manager.heroSlider.addSlide')}</Button>
       </div>
 
       {slides.length === 0 && (
-        <p className="text-xs text-gray-500">No slides configured yet. Add your first slide for this locale.</p>
+        <p className="text-xs text-gray-500">{t('sections.manager.heroSlider.noSlides')}</p>
       )}
 
       <div className="space-y-3">
@@ -2037,21 +2029,21 @@ const HeroSliderLocaleEditor: React.FC<HeroSliderLocaleEditorProps> = ({ locale,
           return (
             <div key={slideId} className="border rounded-lg p-4 space-y-3 bg-white">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-gray-700">Slide #{idx + 1}</p>
+                <p className="text-sm font-medium text-gray-700">{t('sections.manager.heroSlider.slideTitle', { index: idx + 1 })}</p>
                 <Button variant="ghost" size="sm" onClick={() => removeSlide(idx)} startIcon={<FiTrash2 className="w-4 h-4" />}>
-                  Remove
+                  {t('sections.manager.heroSlider.remove')}
                 </Button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <Input
-                  placeholder="Title"
+                  placeholder={t('sections.manager.heroSlider.titlePlaceholder')}
                   value={(slide.title as string) || ''}
                   onChange={(e) => updateSlide(idx, 'title', e.target.value)}
                   className="text-sm"
                   inputSize="md"
                 />
                 <Input
-                  placeholder="Subtitle"
+                  placeholder={t('sections.manager.heroSlider.subtitlePlaceholder')}
                   value={(slide.subtitle as string) || ''}
                   onChange={(e) => updateSlide(idx, 'subtitle', e.target.value)}
                   className="text-sm"
@@ -2060,14 +2052,14 @@ const HeroSliderLocaleEditor: React.FC<HeroSliderLocaleEditorProps> = ({ locale,
                 <div className="md:col-span-2">
                   <TextArea
                     rows={3}
-                    placeholder="Description"
+                    placeholder={t('sections.manager.heroSlider.descriptionPlaceholder')}
                     value={(slide.description as string) || ''}
                     onChange={(e) => updateSlide(idx, 'description', e.target.value)}
                     className="text-sm"
                   />
                 </div>
                 <div className="md:col-span-2 space-y-2">
-                  <span className="text-sm font-medium text-gray-600">Slide image</span>
+                  <span className="text-sm font-medium text-gray-600">{t('sections.manager.heroSlider.slideImage')}</span>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <div className="flex items-center justify-center w-full sm:w-48 h-32 border border-dashed border-gray-300 bg-white rounded-md overflow-hidden">
                       {imageUrl ? (
@@ -2079,7 +2071,7 @@ const HeroSliderLocaleEditor: React.FC<HeroSliderLocaleEditorProps> = ({ locale,
                       ) : (
                         <div className="flex flex-col items-center justify-center gap-1 text-gray-400">
                           <ImageIcon className="w-10 h-10" />
-                          <span className="text-xs">No image selected</span>
+                          <span className="text-xs">{t('sections.manager.heroSlider.noImageSelected')}</span>
                         </div>
                       )}
                     </div>
@@ -2091,7 +2083,7 @@ const HeroSliderLocaleEditor: React.FC<HeroSliderLocaleEditorProps> = ({ locale,
                           variant="outline"
                           onClick={() => handleOpenMediaManager(idx)}
                         >
-                          {imageUrl ? 'Change image' : 'Select image'}
+                          {imageUrl ? t('sections.manager.heroSlider.changeImage') : t('sections.manager.heroSlider.selectImage')}
                         </Button>
                         {imageUrl && (
                           <Button
@@ -2101,13 +2093,13 @@ const HeroSliderLocaleEditor: React.FC<HeroSliderLocaleEditorProps> = ({ locale,
                             onClick={() => updateSlide(idx, 'imageUrl', '')}
                             startIcon={<FiTrash2 className="w-4 h-4" />}
                           >
-                            Remove image
+                            {t('sections.manager.heroSlider.removeImage')}
                           </Button>
                         )}
                       </div>
                       <Input
                         value={imageUrl}
-                        placeholder="Image URL will appear after selection"
+                        placeholder={t('sections.manager.heroSlider.imagePlaceholder')}
                         readOnly
                         className="text-sm"
                         inputSize="md"
@@ -2116,14 +2108,14 @@ const HeroSliderLocaleEditor: React.FC<HeroSliderLocaleEditorProps> = ({ locale,
                   </div>
                 </div>
                 <Input
-                  placeholder="CTA Label"
+                  placeholder={t('sections.manager.heroSlider.ctaLabel')}
                   value={(slide.ctaLabel as string) || ''}
                   onChange={(e) => updateSlide(idx, 'ctaLabel', e.target.value)}
                   className="text-sm"
                   inputSize="md"
                 />
                 <Input
-                  placeholder="CTA URL"
+                  placeholder={t('sections.manager.heroSlider.ctaUrl')}
                   value={(slide.ctaUrl as string) || ''}
                   onChange={(e) => updateSlide(idx, 'ctaUrl', e.target.value)}
                   className="text-sm"
@@ -2141,7 +2133,7 @@ const HeroSliderLocaleEditor: React.FC<HeroSliderLocaleEditorProps> = ({ locale,
         onSelect={handleMediaSelect}
         multiple={false}
         accept="image/*"
-        title={`Select slide image (${locale.toUpperCase()})`}
+        title={t('sections.manager.heroSlider.selectSlideImage', { locale: locale.toUpperCase() })}
       />
     </div>
   );
@@ -2152,7 +2144,7 @@ interface FeaturedProductsConfigEditorProps {
   onChange: ConfigChangeHandler;
 }
 
-const mapProductToOption = (product: any): ProductOption => {
+const mapProductToOption = (product: any, t: any): ProductOption => {
   let priceLabel: string | null = null;
   if (product?.priceRange) {
     priceLabel = product.priceRange;
@@ -2166,7 +2158,7 @@ const mapProductToOption = (product: any): ProductOption => {
 
   return {
     value: product.id,
-    label: product.name || 'Unnamed product',
+    label: product.name || t('sections.manager.productsByCategory.unnamedProduct'),
     sku: product.sku,
     image: primaryImage,
     priceLabel,
@@ -2175,6 +2167,7 @@ const mapProductToOption = (product: any): ProductOption => {
 };
 
 const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditorProps> = ({ value, onChange }) => {
+  const { t } = useTranslation();
   const selectedIds = Array.isArray(value?.productIds) ? (value.productIds as string[]) : [];
   const [optionsMap, setOptionsMap] = useState<Record<string, ProductOption>>({});
   const [searchOptions, setSearchOptions] = useState<ProductOption[]>([]);
@@ -2218,7 +2211,7 @@ const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditorProps> 
     }
 
     const items = Array.isArray(payload.items) ? payload.items : [];
-    const mapped = items.map(mapProductToOption);
+    const mapped = items.map((p: any) => mapProductToOption(p, t));
 
     setOptionsMap((prev) => {
       const next = { ...prev };
@@ -2259,7 +2252,7 @@ const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditorProps> 
               const response = await trpcClient.adminProducts.detail.query({ id });
               const product = (response as any)?.data;
               if (!product) return null;
-              return mapProductToOption(product);
+              return mapProductToOption(product, t);
             } catch (error) {
               console.error('Failed to fetch product detail', error);
               return null;
@@ -2450,10 +2443,10 @@ const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditorProps> 
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Featured products</label>
+        <label className="text-sm font-medium text-gray-700">{t('sections.manager.productsByCategory.featureProducts')}</label>
         <SelectComponent<ProductOption, true>
           isMulti
-          placeholder="Search and select products..."
+          placeholder={t('sections.manager.productsByCategory.searchProducts')}
           value={selectedOptions}
           onChange={(items) => handleSelectionChange(items as ProductOption[])}
           options={allOptions}
@@ -2468,8 +2461,8 @@ const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditorProps> 
           hideSelectedOptions={false}
           isLoading={productsQuery.isLoading && page === 1}
           isClearable={false}
-          loadingMessage={() => 'Loading products...'}
-          noOptionsMessage={() => (debouncedSearch ? 'No products found' : 'Start typing to search products')}
+          loadingMessage={() => t('sections.manager.productsByCategory.loadingProducts')}
+          noOptionsMessage={() => (debouncedSearch ? t('sections.manager.productsByCategory.noProductsFound') : t('sections.manager.productsByCategory.startTyping'))}
           styles={productSelectStyles}
           components={{ MenuList }}
           formatOptionLabel={formatOptionLabel}
@@ -2482,14 +2475,14 @@ const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditorProps> 
           }}
         />
         <p className="text-xs text-gray-500">
-          Products appear in the order selected. Remove and re-add to adjust ordering.
+          {t('sections.manager.productsByCategory.productsAppearOrder')}
         </p>
       </div>
 
       <div className="space-y-3">
         {selectedOptions.length === 0 ? (
           <div className="border border-dashed border-gray-300 rounded-lg p-4 text-sm text-gray-500">
-            No products selected yet.
+            {t('sections.manager.productsByCategory.noProductsSelected')}
           </div>
         ) : (
           <div className="space-y-2">
@@ -2510,7 +2503,7 @@ const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditorProps> 
                     {index + 1}. {option.label}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {option.sku ? `SKU: ${option.sku}` : 'No SKU'}
+                    {option.sku ? `SKU: ${option.sku}` : t('sections.manager.productsByCategory.noSku')}
                     {option.brandName ? ` · ${option.brandName}` : ''}
                     {option.priceLabel ? ` · ${option.priceLabel}` : ''}
                   </p>
@@ -2523,7 +2516,7 @@ const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditorProps> 
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <label className="flex flex-col gap-1 text-sm text-gray-600">
-          Display style
+          {t('sections.manager.productsByCategory.style')}
           <select
             className="border rounded-md px-3.5 py-2.5 text-sm !h-11"
             value={(value?.displayStyle as string) || 'grid'}
@@ -2534,7 +2527,7 @@ const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditorProps> 
           </select>
         </label>
         <label className="flex flex-col gap-1 text-sm text-gray-600">
-          Items per row
+          {t('sections.manager.productsByCategory.itemsPerRow')}
           <Input
             type="number"
             min={1}
@@ -2573,11 +2566,7 @@ interface NewsCategorySelectOption extends SelectOption {
 
 const DEFAULT_NEWS_LIMIT = 4;
 
-const NEWS_STRATEGY_OPTIONS: Array<{ value: NewsByCategoryStrategy; label: string }> = [
-  { value: 'latest', label: 'Tin mới nhất' },
-  { value: 'most_viewed', label: 'Xem nhiều nhất' },
-  { value: 'featured', label: 'Biên tập đề xuất' },
-];
+
 
 const createNewsRowId = () => `news-row-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -2725,6 +2714,7 @@ const newsRowsAreEqual = (a: NewsByCategoryAdminRow[], b: NewsByCategoryAdminRow
 };
 
 const NewsByCategoryConfigEditor: React.FC<NewsByCategoryConfigEditorProps> = ({ value, onChange }) => {
+  const { t } = useTranslation();
   const { data: categoriesData, isLoading: categoriesLoading } = trpc.adminPostCategories.getCategories.useQuery();
 
   const categoryOptions = useMemo<NewsCategorySelectOption[]>(() => {
@@ -2771,8 +2761,8 @@ const NewsByCategoryConfigEditor: React.FC<NewsByCategoryConfigEditorProps> = ({
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h4 className="text-sm font-semibold text-gray-700">Danh mục tin tức</h4>
-        <p className="text-xs text-gray-500">Chọn danh mục và cách hiển thị bài viết cho từng danh mục.</p>
+        <h4 className="text-sm font-semibold text-gray-700">{t('sections.manager.newsByCategory.title')}</h4>
+        <p className="text-xs text-gray-500">{t('sections.manager.newsByCategory.description')}</p>
       </div>
 
       <div className="space-y-4">
@@ -2796,7 +2786,7 @@ const NewsByCategoryConfigEditor: React.FC<NewsByCategoryConfigEditorProps> = ({
         className="w-full flex items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 bg-white py-3 text-sm font-medium text-gray-600 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
       >
         <FiPlus className="w-4 h-4" />
-        Thêm danh mục tin tức
+        {t('sections.manager.newsByCategory.addCategory')}
       </button>
     </div>
   );
@@ -2822,6 +2812,12 @@ const NewsCategoryRowEditor: React.FC<NewsCategoryRowEditorProps> = ({
   canRemove,
 }) => {
   const { t } = useTranslation();
+
+  const NEWS_STRATEGY_OPTIONS = useMemo(() => [
+    { value: 'latest', label: t('sections.manager.newsByCategory.latest') },
+    { value: 'most_viewed', label: t('sections.manager.newsByCategory.mostViewed') },
+    { value: 'featured', label: t('sections.manager.newsByCategory.featured') },
+  ], [t]);
 
   const selectedCategoryOption = useMemo<NewsCategorySelectOption | null>(() => {
     if (!row.categoryId) {
@@ -2917,8 +2913,8 @@ const NewsCategoryRowEditor: React.FC<NewsCategoryRowEditorProps> = ({
     <div className="rounded-xl border border-gray-200/80 bg-white/90 shadow-sm">
       <div className="flex flex-col gap-4 border-b border-gray-100 bg-gray-50/80 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
-          <p className="text-sm font-semibold text-gray-900">Danh mục #{index + 1}</p>
-          <p className="text-xs text-gray-500">{t('sections.manager.newsByCategory.rowDescription', 'Chọn danh mục và cấu hình hiển thị cho mục tin tức.')}</p>
+          <p className="text-sm font-semibold text-gray-900">{t('sections.manager.newsByCategory.categoryLabel')} #{index + 1}</p>
+          <p className="text-xs text-gray-500">{t('sections.manager.newsByCategory.rowDescription')}</p>
         </div>
         {canRemove && (
           <button
@@ -2927,14 +2923,14 @@ const NewsCategoryRowEditor: React.FC<NewsCategoryRowEditorProps> = ({
             className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
           >
             <FiTrash2 className="w-3.5 h-3.5" />
-            {t('common.actions.remove', 'Xóa')}
+            {t('sections.manager.newsByCategory.remove')}
           </button>
         )}
       </div>
 
       <div className="grid gap-4 px-5 py-5 md:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Danh mục</label>
+          <label className="text-sm font-medium text-gray-700">{t('sections.manager.newsByCategory.categoryLabel')}</label>
           <SelectComponent
             isClearable
             isDisabled={categoriesLoading}
@@ -2942,7 +2938,7 @@ const NewsCategoryRowEditor: React.FC<NewsCategoryRowEditorProps> = ({
             options={categoryOptions}
             value={selectedCategoryOption}
             onChange={(option) => handleCategoryChange(option as NewsCategorySelectOption | null)}
-            placeholder={categoriesLoading ? 'Đang tải danh mục...' : 'Chọn danh mục tin tức'}
+            placeholder={categoriesLoading ? t('sections.manager.newsByCategory.loadingCategories') : t('sections.manager.newsByCategory.selectCategory')}
             filterOption={categoryFilterOption}
             formatOptionLabel={formatCategoryOptionLabel}
             menuPortalTarget={menuPortalTarget}
@@ -2967,29 +2963,29 @@ const NewsCategoryRowEditor: React.FC<NewsCategoryRowEditorProps> = ({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Tiêu đề hiển thị</label>
+          <label className="text-sm font-medium text-gray-700">{t('sections.manager.newsByCategory.displayTitle')}</label>
           <Input
             value={row.title}
             onChange={(event) => handleTitleChange(event.target.value)}
-            placeholder="Ví dụ: Tin tức nổi bật"
+            placeholder={t('sections.manager.newsByCategory.titlePlaceholder')}
             className="text-sm"
             inputSize="md"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Cách lấy bài viết</label>
+          <label className="text-sm font-medium text-gray-700">{t('sections.manager.newsByCategory.fetchStrategy')}</label>
           <Select
             value={row.strategy}
             onChange={handleStrategyChange}
             options={NEWS_STRATEGY_OPTIONS}
-            placeholder="Chọn cách lấy bài viết"
+            placeholder={t('sections.manager.newsByCategory.selectStrategy')}
             size="md"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Số lượng bài viết</label>
+          <label className="text-sm font-medium text-gray-700">{t('sections.manager.newsByCategory.itemCount')}</label>
           <Input
             type="number"
             min={1}
@@ -3041,12 +3037,7 @@ interface CategorySelectOption extends SelectOption {
   categoryName: string;
 }
 
-const STRATEGY_SELECT_OPTIONS: Array<{ value: ProductsByCategoryStrategy; label: string; disabled?: boolean }> = [
-  { value: 'latest', label: 'Sản phẩm mới nhất' },
-  { value: 'featured', label: 'Sản phẩm nổi bật' },
-  { value: 'bestsellers', label: 'Bán chạy nhất (đang phát triển)', disabled: true },
-  { value: 'custom', label: 'Tùy chọn sản phẩm' },
-];
+
 
 const createRowId = () => `row-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -3216,6 +3207,7 @@ const rowsAreEqual = (
 };
 
 const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEditorProps> = ({ value, onChange }) => {
+  const { t } = useTranslation();
   const { data: categoriesData, isLoading: categoriesLoading } = trpc.adminProductCategories.getTree.useQuery({
     includeInactive: false,
   });
@@ -3291,17 +3283,17 @@ const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEditorPro
         <Toggle
           checked={sidebarEnabled}
           onChange={handleSidebarToggle}
-          label="Bật sidebar mega menu"
-          description="Sidebar sẽ dùng cấu hình từ Component Configs và ghim bên trái section."
+          label={t('sections.manager.productsByCategory.enableSidebar')}
+          description={t('sections.manager.productsByCategory.sidebarDescription')}
         />
         <p className="mt-1 text-xs text-gray-500">
-          Chỉnh sửa nội dung mega menu tại mục Component Configs &gt; products_by_category.
+          {t('sections.manager.productsByCategory.sidebarNote')}
         </p>
       </div>
 
       <div className="space-y-1">
-        <h4 className="text-sm font-semibold text-gray-700">Danh mục hiển thị</h4>
-        <p className="text-xs text-gray-500">Thêm nhiều danh mục để hiển thị sản phẩm nổi bật theo từng nhóm.</p>
+        <h4 className="text-sm font-semibold text-gray-700">{t('sections.manager.productsByCategory.displayCategories')}</h4>
+        <p className="text-xs text-gray-500">{t('sections.manager.productsByCategory.displayCategoriesDescription')}</p>
       </div>
 
       <div className="space-y-4">
@@ -3325,7 +3317,7 @@ const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEditorPro
         className="w-full flex items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 bg-white py-3 text-sm font-medium text-gray-600 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
       >
         <FiPlus className="w-4 h-4" />
-        Thêm danh mục
+        {t('sections.manager.productsByCategory.addCategory')}
       </button>
 
     </div>
@@ -3352,6 +3344,14 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
   canRemove,
 }) => {
   const { t } = useTranslation();
+
+  const STRATEGY_SELECT_OPTIONS = useMemo(() => [
+    { value: 'latest', label: t('sections.manager.productsByCategory.latest') },
+    { value: 'best_selling', label: t('sections.manager.productsByCategory.bestSelling') },
+    { value: 'featured', label: t('sections.manager.productsByCategory.featured') },
+    { value: 'custom', label: t('sections.manager.productsByCategory.custom') },
+  ], [t]);
+
   const { addToast } = useToast();
   const selectedIds = row.productIds;
   const isCustomStrategy = row.strategy === 'custom';
@@ -3511,7 +3511,7 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
             try {
               const response = await trpcClient.adminProducts.detail.query({ id });
               const product = (response as any)?.data;
-              return product ? mapProductToOption(product) : null;
+              return product ? mapProductToOption(product, t) : null;
             } catch (error) {
               console.error('Failed to fetch product detail', error);
               return null;
@@ -3741,26 +3741,26 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
     <div className="rounded-xl border border-gray-200/80 bg-white/90 shadow-sm">
       <div className="flex flex-col gap-4 border-b border-gray-100 bg-gray-50/80 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
-          <p className="text-sm font-semibold text-gray-900">Danh mục #{index + 1}</p>
-          <p className="text-xs text-gray-500">Chọn danh mục và kiểu hiển thị nội dung sản phẩm.</p>
+          <p className="text-sm font-semibold text-gray-900">{t('sections.manager.productsByCategory.categoryIndex')} #{index + 1}</p>
+          <p className="text-xs text-gray-500">{t('sections.manager.productsByCategory.categoryDescription')}</p>
         </div>
         <div className="flex flex-wrap items-start gap-3">
           <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Chiến lược hiển thị
+            {t('sections.manager.productsByCategory.displayStrategy')}
             <select
               className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
               value={row.strategy}
               onChange={(event) => handleStrategyChange(event.target.value as ProductsByCategoryStrategy)}
             >
               {STRATEGY_SELECT_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value} disabled={option.disabled}>
+                <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}
             </select>
           </label>
           <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Kiểu hiển thị
+            {t('sections.manager.productsByCategory.displayStyle')}
             <select
               className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
               value={row.displayStyle}
@@ -3782,7 +3782,7 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                 onClick={onRemove}
                 startIcon={<FiTrash2 className="w-4 h-4" />}
               >
-                Xóa
+                {t('sections.manager.productsByCategory.remove')}
               </Button>
             </div>
           )}
@@ -3792,7 +3792,7 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
       <div className="space-y-5 px-5 py-6">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
           <label className="lg:col-span-12 flex flex-col gap-2 text-sm text-gray-700">
-            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Tiêu đề hiển thị</span>
+            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">{t('sections.manager.productsByCategory.displayTitle')}</span>
             <Input
               type="text"
               value={row.title}
@@ -3959,6 +3959,18 @@ interface SectionFormProps {
 
 export const SectionForm: React.FC<SectionFormProps> = ({ languages, initialState, onSubmit, onCancel, submitLabel, isSubmitting }) => {
   const { t } = useTranslation();
+
+  const pageOptions = useMemo(() => [
+    { value: 'home', label: t('sections.pages.home') },
+    { value: 'news', label: t('sections.pages.news') },
+    { value: 'product', label: t('sections.pages.product') },
+    { value: 'product_detail', label: t('sections.pages.product_detail') },
+  ], [t]);
+
+  const sectionTypeOptions = useMemo(() => (Object.entries(SECTION_TYPE_LABELS) as Array<[SectionType, string]>).map(([value]) => ({
+    value,
+    label: t(`sections.types.${value}`),
+  })), [t]);
   const [formState, setFormState] = useState<SectionFormState>(initialState);
   const [activeLocale, setActiveLocale] = useState<string>(() => {
     const defaultLanguage = languages.find((language) => language.isDefault);
@@ -4106,7 +4118,7 @@ export const SectionForm: React.FC<SectionFormProps> = ({ languages, initialStat
           label={t('sections.manager.form.page')}
           value={formState.page}
           onChange={(value) => setFormState((prev) => ({ ...prev, page: value }))}
-          options={[...PAGE_OPTIONS, { value: formState.page, label: formState.page.toUpperCase() }].filter(
+          options={[...pageOptions, { value: formState.page, label: formState.page.toUpperCase() }].filter(
             (option, index, arr) => arr.findIndex((opt) => opt.value === option.value) === index,
           )}
           required
@@ -4115,7 +4127,7 @@ export const SectionForm: React.FC<SectionFormProps> = ({ languages, initialStat
           label={t('sections.manager.form.sectionType')}
           value={formState.type}
           onChange={(value) => setFormState((prev) => ({ ...prev, type: value as SectionType }))}
-          options={SECTION_TYPE_OPTIONS}
+          options={sectionTypeOptions}
           required
         />
         <label className="flex flex-col gap-2">
@@ -4320,7 +4332,14 @@ export const sectionToFormState = (section: AdminSection): SectionFormState => (
 });
 
 export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageChange }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslationWithBackend();
+
+  const pageOptions = useMemo(() => [
+    { value: 'home', label: t('sections.pages.home') },
+    { value: 'news', label: t('sections.pages.news') },
+    { value: 'product', label: t('sections.pages.product') },
+    { value: 'product_detail', label: t('sections.pages.product_detail') },
+  ], [t]);
   const navigate = useNavigate();
   const { sections, languages, sectionsQuery, languagesQuery, updateSection, deleteSection, reorderSections } = useSectionsManager(page);
   const { addToast } = useToast();
@@ -4345,7 +4364,7 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
     }
     try {
       await deleteSection.mutateAsync({ id: section.id });
-      addToast({ type: 'success', title: t('sections.manager.sectionDeleted'), description: t('sections.manager.sectionRemoved', { sectionType: SECTION_TYPE_LABELS[section.type] }) });
+      addToast({ type: 'success', title: t('sections.manager.sectionDeleted'), description: t('sections.manager.sectionRemoved', { sectionType: t(`sections.types.${section.type}`) }) });
     } catch (error: any) {
       addToast({ type: 'error', title: t('sections.manager.deleteFailed'), description: error.message || t('sections.manager.unableToDelete') });
     }
@@ -4354,7 +4373,7 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
   const handleToggleEnabled = async (section: AdminSection, isEnabled: boolean) => {
     try {
       await updateSection.mutateAsync({ id: section.id, data: { isEnabled } });
-      addToast({ type: 'success', title: t('sections.manager.sectionUpdated'), description: t(`sections.manager.section${isEnabled ? 'Enabled' : 'Disabled'}`, { sectionType: SECTION_TYPE_LABELS[section.type] }) });
+      addToast({ type: 'success', title: t('sections.manager.sectionUpdated'), description: t(`sections.manager.section${isEnabled ? 'Enabled' : 'Disabled'}`, { sectionType: t(`sections.types.${section.type}`) }) });
     } catch (error: any) {
       addToast({ type: 'error', title: t('sections.manager.updateFailed'), description: error.message || t('sections.manager.unableToUpdateStatus') });
     }
@@ -4439,7 +4458,7 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
         return (
           <div className="flex items-center gap-3">
             <DragHandle
-              aria-label={`Reorder ${SECTION_TYPE_LABELS[section.type]}`}
+              aria-label={`Reorder ${t(`sections.types.${section.type}`)}`}
               disabled={reorderSections.isPending}
               isDragging={draggedId === section.id}
               label={index + 1}
@@ -4457,7 +4476,7 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
       id: 'type',
       header: t('sections.manager.tableHeaders.type'),
       accessor: (section) => (
-        <span className="text-sm font-medium text-gray-700">{SECTION_TYPE_LABELS[section.type]}</span>
+        <span className="text-sm font-medium text-gray-700">{t(`sections.types.${section.type}`)}</span>
       ),
       hideable: true,
     },
@@ -4470,7 +4489,7 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
           checked={section.isEnabled}
           onChange={(checked) => handleToggleEnabled(section, checked)}
           size="sm"
-          aria-label={`Toggle ${SECTION_TYPE_LABELS[section.type]}`}
+          aria-label={`Toggle ${t(`sections.types.${section.type}`)}`}
         />
       ),
       align: 'center',
@@ -4521,14 +4540,14 @@ export const SectionsManager: React.FC<SectionsManagerProps> = ({ page, onPageCh
             label={t('sections.manager.form.page')}
             value={page}
             onChange={onPageChange}
-            options={PAGE_OPTIONS}
+            options={pageOptions}
           />
-        <Button
-          variant="ghost"
-          size="md"
-          onClick={() => sectionsQuery.refetch()}
-          startIcon={<FiRefreshCw className="w-4 h-4" />}
-        >
+          <Button
+            variant="ghost"
+            size="md"
+            onClick={() => sectionsQuery.refetch()}
+            startIcon={<FiRefreshCw className="w-4 h-4" />}
+          >
             {t('sections.manager.refresh')}
           </Button>
         </div>
