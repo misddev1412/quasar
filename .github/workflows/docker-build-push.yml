@@ -45,16 +45,7 @@ jobs:
       - name: Login to DO Container Registry
         run: doctl registry login --expiry-seconds 600
 
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ needs.metadata.outputs.cache-key }}
-          restore-keys: |
-            docker-
 
-      - name: Ensure build cache directory
-        run: mkdir -p /tmp/.buildx-cache /tmp/.buildx-cache-new
 
       - name: Prepare build environment
         run: |
@@ -68,8 +59,8 @@ jobs:
           build_args=(
             --tag "$REGISTRY/$IMAGE:$TAG"
             --tag "$REGISTRY/$IMAGE:latest"
-            --cache-from "type=local,src=/tmp/.buildx-cache"
-            --cache-to "type=local,dest=/tmp/.buildx-cache-new"
+            --cache-from "type=gha"
+            --cache-to "type=gha,mode=max"
             --build-arg "REACT_APP_API_URL=${REACT_APP_API_URL}"
             --build-arg "NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}"
             --push
@@ -79,7 +70,4 @@ jobs:
           fi
           docker buildx build "${build_args[@]}" .
 
-      - name: Move build cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
