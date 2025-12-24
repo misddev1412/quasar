@@ -436,7 +436,8 @@
       "title": "Thống kê người truy cập"
     },
     "languages": {
-      "languages": "Ngôn ngữ"
+      "languages": "Ngôn ngữ",
+      "editTitle": "Chỉnh sửa {{name}}"
     },
     "currencies": {
       "currencies": "Tiền tệ"

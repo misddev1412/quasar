@@ -436,7 +436,8 @@
       "title": "Visitor Analytics"
     },
     "languages": {
-      "languages": "Languages"
+      "languages": "Languages",
+      "editTitle": "Edit {{name}}"
     },
     "currencies": {
       "currencies": "Currencies"

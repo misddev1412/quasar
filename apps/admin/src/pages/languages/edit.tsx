@@ -47,6 +47,17 @@ const EditLanguagePage: React.FC = () => {
     { label: t('languages.languages', 'Languages'), href: '/languages', icon: <FiGlobe className="w-4 h-4" /> },
   ]), [t]);
 
+  const language = (languageQuery.data as any)?.data;
+
+  const detailBreadcrumbs = useMemo(() => {
+    if (!language) return baseBreadcrumbs;
+    return [
+      ...baseBreadcrumbs,
+      { label: language.name, href: `/languages/${language.id}`, icon: <FiGlobe className="w-4 h-4" /> },
+      { label: t('common.edit', 'Edit') },
+    ];
+  }, [baseBreadcrumbs, language, t]);
+
   const handleSubmit = async (formData: UpdateLanguageFormData) => {
     if (!id) {
       addToast({
@@ -127,7 +138,7 @@ const EditLanguagePage: React.FC = () => {
   }
 
   // Language not found
-  if (!(languageQuery.data as any)?.data) {
+  if (!language) {
     return (
       <CreatePageTemplate
         title={t('languages.edit', 'Edit Language')}
@@ -148,16 +159,6 @@ const EditLanguagePage: React.FC = () => {
       </CreatePageTemplate>
     );
   }
-
-  const language = (languageQuery.data as any).data;
-
-  const detailBreadcrumbs = useMemo(() => (
-    [
-      ...baseBreadcrumbs,
-      { label: language.name, href: `/languages/${language.id}`, icon: <FiGlobe className="w-4 h-4" /> },
-      { label: t('common.edit', 'Edit') },
-    ]
-  ), [baseBreadcrumbs, language.id, language.name, t]);
 
   return (
     <CreatePageTemplate
