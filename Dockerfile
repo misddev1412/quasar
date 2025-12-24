@@ -14,7 +14,7 @@ ENV \
   NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL}"
 
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile --network-timeout 300000
+RUN yarn install --frozen-lockfile --network-timeout 300000 --network-concurrency 1
 COPY . .
 
 RUN SKIP_BUILD_INSTALL=1 bash deploy/build.sh
@@ -24,7 +24,7 @@ FROM node:20-bookworm-slim AS deps-prod
 WORKDIR /app
 RUN corepack enable
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile --network-timeout 300000 --production
+RUN yarn install --frozen-lockfile --network-timeout 300000 --network-concurrency 1 --production
 
 # Runner stage
 FROM node:20-bookworm-slim AS runner
