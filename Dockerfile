@@ -19,6 +19,13 @@ COPY . .
 
 RUN SKIP_BUILD_INSTALL=1 bash deploy/build.sh
 
+# Production dependencies stage
+FROM node:20-bookworm-slim AS deps-prod
+WORKDIR /app
+RUN corepack enable
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile --production
+
 # Runner stage
 FROM node:20-bookworm-slim AS runner
 WORKDIR /app
@@ -32,7 +39,8 @@ RUN apt-get update \
 RUN npm install -g pm2
 
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
+# Copy production dependencies only
+COPY --from=deps-prod /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/yarn.lock ./yarn.lock
 COPY --from=builder /app/ecosystem.config.cjs ./ecosystem.config.cjs
