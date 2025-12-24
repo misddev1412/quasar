@@ -7,7 +7,7 @@ on:
 
 jobs:
   metadata:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     outputs:
       tag: ${{ steps.meta.outputs.tag }}
       cache-key: ${{ steps.meta.outputs.cache-key }}
@@ -19,7 +19,7 @@ jobs:
           echo "cache-key=docker-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
   build-and-push:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: metadata
     permissions:
       contents: read
