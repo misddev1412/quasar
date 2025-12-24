@@ -57,6 +57,8 @@ load_env_file() {
 load_env_file "${REPO_ROOT}/.env"
 
 export NX_DAEMON=false
+export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=1536}"
+export CI=1
 
 TEMP_BUILD_BACKEND_PID=""
 
@@ -173,13 +175,13 @@ EOF
 build_artifacts() {
   install_dependencies
 
-  build_with_fallback "Building backend" "dist/apps/backend/main.js" bash -c "npx nx build backend --configuration=production"
+  build_with_fallback "Building backend" "dist/apps/backend/main.js" bash -c "npx nx build backend --configuration=production --parallel=1 --verbose"
 
-  build_with_fallback "Building admin" "dist/apps/admin/index.html" bash -c "npx nx build admin --configuration=production"
+  build_with_fallback "Building admin" "dist/apps/admin/index.html" bash -c "npx nx build admin --configuration=production --parallel=1 --verbose"
 
   start_temp_backend_for_frontend_build
   local frontend_status=0
-  if run_build_step "Building frontend (Next.js)" bash -c 'npx nx build frontend --configuration=production'; then
+  if run_build_step "Building frontend (Next.js)" bash -c 'npx nx build frontend --configuration=production --parallel=1 --verbose'; then
     frontend_status=0
   else
     frontend_status=$?
