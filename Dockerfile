@@ -24,8 +24,7 @@ ENV \
 
 # ---- Install deps with BuildKit cache mount ----
 # Copy only package files first for better layer caching
-COPY package.json yarn.lock .yarnrc.yml* ./
-COPY .yarn ./.yarn
+COPY package.json yarn.lock ./
 
 # Use BuildKit cache mounts for faster installs
 RUN --mount=type=cache,target=/root/.yarn,sharing=locked \
@@ -49,8 +48,7 @@ WORKDIR /app
 
 RUN corepack enable
 
-COPY package.json yarn.lock .yarnrc.yml* ./
-COPY .yarn ./.yarn
+COPY package.json yarn.lock ./
 
 # Install only production dependencies with cache mount
 RUN --mount=type=cache,target=/root/.yarn,sharing=locked \
