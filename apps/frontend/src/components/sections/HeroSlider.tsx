@@ -22,6 +22,13 @@ export interface HeroSliderOverlayConfig {
   opacityPercent?: number;
 }
 
+export interface HeroSliderFieldVisibility {
+  title?: boolean;
+  subtitle?: boolean;
+  description?: boolean;
+  heroDescription?: boolean;
+}
+
 export interface HeroSliderConfig {
   slides?: HeroSlideConfig[];
   autoplay?: boolean;
@@ -29,6 +36,7 @@ export interface HeroSliderConfig {
   overlay?: HeroSliderOverlayConfig;
   overlayBackground?: string;
   layout?: 'full-width' | 'container';
+  fieldVisibility?: HeroSliderFieldVisibility;
 }
 
 export interface SectionTranslationContent {
@@ -191,6 +199,11 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
     : { background: DEFAULT_BACKGROUND };
 
   const overlayStyle: CSSProperties | undefined = overlayEnabled ? buildOverlayStyle(baseOverlayColor, overlayOpacity) : undefined;
+  const fieldVisibility = config.fieldVisibility ?? {};
+  const showTitle = fieldVisibility.title !== false;
+  const showSubtitle = fieldVisibility.subtitle !== false;
+  const showDescription = fieldVisibility.description !== false;
+  const showHeroDescription = fieldVisibility.heroDescription !== false;
 
   useEffect(() => {
     if (!autoplay) return;
@@ -202,17 +215,29 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
 
   const activeSlide = slides[activeIndex] ?? slides[0];
   // null means field is hidden by admin, undefined/empty means visible but no value
-  const heading = activeSlide?.title?.trim() || (translation?.title === null ? '' : (translation?.title || defaultSlides[0].title));
-  const subheading = activeSlide?.subtitle?.trim() || (translation?.subtitle === null ? '' : (translation?.subtitle || t('sections.hero.curated_sections')));
-  const heroDescription = translation?.heroDescription === null ? undefined : translation?.heroDescription?.trim();
-  const slideDescription = activeSlide?.description?.trim();
-  const sectionDescription = translation?.description === null ? undefined : translation?.description?.trim();
+  const slideHeading = activeSlide?.title?.trim();
+  const translationHeading = translation?.title === null ? '' : (translation?.title || defaultSlides[0].title);
+  const heading = showTitle ? (slideHeading || translationHeading) : '';
+
+  const slideSubtitle = activeSlide?.subtitle?.trim();
+  const translationSubtitle = translation?.subtitle === null ? '' : (translation?.subtitle || t('sections.hero.curated_sections'));
+  const subheading = showSubtitle ? (slideSubtitle || translationSubtitle) : '';
+
+  const rawHeroDescription = translation?.heroDescription === null ? '' : translation?.heroDescription?.trim() || '';
+  const rawSectionDescription = translation?.description === null ? '' : translation?.description?.trim() || '';
+  const rawSlideDescription = activeSlide?.description?.trim() || '';
+
+  const heroDescription = showHeroDescription ? rawHeroDescription : '';
+  const fallbackDescription = showDescription
+    ? (translation?.description === null && translation?.heroDescription === null ? '' : t('sections.hero.latest_stories'))
+    : '';
   const description = heroDescription
-    || sectionDescription
-    || slideDescription
-    || (translation?.description === null && translation?.heroDescription === null ? '' : t('sections.hero.latest_stories'));
-  const secondaryDescription = heroDescription && slideDescription && heroDescription !== slideDescription
-    ? slideDescription
+    || (showDescription ? (rawSectionDescription || rawSlideDescription || fallbackDescription) : '');
+  const secondaryDescription = heroDescription
+    && showDescription
+    && rawSlideDescription
+    && heroDescription !== rawSlideDescription
+    ? rawSlideDescription
     : undefined;
   const contentPaddingClass = isFullWidth
     ? 'px-4 sm:px-8 lg:px-12 xl:px-16'

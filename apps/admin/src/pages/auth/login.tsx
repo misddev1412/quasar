@@ -2,13 +2,25 @@ import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend
 import { useAuth } from '../../context/AuthContext';
 import AuthCard from '../../components/auth/AuthCard';
 import LoginForm from '../../components/auth/LoginForm';
+import LoginSkeleton from '../../components/auth/LoginSkeleton';
 import { useLoginForm } from '../../hooks/useLoginForm';
 import { useAdminSeo } from '../../hooks/useAdminSeo';
+import { useBrandingSetting } from '../../hooks/useBrandingSetting';
+import {
+  ADMIN_LOGIN_BRANDING_KEY,
+  DEFAULT_ADMIN_LOGIN_BRANDING,
+} from '../../constants/adminBranding';
 
 export function LoginPage() {
   const auth = useAuth();
-  const { t } = useTranslationWithBackend();
+  const { t, isLoading: isTranslationLoading } = useTranslationWithBackend();
   const { error, isSubmitting, handleLogin } = useLoginForm({ auth });
+
+  const { isLoading: isBrandingLoading } = useBrandingSetting(
+    ADMIN_LOGIN_BRANDING_KEY,
+    DEFAULT_ADMIN_LOGIN_BRANDING,
+    { publicAccess: true },
+  );
 
   // Set SEO for login page
   useAdminSeo({
@@ -19,6 +31,10 @@ export function LoginPage() {
       keywords: 'login, admin, authentication, quasar'
     }
   });
+
+  if (isTranslationLoading || isBrandingLoading) {
+    return <LoginSkeleton />;
+  }
 
   return (
     <AuthCard>

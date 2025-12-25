@@ -2,10 +2,18 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { UnifiedIcon } from '../common/UnifiedIcon';
 import MegaMenu, { MegaMenuSection } from './MegaMenu';
 import { MenuType } from '@shared/enums/menu.enums';
+import {
+  MainMenuConfig,
+  MainMenuItemSize,
+  MainMenuItemWeight,
+  MainMenuItemTransform,
+  DEFAULT_MAIN_MENU_CONFIG,
+} from '@shared/types/navigation.types';
+import { useTheme } from '../../contexts/ThemeContext';
 
 // Icons
 const ChevronDownIcon: React.FC<{ className?: string }> = ({ className = "w-4 h-4" }) => (
@@ -19,6 +27,55 @@ const ChevronRightIcon: React.FC<{ className?: string }> = ({ className = "w-4 h
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
   </svg>
 );
+
+type ItemSizeStyle = {
+  desktopText: string;
+  desktopPadding: string;
+  desktopGap: string;
+  mobileText: string;
+  mobilePadding: string;
+  mobileGap: string;
+};
+
+const ITEM_SIZE_STYLES: Record<MainMenuItemSize, ItemSizeStyle> = {
+  compact: {
+    desktopText: 'text-xs',
+    desktopPadding: 'py-1.5 px-2.5',
+    desktopGap: 'gap-1.5',
+    mobileText: 'text-sm',
+    mobilePadding: 'py-2.5 px-3.5',
+    mobileGap: 'gap-2',
+  },
+  comfortable: {
+    desktopText: 'text-sm',
+    desktopPadding: 'py-2 px-3',
+    desktopGap: 'gap-2',
+    mobileText: 'text-base',
+    mobilePadding: 'py-3 px-4',
+    mobileGap: 'gap-3',
+  },
+  spacious: {
+    desktopText: 'text-base',
+    desktopPadding: 'py-3 px-4',
+    desktopGap: 'gap-3',
+    mobileText: 'text-lg',
+    mobilePadding: 'py-4 px-5',
+    mobileGap: 'gap-3',
+  },
+};
+
+const ITEM_WEIGHT_CLASSES: Record<MainMenuItemWeight, string> = {
+  normal: 'font-normal',
+  medium: 'font-medium',
+  semibold: 'font-semibold',
+  bold: 'font-bold',
+};
+
+const ITEM_TRANSFORM_CLASSES: Record<MainMenuItemTransform, string> = {
+  normal: 'normal-case',
+  uppercase: 'uppercase',
+  capitalize: 'capitalize',
+};
 
 export interface NavigationItem {
   id: string;
@@ -206,7 +263,12 @@ const DesktopNavigation: React.FC<{
   pathname: string;
   items: NavigationItem[];
   renderers?: Partial<Record<MenuType, NavigationItemRenderer>>;
-}> = ({ pathname, items, renderers }) => {
+  itemSizeStyle: ItemSizeStyle;
+  style?: React.CSSProperties;
+  itemWeightClass: string;
+  itemTransformClass: string;
+  textColor?: string;
+}> = ({ pathname, items, renderers, itemSizeStyle, style, itemWeightClass, itemTransformClass, textColor }) => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [megaMenuOpen, setMegaMenuOpen] = useState<string | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -242,7 +304,10 @@ const DesktopNavigation: React.FC<{
   }, []);
 
   return (
-    <nav className="hidden lg:flex items-center gap-2">
+    <nav
+      className="hidden lg:flex items-center gap-2 rounded-2xl px-2 py-1 transition-colors"
+      style={style}
+    >
       {items.map((item) => {
         const isActive = pathname === item.href;
         const hasChildren = item.children && item.children.length > 0;
@@ -257,6 +322,7 @@ const DesktopNavigation: React.FC<{
           );
         }
 
+        const iconColor = !isActive && textColor ? textColor : undefined;
         return (
           <div
             key={item.id}
@@ -269,17 +335,20 @@ const DesktopNavigation: React.FC<{
               target={item.target}
               rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
               className={`
-                flex items-center gap-1 text-sm font-medium transition-all duration-200 relative py-2 px-3 rounded-lg border border-transparent
+                flex items-center ${itemSizeStyle.desktopGap} ${itemSizeStyle.desktopText} ${itemWeightClass} ${itemTransformClass} transition-all duration-200 relative ${itemSizeStyle.desktopPadding} rounded-lg border border-transparent
                 ${
                   isActive
                     ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    : `${textColor ? '' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'} hover:bg-gray-50 dark:hover:bg-gray-800`
                 }
               `}
-              style={getBorderStyles(item)}
+              style={{
+                ...getBorderStyles(item),
+                color: !isActive && textColor ? textColor : undefined,
+              }}
             >
-              <span className="flex items-center gap-2">
-                <UnifiedIcon icon={item.icon} variant={isActive ? 'nav-active' : 'nav'} />
+              <span className={`flex items-center ${itemSizeStyle.desktopGap}`}>
+                <UnifiedIcon icon={item.icon} variant={isActive ? 'nav-active' : 'nav'} color={iconColor} />
                 <span>{item.name}</span>
               </span>
               {hasChildren && <ChevronDownIcon />}
@@ -370,7 +439,11 @@ const MobileMenuItem: React.FC<{
   isActive: boolean;
   onClose: () => void;
   renderer?: NavigationItemRenderer;
-}> = ({ item, isActive, onClose, renderer }) => {
+  itemSizeStyle: ItemSizeStyle;
+  itemWeightClass: string;
+  itemTransformClass: string;
+  textColor?: string;
+}> = ({ item, isActive, onClose, renderer, itemSizeStyle, itemWeightClass, itemTransformClass, textColor }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const hasChildren = item.children && item.children.length > 0;
 
@@ -382,6 +455,7 @@ const MobileMenuItem: React.FC<{
     );
   }
 
+  const iconColor = !isActive && textColor ? textColor : undefined;
   return (
     <div className="border-b border-gray-200 dark:border-gray-700">
       <div className="flex items-center justify-between">
@@ -390,22 +464,25 @@ const MobileMenuItem: React.FC<{
           target={item.target}
               rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
               className={`
-                flex-1 text-base font-medium transition-colors py-3 px-4
+                flex-1 ${itemSizeStyle.mobileText} ${itemWeightClass} ${itemTransformClass} transition-colors ${itemSizeStyle.mobilePadding}
                 ${
                   isActive
                     ? 'text-blue-600 dark:text-blue-400'
-                    : 'text-gray-700 dark:text-gray-300'
+                    : `${textColor ? '' : 'text-gray-700 dark:text-gray-300'}`
                 }
               `}
-              style={getBorderStyles(item)}
+              style={{
+                ...getBorderStyles(item),
+                color: !isActive && textColor ? textColor : undefined,
+              }}
               onClick={() => {
                 if (!hasChildren) {
                   onClose();
                 }
               }}
             >
-              <span className="flex items-center gap-3">
-                <UnifiedIcon icon={item.icon} variant="button" />
+              <span className={`flex items-center ${itemSizeStyle.mobileGap}`}>
+                <UnifiedIcon icon={item.icon} variant="button" color={iconColor} />
                 <span>{item.name}</span>
               </span>
             </Link>
@@ -485,21 +562,32 @@ interface MenuNavigationProps {
   isMobileMenuOpen?: boolean;
   onMobileMenuClose?: () => void;
   renderers?: Partial<Record<MenuType, NavigationItemRenderer>>;
+  appearanceConfig?: MainMenuConfig;
 }
 
 const MenuNavigation: React.FC<MenuNavigationProps> = ({
   items,
   isMobileMenuOpen = false,
   onMobileMenuClose,
-  renderers
+  renderers,
+  appearanceConfig,
 }) => {
-  const router = useRouter();
   const pathname = usePathname();
+  const config = appearanceConfig ?? DEFAULT_MAIN_MENU_CONFIG;
+  const { theme } = useTheme();
+  const itemSizeStyle = ITEM_SIZE_STYLES[config.itemSize] ?? ITEM_SIZE_STYLES.comfortable;
+  const itemWeightClass = ITEM_WEIGHT_CLASSES[config.itemWeight] ?? ITEM_WEIGHT_CLASSES.medium;
+  const itemTransformClass = ITEM_TRANSFORM_CLASSES[config.itemTransform] ?? ITEM_TRANSFORM_CLASSES.normal;
+  const resolvedTextColor =
+    (theme === 'dark' ? config.textColor.dark : config.textColor.light)?.trim() || '';
+  const navStyle = resolvedTextColor ? { color: resolvedTextColor } : undefined;
 
   // Mobile menu
   if (isMobileMenuOpen) {
     return (
-      <div className="lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+      <div
+        className="lg:hidden border-t border-gray-200 dark:border-gray-700"
+      >
         <div className="max-h-[70vh] overflow-y-auto">
           {items.map((item) => (
             <MobileMenuItem
@@ -508,6 +596,10 @@ const MenuNavigation: React.FC<MenuNavigationProps> = ({
               isActive={pathname === item.href}
               onClose={() => onMobileMenuClose?.()}
               renderer={renderers?.[item.type]}
+              itemSizeStyle={itemSizeStyle}
+              itemWeightClass={itemWeightClass}
+              itemTransformClass={itemTransformClass}
+              textColor={resolvedTextColor || undefined}
             />
           ))}
         </div>
@@ -516,7 +608,18 @@ const MenuNavigation: React.FC<MenuNavigationProps> = ({
   }
 
   // Desktop navigation
-  return <DesktopNavigation pathname={pathname} items={items} renderers={renderers} />;
+  return (
+    <DesktopNavigation
+      pathname={pathname}
+      items={items}
+      renderers={renderers}
+      itemSizeStyle={itemSizeStyle}
+      itemWeightClass={itemWeightClass}
+      itemTransformClass={itemTransformClass}
+      style={navStyle}
+      textColor={resolvedTextColor || undefined}
+    />
+  );
 };
 
 export default MenuNavigation;

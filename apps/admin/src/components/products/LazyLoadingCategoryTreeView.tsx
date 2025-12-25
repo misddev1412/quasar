@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { 
-  FiChevronRight, 
-  FiChevronDown, 
-  FiFolder, 
-  FiFolderPlus, 
-  FiEdit2, 
-  FiTrash2, 
+import {
+  FiChevronRight,
+  FiChevronDown,
+  FiFolder,
+  FiFolderPlus,
+  FiEdit2,
+  FiTrash2,
   FiMoreVertical,
   FiTag,
   FiEye,
@@ -83,7 +83,7 @@ const CategoryTreeItem: React.FC<CategoryTreeItemProps> = ({
   isLastInGroup = false,
 }) => {
   const { t } = useTranslationWithBackend();
-  
+
   const handleToggleExpand = () => {
     if (category.hasChildren) {
       onToggleExpand(category);
@@ -97,10 +97,10 @@ const CategoryTreeItem: React.FC<CategoryTreeItemProps> = ({
 
   const highlightText = (text: string) => {
     if (!searchValue || !text) return text;
-    
+
     const regex = new RegExp(`(${searchValue})`, 'gi');
     const parts = text.split(regex);
-    
+
     return parts.map((part, index) =>
       regex.test(part) ? (
         <span key={index} className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">
@@ -118,7 +118,7 @@ const CategoryTreeItem: React.FC<CategoryTreeItemProps> = ({
           border-l-2 transition-all duration-200 ease-in-out
           ${level === 0 ? 'border-l-blue-500' : level === 1 ? 'border-l-green-500' : level === 2 ? 'border-l-purple-500' : 'border-l-gray-300'}
         `}
-        style={{ 
+        style={{
           marginLeft: `${level * 12}px`,
           paddingLeft: `${16 + level * 8}px`
         }}
@@ -129,7 +129,7 @@ const CategoryTreeItem: React.FC<CategoryTreeItemProps> = ({
           className={`
             mr-3 p-1 rounded transition-colors duration-200
             ${category.hasChildren
-              ? 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700' 
+              ? 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700'
               : 'text-transparent cursor-default'
             }
           `}
@@ -159,24 +159,23 @@ const CategoryTreeItem: React.FC<CategoryTreeItemProps> = ({
           ) : (
             <div className={`
               w-10 h-10 rounded-lg flex items-center justify-center shadow-sm
-              ${level === 0 
-                ? 'bg-blue-100 dark:bg-blue-900/30' 
-                : level === 1 
-                  ? 'bg-green-100 dark:bg-green-900/30' 
-                  : level === 2 
-                    ? 'bg-purple-100 dark:bg-purple-900/30' 
+              ${level === 0
+                ? 'bg-blue-100 dark:bg-blue-900/30'
+                : level === 1
+                  ? 'bg-green-100 dark:bg-green-900/30'
+                  : level === 2
+                    ? 'bg-purple-100 dark:bg-purple-900/30'
                     : 'bg-gray-100 dark:bg-gray-800'
               }
             `}>
-              <FiFolder className={`w-5 h-5 ${
-                level === 0 
-                  ? 'text-blue-600 dark:text-blue-400' 
-                  : level === 1 
-                    ? 'text-green-600 dark:text-green-400' 
-                    : level === 2 
-                      ? 'text-purple-600 dark:text-purple-400' 
+              <FiFolder className={`w-5 h-5 ${level === 0
+                  ? 'text-blue-600 dark:text-blue-400'
+                  : level === 1
+                    ? 'text-green-600 dark:text-green-400'
+                    : level === 2
+                      ? 'text-purple-600 dark:text-purple-400'
                       : 'text-gray-400'
-              }`} />
+                }`} />
             </div>
           )}
         </div>
@@ -189,11 +188,11 @@ const CategoryTreeItem: React.FC<CategoryTreeItemProps> = ({
                 <h4 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
                   {highlightText(category.name)}
                 </h4>
-                
+
                 {/* Status Badge */}
                 <span className={`
                   inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                  ${category.isActive 
+                  ${category.isActive
                     ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                     : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
                   }
@@ -202,7 +201,7 @@ const CategoryTreeItem: React.FC<CategoryTreeItemProps> = ({
                 </span>
 
                 {/* Level Badge */}
-                <span 
+                <span
                   className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400"
                   title={`Level ${category.level ?? 0} - ${category.level === 0 ? 'Root category' : `${category.level} level${category.level > 1 ? 's' : ''} deep`}`}
                 >
@@ -225,13 +224,13 @@ const CategoryTreeItem: React.FC<CategoryTreeItemProps> = ({
                   </span>
                 )}
               </div>
-              
+
               {category.description && (
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 truncate max-w-md">
                   {highlightText(category.description)}
                 </p>
               )}
-              
+
               {category.slug && (
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-500 font-mono">
                   /{category.slug}
@@ -349,7 +348,7 @@ export const LazyLoadingCategoryTreeView: React.FC<LazyLoadingCategoryTreeViewPr
     if (useFilteredEndpoint && Object.keys(filters).length > 0) {
       setFilteredLoading(true);
       setFilteredError(null);
-      
+
       // Try to use the utils.fetch method to call getFilteredTree manually
       const fetchFilteredData = async () => {
         try {
@@ -358,17 +357,17 @@ export const LazyLoadingCategoryTreeView: React.FC<LazyLoadingCategoryTreeViewPr
           const response = await utils.adminProductCategories.getTree.fetch({
             includeInactive,
           }) as { data?: any[] };
-          
+
           // Apply client-side search filtering if search is provided
           if (filters.search && response?.data) {
             const filterTree = (nodes: any[]): any[] => {
               return nodes.filter(node => {
                 const matchesSearch = node.name.toLowerCase().includes(filters.search!.toLowerCase()) ||
                   (node.description && node.description.toLowerCase().includes(filters.search!.toLowerCase()));
-                
+
                 // Also include if any children match
                 const childrenMatch = node.children && filterTree(node.children).length > 0;
-                
+
                 if (matchesSearch || childrenMatch) {
                   return {
                     ...node,
@@ -378,7 +377,7 @@ export const LazyLoadingCategoryTreeView: React.FC<LazyLoadingCategoryTreeViewPr
                 return false;
               }).filter(Boolean);
             };
-            
+
             const filteredData = {
               ...response,
               data: filterTree(response.data)
@@ -394,7 +393,7 @@ export const LazyLoadingCategoryTreeView: React.FC<LazyLoadingCategoryTreeViewPr
           setFilteredLoading(false);
         }
       };
-      
+
       void fetchFilteredData();
     } else {
       setFilteredTreeData(null);
@@ -406,13 +405,13 @@ export const LazyLoadingCategoryTreeView: React.FC<LazyLoadingCategoryTreeViewPr
   useEffect(() => {
     // Use filtered tree data if available and filtered endpoint is enabled, otherwise use root categories
     const dataToUse = (useFilteredEndpoint && filteredTreeData) ? filteredTreeData : rootCategoriesData;
-    
+
     if (dataToUse && (dataToUse as any)?.data) {
       const categoryData = (dataToUse as any).data;
-      
+
       // Handle both tree structure (from getTree) and flat structure (from getRootCategories)
       let categoriesToProcess: (Category & { hasChildren?: boolean })[];
-      
+
       if (Array.isArray(categoryData)) {
         // If it's an array, it could be either root categories or tree nodes
         if (categoryData.length > 0 && categoryData[0].children !== undefined) {
@@ -430,7 +429,12 @@ export const LazyLoadingCategoryTreeView: React.FC<LazyLoadingCategoryTreeViewPr
         // Handle unexpected data structure
         categoriesToProcess = [];
       }
-      
+
+      // Sort by createdAt desc (newest to oldest)
+      categoriesToProcess.sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+
       // Convert to lazy-loaded format
       const lazyCategories: LazyCategory[] = categoriesToProcess.map(cat => ({
         ...cat,
@@ -439,51 +443,51 @@ export const LazyLoadingCategoryTreeView: React.FC<LazyLoadingCategoryTreeViewPr
         isExpanded: false,
         children: undefined,
       }));
-      
+
       setCategories(lazyCategories);
     }
   }, [rootCategoriesData, filteredTreeData, useFilteredEndpoint]);
 
   // Helper function to recursively update hasChildren property
   const updateCategoriesHasChildren = (
-    categories: LazyCategory[], 
-    targetId: string, 
+    categories: LazyCategory[],
+    targetId: string,
     hasChildren: boolean
   ): LazyCategory[] => {
     return categories.map(cat => {
       if (cat.id === targetId) {
         return { ...cat, hasChildren };
       }
-      
+
       if (cat.children) {
         return {
           ...cat,
           children: updateCategoriesHasChildren(cat.children, targetId, hasChildren),
         };
       }
-      
+
       return cat;
     });
   };
 
   // Helper function to recursively update category expansion state
   const updateCategoryExpansion = (
-    categories: LazyCategory[], 
-    targetId: string, 
+    categories: LazyCategory[],
+    targetId: string,
     isExpanded: boolean
   ): LazyCategory[] => {
     return categories.map(cat => {
       if (cat.id === targetId) {
         return { ...cat, isExpanded };
       }
-      
+
       if (cat.children) {
         return {
           ...cat,
           children: updateCategoryExpansion(cat.children, targetId, isExpanded),
         };
       }
-      
+
       return cat;
     });
   };
@@ -501,9 +505,14 @@ export const LazyLoadingCategoryTreeView: React.FC<LazyLoadingCategoryTreeViewPr
           parentId: category.id,
           includeInactive,
         });
-        
+
         if ((childrenResponse as any)?.data) {
-          const children = (childrenResponse as any).data as (Category & { hasChildren: boolean })[];
+          let children = (childrenResponse as any).data as (Category & { hasChildren: boolean })[];
+
+          // Sort children by createdAt desc (newest to oldest)
+          children = children.sort((a, b) => {
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          });
 
           // Convert children to lazy-loaded format
           const lazyChildren: LazyCategory[] = children.map((child) => ({
@@ -544,8 +553,8 @@ export const LazyLoadingCategoryTreeView: React.FC<LazyLoadingCategoryTreeViewPr
 
   // Helper function to update category tree with children
   const updateCategoryTree = (
-    categories: LazyCategory[], 
-    parentId: string, 
+    categories: LazyCategory[],
+    parentId: string,
     children: LazyCategory[]
   ): LazyCategory[] => {
     return categories.map(cat => {
@@ -556,14 +565,14 @@ export const LazyLoadingCategoryTreeView: React.FC<LazyLoadingCategoryTreeViewPr
           isLoaded: true,
         };
       }
-      
+
       if (cat.children) {
         return {
           ...cat,
           children: updateCategoryTree(cat.children, parentId, children),
         };
       }
-      
+
       return cat;
     });
   };
@@ -631,18 +640,17 @@ export const LazyLoadingCategoryTreeView: React.FC<LazyLoadingCategoryTreeViewPr
               aria-label={t('categories.searchLabel', 'Search categories')}
             />
           </div>
-          
+
           {/* Filter Button */}
           {onFilterClick && (
             <Button
               variant={showFilters ? "primary" : "outline"}
               size="sm"
               onClick={onFilterClick}
-              className={`whitespace-nowrap flex-shrink-0 w-auto transition-all duration-200 ${
-                showFilters
+              className={`whitespace-nowrap flex-shrink-0 w-auto transition-all duration-200 ${showFilters
                   ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-md'
                   : ''
-              }`}
+                }`}
               aria-label={showFilters ? t('common.hideFilters', 'Hide Filters') : t('common.showFilters', 'Show Filters')}
             >
               <FiFilter className={`w-4 h-4 mr-2 ${showFilters ? 'text-white' : ''}`} />

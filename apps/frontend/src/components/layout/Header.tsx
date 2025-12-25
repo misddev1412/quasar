@@ -28,6 +28,8 @@ import ThemeToggle from '../common/ThemeToggle';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import NotificationDropdown from '../notifications/NotificationDropdown';
 import { useSettings } from '../../hooks/useSettings';
+import { useMainMenuConfig } from '../../hooks/useMainMenuConfig';
+import { useTheme } from '../../contexts/ThemeContext';
 import { CartIcon, CartDropdownIcon, ShoppingCart, useCart } from '../ecommerce/CartProvider';
 import Container from '../common/Container';
 import { useMenu } from '../../hooks/useMenu';
@@ -197,7 +199,7 @@ const Icons = {
 // Logo Component
 const Logo: React.FC<{ currentLocale: string }> = ({ currentLocale }) => {
   const t = useTranslations();
-  const { getSiteLogo, getSetting, settings, isLoading } = useSettings();
+  const { getSiteLogo, getSetting, settings } = useSettings();
   const siteLogo = getSiteLogo();
   const siteName = getSetting('site.name');
   
@@ -461,6 +463,7 @@ const Header: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [categorySearch, setCategorySearch] = useState('');
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const { config: mainMenuConfig } = useMainMenuConfig();
   const [minPriceFilter, setMinPriceFilter] = useState('');
   const [maxPriceFilter, setMaxPriceFilter] = useState('');
   const [mounted, setMounted] = useState(false);
@@ -477,6 +480,11 @@ const Header: React.FC = () => {
 
   const [categories, setCategories] = useState<Array<{ id: string; name: string; translations?: Array<{ locale: string; name?: string }> }>>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
+  const { theme } = useTheme();
+  const headerBackgroundColor = theme === 'dark'
+    ? mainMenuConfig.backgroundColor.dark
+    : mainMenuConfig.backgroundColor.light;
+  const headerBackgroundStyle = headerBackgroundColor ? { backgroundColor: headerBackgroundColor } : undefined;
 
   useEffect(() => {
     let isMounted = true;
@@ -835,8 +843,11 @@ const Header: React.FC = () => {
   return (
     <>
       <TopMenuBar />
-      <header className="sticky top-0 z-50 bg-white dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
-        <Container className="py-0">
+      <header
+        className="sticky top-0 z-50 bg-white dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm"
+        style={headerBackgroundStyle}
+      >
+        <Container className="py-0" style={headerBackgroundStyle}>
           <Navbar
             onMenuOpenChange={setIsMenuOpen}
             isMenuOpen={isMenuOpen}
@@ -847,6 +858,7 @@ const Header: React.FC = () => {
               wrapper: 'w-full px-0',
             }}
             height="4rem"
+            style={headerBackgroundStyle}
           >
           {/* Left Section: Logo - 15% width */}
           <NavbarContent justify="start" className="!flex-grow-0 !basis-[15%] max-w-[15%]">
@@ -862,7 +874,11 @@ const Header: React.FC = () => {
           {/* Right Section: Navigation + Actions - 85% width */}
           <NavbarContent justify="end" className="!flex-grow-0 !basis-[85%] max-w-[85%] gap-2 hidden lg:flex">
             <div className="flex-1 flex items-center justify-evenly">
-              <MenuNavigation items={navigationItemsConverted} renderers={navigationRenderers} />
+              <MenuNavigation
+                items={navigationItemsConverted}
+                renderers={navigationRenderers}
+                appearanceConfig={mainMenuConfig}
+              />
             </div>
           </NavbarContent>
 
@@ -890,7 +906,10 @@ const Header: React.FC = () => {
           </NavbarContent>
 
           {/* Mobile Menu */}
-          <NavbarMenu className="px-0 pt-0 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md">
+          <NavbarMenu
+            className="px-0 pt-0 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md"
+            style={headerBackgroundStyle}
+          >
             {/* Mobile Search */}
             <div className="px-4 pt-6 pb-4">
               <SearchInput
@@ -912,6 +931,7 @@ const Header: React.FC = () => {
               isMobileMenuOpen={isMenuOpen}
               onMobileMenuClose={() => setIsMenuOpen(false)}
               renderers={navigationRenderers}
+              appearanceConfig={mainMenuConfig}
             />
 
             {/* Cart, profile, search, locale, and theme entries are managed entirely via storefront navigation */}

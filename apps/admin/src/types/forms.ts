@@ -66,11 +66,19 @@ export interface FormTabConfig {
 
 export type FormActionsAlignment = 'start' | 'center' | 'end' | 'middle';
 
+// Form submit action types - used across all create/edit forms
+export type FormSubmitAction = 'save' | 'save_and_stay';
+
+// Submit options passed to onSubmit handlers
+export interface FormSubmitOptions {
+  submitAction?: FormSubmitAction;
+}
+
 // Generic entity form props
 export interface EntityFormProps<T extends FieldValues = FieldValues> {
   tabs: FormTabConfig[];
   initialValues?: Partial<T>;
-  onSubmit: (values: T) => Promise<void>;
+  onSubmit: (values: T, options?: FormSubmitOptions) => Promise<void | unknown>;
   isSubmitting?: boolean;
   customActions?: ReactNode;
   submitButtonText?: string;
@@ -82,6 +90,10 @@ export interface EntityFormProps<T extends FieldValues = FieldValues> {
   activeTab?: number;
   onTabChange?: (index: number) => void;
   actionsAlignment?: FormActionsAlignment;
+  // Form mode - determines which save actions to show
+  mode?: 'create' | 'edit';
+  // Enable save and stay button (defaults to true for edit mode, optional for create)
+  showSaveAndStay?: boolean;
 }
 
 // Form validation result

@@ -70,7 +70,7 @@ const PostListPage = () => {
   const [limit, setLimit] = useState(preferences.pageSize);
   const [searchValue, setSearchValue] = useState(() => searchParams.get('search') || '');
   const [debouncedSearchValue, setDebouncedSearchValue] = useState(() => searchParams.get('search') || '');
-  
+
   // Initialize filters from URL parameters
   const [filters, setFilters] = useState<PostFiltersType>(() => ({
     status: validatePostStatus(searchParams.get('status')),
@@ -109,7 +109,7 @@ const PostListPage = () => {
   // Update URL parameters helper
   const updateUrlParams = useCallback((params: Record<string, string | undefined>) => {
     const newSearchParams = new URLSearchParams();
-    
+
     Object.entries(params).forEach(([key, value]) => {
       if (value && value.trim()) {
         newSearchParams.set(key, value);
@@ -138,6 +138,16 @@ const PostListPage = () => {
     categoryId: filters.categoryId,
     tagId: filters.tagId,
     locale: filters.locale,
+  });
+
+  const deletePostMutation = trpc.adminPosts.deletePost.useMutation({
+    onSuccess: () => {
+      addToast({ title: 'Post deleted successfully', type: 'success' });
+      postsQuery.refetch();
+    },
+    onError: (error) => {
+      addToast({ title: error.message || 'Failed to delete post', type: 'error' });
+    }
   });
 
   const posts = (postsQuery.data as any)?.data?.items || [];
@@ -198,15 +208,14 @@ const PostListPage = () => {
       id: 'status',
       header: 'Status',
       accessor: (item) => (
-        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-          item.status === PostStatus.PUBLISHED
+        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${item.status === PostStatus.PUBLISHED
             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
             : item.status === PostStatus.DRAFT
-            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-            : item.status === PostStatus.ARCHIVED
-            ? 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-            : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-        }`}>
+              ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+              : item.status === PostStatus.ARCHIVED
+                ? 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+                : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+          }`}>
           {item.status}
         </span>
       ),
@@ -291,7 +300,7 @@ const PostListPage = () => {
             },
             {
               label: '-',
-              onClick: () => {},
+              onClick: () => { },
               disabled: true,
             },
             {
@@ -308,13 +317,12 @@ const PostListPage = () => {
 
   const handleDeletePost = async (postId: string) => {
     if (!confirm('Are you sure you want to delete this post?')) return;
-    
+
     try {
-      // TODO: Implement delete mutation when available
-      addToast({ title: 'Post deleted successfully', type: 'success' });
-      postsQuery.refetch();
+      await deletePostMutation.mutateAsync({ id: postId });
     } catch (error) {
-      addToast({ title: 'Failed to delete post', type: 'error' });
+      // Error handling is done in onError callback
+      console.error('Failed to delete user', error);
     }
   };
 

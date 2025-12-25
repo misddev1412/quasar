@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type CSSProperties } from 'react';
 import Link from 'next/link';
 import clsx from 'clsx';
 import { ChevronRight } from 'lucide-react';
@@ -192,28 +192,40 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
         {sections.map((section) => {
           const sectionTitle = section.title || sectionFallbackTitle;
           const sectionDescription = section.description?.trim();
-          const sectionCardStyle = section.backgroundColor
+          const hasCustomBackground = Boolean(section.backgroundColor);
+          const sectionCardStyle: CSSProperties | undefined = hasCustomBackground
             ? { backgroundColor: section.backgroundColor }
             : undefined;
-          const sectionTitleStyle = section.titleFontColor
-            ? { color: section.titleFontColor }
+          const hasCustomTitleColor = Boolean(section.titleFontColor);
+          const sectionTitleStyle: CSSProperties | undefined = hasCustomTitleColor || section.titleUppercase
+            ? {
+                ...(hasCustomTitleColor ? { color: section.titleFontColor } : {}),
+                ...(section.titleUppercase ? { textTransform: 'uppercase', letterSpacing: '0.2em' } : {}),
+              }
             : undefined;
           const sectionTitleClasses = clsx(
-            'flex items-center gap-2 text-gray-900 dark:text-gray-100 mb-0',
+            'flex items-center gap-2 mb-0',
+            hasCustomTitleColor ? '' : 'text-gray-900 dark:text-gray-100',
             SECTION_TITLE_FONT_SIZE_CLASSES[section.titleFontSize] || 'text-sm',
             SECTION_TITLE_FONT_WEIGHT_CLASSES[section.titleFontWeight] || 'font-semibold',
-            section.titleUppercase && 'uppercase tracking-[0.2em]',
+            section.titleUppercase && 'uppercase',
           );
           return (
             <div
               key={section.id}
-              className="rounded-2xl border border-gray-200/80 bg-white/95 shadow-sm dark:border-gray-800/60 dark:bg-gray-900/70"
+              className={clsx(
+                'rounded-2xl border border-gray-200/80 shadow-sm dark:border-gray-800/60',
+                hasCustomBackground ? '' : 'bg-white/95 dark:bg-gray-900/70',
+              )}
               style={sectionCardStyle}
             >
               <div className="border-b border-gray-100 px-5 py-4 dark:border-gray-800/80">
                 <p className={sectionTitleClasses} style={sectionTitleStyle}>
-                  {section.titleIcon && (
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-500 dark:bg-blue-900/30 dark:text-blue-200">
+                  {section.showTitleIcon && section.titleIcon && (
+                    <span
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-500 dark:bg-blue-900/30 dark:text-blue-200"
+                      style={hasCustomTitleColor ? { color: section.titleFontColor } : undefined}
+                    >
                       <UnifiedIcon icon={section.titleIcon} className="h-3.5 w-3.5" />
                     </span>
                   )}

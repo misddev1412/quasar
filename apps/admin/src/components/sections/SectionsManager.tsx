@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+
 import { Image as ImageIcon } from 'lucide-react';
 import { FiPlus, FiRefreshCw, FiEdit, FiTrash2, FiMoreVertical, FiChevronUp, FiChevronDown } from 'react-icons/fi';
 import { useSectionsManager, AdminSection, ActiveLanguage } from '../../hooks/useSectionsManager';
@@ -20,6 +21,7 @@ import { trpc } from '../../utils/trpc';
 import '../common/CountrySelector.css';
 import { SearchSelect } from '../common/SearchSelect';
 import { RichTextEditor } from '../common/RichTextEditor';
+import { JsonEditor } from '../common/JsonEditor';
 import { useNavigate } from 'react-router-dom';
 import { CategorySelector } from '../menus/CategorySelector';
 import { ProductSelector } from '../menus/ProductSelector';
@@ -142,7 +144,7 @@ const buildBannerLinkHref = (type: BannerLinkType, referenceId?: string) => {
 };
 
 const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, value, onChange }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslationWithBackend();
   const [jsonView, setJsonView] = useState(false);
   const [rawJson, setRawJson] = useState(JSON.stringify(value ?? {}, null, 2));
   const [jsonError, setJsonError] = useState<string | null>(null);
@@ -1879,7 +1881,7 @@ const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, value, 
     <>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h4 className="text-sm font-semibold text-gray-700">{t('sections.config.header')}</h4>
+          <h4 className="text-sm font-semibold text-gray-700">{t('sections.manager.config.header')}</h4>
           <Button variant="ghost" size="sm" onClick={() => setJsonView(true)}>{t('sections.manager.rawJson')}</Button>
         </div>
 
@@ -1930,7 +1932,7 @@ const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, value, 
 };
 
 const HeroSliderLocaleEditor: React.FC<HeroSliderLocaleEditorProps> = ({ locale, config, onConfigChange, hasParseError }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslationWithBackend();
   const [isMediaManagerOpen, setIsMediaManagerOpen] = useState(false);
   const [activeSlideIndex, setActiveSlideIndex] = useState<number | null>(null);
 
@@ -2167,7 +2169,7 @@ const mapProductToOption = (product: any, t: any): ProductOption => {
 };
 
 const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditorProps> = ({ value, onChange }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslationWithBackend();
   const selectedIds = Array.isArray(value?.productIds) ? (value.productIds as string[]) : [];
   const [optionsMap, setOptionsMap] = useState<Record<string, ProductOption>>({});
   const [searchOptions, setSearchOptions] = useState<ProductOption[]>([]);
@@ -2714,7 +2716,7 @@ const newsRowsAreEqual = (a: NewsByCategoryAdminRow[], b: NewsByCategoryAdminRow
 };
 
 const NewsByCategoryConfigEditor: React.FC<NewsByCategoryConfigEditorProps> = ({ value, onChange }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslationWithBackend();
   const { data: categoriesData, isLoading: categoriesLoading } = trpc.adminPostCategories.getCategories.useQuery();
 
   const categoryOptions = useMemo<NewsCategorySelectOption[]>(() => {
@@ -2811,7 +2813,7 @@ const NewsCategoryRowEditor: React.FC<NewsCategoryRowEditorProps> = ({
   onRemove,
   canRemove,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslationWithBackend();
 
   const NEWS_STRATEGY_OPTIONS = useMemo(() => [
     { value: 'latest', label: t('sections.manager.newsByCategory.latest') },
@@ -3225,7 +3227,7 @@ const rowsAreEqual = (
 };
 
 const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEditorProps> = ({ value, onChange }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslationWithBackend();
   const { data: categoriesData, isLoading: categoriesLoading } = trpc.adminProductCategories.getTree.useQuery({
     includeInactive: false,
   });
@@ -3367,7 +3369,7 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
   onRemove,
   canRemove,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslationWithBackend();
 
   const STRATEGY_SELECT_OPTIONS = useMemo(() => [
     { value: 'latest', label: t('sections.manager.productsByCategory.latest') },
@@ -4010,7 +4012,7 @@ interface SectionFormProps {
 }
 
 export const SectionForm: React.FC<SectionFormProps> = ({ languages, initialState, onSubmit, onCancel, submitLabel, isSubmitting }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslationWithBackend();
 
   const pageOptions = useMemo(() => [
     { value: 'home', label: t('sections.pages.home') },
@@ -4311,12 +4313,10 @@ export const SectionForm: React.FC<SectionFormProps> = ({ languages, initialStat
           )}
           <label className="flex flex-col gap-1 text-sm text-gray-600">
             {t('sections.manager.form.configOverride')}
-            <TextArea
-              rows={6}
+            <JsonEditor
               value={activeTranslation.configOverride || ''}
-              onChange={(e) => handleTranslationChange(activeLocale, 'configOverride', e.target.value)}
-              onBlur={() => handleConfigOverrideBlur(activeLocale)}
-              className="font-mono text-xs"
+              onChange={(value) => handleTranslationChange(activeLocale, 'configOverride', value)}
+              height="200px"
               placeholder={t('sections.manager.form.configOverridePlaceholder')}
             />
           </label>

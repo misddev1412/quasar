@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useImperativeHandle } from 'react';
+import React, { useState, useCallback, useImperativeHandle, useRef } from 'react';
 import { FieldValues } from 'react-hook-form';
 import { z } from 'zod';
 import clsx from 'clsx';
@@ -9,7 +9,7 @@ import { useDefaultCountry } from '../../hooks/useDefaultCountry';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useEntityForm } from '../../hooks/useEntityForm';
 import { useFormFieldRenderer } from '../../hooks/useFormFieldRenderer';
-import { EntityFormProps, FormActionsAlignment } from '../../types/forms';
+import { EntityFormProps, FormActionsAlignment, FormSubmitAction } from '../../types/forms';
 
 const alignmentClassMap: Record<FormActionsAlignment, string> = {
   start: 'justify-start',
@@ -39,15 +39,25 @@ export function EntityForm<T extends FieldValues = FieldValues>({
   onTabChange: externalOnTabChange,
   formRef,
   actionsAlignment = 'end',
+  mode,
+  showSaveAndStay = false,
 }: EntityFormComponentProps<T>) {
   const [internalActiveTab, setInternalActiveTab] = useState(0);
-  
+
   // Use external tab control if provided, otherwise use internal state
   const activeTab = externalActiveTab !== undefined ? externalActiveTab : internalActiveTab;
   const handleTabChange = externalOnTabChange || setInternalActiveTab;
   const { defaultCountry: settingsDefaultCountry } = useDefaultCountry();
   const { t } = useTranslationWithBackend();
   const [showPasswordFields, setShowPasswordFields] = useState<Record<string, boolean>>({});
+
+  // Track which submit action was clicked
+  const submitActionRef = useRef<FormSubmitAction>('save');
+  const [lastSubmitAction, setLastSubmitAction] = useState<FormSubmitAction>('save');
+
+  // Determine if we should show save and stay button
+  // Always show for edit mode, optionally for create mode based on prop
+  const shouldShowSaveAndStay = mode === 'edit' || showSaveAndStay;
 
   // Create a dynamic schema if none provided
   const defaultSchema = z.object({}) as unknown as z.ZodSchema<T>;
@@ -58,6 +68,7 @@ export function EntityForm<T extends FieldValues = FieldValues>({
     onSubmit,
     validationSchema: validationSchema as any as z.ZodSchema<T>,
     mode: 'onBlur',
+    submitActionRef,
   });
 
   const { control, formState: { errors }, setValue, trigger, getValues } = form;
@@ -87,6 +98,11 @@ export function EntityForm<T extends FieldValues = FieldValues>({
     handleHookSubmit(e);
   };
 
+  const handleSubmitActionSelect = (action: FormSubmitAction) => {
+    submitActionRef.current = action;
+    setLastSubmitAction(action);
+  };
+
   return (
     <form onSubmit={handleFormSubmit} className={clsx('space-y-4', className)}>
       <Tabs
@@ -114,17 +130,42 @@ export function EntityForm<T extends FieldValues = FieldValues>({
                 {cancelButtonText}
               </Button>
             )}
-            <Button
-              type="submit"
-              variant="primary"
-              isLoading={isSubmitting}
-              disabled={isSubmitting}
-              onClick={() => {
-                // Don't prevent default - let form handle it
-              }}
-            >
-              {submitButtonText}
-            </Button>
+            {shouldShowSaveAndStay ? (
+              <>
+                <Button
+                  type="submit"
+                  variant="secondary"
+                  onClick={() => handleSubmitActionSelect('save_and_stay')}
+                  isLoading={isSubmitting && lastSubmitAction === 'save_and_stay'}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting && lastSubmitAction === 'save_and_stay'
+                    ? t('common.saving', 'Saving...')
+                    : t('common.save_and_stay', 'Save and stay')}
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  onClick={() => handleSubmitActionSelect('save')}
+                  isLoading={isSubmitting && lastSubmitAction === 'save'}
+                  disabled={isSubmitting && lastSubmitAction !== 'save'}
+                >
+                  {isSubmitting && lastSubmitAction === 'save'
+                    ? t('common.saving', 'Saving...')
+                    : submitButtonText}
+                </Button>
+              </>
+            ) : (
+              <Button
+                type="submit"
+                variant="primary"
+                isLoading={isSubmitting}
+                disabled={isSubmitting}
+                onClick={() => handleSubmitActionSelect('save')}
+              >
+                {submitButtonText}
+              </Button>
+            )}
           </>
         )}
       </div>

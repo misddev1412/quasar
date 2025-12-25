@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { MediaManager } from './MediaManager';
 import { UploadService } from '../../utils/upload';
 import { BASE_LABEL_CLASS } from './styles';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 interface MediaUploadProps {
   value?: string | string[]; // Support single or multiple files
@@ -41,6 +42,7 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
   className = '',
   placeholder,
 }) => {
+  const { t } = useTranslationWithBackend();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [selectedMedia, setSelectedMedia] = useState<any[]>([]);
@@ -90,7 +92,7 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
         }
         return file.type === type;
       });
-      
+
       if (!isAccepted) {
         return 'File type not allowed';
       }
@@ -186,7 +188,7 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
     } else {
       // Removing uploaded files
       const fileToRemove = uploadedFiles[index];
-      
+
       // Only revoke blob URLs, not server URLs
       if (fileToRemove.preview && fileToRemove.preview.startsWith('blob:')) {
         URL.revokeObjectURL(fileToRemove.preview);
@@ -223,7 +225,7 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
   const handleDrop = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     setDragActive(false);
-    
+
     if (disabled) return;
 
     const files = Array.from(event.dataTransfer.files);
@@ -255,7 +257,7 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
       setSelectedMedia([selected]); // Store selected media for display (as array for consistency)
       onChange?.(selected.url);
     }
-    
+
     setShowMediaManager(false);
   }, [multiple, onChange, uploadedFiles]);
 
@@ -275,8 +277,8 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
           dragActive && !disabled
             ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20'
             : error
-            ? 'border-red-300 dark:border-red-600'
-            : 'border-gray-300 dark:border-gray-600',
+              ? 'border-red-300 dark:border-red-600'
+              : 'border-gray-300 dark:border-gray-600',
           !disabled && 'hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer',
           disabled && 'opacity-50 cursor-not-allowed'
         )}
@@ -290,16 +292,16 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
             'w-8 h-8 mx-auto mb-4',
             dragActive ? 'text-blue-500' : 'text-gray-400'
           )} />
-          
+
           {isUploading ? (
             <div className="flex items-center justify-center space-x-2">
               <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              <span className="text-sm text-gray-600 dark:text-gray-400">Uploading...</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">{t('common.media.uploading')}</span>
             </div>
           ) : (
             <>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                {placeholder || `Drag and drop ${multiple ? 'files' : 'a file'} here, or click to select`}
+                {placeholder || t('common.media.dropFiles', { count: multiple ? 2 : 1 })}
               </p>
               <div className="flex items-center justify-center gap-3 mb-4">
                 <button
@@ -311,9 +313,9 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
                   className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <Upload className="w-4 h-4" />
-                  Upload New
+                  {t('common.media.uploadNew')}
                 </button>
-                <span className="text-gray-400">or</span>
+                <span className="text-gray-400">{t('common.media.or')}</span>
                 <button
                   type="button"
                   onClick={(e) => {
@@ -323,11 +325,11 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
                   className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 rounded-md hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
                 >
                   <FolderOpen className="w-4 h-4" />
-                  Media Manager
+                  {t('common.media.mediaManager')}
                 </button>
               </div>
               <p className="text-xs text-gray-500">
-                Max size: {maxSize}MB • Accepted: {accept}
+                {t('common.media.maxSizeAccepted', { maxSize, accept })}
               </p>
             </>
           )}
@@ -371,7 +373,7 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                     {uploadedFile.file.name}
@@ -383,7 +385,7 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
                     {uploadedFile.type} • {uploadedFile.file.type}
                   </p>
                 </div>
-                
+
                 {!disabled && (
                   <button
                     type="button"
@@ -417,7 +419,7 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                     {media.originalName}
@@ -426,10 +428,10 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
                     {media.sizeFormatted || `${(media.size / 1024 / 1024).toFixed(2)} MB`}
                   </p>
                   <p className="text-xs text-blue-600 dark:text-blue-400">
-                    From Media Library
+                    {t('common.media.fromMediaLibrary')}
                   </p>
                 </div>
-                
+
                 {!disabled && (
                   <button
                     type="button"
@@ -458,7 +460,7 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
         <p className="text-xs text-red-500">{error}</p>
       )}
 
-      {/* Media Manager Modal */}
+      {/* Media Manager Modal - Select or Upload */}
       <MediaManager
         isOpen={showMediaManager}
         onClose={() => setShowMediaManager(false)}
@@ -466,7 +468,7 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
         multiple={multiple}
         accept={accept}
         maxSize={maxSize}
-        title="Select or Upload Media"
+        title={t('common.media.selectOrUpload')}
       />
     </div>
   );

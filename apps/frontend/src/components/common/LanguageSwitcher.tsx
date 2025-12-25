@@ -54,7 +54,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className = '' }) =
   if (isLoading) {
     return (
       <div className={`relative inline-block ${className}`} ref={dropdownRef}>
-        <div className="flex items-center gap-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[140px]">
+        <div className="flex items-center gap-3 bg-transparent border border-white/20 dark:border-white/20 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-50 dark:text-gray-200 min-w-[140px]">
           <span className="text-base">🌐</span>
           <span>Loading...</span>
         </div>
@@ -68,7 +68,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className = '' }) =
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer"
+        className="flex items-center justify-center bg-transparent border border-white/20 dark:border-white/20 rounded-lg px-2 py-2 text-sm font-medium text-white dark:text-gray-200 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer"
         aria-label="Select Language"
       >
         <span className="text-base">{getLanguageFlag(currentLocale)}</span>
@@ -76,7 +76,7 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ className = '' }) =
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-full left-1/2 mt-1 -translate-x-1/2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto min-w-[140px]">
+        <div className="absolute top-full left-1/2 mt-1 -translate-x-1/2 bg-white dark:bg-gray-900/95 border border-white/20 dark:border-white/15 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto min-w-[140px] backdrop-blur">
           {displayLanguages.map((language: Language, index: number) => (
             <button
               key={language.id}

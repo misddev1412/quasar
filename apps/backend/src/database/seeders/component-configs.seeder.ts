@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ComponentConfigEntity } from '../../modules/component-configs/entities/component-config.entity';
 import { ComponentStructureType, ComponentCategory } from '@shared/enums/component.enums';
+import { DEFAULT_MAIN_MENU_CONFIG } from '@shared/types/navigation.types';
 
 interface ComponentConfigSeed {
   componentKey: string;
@@ -777,6 +778,30 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
       propsInterface: 'ViewMoreButtonProps',
       usedIn: ['FeaturedProducts', 'NewsSection', 'ProductsByCategory', 'Custom Sections'],
       notes: 'Centralized component for consistent "View More" styling. Replaces inline Link components.',
+    },
+  },
+  {
+    componentKey: 'navigation.main_menu',
+    displayName: 'Main Menu Appearance',
+    description: 'Controls MainMenu background colors and spacing scale for desktop and mobile navigation.',
+    componentType: ComponentStructureType.ATOMIC,
+    category: ComponentCategory.LAYOUT,
+    position: 20,
+    isEnabled: true,
+    defaultConfig: DEFAULT_MAIN_MENU_CONFIG,
+    configSchema: {
+      backgroundColor: {
+        type: 'object',
+        properties: {
+          light: { type: 'string', description: 'Hex, rgb, or Tailwind-compatible color for light mode background' },
+          dark: { type: 'string', description: 'Hex, rgb, or Tailwind-compatible color for dark mode background' },
+        },
+      },
+      itemSize: { type: 'enum', options: ['compact', 'comfortable', 'spacious'] },
+    },
+    metadata: {
+      componentPath: 'apps/frontend/src/components/menu/MenuNavigation.tsx',
+      notes: 'Referenced by the storefront header to control navigation spacing and colors.',
     },
   },
 ];

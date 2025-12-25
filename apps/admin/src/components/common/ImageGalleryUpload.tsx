@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { MediaManager } from './MediaManager';
 import { UploadService } from '../../utils/upload';
 import { BASE_LABEL_CLASS } from './styles';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 interface GalleryImage {
   id: string;
@@ -42,6 +43,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
   required = false,
   className = '',
 }) => {
+  const { t } = useTranslationWithBackend();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<GalleryImage[]>(Array.isArray(value) ? value : []);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -110,7 +112,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
         alt: newImage.alt,
         onProgress: (progress) => {
           // Update progress
-          const updatedImages = currentImages.map(img => 
+          const updatedImages = currentImages.map(img =>
             img.id === tempId ? { ...img, uploadProgress: progress } : img
           );
           updateImages(updatedImages);
@@ -119,7 +121,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
 
       if (uploadResult.success && uploadResult.data?.[0]) {
         const uploadedFile = uploadResult.data[0];
-        
+
         // Update image with server data
         const finalImage: GalleryImage = {
           id: uploadedFile.id,
@@ -134,7 +136,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
         URL.revokeObjectURL(preview);
 
         // Update the image in the list
-        const finalImages = currentImages.map(img => 
+        const finalImages = currentImages.map(img =>
           img.id === tempId ? finalImage : img
         );
         updateImages(finalImages);
@@ -145,13 +147,13 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
       }
     } catch (error) {
       console.error('Upload error:', error);
-      
+
       // Update image with error status
-      const errorImages = currentImages.map(img => 
+      const errorImages = currentImages.map(img =>
         img.id === tempId ? { ...img, uploadStatus: 'error' as const } : img
       );
       updateImages(errorImages);
-      
+
       return null;
     }
   }, [images, updateImages, maxSize]);
@@ -161,7 +163,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
 
     const remainingSlots = maxImages - images.length;
     const filesToProcess = files.slice(0, remainingSlots);
-    
+
     if (filesToProcess.length < files.length) {
       console.warn(`Only ${remainingSlots} images can be added. ${files.length - filesToProcess.length} files were skipped.`);
     }
@@ -237,7 +239,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
         }
       } catch (error) {
         console.error('Batch upload error:', error);
-        
+
         // Update all temp images with error status
         const errorImages = currentImages.map(img => {
           const isTempImage = tempImages.some(temp => temp.id === img.id);
@@ -253,7 +255,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
   const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     await processMultipleFiles(files);
-    
+
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -286,12 +288,12 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
     const updatedImages = images
       .filter((_, i) => i !== index)
       .map((img, i) => ({ ...img, order: i }));
-    
+
     updateImages(updatedImages);
   }, [images, updateImages]);
 
   const handleImageEdit = useCallback((image: GalleryImage, updates: Partial<GalleryImage>) => {
-    const updatedImages = images.map(img => 
+    const updatedImages = images.map(img =>
       img.id === image.id ? { ...img, ...updates } : img
     );
     updateImages(updatedImages);
@@ -328,7 +330,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
     setIsDragOver(false);
     setDragCounter(0);
 
-    const files = Array.from(e.dataTransfer.files).filter(file => 
+    const files = Array.from(e.dataTransfer.files).filter(file =>
       file.type.startsWith('image/')
     );
 
@@ -352,16 +354,16 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
       const newImages = [...images];
       const [draggedImage] = newImages.splice(draggedIndex, 1);
       newImages.splice(draggedOverIndex, 0, draggedImage);
-      
+
       // Update order
       const reorderedImages = newImages.map((img, index) => ({
         ...img,
         order: index
       }));
-      
+
       updateImages(reorderedImages);
     }
-    
+
     setDraggedIndex(null);
     setDraggedOverIndex(null);
   }, [draggedIndex, draggedOverIndex, images, updateImages]);
@@ -388,8 +390,8 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
                 draggedIndex === index
                   ? 'border-primary-500 shadow-lg scale-105'
                   : draggedOverIndex === index
-                  ? 'border-primary-300 border-dashed'
-                  : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                    ? 'border-primary-300 border-dashed'
+                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
               )}
               draggable={!disabled}
               onDragStart={() => handleImageDragStart(index)}
@@ -404,7 +406,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
                   image.uploadStatus === 'uploading' && "opacity-50"
                 )}
               />
-              
+
               {/* Upload Status Overlay */}
               {image.uploadStatus === 'uploading' && (
                 <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -416,7 +418,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
                   </div>
                 </div>
               )}
-              
+
               {image.uploadStatus === 'error' && (
                 <div className="absolute inset-0 bg-red-500 bg-opacity-75 flex items-center justify-center">
                   <div className="text-center text-white">
@@ -425,7 +427,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
                   </div>
                 </div>
               )}
-              
+
               {/* Hover Overlay */}
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center">
                 {image.uploadStatus !== 'uploading' && (
@@ -482,8 +484,8 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
             error
               ? 'border-red-300 dark:border-red-600'
               : isDragOver
-              ? 'border-primary-400 bg-primary-50 dark:bg-primary-900/20 dark:border-primary-500'
-              : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                ? 'border-primary-400 bg-primary-50 dark:bg-primary-900/20 dark:border-primary-500'
+                : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
           )}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
@@ -503,7 +505,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
                   isDragOver ? 'text-primary-500' : 'text-gray-400'
                 )} />
               </div>
-              
+
               {isUploading ? (
                 <div className="flex items-center space-x-2">
                   <div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
@@ -513,16 +515,16 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
                 <>
                   <p className={clsx(
                     'text-sm mb-4 transition-colors duration-200',
-                    isDragOver 
-                      ? 'text-primary-600 dark:text-primary-400 font-medium' 
+                    isDragOver
+                      ? 'text-primary-600 dark:text-primary-400 font-medium'
                       : 'text-gray-600 dark:text-gray-400'
                   )}>
-                    {isDragOver 
-                      ? 'Drop images here to upload'
-                      : `Add up to ${maxImages - images.length} more ${maxImages - images.length === 1 ? 'image' : 'images'}`
+                    {isDragOver
+                      ? t('common.media.dropImages')
+                      : t('common.gallery.addMore', { count: maxImages - images.length })
                     }
                   </p>
-                  
+
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
@@ -531,11 +533,11 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
                       className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Upload className="w-4 h-4" />
-                      Upload Images
+                      {t('common.media.uploadNew')}
                     </button>
-                    
-                    <span className="text-gray-400">or</span>
-                    
+
+                    <span className="text-gray-400">{t('common.media.or')}</span>
+
                     <button
                       type="button"
                       onClick={() => setShowMediaManager(true)}
@@ -543,12 +545,12 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
                       className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-700 rounded-md hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Grid className="w-4 h-4" />
-                      Browse Gallery
+                      {t('common.gallery.browse')}
                     </button>
                   </div>
-                  
+
                   <p className="text-xs text-gray-500 mt-3">
-                    Max {maxSize}MB per image • JPG, PNG, WebP supported
+                    {t('common.gallery.limits', { maxSize })}
                   </p>
                 </>
               )}
@@ -564,13 +566,13 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
               />
             </div>
           </div>
-          
+
           {/* Drag overlay indicator */}
           {isDragOver && (
             <div className="absolute inset-0 bg-primary-100/80 dark:bg-primary-900/40 rounded-lg flex items-center justify-center backdrop-blur-sm">
               <div className="flex flex-col items-center text-primary-600 dark:text-primary-400">
                 <Upload className="w-12 h-12 mb-2 animate-bounce" />
-                <p className="text-lg font-semibold">Drop images to upload</p>
+                <p className="text-lg font-semibold">{t('common.media.dropToUpload')}</p>
               </div>
             </div>
           )}
@@ -581,11 +583,11 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
       {images.length > 0 && (
         <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
           <span>
-            {images.length} of {maxImages} images added
+            {t('common.gallery.addedStats', { count: images.length, max: maxImages })}
           </span>
           {images.length === maxImages && (
             <span className="text-amber-600 dark:text-amber-400">
-              Maximum images reached
+              {t('common.gallery.maxReached')}
             </span>
           )}
         </div>
@@ -609,7 +611,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
         multiple={true}
         accept="image/*"
         maxSize={maxSize}
-        title="Select Images for Gallery"
+        title={t('common.gallery.selectTitle')}
       />
 
       {/* Image Edit Modal */}
@@ -618,9 +620,9 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4">
             <div className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Edit Image Details
+                {t('common.gallery.editDetails')}
               </h3>
-              
+
               <div className="space-y-4">
                 <div className="flex gap-4">
                   <div className="flex-shrink-0">
@@ -630,11 +632,11 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
                       className="w-32 h-32 object-cover rounded-lg"
                     />
                   </div>
-                  
+
                   <div className="flex-1 space-y-3">
                     <div>
                       <label className={`${BASE_LABEL_CLASS} mb-1`}>
-                        Alt Text
+                        {t('common.gallery.altText')}
                       </label>
                       <input
                         type="text"
@@ -644,13 +646,13 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
                           alt: e.target.value
                         })}
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                        placeholder="Describe this image..."
+                        placeholder={t('common.gallery.altPlaceholder')}
                       />
                     </div>
-                    
+
                     <div>
                       <label className={`${BASE_LABEL_CLASS} mb-1`}>
-                        Caption
+                        {t('common.gallery.caption')}
                       </label>
                       <textarea
                         value={editingImage.caption || ''}
@@ -660,20 +662,20 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
                         })}
                         rows={2}
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                        placeholder="Add a caption..."
+                        placeholder={t('common.gallery.captionPlaceholder')}
                       />
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex justify-end gap-3 mt-6">
                 <button
                   type="button"
                   onClick={() => setEditingImage(null)}
                   className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="button"
@@ -683,7 +685,7 @@ export const ImageGalleryUpload: React.FC<ImageGalleryUploadProps> = ({
                   })}
                   className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
                 >
-                  Save Changes
+                  {t('common.save')}
                 </button>
               </div>
             </div>

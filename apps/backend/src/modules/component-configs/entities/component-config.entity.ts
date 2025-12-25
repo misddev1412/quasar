@@ -25,6 +25,7 @@ export interface ComponentSidebarMenuSection {
   titleFontSize?: 'xs' | 'sm' | 'base' | 'lg';
   titleUppercase?: boolean;
   titleIcon?: string;
+  showTitleIcon?: boolean;
   items: ComponentSidebarMenuItem[];
 }
 

@@ -62,7 +62,7 @@ export class AdminPostsRouter {
     private readonly adminPostsService: AdminPostsService,
     @Inject(ResponseService)
     private readonly responseHandler: ResponseService,
-  ) {}
+  ) { }
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
@@ -108,7 +108,7 @@ export class AdminPostsRouter {
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const post = await this.adminPostsService.getPostById(input.id);
-      
+
       if (!post) {
         throw this.responseHandler.createTRPCError(
           31, // ModuleCode.ARTICLE
@@ -195,6 +195,36 @@ export class AdminPostsRouter {
         3,  // OperationCode.UPDATE
         10, // ErrorLevelCode.SERVER_ERROR
         error.message || 'Failed to update post'
+      );
+    }
+  }
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: getPostByIdSchema,
+    output: apiResponseSchema,
+  })
+  async deletePost(
+    @Input() input: z.infer<typeof getPostByIdSchema>,
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const success = await this.adminPostsService.deletePost(input.id);
+
+      if (!success) {
+        throw this.responseHandler.createTRPCError(
+          31, // ModuleCode.ARTICLE
+          4,  // OperationCode.DELETE
+          20, // ErrorLevelCode.NOT_FOUND
+          'Post not found or could not be deleted'
+        );
+      }
+
+      return this.responseHandler.createTrpcSuccess({ success: true });
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        31, // ModuleCode.ARTICLE
+        4,  // OperationCode.DELETE
+        10, // ErrorLevelCode.SERVER_ERROR
+        error.message || 'Failed to delete post'
       );
     }
   }

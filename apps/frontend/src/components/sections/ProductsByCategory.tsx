@@ -63,6 +63,7 @@ export interface ProductsByCategorySidebarSectionConfig {
   titleFontSize?: SidebarTitleFontSize;
   titleUppercase?: boolean;
   titleIcon?: string;
+  showTitleIcon?: boolean;
   items?: ProductsByCategorySidebarItemConfig[];
 }
 
@@ -185,6 +186,7 @@ export interface NormalizedSidebarSection {
   titleFontSize: SidebarTitleFontSize;
   titleUppercase: boolean;
   titleIcon: string;
+  showTitleIcon: boolean;
   items: NormalizedSidebarItem[];
 }
 
@@ -251,6 +253,7 @@ const normalizeSidebarConfig = (sidebar?: ProductsByCategorySidebarConfig | null
       const titleFontSize = normalizeSidebarFontSize(section?.titleFontSize);
       const titleUppercase = Boolean(section?.titleUppercase);
       const titleIcon = normalizeString(section?.titleIcon);
+      const showTitleIcon = section?.showTitleIcon !== false;
       const items = normalizeSidebarItems(section?.items, id);
 
       return {
@@ -263,6 +266,7 @@ const normalizeSidebarConfig = (sidebar?: ProductsByCategorySidebarConfig | null
         titleFontSize,
         titleUppercase,
         titleIcon,
+        showTitleIcon,
         items,
       };
     })

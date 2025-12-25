@@ -6,7 +6,6 @@ import { StatisticsGrid, StatisticData } from '../../components/common/Statistic
 import BaseLayout from '../../components/layout/BaseLayout';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { useMenuPage, useMenuDragHandlers, flattenMenuTree, SUB_MENU_GROUP } from '../../hooks/useMenuPage';
 import { AdminMenu, MenuTreeNode } from '../../hooks/useMenusManager';
 import { MenuTable } from '../../components/menus/MenuTable';
@@ -89,6 +88,12 @@ const MenusPage: React.FC = () => {
   const [pendingSubMenuVisibility, setPendingSubMenuVisibility] = useState<boolean | null>(null);
   const pageTitle = t('menus.page.title', 'Menu Management');
   const pageDescription = t('menus.page.description', 'Manage all navigation menus');
+  const layoutBreadcrumbs = useMemo(() => (
+    breadcrumbItems.map(item => ({
+      ...item,
+      icon: item.icon ?? (item.href === '/' ? <FiHome className="w-4 h-4" /> : <FiMenu className="w-4 h-4" />),
+    }))
+  ), [breadcrumbItems]);
 
   const subMenuVisibilitySetting = useMemo(
     () => storefrontSettings.find(setting => setting.key === SUB_MENU_VISIBILITY_SETTING_KEY),
@@ -263,7 +268,13 @@ const MenusPage: React.FC = () => {
 
   if (treeQuery.isLoading) {
     return (
-      <BaseLayout title={pageTitle} description={pageDescription} actions={actionsWithIcons} fullWidth={true}>
+      <BaseLayout
+        title={pageTitle}
+        description={pageDescription}
+        actions={actionsWithIcons}
+        fullWidth={true}
+        breadcrumbs={layoutBreadcrumbs}
+      >
         <div className={cn(menuStyles.itemsCenter, menuStyles.justifyCenter, menuStyles.minH64)}>
           <Loading />
         </div>
@@ -273,7 +284,13 @@ const MenusPage: React.FC = () => {
 
   if (treeQuery.error) {
     return (
-      <BaseLayout title={pageTitle} description={pageDescription} actions={actionsWithIcons} fullWidth={true}>
+      <BaseLayout
+        title={pageTitle}
+        description={pageDescription}
+        actions={actionsWithIcons}
+        fullWidth={true}
+        breadcrumbs={layoutBreadcrumbs}
+      >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
           <AlertDescription>{treeQuery.error.message}</AlertDescription>
@@ -283,16 +300,14 @@ const MenusPage: React.FC = () => {
   }
 
   return (
-    <BaseLayout title={pageTitle} description={pageDescription} actions={actionsWithIcons} fullWidth={true}>
+    <BaseLayout
+      title={pageTitle}
+      description={pageDescription}
+      actions={actionsWithIcons}
+      fullWidth={true}
+      breadcrumbs={layoutBreadcrumbs}
+    >
       <div className={menuStyles.spaceY6}>
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={breadcrumbItems.map(item => ({
-            ...item,
-            icon: item.icon ?? (item.href === '/' ? <FiHome className="w-4 h-4" /> : <FiMenu className="w-4 h-4" />),
-          }))}
-        />
-
         {/* Menu Group Selector */}
         <div className={cn(menuStyles.flex, menuStyles.itemsCenter, menuStyles.gap4)}>
           <label className={menuStyles.formLabel}>{t('menus.page.menuGroupLabel', 'Menu Group:')}</label>

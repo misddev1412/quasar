@@ -5,6 +5,7 @@
     "no_targets": "No Targets",
     "save": "Save",
     "save_and_continue": "Save and Continue",
+    "save_and_stay": "Save and stay",
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
@@ -146,7 +147,35 @@
       "maxSize": "Max {{maxSize}}MB",
       "fileTooLarge": "File is too large. Maximum size is {{maxSize}}MB",
       "uploadSuccess": "File uploaded successfully",
-      "invalidFileType": "Invalid file type"
-    }
+      "invalidFileType": "Invalid file type",
+      "uploading": "Uploading...",
+      "uploadNew": "Upload New",
+      "or": "or",
+      "mediaManager": "Media Manager",
+      "maxSizeAccepted": "Max size: {{maxSize}}MB • Accepted: {{accept}}",
+      "fromMediaLibrary": "From Media Library",
+      "selectOrUpload": "Select or Upload Media",
+      "dropFiles": "Drag and drop {{count}} file{{s}} here, or click to select",
+      "dropImages": "Drop images here to upload",
+      "dropToUpload": "Drop images to upload"
+    },
+    "gallery": {
+      "addMore": "Add up to {{count}} more image{{s}}",
+      "browse": "Browse Gallery",
+      "uploadImages": "Upload Images",
+      "limits": "Max {{maxSize}}MB per image • JPG, PNG, WebP supported",
+      "addedStats": "{{count}} of {{max}} images added",
+      "maxReached": "Maximum images reached",
+      "selectTitle": "Select Images for Gallery",
+      "editDetails": "Edit Image Details",
+      "altText": "Alt Text",
+      "altPlaceholder": "Describe this image...",
+      "caption": "Caption",
+      "captionPlaceholder": "Add a caption..."
+    },
+    "pleaseTryAgainLater": "Please try again later.",
+    "genericError": "An error occurred. Please try again.",
+    "enable": "Enable",
+    "disable": "Disable"
   }
 }

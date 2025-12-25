@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Settings, Globe, Image, Calendar, Tag, RefreshCw } from 'lucide-react';
 import { EntityForm } from '../common/EntityForm';
-import { FormTabConfig } from '../../types/forms';
+import { FormTabConfig, FormSubmitOptions } from '../../types/forms';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useLanguageOptions } from '../../hooks/useLanguages';
 import { z } from 'zod';
@@ -71,7 +71,7 @@ const createPostSchema = z.object({
 type CreatePostFormData = z.infer<typeof createPostSchema>;
 
 interface CreatePostFormProps {
-  onSubmit: (data: CreatePostFormData) => Promise<void>;
+  onSubmit: (data: CreatePostFormData, options?: FormSubmitOptions) => Promise<void | unknown>;
   onCancel: () => void;
   isSubmitting?: boolean;
 }
@@ -165,10 +165,10 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
             {
               name: 'content',
               label: t('posts.description'),
-              type: 'textarea',
+              type: 'richtext',
               placeholder: t('posts.contentPlaceholder'),
               required: true,
-              rows: 8,
+              minHeight: '400px',
               validation: {
                 minLength: 10,
               },
@@ -341,12 +341,12 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
   };
 
   // Custom submit handler that includes translations
-  const handleFormSubmit = async (data: CreatePostFormData) => {
+  const handleFormSubmit = async (data: CreatePostFormData, options?: FormSubmitOptions) => {
     const formDataWithTranslations = {
       ...data,
       additionalTranslations: additionalTranslations,
     };
-    await onSubmit(formDataWithTranslations);
+    await onSubmit(formDataWithTranslations, options);
   };
 
   return (
@@ -360,6 +360,8 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
       submitButtonText={t('posts.create')}
       cancelButtonText={t('common.cancel')}
       showCancelButton={true}
+      mode="create"
+      showSaveAndStay={true}
     />
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, FolderOpen } from 'lucide-react';
 import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
@@ -7,6 +7,7 @@ import { MediaManager } from '../../components/common/MediaManager';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { FormSubmitOptions, FormSubmitAction } from '../../types/forms';
 
 // Transform the form data to match API expectations
 interface CreatePostAPIData {
@@ -46,6 +47,7 @@ const CreatePostPage: React.FC = () => {
   const { addToast } = useToast();
   const { t } = useTranslationWithBackend();
   const [showMediaManager, setShowMediaManager] = useState(false);
+  const lastSubmitActionRef = useRef<FormSubmitAction>('save');
 
   // tRPC mutation for creating post
   const createPostMutation = trpc.adminPosts.createPost.useMutation({
@@ -55,7 +57,18 @@ const CreatePostPage: React.FC = () => {
         title: t('posts.createSuccess'),
         description: t('posts.createSuccessDescription'),
       });
-      navigate('/posts');
+
+      // Get the ID of the newly created post
+      const newPostId = (data as any)?.data?.id;
+
+      // Navigate based on submit action
+      if (lastSubmitActionRef.current === 'save_and_stay' && newPostId) {
+        // Redirect to edit page
+        navigate(`/posts/${newPostId}/edit`);
+      } else {
+        // Redirect to list page
+        navigate('/posts');
+      }
     },
     onError: (error) => {
       addToast({
@@ -66,7 +79,10 @@ const CreatePostPage: React.FC = () => {
     },
   });
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: any, options?: FormSubmitOptions) => {
+    // Track the submit action
+    lastSubmitActionRef.current = options?.submitAction || 'save';
+
     try {
       // Transform form data to match API expectations
       const postData: CreatePostAPIData = {

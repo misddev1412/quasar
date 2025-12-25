@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Settings, Globe, Image, Calendar, Tag } from 'lucide-react';
 import { EntityForm } from '../common/EntityForm';
-import { FormTabConfig } from '../../types/forms';
+import { FormTabConfig, FormSubmitOptions } from '../../types/forms';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useLanguageOptions } from '../../hooks/useLanguages';
 import { z } from 'zod';
@@ -14,18 +14,18 @@ const editPostSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   slug: z.string().min(1, 'Slug is required').refine((val) => {
     // Allow Unicode characters but forbid certain special characters
-    return val.length > 0 && 
-           !val.startsWith('-') && 
-           !val.endsWith('-') && 
-           !/-{2,}/.test(val) && 
-           !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
+    return val.length > 0 &&
+      !val.startsWith('-') &&
+      !val.endsWith('-') &&
+      !/-{2,}/.test(val) &&
+      !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
   }, 'Slug must not start/end with hyphens or contain forbidden characters'),
   content: z.string().min(1, 'Content is required'),
   excerpt: z.string().optional(),
-  
+
   // Language
   languageCode: z.string().min(1, 'Language is required'),
-  
+
   // Settings
   status: z.enum(['draft', 'published', 'archived', 'scheduled']),
   type: z.enum(['post', 'page', 'news', 'event']),
@@ -42,24 +42,24 @@ const editPostSchema = z.object({
   isFeatured: z.boolean(),
   allowComments: z.boolean(),
   categoryIds: z.array(z.string()).optional(),
-  
+
   // SEO
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
-  
+
   // Additional translations (optional)
   additionalTranslations: z.array(z.object({
     locale: z.string().min(2).max(5),
     title: z.string().min(1, 'Title is required'),
     slug: z.string().min(1, 'Slug is required').refine((val) => {
-    // Allow Unicode characters but forbid certain special characters
-    return val.length > 0 && 
-           !val.startsWith('-') && 
-           !val.endsWith('-') && 
-           !/-{2,}/.test(val) && 
-           !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
-  }, 'Slug must not start/end with hyphens or contain forbidden characters'),
+      // Allow Unicode characters but forbid certain special characters
+      return val.length > 0 &&
+        !val.startsWith('-') &&
+        !val.endsWith('-') &&
+        !/-{2,}/.test(val) &&
+        !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
+    }, 'Slug must not start/end with hyphens or contain forbidden characters'),
     content: z.string().min(1, 'Content is required'),
     excerpt: z.string().optional(),
     metaTitle: z.string().optional(),
@@ -72,7 +72,7 @@ type EditPostFormData = z.infer<typeof editPostSchema>;
 
 interface EditPostFormProps {
   initialData?: Partial<EditPostFormData>;
-  onSubmit: (data: EditPostFormData) => Promise<void>;
+  onSubmit: (data: EditPostFormData, options?: FormSubmitOptions) => Promise<void | unknown>;
   onCancel: () => void;
   isSubmitting?: boolean;
   activeTab?: number;
@@ -89,7 +89,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
 }) => {
   const { t } = useTranslationWithBackend();
   const { languageOptions, isLoading: languagesLoading } = useLanguageOptions();
-  
+
   // State for managing translations
   const [additionalTranslations, setAdditionalTranslations] = useState<{
     locale: string;
@@ -138,9 +138,9 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               name: 'languageCode',
               label: t('posts.language'),
               type: 'select',
-              placeholder: languagesLoading 
-                ? t('common.loading') 
-                : languageOptions.length > 0 
+              placeholder: languagesLoading
+                ? t('common.loading')
+                : languageOptions.length > 0
                   ? t('form.placeholders.select_language')
                   : 'No languages available',
               required: true,
@@ -150,7 +150,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
                 label: option.label,
               })),
               icon: <Globe className="w-4 h-4" />,
-              description: languagesLoading 
+              description: languagesLoading
                 ? t('common.loading')
                 : t('form.descriptions.post_language_description'),
             },
@@ -188,10 +188,10 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
             {
               name: 'content',
               label: t('posts.description'),
-              type: 'textarea',
+              type: 'richtext',
               placeholder: t('posts.contentPlaceholder'),
               required: true,
-              rows: 8,
+              minHeight: '400px',
               validation: {
                 minLength: 10,
               },
@@ -368,12 +368,12 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
   };
 
   // Custom submit handler that includes translations
-  const handleFormSubmit = async (data: EditPostFormData) => {
+  const handleFormSubmit = async (data: EditPostFormData, options?: FormSubmitOptions) => {
     const formDataWithTranslations = {
       ...data,
       additionalTranslations: additionalTranslations,
     };
-    await onSubmit(formDataWithTranslations);
+    await onSubmit(formDataWithTranslations, options);
   };
 
   return (
@@ -389,6 +389,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
       showCancelButton={true}
       activeTab={activeTab}
       onTabChange={onTabChange}
+      mode="edit"
     />
   );
 };

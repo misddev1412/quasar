@@ -14,7 +14,7 @@ export class TranslationService {
 
   constructor(
     private readonly translationRepository: TranslationRepository
-  ) {}
+  ) { }
 
   async getTranslations(locale: SupportedLocale): Promise<TranslationMap> {
     try {
@@ -26,16 +26,16 @@ export class TranslationService {
 
       // Get from database
       const dbTranslations = await this.getTranslationsFromDatabase(locale);
-      
+
       // Get fallback from files
       const fileTranslations = this.getTranslationsFromFile(locale);
-      
+
       // Merge database translations with file fallbacks
       const merged = this.mergeTranslations(dbTranslations, fileTranslations);
-      
+
       // Update cache
       this.updateCache(locale, merged);
-      
+
       return merged;
     } catch (error) {
       this.logger.error(`Failed to get translations for locale ${locale}:`, error);
@@ -55,7 +55,7 @@ export class TranslationService {
       // Fallback to file translations
       const fileTranslations = this.getTranslationsFromFile(locale);
       const value = this.getNestedValue(fileTranslations, key);
-      
+
       if (value) {
         return value;
       }
@@ -78,13 +78,13 @@ export class TranslationService {
 
   private async getTranslationsFromDatabase(locale: SupportedLocale): Promise<TranslationMap> {
     const translations = await this.translationRepository.findActiveByLocale(locale);
-    
+
     const result: TranslationMap = {};
-    
+
     translations.forEach(translation => {
       this.setNestedValue(result, translation.key, translation.value);
     });
-    
+
     return result;
   }
 
@@ -96,6 +96,9 @@ export class TranslationService {
       resolve(__dirname, '..', '..', '..', '..', 'assets', 'i18n', `${locale}.json`),
     ];
 
+    let result: TranslationMap = {};
+
+    // 1. Load main backend translations
     for (const filePath of candidatePaths) {
       try {
         if (!existsSync(filePath)) {
@@ -103,14 +106,35 @@ export class TranslationService {
         }
 
         const fileContent = readFileSync(filePath, 'utf8');
-        return JSON.parse(fileContent);
+        const translations = JSON.parse(fileContent);
+        result = this.deepMerge(result, translations);
+        // We found the main file, but we might want to continue to merge others if necessary
+        // In original logic it returned immediately. Let's keep one main file logic but...
+        // We really want to merge admin/sections.json too.
+        break;
       } catch (error) {
         this.logger.warn(`Failed to read translation file at ${filePath}: ${error.message}`);
       }
     }
 
-    this.logger.warn(`Translation file not found for locale ${locale}`);
-    return {};
+    // 2. Load admin sections.json
+    const sectionsPath = join(process.cwd(), 'apps', 'admin', 'src', 'i18n', 'locales', locale, 'sections.json');
+    try {
+      if (existsSync(sectionsPath)) {
+        const sectionsContent = readFileSync(sectionsPath, 'utf8');
+        const sectionsJson = JSON.parse(sectionsContent);
+        // sections.json has "sections": { ... } structure natively
+        result = this.deepMerge(result, sectionsJson);
+      }
+    } catch (error) {
+      this.logger.warn(`Failed to read sections translation file at ${sectionsPath}: ${error.message}`);
+    }
+
+    if (Object.keys(result).length === 0) {
+      this.logger.warn(`Translation file not found for locale ${locale}`);
+    }
+
+    return result;
   }
 
   private mergeTranslations(dbTranslations: TranslationMap, fileTranslations: TranslationMap): TranslationMap {
@@ -165,7 +189,7 @@ export class TranslationService {
   private setNestedValue(obj: any, path: string, value: string): void {
     const keys = path.split('.');
     const lastKey = keys.pop()!;
-    
+
     let current = obj;
     for (const key of keys) {
       if (!(key in current)) {
@@ -173,7 +197,7 @@ export class TranslationService {
       }
       current = current[key];
     }
-    
+
     current[lastKey] = value;
   }
 
@@ -204,7 +228,7 @@ export class TranslationService {
       value,
       namespace: normalizedNamespace,
     });
-    
+
     const saved = await this.translationRepository.save(newTranslation);
     this.clearCache();
     return saved;

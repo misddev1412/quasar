@@ -1,8 +1,11 @@
+import React from 'react';
+
 interface ContainerProps {
   children: React.ReactNode;
   className?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   padding?: boolean;
+  style?: React.CSSProperties;
 }
 
 const containerSizes = {
@@ -18,6 +21,7 @@ export const Container: React.FC<ContainerProps> = ({
   className = '',
   size = 'lg',
   padding = true,
+  style,
 }) => {
   return (
     <div
@@ -27,6 +31,7 @@ export const Container: React.FC<ContainerProps> = ({
         ${padding ? 'px-4 sm:px-6 lg:px-8' : ''}
         ${className}
       `}
+      style={style}
     >
       {children}
     </div>

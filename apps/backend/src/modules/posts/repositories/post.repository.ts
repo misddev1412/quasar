@@ -74,7 +74,25 @@ export class PostRepository extends BaseRepository<Post> {
   }
 
   async createPost(createPostDto: CreatePostDto): Promise<Post> {
-    const { translations, categoryIds, tagIds, ...postData } = createPostDto;
+    const { translations, categoryIds, tagIds, ...dtoData } = createPostDto;
+
+    // Map DTO properties to entity properties (camelCase to snake_case)
+    const postData = {
+      status: dtoData.status,
+      type: dtoData.type,
+      featured_image: dtoData.featuredImage,
+      author_id: dtoData.authorId,
+      published_at: dtoData.publishedAt,
+      scheduled_at: dtoData.scheduledAt,
+      is_featured: dtoData.isFeatured,
+      allow_comments: dtoData.allowComments,
+      meta_title: dtoData.metaTitle,
+      meta_description: dtoData.metaDescription,
+      meta_keywords: dtoData.metaKeywords,
+    };
+
+    // Remove undefined values
+    Object.keys(postData).forEach(key => postData[key] === undefined && delete postData[key]);
 
     // Create post
     const post = this.repository.create(postData);
@@ -131,7 +149,24 @@ export class PostRepository extends BaseRepository<Post> {
   }
 
   async updatePost(id: string, updatePostDto: UpdatePostDto): Promise<Post | null> {
-    const { translations, categoryIds, tagIds, ...postData } = updatePostDto;
+    const { translations, categoryIds, tagIds, ...dtoData } = updatePostDto;
+
+    // Map DTO properties to entity properties (camelCase to snake_case)
+    const postData = {
+      status: dtoData.status,
+      type: dtoData.type,
+      featured_image: dtoData.featuredImage,
+      published_at: dtoData.publishedAt,
+      scheduled_at: dtoData.scheduledAt,
+      is_featured: dtoData.isFeatured,
+      allow_comments: dtoData.allowComments,
+      meta_title: dtoData.metaTitle,
+      meta_description: dtoData.metaDescription,
+      meta_keywords: dtoData.metaKeywords,
+    };
+
+    // Remove undefined values
+    Object.keys(postData).forEach(key => postData[key] === undefined && delete postData[key]);
 
     // Update post data
     if (Object.keys(postData).length > 0) {

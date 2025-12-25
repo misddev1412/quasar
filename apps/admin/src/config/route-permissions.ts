@@ -212,5 +212,3 @@ export function getRoutePermission(path: string): RoutePermission | null {
     scope: PermissionScope.ANY,
   };
 }
-
-

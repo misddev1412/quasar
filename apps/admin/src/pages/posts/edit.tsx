@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FileText, ArrowLeft, FolderOpen } from 'lucide-react';
 import { FiHome, FiEdit3 } from 'react-icons/fi';
@@ -10,6 +10,7 @@ import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend
 import { useUrlTabs } from '../../hooks/useUrlTabs';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
+import { FormSubmitOptions, FormSubmitAction } from '../../types/forms';
 
 // Transform the form data to match API expectations
 interface UpdatePostAPIData {
@@ -51,6 +52,7 @@ const EditPostPage: React.FC = () => {
   const { addToast } = useToast();
   const { t } = useTranslationWithBackend();
   const [showMediaManager, setShowMediaManager] = useState(false);
+  const lastSubmitActionRef = useRef<FormSubmitAction>('save');
 
   // Use URL tabs hook with tab keys for clean URLs
   const { activeTab, handleTabChange } = useUrlTabs({
@@ -61,7 +63,7 @@ const EditPostPage: React.FC = () => {
 
   // Fetch existing post data (only if ID exists)
   const { data: postData, isLoading, error } = trpc.adminPosts.getPostById.useQuery(
-    { id: id as string }, 
+    { id: id as string },
     { enabled: !!id }
   );
 
@@ -73,7 +75,13 @@ const EditPostPage: React.FC = () => {
         title: t('posts.updateSuccess'),
         description: t('posts.updateSuccessDescription') || 'Post updated successfully',
       });
-      // Stay on the current page instead of navigating away
+
+      // Navigate based on submit action
+      if (lastSubmitActionRef.current !== 'save_and_stay') {
+        // Redirect to list page
+        navigate('/posts');
+      }
+      // If save_and_stay, stay on the current edit page
     },
     onError: (error) => {
       addToast({
@@ -116,7 +124,10 @@ const EditPostPage: React.FC = () => {
     return null;
   }
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: any, options?: FormSubmitOptions) => {
+    // Track the submit action
+    lastSubmitActionRef.current = options?.submitAction || 'save';
+
     try {
       // Transform form data to match API expectations
       const postUpdateData: UpdatePostAPIData = {

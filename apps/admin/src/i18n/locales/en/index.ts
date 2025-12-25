@@ -18,6 +18,7 @@ import mail_providers from './mail_providers.json';
 import sections from './sections.json';
 import menus from './menus.json';
 import posts from './posts.json';
+import componentConfigs from './component_configs.json';
 
 export default {
   ...common,
@@ -40,4 +41,5 @@ export default {
   ...sections,
   ...menus,
   ...posts,
+  ...componentConfigs,
 };

@@ -5,6 +5,7 @@
     "no_targets": "Không có đích",
     "save": "Lưu",
     "save_and_continue": "Lưu và tiếp tục",
+    "save_and_stay": "Lưu và ở lại",
     "cancel": "Hủy",
     "delete": "Xóa",
     "edit": "Chỉnh sửa",
@@ -142,11 +143,39 @@
     "posts": "Bài viết",
     "noDescription": "Không có mô tả",
     "media": {
-      "dragDropOrClick": "Kéo thả hoặc nhấp để tải lên",
+      "dragDropOrClick": "Kéo thả hoặc nhấn để tải lên",
       "maxSize": "Tối đa {{maxSize}}MB",
       "fileTooLarge": "Tệp quá lớn. Kích thước tối đa là {{maxSize}}MB",
-      "uploadSuccess": "Tải lên tệp thành công",
-      "invalidFileType": "Loại tệp không hợp lệ"
-    }
+      "uploadSuccess": "Tải lên thành công",
+      "invalidFileType": "Loại tệp không hợp lệ",
+      "uploading": "Đang tải lên...",
+      "uploadNew": "Tải lên mới",
+      "or": "hoặc",
+      "mediaManager": "Quản lý Media",
+      "maxSizeAccepted": "Tối đa: {{maxSize}}MB • Chấp nhận: {{accept}}",
+      "fromMediaLibrary": "Từ thư viện Media",
+      "selectOrUpload": "Chọn hoặc tải lên Media",
+      "dropFiles": "Kéo và thả {{count}} tệp vào đây, hoặc nhấn để chọn",
+      "dropImages": "Thả ảnh vào đây để tải lên",
+      "dropToUpload": "Thả ảnh để tải lên"
+    },
+    "gallery": {
+      "addMore": "Thêm tối đa {{count}} ảnh nữa",
+      "browse": "Duyệt thư viện",
+      "uploadImages": "Tải ảnh lên",
+      "limits": "Tối đa {{maxSize}}MB mỗi ảnh • Hỗ trợ JPG, PNG, WebP",
+      "addedStats": "Đã thêm {{count}}/{{max}} ảnh",
+      "maxReached": "Đã đạt số lượng ảnh tối đa",
+      "selectTitle": "Chọn ảnh cho thư viện",
+      "editDetails": "Chỉnh sửa chi tiết ảnh",
+      "altText": "Văn bản thay thế (Alt)",
+      "altPlaceholder": "Mô tả hình ảnh này...",
+      "caption": "Chú thích",
+      "captionPlaceholder": "Thêm chú thích..."
+    },
+    "pleaseTryAgainLater": "Vui lòng thử lại sau.",
+    "genericError": "Đã xảy ra lỗi. Vui lòng thử lại.",
+    "enable": "Bật",
+    "disable": "Tắt"
   }
 }

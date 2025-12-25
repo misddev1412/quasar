@@ -25,7 +25,8 @@
       "Bash(yarn --version)",
       "Bash(yarn why:*)",
       "Bash(yarn install)",
-      "Bash(yarn add:*)"
+      "Bash(yarn add:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

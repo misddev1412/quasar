@@ -62,472 +62,163 @@
       "mail_providers": "Mail Providers",
       "email_flows": "Mail Channel Priority",
       "telegram_configs": "Telegram Configs"
-    },
-    "sections": {
-      "page": {
-        "title": "Section Manager",
-        "description": "Configure which sections appear on each page, manage translations, and update layout order.",
-        "breadcrumb": "Section Manager",
-        "home": "Home"
-      },
-      "manager": {
-        "sectionConfiguration": "Section configuration",
-        "rawJson": "Raw JSON",
-        "refresh": "Refresh",
-        "newSection": "New Section",
-        "deleteConfirm": "Are you sure you want to delete this section?",
-        "sectionDeleted": "Section deleted",
-        "sectionRemoved": "{{sectionType}} removed successfully",
-        "deleteFailed": "Delete failed",
-        "unableToDelete": "Unable to delete section",
-        "sectionUpdated": "Section updated",
-        "sectionEnabled": "{{sectionType}} enabled",
-        "sectionDisabled": "{{sectionType}} disabled",
-        "updateFailed": "Update failed",
-        "unableToUpdateStatus": "Unable to update status",
-        "orderUpdated": "Order updated",
-        "sectionOrderSaved": "Section order saved successfully",
-        "reorderFailed": "Reorder failed",
-        "unableToReorder": "Unable to reorder sections",
-        "tableHeaders": {
-          "title": "Title",
-          "type": "Type",
-          "enabled": "Status",
-          "updated": "Last Updated",
-          "actions": "Actions"
-        },
-        "edit": "Edit",
-        "delete": "Delete",
-        "noSections": "No sections found",
-        "configEditor": {
-          "rawJson": "Raw JSON Configuration",
-          "useFormEditor": "Use Form Editor",
-          "applyJson": "Apply JSON",
-          "noDedicatedEditor": "No dedicated editor for this type yet. Switch to raw JSON mode.",
-          "openJsonEditor": "Open JSON editor"
-        },
-        "form": {
-          "page": "Page",
-          "pagePlaceholder": "Select a page...",
-          "priority": "Priority (Order)",
-          "enabled": "Enabled",
-          "title": "Title",
-          "subtitle": "Subtitle",
-          "description": "Description",
-          "heroTitle": "Hero Title",
-          "heroDescription": "Hero Description",
-          "configOverride": "Config Override (JSON)"
-        },
-        "heroSlider": {
-          "enableOverlay": "Enable overlay",
-          "overlayColor": "Overlay color",
-          "overlayOpacity": "Overlay opacity (%)",
-          "overlayOpacityHelp": "0% removes the overlay, 100% makes it fully solid.",
-          "overlayColorHelp": "Supports hex or rgba values. Use transparency for softer overlays.",
-          "slidesFor": "Slides for {locale}",
-          "manageLocaleCampaigns": "Manage locale-specific campaigns and creatives.",
-          "jsonError": "Existing override contains invalid JSON. Saving slides will replace it for this locale.",
-          "addSlide": "Add slide",
-          "noSlides": "No slides configured yet. Add your first slide for this locale.",
-          "slideTitle": "Slide #{index}",
-          "remove": "Remove",
-          "titlePlaceholder": "Title",
-          "subtitlePlaceholder": "Subtitle",
-          "descriptionPlaceholder": "Description",
-          "slideImage": "Slide image",
-          "noImageSelected": "No image selected",
-          "changeImage": "Change image",
-          "selectImage": "Select image",
-          "removeImage": "Remove image",
-          "imagePlaceholder": "Image URL will appear after selection",
-          "ctaLabel": "CTA Label",
-          "ctaUrl": "CTA URL",
-          "selectSlideImage": "Select slide image ({locale})"
-        },
-        "config": {
-          "header": "Section configuration",
-          "customHtml": {
-            "title": "Custom HTML",
-            "editAsJson": "Edit as JSON",
-            "placeholder": "Enter your custom HTML content here..."
-          },
-          "banner": {
-            "mediaManagerTitle": "Select Banner Image"
-          },
-          "gallery": {
-            "gap": "Gap between images",
-            "gapDescription": "CSS value for spacing (e.g., 1rem, 20px)",
-            "title": "Gallery Images",
-            "addImage": "Add Image",
-            "noImages": "No images added yet. Click \"Add Image\" to start.",
-            "imageTitle": "Image #{index}",
-            "remove": "Remove",
-            "imageUrl": "Image URL",
-            "changeImage": "Change Image",
-            "selectImage": "Select Image",
-            "removeImage": "Remove Image",
-            "label": "Label",
-            "labelPlaceholder": "Image title or caption",
-            "description": "Description",
-            "descriptionPlaceholder": "Additional description",
-            "linkLabel": "Link Label",
-            "linkLabelPlaceholder": "View more",
-            "linkUrl": "Link URL",
-            "linkUrlPlaceholder": "https://example.com",
-            "selectMedia": "Select Gallery Image"
-          },
-          "testimonials": {
-            "layoutStyle": "Layout Style",
-            "gridLayout": "Grid Layout",
-            "sliderLayout": "Slider Layout",
-            "gridDescription": "Show all testimonials in a grid",
-            "sliderDescription": "Show testimonials in a rotating slider",
-            "numberOfColumns": "Number of columns",
-            "columnsDescription": "Columns on desktop screens",
-            "contentDescription": "Manage testimonials content in the Testimonials menu."
-          },
-          "cta": {
-            "layoutMode": "Layout Mode",
-            "fullWidth": "Full Width",
-            "container": "Container",
-            "layoutDescription": "Full width spans the entire screen, Container is centered",
-            "textAlign": "Text Alignment",
-            "centerAligned": "Center Aligned",
-            "leftAligned": "Left Aligned",
-            "rightAligned": "Right Aligned",
-            "backgroundStyle": "Background Style",
-            "primaryColor": "Primary Color",
-            "secondaryColor": "Secondary Color",
-            "darkBackground": "Dark Background",
-            "gradientBackground": "Gradient Background",
-            "borderRadius": "Border Radius",
-            "borderRadiusDefault": "Default",
-            "borderRadiusSmall": "Small",
-            "borderRadiusMedium": "Medium",
-            "borderRadiusLarge": "Large",
-            "borderRadiusCustom": "Custom",
-            "borderRadiusSelect": "Select border radius",
-            "borderRadiusDescription": "Rounding of the CTA box corners",
-            "contentDescription": "Edit title, subtitle and CTA button in the Translations tab."
-          },
-          "features": {
-            "layoutStyle": "Layout Style",
-            "gridLayout": "Grid Layout",
-            "listLayout": "List Layout",
-            "tabbedLayout": "Tabbed Layout",
-            "numberOfColumns": "Number of columns",
-            "columnsDescription": "Columns on desktop screens",
-            "contentDescription": "Manage features content in the component configuration."
-          },
-          "team": {
-            "layoutStyle": "Layout Style",
-            "gridLayout": "Grid Layout",
-            "sliderLayout": "Slider Layout",
-            "numberOfColumns": "Number of columns",
-            "columnsDescription": "Columns on desktop screens",
-            "contentDescription": "Manage team members in the Team menu."
-          },
-          "contactForm": {
-            "formFields": "Form Fields",
-            "name": "Name",
-            "email": "Email",
-            "phone": "Phone",
-            "subject": "Subject",
-            "message": "Message",
-            "company": "Company",
-            "fieldsDescription": "Select fields to display in the contact form",
-            "contentDescription": "Form submissions will be sent to the configured support email."
-          },
-          "video": {
-            "videoType": "Video Type",
-            "embedVideo": "Embed Video (YouTube/Vimeo)",
-            "uploadedVideo": "Uploaded Video",
-            "autoplay": "Autoplay",
-            "autoplayDescription": "Automatically play video when in view",
-            "contentDescription": "Configure video source and settings."
-          },
-          "stats": {
-            "layoutStyle": "Layout Style",
-            "gridLayout": "Grid Layout",
-            "animatedCounter": "Animated Counter",
-            "numberOfColumns": "Number of columns",
-            "columnsDescription": "Columns on desktop screens",
-            "contentDescription": "Manage statistics numbers in the component configuration."
-          },
-          "brandShowcase": {
-            "layout": "Layout",
-            "layoutGrid": "Grid",
-            "layoutSlider": "Slider",
-            "layoutDescription": "Choose how brands are displayed",
-            "source": "Source",
-            "sourceNewest": "Newest",
-            "sourceAlphabetical": "Alphabetical",
-            "sourceCustom": "Custom Selection",
-            "sourceDescription": "How brands are selected",
-            "limit": "Limit",
-            "limitDescription": "Maximum number of brands to show",
-            "limitCustomDescription": "Number of brands to show",
-            "columns": "Columns",
-            "columnsDescription": "Number of columns in grid layout",
-            "autoplay": "Autoplay",
-            "autoplayDescription": "Automatically scroll the slider",
-            "autoplayInterval": "Interval (ms)",
-            "autoplayIntervalDescription": "Time between slides",
-            "logoShape": "Logo Shape",
-            "logoRounded": "Rounded",
-            "logoCircle": "Circle",
-            "logoSquare": "Square",
-            "background": "Background",
-            "backgroundSurface": "Surface",
-            "backgroundMuted": "Muted",
-            "backgroundContrast": "Contrast",
-            "showDescription": "Show Description",
-            "showProductCount": "Show Product Count",
-            "showWebsite": "Show Website Link",
-            "customBrands": "Custom Brands",
-            "customBrandsDescription": "Select specific brands to display"
-          }
-        },
-        "newsByCategory": {
-          "title": "News Categories",
-          "description": "Select category and display style for each news category.",
-          "addCategory": "Add News Category",
-          "rowDescription": "Configure category and display settings for this news section.",
-          "remove": "Remove",
-          "categoryLabel": "Category",
-          "loadingCategories": "Loading categories...",
-          "selectCategory": "Select a news category",
-          "displayTitle": "Display Title",
-          "titlePlaceholder": "e.g., Latest News",
-          "fetchStrategy": "Fetch Strategy",
-          "selectStrategy": "Select strategy",
-          "itemCount": "Number of Articles",
-          "latest": "Latest News",
-          "mostViewed": "Most Viewed",
-          "featured": "Editor's Pick"
-        },
-        "productsByCategory": {
-          "strategy": {
-            "latest": "Latest Products",
-            "featured": "Featured Products",
-            "bestsellers": "Bestsellers",
-            "bestsellersComingSoon": "(Coming soon)",
-            "custom": "Custom Products"
-          },
-          "enableSidebar": "Enable Mega Menu Sidebar",
-          "sidebarDescription": "Sidebar will use configuration from Component Configs and will be pinned to the left of the section.",
-          "sidebarNote": "Edit mega menu content in Component Configs > products_by_category.",
-          "displayCategories": "Display Categories",
-          "displayCategoriesDescription": "Add multiple categories to display featured products by group.",
-          "addCategory": "Add Category",
-          "categoryIndex": "Category",
-          "categoryDescription": "Select category and product display style.",
-          "displayStrategy": "Display Strategy",
-          "displayStyle": "Display Style",
-          "remove": "Remove",
-          "displayTitle": "Display Title",
-          "showDisplayTitle": "Show display title",
-          "showCategoryLabel": "Show storefront category name",
-          "showStrategyLabel": "Show strategy badge",
-          "unnamedProduct": "Unnamed product",
-          "loading": "Loading...",
-          "loadMoreProducts": "Load more products",
-          "noSku": "No SKU",
-          "featureProducts": "Featured products",
-          "searchProducts": "Search and select products...",
-          "loadingProducts": "Loading products...",
-          "noProductsFound": "No products found",
-          "startTyping": "Start typing to search products",
-          "productsAppearOrder": "Products appear in the order selected. Remove and re-add to adjust ordering.",
-          "noProductsSelected": "No products selected yet.",
-          "style": "Display style",
-          "grid": "Grid",
-          "carousel": "Carousel",
-          "itemsPerRow": "Items per row",
-          "bestsellersComingSoonTitle": "Coming Soon",
-          "bestsellersComingSoonDescription": "Bestsellers strategy is currently under development."
-        }
-      },
-      "types": {
-        "hero_slider": "Hero Slider",
-        "featured_products": "Featured Products",
-        "products_by_category": "Products by Category",
-        "news": "News",
-        "custom_html": "Custom HTML",
-        "banner": "Banner",
-        "testimonials": "Testimonials",
-        "cta": "Call to Action",
-        "features": "Features/Services",
-        "gallery": "Gallery",
-        "team": "Team",
-        "contact_form": "Contact Form",
-        "video": "Video",
-        "stats": "Statistics",
-        "brand_showcase": "Brand showcase"
-      },
-      "pages": {
-        "home": "Home",
-        "news": "News",
-        "product": "Product",
-        "product_detail": "Product Detail"
-      }
-    },
-    "siteContent": {
-      "navigation": {
-        "title": "Site Content",
-        "list": "All Pages"
-      }
-    },
-    "componentConfigs": {
-      "navigation": "Component Library",
-      "manageDescription": "Manage storefront building blocks",
-      "title": "Component configurations",
-      "newComponent": "New component",
-      "filters": "Filters",
-      "active": "active",
-      "resetFilters": "Reset filters",
-      "searchPlaceholder": "Search by name, key, or description",
-      "allCategories": "All categories",
-      "allComponentTypes": "All component types",
-      "allStatuses": "All statuses",
-      "enabledOnly": "Enabled only",
-      "disabledOnly": "Disabled only",
-      "totalComponents": "Total Components",
-      "composite": "Composite",
-      "atomic": "Atomic",
-      "disabled": "Disabled",
-      "componentEnabled": "Component enabled",
-      "componentDisabled": "Component disabled",
-      "unableToUpdateStatus": "Unable to update status",
-      "componentDeleted": "Component deleted",
-      "unableToDeleteComponent": "Unable to delete component",
-      "component": "Component",
-      "parent": "Parent",
-      "category": "Category",
-      "structure": "Structure",
-      "slot": "Slot",
-      "status": "Status",
-      "updated": "Updated",
-      "actions": "Actions",
-      "addChild": "Add child",
-      "noComponentsFound": "No component configurations found",
-      "createComponent": "Create component"
-    },
-    "storefront": {
-      "checkout": {
-        "nav": "Checkout Storefront"
-      },
-      "footer": {
-        "nav": "Footer Builder"
-      }
-    },
-    "products": {
-      "title": "Products"
-    },
-    "brands": {
-      "title": "Brands"
-    },
-    "categories": {
-      "title": "Categories"
-    },
-    "attributes": {
-      "title": "Attributes"
-    },
-    "suppliers": {
-      "title": "Suppliers"
-    },
-    "loyalty": {
-      "navigation": {
-        "title": "Loyalty Program",
-        "overview": "Overview",
-        "dashboard": "Dashboard",
-        "tiers": "Tiers",
-        "rewards": "Rewards",
-        "transactions": "Transactions"
-      }
-    },
-    "orders": {
-      "title": "Orders"
-    },
-    "fulfillments": {
-      "title": "Fulfillments"
-    },
-    "customers": {
-      "title": "Customers"
-    },
-    "warehouses": {
-      "title": "Warehouses"
-    },
-    "warehouse_locations": {
-      "title": "Warehouse Locations"
-    },
-    "payment_methods": {
-      "title": "Payment Methods"
-    },
-    "transactions": {
-      "title": "Transactions"
-    },
-    "delivery_methods": {
-      "title": "Delivery Methods"
-    },
-    "mail_logs": {
-      "title": "Mail Logs"
-    },
-    "support_clients": {
-      "title": "Support Clients"
-    },
-    "visitor_analytics": {
-      "title": "Visitor Analytics"
-    },
-    "languages": {
-      "languages": "Languages",
-      "editTitle": "Edit {{name}}"
-    },
-    "currencies": {
-      "currencies": "Currencies"
-    },
-    "shippingProviders": {
-      "shippingProviders": "Shipping Providers"
-    },
-    "brand": {
-      "assets_title": "Brand Assets"
-    },
-    "analytics": {
-      "title": "Analytics"
-    },
-    "settings": {
-      "branding": {
-        "nav": "Admin Branding"
-      },
-      "theme_desc": "Customize the look and feel of your admin panel and storefront.",
-      "global_theme_settings": "Global Theme Settings",
-      "global_theme_desc": "Customize the look and feel of the application for all users.",
-      "mode": "Mode",
-      "choose_default_mode": "Choose default light or dark mode",
-      "font_family": "Font Family",
-      "primary_color": "Primary Color",
-      "theme": {
-        "configuration": "Appearance Configuration",
-        "configuration_desc": "These settings affect both the Admin Panel and the public Storefront.",
-        "sync_note_title": "Real-time Synchronization",
-        "sync_note_desc": "Changes are saved immediately and synchronized across all active users.",
-        "tips_title": "Design Tips",
-        "brand_consistency": "Brand Consistency",
-        "brand_consistency_desc": "Choose a primary color that matches your logo to maintain a cohesive brand identity across the platform.",
-        "readability": "Readability",
-        "readability_desc": "Sans-serif fonts like Inter or Roboto are generally easier to read on screens.",
-        "need_help": "Need Custom Styling?",
-        "need_help_desc": "For advanced CSS customization or creating a completely custom theme, please check our developer documentation.",
-        "admin_tab": "Admin Panel",
-        "storefront_tab": "Storefront",
-        "admin_configuration": "Admin Appearance",
-        "storefront_configuration": "Storefront Appearance",
-        "manual_save_title": "Manual Save Required",
-        "manual_save_desc": "Changes are only applied permanently when you click the \"Save Changes\" button."
-      }
-    },
-    "floating_icons": {
-      "navigation": "Floating Icons"
     }
+  },
+  "siteContent": {
+    "navigation": {
+      "title": "Site Content",
+      "list": "All Pages"
+    }
+  },
+  "componentConfigs": {
+    "navigation": "Component Library",
+    "manageDescription": "Manage storefront building blocks",
+    "title": "Component configurations",
+    "newComponent": "New component",
+    "filters": "Filters",
+    "active": "active",
+    "resetFilters": "Reset filters",
+    "searchPlaceholder": "Search by name, key, or description",
+    "allCategories": "All categories",
+    "allComponentTypes": "All component types",
+    "allStatuses": "All statuses",
+    "enabledOnly": "Enabled only",
+    "disabledOnly": "Disabled only",
+    "totalComponents": "Total Components",
+    "composite": "Composite",
+    "atomic": "Atomic",
+    "disabled": "Disabled",
+    "componentEnabled": "Component enabled",
+    "componentDisabled": "Component disabled",
+    "unableToUpdateStatus": "Unable to update status",
+    "componentDeleted": "Component deleted",
+    "unableToDeleteComponent": "Unable to delete component",
+    "component": "Component",
+    "parent": "Parent",
+    "category": "Category",
+    "structure": "Structure",
+    "slot": "Slot",
+    "status": "Status",
+    "updated": "Updated",
+    "actions": "Actions",
+    "addChild": "Add child",
+    "noComponentsFound": "No component configurations found",
+    "createComponent": "Create component"
+  },
+  "storefront": {
+    "checkout": {
+      "nav": "Checkout Storefront"
+    },
+    "footer": {
+      "nav": "Footer Builder"
+    }
+  },
+  "products": {
+    "title": "Products"
+  },
+  "brands": {
+    "title": "Brands"
+  },
+  "categories": {
+    "title": "Categories"
+  },
+  "attributes": {
+    "title": "Attributes"
+  },
+  "suppliers": {
+    "title": "Suppliers"
+  },
+  "loyalty": {
+    "navigation": {
+      "title": "Loyalty Program",
+      "overview": "Overview",
+      "dashboard": "Dashboard",
+      "tiers": "Tiers",
+      "rewards": "Rewards",
+      "transactions": "Transactions"
+    }
+  },
+  "orders": {
+    "title": "Orders"
+  },
+  "fulfillments": {
+    "title": "Fulfillments"
+  },
+  "customers": {
+    "title": "Customers"
+  },
+  "warehouses": {
+    "title": "Warehouses"
+  },
+  "warehouse_locations": {
+    "title": "Warehouse Locations"
+  },
+  "payment_methods": {
+    "title": "Payment Methods"
+  },
+  "transactions": {
+    "title": "Transactions"
+  },
+  "delivery_methods": {
+    "title": "Delivery Methods"
+  },
+  "mail_logs": {
+    "title": "Mail Logs"
+  },
+  "support_clients": {
+    "title": "Support Clients"
+  },
+  "visitor_analytics": {
+    "title": "Visitor Analytics"
+  },
+  "languages": {
+    "languages": "Languages",
+    "editTitle": "Edit {{name}}"
+  },
+  "currencies": {
+    "currencies": "Currencies"
+  },
+  "shippingProviders": {
+    "shippingProviders": "Shipping Providers"
+  },
+  "brand": {
+    "assets_title": "Brand Assets"
+  },
+  "analytics": {
+    "title": "Analytics"
+  },
+  "settings": {
+    "branding": {
+      "nav": "Admin Branding"
+    },
+    "theme_desc": "Customize the look and feel of your admin panel and storefront.",
+    "global_theme_settings": "Global Theme Settings",
+    "global_theme_desc": "Customize the look and feel of the application for all users.",
+    "mode": "Mode",
+    "choose_default_mode": "Choose default light or dark mode",
+    "font_family": "Font Family",
+    "primary_color": "Primary Color",
+    "theme": {
+      "configuration": "Appearance Configuration",
+      "configuration_desc": "These settings affect both the Admin Panel and the public Storefront.",
+      "sync_note_title": "Real-time Synchronization",
+      "sync_note_desc": "Changes are saved immediately and synchronized across all active users.",
+      "tips_title": "Design Tips",
+      "brand_consistency": "Brand Consistency",
+      "brand_consistency_desc": "Choose a primary color that matches your logo to maintain a cohesive brand identity across the platform.",
+      "readability": "Readability",
+      "readability_desc": "Sans-serif fonts like Inter or Roboto are generally easier to read on screens.",
+      "need_help": "Need Custom Styling?",
+      "need_help_desc": "For advanced CSS customization or creating a completely custom theme, please check our developer documentation.",
+      "admin_tab": "Admin Panel",
+      "storefront_tab": "Storefront",
+      "admin_configuration": "Admin Appearance",
+      "storefront_configuration": "Storefront Appearance",
+      "manual_save_title": "Manual Save Required",
+      "manual_save_desc": "Changes are only applied permanently when you click the \"Save Changes\" button."
+    }
+  },
+  "floating_icons": {
+    "navigation": "Floating Icons"
   }
 }
