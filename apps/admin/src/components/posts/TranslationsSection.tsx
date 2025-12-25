@@ -54,7 +54,7 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
     onTranslationsChange(translations.filter((_, i) => i !== index));
   };
 
-  const availableLanguages = languageOptions.filter(lang => 
+  const availableLanguages = languageOptions.filter(lang =>
     lang.value !== primaryLanguage &&
     !translations.some(trans => trans.locale === lang.value)
   );
@@ -148,7 +148,7 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
                           value={translation.slug}
                           onChange={(e) => updateTranslation(index, 'slug', e.target.value)}
                           className="w-full px-3 py-2 pr-20 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                          placeholder="post-slug"
+                          placeholder={t('posts.slugPlaceholder')}
                           required
                         />
                         <button
@@ -199,7 +199,7 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
                     <h5 className="font-medium text-gray-900 dark:text-white mb-3">
                       {t('posts.seoMeta')}
                     </h5>
-                    
+
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -233,7 +233,7 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
                         </label>
                         <TagInput
                           value={
-                            typeof translation.metaKeywords === 'string' 
+                            typeof translation.metaKeywords === 'string'
                               ? translation.metaKeywords.split(',').map(tag => tag.trim()).filter(Boolean)
                               : []
                           }

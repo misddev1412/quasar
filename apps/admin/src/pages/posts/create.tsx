@@ -131,8 +131,8 @@ const CreatePostPage: React.FC = () => {
   return (
     <>
       <CreatePageTemplate
-        title={t('posts.create', 'Create Post')}
-        description={t('posts.createDescription', 'Create a new post with content and metadata')}
+        title={t('posts.create')}
+        description={t('posts.createDescription')}
         icon={<FileText className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
         entityName={t('common.post', 'Post')}
         entityNamePlural={t('common.posts', 'Posts')}
@@ -150,12 +150,12 @@ const CreatePostPage: React.FC = () => {
             onClick: handleCancel,
           },
           {
-            label: t('posts.create', 'Create Post'),
+            label: t('posts.create'),
           }
         ]}
         customActions={[
           {
-            label: t('posts.media_manager', 'Media Manager'),
+            label: t('posts.media_manager'),
             onClick: () => setShowMediaManager(true),
             icon: <FolderOpen className="w-4 h-4" />,
             variant: 'primary' as const,
@@ -176,9 +176,9 @@ const CreatePostPage: React.FC = () => {
         multiple={true}
         accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
         maxSize={50}
-        title={t('posts.select_media_title', 'Select Media for Post')}
+        title={t('posts.select_media_title')}
       />
-  </>
+    </>
   );
 };
 

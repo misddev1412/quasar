@@ -10,6 +10,50 @@ export interface RequiredPermission {
 }
 
 /**
+ * Helper function to check if a user has a specific permission
+ * Can be used outside of React component context
+ *
+ * @param permission - The required permission to check
+ * @param user - The user object to check permissions for
+ * @returns true if user has permission, false otherwise
+ */
+export function checkUserPermission(
+  permission: RequiredPermission | null,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  user: Record<string, any> | null
+): boolean {
+  if (!permission || !user) return false;
+
+  // Get role value - handle various role formats
+  const role = user.role;
+  const roleValue = typeof role === 'string'
+    ? role
+    : typeof role === 'object' && role?.code
+    ? role.code
+    : '';
+
+  const normalizedRole = roleValue?.toLowerCase() || '';
+
+  // SUPER_ADMIN has all permissions
+  if (
+    normalizedRole === 'super_admin' ||
+    normalizedRole === 'superadmin' ||
+    roleValue === 'SUPER_ADMIN'
+  ) {
+    return true;
+  }
+
+  // ADMIN role has access to most admin resources
+  if (normalizedRole === 'admin' || roleValue === 'ADMIN') {
+    return true;
+  }
+
+  // For other roles, return false
+  // Backend middleware will handle the actual permission checking
+  return false;
+}
+
+/**
  * Hook to check if user has required permission
  * Note: This is a client-side check. The backend will enforce permissions via middleware.
  * For SUPER_ADMIN, we grant all permissions on the frontend.

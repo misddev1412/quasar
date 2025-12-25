@@ -50,7 +50,7 @@ module.exports = {
       'path': false,
       'util': false,
       'buffer': false,
-      'process': false,
+      'process': require.resolve('process/browser'),
       'events': false,
       'perf_hooks': false,
       'async_hooks': false,
@@ -87,6 +87,9 @@ module.exports = {
       resourceRegExp: /^node:/,
     }),
     new NodePolyfillPlugin(),
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
     new webpack.EnvironmentPlugin({
       REACT_APP_API_URL: process.env.REACT_APP_API_URL || '',
     }),

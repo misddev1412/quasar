@@ -14,18 +14,18 @@ const createPostSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   slug: z.string().min(1, 'Slug is required').refine((val) => {
     // Allow Unicode characters but forbid certain special characters
-    return val.length > 0 && 
-           !val.startsWith('-') && 
-           !val.endsWith('-') && 
-           !/-{2,}/.test(val) && 
-           !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
+    return val.length > 0 &&
+      !val.startsWith('-') &&
+      !val.endsWith('-') &&
+      !/-{2,}/.test(val) &&
+      !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
   }, 'Slug must not start/end with hyphens or contain forbidden characters'),
   content: z.string().min(1, 'Content is required'),
   excerpt: z.string().optional(),
-  
+
   // Language
   languageCode: z.string().min(1, 'Language is required'),
-  
+
   // Settings
   status: z.enum(['draft', 'published', 'archived', 'scheduled']),
   type: z.enum(['post', 'page', 'news', 'event']),
@@ -42,24 +42,24 @@ const createPostSchema = z.object({
   isFeatured: z.boolean(),
   allowComments: z.boolean(),
   categoryIds: z.array(z.string()).optional(),
-  
+
   // SEO
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
-  
+
   // Additional translations (optional)
   additionalTranslations: z.array(z.object({
     locale: z.string().min(2).max(5),
     title: z.string().min(1, 'Title is required'),
     slug: z.string().min(1, 'Slug is required').refine((val) => {
-    // Allow Unicode characters but forbid certain special characters
-    return val.length > 0 && 
-           !val.startsWith('-') && 
-           !val.endsWith('-') && 
-           !/-{2,}/.test(val) && 
-           !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
-  }, 'Slug must not start/end with hyphens or contain forbidden characters'),
+      // Allow Unicode characters but forbid certain special characters
+      return val.length > 0 &&
+        !val.startsWith('-') &&
+        !val.endsWith('-') &&
+        !/-{2,}/.test(val) &&
+        !/[*+~.()'"!:@#$%^&<>{}[\]\\|`=]/.test(val);
+    }, 'Slug must not start/end with hyphens or contain forbidden characters'),
     content: z.string().min(1, 'Content is required'),
     excerpt: z.string().optional(),
     metaTitle: z.string().optional(),
@@ -83,7 +83,7 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
 }) => {
   const { t } = useTranslationWithBackend();
   const { languageOptions, isLoading: languagesLoading } = useLanguageOptions();
-  
+
   // State for managing translations
   const [additionalTranslations, setAdditionalTranslations] = useState<{
     locale: string;
@@ -115,9 +115,9 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
               name: 'languageCode',
               label: t('posts.language'),
               type: 'select',
-              placeholder: languagesLoading 
-                ? t('common.loading') 
-                : languageOptions.length > 0 
+              placeholder: languagesLoading
+                ? t('common.loading')
+                : languageOptions.length > 0
                   ? t('form.placeholders.select_language')
                   : 'No languages available',
               required: true,
@@ -127,9 +127,9 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
                 label: option.label,
               })),
               icon: <Globe className="w-4 h-4" />,
-              description: languagesLoading 
+              description: languagesLoading
                 ? t('common.loading')
-                : t('form.descriptions.post_language_description'),
+                : t('posts.language'),
             },
             {
               name: 'title',
@@ -146,10 +146,10 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
               name: 'slug',
               label: t('posts.slug'),
               type: 'slug',
-              placeholder: 'post-slug',
+              placeholder: t('posts.slugPlaceholder'),
               required: true,
               sourceField: 'title',
-              description: t('form.descriptions.slug_requirements'),
+              description: t('posts.slugRequirements'),
             },
             {
               name: 'excerpt',
@@ -209,14 +209,11 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
             },
             {
               name: 'categoryIds',
-              label: t('posts.categories', 'Categories'),
+              label: t('posts.categories'),
               type: 'category-multiselect',
-              placeholder: t('posts.select_categories', 'Select categories'),
+              placeholder: t('posts.select_categories'),
               required: false,
-              description: t(
-                'posts.categories_description',
-                'Assign one or more categories to organize this post.'
-              ),
+              description: t('posts.categories_description'),
               maxItems: 5,
               categorySource: 'post',
             },
@@ -224,7 +221,7 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
               name: 'featuredImage',
               label: t('posts.featuredImage'),
               type: 'media-upload',
-              placeholder: 'Upload or drag and drop your featured image',
+              placeholder: t('posts.featuredImagePlaceholder'),
               required: false,
               accept: 'image/*',
               maxSize: 5,
@@ -233,12 +230,12 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
             },
             {
               name: 'imageGallery',
-              label: 'Image Gallery',
+              label: t('posts.imageGallery'),
               type: 'image-gallery',
               required: false,
               maxImages: 15,
               maxSize: 10,
-              description: 'Add up to 15 images to create a gallery for this post. Images can be reordered by dragging.',
+              description: t('posts.imageGalleryDescription'),
             },
             {
               name: 'isFeatured',

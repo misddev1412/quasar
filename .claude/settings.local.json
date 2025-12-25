@@ -21,7 +21,11 @@
       "Bash(for key in \"image\" \"variant\" \"add_attribute\" \"add_image\" \"enabled\")",
       "Bash(do echo \"=== $key ===\")",
       "Bash(ls:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(yarn --version)",
+      "Bash(yarn why:*)",
+      "Bash(yarn install)",
+      "Bash(yarn add:*)"
     ],
     "deny": [],
     "ask": []

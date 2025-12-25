@@ -17,6 +17,7 @@ import misc from './misc.json';
 import mail_providers from './mail_providers.json';
 import sections from './sections.json';
 import menus from './menus.json';
+import posts from './posts.json';
 
 export default {
   ...common,
@@ -38,4 +39,5 @@ export default {
   ...mail_providers,
   ...sections,
   ...menus,
+  ...posts,
 };

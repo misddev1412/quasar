@@ -26,6 +26,9 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import { NavigationService } from '../../domains/navigation/services/NavigationService';
 import { INavigationService } from '../../domains/navigation/interfaces/INavigationService';
 
+// Hooks
+import { useFilteredMenus } from '../../hooks/useFilteredMenus';
+
 // Presentation components
 import SidebarSearch from './sidebar/components/SidebarSearch';
 import SidebarMenuItem from './sidebar/components/SidebarMenuItem';
@@ -62,8 +65,9 @@ const Sidebar: React.FC = () => {
   const timeoutIdsRef = useRef<NodeJS.Timeout[]>([]);
   const hasScrolledOnMountRef = useRef<boolean>(false);
 
-  // Get menu configuration from domain service
-  const menuGroups = navigationService.getMenuGroups();
+  // Get menu configuration from domain service and filter by permissions
+  const rawMenuGroups = navigationService.getMenuGroups();
+  const menuGroups = useFilteredMenus(rawMenuGroups);
 
   // Delegate menu logic to domain service
   const isActiveRoute = (path: string): boolean => {
