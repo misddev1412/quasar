@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ComponentCategory, ComponentStructureType } from '@shared/enums/component.enums';
 import type { ApiResponse } from '@backend/trpc/schemas/response.schemas';
 import { trpc } from '../../utils/trpc';
@@ -50,28 +50,6 @@ const DEFAULT_FILTERS: FiltersState = {
 
 const DEFAULT_VISIBLE_COLUMNS = ['component', 'category', 'structure', 'status', 'updatedAt', 'actions'];
 
-const categoryFilterOptions = [
-  { value: 'all', label: 'All categories' },
-  ...Object.values(ComponentCategory).map((value) => ({
-    value,
-    label: value.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-  })),
-];
-
-const typeFilterOptions = [
-  { value: 'all', label: 'All component types' },
-  ...Object.values(ComponentStructureType).map((value) => ({
-    value,
-    label: value.charAt(0).toUpperCase() + value.slice(1),
-  })),
-];
-
-const statusFilterOptions: { value: StatusFilter; label: string }[] = [
-  { value: 'all', label: 'All statuses' },
-  { value: 'enabled', label: 'Enabled only' },
-  { value: 'disabled', label: 'Disabled only' },
-];
-
 const compareValues = (a: unknown, b: unknown): number => {
   if (a === b) return 0;
   if (a === undefined || a === null) return -1;
@@ -106,11 +84,41 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
   const navigate = useNavigate();
-  const [filters, setFilters] = useState<FiltersState>({ ...DEFAULT_FILTERS });
-  const [searchValue, setSearchValue] = useState('');
-  const [debouncedSearchValue, setDebouncedSearchValue] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filters, setFilters] = useState<FiltersState>(() => ({
+    category: (searchParams.get('category') as ComponentCategory) || DEFAULT_FILTERS.category,
+    structure: (searchParams.get('structure') as ComponentStructureType) || DEFAULT_FILTERS.structure,
+    status: (searchParams.get('status') as StatusFilter) || DEFAULT_FILTERS.status,
+  }));
+  const [searchValue, setSearchValue] = useState(searchParams.get('q') || '');
+  const [debouncedSearchValue, setDebouncedSearchValue] = useState(searchParams.get('q')?.trim().toLowerCase() || '');
   const [showFilters, setShowFilters] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(() => {
+    const pageParam = searchParams.get('page');
+    return pageParam ? parseInt(pageParam, 10) : 1;
+  });
+
+  // Sync state to URL
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+
+    if (filters.category !== 'all') params.set('category', filters.category);
+    else params.delete('category');
+
+    if (filters.structure !== 'all') params.set('structure', filters.structure);
+    else params.delete('structure');
+
+    if (filters.status !== 'all') params.set('status', filters.status);
+    else params.delete('status');
+
+    if (debouncedSearchValue) params.set('q', debouncedSearchValue);
+    else params.delete('q');
+
+    if (page > 1) params.set('page', page.toString());
+    else params.delete('page');
+
+    setSearchParams(params, { replace: true });
+  }, [filters, debouncedSearchValue, page, setSearchParams]);
 
   const { preferences, updatePageSize, updateVisibleColumns } = useTablePreferences('component-configs-table', {
     pageSize: 10,
@@ -143,6 +151,37 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
       setLimit(preferences.pageSize);
     }
   }, [preferences.pageSize, limit]);
+
+  const categoryFilterOptions = useMemo(
+    () => [
+      { value: 'all', label: t('componentConfigs.allCategories', 'All categories') },
+      ...Object.values(ComponentCategory).map((value) => ({
+        value,
+        label: value.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+      })),
+    ],
+    [t],
+  );
+
+  const typeFilterOptions = useMemo(
+    () => [
+      { value: 'all', label: t('componentConfigs.allComponentTypes', 'All component types') },
+      ...Object.values(ComponentStructureType).map((value) => ({
+        value,
+        label: value.charAt(0).toUpperCase() + value.slice(1),
+      })),
+    ],
+    [t],
+  );
+
+  const statusFilterOptions: { value: StatusFilter; label: string }[] = useMemo(
+    () => [
+      { value: 'all', label: t('componentConfigs.allStatuses', 'All statuses') },
+      { value: 'enabled', label: t('componentConfigs.enabledOnly', 'Enabled only') },
+      { value: 'disabled', label: t('componentConfigs.disabledOnly', 'Disabled only') },
+    ],
+    [t],
+  );
 
   const queryInput = useMemo(() => {
     const input: {
@@ -485,7 +524,7 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
                 },
                 {
                   label: '-',
-                  onClick: () => {},
+                  onClick: () => { },
                   disabled: true,
                 },
                 {
@@ -510,11 +549,7 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
 
   return (
     <div className={className}>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-sm text-neutral-600">Manage storefront building blocks</p>
-          <h2 className="text-2xl font-semibold text-neutral-900">Component configurations</h2>
-        </div>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-2">
           <Button
             variant="secondary"
@@ -523,10 +558,12 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
             isLoading={listQuery.isRefetching}
             startIcon={<FiRefreshCw className="h-4 w-4" />}
           >
-            Refresh
+            {t('sections.manager.refresh', 'Refresh')}
           </Button>
+        </div>
+        <div className="flex flex-wrap gap-2">
           <Button size="sm" onClick={navigateToCreate} startIcon={<FiPlus className="h-4 w-4" />}>
-            New component
+            {t('componentConfigs.newComponent', 'New component')}
           </Button>
         </div>
       </div>
@@ -537,35 +574,35 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
         <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <p className="text-sm font-semibold text-neutral-900">Filters</p>
-              <p className="text-xs text-neutral-500">{activeFilterCount} active</p>
+              <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.filters', 'Filters')}</p>
+              <p className="text-xs text-neutral-500">{activeFilterCount} {t('componentConfigs.active', 'active')}</p>
             </div>
             <Button variant="ghost" size="sm" onClick={resetFilters} disabled={activeFilterCount === 0}>
-              Reset filters
+              {t('componentConfigs.resetFilters', 'Reset filters')}
             </Button>
           </div>
           <div className="mt-4 grid gap-4 md:grid-cols-4">
             <Input
-              placeholder="Search by name, key, or description"
+              placeholder={t('componentConfigs.searchPlaceholder', 'Search by name, key, or description')}
               value={searchValue}
               onChange={(event) => setSearchValue(event.target.value)}
             />
             <Select
-              label="Category"
+              label={t('componentConfigs.category', 'Category')}
               value={filters.category}
               options={categoryFilterOptions}
               onChange={(value) => setFilters((prev) => ({ ...prev, category: value as FiltersState['category'] }))}
               size="sm"
             />
             <Select
-              label="Structure"
+              label={t('componentConfigs.structure', 'Structure')}
               value={filters.structure}
               options={typeFilterOptions}
               onChange={(value) => setFilters((prev) => ({ ...prev, structure: value as FiltersState['structure'] }))}
               size="sm"
             />
             <Select
-              label="Status"
+              label={t('componentConfigs.status', 'Status')}
               value={filters.status}
               options={statusFilterOptions}
               onChange={(value) => setFilters((prev) => ({ ...prev, status: (value as StatusFilter) ?? 'all' }))}
@@ -585,7 +622,7 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
           onSearchChange={setSearchValue}
           onFilterClick={() => setShowFilters((prev) => !prev)}
           isFilterActive={showFilters || activeFilterCount > 0}
-          searchPlaceholder="Search components..."
+          searchPlaceholder={t('componentConfigs.searchPlaceholder', 'Search components...')}
           visibleColumns={visibleColumns}
           onColumnVisibilityChange={handleColumnVisibilityChange}
           sortDescriptor={sortDescriptor}
@@ -610,7 +647,6 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
           }}
         />
       </div>
-
     </div>
   );
 };

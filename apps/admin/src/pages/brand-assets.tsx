@@ -1,7 +1,7 @@
 import React from 'react';
 import { FiImage, FiHome } from 'react-icons/fi';
 import { SiteAssetsManager } from '../components/site-assets/SiteAssetsManager';
-import { withSeo } from '../components/SEO/withSeo';
+import { withAdminSeo } from '../components/SEO/withAdminSeo';
 import BaseLayout from '../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 
@@ -38,7 +38,7 @@ const BrandAssetsPage: React.FC = () => {
   );
 };
 
-export default withSeo(BrandAssetsPage, {
+export default withAdminSeo(BrandAssetsPage, {
   title: 'Brand & Site Assets | Quasar Admin',
   description: 'Manage your website\'s visual identity including logos, favicons, and other brand assets',
   path: '/brand-assets',

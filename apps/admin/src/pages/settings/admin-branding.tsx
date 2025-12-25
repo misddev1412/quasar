@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import BaseLayout from '../../components/layout/BaseLayout';
-import { withSeo } from '../../components/SEO/withSeo';
+import { withAdminSeo } from '../../components/SEO/withAdminSeo';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
 import { Button } from '../../components/common/Button';
@@ -796,7 +796,7 @@ const AdminBrandingPage: React.FC = () => {
   );
 };
 
-export default withSeo(AdminBrandingPage, {
+export default withAdminSeo(AdminBrandingPage, {
   title: 'Admin Branding | Quasar',
   description: 'Customize the admin shell and login branding.',
   path: '/settings/admin-branding',

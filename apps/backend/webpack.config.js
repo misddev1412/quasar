@@ -1,6 +1,17 @@
 const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 const { join } = require('path');
 
+// Only externalize native modules that need to be resolved at runtime
+const nativeModules = [
+  'bcrypt',
+  'pg',
+  'pg-native',
+  'sqlite3',
+  '@aws-sdk/client-s3',
+  '@aws-sdk/s3-request-presigner',
+  'amqplib',
+];
+
 module.exports = {
   output: {
     path: join(__dirname, '../../dist/apps/backend'),
@@ -17,8 +28,17 @@ module.exports = {
       sourceMap: true,
       optimization: false,
       outputHashing: 'none',
-      generatePackageJson: true,
+      generatePackageJson: false, // Use root package.json
     }),
+  ],
+  // Only externalize native modules - bundle everything else
+  externals: [
+    (data, callback) => {
+      if (nativeModules.some(mod => data.request?.startsWith(mod))) {
+        return callback(null, `commonjs ${data.request}`);
+      }
+      callback();
+    },
   ],
   // Enable hot reload for development
   watchOptions: {

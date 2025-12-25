@@ -57,6 +57,7 @@ interface SidebarMenuConfig {
   title: string;
   description: string;
   showTitle: boolean;
+  showSidebarHeader: boolean;
   showDescription: boolean;
   sections: SidebarMenuSection[];
 }
@@ -169,6 +170,7 @@ interface PersistedSidebarConfig extends Record<string, unknown> {
   title?: string;
   description?: string;
   showTitle?: boolean;
+  showSidebarHeader?: boolean;
   showDescription?: boolean;
   sections?: PersistedSidebarSection[];
 }
@@ -243,6 +245,7 @@ const parseSidebarConfig = (raw?: PersistedSidebarConfig | null): SidebarMenuCon
       title: '',
       description: '',
       showTitle: true,
+      showSidebarHeader: true,
       showDescription: true,
       sections: [createSidebarSection()],
     };
@@ -250,25 +253,25 @@ const parseSidebarConfig = (raw?: PersistedSidebarConfig | null): SidebarMenuCon
 
   const sections = Array.isArray(raw.sections)
     ? raw.sections.map((section, index) => {
-        const baseId = typeof section?.id === 'string' && section.id.trim().length > 0
-          ? section.id
-          : `${createSidebarId()}-${index}`;
-        const items = parseSidebarItems(section?.items as PersistedSidebarItem[] | undefined, baseId, {
-          fallbackToDefault: true,
-        });
-        return {
-          id: baseId,
-          title: typeof section?.title === 'string' ? section.title : '',
-          description: typeof section?.description === 'string' ? section.description : '',
-          backgroundColor: typeof section?.backgroundColor === 'string' ? section.backgroundColor : '',
-          titleFontColor: typeof section?.titleFontColor === 'string' ? section.titleFontColor : '',
-          titleFontWeight: isSidebarTitleFontWeight(section?.titleFontWeight) ? section.titleFontWeight : 'semibold',
-          titleFontSize: isSidebarTitleFontSize(section?.titleFontSize) ? section.titleFontSize : 'sm',
-          titleUppercase: Boolean(section?.titleUppercase),
-          titleIcon: typeof section?.titleIcon === 'string' ? section.titleIcon : '',
-          items: items.length > 0 ? items : [createSidebarItem()],
-        };
-      })
+      const baseId = typeof section?.id === 'string' && section.id.trim().length > 0
+        ? section.id
+        : `${createSidebarId()}-${index}`;
+      const items = parseSidebarItems(section?.items as PersistedSidebarItem[] | undefined, baseId, {
+        fallbackToDefault: true,
+      });
+      return {
+        id: baseId,
+        title: typeof section?.title === 'string' ? section.title : '',
+        description: typeof section?.description === 'string' ? section.description : '',
+        backgroundColor: typeof section?.backgroundColor === 'string' ? section.backgroundColor : '',
+        titleFontColor: typeof section?.titleFontColor === 'string' ? section.titleFontColor : '',
+        titleFontWeight: isSidebarTitleFontWeight(section?.titleFontWeight) ? section.titleFontWeight : 'semibold',
+        titleFontSize: isSidebarTitleFontSize(section?.titleFontSize) ? section.titleFontSize : 'sm',
+        titleUppercase: Boolean(section?.titleUppercase),
+        titleIcon: typeof section?.titleIcon === 'string' ? section.titleIcon : '',
+        items: items.length > 0 ? items : [createSidebarItem()],
+      };
+    })
     : [createSidebarSection()];
 
   return {
@@ -276,6 +279,7 @@ const parseSidebarConfig = (raw?: PersistedSidebarConfig | null): SidebarMenuCon
     title: typeof raw.title === 'string' ? raw.title : '',
     description: typeof raw.description === 'string' ? raw.description : '',
     showTitle: raw.showTitle !== false,
+    showSidebarHeader: raw.showSidebarHeader !== false,
     showDescription: raw.showDescription !== false,
     sections: sections.length > 0 ? sections : [createSidebarSection()],
   };
@@ -436,6 +440,7 @@ const sanitizeSidebarConfig = (sidebar: SidebarMenuConfig): PersistedSidebarConf
   const trimmedTitle = sidebar.title.trim();
   const trimmedDescription = sidebar.description.trim();
   const showTitle = sidebar.showTitle !== false;
+  const showSidebarHeader = sidebar.showSidebarHeader !== false;
   const showDescription = sidebar.showDescription !== false;
 
   const sections = sidebar.sections
@@ -494,6 +499,7 @@ const sanitizeSidebarConfig = (sidebar: SidebarMenuConfig): PersistedSidebarConf
     title: trimmedTitle || undefined,
     description: trimmedDescription || undefined,
     showTitle,
+    showSidebarHeader,
     showDescription,
     sections,
   };
@@ -2211,7 +2217,7 @@ const ProductsByCategorySidebarEditor: React.FC<ProductsByCategorySidebarEditorP
     onChange({ ...value, [field]: nextValue });
   };
 
-  const handleVisibilityToggle = (field: 'showTitle' | 'showDescription', nextValue: boolean) => {
+  const handleVisibilityToggle = (field: 'showTitle' | 'showDescription' | 'showSidebarHeader', nextValue: boolean) => {
     onChange({ ...value, [field]: nextValue });
   };
 
@@ -2264,6 +2270,18 @@ const ProductsByCategorySidebarEditor: React.FC<ProductsByCategorySidebarEditorP
               />
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="flex items-start justify-between gap-3 rounded-lg border border-neutral-200 bg-white px-3 py-2">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">Hiển thị khung Header</p>
+                  <p className="text-[11px] text-neutral-500 mb-0">Bật để hiển thị khối chứa tiêu đề và mô tả của sidebar.</p>
+                </div>
+                <Toggle
+                  checked={value.showSidebarHeader}
+                  onChange={(checked) => handleVisibilityToggle('showSidebarHeader', checked)}
+                  size="sm"
+                  aria-label="Bật hiển thị khung Header sidebar"
+                />
+              </div>
               <div className="flex items-start justify-between gap-3 rounded-lg border border-neutral-200 bg-white px-3 py-2">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">Hiển thị tiêu đề</p>
@@ -2699,79 +2717,79 @@ const SidebarItemEditor: React.FC<SidebarItemEditorProps> = ({
       </div>
       {!isCollapsed && (
         <div className="grid grid-cols-1 gap-4 px-4 py-4 md:grid-cols-2">
-        <div className="space-y-1">
-          <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Tiêu đề liên kết</label>
-          <Input
-            value={item.label}
-            onChange={(event) => onChange({ ...item, label: event.target.value })}
-            placeholder="Tên hiển thị"
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Loại liên kết</label>
-          <Select
-            value={resolvedLinkType}
-            onChange={(value) => handleLinkTypeChange(value)}
-            options={LINK_TYPE_OPTIONS}
-            placeholder="Chọn nguồn liên kết"
-          />
-        </div>
-        <div className="space-y-1 md:col-span-2">
-          <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
-            {resolvedLinkType === 'custom' ? 'URL đích' : 'Chọn nguồn dữ liệu'}
-          </label>
-          {renderLinkInput()}
-        </div>
-        <div className="space-y-1">
-          <IconSelector
-            value={item.icon}
-            onChange={(icon) => onChange({ ...item, icon })}
-          />
-        </div>
-        <div className="space-y-1 md:col-span-2">
-          <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Mô tả</label>
-          <Textarea
-            value={item.description}
-            onChange={(event) => onChange({ ...item, description: event.target.value })}
-            rows={2}
-            placeholder="Mô tả ngắn (tuỳ chọn)."
-          />
-        </div>
-        {canNestChildren && (
-          <div className="space-y-3 md:col-span-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
-                Menu con
-              </label>
-              {childItems.length > 0 && (
-                <p className="text-[11px] uppercase tracking-wide text-neutral-400">Tối đa 1 cấp</p>
-              )}
-            </div>
-            {childItems.length > 0 && (
-              <div className="space-y-3">
-                {childItems.map((child, childIndex) => (
-                  <SidebarItemEditor
-                    key={child.id}
-                    item={child}
-                    index={childIndex}
-                    depth={depth + 1}
-                    canRemove
-                    onChange={(nextChild) => handleChildItemChange(child.id, nextChild)}
-                    onRemove={() => handleRemoveChildItem(child.id)}
-                  />
-                ))}
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={handleAddChildItem}
-              className="w-full rounded-lg border border-dashed border-neutral-300 py-2 text-sm font-medium text-neutral-600 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2"
-            >
-              <FiPlus className="w-4 h-4" />
-              Thêm liên kết con
-            </button>
+          <div className="space-y-1">
+            <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Tiêu đề liên kết</label>
+            <Input
+              value={item.label}
+              onChange={(event) => onChange({ ...item, label: event.target.value })}
+              placeholder="Tên hiển thị"
+            />
           </div>
-        )}
+          <div className="space-y-1">
+            <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Loại liên kết</label>
+            <Select
+              value={resolvedLinkType}
+              onChange={(value) => handleLinkTypeChange(value)}
+              options={LINK_TYPE_OPTIONS}
+              placeholder="Chọn nguồn liên kết"
+            />
+          </div>
+          <div className="space-y-1 md:col-span-2">
+            <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              {resolvedLinkType === 'custom' ? 'URL đích' : 'Chọn nguồn dữ liệu'}
+            </label>
+            {renderLinkInput()}
+          </div>
+          <div className="space-y-1">
+            <IconSelector
+              value={item.icon}
+              onChange={(icon) => onChange({ ...item, icon })}
+            />
+          </div>
+          <div className="space-y-1 md:col-span-2">
+            <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Mô tả</label>
+            <Textarea
+              value={item.description}
+              onChange={(event) => onChange({ ...item, description: event.target.value })}
+              rows={2}
+              placeholder="Mô tả ngắn (tuỳ chọn)."
+            />
+          </div>
+          {canNestChildren && (
+            <div className="space-y-3 md:col-span-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                  Menu con
+                </label>
+                {childItems.length > 0 && (
+                  <p className="text-[11px] uppercase tracking-wide text-neutral-400">Tối đa 1 cấp</p>
+                )}
+              </div>
+              {childItems.length > 0 && (
+                <div className="space-y-3">
+                  {childItems.map((child, childIndex) => (
+                    <SidebarItemEditor
+                      key={child.id}
+                      item={child}
+                      index={childIndex}
+                      depth={depth + 1}
+                      canRemove
+                      onChange={(nextChild) => handleChildItemChange(child.id, nextChild)}
+                      onRemove={() => handleRemoveChildItem(child.id)}
+                    />
+                  ))}
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={handleAddChildItem}
+                className="w-full rounded-lg border border-dashed border-neutral-300 py-2 text-sm font-medium text-neutral-600 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2"
+              >
+                <FiPlus className="w-4 h-4" />
+                Thêm liên kết con
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { withSeo } from '../../components/SEO/withSeo';
+import { withAdminSeo } from '../../components/SEO/withAdminSeo';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { FiSettings, FiHome, FiHash, FiRefreshCw, FiCheck, FiAlertCircle } from 'react-icons/fi';
@@ -291,7 +291,7 @@ const OrderSettingsPage: React.FC = () => {
   );
 };
 
-export default withSeo(OrderSettingsPage, {
+export default withAdminSeo(OrderSettingsPage, {
   title: 'Order Settings | Quasar Admin',
   description: 'Manage order-related configuration',
   path: '/settings/orders',

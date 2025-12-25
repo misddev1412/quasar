@@ -24,6 +24,7 @@ interface ProductsByCategorySidebarProps {
   title: string;
   description?: string | null;
   showTitle: boolean;
+  showSidebarHeader: boolean;
   showDescription: boolean;
   sections: NormalizedSidebarSection[];
   sectionFallbackTitle: string;
@@ -160,6 +161,7 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
   title,
   description,
   showTitle,
+  showSidebarHeader,
   showDescription,
   sections,
   sectionFallbackTitle,
@@ -172,19 +174,21 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
   return (
     <aside className="relative z-10 w-full lg:w-1/5">
       <div className="lg:sticky lg:top-24 space-y-6">
-        <div className="rounded-2xl border border-gray-200/80 bg-white/95 p-6 shadow-sm dark:border-gray-800/60 dark:bg-gray-900/70">
-          <p className="text-xs uppercase tracking-[0.3em] text-blue-500 dark:text-blue-300">{sidebarLabel}</p>
-          {showTitle && (
-            <h3 className="mt-3 text-2xl font-semibold text-gray-900 dark:text-gray-100">
-              {title}
-            </h3>
-          )}
-          {showDescription && description && (
-            <p className={clsx(showTitle ? 'mt-2' : 'mt-3', 'text-sm text-gray-600 dark:text-gray-400')}>
-              {description}
-            </p>
-          )}
-        </div>
+        {showSidebarHeader && (
+          <div className="rounded-2xl border border-gray-200/80 bg-white/95 p-6 shadow-sm dark:border-gray-800/60 dark:bg-gray-900/70">
+            <p className="text-xs uppercase tracking-[0.3em] text-blue-500 dark:text-blue-300">{sidebarLabel}</p>
+            {showTitle && (
+              <h3 className="mt-3 text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                {title}
+              </h3>
+            )}
+            {showDescription && description && (
+              <p className={clsx(showTitle ? 'mt-2' : 'mt-3', 'text-sm text-gray-600 dark:text-gray-400')}>
+                {description}
+              </p>
+            )}
+          </div>
+        )}
         {sections.map((section) => {
           const sectionTitle = section.title || sectionFallbackTitle;
           const sectionDescription = section.description?.trim();

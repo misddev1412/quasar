@@ -3,7 +3,7 @@ import { FiSearch, FiHome } from 'react-icons/fi';
 import { SeoManager } from '../components/SEO/SeoManager';
 import BaseLayout from '../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
-import { withSeo } from '../components/SEO/withSeo';
+import { withAdminSeo } from '../components/SEO/withAdminSeo';
 
 const SeoPage: React.FC = () => {
   const { t } = useTranslationWithBackend();
@@ -31,8 +31,8 @@ const SeoPage: React.FC = () => {
   );
 };
 
-export default withSeo(SeoPage, {
+export default withAdminSeo(SeoPage, {
   title: 'SEO Management | Quasar Admin',
   description: 'Manage SEO settings and meta tags for better search engine visibility',
   path: '/seo',
-}); 
+});

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SettingsManager } from '../components/settings/SettingsManager';
-import { withSeo } from '../components/SEO/withSeo';
+import { withAdminSeo } from '../components/SEO/withAdminSeo';
 import BaseLayout from '../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 import { FiSettings, FiHome } from 'react-icons/fi';
@@ -43,7 +43,7 @@ const SettingsPage: React.FC = () => {
   );
 };
 
-export default withSeo(SettingsPage, {
+export default withAdminSeo(SettingsPage, {
   title: 'System Settings | Quasar Admin',
   description: 'Manage system settings and configuration',
   path: '/settings',

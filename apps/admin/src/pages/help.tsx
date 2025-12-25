@@ -2,7 +2,7 @@ import React from 'react';
 import { FiHelpCircle, FiBookOpen, FiMessageCircle, FiClipboard, FiLifeBuoy, FiMail, FiHome } from 'react-icons/fi';
 import { Link as RouterLink } from 'react-router-dom';
 import BaseLayout from '../components/layout/BaseLayout';
-import { withSeo } from '../components/SEO/withSeo';
+import { withAdminSeo } from '../components/SEO/withAdminSeo';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 
 interface HelpResource {
@@ -274,9 +274,8 @@ const HelpPage: React.FC = () => {
   );
 };
 
-export default withSeo(HelpPage, {
+export default withAdminSeo(HelpPage, {
   title: 'Help & Support | Quasar Admin',
   description: 'Access documentation, contact support, and keep your administrators productive.',
   path: '/help'
 });
-

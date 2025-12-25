@@ -22,6 +22,9 @@ export interface ProductsByCategoryRowConfig {
   productIds?: string[];
   limit?: number;
   displayStyle?: 'grid' | 'carousel';
+  showDisplayTitle?: boolean;
+  showCategoryLabel?: boolean;
+  showStrategyLabel?: boolean;
 }
 
 export interface ProductsByCategoryConfig {
@@ -68,6 +71,7 @@ export interface ProductsByCategorySidebarConfig {
   title?: string;
   description?: string;
   showTitle?: boolean;
+  showSidebarHeader?: boolean;
   showDescription?: boolean;
   sections?: ProductsByCategorySidebarSectionConfig[];
 }
@@ -85,6 +89,9 @@ interface NormalizedRowConfig {
   productIds: string[];
   limit: number;
   displayStyle: 'grid' | 'carousel';
+  showDisplayTitle: boolean;
+  showCategoryLabel: boolean;
+  showStrategyLabel: boolean;
 }
 
 interface RowRenderState {
@@ -186,6 +193,7 @@ export interface NormalizedSidebarConfig {
   title: string;
   description: string;
   showTitle: boolean;
+  showSidebarHeader: boolean;
   showDescription: boolean;
   sections: NormalizedSidebarSection[];
 }
@@ -228,6 +236,7 @@ const normalizeSidebarItems = (
 const normalizeSidebarConfig = (sidebar?: ProductsByCategorySidebarConfig | null): NormalizedSidebarConfig => {
   const rawSections = Array.isArray(sidebar?.sections) ? sidebar?.sections : [];
   const showTitle = sidebar?.showTitle !== false;
+  const showSidebarHeader = sidebar?.showSidebarHeader !== false;
   const showDescription = sidebar?.showDescription !== false;
 
   const sections = rawSections
@@ -264,6 +273,7 @@ const normalizeSidebarConfig = (sidebar?: ProductsByCategorySidebarConfig | null
     title: normalizeString(sidebar?.title),
     description: normalizeString(sidebar?.description),
     showTitle,
+    showSidebarHeader,
     showDescription,
     sections,
   };
@@ -330,6 +340,9 @@ const normalizeRows = (config: ProductsByCategoryConfig): NormalizedRowConfig[] 
       const limit = ensurePositiveInteger(row.limit, config.limit ?? DEFAULT_LIMIT);
       const title = normalizeString(row.title) || null;
       const displayStyle = normalizeDisplayStyle(row.displayStyle as string ?? fallbackDisplayStyle);
+      const showDisplayTitle = row.showDisplayTitle !== false;
+      const showCategoryLabel = row.showCategoryLabel !== false;
+      const showStrategyLabel = row.showStrategyLabel !== false;
 
       rows.push({
         id: index === 0 ? id : `${id}-${index}`,
@@ -339,6 +352,9 @@ const normalizeRows = (config: ProductsByCategoryConfig): NormalizedRowConfig[] 
         productIds,
         limit,
         displayStyle,
+        showDisplayTitle,
+        showCategoryLabel,
+        showStrategyLabel,
       });
     });
 
@@ -362,6 +378,9 @@ const normalizeRows = (config: ProductsByCategoryConfig): NormalizedRowConfig[] 
     productIds: legacyProductIds,
     limit: ensurePositiveInteger(config.limit, DEFAULT_LIMIT),
     displayStyle: normalizeDisplayStyle(config.displayStyle),
+    showDisplayTitle: true,
+    showCategoryLabel: true,
+    showStrategyLabel: true,
   });
 
   return rows;
@@ -464,6 +483,9 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
       limit: row.limit,
       title: row.title,
       displayStyle: row.displayStyle,
+      showDisplayTitle: row.showDisplayTitle,
+      showCategoryLabel: row.showCategoryLabel,
+      showStrategyLabel: row.showStrategyLabel,
     }))),
     [rows],
   );
@@ -684,6 +706,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
   const sidebarTitleText = sidebarConfig.title || t('sections.products_by_category.sidebar_default_title');
   const sidebarDescriptionText = sidebarConfig.description || t('sections.products_by_category.sidebar_default_description');
   const sidebarShowTitle = sidebarConfig.showTitle;
+  const sidebarShowSidebarHeader = sidebarConfig.showSidebarHeader;
   const sidebarShowDescription = sidebarConfig.showDescription;
   const sidebarSectionFallback = t('sections.products_by_category.sidebar_section_title');
 
@@ -717,6 +740,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
               title={sidebarTitleText}
               description={sidebarDescriptionText}
               showTitle={sidebarShowTitle}
+              showSidebarHeader={sidebarShowSidebarHeader}
               showDescription={sidebarShowDescription}
               sections={sidebarConfig.sections}
               sectionFallbackTitle={sidebarSectionFallback}
@@ -725,217 +749,229 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
           )}
           <div className={`${isSidebarEnabled ? 'w-full lg:w-4/5' : 'w-full'} space-y-16`}>
             {rows.map((row) => {
-            const state = rowStates[row.id] ?? {
-              products: [],
-              isLoading: true,
-              error: null,
-              categoryName: null,
-              categorySlug: null,
-            };
+              const state = rowStates[row.id] ?? {
+                products: [],
+                isLoading: true,
+                error: null,
+                categoryName: null,
+                categorySlug: null,
+              };
 
-            const rowCustomTitle = row.title && row.title.trim().length > 0 ? row.title.trim() : null;
-            const categoryLabel = rowCustomTitle
-              ? rowCustomTitle
-              : state.categoryName
-                ? t('sections.products_by_category.category_label', { category: state.categoryName })
-                : t('sections.products_by_category.curated_category');
-            const normalizedCategoryName = state.categoryName?.trim() || null;
+              const rowCustomTitle = row.title && row.title.trim().length > 0 ? row.title.trim() : null;
+              const categoryLabel = rowCustomTitle
+                ? rowCustomTitle
+                : state.categoryName
+                  ? t('sections.products_by_category.category_label', { category: state.categoryName })
+                  : t('sections.products_by_category.curated_category');
+              const normalizedCategoryName = state.categoryName?.trim() || null;
 
-            const normalizedRowCategoryId = normalizeString(row.categoryId);
-            const hasCategoryNavigation = Boolean(state.categorySlug || normalizedRowCategoryId);
-            const ctaHref = state.categorySlug
-              ? `/categories/${state.categorySlug}`
-              : normalizedRowCategoryId
-                ? `/categories/${normalizedRowCategoryId}`
-                : '/products';
+              const normalizedRowCategoryId = normalizeString(row.categoryId);
+              const hasCategoryNavigation = Boolean(state.categorySlug || normalizedRowCategoryId);
+              const ctaHref = state.categorySlug
+                ? `/categories/${state.categorySlug}`
+                : normalizedRowCategoryId
+                  ? `/categories/${normalizedRowCategoryId}`
+                  : '/products';
 
-            const strategyLabel = t(strategyTranslationKeyMap[row.strategy]);
-            const badgeClass = strategyBadgeClassMap[row.strategy];
-            const rowDisplayStyle = row.displayStyle;
+              const strategyLabel = t(strategyTranslationKeyMap[row.strategy]);
+              const badgeClass = strategyBadgeClassMap[row.strategy];
+              const rowDisplayStyle = row.displayStyle;
+              const showDisplayTitle = row.showDisplayTitle;
+              const showCategoryLabel = row.showCategoryLabel;
+              const showStrategyLabel = row.showStrategyLabel;
+              const showNormalizedCategoryLabel = showCategoryLabel && Boolean(normalizedCategoryName) && (!showDisplayTitle || normalizedCategoryName !== categoryLabel);
+              const shouldRenderMetaRow = showStrategyLabel || showNormalizedCategoryLabel;
+              const metaWrapperClass = `${showDisplayTitle ? 'mt-2 ' : ''}flex flex-wrap items-center gap-2`;
 
-            const renderLoading = () => {
-              const placeholderCount = rowDisplayStyle === 'carousel'
-                ? Math.min(Math.max(row.limit, 4), 6)
-                : row.limit;
-              const placeholders = Array.from({ length: placeholderCount });
+              const renderLoading = () => {
+                const placeholderCount = rowDisplayStyle === 'carousel'
+                  ? Math.min(Math.max(row.limit, 4), 6)
+                  : row.limit;
+                const placeholders = Array.from({ length: placeholderCount });
 
-              if (rowDisplayStyle === 'carousel') {
-                return (
-                  <div className="flex gap-4 overflow-hidden pb-2">
-                    {placeholders.map((_, index) => (
-                      <div key={`loading-${row.id}-${index}`} className="min-w-[240px] max-w-xs flex-shrink-0">
-                        <div className="animate-pulse rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/30 shadow-sm">
-                          <div className="h-44 rounded-t-xl bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800" />
-                          <div className="p-4 space-y-3">
-                            <div className="h-3 w-24 rounded bg-gray-200 dark:bg-gray-700" />
-                            <div className="h-4 w-full rounded bg-gray-200 dark:bg-gray-700" />
-                            <div className="h-3 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
+                if (rowDisplayStyle === 'carousel') {
+                  return (
+                    <div className="flex gap-4 overflow-hidden pb-2">
+                      {placeholders.map((_, index) => (
+                        <div key={`loading-${row.id}-${index}`} className="min-w-[240px] max-w-xs flex-shrink-0">
+                          <div className="animate-pulse rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/30 shadow-sm">
+                            <div className="h-44 rounded-t-xl bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800" />
+                            <div className="p-4 space-y-3">
+                              <div className="h-3 w-24 rounded bg-gray-200 dark:bg-gray-700" />
+                              <div className="h-4 w-full rounded bg-gray-200 dark:bg-gray-700" />
+                              <div className="h-3 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
+                            </div>
                           </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {placeholders.map((_, index) => (
+                      <div key={`loading-${row.id}-${index}`} className="animate-pulse rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/30 shadow-sm">
+                        <div className="h-44 rounded-t-xl bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800" />
+                        <div className="p-4 space-y-3">
+                          <div className="h-3 w-24 rounded bg-gray-200 dark:bg-gray-700" />
+                          <div className="h-4 w-full rounded bg-gray-200 dark:bg-gray-700" />
+                          <div className="h-3 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
                         </div>
                       </div>
                     ))}
                   </div>
                 );
-              }
+              };
 
-              return (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {placeholders.map((_, index) => (
-                    <div key={`loading-${row.id}-${index}`} className="animate-pulse rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/30 shadow-sm">
-                      <div className="h-44 rounded-t-xl bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800" />
-                      <div className="p-4 space-y-3">
-                        <div className="h-3 w-24 rounded bg-gray-200 dark:bg-gray-700" />
-                        <div className="h-4 w-full rounded bg-gray-200 dark:bg-gray-700" />
-                        <div className="h-3 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
-                      </div>
+              const Carousel = () => {
+                const carouselRef = useRef<HTMLDivElement>(null);
+                const [isAtStart, setIsAtStart] = useState(true);
+                const [isAtEnd, setIsAtEnd] = useState(false);
+
+                const updateScrollState = useCallback(() => {
+                  const node = carouselRef.current;
+                  if (!node) {
+                    setIsAtStart(true);
+                    setIsAtEnd(true);
+                    return;
+                  }
+                  const { scrollLeft, scrollWidth, clientWidth } = node;
+                  setIsAtStart(scrollLeft <= 0);
+                  setIsAtEnd(scrollLeft + clientWidth >= scrollWidth - 1);
+                }, []);
+
+                const scrollCarousel = (direction: 'left' | 'right') => {
+                  const node = carouselRef.current;
+                  if (!node) return;
+                  const distance = node.clientWidth * 0.8 * (direction === 'left' ? -1 : 1);
+                  node.scrollBy({ left: distance, behavior: 'smooth' });
+                };
+
+                useEffect(() => {
+                  const node = carouselRef.current;
+                  if (!node) return undefined;
+
+                  updateScrollState();
+                  const handleScroll = () => updateScrollState();
+                  node.addEventListener('scroll', handleScroll);
+                  return () => {
+                    node.removeEventListener('scroll', handleScroll);
+                  };
+                }, [state.products.length, updateScrollState]);
+
+                return (
+                  <div className="relative">
+                    <button
+                      type="button"
+                      className="hidden md:flex absolute left-0 top-1/2 z-10 -translate-y-1/2 transform items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-2 shadow-sm transition hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40"
+                      onClick={() => scrollCarousel('left')}
+                      disabled={isAtStart}
+                      aria-label={t('sections.products_by_category.carousel_prev')}
+                    >
+                      <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-200" />
+                    </button>
+                    <div
+                      ref={carouselRef}
+                      className="flex gap-4 overflow-x-auto scroll-smooth pb-2 snap-x snap-mandatory"
+                    >
+                      {state.products.map((product) => (
+                        <div key={`${row.id}-${product.id}`} className="min-w-[240px] max-w-xs flex-shrink-0 snap-start">
+                          <ProductCard
+                            product={product}
+                            showAddToCart={true}
+                            showWishlist={false}
+                            showQuickView={false}
+                            imageHeight="h-56"
+                            className="h-full"
+                          />
+                        </div>
+                      ))}
                     </div>
+                    <button
+                      type="button"
+                      className="hidden md:flex absolute right-0 top-1/2 z-10 -translate-y-1/2 transform items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-2 shadow-sm transition hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40"
+                      onClick={() => scrollCarousel('right')}
+                      disabled={isAtEnd}
+                      aria-label={t('sections.products_by_category.carousel_next')}
+                    >
+                      <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-200" />
+                    </button>
+                  </div>
+                );
+              };
+
+              const Grid = () => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {state.products.map((product) => (
+                    <ProductCard
+                      key={`${row.id}-${product.id}`}
+                      product={product}
+                      showAddToCart={true}
+                      showWishlist={false}
+                      showQuickView={false}
+                      imageHeight="h-56"
+                      className="h-full"
+                    />
                   ))}
                 </div>
               );
-            };
 
-            const Carousel = () => {
-              const carouselRef = useRef<HTMLDivElement>(null);
-              const [isAtStart, setIsAtStart] = useState(true);
-              const [isAtEnd, setIsAtEnd] = useState(false);
+              let bodyContent: React.ReactNode = null;
 
-              const updateScrollState = useCallback(() => {
-                const node = carouselRef.current;
-                if (!node) {
-                  setIsAtStart(true);
-                  setIsAtEnd(true);
-                  return;
-                }
-                const { scrollLeft, scrollWidth, clientWidth } = node;
-                setIsAtStart(scrollLeft <= 0);
-                setIsAtEnd(scrollLeft + clientWidth >= scrollWidth - 1);
-              }, []);
-
-              const scrollCarousel = (direction: 'left' | 'right') => {
-                const node = carouselRef.current;
-                if (!node) return;
-                const distance = node.clientWidth * 0.8 * (direction === 'left' ? -1 : 1);
-                node.scrollBy({ left: distance, behavior: 'smooth' });
-              };
-
-              useEffect(() => {
-                const node = carouselRef.current;
-                if (!node) return undefined;
-
-                updateScrollState();
-                const handleScroll = () => updateScrollState();
-                node.addEventListener('scroll', handleScroll);
-                return () => {
-                  node.removeEventListener('scroll', handleScroll);
-                };
-              }, [state.products.length, updateScrollState]);
+              if (state.isLoading) {
+                bodyContent = renderLoading();
+              } else if (state.error) {
+                bodyContent = (
+                  <div className="rounded-lg border border-red-200 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 px-4 py-6 text-sm text-red-600 dark:text-red-200">
+                    {state.error}
+                  </div>
+                );
+              } else if (state.products.length === 0) {
+                bodyContent = (
+                  <div className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40 px-4 py-6 text-sm text-gray-600 dark:text-gray-400">
+                    {t('sections.products_by_category.empty')}
+                  </div>
+                );
+              } else {
+                bodyContent = rowDisplayStyle === 'carousel' ? <Carousel /> : <Grid />;
+              }
 
               return (
-                <div className="relative">
-                  <button
-                    type="button"
-                    className="hidden md:flex absolute left-0 top-1/2 z-10 -translate-y-1/2 transform items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-2 shadow-sm transition hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40"
-                    onClick={() => scrollCarousel('left')}
-                    disabled={isAtStart}
-                    aria-label={t('sections.products_by_category.carousel_prev')}
-                  >
-                    <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-200" />
-                  </button>
-                  <div
-                    ref={carouselRef}
-                    className="flex gap-4 overflow-x-auto scroll-smooth pb-2 snap-x snap-mandatory"
-                  >
-                    {state.products.map((product) => (
-                      <div key={`${row.id}-${product.id}`} className="min-w-[240px] max-w-xs flex-shrink-0 snap-start">
-                        <ProductCard
-                          product={product}
-                          showAddToCart={true}
-                          showWishlist={false}
-                          showQuickView={false}
-                          imageHeight="h-56"
-                          className="h-full"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                  <button
-                    type="button"
-                    className="hidden md:flex absolute right-0 top-1/2 z-10 -translate-y-1/2 transform items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-2 shadow-sm transition hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40"
-                    onClick={() => scrollCarousel('right')}
-                    disabled={isAtEnd}
-                    aria-label={t('sections.products_by_category.carousel_next')}
-                  >
-                    <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-200" />
-                  </button>
-                </div>
-              );
-            };
-
-            const Grid = () => (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {state.products.map((product) => (
-                  <ProductCard
-                    key={`${row.id}-${product.id}`}
-                    product={product}
-                    showAddToCart={true}
-                    showWishlist={false}
-                    showQuickView={false}
-                    imageHeight="h-56"
-                    className="h-full"
-                  />
-                ))}
-              </div>
-            );
-
-            let bodyContent: React.ReactNode = null;
-
-            if (state.isLoading) {
-              bodyContent = renderLoading();
-            } else if (state.error) {
-              bodyContent = (
-                <div className="rounded-lg border border-red-200 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 px-4 py-6 text-sm text-red-600 dark:text-red-200">
-                  {state.error}
-                </div>
-              );
-            } else if (state.products.length === 0) {
-              bodyContent = (
-                <div className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40 px-4 py-6 text-sm text-gray-600 dark:text-gray-400">
-                  {t('sections.products_by_category.empty')}
-                </div>
-              );
-            } else {
-              bodyContent = rowDisplayStyle === 'carousel' ? <Carousel /> : <Grid />;
-            }
-
-            return (
-              <div key={row.id} className="space-y-6">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div>
-                    <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{categoryLabel}</h3>
-                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wide ${badgeClass}`}>
-                        {strategyLabel}
-                      </span>
-                      {normalizedCategoryName && normalizedCategoryName !== categoryLabel && (
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {normalizedCategoryName}
-                        </span>
+                <div key={row.id} className="space-y-6">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                      {showDisplayTitle && (
+                        <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{categoryLabel}</h3>
+                      )}
+                      {shouldRenderMetaRow && (
+                        <div className={metaWrapperClass}>
+                          {showStrategyLabel && (
+                            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wide ${badgeClass}`}>
+                              {strategyLabel}
+                            </span>
+                          )}
+                          {showNormalizedCategoryLabel && (
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              {normalizedCategoryName}
+                            </span>
+                          )}
+                        </div>
                       )}
                     </div>
+                    {hasCategoryNavigation && (
+                      <Link
+                        href={ctaHref}
+                        className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      >
+                        {t('sections.products_by_category.view_category')}
+                      </Link>
+                    )}
                   </div>
-                  {hasCategoryNavigation && (
-                    <Link
-                      href={ctaHref}
-                      className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800"
-                    >
-                      {t('sections.products_by_category.view_category')}
-                    </Link>
-                  )}
-                </div>
 
-                {bodyContent}
-              </div>
-            );
+                  {bodyContent}
+                </div>
+              );
             })}
           </div>
         </div>

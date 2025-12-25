@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { withSeo } from '../../components/SEO/withSeo';
+import { withAdminSeo } from '../../components/SEO/withAdminSeo';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { FiHome, FiSettings, FiTool, FiShield } from 'react-icons/fi';
@@ -318,7 +318,7 @@ const MaintenanceSettingsPage: React.FC = () => {
   );
 };
 
-export default withSeo(MaintenanceSettingsPage, {
+export default withAdminSeo(MaintenanceSettingsPage, {
   title: 'Maintenance Mode | Quasar Admin',
   description: 'Manage the storefront maintenance screen settings.',
   path: '/settings/maintenance',

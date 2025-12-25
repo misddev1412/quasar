@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { Image as ImageIcon } from 'lucide-react';
@@ -3028,6 +3028,9 @@ interface ProductsByCategoryAdminRow {
   productIds: string[];
   limit: number;
   displayStyle: ProductsByCategoryDisplayStyle;
+  showDisplayTitle: boolean;
+  showCategoryLabel: boolean;
+  showStrategyLabel: boolean;
 }
 
 const DEFAULT_ROW_LIMIT = 6;
@@ -3070,6 +3073,9 @@ const createDefaultRow = (): ProductsByCategoryAdminRow => ({
   productIds: [],
   limit: DEFAULT_ROW_LIMIT,
   displayStyle: 'grid',
+  showDisplayTitle: true,
+  showCategoryLabel: true,
+  showStrategyLabel: true,
 });
 
 const flattenCategoryOptions = (categories: any[], prefix = ''): CategorySelectOption[] => {
@@ -3117,6 +3123,9 @@ const parseRowsFromValue = (raw: Record<string, unknown>): ProductsByCategoryAdm
         productIds,
         limit,
         displayStyle,
+        showDisplayTitle: row?.showDisplayTitle !== false,
+        showCategoryLabel: row?.showCategoryLabel !== false,
+        showStrategyLabel: row?.showStrategyLabel !== false,
       };
     });
   }
@@ -3136,6 +3145,9 @@ const parseRowsFromValue = (raw: Record<string, unknown>): ProductsByCategoryAdm
     productIds: legacyProductIds,
     limit: ensureNumber((raw?.limit as number) ?? DEFAULT_ROW_LIMIT, DEFAULT_ROW_LIMIT),
     displayStyle: legacyDisplayStyle,
+    showDisplayTitle: true,
+    showCategoryLabel: true,
+    showStrategyLabel: true,
   }];
 };
 
@@ -3155,6 +3167,9 @@ const sanitizeConfigValue = (
       productIds: row.productIds,
       limit: row.limit,
       displayStyle: row.displayStyle,
+      showDisplayTitle: row.showDisplayTitle,
+      showCategoryLabel: row.showCategoryLabel,
+      showStrategyLabel: row.showStrategyLabel,
     };
   });
 
@@ -3201,6 +3216,9 @@ const rowsAreEqual = (
     if (row.strategy !== other.strategy) return false;
     if (row.limit !== other.limit) return false;
     if (row.displayStyle !== other.displayStyle) return false;
+    if (row.showDisplayTitle !== other.showDisplayTitle) return false;
+    if (row.showCategoryLabel !== other.showCategoryLabel) return false;
+    if (row.showStrategyLabel !== other.showStrategyLabel) return false;
     if (row.productIds.length !== other.productIds.length) return false;
     return row.productIds.every((id, idx) => id === other.productIds[idx]);
   });
@@ -3222,9 +3240,14 @@ const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEditorPro
   const initialSidebarEnabled = typeof value?.sidebarEnabled === 'boolean' ? value.sidebarEnabled : true;
 
   const [rows, setRows] = useState<ProductsByCategoryAdminRow[]>(() => parseRowsFromValue(sanitizedValue));
+  const skipRowsSyncRef = useRef(false);
   const [sidebarEnabled, setSidebarEnabled] = useState<boolean>(initialSidebarEnabled);
 
   useEffect(() => {
+    if (skipRowsSyncRef.current) {
+      skipRowsSyncRef.current = false;
+      return;
+    }
     const nextRows = parseRowsFromValue(sanitizedValue);
     setRows((prev) => (rowsAreEqual(prev, nextRows) ? prev : nextRows));
   }, [sanitizedValue]);
@@ -3243,6 +3266,7 @@ const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEditorPro
 
   const applyUpdate = useCallback(
     (nextRows: ProductsByCategoryAdminRow[]) => {
+      skipRowsSyncRef.current = true;
       setRows(nextRows);
       commitConfig(nextRows, sidebarEnabled);
     },
@@ -3737,6 +3761,13 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
     });
   };
 
+  const handleVisibilityChange = (field: 'showDisplayTitle' | 'showCategoryLabel' | 'showStrategyLabel', enabled: boolean) => {
+    onChange({
+      ...row,
+      [field]: enabled,
+    });
+  };
+
   return (
     <div className="rounded-xl border border-gray-200/80 bg-white/90 shadow-sm">
       <div className="flex flex-col gap-4 border-b border-gray-100 bg-gray-50/80 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
@@ -3834,6 +3865,27 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
               inputSize="md"
             />
           </label>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          <Toggle
+            checked={row.showDisplayTitle}
+            onChange={(checked) => handleVisibilityChange('showDisplayTitle', checked)}
+            label={t('sections.manager.productsByCategory.showDisplayTitle', 'Show display title')}
+            className="rounded-xl border border-gray-100 bg-white px-4 py-3 shadow-sm"
+          />
+          <Toggle
+            checked={row.showCategoryLabel}
+            onChange={(checked) => handleVisibilityChange('showCategoryLabel', checked)}
+            label={t('sections.manager.productsByCategory.showCategoryLabel', 'Show storefront category name')}
+            className="rounded-xl border border-gray-100 bg-white px-4 py-3 shadow-sm"
+          />
+          <Toggle
+            checked={row.showStrategyLabel}
+            onChange={(checked) => handleVisibilityChange('showStrategyLabel', checked)}
+            label={t('sections.manager.productsByCategory.showStrategyLabel', 'Show strategy badge')}
+            className="rounded-xl border border-gray-100 bg-white px-4 py-3 shadow-sm"
+          />
         </div>
 
         {isCustomStrategy && row.categoryId ? (

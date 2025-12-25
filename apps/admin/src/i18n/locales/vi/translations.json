@@ -317,6 +317,9 @@
           "displayStyle": "Kiểu hiển thị",
           "remove": "Xóa",
           "displayTitle": "Tiêu đề hiển thị",
+          "showDisplayTitle": "Hiển thị Tiêu đề hiển thị",
+          "showCategoryLabel": "Hiển thị tên Danh mục gốc",
+          "showStrategyLabel": "Hiển thị Chiến lược hiển thị",
           "unnamedProduct": "Sản phẩm chưa đặt tên",
           "loading": "Đang tải...",
           "loadMoreProducts": "Tải thêm sản phẩm",
@@ -367,14 +370,46 @@
       }
     },
     "componentConfigs": {
-      "navigation": "Thư viện thành phần"
+      "navigation": "Thư viện thành phần",
+      "manageDescription": "Quản lý các khối xây dựng giao diện cửa hàng",
+      "title": "Cấu hình thành phần",
+      "newComponent": "Thành phần mới",
+      "filters": "Bộ lọc",
+      "active": "đang hoạt động",
+      "resetFilters": "Đặt lại bộ lọc",
+      "searchPlaceholder": "Tìm kiếm theo tên, khóa hoặc mô tả",
+      "allCategories": "Tất cả danh mục",
+      "allComponentTypes": "Tất cả loại thành phần",
+      "allStatuses": "Tất cả trạng thái",
+      "enabledOnly": "Đang bật",
+      "disabledOnly": "Đã tắt",
+      "totalComponents": "Tổng thành phần",
+      "composite": "Phức hợp",
+      "atomic": "Nguyên tử",
+      "disabled": "Đã tắt",
+      "componentEnabled": "Đã bật thành phần",
+      "componentDisabled": "Đã tắt thành phần",
+      "unableToUpdateStatus": "Không thể cập nhật trạng thái",
+      "componentDeleted": "Đã xóa thành phần",
+      "unableToDeleteComponent": "Không thể xóa thành phần",
+      "component": "Thành phần",
+      "parent": "Cha",
+      "category": "Danh mục",
+      "structure": "Cấu trúc",
+      "slot": "Slot",
+      "status": "Trạng thái",
+      "updated": "Cập nhật",
+      "actions": "Thao tác",
+      "addChild": "Thêm con",
+      "noComponentsFound": "Không tìm thấy cấu hình thành phần nào",
+      "createComponent": "Tạo thành phần"
     },
     "storefront": {
       "checkout": {
-        "nav": "Checkout Storefront"
+        "nav": "Giao diện thanh toán"
       },
       "footer": {
-        "nav": "Footer Builder"
+        "nav": "Xây dựng chân trang"
       }
     },
     "products": {

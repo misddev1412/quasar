@@ -1,7 +1,7 @@
 import React from 'react';
 import { FiHome, FiLayout } from 'react-icons/fi';
 import BaseLayout from '../../components/layout/BaseLayout';
-import { withSeo } from '../../components/SEO/withSeo';
+import { withAdminSeo } from '../../components/SEO/withAdminSeo';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import FooterSettingsForm from '../../components/storefront/FooterSettingsForm';
 
@@ -29,7 +29,7 @@ const StorefrontFooterPage: React.FC = () => {
   );
 };
 
-export default withSeo(StorefrontFooterPage, {
+export default withAdminSeo(StorefrontFooterPage, {
   title: 'Storefront footer | Quasar Admin',
   description: 'Customize the storefront footer layout, branding, and links.',
   path: '/storefront/footer',

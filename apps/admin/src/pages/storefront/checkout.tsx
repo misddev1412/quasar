@@ -1,7 +1,7 @@
 import React from 'react';
 import { FiGlobe, FiHome, FiSettings } from 'react-icons/fi';
 import BaseLayout from '../../components/layout/BaseLayout';
-import { withSeo } from '../../components/SEO/withSeo';
+import { withAdminSeo } from '../../components/SEO/withAdminSeo';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import CheckoutSettingsForm from '../../components/storefront/CheckoutSettingsForm';
 
@@ -37,7 +37,7 @@ const StorefrontCheckoutSettingsPage: React.FC = () => {
   );
 };
 
-export default withSeo(StorefrontCheckoutSettingsPage, {
+export default withAdminSeo(StorefrontCheckoutSettingsPage, {
   title: 'Storefront checkout settings | Quasar Admin',
   description: 'Manage storefront checkout defaults',
   path: '/storefront/checkout',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { withSeo } from '../../components/SEO/withSeo';
+import { withAdminSeo } from '../../components/SEO/withAdminSeo';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { FiSettings, FiHome, FiLayout, FiSave } from 'react-icons/fi';
@@ -179,7 +179,7 @@ const ThemeSettingsPage: React.FC = () => {
     );
 };
 
-export default withSeo(ThemeSettingsPage, {
+export default withAdminSeo(ThemeSettingsPage, {
     title: 'Storefront Theme Settings | Quasar Admin',
     description: 'Manage storefront theme.',
     path: '/settings/theme',

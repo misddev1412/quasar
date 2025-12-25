@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { FiBell, FiGitMerge, FiHome } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 import BaseLayout from '../../components/layout/BaseLayout';
-import { withSeo } from '../../components/SEO/withSeo';
+import { withAdminSeo } from '../../components/SEO/withAdminSeo';
 import NotificationEventFlowManager from '../../components/notifications/NotificationEventFlowManager';
 
 const NotificationEventFlowsPage: React.FC = () => {
@@ -39,7 +39,7 @@ const NotificationEventFlowsPage: React.FC = () => {
   );
 };
 
-export default withSeo(NotificationEventFlowsPage, {
+export default withAdminSeo(NotificationEventFlowsPage, {
   title: 'Notification Event Flows | Quasar Admin',
   description: 'Configure how notifications flow for each event across email, SMS, Telegram, and in-app channels.',
   path: '/notifications/event-flows',

@@ -95,6 +95,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     }
   },
   {
+    path: '/users/exports',
+    titles: {
+      en: 'User Export History | {{platformTitle}}',
+      vi: 'Lịch Sử Xuất Người Dùng | {{platformTitle}}'
+    },
+    description: {
+      en: 'Review downloadable CSV exports and export jobs',
+      vi: 'Xem các file CSV có thể tải xuống và phiên xuất dữ liệu người dùng'
+    }
+  },
+  {
     path: '/users/create',
     titles: {
       en: 'Create New User | {{platformTitle}}',
@@ -247,6 +258,50 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
       vi: 'Cấu hình các yếu tố giao diện nổi'
     }
   },
+  {
+    path: '/settings/maintenance',
+    titles: {
+      en: 'Maintenance Mode Settings | {{platformTitle}}',
+      vi: 'Cài Đặt Chế Độ Bảo Trì | {{platformTitle}}'
+    },
+    description: {
+      en: 'Control maintenance banners and site availability',
+      vi: 'Quản lý thông báo bảo trì và trạng thái hoạt động của hệ thống'
+    }
+  },
+  {
+    path: '/settings/orders',
+    titles: {
+      en: 'Order Settings | {{platformTitle}}',
+      vi: 'Cài Đặt Đơn Hàng | {{platformTitle}}'
+    },
+    description: {
+      en: 'Configure order workflows, numbering, and invoices',
+      vi: 'Cấu hình quy trình đơn hàng, đánh số và hóa đơn'
+    }
+  },
+  {
+    path: '/settings/admin-branding',
+    titles: {
+      en: 'Admin Branding | {{platformTitle}}',
+      vi: 'Thương Hiệu Admin | {{platformTitle}}'
+    },
+    description: {
+      en: 'Customize admin colors, logos, and experience',
+      vi: 'Tùy chỉnh màu sắc, logo và trải nghiệm của bảng quản trị'
+    }
+  },
+  {
+    path: '/settings/theme',
+    titles: {
+      en: 'Theme Settings | {{platformTitle}}',
+      vi: 'Cài Đặt Giao Diện | {{platformTitle}}'
+    },
+    description: {
+      en: 'Adjust typography, palettes, and component themes',
+      vi: 'Điều chỉnh kiểu chữ, bảng màu và chủ đề component'
+    }
+  },
 
   // Storage Configuration
   {
@@ -319,6 +374,94 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     description: {
       en: 'Update email template content',
       vi: 'Cập nhật nội dung mẫu email'
+    }
+  },
+  {
+    path: '/mail-logs',
+    titles: {
+      en: 'Mail Logs | {{platformTitle}}',
+      vi: 'Nhật Ký Email | {{platformTitle}}'
+    },
+    description: {
+      en: 'Monitor outbound messages, statuses, and retries',
+      vi: 'Theo dõi email gửi đi, trạng thái và các lần gửi lại'
+    }
+  },
+  {
+    path: '/mail-logs/:id',
+    titles: {
+      en: 'Mail Log Details | {{platformTitle}}',
+      vi: 'Chi Tiết Nhật Ký Email | {{platformTitle}}'
+    },
+    description: {
+      en: 'Inspect payloads, headers, and delivery attempts for a single email',
+      vi: 'Xem payload, header và các lần gửi của một email cụ thể'
+    }
+  },
+  {
+    path: '/mail-providers',
+    titles: {
+      en: 'Mail Providers | {{platformTitle}}',
+      vi: 'Nhà Cung Cấp Email | {{platformTitle}}'
+    },
+    description: {
+      en: 'Manage SMTP, API credentials, and routing rules',
+      vi: 'Quản lý thông tin đăng nhập SMTP/API và quy tắc định tuyến email'
+    }
+  },
+  {
+    path: '/mail-providers/create',
+    titles: {
+      en: 'Create Mail Provider | {{platformTitle}}',
+      vi: 'Tạo Nhà Cung Cấp Email | {{platformTitle}}'
+    },
+    description: {
+      en: 'Add a new transactional email provider',
+      vi: 'Thêm nhà cung cấp email giao dịch mới'
+    }
+  },
+  {
+    path: '/mail-providers/:id/edit',
+    titles: {
+      en: 'Edit Mail Provider | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Nhà Cung Cấp Email | {{platformTitle}}'
+    },
+    description: {
+      en: 'Update API keys, templates, and routing of an email provider',
+      vi: 'Cập nhật API key, mẫu và định tuyến của nhà cung cấp email'
+    }
+  },
+  {
+    path: '/email-flows',
+    titles: {
+      en: 'Email Flows | {{platformTitle}}',
+      vi: 'Luồng Email | {{platformTitle}}'
+    },
+    description: {
+      en: 'Define channel priority and journey logic for notifications',
+      vi: 'Thiết lập ưu tiên kênh và luồng gửi cho các thông báo'
+    }
+  },
+  {
+    path: '/email-flows/create',
+    titles: {
+      en: 'Create Email Flow | {{platformTitle}}',
+      vi: 'Tạo Luồng Email | {{platformTitle}}'
+    },
+    description: {
+      en: 'Configure a new email flow with triggers and recipients',
+      vi: 'Cấu hình luồng email mới với trigger và người nhận'
+    }
+  },
+  {
+    path: '/email-flows/:id/edit',
+    titles: {
+      en: 'Edit Email Flow | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Luồng Email | {{platformTitle}}'
+    },
+    description: {
+      en: 'Update logic, timing, and channels for an existing email flow',
+      vi: 'Cập nhật logic, thời gian và kênh gửi cho luồng email hiện có'
     }
   },
 
@@ -448,6 +591,116 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
       vi: 'Cập nhật cài đặt ngôn ngữ'
     }
   },
+  {
+    path: '/translations',
+    titles: {
+      en: 'Translations Management | {{platformTitle}}',
+      vi: 'Quản Lý Bản Dịch | {{platformTitle}}'
+    },
+    description: {
+      en: 'Manage localized strings and copy across the product',
+      vi: 'Quản lý chuỗi bản địa hóa và nội dung trên toàn hệ thống'
+    }
+  },
+  {
+    path: '/translations/create',
+    titles: {
+      en: 'Create Translation | {{platformTitle}}',
+      vi: 'Tạo Bản Dịch | {{platformTitle}}'
+    },
+    description: {
+      en: 'Add a new translation entry for supported locales',
+      vi: 'Thêm bản dịch mới cho các ngôn ngữ được hỗ trợ'
+    }
+  },
+  {
+    path: '/translations/:id/edit',
+    titles: {
+      en: 'Edit Translation | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Bản Dịch | {{platformTitle}}'
+    },
+    description: {
+      en: 'Update translation text and metadata',
+      vi: 'Cập nhật nội dung bản dịch và metadata'
+    }
+  },
+  {
+    path: '/currencies',
+    titles: {
+      en: 'Currencies Management | {{platformTitle}}',
+      vi: 'Quản Lý Tiền Tệ | {{platformTitle}}'
+    },
+    description: {
+      en: 'Control supported currencies, symbols, and formatting',
+      vi: 'Quản lý tiền tệ hỗ trợ, ký hiệu và định dạng'
+    }
+  },
+  {
+    path: '/currencies/create',
+    titles: {
+      en: 'Add Currency | {{platformTitle}}',
+      vi: 'Thêm Tiền Tệ | {{platformTitle}}'
+    },
+    description: {
+      en: 'Register a new transaction currency',
+      vi: 'Thêm loại tiền giao dịch mới'
+    }
+  },
+  {
+    path: '/currencies/:id/edit',
+    titles: {
+      en: 'Edit Currency | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Tiền Tệ | {{platformTitle}}'
+    },
+    description: {
+      en: 'Update currency conversion rules and formatting',
+      vi: 'Cập nhật quy tắc quy đổi và định dạng tiền tệ'
+    }
+  },
+  {
+    path: '/shipping-providers',
+    titles: {
+      en: 'Shipping Providers | {{platformTitle}}',
+      vi: 'Nhà Cung Cấp Vận Chuyển | {{platformTitle}}'
+    },
+    description: {
+      en: 'Integrate courier accounts and shipping services',
+      vi: 'Kết nối tài khoản hãng vận chuyển và dịch vụ giao hàng'
+    }
+  },
+  {
+    path: '/shipping-providers/create',
+    titles: {
+      en: 'Add Shipping Provider | {{platformTitle}}',
+      vi: 'Thêm Nhà Cung Cấp Vận Chuyển | {{platformTitle}}'
+    },
+    description: {
+      en: 'Create a new carrier configuration',
+      vi: 'Tạo cấu hình hãng vận chuyển mới'
+    }
+  },
+  {
+    path: '/shipping-providers/:id/edit',
+    titles: {
+      en: 'Edit Shipping Provider | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Nhà Cung Cấp Vận Chuyển | {{platformTitle}}'
+    },
+    description: {
+      en: 'Update carrier credentials and service options',
+      vi: 'Cập nhật thông tin đăng nhập và dịch vụ của hãng vận chuyển'
+    }
+  },
+  {
+    path: '/telegram-configs',
+    titles: {
+      en: 'Telegram Configurations | {{platformTitle}}',
+      vi: 'Cấu Hình Telegram | {{platformTitle}}'
+    },
+    description: {
+      en: 'Manage bot tokens and chat routing for Telegram notifications',
+      vi: 'Quản lý bot token và kênh nhận cho thông báo Telegram'
+    }
+  },
 
   // Firebase Configuration
   {
@@ -532,6 +785,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     }
   },
   {
+    path: '/products/exports',
+    titles: {
+      en: 'Product Exports | {{platformTitle}}',
+      vi: 'Xuất Dữ Liệu Sản Phẩm | {{platformTitle}}'
+    },
+    description: {
+      en: 'Download product data files and monitor export jobs',
+      vi: 'Tải xuống dữ liệu sản phẩm và theo dõi phiên xuất'
+    }
+  },
+  {
     path: '/products/create',
     titles: {
       en: 'Create New Product | {{platformTitle}}',
@@ -540,6 +804,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     description: {
       en: 'Add a new product to catalog',
       vi: 'Thêm sản phẩm mới vào danh mục'
+    }
+  },
+  {
+    path: '/products/:id',
+    titles: {
+      en: 'Product Details | {{platformTitle}}',
+      vi: 'Chi Tiết Sản Phẩm | {{platformTitle}}'
+    },
+    description: {
+      en: 'View product specs, inventory, and activity timeline',
+      vi: 'Xem thông số sản phẩm, tồn kho và lịch sử hoạt động'
     }
   },
   {
@@ -644,6 +919,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     }
   },
   {
+    path: '/warehouses/:id',
+    titles: {
+      en: 'Warehouse Details | {{platformTitle}}',
+      vi: 'Chi Tiết Kho Hàng | {{platformTitle}}'
+    },
+    description: {
+      en: 'Review inventory, stock movements, and contact info for a warehouse',
+      vi: 'Xem tồn kho, điều chuyển và thông tin liên hệ của từng kho'
+    }
+  },
+  {
     path: '/warehouses/:id/edit',
     titles: {
       en: 'Edit Warehouse | {{platformTitle}}',
@@ -674,6 +960,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     description: {
       en: 'Add a new storage location',
       vi: 'Thêm địa điểm lưu trữ mới'
+    }
+  },
+  {
+    path: '/warehouses/locations/:id',
+    titles: {
+      en: 'Warehouse Location Details | {{platformTitle}}',
+      vi: 'Chi Tiết Vị Trí Kho | {{platformTitle}}'
+    },
+    description: {
+      en: 'View slot capacity, assignments, and audit data',
+      vi: 'Xem sức chứa, phân bổ và dữ liệu kiểm kê của vị trí kho'
     }
   },
   {
@@ -711,6 +1008,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
       vi: 'Theo dõi và quản lý giao dịch tài chính của khách hàng'
     }
   },
+  {
+    path: '/transactions/:id',
+    titles: {
+      en: 'Transaction Details | {{platformTitle}}',
+      vi: 'Chi Tiết Giao Dịch | {{platformTitle}}'
+    },
+    description: {
+      en: 'Inspect payment attempts, refunds, and audit log',
+      vi: 'Xem các lần thanh toán, hoàn tiền và lịch sử kiểm tra'
+    }
+  },
 
   // Delivery Methods
   {
@@ -737,6 +1045,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
       vi: 'Quản lý tài khoản hỗ trợ khách hàng'
     }
   },
+  {
+    path: '/visitor-analytics',
+    titles: {
+      en: 'Visitor Analytics | {{platformTitle}}',
+      vi: 'Phân Tích Khách Truy Cập | {{platformTitle}}'
+    },
+    description: {
+      en: 'Track sessions, funnels, and retention across the storefront',
+      vi: 'Theo dõi phiên truy cập, phễu và giữ chân người dùng trên storefront'
+    }
+  },
 
   // Sections Management
   {
@@ -748,6 +1067,28 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     description: {
       en: 'Manage website sections and content blocks',
       vi: 'Quản lý các phần và khối nội dung web'
+    }
+  },
+  {
+    path: '/sections/:page/create',
+    titles: {
+      en: 'Create Section | {{platformTitle}}',
+      vi: 'Tạo Phần Mới | {{platformTitle}}'
+    },
+    description: {
+      en: 'Set up a new section layout, content, and targeting',
+      vi: 'Thiết lập bố cục, nội dung và đối tượng cho phần mới'
+    }
+  },
+  {
+    path: '/sections/:page/:sectionId/edit',
+    titles: {
+      en: 'Edit Section | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Phần | {{platformTitle}}'
+    },
+    description: {
+      en: 'Update blocks, scheduling, and conditions for an existing section',
+      vi: 'Cập nhật block, lịch hiển thị và điều kiện cho phần hiện có'
     }
   },
 
@@ -774,6 +1115,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     description: {
       en: 'Manage customer orders and fulfillment',
       vi: 'Quản lý đơn hàng và thực hiện của khách hàng'
+    }
+  },
+  {
+    path: '/orders/exports',
+    titles: {
+      en: 'Order Exports | {{platformTitle}}',
+      vi: 'Xuất Dữ Liệu Đơn Hàng | {{platformTitle}}'
+    },
+    description: {
+      en: 'Generate and download bulk order reports',
+      vi: 'Tạo và tải xuống báo cáo đơn hàng số lượng lớn'
     }
   },
   {
@@ -842,6 +1194,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
       vi: 'Xem chi tiết thực hiện và theo dõi'
     }
   },
+  {
+    path: '/orders/fulfillments/:id/edit',
+    titles: {
+      en: 'Edit Fulfillment | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Thực Hiện | {{platformTitle}}'
+    },
+    description: {
+      en: 'Adjust carrier info, packages, and tracking codes',
+      vi: 'Điều chỉnh thông tin hãng vận chuyển, kiện hàng và mã vận đơn'
+    }
+  },
 
   // Customer Management
   {
@@ -899,6 +1262,61 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     description: {
       en: 'Manage loyalty programs and rewards',
       vi: 'Quản lý chương trình khách hàng thân thiết và phần thưởng'
+    }
+  },
+  {
+    path: '/loyalty/stats',
+    titles: {
+      en: 'Loyalty Analytics | {{platformTitle}}',
+      vi: 'Phân Tích Khách Hàng Thân Thiết | {{platformTitle}}'
+    },
+    description: {
+      en: 'Track enrollment, engagement, and redemption metrics',
+      vi: 'Theo dõi số lượng tham gia, mức độ tương tác và chỉ số đổi thưởng'
+    }
+  },
+  {
+    path: '/loyalty/rewards',
+    titles: {
+      en: 'Loyalty Rewards | {{platformTitle}}',
+      vi: 'Phần Thưởng Khách Hàng Thân Thiết | {{platformTitle}}'
+    },
+    description: {
+      en: 'Manage earn/burn rules and reward catalog',
+      vi: 'Quản lý quy tắc tích lũy/đổi điểm và danh mục phần thưởng'
+    }
+  },
+  {
+    path: '/loyalty/tiers',
+    titles: {
+      en: 'Loyalty Tiers | {{platformTitle}}',
+      vi: 'Hạng Khách Hàng Thân Thiết | {{platformTitle}}'
+    },
+    description: {
+      en: 'Configure tier thresholds, benefits, and progression',
+      vi: 'Cấu hình điều kiện, quyền lợi và tiến trình lên hạng'
+    }
+  },
+  {
+    path: '/loyalty/tiers/:id/edit',
+    titles: {
+      en: 'Edit Loyalty Tier | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Hạng Khách Hàng Thân Thiết | {{platformTitle}}'
+    },
+    description: {
+      en: 'Update tier privileges, branding, and qualification rules',
+      vi: 'Cập nhật quyền lợi, hiển thị và điều kiện của một hạng'
+    }
+  },
+  {
+    path: '/loyalty/transactions',
+    titles: {
+      en: 'Loyalty Transactions | {{platformTitle}}',
+      vi: 'Giao Dịch Khách Hàng Thân Thiết | {{platformTitle}}'
+    },
+    description: {
+      en: 'Audit points accrual and redemption history',
+      vi: 'Theo dõi lịch sử tích lũy và sử dụng điểm'
     }
   },
 
@@ -1009,6 +1427,28 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     },
   },
   {
+    path: '/storefront/checkout',
+    titles: {
+      en: 'Storefront Checkout Settings | {{platformTitle}}',
+      vi: 'Cài Đặt Checkout Storefront | {{platformTitle}}'
+    },
+    description: {
+      en: 'Configure checkout fields, payment steps, and upsell components',
+      vi: 'Cấu hình trường checkout, bước thanh toán và component upsell'
+    }
+  },
+  {
+    path: '/storefront/footer',
+    titles: {
+      en: 'Storefront Footer Settings | {{platformTitle}}',
+      vi: 'Cài Đặt Footer Storefront | {{platformTitle}}'
+    },
+    description: {
+      en: 'Manage footer content, legal links, and contact information',
+      vi: 'Quản lý nội dung footer, liên kết pháp lý và thông tin liên hệ'
+    }
+  },
+  {
     path: '/menus',
     titles: {
       en: 'Menu Management | {{platformTitle}}',
@@ -1091,6 +1531,19 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     description: {
       en: 'Edit menu group items and configuration',
       vi: 'Chỉnh sửa các mục và cấu hình nhóm menu'
+    }
+  },
+
+  // Unauthorized Page
+  {
+    path: '/unauthorized',
+    titles: {
+      en: 'Unauthorized Access | {{platformTitle}}',
+      vi: 'Không Có Quyền Truy Cập | {{platformTitle}}'
+    },
+    description: {
+      en: 'You do not have permission to view this page',
+      vi: 'Bạn không có quyền truy cập trang này'
     }
   },
 

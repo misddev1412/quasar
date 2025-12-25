@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { withSeo } from '../../components/SEO/withSeo';
+import { withAdminSeo } from '../../components/SEO/withAdminSeo';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { FiHome, FiSettings } from 'react-icons/fi';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -499,7 +499,7 @@ const SettingsVisibilityPage: React.FC<SettingsVisibilityPageProps> = () => {
   );
 };
 
-export default withSeo(SettingsVisibilityPage, {
+export default withAdminSeo(SettingsVisibilityPage, {
   title: 'Settings Visibility | Quasar Admin',
   description: 'Manage visibility of system settings',
   path: '/settings/visibility',

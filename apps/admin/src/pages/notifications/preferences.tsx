@@ -8,7 +8,7 @@ import TelegramNotificationConfigManager from '../../components/notifications/Te
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../context/ToastContext';
-import { withSeo } from '../../components/SEO/withSeo';
+import { withAdminSeo } from '../../components/SEO/withAdminSeo';
 import { Card } from '../../components/common/Card';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription } from '../../components/common/Alert';
@@ -136,7 +136,7 @@ const NotificationPreferencesPage: React.FC = () => {
   );
 };
 
-export default withSeo(NotificationPreferencesPage, {
+export default withAdminSeo(NotificationPreferencesPage, {
   title: 'Notification Preferences | Admin Dashboard',
   description: 'Manage your notification settings and preferences',
   path: '/notifications/preferences',

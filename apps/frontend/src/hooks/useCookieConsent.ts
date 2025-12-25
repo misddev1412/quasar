@@ -53,7 +53,7 @@ function persistConsent(status: CookieConsentStatus) {
 }
 
 export function useCookieConsent() {
-  const [status, setStatus] = useState<CookieConsentStatus>(() => readConsentFromStorage());
+  const [status, setStatus] = useState<CookieConsentStatus>(DEFAULT_STATUS);
 
   useEffect(() => {
     const handler = (event: Event) => {
