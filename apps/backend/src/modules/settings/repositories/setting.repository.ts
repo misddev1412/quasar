@@ -16,18 +16,18 @@ export class SettingRepository extends BaseRepository<SettingEntity> implements 
 
   async findByKey(key: string): Promise<SettingEntity | null> {
     return this.repository.findOne({
-      where: { 
+      where: {
         key,
-        deletedAt: null 
+        deletedAt: null
       }
     });
   }
 
   async existsByKey(key: string): Promise<boolean> {
     const count = await this.repository.count({
-      where: { 
+      where: {
         key,
-        deletedAt: null 
+        deletedAt: null
       }
     });
     return count > 0;
@@ -35,29 +35,39 @@ export class SettingRepository extends BaseRepository<SettingEntity> implements 
 
   async findByGroup(group: string): Promise<SettingEntity[]> {
     return this.repository.find({
-      where: { 
+      where: {
         group,
-        deletedAt: null 
+        deletedAt: null
+      }
+    });
+  }
+
+  async findPublicByGroup(group: string): Promise<SettingEntity[]> {
+    return this.repository.find({
+      where: {
+        group,
+        isPublic: true,
+        deletedAt: null
       }
     });
   }
 
   async findPublicSettings(): Promise<SettingEntity[]> {
     return this.repository.find({
-      where: { 
+      where: {
         isPublic: true,
-        deletedAt: null 
+        deletedAt: null
       }
     });
   }
 
   async findByKeys(keys: string[]): Promise<SettingEntity[]> {
     if (!keys || keys.length === 0) return [];
-    
+
     return this.repository.find({
-      where: { 
+      where: {
         key: In(keys),
-        deletedAt: null 
+        deletedAt: null
       }
     });
   }
@@ -82,7 +92,7 @@ export class SettingRepository extends BaseRepository<SettingEntity> implements 
     limit: number;
     search?: string;
     group?: string;
-  }): Promise<{ data: SettingEntity[]; total: number }> {
+  }): Promise<{ items: SettingEntity[]; total: number }> {
     const { page, limit, search, group } = params;
     const skip = (page - 1) * limit;
 
@@ -100,12 +110,12 @@ export class SettingRepository extends BaseRepository<SettingEntity> implements 
       queryBuilder.andWhere('setting.group = :group', { group });
     }
 
-    const [data, total] = await queryBuilder
+    const [items, total] = await queryBuilder
       .orderBy('setting.key', 'ASC')
       .skip(skip)
       .take(limit)
       .getManyAndCount();
 
-    return { data, total };
+    return { items, total };
   }
 } 

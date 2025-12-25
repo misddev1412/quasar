@@ -4,6 +4,7 @@ import { withSeo } from '../../components/SEO/withSeo';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../context/ToastContext';
 import { Button } from '../../components/common/Button';
+import toast from 'react-hot-toast';
 import { Input } from '../../components/common/Input';
 import { Toggle } from '../../components/common/Toggle';
 import { MediaManager } from '../../components/common/MediaManager';
@@ -18,6 +19,8 @@ import {
 } from '../../constants/adminBranding';
 import { trpc } from '../../utils/trpc';
 import { FiHome, FiSettings, FiImage, FiBookOpen, FiLayout } from 'react-icons/fi';
+import GlobalThemeSettings from '../../components/settings/GlobalThemeSettings';
+import { useTheme } from '../../context/ThemeContext';
 
 const numberOrUndefined = (value: string): number | undefined => {
   const parsed = Number(value);
@@ -26,6 +29,7 @@ const numberOrUndefined = (value: string): number | undefined => {
 
 const AdminBrandingPage: React.FC = () => {
   const { t } = useTranslationWithBackend();
+  const { saveTheme } = useTheme();
   const { addToast } = useToast();
   const loginBrandingQuery = useBrandingSetting(ADMIN_LOGIN_BRANDING_KEY, DEFAULT_ADMIN_LOGIN_BRANDING);
   const sidebarBrandingQuery = useBrandingSetting(ADMIN_SIDEBAR_BRANDING_KEY, DEFAULT_ADMIN_SIDEBAR_BRANDING);
@@ -185,9 +189,8 @@ const AdminBrandingPage: React.FC = () => {
                   <div key={stat.label} className="flex items-center justify-between rounded-xl bg-white/10 px-3 py-2 text-sm">
                     <span>{stat.label}</span>
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        stat.dirty ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
-                      }`}
+                      className={`px - 3 py - 1 rounded - full text - xs font - medium ${stat.dirty ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+                        } `}
                     >
                       {stat.dirty
                         ? t('settings.branding.status_dirty', 'Chờ lưu')
@@ -263,9 +266,8 @@ const AdminBrandingPage: React.FC = () => {
                   </p>
                 </div>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium self-start sm:self-auto ${
-                    loginHasChanges ? 'bg-amber-100 text-amber-800' : 'bg-blue-50 text-blue-700'
-                  }`}
+                  className={`px - 3 py - 1 rounded - full text - xs font - medium self - start sm: self - auto ${loginHasChanges ? 'bg-amber-100 text-amber-800' : 'bg-blue-50 text-blue-700'
+                    } `}
                 >
                   {loginHasChanges
                     ? t('settings.branding.pending_changes', 'Có thay đổi chưa lưu')
@@ -449,8 +451,8 @@ const AdminBrandingPage: React.FC = () => {
                             alt="Admin login logo preview"
                             className="object-contain"
                             style={{
-                              width: `${loginForm.width || 48}px`,
-                              height: `${loginForm.height || 48}px`,
+                              width: `${loginForm.width || 48} px`,
+                              height: `${loginForm.height || 48} px`,
                             }}
                           />
                         </div>
@@ -530,9 +532,8 @@ const AdminBrandingPage: React.FC = () => {
                   <p className="text-sm text-gray-500">{t('settings.branding.sidebar_desc', 'Logo sidebar, tên thương hiệu và mô tả ngắn gọn.')}</p>
                 </div>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium self-start sm:self-auto ${
-                    sidebarHasChanges ? 'bg-amber-100 text-amber-800' : 'bg-blue-50 text-blue-700'
-                  }`}
+                  className={`px - 3 py - 1 rounded - full text - xs font - medium self - start sm: self - auto ${sidebarHasChanges ? 'bg-amber-100 text-amber-800' : 'bg-blue-50 text-blue-700'
+                    } `}
                 >
                   {sidebarHasChanges
                     ? t('settings.branding.pending_changes', 'Có thay đổi chưa lưu')
@@ -625,8 +626,8 @@ const AdminBrandingPage: React.FC = () => {
                             alt="Admin sidebar logo preview"
                             className="object-contain"
                             style={{
-                              width: `${sidebarForm.width || 36}px`,
-                              height: `${sidebarForm.height || 36}px`,
+                              width: `${sidebarForm.width || 36} px`,
+                              height: `${sidebarForm.height || 36} px`,
                             }}
                           />
                         </div>
@@ -673,6 +674,43 @@ const AdminBrandingPage: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* Theme Configuration Card */}
+            <div className="rounded-3xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+              <div className="border-b border-gray-100 px-6 py-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between bg-gray-50">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-gray-500">{t('settings.theme.admin_configuration', 'Admin Appearance')}</p>
+                  <h2 className="text-xl font-semibold text-gray-900">{t('settings.theme.configuration', 'Cấu hình giao diện')}</h2>
+                  <p className="text-sm text-gray-500">{t('settings.theme.desc', 'Tùy chỉnh màu sắc, phông chữ và chế độ hiển thị.')}</p>
+                </div>
+              </div>
+              <div className="p-6">
+                {/* Using GlobalThemeSettings without props defaults to Admin Theme Context */}
+                <GlobalThemeSettings />
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-gray-100 px-6 py-4 bg-gray-50">
+                <p className="text-xs text-gray-500">
+                  {t('settings.theme.manual_save_desc', 'Thay đổi chỉ được lưu khi bấm nút bên dưới.')}
+                </p>
+                <Button
+                  variant="primary"
+                  onClick={async () => {
+                    const toastId = toast.loading(t('common.saving', 'Đang lưu...'));
+                    try {
+                      await saveTheme();
+                      toast.success(t('common.saved_successfully', 'Lưu thành công'), { id: toastId });
+                    } catch (error) {
+                      console.error('Save theme failed:', error);
+                      toast.error(t('common.save_failed', 'Lưu thất bại'), { id: toastId });
+                    }
+                  }}
+                  startIcon={<FiSettings />}
+                >
+                  {t('common.save', 'Lưu cấu hình')}
+                </Button>
+              </div>
+            </div>
+
           </div>
 
           <aside className="rounded-3xl border border-gray-100 bg-white shadow-sm p-6 space-y-6 h-fit">

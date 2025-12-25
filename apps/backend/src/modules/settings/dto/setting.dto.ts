@@ -28,6 +28,8 @@ export const bulkUpdateSettingsSchema = z.object({
   settings: z.array(z.object({
     key: z.string().min(1).max(255),
     value: z.string().optional(),
+    group: z.string().max(100).optional(),
+    isPublic: z.boolean().optional(),
   }))
 });
 

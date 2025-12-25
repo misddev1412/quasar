@@ -11,20 +11,30 @@
             "rawJson": "JSON thô",
             "refresh": "Làm mới",
             "newSection": "Tạo Section mới",
+            "modal": {
+                "editTitle": "Chỉnh sửa Section",
+                "description": "Cập nhật nội dung, bản dịch và các component được liên kết cho section này."
+            },
+            "entityName": "Section",
+            "entityNamePlural": "Các Section",
             "deleteConfirm": "Bạn có chắc chắn muốn xóa section này không?",
             "sectionDeleted": "Đã xóa section",
             "sectionRemoved": "Đã xóa {{sectionType}} thành công",
             "deleteFailed": "Xóa thất bại",
             "unableToDelete": "Không thể xóa section",
             "sectionUpdated": "Cập nhật section",
+            "sectionSaved": "Đã lưu section",
+            "changesApplied": "Các thay đổi đã được áp dụng.",
             "sectionEnabled": "Đã bật {{sectionType}}",
             "sectionDisabled": "Đã tắt {{sectionType}}",
             "updateFailed": "Cập nhật thất bại",
+            "unableToUpdate": "Không thể cập nhật section",
             "unableToUpdateStatus": "Không thể cập nhật trạng thái",
             "orderUpdated": "Cập nhật thứ tự",
             "sectionOrderSaved": "Đã lưu thứ tự section thành công",
             "reorderFailed": "Sắp xếp thất bại",
             "unableToReorder": "Không thể sắp xếp section",
+            "sectionNotFound": "Phần không tìm thấy hoặc không còn khả dụng.",
             "tableHeaders": {
                 "title": "Tiêu đề",
                 "type": "Loại",
@@ -35,6 +45,10 @@
             "edit": "Chỉnh sửa",
             "delete": "Xóa",
             "noSections": "Chưa có section nào",
+            "linkedComponents": {
+                "title": "Component được gán",
+                "description": "Các giá trị mặc định của section này đến từ những component dưới đây. Chỉnh sửa trực tiếp chúng để thay đổi cấu hình."
+            },
             "configEditor": {
                 "rawJson": "Cấu hình JSON thô",
                 "useFormEditor": "Sử dụng trình chỉnh sửa biểu mẫu",
@@ -52,7 +66,8 @@
                 "description": "Mô tả",
                 "heroTitle": "Tiêu đề chính",
                 "heroDescription": "Mô tả chính",
-                "configOverride": "Ghi đè cấu hình (JSON)"
+                "configOverride": "Ghi đè cấu hình (JSON)",
+                "saveChanges": "Lưu thay đổi"
             },
             "heroSlider": {
                 "enableOverlay": "Bật lớp phủ (overlay)",

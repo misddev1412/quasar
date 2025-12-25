@@ -142,11 +142,11 @@ const CreateMailTemplatePage: React.FC = () => {
   const tabs: FormTabConfig[] = [
     {
       id: 'general',
-      label: t('form.tabs.general_information'),
+      label: t('form.tabs.general_information', 'General Information'),
       icon: <Mail className="w-4 h-4" />,
       sections: [
         {
-          title: t('form.sections.basic_information'),
+          title: t('form.sections.basic_information', 'Basic Information'),
           description: t('mail_templates.basic_info_description', 'Define the basic template information and metadata.'),
           icon: <FileText className="w-4 h-4" />,
           fields: [
@@ -267,7 +267,7 @@ const CreateMailTemplatePage: React.FC = () => {
     },
     {
       id: 'settings',
-      label: t('form.tabs.preferences'),
+      label: t('form.tabs.preferences', 'Preferences'),
       icon: <Settings className="w-4 h-4" />,
       sections: [
         {

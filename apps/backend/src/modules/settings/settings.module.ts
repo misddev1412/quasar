@@ -10,6 +10,8 @@ import { ClientSettingsRouter } from '../../trpc/routers/client';
 import { MaintenanceService } from './services/maintenance.service';
 import { MaintenanceController } from './controllers/maintenance.controller';
 
+import { PublicSettingsRouter } from './routers/public-settings.router';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([SettingEntity]),
@@ -17,18 +19,20 @@ import { MaintenanceController } from './controllers/maintenance.controller';
     TranslationModule,
   ],
   providers: [
-    SettingRepository, 
+    SettingRepository,
     SettingService,
     MaintenanceService,
     AdminSettingsRouter,
-    ClientSettingsRouter
+    ClientSettingsRouter,
+    PublicSettingsRouter
   ],
   controllers: [MaintenanceController],
   exports: [
     SettingService,
     MaintenanceService,
     AdminSettingsRouter,
-    ClientSettingsRouter
+    ClientSettingsRouter,
+    PublicSettingsRouter
   ],
 })
-export class SettingsModule {} 
+export class SettingsModule { } 

@@ -14,6 +14,7 @@ import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBacken
 import BaseLayout from '../components/layout/BaseLayout';
 import { trpc } from '../utils/trpc';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import { useDefaultCurrency } from '../hooks/useDefaultCurrency';
 
 // Define the static SEO data for the home page
 const homeSeoData: AdminSeoData = {
@@ -30,22 +31,26 @@ export const HomePage: React.FC = () => {
   const { t } = useTranslationWithBackend();
   const { data: orderStatsResponse, isLoading: orderStatsLoading } = trpc.adminOrders.stats.useQuery();
   const orderStats = (orderStatsResponse as any)?.data;
+  const { defaultCurrency } = useDefaultCurrency();
 
   // Chart colors
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
 
-  const currencyFormatter = useMemo(() => new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  }), []);
+  const displayCurrencyCode = defaultCurrency.code;
+  const preciseFractionDigits = Math.max(0, defaultCurrency.decimalPlaces);
 
-  const preciseCurrencyFormatter = useMemo(() => new Intl.NumberFormat('en-US', {
+  const currencyFormatter = useMemo(() => new Intl.NumberFormat(undefined, {
     style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }), []);
+    currency: displayCurrencyCode,
+    maximumFractionDigits: 0,
+  }), [displayCurrencyCode]);
+
+  const preciseCurrencyFormatter = useMemo(() => new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: displayCurrencyCode,
+    minimumFractionDigits: preciseFractionDigits,
+    maximumFractionDigits: preciseFractionDigits,
+  }), [displayCurrencyCode, preciseFractionDigits]);
 
   const formatCurrencyValue = useCallback((value?: number | null, precise = false) => {
     const formatter = precise ? preciseCurrencyFormatter : currencyFormatter;

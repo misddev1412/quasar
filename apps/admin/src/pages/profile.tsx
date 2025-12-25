@@ -10,7 +10,6 @@ import BaseLayout from '../components/layout/BaseLayout';
 import { Breadcrumb } from '../components/common/Breadcrumb';
 import Tabs from '../components/common/Tabs';
 import UpdatePasswordForm from '../components/user/UpdatePasswordForm';
-import PreferenceSettings from '../components/user/PreferenceSettings';
 import { User, Lock, Settings } from 'lucide-react';
 import { useAdminSeo } from '../hooks/useAdminSeo';
 
@@ -33,7 +32,7 @@ const UserProfilePage = () => {
   const { activeTab, handleTabChange } = useUrlTabs({
     defaultTab: 0,
     tabParam: 'tab',
-    tabKeys: ['profile', 'password', 'preferences'] // Maps to tab content
+    tabKeys: ['profile', 'password'] // Maps to tab content
   });
 
   const { data: profileData, isLoading, error } = trpc.adminUser.getProfile.useQuery(undefined, {
@@ -57,7 +56,7 @@ const UserProfilePage = () => {
       });
     },
   });
-  
+
   const updatePasswordMutation = trpc.adminUser.updatePassword.useMutation({
     onSuccess: () => {
       addToast({
@@ -158,11 +157,6 @@ const UserProfilePage = () => {
         />
       ),
     },
-    {
-      label: t('profile.preference_settings'),
-      icon: <Settings />,
-      content: <PreferenceSettings />,
-    },
   ], [
     t,
     initialData,
@@ -184,7 +178,7 @@ const UserProfilePage = () => {
         </div>
       );
     }
-  
+
     if (error) {
       return (
         <div className="p-4 md:p-8 text-red-500">
@@ -192,7 +186,7 @@ const UserProfilePage = () => {
         </div>
       );
     }
-    
+
     return <Tabs tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />;
   }
 

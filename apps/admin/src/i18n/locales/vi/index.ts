@@ -16,6 +16,7 @@ import notifications from './notifications.json';
 import misc from './misc.json';
 import mail_providers from './mail_providers.json';
 import sections from './sections.json';
+import menus from './menus.json';
 
 export default {
   ...common,
@@ -36,4 +37,5 @@ export default {
   ...misc,
   ...mail_providers,
   ...sections,
+  ...menus,
 };

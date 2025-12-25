@@ -50,7 +50,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import BuildIcon from '@mui/icons-material/Build';
 
 export class NavigationService implements INavigationService {
-  constructor(private translate: (key: string, fallback?: string) => string) {}
+  constructor(private translate: (key: string, fallback?: string) => string) { }
 
   getMenuGroups(): MenuGroup[] {
     const { t } = { t: this.translate };
@@ -404,6 +404,11 @@ export class NavigationService implements INavigationService {
                 path: '/settings/admin-branding'
               },
               {
+                icon: React.createElement(TuneIcon),
+                label: t('navigation.theme_settings', 'Cấu hình giao diện'),
+                path: '/settings/theme' // Using a distinctive path, but reusing /settings page logic potentially or navigating to preference tab
+              },
+              {
                 icon: React.createElement(BuildIcon),
                 label: t('navigation.maintenance_settings', 'Maintenance Mode'),
                 path: '/settings/maintenance'
@@ -448,8 +453,8 @@ export class NavigationService implements INavigationService {
     // Special handling for products - main /products should match edit/create but not sub-categories
     if (path === '/products') {
       return currentPath === '/products' ||
-             currentPath.startsWith('/products/create') ||
-             !!currentPath.match(/^\/products\/[^\/]+\/edit$/);
+        currentPath.startsWith('/products/create') ||
+        !!currentPath.match(/^\/products\/[^\/]+\/edit$/);
     }
 
     // Special handling for orders - main /orders should match detail/edit/create
@@ -459,14 +464,14 @@ export class NavigationService implements INavigationService {
       }
 
       return currentPath === '/orders' ||
-             currentPath.startsWith('/orders/create') ||
-             !!currentPath.match(/^\/orders\/[^\/]+$/);
+        currentPath.startsWith('/orders/create') ||
+        !!currentPath.match(/^\/orders\/[^\/]+$/);
     }
 
     if (path === '/orders/fulfillments') {
       return currentPath === '/orders/fulfillments' ||
-             currentPath.startsWith('/orders/fulfillments/new') ||
-             !!currentPath.match(/^\/orders\/fulfillments\/[^\/]+/);
+        currentPath.startsWith('/orders/fulfillments/new') ||
+        !!currentPath.match(/^\/orders\/fulfillments\/[^\/]+/);
     }
 
     // Special handling for warehouses - main /warehouses should match detail/edit/create
@@ -476,28 +481,28 @@ export class NavigationService implements INavigationService {
       }
 
       return currentPath === '/warehouses' ||
-             currentPath.startsWith('/warehouses/create') ||
-             !!currentPath.match(/^\/warehouses\/[^\/]+$/);
+        currentPath.startsWith('/warehouses/create') ||
+        !!currentPath.match(/^\/warehouses\/[^\/]+$/);
     }
 
     if (path === '/warehouses/locations') {
       return currentPath === '/warehouses/locations' ||
-             currentPath.startsWith('/warehouses/locations/create') ||
-             !!currentPath.match(/^\/warehouses\/locations\/[^\/]+/);
+        currentPath.startsWith('/warehouses/locations/create') ||
+        !!currentPath.match(/^\/warehouses\/locations\/[^\/]+/);
     }
 
     // Special handling for customers - main /customers should match detail/edit/create
     if (path === '/customers') {
       return currentPath === '/customers' ||
-             currentPath.startsWith('/customers/create') ||
-             !!currentPath.match(/^\/customers\/[^\/]+$/);
+        currentPath.startsWith('/customers/create') ||
+        !!currentPath.match(/^\/customers\/[^\/]+$/);
     }
 
     // Special handling for shipping providers - main /shipping-providers should match detail/edit/create
     if (path === '/shipping-providers') {
       return currentPath === '/shipping-providers' ||
-             currentPath.startsWith('/shipping-providers/create') ||
-             !!currentPath.match(/^\/shipping-providers\/[^\/]+$/);
+        currentPath.startsWith('/shipping-providers/create') ||
+        !!currentPath.match(/^\/shipping-providers\/[^\/]+$/);
     }
 
     // Products sub-pages should only match exactly or their own sub-paths
@@ -508,22 +513,22 @@ export class NavigationService implements INavigationService {
     // Special handling for mail-templates - main /mail-templates should match detail/edit/create and sub-items
     if (path === '/mail-templates') {
       return currentPath === '/mail-templates' ||
-             currentPath.startsWith('/mail-templates/create') ||
-             !!currentPath.match(/^\/mail-templates\/[^\/]+\/edit$/);
+        currentPath.startsWith('/mail-templates/create') ||
+        !!currentPath.match(/^\/mail-templates\/[^\/]+\/edit$/);
     }
 
     // Special handling for mail-providers - main /mail-providers should match detail/edit/create
     if (path === '/mail-providers') {
       return currentPath === '/mail-providers' ||
-             currentPath.startsWith('/mail-providers/create') ||
-             !!currentPath.match(/^\/mail-providers\/[^\/]+\/edit$/);
+        currentPath.startsWith('/mail-providers/create') ||
+        !!currentPath.match(/^\/mail-providers\/[^\/]+\/edit$/);
     }
 
     // Special handling for email-flows - main /email-flows should match detail/edit/create
     if (path === '/email-flows') {
       return currentPath === '/email-flows' ||
-             currentPath.startsWith('/email-flows/create') ||
-             !!currentPath.match(/^\/email-flows\/[^\/]+\/edit$/);
+        currentPath.startsWith('/email-flows/create') ||
+        !!currentPath.match(/^\/email-flows\/[^\/]+\/edit$/);
     }
 
     // Special handling for notifications - main /notifications should not match /notifications/event-flows
@@ -532,15 +537,15 @@ export class NavigationService implements INavigationService {
         return false;
       }
       return currentPath === '/notifications' ||
-             currentPath.startsWith('/notifications/preferences');
+        currentPath.startsWith('/notifications/preferences');
     }
 
     if (path === '/notifications/event-flows') {
       return currentPath === '/notifications/event-flows' ||
-             currentPath.startsWith('/notifications/event-flows/');
+        currentPath.startsWith('/notifications/event-flows/');
     }
 
-    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/maintenance', '/settings/orders', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats'];
+    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/maintenance', '/settings/orders', '/settings/theme', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats'];
     if (exactMatchPaths.includes(path)) {
       return currentPath === path;
     }
@@ -554,12 +559,12 @@ export class NavigationService implements INavigationService {
 
   isSubmenuExpanded(item: MenuItem, collapseState: Record<string, boolean>, currentPath: string): boolean {
     if (!item.subItems) return false;
-  
+
     const manualState = collapseState[item.path];
     if (manualState !== undefined) {
       return manualState;
     }
-  
+
     return item.subItems.some(subItem => this.isActiveRoute(subItem.path, currentPath));
   }
 

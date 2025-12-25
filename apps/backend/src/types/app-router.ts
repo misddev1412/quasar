@@ -258,6 +258,17 @@ export const appRouter = router({
     return { message: 'Hello API' };
   }),
 
+  public: router({
+    settings: router({
+      getByGroup: procedure
+        .input(z.object({ group: z.string() }))
+        .output(apiResponseSchema)
+        .query(() => {
+          return {} as ApiResponse;
+        }),
+    }),
+  }),
+
   // Define type information for client-side usage
   // The actual implementation is handled by NestJS-tRPC at runtime
   // Sections router
@@ -2132,7 +2143,7 @@ export const appRouter = router({
       }),
 
     testConnection: procedure
-      .input(z.object({ 
+      .input(z.object({
         id: z.string().uuid(),
         testEmail: z.string().email().optional(),
       }))
@@ -3104,7 +3115,7 @@ export const appRouter = router({
 
     // Brand translation endpoints
     getBrandTranslations: procedure
-      .input(z.object({ 
+      .input(z.object({
         brandId: z.string().uuid(),
         locale: z.string().min(2).max(5).optional(),
       }))
@@ -3114,7 +3125,7 @@ export const appRouter = router({
       }),
 
     getByIdWithTranslations: procedure
-      .input(z.object({ 
+      .input(z.object({
         id: z.string().uuid(),
         locale: z.string().min(2).max(5).optional(),
       }))
@@ -3279,7 +3290,7 @@ export const appRouter = router({
 
     // Category translation endpoints
     getCategoryTranslations: procedure
-      .input(z.object({ 
+      .input(z.object({
         categoryId: z.string().uuid(),
         locale: z.string().min(2).max(5).optional(),
       }))
@@ -3289,7 +3300,7 @@ export const appRouter = router({
       }),
 
     getByIdWithTranslations: procedure
-      .input(z.object({ 
+      .input(z.object({
         id: z.string().uuid(),
         locale: z.string().min(2).max(5).optional(),
       }))
@@ -3621,7 +3632,7 @@ export const appRouter = router({
 
     // Translation endpoints
     getAttributeTranslations: procedure
-      .input(z.object({ 
+      .input(z.object({
         attributeId: z.string().uuid(),
         locale: z.string().min(2).max(5).optional(),
       }))
@@ -3631,7 +3642,7 @@ export const appRouter = router({
       }),
 
     getByIdWithTranslations: procedure
-      .input(z.object({ 
+      .input(z.object({
         id: z.string().uuid(),
         locale: z.string().min(2).max(5).optional(),
       }))
@@ -6067,7 +6078,7 @@ export const appRouter = router({
       }),
   }),
 
-  });
+});
 
 // For nestjs-trpc, the actual router structure is generated at runtime
 // Use a permissive type that allows access to all router endpoints

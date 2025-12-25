@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/common/Button';
 import { Select, SelectOption } from '../../components/common/Select';
 import { Toggle } from '../../components/common/Toggle';
@@ -15,7 +16,6 @@ import {
   MenuType,
   MenuTarget,
   TopMenuTimeFormat,
-  TOP_MENU_TIME_FORMAT_LABELS,
 } from '@shared/enums/menu.enums';
 import {
   MenuFormState,
@@ -78,12 +78,7 @@ const getConfigStringValue = (
   return typeof value === 'string' ? value : '';
 };
 
-const TOP_TIME_FORMAT_OPTIONS: SelectOption[] = (Object.values(TopMenuTimeFormat) as TopMenuTimeFormat[]).map(
-  (value) => ({
-    value,
-    label: TOP_MENU_TIME_FORMAT_LABELS[value],
-  }),
-);
+
 
 const sanitizeConfigForType = (config: Record<string, unknown> | undefined, type: MenuType) => {
   const nextConfig: Record<string, unknown> = { ...(config || {}) };
@@ -131,6 +126,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
   currentMenuGroup,
   isSubmitting = false
 }) => {
+  const { t } = useTranslation('menus');
   const [formData, setFormData] = useState<MenuFormState>(() => {
     if (menu) {
       const translations: Record<string, MenuTranslationForm> = {};
@@ -178,7 +174,8 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         bannerConfig: normalizeBannerConfig(menu.config?.bannerConfig),
         subMenuVariant: (menu.config?.subMenuVariant as 'link' | 'button') || undefined,
         buttonBorderRadius: asStringOrUndefined(menu.config?.buttonBorderRadius),
-        buttonAnimation: (menu.config?.buttonAnimation as 'none' | 'pulse' | 'float') || undefined,
+        buttonSize: (menu.config?.buttonSize as 'small' | 'medium' | 'large') || undefined,
+        buttonAnimation: (menu.config?.buttonAnimation as 'none' | 'pulse' | 'float' | 'ring') || undefined,
       };
     }
 
@@ -216,10 +213,22 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
     return source.map(option => ({
       value: option.value,
-      label: option.label,
+      label: t(`menus.types.${option.value}`),
       disabled: option.disabled,
     }));
-  }, [isTopMenu]);
+  }, [isTopMenu, t]);
+
+  const topTimeFormatOptions = useMemo<SelectOption[]>(() =>
+    (Object.values(TopMenuTimeFormat) as TopMenuTimeFormat[]).map((value) => ({
+      value,
+      label: t(`menus.timeFormats.${value}`),
+    })),
+    [t]);
+
+  const targetOptions = useMemo(() => MENU_TARGET_OPTIONS.map(opt => ({
+    value: opt.value as MenuTarget,
+    label: t(`menus.targets.${opt.value}`)
+  })), [t]);
 
   useEffect(() => {
     if (!isTopMenu) {
@@ -359,6 +368,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
       'subMenuVariant',
       'buttonBorderRadius',
       'buttonAnimation',
+      'buttonSize',
     ];
 
     const baseConfig: Record<string, unknown> = { ...(formData.config || {}) };
@@ -370,24 +380,24 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
     const normalizedBadge = formData.badge && trimString(formData.badge.text)
       ? {
-          text: trimString(formData.badge.text)!,
-          color: trimString(formData.badge.color) || formData.badge.color || '#1d4ed8',
-          backgroundColor: trimString(formData.badge.backgroundColor) || formData.badge.backgroundColor || 'rgba(59, 130, 246, 0.15)',
-        }
+        text: trimString(formData.badge.text)!,
+        color: trimString(formData.badge.color) || formData.badge.color || '#1d4ed8',
+        backgroundColor: trimString(formData.badge.backgroundColor) || formData.badge.backgroundColor || 'rgba(59, 130, 246, 0.15)',
+      }
       : undefined;
 
     let bannerConfig = formData.bannerConfig
       ? Object.entries(formData.bannerConfig).reduce((acc, [key, value]) => {
-          if (typeof value === 'string') {
-            const trimmed = value.trim();
-            if (trimmed.length > 0) {
-              acc[key] = trimmed;
-            }
-          } else if (value !== undefined && value !== null) {
-            acc[key] = value;
+        if (typeof value === 'string') {
+          const trimmed = value.trim();
+          if (trimmed.length > 0) {
+            acc[key] = trimmed;
           }
-          return acc;
-        }, {} as Record<string, unknown>)
+        } else if (value !== undefined && value !== null) {
+          acc[key] = value;
+        }
+        return acc;
+      }, {} as Record<string, unknown>)
       : undefined;
 
     if (bannerConfig && Object.keys(bannerConfig).length === 0) {
@@ -431,6 +441,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
     assign('subMenuVariant', normalizedSubMenuVariant);
     assign('buttonBorderRadius', normalizedButtonBorderRadius);
     assign('buttonAnimation', normalizedButtonAnimation);
+    assign('buttonSize', normalizedSubMenuVariant === 'button' ? (formData.buttonSize || 'medium') : undefined);
 
     return baseConfig;
   };
@@ -575,7 +586,10 @@ export const MenuForm: React.FC<MenuFormProps> = ({
   };
 
   const groupOptions: SelectOption[] = [
-    ...DEFAULT_MENU_GROUP_OPTIONS,
+    ...DEFAULT_MENU_GROUP_OPTIONS.map(opt => ({
+      value: opt.value,
+      label: t(`menus.groups.${opt.value}`)
+    })),
     ...menuGroups.filter(group => !DEFAULT_MENU_GROUP_OPTIONS.find(opt => opt.value === group))
       .map(group => ({ value: group, label: group })),
   ];
@@ -584,7 +598,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Menu Group</label>
+          <label className="block text-sm font-medium text-gray-700">{t('form.labels.menuGroup')}</label>
           <Select
             value={formData.menuGroup}
             onChange={handleMenuGroupChange}
@@ -595,7 +609,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Type</label>
+          <label className="block text-sm font-medium text-gray-700">{t('form.labels.type')}</label>
           <Select
             value={formData.type}
             onChange={(value) => handleTypeChange(value as MenuType)}
@@ -615,32 +629,32 @@ export const MenuForm: React.FC<MenuFormProps> = ({
           menuGroup={formData.menuGroup}
         />
         {isParentLoading && (
-          <p className="text-xs text-gray-500 mt-1">Loading available parent menus…</p>
+          <p className="text-xs text-gray-500 mt-1">{t('form.helpers.loadingParents')}</p>
         )}
         {!isParentLoading && parentMenuError && (
-          <p className="text-xs text-red-500 mt-1">{parentMenuError}</p>
+          <p className="text-xs text-red-500 mt-1">{t('form.helpers.errorLoadingParents')}</p>
         )}
       </div>
 
       {(formData.type === MenuType.LINK || formData.type === MenuType.BANNER) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">URL</label>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.url')}</label>
             <Input
               value={formData.url || ''}
               onChange={(e) => updateFormData('url', e.target.value)}
-              placeholder="https://example.com"
+              placeholder={t('form.placeholders.exampleUrl')}
               className="mt-1"
               inputSize="md"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Target</label>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.target')}</label>
             <Select
               value={formData.target}
               onChange={(value) => updateFormData('target', value as MenuTarget)}
-              options={MENU_TARGET_OPTIONS}
+              options={targetOptions}
               className="mt-1"
               size="md"
             />
@@ -650,7 +664,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
       {formData.type === MenuType.PRODUCT && (
         <div>
-          <label className="block text-sm font-medium text-gray-700">Product</label>
+          <label className="block text-sm font-medium text-gray-700">{t('form.labels.product')}</label>
           <div className="mt-1">
             <ProductSelector
               value={formData.referenceId}
@@ -662,7 +676,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
       {formData.type === MenuType.CATEGORY && (
         <div>
-          <label className="block text-sm font-medium text-gray-700">Category</label>
+          <label className="block text-sm font-medium text-gray-700">{t('form.labels.category')}</label>
           <div className="mt-1">
             <CategorySelector
               value={formData.referenceId}
@@ -674,7 +688,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
       {formData.type === MenuType.BRAND && (
         <div>
-          <label className="block text-sm font-medium text-gray-700">Brand</label>
+          <label className="block text-sm font-medium text-gray-700">{t('form.labels.brand')}</label>
           <div className="mt-1">
             <BrandSelector
               value={formData.referenceId}
@@ -686,68 +700,66 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
       {formData.type === MenuType.TOP_PHONE && (
         <div>
-          <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+          <label className="block text-sm font-medium text-gray-700">{t('form.labels.phoneNumber')}</label>
           <Input
             value={getTopMenuConfigValue(formData.config, 'topPhoneNumber')}
             onChange={(e) => updateConfigValue('topPhoneNumber', e.target.value)}
-            placeholder="(+84) 123 456 789"
+            placeholder={t('form.placeholders.phoneExample')}
             className="mt-1"
             inputSize="md"
           />
-          <p className="text-xs text-gray-500 mt-1">Displayed as a hotline button in the storefront top bar.</p>
+          <p className="text-xs text-gray-500 mt-1">{t('form.helpers.topPhone')}</p>
         </div>
       )}
 
       {formData.type === MenuType.TOP_EMAIL && (
         <div>
-          <label className="block text-sm font-medium text-gray-700">Email Address</label>
+          <label className="block text-sm font-medium text-gray-700">{t('form.labels.emailAddress')}</label>
           <Input
             type="email"
             value={getTopMenuConfigValue(formData.config, 'topEmailAddress')}
             onChange={(e) => updateConfigValue('topEmailAddress', e.target.value)}
-            placeholder="support@example.com"
+            placeholder={t('form.placeholders.emailExample')}
             className="mt-1"
             inputSize="md"
           />
-          <p className="text-xs text-gray-500 mt-1">Adds a quick mailto link for store visitors.</p>
+          <p className="text-xs text-gray-500 mt-1">{t('form.helpers.topEmail')}</p>
         </div>
       )}
 
       {formData.type === MenuType.TOP_CURRENT_TIME && (
         <div>
-          <label className="block text-sm font-medium text-gray-700">Date &amp; Time Format</label>
+          <label className="block text-sm font-medium text-gray-700">{t('form.labels.dateTimeFormat')}</label>
           <Select
             value={
               getTopMenuConfigValue(formData.config, 'topTimeFormat') || TopMenuTimeFormat.HOURS_MINUTES
             }
             onChange={(value) => updateConfigValue('topTimeFormat', value)}
-            options={TOP_TIME_FORMAT_OPTIONS}
+            options={topTimeFormatOptions}
             className="mt-1"
             size="md"
           />
-          <p className="text-xs text-gray-500 mt-1">Formats follow Day.js tokens. Default selection uses <code>HH:mm</code>.</p>
+          <p className="text-xs text-gray-500 mt-1" dangerouslySetInnerHTML={{ __html: t('form.helpers.topTime') }} />
         </div>
       )}
 
       {formData.type === MenuType.CALL_BUTTON && (
         <div>
-          <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+          <label className="block text-sm font-medium text-gray-700">{t('form.labels.phoneNumber')}</label>
           <Input
             value={getConfigStringValue(formData.config, CALL_BUTTON_CONFIG_KEY)}
             onChange={(e) => updateArbitraryConfigValue(CALL_BUTTON_CONFIG_KEY, e.target.value)}
-            placeholder="(+84) 123 456 789"
+            placeholder={t('form.placeholders.phoneExample')}
             className="mt-1"
             inputSize="md"
           />
-          <p className="text-xs text-gray-500 mt-1">
-            Number used when creating the <code>tel:</code> link. The visible label still comes from translations.
-          </p>
+          <p className="text-xs text-gray-500 mt-1" dangerouslySetInnerHTML={{ __html: t('form.helpers.callButton') }} />
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Position</label>
+          <label className="block text-sm font-medium text-gray-700">{t('form.labels.position')}</label>
           <Input
             type="number"
             value={formData.position}
@@ -761,7 +773,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
           <Toggle
             checked={formData.isEnabled}
             onChange={(checked) => updateFormData('isEnabled', checked)}
-            label="Enabled"
+            label={t('form.labels.enabled')}
           />
           <Toggle
             checked={isTopMenu ? false : formData.isMegaMenu}
@@ -771,7 +783,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
               }
               updateFormData('isMegaMenu', checked);
             }}
-            label="Mega Menu"
+            label={t('form.labels.megaMenu')}
             disabled={isTopMenu}
           />
         </div>
@@ -787,7 +799,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
           value={formData.textColor}
           onChange={(color) => updateFormData('textColor', color)}
           placeholder="#000000"
-          label="Text Color"
+          label={t('form.labels.textColor')}
         />
       </div>
 
@@ -795,22 +807,22 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         value={formData.backgroundColor}
         onChange={(color) => updateFormData('backgroundColor', color)}
         placeholder="#FFFFFF"
-        label="Background Color"
+        label={t('form.labels.backgroundColor')}
       />
 
       <ColorSelector
         value={formData.borderColor}
         onChange={(color) => updateFormData('borderColor', color)}
         placeholder="#E5E7EB"
-        label="Border Color"
+        label={t('form.labels.borderColor')}
       />
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">Border Width</label>
+        <label className="block text-sm font-medium text-gray-700">{t('form.labels.borderWidth')}</label>
         <Input
           value={formData.borderWidth || ''}
           onChange={(e) => updateFormData('borderWidth', e.target.value)}
-          placeholder="1px"
+          placeholder={t('form.placeholders.pxExample')}
           className="mt-1"
           inputSize="md"
         />
@@ -818,15 +830,15 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
       {isSubMenu && (
         <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">Sub Menu Display</h4>
+          <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('form.labels.subMenuDisplay')}</h4>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Display Type</label>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.displayType')}</label>
             <Select
               value={formData.subMenuVariant || 'link'}
               onChange={(value) => handleSubMenuVariantChange(value as 'link' | 'button')}
               options={[
-                { value: 'link', label: 'Menu Item' },
-                { value: 'button', label: 'Custom Button' },
+                { value: 'link', label: t('form.options.menuItem') },
+                { value: 'button', label: t('form.options.customButton') },
               ]}
               className="mt-1"
               size="md"
@@ -837,41 +849,57 @@ export const MenuForm: React.FC<MenuFormProps> = ({
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Button Border Radius</label>
+                  <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonBorderRadius')}</label>
                   <MeasurementPresetInput
                     value={formData.buttonBorderRadius || ''}
                     onChange={(val) => updateFormData('buttonBorderRadius', val || undefined)}
                     presets={{ small: '4px', medium: '12px', large: '9999px' }}
                     labels={{
-                      default: 'Use default',
-                      small: 'Small',
-                      medium: 'Medium',
-                      large: 'Large',
-                      custom: 'Custom',
-                      customHelper: 'Enter a number and choose px, rem, or em.',
+                      default: t('form.options.useDefault'),
+                      small: t('form.options.small'),
+                      medium: t('form.options.medium'),
+                      large: t('form.options.large'),
+                      custom: t('form.options.custom'),
+                      customHelper: t('form.helpers.measurementCustomHelper'),
                     }}
                     className="mt-1"
                     selectPlaceholder="Choose a preset"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Pick a preset or use Custom to enter your own radius with px, rem, or em.</p>
+                  <p className="text-xs text-gray-500 mt-1">{t('form.helpers.buttonBorderRadius')}</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Button Animation</label>
+                  <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonSize')}</label>
+                  <Select
+                    value={formData.buttonSize || 'medium'}
+                    onChange={(value) => updateFormData('buttonSize', value as 'small' | 'medium' | 'large')}
+                    options={[
+                      { value: 'small', label: t('form.options.small') },
+                      { value: 'medium', label: t('form.options.medium') },
+                      { value: 'large', label: t('form.options.large') },
+                    ]}
+                    className="mt-1"
+                    size="md"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonAnimation')}</label>
                   <Select
                     value={formData.buttonAnimation || 'none'}
-                    onChange={(value) => updateFormData('buttonAnimation', value as 'none' | 'pulse' | 'float')}
+                    onChange={(value) => updateFormData('buttonAnimation', value as 'none' | 'pulse' | 'float' | 'ring')}
                     options={[
-                      { value: 'none', label: 'None' },
-                      { value: 'pulse', label: 'Pulse' },
-                      { value: 'float', label: 'Floating' },
+                      { value: 'none', label: t('form.options.none') },
+                      { value: 'pulse', label: t('form.options.pulse') },
+                      { value: 'float', label: t('form.options.floating') },
+                      { value: 'ring', label: t('form.options.ring') },
                     ]}
                     className="mt-1"
                     size="md"
                   />
                 </div>
               </div>
-              <p className="text-xs text-gray-500">Use the color, icon, and link fields above to finish styling the button.</p>
+              <p className="text-xs text-gray-500">{t('form.helpers.buttonStyling')}</p>
             </>
           )}
         </div>
@@ -880,18 +908,18 @@ export const MenuForm: React.FC<MenuFormProps> = ({
       {/* Enhanced Customization Options */}
       {formData.isMegaMenu && (
         <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">Mega Menu Customization</h4>
+          <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('form.labels.megaMenuCustomization')}</h4>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Layout</label>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.layout')}</label>
               <Select
                 value={formData.layout || 'vertical'}
                 onChange={(value) => updateFormData('layout', value as 'vertical' | 'grid' | 'horizontal')}
                 options={[
-                  { value: 'vertical', label: 'Vertical' },
-                  { value: 'grid', label: 'Grid' },
-                  { value: 'horizontal', label: 'Horizontal' }
+                  { value: 'vertical', label: t('form.options.vertical') },
+                  { value: 'grid', label: t('form.options.grid') },
+                  { value: 'horizontal', label: t('form.options.horizontal') }
                 ]}
                 className="mt-1"
                 size="md"
@@ -899,14 +927,14 @@ export const MenuForm: React.FC<MenuFormProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Icon Size</label>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.iconSize')}</label>
               <Select
                 value={formData.imageSize || 'medium'}
                 onChange={(value) => updateFormData('imageSize', value as 'small' | 'medium' | 'large')}
                 options={[
-                  { value: 'small', label: 'Small' },
-                  { value: 'medium', label: 'Medium' },
-                  { value: 'large', label: 'Large' }
+                  { value: 'small', label: t('form.options.small') },
+                  { value: 'medium', label: t('form.options.medium') },
+                  { value: 'large', label: t('form.options.large') }
                 ]}
                 className="mt-1"
                 size="md"
@@ -916,15 +944,15 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Hover Effect</label>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.hoverEffect')}</label>
               <Select
                 value={formData.hoverEffect || 'none'}
                 onChange={(value) => updateFormData('hoverEffect', value as 'none' | 'scale' | 'slide' | 'fade')}
                 options={[
-                  { value: 'none', label: 'None' },
-                  { value: 'scale', label: 'Scale' },
-                  { value: 'slide', label: 'Slide' },
-                  { value: 'fade', label: 'Fade' }
+                  { value: 'none', label: t('form.options.none') },
+                  { value: 'scale', label: t('form.options.scale') },
+                  { value: 'slide', label: t('form.options.slide') },
+                  { value: 'fade', label: t('form.options.fade') }
                 ]}
                 className="mt-1"
                 size="md"
@@ -932,12 +960,12 @@ export const MenuForm: React.FC<MenuFormProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Max Items</label>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.maxItems')}</label>
               <Input
                 type="number"
                 value={formData.maxItems || ''}
                 onChange={(e) => updateFormData('maxItems', parseInt(e.target.value) || undefined)}
-                placeholder="Unlimited"
+                placeholder={t('form.placeholders.unlimited')}
                 className="mt-1"
                 inputSize="md"
               />
@@ -946,7 +974,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Column Span</label>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.columnSpan')}</label>
               <Input
                 type="number"
                 value={formData.columnSpan || ''}
@@ -962,21 +990,21 @@ export const MenuForm: React.FC<MenuFormProps> = ({
             <Toggle
               checked={formData.showTitle !== false}
               onChange={(checked) => updateFormData('showTitle', checked)}
-              label="Show Title"
+              label={t('form.labels.showTitle')}
             />
             <Toggle
               checked={formData.showDescription !== false}
               onChange={(checked) => updateFormData('showDescription', checked)}
-              label="Show Description"
+              label={t('form.labels.showDescription')}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Custom CSS Class</label>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.customCssClass')}</label>
             <Input
               value={formData.customClass || ''}
               onChange={(e) => updateFormData('customClass', e.target.value)}
-              placeholder="custom-class"
+              placeholder={t('form.placeholders.customClassExample')}
               className="mt-1"
               inputSize="md"
             />
@@ -986,14 +1014,14 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
       {/* Badge Configuration */}
       <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
-        <h4 className="text-sm font-semibold text-gray-700 mb-3">Badge Configuration</h4>
+        <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('form.labels.badgeConfiguration')}</h4>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Badge Text</label>
+          <label className="block text-sm font-medium text-gray-700">{t('form.labels.badgeText')}</label>
           <Input
             value={formData.badge?.text || ''}
             onChange={(e) => updateBadge('text', e.target.value)}
-            placeholder="New"
+            placeholder={t('form.placeholders.badgeTextNew')}
             className="mt-1"
             inputSize="md"
           />
@@ -1003,14 +1031,14 @@ export const MenuForm: React.FC<MenuFormProps> = ({
           <ColorSelector
             value={formData.badge?.color}
             onChange={(color) => updateBadge('color', color)}
-            placeholder="#FFFFFF"
-            label="Badge Text Color"
+            placeholder={t('form.placeholders.colorExample').replace('#000000', '#FFFFFF')}
+            label={t('form.labels.badgeTextColor')}
           />
           <ColorSelector
             value={formData.badge?.backgroundColor}
             onChange={(color) => updateBadge('backgroundColor', color)}
             placeholder="#EF4444"
-            label="Badge Background Color"
+            label={t('form.labels.badgeBackgroundColor')}
           />
         </div>
       </div>
@@ -1018,36 +1046,36 @@ export const MenuForm: React.FC<MenuFormProps> = ({
       {/* Banner Configuration */}
       {formData.type === MenuType.BANNER && (
         <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">Banner Configuration</h4>
+          <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('form.labels.bannerConfiguration')}</h4>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Banner Title</label>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.bannerTitle')}</label>
             <Input
               value={formData.bannerConfig?.title || ''}
               onChange={(e) => updateBannerConfig('title', e.target.value)}
-              placeholder="Special Offer"
+              placeholder={t('form.placeholders.bannerTitle')}
               className="mt-1"
               inputSize="md"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Subtitle</label>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.subtitle')}</label>
             <Input
               value={formData.bannerConfig?.subtitle || ''}
               onChange={(e) => updateBannerConfig('subtitle', e.target.value)}
-              placeholder="Limited Time"
+              placeholder={t('form.placeholders.bannerSubtitle')}
               className="mt-1"
               inputSize="md"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Description</label>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.description')}</label>
             <textarea
               value={formData.bannerConfig?.description || ''}
               onChange={(e) => updateBannerConfig('description', e.target.value)}
-              placeholder="Special description for banner"
+              placeholder={t('form.placeholders.bannerDescription')}
               rows={3}
               className="mt-1 w-full border border-gray-300 rounded-md px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 h-11 resize-none"
             />
@@ -1055,22 +1083,22 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Button Text</label>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonText')}</label>
               <Input
                 value={formData.bannerConfig?.buttonText || ''}
                 onChange={(e) => updateBannerConfig('buttonText', e.target.value)}
-                placeholder="Shop Now"
+                placeholder={t('form.placeholders.shopNow')}
                 className="mt-1"
                 inputSize="md"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Button Link</label>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonLink')}</label>
               <Input
                 value={formData.bannerConfig?.buttonLink || ''}
                 onChange={(e) => updateBannerConfig('buttonLink', e.target.value)}
-                placeholder="/special-offers"
+                placeholder={t('form.placeholders.specialOffers')}
                 className="mt-1"
                 inputSize="md"
               />
@@ -1082,22 +1110,22 @@ export const MenuForm: React.FC<MenuFormProps> = ({
               value={formData.bannerConfig?.backgroundColor}
               onChange={(color) => updateBannerConfig('backgroundColor', color)}
               placeholder="#7C3AED"
-              label="Banner Background"
+              label={t('form.labels.bannerBackground')}
             />
             <ColorSelector
               value={formData.bannerConfig?.textColor}
               onChange={(color) => updateBannerConfig('textColor', color)}
-              placeholder="#FFFFFF"
-              label="Banner Text Color"
+              placeholder={t('form.placeholders.colorExample').replace('#000000', '#FFFFFF')}
+              label={t('form.labels.bannerTextColor')}
             />
             <div>
-              <label className="block text-sm font-medium text-gray-700">Position</label>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.position')}</label>
               <Select
                 value={formData.bannerConfig?.position || 'bottom'}
                 onChange={(value) => updateBannerConfig('position', value as 'top' | 'bottom')}
                 options={[
-                  { value: 'top', label: 'Top' },
-                  { value: 'bottom', label: 'Bottom' }
+                  { value: 'top', label: t('form.options.top') },
+                  { value: 'bottom', label: t('form.options.bottom') }
                 ]}
                 className="mt-1"
                 size="md"
@@ -1106,11 +1134,11 @@ export const MenuForm: React.FC<MenuFormProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Background Image URL</label>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.backgroundImageUrl')}</label>
             <Input
               value={formData.bannerConfig?.backgroundImage || ''}
               onChange={(e) => updateBannerConfig('backgroundImage', e.target.value)}
-              placeholder="https://example.com/image.jpg"
+              placeholder={t('form.placeholders.imageUrl')}
               className="mt-1"
               inputSize="md"
             />
@@ -1121,7 +1149,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
       {/* Translations */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h4 className="text-sm font-semibold text-gray-700">Translations</h4>
+          <h4 className="text-sm font-semibold text-gray-700">{t('form.labels.translations')}</h4>
           <div className="flex items-center gap-2">
             {translationLocales.map((locale) => (
               <button
@@ -1143,22 +1171,22 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
         <div className="space-y-3 border rounded-lg p-4 bg-gray-50">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Label</label>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.label')}</label>
             <Input
               value={formData.translations[activeLocale]?.label || ''}
               onChange={(e) => updateTranslation(activeLocale, 'label', e.target.value)}
-              placeholder="Menu label"
+              placeholder={t('form.placeholders.menuLabel')}
               className="mt-1"
               inputSize="md"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Description</label>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.description')}</label>
             <textarea
               value={formData.translations[activeLocale]?.description || ''}
               onChange={(e) => updateTranslation(activeLocale, 'description', e.target.value)}
-              placeholder="Menu description"
+              placeholder={t('form.placeholders.menuDescription')}
               rows={3}
               className="mt-1 w-full border border-gray-300 rounded-md px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 h-11 resize-none"
             />
@@ -1166,11 +1194,11 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
           {formData.type === MenuType.CUSTOM_HTML && (
             <div>
-              <label className="block text-sm font-medium text-gray-700">Custom HTML</label>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.customHtml')}</label>
               <textarea
                 value={formData.translations[activeLocale]?.customHtml || ''}
                 onChange={(e) => updateTranslation(activeLocale, 'customHtml', e.target.value)}
-                placeholder="Custom HTML content"
+                placeholder={t('form.placeholders.customHtmlContent')}
                 rows={6}
                 className="mt-1 w-full border border-gray-300 rounded-md px-3.5 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 h-11 resize-none"
               />
@@ -1181,10 +1209,10 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
       <div className="flex justify-end gap-3 pt-6 border-t">
         <Button variant="secondary" onClick={onCancel} type="button">
-          Cancel
+          {t('form.buttons.cancel')}
         </Button>
         <Button type="submit" isLoading={isSubmitting}>
-          {menu ? 'Update Menu' : 'Create Menu'}
+          {menu ? t('form.buttons.update') : t('form.buttons.create')}
         </Button>
       </div>
     </form>

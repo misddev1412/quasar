@@ -1,5 +1,12 @@
 {
   "translations": {
+    "common": {
+      "save": "Save Changes",
+      "saving": "Saving...",
+      "saved_successfully": "Saved successfully",
+      "save_failed": "Save failed",
+      "view_documentation": "View Documentation"
+    },
     "table": {
       "key": "Key",
       "locale": "Locale",
@@ -30,8 +37,10 @@
       "firebase_configs": "Firebase Configs",
       "settings": "Settings",
       "general_settings": "General Settings",
-      "maintenance_settings": "Maintenance Settings",
+      "maintenance_settings": "Maintenance Mode",
       "order_settings": "Order Settings",
+      "support_clients": "Customer Support",
+      "theme_settings": "Storefront Appearance",
       "settings_visibility": "Settings Visibility",
       "help": "Help"
     },
@@ -454,6 +463,32 @@
     "settings": {
       "branding": {
         "nav": "Admin Branding"
+      },
+      "theme_desc": "Customize the look and feel of your admin panel and storefront.",
+      "global_theme_settings": "Global Theme Settings",
+      "global_theme_desc": "Customize the look and feel of the application for all users.",
+      "mode": "Mode",
+      "choose_default_mode": "Choose default light or dark mode",
+      "font_family": "Font Family",
+      "primary_color": "Primary Color",
+      "theme": {
+        "configuration": "Appearance Configuration",
+        "configuration_desc": "These settings affect both the Admin Panel and the public Storefront.",
+        "sync_note_title": "Real-time Synchronization",
+        "sync_note_desc": "Changes are saved immediately and synchronized across all active users.",
+        "tips_title": "Design Tips",
+        "brand_consistency": "Brand Consistency",
+        "brand_consistency_desc": "Choose a primary color that matches your logo to maintain a cohesive brand identity across the platform.",
+        "readability": "Readability",
+        "readability_desc": "Sans-serif fonts like Inter or Roboto are generally easier to read on screens.",
+        "need_help": "Need Custom Styling?",
+        "need_help_desc": "For advanced CSS customization or creating a completely custom theme, please check our developer documentation.",
+        "admin_tab": "Admin Panel",
+        "storefront_tab": "Storefront",
+        "admin_configuration": "Admin Appearance",
+        "storefront_configuration": "Storefront Appearance",
+        "manual_save_title": "Manual Save Required",
+        "manual_save_desc": "Changes are only applied permanently when you click the \"Save Changes\" button."
       }
     },
     "floating_icons": {

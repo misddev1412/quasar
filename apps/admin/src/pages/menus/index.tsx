@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiPlus, FiMenu, FiRefreshCw, FiHome, FiFilter } from 'react-icons/fi';
-import { Select, SelectOption } from '../../components/common/Select';
+import { Select } from '../../components/common/Select';
 import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { Loading } from '../../components/common/Loading';
@@ -15,9 +15,11 @@ import { menuStyles } from '../../components/menus/MenuStyles';
 import { cn } from '@admin/lib/utils';
 import { Toggle } from '../../components/common/Toggle';
 import { useSettings } from '../../hooks/useSettings';
+import { useTranslation } from 'react-i18next';
 const SUB_MENU_VISIBILITY_SETTING_KEY = 'storefront.sub_menu_enabled';
 
 const MenusPage: React.FC = () => {
+  const { t } = useTranslation();
   const params = useParams<{ group?: string }>();
   const navigate = useNavigate();
   const currentGroup = params.group?.trim() || 'main';
@@ -85,6 +87,8 @@ const MenusPage: React.FC = () => {
   } = useSettings({ group: 'storefront-ui' });
   const [isUpdatingSubMenuVisibility, setIsUpdatingSubMenuVisibility] = useState(false);
   const [pendingSubMenuVisibility, setPendingSubMenuVisibility] = useState<boolean | null>(null);
+  const pageTitle = t('menus.page.title', 'Menu Management');
+  const pageDescription = t('menus.page.description', 'Manage all navigation menus');
 
   const subMenuVisibilitySetting = useMemo(
     () => storefrontSettings.find(setting => setting.key === SUB_MENU_VISIBILITY_SETTING_KEY),
@@ -120,10 +124,12 @@ const MenusPage: React.FC = () => {
 
       addToast({
         type: 'success',
-        title: checked ? 'Sub menu enabled' : 'Sub menu hidden',
+        title: checked
+          ? t('menus.subMenu.enabledToastTitle', 'Sub menu enabled')
+          : t('menus.subMenu.disabledToastTitle', 'Sub menu hidden'),
         description: checked
-          ? 'The storefront sub menu bar will be displayed.'
-          : 'The storefront sub menu bar is now hidden.',
+          ? t('menus.subMenu.enabledToastDescription', 'The storefront sub menu bar will be displayed.')
+          : t('menus.subMenu.disabledToastDescription', 'The storefront sub menu bar is now hidden.'),
       });
       setPendingSubMenuVisibility(null);
     } catch (error) {
@@ -131,13 +137,13 @@ const MenusPage: React.FC = () => {
       setPendingSubMenuVisibility(previousValue);
       addToast({
         type: 'error',
-        title: 'Unable to update sub menu visibility',
+        title: t('menus.subMenu.errorToastTitle', 'Unable to update sub menu visibility'),
         description: error instanceof Error ? error.message : undefined,
       });
     } finally {
       setIsUpdatingSubMenuVisibility(false);
     }
-  }, [addToast, createStorefrontSetting, effectiveSubMenuVisibility, subMenuVisibilitySettingId, updateStorefrontSetting]);
+  }, [addToast, createStorefrontSetting, effectiveSubMenuVisibility, subMenuVisibilitySettingId, t, updateStorefrontSetting]);
 
   const handleMenuGroupChange = useCallback((value: string) => {
     setSelectedMenuGroup(value);
@@ -206,58 +212,58 @@ const MenusPage: React.FC = () => {
   const statisticsCards: StatisticData[] = useMemo(() => [
     {
       id: 'total-menus',
-      title: 'Total Menu Items',
+      title: t('menus.statistics.total', 'Total Menu Items'),
       value: statistics.totalMenus,
       icon: <FiMenu className="w-5 h-5" />,
       enableChart: false,
     },
     {
       id: 'active-menus',
-      title: 'Active Items',
+      title: t('menus.statistics.active', 'Active Items'),
       value: statistics.activeMenus,
       icon: <FiMenu className="w-5 h-5" />,
       enableChart: false,
     },
     {
       id: 'inactive-menus',
-      title: 'Inactive Items',
+      title: t('menus.statistics.inactive', 'Inactive Items'),
       value: statistics.inactiveMenus,
       icon: <FiMenu className="w-5 h-5" />,
       enableChart: false,
     },
     {
       id: 'menu-groups',
-      title: 'Menu Groups',
+      title: t('menus.statistics.groups', 'Menu Groups'),
       value: statistics.totalGroups,
       icon: <FiMenu className="w-5 h-5" />,
       enableChart: false,
     },
-  ], [statistics]);
+  ], [statistics, t]);
 
   // Override actions with icons for consistency
   const actionsWithIcons = useMemo(() => [
     {
-      label: 'Create Menu',
+      label: t('menus.actions.create', 'Create Menu'),
       onClick: handleAddMenu,
       primary: true,
       icon: <FiPlus />,
     },
     {
-      label: 'Refresh',
+      label: t('menus.actions.refresh', 'Refresh'),
       onClick: handleRefresh,
       icon: <FiRefreshCw />,
     },
     {
-      label: showFilters ? 'Hide Filters' : 'Show Filters',
+      label: showFilters ? t('menus.actions.hideFilters', 'Hide Filters') : t('menus.actions.showFilters', 'Show Filters'),
       onClick: () => setShowFilters(!showFilters),
       icon: <FiFilter />,
       active: showFilters,
     },
-  ], [handleAddMenu, handleRefresh, showFilters, setShowFilters]);
+  ], [handleAddMenu, handleRefresh, showFilters, setShowFilters, t]);
 
   if (treeQuery.isLoading) {
     return (
-      <BaseLayout title="Menu Management" description="Manage all navigation menus" actions={actionsWithIcons} fullWidth={true}>
+      <BaseLayout title={pageTitle} description={pageDescription} actions={actionsWithIcons} fullWidth={true}>
         <div className={cn(menuStyles.itemsCenter, menuStyles.justifyCenter, menuStyles.minH64)}>
           <Loading />
         </div>
@@ -267,9 +273,9 @@ const MenusPage: React.FC = () => {
 
   if (treeQuery.error) {
     return (
-      <BaseLayout title="Menu Management" description="Manage all navigation menus" actions={actionsWithIcons} fullWidth={true}>
+      <BaseLayout title={pageTitle} description={pageDescription} actions={actionsWithIcons} fullWidth={true}>
         <Alert variant="destructive">
-          <AlertTitle>Error</AlertTitle>
+          <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
           <AlertDescription>{treeQuery.error.message}</AlertDescription>
         </Alert>
       </BaseLayout>
@@ -277,19 +283,19 @@ const MenusPage: React.FC = () => {
   }
 
   return (
-    <BaseLayout title="Menu Management" description="Manage all navigation menus" actions={actionsWithIcons} fullWidth={true}>
+    <BaseLayout title={pageTitle} description={pageDescription} actions={actionsWithIcons} fullWidth={true}>
       <div className={menuStyles.spaceY6}>
         {/* Breadcrumb Navigation */}
         <Breadcrumb
           items={breadcrumbItems.map(item => ({
             ...item,
-            icon: item.label === 'Home' ? <FiHome className="w-4 h-4" /> : <FiMenu className="w-4 h-4" />
+            icon: item.icon ?? (item.href === '/' ? <FiHome className="w-4 h-4" /> : <FiMenu className="w-4 h-4" />),
           }))}
         />
 
         {/* Menu Group Selector */}
         <div className={cn(menuStyles.flex, menuStyles.itemsCenter, menuStyles.gap4)}>
-          <label className={menuStyles.formLabel}>Menu Group:</label>
+          <label className={menuStyles.formLabel}>{t('menus.page.menuGroupLabel', 'Menu Group:')}</label>
           <Select
             value={selectedMenuGroup}
             onChange={handleMenuGroupChange}
@@ -302,17 +308,17 @@ const MenusPage: React.FC = () => {
           <div className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40 p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                Show sub menu on storefront
+                {t('menus.subMenu.cardTitle', 'Show sub menu on storefront')}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Toggle the dedicated sub navigation bar that appears below the header.
+                {t('menus.subMenu.cardDescription', 'Toggle the dedicated sub navigation bar that appears below the header.')}
               </p>
             </div>
             <Toggle
               checked={effectiveSubMenuVisibility}
               onChange={handleSubMenuVisibilityChange}
               disabled={isStorefrontSettingsLoading || isUpdatingSubMenuVisibility}
-              aria-label="Toggle sub menu visibility"
+              aria-label={t('menus.subMenu.toggleAriaLabel', 'Toggle sub menu visibility')}
             />
           </div>
         )}

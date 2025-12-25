@@ -13,6 +13,7 @@ import OrderSettingsPage from '../pages/settings/orders';
 import SettingsVisibilityPage from '../pages/settings/visibility';
 import FloatingIconsSettingsPage from '../pages/settings/floating-icons';
 import AdminBrandingPage from '../pages/settings/admin-branding';
+import ThemeSettingsPage from '../pages/settings/theme';
 import MaintenanceSettingsPage from '../pages/settings/maintenance';
 import BrandAssetsPage from '../pages/brand-assets';
 import AnalyticsConfigurationPage from '../pages/analytics';
@@ -142,7 +143,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
-  
+
   // Use the auth verification hook to automatically verify authentication on protected pages
   useAuthVerification();
 
@@ -180,6 +181,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/settings/floating-icons" element={<ProtectedRoute><FloatingIconsSettingsPage /></ProtectedRoute>} />
       <Route path="/settings/visibility" element={<ProtectedRoute><SettingsVisibilityPage /></ProtectedRoute>} />
       <Route path="/settings/admin-branding" element={<ProtectedRoute><AdminBrandingPage /></ProtectedRoute>} />
+      <Route path="/settings/theme" element={<ProtectedRoute><ThemeSettingsPage /></ProtectedRoute>} />
       <Route path="/storage" element={<ProtectedRoute><StorageConfigPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
       <Route path="/help" element={<ProtectedRoute><HelpPage /></ProtectedRoute>} />
@@ -244,8 +246,8 @@ const AppRoutes: React.FC = () => {
       {/* Telegram Configs */}
       <Route path="/telegram-configs" element={<ProtectedRoute><TelegramConfigsPage /></ProtectedRoute>} />
       {/* Product Management */}
-        <Route path="/products" element={<ProtectedRoute><ProductsIndexPage /></ProtectedRoute>} />
-        <Route path="/products/exports" element={<ProtectedRoute><ProductExportsPage /></ProtectedRoute>} />
+      <Route path="/products" element={<ProtectedRoute><ProductsIndexPage /></ProtectedRoute>} />
+      <Route path="/products/exports" element={<ProtectedRoute><ProductExportsPage /></ProtectedRoute>} />
       <Route path="/products/create" element={<ProtectedRoute><CreateProductPage /></ProtectedRoute>} />
       <Route path="/products/:id" element={<ProtectedRoute><ProductDetailPage /></ProtectedRoute>} />
       <Route path="/products/:id/edit" element={<ProtectedRoute><EditProductPage /></ProtectedRoute>} />

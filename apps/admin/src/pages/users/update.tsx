@@ -187,92 +187,92 @@ const UserUpdatePage: React.FC = () => {
   const tabs: FormTabConfig[] = [
     {
       id: 'general',
-      label: t('form.tabs.general_information'),
+      label: t('form.tabs.general_information', 'General Information'),
       icon: <UserIcon className="w-4 h-4" />,
       sections: [
         {
-          title: t('form.sections.basic_information'),
-          description: t('form.sections.basic_information_description'),
+          title: t('form.sections.basic_information', 'Basic Information'),
+          description: t('form.sections.basic_information_description', 'Key account identifiers and contact info.'),
           icon: <UserIcon className="w-4 h-4" />,
           fields: [
             {
               name: 'firstName',
-              label: t('user.first_name'),
+              label: t('user.first_name', 'First name'),
               type: 'text',
-              placeholder: t('form.placeholders.enter_first_name'),
+              placeholder: t('form.placeholders.enter_first_name', 'Enter first name'),
               required: false,
             },
             {
               name: 'lastName',
-              label: t('user.last_name'),
+              label: t('user.last_name', 'Last name'),
               type: 'text',
-              placeholder: t('form.placeholders.enter_last_name'),
+              placeholder: t('form.placeholders.enter_last_name', 'Enter last name'),
               required: false,
             },
             {
               name: 'username',
-              label: t('user.username'),
+              label: t('user.username', 'Username'),
               type: 'text',
-              placeholder: t('form.placeholders.enter_username'),
+              placeholder: t('form.placeholders.enter_username', 'Enter username'),
               required: true,
             },
             {
               name: 'email',
-              label: t('user.email_address'),
+              label: t('user.email_address', 'Email address'),
               type: 'email',
-              placeholder: t('form.placeholders.enter_email_address'),
+              placeholder: t('form.placeholders.enter_email_address', 'Enter email address'),
               required: true,
               icon: <Mail className="w-4 h-4" />,
             },
             {
               name: 'phoneNumber',
-              label: t('user.phone'),
+              label: t('user.phone', 'Phone'),
               type: 'phone',
-              placeholder: t('form.placeholders.enter_phone_number_optional'),
+              placeholder: t('form.placeholders.enter_phone_number_optional', 'Enter phone number (optional)'),
               required: false,
               icon: <Phone className="w-4 h-4" />,
             },
           ],
         },
         {
-          title: t('form.sections.security'),
-          description: t('form.sections.security_description'),
+          title: t('form.sections.security', 'Security'),
+          description: t('form.sections.security_description', 'Manage password and access controls.'),
           icon: <Lock className="w-4 h-4" />,
           fields: [
 
             {
               name: 'newPassword',
-              label: t('user.new_password'),
+              label: t('user.new_password', 'New password'),
               type: 'password',
               placeholder: t('form.placeholders.enter_new_password', 'Enter new password'),
               required: false,
             },
             {
               name: 'confirmPassword',
-              label: t('user.confirm_new_password'),
+              label: t('user.confirm_new_password', 'Confirm new password'),
               type: 'password',
               placeholder: t('form.placeholders.confirm_new_password', 'Confirm new password'),
               required: false,
             },
             {
               name: 'role',
-              label: t('user.user_role'),
+              label: t('user.user_role', 'User role'),
               type: 'select',
-              placeholder: t('form.placeholders.select_user_role'),
+              placeholder: t('form.placeholders.select_user_role', 'Select user role'),
               required: false,
               options: [
-                { value: UserRole.USER, label: t('user.roles.user') },
-                { value: UserRole.MANAGER, label: t('user.roles.manager') },
-                { value: UserRole.ADMIN, label: t('user.roles.admin') },
-                { value: UserRole.SUPER_ADMIN, label: t('user.roles.super_admin') },
+                { value: UserRole.USER, label: t('user.roles.user', 'User') },
+                { value: UserRole.MANAGER, label: t('user.roles.manager', 'Manager') },
+                { value: UserRole.ADMIN, label: t('user.roles.admin', 'Admin') },
+                { value: UserRole.SUPER_ADMIN, label: t('user.roles.super_admin', 'Super Admin') },
               ],
             },
             {
               name: 'isActive',
-              label: t('user.account_active'),
+              label: t('user.account_active', 'Account active'),
               type: 'checkbox',
               required: false,
-              description: t('form.descriptions.account_active_description'),
+              description: t('form.descriptions.account_active_description', 'Disable access if the account should not log in yet.'),
             },
           ],
         },
@@ -280,34 +280,34 @@ const UserUpdatePage: React.FC = () => {
     },
     {
       id: 'preferences',
-      label: t('form.tabs.preferences'),
+      label: t('form.tabs.preferences', 'Preferences'),
       icon: <SettingsIcon className="w-4 h-4" />,
       sections: [
             {
-              title: t('form.sections.notification_settings'),
-              description: t('form.sections.notification_settings_description'),
+              title: t('form.sections.notification_settings', 'Notification settings'),
+              description: t('form.sections.notification_settings_description', 'Choose which updates this user receives.'),
               icon: <SettingsIcon className="w-4 h-4" />,
               fields: [
                 {
                   name: 'emailNotifications',
-                  label: t('user.email_notifications'),
+                  label: t('user.email_notifications', 'Email notifications'),
                   type: 'checkbox',
                   required: false,
-                  description: t('form.descriptions.email_notifications_description'),
+                  description: t('form.descriptions.email_notifications_description', 'Allow transactional or system emails.'),
                 },
                 {
                   name: 'smsNotifications',
-                  label: t('user.sms_notifications'),
+                  label: t('user.sms_notifications', 'SMS notifications'),
                   type: 'checkbox',
                   required: false,
-                  description: t('form.descriptions.sms_notifications_description'),
+                  description: t('form.descriptions.sms_notifications_description', 'Allow SMS alerts if a valid phone number exists.'),
                 },
                 {
                   name: 'marketingEmails',
-                  label: t('user.marketing_emails'),
+                  label: t('user.marketing_emails', 'Marketing emails'),
                   type: 'checkbox',
                   required: false,
-                  description: t('form.descriptions.marketing_emails_description'),
+                  description: t('form.descriptions.marketing_emails_description', 'Subscribe the user to marketing updates.'),
                 },
               ],
             },
@@ -317,7 +317,7 @@ const UserUpdatePage: React.FC = () => {
 
   const actions = [
     {
-      label: t('admin.back_to_users'),
+      label: t('admin.back_to_users', 'Back to users'),
       onClick: handleCancel,
       icon: <ArrowLeft className="w-4 h-4" />,
     },
@@ -408,4 +408,3 @@ const UserUpdatePage: React.FC = () => {
 };
 
 export default UserUpdatePage;
-

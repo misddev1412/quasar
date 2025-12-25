@@ -15,13 +15,31 @@ export interface AdminPageSeoConfig {
   };
 }
 
+const PLATFORM_TITLE_PLACEHOLDER = '{{platformTitle}}';
+const PLATFORM_TITLE_PATTERN = /{{\s*platformTitle\s*}}/i;
+export const DEFAULT_PLATFORM_TITLE = 'Quasar Admin';
+
+const replacePlatformPlaceholder = (value: string, platformTitle?: string) => {
+  const brand = platformTitle?.trim() || DEFAULT_PLATFORM_TITLE;
+  if (!value) {
+    return brand;
+  }
+  if (PLATFORM_TITLE_PATTERN.test(value)) {
+    return value.replace(/{{\s*platformTitle\s*}}/gi, brand);
+  }
+  if (value.toLowerCase().includes(brand.toLowerCase())) {
+    return value;
+  }
+  return `${value} | ${brand}`;
+};
+
 export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   // Main Dashboard
   {
     path: '/',
     titles: {
-      en: 'Dashboard | Quasar Admin',
-      vi: 'Bảng Điều Khiển | Quasar Admin'
+      en: 'Dashboard | {{platformTitle}}',
+      vi: 'Bảng Điều Khiển | {{platformTitle}}'
     },
     description: {
       en: 'Admin dashboard overview - Manage your application with ease',
@@ -33,8 +51,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/auth/login',
     titles: {
-      en: 'Admin Login | Quasar',
-      vi: 'Đăng Nhập Admin | Quasar'
+      en: 'Admin Login | {{platformTitle}}',
+      vi: 'Đăng Nhập Admin | {{platformTitle}}'
     },
     description: {
       en: 'Sign in to admin dashboard',
@@ -44,8 +62,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/auth/forgot-password',
     titles: {
-      en: 'Forgot Password | Quasar Admin',
-      vi: 'Quên Mật Khẩu | Quasar Admin'
+      en: 'Forgot Password | {{platformTitle}}',
+      vi: 'Quên Mật Khẩu | {{platformTitle}}'
     },
     description: {
       en: 'Reset your admin password',
@@ -57,8 +75,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/users',
     titles: {
-      en: 'Users Management | Quasar Admin',
-      vi: 'Quản Lý Người Dùng | Quasar Admin'
+      en: 'Users Management | {{platformTitle}}',
+      vi: 'Quản Lý Người Dùng | {{platformTitle}}'
     },
     description: {
       en: 'Manage system users and accounts',
@@ -68,8 +86,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/users/dashboard',
     titles: {
-      en: 'User Dashboard | Quasar Admin',
-      vi: 'Bảng Điều Khiển Người Dùng | Quasar Admin'
+      en: 'User Dashboard | {{platformTitle}}',
+      vi: 'Bảng Điều Khiển Người Dùng | {{platformTitle}}'
     },
     description: {
       en: 'Monitor user growth, activity, and segmentation insights',
@@ -79,8 +97,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/users/create',
     titles: {
-      en: 'Create New User | Quasar Admin',
-      vi: 'Tạo Người Dùng Mới | Quasar Admin'
+      en: 'Create New User | {{platformTitle}}',
+      vi: 'Tạo Người Dùng Mới | {{platformTitle}}'
     },
     description: {
       en: 'Add a new user to the system',
@@ -90,8 +108,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/users/:id',
     titles: {
-      en: 'Edit User | Quasar Admin',
-      vi: 'Chỉnh Sửa Người Dùng | Quasar Admin'
+      en: 'Edit User | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Người Dùng | {{platformTitle}}'
     },
     description: {
       en: 'Update user information and settings',
@@ -103,8 +121,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/roles',
     titles: {
-      en: 'Roles Management | Quasar Admin',
-      vi: 'Quản Lý Vai Trò | Quasar Admin'
+      en: 'Roles Management | {{platformTitle}}',
+      vi: 'Quản Lý Vai Trò | {{platformTitle}}'
     },
     description: {
       en: 'Manage user roles and permissions',
@@ -114,8 +132,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/roles/create',
     titles: {
-      en: 'Create New Role | Quasar Admin',
-      vi: 'Tạo Vai Trò Mới | Quasar Admin'
+      en: 'Create New Role | {{platformTitle}}',
+      vi: 'Tạo Vai Trò Mới | {{platformTitle}}'
     },
     description: {
       en: 'Define a new role with permissions',
@@ -125,8 +143,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/roles/:id',
     titles: {
-      en: 'Edit Role | Quasar Admin',
-      vi: 'Chỉnh Sửa Vai Trò | Quasar Admin'
+      en: 'Edit Role | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Vai Trò | {{platformTitle}}'
     },
     description: {
       en: 'Update role permissions and settings',
@@ -138,8 +156,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/permissions',
     titles: {
-      en: 'Permissions Management | Quasar Admin',
-      vi: 'Quản Lý Quyền Hạn | Quasar Admin'
+      en: 'Permissions Management | {{platformTitle}}',
+      vi: 'Quản Lý Quyền Hạn | {{platformTitle}}'
     },
     description: {
       en: 'Manage system permissions and access control',
@@ -149,8 +167,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/permissions/create',
     titles: {
-      en: 'Create New Permission | Quasar Admin',
-      vi: 'Tạo Quyền Hạn Mới | Quasar Admin'
+      en: 'Create New Permission | {{platformTitle}}',
+      vi: 'Tạo Quyền Hạn Mới | {{platformTitle}}'
     },
     description: {
       en: 'Define a new system permission',
@@ -160,8 +178,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/permissions/:id',
     titles: {
-      en: 'Edit Permission | Quasar Admin',
-      vi: 'Chỉnh Sửa Quyền Hạn | Quasar Admin'
+      en: 'Edit Permission | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Quyền Hạn | {{platformTitle}}'
     },
     description: {
       en: 'Update permission settings',
@@ -173,8 +191,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/profile',
     titles: {
-      en: 'My Profile | Quasar Admin',
-      vi: 'Hồ Sơ Của Tôi | Quasar Admin'
+      en: 'My Profile | {{platformTitle}}',
+      vi: 'Hồ Sơ Của Tôi | {{platformTitle}}'
     },
     description: {
       en: 'Manage your admin profile and preferences',
@@ -186,8 +204,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/seo',
     titles: {
-      en: 'SEO Management | Quasar Admin',
-      vi: 'Quản Lý SEO | Quasar Admin'
+      en: 'SEO Management | {{platformTitle}}',
+      vi: 'Quản Lý SEO | {{platformTitle}}'
     },
     description: {
       en: 'Manage SEO settings and meta tags',
@@ -199,8 +217,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/settings',
     titles: {
-      en: 'System Settings | Quasar Admin',
-      vi: 'Cài Đặt Hệ Thống | Quasar Admin'
+      en: 'System Settings | {{platformTitle}}',
+      vi: 'Cài Đặt Hệ Thống | {{platformTitle}}'
     },
     description: {
       en: 'Configure system settings and preferences',
@@ -210,8 +228,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/settings/visibility',
     titles: {
-      en: 'Visibility Settings | Quasar Admin',
-      vi: 'Cài Đặt Hiển Thị | Quasar Admin'
+      en: 'Visibility Settings | {{platformTitle}}',
+      vi: 'Cài Đặt Hiển Thị | {{platformTitle}}'
     },
     description: {
       en: 'Manage content visibility settings',
@@ -221,8 +239,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/settings/floating-icons',
     titles: {
-      en: 'Floating Icons Settings | Quasar Admin',
-      vi: 'Cài Đặt Biểu Tượng Nổi | Quasar Admin'
+      en: 'Floating Icons Settings | {{platformTitle}}',
+      vi: 'Cài Đặt Biểu Tượng Nổi | {{platformTitle}}'
     },
     description: {
       en: 'Configure floating interface elements',
@@ -234,8 +252,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/storage',
     titles: {
-      en: 'Storage Configuration | Quasar Admin',
-      vi: 'Cấu Hình Lưu Trữ | Quasar Admin'
+      en: 'Storage Configuration | {{platformTitle}}',
+      vi: 'Cấu Hình Lưu Trữ | {{platformTitle}}'
     },
     description: {
       en: 'Configure file storage and media settings',
@@ -247,8 +265,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/brand-assets',
     titles: {
-      en: 'Brand Assets | Quasar Admin',
-      vi: 'Tài Sản Thương Hiệu | Quasar Admin'
+      en: 'Brand Assets | {{platformTitle}}',
+      vi: 'Tài Sản Thương Hiệu | {{platformTitle}}'
     },
     description: {
       en: 'Manage logos, favicons, and brand assets',
@@ -260,8 +278,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/analytics',
     titles: {
-      en: 'Analytics Configuration | Quasar Admin',
-      vi: 'Cấu Hình Analytics | Quasar Admin'
+      en: 'Analytics Configuration | {{platformTitle}}',
+      vi: 'Cấu Hình Analytics | {{platformTitle}}'
     },
     description: {
       en: 'Configure Google Analytics and tracking',
@@ -273,8 +291,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/mail-templates',
     titles: {
-      en: 'Mail Templates | Quasar Admin',
-      vi: 'Mẫu Thư | Quasar Admin'
+      en: 'Mail Templates | {{platformTitle}}',
+      vi: 'Mẫu Thư | {{platformTitle}}'
     },
     description: {
       en: 'Manage email templates and notifications',
@@ -284,8 +302,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/mail-templates/create',
     titles: {
-      en: 'Create Mail Template | Quasar Admin',
-      vi: 'Tạo Mẫu Thư | Quasar Admin'
+      en: 'Create Mail Template | {{platformTitle}}',
+      vi: 'Tạo Mẫu Thư | {{platformTitle}}'
     },
     description: {
       en: 'Create a new email template',
@@ -295,8 +313,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/mail-templates/:id',
     titles: {
-      en: 'Edit Mail Template | Quasar Admin',
-      vi: 'Chỉnh Sửa Mẫu Thư | Quasar Admin'
+      en: 'Edit Mail Template | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Mẫu Thư | {{platformTitle}}'
     },
     description: {
       en: 'Update email template content',
@@ -308,8 +326,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/posts',
     titles: {
-      en: 'Posts Management | Quasar Admin',
-      vi: 'Quản Lý Bài Viết | Quasar Admin'
+      en: 'Posts Management | {{platformTitle}}',
+      vi: 'Quản Lý Bài Viết | {{platformTitle}}'
     },
     description: {
       en: 'Manage blog posts and articles',
@@ -319,8 +337,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/posts/create',
     titles: {
-      en: 'Create New Post | Quasar Admin',
-      vi: 'Tạo Bài Viết Mới | Quasar Admin'
+      en: 'Create New Post | {{platformTitle}}',
+      vi: 'Tạo Bài Viết Mới | {{platformTitle}}'
     },
     description: {
       en: 'Write and publish a new post',
@@ -330,8 +348,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/posts/:id',
     titles: {
-      en: 'Edit Post | Quasar Admin',
-      vi: 'Chỉnh Sửa Bài Viết | Quasar Admin'
+      en: 'Edit Post | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Bài Viết | {{platformTitle}}'
     },
     description: {
       en: 'Update post content and settings',
@@ -341,8 +359,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/posts/categories',
     titles: {
-      en: 'Post Categories | Quasar Admin',
-      vi: 'Danh Mục Bài Viết | Quasar Admin'
+      en: 'Post Categories | {{platformTitle}}',
+      vi: 'Danh Mục Bài Viết | {{platformTitle}}'
     },
     description: {
       en: 'Manage post categories',
@@ -352,8 +370,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/posts/tags',
     titles: {
-      en: 'Post Tags | Quasar Admin',
-      vi: 'Thẻ Bài Viết | Quasar Admin'
+      en: 'Post Tags | {{platformTitle}}',
+      vi: 'Thẻ Bài Viết | {{platformTitle}}'
     },
     description: {
       en: 'Manage post tags',
@@ -365,8 +383,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/site-content',
     titles: {
-      en: 'Site Content | Quasar Admin',
-      vi: 'Nội Dung Trang | Quasar Admin'
+      en: 'Site Content | {{platformTitle}}',
+      vi: 'Nội Dung Trang | {{platformTitle}}'
     },
     description: {
       en: 'Manage website content and pages',
@@ -376,8 +394,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/site-content/create',
     titles: {
-      en: 'Create Content | Quasar Admin',
-      vi: 'Tạo Nội Dung | Quasar Admin'
+      en: 'Create Content | {{platformTitle}}',
+      vi: 'Tạo Nội Dung | {{platformTitle}}'
     },
     description: {
       en: 'Create new website content',
@@ -387,8 +405,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/site-content/:id/edit',
     titles: {
-      en: 'Edit Content | Quasar Admin',
-      vi: 'Chỉnh Sửa Nội Dung | Quasar Admin'
+      en: 'Edit Content | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Nội Dung | {{platformTitle}}'
     },
     description: {
       en: 'Update website content',
@@ -400,8 +418,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/languages',
     titles: {
-      en: 'Languages | Quasar Admin',
-      vi: 'Ngôn Ngữ | Quasar Admin'
+      en: 'Languages | {{platformTitle}}',
+      vi: 'Ngôn Ngữ | {{platformTitle}}'
     },
     description: {
       en: 'Manage website languages and translations',
@@ -411,8 +429,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/languages/create',
     titles: {
-      en: 'Add Language | Quasar Admin',
-      vi: 'Thêm Ngôn Ngữ | Quasar Admin'
+      en: 'Add Language | {{platformTitle}}',
+      vi: 'Thêm Ngôn Ngữ | {{platformTitle}}'
     },
     description: {
       en: 'Add a new language to the system',
@@ -422,8 +440,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/languages/:id/edit',
     titles: {
-      en: 'Edit Language | Quasar Admin',
-      vi: 'Chỉnh Sửa Ngôn Ngữ | Quasar Admin'
+      en: 'Edit Language | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Ngôn Ngữ | {{platformTitle}}'
     },
     description: {
       en: 'Update language settings',
@@ -435,8 +453,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/firebase-configs',
     titles: {
-      en: 'Firebase Configuration | Quasar Admin',
-      vi: 'Cấu Hình Firebase | Quasar Admin'
+      en: 'Firebase Configuration | {{platformTitle}}',
+      vi: 'Cấu Hình Firebase | {{platformTitle}}'
     },
     description: {
       en: 'Manage Firebase service configurations',
@@ -446,8 +464,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/firebase-configs/create',
     titles: {
-      en: 'Create Firebase Config | Quasar Admin',
-      vi: 'Tạo Cấu Hình Firebase | Quasar Admin'
+      en: 'Create Firebase Config | {{platformTitle}}',
+      vi: 'Tạo Cấu Hình Firebase | {{platformTitle}}'
     },
     description: {
       en: 'Add new Firebase configuration',
@@ -457,8 +475,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/firebase-configs/:id',
     titles: {
-      en: 'Edit Firebase Config | Quasar Admin',
-      vi: 'Chỉnh Sửa Cấu Hình Firebase | Quasar Admin'
+      en: 'Edit Firebase Config | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Cấu Hình Firebase | {{platformTitle}}'
     },
     description: {
       en: 'Update Firebase configuration',
@@ -470,8 +488,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/notifications',
     titles: {
-      en: 'Notifications | Quasar Admin',
-      vi: 'Thông Báo | Quasar Admin'
+      en: 'Notifications | {{platformTitle}}',
+      vi: 'Thông Báo | {{platformTitle}}'
     },
     description: {
       en: 'Manage system notifications',
@@ -481,8 +499,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/notifications/preferences',
     titles: {
-      en: 'Notification Preferences | Quasar Admin',
-      vi: 'Sở Thích Thông Báo | Quasar Admin'
+      en: 'Notification Preferences | {{platformTitle}}',
+      vi: 'Sở Thích Thông Báo | {{platformTitle}}'
     },
     description: {
       en: 'Configure notification settings',
@@ -492,8 +510,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/notifications/event-flows',
     titles: {
-      en: 'Notification Event Flows | Quasar Admin',
-      vi: 'Luồng Thông Báo Theo Sự Kiện | Quasar Admin'
+      en: 'Notification Event Flows | {{platformTitle}}',
+      vi: 'Luồng Thông Báo Theo Sự Kiện | {{platformTitle}}'
     },
     description: {
       en: 'Set up templates, recipients, CC, and channels for every notification event',
@@ -505,8 +523,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/products',
     titles: {
-      en: 'Products Management | Quasar Admin',
-      vi: 'Quản Lý Sản Phẩm | Quasar Admin'
+      en: 'Products Management | {{platformTitle}}',
+      vi: 'Quản Lý Sản Phẩm | {{platformTitle}}'
     },
     description: {
       en: 'Manage products, inventory, and pricing',
@@ -516,8 +534,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/products/create',
     titles: {
-      en: 'Create New Product | Quasar Admin',
-      vi: 'Tạo Sản Phẩm Mới | Quasar Admin'
+      en: 'Create New Product | {{platformTitle}}',
+      vi: 'Tạo Sản Phẩm Mới | {{platformTitle}}'
     },
     description: {
       en: 'Add a new product to catalog',
@@ -527,8 +545,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/products/:id/edit',
     titles: {
-      en: 'Edit Product | Quasar Admin',
-      vi: 'Chỉnh Sửa Sản Phẩm | Quasar Admin'
+      en: 'Edit Product | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Sản Phẩm | {{platformTitle}}'
     },
     description: {
       en: 'Update product information and pricing',
@@ -538,8 +556,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/products/categories',
     titles: {
-      en: 'Product Categories | Quasar Admin',
-      vi: 'Danh Mục Sản Phẩm | Quasar Admin'
+      en: 'Product Categories | {{platformTitle}}',
+      vi: 'Danh Mục Sản Phẩm | {{platformTitle}}'
     },
     description: {
       en: 'Manage product categories',
@@ -549,8 +567,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/products/categories/create',
     titles: {
-      en: 'Create Product Category | Quasar Admin',
-      vi: 'Tạo Danh Mục Sản Phẩm | Quasar Admin'
+      en: 'Create Product Category | {{platformTitle}}',
+      vi: 'Tạo Danh Mục Sản Phẩm | {{platformTitle}}'
     },
     description: {
       en: 'Add a new product category',
@@ -560,8 +578,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/products/categories/:id/edit',
     titles: {
-      en: 'Edit Product Category | Quasar Admin',
-      vi: 'Chỉnh Sửa Danh Mục Sản Phẩm | Quasar Admin'
+      en: 'Edit Product Category | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Danh Mục Sản Phẩm | {{platformTitle}}'
     },
     description: {
       en: 'Update product category settings',
@@ -571,8 +589,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/products/attributes',
     titles: {
-      en: 'Product Attributes | Quasar Admin',
-      vi: 'Thuộc Tính Sản Phẩm | Quasar Admin'
+      en: 'Product Attributes | {{platformTitle}}',
+      vi: 'Thuộc Tính Sản Phẩm | {{platformTitle}}'
     },
     description: {
       en: 'Manage product attributes and specifications',
@@ -582,8 +600,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/products/brands',
     titles: {
-      en: 'Product Brands | Quasar Admin',
-      vi: 'Thương Hiệu Sản Phẩm | Quasar Admin'
+      en: 'Product Brands | {{platformTitle}}',
+      vi: 'Thương Hiệu Sản Phẩm | {{platformTitle}}'
     },
     description: {
       en: 'Manage product brands',
@@ -593,8 +611,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/products/suppliers',
     titles: {
-      en: 'Product Suppliers | Quasar Admin',
-      vi: 'Nhà Cung Cấp Sản Phẩm | Quasar Admin'
+      en: 'Product Suppliers | {{platformTitle}}',
+      vi: 'Nhà Cung Cấp Sản Phẩm | {{platformTitle}}'
     },
     description: {
       en: 'Manage product suppliers and vendors',
@@ -606,8 +624,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/warehouses',
     titles: {
-      en: 'Warehouses Management | Quasar Admin',
-      vi: 'Quản Lý Kho Hàng | Quasar Admin'
+      en: 'Warehouses Management | {{platformTitle}}',
+      vi: 'Quản Lý Kho Hàng | {{platformTitle}}'
     },
     description: {
       en: 'Manage warehouse locations and inventory',
@@ -617,8 +635,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/warehouses/create',
     titles: {
-      en: 'Create Warehouse | Quasar Admin',
-      vi: 'Tạo Kho Hàng | Quasar Admin'
+      en: 'Create Warehouse | {{platformTitle}}',
+      vi: 'Tạo Kho Hàng | {{platformTitle}}'
     },
     description: {
       en: 'Add a new warehouse location',
@@ -628,8 +646,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/warehouses/:id/edit',
     titles: {
-      en: 'Edit Warehouse | Quasar Admin',
-      vi: 'Chỉnh Sửa Kho Hàng | Quasar Admin'
+      en: 'Edit Warehouse | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Kho Hàng | {{platformTitle}}'
     },
     description: {
       en: 'Update warehouse information',
@@ -639,8 +657,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/warehouses/locations',
     titles: {
-      en: 'Warehouse Locations | Quasar Admin',
-      vi: 'Địa Điểm Kho Hàng | Quasar Admin'
+      en: 'Warehouse Locations | {{platformTitle}}',
+      vi: 'Địa Điểm Kho Hàng | {{platformTitle}}'
     },
     description: {
       en: 'Manage warehouse storage locations',
@@ -650,8 +668,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/warehouses/locations/create',
     titles: {
-      en: 'Create Warehouse Location | Quasar Admin',
-      vi: 'Tạo Địa Điểm Kho Hàng | Quasar Admin'
+      en: 'Create Warehouse Location | {{platformTitle}}',
+      vi: 'Tạo Địa Điểm Kho Hàng | {{platformTitle}}'
     },
     description: {
       en: 'Add a new storage location',
@@ -661,8 +679,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/warehouses/locations/:id/edit',
     titles: {
-      en: 'Edit Warehouse Location | Quasar Admin',
-      vi: 'Chỉnh Sửa Địa Điểm Kho Hàng | Quasar Admin'
+      en: 'Edit Warehouse Location | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Địa Điểm Kho Hàng | {{platformTitle}}'
     },
     description: {
       en: 'Update storage location details',
@@ -674,8 +692,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/payment-methods',
     titles: {
-      en: 'Payment Methods | Quasar Admin',
-      vi: 'Phương Thức Thanh Toán | Quasar Admin'
+      en: 'Payment Methods | {{platformTitle}}',
+      vi: 'Phương Thức Thanh Toán | {{platformTitle}}'
     },
     description: {
       en: 'Configure payment processing methods',
@@ -685,8 +703,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/transactions',
     titles: {
-      en: 'Transactions | Quasar Admin',
-      vi: 'Giao Dịch | Quasar Admin'
+      en: 'Transactions | {{platformTitle}}',
+      vi: 'Giao Dịch | {{platformTitle}}'
     },
     description: {
       en: 'Monitor and manage customer financial transactions',
@@ -698,8 +716,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/delivery-methods',
     titles: {
-      en: 'Delivery Methods | Quasar Admin',
-      vi: 'Phương Thức Giao Hàng | Quasar Admin'
+      en: 'Delivery Methods | {{platformTitle}}',
+      vi: 'Phương Thức Giao Hàng | {{platformTitle}}'
     },
     description: {
       en: 'Manage shipping and delivery options',
@@ -711,8 +729,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/support-clients',
     titles: {
-      en: 'Support Clients | Quasar Admin',
-      vi: 'Khách Hàng Hỗ Trợ | Quasar Admin'
+      en: 'Support Clients | {{platformTitle}}',
+      vi: 'Khách Hàng Hỗ Trợ | {{platformTitle}}'
     },
     description: {
       en: 'Manage client support accounts',
@@ -724,8 +742,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/sections/:page',
     titles: {
-      en: 'Section Management | Quasar Admin',
-      vi: 'Quản Lý Phần | Quasar Admin'
+      en: 'Section Management | {{platformTitle}}',
+      vi: 'Quản Lý Phần | {{platformTitle}}'
     },
     description: {
       en: 'Manage website sections and content blocks',
@@ -737,8 +755,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/menus/:group',
     titles: {
-      en: 'Menu Management | Quasar Admin',
-      vi: 'Quản Lý Menu | Quasar Admin'
+      en: 'Menu Management | {{platformTitle}}',
+      vi: 'Quản Lý Menu | {{platformTitle}}'
     },
     description: {
       en: 'Configure navigation menus',
@@ -750,8 +768,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/orders',
     titles: {
-      en: 'Orders Management | Quasar Admin',
-      vi: 'Quản Lý Đơn Hàng | Quasar Admin'
+      en: 'Orders Management | {{platformTitle}}',
+      vi: 'Quản Lý Đơn Hàng | {{platformTitle}}'
     },
     description: {
       en: 'Manage customer orders and fulfillment',
@@ -761,8 +779,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/orders/new',
     titles: {
-      en: 'Create New Order | Quasar Admin',
-      vi: 'Tạo Đơn Hàng Mới | Quasar Admin'
+      en: 'Create New Order | {{platformTitle}}',
+      vi: 'Tạo Đơn Hàng Mới | {{platformTitle}}'
     },
     description: {
       en: 'Create a new customer order',
@@ -772,8 +790,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/orders/:id',
     titles: {
-      en: 'Order Details | Quasar Admin',
-      vi: 'Chi Tiết Đơn Hàng | Quasar Admin'
+      en: 'Order Details | {{platformTitle}}',
+      vi: 'Chi Tiết Đơn Hàng | {{platformTitle}}'
     },
     description: {
       en: 'View and manage order details',
@@ -783,8 +801,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/orders/:id/edit',
     titles: {
-      en: 'Edit Order | Quasar Admin',
-      vi: 'Chỉnh Sửa Đơn Hàng | Quasar Admin'
+      en: 'Edit Order | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Đơn Hàng | {{platformTitle}}'
     },
     description: {
       en: 'Update order information',
@@ -794,8 +812,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/orders/fulfillments',
     titles: {
-      en: 'Order Fulfillments | Quasar Admin',
-      vi: 'Thực Hiện Đơn Hàng | Quasar Admin'
+      en: 'Order Fulfillments | {{platformTitle}}',
+      vi: 'Thực Hiện Đơn Hàng | {{platformTitle}}'
     },
     description: {
       en: 'Manage order fulfillment and shipping',
@@ -805,8 +823,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/orders/fulfillments/new',
     titles: {
-      en: 'Create Order Fulfillment | Quasar Admin',
-      vi: 'Tạo Thực Hiện Đơn Hàng | Quasar Admin'
+      en: 'Create Order Fulfillment | {{platformTitle}}',
+      vi: 'Tạo Thực Hiện Đơn Hàng | {{platformTitle}}'
     },
     description: {
       en: 'Create new order fulfillment',
@@ -816,8 +834,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/orders/fulfillments/:id',
     titles: {
-      en: 'Fulfillment Details | Quasar Admin',
-      vi: 'Chi Tiết Thực Hiện | Quasar Admin'
+      en: 'Fulfillment Details | {{platformTitle}}',
+      vi: 'Chi Tiết Thực Hiện | {{platformTitle}}'
     },
     description: {
       en: 'View fulfillment details and tracking',
@@ -829,8 +847,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/customers',
     titles: {
-      en: 'Customers Management | Quasar Admin',
-      vi: 'Quản Lý Khách Hàng | Quasar Admin'
+      en: 'Customers Management | {{platformTitle}}',
+      vi: 'Quản Lý Khách Hàng | {{platformTitle}}'
     },
     description: {
       en: 'Manage customer accounts and data',
@@ -840,8 +858,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/customers/create',
     titles: {
-      en: 'Create New Customer | Quasar Admin',
-      vi: 'Tạo Khách Hàng Mới | Quasar Admin'
+      en: 'Create New Customer | {{platformTitle}}',
+      vi: 'Tạo Khách Hàng Mới | {{platformTitle}}'
     },
     description: {
       en: 'Add a new customer account',
@@ -851,8 +869,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/customers/:id',
     titles: {
-      en: 'Customer Details | Quasar Admin',
-      vi: 'Chi Tiết Khách Hàng | Quasar Admin'
+      en: 'Customer Details | {{platformTitle}}',
+      vi: 'Chi Tiết Khách Hàng | {{platformTitle}}'
     },
     description: {
       en: 'View customer information and history',
@@ -862,8 +880,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/customers/:id/edit',
     titles: {
-      en: 'Edit Customer | Quasar Admin',
-      vi: 'Chỉnh Sửa Khách Hàng | Quasar Admin'
+      en: 'Edit Customer | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Khách Hàng | {{platformTitle}}'
     },
     description: {
       en: 'Update customer information',
@@ -875,8 +893,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/loyalty',
     titles: {
-      en: 'Loyalty Management | Quasar Admin',
-      vi: 'Quản Lý Khách Hàng Thân Thiết | Quasar Admin'
+      en: 'Loyalty Management | {{platformTitle}}',
+      vi: 'Quản Lý Khách Hàng Thân Thiết | {{platformTitle}}'
     },
     description: {
       en: 'Manage loyalty programs and rewards',
@@ -888,8 +906,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/help',
     titles: {
-      en: 'Help Center | Quasar Admin',
-      vi: 'Trung Tâm Trợ Giúp | Quasar Admin'
+      en: 'Help Center | {{platformTitle}}',
+      vi: 'Trung Tâm Trợ Giúp | {{platformTitle}}'
     },
     description: {
       en: 'Get help and documentation',
@@ -901,8 +919,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/test/date-input',
     titles: {
-      en: 'Date Input Test | Quasar Admin',
-      vi: 'Kiểm Tra Input Ngày | Quasar Admin'
+      en: 'Date Input Test | {{platformTitle}}',
+      vi: 'Kiểm Tra Input Ngày | {{platformTitle}}'
     },
     description: {
       en: 'Test date input component functionality',
@@ -912,8 +930,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/test/phone-input',
     titles: {
-      en: 'Phone Input Test | Quasar Admin',
-      vi: 'Kiểm Tra Input SĐT | Quasar Admin'
+      en: 'Phone Input Test | {{platformTitle}}',
+      vi: 'Kiểm Tra Input SĐT | {{platformTitle}}'
     },
     description: {
       en: 'Test phone input component functionality',
@@ -925,8 +943,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/loyalty/rewards/create',
     titles: {
-      en: 'Create Loyalty Reward | Quasar Admin',
-      vi: 'Tạo Phần Thưởng Khách Hàng Thân Thiết | Quasar Admin'
+      en: 'Create Loyalty Reward | {{platformTitle}}',
+      vi: 'Tạo Phần Thưởng Khách Hàng Thân Thiết | {{platformTitle}}'
     },
     description: {
       en: 'Create a new loyalty reward program',
@@ -936,8 +954,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/loyalty/tiers/create',
     titles: {
-      en: 'Create Loyalty Tier | Quasar Admin',
-      vi: 'Tạo Hạng Khách Hàng Thân Thiết | Quasar Admin'
+      en: 'Create Loyalty Tier | {{platformTitle}}',
+      vi: 'Tạo Hạng Khách Hàng Thân Thiết | {{platformTitle}}'
     },
     description: {
       en: 'Create a new customer loyalty tier',
@@ -949,8 +967,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/sections',
     titles: {
-      en: 'Sections Management | Quasar Admin',
-      vi: 'Quản Lý Phần | Quasar Admin'
+      en: 'Sections Management | {{platformTitle}}',
+      vi: 'Quản Lý Phần | {{platformTitle}}'
     },
     description: {
       en: 'Manage website sections and content blocks',
@@ -960,8 +978,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/component-configs',
     titles: {
-      en: 'Component Library | Quasar Admin',
-      vi: 'Thư Viện Component | Quasar Admin',
+      en: 'Component Library | {{platformTitle}}',
+      vi: 'Thư Viện Component | {{platformTitle}}',
     },
     description: {
       en: 'Control storefront component defaults, schema, and nesting rules.',
@@ -971,8 +989,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/component-configs/create',
     titles: {
-      en: 'Create Component | Quasar Admin',
-      vi: 'Tạo Component | Quasar Admin',
+      en: 'Create Component | {{platformTitle}}',
+      vi: 'Tạo Component | {{platformTitle}}',
     },
     description: {
       en: 'Add a new building block with default content, schema, and placement metadata.',
@@ -982,8 +1000,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/component-configs/:id/edit',
     titles: {
-      en: 'Edit Component | Quasar Admin',
-      vi: 'Chỉnh Sửa Component | Quasar Admin',
+      en: 'Edit Component | {{platformTitle}}',
+      vi: 'Chỉnh Sửa Component | {{platformTitle}}',
     },
     description: {
       en: 'Update component defaults, schema, and allowed relationships on a dedicated page.',
@@ -993,8 +1011,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/menus',
     titles: {
-      en: 'Menu Management | Quasar Admin',
-      vi: 'Quản Lý Menu | Quasar Admin'
+      en: 'Menu Management | {{platformTitle}}',
+      vi: 'Quản Lý Menu | {{platformTitle}}'
     },
     description: {
       en: 'Configure navigation menus and menu items',
@@ -1006,8 +1024,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/test/date-input',
     titles: {
-      en: 'Date Input Test | Quasar Admin',
-      vi: 'Kiểm Tra Input Ngày | Quasar Admin'
+      en: 'Date Input Test | {{platformTitle}}',
+      vi: 'Kiểm Tra Input Ngày | {{platformTitle}}'
     },
     description: {
       en: 'Test date input component functionality',
@@ -1017,8 +1035,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/test/phone-input',
     titles: {
-      en: 'Phone Input Test | Quasar Admin',
-      vi: 'Kiểm Tra Input SĐT | Quasar Admin'
+      en: 'Phone Input Test | {{platformTitle}}',
+      vi: 'Kiểm Tra Input SĐT | {{platformTitle}}'
     },
     description: {
       en: 'Test phone input component functionality',
@@ -1030,8 +1048,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/loyalty/rewards/create',
     titles: {
-      en: 'Create Loyalty Reward | Quasar Admin',
-      vi: 'Tạo Phần Thưởng Khách Hàng Thân Thiết | Quasar Admin'
+      en: 'Create Loyalty Reward | {{platformTitle}}',
+      vi: 'Tạo Phần Thưởng Khách Hàng Thân Thiết | {{platformTitle}}'
     },
     description: {
       en: 'Create a new loyalty reward program',
@@ -1041,8 +1059,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/loyalty/tiers/create',
     titles: {
-      en: 'Create Loyalty Tier | Quasar Admin',
-      vi: 'Tạo Hạng Khách Hàng Thân Thiết | Quasar Admin'
+      en: 'Create Loyalty Tier | {{platformTitle}}',
+      vi: 'Tạo Hạng Khách Hàng Thân Thiết | {{platformTitle}}'
     },
     description: {
       en: 'Create a new customer loyalty tier',
@@ -1054,8 +1072,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/sections/:page',
     titles: {
-      en: 'Section Editor | Quasar Admin',
-      vi: 'Trình Chỉnh Sửa Phần | Quasar Admin'
+      en: 'Section Editor | {{platformTitle}}',
+      vi: 'Trình Chỉnh Sửa Phần | {{platformTitle}}'
     },
     description: {
       en: 'Edit website section content and settings',
@@ -1067,8 +1085,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/menus/:group',
     titles: {
-      en: 'Menu Group Editor | Quasar Admin',
-      vi: 'Trình Chỉnh Sửa Nhóm Menu | Quasar Admin'
+      en: 'Menu Group Editor | {{platformTitle}}',
+      vi: 'Trình Chỉnh Sửa Nhóm Menu | {{platformTitle}}'
     },
     description: {
       en: 'Edit menu group items and configuration',
@@ -1080,8 +1098,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/404',
     titles: {
-      en: 'Page Not Found | Quasar Admin',
-      vi: 'Không Tìm Thấy Trang | Quasar Admin'
+      en: 'Page Not Found | {{platformTitle}}',
+      vi: 'Không Tìm Thấy Trang | {{platformTitle}}'
     },
     description: {
       en: 'The page you are looking for does not exist',
@@ -1093,8 +1111,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/orders/new',
     titles: {
-      en: 'Create New Order | Quasar Admin',
-      vi: 'Tạo Đơn Hàng Mới | Quasar Admin'
+      en: 'Create New Order | {{platformTitle}}',
+      vi: 'Tạo Đơn Hàng Mới | {{platformTitle}}'
     },
     description: {
       en: 'Create a new customer order with products and billing',
@@ -1104,8 +1122,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/orders/fulfillments',
     titles: {
-      en: 'Order Fulfillments | Quasar Admin',
-      vi: 'Thực Hiện Đơn Hàng | Quasar Admin'
+      en: 'Order Fulfillments | {{platformTitle}}',
+      vi: 'Thực Hiện Đơn Hàng | {{platformTitle}}'
     },
     description: {
       en: 'Manage order fulfillment and shipping operations',
@@ -1115,8 +1133,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/orders/fulfillments/new',
     titles: {
-      en: 'Create Order Fulfillment | Quasar Admin',
-      vi: 'Tạo Thực Hiện Đơn Hàng | Quasar Admin'
+      en: 'Create Order Fulfillment | {{platformTitle}}',
+      vi: 'Tạo Thực Hiện Đơn Hàng | {{platformTitle}}'
     },
     description: {
       en: 'Create new order fulfillment with tracking details',
@@ -1126,8 +1144,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '/customers/detail',
     titles: {
-      en: 'Customer Details | Quasar Admin',
-      vi: 'Chi Tiết Khách Hàng | Quasar Admin'
+      en: 'Customer Details | {{platformTitle}}',
+      vi: 'Chi Tiết Khách Hàng | {{platformTitle}}'
     },
     description: {
       en: 'View detailed customer information and order history',
@@ -1139,8 +1157,8 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
   {
     path: '*',
     titles: {
-      en: 'Page Not Found | Quasar Admin',
-      vi: 'Không Tìm Thấy Trang | Quasar Admin'
+      en: 'Page Not Found | {{platformTitle}}',
+      vi: 'Không Tìm Thấy Trang | {{platformTitle}}'
     },
     description: {
       en: 'The page you are looking for does not exist',
@@ -1178,9 +1196,14 @@ export function getSeoConfigForPath(path: string, locale: 'en' | 'vi' = 'en'): A
 /**
  * Get meta title for a specific path and locale
  */
-export function getMetaTitleForPath(path: string, locale: 'en' | 'vi' = 'en'): string {
+export function getMetaTitleForPath(
+  path: string,
+  locale: 'en' | 'vi' = 'en',
+  platformTitle?: string,
+): string {
   const config = getSeoConfigForPath(path, locale);
-  return config ? config.titles[locale] : 'Quasar Admin';
+  const baseTitle = config ? config.titles[locale] : PLATFORM_TITLE_PLACEHOLDER;
+  return replacePlatformPlaceholder(baseTitle, platformTitle);
 }
 
 /**

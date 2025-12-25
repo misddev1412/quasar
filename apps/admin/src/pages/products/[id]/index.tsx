@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import {
   FiPackage,
@@ -31,14 +31,7 @@ import { Button } from '../../../components/common/Button';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { trpc } from '../../../utils/trpc';
 import { Product, ProductMedia, ProductVariant, ProductSpecification } from '../../../types/product';
-
-const formatCurrency = (amount: number | null | undefined, currency?: string) => {
-  if (amount === null || amount === undefined) return '-';
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency || 'USD',
-  }).format(amount);
-};
+import { useDefaultCurrency } from '../../../hooks/useDefaultCurrency';
 
 const formatDate = (date: Date | string | null | undefined) => {
   if (!date) return '-';
@@ -66,6 +59,23 @@ const ProductDetailPage: React.FC = () => {
   const { t } = useTranslationWithBackend();
   const [purchaseHistoryPage, setPurchaseHistoryPage] = useState(1);
   const purchaseHistoryLimit = 10;
+  const { defaultCurrency } = useDefaultCurrency();
+
+  const formatCurrencyValue = useCallback((amount: number | null | undefined, currencyCode?: string) => {
+    if (amount === null || amount === undefined) return '-';
+
+    const resolvedCurrency = (currencyCode || defaultCurrency.code || 'USD').toUpperCase();
+
+    try {
+      return new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: resolvedCurrency,
+      }).format(amount);
+    } catch {
+      const fractionDigits = Math.max(0, defaultCurrency.decimalPlaces ?? 2);
+      return `${resolvedCurrency} ${Number(amount).toFixed(fractionDigits)}`;
+    }
+  }, [defaultCurrency.code, defaultCurrency.decimalPlaces]);
 
   const {
     data: productData,
@@ -375,11 +385,11 @@ const ProductDetailPage: React.FC = () => {
                             <td className="px-4 py-3">
                               <div>
                                 <div className="font-medium text-gray-900">
-                                  {formatCurrency(variant.price, product.currencyCode)}
+                                  {formatCurrencyValue(variant.price, product.currencyCode)}
                                 </div>
                                 {variant.compareAtPrice && variant.compareAtPrice > variant.price && (
                                   <div className="text-xs text-gray-500 line-through">
-                                    {formatCurrency(variant.compareAtPrice, product.currencyCode)}
+                                    {formatCurrencyValue(variant.compareAtPrice, product.currencyCode)}
                                   </div>
                                 )}
                               </div>
@@ -526,10 +536,10 @@ const ProductDetailPage: React.FC = () => {
                                 {item.quantity}
                               </td>
                               <td className="px-4 py-3">
-                                {formatCurrency(item.unitPrice, product.currencyCode)}
+                                {formatCurrencyValue(item.unitPrice, product.currencyCode)}
                               </td>
                               <td className="px-4 py-3 font-medium">
-                                {formatCurrency(item.totalPrice, product.currencyCode)}
+                                {formatCurrencyValue(item.totalPrice, product.currencyCode)}
                               </td>
                               <td className="px-4 py-3">
                                 <Badge variant={getStatusBadgeVariant(item.orderStatus)}>
@@ -605,7 +615,7 @@ const ProductDetailPage: React.FC = () => {
                       {t('products.price', 'Price')}
                     </label>
                     <p className="text-2xl font-bold text-gray-900">
-                      {formatCurrency(product.price, product.currencyCode)}
+                      {formatCurrencyValue(product.price, product.currencyCode)}
                     </p>
                   </div>
                 )}
@@ -615,7 +625,7 @@ const ProductDetailPage: React.FC = () => {
                       {t('products.compare_at_price', 'Compare At Price')}
                     </label>
                     <p className="text-lg text-gray-600 line-through">
-                      {formatCurrency(product.compareAtPrice, product.currencyCode)}
+                      {formatCurrencyValue(product.compareAtPrice, product.currencyCode)}
                     </p>
                   </div>
                 )}

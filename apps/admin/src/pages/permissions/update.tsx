@@ -192,11 +192,11 @@ const PermissionUpdatePage: React.FC = () => {
   const tabs: FormTabConfig[] = [
     {
       id: 'general',
-      label: t('form.tabs.general_information'),
+      label: t('form.tabs.general_information', 'General Information'),
       icon: <Lock className="w-4 h-4" />,
       sections: [
         {
-          title: t('form.sections.basic_information'),
+          title: t('form.sections.basic_information', 'Basic Information'),
           description: t('form.sections.permission_basic_information_description', 'Define the basic permission information'),
           icon: <Lock className="w-4 h-4" />,
           fields: [

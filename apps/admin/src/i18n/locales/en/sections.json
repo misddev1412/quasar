@@ -11,20 +11,30 @@
             "rawJson": "Raw JSON",
             "refresh": "Refresh",
             "newSection": "New Section",
+            "modal": {
+                "editTitle": "Edit section",
+                "description": "Update the content, translations, and linked components for this section."
+            },
+            "entityName": "Section",
+            "entityNamePlural": "Sections",
             "deleteConfirm": "Are you sure you want to delete this section?",
             "sectionDeleted": "Section deleted",
             "sectionRemoved": "{{sectionType}} removed successfully",
             "deleteFailed": "Delete failed",
             "unableToDelete": "Unable to delete section",
             "sectionUpdated": "Section updated",
+            "sectionSaved": "Section saved",
+            "changesApplied": "Changes have been applied",
             "sectionEnabled": "{{sectionType}} enabled",
             "sectionDisabled": "{{sectionType}} disabled",
             "updateFailed": "Update failed",
+            "unableToUpdate": "Unable to update section",
             "unableToUpdateStatus": "Unable to update status",
             "orderUpdated": "Order updated",
             "sectionOrderSaved": "Section order saved successfully",
             "reorderFailed": "Reorder failed",
             "unableToReorder": "Unable to reorder sections",
+            "sectionNotFound": "Section not found or no longer available.",
             "tableHeaders": {
                 "title": "Title",
                 "type": "Type",
@@ -35,6 +45,10 @@
             "edit": "Edit",
             "delete": "Delete",
             "noSections": "No sections found",
+            "linkedComponents": {
+                "title": "Assigned components",
+                "description": "The defaults for this section come from the components below. Edit them directly to adjust configuration."
+            },
             "configEditor": {
                 "rawJson": "Raw JSON Configuration",
                 "useFormEditor": "Use Form Editor",
@@ -52,7 +66,8 @@
                 "description": "Description",
                 "heroTitle": "Hero Title",
                 "heroDescription": "Hero Description",
-                "configOverride": "Config Override (JSON)"
+                "configOverride": "Config Override (JSON)",
+                "saveChanges": "Save changes"
             },
             "heroSlider": {
                 "enableOverlay": "Enable overlay",

@@ -1,6 +1,9 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAdminSeo, AdminSeoData } from '../../hooks/useAdminSeo';
+import { useBrandingSetting } from '../../hooks/useBrandingSetting';
+import { ADMIN_LOGIN_BRANDING_KEY, DEFAULT_ADMIN_LOGIN_BRANDING } from '../../constants/adminBranding';
+import { DEFAULT_PLATFORM_TITLE } from '../../config/seoTitles';
 
 interface WithAdminSeoProps {
   path?: string;
@@ -18,13 +21,19 @@ export const AdminSeoHead: React.FC<WithAdminSeoProps> = ({ path, data, defaultS
     path,
     defaultSeo
   });
+  const { config: loginBranding } = useBrandingSetting(
+    ADMIN_LOGIN_BRANDING_KEY,
+    DEFAULT_ADMIN_LOGIN_BRANDING,
+    { publicAccess: true },
+  );
+  const platformTitle = loginBranding.platformTitle?.trim() || DEFAULT_PLATFORM_TITLE;
 
   if (!seo) {
     // Default SEO fallback
     return (
       <Helmet>
-        <title>Quasar Admin</title>
-        <meta name="description" content="Admin dashboard for managing your application" />
+        <title>{platformTitle}</title>
+        <meta name="description" content={`${platformTitle} admin dashboard`} />
       </Helmet>
     );
   }

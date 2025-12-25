@@ -19,6 +19,8 @@ import { ProductSpecification } from './entities/product-specification.entity';
 import { ProductSpecificationLabel } from './entities/product-specification-label.entity';
 import { ProductWarehouseQuantity } from './entities/product-warehouse-quantity.entity';
 import { ProductTranslation } from './entities/product-translation.entity';
+import { ProductPriceHistory } from './entities/product-price-history.entity';
+import { ProductVariantPriceHistory } from './entities/product-variant-price-history.entity';
 import { PurchaseOrder } from './entities/purchase-order.entity';
 import { PurchaseOrderItem } from './entities/purchase-order-item.entity';
 import { StockMovement } from './entities/stock-movement.entity';
@@ -132,6 +134,8 @@ import { PayosWebhookController } from './controllers/payos-webhook.controller';
       ProductSpecificationLabel,
       ProductWarehouseQuantity,
       ProductTranslation,
+      ProductPriceHistory,
+      ProductVariantPriceHistory,
       PurchaseOrder,
       PurchaseOrderItem,
       StockMovement,
@@ -292,4 +296,4 @@ import { PayosWebhookController } from './controllers/payos-webhook.controller';
     AdminShippingProviderService,
   ],
 })
-export class ProductsModule {}
+export class ProductsModule { }

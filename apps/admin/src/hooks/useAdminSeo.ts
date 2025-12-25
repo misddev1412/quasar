@@ -1,7 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { getSeoConfigForPath, getMetaTitleForPath, getMetaDescriptionForPath } from '../config/seoTitles';
+import {
+  getSeoConfigForPath,
+  getMetaTitleForPath,
+  getMetaDescriptionForPath,
+  DEFAULT_PLATFORM_TITLE,
+} from '../config/seoTitles';
 import { useTranslation } from 'react-i18next';
+import { useBrandingSetting } from './useBrandingSetting';
+import { ADMIN_LOGIN_BRANDING_KEY, DEFAULT_ADMIN_LOGIN_BRANDING } from '../constants/adminBranding';
 
 export interface AdminSeoData {
   path: string;
@@ -35,16 +42,23 @@ export function useAdminSeo(props?: UseAdminSeoProps) {
   const { i18n } = useTranslation();
   const currentLocale = i18n.language as 'en' | 'vi' || 'en';
 
+  const { config: brandingConfig } = useBrandingSetting(
+    ADMIN_LOGIN_BRANDING_KEY,
+    DEFAULT_ADMIN_LOGIN_BRANDING,
+    { publicAccess: true },
+  );
+  const platformTitle = brandingConfig.platformTitle?.trim() || DEFAULT_PLATFORM_TITLE;
+
   // Use provided path or current location path
   const currentPath = props?.path || location.pathname;
 
   // Initialize SEO data with defaults
-  const [seo, setSeo] = useState<AdminSeoData>({
+  const [seo, setSeo] = useState<AdminSeoData>(() => ({
     path: currentPath,
-    title: getMetaTitleForPath(currentPath, currentLocale),
+    title: getMetaTitleForPath(currentPath, currentLocale, platformTitle),
     description: getMetaDescriptionForPath(currentPath, currentLocale),
     keywords: '',
-    ogTitle: undefined,
+    ogTitle: getMetaTitleForPath(currentPath, currentLocale, platformTitle),
     ogDescription: undefined,
     ogImage: undefined,
     ogUrl: window.location.href,
@@ -58,26 +72,37 @@ export function useAdminSeo(props?: UseAdminSeoProps) {
     isActive: true,
     additionalMetaTags: {},
     ...props?.defaultSeo
-  });
+  }));
 
   // Update SEO when path or locale changes
   useEffect(() => {
     const config = getSeoConfigForPath(currentPath, currentLocale);
+    const resolvedTitle = getMetaTitleForPath(currentPath, currentLocale, platformTitle);
 
     if (config) {
       setSeo(prevSeo => ({
         ...prevSeo,
         path: currentPath,
-        title: config.titles[currentLocale],
+        title: resolvedTitle,
         description: config.description?.[currentLocale] || prevSeo.description,
-        ogTitle: config.titles[currentLocale], // Use title as ogTitle
+        ogTitle: resolvedTitle,
         ogDescription: config.description?.[currentLocale],
         ogUrl: window.location.href,
         canonicalUrl: window.location.href,
         locale: currentLocale,
       }));
+    } else {
+      setSeo(prevSeo => ({
+        ...prevSeo,
+        path: currentPath,
+        title: resolvedTitle,
+        ogTitle: resolvedTitle,
+        ogUrl: window.location.href,
+        canonicalUrl: window.location.href,
+        locale: currentLocale,
+      }));
     }
-  }, [currentPath, currentLocale]);
+  }, [currentPath, currentLocale, platformTitle]);
 
   // Update document head with SEO data
   const updateHead = (seoData: AdminSeoData) => {

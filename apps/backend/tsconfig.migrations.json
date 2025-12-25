@@ -14,12 +14,19 @@
     "noEmit": false,
     "moduleResolution": "node",
     "baseUrl": ".",
-    "types": ["node"]
+    "types": [
+      "node"
+    ],
+    "importHelpers": false
   },
   "ts-node": {
-    "require": ["tsconfig-paths/register"],
+    "require": [
+      "tsconfig-paths/register"
+    ],
+    "transpileOnly": true,
     "compilerOptions": {
       "module": "commonjs",
+      "target": "es2019",
       "esModuleInterop": true,
       "allowSyntheticDefaultImports": true
     }

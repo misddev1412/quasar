@@ -3,6 +3,7 @@ import { useToast } from '../context/ToastContext';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 import { useTablePreferences } from '../hooks/useTablePreferences';
 import { useMenusManager, AdminMenu, MenuTreeNode } from '../hooks/useMenusManager';
+import type { BreadcrumbItem } from '../components/common/Breadcrumb';
 import { MenuType, MenuTarget } from '@shared/enums/menu.enums';
 
 type MenuSelectOption = { value: MenuType; label: string; disabled?: boolean };
@@ -42,7 +43,8 @@ export interface MenuFormState {
   showDescription?: boolean;
   subMenuVariant?: 'link' | 'button';
   buttonBorderRadius?: string;
-  buttonAnimation?: 'none' | 'pulse' | 'float';
+  buttonSize?: 'small' | 'medium' | 'large';
+  buttonAnimation?: 'none' | 'pulse' | 'float' | 'ring';
   // Section customization (for mega menu sections)
   columnSpan?: number;
   borderColor?: string;
@@ -320,25 +322,25 @@ export const useMenuPage = (initialGroup: string = 'main') => {
         setLoadingChildren(prev => new Set(prev).add(nodeId));
 
         void fetchChildren({ menuGroup: selectedMenuGroup, parentId: nodeId })
-            .then(data => {
-              const children = (data?.data ?? []) as unknown as MenuTreeNode[];
-              setLoadedChildren(prev => {
-                const newMap = new Map(prev);
-                newMap.set(nodeId, children);
-                return newMap;
-              });
-            })
-            .catch((error) => {
-              console.error('Failed to load menu children:', error);
-              addToast({ title: 'Failed to load menu children', type: 'error' });
-            })
-            .finally(() => {
-              setLoadingChildren(prev => {
-                const newSet = new Set(prev);
-                newSet.delete(nodeId);
-                return newSet;
-              });
+          .then(data => {
+            const children = (data?.data ?? []) as unknown as MenuTreeNode[];
+            setLoadedChildren(prev => {
+              const newMap = new Map(prev);
+              newMap.set(nodeId, children);
+              return newMap;
             });
+          })
+          .catch((error) => {
+            console.error('Failed to load menu children:', error);
+            addToast({ title: 'Failed to load menu children', type: 'error' });
+          })
+          .finally(() => {
+            setLoadingChildren(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(nodeId);
+              return newSet;
+            });
+          });
       } else {
         next.delete(nodeId);
       }
@@ -359,7 +361,7 @@ export const useMenuPage = (initialGroup: string = 'main') => {
   ), [groupOptions, selectedMenuGroup]);
 
   // Breadcrumb items
-  const breadcrumbItems = useMemo(() => [
+  const breadcrumbItems = useMemo<BreadcrumbItem[]>(() => [
     {
       label: t('navigation.home', 'Home'),
       href: '/',

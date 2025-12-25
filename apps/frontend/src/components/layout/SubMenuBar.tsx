@@ -14,6 +14,20 @@ import { useSettings } from '../../hooks/useSettings';
 const SUB_MENU_GROUP = 'sub';
 const SUB_MENU_VISIBILITY_SETTING_KEY = 'storefront.sub_menu_enabled';
 type SubMenuVariant = 'link' | 'button';
+type SubMenuButtonSize = 'small' | 'medium' | 'large';
+
+const resolveButtonSizeClass = (item: MenuItem): string => {
+  const size = (item.config?.buttonSize as SubMenuButtonSize) || 'medium';
+
+  switch (size) {
+    case 'small':
+      return 'px-2.5 py-1.5 h-8 text-xs';
+    case 'large':
+      return 'px-4 py-2.5 sm:px-5 sm:py-3 h-12 text-[15px]';
+    default: // medium
+      return 'px-3 py-2 h-10 text-sm';
+  }
+};
 
 const resolveSubMenuVariant = (item: MenuItem): SubMenuVariant => {
   const variant = item.config?.subMenuVariant;
@@ -42,6 +56,8 @@ const resolveButtonAnimationClass = (item: MenuItem, variant: SubMenuVariant): s
       return 'animate-pulse';
     case 'float':
       return 'subnav-float';
+    case 'ring':
+      return ''; // Handle ring on icon separately
     default:
       return '';
   }
@@ -213,7 +229,7 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
       updatePosition();
       rafId = requestAnimationFrame(continuousUpdate);
     };
-    
+
     // Start continuous update
     rafId = requestAnimationFrame(continuousUpdate);
 
@@ -283,6 +299,9 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
   }
 
   const isCallButton = item.type === MenuType.CALL_BUTTON;
+  const animationAnimation = item.config?.buttonAnimation;
+  const isRingAnimation = animationAnimation === 'ring';
+
   const iconElement = item.icon ? (
     <span
       className={clsx(
@@ -292,14 +311,15 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
           : variant === 'button'
             ? 'h-6 w-6 rounded-lg bg-white/15'
             : 'h-6 w-6 rounded-lg bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 dark:from-gray-800/60 dark:via-gray-800/40 dark:to-gray-800/30',
+        isRingAnimation && 'subnav-ring'
       )}
       style={{ color: 'inherit' }}
     >
-      <UnifiedIcon 
-        icon={item.icon} 
-        variant="nav" 
-        size={isCallButton ? 14 : 14} 
-        className="!text-inherit" 
+      <UnifiedIcon
+        icon={item.icon}
+        variant="nav"
+        size={isCallButton ? 14 : 14}
+        className="!text-inherit"
       />
     </span>
   ) : null;
@@ -318,6 +338,8 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
     </span>
   ) : null;
 
+  const buttonSizeClass = resolveButtonSizeClass(item);
+
   return (
     <div
       key={item.id}
@@ -332,8 +354,8 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
         rel={linkRel}
         className={clsx(
           'relative flex items-center w-auto min-w-0 max-w-[200px] sm:max-w-[220px] md:max-w-[240px] gap-2 rounded-lg border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900',
-          isCallButton
-            ? 'px-2.5 py-1.5 sm:px-3 sm:py-2 h-10'
+          variant === 'button'
+            ? buttonSizeClass
             : 'px-2.5 py-2 sm:px-3 sm:py-2 h-10',
           variant === 'button'
             ? 'text-white shadow-lg shadow-blue-500/25 hover:-translate-y-0.5 hover:shadow-2xl border-transparent'
@@ -346,17 +368,17 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
         <div className="min-w-0 flex-1 flex flex-col justify-center">
           {isCallButton ? (
             <>
-              <p className="text-[9px] sm:text-[10px] font-medium leading-[1.1] mb-0 opacity-90">
+              <p className="text-[90%] font-medium leading-[1.1] mb-0 opacity-90">
                 {label || href || 'Untitled'}
               </p>
               {description && (
-                <p className="text-xs sm:text-sm font-bold leading-[1.2] tracking-tight mb-0">
+                <p className="text-[110%] font-bold leading-[1.2] tracking-tight mb-0">
                   {description}
                 </p>
               )}
             </>
           ) : (
-            <p className="truncate text-xs sm:text-sm font-semibold leading-tight mb-0">
+            <p className="truncate font-semibold leading-tight mb-0">
               {label || href || 'Untitled'}
             </p>
           )}
@@ -550,20 +572,20 @@ const SubMenuBar: React.FC = () => {
       <div className="z-30 w-full border-b border-gray-200/70 dark:border-gray-800/70 bg-gradient-to-r from-white/95 via-white/90 to-white/95 dark:from-gray-950/95 dark:via-gray-950/90 shadow-[0_10px_24px_rgba(15,23,42,0.08)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.6)]">
         <div className="pointer-events-none absolute inset-0 w-full bg-gradient-to-r from-blue-50/20 via-transparent to-purple-50/20 dark:from-blue-900/10 dark:via-transparent dark:to-purple-900/10" />
         <Container className="relative z-10 py-2.5" aria-label="secondary storefront navigation">
-          <div className="subnav-scroll-area flex items-stretch gap-2 sm:gap-2.5 overflow-x-auto scrollbar-thin scrollbar-thumb-transparent pb-1 pr-3">
+          <div className="subnav-scroll-area flex items-center gap-2 sm:gap-2.5 overflow-x-auto scrollbar-thin scrollbar-thumb-transparent pb-1 pr-3">
             {isLoading && rootItems.length === 0
               ? Array.from({ length: 4 }).map((_, index) => (
-                  <div
-                    key={`sub-menu-skeleton-${index}`}
-                    className="h-10 w-28 rounded-2xl bg-gray-100/70 dark:bg-gray-800/70 animate-pulse"
-                  />
-                ))
+                <div
+                  key={`sub-menu-skeleton-${index}`}
+                  className="h-10 w-28 rounded-2xl bg-gray-100/70 dark:bg-gray-800/70 animate-pulse"
+                />
+              ))
               : rootItems.map(renderMenuItem)}
           </div>
         </Container>
       </div>
       <style jsx>{`
-        .subnav-float {
+        :global(.subnav-float) {
           animation: subnavFloat 3s ease-in-out infinite;
         }
 
@@ -577,6 +599,20 @@ const SubMenuBar: React.FC = () => {
           100% {
             transform: translateY(0);
           }
+        }
+        
+        :global(.subnav-ring) {
+          animation: subnavRing 2s infinite;
+        }
+
+        @keyframes subnavRing {
+          0% { transform: rotate(0deg); }
+          10% { transform: rotate(15deg); }
+          20% { transform: rotate(-15deg); }
+          30% { transform: rotate(10deg); }
+          40% { transform: rotate(-10deg); }
+          50% { transform: rotate(0deg); }
+          100% { transform: rotate(0deg); }
         }
       `}</style>
     </>

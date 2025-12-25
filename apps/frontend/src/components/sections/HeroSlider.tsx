@@ -167,6 +167,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   const interval = config.interval ?? 6000;
   const autoplay = config.autoplay ?? true;
   const layout = config.layout === 'full-width' ? 'full-width' : 'container';
+  const isFullWidth = layout === 'full-width';
 
   const overlaySettings = config.overlay ?? {};
   const overlayEnabled = overlaySettings.enabled ?? true;
@@ -213,26 +214,41 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   const secondaryDescription = heroDescription && slideDescription && heroDescription !== slideDescription
     ? slideDescription
     : undefined;
-  const contentPaddingClass = layout === 'full-width'
+  const contentPaddingClass = isFullWidth
     ? 'px-4 sm:px-8 lg:px-12 xl:px-16'
-    : undefined;
+    : 'px-6 sm:px-10 lg:px-16';
   const contentWrapperClass = 'py-12 sm:py-16 lg:py-20 xl:py-24 min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[550px] xl:min-h-[600px] 2xl:min-h-[650px] flex flex-col justify-center';
+  const backgroundImage = activeSlide?.imageUrl?.trim();
+  const backgroundImageValue = backgroundImage
+    ? `url('${backgroundImage.replace(/'/g, "\\'")}')`
+    : undefined;
+  const backgroundLayerStyle: CSSProperties | undefined = backgroundImageValue
+    ? {
+        backgroundImage: backgroundImageValue,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        opacity: overlayEnabled ? 0.7 : 1,
+        filter: overlayEnabled ? 'grayscale(15%)' : 'none',
+        transition: 'opacity 300ms ease',
+      }
+    : undefined;
+  const outerWrapperClass = isFullWidth
+    ? 'w-full'
+    : 'px-4 sm:px-6 lg:px-8';
+  const constrainedWrapperClass = isFullWidth ? '' : 'max-w-6xl mx-auto w-full';
+  const heroShellClass = isFullWidth
+    ? 'relative overflow-hidden text-white'
+    : 'relative overflow-hidden text-white rounded-3xl shadow-2xl border border-white/10 dark:border-white/5';
 
-  return (
-    <section className="relative overflow-hidden text-white" style={containerStyle}>
-      <div
-        className="absolute inset-0 opacity-70"
-        style={{
-          backgroundImage: activeSlide?.imageUrl ? `url(${activeSlide.imageUrl})` : undefined,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          filter: 'grayscale(15%)',
-        }}
-      />
+  const heroContent = (
+    <div className={heroShellClass} style={containerStyle}>
+      {backgroundLayerStyle && (
+        <div className="absolute inset-0" style={backgroundLayerStyle} />
+      )}
       {overlayEnabled && <div className="absolute inset-0" style={overlayStyle} />}
 
       <SectionContainer
-        fullWidth={layout === 'full-width'}
+        fullWidth
         paddingClassName={contentPaddingClass}
         className={`relative ${contentWrapperClass}`}
       >
@@ -287,6 +303,18 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
           ))}
         </div>
       </SectionContainer>
+    </div>
+  );
+
+  return (
+    <section className={outerWrapperClass}>
+      {isFullWidth ? (
+        heroContent
+      ) : (
+        <div className={constrainedWrapperClass}>
+          {heroContent}
+        </div>
+      )}
     </section>
   );
 };

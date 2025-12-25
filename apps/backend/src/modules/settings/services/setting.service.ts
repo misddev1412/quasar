@@ -17,7 +17,7 @@ export class SettingService {
     private readonly settingRepository: SettingRepository,
     private readonly responseService: ResponseService,
     private readonly translationService: TranslationService,
-  ) {}
+  ) { }
 
   private async translateMessage(
     key: string,
@@ -71,7 +71,7 @@ export class SettingService {
 
     const keys = bulkUpdateDto.settings.map(s => s.key);
     const existingSettings = await this.settingRepository.findByKeys(keys);
-    
+
     // 创建键值映射以便快速查找
     const keyToSettingMap = new Map<string, SettingEntity>();
     existingSettings.forEach(setting => {
@@ -85,18 +85,41 @@ export class SettingService {
         settingData.key,
         settingData.value ?? null
       );
-      
+
       if (existingSetting) {
-        // 更新现有设置
-        await this.settingRepository.update(existingSetting.id, {
-          value: normalizedValue
-        });
+        const updatePayload: Partial<SettingEntity> = {};
+
+        if (Object.prototype.hasOwnProperty.call(settingData, 'value')) {
+          updatePayload.value = normalizedValue ?? undefined;
+        }
+
+        if (
+          Object.prototype.hasOwnProperty.call(settingData, 'group') &&
+          typeof settingData.group !== 'undefined' &&
+          settingData.group !== existingSetting.group
+        ) {
+          updatePayload.group = settingData.group;
+        }
+
+        if (
+          Object.prototype.hasOwnProperty.call(settingData, 'isPublic') &&
+          typeof settingData.isPublic !== 'undefined' &&
+          settingData.isPublic !== existingSetting.isPublic
+        ) {
+          updatePayload.isPublic = settingData.isPublic;
+        }
+
+        if (Object.keys(updatePayload).length > 0) {
+          await this.settingRepository.update(existingSetting.id, updatePayload);
+        }
       } else {
         // 创建新设置
         await this.create({
           key: settingData.key,
           value: normalizedValue ?? undefined,
           type: 'string',
+          group: settingData.group,
+          isPublic: settingData.isPublic ?? false, // Default to provided or false (but client should send true for public)
         }, locale);
       }
     }
@@ -171,6 +194,13 @@ export class SettingService {
   }
 
   /**
+   * 获取公开组设置
+   */
+  async findPublicByGroup(group: string): Promise<SettingEntity[]> {
+    return this.settingRepository.findPublicByGroup(group);
+  }
+
+  /**
    * 获取公开设置
    */
   async findPublicSettings(): Promise<SettingEntity[]> {
@@ -240,7 +270,7 @@ export class SettingService {
     limit: number;
     search?: string;
     group?: string;
-  }): Promise<{ data: SettingEntity[]; total: number; page: number; limit: number; totalPages: number }> {
+  }): Promise<{ items: SettingEntity[]; total: number; page: number; limit: number; totalPages: number }> {
     const result = await this.settingRepository.findPaginated(params);
     const totalPages = Math.ceil(result.total / params.limit);
 

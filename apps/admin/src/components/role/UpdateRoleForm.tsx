@@ -88,7 +88,7 @@ export const UpdateRoleForm: React.FC<UpdateRoleFormProps> = ({
   // Define tabs for the standardized Tabs component
   const tabs = [
     {
-      label: t('form.tabs.general_information'),
+      label: t('form.tabs.general_information', 'General Information'),
       icon: <Shield className="w-4 h-4" />,
       content: (
         <div className="space-y-8">
@@ -96,7 +96,7 @@ export const UpdateRoleForm: React.FC<UpdateRoleFormProps> = ({
           <div className="space-y-4">
             <SectionHeader
               icon={<Shield className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
-              title={t('form.sections.basic_information')}
+              title={t('form.sections.basic_information', 'Basic Information')}
               description={t('form.sections.role_basic_information_description')}
             />
             

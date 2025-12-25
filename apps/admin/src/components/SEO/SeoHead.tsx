@@ -1,6 +1,9 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useSeo, SeoData } from '../../hooks/useSeo';
+import { useBrandingSetting } from '../../hooks/useBrandingSetting';
+import { ADMIN_LOGIN_BRANDING_KEY, DEFAULT_ADMIN_LOGIN_BRANDING } from '../../constants/adminBranding';
+import { DEFAULT_PLATFORM_TITLE } from '../../config/seoTitles';
 
 interface SeoHeadProps {
   path?: string;
@@ -17,6 +20,13 @@ export const SeoHead: React.FC<SeoHeadProps> = ({ path, data, defaultSeo }) => {
     path,
     defaultSeo
   });
+
+  const { config: loginBranding } = useBrandingSetting(
+    ADMIN_LOGIN_BRANDING_KEY,
+    DEFAULT_ADMIN_LOGIN_BRANDING,
+    { publicAccess: true },
+  );
+  const platformTitle = loginBranding.platformTitle?.trim() || DEFAULT_PLATFORM_TITLE;
   
   if (isLoading) {
     return null;
@@ -26,8 +36,8 @@ export const SeoHead: React.FC<SeoHeadProps> = ({ path, data, defaultSeo }) => {
     // 默认SEO回退方案
     return (
       <Helmet>
-        <title>Quasar Admin</title>
-        <meta name="description" content="Quasar Admin Dashboard" />
+        <title>{platformTitle}</title>
+        <meta name="description" content={`${platformTitle} Dashboard`} />
       </Helmet>
     );
   }

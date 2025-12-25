@@ -25,11 +25,11 @@ export const EditLanguageForm: React.FC<EditLanguageFormProps> = ({
   const tabs: FormTabConfig[] = [
     {
       id: 'general',
-      label: t('form.tabs.general_information'),
+      label: t('form.tabs.general_information', 'General Information'),
       icon: <FiGlobe className="w-4 h-4" />,
       sections: [
         {
-          title: t('form.sections.basic_information'),
+          title: t('form.sections.basic_information', 'Basic Information'),
           description: t('languages.form.basic_information_description'),
           icon: <FiGlobe className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
           fields: [
