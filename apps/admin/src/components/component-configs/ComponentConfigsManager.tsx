@@ -279,7 +279,13 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
     }
   }, [currentPage, page]);
 
+  const isFirstMount = React.useRef(true);
+
   useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
     setPage(1);
   }, [filters, debouncedSearchValue, limit]);
 

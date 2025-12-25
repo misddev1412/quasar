@@ -20,7 +20,8 @@
       "Bash(test:*)",
       "Bash(for key in \"image\" \"variant\" \"add_attribute\" \"add_image\" \"enabled\")",
       "Bash(do echo \"=== $key ===\")",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": []
