@@ -199,6 +199,16 @@
         "logo_url": "Đường dẫn ảnh",
         "logo_url_placeholder": "https://cdn.example.com/footer-logo.svg",
         "logo_hint": "Có thể dán liên kết ảnh nếu lưu ở nơi khác. Để trống để dùng logo chính.",
+        "logo_size": "Kích thước logo (px)",
+        "logo_size_hint": "Trong khoảng 24px đến 160px.",
+        "layout": {
+          "label": "Cách bố trí logo & tiêu đề",
+          "inline": "Cùng dòng (logo + tên)",
+          "stacked": "Xếp dọc (tên phía dưới)"
+        },
+        "title_override": "Tên cửa hàng ở footer",
+        "title_override_placeholder": "Ghi đè tên cửa hàng mặc định.",
+        "title_override_hint": "Để trống để dùng tên site chính.",
         "show_logo": "Hiển thị logo",
         "show_logo_hint": "Ẩn logo mà không cần xoá file.",
         "show_title": "Hiển thị tiêu đề footer",

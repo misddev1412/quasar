@@ -873,7 +873,7 @@ const Header: React.FC = () => {
 
           {/* Right Section: Navigation + Actions - 85% width */}
           <NavbarContent justify="end" className="!flex-grow-0 !basis-[85%] max-w-[85%] gap-2 hidden lg:flex">
-            <div className="flex-1 flex items-center justify-evenly">
+            <div className="flex items-center justify-between">
               <MenuNavigation
                 items={navigationItemsConverted}
                 renderers={navigationRenderers}

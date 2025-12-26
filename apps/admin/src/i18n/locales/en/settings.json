@@ -199,6 +199,16 @@
         "logo_url": "Image URL",
         "logo_url_placeholder": "https://cdn.example.com/footer-logo.svg",
         "logo_hint": "Paste a link if you host assets elsewhere. Leave blank to reuse your main logo.",
+        "logo_size": "Logo size (px)",
+        "logo_size_hint": "Between 24px and 160px.",
+        "layout": {
+          "label": "Logo & title layout",
+          "inline": "Inline (logo + title)",
+          "stacked": "Stacked (logo above title)"
+        },
+        "title_override": "Footer site name",
+        "title_override_placeholder": "Overrides the default store name.",
+        "title_override_hint": "Leave blank to reuse the primary site name.",
         "show_logo": "Show logo",
         "show_logo_hint": "Hide the logo without deleting it.",
         "show_title": "Show footer title",

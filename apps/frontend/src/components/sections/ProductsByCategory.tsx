@@ -62,14 +62,14 @@ export interface ProductsByCategorySidebarSectionConfig {
   titleFontColor?: string;
   titleFontWeight?: SidebarTitleFontWeight;
   titleFontSize?: SidebarTitleFontSize;
-  titleUppercase?: boolean;
+  titleTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   titleIcon?: string;
   showTitleIcon?: boolean;
   showItemIcons?: boolean;
   itemFontSize?: SidebarTitleFontSize;
   itemFontWeight?: SidebarTitleFontWeight;
   itemFontColor?: string;
-  itemUppercase?: boolean;
+  itemTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   items?: ProductsByCategorySidebarItemConfig[];
 }
 
@@ -191,14 +191,14 @@ export interface NormalizedSidebarSection {
   titleFontColor: string;
   titleFontWeight: SidebarTitleFontWeight;
   titleFontSize: SidebarTitleFontSize;
-  titleUppercase: boolean;
+  titleTextTransform: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   titleIcon: string;
   showTitleIcon: boolean;
   showItemIcons: boolean;
   itemFontSize: SidebarTitleFontSize;
   itemFontWeight: SidebarTitleFontWeight;
   itemFontColor: string;
-  itemUppercase: boolean;
+  itemTextTransform: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   items: NormalizedSidebarItem[];
 }
 
@@ -269,14 +269,16 @@ const normalizeSidebarConfig = (sidebar?: ProductsByCategorySidebarConfig | null
       const titleFontColor = normalizeString(section?.titleFontColor);
       const titleFontWeight = normalizeSidebarFontWeight(section?.titleFontWeight);
       const titleFontSize = normalizeSidebarFontSize(section?.titleFontSize);
-      const titleUppercase = Boolean(section?.titleUppercase);
+      const titleUppercase = Boolean((section as any)?.titleUppercase);
+      const titleTextTransform = section?.titleTextTransform || (titleUppercase ? 'uppercase' : 'none');
       const titleIcon = normalizeString(section?.titleIcon);
       const showTitleIcon = section?.showTitleIcon !== false;
       const showItemIcons = typeof section?.showItemIcons === 'boolean' ? section.showItemIcons : true;
       const itemFontSize = normalizeSidebarFontSize(section?.itemFontSize);
       const itemFontWeight = normalizeSidebarFontWeight(section?.itemFontWeight);
       const itemFontColor = normalizeString(section?.itemFontColor);
-      const itemUppercase = Boolean(section?.itemUppercase);
+      const itemUppercase = Boolean((section as any)?.itemUppercase);
+      const itemTextTransform = section?.itemTextTransform || (itemUppercase ? 'uppercase' : 'none');
       const items = normalizeSidebarItems(section?.items, id);
 
       return {
@@ -287,14 +289,14 @@ const normalizeSidebarConfig = (sidebar?: ProductsByCategorySidebarConfig | null
         titleFontColor,
         titleFontWeight,
         titleFontSize,
-        titleUppercase,
+        titleTextTransform,
         titleIcon,
         showTitleIcon,
         showItemIcons,
         itemFontSize,
         itemFontWeight,
         itemFontColor,
-        itemUppercase,
+        itemTextTransform,
         items,
       };
     })

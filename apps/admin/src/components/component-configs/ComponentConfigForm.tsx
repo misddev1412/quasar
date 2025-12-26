@@ -54,14 +54,14 @@ interface SidebarMenuSection {
   titleFontColor: string;
   titleFontWeight: SidebarTitleFontWeight;
   titleFontSize: SidebarTitleFontSize;
-  titleUppercase: boolean;
+  titleTextTransform: SidebarTextTransform;
   titleIcon: string;
   showTitleIcon: boolean;
   showItemIcons: boolean;
   itemFontSize: SidebarTitleFontSize;
   itemFontWeight: SidebarTitleFontWeight;
   itemFontColor: string;
-  itemUppercase: boolean;
+  itemTextTransform: SidebarTextTransform;
   items: SidebarMenuItem[];
 }
 
@@ -174,14 +174,14 @@ interface PersistedSidebarSection extends Record<string, unknown> {
   titleFontColor?: string;
   titleFontWeight?: SidebarTitleFontWeight;
   titleFontSize?: SidebarTitleFontSize;
-  titleUppercase?: boolean;
+  titleTextTransform?: SidebarTextTransform;
   titleIcon?: string;
   showTitleIcon?: boolean;
   showItemIcons?: boolean;
   itemFontSize?: SidebarTitleFontSize;
   itemFontWeight?: SidebarTitleFontWeight;
   itemFontColor?: string;
-  itemUppercase?: boolean;
+  itemTextTransform?: SidebarTextTransform;
   items?: PersistedSidebarItem[];
 }
 
@@ -217,14 +217,14 @@ const createSidebarSection = (): SidebarMenuSection => ({
   titleFontColor: '',
   titleFontWeight: 'semibold',
   titleFontSize: 'sm',
-  titleUppercase: false,
+  titleTextTransform: 'none',
   titleIcon: '',
   showTitleIcon: true,
   showItemIcons: true,
   itemFontSize: 'sm',
   itemFontWeight: 'normal',
   itemFontColor: '',
-  itemUppercase: false,
+  itemTextTransform: 'none',
   items: [createSidebarItem()],
 });
 
@@ -299,14 +299,18 @@ const parseSidebarConfig = (raw?: PersistedSidebarConfig | null): SidebarMenuCon
         titleFontColor: typeof section?.titleFontColor === 'string' ? section.titleFontColor : '',
         titleFontWeight: isSidebarTitleFontWeight(section?.titleFontWeight) ? section.titleFontWeight : 'semibold',
         titleFontSize: isSidebarTitleFontSize(section?.titleFontSize) ? section.titleFontSize : 'sm',
-        titleUppercase: Boolean(section?.titleUppercase),
+        titleTextTransform: isSidebarTextTransform(section?.titleTextTransform)
+          ? section.titleTextTransform
+          : (Boolean((section as any)?.titleUppercase) ? 'uppercase' : 'none'),
         titleIcon: typeof section?.titleIcon === 'string' ? section.titleIcon : '',
         showTitleIcon,
         showItemIcons: typeof section?.showItemIcons === 'boolean' ? section.showItemIcons : true,
         itemFontSize: isSidebarTitleFontSize(section?.itemFontSize) ? section.itemFontSize : 'sm',
         itemFontWeight: isSidebarTitleFontWeight(section?.itemFontWeight) ? section.itemFontWeight : 'normal',
         itemFontColor: typeof section?.itemFontColor === 'string' ? section.itemFontColor : '',
-        itemUppercase: Boolean(section?.itemUppercase),
+        itemTextTransform: isSidebarTextTransform(section?.itemTextTransform)
+          ? section.itemTextTransform
+          : (Boolean((section as any)?.itemUppercase) ? 'uppercase' : 'none'),
         items: items.length > 0 ? items : [createSidebarItem()],
       };
     })
@@ -528,11 +532,11 @@ const sanitizeSidebarConfig = (sidebar: SidebarMenuConfig): PersistedSidebarConf
       if (trimmedItemFontColor) {
         sanitizedSection.itemFontColor = trimmedItemFontColor;
       }
-      if (section.titleUppercase) {
-        sanitizedSection.titleUppercase = true;
+      if (section.titleTextTransform !== 'none') {
+        sanitizedSection.titleTextTransform = section.titleTextTransform;
       }
-      if (section.itemUppercase) {
-        sanitizedSection.itemUppercase = true;
+      if (section.itemTextTransform !== 'none') {
+        sanitizedSection.itemTextTransform = section.itemTextTransform;
       }
       if (normalizedTitleFontWeight !== 'semibold') {
         sanitizedSection.titleFontWeight = normalizedTitleFontWeight;
@@ -2537,7 +2541,7 @@ interface SidebarSectionEditorProps {
 
 const SidebarSectionEditor: React.FC<SidebarSectionEditorProps> = ({ section, index, onChange, onRemove, canRemove }) => {
   const { t } = useTranslationWithBackend();
-  const { SECTION_TITLE_FONT_WEIGHT_OPTIONS, SECTION_TITLE_FONT_SIZE_OPTIONS } = useSidebarOptions(t);
+  const { SECTION_TITLE_FONT_WEIGHT_OPTIONS, SECTION_TITLE_FONT_SIZE_OPTIONS, TEXT_TRANSFORM_OPTIONS } = useSidebarOptions(t);
   const handleItemChange = (itemId: string, nextItem: SidebarMenuItem) => {
     const updated = section.items.map((item) => (item.id === itemId ? nextItem : item));
     onChange({ ...section, items: updated });
@@ -2627,16 +2631,13 @@ const SidebarSectionEditor: React.FC<SidebarSectionEditorProps> = ({ section, in
                 aria-label={t('componentConfigs.showTitleIcon')}
               />
             </div>
-            <div className="flex items-start justify-between gap-3 border border-neutral-200 rounded-lg px-3 py-2 bg-white">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">{t('componentConfigs.uppercaseTitle')}</p>
-                <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.uppercaseTitleDesc')}</p>
-              </div>
-              <Toggle
-                checked={section.titleUppercase}
-                onChange={(checked) => onChange({ ...section, titleUppercase: checked })}
-                size="sm"
-                aria-label={t('componentConfigs.uppercaseTitle')}
+            <div className="space-y-1">
+              <Select
+                label={t('componentConfigs.uppercaseTitle')}
+                value={section.titleTextTransform}
+                onChange={(value) => onChange({ ...section, titleTextTransform: (value as SidebarTextTransform) || 'none' })}
+                options={TEXT_TRANSFORM_OPTIONS}
+                placeholder={t('componentConfigs.textTransformPlaceholder')}
               />
             </div>
           </div>
@@ -2652,16 +2653,13 @@ const SidebarSectionEditor: React.FC<SidebarSectionEditorProps> = ({ section, in
               aria-label={t('componentConfigs.showItemIcons')}
             />
           </div>
-          <div className="flex items-start justify-between gap-3 border border-neutral-200 rounded-lg px-3 py-2 bg-white">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">{t('componentConfigs.uppercaseItem')}</p>
-              <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.uppercaseItemDesc')}</p>
-            </div>
-            <Toggle
-              checked={section.itemUppercase}
-              onChange={(checked) => onChange({ ...section, itemUppercase: checked })}
-              size="sm"
-              aria-label={t('componentConfigs.uppercaseItem')}
+          <div className="space-y-1">
+            <Select
+              label={t('componentConfigs.uppercaseItem')}
+              value={section.itemTextTransform}
+              onChange={(value) => onChange({ ...section, itemTextTransform: (value as SidebarTextTransform) || 'none' })}
+              options={TEXT_TRANSFORM_OPTIONS}
+              placeholder={t('componentConfigs.textTransformPlaceholder')}
             />
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

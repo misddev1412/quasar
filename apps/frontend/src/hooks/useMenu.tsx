@@ -166,6 +166,8 @@ export const useMenu = (menuGroup: string = 'main') => {
         const digits = trimmed.replace(/[^+\d]/g, '');
         return digits ? `tel:${digits}` : '#';
       }
+      case MenuType.ORDER_TRACKING:
+        return '/order-tracking';
       case MenuType.SEARCH_BUTTON:
       case MenuType.LOCALE_SWITCHER:
       case MenuType.THEME_TOGGLE:

@@ -182,6 +182,13 @@ const clampWidgetHeight = (value?: number) => {
   return Math.min(640, Math.max(160, Math.round(value)));
 };
 
+const clampLogoSize = (value?: number) => {
+  if (!value || Number.isNaN(value)) {
+    return 48;
+  }
+  return Math.min(160, Math.max(24, Math.round(value)));
+};
+
 const normalizeFacebookTabs = (tabs?: string) => {
   if (!tabs) {
     return 'timeline';
@@ -250,11 +257,14 @@ const Footer: React.FC<FooterProps> = ({
   const siteLogoUrl = getSetting('site.logo', '');
   const resolvedLogoUrl = (footerConfig.logoUrl || fallbackFooterLogo || siteLogoUrl || '').trim();
   const siteName = getSetting('site.name', getSetting('site_name', propBrandName));
+  const brandTitle = footerConfig.brandTitle?.trim() || siteName;
   const brandDescription = footerConfig.brandDescription || propDescription;
   const variant = footerConfig.variant ?? 'columns';
   const theme = footerConfig.theme ?? 'dark';
   const shouldShowLogo = footerConfig.showBrandLogo !== false;
   const shouldShowBrandTitle = footerConfig.showBrandTitle !== false;
+  const brandLayout = footerConfig.brandLayout === 'stacked' ? 'stacked' : 'inline';
+  const logoSize = clampLogoSize(footerConfig.logoSize);
   const copyrightText =
     propCopyright || `© ${new Date().getFullYear()} ${siteName}. All rights reserved.`;
   const linkStyle = customTextColor ? { color: customTextColor } : undefined;
@@ -505,14 +515,26 @@ const Footer: React.FC<FooterProps> = ({
 
   const renderBrandSection = () => {
     const shouldRenderHeading = Boolean(footerLogoNode) || shouldShowBrandTitle;
+    const brandHeadingClass =
+      brandLayout === 'stacked'
+        ? 'flex flex-col gap-3 items-start'
+        : 'flex items-center gap-3 flex-wrap';
+    const logoWrapperStyle = {
+      width: logoSize,
+      height: logoSize,
+    } as React.CSSProperties;
     return (
       <div className="space-y-4">
         {shouldRenderHeading && (
-          <div className="flex items-center gap-3 flex-wrap">
-            {footerLogoNode && <div className="w-12 h-12 shrink-0">{footerLogoNode}</div>}
+          <div className={brandHeadingClass}>
+            {footerLogoNode && (
+              <div className="shrink-0" style={logoWrapperStyle}>
+                {footerLogoNode}
+              </div>
+            )}
             {shouldShowBrandTitle && (
               <p className="text-lg font-semibold" style={getTextStyle()}>
-                {siteName}
+                {brandTitle}
               </p>
             )}
           </div>

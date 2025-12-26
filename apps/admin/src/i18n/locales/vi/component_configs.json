@@ -263,6 +263,15 @@
         "fontSizeLG": "LG (18px)",
         "sidebarMegaMenuDesc": "Quản lý menu cố định hiển thị cùng section Products by Category.",
         "currentlyEnabled": "Đang bật",
-        "currentlyDisabled": "Đang tắt"
+        "currentlyDisabled": "Đang tắt",
+        "uppercaseItem": "Kiểu chữ viết hoa",
+        "textTransformPlaceholder": "Chọn kiểu viết hoa",
+        "transformNone": "Mặc định",
+        "transformUppercase": "In hoa (UPPERCASE)",
+        "transformCapitalize": "Viết hoa chữ cái đầu (Capitalize)",
+        "transformLowercase": "Viết thường (lowercase)",
+        "itemFontWeight": "Độ đậm mục",
+        "itemFontSize": "Kích thước chữ mục",
+        "itemTextColor": "Màu chữ mục"
     }
 }

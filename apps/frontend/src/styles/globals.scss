@@ -200,10 +200,17 @@
   }
 
   .top-menu-marquee-track {
-    @apply w-max;
+    @apply w-max min-w-full;
     --marquee-translate: -50%;
     animation: top-menu-marquee 20s linear infinite;
     will-change: transform;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .top-menu-marquee-measure {
+    @apply w-max;
+    animation: none;
+    transform: none;
   }
 
   .custom-html-content {
@@ -669,10 +676,10 @@
 
 @keyframes top-menu-marquee {
   0% {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
   100% {
-    transform: translateX(var(--marquee-translate, -50%));
+    transform: translate3d(var(--marquee-translate, -50%), 0, 0);
   }
 }
 

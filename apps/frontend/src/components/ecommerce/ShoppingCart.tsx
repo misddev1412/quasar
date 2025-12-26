@@ -235,11 +235,10 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
             return (
               <label
                 key={option.id}
-                className={`flex cursor-pointer items-center justify-between rounded-lg border px-3 py-2 ${
-                  isSelected
-                    ? 'border-primary-200 bg-primary-50/70 dark:border-primary-500/40 dark:bg-primary-500/10'
-                    : 'border-gray-200 bg-white/70 hover:border-primary-100 dark:border-gray-700 dark:bg-gray-900/40'
-                }`}
+                className={`flex cursor-pointer items-center justify-between rounded-lg border px-3 py-2 ${isSelected
+                  ? 'border-primary-200 bg-primary-50/70 dark:border-primary-500/40 dark:bg-primary-500/10'
+                  : 'border-gray-200 bg-white/70 hover:border-primary-100 dark:border-gray-700 dark:bg-gray-900/40'
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <input
@@ -364,9 +363,9 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
               <p className="text-[0.65rem] uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">{t('title')}</p>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{cartLabel}</h2>
               {hasCartItems && (
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {summary.totalItems} {summary.totalItems === 1 ? 'item' : 'items'} · {formatMoney(summary.totals.subtotal)}
-            </p>
+                </p>
               )}
             </div>
           </div>
@@ -376,11 +375,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
                 {summary.totalItems}
               </span>
             )}
-            {isModal && (
-              <Button isIconOnly variant="light" size="sm" onPress={closeCartAndNotify} aria-label="Close cart">
-                <CloseIcon className="h-4 w-4" />
-              </Button>
-            )}
+
           </div>
         </div>
         {renderCartHighlights()}
@@ -483,9 +478,9 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
           size="xl"
           backdrop="blur"
         >
-          <CustomCard variant="default" padding="none" className="max-h-[82vh]">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
             {renderCartContent()}
-          </CustomCard>
+          </div>
         </Modal>
 
         {/* Clear Cart Confirmation Modal */}

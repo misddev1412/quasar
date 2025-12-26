@@ -1,6 +1,7 @@
 export type FooterVariant = 'simple' | 'columns' | 'split';
 export type FooterTheme = 'light' | 'dark';
 export type FooterMenuLayout = 'inline' | 'columns';
+export type FooterBrandLayout = 'inline' | 'stacked';
 
 export type FooterSocialType =
   | 'facebook'
@@ -60,9 +61,11 @@ export interface FooterConfig {
   variant: FooterVariant;
   theme: FooterTheme;
   brandDescription: string;
+  brandTitle?: string;
   showBrandLogo: boolean;
   showBrandTitle: boolean;
   showBrandDescription: boolean;
+  brandLayout?: FooterBrandLayout;
   menuLayout: FooterMenuLayout;
   columnsPerRow: number;
   socialLinks: FooterSocialLink[];
@@ -72,6 +75,7 @@ export interface FooterConfig {
   newsletterDescription?: string;
   customHtml?: string;
   logoUrl?: string;
+  logoSize?: number;
   backgroundColor?: string;
   textColor?: string;
   widget?: FooterWidgetConfig;
@@ -107,9 +111,11 @@ export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
   variant: 'columns',
   theme: 'dark',
   brandDescription: 'Discover curated products, helpful resources, and dedicated support from our team.',
+  brandTitle: '',
   showBrandLogo: true,
   showBrandTitle: true,
   showBrandDescription: true,
+  brandLayout: 'inline',
   menuLayout: 'columns',
   columnsPerRow: 3,
   socialLinks: [
@@ -166,6 +172,7 @@ export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
   newsletterDescription: 'Join our newsletter to get updates about new products and special offers.',
   customHtml: '',
   logoUrl: '',
+  logoSize: 48,
   backgroundColor: '',
   textColor: '',
   widget: DEFAULT_WIDGET_CONFIG,
@@ -184,6 +191,20 @@ const clampVisitorAnalyticsColumns = (value?: number) => {
     return 4;
   }
   return Math.min(4, Math.max(1, Math.round(value)));
+};
+
+const clampLogoSize = (value?: number) => {
+  if (!value || Number.isNaN(value)) {
+    return 48;
+  }
+  return Math.min(160, Math.max(24, Math.round(value)));
+};
+
+const isValidBrandLayout = (value?: string): value is FooterBrandLayout => {
+  if (!value) {
+    return false;
+  }
+  return value === 'inline' || value === 'stacked';
 };
 
 const sanitizeVisitorAnalyticsCards = (
@@ -245,6 +266,15 @@ export const createFooterConfig = (override?: Partial<FooterConfig>): FooterConf
   return {
     ...base,
     ...override,
+    brandTitle:
+      override.brandTitle !== undefined
+        ? (override.brandTitle || '').trim()
+        : base.brandTitle,
+    brandLayout: isValidBrandLayout(override.brandLayout) ? override.brandLayout : base.brandLayout,
+    logoSize:
+      typeof override.logoSize === 'number'
+        ? clampLogoSize(override.logoSize)
+        : clampLogoSize(base.logoSize),
     socialLinks: Array.isArray(override.socialLinks)
       ? override.socialLinks
           .filter((link): link is FooterSocialLink => Boolean(link) && typeof link.id === 'string')

@@ -40,7 +40,7 @@ interface SidebarMenuItemProps {
   itemFontSize?: NormalizedSidebarSection['titleFontSize'];
   itemFontWeight?: NormalizedSidebarSection['titleFontWeight'];
   itemFontColor?: string;
-  itemUppercase?: boolean;
+  itemTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
 }
 
 const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
@@ -52,7 +52,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
   itemFontSize = 'sm',
   itemFontWeight = 'normal',
   itemFontColor,
-  itemUppercase = false,
+  itemTextTransform = 'none',
 }) => {
   const hasChildren = item.children.length > 0;
   const isRootWithChildren = depth === 0 && hasChildren;
@@ -70,10 +70,12 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
     : 'rounded-full bg-blue-50/80 p-1.5 text-blue-600 dark:bg-blue-900/30 dark:text-blue-200';
 
   const hasCustomColor = Boolean(itemFontColor);
-  const customStyle: CSSProperties | undefined = hasCustomColor || itemUppercase
+  const customStyle: CSSProperties | undefined = hasCustomColor || itemTextTransform !== 'none'
     ? {
       ...(hasCustomColor ? { color: itemFontColor } : {}),
-      ...(itemUppercase ? { textTransform: 'uppercase', letterSpacing: '0.05em' } : {}),
+      ...(itemTextTransform === 'uppercase' ? { textTransform: 'uppercase', letterSpacing: '0.05em' } : {}),
+      ...(itemTextTransform === 'capitalize' ? { textTransform: 'capitalize' } : {}),
+      ...(itemTextTransform === 'lowercase' ? { textTransform: 'lowercase' } : {}),
     }
     : undefined;
 
@@ -82,9 +84,9 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
     SECTION_TITLE_FONT_SIZE_CLASSES[itemFontSize] || 'text-sm',
     SECTION_TITLE_FONT_WEIGHT_CLASSES[itemFontWeight] || 'font-normal',
     hasCustomColor ? '' : 'text-gray-900 dark:text-gray-100 group-hover:text-blue-600 group-focus-visible:text-blue-600 dark:group-hover:text-blue-300 dark:group-focus-visible:text-blue-300',
-    item.textTransform === 'uppercase' && 'uppercase',
-    item.textTransform === 'capitalize' && 'capitalize',
-    item.textTransform === 'lowercase' && 'lowercase'
+    itemTextTransform === 'uppercase' && 'uppercase',
+    itemTextTransform === 'capitalize' && 'capitalize',
+    itemTextTransform === 'lowercase' && 'lowercase'
   );
 
 
@@ -152,7 +154,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
                     itemFontSize={itemFontSize}
                     itemFontWeight={itemFontWeight}
                     itemFontColor={itemFontColor}
-                    itemUppercase={itemUppercase}
+                    itemTextTransform={itemTextTransform}
                   />
                 ))}
               </div>
@@ -179,7 +181,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
               itemFontSize={itemFontSize}
               itemFontWeight={itemFontWeight}
               itemFontColor={itemFontColor}
-              itemUppercase={itemUppercase}
+              itemTextTransform={itemTextTransform}
             />
           ))}
         </div>
@@ -229,10 +231,12 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
             ? { backgroundColor: section.backgroundColor }
             : undefined;
           const hasCustomTitleColor = Boolean(section.titleFontColor);
-          const sectionTitleStyle: CSSProperties | undefined = hasCustomTitleColor || section.titleUppercase
+          const sectionTitleStyle: CSSProperties | undefined = hasCustomTitleColor || section.titleTextTransform !== 'none'
             ? {
               ...(hasCustomTitleColor ? { color: section.titleFontColor } : {}),
-              ...(section.titleUppercase ? { textTransform: 'uppercase', letterSpacing: '0.2em' } : {}),
+              ...(section.titleTextTransform === 'uppercase' ? { textTransform: 'uppercase', letterSpacing: '0.2em' } : {}),
+              ...(section.titleTextTransform === 'capitalize' ? { textTransform: 'capitalize' } : {}),
+              ...(section.titleTextTransform === 'lowercase' ? { textTransform: 'lowercase' } : {}),
             }
             : undefined;
           const sectionTitleClasses = clsx(
@@ -240,7 +244,10 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
             hasCustomTitleColor ? '' : 'text-gray-900 dark:text-gray-100',
             SECTION_TITLE_FONT_SIZE_CLASSES[section.titleFontSize] || 'text-sm',
             SECTION_TITLE_FONT_WEIGHT_CLASSES[section.titleFontWeight] || 'font-semibold',
-            section.titleUppercase && 'uppercase',
+            SECTION_TITLE_FONT_WEIGHT_CLASSES[section.titleFontWeight] || 'font-semibold',
+            section.titleTextTransform === 'uppercase' && 'uppercase',
+            section.titleTextTransform === 'capitalize' && 'capitalize',
+            section.titleTextTransform === 'lowercase' && 'lowercase',
           );
           return (
             <div
@@ -277,7 +284,7 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
                     itemFontSize={section.itemFontSize}
                     itemFontWeight={section.itemFontWeight}
                     itemFontColor={section.itemFontColor}
-                    itemUppercase={section.itemUppercase}
+                    itemTextTransform={section.itemTextTransform}
                   />
                 ))}
               </div>

@@ -32,6 +32,13 @@ const generateId = () =>
 
 const clampColumns = (value: number) => Math.min(4, Math.max(1, Math.round(value)));
 
+const clampLogoSize = (value?: number) => {
+  if (!value || Number.isNaN(value)) {
+    return 48;
+  }
+  return Math.min(160, Math.max(24, Math.round(value)));
+};
+
 const sanitizeLinks = <T extends FooterSocialLink | FooterExtraLink>(
   items: T[],
 ): T[] => items.map((item, index) => ({ ...item, order: index }));
@@ -94,6 +101,11 @@ const normalizeVisitorAnalyticsState = (config?: VisitorAnalyticsConfig): Visito
     cards: ensureVisitorAnalyticsCards(base.cards, columns),
   };
 };
+
+type BrandLayoutValue = Exclude<FooterConfig['brandLayout'], undefined>;
+
+const normalizeBrandLayout = (layout?: FooterConfig['brandLayout']): BrandLayoutValue =>
+  layout === 'stacked' ? 'stacked' : 'inline';
 
 const defaultWidgetDraft = (): FooterWidgetConfig => ({
   enabled: false,
@@ -197,6 +209,8 @@ const FooterSettingsForm: React.FC = () => {
 
   const widgetDraft = withWidgetDefaults(draft.widget);
   const visitorAnalyticsDraft = normalizeVisitorAnalyticsState(draft.visitorAnalytics);
+  const previewLogoSize = clampLogoSize(draft.logoSize);
+  const normalizedBrandLayout = normalizeBrandLayout(draft.brandLayout);
 
   const reloadPreview = () => {
     const frameWindow = iframeRef.current?.contentWindow;
@@ -226,6 +240,14 @@ const FooterSettingsForm: React.FC = () => {
     () => [
       { value: 'dark', label: t('storefront.footer.theme.dark', 'Dark') },
       { value: 'light', label: t('storefront.footer.theme.light', 'Light') },
+    ],
+    [t]
+  );
+
+  const brandLayoutOptions = useMemo<SelectOption[]>(
+    () => [
+      { value: 'inline', label: t('storefront.footer.brand.layout.inline', 'Inline (logo + title)') },
+      { value: 'stacked', label: t('storefront.footer.brand.layout.stacked', 'Stacked (logo above title)') },
     ],
     [t]
   );
@@ -468,6 +490,9 @@ const FooterSettingsForm: React.FC = () => {
     setIsSaving(true);
     const payload: FooterConfig = {
       ...draft,
+      brandLayout: normalizedBrandLayout,
+      brandTitle: draft.brandTitle?.trim() || '',
+      logoSize: clampLogoSize(draft.logoSize),
       columnsPerRow: clampColumns(draft.columnsPerRow),
       socialLinks: sanitizeLinks(
         draft.socialLinks
@@ -622,10 +647,14 @@ const FooterSettingsForm: React.FC = () => {
                 <img
                   src={draft.logoUrl}
                   alt="Footer logo preview"
-                  className="h-14 w-14 rounded-lg border border-gray-200 object-contain bg-white"
+                  className="rounded-lg border border-gray-200 object-contain bg-white"
+                  style={{ width: previewLogoSize, height: previewLogoSize }}
                 />
               ) : (
-                <div className="h-14 w-14 rounded-lg border border-dashed border-gray-300 bg-white flex items-center justify-center text-gray-400">
+                <div
+                  className="rounded-lg border border-dashed border-gray-300 bg-white flex items-center justify-center text-gray-400"
+                  style={{ width: previewLogoSize, height: previewLogoSize }}
+                >
                   <FiImage className="h-6 w-6" />
                 </div>
               )}
@@ -664,6 +693,43 @@ const FooterSettingsForm: React.FC = () => {
               </span>
             </label>
           </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="flex flex-col gap-1 text-sm text-gray-600">
+              {t('storefront.footer.brand.logo_size', 'Logo size (px)')}
+              <Input
+                type="number"
+                min={24}
+                max={160}
+                inputSize="md"
+                className="text-sm"
+                value={draft.logoSize ?? 48}
+                onChange={(event) =>
+                  handleUpdate('logoSize', clampLogoSize(Number(event.target.value) || draft.logoSize || 48))
+                }
+              />
+              <span className="text-xs text-gray-400">
+                {t('storefront.footer.brand.logo_size_hint', 'Between 24px and 160px.')}
+              </span>
+            </label>
+            <Select
+              label={t('storefront.footer.brand.layout.label', 'Logo & title layout')}
+              value={normalizedBrandLayout}
+              onChange={(value) => handleUpdate('brandLayout', value as FooterConfig['brandLayout'])}
+              options={brandLayoutOptions}
+            />
+          </div>
+          <label className="flex flex-col gap-1 text-sm text-gray-600">
+            {t('storefront.footer.brand.title_override', 'Footer site name')}
+            <Input
+              value={draft.brandTitle || ''}
+              onChange={(event) => handleUpdate('brandTitle', event.target.value)}
+              placeholder={t('storefront.footer.brand.title_override_placeholder', 'Overrides the default store name.')}
+              className="text-sm"
+            />
+            <span className="text-xs text-gray-400">
+              {t('storefront.footer.brand.title_override_hint', 'Leave blank to reuse the primary site name.')}
+            </span>
+          </label>
           <div className="grid gap-4 sm:grid-cols-2">
             <Toggle
               checked={draft.showBrandLogo !== false}

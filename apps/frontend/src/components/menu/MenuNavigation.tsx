@@ -305,7 +305,7 @@ const DesktopNavigation: React.FC<{
 
   return (
     <nav
-      className="hidden lg:flex items-center gap-2 rounded-2xl px-2 py-1 transition-colors"
+      className="hidden lg:flex items-center gap-2 rounded-2xl py-1 transition-colors"
       style={style}
     >
       {items.map((item) => {
@@ -339,7 +339,7 @@ const DesktopNavigation: React.FC<{
                 ${
                   isActive
                     ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                    : `${textColor ? '' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'} hover:bg-gray-50 dark:hover:bg-gray-800`
+                    : `${textColor ? '' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'} hover:underline hover:font-semibold underline-offset-4`
                 }
               `}
               style={{
@@ -371,50 +371,63 @@ const DesktopNavigation: React.FC<{
               >
                 <div className="py-2 space-y-1">
                   {item.children?.map((child) => (
-                    <div key={child.id} className="px-2 py-1 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/60 transition-colors">
+                    <div key={child.id} className="px-2 py-1 rounded-lg transition-colors">
                       <Link
                         href={child.href || '#'}
                         target={child.target}
                         rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
-                        className="
-                          block px-2 py-2 text-sm text-gray-700 dark:text-gray-300
-                          hover:text-blue-600 dark:hover:text-blue-400
+                        className={`
+                          block px-2 py-2 text-sm
+                          ${textColor ? '' : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400'}
                           transition-colors
-                        "
+                        `}
+                        style={{
+                          ...getBorderStyles(child),
+                          color: textColor || undefined,
+                        }}
                       >
                         <div className="flex items-center justify-between gap-3">
                           <span className="flex items-center gap-2">
-                            <UnifiedIcon icon={child.icon} variant="nav" />
+                            <UnifiedIcon icon={child.icon} variant="nav" color={textColor || undefined} />
                             <span>{child.name}</span>
                           </span>
                           {child.children && child.children.length > 0 && <ChevronRightIcon />}
                         </div>
                         {child.description && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          <p
+                            className={`text-xs mt-1 ${textColor ? '' : 'text-gray-500 dark:text-gray-400'}`}
+                            style={{ color: textColor || undefined }}
+                          >
                             {child.description}
                           </p>
                         )}
                       </Link>
-                {child.children && child.children.length > 0 && (
-                  <div className="mt-2 ml-6 border-l border-gray-100 dark:border-gray-700 pl-3 space-y-1">
-                    {child.children.map((grandChild) => (
-                      <Link
-                        key={grandChild.id}
+                      {child.children && child.children.length > 0 && (
+                        <div className="mt-2 ml-6 border-l border-gray-100 dark:border-gray-700 pl-3 space-y-1">
+                          {child.children.map((grandChild) => (
+                            <Link
+                              key={grandChild.id}
                               href={grandChild.href || '#'}
                               target={grandChild.target}
                               rel={grandChild.target === '_blank' ? 'noopener noreferrer' : undefined}
-                        className="
-                          block text-xs text-gray-600 dark:text-gray-400 py-1
-                          hover:text-blue-600 dark:hover:text-blue-400
-                        "
-                        style={getBorderStyles(grandChild)}
-                      >
+                              className={`
+                                block text-xs py-1
+                                ${textColor ? '' : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'}
+                              `}
+                              style={{
+                                ...getBorderStyles(grandChild),
+                                color: textColor || undefined,
+                              }}
+                            >
                               <span className="flex items-center gap-2">
-                                <UnifiedIcon icon={grandChild.icon} variant="nav" />
+                                <UnifiedIcon icon={grandChild.icon} variant="nav" color={textColor || undefined} />
                                 <span>{grandChild.name}</span>
                               </span>
                               {grandChild.description && (
-                                <span className="block text-[11px] text-gray-400 dark:text-gray-500">
+                                <span
+                                  className={`block text-[11px] ${textColor ? '' : 'text-gray-400 dark:text-gray-500'}`}
+                                  style={{ color: textColor || undefined }}
+                                >
                                   {grandChild.description}
                                 </span>
                               )}
@@ -489,13 +502,14 @@ const MobileMenuItem: React.FC<{
             {hasChildren && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="p-3 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-          >
-            <ChevronDownIcon
-              className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-            />
-          </button>
-        )}
+                className={`p-3 ${textColor ? '' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                style={textColor ? { color: textColor } : undefined}
+              >
+                <ChevronDownIcon
+                  className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                />
+              </button>
+            )}
       </div>
 
       {isExpanded && hasChildren && (
@@ -506,20 +520,26 @@ const MobileMenuItem: React.FC<{
                 href={child.href || '#'}
                 target={child.target}
                 rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
-                className="
-                  block py-2 px-8 text-sm text-gray-600 dark:text-gray-400
-                  hover:text-blue-600 dark:hover:text-blue-400
+                className={`
+                  block py-2 px-8 text-sm
+                  ${textColor ? '' : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'}
                   transition-colors
-                "
-                style={getBorderStyles(child)}
+                `}
+                style={{
+                  ...getBorderStyles(child),
+                  color: textColor || undefined,
+                }}
                 onClick={onClose}
               >
                 <span className="flex items-center gap-2">
-                  <UnifiedIcon icon={child.icon} variant="nav" />
+                  <UnifiedIcon icon={child.icon} variant="nav" color={textColor || undefined} />
                   <span>{child.name}</span>
                 </span>
                 {child.description && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <p
+                    className={`text-xs mt-1 ${textColor ? '' : 'text-gray-500 dark:text-gray-400'}`}
+                    style={{ color: textColor || undefined }}
+                  >
                     {child.description}
                   </p>
                 )}
@@ -533,16 +553,19 @@ const MobileMenuItem: React.FC<{
                       href={grandChild.href || '#'}
                       target={grandChild.target}
                       rel={grandChild.target === '_blank' ? 'noopener noreferrer' : undefined}
-                      className="
-                        block text-sm text-gray-500 dark:text-gray-400 py-1 px-4
-                        hover:text-blue-600 dark:hover:text-blue-400
+                      className={`
+                        block text-sm py-1 px-4
+                        ${textColor ? '' : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'}
                         transition-colors
-                      "
-                      style={getBorderStyles(grandChild)}
+                      `}
+                      style={{
+                        ...getBorderStyles(grandChild),
+                        color: textColor || undefined,
+                      }}
                       onClick={onClose}
                     >
                       <span className="flex items-center gap-2">
-                        <UnifiedIcon icon={grandChild.icon} variant="nav" />
+                        <UnifiedIcon icon={grandChild.icon} variant="nav" color={textColor || undefined} />
                         <span>{grandChild.name}</span>
                       </span>
                     </Link>

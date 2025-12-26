@@ -263,6 +263,15 @@
         "fontSizeLG": "LG (18px)",
         "sidebarMegaMenuDesc": "Manage fixed menu displayed with Products by Category section.",
         "currentlyEnabled": "Currently enabled",
-        "currentlyDisabled": "Currently disabled"
+        "currentlyDisabled": "Currently disabled",
+        "uppercaseItem": "Uppercase Items",
+        "textTransformPlaceholder": "Select Text Transform",
+        "transformNone": "None",
+        "transformUppercase": "Uppercase",
+        "transformCapitalize": "Capitalize",
+        "transformLowercase": "Lowercase",
+        "itemFontWeight": "Item Font Weight",
+        "itemFontSize": "Item Font Size",
+        "itemTextColor": "Item Text Color"
     }
 }

@@ -292,8 +292,7 @@ export class MenusSeeder implements SeederModule {
           {
             menu: {
               menuGroup: 'main',
-              type: MenuType.LINK,
-              url: '/order-tracking',
+              type: MenuType.ORDER_TRACKING,
               target: MenuTarget.SELF,
               position: 1,
               isEnabled: true,
@@ -452,8 +451,7 @@ export class MenusSeeder implements SeederModule {
       {
         menu: {
           menuGroup: 'footer',
-          type: MenuType.LINK,
-          url: '/order-tracking',
+          type: MenuType.ORDER_TRACKING,
           target: MenuTarget.SELF,
           position: 6,
           isEnabled: true,
@@ -691,8 +689,7 @@ export class MenusSeeder implements SeederModule {
       {
         menu: {
           menuGroup: 'top',
-          type: MenuType.LINK,
-          url: '/order-tracking',
+          type: MenuType.ORDER_TRACKING,
           target: MenuTarget.SELF,
           position: 3,
           isEnabled: true,

@@ -99,6 +99,7 @@ export const MENU_TYPE_OPTIONS: MenuSelectOption[] = [
   { value: MenuType.CART_BUTTON, label: 'Cart Button' },
   { value: MenuType.USER_PROFILE, label: 'User Profile' },
   { value: MenuType.CALL_BUTTON, label: 'Call Button' },
+  { value: MenuType.ORDER_TRACKING, label: 'Order Tracking' },
 ];
 
 export const TOP_MENU_TYPE_OPTIONS: MenuSelectOption[] = [
@@ -118,6 +119,9 @@ export const TOP_MENU_ALLOWED_TYPES: MenuType[] = [
   MenuType.CUSTOM_HTML,
   MenuType.THEME_TOGGLE,
   MenuType.USER_PROFILE,
+  MenuType.CART_BUTTON,
+  MenuType.ORDER_TRACKING,
+  MenuType.LOCALE_SWITCHER,
   MenuType.TOP_PHONE,
   MenuType.TOP_EMAIL,
   MenuType.TOP_CURRENT_TIME,
