@@ -10,6 +10,7 @@ import { RolePermission } from './entities/role-permission.entity';
 import { UserActivity } from './entities/user-activity.entity';
 import { UserSession } from './entities/user-session.entity';
 import { UserLoginProvider } from './entities/user-login-provider.entity';
+import { UserImpersonationLog } from './entities/user-impersonation-log.entity';
 import { Customer } from '../products/entities/customer.entity';
 import { AddressBook } from './entities/address-book.entity';
 import { AddressBookConfig } from './entities/address-book-config.entity';
@@ -22,6 +23,7 @@ import { PermissionRepository } from './repositories/permission.repository';
 import { RoleRepository } from './repositories/role.repository';
 import { UserActivityRepository } from './repositories/user-activity.repository';
 import { UserSessionRepository } from './repositories/user-session.repository';
+import { UserImpersonationRepository } from './repositories/user-impersonation.repository';
 import { CustomerRepository } from '../products/repositories/customer.repository';
 import { AddressBookRepository } from './repositories/address-book.repository';
 import { AddressBookConfigRepository } from './repositories/address-book-config.repository';
@@ -48,6 +50,7 @@ import { ClientUserService } from './services/client/client-user.service';
 import { AdminAddressBookService } from './services/admin-address-book.service';
 import { ClientAddressBookService } from './services/client-address-book.service';
 import { ClientSecurityService } from './services/client-security.service';
+import { UserImpersonationService } from './services/user-impersonation.service';
 import { AdminUserRouter, AdminUserPermissions } from './routers/admin-user.router';
 import { AdminUserStatisticsRouter } from './routers/admin-user-statistics.router';
 import { AdminUserActivityRouter } from './routers/admin-user-activity.router';
@@ -57,7 +60,9 @@ import { AdminAddressBookRouter } from './routers/admin-address-book.router';
 import { ClientAddressBookRouter } from './routers/client-address-book.router';
 import { ClientSecurityRouter } from './routers/client-security.router';
 import { AdminCustomerTransactionsRouter } from './routers/admin-customer-transactions.router';
+import { AdminImpersonationRouter } from './routers/admin-impersonation.router';
 import { ClientUserRouter } from '../../trpc/routers/client';
+import { SuperAdminMiddleware } from '../../trpc/middlewares/super-admin.middleware';
 import { SharedModule } from '../shared/shared.module';
 import { AuthModule } from '../../auth/auth.module';
 import { FirebaseModule } from '../firebase/firebase.module';
@@ -66,7 +71,7 @@ import { DataExportModule } from '../export/data-export.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserProfile, Permission, Role, UserRole, RolePermission, UserActivity, UserSession, UserLoginProvider, Customer, AddressBook, AddressBookConfig, UserSecurity, Country, AdministrativeDivision, CustomerTransaction, CustomerTransactionEntry]),
+    TypeOrmModule.forFeature([User, UserProfile, Permission, Role, UserRole, RolePermission, UserActivity, UserSession, UserLoginProvider, UserImpersonationLog, Customer, AddressBook, AddressBookConfig, UserSecurity, Country, AdministrativeDivision, CustomerTransaction, CustomerTransactionEntry]),
     SharedModule,
     forwardRef(() => AuthModule),
     FirebaseModule,
@@ -81,6 +86,7 @@ import { DataExportModule } from '../export/data-export.module';
     RoleRepository,
     UserActivityRepository,
     UserSessionRepository,
+    UserImpersonationRepository,
     CustomerRepository,
     AddressBookRepository,
     AddressBookConfigRepository,
@@ -103,6 +109,7 @@ import { DataExportModule } from '../export/data-export.module';
     AdminAddressBookService,
     ClientAddressBookService,
     ClientSecurityService,
+    UserImpersonationService,
 
     // Activity Tracking Components
     AdminActivityInterceptor,
@@ -128,6 +135,10 @@ import { DataExportModule } from '../export/data-export.module';
     ClientAddressBookRouter,
     ClientSecurityRouter,
     AdminCustomerTransactionsRouter,
+    AdminImpersonationRouter,
+
+    // TRPC Middlewares
+    SuperAdminMiddleware,
   ],
   exports: [
     // Repositories
@@ -136,6 +147,7 @@ import { DataExportModule } from '../export/data-export.module';
     RoleRepository,
     UserActivityRepository,
     UserSessionRepository,
+    UserImpersonationRepository,
     CustomerTransactionRepository,
 
     // Services
@@ -151,6 +163,7 @@ import { DataExportModule } from '../export/data-export.module';
     ActivityTrackingService,
     UserActivityStatusService,
     FirebaseAuthService,
+    UserImpersonationService,
 
     // Activity Tracking Components
     AdminActivityInterceptor,
@@ -168,6 +181,7 @@ import { DataExportModule } from '../export/data-export.module';
     ClientAddressBookRouter,
     ClientSecurityRouter,
     AdminCustomerTransactionsRouter,
+    AdminImpersonationRouter,
   ],
 })
 export class UserModule implements NestModule {

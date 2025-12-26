@@ -655,17 +655,17 @@ export const ProductsPage: React.FC = () => {
         }
       };
     }
-    
+
     // Fallback calculation from current data
     if (!products.length) return null;
-    
+
     const total = products.length;
     const active = products.filter((p: Product) => p.status === 'ACTIVE').length;
     const draft = products.filter((p: Product) => p.status === 'DRAFT').length;
     const inactive = products.filter((p: Product) => p.status === 'INACTIVE').length;
     const featured = products.filter((p: Product) => p.isFeatured).length;
     const totalViews = products.reduce((sum: number, p: Product) => sum + (p.viewCount || 0), 0);
-    
+
     return {
       data: {
         total,
@@ -677,7 +677,7 @@ export const ProductsPage: React.FC = () => {
       }
     };
   }, [products, statsData]);
-  
+
   const statisticsLoading = isLoading || statsLoading;
   const statisticsError = null;
 
@@ -685,21 +685,7 @@ export const ProductsPage: React.FC = () => {
     navigate('/products/create');
   };
 
-  const goToProduct = useCallback((product: Product) => {
-    const storefrontBase = process.env.NX_STOREFRONT_URL
-      || process.env.NEXT_PUBLIC_SITE_URL
-      || '';
-    const identifier = (product as any)?.slug || product.id;
-    const cleanBase = storefrontBase.replace(/\/$/, '');
-    const targetUrl = `${cleanBase || ''}/products/${identifier}`;
 
-    if (storefrontBase) {
-      window.open(targetUrl, '_blank', 'noopener');
-      return;
-    }
-
-    window.open(`/products/${identifier}`, '_blank', 'noopener');
-  }, []);
 
   const handleDeleteProduct = useCallback(async (productId: string) => {
     try {
@@ -886,7 +872,7 @@ export const ProductsPage: React.FC = () => {
   const handleFilterChange = (newFilters: ProductFiltersType) => {
     setFilters(newFilters);
     setPage(1); // Reset to first page when filters change
-    
+
     // Update URL with new filters
     updateUrlParams({
       search: searchValue || undefined,
@@ -911,7 +897,7 @@ export const ProductsPage: React.FC = () => {
     const clearedFilters: ProductFiltersType = {};
     setFilters(clearedFilters);
     setPage(1);
-    
+
     // Update URL to remove all filters
     updateUrlParams({
       search: searchValue || undefined,
@@ -923,7 +909,7 @@ export const ProductsPage: React.FC = () => {
   };
 
   // Calculate active filter count
-  const activeFilterCount = Object.keys(filters).filter(key => 
+  const activeFilterCount = Object.keys(filters).filter(key =>
     filters[key as keyof ProductFiltersType] !== undefined &&
     filters[key as keyof ProductFiltersType] !== null &&
     filters[key as keyof ProductFiltersType] !== ''
@@ -940,55 +926,53 @@ export const ProductsPage: React.FC = () => {
         const isExpanded = hasVariants && expandedVariantProductIds.has(productIdKey);
 
         return (
-        <div className="flex items-start space-x-3">
-          <div className="flex-shrink-0">
-            {product.media?.[0]?.url ? (
-              <img
-                src={product.media[0].url}
-                alt={product.media[0].altText || product.name}
-                className="w-10 h-10 object-cover rounded-lg"
-              />
-            ) : (
-              <div className="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                <FiPackage className="w-5 h-5 text-gray-400" />
-              </div>
-            )}
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center space-x-2">
-              <span className="font-medium text-gray-900 dark:text-gray-100 text-left block">
-                {product.name}
-              </span>
-              {hasVariants && (
-                <button
-                  type="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    toggleVariantExpansion(productIdKey);
-                  }}
-                  className={`p-1 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${
-                    isExpanded
-                      ? 'bg-blue-600 text-white hover:bg-blue-500 hover:text-white'
-                      : 'text-gray-400 hover:bg-blue-600 hover:text-white'
-                  }`}
-                  aria-label={t('products.manage_variants', 'Manage Variants')}
-                  aria-expanded={isExpanded}
-                >
-                  <FiChevronRight
-                    className={`w-4 h-4 transition-transform ${
-                      isExpanded ? 'transform rotate-90' : ''
-                    }`}
-                  />
-                </button>
+          <div className="flex items-start space-x-3">
+            <div className="flex-shrink-0">
+              {product.media?.[0]?.url ? (
+                <img
+                  src={product.media[0].url}
+                  alt={product.media[0].altText || product.name}
+                  className="w-10 h-10 object-cover rounded-lg"
+                />
+              ) : (
+                <div className="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+                  <FiPackage className="w-5 h-5 text-gray-400" />
+                </div>
               )}
             </div>
-            {product.sku && (
-              <div className="text-sm text-gray-500 dark:text-gray-400">
-                SKU: {product.sku}
+            <div className="flex-1">
+              <div className="flex items-center space-x-2">
+                <span className="font-medium text-gray-900 dark:text-gray-100 text-left block">
+                  {product.name}
+                </span>
+                {hasVariants && (
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleVariantExpansion(productIdKey);
+                    }}
+                    className={`p-1 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${isExpanded
+                      ? 'bg-blue-600 text-white hover:bg-blue-500 hover:text-white'
+                      : 'text-gray-400 hover:bg-blue-600 hover:text-white'
+                      }`}
+                    aria-label={t('products.manage_variants', 'Manage Variants')}
+                    aria-expanded={isExpanded}
+                  >
+                    <FiChevronRight
+                      className={`w-4 h-4 transition-transform ${isExpanded ? 'transform rotate-90' : ''
+                        }`}
+                    />
+                  </button>
+                )}
               </div>
-            )}
+              {product.sku && (
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  SKU: {product.sku}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
         );
       },
       isSortable: false,
@@ -1026,15 +1010,14 @@ export const ProductsPage: React.FC = () => {
       header: t('common.status', 'Status'),
       accessor: (product) => (
         <span
-          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            product.status === 'ACTIVE'
-              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-              : product.status === 'INACTIVE'
+          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${product.status === 'ACTIVE'
+            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+            : product.status === 'INACTIVE'
               ? 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
               : product.status === 'DRAFT'
-              ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-              : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-          }`}
+                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+            }`}
         >
           {t(`products.status.${product.status.toLowerCase()}`, product.status)}
         </span>
@@ -1096,7 +1079,7 @@ export const ProductsPage: React.FC = () => {
       hideable: false,
       width: '80px',
     },
-  ], [navigate, handleDeleteProduct, goToProduct, toggleVariantExpansion, expandedVariantProductIds, t]);
+  ], [navigate, handleDeleteProduct, toggleVariantExpansion, expandedVariantProductIds, t]);
 
   // Current sort descriptor for the table
   const sortDescriptor: SortDescriptor<Product> = useMemo(() => ({
@@ -1114,7 +1097,7 @@ export const ProductsPage: React.FC = () => {
       icon: <FiCheckCircle className="w-4 h-4" />,
     },
     {
-      label: t('products.deactivate_selected', 'Deactivate Selected'), 
+      label: t('products.deactivate_selected', 'Deactivate Selected'),
       value: 'deactivate',
       variant: 'outline' as const,
       disabled: bulkActionMutation.isPending,
@@ -1313,7 +1296,7 @@ export const ProductsPage: React.FC = () => {
           // Additional features
           enableRowHover={true}
           density="normal"
-          onRowClick={(product) => goToProduct(product)}
+          onRowClick={(product) => navigate(`/products/${product.id}/edit`)}
           expandedRowIds={expandedVariantProductIds}
           renderExpandedRow={renderExpandedProductRow}
           expandedRowClassName="bg-transparent border-none"

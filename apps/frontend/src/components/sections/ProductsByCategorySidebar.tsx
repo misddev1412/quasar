@@ -28,14 +28,19 @@ interface ProductsByCategorySidebarProps {
   showDescription: boolean;
   sections: NormalizedSidebarSection[];
   sectionFallbackTitle: string;
-  getLinkAriaLabel: (label: string) => string;
+  getLinkAriaLabel: (item: NormalizedSidebarItem) => string;
 }
 
 interface SidebarMenuItemProps {
   item: NormalizedSidebarItem;
   depth?: number;
-  getLinkAriaLabel: (label: string) => string;
+  getLinkAriaLabel: (item: NormalizedSidebarItem) => string;
   isInsideHoverPanel?: boolean;
+  showIcon?: boolean;
+  itemFontSize?: NormalizedSidebarSection['titleFontSize'];
+  itemFontWeight?: NormalizedSidebarSection['titleFontWeight'];
+  itemFontColor?: string;
+  itemUppercase?: boolean;
 }
 
 const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
@@ -43,6 +48,11 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
   depth = 0,
   getLinkAriaLabel,
   isInsideHoverPanel = false,
+  showIcon = true,
+  itemFontSize = 'sm',
+  itemFontWeight = 'normal',
+  itemFontColor,
+  itemUppercase = false,
 }) => {
   const hasChildren = item.children.length > 0;
   const isRootWithChildren = depth === 0 && hasChildren;
@@ -58,23 +68,35 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
   const iconWrapperClass = depth === 0
     ? 'rounded-full bg-blue-50 p-1.5 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300'
     : 'rounded-full bg-blue-50/80 p-1.5 text-blue-600 dark:bg-blue-900/30 dark:text-blue-200';
-  const fallbackIconClass = depth === 0
-    ? 'h-8 w-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-[11px] font-semibold dark:bg-blue-900/30 dark:text-blue-200'
-    : 'h-7 w-7 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-[10px] font-semibold dark:bg-blue-900/30 dark:text-blue-200';
+
+  const hasCustomColor = Boolean(itemFontColor);
+  const customStyle: CSSProperties | undefined = hasCustomColor || itemUppercase
+    ? {
+      ...(hasCustomColor ? { color: itemFontColor } : {}),
+      ...(itemUppercase ? { textTransform: 'uppercase', letterSpacing: '0.05em' } : {}),
+    }
+    : undefined;
+
+  const textClasses = clsx(
+    'mb-0 transition-colors duration-150',
+    SECTION_TITLE_FONT_SIZE_CLASSES[itemFontSize] || 'text-sm',
+    SECTION_TITLE_FONT_WEIGHT_CLASSES[itemFontWeight] || 'font-normal',
+    hasCustomColor ? '' : 'text-gray-900 dark:text-gray-100 group-hover:text-blue-600 group-focus-visible:text-blue-600 dark:group-hover:text-blue-300 dark:group-focus-visible:text-blue-300',
+    item.textTransform === 'uppercase' && 'uppercase',
+    item.textTransform === 'capitalize' && 'capitalize',
+    item.textTransform === 'lowercase' && 'lowercase'
+  );
+
 
   const content = (
     <div className="flex items-center gap-2.5 transition-colors duration-150 group-hover:text-blue-600 group-focus-visible:text-blue-600 dark:group-hover:text-blue-300 dark:group-focus-visible:text-blue-200">
-      {item.icon ? (
+      {showIcon && item.icon && (
         <div className={iconWrapperClass}>
           <UnifiedIcon icon={item.icon} variant="nav" className="h-4 w-4" />
         </div>
-      ) : (
-        <div className={fallbackIconClass}>
-          {item.label.slice(0, 1).toUpperCase()}
-        </div>
       )}
       <div className="flex-1">
-        <p className="text-[13px] font-semibold text-gray-900 dark:text-gray-100 mb-0 group-hover:text-blue-600 group-focus-visible:text-blue-600 dark:group-hover:text-blue-300 dark:group-focus-visible:text-blue-300">
+        <p className={textClasses} style={customStyle}>
           {item.label}
         </p>
         {item.description && (
@@ -96,7 +118,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
           <Link
             href={item.href}
             className={linkWrapperClasses}
-            aria-label={getLinkAriaLabel(item.label)}
+            aria-label={getLinkAriaLabel(item)}
           >
             {content}
           </Link>
@@ -121,11 +143,16 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
               <div className="space-y-3">
                 {item.children.map((child) => (
                   <SidebarMenuItem
-                    key={`${item.id}-${child.id}`}
+                    key={child.id}
                     item={child}
                     depth={depth + 1}
                     getLinkAriaLabel={getLinkAriaLabel}
                     isInsideHoverPanel
+                    showIcon={showIcon}
+                    itemFontSize={itemFontSize}
+                    itemFontWeight={itemFontWeight}
+                    itemFontColor={itemFontColor}
+                    itemUppercase={itemUppercase}
                   />
                 ))}
               </div>
@@ -143,11 +170,16 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
         >
           {item.children.map((child) => (
             <SidebarMenuItem
-              key={`${item.id}-${child.id}`}
+              key={child.id}
               item={child}
               depth={depth + 1}
               getLinkAriaLabel={getLinkAriaLabel}
               isInsideHoverPanel={isInsideHoverPanel}
+              showIcon={showIcon}
+              itemFontSize={itemFontSize}
+              itemFontWeight={itemFontWeight}
+              itemFontColor={itemFontColor}
+              itemUppercase={itemUppercase}
             />
           ))}
         </div>
@@ -199,9 +231,9 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
           const hasCustomTitleColor = Boolean(section.titleFontColor);
           const sectionTitleStyle: CSSProperties | undefined = hasCustomTitleColor || section.titleUppercase
             ? {
-                ...(hasCustomTitleColor ? { color: section.titleFontColor } : {}),
-                ...(section.titleUppercase ? { textTransform: 'uppercase', letterSpacing: '0.2em' } : {}),
-              }
+              ...(hasCustomTitleColor ? { color: section.titleFontColor } : {}),
+              ...(section.titleUppercase ? { textTransform: 'uppercase', letterSpacing: '0.2em' } : {}),
+            }
             : undefined;
           const sectionTitleClasses = clsx(
             'flex items-center gap-2 mb-0',
@@ -238,9 +270,14 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
               <div className="px-5 py-2 divide-y divide-gray-100 dark:divide-gray-800">
                 {section.items.map((item) => (
                   <SidebarMenuItem
-                    key={`${section.id}-${item.id}`}
+                    key={item.id}
                     item={item}
                     getLinkAriaLabel={getLinkAriaLabel}
+                    showIcon={section.showItemIcons}
+                    itemFontSize={section.itemFontSize}
+                    itemFontWeight={section.itemFontWeight}
+                    itemFontColor={section.itemFontColor}
+                    itemUppercase={section.itemUppercase}
                   />
                 ))}
               </div>

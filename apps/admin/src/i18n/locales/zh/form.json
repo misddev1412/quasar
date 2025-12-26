@@ -5,7 +5,12 @@
       "select_language": "选择语言",
       "select_status": "选择状态",
       "select_type": "选择类型",
-      "add_tags": "输入并按Enter或逗号添加标签..."
+      "add_tags": "输入并按Enter或逗号添加标签...",
+      "enter_permission_name": "输入权限名称",
+      "enter_permission_description": "输入权限描述（可选）",
+      "select_resource": "选择资源",
+      "select_action": "选择操作",
+      "select_scope": "选择范围"
     },
     "descriptions": {
       "post_language_description": "选择此帖子的主要语言",
@@ -15,17 +20,31 @@
       "allow_comments_description": "允许用户对此帖子发表评论",
       "meta_title_description": "搜索引擎的自定义标题（推荐：50-60个字符）",
       "meta_description_description": "搜索结果的简短描述（推荐：150-160个字符）",
-      "meta_keywords_description": "搜索引擎的关键词，用标签分隔"
+      "meta_keywords_description": "搜索引擎的关键词，用标签分隔",
+      "permission_name_requirements": "权限名称可以包含字母、数字、空格、连字符和下划线",
+      "permission_description": "此权限允许的简要描述",
+      "permission_resource": "此权限适用的资源",
+      "permission_action": "可以执行的操作",
+      "permission_scope": "权限的范围",
+      "permission_is_active": "此权限是否处于活动状态并可以使用"
     },
     "sections": {
       "post_settings_description": "配置帖子可见性、类型和发布设置",
       "seo_description": "优化您的帖子以适应搜索引擎",
       "tracking_configuration": "跟踪配置",
       "api_configuration": "API配置",
-      "status_settings": "状态设置"
+      "status_settings": "状态设置",
+      "basic_information": "基本信息",
+      "permission_basic_information_description": "定义基本权限信息",
+      "permission_details": "权限详情",
+      "permission_details_description": "配置权限资源、操作和范围",
+      "permission_settings": "权限设置",
+      "permission_settings_description": "配置权限状态和设置"
     },
     "tabs": {
-      "configuration": "配置"
+      "configuration": "配置",
+      "general_information": "常规信息",
+      "settings": "设置"
     }
   },
   "validation": {

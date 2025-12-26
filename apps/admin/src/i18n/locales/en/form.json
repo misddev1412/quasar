@@ -5,7 +5,12 @@
       "select_language": "Select language",
       "select_status": "Select status",
       "select_type": "Select type",
-      "add_tags": "Type and press Enter or comma to add tags..."
+      "add_tags": "Type and press Enter or comma to add tags...",
+      "enter_permission_name": "Enter permission name",
+      "enter_permission_description": "Enter permission description (optional)",
+      "select_resource": "Select resource",
+      "select_action": "Select action",
+      "select_scope": "Select scope"
     },
     "descriptions": {
       "post_language_description": "Select the primary language for this post",
@@ -15,17 +20,31 @@
       "allow_comments_description": "Allow users to comment on this post",
       "meta_title_description": "Custom title for search engines (recommended: 50-60 characters)",
       "meta_description_description": "Brief description for search results (recommended: 150-160 characters)",
-      "meta_keywords_description": "Keywords for search engines, separated by tags"
+      "meta_keywords_description": "Keywords for search engines, separated by tags",
+      "permission_name_requirements": "Permission name can contain letters, numbers, spaces, hyphens, and underscores",
+      "permission_description": "Brief description of what this permission allows",
+      "permission_resource": "The resource this permission applies to",
+      "permission_action": "The action that can be performed",
+      "permission_scope": "The scope of the permission",
+      "permission_is_active": "Whether this permission is active and can be used"
     },
     "sections": {
       "post_settings_description": "Configure post visibility, type, and publishing settings",
       "seo_description": "Optimize your post for search engines",
       "tracking_configuration": "Tracking Configuration",
       "api_configuration": "API Configuration",
-      "status_settings": "Status Settings"
+      "status_settings": "Status Settings",
+      "basic_information": "Basic Information",
+      "permission_basic_information_description": "Define the basic permission information",
+      "permission_details": "Permission Details",
+      "permission_details_description": "Configure permission resource, action, and scope",
+      "permission_settings": "Permission Settings",
+      "permission_settings_description": "Configure permission status and settings"
     },
     "tabs": {
-      "configuration": "Configuration"
+      "configuration": "Configuration",
+      "general_information": "General Information",
+      "settings": "Settings"
     }
   },
   "validation": {

@@ -6,6 +6,39 @@
         "createSuccessDescription": "Bài viết đã được tạo thành công.",
         "createError": "Tạo thất bại",
         "createErrorDescription": "Không thể tạo bài viết. Vui lòng thử lại.",
+        "management": {
+            "title": "Quản lý bài viết",
+            "description": "Quản lý tất cả bài viết trong hệ thống"
+        },
+        "statistics": {
+            "total_posts": "Tổng bài viết",
+            "published_posts": "Bài viết đã xuất bản",
+            "draft_posts": "Bài viết nháp",
+            "featured_posts": "Bài viết nổi bật"
+        },
+        "table": {
+            "post": "Bài viết",
+            "status": "Trạng thái",
+            "type": "Loại",
+            "author": "Tác giả",
+            "views": "Lượt xem",
+            "published": "Xuất bản",
+            "created": "Tạo lúc",
+            "actions": "Thao tác"
+        },
+        "fallback": {
+            "untitled": "Chưa có tiêu đề",
+            "no_excerpt": "Chưa có mô tả",
+            "unknown_author": "Không rõ"
+        },
+        "messages": {
+            "delete_success": "Xóa bài viết thành công",
+            "delete_error": "Không thể xóa bài viết",
+            "delete_confirm": "Bạn có chắc chắn muốn xóa bài viết này không?",
+            "refresh_success": "Đã tải lại danh sách bài viết"
+        },
+        "search_placeholder": "Tìm bài viết theo tiêu đề, nội dung hoặc slug...",
+        "no_posts_found": "Không tìm thấy bài viết",
         "title": "Bài viết",
         "media_manager": "Quản lý Media",
         "select_media_title": "Chọn Media cho bài viết",

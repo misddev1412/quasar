@@ -62,13 +62,13 @@ const ComponentConfigEditPage: React.FC = () => {
 
   const parentOptions = useMemo(
     () => [
-      { value: '', label: t('componentConfigs.topLevelComponent', 'Top-level component') },
+      { value: '', label: t('componentConfigs.topLevelComponent') },
       ...flattenedComponents.map(({ node, depth }) => ({
         value: node.id,
         label: `${'— '.repeat(depth)}${node.displayName}`,
       })),
     ],
-    [flattenedComponents],
+    [flattenedComponents, t],
   );
 
   const componentOptions = useMemo(
@@ -85,15 +85,15 @@ const ComponentConfigEditPage: React.FC = () => {
     try {
       await updateMutation.mutateAsync({ id: componentId, data: values });
       addToast({
-        title: t('componentConfigs.updateSuccess', 'Component updated'),
-        description: t('componentConfigs.updateSuccessDescription', 'Changes saved successfully.'),
+        title: t('componentConfigs.updateSuccess'),
+        description: t('componentConfigs.updateSuccessDescription'),
         type: 'success',
       });
       navigate('/component-configs');
     } catch (error) {
       addToast({
-        title: t('componentConfigs.updateFailed', 'Unable to update component'),
-        description: error instanceof Error ? error.message : t('common.genericError', 'Please try again later.'),
+        title: t('componentConfigs.updateFailed'),
+        description: error instanceof Error ? error.message : t('common.genericError'),
         type: 'error',
       });
     }
@@ -104,8 +104,8 @@ const ComponentConfigEditPage: React.FC = () => {
   useEffect(() => {
     if (componentQuery.error) {
       addToast({
-        title: t('componentConfigs.fetchFailed', 'Unable to load component'),
-        description: componentQuery.error.message || t('common.genericError', 'Please try again later.'),
+        title: t('componentConfigs.fetchFailed'),
+        description: componentQuery.error.message || t('common.genericError'),
         type: 'error',
       });
     }
@@ -114,8 +114,8 @@ const ComponentConfigEditPage: React.FC = () => {
   useEffect(() => {
     if (listQuery.error) {
       addToast({
-        title: t('componentConfigs.fetchFailed', 'Unable to load component list'),
-        description: listQuery.error.message || t('common.genericError', 'Please try again later.'),
+        title: t('componentConfigs.fetchFailed'),
+        description: listQuery.error.message || t('common.genericError'),
         type: 'error',
       });
     }
@@ -127,14 +127,11 @@ const ComponentConfigEditPage: React.FC = () => {
   const isLoading = componentQuery.isLoading || listQuery.isLoading;
 
   const templateProps = {
-    title: t('componentConfigs.editTitle', 'Edit component configuration'),
-    description: t(
-      'componentConfigs.editDescription',
-      'Adjust component schema, defaults, metadata, and nesting rules on a focused page.',
-    ),
+    title: t('componentConfigs.editTitle'),
+    description: t('componentConfigs.editDescription'),
     icon: <FiBox className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
-    entityName: t('componentConfigs.title', 'Component'),
-    entityNamePlural: t('componentConfigs.title', 'Component Library'),
+    entityName: t('componentConfigs.title'),
+    entityNamePlural: t('componentConfigs.title'),
     backUrl: '/component-configs',
     onBack: handleCancel,
     maxWidth: 'full' as const,
@@ -151,12 +148,12 @@ const ComponentConfigEditPage: React.FC = () => {
   }
 
   if (componentQuery.error || listQuery.error) {
-    const errorMessage = componentQuery.error?.message || listQuery.error?.message || t('common.genericError', 'Please try again later.');
+    const errorMessage = componentQuery.error?.message || listQuery.error?.message || t('common.genericError');
     return (
       <CreatePageTemplate {...templateProps} isSubmitting={false}>
         <div className="text-center text-red-600 dark:text-red-400">
           <p className="text-lg font-medium mb-2">
-            {t('componentConfigs.fetchFailed', 'Unable to load component')}
+            {t('componentConfigs.fetchFailed')}
           </p>
           <p className="text-sm">
             {errorMessage}
@@ -168,7 +165,7 @@ const ComponentConfigEditPage: React.FC = () => {
               listQuery.refetch();
             }}
           >
-            {t('common.retry', 'Retry')}
+            {t('common.retry')}
           </Button>
         </div>
       </CreatePageTemplate>
@@ -180,13 +177,13 @@ const ComponentConfigEditPage: React.FC = () => {
       <CreatePageTemplate {...templateProps} isSubmitting={false}>
         <div className="text-center text-gray-600 dark:text-gray-400">
           <p className="text-lg font-medium mb-2">
-            {t('componentConfigs.componentNotFound', 'Component configuration not found')}
+            {t('componentConfigs.componentNotFound')}
           </p>
           <p className="text-sm">
-            {t('componentConfigs.componentNotFoundDescription', 'It may have been deleted or you may not have access.')}
+            {t('componentConfigs.componentNotFoundDescription')}
           </p>
           <Button className="mt-4" onClick={handleCancel}>
-            {t('componentConfigs.backToList', 'Back to component library')}
+            {t('componentConfigs.backToList')}
           </Button>
         </div>
       </CreatePageTemplate>

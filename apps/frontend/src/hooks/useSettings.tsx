@@ -13,7 +13,21 @@ export interface Setting {
   updatedAt: Date;
 }
 
-export const useSettings = () => {
+
+export interface UseSettingsResult {
+  settings: Setting[];
+  isLoading: boolean;
+  error: any;
+  getSetting: (key: string, defaultValue?: string) => string;
+  getSettingAsBoolean: (key: string, defaultValue?: boolean) => boolean;
+  getSettingAsNumber: (key: string, defaultValue?: number) => number;
+  getSettingAsJson: <T>(key: string, defaultValue: T) => T;
+  getSiteLogo: () => string;
+  getSiteFavicon: () => string;
+  getFooterConfig: () => FooterConfig;
+}
+
+export const useSettings = (): UseSettingsResult => {
   const { data, isLoading, error } = trpc.settings.getPublicSettings.useQuery();
 
   const settings = (data as any)?.data || [];
@@ -47,7 +61,7 @@ export const useSettings = () => {
     return isNaN(num) ? defaultValue : num;
   };
 
-  const getSettingAsJson = <T>(key: string, defaultValue: T): T => {
+  const getSettingAsJson = <T,>(key: string, defaultValue: T): T => {
     const rawValue = getSetting(key, '');
     if (!rawValue) {
       return defaultValue;

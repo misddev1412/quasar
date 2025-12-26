@@ -28,6 +28,7 @@ import { Button } from '../../components/common/Button';
 import { Dropdown } from '../../components/common/Dropdown';
 import { ReorderableTable, DragHandle, type ReorderableColumn } from '../../components/common/ReorderableTable';
 import { UnifiedIcon } from '../../components/common/UnifiedIcon';
+import { Toggle } from '../../components/common/Toggle';
 import { AdminMenu, MenuTreeNode } from '../../hooks/useMenusManager';
 import { ALL_MENU_TYPE_OPTIONS } from '../../hooks/useMenuPage';
 
@@ -45,6 +46,7 @@ interface MenuTableProps {
   onEditMenu: (menu: AdminMenu) => void;
   onDeleteMenu: (menu: AdminMenu) => void;
   onAddMenu: () => void;
+  onToggleMenuEnabled: (menu: AdminMenu, nextValue: boolean) => void;
   handleRowDragStart: (event: React.DragEvent<HTMLElement>, menuId: string) => void;
   handleDragEnd: () => void;
   handleDragOver: (event: React.DragEvent<HTMLElement>, targetId: string) => void;
@@ -52,6 +54,7 @@ interface MenuTableProps {
   handleDragLeave: (targetId: string) => void;
   loadingChildren?: Set<string>;
   hasChildren?: Set<string>;
+  togglingMenuIds?: Set<string>;
 }
 
 export const MenuTable: React.FC<MenuTableProps> = ({
@@ -68,6 +71,7 @@ export const MenuTable: React.FC<MenuTableProps> = ({
   onEditMenu,
   onDeleteMenu,
   onAddMenu,
+  onToggleMenuEnabled,
   handleRowDragStart,
   handleDragEnd,
   handleDragOver,
@@ -75,8 +79,8 @@ export const MenuTable: React.FC<MenuTableProps> = ({
   handleDragLeave,
   loadingChildren = new Set(),
   hasChildren = new Set(),
+  togglingMenuIds = new Set(),
 }) => {
-  
   const columns: ReorderableColumn<AdminMenu & { level: number; children: MenuTreeNode[] }>[] = useMemo(() => [
     {
       id: 'menu',
@@ -210,15 +214,37 @@ export const MenuTable: React.FC<MenuTableProps> = ({
     {
       id: 'status',
       header: 'Status',
-      accessor: (item) => (
-        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-          item.isEnabled
-            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-        }`}>
-          {item.isEnabled ? 'Active' : 'Inactive'}
-        </span>
-      ),
+      accessor: (item) => {
+        const isToggling = togglingMenuIds.has(item.id);
+        const statusClasses = item.isEnabled
+          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+        const menuLabel =
+          item.translations?.find((translation) => translation.locale === 'en')?.label ||
+          item.translations?.[0]?.label ||
+          item.url ||
+          'menu item';
+
+        return (
+          <div className="flex items-center gap-3" data-drag-ignore>
+            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClasses}`}>
+              {item.isEnabled ? 'Active' : 'Inactive'}
+            </span>
+            <div className="flex items-center gap-2">
+              <Toggle
+                size="sm"
+                checked={item.isEnabled}
+                onChange={(checked) => onToggleMenuEnabled(item, checked)}
+                disabled={isToggling}
+                aria-label={`Toggle ${menuLabel}`}
+              />
+              {isToggling ? (
+                <span className="h-3 w-3 rounded-full border-2 border-gray-300 border-t-blue-500 animate-spin" aria-hidden />
+              ) : null}
+            </div>
+          </div>
+        );
+      },
       isSortable: true,
       hideable: true,
     },
@@ -266,7 +292,16 @@ export const MenuTable: React.FC<MenuTableProps> = ({
         />
       ),
     },
-  ], [expandedNodes, reorderMenus.isPending, draggedMenuId, toggleNodeExpansion, onEditMenu, onDeleteMenu]);
+  ], [
+    expandedNodes,
+    reorderMenus.isPending,
+    draggedMenuId,
+    toggleNodeExpansion,
+    onEditMenu,
+    onDeleteMenu,
+    onToggleMenuEnabled,
+    togglingMenuIds,
+  ]);
 
   return (
     <ReorderableTable<AdminMenu & { level: number; children: MenuTreeNode[] }>

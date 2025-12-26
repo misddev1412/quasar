@@ -53,6 +53,9 @@ import SiteContentEditPage from '../pages/site-content/edit';
 import LanguagesIndexPage from '../pages/languages';
 import LanguagesCreatePage from '../pages/languages/create';
 import LanguagesEditPage from '../pages/languages/edit';
+import ServiceListPage from '../pages/services';
+import ServiceCreatePage from '../pages/services/create';
+import ServiceEditPage from '../pages/services/edit';
 // Translation Management
 import TranslationsIndexPage from '../pages/translations';
 import TranslationsCreatePage from '../pages/translations/create';
@@ -167,10 +170,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* 非认证页面 */}
+      {/* Auth Pages */}
       <Route path="/auth/login" element={<LoginPage />} />
       <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
-      {/* 受保护页面 */}
+      {/* Protected Pages */}
       <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
       <Route path="/seo" element={<ProtectedRoute><SeoPage /></ProtectedRoute>} />
       <Route path="/brand-assets" element={<ProtectedRoute><BrandAssetsPage /></ProtectedRoute>} />
@@ -223,6 +226,10 @@ const AppRoutes: React.FC = () => {
       <Route path="/languages" element={<ProtectedRoute><LanguagesIndexPage /></ProtectedRoute>} />
       <Route path="/languages/create" element={<ProtectedRoute><LanguagesCreatePage /></ProtectedRoute>} />
       <Route path="/languages/:id/edit" element={<ProtectedRoute><LanguagesEditPage /></ProtectedRoute>} />
+      {/* Services */}
+      <Route path="/services" element={<ProtectedRoute><ServiceListPage /></ProtectedRoute>} />
+      <Route path="/services/create" element={<ProtectedRoute><ServiceCreatePage /></ProtectedRoute>} />
+      <Route path="/services/:id/edit" element={<ProtectedRoute><ServiceEditPage /></ProtectedRoute>} />
       {/* Translations */}
       <Route path="/translations" element={<ProtectedRoute><TranslationsIndexPage /></ProtectedRoute>} />
       <Route path="/translations/create" element={<ProtectedRoute><TranslationsCreatePage /></ProtectedRoute>} />
@@ -309,7 +316,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/test/phone-input" element={<ProtectedRoute><PhoneInputTest /></ProtectedRoute>} />
       {/* Unauthorized page */}
       <Route path="/unauthorized" element={<Unauthorized />} />
-      {/* 404页面，不需要认证 */}
+      {/* 404 Page */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

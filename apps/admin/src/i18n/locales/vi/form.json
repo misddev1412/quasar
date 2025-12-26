@@ -5,7 +5,12 @@
       "select_language": "Chọn ngôn ngữ",
       "select_status": "Chọn trạng thái",
       "select_type": "Chọn loại",
-      "add_tags": "Nhập và ấn Enter hoặc dấu phẩy để thêm thẻ..."
+      "add_tags": "Nhập và ấn Enter hoặc dấu phẩy để thêm thẻ...",
+      "enter_permission_name": "Nhập tên quyền hạn",
+      "enter_permission_description": "Nhập mô tả quyền hạn (tùy chọn)",
+      "select_resource": "Chọn tài nguyên",
+      "select_action": "Chọn hành động",
+      "select_scope": "Chọn phạm vi"
     },
     "descriptions": {
       "post_language_description": "Chọn ngôn ngữ chính cho bài viết này",
@@ -15,17 +20,31 @@
       "allow_comments_description": "Cho phép người dùng bình luận trên bài viết này",
       "meta_title_description": "Tiêu đề tùy chỉnh cho công cụ tìm kiếm (khuyến nghị: 50-60 ký tự)",
       "meta_description_description": "Mô tả ngắn cho kết quả tìm kiếm (khuyến nghị: 150-160 ký tự)",
-      "meta_keywords_description": "Từ khóa cho công cụ tìm kiếm, phân cách bằng thẻ"
+      "meta_keywords_description": "Từ khóa cho công cụ tìm kiếm, phân cách bằng thẻ",
+      "permission_name_requirements": "Tên quyền hạn có thể chứa chữ cái, số, khoảng trắng, dấu gạch ngang và dấu gạch dưới",
+      "permission_description": "Mô tả ngắn gọn về những gì quyền hạn này cho phép",
+      "permission_resource": "Tài nguyên mà quyền hạn này áp dụng",
+      "permission_action": "Hành động có thể được thực hiện",
+      "permission_scope": "Phạm vi của quyền hạn",
+      "permission_is_active": "Quyền hạn này có đang hoạt động và có thể sử dụng không"
     },
     "sections": {
       "post_settings_description": "Cấu hình khả năng hiển thị, loại và cài đặt xuất bản bài viết",
       "seo_description": "Tối ưu hóa bài viết cho công cụ tìm kiếm",
       "tracking_configuration": "Cấu hình theo dõi",
       "api_configuration": "Cấu hình API",
-      "status_settings": "Cài đặt trạng thái"
+      "status_settings": "Cài đặt trạng thái",
+      "basic_information": "Thông tin cơ bản",
+      "permission_basic_information_description": "Xác định thông tin quyền hạn cơ bản",
+      "permission_details": "Chi tiết quyền hạn",
+      "permission_details_description": "Cấu hình tài nguyên, hành động và phạm vi của quyền hạn",
+      "permission_settings": "Cài đặt quyền hạn",
+      "permission_settings_description": "Cấu hình trạng thái và cài đặt quyền hạn"
     },
     "tabs": {
-      "configuration": "Cấu hình"
+      "configuration": "Cấu hình",
+      "general_information": "Thông tin chung",
+      "settings": "Cài đặt"
     }
   },
   "validation": {

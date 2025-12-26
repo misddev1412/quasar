@@ -27,6 +27,12 @@
       "toggleAriaLabel": "Chuyển trạng thái hiển thị menu phụ",
       "errorToastTitle": "Không thể cập nhật trạng thái menu phụ"
     },
+    "modal": {
+      "editTitle": "Chỉnh sửa mục Menu",
+      "createTitle": "Thêm mục Menu",
+      "editDescription": "Cập nhật chi tiết và bản dịch cho mục menu.",
+      "createDescription": "Tạo mục menu mới với các bản dịch."
+    },
     "form": {
       "labels": {
         "menuGroup": "Nhóm Menu",
@@ -56,9 +62,14 @@
         "iconSize": "Kích thước biểu tượng",
         "hoverEffect": "Hiệu ứng khi di chuột",
         "maxItems": "Số mục tối đa",
+        "marqueeMaxWidth": "Chiều rộng chữ chạy tối đa",
+        "marqueeSpeed": "Tốc độ chữ chạy (giây)",
+        "marqueeItems": "Các mục chữ chạy",
+        "icon": "Biểu tượng",
         "columnSpan": "Độ rộng cột",
         "showTitle": "Hiện tiêu đề",
         "showDescription": "Hiện mô tả",
+        "minimalStyling": "Giao diện tối giản",
         "customCssClass": "Lớp CSS tùy chỉnh",
         "badgeConfiguration": "Cấu hình Huy hiệu (Badge)",
         "badgeText": "Chữ trên Badge",
@@ -81,6 +92,12 @@
         "topPhone": "Hiển thị dưới dạng nút hotline trên thanh đầu trang storefront.",
         "topEmail": "Thêm liên kết mailto nhanh cho khách truy cập.",
         "topTime": "Định dạng theo token Day.js. Mặc định sử dụng <code>HH:mm</code>.",
+        "topMarquee": "Giới hạn chiều rộng tối đa cho vùng chữ chạy (ví dụ 480px hoặc 100%). Để trống để tự động theo không gian.",
+        "topMarqueeSpeed": "Thời gian (giây) cho một vòng chạy. Số nhỏ hơn sẽ chạy nhanh hơn.",
+        "topMarqueeItems": "Nhập nội dung và liên kết sẽ hiển thị trong phần chữ chạy.",
+        "topMarqueeItemsEmpty": "Thêm ít nhất một mục chữ chạy để hiển thị.",
+        "topMarqueeLocale": "Ghi đè nội dung chữ chạy cho ngôn ngữ này. Để trống để dùng danh sách mặc định.",
+        "topMarqueeItemsLocaleEmpty": "Chưa có chữ chạy riêng cho ngôn ngữ này. Sẽ dùng danh sách mặc định.",
         "callButton": "Số được sử dụng khi tạo liên kết <code>tel:</code>. Nhãn hiển thị vẫn lấy từ phần dịch thuật.",
         "buttonBorderRadius": "Chọn mẫu sẵn hoặc dùng Tùy chỉnh để nhập bán kính riêng với px, rem, hoặc em.",
         "buttonStyling": "Sử dụng các trường màu sắc, biểu tượng và liên kết ở trên để hoàn thiện kiểu dáng nút.",
@@ -102,6 +119,11 @@
         "bannerDescription": "Mô tả đặc biệt cho banner",
         "shopNow": "Mua ngay",
         "specialOffers": "/uu-dai-dac-biet",
+        "maxWidth": "480px hoặc 100%",
+        "marqueeLabel": "Flash sale đang diễn ra!",
+        "marqueeUrl": "https://example.com/khuyen-mai",
+        "marqueeSpeed": "16",
+        "marqueeIcon": "heroicons:megaphone",
         "imageUrl": "https://example.com/hinh-anh.jpg",
         "menuLabel": "Nhãn menu",
         "menuDescription": "Mô tả menu",
@@ -131,8 +153,16 @@
       "buttons": {
         "cancel": "Hủy",
         "update": "Cập nhật Menu",
-        "create": "Tạo Menu"
+        "create": "Tạo Menu",
+        "addMarqueeItem": "Thêm mục chữ chạy",
+        "removeMarqueeItem": "Xóa mục",
+        "useDefaultMarqueeItems": "Dùng danh sách mặc định"
       }
+    },
+    "table": {
+      "enabledToast": "Đã bật menu",
+      "disabledToast": "Đã tắt menu",
+      "toggleError": "Không thể cập nhật trạng thái menu"
     },
     "groups": {
       "main": "Menu Chính",
@@ -160,7 +190,8 @@
       "call_button": "Nút gọi",
       "top_phone": "Gọi điện",
       "top_email": "Email",
-      "top_current_time": "Thời gian hiện tại"
+      "top_current_time": "Thời gian hiện tại",
+      "top_marquee": "Chữ chạy"
     },
     "targets": {
       "_self": "Cửa sổ hiện tại",

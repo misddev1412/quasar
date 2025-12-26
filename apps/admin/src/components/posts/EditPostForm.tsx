@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Settings, Globe, Image, Calendar, Tag } from 'lucide-react';
+import { FileText, Settings, Globe, Image, Tag } from 'lucide-react';
 import { EntityForm } from '../common/EntityForm';
 import { FormTabConfig, FormSubmitOptions } from '../../types/forms';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -244,6 +244,34 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               categorySource: 'post',
             },
             {
+              name: 'isFeatured',
+              label: t('posts.isFeatured'),
+              type: 'checkbox',
+              required: false,
+              description: t('form.descriptions.featured_post_description'),
+            },
+            {
+              name: 'allowComments',
+              label: t('posts.allowComments'),
+              type: 'checkbox',
+              required: false,
+              description: t('form.descriptions.allow_comments_description'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: 'media',
+      label: t('posts.mediaTab', 'Media'),
+      icon: <Image className="w-4 h-4" />,
+      sections: [
+        {
+          title: t('posts.mediaTab', 'Media'),
+          description: t('posts.mediaTabDescription', 'Manage featured image and galleries for this post.'),
+          icon: <Image className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
+          fields: [
+            {
               name: 'featuredImage',
               label: t('posts.featuredImage'),
               type: 'media-upload',
@@ -262,20 +290,6 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               maxImages: 15,
               maxSize: 10,
               description: 'Add up to 15 images to create a gallery for this post. Images can be reordered by dragging.',
-            },
-            {
-              name: 'isFeatured',
-              label: t('posts.isFeatured'),
-              type: 'checkbox',
-              required: false,
-              description: t('form.descriptions.featured_post_description'),
-            },
-            {
-              name: 'allowComments',
-              label: t('posts.allowComments'),
-              type: 'checkbox',
-              required: false,
-              description: t('form.descriptions.allow_comments_description'),
             },
           ],
         },

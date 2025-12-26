@@ -4,6 +4,7 @@ import { Loading } from '../../components/common/Loading';
 import { AdminMenu, MenuTreeNode } from '../../hooks/useMenusManager';
 import { MenuFormState } from '../../hooks/useMenuPage';
 import { MenuForm } from './MenuForm';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 interface MenuFormModalProps {
   isOpen: boolean;
@@ -30,6 +31,8 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
   onSubmit,
   isSubmitting,
 }) => {
+  const { t } = useTranslationWithBackend();
+
   return (
     <Modal
       isOpen={isOpen}
@@ -39,10 +42,10 @@ export const MenuFormModal: React.FC<MenuFormModalProps> = ({
       <div className="space-y-6">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
-            {editingMenu ? 'Edit Menu Item' : 'Add Menu Item'}
+            {editingMenu ? t('menus.modal.editTitle') : t('menus.modal.createTitle')}
           </h3>
           <p className="mt-1 text-sm text-gray-500">
-            {editingMenu ? 'Update the menu item details and translations.' : 'Create a new menu item with translations.'}
+            {editingMenu ? t('menus.modal.editDescription') : t('menus.modal.createDescription')}
           </p>
         </div>
         {languagesQuery.isLoading ? (

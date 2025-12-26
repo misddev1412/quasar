@@ -233,7 +233,8 @@
       "activate": "Activate",
       "deactivate": "Deactivate",
       "delete": "Delete",
-      "default_role": "USER"
+      "default_role": "USER",
+      "login_as_user": "Login as User"
     },
     "descriptions": {
       "active_last_15_min": "Active in last 15 minutes",
@@ -241,7 +242,8 @@
     },
     "errors": {
       "generic_error": "An error occurred while updating the user status. Please try again.",
-      "error_title": "Error"
+      "error_title": "Error",
+      "impersonation_failed": "Unable to start impersonation session. Please try again."
     },
     "page_title": "User Management",
     "page_description": "Manage all users in the system"

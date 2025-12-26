@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "title": "Quyền hạn",
+    "edit_permission": "Chỉnh sửa quyền hạn",
+    "edit_permission_description": "Cập nhật thông tin và cài đặt quyền hạn",
+    "edit_permission_subtitle": "Cập nhật chi tiết và cài đặt quyền hạn",
+    "back_to_permissions": "Quay lại danh sách quyền hạn"
+  },
+  "permission": {
+    "name": "Tên quyền hạn",
+    "description": "Mô tả",
+    "resource": "Tài nguyên",
+    "action": "Hành động",
+    "scope": "Phạm vi",
+    "is_active": "Hoạt động"
+  },
+  "messages": {
+    "permission_updated_successfully": "Cập nhật quyền hạn thành công",
+    "operation_failed": "Thao tác thất bại",
+    "confirm_delete_permission": "Bạn có chắc chắn muốn xóa quyền hạn này? Hành động này không thể hoàn tác.",
+    "permission_deleted_successfully": "Xóa quyền hạn thành công"
+  }
+}

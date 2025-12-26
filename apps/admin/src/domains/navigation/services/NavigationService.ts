@@ -48,6 +48,7 @@ import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import CloudQueueIcon from '@mui/icons-material/CloudQueue';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import BuildIcon from '@mui/icons-material/Build';
+import SpaIcon from '@mui/icons-material/Spa';
 
 export class NavigationService implements INavigationService {
   constructor(private translate: (key: string, fallback?: string) => string) { }
@@ -181,6 +182,11 @@ export class NavigationService implements INavigationService {
             icon: React.createElement(ViewListIcon),
             label: t('products.title', 'Sản phẩm'),
             path: '/products'
+          },
+          {
+            icon: React.createElement(SpaIcon),
+            label: t('services.title', 'Dịch vụ'),
+            path: '/services'
           },
           {
             icon: React.createElement(BrandingWatermarkIcon),
@@ -457,6 +463,12 @@ export class NavigationService implements INavigationService {
         !!currentPath.match(/^\/products\/[^\/]+\/edit$/);
     }
 
+    if (path === '/services') {
+      return currentPath === '/services' ||
+        currentPath.startsWith('/services/create') ||
+        !!currentPath.match(/^\/services\/[^\/]+\/edit$/);
+    }
+
     // Special handling for orders - main /orders should match detail/edit/create
     if (path === '/orders') {
       if (currentPath.startsWith('/orders/fulfillments')) {
@@ -545,7 +557,32 @@ export class NavigationService implements INavigationService {
         currentPath.startsWith('/notifications/event-flows/');
     }
 
-    const exactMatchPaths = ['/users', '/roles', '/permissions', '/posts', '/settings', '/settings/maintenance', '/settings/orders', '/settings/theme', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats'];
+    // Special handling for users - main /users should match detail/edit/create but not dashboard or exports
+    if (path === '/users') {
+      if (currentPath.startsWith('/users/dashboard') || currentPath.startsWith('/users/exports')) {
+        return false;
+      }
+
+      return currentPath === '/users' ||
+        currentPath.startsWith('/users/create') ||
+        !!currentPath.match(/^\/users\/[^\/]+$/);
+    }
+
+    // Special handling for roles - main /roles should match detail/edit/create
+    if (path === '/roles') {
+      return currentPath === '/roles' ||
+        currentPath.startsWith('/roles/create') ||
+        !!currentPath.match(/^\/roles\/[^\/]+$/);
+    }
+
+    // Special handling for permissions - main /permissions should match detail/edit/create
+    if (path === '/permissions') {
+      return currentPath === '/permissions' ||
+        currentPath.startsWith('/permissions/create') ||
+        !!currentPath.match(/^\/permissions\/[^\/]+$/);
+    }
+
+    const exactMatchPaths = ['/posts', '/services', '/settings', '/settings/maintenance', '/settings/orders', '/settings/theme', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats'];
     if (exactMatchPaths.includes(path)) {
       return currentPath === path;
     }

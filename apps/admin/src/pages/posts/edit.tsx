@@ -58,7 +58,7 @@ const EditPostPage: React.FC = () => {
   const { activeTab, handleTabChange } = useUrlTabs({
     defaultTab: 0,
     tabParam: 'tab',
-    tabKeys: ['general', 'settings', 'translations'] // Maps to tab IDs
+    tabKeys: ['general', 'media', 'seo', 'translations'] // Maps to tab IDs
   });
 
   // Fetch existing post data (only if ID exists)

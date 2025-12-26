@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useMemo, useRef, useState, useEffect, useId } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import clsx from 'clsx';
 import { useLocale } from 'next-intl';
 import { createPortal } from 'react-dom';
@@ -10,6 +11,8 @@ import { UnifiedIcon } from '../common/UnifiedIcon';
 import { MenuItem, useMenu } from '../../hooks/useMenu';
 import { MenuTarget, MenuType } from '@shared/enums/menu.enums';
 import { useSettings } from '../../hooks/useSettings';
+import CartDropdown from '../ecommerce/CartDropdown';
+import { useCart } from '../../contexts/CartContext';
 
 const SUB_MENU_GROUP = 'sub';
 const SUB_MENU_VISIBILITY_SETTING_KEY = 'storefront.sub_menu_enabled';
@@ -35,8 +38,8 @@ const resolveSubMenuVariant = (item: MenuItem): SubMenuVariant => {
 };
 
 const resolveButtonBorderRadius = (item: MenuItem, variant: SubMenuVariant): string | undefined => {
-  const configuredRadius =
-    typeof item.config?.buttonBorderRadius === 'string' ? item.config.buttonBorderRadius.trim() : '';
+  const val = item.config?.buttonBorderRadius;
+  const configuredRadius = typeof val === 'string' ? val.trim() : '';
   if (configuredRadius.length > 0) {
     return configuredRadius;
   }
@@ -48,8 +51,8 @@ const resolveButtonAnimationClass = (item: MenuItem, variant: SubMenuVariant): s
     return '';
   }
 
-  const animation =
-    typeof item.config?.buttonAnimation === 'string' ? item.config.buttonAnimation : undefined;
+  const val = item.config?.buttonAnimation;
+  const animation = typeof val === 'string' ? val : undefined;
 
   switch (animation) {
     case 'pulse':
@@ -70,8 +73,8 @@ const isGradientValue = (value?: string | null): boolean =>
   typeof value === 'string' && value.toLowerCase().includes('gradient');
 
 const resolveAccentColor = (item: MenuItem): string => {
-  const accent =
-    typeof item.config?.accentColor === 'string' ? item.config.accentColor.trim() : '';
+  const val = item.config?.accentColor;
+  const accent = typeof val === 'string' ? val.trim() : '';
 
   if (accent.length > 0) {
     return accent;
@@ -97,15 +100,24 @@ const getTopLevelStyles = (
   };
 
   const configuredBorderColor = typeof item.borderColor === 'string' ? item.borderColor.trim() : '';
+  const normalizedBorderColor = configuredBorderColor.toLowerCase();
+  const isTransparentBorderColor = normalizedBorderColor === 'transparent';
   const configuredBorderWidth = typeof item.borderWidth === 'string' ? item.borderWidth.trim() : '';
+  const parsedBorderWidth =
+    configuredBorderWidth.length > 0 ? parseFloat(configuredBorderWidth) : null;
+  const hasValidBorderWidth =
+    configuredBorderWidth.length > 0 &&
+    parsedBorderWidth !== null &&
+    !Number.isNaN(parsedBorderWidth) &&
+    parsedBorderWidth > 0;
 
-  if (configuredBorderColor.length > 0) {
+  if (configuredBorderColor.length > 0 && !isTransparentBorderColor) {
     style.borderColor = configuredBorderColor;
   }
-  if (configuredBorderWidth.length > 0) {
+  if (hasValidBorderWidth) {
     style.borderWidth = configuredBorderWidth;
   }
-  if (configuredBorderColor.length > 0 || configuredBorderWidth.length > 0) {
+  if ((configuredBorderColor.length > 0 && !isTransparentBorderColor) || hasValidBorderWidth) {
     style.borderStyle = style.borderStyle || 'solid';
     if (!style.borderWidth) {
       style.borderWidth = '1px';
@@ -181,19 +193,50 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
   const linkTarget = item.target === MenuTarget.BLANK ? '_blank' : item.target || undefined;
   const linkRel = item.target === MenuTarget.BLANK ? 'noopener noreferrer' : undefined;
   const linkHref = href || '#';
-  const topLevelStyle = getTopLevelStyles(item, variant, resolvedBorderRadius);
+  const minimalStyling = item.config?.minimalStyling === true;
+  const topLevelStyle = minimalStyling
+    ? {
+      borderRadius: resolvedBorderRadius,
+      borderWidth: 0,
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
+      backgroundImage: 'none',
+      color: item.textColor || undefined,
+      boxShadow: 'none',
+    }
+    : getTopLevelStyles(item, variant, resolvedBorderRadius);
+  const router = useRouter();
+  const { openCart } = useCart();
+  const isCartMenuItem = item.type === MenuType.CART_BUTTON;
 
   const buttonRef = useRef<HTMLAnchorElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [searchValue, setSearchValue] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const searchInputId = useId();
   const [dropdownPosition, setDropdownPosition] = useState<{ left: number; top: number } | null>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showTitle = item.config?.showTitle !== false;
+  const showDescription = item.config?.showDescription !== false;
+  const fallbackLabel = label || href || 'Untitled';
+  const linkAriaLabel = showTitle ? undefined : fallbackLabel;
+  const shouldRenderDropdown = isCartMenuItem || hasChildren;
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!hasChildren || !isHovered) {
+    if (item.type === MenuType.SEARCH_BAR && router?.prefetch) {
+      router.prefetch('/search');
+    }
+  }, [item.type, router]);
+
+  useEffect(() => {
+    if (!shouldRenderDropdown || !isHovered) {
       setDropdownPosition(null);
       return;
     }
@@ -248,9 +291,31 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
       window.removeEventListener('scroll', handleScroll, scrollOptions);
       window.removeEventListener('resize', updatePosition);
     };
-  }, [hasChildren, isHovered]);
+  }, [shouldRenderDropdown, isHovered]);
+
+  const clearHoverTimeout = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+  };
+
+  const scheduleHoverClose = () => {
+    clearHoverTimeout();
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovered(false);
+      setDropdownPosition(null);
+    }, 180);
+  };
+
+  useEffect(() => {
+    return () => {
+      clearHoverTimeout();
+    };
+  }, []);
 
   const handleMouseEnter = () => {
+    clearHoverTimeout();
     setIsHovered(true);
     const updatePosition = () => {
       if (buttonRef.current) {
@@ -270,17 +335,23 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
     if (relatedTarget && relatedTarget.closest('[data-dropdown-menu]')) {
       return;
     }
-    setIsHovered(false);
-    setDropdownPosition(null);
+    scheduleHoverClose();
   };
 
   const handleDropdownMouseEnter = () => {
+    clearHoverTimeout();
     setIsHovered(true);
   };
 
   const handleDropdownMouseLeave = () => {
-    setIsHovered(false);
-    setDropdownPosition(null);
+    scheduleHoverClose();
+  };
+
+  const handleLinkClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (isCartMenuItem) {
+      event.preventDefault();
+      openCart();
+    }
   };
 
   if (item.type === MenuType.CUSTOM_HTML) {
@@ -298,23 +369,128 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
     );
   }
 
+  if (item.type === MenuType.SEARCH_BAR) {
+    const translation = getTranslation(item);
+    const placeholder =
+      (item.config?.placeholder as string) || translation?.label || 'Search...';
+    const width = (item.config?.width as string) || '240px';
+    const labelText = translation?.label || placeholder || 'Search';
+
+    const executeSearch = () => {
+      const trimmed = searchValue.trim();
+      if (!trimmed) {
+        setSearchError('Please enter a keyword to search');
+        return;
+      }
+      setSearchError(null);
+      router.push(`/search?q=${encodeURIComponent(trimmed)}`);
+      setSearchValue(trimmed);
+      if (searchInputRef.current) {
+        searchInputRef.current.blur();
+      }
+    };
+
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      executeSearch();
+    };
+
+    const handleClear = () => {
+      setSearchValue('');
+      setSearchError(null);
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+      }
+    };
+
+    return (
+      <div
+        key={item.id}
+        className="flex flex-col flex-shrink-0"
+        style={{ width }}
+        role="search"
+        aria-label={labelText}
+      >
+        <form onSubmit={handleSubmit} className="w-full space-y-1">
+          <label htmlFor={searchInputId} className="sr-only">
+            {labelText}
+          </label>
+          <div
+            className={clsx(
+              'relative flex items-center rounded-2xl border px-3 py-1.5 transition-all duration-200 backdrop-blur bg-white/80 dark:bg-gray-900/70 border-gray-200/80 dark:border-gray-700/70 shadow-sm',
+              isSearchFocused && 'border-blue-500 shadow-blue-500/30 dark:border-blue-400',
+              searchError && 'border-rose-400 dark:border-rose-500 shadow-rose-500/30'
+            )}
+          >
+            <span className="pointer-events-none text-gray-400 dark:text-gray-500">
+              <UnifiedIcon icon="search" size={16} />
+            </span>
+            <input
+              ref={searchInputRef}
+              id={searchInputId}
+              type="search"
+              value={searchValue}
+              placeholder={placeholder}
+              autoComplete="off"
+              className="peer w-full bg-transparent px-2 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-0 dark:text-gray-100"
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setIsSearchFocused(false)}
+              onChange={(event) => {
+                setSearchValue(event.target.value);
+                if (searchError) {
+                  setSearchError(null);
+                }
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') {
+                  event.preventDefault();
+                  handleClear();
+                }
+              }}
+            />
+            {searchValue.length > 0 && (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full text-gray-400 transition hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                aria-label="Clear search input"
+              >
+                <UnifiedIcon icon="x" size={12} />
+              </button>
+            )}
+            <div aria-hidden className="mx-2 hidden h-5 w-px bg-gray-200/70 dark:bg-gray-700/70 sm:block" />
+            <button
+              type="submit"
+              className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-white shadow-lg shadow-blue-500/30 transition hover:-translate-y-0.5 hover:shadow-blue-500/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+            >
+              <UnifiedIcon icon="arrow-right" size={14} className="!text-white" />
+              <span className="hidden sm:inline">{translation?.buttonLabel || 'Search'}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    );
+  }
+
   const isCallButton = item.type === MenuType.CALL_BUTTON;
-  const animationAnimation = item.config?.buttonAnimation;
+  const animationVal = item.config?.buttonAnimation;
+  const animationAnimation = typeof animationVal === 'string' ? animationVal : undefined;
   const isRingAnimation = animationAnimation === 'ring';
 
+  const iconWrapperClass = clsx(
+    'flex flex-shrink-0 items-center justify-center text-sm',
+    minimalStyling
+      ? 'h-6 w-6 rounded-none bg-transparent text-[inherit]'
+      : isCallButton
+        ? 'h-6 w-6 rounded-full border-2 border-white/30 bg-white/10'
+        : variant === 'button'
+          ? 'h-6 w-6 rounded-lg bg-white/15'
+          : 'h-6 w-6 rounded-lg bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 dark:from-gray-800/60 dark:via-gray-800/40 dark:to-gray-800/30',
+    isRingAnimation && 'subnav-ring'
+  );
+
   const iconElement = item.icon ? (
-    <span
-      className={clsx(
-        'flex flex-shrink-0 items-center justify-center text-sm',
-        isCallButton
-          ? 'h-6 w-6 rounded-full border-2 border-white/30 bg-white/10'
-          : variant === 'button'
-            ? 'h-6 w-6 rounded-lg bg-white/15'
-            : 'h-6 w-6 rounded-lg bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 dark:from-gray-800/60 dark:via-gray-800/40 dark:to-gray-800/30',
-        isRingAnimation && 'subnav-ring'
-      )}
-      style={{ color: 'inherit' }}
-    >
+    <span className={iconWrapperClass} style={{ color: 'inherit' }}>
       <UnifiedIcon
         icon={item.icon}
         variant="nav"
@@ -339,7 +515,19 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
   ) : null;
 
   const buttonSizeClass = resolveButtonSizeClass(item);
-
+  const baseLinkPaddingClass = 'px-2.5 py-2 sm:px-3 sm:py-2 h-10';
+  const buttonVisualClass =
+    'text-white shadow-lg shadow-blue-500/25 hover:-translate-y-0.5 hover:shadow-2xl border-transparent';
+  const linkDefaultVisualClass =
+    'bg-white/80 dark:bg-gray-950/60 text-gray-800 dark:text-gray-100 border-gray-200/70 dark:border-gray-800/70 hover:-translate-y-0.5 hover:border-blue-200/70 hover:shadow-lg backdrop-blur';
+  const minimalVisualClass =
+    'bg-transparent text-inherit border-transparent shadow-none hover:shadow-none hover:-translate-y-0 hover:border-transparent backdrop-blur-0';
+  const paddingClass = variant === 'button' ? buttonSizeClass : baseLinkPaddingClass;
+  const variantVisualClass = minimalStyling
+    ? minimalVisualClass
+    : variant === 'button'
+      ? buttonVisualClass
+      : linkDefaultVisualClass;
   return (
     <div
       key={item.id}
@@ -352,37 +540,38 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
         href={linkHref}
         target={linkTarget}
         rel={linkRel}
+        aria-label={linkAriaLabel}
+        title={linkAriaLabel}
+        onClick={handleLinkClick}
         className={clsx(
           'relative flex items-center w-auto min-w-0 max-w-[200px] sm:max-w-[220px] md:max-w-[240px] gap-2 rounded-lg border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900',
-          variant === 'button'
-            ? buttonSizeClass
-            : 'px-2.5 py-2 sm:px-3 sm:py-2 h-10',
-          variant === 'button'
-            ? 'text-white shadow-lg shadow-blue-500/25 hover:-translate-y-0.5 hover:shadow-2xl border-transparent'
-            : 'bg-white/80 dark:bg-gray-950/60 text-gray-800 dark:text-gray-100 border-gray-200/70 dark:border-gray-800/70 hover:-translate-y-0.5 hover:border-blue-200/70 hover:shadow-lg backdrop-blur',
+          paddingClass,
+          variantVisualClass,
           animationClass,
         )}
         style={topLevelStyle}
       >
         {iconElement}
-        <div className="min-w-0 flex-1 flex flex-col justify-center">
-          {isCallButton ? (
-            <>
-              <p className="text-[90%] font-medium leading-[1.1] mb-0 opacity-90">
-                {label || href || 'Untitled'}
-              </p>
-              {description && (
-                <p className="text-[110%] font-bold leading-[1.2] tracking-tight mb-0">
-                  {description}
+        {showTitle && (
+          <div className="min-w-0 flex-1 flex flex-col justify-center">
+            {isCallButton ? (
+              <>
+                <p className="text-[90%] font-medium leading-[1.1] mb-0 opacity-90">
+                  {fallbackLabel}
                 </p>
-              )}
-            </>
-          ) : (
-            <p className="truncate font-semibold leading-tight mb-0">
-              {label || href || 'Untitled'}
-            </p>
-          )}
-        </div>
+                {showDescription && description && (
+                  <p className="text-[110%] font-bold leading-[1.2] tracking-tight mb-0">
+                    {description}
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="truncate font-semibold leading-tight mb-0">
+                {fallbackLabel}
+              </p>
+            )}
+          </div>
+        )}
         {hasChildren && (
           <svg className="h-3.5 w-3.5 flex-shrink-0 text-gray-400 dark:text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -391,10 +580,15 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
         {badgeNode}
       </Link>
 
-      {hasChildren && isHovered && dropdownPosition && mounted && createPortal(
+      {shouldRenderDropdown && isHovered && dropdownPosition && mounted && createPortal(
         <div
           data-dropdown-menu
-          className="fixed w-[min(400px,calc(100vw-2rem))] rounded-2xl border border-gray-200/90 dark:border-gray-700/80 bg-white/98 dark:bg-gray-950/95 shadow-2xl shadow-slate-900/20 dark:shadow-black/40 z-[9999] backdrop-blur-xl"
+          className={clsx(
+            'fixed z-[9999]',
+            isCartMenuItem
+              ? 'rounded-none border-none bg-transparent shadow-none backdrop-blur-0'
+              : 'w-[min(400px,calc(100vw-2rem))] rounded-2xl border border-gray-200/90 dark:border-gray-700/80 bg-white/98 dark:bg-gray-950/95 shadow-2xl shadow-slate-900/20 dark:shadow-black/40 backdrop-blur-xl'
+          )}
           style={{
             left: `${dropdownPosition.left}px`,
             top: `${dropdownPosition.top}px`,
@@ -404,9 +598,13 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
           onMouseEnter={handleDropdownMouseEnter}
           onMouseLeave={handleDropdownMouseLeave}
         >
-          <div className="max-h-[420px] overflow-y-auto p-3.5 sm:p-4 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
-            {getEnabledChildren(item).map(renderChildLink)}
-          </div>
+          {isCartMenuItem ? (
+            <CartDropdown className="drop-shadow-2xl" />
+          ) : (
+            <div className="max-h-[420px] overflow-y-auto p-3.5 sm:p-4 space-y-3 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+              {getEnabledChildren(item).map(renderChildLink)}
+            </div>
+          )}
         </div>,
         document.body
       )}

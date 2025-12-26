@@ -6,6 +6,39 @@
         "createSuccessDescription": "The post has been successfully created.",
         "createError": "Creation Failed",
         "createErrorDescription": "Failed to create post. Please try again.",
+        "management": {
+            "title": "Post Management",
+            "description": "Manage all posts in the system"
+        },
+        "statistics": {
+            "total_posts": "Total Posts",
+            "published_posts": "Published Posts",
+            "draft_posts": "Draft Posts",
+            "featured_posts": "Featured Posts"
+        },
+        "table": {
+            "post": "Post",
+            "status": "Status",
+            "type": "Type",
+            "author": "Author",
+            "views": "Views",
+            "published": "Published",
+            "created": "Created",
+            "actions": "Actions"
+        },
+        "fallback": {
+            "untitled": "Untitled",
+            "no_excerpt": "No excerpt",
+            "unknown_author": "Unknown"
+        },
+        "messages": {
+            "delete_success": "Post deleted successfully",
+            "delete_error": "Failed to delete post",
+            "delete_confirm": "Are you sure you want to delete this post?",
+            "refresh_success": "Posts refreshed"
+        },
+        "search_placeholder": "Search posts by title, content, or slug...",
+        "no_posts_found": "No posts found",
         "title": "Posts",
         "media_manager": "Media Manager",
         "select_media_title": "Select Media for Post",

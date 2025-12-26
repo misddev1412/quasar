@@ -84,6 +84,12 @@ import { ComponentConfigEntity } from '../modules/component-configs/entities/com
 import { DataExportModule } from '../modules/export/data-export.module';
 import { DataExportJob } from '../modules/export/entities/data-export-job.entity';
 import { MailQueueModule } from '../modules/mail-queue/mail-queue.module';
+import { ServicesModule } from '../modules/services/services.module';
+import { Service } from '../modules/services/entities/service.entity';
+import { ServiceTranslation } from '../modules/services/entities/service-translation.entity';
+import { ServiceItem } from '../modules/services/entities/service-item.entity';
+import { ServiceItemTranslation } from '../modules/services/entities/service-item-translation.entity';
+
 
 @Module({
   imports: [
@@ -147,6 +153,10 @@ import { MailQueueModule } from '../modules/mail-queue/mail-queue.module';
           PageView,
           ComponentConfigEntity,
           DataExportJob,
+          Service,
+          ServiceTranslation,
+          ServiceItem,
+          ServiceItemTranslation,
         ],
         autoLoadEntities: true
       }),
@@ -181,6 +191,7 @@ import { MailQueueModule } from '../modules/mail-queue/mail-queue.module';
     ComponentConfigsModule,
     DataExportModule,
     MailQueueModule,
+    ServicesModule,
     AppRouterModule,
   ],
   controllers: [AppController],
@@ -189,4 +200,4 @@ import { MailQueueModule } from '../modules/mail-queue/mail-queue.module';
     AppContext,
   ],
 })
-export class AppModule {}
+export class AppModule { }

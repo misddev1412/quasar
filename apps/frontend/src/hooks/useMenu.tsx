@@ -60,13 +60,12 @@ export const useMenu = (menuGroup: string = 'main') => {
     { menuGroup, locale },
     {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
       select: (response) => {
         // Assuming the response follows the same format as other API responses
         if (response && typeof response === 'object' && 'data' in response) {
-          return response.data as MenuResponse;
+          return response.data as unknown as MenuResponse;
         }
-        return response as MenuResponse;
+        return response as unknown as MenuResponse;
       },
     }
   );
@@ -75,12 +74,11 @@ export const useMenu = (menuGroup: string = 'main') => {
     { menuGroup, locale },
     {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
       select: (response) => {
         if (response && typeof response === 'object' && 'data' in response) {
-          return response.data as MenuItem[];
+          return response.data as unknown as MenuItem[];
         }
-        return response as MenuItem[];
+        return response as unknown as MenuItem[];
       },
     }
   );
@@ -88,14 +86,14 @@ export const useMenu = (menuGroup: string = 'main') => {
   // Helper function to get translated label
   const getLabel = (item: MenuItem, fallbackLocale: string = 'en') => {
     const translation = item.translations.find(t => t.locale === locale) ||
-                       item.translations.find(t => t.locale === fallbackLocale);
+      item.translations.find(t => t.locale === fallbackLocale);
     return translation?.label || item.url || '';
   };
 
   // Helper function to get translated description
   const getDescription = (item: MenuItem, fallbackLocale: string = 'en') => {
     const translation = item.translations.find(t => t.locale === locale) ||
-                       item.translations.find(t => t.locale === fallbackLocale);
+      item.translations.find(t => t.locale === fallbackLocale);
     return translation?.description || '';
   };
 
@@ -250,13 +248,13 @@ export const useMenu = (menuGroup: string = 'main') => {
       });
   };
 
-  const navigationItems = getNavigationItems(treeData.data || []);
-  const flatNavigationItems = getNavigationItems(menuData.data?.items || []);
+  const navigationItems = getNavigationItems((treeData.data as unknown as MenuItem[]) || []);
+  const flatNavigationItems = getNavigationItems((menuData.data as unknown as MenuResponse)?.items || []);
 
   return {
     // Raw data
-    menuData: menuData.data?.items || [],
-    treeData: treeData.data || [],
+    menuData: (menuData.data as unknown as MenuResponse)?.items || [],
+    treeData: (treeData.data as unknown as MenuItem[]) || [],
 
     // Processed data
     navigationItems,

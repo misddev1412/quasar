@@ -10,6 +10,7 @@ export enum MenuType {
   CUSTOM_HTML = 'custom_html',
   SITE_CONTENT = 'site_content',
   SEARCH_BUTTON = 'search_button',
+  SEARCH_BAR = 'search_bar',
   LOCALE_SWITCHER = 'locale_switcher',
   THEME_TOGGLE = 'theme_toggle',
   CART_BUTTON = 'cart_button',
@@ -18,6 +19,7 @@ export enum MenuType {
   TOP_PHONE = 'top_phone',
   TOP_EMAIL = 'top_email',
   TOP_CURRENT_TIME = 'top_current_time',
+  TOP_MARQUEE = 'top_marquee',
 }
 
 export enum MenuTarget {
@@ -51,6 +53,7 @@ export const MENU_TYPE_LABELS: Record<MenuType, string> = {
   [MenuType.CUSTOM_HTML]: 'Custom HTML',
   [MenuType.SITE_CONTENT]: 'Site Content',
   [MenuType.SEARCH_BUTTON]: 'Search Button',
+  [MenuType.SEARCH_BAR]: 'Search Bar',
   [MenuType.LOCALE_SWITCHER]: 'Locale Switcher',
   [MenuType.THEME_TOGGLE]: 'Dark/Light Toggle',
   [MenuType.CART_BUTTON]: 'Cart Button',
@@ -59,6 +62,7 @@ export const MENU_TYPE_LABELS: Record<MenuType, string> = {
   [MenuType.TOP_PHONE]: 'Phone Call',
   [MenuType.TOP_EMAIL]: 'Email',
   [MenuType.TOP_CURRENT_TIME]: 'Current Time',
+  [MenuType.TOP_MARQUEE]: 'Marquee Ticker',
 };
 
 export const MENU_TARGET_LABELS: Record<MenuTarget, string> = {

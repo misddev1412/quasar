@@ -19,6 +19,7 @@ import sections from './sections.json';
 import menus from './menus.json';
 import posts from './posts.json';
 import componentConfigs from './component_configs.json';
+import permissions from './permissions.json';
 
 export default {
   ...common,
@@ -42,4 +43,5 @@ export default {
   ...menus,
   ...posts,
   ...componentConfigs,
+  ...permissions,
 };

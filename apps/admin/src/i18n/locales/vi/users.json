@@ -233,7 +233,8 @@
       "activate": "Kích hoạt",
       "deactivate": "Vô hiệu hóa",
       "delete": "Xóa",
-      "default_role": "NGƯỜI_DÙNG"
+      "default_role": "NGƯỜI_DÙNG",
+      "login_as_user": "Đăng nhập với tư cách người dùng"
     },
     "descriptions": {
       "active_last_15_min": "Hoạt động trong 15 phút qua",
@@ -241,7 +242,8 @@
     },
     "errors": {
       "generic_error": "Đã xảy ra lỗi khi cập nhật trạng thái người dùng. Vui lòng thử lại.",
-      "error_title": "Lỗi"
+      "error_title": "Lỗi",
+      "impersonation_failed": "Không thể bắt đầu phiên mạo danh. Vui lòng thử lại."
     },
     "page_title": "Quản lý người dùng",
     "page_description": "Quản lý tất cả người dùng trong hệ thống"

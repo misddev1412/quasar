@@ -59,28 +59,48 @@ const requiresUrl = (type: MenuType) => type === MenuType.LINK || type === MenuT
 const requiresReferenceId = (type: MenuType) =>
   type === MenuType.PRODUCT || type === MenuType.CATEGORY || type === MenuType.BRAND || type === MenuType.SITE_CONTENT;
 
-const TOP_MENU_CONFIG_KEYS = ['topPhoneNumber', 'topEmailAddress', 'topTimeFormat'] as const;
-const TOP_MENU_ONLY_TYPES = [MenuType.TOP_PHONE, MenuType.TOP_EMAIL, MenuType.TOP_CURRENT_TIME] as const;
+const TOP_MARQUEE_WIDTH_KEY = 'topMarqueeMaxWidth' as const;
+const TOP_MARQUEE_ITEMS_KEY = 'topMarqueeItems' as const;
+const TOP_MARQUEE_SPEED_KEY = 'topMarqueeSpeed' as const;
+const TOP_MENU_STRING_CONFIG_KEYS = ['topPhoneNumber', 'topEmailAddress', 'topTimeFormat', TOP_MARQUEE_WIDTH_KEY, TOP_MARQUEE_SPEED_KEY] as const;
+const TOP_MENU_ONLY_TYPES = [MenuType.TOP_PHONE, MenuType.TOP_EMAIL, MenuType.TOP_CURRENT_TIME, MenuType.TOP_MARQUEE] as const;
 
 const sanitizeConfigForType = (config: Record<string, unknown> | undefined, type: MenuType) => {
   const nextConfig: Record<string, unknown> = { ...(config || {}) };
 
-  if (TOP_MENU_ALLOWED_TYPES.includes(type)) {
-    return nextConfig;
-  }
-
-  TOP_MENU_CONFIG_KEYS.forEach((key) => {
-    if (key in nextConfig) {
-      delete nextConfig[key];
+  if (!TOP_MENU_ALLOWED_TYPES.includes(type)) {
+    TOP_MENU_STRING_CONFIG_KEYS.forEach((key) => {
+      if (key in nextConfig) {
+        delete nextConfig[key];
+      }
+    });
+    if (TOP_MARQUEE_WIDTH_KEY in nextConfig) {
+      delete nextConfig[TOP_MARQUEE_WIDTH_KEY];
     }
-  });
+    if (TOP_MARQUEE_ITEMS_KEY in nextConfig) {
+      delete nextConfig[TOP_MARQUEE_ITEMS_KEY];
+    }
+    if (TOP_MARQUEE_SPEED_KEY in nextConfig) {
+      delete nextConfig[TOP_MARQUEE_SPEED_KEY];
+    }
+  } else if (type !== MenuType.TOP_MARQUEE) {
+    if (TOP_MARQUEE_WIDTH_KEY in nextConfig) {
+      delete nextConfig[TOP_MARQUEE_WIDTH_KEY];
+    }
+    if (TOP_MARQUEE_ITEMS_KEY in nextConfig) {
+      delete nextConfig[TOP_MARQUEE_ITEMS_KEY];
+    }
+    if (TOP_MARQUEE_SPEED_KEY in nextConfig) {
+      delete nextConfig[TOP_MARQUEE_SPEED_KEY];
+    }
+  }
 
   return nextConfig;
 };
 
 const getTopMenuConfigValue = (
   config: Record<string, unknown> | undefined,
-  key: typeof TOP_MENU_CONFIG_KEYS[number],
+  key: typeof TOP_MENU_STRING_CONFIG_KEYS[number],
 ) => {
   const value = config?.[key];
   return typeof value === 'string' ? value : '';
@@ -393,7 +413,7 @@ const MenuForm: React.FC<{
     }));
   };
 
-  const updateConfigValue = (key: typeof TOP_MENU_CONFIG_KEYS[number], value: string) => {
+  const updateConfigValue = (key: typeof TOP_MENU_STRING_CONFIG_KEYS[number], value: string) => {
     setFormData(prev => {
       const nextConfig = { ...prev.config };
       if (value === '') {
@@ -569,6 +589,19 @@ const MenuForm: React.FC<{
             className="mt-1"
           />
           <p className="text-xs text-gray-500 mt-1">Formats follow Day.js tokens. Default selection uses <code>HH:mm</code>.</p>
+        </div>
+      )}
+
+      {formData.type === MenuType.TOP_MARQUEE && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Ticker Max Width</label>
+          <Input
+            value={getTopMenuConfigValue(formData.config, TOP_MARQUEE_WIDTH_KEY)}
+            onChange={(e) => updateConfigValue(TOP_MARQUEE_WIDTH_KEY, e.target.value)}
+            placeholder="480px or 100%"
+            className="mt-1"
+          />
+          <p className="text-xs text-gray-500 mt-1">Optional max width for the scrolling ticker. Leave empty to auto-fit.</p>
         </div>
       )}
 

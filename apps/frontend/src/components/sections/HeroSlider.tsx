@@ -29,6 +29,11 @@ export interface HeroSliderFieldVisibility {
   heroDescription?: boolean;
 }
 
+export interface HeroSliderButtonVisibility {
+  primary?: boolean;
+  secondary?: boolean;
+}
+
 export interface HeroSliderConfig {
   slides?: HeroSlideConfig[];
   autoplay?: boolean;
@@ -37,6 +42,7 @@ export interface HeroSliderConfig {
   overlayBackground?: string;
   layout?: 'full-width' | 'container';
   fieldVisibility?: HeroSliderFieldVisibility;
+  buttonVisibility?: HeroSliderButtonVisibility;
 }
 
 export interface SectionTranslationContent {
@@ -204,6 +210,9 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   const showSubtitle = fieldVisibility.subtitle !== false;
   const showDescription = fieldVisibility.description !== false;
   const showHeroDescription = fieldVisibility.heroDescription !== false;
+  const buttonVisibility = config.buttonVisibility ?? {};
+  const showPrimaryButton = buttonVisibility.primary !== false;
+  const showSecondaryButton = buttonVisibility.secondary !== false;
 
   useEffect(() => {
     if (!autoplay) return;
@@ -298,25 +307,30 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
               {secondaryDescription}
             </p>
           )}
-          <div className="mt-6 sm:mt-8 flex flex-wrap gap-3 sm:gap-4">
-            {(activeSlide?.ctaLabel || activeSlide?.ctaUrl) && (
-              <a
-                href={activeSlide?.ctaUrl || '#'}
-                className="inline-flex items-center justify-center rounded-lg bg-white/95 px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-blue-700 shadow-lg shadow-blue-900/30 backdrop-blur transition hover:bg-white"
-              >
-                {activeSlide?.ctaLabel || t('sections.hero.explore_collections')}
-              </a>
-            )}
-            <a
-              href="#sections"
-              className="inline-flex items-center justify-center rounded-lg border border-white/40 px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white transition hover:bg-white/10"
-            >
-              {t('sections.hero.view_sections')}
-            </a>
-          </div>
+          {(showPrimaryButton || showSecondaryButton) && (
+            <div className="mt-6 sm:mt-8 flex flex-wrap gap-3 sm:gap-4">
+              {showPrimaryButton && (activeSlide?.ctaLabel || activeSlide?.ctaUrl) && (
+                <a
+                  href={activeSlide?.ctaUrl || '#'}
+                  className="inline-flex items-center justify-center rounded-lg bg-white/95 px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-blue-700 shadow-lg shadow-blue-900/30 backdrop-blur transition hover:bg-white"
+                >
+                  {activeSlide?.ctaLabel || t('sections.hero.explore_collections')}
+                </a>
+              )}
+              {showSecondaryButton && (
+                <a
+                  href="#sections"
+                  className="inline-flex items-center justify-center rounded-lg border border-white/40 px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  {t('sections.hero.view_sections')}
+                </a>
+              )}
+            </div>
+          )}
         </div>
-
-        <div className="mt-12 flex items-center gap-3">
+      </SectionContainer>
+      <div className="absolute inset-x-0 bottom-6 flex justify-center px-4">
+        <div className="flex items-center gap-3">
           {slides.map((slide, index) => (
             <button
               key={slide.id || index}
@@ -327,7 +341,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
             />
           ))}
         </div>
-      </SectionContainer>
+      </div>
     </div>
   );
 

@@ -589,14 +589,14 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
                 label: 'Premium Essentials',
                 href: '/collections/premium-essentials',
                 description: 'Phong cách tối giản với chất liệu cao cấp.',
-                icon: 'lucide:sparkles',
+                icon: 'star',
               },
               {
                 id: 'collection-sport',
                 label: 'Sport Capsule',
                 href: '/collections/sport-capsule',
                 description: 'Trang phục linh hoạt cho mọi hoạt động.',
-                icon: 'lucide:activity',
+                icon: 'activity',
               },
             ],
           },
@@ -608,13 +608,13 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
                 id: 'category-men',
                 label: 'Thời trang nam',
                 href: '/categories/mens-fashion',
-                icon: 'lucide:user',
+                icon: 'user',
               },
               {
                 id: 'category-women',
                 label: 'Thời trang nữ',
                 href: '/categories/womens-fashion',
-                icon: 'lucide:user-round',
+                icon: 'user',
               },
             ],
           },
@@ -813,7 +813,7 @@ export class ComponentConfigsSeeder {
   constructor(
     @InjectRepository(ComponentConfigEntity)
     private readonly componentRepository: Repository<ComponentConfigEntity>,
-  ) {}
+  ) { }
 
   async seed(): Promise<void> {
     this.logger.log('Seeding storefront component configurations...');
@@ -834,36 +834,36 @@ export class ComponentConfigsSeeder {
 
     const entity = existing
       ? this.componentRepository.merge(existing, {
-          displayName: seed.displayName,
-          description: seed.description ?? null,
-          componentType: seed.componentType,
-          category: seed.category,
-          position: seed.position ?? fallbackPosition,
-          isEnabled: seed.isEnabled ?? true,
-          defaultConfig: seed.defaultConfig ?? {},
-          configSchema: seed.configSchema ?? {},
-          metadata: seed.metadata ?? {},
-          allowedChildKeys: seed.allowedChildKeys ?? [],
-          previewMediaUrl: seed.previewMediaUrl ?? null,
-          parentId,
-          slotKey: seed.slotKey ?? null,
-        })
+        displayName: seed.displayName,
+        description: seed.description ?? null,
+        componentType: seed.componentType,
+        category: seed.category,
+        position: seed.position ?? fallbackPosition,
+        isEnabled: seed.isEnabled ?? true,
+        defaultConfig: seed.defaultConfig ?? {},
+        configSchema: seed.configSchema ?? {},
+        metadata: seed.metadata ?? {},
+        allowedChildKeys: seed.allowedChildKeys ?? [],
+        previewMediaUrl: seed.previewMediaUrl ?? null,
+        parentId,
+        slotKey: seed.slotKey ?? null,
+      })
       : this.componentRepository.create({
-          componentKey: seed.componentKey,
-          displayName: seed.displayName,
-          description: seed.description ?? null,
-          componentType: seed.componentType,
-          category: seed.category,
-          position: seed.position ?? fallbackPosition,
-          isEnabled: seed.isEnabled ?? true,
-          defaultConfig: seed.defaultConfig ?? {},
-          configSchema: seed.configSchema ?? {},
-          metadata: seed.metadata ?? {},
-          allowedChildKeys: seed.allowedChildKeys ?? [],
-          previewMediaUrl: seed.previewMediaUrl ?? null,
-          parentId,
-          slotKey: seed.slotKey ?? null,
-        });
+        componentKey: seed.componentKey,
+        displayName: seed.displayName,
+        description: seed.description ?? null,
+        componentType: seed.componentType,
+        category: seed.category,
+        position: seed.position ?? fallbackPosition,
+        isEnabled: seed.isEnabled ?? true,
+        defaultConfig: seed.defaultConfig ?? {},
+        configSchema: seed.configSchema ?? {},
+        metadata: seed.metadata ?? {},
+        allowedChildKeys: seed.allowedChildKeys ?? [],
+        previewMediaUrl: seed.previewMediaUrl ?? null,
+        parentId,
+        slotKey: seed.slotKey ?? null,
+      });
 
     const saved = await this.componentRepository.save(entity);
 

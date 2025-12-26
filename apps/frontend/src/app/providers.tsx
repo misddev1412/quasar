@@ -12,6 +12,7 @@ import { ThemeProvider } from '../contexts/ThemeContext';
 import { AppInitProvider, useAppInit } from '../contexts/AppInitContext';
 import { AppLoadingOverlay } from '../components/common/AppLoadingOverlay';
 import { CartWrapper } from '../components/ecommerce/CartProvider';
+import ImpersonationBanner from '../components/common/ImpersonationBanner';
 import '../lib/i18n';
 
 import { useFCM } from '../hooks/useFCM';
@@ -50,12 +51,13 @@ function AppProviders({ children }: { children: React.ReactNode }) {
             <HeroUIProvider>
               <ThemeProvider>
                 <ToastProvider>
-                  <AuthProvider>
-                    <FCMListener />
-                    <CartWrapper taxRate={0.08} defaultShippingCost={5.99}>
-                      {children}
-                    </CartWrapper>
-                  </AuthProvider>
+                    <AuthProvider>
+                      <FCMListener />
+                      <CartWrapper taxRate={0.08} defaultShippingCost={5.99}>
+                        <ImpersonationBanner />
+                        {children}
+                      </CartWrapper>
+                    </AuthProvider>
                 </ToastProvider>
               </ThemeProvider>
             </HeroUIProvider>

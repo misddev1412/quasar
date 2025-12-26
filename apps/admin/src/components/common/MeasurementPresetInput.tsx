@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Select } from './Select';
 import { Input } from './Input';
 import clsx from 'clsx';
@@ -61,8 +61,10 @@ export const MeasurementPresetInput: React.FC<MeasurementPresetInputProps> = ({
 }) => {
   const trimmedValue = (value ?? '').trim();
   const resolvedUnits = units.length ? units : DEFAULT_UNITS;
+  const [selectedPresetOverride, setSelectedPresetOverride] = useState<PresetKey | null>(null);
+  const internalChangeRef = useRef(false);
 
-  const selectedPresetKey: PresetKey = useMemo(() => {
+  const derivedPresetKey: PresetKey = useMemo(() => {
     if (!trimmedValue) {
       return 'default';
     }
@@ -70,8 +72,23 @@ export const MeasurementPresetInput: React.FC<MeasurementPresetInputProps> = ({
     return (presetEntry?.[0] as keyof PresetMap) ?? 'custom';
   }, [presets, trimmedValue]);
 
+  const selectedPresetKey: PresetKey = selectedPresetOverride ?? derivedPresetKey;
+
   const [customNumber, setCustomNumber] = useState('');
   const [customUnit, setCustomUnit] = useState(resolvedUnits[0]?.value ?? 'px');
+
+  useEffect(() => {
+    if (internalChangeRef.current) {
+      internalChangeRef.current = false;
+      return;
+    }
+    setSelectedPresetOverride(null);
+  }, [value]);
+
+  const emitChange = (nextValue: string) => {
+    internalChangeRef.current = true;
+    onChange(nextValue);
+  };
 
   useEffect(() => {
     if (!trimmedValue) {
@@ -93,30 +110,35 @@ export const MeasurementPresetInput: React.FC<MeasurementPresetInputProps> = ({
 
   const handlePresetChange = (next: string) => {
     if (next === 'custom') {
+      setSelectedPresetOverride('custom');
       const combined = customNumber ? `${customNumber}${customUnit}` : '';
-      onChange(combined);
+      emitChange(combined);
       return;
     }
 
     if (next === 'default') {
-      onChange('');
+      setSelectedPresetOverride(null);
+      emitChange('');
       return;
     }
 
+    setSelectedPresetOverride(null);
     const presetValue = presets[next as keyof PresetMap];
     if (presetValue) {
-      onChange(presetValue);
+      emitChange(presetValue);
     }
   };
 
   const handleCustomNumberChange = (next: string) => {
     setCustomNumber(next);
-    onChange(next ? `${next}${customUnit}` : '');
+    setSelectedPresetOverride('custom');
+    emitChange(next ? `${next}${customUnit}` : '');
   };
 
   const handleUnitChange = (nextUnit: string) => {
     setCustomUnit(nextUnit);
-    onChange(customNumber ? `${customNumber}${nextUnit}` : '');
+    setSelectedPresetOverride('custom');
+    emitChange(customNumber ? `${customNumber}${nextUnit}` : '');
   };
 
   return (

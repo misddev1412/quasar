@@ -363,9 +363,7 @@ const PermissionUpdatePage: React.FC = () => {
       breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
-
-        <div className="max-w-4xl mx-auto">
-          <Card>
+        <Card>
           <CardHeader>
             <div className="flex items-center space-x-3">
               <div className="flex-shrink-0">
@@ -387,7 +385,6 @@ const PermissionUpdatePage: React.FC = () => {
             {renderContent()}
           </CardContent>
         </Card>
-        </div>
       </div>
     </BaseLayout>
   );

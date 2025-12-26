@@ -20,6 +20,8 @@ export enum ActivityType {
   EXPORT = 'export',
   IMPORT = 'import',
   ADMIN_ACTION = 'admin_action',
+  IMPERSONATION_START = 'impersonation_start',
+  IMPERSONATION_END = 'impersonation_end',
   OTHER = 'other'
 }
 

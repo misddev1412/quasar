@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "title": "权限",
+    "edit_permission": "编辑权限",
+    "edit_permission_description": "更新权限信息和设置",
+    "edit_permission_subtitle": "更新权限详情和设置",
+    "back_to_permissions": "返回权限列表"
+  },
+  "permission": {
+    "name": "权限名称",
+    "description": "描述",
+    "resource": "资源",
+    "action": "操作",
+    "scope": "范围",
+    "is_active": "活跃"
+  },
+  "messages": {
+    "permission_updated_successfully": "权限更新成功",
+    "operation_failed": "操作失败",
+    "confirm_delete_permission": "您确定要删除此权限吗？此操作无法撤消。",
+    "permission_deleted_successfully": "权限删除成功"
+  }
+}

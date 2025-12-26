@@ -27,6 +27,12 @@
       "toggleAriaLabel": "Toggle sub menu visibility",
       "errorToastTitle": "Unable to update sub menu visibility"
     },
+    "modal": {
+      "editTitle": "Edit Menu Item",
+      "createTitle": "Add Menu Item",
+      "editDescription": "Update the menu item details and translations.",
+      "createDescription": "Create a new menu item with translations."
+    },
     "form": {
       "labels": {
         "menuGroup": "Menu Group",
@@ -56,9 +62,15 @@
         "iconSize": "Icon Size",
         "hoverEffect": "Hover Effect",
         "maxItems": "Max Items",
+        "marqueeMaxWidth": "Marquee Max Width",
+        "marqueeSpeed": "Marquee Speed (seconds)",
+        "marqueeItems": "Ticker Items",
+        "icon": "Icon",
+        "marqueeItems": "Ticker Items",
         "columnSpan": "Column Span",
         "showTitle": "Show Title",
         "showDescription": "Show Description",
+        "minimalStyling": "Minimal styling",
         "customCssClass": "Custom CSS Class",
         "badgeConfiguration": "Badge Configuration",
         "badgeText": "Badge Text",
@@ -81,6 +93,12 @@
         "topPhone": "Displayed as a hotline button in the storefront top bar.",
         "topEmail": "Adds a quick mailto link for store visitors.",
         "topTime": "Formats follow Day.js tokens. Default selection uses <code>HH:mm</code>.",
+        "topMarquee": "Optional width limit for the scrolling ticker (e.g. 480px or 100%). Leave empty to auto-fit the available space.",
+        "topMarqueeSpeed": "Duration in seconds for one full scroll loop. Lower values move faster.",
+        "topMarqueeItems": "Enter the messages and links that should scroll across the marquee.",
+        "topMarqueeItemsEmpty": "Add at least one ticker entry to display in the marquee.",
+        "topMarqueeLocale": "Override ticker items for this language. Leave empty to inherit the default list.",
+        "topMarqueeItemsLocaleEmpty": "No locale-specific ticker entries. The default list will be used.",
         "callButton": "Number used when creating the <code>tel:</code> link. The visible label still comes from translations.",
         "buttonBorderRadius": "Pick a preset or use Custom to enter your own radius with px, rem, or em.",
         "buttonStyling": "Use the color, icon, and link fields above to finish styling the button.",
@@ -102,6 +120,11 @@
         "bannerDescription": "Special description for banner",
         "shopNow": "Shop Now",
         "specialOffers": "/special-offers",
+        "maxWidth": "480px or 100%",
+        "marqueeLabel": "Flash sale is live!",
+        "marqueeUrl": "https://example.com/promo",
+        "marqueeSpeed": "16",
+        "marqueeIcon": "heroicons:megaphone",
         "imageUrl": "https://example.com/image.jpg",
         "menuLabel": "Menu label",
         "menuDescription": "Menu description",
@@ -131,8 +154,16 @@
       "buttons": {
         "cancel": "Cancel",
         "update": "Update Menu",
-        "create": "Create Menu"
+        "create": "Create Menu",
+        "addMarqueeItem": "Add ticker item",
+        "removeMarqueeItem": "Remove item",
+        "useDefaultMarqueeItems": "Use default items"
       }
+    },
+    "table": {
+      "enabledToast": "Menu enabled",
+      "disabledToast": "Menu disabled",
+      "toggleError": "Unable to update menu status"
     },
     "groups": {
       "main": "Main Menu",
@@ -160,7 +191,8 @@
       "call_button": "Call Button",
       "top_phone": "Phone Call",
       "top_email": "Email",
-      "top_current_time": "Current Time"
+      "top_current_time": "Current Time",
+      "top_marquee": "Marquee Ticker"
     },
     "targets": {
       "_self": "Same window",

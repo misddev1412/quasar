@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "title": "Permissions",
+    "edit_permission": "Edit Permission",
+    "edit_permission_description": "Update permission information and settings",
+    "edit_permission_subtitle": "Update permission details and settings",
+    "back_to_permissions": "Back to Permissions"
+  },
+  "permission": {
+    "name": "Permission Name",
+    "description": "Description",
+    "resource": "Resource",
+    "action": "Action",
+    "scope": "Scope",
+    "is_active": "Active"
+  },
+  "messages": {
+    "permission_updated_successfully": "Permission updated successfully",
+    "operation_failed": "Operation failed",
+    "confirm_delete_permission": "Are you sure you want to delete this permission? This action cannot be undone.",
+    "permission_deleted_successfully": "Permission deleted successfully"
+  }
+}

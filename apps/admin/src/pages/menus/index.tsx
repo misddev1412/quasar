@@ -86,6 +86,7 @@ const MenusPage: React.FC = () => {
   } = useSettings({ group: 'storefront-ui' });
   const [isUpdatingSubMenuVisibility, setIsUpdatingSubMenuVisibility] = useState(false);
   const [pendingSubMenuVisibility, setPendingSubMenuVisibility] = useState<boolean | null>(null);
+  const [togglingMenuIds, setTogglingMenuIds] = useState<Set<string>>(new Set());
   const pageTitle = t('menus.page.title', 'Menu Management');
   const pageDescription = t('menus.page.description', 'Manage all navigation menus');
   const layoutBreadcrumbs = useMemo(() => (
@@ -149,6 +150,40 @@ const MenusPage: React.FC = () => {
       setIsUpdatingSubMenuVisibility(false);
     }
   }, [addToast, createStorefrontSetting, effectiveSubMenuVisibility, subMenuVisibilitySettingId, t, updateStorefrontSetting]);
+
+  const handleToggleMenuEnabled = useCallback(async (menu: AdminMenu, nextValue: boolean) => {
+    setTogglingMenuIds((prev) => {
+      const next = new Set(prev);
+      next.add(menu.id);
+      return next;
+    });
+
+    try {
+      await updateMenu.mutateAsync({
+        id: menu.id,
+        data: { isEnabled: nextValue },
+      });
+
+      addToast({
+        title: nextValue
+          ? t('menus.table.enabledToast', 'Menu enabled')
+          : t('menus.table.disabledToast', 'Menu disabled'),
+        type: 'success',
+      });
+    } catch (error) {
+      console.error('Failed to toggle menu', error);
+      addToast({
+        title: t('menus.table.toggleError', 'Unable to update menu status'),
+        type: 'error',
+      });
+    } finally {
+      setTogglingMenuIds((prev) => {
+        const next = new Set(prev);
+        next.delete(menu.id);
+        return next;
+      });
+    }
+  }, [updateMenu, addToast, t]);
 
   const handleMenuGroupChange = useCallback((value: string) => {
     setSelectedMenuGroup(value);
@@ -360,6 +395,7 @@ const MenusPage: React.FC = () => {
           onEditMenu={handleEditMenu}
           onDeleteMenu={handleDeleteMenu}
           onAddMenu={handleAddMenu}
+          onToggleMenuEnabled={handleToggleMenuEnabled}
           handleRowDragStart={dragHandlers.handleRowDragStart}
           handleDragEnd={dragHandlers.handleDragEnd}
           handleDragOver={dragHandlers.handleDragOver}
@@ -371,6 +407,7 @@ const MenusPage: React.FC = () => {
     (menuPage.loadedChildren.has(item.id) && (menuPage.loadedChildren.get(item.id) || []).length > 0) ||
     (item.children && item.children.length > 0)
   ).map(item => item.id))}
+          togglingMenuIds={togglingMenuIds}
         />
 
         {/* Menu Form Modal */}

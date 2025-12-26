@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiPlus, FiMoreVertical, FiUsers, FiUserCheck, FiUserPlus, FiUser, FiActivity, FiClock, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiUserX, FiTrash2, FiEye, FiHome } from 'react-icons/fi';
+import { FiPlus, FiMoreVertical, FiUsers, FiUserCheck, FiUserPlus, FiUser, FiActivity, FiClock, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiUserX, FiTrash2, FiEye, FiHome, FiLogIn } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '../../components/common/Card';
 import { Dropdown } from '../../components/common/Dropdown';
@@ -43,6 +43,19 @@ const validateDateString = (date: string | null): string | undefined => {
 
 const validateString = (value: string | null): string | undefined => {
   return value && value.trim() ? value.trim() : undefined;
+};
+
+type StartImpersonationResponse = {
+  data?: {
+    accessToken?: string;
+    refreshToken?: string;
+    impersonationLogId?: string;
+    impersonatedUser?: {
+      id: string;
+      email: string;
+      username: string;
+    };
+  };
 };
 
 const UserListPage = () => {
@@ -434,6 +447,37 @@ const UserListPage = () => {
     });
   };
 
+  // Handle login as user
+  const startImpersonationMutation = trpc.adminImpersonation.startImpersonation.useMutation();
+
+  const handleLoginAsUser = useCallback(async (userId: string, userName: string) => {
+    try {
+      const ok = window.confirm(t('users.confirmations.login_as_user', `Are you sure you want to login as ${userName}?`));
+      if (!ok) return;
+
+      const response = await startImpersonationMutation.mutateAsync({ userId }) as StartImpersonationResponse;
+      const sessionData = response?.data;
+
+      if (!sessionData?.accessToken) {
+        throw new Error(t('users.errors.missing_impersonation_token', 'Unable to start impersonation session. Please try again later.'));
+      }
+
+      const storeUrl = process.env.NEXT_PUBLIC_STORE_URL || 'http://localhost:4200';
+      const redirectUrl = `${storeUrl}/api/auth/impersonate?token=${encodeURIComponent(sessionData.accessToken)}`;
+
+      // Open in new tab
+      window.open(redirectUrl, '_blank', 'noopener,noreferrer');
+
+      addToast({ type: 'success', title: t('users.confirmations.login_success', 'Login successful') });
+    } catch (e: any) {
+      addToast({
+        type: 'error',
+        title: t('users.confirmations.login_failed', 'Login failed'),
+        description: e?.message || t('users.errors.generic_error', 'An error occurred')
+      });
+    }
+  }, [startImpersonationMutation, addToast, t]);
+
   // Row actions: delete, activate/deactivate
   const updateUserStatusMutation = trpc.adminUser.updateUserStatus.useMutation();
   const deleteUserMutation = trpc.adminUser.deleteUser.useMutation();
@@ -666,11 +710,10 @@ const UserListPage = () => {
       header: t('users.table.columns.status', 'Status'),
       accessor: (item) => (
         <span
-          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            item.isActive
-              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-              : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-          }`}
+          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${item.isActive
+            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+            }`}
         >
           {item.isActive ? t('users.table.status.active', 'Active') : t('users.table.status.inactive', 'Inactive')}
         </span>
@@ -715,6 +758,11 @@ const UserListPage = () => {
               onClick: () => navigate(`/users/${item.id}`)
             },
             {
+              label: t('users.actions.login_as_user', 'Login as User'),
+              icon: <FiLogIn className="w-4 h-4" aria-hidden="true" />,
+              onClick: () => handleLoginAsUser(item.id, item.username || 'User'),
+            },
+            {
               label: t('users.actions.delete', 'Delete'),
               icon: <FiTrash2 className="w-4 h-4" aria-hidden="true" />,
               onClick: () => handleDeleteUser(item.id),
@@ -726,7 +774,7 @@ const UserListPage = () => {
       hideable: false, // Actions column should always be visible
       width: '80px',
     },
-  ], [navigate, handleDeleteUser]);
+  ], [navigate, handleDeleteUser, handleLoginAsUser, handleToggleStatus, t]);
 
   // Current sort descriptor for the table - MOVED BEFORE EARLY RETURNS
   const sortDescriptor: SortDescriptor<User> = useMemo(() => ({

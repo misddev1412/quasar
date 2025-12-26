@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Button } from '../../components/common/Button';
 import { Select, SelectOption } from '../../components/common/Select';
 import { Toggle } from '../../components/common/Toggle';
@@ -29,6 +28,7 @@ import {
   ALL_MENU_TYPE_OPTIONS,
 } from '../../hooks/useMenuPage';
 import { cn } from '@admin/lib/utils';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 const asStringOrUndefined = (value: unknown): string | undefined =>
   typeof value === 'string' ? value : undefined;
@@ -66,8 +66,11 @@ const requiresUrl = (type: MenuType) => type === MenuType.LINK || type === MenuT
 const requiresReferenceId = (type: MenuType) =>
   type === MenuType.PRODUCT || type === MenuType.CATEGORY || type === MenuType.BRAND;
 
-const TOP_MENU_CONFIG_KEYS = ['topPhoneNumber', 'topEmailAddress', 'topTimeFormat'] as const;
-const TOP_MENU_ONLY_TYPES = [MenuType.TOP_PHONE, MenuType.TOP_EMAIL, MenuType.TOP_CURRENT_TIME] as const;
+const TOP_MARQUEE_WIDTH_KEY = 'topMarqueeMaxWidth' as const;
+const TOP_MARQUEE_ITEMS_KEY = 'topMarqueeItems' as const;
+const TOP_MARQUEE_SPEED_KEY = 'topMarqueeSpeed' as const;
+const TOP_MENU_STRING_CONFIG_KEYS = ['topPhoneNumber', 'topEmailAddress', 'topTimeFormat', TOP_MARQUEE_WIDTH_KEY, TOP_MARQUEE_SPEED_KEY] as const;
+const TOP_MENU_ONLY_TYPES = [MenuType.TOP_PHONE, MenuType.TOP_EMAIL, MenuType.TOP_CURRENT_TIME, MenuType.TOP_MARQUEE] as const;
 const CALL_BUTTON_CONFIG_KEY = 'callButtonNumber';
 
 const getConfigStringValue = (
@@ -84,11 +87,30 @@ const sanitizeConfigForType = (config: Record<string, unknown> | undefined, type
   const nextConfig: Record<string, unknown> = { ...(config || {}) };
 
   if (!TOP_MENU_ALLOWED_TYPES.includes(type)) {
-    TOP_MENU_CONFIG_KEYS.forEach((key) => {
+    TOP_MENU_STRING_CONFIG_KEYS.forEach((key) => {
       if (key in nextConfig) {
         delete nextConfig[key];
       }
     });
+    if (TOP_MARQUEE_WIDTH_KEY in nextConfig) {
+      delete nextConfig[TOP_MARQUEE_WIDTH_KEY];
+    }
+    if (TOP_MARQUEE_ITEMS_KEY in nextConfig) {
+      delete nextConfig[TOP_MARQUEE_ITEMS_KEY];
+    }
+    if (TOP_MARQUEE_SPEED_KEY in nextConfig) {
+      delete nextConfig[TOP_MARQUEE_SPEED_KEY];
+    }
+  } else if (type !== MenuType.TOP_MARQUEE) {
+    if (TOP_MARQUEE_WIDTH_KEY in nextConfig) {
+      delete nextConfig[TOP_MARQUEE_WIDTH_KEY];
+    }
+    if (TOP_MARQUEE_ITEMS_KEY in nextConfig) {
+      delete nextConfig[TOP_MARQUEE_ITEMS_KEY];
+    }
+    if (TOP_MARQUEE_SPEED_KEY in nextConfig) {
+      delete nextConfig[TOP_MARQUEE_SPEED_KEY];
+    }
   }
 
   if (type !== MenuType.CALL_BUTTON && CALL_BUTTON_CONFIG_KEY in nextConfig) {
@@ -100,10 +122,54 @@ const sanitizeConfigForType = (config: Record<string, unknown> | undefined, type
 
 const getTopMenuConfigValue = (
   config: Record<string, unknown> | undefined,
-  key: typeof TOP_MENU_CONFIG_KEYS[number],
+  key: typeof TOP_MENU_STRING_CONFIG_KEYS[number],
 ) => {
   return getConfigStringValue(config, key);
 };
+
+type TopMarqueeItem = {
+  label: string;
+  url?: string;
+  target: MenuTarget;
+  icon?: string;
+};
+
+const parseMarqueeItems = (value: unknown): TopMarqueeItem[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item) => {
+      if (!item || typeof item !== 'object') {
+        return null;
+      }
+      const data = item as Record<string, unknown>;
+      const label = typeof data.label === 'string' ? data.label : '';
+      const rawUrl = typeof data.url === 'string' ? data.url.trim() : '';
+      const url = rawUrl.length > 0 ? rawUrl : undefined;
+      const target =
+        data.target === MenuTarget.BLANK || data.target === MenuTarget.SELF ? (data.target as MenuTarget) : MenuTarget.SELF;
+      const rawIcon = typeof data.icon === 'string' ? data.icon.trim() : '';
+      const icon = rawIcon.length > 0 ? rawIcon : undefined;
+      const entry: TopMarqueeItem = { label, url, target, icon };
+      return entry;
+    })
+    .filter((item): item is TopMarqueeItem => item !== null);
+};
+
+const normalizeMarqueeItems = (items: TopMarqueeItem[]) =>
+  items.map((item) => {
+    const trimmedLabel = (item.label || '').trim();
+    const trimmedUrl = (item.url || '').trim();
+    const trimmedIcon = (item.icon || '').trim();
+    return {
+      label: trimmedLabel,
+      url: trimmedUrl || undefined,
+      target: item.target,
+      icon: trimmedIcon || undefined,
+    };
+  });
 
 interface MenuFormProps {
   menu?: AdminMenu;
@@ -126,7 +192,18 @@ export const MenuForm: React.FC<MenuFormProps> = ({
   currentMenuGroup,
   isSubmitting = false
 }) => {
-  const { t } = useTranslation('menus');
+  const { t: translate } = useTranslationWithBackend();
+  const t = useCallback((
+    key: string,
+    fallbackOrOptions?: string | Record<string, unknown>,
+    maybeOptions?: Record<string, unknown>,
+  ) => {
+    if (typeof fallbackOrOptions === 'string') {
+      return translate(`menus.${key}`, fallbackOrOptions, maybeOptions);
+    }
+
+    return translate(`menus.${key}`, fallbackOrOptions);
+  }, [translate]);
   const [formData, setFormData] = useState<MenuFormState>(() => {
     if (menu) {
       const translations: Record<string, MenuTranslationForm> = {};
@@ -173,6 +250,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         // Banner customization
         bannerConfig: normalizeBannerConfig(menu.config?.bannerConfig),
         subMenuVariant: (menu.config?.subMenuVariant as 'link' | 'button') || undefined,
+        minimalStyling: menu.config?.minimalStyling === true,
         buttonBorderRadius: asStringOrUndefined(menu.config?.buttonBorderRadius),
         buttonSize: (menu.config?.buttonSize as 'small' | 'medium' | 'large') || undefined,
         buttonAnimation: (menu.config?.buttonAnimation as 'none' | 'pulse' | 'float' | 'ring') || undefined,
@@ -196,6 +274,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
       borderColor: undefined,
       borderWidth: undefined,
       subMenuVariant: currentMenuGroup === SUB_MENU_GROUP ? 'button' : undefined,
+      minimalStyling: false,
       buttonBorderRadius: currentMenuGroup === SUB_MENU_GROUP ? '9999px' : undefined,
     };
   });
@@ -213,7 +292,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
     return source.map(option => ({
       value: option.value,
-      label: t(`menus.types.${option.value}`),
+      label: t(`types.${option.value}`),
       disabled: option.disabled,
     }));
   }, [isTopMenu, t]);
@@ -221,14 +300,16 @@ export const MenuForm: React.FC<MenuFormProps> = ({
   const topTimeFormatOptions = useMemo<SelectOption[]>(() =>
     (Object.values(TopMenuTimeFormat) as TopMenuTimeFormat[]).map((value) => ({
       value,
-      label: t(`menus.timeFormats.${value}`),
+      label: t(`timeFormats.${value}`),
     })),
     [t]);
 
   const targetOptions = useMemo(() => MENU_TARGET_OPTIONS.map(opt => ({
     value: opt.value as MenuTarget,
-    label: t(`menus.targets.${opt.value}`)
+    label: t(`targets.${opt.value}`)
   })), [t]);
+
+  const marqueeItems = useMemo<TopMarqueeItem[]>(() => parseMarqueeItems(formData.config?.[TOP_MARQUEE_ITEMS_KEY]), [formData.config]);
 
   useEffect(() => {
     if (!isTopMenu) {
@@ -344,6 +425,11 @@ export const MenuForm: React.FC<MenuFormProps> = ({
     translationLocales.forEach(ensureTranslation);
   }, [translationLocales.join(',')]);
 
+  const translationMarqueeItems = useMemo<TopMarqueeItem[]>(
+    () => parseMarqueeItems(formData.translations[activeLocale]?.config?.[TOP_MARQUEE_ITEMS_KEY]),
+    [formData.translations, activeLocale],
+  );
+
   const trimString = (value?: string) => {
     if (typeof value !== 'string') {
       return undefined;
@@ -366,6 +452,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
       'layout',
       'bannerConfig',
       'subMenuVariant',
+      'minimalStyling',
       'buttonBorderRadius',
       'buttonAnimation',
       'buttonSize',
@@ -439,6 +526,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
     assign('layout', formData.layout);
     assign('bannerConfig', bannerConfig);
     assign('subMenuVariant', normalizedSubMenuVariant);
+    assign('minimalStyling', isSubMenu && formData.minimalStyling ? true : undefined);
     assign('buttonBorderRadius', normalizedButtonBorderRadius);
     assign('buttonAnimation', normalizedButtonAnimation);
     assign('buttonSize', normalizedSubMenuVariant === 'button' ? (formData.buttonSize || 'medium') : undefined);
@@ -480,8 +568,103 @@ export const MenuForm: React.FC<MenuFormProps> = ({
     });
   };
 
-  const updateConfigValue = (key: typeof TOP_MENU_CONFIG_KEYS[number], value: string) => {
+  const updateConfigValue = (key: typeof TOP_MENU_STRING_CONFIG_KEYS[number], value: string) => {
     updateArbitraryConfigValue(key, value);
+  };
+
+  const updateMarqueeItems = (items: TopMarqueeItem[]) => {
+    if (items.length === 0) {
+      updateArbitraryConfigValue(TOP_MARQUEE_ITEMS_KEY, undefined);
+      return;
+    }
+
+    updateArbitraryConfigValue(TOP_MARQUEE_ITEMS_KEY, normalizeMarqueeItems(items));
+  };
+
+  const handleMarqueeItemChange = (
+    index: number,
+    field: 'label' | 'url' | 'target' | 'icon',
+    value: string | MenuTarget,
+  ) => {
+    updateMarqueeItems(
+      marqueeItems.map((item, idx) =>
+        idx === index
+          ? {
+              ...item,
+              [field]: value,
+            }
+          : item,
+      ),
+    );
+  };
+
+  const handleAddMarqueeItem = () => {
+    updateMarqueeItems([...marqueeItems, { label: '', url: '', target: MenuTarget.SELF, icon: '' }]);
+  };
+
+  const handleRemoveMarqueeItem = (index: number) => {
+    updateMarqueeItems(marqueeItems.filter((_, idx) => idx !== index));
+  };
+
+  const updateTranslationMarqueeItems = (locale: string, items: TopMarqueeItem[]) => {
+    setFormData((prev) => {
+      const translation = prev.translations[locale] || {};
+      const nextConfig = { ...(translation.config || {}) };
+
+      if (items.length === 0) {
+        delete nextConfig[TOP_MARQUEE_ITEMS_KEY];
+      } else {
+        nextConfig[TOP_MARQUEE_ITEMS_KEY] = normalizeMarqueeItems(items);
+      }
+
+      return {
+        ...prev,
+        translations: {
+          ...prev.translations,
+          [locale]: {
+            ...translation,
+            config: Object.keys(nextConfig).length > 0 ? nextConfig : undefined,
+          },
+        },
+      };
+    });
+  };
+
+  const handleTranslationMarqueeItemChange = (
+    locale: string,
+    index: number,
+    field: 'label' | 'url' | 'target' | 'icon',
+    value: string | MenuTarget,
+  ) => {
+    const items = parseMarqueeItems(formData.translations[locale]?.config?.[TOP_MARQUEE_ITEMS_KEY]);
+    updateTranslationMarqueeItems(
+      locale,
+      items.map((item, idx) =>
+        idx === index
+          ? {
+              ...item,
+              [field]: value,
+            }
+          : item,
+      ),
+    );
+  };
+
+  const handleAddTranslationMarqueeItem = (locale: string) => {
+    const items = parseMarqueeItems(formData.translations[locale]?.config?.[TOP_MARQUEE_ITEMS_KEY]);
+    updateTranslationMarqueeItems(locale, [...items, { label: '', url: '', target: MenuTarget.SELF, icon: '' }]);
+  };
+
+  const handleRemoveTranslationMarqueeItem = (locale: string, index: number) => {
+    const items = parseMarqueeItems(formData.translations[locale]?.config?.[TOP_MARQUEE_ITEMS_KEY]);
+    updateTranslationMarqueeItems(
+      locale,
+      items.filter((_, idx) => idx !== index),
+    );
+  };
+
+  const handleUseDefaultTranslationMarqueeItems = (locale: string) => {
+    updateTranslationMarqueeItems(locale, marqueeItems);
   };
 
   const handleTypeChange = (type: MenuType) => {
@@ -534,6 +717,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         subMenuVariant: isSubGroup ? (prev.subMenuVariant || 'button') : undefined,
         buttonBorderRadius: isSubGroup ? (prev.buttonBorderRadius || '9999px') : undefined,
         buttonAnimation: isSubGroup ? prev.buttonAnimation : undefined,
+        minimalStyling: isSubGroup ? prev.minimalStyling : false,
       };
     });
   };
@@ -588,7 +772,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
   const groupOptions: SelectOption[] = [
     ...DEFAULT_MENU_GROUP_OPTIONS.map(opt => ({
       value: opt.value,
-      label: t(`menus.groups.${opt.value}`)
+      label: t(`groups.${opt.value}`)
     })),
     ...menuGroups.filter(group => !DEFAULT_MENU_GROUP_OPTIONS.find(opt => opt.value === group))
       .map(group => ({ value: group, label: group })),
@@ -743,6 +927,114 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         </div>
       )}
 
+      {formData.type === MenuType.TOP_MARQUEE && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.marqueeMaxWidth')}</label>
+              <Input
+                value={getConfigStringValue(formData.config, TOP_MARQUEE_WIDTH_KEY)}
+                onChange={(e) => updateArbitraryConfigValue(TOP_MARQUEE_WIDTH_KEY, e.target.value)}
+                placeholder={t('form.placeholders.maxWidth')}
+                className="mt-1"
+                inputSize="md"
+              />
+              <p className="text-xs text-gray-500 mt-1">{t('form.helpers.topMarquee')}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.marqueeSpeed')}</label>
+              <Input
+                type="number"
+                min="1"
+                step="0.5"
+                value={getConfigStringValue(formData.config, TOP_MARQUEE_SPEED_KEY)}
+                onChange={(e) => updateArbitraryConfigValue(TOP_MARQUEE_SPEED_KEY, e.target.value)}
+                placeholder={t('form.placeholders.marqueeSpeed', '16')}
+                className="mt-1"
+                inputSize="md"
+              />
+              <p className="text-xs text-gray-500 mt-1">{t('form.helpers.topMarqueeSpeed', 'Duration in seconds for a full loop.')}</p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.marqueeItems')}</label>
+              <p className="text-xs text-gray-500 mt-1">{t('form.helpers.topMarqueeItems')}</p>
+            </div>
+
+            {marqueeItems.length === 0 ? (
+              <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-500">
+                {t('form.helpers.topMarqueeItemsEmpty', 'Add at least one ticker entry to display in the marquee.')}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {marqueeItems.map((marqueeItem, index) => (
+                  <div key={`marquee-${index}`} className="rounded-lg border border-gray-200 p-4 space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600">{t('form.labels.label')}</label>
+                        <Input
+                          value={marqueeItem.label}
+                          onChange={(e) => handleMarqueeItemChange(index, 'label', e.target.value)}
+                          placeholder={t('form.placeholders.marqueeLabel', 'Flash sale is live!')}
+                          className="mt-1"
+                          inputSize="md"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600">{t('form.labels.url')}</label>
+                        <Input
+                          value={marqueeItem.url || ''}
+                          onChange={(e) => handleMarqueeItemChange(index, 'url', e.target.value)}
+                          placeholder={t('form.placeholders.marqueeUrl', 'https://example.com/promo')}
+                          className="mt-1"
+                          inputSize="md"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <IconSelector
+                          value={marqueeItem.icon || ''}
+                          onChange={(icon) => handleMarqueeItemChange(index, 'icon', icon)}
+                          label={t('form.labels.icon', 'Icon')}
+                          placeholder={t('form.placeholders.marqueeIcon', 'heroicons:megaphone')}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600">{t('form.labels.target')}</label>
+                        <Select
+                          value={marqueeItem.target}
+                          onChange={(value) => handleMarqueeItemChange(index, 'target', value as MenuTarget)}
+                          options={targetOptions}
+                          className="mt-1"
+                          size="md"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-end">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="text-red-600 hover:text-red-700"
+                        onClick={() => handleRemoveMarqueeItem(index)}
+                      >
+                        {t('form.buttons.removeMarqueeItem', 'Remove')}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <Button type="button" variant="outline" onClick={handleAddMarqueeItem}>
+              {t('form.buttons.addMarqueeItem', 'Add ticker item')}
+            </Button>
+          </div>
+        </div>
+      )}
+
       {formData.type === MenuType.CALL_BUTTON && (
         <div>
           <label className="block text-sm font-medium text-gray-700">{t('form.labels.phoneNumber')}</label>
@@ -754,6 +1046,31 @@ export const MenuForm: React.FC<MenuFormProps> = ({
             inputSize="md"
           />
           <p className="text-xs text-gray-500 mt-1" dangerouslySetInnerHTML={{ __html: t('form.helpers.callButton') }} />
+        </div>
+      )}
+
+      {formData.type === MenuType.SEARCH_BAR && (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.placeholder')}</label>
+            <Input
+              value={getConfigStringValue(formData.config, 'placeholder')}
+              onChange={(e) => updateArbitraryConfigValue('placeholder', e.target.value)}
+              placeholder="Search..."
+              className="mt-1"
+              inputSize="md"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.width')}</label>
+            <Input
+              value={getConfigStringValue(formData.config, 'width')}
+              onChange={(e) => updateArbitraryConfigValue('width', e.target.value)}
+              placeholder="e.g. 200px or 100%"
+              className="mt-1"
+              inputSize="md"
+            />
+          </div>
         </div>
       )}
 
@@ -793,6 +1110,8 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         <IconSelector
           value={formData.icon}
           onChange={(icon) => updateFormData('icon', icon)}
+          label={t('form.labels.icon', 'Icon')}
+          placeholder={t('form.placeholders.marqueeIcon', 'heroicons:megaphone')}
         />
 
         <ColorSelector
@@ -842,6 +1161,24 @@ export const MenuForm: React.FC<MenuFormProps> = ({
               ]}
               className="mt-1"
               size="md"
+            />
+          </div>
+
+          {!formData.isMegaMenu && (
+            <div className="pt-1">
+              <Toggle
+                checked={formData.showTitle !== false}
+                onChange={(checked) => updateFormData('showTitle', checked)}
+                label={t('form.labels.showTitle')}
+              />
+            </div>
+          )}
+
+          <div className="pt-1">
+            <Toggle
+              checked={!!formData.minimalStyling}
+              onChange={(checked) => updateFormData('minimalStyling', checked)}
+              label={t('form.labels.minimalStyling')}
             />
           </div>
 
@@ -1202,6 +1539,94 @@ export const MenuForm: React.FC<MenuFormProps> = ({
                 rows={6}
                 className="mt-1 w-full border border-gray-300 rounded-md px-3.5 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 h-11 resize-none"
               />
+            </div>
+          )}
+
+          {formData.type === MenuType.TOP_MARQUEE && (
+            <div className="space-y-3 border-t border-dashed pt-3 mt-3">
+              <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                <p className="text-xs text-gray-600">{t('form.helpers.topMarqueeLocale', 'Override ticker items for this language. Leave empty to inherit the default list.')}</p>
+                <div className="flex items-center gap-2">
+                  {translationMarqueeItems.length === 0 && marqueeItems.length > 0 ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleUseDefaultTranslationMarqueeItems(activeLocale)}
+                    >
+                      {t('form.buttons.useDefaultMarqueeItems', 'Use default items')}
+                    </Button>
+                  ) : null}
+                  <Button type="button" variant="outline" size="sm" onClick={() => handleAddTranslationMarqueeItem(activeLocale)}>
+                    {t('form.buttons.addMarqueeItem', 'Add ticker item')}
+                  </Button>
+                </div>
+              </div>
+
+              {translationMarqueeItems.length === 0 ? (
+                <div className="rounded-md border border-dashed border-gray-300 bg-white p-4 text-sm text-gray-500">
+                  {t('form.helpers.topMarqueeItemsLocaleEmpty', 'No locale-specific ticker entries. The default list will be used.')}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {translationMarqueeItems.map((marqueeItem, index) => (
+                    <div key={`locale-${activeLocale}-${index}`} className="rounded-lg border border-gray-200 p-4 space-y-3 bg-white">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600">{t('form.labels.label')}</label>
+                          <Input
+                            value={marqueeItem.label}
+                            onChange={(e) => handleTranslationMarqueeItemChange(activeLocale, index, 'label', e.target.value)}
+                            placeholder={t('form.placeholders.marqueeLabel', 'Flash sale is live!')}
+                            className="mt-1"
+                            inputSize="md"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600">{t('form.labels.url')}</label>
+                          <Input
+                            value={marqueeItem.url || ''}
+                            onChange={(e) => handleTranslationMarqueeItemChange(activeLocale, index, 'url', e.target.value)}
+                            placeholder={t('form.placeholders.marqueeUrl', 'https://example.com/promo')}
+                            className="mt-1"
+                            inputSize="md"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <IconSelector
+                            value={marqueeItem.icon || ''}
+                            onChange={(icon) => handleTranslationMarqueeItemChange(activeLocale, index, 'icon', icon)}
+                            label={t('form.labels.icon', 'Icon')}
+                            placeholder={t('form.placeholders.marqueeIcon', 'heroicons:megaphone')}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600">{t('form.labels.target')}</label>
+                          <Select
+                            value={marqueeItem.target}
+                            onChange={(value) => handleTranslationMarqueeItemChange(activeLocale, index, 'target', value as MenuTarget)}
+                            options={targetOptions}
+                            className="mt-1"
+                            size="md"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-end">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          className="text-red-600 hover:text-red-700"
+                          onClick={() => handleRemoveTranslationMarqueeItem(activeLocale, index)}
+                        >
+                          {t('form.buttons.removeMarqueeItem', 'Remove')}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

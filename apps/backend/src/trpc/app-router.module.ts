@@ -17,6 +17,7 @@ import { StorageModule } from '../modules/storage/storage.module';
 import { NotificationsModule } from '../modules/notifications/notifications.module';
 import { SupportModule } from '../modules/support/support.module';
 import { SectionsModule } from '../modules/sections/sections.module';
+import { ServicesModule } from '../modules/services/services.module';
 import { MenuModule } from '../modules/menus/menus.module';
 import { SiteContentModule } from '../modules/site-content/site-content.module';
 import { SharedModule } from '../modules/shared/shared.module';
@@ -36,6 +37,7 @@ import { AdminLoyaltyRewardsRouter } from '../modules/loyalty/routers/admin-loya
 import { AdminLoyaltyTransactionsRouter } from '../modules/loyalty/routers/admin-loyalty-transactions.router';
 import { AdminLoyaltyStatsRouter } from '../modules/loyalty/routers/admin-loyalty-stats.router';
 import { AdminCustomerTransactionsRouter } from '../modules/user/routers/admin-customer-transactions.router';
+import { AdminImpersonationRouter } from '../modules/user/routers/admin-impersonation.router';
 import { AdminMailProviderRouter } from '../modules/mail-provider/routers/admin-mail-provider.router';
 import { AdminMailChannelPriorityRouter } from '../modules/email-flow/routers/admin-mail-channel-priority.router';
 import { AdminMailLogRouter } from '../modules/mail-log/routers/admin-mail-log.router';
@@ -48,6 +50,7 @@ import { ComponentConfigsModule } from '../modules/component-configs/component-c
 import { AdminComponentConfigsRouter } from '../modules/component-configs/routers/admin-component-configs.router';
 import { ClientComponentConfigsRouter } from '../modules/component-configs/routers/client-component-configs.router';
 import { AdminProductSpecificationLabelsRouter } from '../modules/products/routers/admin-product-specification-labels.router';
+import { ServicesRouter } from '../modules/services/routers/services.router';
 
 @Module({
   imports: [
@@ -75,6 +78,7 @@ import { AdminProductSpecificationLabelsRouter } from '../modules/products/route
     VisitorModule,
     SharedModule,
     ComponentConfigsModule,
+    ServicesModule,
   ],
   providers: [
     ClientNewsRouter,
@@ -98,10 +102,12 @@ import { AdminProductSpecificationLabelsRouter } from '../modules/products/route
     ClientVisitorStatsRouter,
     AdminNotificationTelegramConfigsRouter,
     AdminSupportClientsRouter,
+    AdminImpersonationRouter,
     AdminComponentConfigsRouter,
     ClientComponentConfigsRouter,
     AdminProductSpecificationLabelsRouter,
+    ServicesRouter,
     ResponseService,
   ],
 })
-export class AppRouterModule {}
+export class AppRouterModule { }

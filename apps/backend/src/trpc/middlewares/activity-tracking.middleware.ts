@@ -3,6 +3,8 @@ import { TRPCMiddleware, MiddlewareOptions, MiddlewareResponse } from 'nestjs-tr
 import { AuthenticatedContext } from '../context';
 import { UserActivityTrackingService } from '../../modules/user/services/user-activity-tracking.service';
 import { ActivityType } from '../../modules/user/entities/user-activity.entity';
+import { UserSessionRepository } from '../../modules/user/repositories/user-session.repository';
+import { UserRepository } from '../../modules/user/repositories/user.repository';
 
 @Injectable()
 export class ActivityTrackingMiddleware implements TRPCMiddleware {
@@ -10,6 +12,8 @@ export class ActivityTrackingMiddleware implements TRPCMiddleware {
 
   constructor(
     private readonly activityTrackingService: UserActivityTrackingService,
+    private readonly userSessionRepository: UserSessionRepository,
+    private readonly userRepository: UserRepository,
   ) {}
 
   async use(opts: MiddlewareOptions<AuthenticatedContext>): Promise<MiddlewareResponse> {
@@ -75,6 +79,33 @@ export class ActivityTrackingMiddleware implements TRPCMiddleware {
 
   private async trackActivity(data: any): Promise<void> {
     try {
+      // Check if this is an impersonated session
+      if (data.sessionId) {
+        try {
+          const session = await this.userSessionRepository.findBySessionToken(data.sessionId);
+
+          if (session?.sessionData?.isImpersonating) {
+            // Add impersonation metadata
+            data.metadata = {
+              ...data.metadata,
+              performedByAdminId: session.sessionData.originalAdminId,
+              isImpersonatedAction: true,
+            };
+
+            // Fetch admin email for better logging
+            if (session.sessionData.originalAdminId) {
+              const admin = await this.userRepository.findById(session.sessionData.originalAdminId);
+              if (admin) {
+                data.metadata.performedByAdminEmail = admin.email;
+              }
+            }
+          }
+        } catch (sessionError) {
+          // Don't fail if session check fails
+          this.logger.warn(`Failed to check session for impersonation: ${sessionError.message}`);
+        }
+      }
+
       await this.activityTrackingService.trackActivity(data);
     } catch (error) {
       // Don't let activity tracking errors break the main request

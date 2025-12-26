@@ -35,9 +35,11 @@ import {
 interface IconSelectorProps {
   value?: string;
   onChange: (icon: string) => void;
+  label?: string;
+  placeholder?: string;
 }
 
-export const IconSelector: React.FC<IconSelectorProps> = ({ value, onChange }) => {
+export const IconSelector: React.FC<IconSelectorProps> = ({ value, onChange, label, placeholder }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   // Icon mapping to actual components
@@ -276,17 +278,20 @@ export const IconSelector: React.FC<IconSelectorProps> = ({ value, onChange }) =
     return <UnifiedIcon icon={icon} size={size} className="text-gray-600" />;
   };
 
+  const resolvedLabel = label || 'Icon';
+  const resolvedPlaceholder = placeholder || 'Enter icon class name (e.g., fa-home, home)';
+
   return (
     <div className="relative space-y-1">
       <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
-        Icon
+        {resolvedLabel}
       </label>
       <div className="flex gap-2">
         <div className="flex-1">
           <InputWithIcon
             value={value || ''}
             onChange={handleCustomIconChange}
-            placeholder="Enter icon class name (e.g., fa-home, home)"
+            placeholder={resolvedPlaceholder}
             leftIcon={value ? renderIconPreview(value, 20) : undefined}
             className={cn('w-full h-11', !value && 'pl-3')}
             iconSpacing="compact"
@@ -300,6 +305,17 @@ export const IconSelector: React.FC<IconSelectorProps> = ({ value, onChange }) =
         >
           {value ? 'Change' : 'Browse'}
         </Button>
+        {value && (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onChange('')}
+            className="px-3 h-11 text-red-500 hover:text-red-600 hover:bg-red-50"
+            title="Remove icon"
+          >
+            <FiTrash2 className="w-4 h-4" />
+          </Button>
+        )}
       </div>
 
       {isOpen && (

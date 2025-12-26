@@ -17,6 +17,11 @@ import {
   searchSpecificationLabelsSchema,
   createSpecificationLabelSchema,
 } from '../modules/products/routers/admin-product-specification-labels.router';
+import {
+  CreateServiceSchema,
+  UpdateServiceSchema,
+  ServiceFilterSchema,
+} from '../modules/services/dto/service.dto';
 
 // Zod schemas for validation
 const userRoleSchema = z.enum([
@@ -267,6 +272,77 @@ export const appRouter = router({
           return {} as ApiResponse;
         }),
     }),
+  }),
+
+  adminImpersonation: router({
+    startImpersonation: procedure
+      .input(z.object({
+        userId: z.string().uuid(),
+        reason: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    endImpersonation: procedure
+      .input(z.object({
+        originalAdminAccessToken: z.string(),
+        originalAdminRefreshToken: z.string(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    getImpersonationHistory: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(50),
+        adminUserId: z.string().uuid().optional(),
+        impersonatedUserId: z.string().uuid().optional(),
+        status: z.enum(['ACTIVE', 'ENDED', 'EXPIRED']).optional(),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    getCurrentImpersonationStatus: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  services: router({
+    getServices: procedure
+      .input(ServiceFilterSchema)
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    getServiceById: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    createService: procedure
+      .input(CreateServiceSchema)
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    updateService: procedure
+      .input(z.object({ id: z.string().uuid(), data: UpdateServiceSchema }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    deleteService: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
   }),
 
   // Define type information for client-side usage

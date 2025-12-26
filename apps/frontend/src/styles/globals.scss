@@ -199,6 +199,13 @@
     @apply form-input min-h-[120px] resize-y;
   }
 
+  .top-menu-marquee-track {
+    @apply w-max;
+    --marquee-translate: -50%;
+    animation: top-menu-marquee 20s linear infinite;
+    will-change: transform;
+  }
+
   .custom-html-content {
     @apply text-gray-900 dark:text-gray-100;
   }
@@ -657,6 +664,15 @@
   .btn,
   button {
     border: 1px solid currentColor;
+  }
+}
+
+@keyframes top-menu-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(var(--marquee-translate, -50%));
   }
 }
 

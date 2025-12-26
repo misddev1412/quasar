@@ -1929,5 +1929,19 @@
       "daysAgo": "{count} ngày trước",
       "daysAgo_plural": "{count} ngày trước"
     }
+  },
+  "impersonation": {
+    "active_banner_title": "Bạn đang sử dụng với tư cách {user}",
+    "active_banner_description": "Phiên này được bắt đầu bởi quản trị viên {admin}.",
+    "active_since": "Hoạt động {duration}",
+    "exit_button": "Thoát phiên mạo danh",
+    "exiting": "Đang thoát...",
+    "close_window": "Đóng cửa sổ",
+    "exit_success_title": "Đã kết thúc mạo danh",
+    "exit_success_message": "Bạn đã đăng xuất khỏi phiên mạo danh. Có thể đóng cửa sổ hoặc đăng nhập lại bình thường.",
+    "exit_error_title": "Không thể thoát",
+    "exit_error_message": "Không thể kết thúc phiên mạo danh. Vui lòng thử lại.",
+    "unknown_user": "người dùng này",
+    "unknown_admin": "quản trị viên"
   }
 }

@@ -8,6 +8,9 @@ import type { PaginationInfo } from '../../types/api';
 import { serverTrpc } from '../../utils/trpc-server';
 import { formatCurrencyValue } from '../../utils/currency';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const RESULTS_PER_PAGE = 12;
 const UUID_PATTERN = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
 
@@ -53,6 +56,20 @@ const parseNumericParam = (value?: string): number | undefined => {
   }
   return parsed;
 };
+
+const TRENDING_SEARCHES = [
+  'Áo khoác',
+  'Giày thể thao',
+  'Phụ kiện',
+  'Sản phẩm mới',
+  'Ưu đãi hot',
+];
+
+const QUICK_PRICE_FILTERS = [
+  { label: 'Dưới 500K', minPrice: undefined, maxPrice: 500000 },
+  { label: '500K - 1 Triệu', minPrice: 500000, maxPrice: 1000000 },
+  { label: 'Trên 1 Triệu', minPrice: 1000000, maxPrice: undefined },
+];
 
 const buildSearchHref = ({
   q,
@@ -173,9 +190,9 @@ async function resolveCategoryLabel(category?: string): Promise<string | null> {
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+  searchParams?: Record<string, string | string[] | undefined>;
 }): Promise<Metadata> {
-  const resolved = (await searchParams) || {};
+  const resolved = searchParams || {};
   const query = getFirstParam(resolved.q)?.trim();
   const category = getFirstParam(resolved.category)?.trim();
   const minPrice = parseNumericParam(getFirstParam(resolved.minPrice));
@@ -231,9 +248,9 @@ export async function generateMetadata({
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+  searchParams?: Record<string, string | string[] | undefined>;
 }) {
-  const resolved = (await searchParams) || {};
+  const resolved = searchParams || {};
   const currencyResponse = await serverTrpc.clientCurrency.getDefaultCurrency.query();
   const currencyData = (currencyResponse as any)?.data ?? {};
   const currencyCode = currencyData?.code || 'USD';
@@ -359,7 +376,7 @@ export default async function SearchPage({
 
   return (
     <Layout>
-      <section className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 py-16 lg:py-20 -mt-8 -mx-8">
+      <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 py-16 lg:py-20 -mt-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Find the products you love
@@ -395,6 +412,21 @@ export default async function SearchPage({
             </button>
           </form>
 
+          {TRENDING_SEARCHES.length > 0 && (
+            <div className="mt-5 flex flex-wrap justify-center gap-2 text-sm">
+              <span className="text-blue-100 font-medium tracking-wide uppercase">Xu hướng:</span>
+              {TRENDING_SEARCHES.map((keyword) => (
+                <Link
+                  key={keyword}
+                  href={buildSearchHref({ q: keyword })}
+                  className="inline-flex items-center px-3 py-1 rounded-full bg-white/15 text-white/90 hover:bg-white/25 transition"
+                >
+                  {keyword}
+                </Link>
+              ))}
+            </div>
+          )}
+
           {hasActiveFilters && (
             <div className="mt-6 flex flex-wrap justify-center gap-2">
               {appliedFilterChips.map((chip) => (
@@ -417,6 +449,38 @@ export default async function SearchPage({
           )}
         </div>
       </section>
+
+      {QUICK_PRICE_FILTERS.length > 0 && (
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10">
+          <div className="rounded-2xl border border-gray-200/80 dark:border-gray-800/80 bg-white dark:bg-gray-950 shadow-xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+                Gợi ý nhanh
+              </p>
+              <p className="text-base text-gray-600 dark:text-gray-300 m-0">
+                Chọn nhanh khoảng giá để lọc các sản phẩm phù hợp chỉ với một lần chạm.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {QUICK_PRICE_FILTERS.map((filter) => (
+                <Link
+                  key={filter.label}
+                  href={buildSearchHref({
+                    q: query || undefined,
+                    category,
+                    minPrice: filter.minPrice,
+                    maxPrice: filter.maxPrice,
+                    page: 1,
+                  })}
+                  className="inline-flex items-center rounded-full border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:border-blue-500 hover:text-blue-600 dark:hover:border-blue-500 dark:hover:text-blue-300 transition"
+                >
+                  {filter.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Breadcrumb */}
       <PageBreadcrumbs

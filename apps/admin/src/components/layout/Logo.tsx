@@ -19,29 +19,61 @@ const Logo: React.FC<LogoProps> = ({
   const { isDarkMode } = useTheme();
   const { t } = useTranslationWithBackend();
 
-  const { config: brandingConfig } = useBrandingSetting(
+  const { config: brandingConfig, isLoading } = useBrandingSetting(
     ADMIN_SIDEBAR_BRANDING_KEY,
     DEFAULT_ADMIN_SIDEBAR_BRANDING,
   );
 
-  const [loading, setLoading] = useState(true);
+  const [imageLoading, setImageLoading] = useState(true);
   const [error, setError] = useState(false);
 
   const logoUrl = brandingConfig.logoUrl;
+
+  // Reset error/loading state when logoUrl changes
+  React.useEffect(() => {
+    setImageLoading(true);
+    setError(false);
+  }, [logoUrl]);
+
   const logoText = brandingConfig.logoText || 'Q';
   const brandName = brandingConfig.brandName || t('common.brand_name', 'Quasar');
   const subtitle = brandingConfig.subtitle || t('common.admin_dashboard', 'Admin Dashboard');
   const logoWidth = brandingConfig.width || 36;
   const logoHeight = brandingConfig.height || 36;
 
+  if (isLoading) {
+    return (
+      <div
+        className={`flex items-center transition-all duration-300 ease-in-out ${collapsed ? 'justify-center p-4' : 'p-4 pl-6'}`}
+      >
+        {/* Logo Skeleton */}
+        <div
+          className="rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"
+          style={{
+            width: `${logoWidth}px`,
+            height: `${logoHeight}px`,
+          }}
+        />
+
+        {/* Text Skeleton - only if not collapsed */}
+        {!collapsed && (
+          <div className="ml-4 flex flex-col gap-1.5 w-[120px]">
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4"></div>
+            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/2"></div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div
       onClick={onClick}
-      className={`flex items-center transition-all duration-300 ease-in-out ${collapsed ? 'justify-center p-4' : 'p-4 pl-6'}`}
+      className={`flex items-center transition-all duration-300 ease-in-out cursor-pointer ${collapsed ? 'justify-center p-4' : 'p-4 pl-6'}`}
     >
       {logoUrl && !error ? (
         <div className="flex items-center justify-center rounded-lg overflow-hidden transition-all duration-300 ease-in-out hover:translate-y-[-2px] relative">
-          {loading && (
+          {imageLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 animate-pulse">
               <div className="flex space-x-1">
                 <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
@@ -57,11 +89,11 @@ const Logo: React.FC<LogoProps> = ({
               width: `${logoWidth}px`,
               height: `${logoHeight}px`,
               objectFit: 'contain',
-              opacity: loading ? 0 : 1
+              opacity: imageLoading ? 0 : 1
             }}
-            onLoad={() => setLoading(false)}
+            onLoad={() => setImageLoading(false)}
             onError={() => {
-              setLoading(false);
+              setImageLoading(false);
               setError(true);
             }}
           />

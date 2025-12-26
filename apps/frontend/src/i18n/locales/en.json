@@ -1955,5 +1955,19 @@
       "daysAgo": "{count} day ago",
       "daysAgo_plural": "{count} days ago"
     }
+  },
+  "impersonation": {
+    "active_banner_title": "You are browsing as {user}",
+    "active_banner_description": "This session was started by admin {admin}.",
+    "active_since": "Active {duration}",
+    "exit_button": "Exit impersonation",
+    "exiting": "Exiting…",
+    "close_window": "Close window",
+    "exit_success_title": "Impersonation ended",
+    "exit_success_message": "You are signed out from this impersonated session. You can close the window or sign in normally.",
+    "exit_error_title": "Unable to exit",
+    "exit_error_message": "We couldn't end the impersonation session. Please try again.",
+    "unknown_user": "this user",
+    "unknown_admin": "the admin"
   }
 }

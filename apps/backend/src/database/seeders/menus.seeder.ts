@@ -13,7 +13,7 @@ type MenuSeedData = {
 
 @Injectable()
 export class MenusSeeder implements SeederModule {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(private readonly dataSource: DataSource) { }
 
   async seed(): Promise<void> {
     const menuRepository = this.dataSource.getRepository(MenuEntity);
@@ -912,6 +912,33 @@ export class MenusSeeder implements SeederModule {
             locale: 'vi',
             label: 'Mua hàng',
             description: '0917 00 1254',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'sub',
+          type: MenuType.SEARCH_BAR,
+          target: MenuTarget.SELF,
+          position: 10,
+          isEnabled: true,
+          icon: 'search',
+          config: {
+            placeholder: 'Search for products...',
+            width: '250px',
+          },
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Search',
+            description: 'Search products',
+          },
+          {
+            locale: 'vi',
+            label: 'Tìm kiếm',
+            description: 'Tìm kiếm sản phẩm',
           },
         ],
       },

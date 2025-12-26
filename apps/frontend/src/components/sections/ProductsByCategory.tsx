@@ -45,6 +45,7 @@ export interface ProductsByCategorySidebarItemConfig {
   href?: string;
   description?: string;
   icon?: string;
+  textTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   linkType?: 'custom' | 'category' | 'product' | 'brand';
   referenceId?: string;
   children?: ProductsByCategorySidebarItemConfig[];
@@ -64,6 +65,11 @@ export interface ProductsByCategorySidebarSectionConfig {
   titleUppercase?: boolean;
   titleIcon?: string;
   showTitleIcon?: boolean;
+  showItemIcons?: boolean;
+  itemFontSize?: SidebarTitleFontSize;
+  itemFontWeight?: SidebarTitleFontWeight;
+  itemFontColor?: string;
+  itemUppercase?: boolean;
   items?: ProductsByCategorySidebarItemConfig[];
 }
 
@@ -173,6 +179,7 @@ export interface NormalizedSidebarItem {
   href: string;
   description: string;
   icon: string;
+  textTransform: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   children: NormalizedSidebarItem[];
 }
 
@@ -187,6 +194,11 @@ export interface NormalizedSidebarSection {
   titleUppercase: boolean;
   titleIcon: string;
   showTitleIcon: boolean;
+  showItemIcons: boolean;
+  itemFontSize: SidebarTitleFontSize;
+  itemFontWeight: SidebarTitleFontWeight;
+  itemFontColor: string;
+  itemUppercase: boolean;
   items: NormalizedSidebarItem[];
 }
 
@@ -220,7 +232,12 @@ const normalizeSidebarItems = (
       const label = normalizeString(item?.label);
       const href = normalizeString(item?.href);
       const description = normalizeString(item?.description);
-      const icon = normalizeString(item?.icon);
+      // Filter out unsupported lucide icons that might exist in old data
+      let icon = normalizeString(item?.icon);
+      if (icon.startsWith('lucide:')) {
+        icon = '';
+      }
+      const textTransform = item?.textTransform || 'none';
       const children = normalizeSidebarItems(item?.children, id);
 
       return {
@@ -229,6 +246,7 @@ const normalizeSidebarItems = (
         href,
         description,
         icon,
+        textTransform,
         children,
       };
     })
@@ -254,6 +272,11 @@ const normalizeSidebarConfig = (sidebar?: ProductsByCategorySidebarConfig | null
       const titleUppercase = Boolean(section?.titleUppercase);
       const titleIcon = normalizeString(section?.titleIcon);
       const showTitleIcon = section?.showTitleIcon !== false;
+      const showItemIcons = typeof section?.showItemIcons === 'boolean' ? section.showItemIcons : true;
+      const itemFontSize = normalizeSidebarFontSize(section?.itemFontSize);
+      const itemFontWeight = normalizeSidebarFontWeight(section?.itemFontWeight);
+      const itemFontColor = normalizeString(section?.itemFontColor);
+      const itemUppercase = Boolean(section?.itemUppercase);
       const items = normalizeSidebarItems(section?.items, id);
 
       return {
@@ -267,6 +290,11 @@ const normalizeSidebarConfig = (sidebar?: ProductsByCategorySidebarConfig | null
         titleUppercase,
         titleIcon,
         showTitleIcon,
+        showItemIcons,
+        itemFontSize,
+        itemFontWeight,
+        itemFontColor,
+        itemUppercase,
         items,
       };
     })

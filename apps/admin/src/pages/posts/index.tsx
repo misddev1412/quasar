@@ -142,11 +142,11 @@ const PostListPage = () => {
 
   const deletePostMutation = trpc.adminPosts.deletePost.useMutation({
     onSuccess: () => {
-      addToast({ title: 'Post deleted successfully', type: 'success' });
+      addToast({ title: t('posts.messages.delete_success', 'Post deleted successfully'), type: 'success' });
       postsQuery.refetch();
     },
     onError: (error) => {
-      addToast({ title: error.message || 'Failed to delete post', type: 'error' });
+      addToast({ title: error.message || t('posts.messages.delete_error', 'Failed to delete post'), type: 'error' });
     }
   });
 
@@ -158,46 +158,46 @@ const PostListPage = () => {
   const statisticsCards: StatisticData[] = useMemo(() => [
     {
       id: 'total-posts',
-      title: 'Total Posts',
+      title: t('posts.statistics.total_posts', 'Total Posts'),
       value: totalPosts,
       icon: <FiFileText className="w-5 h-5" />,
       enableChart: false,
     },
     {
       id: 'published-posts',
-      title: 'Published Posts',
+      title: t('posts.statistics.published_posts', 'Published Posts'),
       value: posts.filter(p => p.status === PostStatus.PUBLISHED).length,
       icon: <FiEye className="w-5 h-5" />,
       enableChart: false,
     },
     {
       id: 'draft-posts',
-      title: 'Draft Posts',
+      title: t('posts.statistics.draft_posts', 'Draft Posts'),
       value: posts.filter(p => p.status === PostStatus.DRAFT).length,
       icon: <FiEdit2 className="w-5 h-5" />,
       enableChart: false,
     },
     {
       id: 'featured-posts',
-      title: 'Featured Posts',
+      title: t('posts.statistics.featured_posts', 'Featured Posts'),
       value: posts.filter(p => p.isFeatured).length,
       icon: <FiStar className="w-5 h-5" />,
       enableChart: false,
     },
-  ], [posts, totalPosts]);
+  ], [posts, totalPosts, t]);
 
   // Table columns
   const columns: Column<Post>[] = useMemo(() => [
     {
       id: 'post',
-      header: 'Post',
+      header: t('posts.table.post', 'Post'),
       accessor: (item) => (
         <div className="flex flex-col">
           <span className="font-medium text-gray-900 dark:text-gray-100">
-            {item.translations?.[0]?.title || 'Untitled'}
+            {item.translations?.[0]?.title || t('posts.fallback.untitled', 'Untitled')}
           </span>
           <span className="text-sm text-gray-500 dark:text-gray-400">
-            {item.translations?.[0]?.excerpt || 'No excerpt'}
+            {item.translations?.[0]?.excerpt || t('posts.fallback.no_excerpt', 'No excerpt')}
           </span>
         </div>
       ),
@@ -206,7 +206,7 @@ const PostListPage = () => {
     },
     {
       id: 'status',
-      header: 'Status',
+      header: t('posts.table.status', 'Status'),
       accessor: (item) => (
         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${item.status === PostStatus.PUBLISHED
             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
@@ -216,7 +216,7 @@ const PostListPage = () => {
                 ? 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
                 : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
           }`}>
-          {item.status}
+          {t(`posts.status.${item.status}`, item.status)}
         </span>
       ),
       isSortable: true,
@@ -225,10 +225,10 @@ const PostListPage = () => {
     },
     {
       id: 'type',
-      header: 'Type',
+      header: t('posts.table.type', 'Type'),
       accessor: (item) => (
         <span className="text-sm text-gray-900 dark:text-gray-100 capitalize">
-          {item.type}
+          {t(`posts.type.${item.type}`, item.type)}
         </span>
       ),
       isSortable: true,
@@ -237,10 +237,10 @@ const PostListPage = () => {
     },
     {
       id: 'author',
-      header: 'Author',
+      header: t('posts.table.author', 'Author'),
       accessor: (item) => (
         <span className="text-sm text-gray-900 dark:text-gray-100">
-          {item.author?.username || 'Unknown'}
+          {item.author?.username || t('posts.fallback.unknown_author', 'Unknown')}
         </span>
       ),
       isSortable: false,
@@ -248,7 +248,7 @@ const PostListPage = () => {
     },
     {
       id: 'viewCount',
-      header: 'Views',
+      header: t('posts.table.views', 'Views'),
       accessor: (item) => (
         <span className="text-sm text-gray-900 dark:text-gray-100">
           {item.viewCount.toLocaleString()}
@@ -260,7 +260,7 @@ const PostListPage = () => {
     },
     {
       id: 'publishedAt',
-      header: 'Published',
+      header: t('posts.table.published', 'Published'),
       accessor: 'publishedAt',
       type: 'datetime',
       isSortable: true,
@@ -268,7 +268,7 @@ const PostListPage = () => {
     },
     {
       id: 'createdAt',
-      header: 'Created',
+      header: t('posts.table.created', 'Created'),
       accessor: 'createdAt',
       type: 'datetime',
       isSortable: true,
@@ -276,7 +276,7 @@ const PostListPage = () => {
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('posts.table.actions', 'Actions'),
       width: '80px',
       hideable: false,
       isSortable: false,
@@ -289,12 +289,12 @@ const PostListPage = () => {
           }
           items={[
             {
-              label: 'View',
+              label: t('common.view', 'View'),
               icon: <FiEye className="w-4 h-4" />,
               onClick: () => navigate(`/posts/${item.id}`),
             },
             {
-              label: 'Edit',
+              label: t('common.edit', 'Edit'),
               icon: <FiEdit2 className="w-4 h-4" />,
               onClick: () => navigate(`/posts/${item.id}`),
             },
@@ -304,7 +304,7 @@ const PostListPage = () => {
               disabled: true,
             },
             {
-              label: 'Delete',
+              label: t('common.delete', 'Delete'),
               icon: <FiTrash2 className="w-4 h-4" />,
               onClick: () => handleDeletePost(item.id),
               className: 'text-red-600 dark:text-red-400',
@@ -313,16 +313,16 @@ const PostListPage = () => {
         />
       ),
     },
-  ], [navigate]);
+  ], [navigate, t]);
 
   const handleDeletePost = async (postId: string) => {
-    if (!confirm('Are you sure you want to delete this post?')) return;
+    if (!confirm(t('posts.messages.delete_confirm', 'Are you sure you want to delete this post?'))) return;
 
     try {
       await deletePostMutation.mutateAsync({ id: postId });
     } catch (error) {
       // Error handling is done in onError callback
-      console.error('Failed to delete user', error);
+      console.error(t('posts.messages.delete_error', 'Failed to delete post'), error);
     }
   };
 
@@ -412,28 +412,28 @@ const PostListPage = () => {
 
   const handleRefresh = () => {
     postsQuery.refetch();
-    addToast({ title: 'Posts refreshed', type: 'success' });
+    addToast({ title: t('posts.messages.refresh_success', 'Posts refreshed'), type: 'success' });
   };
 
   // Actions for BaseLayout - matching users page pattern
   const actions = useMemo(() => [
     {
-      label: 'Create Post',
+      label: t('posts.create', 'Create Post'),
       onClick: () => navigate('/posts/create'),
       primary: true,
       icon: <FiPlus />,
     },
     {
-      label: 'Refresh',
+      label: t('common.refresh', 'Refresh'),
       onClick: handleRefresh,
       icon: <FiRefreshCw />,
     },
     {
-      label: showFilters ? 'Hide Filters' : 'Show Filters',
+      label: showFilters ? t('common.hideFilters', 'Hide Filters') : t('common.showFilters', 'Show Filters'),
       onClick: () => setShowFilters(!showFilters),
       icon: <FiFilter />,
     },
-  ], [navigate, handleRefresh, showFilters]);
+  ], [navigate, handleRefresh, showFilters, t]);
 
   const breadcrumbs = useMemo(() => ([
     {
@@ -479,8 +479,8 @@ const PostListPage = () => {
   if (postsQuery.isLoading) {
     return (
       <BaseLayout
-        title="Post Management"
-        description="Manage all posts in the system"
+        title={t('posts.management.title', 'Post Management')}
+        description={t('posts.management.description', 'Manage all posts in the system')}
         actions={actions}
         fullWidth={true}
         breadcrumbs={breadcrumbs}
@@ -495,14 +495,14 @@ const PostListPage = () => {
   if (postsQuery.error) {
     return (
       <BaseLayout
-        title="Post Management"
-        description="Manage all posts in the system"
+        title={t('posts.management.title', 'Post Management')}
+        description={t('posts.management.description', 'Manage all posts in the system')}
         actions={actions}
         fullWidth={true}
         breadcrumbs={breadcrumbs}
       >
         <Alert variant="destructive">
-          <AlertTitle>Error</AlertTitle>
+          <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
           <AlertDescription>{postsQuery.error.message}</AlertDescription>
         </Alert>
       </BaseLayout>
@@ -511,8 +511,8 @@ const PostListPage = () => {
 
   return (
     <BaseLayout
-      title="Post Management"
-      description="Manage all posts in the system"
+      title={t('posts.management.title', 'Post Management')}
+      description={t('posts.management.description', 'Manage all posts in the system')}
       actions={actions}
       fullWidth={true}
       breadcrumbs={breadcrumbs}
@@ -544,7 +544,7 @@ const PostListPage = () => {
           onSearchChange={setSearchValue}
           onFilterClick={() => setShowFilters(!showFilters)}
           isFilterActive={showFilters}
-          searchPlaceholder="Search posts by title, content, or slug..."
+          searchPlaceholder={t('posts.search_placeholder', 'Search posts by title, content, or slug...')}
           // Column visibility features
           visibleColumns={visibleColumns}
           onColumnVisibilityChange={handleColumnVisibilityChange}
@@ -575,7 +575,7 @@ const PostListPage = () => {
           // Empty state
           emptyMessage={t('posts.no_posts_found', 'No posts found')}
           emptyAction={{
-            label: t('posts.create_post', 'Create Post'),
+            label: t('posts.create', 'Create Post'),
             onClick: () => navigate('/posts/create'),
             icon: <FiPlus />,
           }}

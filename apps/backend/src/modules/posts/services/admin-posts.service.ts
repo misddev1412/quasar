@@ -53,7 +53,8 @@ export class AdminPostsService {
 
   async getPostById(id: string): Promise<Post | null> {
     try {
-      return await this.postRepository.findById(id);
+      // Include related translations/categories/tags so the admin edit form has the full dataset
+      return await this.postRepository.findByIdWithRelations(id);
     } catch (error) {
       console.error('AdminPostsService.getPostById error:', error);
       throw this.responseHandler.createError(

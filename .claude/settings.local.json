@@ -26,7 +26,9 @@
       "Bash(yarn why:*)",
       "Bash(yarn install)",
       "Bash(yarn add:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(curl:*)",
+      "Bash(xargs:*)"
     ],
     "deny": [],
     "ask": []

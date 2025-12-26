@@ -42,6 +42,7 @@ export interface MenuFormState {
   imageSize?: 'small' | 'medium' | 'large';
   showDescription?: boolean;
   subMenuVariant?: 'link' | 'button';
+  minimalStyling?: boolean;
   buttonBorderRadius?: string;
   buttonSize?: 'small' | 'medium' | 'large';
   buttonAnimation?: 'none' | 'pulse' | 'float' | 'ring';
@@ -92,6 +93,7 @@ export const MENU_TYPE_OPTIONS: MenuSelectOption[] = [
   { value: MenuType.CUSTOM_HTML, label: 'Custom HTML' },
   { value: MenuType.SITE_CONTENT, label: 'Site Content' },
   { value: MenuType.SEARCH_BUTTON, label: 'Search Button' },
+  { value: MenuType.SEARCH_BAR, label: 'Search Bar' },
   { value: MenuType.LOCALE_SWITCHER, label: 'Locale Switcher' },
   { value: MenuType.THEME_TOGGLE, label: 'Dark/Light Toggle' },
   { value: MenuType.CART_BUTTON, label: 'Cart Button' },
@@ -103,6 +105,7 @@ export const TOP_MENU_TYPE_OPTIONS: MenuSelectOption[] = [
   { value: MenuType.TOP_PHONE, label: 'Phone Call' },
   { value: MenuType.TOP_EMAIL, label: 'Email' },
   { value: MenuType.TOP_CURRENT_TIME, label: 'Current Time' },
+  { value: MenuType.TOP_MARQUEE, label: 'Marquee Ticker' },
 ];
 
 export const ALL_MENU_TYPE_OPTIONS: MenuSelectOption[] = [
@@ -113,9 +116,12 @@ export const ALL_MENU_TYPE_OPTIONS: MenuSelectOption[] = [
 export const TOP_MENU_ALLOWED_TYPES: MenuType[] = [
   MenuType.LINK,
   MenuType.CUSTOM_HTML,
+  MenuType.THEME_TOGGLE,
+  MenuType.USER_PROFILE,
   MenuType.TOP_PHONE,
   MenuType.TOP_EMAIL,
   MenuType.TOP_CURRENT_TIME,
+  MenuType.TOP_MARQUEE,
 ];
 
 export const MENU_TARGET_OPTIONS = (Object.entries({

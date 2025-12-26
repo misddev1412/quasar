@@ -27,9 +27,12 @@ import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend
 import { createMainMenuConfig, type MainMenuConfig } from '@shared/types/navigation.types';
 import MainMenuAppearanceEditor from './MainMenuAppearanceEditor';
 
+type TranslationFn = ReturnType<typeof useTranslationWithBackend>['t'];
+
 type SidebarLinkType = 'custom' | 'category' | 'product' | 'brand';
 type SidebarTitleFontWeight = 'normal' | 'medium' | 'semibold' | 'bold';
 type SidebarTitleFontSize = 'xs' | 'sm' | 'base' | 'lg';
+type SidebarTextTransform = 'none' | 'uppercase' | 'capitalize' | 'lowercase';
 
 interface SidebarMenuItem {
   id: string;
@@ -39,6 +42,7 @@ interface SidebarMenuItem {
   icon: string;
   linkType: SidebarLinkType;
   referenceId: string;
+  textTransform: SidebarTextTransform;
   children: SidebarMenuItem[];
 }
 
@@ -53,6 +57,11 @@ interface SidebarMenuSection {
   titleUppercase: boolean;
   titleIcon: string;
   showTitleIcon: boolean;
+  showItemIcons: boolean;
+  itemFontSize: SidebarTitleFontSize;
+  itemFontWeight: SidebarTitleFontWeight;
+  itemFontColor: string;
+  itemUppercase: boolean;
   items: SidebarMenuItem[];
 }
 
@@ -153,6 +162,7 @@ interface PersistedSidebarItem extends Record<string, unknown> {
   icon?: string;
   linkType?: SidebarLinkType;
   referenceId?: string;
+  textTransform?: SidebarTextTransform;
   children?: PersistedSidebarItem[];
 }
 
@@ -167,6 +177,11 @@ interface PersistedSidebarSection extends Record<string, unknown> {
   titleUppercase?: boolean;
   titleIcon?: string;
   showTitleIcon?: boolean;
+  showItemIcons?: boolean;
+  itemFontSize?: SidebarTitleFontSize;
+  itemFontWeight?: SidebarTitleFontWeight;
+  itemFontColor?: string;
+  itemUppercase?: boolean;
   items?: PersistedSidebarItem[];
 }
 
@@ -190,6 +205,7 @@ const createSidebarItem = (): SidebarMenuItem => ({
   icon: '',
   linkType: 'custom',
   referenceId: '',
+  textTransform: 'none',
   children: [],
 });
 
@@ -204,6 +220,11 @@ const createSidebarSection = (): SidebarMenuSection => ({
   titleUppercase: false,
   titleIcon: '',
   showTitleIcon: true,
+  showItemIcons: true,
+  itemFontSize: 'sm',
+  itemFontWeight: 'normal',
+  itemFontColor: '',
+  itemUppercase: false,
   items: [createSidebarItem()],
 });
 
@@ -212,6 +233,9 @@ const formatPageLabel = (page: string) =>
 
 const isSidebarLinkType = (value: unknown): value is SidebarLinkType =>
   value === 'custom' || value === 'category' || value === 'product' || value === 'brand';
+
+const isSidebarTextTransform = (value: unknown): value is SidebarTextTransform =>
+  value === 'none' || value === 'uppercase' || value === 'capitalize' || value === 'lowercase';
 
 const parseSidebarItems = (
   rawItems?: PersistedSidebarItem[],
@@ -239,6 +263,7 @@ const parseSidebarItems = (
       icon: typeof item?.icon === 'string' ? item.icon : '',
       linkType: normalizedLinkType,
       referenceId: typeof item?.referenceId === 'string' ? item.referenceId : '',
+      textTransform: isSidebarTextTransform(item?.textTransform) ? item.textTransform : 'none',
       children,
     };
   });
@@ -277,6 +302,11 @@ const parseSidebarConfig = (raw?: PersistedSidebarConfig | null): SidebarMenuCon
         titleUppercase: Boolean(section?.titleUppercase),
         titleIcon: typeof section?.titleIcon === 'string' ? section.titleIcon : '',
         showTitleIcon,
+        showItemIcons: typeof section?.showItemIcons === 'boolean' ? section.showItemIcons : true,
+        itemFontSize: isSidebarTitleFontSize(section?.itemFontSize) ? section.itemFontSize : 'sm',
+        itemFontWeight: isSidebarTitleFontWeight(section?.itemFontWeight) ? section.itemFontWeight : 'normal',
+        itemFontColor: typeof section?.itemFontColor === 'string' ? section.itemFontColor : '',
+        itemUppercase: Boolean(section?.itemUppercase),
         items: items.length > 0 ? items : [createSidebarItem()],
       };
     })
@@ -427,6 +457,7 @@ const sanitizeSidebarItem = (item: SidebarMenuItem): PersistedSidebarItem | null
     href: trimmedHref || undefined,
     description: trimmedDescriptionItem || undefined,
     icon: trimmedIcon || undefined,
+    textTransform: item.textTransform !== 'none' ? item.textTransform : undefined,
   };
 
   if (normalizedLinkType !== 'custom') {
@@ -457,13 +488,21 @@ const sanitizeSidebarConfig = (sidebar: SidebarMenuConfig): PersistedSidebarConf
       const trimmedSectionDescription = section.description.trim();
       const trimmedBackgroundColor = section.backgroundColor.trim();
       const trimmedTitleFontColor = section.titleFontColor.trim();
+      const trimmedItemFontColor = section.itemFontColor.trim();
       const trimmedTitleIcon = section.titleIcon.trim();
       const showTitleIcon = section.showTitleIcon !== false;
+      const showItemIcons = section.showItemIcons !== false;
       const normalizedTitleFontWeight = isSidebarTitleFontWeight(section.titleFontWeight)
         ? section.titleFontWeight
         : 'semibold';
       const normalizedTitleFontSize = isSidebarTitleFontSize(section.titleFontSize)
         ? section.titleFontSize
+        : 'sm';
+      const normalizedItemFontWeight = isSidebarTitleFontWeight(section.itemFontWeight)
+        ? section.itemFontWeight
+        : 'normal';
+      const normalizedItemFontSize = isSidebarTitleFontSize(section.itemFontSize)
+        ? section.itemFontSize
         : 'sm';
       const items = section.items
         .map(sanitizeSidebarItem)
@@ -486,20 +525,35 @@ const sanitizeSidebarConfig = (sidebar: SidebarMenuConfig): PersistedSidebarConf
       if (trimmedTitleFontColor) {
         sanitizedSection.titleFontColor = trimmedTitleFontColor;
       }
+      if (trimmedItemFontColor) {
+        sanitizedSection.itemFontColor = trimmedItemFontColor;
+      }
       if (section.titleUppercase) {
         sanitizedSection.titleUppercase = true;
+      }
+      if (section.itemUppercase) {
+        sanitizedSection.itemUppercase = true;
       }
       if (normalizedTitleFontWeight !== 'semibold') {
         sanitizedSection.titleFontWeight = normalizedTitleFontWeight;
       }
+      if (normalizedItemFontWeight !== 'normal') {
+        sanitizedSection.itemFontWeight = normalizedItemFontWeight;
+      }
       if (normalizedTitleFontSize !== 'sm') {
         sanitizedSection.titleFontSize = normalizedTitleFontSize;
+      }
+      if (normalizedItemFontSize !== 'sm') {
+        sanitizedSection.itemFontSize = normalizedItemFontSize;
       }
       if (trimmedTitleIcon) {
         sanitizedSection.titleIcon = trimmedTitleIcon;
       }
       if (!showTitleIcon) {
         sanitizedSection.showTitleIcon = false;
+      }
+      if (!showItemIcons) {
+        sanitizedSection.showItemIcons = false;
       }
 
       return sanitizedSection;
@@ -643,21 +697,13 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
   activeTab: controlledActiveTab,
   onTabChange,
 }) => {
-  const { t, i18n } = useTranslationWithBackend();
-
-  // Debug: Check if translations are loaded
-  useEffect(() => {
-    console.log('=== Translation Debug ===');
-    console.log('Current language:', i18n.language);
-    console.log('componentConfigs in resources:', i18n.getResourceBundle(i18n.language, 'translation')?.componentConfigs);
-    console.log('Test translation:', t('componentConfigs.tabStructure', 'Structure'));
-  }, [i18n, t]);
+  const { t } = useTranslationWithBackend();
 
   const KEY_VALUE_TYPE_OPTIONS = [
-    { value: 'string', label: t('componentConfigs.keyValueTypeText', 'Text') },
-    { value: 'number', label: t('componentConfigs.keyValueTypeNumber', 'Number') },
-    { value: 'boolean', label: t('componentConfigs.keyValueTypeToggle', 'Toggle') },
-    { value: 'json', label: t('componentConfigs.keyValueTypeJson', 'JSON') },
+    { value: 'string', label: t('componentConfigs.keyValueTypeText') },
+    { value: 'number', label: t('componentConfigs.keyValueTypeNumber') },
+    { value: 'boolean', label: t('componentConfigs.keyValueTypeToggle') },
+    { value: 'json', label: t('componentConfigs.keyValueTypeJson') },
   ];
 
   const parseEntriesToObject = (
@@ -674,7 +720,7 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
         if (!trimmedValue) {
           errors[entry.id] = undefined;
         } else {
-          errors[entry.id] = t('componentConfigs.fieldNameRequired', 'Field name is required');
+          errors[entry.id] = t('componentConfigs.fieldNameRequired');
         }
         return;
       }
@@ -686,12 +732,12 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
           break;
         case 'number': {
           if (!trimmedValue) {
-            errors[entry.id] = t('componentConfigs.enterNumber', 'Enter a number');
+            errors[entry.id] = t('componentConfigs.enterNumber');
             break;
           }
           const parsedNumber = Number(trimmedValue);
           if (Number.isNaN(parsedNumber)) {
-            errors[entry.id] = t('componentConfigs.invalidNumber', 'Invalid number');
+            errors[entry.id] = t('componentConfigs.invalidNumber');
             break;
           }
           data[trimmedKey] = parsedNumber;
@@ -700,14 +746,14 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
         }
         case 'json': {
           if (!trimmedValue) {
-            errors[entry.id] = t('componentConfigs.provideJsonValue', 'Provide a JSON value');
+            errors[entry.id] = t('componentConfigs.provideJsonValue');
             break;
           }
           try {
             data[trimmedKey] = JSON.parse(trimmedValue);
             errors[entry.id] = undefined;
           } catch (error) {
-            errors[entry.id] = t('componentConfigs.invalidJson', 'Invalid JSON');
+            errors[entry.id] = t('componentConfigs.invalidJson');
           }
           break;
         }
@@ -1041,7 +1087,7 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
       try {
         parsedDefault = defaultConfigRaw.trim() ? JSON.parse(defaultConfigRaw) : {};
       } catch (error) {
-        setJsonErrors((prev) => ({ ...prev, defaultConfig: (error as Error)?.message || 'Invalid JSON' }));
+        setJsonErrors((prev) => ({ ...prev, defaultConfig: (error as Error)?.message || t('componentConfigs.invalidJson') }));
         return;
       }
     } else if (isMainMenuAppearance) {
@@ -1065,7 +1111,7 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
       try {
         parsedMetadata = metadataRaw.trim() ? JSON.parse(metadataRaw) : {};
       } catch (error) {
-        setJsonErrors((prev) => ({ ...prev, metadata: (error as Error)?.message || 'Invalid JSON' }));
+        setJsonErrors((prev) => ({ ...prev, metadata: (error as Error)?.message || t('componentConfigs.invalidJson') }));
         return;
       }
     } else {
@@ -1080,7 +1126,7 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     try {
       parsedSchema = configSchemaValue.trim() ? JSON.parse(configSchemaValue) : {};
     } catch (error) {
-      setJsonErrors((prev) => ({ ...prev, configSchema: (error as Error)?.message || 'Invalid JSON' }));
+      setJsonErrors((prev) => ({ ...prev, configSchema: (error as Error)?.message || t('componentConfigs.invalidJson') }));
       return;
     }
 
@@ -1214,7 +1260,7 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
       } catch (error) {
         setJsonErrors((prev) => ({
           ...prev,
-          defaultConfig: (error as Error)?.message || 'Invalid JSON',
+          defaultConfig: (error as Error)?.message || t('componentConfigs.invalidJson'),
         }));
       }
       return;
@@ -1241,7 +1287,7 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     } catch (error) {
       setJsonErrors((prev) => ({
         ...prev,
-        defaultConfig: (error as Error)?.message || 'Invalid JSON',
+        defaultConfig: (error as Error)?.message || t('componentConfigs.invalidJson'),
       }));
     }
   };
@@ -1272,7 +1318,7 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     } catch (error) {
       setJsonErrors((prev) => ({
         ...prev,
-        metadata: (error as Error)?.message || 'Invalid JSON',
+        metadata: (error as Error)?.message || t('componentConfigs.invalidJson'),
       }));
     }
   };
@@ -1300,9 +1346,9 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     <div className="space-y-6">
       <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-sm font-semibold text-neutral-900">Component visibility</p>
+          <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.componentVisibility')}</p>
           <p className="text-xs text-neutral-500">
-            Disabled components stay callable in the library but are removed from storefront pickers.
+            {t('componentConfigs.componentVisibilityDesc')}
           </p>
         </div>
         <Toggle
@@ -1314,66 +1360,66 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-neutral-700">Component Key</label>
+          <label className="text-sm font-medium text-neutral-700">{t('componentConfigs.componentKey')}</label>
           <Input
             value={formState.componentKey}
             onChange={(e) => updateField('componentKey', e.target.value)}
             required
-            placeholder="product_card"
+            placeholder={t('componentConfigs.componentKeyPlaceholder')}
           />
-          <p className="text-xs text-neutral-500">Unique identifier used by storefront code.</p>
+          <p className="text-xs text-neutral-500">{t('componentConfigs.componentKeyDesc')}</p>
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-neutral-700">Display Name</label>
+          <label className="text-sm font-medium text-neutral-700">{t('componentConfigs.displayName')}</label>
           <Input
             value={formState.displayName}
             onChange={(e) => updateField('displayName', e.target.value)}
             required
-            placeholder="Product Card"
+            placeholder={t('componentConfigs.displayNamePlaceholder')}
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-neutral-700">Component Type</label>
+          <label className="text-sm font-medium text-neutral-700">{t('componentConfigs.componentType')}</label>
           <Select
             value={formState.componentType}
             onChange={(value) => updateField('componentType', value as ComponentStructureType)}
             options={structureOptions}
-            placeholder="Select type"
+            placeholder={t('componentConfigs.selectType')}
             required
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-neutral-700">Category</label>
+          <label className="text-sm font-medium text-neutral-700">{t('componentConfigs.category')}</label>
           <Select
             value={formState.category}
             onChange={(value) => updateField('category', value as ComponentCategory)}
             options={categoryOptions}
-            placeholder="Select category"
+            placeholder={t('componentConfigs.selectCategory')}
             required
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-neutral-700">Parent Component</label>
+          <label className="text-sm font-medium text-neutral-700">{t('componentConfigs.parentComponent')}</label>
           <Select
             value={formState.parentId}
             onChange={(value) => updateField('parentId', value)}
             options={parentSelectOptions}
-            placeholder="Top-level component"
+            placeholder={t('componentConfigs.topLevelComponentPlaceholder')}
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-neutral-700">Slot Key</label>
+          <label className="text-sm font-medium text-neutral-700">{t('componentConfigs.slotKey')}</label>
           <Input
             value={formState.slotKey}
             onChange={(e) => updateField('slotKey', e.target.value)}
-            placeholder="media / content / actions"
+            placeholder={t('componentConfigs.slotKeyPlaceholder')}
           />
         </div>
         <div className="space-y-2 md:col-span-2">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-neutral-700">Section assignments</p>
+            <p className="text-sm font-medium text-neutral-700">{t('componentConfigs.sectionAssignments')}</p>
             {sectionsQuery.isFetching && (
-              <span className="text-xs text-neutral-500">Refreshing…</span>
+              <span className="text-xs text-neutral-500">{t('componentConfigs.sectionAssignmentsRefreshing')}</span>
             )}
           </div>
           <SearchSelect<SectionSelectOption, true>
@@ -1381,51 +1427,52 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
             options={sectionOptions}
             value={selectedSectionOptions}
             onChange={handleSectionAssignmentsChange}
-            placeholder="Applies to every section"
+            placeholder={t('componentConfigs.appliesToEverySection')}
             isLoading={sectionsQuery.isLoading}
             closeMenuOnSelect={false}
             hideSelectedOptions={false}
-            noOptionsMessage={() => t('componentConfigs.noSectionsAvailable', 'No sections available')}
+            noOptionsMessage={() => t('componentConfigs.noSectionsAvailable')}
           />
           <p className="text-xs text-neutral-500">
-            Leave empty to apply this component globally. Selecting sections scopes defaults to those areas.
+            {t('componentConfigs.sectionAssignmentsDesc')}
           </p>
           {sectionsQuery.error && (
             <p className="text-xs text-red-500">
-              {t('componentConfigs.unableToLoadSections', 'Unable to load sections: ')}{sectionsQuery.error.message ?? t('componentConfigs.unknownError', 'Unknown error')}
+              {t('componentConfigs.unableToLoadSections')}
+              {sectionsQuery.error.message ?? t('componentConfigs.unknownError')}
             </p>
           )}
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-neutral-700">Preview Media URL</label>
+          <label className="text-sm font-medium text-neutral-700">{t('componentConfigs.previewMediaUrl')}</label>
           <Input
             value={formState.previewMediaUrl}
             onChange={(e) => updateField('previewMediaUrl', e.target.value)}
-            placeholder="https://example.com/screenshot.png"
+            placeholder={t('componentConfigs.previewMediaUrlPlaceholder')}
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-neutral-700">Position</label>
+          <label className="text-sm font-medium text-neutral-700">{t('componentConfigs.position')}</label>
           <Input
             type="number"
             value={formState.position}
             onChange={(e) => updateField('position', e.target.value)}
-            placeholder="Auto"
+            placeholder={t('componentConfigs.positionPlaceholder')}
           />
         </div>
         <div className="space-y-2 md:col-span-2">
-          <label className="text-sm font-medium text-neutral-700">Description</label>
+          <label className="text-sm font-medium text-neutral-700">{t('common.description')}</label>
           <Textarea
             value={formState.description}
             onChange={(e) => updateField('description', e.target.value)}
             rows={3}
-            placeholder="Explain where this component is rendered and how it is used."
+            placeholder={t('componentConfigs.descriptionPlaceholder')}
           />
         </div>
         <div className="space-y-3 md:col-span-2">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Component con được phép</p>
-            <p className="text-xs text-neutral-500">Chọn các component key có thể gắn vào component này. Những mục đã chọn hiển thị bên dưới với liên kết đến trang cấu hình.</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('componentConfigs.allowedChildComponents')}</p>
+            <p className="text-xs text-neutral-500">{t('componentConfigs.allowedChildComponentsDesc')}</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1">
@@ -1433,7 +1480,7 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
                 value={pendingChildKey}
                 onChange={(value) => setPendingChildKey(value || '')}
                 options={selectableChildOptions}
-                placeholder={selectableChildOptions.length ? 'Chọn component con' : 'Không còn component khả dụng'}
+                placeholder={selectableChildOptions.length ? t('componentConfigs.selectChildComponent') : t('componentConfigs.noComponentsAvailable')}
                 disabled={!selectableChildOptions.length}
               />
             </div>
@@ -1444,7 +1491,7 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
               onClick={handleChildSelectionAdd}
               disabled={!pendingChildKey}
             >
-              Thêm component con
+              {t('componentConfigs.addChildComponent')}
             </Button>
           </div>
           {allowedChildKeysArray.length > 0 ? (
@@ -1467,7 +1514,7 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
                             to={`/component-configs/${option.id}/edit`}
                             className="text-primary-600 hover:text-primary-500 font-medium"
                           >
-                            Xem chi tiết
+                            {t('componentConfigs.viewDetails')}
                           </Link>
                         )}
                       </div>
@@ -1479,21 +1526,23 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
                       onClick={() => handleRemoveAllowedChildKey(childKey)}
                       startIcon={<FiTrash2 className="h-4 w-4" />}
                     >
-                      Xóa
+                      {t('componentConfigs.remove')}
                     </Button>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <p className="text-xs text-neutral-500">Chưa chọn component con nào.</p>
+            <p className="text-xs text-neutral-500">{t('componentConfigs.noChildComponentsSelected')}</p>
           )}
         </div>
         {childComponents.length > 0 && (
           <div className="space-y-2 md:col-span-2">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Component đang nằm dưới {formState.displayName || formState.componentKey}</p>
-              <span className="text-xs text-neutral-500">{childComponents.length} mục</span>
+              <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                {t('componentConfigs.componentsUnder')} {formState.displayName || formState.componentKey}
+              </p>
+              <span className="text-xs text-neutral-500">{childComponents.length} {t('componentConfigs.items')}</span>
             </div>
             <div className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 bg-white">
               {childComponents.map((child) => (
@@ -1521,8 +1570,8 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
       <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold text-neutral-900">Default content</p>
-            <p className="text-xs text-neutral-500">Define human-friendly defaults for this component.</p>
+            <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.defaultContent')}</p>
+            <p className="text-xs text-neutral-500">{t('componentConfigs.defaultContentDesc')}</p>
           </div>
           <Button
             type="button"
@@ -1533,7 +1582,7 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
               defaultConfigMode === 'friendly' ? <FiCode className="h-3.5 w-3.5" /> : <FiList className="h-3.5 w-3.5" />
             }
           >
-            {defaultConfigMode === 'friendly' ? t('componentConfigs.editJson', 'Edit JSON') : t('componentConfigs.simpleMode', 'Simple mode')}
+            {defaultConfigMode === 'friendly' ? t('componentConfigs.editJson') : t('componentConfigs.simpleMode')}
           </Button>
         </div>
         <div className="mt-4">
@@ -1582,8 +1631,8 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
       <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold text-neutral-900">Metadata</p>
-            <p className="text-xs text-neutral-500">Store internal helpers such as experiments or tracking tokens.</p>
+            <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.metadata')}</p>
+            <p className="text-xs text-neutral-500">{t('componentConfigs.metadataDesc')}</p>
           </div>
           <Button
             type="button"
@@ -1594,7 +1643,7 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
               metadataMode === 'friendly' ? <FiCode className="h-3.5 w-3.5" /> : <FiList className="h-3.5 w-3.5" />
             }
           >
-            {metadataMode === 'friendly' ? t('componentConfigs.editJson', 'Edit JSON') : t('componentConfigs.simpleMode', 'Simple mode')}
+            {metadataMode === 'friendly' ? t('componentConfigs.editJson') : t('componentConfigs.simpleMode')}
           </Button>
         </div>
         <div className="mt-4">
@@ -1628,8 +1677,8 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
           className="flex w-full items-center justify-between gap-3 px-5 py-4"
         >
           <div className="text-left">
-            <p className="text-sm font-semibold text-neutral-900">Validation schema (JSON)</p>
-            <p className="text-xs text-neutral-500">Optional guard for form builders and storefront tooling.</p>
+            <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.validationSchema')}</p>
+            <p className="text-xs text-neutral-500">{t('componentConfigs.validationSchemaDesc')}</p>
           </div>
           <FiChevronDown
             className={`h-5 w-5 text-neutral-500 transition-transform ${showSchemaEditor ? 'rotate-180' : ''}`}
@@ -1653,20 +1702,20 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     resolvedActiveTab === index ? 'text-primary-500' : 'text-gray-400 dark:text-gray-500';
 
   const tabs = [
-    { label: t('componentConfigs.tabStructure', 'Structure. s'), icon: <Layers className={`w-4 h-4 ${getTabIconClass(0)}`} />, content: structureTab },
-    { label: t('componentConfigs.tabDefaults', 'Defaults'), icon: <SlidersHorizontal className={`w-4 h-4 ${getTabIconClass(1)}`} />, content: defaultsTab },
-    { label: t('componentConfigs.tabAdvanced', 'Advanced'), icon: <Database className={`w-4 h-4 ${getTabIconClass(2)}`} />, content: advancedTab },
+    { label: t('componentConfigs.tabStructure'), icon: <Layers className={`w-4 h-4 ${getTabIconClass(0)}`} />, content: structureTab },
+    { label: t('componentConfigs.tabDefaults'), icon: <SlidersHorizontal className={`w-4 h-4 ${getTabIconClass(1)}`} />, content: defaultsTab },
+    { label: t('componentConfigs.tabAdvanced'), icon: <Database className={`w-4 h-4 ${getTabIconClass(2)}`} />, content: advancedTab },
   ];
 
   if (isProductsByCategory) {
     const sidebarIndex = tabs.length;
     tabs.push({
-      label: t('componentConfigs.tabSidebar', 'Sidebar'),
+      label: t('componentConfigs.tabSidebar'),
       icon: <PanelLeft className={`w-4 h-4 ${getTabIconClass(sidebarIndex)}`} />,
       content: (
         <div className="space-y-4">
           <p className="text-sm text-neutral-600">
-            {t('componentConfigs.sidebarMegaMenu', 'Configure the mega-menu shown beside product listings. This data is stored under')} <code>defaultConfig.sidebar</code>.
+            {t('componentConfigs.sidebarMegaMenu')} <code>defaultConfig.sidebar</code>.
           </p>
           <ProductsByCategorySidebarEditor value={sidebarConfig} onChange={setSidebarConfig} />
         </div>
@@ -1679,10 +1728,10 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
       <Tabs tabs={tabs} activeTab={resolvedActiveTab} onTabChange={handleTabChange} />
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-end border-t border-neutral-200 pt-4">
         <Button type="button" variant="ghost" onClick={onCancel}>
-          {t('common.cancel', 'Cancel')}
+          {t('common.cancel')}
         </Button>
         <Button type="submit" variant="primary" isLoading={isSubmitting}>
-          {mode === 'create' ? t('componentConfigs.createComponent', 'Create Component') : t('componentConfigs.saveChanges', 'Save Changes')}
+          {mode === 'create' ? t('componentConfigs.createComponent') : t('componentConfigs.saveChanges')}
         </Button>
       </div>
     </form>
@@ -1706,50 +1755,50 @@ interface KeyValueEditorProps {
   entries: KeyValueEntry[];
   errors: Record<string, string | undefined>;
   onChange: (entries: KeyValueEntry[]) => void;
-  t: (key: string, fallback: string) => string;
+  t: TranslationFn;
   keyValueTypeOptions: Array<{ value: string; label: string }>;
 }
 
-const useProductCardOptions = (t: (key: string, fallback: string) => string) => ({
+const useProductCardOptions = (t: TranslationFn) => ({
   PRODUCT_CARD_LAYOUT_OPTIONS: [
-    { value: 'vertical', label: t('componentConfigs.productCardLayoutVertical', 'Vertical • Image on top, content below') },
-    { value: 'horizontal', label: t('componentConfigs.productCardLayoutHorizontal', 'Horizontal • Image on left, content on right') },
+    { value: 'vertical', label: t('componentConfigs.productCardLayoutVertical') },
+    { value: 'horizontal', label: t('componentConfigs.productCardLayoutHorizontal') },
   ],
   PRODUCT_CARD_BADGE_STYLE_OPTIONS: [
-    { value: 'pill', label: t('componentConfigs.productCardBadgePill', 'Rounded (pill)') },
-    { value: 'square', label: t('componentConfigs.productCardBadgeSquare', 'Square') },
+    { value: 'pill', label: t('componentConfigs.productCardBadgePill') },
+    { value: 'square', label: t('componentConfigs.productCardBadgeSquare') },
   ],
   PRODUCT_CARD_PRICE_DISPLAY_OPTIONS: [
-    { value: 'stacked', label: t('componentConfigs.productCardPriceStacked', 'Stacked • Prices stacked') },
-    { value: 'inline', label: t('componentConfigs.productCardPriceInline', 'Inline • Prices on same line') },
+    { value: 'stacked', label: t('componentConfigs.productCardPriceStacked') },
+    { value: 'inline', label: t('componentConfigs.productCardPriceInline') },
   ],
   PRODUCT_CARD_FONT_WEIGHT_OPTIONS: [
-    { value: 'normal', label: t('componentConfigs.fontWeightThin', 'Thin (400)') },
-    { value: 'medium', label: t('componentConfigs.fontWeightMedium', 'Medium (500)') },
-    { value: 'semibold', label: t('componentConfigs.fontWeightSemibold', 'Semi-bold (600)') },
-    { value: 'bold', label: t('componentConfigs.fontWeightBold', 'Bold (700)') },
+    { value: 'normal', label: t('componentConfigs.fontWeightThin') },
+    { value: 'medium', label: t('componentConfigs.fontWeightMedium') },
+    { value: 'semibold', label: t('componentConfigs.fontWeightSemibold') },
+    { value: 'bold', label: t('componentConfigs.fontWeightBold') },
   ],
   PRODUCT_CARD_FONT_SIZE_OPTIONS: [
-    { value: 'sm', label: t('componentConfigs.fontSizeSmall', 'Small (SM)') },
-    { value: 'base', label: t('componentConfigs.fontSizeBase', 'Medium (Base)') },
-    { value: 'lg', label: t('componentConfigs.fontSizeLarge', 'Large (LG)') },
-    { value: 'xl', label: t('componentConfigs.fontSizeXLarge', 'Extra Large (XL)') },
+    { value: 'sm', label: t('componentConfigs.fontSizeSmall') },
+    { value: 'base', label: t('componentConfigs.fontSizeBase') },
+    { value: 'lg', label: t('componentConfigs.fontSizeLarge') },
+    { value: 'xl', label: t('componentConfigs.fontSizeXLarge') },
   ],
   PRODUCT_CARD_PRICE_TONE_OPTIONS: [
-    { value: 'muted', label: t('componentConfigs.priceToneMuted', 'Muted • Reduce contrast') },
-    { value: 'default', label: t('componentConfigs.priceToneDefault', 'Default • Use theme color') },
-    { value: 'emphasis', label: t('componentConfigs.priceToneEmphasis', 'Emphasis • Use brand color') },
-    { value: 'custom', label: t('componentConfigs.priceToneCustom', 'Custom color') },
+    { value: 'muted', label: t('componentConfigs.priceToneMuted') },
+    { value: 'default', label: t('componentConfigs.priceToneDefault') },
+    { value: 'emphasis', label: t('componentConfigs.priceToneEmphasis') },
+    { value: 'custom', label: t('componentConfigs.priceToneCustom') },
   ],
   PRODUCT_CARD_ORIENTATION_OPTIONS: [
-    { value: 'portrait', label: t('componentConfigs.orientationPortrait', 'Portrait (3:4)') },
-    { value: 'landscape', label: t('componentConfigs.orientationLandscape', 'Landscape (4:3)') },
+    { value: 'portrait', label: t('componentConfigs.orientationPortrait') },
+    { value: 'landscape', label: t('componentConfigs.orientationLandscape') },
   ],
   PRICE_TONE_DESCRIPTIONS: {
-    muted: t('componentConfigs.priceToneMutedDesc', 'Apply muted gray to reduce price priority.'),
-    default: t('componentConfigs.priceToneDefaultDesc', "Reuse theme's default text color."),
-    emphasis: t('componentConfigs.priceToneEmphasisDesc', 'Use brand color to emphasize price.'),
-    custom: t('componentConfigs.priceToneCustomDesc', 'Choose specific color for campaigns.'),
+    muted: t('componentConfigs.priceToneMutedDesc'),
+    default: t('componentConfigs.priceToneDefaultDesc'),
+    emphasis: t('componentConfigs.priceToneEmphasisDesc'),
+    custom: t('componentConfigs.priceToneCustomDesc'),
   } as Record<ProductCardPriceTone, string>,
   PRODUCT_TITLE_HTML_TAG_OPTIONS: [
     { value: 'h2', label: '<h2>' },
@@ -1761,24 +1810,31 @@ const useProductCardOptions = (t: (key: string, fallback: string) => string) => 
   ],
 });
 
-const useSidebarOptions = (t: (key: string, fallback: string) => string) => ({
+const useSidebarOptions = (t: TranslationFn) => ({
   SECTION_TITLE_FONT_WEIGHT_OPTIONS: [
-    { value: 'normal', label: t('componentConfigs.fontWeightNormal', 'Normal') },
-    { value: 'medium', label: t('componentConfigs.fontWeightMediumLabel', 'Medium') },
-    { value: 'semibold', label: t('componentConfigs.fontWeightSemiboldLabel', 'Semi-bold') },
-    { value: 'bold', label: t('componentConfigs.fontWeightBoldLabel', 'Bold') },
+    { value: 'normal', label: t('componentConfigs.fontWeightNormal') },
+    { value: 'medium', label: t('componentConfigs.fontWeightMediumLabel') },
+    { value: 'semibold', label: t('componentConfigs.fontWeightSemiboldLabel') },
+    { value: 'bold', label: t('componentConfigs.fontWeightBoldLabel') },
   ],
   SECTION_TITLE_FONT_SIZE_OPTIONS: [
-    { value: 'xs', label: t('componentConfigs.fontSizeXS', 'XS (12px)') },
-    { value: 'sm', label: t('componentConfigs.fontSizeSM', 'SM (14px)') },
-    { value: 'base', label: t('componentConfigs.fontSizeBaseLabel', 'Base (16px)') },
-    { value: 'lg', label: t('componentConfigs.fontSizeLG', 'LG (18px)') },
+    { value: 'xs', label: t('componentConfigs.fontSizeXS') },
+    { value: 'sm', label: t('componentConfigs.fontSizeSM') },
+    { value: 'base', label: t('componentConfigs.fontSizeBaseLabel') },
+    { value: 'lg', label: t('componentConfigs.fontSizeLG') },
   ],
   LINK_TYPE_OPTIONS: [
-    { value: 'custom', label: t('componentConfigs.linkTypeCustom', 'Custom URL') },
-    { value: 'category', label: t('componentConfigs.linkTypeCategory', 'Product category') },
-    { value: 'product', label: t('componentConfigs.linkTypeProduct', 'Specific product') },
-    { value: 'brand', label: t('componentConfigs.linkTypeBrand', 'Brand') },
+    { value: 'custom', label: t('componentConfigs.linkTypeCustom') },
+    { value: 'category', label: t('componentConfigs.linkTypeCategory') },
+    { value: 'product', label: t('componentConfigs.linkTypeProduct') },
+    { value: 'product', label: t('componentConfigs.linkTypeProduct') },
+    { value: 'brand', label: t('componentConfigs.linkTypeBrand') },
+  ],
+  TEXT_TRANSFORM_OPTIONS: [
+    { value: 'none', label: t('componentConfigs.transformNone') },
+    { value: 'uppercase', label: t('componentConfigs.transformUppercase') },
+    { value: 'capitalize', label: t('componentConfigs.transformCapitalize') },
+    { value: 'lowercase', label: t('componentConfigs.transformLowercase') },
   ],
 });
 
@@ -1841,51 +1897,51 @@ const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ v
   };
 
   const toggleItems: Array<{ key: keyof ProductCardConfigState; label: string; description: string }> = [
-    { key: 'showShortDescription', label: t('componentConfigs.showShortDescription', 'Show short description'), description: t('componentConfigs.showShortDescriptionDesc', 'Enable to print description below title.') },
-    { key: 'showRating', label: t('componentConfigs.showRating', 'Show rating'), description: t('componentConfigs.showRatingDesc', 'Show/hide rating cluster and count.') },
-    { key: 'showAddToCart', label: t('componentConfigs.showAddToCart', 'Add to cart button'), description: t('componentConfigs.showAddToCartDesc', 'Hide to switch to variant selection flow.') },
-    { key: 'showWishlist', label: t('componentConfigs.showWishlist', 'Wishlist button'), description: t('componentConfigs.showWishlistDesc', 'Hide when wishlist is not supported.') },
-    { key: 'showQuickView', label: t('componentConfigs.showQuickView', 'Quick view button'), description: t('componentConfigs.showQuickViewDesc', 'Show icon to open preview modal.') },
+    { key: 'showShortDescription', label: t('componentConfigs.showShortDescription'), description: t('componentConfigs.showShortDescriptionDesc') },
+    { key: 'showRating', label: t('componentConfigs.showRating'), description: t('componentConfigs.showRatingDesc') },
+    { key: 'showAddToCart', label: t('componentConfigs.showAddToCart'), description: t('componentConfigs.showAddToCartDesc') },
+    { key: 'showWishlist', label: t('componentConfigs.showWishlist'), description: t('componentConfigs.showWishlistDesc') },
+    { key: 'showQuickView', label: t('componentConfigs.showQuickView'), description: t('componentConfigs.showQuickViewDesc') },
   ];
 
   const layoutHelper =
     value.layout === 'horizontal'
-      ? t('componentConfigs.layoutHorizontalHelper', 'Horizontal layout suits wide lists, focuses on content.')
-      : t('componentConfigs.layoutVerticalHelper', 'Vertical layout suits standard product grids.');
+      ? t('componentConfigs.layoutHorizontalHelper')
+      : t('componentConfigs.layoutVerticalHelper');
 
   return (
     <div className="space-y-5">
       <div className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-5">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.layoutOverview', 'Trình bày tổng quan')}</p>
+            <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.layoutOverview')}</p>
             <p className="text-xs text-neutral-500">{layoutHelper}</p>
           </div>
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
             <Select
-              label={t('componentConfigs.layout', 'Bố cục')}
+              label={t('componentConfigs.layout')}
               value={value.layout}
               onChange={(next) => handleChange({ layout: (next as ProductCardLayout) || 'vertical' })}
               options={PRODUCT_CARD_LAYOUT_OPTIONS}
-              placeholder={t('componentConfigs.selectLayout', 'Chọn bố cục')}
+              placeholder={t('componentConfigs.selectLayout')}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('componentConfigs.imageHeight', 'Chiều cao ảnh (Tailwind)')}</label>
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('componentConfigs.imageHeight')}</label>
             <Input
               value={value.imageHeight}
               onChange={(event) => handleChange({ imageHeight: event.target.value })}
-              placeholder="e.g. h-72"
+              placeholder={t('componentConfigs.imageHeightPlaceholder')}
             />
-            <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.imageHeightDesc', 'Nhập class Tailwind hợp lệ, ví dụ: h-64, h-80.')}</p>
+            <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.imageHeightDesc')}</p>
           </div>
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <div className="space-y-1">
             <Select
-              label={t('componentConfigs.badgeStyle', 'Kiểu badge')}
+              label={t('componentConfigs.badgeStyle')}
               value={value.badgeStyle}
               onChange={(next) => handleChange({ badgeStyle: (next as ProductCardBadgeStyle) || 'pill' })}
               options={PRODUCT_CARD_BADGE_STYLE_OPTIONS}
@@ -1893,7 +1949,7 @@ const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ v
           </div>
           <div className="space-y-1">
             <Select
-              label={t('componentConfigs.priceDisplay', 'Cách hiển thị giá')}
+              label={t('componentConfigs.priceDisplay')}
               value={value.priceDisplay}
               onChange={(next) => handleChange({ priceDisplay: (next as ProductCardPriceDisplay) || 'stacked' })}
               options={PRODUCT_CARD_PRICE_DISPLAY_OPTIONS}
@@ -1901,7 +1957,7 @@ const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ v
           </div>
           <div className="space-y-1">
             <Select
-              label={t('componentConfigs.thumbnailFormat', 'Định dạng thumbnail')}
+              label={t('componentConfigs.thumbnailFormat')}
               value={value.thumbnail.orientation}
               onChange={(next) =>
                 handleThumbnailChange({
@@ -1911,19 +1967,19 @@ const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ v
               options={PRODUCT_CARD_ORIENTATION_OPTIONS}
             />
             <p className="text-[11px] text-neutral-500 mb-0">
-              {t('componentConfigs.thumbnailFormatDesc', 'Chọn chiều ảnh mặc định: portrait cho gạch đứng, landscape cho bố cục ngang.')}
+              {t('componentConfigs.thumbnailFormatDesc')}
             </p>
           </div>
         </div>
       </div>
 
       <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.productTitle', 'Tiêu đề sản phẩm')}</p>
-        <p className="text-xs text-neutral-500">{t('componentConfigs.productTitleDesc', 'Điều chỉnh độ đậm nhạt và kích thước.')}</p>
+        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.productTitle')}</p>
+        <p className="text-xs text-neutral-500">{t('componentConfigs.productTitleDesc')}</p>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
             <Select
-              label={t('componentConfigs.fontWeight', 'Độ đậm')}
+              label={t('componentConfigs.fontWeight')}
               value={value.titleStyle.fontWeight}
               onChange={(next) =>
                 handleTitleStyleChange({
@@ -1935,7 +1991,7 @@ const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ v
           </div>
           <div className="space-y-1">
             <Select
-              label={t('componentConfigs.fontSize', 'Kích thước')}
+              label={t('componentConfigs.fontSize')}
               value={value.titleStyle.fontSize}
               onChange={(next) =>
                 handleTitleStyleChange({
@@ -1949,12 +2005,12 @@ const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ v
       </div>
 
       <div className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-5">
-        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.priceStyle', 'Phong cách giá')}</p>
-        <p className="text-xs text-neutral-500">{t('componentConfigs.priceStyleDesc', 'Tạo mức độ tương phản phù hợp với chiến dịch.')}</p>
+        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.priceStyle')}</p>
+        <p className="text-xs text-neutral-500">{t('componentConfigs.priceStyleDesc')}</p>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
             <Select
-              label={t('componentConfigs.colorContrast', 'Độ tương phản')}
+              label={t('componentConfigs.colorContrast')}
               value={value.priceStyle.colorTone}
               onChange={(next) => handleToneChange((next as ProductCardPriceTone) || 'emphasis')}
               options={PRODUCT_CARD_PRICE_TONE_OPTIONS}
@@ -1966,18 +2022,18 @@ const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ v
               <ColorSelector
                 value={value.priceStyle.customColor || undefined}
                 onChange={(color) => handlePriceStyleChange({ customColor: color || '' })}
-                label={t('componentConfigs.customColor', 'Màu tuỳ chỉnh')}
-                placeholder={t('componentConfigs.customColorPlaceholder', '#0EA5E9')}
+                label={t('componentConfigs.customColor')}
+                placeholder={t('componentConfigs.customColorPlaceholder')}
               />
-              <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.leaveEmptyForDefault', 'Để trống để dùng màu mặc định.')}</p>
+              <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.leaveEmptyForDefault')}</p>
             </div>
           )}
         </div>
       </div>
 
       <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.contentActions', 'Nội dung & hành động')}</p>
-        <p className="text-xs text-neutral-500">{t('componentConfigs.contentActionsDesc', 'Bật tắt từng phần để phù hợp với từng page.')}</p>
+        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.contentActions')}</p>
+        <p className="text-xs text-neutral-500">{t('componentConfigs.contentActionsDesc')}</p>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {toggleItems.map((item) => (
             <div
@@ -2031,19 +2087,19 @@ const ProductCardTitleEditor: React.FC<ProductCardTitleEditorProps> = ({ value, 
   return (
     <div className="space-y-5">
       <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.productTitleControl', 'Tiêu đề sản phẩm')}</p>
-        <p className="text-xs text-neutral-500">{t('componentConfigs.productTitleControlDesc', 'Kiểm soát tag HTML, số dòng và màu sắc.')}</p>
+        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.productTitleControl')}</p>
+        <p className="text-xs text-neutral-500">{t('componentConfigs.productTitleControlDesc')}</p>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
             <Select
-              label={t('componentConfigs.htmlTag', 'Thẻ HTML')}
+              label={t('componentConfigs.htmlTag')}
               value={value.htmlTag}
               onChange={(next) => handleChange({ htmlTag: (next as string) || 'h3' })}
               options={PRODUCT_TITLE_HTML_TAG_OPTIONS}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('componentConfigs.maxLines', 'Số dòng tối đa')}</label>
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('componentConfigs.maxLines')}</label>
             <Input
               type="number"
               min={1}
@@ -2051,13 +2107,13 @@ const ProductCardTitleEditor: React.FC<ProductCardTitleEditorProps> = ({ value, 
               value={value.clampLines}
               onChange={(event) => handleClampChange(event.target.value)}
             />
-            <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.maxLinesDesc', 'Đặt 1–6 dòng trước khi cắt bằng ellipsis.')}</p>
+            <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.maxLinesDesc')}</p>
           </div>
         </div>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
             <Select
-              label={t('componentConfigs.fontWeight', 'Độ đậm')}
+              label={t('componentConfigs.fontWeight')}
               value={value.fontWeight}
               onChange={(next) =>
                 handleChange({
@@ -2069,7 +2125,7 @@ const ProductCardTitleEditor: React.FC<ProductCardTitleEditorProps> = ({ value, 
           </div>
           <div className="space-y-1">
             <Select
-              label={t('componentConfigs.fontSize', 'Kích thước')}
+              label={t('componentConfigs.fontSize')}
               value={value.fontSize}
               onChange={(next) =>
                 handleChange({
@@ -2084,19 +2140,19 @@ const ProductCardTitleEditor: React.FC<ProductCardTitleEditorProps> = ({ value, 
           <ColorSelector
             value={value.textColor || undefined}
             onChange={(color) => handleChange({ textColor: color || '' })}
-            label={t('componentConfigs.textColor', 'Màu chữ')}
-            placeholder={t('componentConfigs.textColorPlaceholder', '#111827 hoặc currentColor')}
+            label={t('componentConfigs.textColor')}
+            placeholder={t('componentConfigs.textColorPlaceholder')}
           />
           <div className="flex items-center justify-between gap-3 rounded-lg border border-neutral-200 px-3 py-2">
             <div>
-              <p className="text-sm font-medium text-neutral-900 mb-0">{t('componentConfigs.uppercase', 'Chữ in hoa')}</p>
-              <p className="text-xs text-neutral-500 mb-0">{t('componentConfigs.uppercaseDesc', 'Bật để chuyển toàn bộ tiêu đề sang uppercase.')}</p>
+              <p className="text-sm font-medium text-neutral-900 mb-0">{t('componentConfigs.uppercase')}</p>
+              <p className="text-xs text-neutral-500 mb-0">{t('componentConfigs.uppercaseDesc')}</p>
             </div>
             <Toggle
               checked={value.uppercase}
               onChange={(checked) => handleChange({ uppercase: checked })}
               size="sm"
-              aria-label="Uppercase title"
+              aria-label={t('componentConfigs.uppercase')}
             />
           </div>
         </div>
@@ -2134,41 +2190,41 @@ const ProductCardPriceEditor: React.FC<ProductCardPriceEditorProps> = ({ value, 
   };
 
   const toggleOptions: Array<{ key: keyof ProductCardPriceConfigState; label: string; description: string }> = [
-    { key: 'showCompareAtPrice', label: t('componentConfigs.showCompareAtPrice', 'Show compare at price'), description: t('componentConfigs.showCompareAtPriceDesc', 'Enable to show compare at price if available.') },
-    { key: 'showDivider', label: t('componentConfigs.showDivider', 'Divider'), description: t('componentConfigs.showDividerDesc', 'Show small line between price and meta.') },
+    { key: 'showCompareAtPrice', label: t('componentConfigs.showCompareAtPrice'), description: t('componentConfigs.showCompareAtPriceDesc') },
+    { key: 'showDivider', label: t('componentConfigs.showDivider'), description: t('componentConfigs.showDividerDesc') },
   ];
 
   return (
     <div className="space-y-5">
       <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.currencyFormat', 'Định dạng tiền tệ')}</p>
-        <p className="text-xs text-neutral-500">{t('componentConfigs.currencyFormatDesc', 'Cài đặt locale và currency mặc định.')}</p>
+        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.currencyFormat')}</p>
+        <p className="text-xs text-neutral-500">{t('componentConfigs.currencyFormatDesc')}</p>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
-            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('componentConfigs.locale', 'Locale')}</label>
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('componentConfigs.locale')}</label>
             <Input
               value={value.locale}
               onChange={(event) => handleChange({ locale: event.target.value })}
-              placeholder="vi-VN"
+              placeholder={t('componentConfigs.localePlaceholder')}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('componentConfigs.currency', 'Currency')}</label>
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('componentConfigs.currency')}</label>
             <Input
               value={value.currency}
               onChange={(event) => handleChange({ currency: event.target.value.toUpperCase() })}
-              placeholder="VND"
+              placeholder={t('componentConfigs.currencyPlaceholder')}
             />
           </div>
         </div>
       </div>
 
       <div className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-5">
-        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.typographyColor', 'Kiểu chữ & màu sắc')}</p>
+        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.typographyColor')}</p>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
             <Select
-              label={t('componentConfigs.fontWeight', 'Độ đậm')}
+              label={t('componentConfigs.fontWeight')}
               value={value.fontWeight}
               onChange={(next) =>
                 handleChange({
@@ -2180,7 +2236,7 @@ const ProductCardPriceEditor: React.FC<ProductCardPriceEditorProps> = ({ value, 
           </div>
           <div className="space-y-1">
             <Select
-              label={t('componentConfigs.fontSize', 'Kích thước')}
+              label={t('componentConfigs.fontSize')}
               value={value.fontSize}
               onChange={(next) =>
                 handleChange({
@@ -2194,7 +2250,7 @@ const ProductCardPriceEditor: React.FC<ProductCardPriceEditorProps> = ({ value, 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
             <Select
-              label={t('componentConfigs.colorContrast', 'Độ tương phản')}
+              label={t('componentConfigs.colorContrast')}
               value={value.colorTone}
               onChange={(next) => handleToneChange((next as ProductCardPriceTone) || 'emphasis')}
               options={PRODUCT_CARD_PRICE_TONE_OPTIONS}
@@ -2205,15 +2261,15 @@ const ProductCardPriceEditor: React.FC<ProductCardPriceEditorProps> = ({ value, 
             <ColorSelector
               value={value.customColor || undefined}
               onChange={(color) => handleChange({ customColor: color || '' })}
-              label={t('componentConfigs.customColor', 'Màu tuỳ chỉnh')}
-              placeholder={t('componentConfigs.customColorPlaceholder', '#DC2626')}
+              label={t('componentConfigs.customColor')}
+              placeholder={t('componentConfigs.customColorPlaceholder')}
             />
           )}
         </div>
       </div>
 
       <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.advancedDisplay', 'Hiển thị nâng cao')}</p>
+        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.advancedDisplay')}</p>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {toggleOptions.map((item) => (
             <div
@@ -2268,7 +2324,7 @@ const KeyValueEditor: React.FC<KeyValueEditorProps> = ({ entries, errors, onChan
             label=""
             size="sm"
           />
-          <span className="text-sm text-neutral-600">{entry.value === 'true' ? t('common.enabled', 'Enabled') : t('common.disabled', 'Disabled')}</span>
+          <span className="text-sm text-neutral-600">{entry.value === 'true' ? t('common.enabled') : t('common.disabled')}</span>
         </div>
       );
     }
@@ -2279,7 +2335,7 @@ const KeyValueEditor: React.FC<KeyValueEditorProps> = ({ entries, errors, onChan
           value={entry.value}
           onChange={(event) => handleEntryChange(entry.id, { value: event.target.value })}
           rows={3}
-          placeholder='{ "title": "Hero" }'
+          placeholder={t('componentConfigs.provideJsonValue')}
         />
       );
     }
@@ -2288,7 +2344,7 @@ const KeyValueEditor: React.FC<KeyValueEditorProps> = ({ entries, errors, onChan
       <Input
         value={entry.value}
         onChange={(event) => handleEntryChange(entry.id, { value: event.target.value })}
-        placeholder={entry.type === 'number' ? t('componentConfigs.exampleNumber', 'e.g. 12') : t('componentConfigs.valuePlaceholder', 'Value')}
+        placeholder={entry.type === 'number' ? t('componentConfigs.exampleNumber') : t('componentConfigs.valuePlaceholder')}
       />
     );
   };
@@ -2299,16 +2355,16 @@ const KeyValueEditor: React.FC<KeyValueEditorProps> = ({ entries, errors, onChan
         <div key={entry.id} className="rounded-xl border border-neutral-200 bg-neutral-50/70 p-4">
           <div className="flex flex-wrap items-start gap-3">
             <div className="min-w-[160px] flex-1">
-              <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('componentConfigs.fieldName', 'Field name')}</label>
+              <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('componentConfigs.fieldName')}</label>
               <Input
                 value={entry.key}
                 onChange={(event) => handleEntryChange(entry.id, { key: event.target.value })}
-                placeholder="heroTitle"
+                placeholder={t('componentConfigs.fieldNamePlaceholder')}
               />
             </div>
             <div className="w-full sm:w-44">
               <Select
-                label={t('componentConfigs.type', 'Type')}
+                label={t('componentConfigs.type')}
                 value={entry.type}
                 onChange={(value) => handleEntryChange(entry.id, { type: (value as KeyValueType) || 'string' })}
                 options={keyValueTypeOptions}
@@ -2323,20 +2379,20 @@ const KeyValueEditor: React.FC<KeyValueEditorProps> = ({ entries, errors, onChan
                 onClick={() => handleRemoveEntry(entry.id)}
                 startIcon={<FiTrash2 className="h-4 w-4" />}
               >
-                {t('componentConfigs.remove', 'Remove')}
+                {t('componentConfigs.remove')}
               </Button>
             </div>
           </div>
           <div className="mt-3">
-            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('componentConfigs.value', 'Value')}</label>
+            <label className="text-xs font-medium uppercase tracking-wide text-neutral-500">{t('componentConfigs.value')}</label>
             {renderValueInput(entry)}
             {errors[entry.id] && <p className="mt-1 text-xs text-red-600">{errors[entry.id]}</p>}
           </div>
-          <p className="mt-2 text-xs text-neutral-500">{t('componentConfigs.entryNumber', 'Entry #')}{index + 1}</p>
+          <p className="mt-2 text-xs text-neutral-500">{t('componentConfigs.entryNumber')}{index + 1}</p>
         </div>
       ))}
       <Button type="button" variant="outline" size="sm" onClick={handleAddEntry} startIcon={<FiPlus className="h-4 w-4" />}>
-        {t('componentConfigs.addField', 'Add field')}
+        {t('componentConfigs.addField')}
       </Button>
     </div>
   );
@@ -2374,13 +2430,13 @@ const ProductsByCategorySidebarEditor: React.FC<ProductsByCategorySidebarEditorP
     <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm">
       <div className="flex flex-col gap-2 border-b border-neutral-100 px-5 py-5 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.sidebarMegaMenuTitle', 'Sidebar & Mega Menu')}</p>
-          <p className="text-xs text-neutral-500">{t('componentConfigs.sidebarMegaMenuDesc', 'Quản lý menu cố định hiển thị cùng section Products by Category.')}</p>
+          <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.sidebarMegaMenuTitle')}</p>
+          <p className="text-xs text-neutral-500">{t('componentConfigs.sidebarMegaMenuDesc')}</p>
         </div>
         <Toggle
           checked={value.enabled}
           onChange={handleToggle}
-          label={value.enabled ? t('componentConfigs.currentlyEnabled', 'Đang bật') : t('componentConfigs.currentlyDisabled', 'Đang tắt')}
+          label={value.enabled ? t('componentConfigs.currentlyEnabled') : t('componentConfigs.currentlyDisabled')}
         />
       </div>
 
@@ -2388,57 +2444,57 @@ const ProductsByCategorySidebarEditor: React.FC<ProductsByCategorySidebarEditorP
         <div className="space-y-5 px-5 py-6">
           <div className="space-y-4">
             <div className="space-y-1">
-              <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('componentConfigs.sidebarTitle', 'Tiêu đề sidebar')}</label>
+              <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('componentConfigs.sidebarTitle')}</label>
               <Input
                 value={value.title}
                 onChange={(event) => handleFieldChange('title', event.target.value)}
-                placeholder={t('componentConfigs.sidebarTitlePlaceholder', 'Ví dụ: Bộ sưu tập nổi bật')}
+                placeholder={t('componentConfigs.sidebarTitlePlaceholder')}
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('componentConfigs.sidebarDescription', 'Mô tả sidebar')}</label>
+              <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('componentConfigs.sidebarDescription')}</label>
               <Textarea
                 value={value.description}
                 onChange={(event) => handleFieldChange('description', event.target.value)}
                 rows={3}
-                placeholder={t('componentConfigs.sidebarDescriptionPlaceholder', 'Giới thiệu ngắn gọn cho mega menu.')}
+                placeholder={t('componentConfigs.sidebarDescriptionPlaceholder')}
               />
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="flex items-start justify-between gap-3 rounded-lg border border-neutral-200 bg-white px-3 py-2">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">{t('componentConfigs.showHeaderFrame', 'Hiển thị khung Header')}</p>
-                  <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.showHeaderFrameDesc', 'Bật để hiển thị khối chứa tiêu đề và mô tả của sidebar.')}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">{t('componentConfigs.showHeaderFrame')}</p>
+                  <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.showHeaderFrameDesc')}</p>
                 </div>
                 <Toggle
                   checked={value.showSidebarHeader}
                   onChange={(checked) => handleVisibilityToggle('showSidebarHeader', checked)}
                   size="sm"
-                  aria-label={t('componentConfigs.showHeaderFrame', 'Hiển thị khung Header')}
+                  aria-label={t('componentConfigs.showHeaderFrame')}
                 />
               </div>
               <div className="flex items-start justify-between gap-3 rounded-lg border border-neutral-200 bg-white px-3 py-2">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">{t('componentConfigs.showTitle', 'Hiển thị tiêu đề')}</p>
-                  <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.showTitleDesc', 'Ẩn hoặc hiện phần tiêu đề phía trên menu.')}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">{t('componentConfigs.showTitle')}</p>
+                  <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.showTitleDesc')}</p>
                 </div>
                 <Toggle
                   checked={value.showTitle}
                   onChange={(checked) => handleVisibilityToggle('showTitle', checked)}
                   size="sm"
-                  aria-label={t('componentConfigs.showTitle', 'Hiển thị tiêu đề')}
+                  aria-label={t('componentConfigs.showTitle')}
                 />
               </div>
               <div className="flex items-start justify-between gap-3 rounded-lg border border-neutral-200 bg-white px-3 py-2">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">{t('componentConfigs.showDescription', 'Hiển thị mô tả')}</p>
-                  <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.showDescriptionDesc', 'Ẩn hoặc hiện đoạn mô tả ngắn phía dưới tiêu đề.')}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">{t('componentConfigs.showDescription')}</p>
+                  <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.showDescriptionDesc')}</p>
                 </div>
                 <Toggle
                   checked={value.showDescription}
                   onChange={(checked) => handleVisibilityToggle('showDescription', checked)}
                   size="sm"
-                  aria-label={t('componentConfigs.showDescription', 'Hiển thị mô tả')}
+                  aria-label={t('componentConfigs.showDescription')}
                 />
               </div>
             </div>
@@ -2462,7 +2518,7 @@ const ProductsByCategorySidebarEditor: React.FC<ProductsByCategorySidebarEditorP
               className="w-full rounded-lg border border-dashed border-neutral-300 py-3 text-sm font-medium text-neutral-600 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2"
             >
               <FiPlus className="w-4 h-4" />
-              {t('componentConfigs.addMenuGroup', 'Thêm nhóm menu')}
+              {t('componentConfigs.addMenuGroup')}
             </button>
           </div>
         </div>
@@ -2502,15 +2558,15 @@ const SidebarSectionEditor: React.FC<SidebarSectionEditorProps> = ({ section, in
     return Boolean(hasTitle || hasDescription);
   });
 
-  const previewLabel = section.title?.trim() || `${t('componentConfigs.menuGroup', 'Nhóm menu #')}${index + 1}`;
+  const previewLabel = section.title?.trim() || `${t('componentConfigs.menuGroup')}${index + 1}`;
   const toggleCollapse = () => setIsCollapsed((prev) => !prev);
-  const collapseLabel = isCollapsed ? t('componentConfigs.expand', 'Mở rộng') : t('componentConfigs.collapse', 'Thu gọn');
+  const collapseLabel = isCollapsed ? t('componentConfigs.expand') : t('componentConfigs.collapse');
 
   return (
     <div className="rounded-xl border border-neutral-200 bg-neutral-50/70">
       <div className="flex flex-col gap-2 border-b border-neutral-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.menuGroup', 'Nhóm menu #')}{index + 1}</p>
+          <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.menuGroup')}{index + 1}</p>
           <p className="text-xs text-neutral-500 mb-0">{previewLabel}</p>
         </div>
         <div className="flex items-center gap-2">
@@ -2530,7 +2586,7 @@ const SidebarSectionEditor: React.FC<SidebarSectionEditorProps> = ({ section, in
               onClick={onRemove}
               startIcon={<FiTrash2 className="w-4 h-4" />}
             >
-              {t('componentConfigs.removeGroup', 'Xóa nhóm')}
+              {t('componentConfigs.removeGroup')}
             </Button>
           )}
         </div>
@@ -2538,20 +2594,20 @@ const SidebarSectionEditor: React.FC<SidebarSectionEditorProps> = ({ section, in
       {!isCollapsed && (
         <div className="space-y-4 px-4 py-5">
           <div className="space-y-1">
-            <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('componentConfigs.groupTitle', 'Tiêu đề nhóm')}</label>
+            <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('componentConfigs.groupTitle')}</label>
             <Input
               value={section.title}
               onChange={(event) => onChange({ ...section, title: event.target.value })}
-              placeholder={t('componentConfigs.groupTitlePlaceholder', 'Ví dụ: Bộ sưu tập mới')}
+              placeholder={t('componentConfigs.groupTitlePlaceholder')}
             />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('componentConfigs.groupDescription', 'Mô tả nhóm')}</label>
+            <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('componentConfigs.groupDescription')}</label>
             <Textarea
               value={section.description}
               onChange={(event) => onChange({ ...section, description: event.target.value })}
               rows={2}
-              placeholder={t('componentConfigs.groupDescriptionPlaceholder', 'Giới thiệu ngắn cho nhóm (tuỳ chọn).')}
+              placeholder={t('componentConfigs.groupDescriptionPlaceholder')}
             />
           </div>
           <div className="space-y-4">
@@ -2561,59 +2617,116 @@ const SidebarSectionEditor: React.FC<SidebarSectionEditorProps> = ({ section, in
             />
             <div className="flex items-start justify-between gap-3 border border-neutral-200 rounded-lg px-3 py-2 bg-white">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">{t('componentConfigs.showTitleIcon', 'Hiển thị icon')}</p>
-                <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.showTitleIconDesc', 'Tắt nếu muốn ẩn biểu tượng trước tiêu đề.')}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">{t('componentConfigs.showTitleIcon')}</p>
+                <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.showTitleIconDesc')}</p>
               </div>
               <Toggle
                 checked={section.showTitleIcon}
                 onChange={(checked) => onChange({ ...section, showTitleIcon: checked })}
                 size="sm"
-                aria-label={t('componentConfigs.showTitleIcon', 'Hiển thị icon')}
+                aria-label={t('componentConfigs.showTitleIcon')}
               />
             </div>
             <div className="flex items-start justify-between gap-3 border border-neutral-200 rounded-lg px-3 py-2 bg-white">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">{t('componentConfigs.uppercaseTitle', 'Viết hoa tiêu đề')}</p>
-                <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.uppercaseTitleDesc', 'Bật để chuyển tiêu đề sang chữ in hoa.')}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">{t('componentConfigs.uppercaseTitle')}</p>
+                <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.uppercaseTitleDesc')}</p>
               </div>
               <Toggle
                 checked={section.titleUppercase}
                 onChange={(checked) => onChange({ ...section, titleUppercase: checked })}
                 size="sm"
-                aria-label={t('componentConfigs.uppercaseTitle', 'Viết hoa tiêu đề')}
+                aria-label={t('componentConfigs.uppercaseTitle')}
               />
             </div>
+          </div>
+          <div className="flex items-start justify-between gap-3 border border-neutral-200 rounded-lg px-3 py-2 bg-white">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">{t('componentConfigs.showItemIcons')}</p>
+              <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.showItemIconsDesc')}</p>
+            </div>
+            <Toggle
+              checked={section.showItemIcons}
+              onChange={(checked) => onChange({ ...section, showItemIcons: checked })}
+              size="sm"
+              aria-label={t('componentConfigs.showItemIcons')}
+            />
+          </div>
+          <div className="flex items-start justify-between gap-3 border border-neutral-200 rounded-lg px-3 py-2 bg-white">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">{t('componentConfigs.uppercaseItem')}</p>
+              <p className="text-[11px] text-neutral-500 mb-0">{t('componentConfigs.uppercaseItemDesc')}</p>
+            </div>
+            <Toggle
+              checked={section.itemUppercase}
+              onChange={(checked) => onChange({ ...section, itemUppercase: checked })}
+              size="sm"
+              aria-label={t('componentConfigs.uppercaseItem')}
+            />
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="space-y-1">
               <Select
-                label={t('componentConfigs.titleFontWeight', 'Độ đậm tiêu đề')}
+                label={t('componentConfigs.titleFontWeight')}
                 value={section.titleFontWeight}
                 onChange={(value) => onChange({
                   ...section,
                   titleFontWeight: isSidebarTitleFontWeight(value) ? value : 'semibold',
                 })}
                 options={SECTION_TITLE_FONT_WEIGHT_OPTIONS}
-                placeholder={t('componentConfigs.titleFontWeightPlaceholder', 'Chọn độ đậm')}
+                placeholder={t('componentConfigs.titleFontWeightPlaceholder')}
               />
             </div>
             <div className="space-y-1">
               <Select
-                label={t('componentConfigs.titleFontSize', 'Kích thước chữ')}
+                label={t('componentConfigs.titleFontSize')}
                 value={section.titleFontSize}
                 onChange={(value) => onChange({
                   ...section,
                   titleFontSize: isSidebarTitleFontSize(value) ? value : 'sm',
                 })}
                 options={SECTION_TITLE_FONT_SIZE_OPTIONS}
-                placeholder={t('componentConfigs.titleFontSizePlaceholder', 'Chọn kích thước')}
+                placeholder={t('componentConfigs.titleFontSizePlaceholder')}
               />
             </div>
             <ColorSelector
               value={section.titleFontColor || undefined}
               onChange={(color) => onChange({ ...section, titleFontColor: color || '' })}
-              placeholder={t('componentConfigs.textColorPlaceholder', '#111827 hoặc currentColor')}
-              label={t('componentConfigs.titleTextColor', 'Màu chữ tiêu đề')}
+              placeholder={t('componentConfigs.textColorPlaceholder')}
+              label={t('componentConfigs.titleTextColor')}
+              className="space-y-1"
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="space-y-1">
+              <Select
+                label={t('componentConfigs.itemFontWeight')}
+                value={section.itemFontWeight}
+                onChange={(value) => onChange({
+                  ...section,
+                  itemFontWeight: isSidebarTitleFontWeight(value) ? value : 'normal',
+                })}
+                options={SECTION_TITLE_FONT_WEIGHT_OPTIONS}
+                placeholder={t('componentConfigs.itemFontWeightPlaceholder')}
+              />
+            </div>
+            <div className="space-y-1">
+              <Select
+                label={t('componentConfigs.itemFontSize')}
+                value={section.itemFontSize}
+                onChange={(value) => onChange({
+                  ...section,
+                  itemFontSize: isSidebarTitleFontSize(value) ? value : 'sm',
+                })}
+                options={SECTION_TITLE_FONT_SIZE_OPTIONS}
+                placeholder={t('componentConfigs.itemFontSizePlaceholder')}
+              />
+            </div>
+            <ColorSelector
+              value={section.itemFontColor || undefined}
+              onChange={(color) => onChange({ ...section, itemFontColor: color || '' })}
+              placeholder={t('componentConfigs.textColorPlaceholder')}
+              label={t('componentConfigs.itemTextColor')}
               className="space-y-1"
             />
           </div>
@@ -2621,10 +2734,10 @@ const SidebarSectionEditor: React.FC<SidebarSectionEditorProps> = ({ section, in
             <ColorSelector
               value={section.backgroundColor || undefined}
               onChange={(color) => onChange({ ...section, backgroundColor: color || '' })}
-              placeholder={t('componentConfigs.groupBackgroundPlaceholder', '#F9FAFB hoặc transparent')}
-              label={t('componentConfigs.groupBackgroundColor', 'Màu nền nhóm menu')}
+              placeholder={t('componentConfigs.groupBackgroundPlaceholder')}
+              label={t('componentConfigs.groupBackgroundColor')}
             />
-            <p className="text-xs text-neutral-500">{t('componentConfigs.leaveEmptyForDefaultBackground', 'Để trống để sử dụng nền mặc định.')}</p>
+            <p className="text-xs text-neutral-500">{t('componentConfigs.leaveEmptyForDefaultBackground')}</p>
           </div>
 
           <div className="space-y-3">
@@ -2635,6 +2748,7 @@ const SidebarSectionEditor: React.FC<SidebarSectionEditorProps> = ({ section, in
                 index={itemIndex}
                 canRemove={section.items.length > 1}
                 depth={0}
+                showIcons={section.showItemIcons}
                 onChange={(nextItem) => handleItemChange(item.id, nextItem)}
                 onRemove={() => handleRemoveItem(item.id)}
               />
@@ -2647,7 +2761,7 @@ const SidebarSectionEditor: React.FC<SidebarSectionEditorProps> = ({ section, in
             className="w-full rounded-lg border border-dashed border-neutral-300 py-2.5 text-sm font-medium text-neutral-600 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2"
           >
             <FiPlus className="w-4 h-4" />
-            {t('componentConfigs.addLink', 'Thêm liên kết')}
+            {t('componentConfigs.addLink')}
           </button>
         </div>
       )}
@@ -2662,6 +2776,7 @@ interface SidebarItemEditorProps {
   onRemove: () => void;
   canRemove: boolean;
   depth?: number;
+  showIcons?: boolean;
 }
 
 const buildHrefForLinkType = (type: SidebarLinkType, referenceId?: string) => {
@@ -2687,9 +2802,10 @@ const SidebarItemEditor: React.FC<SidebarItemEditorProps> = ({
   onRemove,
   canRemove,
   depth = 0,
+  showIcons = false,
 }) => {
   const { t } = useTranslationWithBackend();
-  const { LINK_TYPE_OPTIONS } = useSidebarOptions(t);
+  const { LINK_TYPE_OPTIONS, TEXT_TRANSFORM_OPTIONS } = useSidebarOptions(t);
   const resolvedLinkType: SidebarLinkType = item.linkType || 'custom';
   const childItems = item.children || [];
   const canNestChildren = depth === 0;
@@ -2757,7 +2873,7 @@ const SidebarItemEditor: React.FC<SidebarItemEditorProps> = ({
             onChange={(categoryId) => handleResourceChange(categoryId, 'category')}
           />
           <p className="text-xs text-neutral-500">
-            {t('componentConfigs.pathWillBe', 'Đường dẫn sẽ là:')} <span className="font-medium text-neutral-700">{item.href || t('componentConfigs.noCategorySelected', 'Chưa chọn danh mục')}</span>
+            {t('componentConfigs.pathWillBe')} <span className="font-medium text-neutral-700">{item.href || t('componentConfigs.noCategorySelected')}</span>
           </p>
         </div>
       );
@@ -2770,7 +2886,7 @@ const SidebarItemEditor: React.FC<SidebarItemEditorProps> = ({
             onChange={(productId) => handleResourceChange(productId, 'product')}
           />
           <p className="text-xs text-neutral-500">
-            {t('componentConfigs.pathWillBe', 'Đường dẫn sẽ là:')} <span className="font-medium text-neutral-700">{item.href || t('componentConfigs.noProductSelected', 'Chưa chọn sản phẩm')}</span>
+            {t('componentConfigs.pathWillBe')} <span className="font-medium text-neutral-700">{item.href || t('componentConfigs.noProductSelected')}</span>
           </p>
         </div>
       );
@@ -2783,7 +2899,7 @@ const SidebarItemEditor: React.FC<SidebarItemEditorProps> = ({
             onChange={(brandId) => handleResourceChange(brandId, 'brand')}
           />
           <p className="text-xs text-neutral-500">
-            {t('componentConfigs.pathWillBe', 'Đường dẫn sẽ là:')} <span className="font-medium text-neutral-700">{item.href || t('componentConfigs.noBrandSelected', 'Chưa chọn thương hiệu')}</span>
+            {t('componentConfigs.pathWillBe')} <span className="font-medium text-neutral-700">{item.href || t('componentConfigs.noBrandSelected')}</span>
           </p>
         </div>
       );
@@ -2793,7 +2909,7 @@ const SidebarItemEditor: React.FC<SidebarItemEditorProps> = ({
       <Input
         value={item.href}
         onChange={(event) => handleManualHrefChange(event.target.value)}
-        placeholder={t('componentConfigs.urlPlaceholder', 'https://example.com/collection hoặc /categories/ao-thun')}
+        placeholder={t('componentConfigs.urlPlaceholder')}
       />
     );
   };
@@ -2801,20 +2917,22 @@ const SidebarItemEditor: React.FC<SidebarItemEditorProps> = ({
   const cardBorderClass = depth === 0
     ? 'border border-white/70'
     : 'border border-dashed border-indigo-100';
-  const headingLabel = depth > 0 ? `${t('componentConfigs.childLinkNumber', 'Liên kết con #')}${index + 1}` : `${t('componentConfigs.linkNumber', 'Liên kết #')}${index + 1}`;
-  const previewLabel = item.label?.trim() || t('componentConfigs.noTitle', 'Chưa có tiêu đề');
+  const headingLabel = depth > 0 ? `${t('componentConfigs.childLinkNumber')}${index + 1}` : `${t('componentConfigs.linkNumber')}${index + 1}`;
+  const previewLabel = item.label?.trim() || t('componentConfigs.noTitle');
   const previewHref = item.href?.trim();
   const toggleCollapse = () => setIsCollapsed((prev) => !prev);
-  const collapseLabel = isCollapsed ? t('componentConfigs.expand', 'Mở rộng') : t('componentConfigs.collapse', 'Thu gọn');
+  const collapseLabel = isCollapsed ? t('componentConfigs.expand') : t('componentConfigs.collapse');
 
   return (
     <div className={`rounded-lg ${cardBorderClass} bg-white shadow-sm`}>
       <div className="border-b border-neutral-100 px-4 py-3 space-y-2">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 text-sm font-semibold text-neutral-900">
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-neutral-600">
-              {item.icon ? <UnifiedIcon icon={item.icon} className="h-4 w-4" /> : <FiPlus className="h-4 w-4" />}
-            </span>
+            {showIcons && (
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-neutral-600">
+                {item.icon ? <UnifiedIcon icon={item.icon} className="h-4 w-4" /> : <FiPlus className="h-4 w-4" />}
+              </span>
+            )}
             <div>
               <p className="mb-0">{headingLabel}</p>
               <p className="text-xs font-normal text-neutral-500 mb-0">
@@ -2840,7 +2958,7 @@ const SidebarItemEditor: React.FC<SidebarItemEditorProps> = ({
                 onClick={onRemove}
                 startIcon={<FiTrash2 className="w-4 h-4" />}
               >
-                {t('componentConfigs.remove', 'Xóa')}
+                {t('componentConfigs.remove')}
               </Button>
             )}
           </div>
@@ -2849,51 +2967,62 @@ const SidebarItemEditor: React.FC<SidebarItemEditorProps> = ({
       {!isCollapsed && (
         <div className="grid grid-cols-1 gap-4 px-4 py-4 md:grid-cols-2">
           <div className="space-y-1">
-            <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('componentConfigs.linkTitle', 'Tiêu đề liên kết')}</label>
+            <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('componentConfigs.linkTitle')}</label>
             <Input
               value={item.label}
               onChange={(event) => onChange({ ...item, label: event.target.value })}
-              placeholder={t('componentConfigs.linkTitlePlaceholder', 'Tên hiển thị')}
+              placeholder={t('componentConfigs.linkTitlePlaceholder')}
             />
           </div>
           <div className="space-y-1">
             <Select
-              label={t('componentConfigs.linkType', 'Loại liên kết')}
+              label={t('componentConfigs.linkType')}
               value={resolvedLinkType}
               onChange={(value) => handleLinkTypeChange(value)}
               options={LINK_TYPE_OPTIONS}
-              placeholder={t('componentConfigs.linkTypePlaceholder', 'Chọn nguồn liên kết')}
+              placeholder={t('componentConfigs.linkTypePlaceholder')}
+            />
+          </div>
+          <div className="space-y-1">
+            <Select
+              label={t('componentConfigs.textTransform')}
+              value={item.textTransform}
+              onChange={(value) => onChange({ ...item, textTransform: (value as SidebarTextTransform) || 'none' })}
+              options={TEXT_TRANSFORM_OPTIONS}
+              placeholder={t('componentConfigs.textTransformPlaceholder')}
             />
           </div>
           <div className="space-y-1 md:col-span-2">
             <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
-              {resolvedLinkType === 'custom' ? t('componentConfigs.targetUrl', 'URL đích') : t('componentConfigs.selectDataSource', 'Chọn nguồn dữ liệu')}
+              {resolvedLinkType === 'custom' ? t('componentConfigs.targetUrl') : t('componentConfigs.selectDataSource')}
             </label>
             {renderLinkInput()}
           </div>
-          <div className="space-y-1">
-            <IconSelector
-              value={item.icon}
-              onChange={(icon) => onChange({ ...item, icon })}
-            />
-          </div>
+          {showIcons && (
+            <div className="space-y-1">
+              <IconSelector
+                value={item.icon}
+                onChange={(icon) => onChange({ ...item, icon })}
+              />
+            </div>
+          )}
           <div className="space-y-1 md:col-span-2">
-            <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('componentConfigs.descriptionShort', 'Mô tả')}</label>
+            <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('componentConfigs.descriptionShort')}</label>
             <Textarea
               value={item.description}
               onChange={(event) => onChange({ ...item, description: event.target.value })}
               rows={2}
-              placeholder={t('componentConfigs.descriptionShortPlaceholder', 'Mô tả ngắn (tuỳ chọn).')}
+              placeholder={t('componentConfigs.descriptionShortPlaceholder')}
             />
           </div>
           {canNestChildren && (
             <div className="space-y-3 md:col-span-2">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
-                  {t('componentConfigs.childMenu', 'Menu con')}
+                  {t('componentConfigs.childMenu')}
                 </label>
                 {childItems.length > 0 && (
-                  <p className="text-[11px] uppercase tracking-wide text-neutral-400">{t('componentConfigs.maxOneLevel', 'Tối đa 1 cấp')}</p>
+                  <p className="text-[11px] uppercase tracking-wide text-neutral-400">{t('componentConfigs.maxOneLevel')}</p>
                 )}
               </div>
               {childItems.length > 0 && (
@@ -2905,6 +3034,7 @@ const SidebarItemEditor: React.FC<SidebarItemEditorProps> = ({
                       index={childIndex}
                       depth={depth + 1}
                       canRemove
+                      showIcons={showIcons}
                       onChange={(nextChild) => handleChildItemChange(child.id, nextChild)}
                       onRemove={() => handleRemoveChildItem(child.id)}
                     />
@@ -2917,7 +3047,7 @@ const SidebarItemEditor: React.FC<SidebarItemEditorProps> = ({
                 className="w-full rounded-lg border border-dashed border-neutral-300 py-2 text-sm font-medium text-neutral-600 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2"
               >
                 <FiPlus className="w-4 h-4" />
-                {t('componentConfigs.addChildLink', 'Thêm liên kết con')}
+                {t('componentConfigs.addChildLink')}
               </button>
             </div>
           )}
