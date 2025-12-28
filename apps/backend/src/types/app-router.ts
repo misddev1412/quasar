@@ -1713,8 +1713,8 @@ export const appRouter = router({
         type: z.enum(['post', 'page', 'news', 'event']).default('post'),
         featuredImage: z.string().optional(),
         authorId: z.string().uuid(),
-        publishedAt: z.date().optional(),
-        scheduledAt: z.date().optional(),
+        publishedAt: z.coerce.date().optional().nullable(),
+        scheduledAt: z.coerce.date().optional().nullable(),
         isFeatured: z.boolean().default(false),
         allowComments: z.boolean().default(true),
         metaTitle: z.string().optional(),
@@ -1745,8 +1745,8 @@ export const appRouter = router({
           status: z.enum(['draft', 'published', 'archived', 'scheduled']).optional(),
           type: z.enum(['post', 'page', 'news', 'event']).optional(),
           featuredImage: z.string().optional(),
-          publishedAt: z.date().optional(),
-          scheduledAt: z.date().optional(),
+          publishedAt: z.coerce.date().optional().nullable(),
+          scheduledAt: z.coerce.date().optional().nullable(),
           isFeatured: z.boolean().optional(),
           allowComments: z.boolean().optional(),
           metaTitle: z.string().optional(),
@@ -1789,6 +1789,17 @@ export const appRouter = router({
 
     incrementViewCount: procedure
       .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    bulkUpdateStatus: procedure
+      .input(z.object({
+        ids: z.array(z.string().uuid()).min(1),
+        status: z.enum(['draft', 'published', 'archived', 'scheduled']),
+        publishedAt: z.coerce.date().optional().nullable(),
+      }))
       .output(apiResponseSchema)
       .mutation(() => {
         return {} as ApiResponse;

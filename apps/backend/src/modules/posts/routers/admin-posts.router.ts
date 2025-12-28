@@ -54,6 +54,12 @@ const updateAdminPostSchema = z.object({
   data: UpdatePostSchema,
 });
 
+const bulkUpdatePostStatusSchema = z.object({
+  ids: z.array(z.string().uuid()).min(1),
+  status: postStatusSchema,
+  publishedAt: z.coerce.date().optional().nullable(),
+});
+
 @Router({ alias: 'adminPosts' })
 @Injectable()
 export class AdminPostsRouter {
@@ -225,6 +231,37 @@ export class AdminPostsRouter {
         4,  // OperationCode.DELETE
         10, // ErrorLevelCode.SERVER_ERROR
         error.message || 'Failed to delete post'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: bulkUpdatePostStatusSchema,
+    output: apiResponseSchema,
+  })
+  async bulkUpdateStatus(
+    @Input() input: z.infer<typeof bulkUpdatePostStatusSchema>,
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const publishedAt =
+        input.status === PostStatus.PUBLISHED
+          ? input.publishedAt ?? new Date()
+          : input.publishedAt;
+
+      const affected = await this.adminPostsService.bulkUpdateStatus(
+        input.ids,
+        input.status,
+        { publishedAt },
+      );
+
+      return this.responseHandler.createTrpcSuccess({ affected });
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        31, // ModuleCode.ARTICLE
+        3,  // OperationCode.UPDATE
+        10, // ErrorLevelCode.SERVER_ERROR
+        error.message || 'Failed to update posts',
       );
     }
   }

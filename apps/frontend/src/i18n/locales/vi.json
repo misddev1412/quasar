@@ -246,15 +246,15 @@
         "settings": "Cài đặt",
         "logout": "Đăng xuất"
       },
-    "menu": {
-      "open": "Mở menu",
-      "close": "Đóng menu",
-      "megaMenu": {
-        "featuredProducts": "Sản phẩm nổi bật",
-        "viewAll": "Xem tất cả"
-      }
-    },
-    "search": {
+      "menu": {
+        "open": "Mở menu",
+        "close": "Đóng menu",
+        "megaMenu": {
+          "featuredProducts": "Sản phẩm nổi bật",
+          "viewAll": "Xem tất cả"
+        }
+      },
+      "search": {
         "title": "Tìm kiếm sản phẩm chuyên sâu",
         "subtitle": "Khám phá nhanh kho sản phẩm và tìm đúng thứ bạn cần.",
         "placeholder": "Tìm kiếm sản phẩm...",
@@ -1227,7 +1227,9 @@
   },
   "ecommerce": {
     "product": {
-      "outOfStock": "Hết hàng"
+      "outOfStock": "Hết hàng",
+      "priceUpdating": "Giá đang cập nhật",
+      "contactPrice": "Liên hệ báo giá"
     },
     "checkout": {
       "title": "Thanh toán",
@@ -1842,7 +1844,9 @@
       "view_newsroom": "Xem trang tin tức",
       "latest_news": "Tin tức mới nhất",
       "view_all": "Xem tất cả tin",
-      "read_story": "Đọc bài viết →",
+      "view_more": "Xem thêm tin",
+      "view_category": "Xem {{category}}",
+      "read_story": "Đọc bài viết",
       "empty_category": "Chưa có tin tức nào trong danh mục này.",
       "error_loading": "Không thể tải tin tức ngay lúc này.",
       "strategy": {

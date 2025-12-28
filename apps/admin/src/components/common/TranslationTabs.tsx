@@ -21,6 +21,7 @@ interface TranslationField {
     minLength?: number;
   };
   description?: string;
+  disabled?: boolean;
 }
 
 type TranslationValue = string | undefined;
@@ -99,20 +100,21 @@ export const TranslationTabs: React.FC<TranslationTabsProps> = ({
               {activeLocale.toUpperCase()}
             </span>
           </div>
-          
+
           {fields.map((field) => (
             <div key={field.name} className="space-y-2">
               <label className={BASE_LABEL_CLASS}>
                 {field.label}
                 {field.required && <span className="text-red-500 ml-1">*</span>}
               </label>
-              
+
               {field.type === 'richtext' ? (
                 <RichTextEditor
                   value={getFieldValue(activeLocale, field.name)}
                   onChange={(value) => handleTranslationChange(activeLocale, field.name, value)}
                   placeholder={field.placeholder}
                   minHeight={field.minHeight || '240px'}
+                  disabled={field.disabled}
                 />
               ) : field.type === 'textarea' ? (
                 <textarea
@@ -122,7 +124,8 @@ export const TranslationTabs: React.FC<TranslationTabsProps> = ({
                   required={field.required}
                   rows={field.rows || 3}
                   maxLength={field.validation?.maxLength}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  disabled={field.disabled}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:text-gray-500"
                 />
               ) : (
                 <Input
@@ -131,15 +134,16 @@ export const TranslationTabs: React.FC<TranslationTabsProps> = ({
                   placeholder={field.placeholder}
                   required={field.required}
                   maxLength={field.validation?.maxLength}
+                  disabled={field.disabled}
                 />
               )}
-              
+
               {field.description && (
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {field.description}
                 </p>
               )}
-              
+
               {field.validation?.maxLength && (
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {getFieldValue(activeLocale, field.name).length}/{field.validation.maxLength} characters

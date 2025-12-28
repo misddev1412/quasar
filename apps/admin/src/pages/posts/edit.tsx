@@ -12,9 +12,7 @@ import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { FormSubmitOptions, FormSubmitAction } from '../../types/forms';
 
-// Transform the form data to match API expectations
-interface UpdatePostAPIData {
-  id: string;
+interface UpdatePostPayload {
   status: 'draft' | 'published' | 'archived' | 'scheduled';
   type: 'post' | 'page' | 'news' | 'event';
   featuredImage?: string;
@@ -44,6 +42,12 @@ interface UpdatePostAPIData {
   }>;
   categoryIds?: string[];
   tagIds?: string[];
+}
+
+// Transform the form data to match API expectations
+interface UpdatePostAPIData {
+  id: string;
+  data: UpdatePostPayload;
 }
 
 const EditPostPage: React.FC = () => {
@@ -132,33 +136,35 @@ const EditPostPage: React.FC = () => {
       // Transform form data to match API expectations
       const postUpdateData: UpdatePostAPIData = {
         id,
-        status: formData.status,
-        type: formData.type,
-        featuredImage: formData.featuredImage || undefined,
-        imageGallery: formData.imageGallery || undefined,
-        publishedAt: formData.status === 'published' ? (formData.publishedAt || new Date()) : undefined,
-        scheduledAt: formData.status === 'scheduled' ? formData.scheduledAt : undefined,
-        isFeatured: formData.isFeatured ?? false,
-        allowComments: formData.allowComments ?? true,
-        metaTitle: formData.metaTitle || undefined,
-        metaDescription: formData.metaDescription || undefined,
-        metaKeywords: formData.metaKeywords || undefined,
-        translations: [
-          {
-            locale: formData.languageCode || 'en', // Use the selected language code
-            title: formData.title,
-            slug: formData.slug,
-            content: formData.content,
-            excerpt: formData.excerpt || undefined,
-            metaTitle: formData.metaTitle || undefined,
-            metaDescription: formData.metaDescription || undefined,
-            metaKeywords: formData.metaKeywords || undefined,
-          },
-          // Add any additional translations if they exist
-          ...(formData.additionalTranslations || []),
-        ],
-        categoryIds: formData.categoryIds || [],
-        tagIds: formData.tagIds || [],
+        data: {
+          status: formData.status,
+          type: formData.type,
+          featuredImage: formData.featuredImage || undefined,
+          imageGallery: formData.imageGallery || undefined,
+          publishedAt: formData.status === 'published' ? (formData.publishedAt || new Date()) : undefined,
+          scheduledAt: formData.status === 'scheduled' ? formData.scheduledAt : undefined,
+          isFeatured: formData.isFeatured ?? false,
+          allowComments: formData.allowComments ?? true,
+          metaTitle: formData.metaTitle || undefined,
+          metaDescription: formData.metaDescription || undefined,
+          metaKeywords: formData.metaKeywords || undefined,
+          translations: [
+            {
+              locale: formData.languageCode || 'en', // Use the selected language code
+              title: formData.title,
+              slug: formData.slug,
+              content: formData.content,
+              excerpt: formData.excerpt || undefined,
+              metaTitle: formData.metaTitle || undefined,
+              metaDescription: formData.metaDescription || undefined,
+              metaKeywords: formData.metaKeywords || undefined,
+            },
+            // Add any additional translations if they exist
+            ...(formData.additionalTranslations || []),
+          ],
+          categoryIds: formData.categoryIds || [],
+          tagIds: formData.tagIds || [],
+        },
       };
 
       await updatePostMutation.mutateAsync(postUpdateData);

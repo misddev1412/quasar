@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SectionTranslationContent } from './HeroSlider';
@@ -11,6 +10,8 @@ import { ProductService } from '../../services/product.service';
 import { CategoryService } from '../../services/category.service';
 import { ProductsByCategorySidebar } from './ProductsByCategorySidebar';
 import SectionContainer from './SectionContainer';
+import { ViewMoreButton } from '../common/ViewMoreButton';
+import type { ViewMoreButtonConfig } from '@shared/types/component.types';
 
 export type ProductsByCategoryStrategy = 'latest' | 'featured' | 'bestsellers' | 'custom';
 
@@ -86,6 +87,7 @@ export interface ProductsByCategorySidebarConfig {
 interface ProductsByCategoryProps {
   config: ProductsByCategoryConfig;
   translation?: SectionTranslationContent | null;
+  viewMoreButtonConfig?: ViewMoreButtonConfig;
 }
 
 interface NormalizedRowConfig {
@@ -501,7 +503,7 @@ const strategyTranslationKeyMap: Record<ProductsByCategoryStrategy, string> = {
   custom: 'sections.products_by_category.strategies.custom',
 };
 
-export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, translation }) => {
+export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, translation, viewMoreButtonConfig }) => {
   const { t, i18n } = useTranslation();
 
   const configKey = useMemo(() => JSON.stringify(config ?? {}), [config]);
@@ -994,12 +996,11 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
                       )}
                     </div>
                     {hasCategoryNavigation && (
-                      <Link
+                      <ViewMoreButton
                         href={ctaHref}
-                        className="inline-flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800"
-                      >
-                        {t('sections.products_by_category.view_category')}
-                      </Link>
+                        label={t('sections.products_by_category.view_category')}
+                        config={viewMoreButtonConfig}
+                      />
                     )}
                   </div>
 

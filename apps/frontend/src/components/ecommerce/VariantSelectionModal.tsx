@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Divider } from '@heroui/react';
 import { FiX, FiShoppingCart, FiLoader } from 'react-icons/fi';
 import { useTranslations } from 'next-intl';
+import PriceDisplay from './PriceDisplay';
 import type { Product, ProductVariant } from '../../types/product';
 import { buildVariantAttributes, buildVariantSelectionMap } from '../../utils/variantAttributes';
 import { useToast } from '../../contexts/ToastContext';
@@ -24,6 +25,7 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
   onVariantAdded,
 }) => {
   const t = useTranslations('product.detail');
+  const tEcommerce = useTranslations('ecommerce.product');
   const { showToast } = useToast();
   const { addToCart, isAdding } = useAddToCart();
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
@@ -383,7 +385,7 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
 
   const shouldShowSelectionMessage = selectionProgress.total > 0 && selectionProgress.current < selectionProgress.total;
 
-  const isAddToCartDisabled = !selectedVariant || selectedVariant.stockQuantity <= 0 || missingRequiredSelections || isAdding;
+  const isAddToCartDisabled = !selectedVariant || selectedVariant.stockQuantity <= 0 || missingRequiredSelections || isAdding || selectedVariant.price === 0;
 
   // Fallback: If no variant is selected but attributes are selected, try to find a fallback variant
   const handleAddToCartWithFallback = async () => {
@@ -425,7 +427,7 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
 
             <ModalBody>
               <div className="space-y-6">
-                
+
                 {/* Fallback: Show direct variant selection if attributes building fails */}
                 {variantAttributes.length === 0 && product.variants && product.variants.length > 0 ? (
                   <div className="space-y-3">
@@ -435,11 +437,10 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
                         <button
                           key={variant.id}
                           onClick={() => setSelectedVariant(variant)}
-                          className={`w-full p-3 text-left border rounded-lg transition-colors ${
-                            selectedVariant?.id === variant.id
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
+                          className={`w-full p-3 text-left border rounded-lg transition-colors ${selectedVariant?.id === variant.id
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                            }`}
                           disabled={variant.stockQuantity <= 0}
                         >
                           <div className="flex justify-between items-center">
@@ -487,52 +488,50 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
                     const isActiveStep = attributeIndexFromMap === 0 || hasPreviousSelection;
                     const selectedLabel = attribute.values.find((value) => value.valueId === selectedAttributes[attribute.attributeId])?.label;
 
-                  return (
-                    <div
-                      key={attribute.attributeId}
-                      className={`space-y-3 rounded-2xl border p-4 shadow-sm transition-colors ${
-                        isActiveStep
+                    return (
+                      <div
+                        key={attribute.attributeId}
+                        className={`space-y-3 rounded-2xl border p-4 shadow-sm transition-colors ${isActiveStep
                           ? 'border-gray-200 bg-white/95 dark:border-gray-700 dark:bg-gray-900/40'
                           : 'border-dashed border-gray-200 bg-gray-100/80 dark:border-gray-700/60 dark:bg-gray-900/30 opacity-80'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <h4 className="text-sm font-semibold text-gray-800">
-                          {attribute.name}
-                        </h4>
-                        {selectedLabel && (
-                          <span className="text-xs font-medium text-gray-500">
-                            {selectedLabel}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {attribute.values.map((value) => {
-                          const isSelected = selectedAttributes[attribute.attributeId] === value.valueId;
-                          const disabled = isOptionDisabled(attribute.attributeId, value.valueId);
+                          }`}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <h4 className="text-sm font-semibold text-gray-800">
+                            {attribute.name}
+                          </h4>
+                          {selectedLabel && (
+                            <span className="text-xs font-medium text-gray-500">
+                              {selectedLabel}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {attribute.values.map((value) => {
+                            const isSelected = selectedAttributes[attribute.attributeId] === value.valueId;
+                            const disabled = isOptionDisabled(attribute.attributeId, value.valueId);
 
-                          return (
-                            <Button
-                              key={value.valueId}
-                              size="sm"
-                              variant={isSelected ? 'solid' : 'bordered'}
-                              color={isSelected ? 'primary' : 'default'}
-                              isDisabled={disabled}
-                              onPress={() => handleAttributeSelect(attribute.attributeId, value.valueId)}
-                              className={`rounded-full px-4 py-1 text-sm font-medium transition-all duration-150 ${
-                                isSelected
+                            return (
+                              <Button
+                                key={value.valueId}
+                                size="sm"
+                                variant={isSelected ? 'solid' : 'bordered'}
+                                color={isSelected ? 'primary' : 'default'}
+                                isDisabled={disabled}
+                                onPress={() => handleAttributeSelect(attribute.attributeId, value.valueId)}
+                                className={`rounded-full px-4 py-1 text-sm font-medium transition-all duration-150 ${isSelected
                                   ? 'shadow-sm'
                                   : 'bg-white/95 text-gray-600 hover:border-gray-300 dark:bg-gray-900/60 dark:text-gray-300'
-                              } ${disabled ? 'pointer-events-none opacity-50' : ''}`}
-                            >
-                              {value.label}
-                            </Button>
-                          );
-                        })}
+                                  } ${disabled ? 'pointer-events-none opacity-50' : ''}`}
+                              >
+                                {value.label}
+                              </Button>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })
+                    );
+                  })
                 )}
 
                 <Divider />
@@ -543,9 +542,7 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
                     <div className="flex items-center justify-between">
                       <h4 className="font-medium">{t('actions.selectedVariant')}</h4>
                       <div className="text-right">
-                        <div className="text-lg font-semibold">
-                          ${selectedVariant.price.toFixed(2)}
-                        </div>
+                        <PriceDisplay price={selectedVariant.price} size="lg" currency={product.currencyCode} />
                         {selectedVariant.compareAtPrice && selectedVariant.compareAtPrice > selectedVariant.price && (
                           <div className="text-sm text-gray-500 line-through">
                             ${selectedVariant.compareAtPrice.toFixed(2)}
@@ -659,7 +656,9 @@ const VariantSelectionModal: React.FC<VariantSelectionModalProps> = ({
                   isAdding ? <FiLoader className="animate-spin" /> : <FiShoppingCart />
                 }
               >
-                {t('actions.addToCart')}
+                {selectedVariant && selectedVariant.price === 0
+                  ? tEcommerce('priceUpdating')
+                  : t('actions.addToCart')}
               </Button>
             </ModalFooter>
           </>

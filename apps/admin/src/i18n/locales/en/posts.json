@@ -1,6 +1,8 @@
 {
     "posts": {
         "create": "Create Post",
+        "update": "Update Post",
+        "updateDescription": "Update post content and metadata",
         "createDescription": "Create a new post with content and metadata",
         "createSuccess": "Post Created",
         "createSuccessDescription": "The post has been successfully created.",
@@ -35,7 +37,15 @@
             "delete_success": "Post deleted successfully",
             "delete_error": "Failed to delete post",
             "delete_confirm": "Are you sure you want to delete this post?",
-            "refresh_success": "Posts refreshed"
+            "refresh_success": "Posts refreshed",
+            "publish_success": "Posts published",
+            "publish_success_description": "{{count}} posts published successfully",
+            "publish_error": "Failed to publish posts",
+            "no_selection": "No posts selected",
+            "select_posts_hint": "Please select at least one post to continue."
+        },
+        "bulkActions": {
+            "publishSelected": "Publish selected"
         },
         "search_placeholder": "Search posts by title, content, or slug...",
         "no_posts_found": "No posts found",
@@ -85,6 +95,9 @@
         "selectLanguageToAdd": "Select language to add",
         "untitledTranslation": "Untitled Translation",
         "generateSlugFromTitle": "Generate slug from title",
-        "noTranslations": "No Additional Translations"
+        "noTranslations": "No Additional Translations",
+        "actions": {
+            "publishNow": "Publish now"
+        }
     }
 }

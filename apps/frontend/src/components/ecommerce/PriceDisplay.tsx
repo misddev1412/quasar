@@ -3,6 +3,7 @@
 import React from 'react';
 import { useCurrency } from '../../contexts/CurrencyContext';
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
+import { useTranslation } from 'react-i18next';
 
 interface PriceDisplayProps {
   price: number;
@@ -31,6 +32,7 @@ const PriceDisplay: React.FC<PriceDisplayProps> = ({
   showDiscount = true,
   className = '',
 }) => {
+  const { t } = useTranslation();
   const { currency: globalCurrency } = useCurrency();
   const { formatCurrency } = useCurrencyFormatter({
     currency: currency || globalCurrency.code,
@@ -70,6 +72,17 @@ const PriceDisplay: React.FC<PriceDisplayProps> = ({
       <div className={`flex items-center gap-2 ${className}`}>
         <span className={`${sizeClasses[size]} ${currentPriceClasses[size]} text-gray-500`}>
           {formatAmount(0)}
+        </span>
+      </div>
+    );
+  }
+
+  // Handle 0 price as "Updating"
+  if (price === 0) {
+    return (
+      <div className={`flex items-center gap-2 ${className}`}>
+        <span className={`${sizeClasses[size]} ${currentPriceClasses[size]} text-gray-500`}>
+          {t('ecommerce.product.priceUpdating', 'Updating...')}
         </span>
       </div>
     );

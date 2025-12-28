@@ -18,12 +18,14 @@ interface TranslationsSectionProps {
   translations: TranslationData[];
   onTranslationsChange: (translations: TranslationData[]) => void;
   primaryLanguage?: string;
+  readonly?: boolean;
 }
 
 export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
   translations,
   onTranslationsChange,
   primaryLanguage,
+  readonly = false,
 }) => {
   const { t } = useTranslationWithBackend();
   const { languageOptions, isLoading: languagesLoading } = useLanguageOptions();
@@ -111,6 +113,7 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
             type: 'text',
             placeholder: t('form.placeholders.enter_title'),
             required: true,
+            disabled: readonly,
           },
           {
             name: 'slug',
@@ -121,6 +124,7 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
             placeholder: t('posts.slugPlaceholder'),
             required: true,
             description: t('posts.slugRequirements'),
+            disabled: readonly,
           },
           {
             name: 'excerpt',
@@ -132,6 +136,7 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
             required: false,
             rows: 3,
             validation: { maxLength: 500 },
+            disabled: readonly,
           },
           {
             name: 'content',
@@ -142,6 +147,7 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
             placeholder: t('posts.contentPlaceholder'),
             required: true,
             minHeight: '500px',
+            disabled: readonly,
           },
           {
             name: 'metaTitle',
@@ -152,6 +158,7 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
             placeholder: t('posts.metaTitlePlaceholder'),
             required: false,
             validation: { maxLength: 60 },
+            disabled: readonly,
           },
           {
             name: 'metaDescription',
@@ -163,6 +170,7 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
             required: false,
             rows: 3,
             validation: { maxLength: 160 },
+            disabled: readonly,
           },
           {
             name: 'metaKeywords',
@@ -173,6 +181,7 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
             placeholder: t('posts.metaKeywordsPlaceholder'),
             required: false,
             description: t('form.descriptions.meta_keywords_description', 'Separate keywords with commas'),
+            disabled: readonly,
           },
         ]}
       />

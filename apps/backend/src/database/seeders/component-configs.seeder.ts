@@ -22,22 +22,6 @@ interface ComponentConfigSeed {
   children?: ComponentConfigSeed[];
 }
 
-const VIEW_MORE_BUTTON_TEXT_COLOR_PRESETS = [
-  'text-gray-700 hover:text-gray-900 dark:text-gray-200 dark:hover:text-gray-50',
-  'text-gray-900 dark:text-gray-100',
-  'text-indigo-600 hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200',
-  'text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300',
-  'text-white hover:text-white dark:text-white dark:hover:text-white',
-];
-
-const VIEW_MORE_BUTTON_BACKGROUND_COLOR_PRESETS = [
-  'bg-transparent hover:bg-gray-50 dark:bg-transparent dark:hover:bg-gray-900/40',
-  'bg-white hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800',
-  'bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200',
-  'bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600',
-  'bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600',
-];
-
 const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
   {
     componentKey: 'product_card',
@@ -688,15 +672,66 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
       limit: 3,
       categories: ['press', 'product'],
       strategy: 'latest',
+      card: {
+        layout: 'grid',
+        showCategory: true,
+        showPublishDate: true,
+        showExcerpt: true,
+        showReadMore: true,
+        badgeTone: 'primary',
+        ctaText: 'Read story',
+      },
       rows: [
-        { id: 'news-latest', title: 'Latest news', strategy: 'latest', limit: 3 },
-        { id: 'news-featured', title: 'Featured stories', strategy: 'featured', limit: 3 },
+        {
+          id: 'news-latest',
+          title: 'Latest news',
+          strategy: 'latest',
+          limit: 3,
+          columns: 3,
+          card: {
+            layout: 'grid',
+            showCategory: true,
+            showPublishDate: true,
+            showExcerpt: true,
+            showReadMore: true,
+            badgeTone: 'primary',
+            ctaText: 'Read story',
+          },
+        },
+        {
+          id: 'news-featured',
+          title: 'Featured stories',
+          strategy: 'featured',
+          limit: 3,
+          columns: 3,
+          card: {
+            layout: 'grid',
+            showCategory: true,
+            showPublishDate: true,
+            showExcerpt: true,
+            showReadMore: true,
+            badgeTone: 'primary',
+            ctaText: 'Read story',
+          },
+        },
       ],
     },
     configSchema: {
       limit: { type: 'number', minimum: 1, maximum: 12 },
       categories: { type: 'array', items: 'string' },
       strategy: { type: 'enum', options: ['latest', 'most_viewed', 'featured'] },
+      card: {
+        type: 'object',
+        properties: {
+          layout: { type: 'enum', options: ['grid', 'horizontal', 'compact'] },
+          showCategory: { type: 'boolean' },
+          showPublishDate: { type: 'boolean' },
+          showExcerpt: { type: 'boolean' },
+          showReadMore: { type: 'boolean' },
+          badgeTone: { type: 'enum', options: ['primary', 'neutral', 'emphasis'] },
+          ctaText: { type: 'string' },
+        },
+      },
       rows: {
         type: 'array',
         items: {
@@ -707,6 +742,19 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
             title: { type: 'string' },
             strategy: { type: 'enum', options: ['latest', 'most_viewed', 'featured'] },
             limit: { type: 'number' },
+            columns: { type: 'number', minimum: 1, maximum: 6 },
+            card: {
+              type: 'object',
+              properties: {
+                layout: { type: 'enum', options: ['grid', 'horizontal', 'compact'] },
+                showCategory: { type: 'boolean' },
+                showPublishDate: { type: 'boolean' },
+                showExcerpt: { type: 'boolean' },
+                showReadMore: { type: 'boolean' },
+                badgeTone: { type: 'enum', options: ['primary', 'neutral', 'emphasis'] },
+                ctaText: { type: 'string' },
+              },
+            },
           },
         },
       },
@@ -751,26 +799,109 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
     position: 7,
     defaultConfig: {
       size: 'md',
-      weight: 'medium',
-      textColor: 'text-indigo-600 hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200',
-      backgroundColor: 'bg-transparent hover:bg-gray-50 dark:bg-transparent dark:hover:bg-gray-900/40',
+      textTransform: 'uppercase',
+      isBold: true,
+      textColor: {
+        light: '#4338ca',
+        dark: '#c7d2fe',
+      },
+      backgroundColor: {
+        light: 'transparent',
+        dark: 'transparent',
+      },
+      border: {
+        width: 'thin',
+        color: {
+          light: '#4338ca',
+          dark: '#818cf8',
+        },
+      },
+      hover: {
+        textColor: {
+          light: '#312e81',
+          dark: '#ede9fe',
+        },
+        backgroundColor: {
+          light: 'rgba(79, 70, 229, 0.08)',
+          dark: 'rgba(99, 102, 241, 0.25)',
+        },
+        borderColor: {
+          light: '#312e81',
+          dark: '#a5b4fc',
+        },
+      },
     },
     configSchema: {
       size: { type: 'enum', options: ['sm', 'md', 'lg'], description: 'Button size preset' },
-      weight: {
+      textTransform: {
         type: 'enum',
-        options: ['thin', 'light', 'normal', 'medium', 'semibold', 'bold', 'extrabold', 'black'],
-        description: 'Font weight for the button label',
+        options: ['none', 'uppercase', 'capitalize'],
+        description: 'Text transform style for the label',
+      },
+      isBold: {
+        type: 'boolean',
+        description: 'Toggle bold styling for the label',
       },
       textColor: {
-        type: 'enum',
-        options: VIEW_MORE_BUTTON_TEXT_COLOR_PRESETS,
-        description: 'Text color utility classes applied to the CTA (includes hover & dark variants)',
+        type: 'object',
+        properties: {
+          light: { type: 'string', description: 'Hex/RGB color for light mode text' },
+          dark: { type: 'string', description: 'Hex/RGB color for dark mode text' },
+        },
+        description: 'Text colors for light/dark themes',
       },
       backgroundColor: {
-        type: 'enum',
-        options: VIEW_MORE_BUTTON_BACKGROUND_COLOR_PRESETS,
-        description: 'Background utility classes applied to the CTA (includes hover & dark variants)',
+        type: 'object',
+        properties: {
+          light: { type: 'string', description: 'Hex/RGB color for light mode background' },
+          dark: { type: 'string', description: 'Hex/RGB color for dark mode background' },
+        },
+        description: 'Background colors for light/dark themes',
+      },
+      border: {
+        type: 'object',
+        properties: {
+          width: {
+            type: 'enum',
+            options: ['none', 'thin', 'medium', 'thick'],
+            description: 'Border thickness',
+          },
+          color: {
+            type: 'object',
+            properties: {
+              light: { type: 'string', description: 'Border color in light mode' },
+              dark: { type: 'string', description: 'Border color in dark mode' },
+            },
+          },
+        },
+        description: 'Border appearance for light/dark themes',
+      },
+      hover: {
+        type: 'object',
+        properties: {
+          textColor: {
+            type: 'object',
+            properties: {
+              light: { type: 'string', description: 'Hover text color for light mode' },
+              dark: { type: 'string', description: 'Hover text color for dark mode' },
+            },
+          },
+          backgroundColor: {
+            type: 'object',
+            properties: {
+              light: { type: 'string', description: 'Hover background color for light mode' },
+              dark: { type: 'string', description: 'Hover background color for dark mode' },
+            },
+          },
+          borderColor: {
+            type: 'object',
+            properties: {
+              light: { type: 'string', description: 'Hover border color for light mode' },
+              dark: { type: 'string', description: 'Hover border color for dark mode' },
+            },
+          },
+        },
+        description: 'Hover-state colors for light/dark themes',
       },
     },
     metadata: {

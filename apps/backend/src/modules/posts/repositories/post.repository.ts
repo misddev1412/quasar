@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder, In } from 'typeorm';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { BaseRepository } from '@shared';
 import { Post, PostStatus, PostType } from '../entities/post.entity';
 import { PostTranslation } from '../entities/post-translation.entity';
@@ -217,6 +218,34 @@ export class PostRepository extends BaseRepository<Post> {
     }
 
     return this.findByIdWithRelations(id);
+  }
+
+  async bulkUpdateStatus(
+    ids: string[],
+    status: PostStatus,
+    publishedAt?: Date | null,
+  ): Promise<number> {
+    if (!ids.length) {
+      return 0;
+    }
+
+    const payload: QueryDeepPartialEntity<Post> = {
+      status,
+    };
+
+    if (status === PostStatus.PUBLISHED) {
+      payload.published_at = publishedAt ?? new Date();
+    } else if (publishedAt !== undefined) {
+      payload.published_at = publishedAt;
+    }
+
+    const result = await this.repository.createQueryBuilder()
+      .update(Post)
+      .set(payload)
+      .whereInIds(ids)
+      .execute();
+
+    return result.affected ?? 0;
   }
 
   async incrementViewCount(id: string): Promise<void> {

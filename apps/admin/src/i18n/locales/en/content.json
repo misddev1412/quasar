@@ -206,7 +206,7 @@
     }
   },
   "translations": {
-    "fieldsFor": "Fields for {name}",
+    "fieldsFor": "Fields for {{name}}",
     "noTranslations": "No translations available for this language yet.",
     "tabs": {
       "general": "General",
@@ -216,16 +216,16 @@
       "en": "English",
       "vi": "Vietnamese"
     },
-    "fieldsRequired": "Please fill in all required fields for {language}",
-    "translationSaved": "Translation for {language} saved successfully",
-    "translationUpdated": "Translation for {language} updated successfully",
-    "translationDeleted": "Translation for {language} deleted successfully",
-    "confirmDeleteTranslation": "Are you sure you want to delete the {language} translation?",
+    "fieldsRequired": "Please fill in all required fields for {{language}}",
+    "translationSaved": "Translation for {{language}} saved successfully",
+    "translationUpdated": "Translation for {{language}} updated successfully",
+    "translationDeleted": "Translation for {{language}} deleted successfully",
+    "confirmDeleteTranslation": "Are you sure you want to delete the {{language}} translation?",
     "addTranslation": "Add Translation",
     "editTranslation": "Edit Translation",
     "deleteTranslation": "Delete Translation",
     "noTranslationsAdded": "No translations have been added yet",
-    "translationFor": "Translation for {language}"
+    "translationFor": "Translation for {{language}}"
   },
   "media": {
     "title": "Media Manager",

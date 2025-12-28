@@ -255,6 +255,7 @@ const appRouter = t.router({
     createPost: t.procedure.input(z.any()).mutation(() => null),
     updatePost: t.procedure.input(z.any()).mutation(() => null),
     deletePost: t.procedure.input(z.any()).mutation(() => null),
+    bulkUpdateStatus: t.procedure.input(z.any()).mutation(() => null),
   }),
   adminProductAttributes: t.router({
     getAll: t.procedure.query(() => null),

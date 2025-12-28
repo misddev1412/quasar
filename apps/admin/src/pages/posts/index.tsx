@@ -150,9 +150,20 @@ const PostListPage = () => {
     }
   });
 
+  const bulkUpdateStatusMutation = trpc.adminPosts.bulkUpdateStatus.useMutation({
+    onError: (error) => {
+      addToast({
+        type: 'error',
+        title: t('posts.messages.publish_error', 'Failed to publish posts'),
+        description: error.message,
+      });
+    },
+  });
+
   const posts = (postsQuery.data as any)?.data?.items || [];
   const totalPosts = (postsQuery.data as any)?.data?.total || 0;
   const totalPages = (postsQuery.data as any)?.data?.totalPages || 0;
+  const { refetch: refetchPosts } = postsQuery;
 
   // Statistics cards
   const statisticsCards: StatisticData[] = useMemo(() => [
@@ -187,6 +198,48 @@ const PostListPage = () => {
   ], [posts, totalPosts, t]);
 
   // Table columns
+  const publishPosts = useCallback(async (postIds: string[]): Promise<boolean> => {
+    if (!postIds.length) return false;
+
+    try {
+      const result = await bulkUpdateStatusMutation.mutateAsync({
+        ids: postIds,
+        status: PostStatus.PUBLISHED,
+      });
+
+      const affected = (result as any)?.data?.affected ?? postIds.length;
+      addToast({
+        type: 'success',
+        title: t('posts.messages.publish_success', 'Posts published'),
+        description: t('posts.messages.publish_success_description', '{{count}} posts published successfully')
+          .replace('{{count}}', String(affected)),
+      });
+      await refetchPosts();
+      return true;
+    } catch (error) {
+      console.error('Publish posts error:', error);
+      throw error;
+    }
+  }, [bulkUpdateStatusMutation, addToast, refetchPosts, t]);
+
+  const [selectedPostIds, setSelectedPostIds] = useState<Set<string | number>>(new Set());
+
+  const handlePublishSingle = useCallback(async (postId: string) => {
+    try {
+      const success = await publishPosts([postId]);
+      if (success) {
+        setSelectedPostIds((prev) => {
+          if (!prev.size) return prev;
+          const next = new Set(prev);
+          next.delete(postId);
+          return next;
+        });
+      }
+    } catch {
+      // noop - toast handled globally
+    }
+  }, [publishPosts]);
+
   const columns: Column<Post>[] = useMemo(() => [
     {
       id: 'post',
@@ -209,12 +262,12 @@ const PostListPage = () => {
       header: t('posts.table.status', 'Status'),
       accessor: (item) => (
         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${item.status === PostStatus.PUBLISHED
-            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-            : item.status === PostStatus.DRAFT
-              ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-              : item.status === PostStatus.ARCHIVED
-                ? 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-                : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+          : item.status === PostStatus.DRAFT
+            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+            : item.status === PostStatus.ARCHIVED
+              ? 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+              : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
           }`}>
           {t(`posts.status.${item.status}`, item.status)}
         </span>
@@ -291,8 +344,16 @@ const PostListPage = () => {
             {
               label: t('common.view', 'View'),
               icon: <FiEye className="w-4 h-4" />,
-              onClick: () => navigate(`/posts/${item.id}`),
+              onClick: () => navigate(`/posts/${item.id}/detail`),
             },
+            ...(item.status !== PostStatus.PUBLISHED
+              ? [{
+                  label: t('posts.actions.publishNow', 'Publish now'),
+                  icon: <FiEye className="w-4 h-4" />,
+                  onClick: () => handlePublishSingle(item.id),
+                  disabled: bulkUpdateStatusMutation.isPending,
+                }]
+              : []),
             {
               label: t('common.edit', 'Edit'),
               icon: <FiEdit2 className="w-4 h-4" />,
@@ -313,7 +374,7 @@ const PostListPage = () => {
         />
       ),
     },
-  ], [navigate, t]);
+  ], [navigate, t, handlePublishSingle, bulkUpdateStatusMutation.isPending]);
 
   const handleDeletePost = async (postId: string) => {
     if (!confirm(t('posts.messages.delete_confirm', 'Are you sure you want to delete this post?'))) return;
@@ -476,6 +537,40 @@ const PostListPage = () => {
     [filters]
   );
 
+  const bulkActions = useMemo(() => {
+    if (selectedPostIds.size === 0) return [];
+    return [
+      {
+        label: t('posts.bulkActions.publishSelected', 'Publish selected'),
+        value: 'publish',
+        icon: <FiEye className="w-4 h-4" />,
+        disabled: bulkUpdateStatusMutation.isPending,
+      },
+    ];
+  }, [selectedPostIds, t, bulkUpdateStatusMutation.isPending]);
+
+  const handleBulkAction = useCallback(async (action: string) => {
+    if (action !== 'publish') return;
+    const ids = Array.from(selectedPostIds).map(String);
+    if (!ids.length) {
+      addToast({
+        type: 'info',
+        title: t('posts.messages.no_selection', 'No posts selected'),
+        description: t('posts.messages.select_posts_hint', 'Please select at least one post to continue.'),
+      });
+      return;
+    }
+
+    try {
+      const success = await publishPosts(ids);
+      if (success) {
+        setSelectedPostIds(new Set());
+      }
+    } catch {
+      // Error toast already handled via mutation onError
+    }
+  }, [selectedPostIds, publishPosts, addToast, t]);
+
   if (postsQuery.isLoading) {
     return (
       <BaseLayout
@@ -549,6 +644,11 @@ const PostListPage = () => {
           visibleColumns={visibleColumns}
           onColumnVisibilityChange={handleColumnVisibilityChange}
           showColumnVisibility={true}
+          // Selection and bulk actions
+          selectedIds={selectedPostIds}
+          onSelectionChange={setSelectedPostIds}
+          bulkActions={bulkActions.length ? bulkActions : undefined}
+          onBulkAction={handleBulkAction}
           // Sorting
           sortDescriptor={{
             columnAccessor: sortBy as keyof Post,

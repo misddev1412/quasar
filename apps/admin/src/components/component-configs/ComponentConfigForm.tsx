@@ -1,5 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ComponentCategory, ComponentStructureType } from '@shared/enums/component.enums';
+import type {
+  ThemeAwareColor,
+  ViewMoreButtonBorderWidth,
+  ViewMoreButtonConfig,
+  ViewMoreButtonHoverConfig,
+  ViewMoreButtonTextTransform,
+} from '@shared/types/component.types';
 import { SECTION_TYPE_LABELS } from '@shared/enums/section.enums';
 import { Input } from '../common/Input';
 import { Select, type SelectOption } from '../common/Select';
@@ -332,6 +339,12 @@ const PRODUCT_CARD_FONT_SIZES: ProductCardFontSize[] = ['sm', 'base', 'lg', 'xl'
 const PRODUCT_CARD_PRICE_TONES: ProductCardPriceTone[] = ['muted', 'default', 'emphasis', 'custom'];
 const PRODUCT_CARD_ORIENTATIONS: ProductCardThumbnailOrientation[] = ['portrait', 'landscape'];
 
+type ViewMoreButtonSize = NonNullable<ViewMoreButtonConfig['size']>;
+
+const VIEW_MORE_BUTTON_SIZES: ViewMoreButtonSize[] = ['sm', 'md', 'lg'];
+const VIEW_MORE_BUTTON_TRANSFORMS: ViewMoreButtonTextTransform[] = ['none', 'uppercase', 'capitalize'];
+const VIEW_MORE_BUTTON_BORDER_WIDTHS: ViewMoreButtonBorderWidth[] = ['none', 'thin', 'medium', 'thick'];
+
 const isProductCardFontWeight = (value: unknown): value is ProductCardFontWeight =>
   typeof value === 'string' && PRODUCT_CARD_FONT_WEIGHTS.includes(value as ProductCardFontWeight);
 
@@ -343,6 +356,15 @@ const isProductCardPriceTone = (value: unknown): value is ProductCardPriceTone =
 
 const isProductCardOrientation = (value: unknown): value is ProductCardThumbnailOrientation =>
   typeof value === 'string' && PRODUCT_CARD_ORIENTATIONS.includes(value as ProductCardThumbnailOrientation);
+
+const isViewMoreButtonSize = (value: unknown): value is ViewMoreButtonSize =>
+  typeof value === 'string' && VIEW_MORE_BUTTON_SIZES.includes(value as ViewMoreButtonSize);
+
+const isViewMoreButtonTextTransform = (value: unknown): value is ViewMoreButtonTextTransform =>
+  typeof value === 'string' && VIEW_MORE_BUTTON_TRANSFORMS.includes(value as ViewMoreButtonTextTransform);
+
+const isViewMoreButtonBorderWidth = (value: unknown): value is ViewMoreButtonBorderWidth =>
+  typeof value === 'string' && VIEW_MORE_BUTTON_BORDER_WIDTHS.includes(value as ViewMoreButtonBorderWidth);
 
 const normalizeStringValue = (value: unknown, fallback = ''): string => {
   if (typeof value === 'string') {
@@ -437,6 +459,173 @@ const normalizeProductCardPriceConfig = (raw?: Record<string, unknown>): Product
   }
 
   return normalized;
+};
+
+interface ViewMoreButtonConfigState extends ViewMoreButtonConfig {
+  size: ViewMoreButtonSize;
+  textTransform: ViewMoreButtonTextTransform;
+  isBold: boolean;
+  textColor: ThemeAwareColor;
+  backgroundColor: ThemeAwareColor;
+  border: {
+    width: ViewMoreButtonBorderWidth;
+    color: ThemeAwareColor;
+  };
+  hover: {
+    textColor: ThemeAwareColor;
+    backgroundColor: ThemeAwareColor;
+    borderColor: ThemeAwareColor;
+  };
+}
+
+const DEFAULT_VIEW_MORE_BUTTON_CONFIG: ViewMoreButtonConfigState = {
+  size: 'md',
+  textTransform: 'uppercase',
+  isBold: true,
+  textColor: {
+    light: '#4338ca',
+    dark: '#c7d2fe',
+  },
+  backgroundColor: {
+    light: 'transparent',
+    dark: 'transparent',
+  },
+  border: {
+    width: 'thin',
+    color: {
+      light: '#4338ca',
+      dark: '#818cf8',
+    },
+  },
+  hover: {
+    textColor: {
+      light: '#312e81',
+      dark: '#ede9fe',
+    },
+    backgroundColor: {
+      light: 'rgba(79, 70, 229, 0.08)',
+      dark: 'rgba(99, 102, 241, 0.25)',
+    },
+    borderColor: {
+      light: '#312e81',
+      dark: '#a5b4fc',
+    },
+  },
+};
+
+const normalizeThemeAwareColorValue = (value: unknown, fallback: ThemeAwareColor): ThemeAwareColor => {
+  if (value && typeof value === 'object') {
+    const source = value as ThemeAwareColor;
+    const light = typeof source.light === 'string' && source.light.trim().length > 0 ? source.light.trim() : fallback.light;
+    const dark = typeof source.dark === 'string' && source.dark.trim().length > 0
+      ? source.dark.trim()
+      : (typeof light === 'string' ? light : fallback.dark);
+    return {
+      light: light ?? fallback.light,
+      dark: dark ?? fallback.dark ?? light,
+    };
+  }
+  if (typeof value === 'string' && value.trim().length > 0) {
+    const trimmed = value.trim();
+    return {
+      light: trimmed,
+      dark: fallback.dark ?? trimmed,
+    };
+  }
+  return {
+    light: fallback.light,
+    dark: fallback.dark ?? fallback.light,
+  };
+};
+
+const normalizeViewMoreButtonConfig = (raw?: Record<string, unknown>): ViewMoreButtonConfigState => {
+  const source = (raw ?? {}) as ViewMoreButtonConfig;
+  const borderSource = source.border && typeof source.border === 'object' ? source.border : undefined;
+  const hoverSource = source.hover && typeof source.hover === 'object' ? source.hover as ViewMoreButtonHoverConfig : undefined;
+
+  return {
+    size: isViewMoreButtonSize(source.size) ? source.size : DEFAULT_VIEW_MORE_BUTTON_CONFIG.size,
+    textTransform: isViewMoreButtonTextTransform(source.textTransform)
+      ? source.textTransform
+      : DEFAULT_VIEW_MORE_BUTTON_CONFIG.textTransform,
+    isBold: typeof source.isBold === 'boolean' ? source.isBold : DEFAULT_VIEW_MORE_BUTTON_CONFIG.isBold,
+    textColor: normalizeThemeAwareColorValue(source.textColor, DEFAULT_VIEW_MORE_BUTTON_CONFIG.textColor),
+    backgroundColor: normalizeThemeAwareColorValue(source.backgroundColor, DEFAULT_VIEW_MORE_BUTTON_CONFIG.backgroundColor),
+    border: {
+      width: borderSource && isViewMoreButtonBorderWidth((borderSource as { width?: unknown })?.width)
+        ? (borderSource as { width?: ViewMoreButtonBorderWidth }).width!
+        : DEFAULT_VIEW_MORE_BUTTON_CONFIG.border.width,
+      color: normalizeThemeAwareColorValue(
+        (borderSource as { color?: ThemeAwareColor })?.color,
+        DEFAULT_VIEW_MORE_BUTTON_CONFIG.border.color,
+      ),
+    },
+    hover: {
+      textColor: normalizeThemeAwareColorValue(
+        hoverSource?.textColor,
+        DEFAULT_VIEW_MORE_BUTTON_CONFIG.hover.textColor,
+      ),
+      backgroundColor: normalizeThemeAwareColorValue(
+        hoverSource?.backgroundColor,
+        DEFAULT_VIEW_MORE_BUTTON_CONFIG.hover.backgroundColor,
+      ),
+      borderColor: normalizeThemeAwareColorValue(
+        hoverSource?.borderColor,
+        DEFAULT_VIEW_MORE_BUTTON_CONFIG.hover.borderColor,
+      ),
+    },
+  };
+};
+
+const sanitizeThemeAwareColor = (color: ThemeAwareColor | undefined): ThemeAwareColor | undefined => {
+  const light = typeof color?.light === 'string' && color.light.trim().length > 0 ? color.light.trim() : undefined;
+  const dark = typeof color?.dark === 'string' && color.dark.trim().length > 0 ? color.dark.trim() : undefined;
+  if (!light && !dark) {
+    return undefined;
+  }
+  return {
+    ...(light ? { light } : {}),
+    ...(dark ? { dark } : {}),
+  };
+};
+
+const sanitizeViewMoreButtonConfig = (config: ViewMoreButtonConfigState): ViewMoreButtonConfig => {
+  const textColor = sanitizeThemeAwareColor(config.textColor);
+  const backgroundColor = sanitizeThemeAwareColor(config.backgroundColor);
+  const borderColor = sanitizeThemeAwareColor(config.border?.color);
+  const borderWidth = config.border?.width && isViewMoreButtonBorderWidth(config.border.width)
+    ? config.border.width
+    : undefined;
+  const hoverTextColor = sanitizeThemeAwareColor(config.hover?.textColor);
+  const hoverBackgroundColor = sanitizeThemeAwareColor(config.hover?.backgroundColor);
+  const hoverBorderColor = sanitizeThemeAwareColor(config.hover?.borderColor);
+  const sanitized: ViewMoreButtonConfig = {
+    size: config.size,
+    textTransform: config.textTransform,
+    isBold: config.isBold,
+  };
+
+  if (textColor) {
+    sanitized.textColor = textColor;
+  }
+  if (backgroundColor) {
+    sanitized.backgroundColor = backgroundColor;
+  }
+  if (borderColor || borderWidth) {
+    sanitized.border = {
+      ...(borderWidth ? { width: borderWidth } : {}),
+      ...(borderColor ? { color: borderColor } : {}),
+    };
+  }
+  if (hoverTextColor || hoverBackgroundColor || hoverBorderColor) {
+    sanitized.hover = {
+      ...(hoverTextColor ? { textColor: hoverTextColor } : {}),
+      ...(hoverBackgroundColor ? { backgroundColor: hoverBackgroundColor } : {}),
+      ...(hoverBorderColor ? { borderColor: hoverBorderColor } : {}),
+    };
+  }
+
+  return sanitized;
 };
 
 const sanitizeSidebarItem = (item: SidebarMenuItem): PersistedSidebarItem | null => {
@@ -823,6 +1012,9 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
   const [mainMenuConfig, setMainMenuConfig] = useState<MainMenuConfig>(() =>
     createMainMenuConfig(sanitizedInitialDefaultConfig as Partial<MainMenuConfig>),
   );
+  const [viewMoreButtonConfig, setViewMoreButtonConfig] = useState<ViewMoreButtonConfigState>(() =>
+    normalizeViewMoreButtonConfig(sanitizedInitialDefaultConfig),
+  );
   const [defaultConfigEntryErrors, setDefaultConfigEntryErrors] = useState<Record<string, string | undefined>>({});
   const [metadataEntryErrors, setMetadataEntryErrors] = useState<Record<string, string | undefined>>({});
   const [defaultConfigMode, setDefaultConfigMode] = useState<'friendly' | 'json'>('friendly');
@@ -847,6 +1039,7 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
   const isProductCardTitle = formState.componentKey === 'product_card.info.title';
   const isProductCardPrice = formState.componentKey === 'product_card.info.price';
   const isMainMenuAppearance = formState.componentKey === 'navigation.main_menu';
+  const isViewMoreButton = formState.componentKey === 'view_more_button';
   const [pendingChildKey, setPendingChildKey] = useState('');
 
   const syncDefaultConfigState = useCallback((config: Record<string, unknown> | MainMenuConfig) => {
@@ -895,9 +1088,18 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     syncDefaultConfigState(normalized);
   }, [isMainMenuAppearance, sanitizedInitialDefaultConfig, syncDefaultConfigState]);
 
+  useEffect(() => {
+    if (!isViewMoreButton) {
+      return;
+    }
+    const normalized = normalizeViewMoreButtonConfig(sanitizedInitialDefaultConfig);
+    setViewMoreButtonConfig(normalized);
+    syncDefaultConfigState(normalized);
+  }, [isViewMoreButton, sanitizedInitialDefaultConfig, syncDefaultConfigState]);
+
   // Generic sync for other components
   useEffect(() => {
-    if (isProductCard || isProductCardTitle || isProductCardPrice || isMainMenuAppearance) {
+    if (isProductCard || isProductCardTitle || isProductCardPrice || isMainMenuAppearance || isViewMoreButton) {
       return;
     }
     const serializable = sanitizedInitialDefaultConfig as Record<string, unknown>;
@@ -1057,6 +1259,19 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     });
   };
 
+  const handleViewMoreButtonConfigChange = (
+    nextValue: ViewMoreButtonConfigState | ((prev: ViewMoreButtonConfigState) => ViewMoreButtonConfigState),
+  ) => {
+    setViewMoreButtonConfig((prev) => {
+      const resolved = typeof nextValue === 'function' ? nextValue(prev) : nextValue;
+      const normalized = normalizeViewMoreButtonConfig(resolved);
+      if (isViewMoreButton) {
+        syncDefaultConfigState(normalized);
+      }
+      return normalized;
+    });
+  };
+
   const handleAddAllowedChildKey = useCallback((childKey: string) => {
     const trimmedKey = childKey.trim();
     if (!trimmedKey || allowedChildKeysArray.includes(trimmedKey)) {
@@ -1102,6 +1317,8 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
       parsedDefault = productCardTitleConfig;
     } else if (isProductCardPrice) {
       parsedDefault = productCardPriceConfig;
+    } else if (isViewMoreButton) {
+      parsedDefault = sanitizeViewMoreButtonConfig(viewMoreButtonConfig);
     } else {
       const result = parseEntriesToObject(defaultConfigEntries);
       setDefaultConfigEntryErrors(result.errors);
@@ -1205,14 +1422,16 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
       return;
     }
 
-    if (isProductCard || isProductCardTitle || isProductCardPrice || isMainMenuAppearance) {
+    if (isProductCard || isProductCardTitle || isProductCardPrice || isMainMenuAppearance || isViewMoreButton) {
       const currentConfig = isProductCard
         ? productCardConfig
         : isProductCardTitle
           ? productCardTitleConfig
           : isProductCardPrice
             ? productCardPriceConfig
-            : mainMenuConfig;
+            : isMainMenuAppearance
+              ? mainMenuConfig
+              : viewMoreButtonConfig;
 
       const normalizeCustomConfig = (value: Record<string, unknown>) => {
         if (isProductCard) {
@@ -1224,7 +1443,10 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
         if (isProductCardPrice) {
           return normalizeProductCardPriceConfig(value);
         }
-        return createMainMenuConfig(value as Partial<MainMenuConfig>);
+        if (isMainMenuAppearance) {
+          return createMainMenuConfig(value as Partial<MainMenuConfig>);
+        }
+        return normalizeViewMoreButtonConfig(value);
       };
 
       const applyNormalizedConfig = (config: Record<string, unknown>) => {
@@ -1243,9 +1465,15 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
           syncDefaultConfigState(config);
           return;
         }
-        const normalizedMenu = createMainMenuConfig(config as Partial<MainMenuConfig>);
-        setMainMenuConfig(normalizedMenu);
-        syncDefaultConfigState(normalizedMenu);
+        if (isMainMenuAppearance) {
+          const normalizedMenu = createMainMenuConfig(config as Partial<MainMenuConfig>);
+          setMainMenuConfig(normalizedMenu);
+          syncDefaultConfigState(normalizedMenu);
+          return;
+        }
+        const normalizedViewMore = normalizeViewMoreButtonConfig(config as Record<string, unknown>);
+        setViewMoreButtonConfig(normalizedViewMore);
+        syncDefaultConfigState(normalizedViewMore);
       };
 
       if (nextMode === 'json') {
@@ -1612,6 +1840,11 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
                 onChange={(next) => handleMainMenuConfigChange(next)}
                 t={t}
               />
+            ) : isViewMoreButton ? (
+              <ViewMoreButtonDefaultsEditor
+                value={viewMoreButtonConfig}
+                onChange={(next) => handleViewMoreButtonConfigChange(next)}
+              />
             ) : (
               <KeyValueEditor
                 entries={defaultConfigEntries}
@@ -1841,6 +2074,240 @@ const useSidebarOptions = (t: TranslationFn) => ({
     { value: 'lowercase', label: t('componentConfigs.transformLowercase') },
   ],
 });
+
+interface ViewMoreButtonDefaultsEditorProps {
+  value: ViewMoreButtonConfigState;
+  onChange: (next: ViewMoreButtonConfigState) => void;
+}
+
+const ViewMoreButtonDefaultsEditor: React.FC<ViewMoreButtonDefaultsEditorProps> = ({ value, onChange }) => {
+  const { t } = useTranslationWithBackend();
+  const sizeOptions: SelectOption[] = [
+    { value: 'sm', label: t('componentConfigs.viewMoreButtonSizeSm') },
+    { value: 'md', label: t('componentConfigs.viewMoreButtonSizeMd') },
+    { value: 'lg', label: t('componentConfigs.viewMoreButtonSizeLg') },
+  ];
+  const textTransformOptions: SelectOption[] = [
+    { value: 'none', label: t('componentConfigs.transformNone') },
+    { value: 'uppercase', label: t('componentConfigs.transformUppercase') },
+    { value: 'capitalize', label: t('componentConfigs.transformCapitalize') },
+  ];
+  const borderWidthOptions: SelectOption[] = [
+    { value: 'none', label: t('componentConfigs.viewMoreButtonBorderNone') },
+    { value: 'thin', label: t('componentConfigs.viewMoreButtonBorderThin') },
+    { value: 'medium', label: t('componentConfigs.viewMoreButtonBorderMedium') },
+    { value: 'thick', label: t('componentConfigs.viewMoreButtonBorderThick') },
+  ];
+
+  const handleChange = (updates: Partial<ViewMoreButtonConfigState>) => {
+    onChange({
+      ...value,
+      ...updates,
+    });
+  };
+
+  const handleColorChange = (
+    colorKey: 'textColor' | 'backgroundColor',
+    mode: keyof ThemeAwareColor,
+    nextColor?: string,
+  ) => {
+    handleChange({
+      [colorKey]: {
+        ...value[colorKey],
+        [mode]: nextColor,
+      },
+    });
+  };
+
+  const handleBorderColorChange = (mode: keyof ThemeAwareColor, nextColor?: string) => {
+    handleChange({
+      border: {
+        ...value.border,
+        color: {
+          ...value.border.color,
+          [mode]: nextColor,
+        },
+      },
+    });
+  };
+
+  const handleHoverColorChange = (
+    target: 'textColor' | 'backgroundColor' | 'borderColor',
+    mode: keyof ThemeAwareColor,
+    nextColor?: string,
+  ) => {
+    handleChange({
+      hover: {
+        ...value.hover,
+        [target]: {
+          ...value.hover[target],
+          [mode]: nextColor,
+        },
+      },
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.viewMoreButtonHeading')}</p>
+        <p className="text-xs text-neutral-500">{t('componentConfigs.viewMoreButtonDescription')}</p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Select
+          label={t('componentConfigs.viewMoreButtonSizeLabel')}
+          value={value.size}
+          onChange={(next) => handleChange({ size: isViewMoreButtonSize(next) ? next : value.size })}
+          options={sizeOptions}
+          placeholder={t('componentConfigs.viewMoreButtonSizePlaceholder')}
+        />
+        <Select
+          label={t('componentConfigs.viewMoreButtonTransformLabel')}
+          value={value.textTransform}
+          onChange={(next) => handleChange({
+            textTransform: isViewMoreButtonTextTransform(next) ? next : value.textTransform,
+          })}
+          options={textTransformOptions}
+          placeholder={t('componentConfigs.viewMoreButtonTransformPlaceholder')}
+        />
+      </div>
+      <div className="flex items-start justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            {t('componentConfigs.viewMoreButtonBoldLabel')}
+          </p>
+          <p className="text-[11px] text-neutral-500">{t('componentConfigs.viewMoreButtonBoldDescription')}</p>
+        </div>
+        <Toggle
+          checked={value.isBold}
+          onChange={(checked) => handleChange({ isBold: checked })}
+          size="sm"
+          aria-label={t('componentConfigs.viewMoreButtonBoldLabel')}
+        />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-4">
+          <div>
+            <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.viewMoreButtonTextColors')}</p>
+            <p className="text-xs text-neutral-500">{t('componentConfigs.viewMoreButtonTextColorsDesc')}</p>
+          </div>
+          <ColorSelector
+            label={t('componentConfigs.lightModeLabel')}
+            value={value.textColor.light}
+            onChange={(color) => handleColorChange('textColor', 'light', color)}
+          />
+          <ColorSelector
+            label={t('componentConfigs.darkModeLabel')}
+            value={value.textColor.dark}
+            onChange={(color) => handleColorChange('textColor', 'dark', color)}
+          />
+        </div>
+        <div className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-4">
+          <div>
+            <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.viewMoreButtonBackgroundHeading')}</p>
+            <p className="text-xs text-neutral-500">{t('componentConfigs.viewMoreButtonBackgroundDesc')}</p>
+          </div>
+          <ColorSelector
+            label={t('componentConfigs.lightModeLabel')}
+            value={value.backgroundColor.light}
+            onChange={(color) => handleColorChange('backgroundColor', 'light', color)}
+          />
+          <ColorSelector
+            label={t('componentConfigs.darkModeLabel')}
+            value={value.backgroundColor.dark}
+            onChange={(color) => handleColorChange('backgroundColor', 'dark', color)}
+          />
+        </div>
+      </div>
+      <div className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-4">
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.viewMoreButtonBorderHeading')}</p>
+          <p className="text-xs text-neutral-500">{t('componentConfigs.viewMoreButtonBorderDesc')}</p>
+        </div>
+        <Select
+          label={t('componentConfigs.viewMoreButtonBorderWidthLabel')}
+          value={value.border.width}
+          onChange={(next) => {
+            const normalized = typeof next === 'string' ? next : undefined;
+            handleChange({
+              border: {
+                ...value.border,
+                width: isViewMoreButtonBorderWidth(normalized) ? normalized : value.border.width,
+              },
+            });
+          }}
+          options={borderWidthOptions}
+          placeholder={t('componentConfigs.viewMoreButtonBorderWidthPlaceholder')}
+        />
+        <div className="grid gap-4 md:grid-cols-2">
+          <ColorSelector
+            label={t('componentConfigs.lightModeLabel')}
+            value={value.border.color.light}
+            onChange={(color) => handleBorderColorChange('light', color)}
+          />
+          <ColorSelector
+            label={t('componentConfigs.darkModeLabel')}
+            value={value.border.color.dark}
+            onChange={(color) => handleBorderColorChange('dark', color)}
+          />
+        </div>
+      </div>
+      <div className="space-y-4 rounded-2xl border border-neutral-200 bg-white p-4">
+        <div>
+          <p className="text-sm font-semibold text-neutral-900">{t('componentConfigs.viewMoreButtonHoverHeading')}</p>
+          <p className="text-xs text-neutral-500">{t('componentConfigs.viewMoreButtonHoverDesc')}</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              {t('componentConfigs.viewMoreButtonHoverTextLabel')}
+            </p>
+            <ColorSelector
+              label={t('componentConfigs.lightModeLabel')}
+              value={value.hover.textColor.light}
+              onChange={(color) => handleHoverColorChange('textColor', 'light', color)}
+            />
+            <ColorSelector
+              label={t('componentConfigs.darkModeLabel')}
+              value={value.hover.textColor.dark}
+              onChange={(color) => handleHoverColorChange('textColor', 'dark', color)}
+            />
+          </div>
+          <div className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              {t('componentConfigs.viewMoreButtonHoverBackgroundLabel')}
+            </p>
+            <ColorSelector
+              label={t('componentConfigs.lightModeLabel')}
+              value={value.hover.backgroundColor.light}
+              onChange={(color) => handleHoverColorChange('backgroundColor', 'light', color)}
+            />
+            <ColorSelector
+              label={t('componentConfigs.darkModeLabel')}
+              value={value.hover.backgroundColor.dark}
+              onChange={(color) => handleHoverColorChange('backgroundColor', 'dark', color)}
+            />
+          </div>
+          <div className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              {t('componentConfigs.viewMoreButtonHoverBorderLabel')}
+            </p>
+            <ColorSelector
+              label={t('componentConfigs.lightModeLabel')}
+              value={value.hover.borderColor.light}
+              onChange={(color) => handleHoverColorChange('borderColor', 'light', color)}
+            />
+            <ColorSelector
+              label={t('componentConfigs.darkModeLabel')}
+              value={value.hover.borderColor.dark}
+              onChange={(color) => handleHoverColorChange('borderColor', 'dark', color)}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ value, onChange }) => {
   const { t } = useTranslationWithBackend();

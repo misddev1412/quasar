@@ -1,6 +1,8 @@
 {
     "posts": {
         "create": "Tạo bài viết",
+        "update": "Cập nhật",
+        "updateDescription": "Cập nhật thông tin bài viết",
         "createDescription": "Tạo bài viết mới với nội dung và siêu dữ liệu",
         "createSuccess": "Đã tạo bài viết",
         "createSuccessDescription": "Bài viết đã được tạo thành công.",
@@ -35,7 +37,15 @@
             "delete_success": "Xóa bài viết thành công",
             "delete_error": "Không thể xóa bài viết",
             "delete_confirm": "Bạn có chắc chắn muốn xóa bài viết này không?",
-            "refresh_success": "Đã tải lại danh sách bài viết"
+            "refresh_success": "Đã tải lại danh sách bài viết",
+            "publish_success": "Đã xuất bản bài viết",
+            "publish_success_description": "Đã xuất bản {{count}} bài viết thành công",
+            "publish_error": "Không thể xuất bản bài viết",
+            "no_selection": "Chưa chọn bài viết",
+            "select_posts_hint": "Vui lòng chọn ít nhất một bài viết để tiếp tục."
+        },
+        "bulkActions": {
+            "publishSelected": "Xuất bản các mục đã chọn"
         },
         "search_placeholder": "Tìm bài viết theo tiêu đề, nội dung hoặc slug...",
         "no_posts_found": "Không tìm thấy bài viết",
@@ -85,6 +95,9 @@
         "selectLanguageToAdd": "Chọn ngôn ngữ để thêm",
         "untitledTranslation": "Bản dịch chưa có tiêu đề",
         "generateSlugFromTitle": "Tự động tạo slug từ tiêu đề",
-        "noTranslations": "Chưa có bản dịch bổ sung"
+        "noTranslations": "Chưa có bản dịch bổ sung",
+        "actions": {
+            "publishNow": "Xuất bản ngay"
+        }
     }
 }

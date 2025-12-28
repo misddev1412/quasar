@@ -212,7 +212,7 @@
     }
   },
   "translations": {
-    "fieldsFor": "Trường cho {name}",
+    "fieldsFor": "Trường cho {{name}}",
     "noTranslations": "Chưa có bản dịch nào cho ngôn ngữ này.",
     "tabs": {
       "general": "Tổng quan",
@@ -222,16 +222,16 @@
       "en": "Tiếng Anh",
       "vi": "Tiếng Việt"
     },
-    "fieldsRequired": "Vui lòng điền tất cả các trường bắt buộc cho {language}",
-    "translationSaved": "Bản dịch cho {language} đã được lưu thành công",
-    "translationUpdated": "Bản dịch cho {language} đã được cập nhật thành công",
-    "translationDeleted": "Bản dịch cho {language} đã được xóa thành công",
-    "confirmDeleteTranslation": "Bạn có chắc chắn muốn xóa bản dịch {language}?",
+    "fieldsRequired": "Vui lòng điền tất cả các trường bắt buộc cho {{language}}",
+    "translationSaved": "Bản dịch cho {{language}} đã được lưu thành công",
+    "translationUpdated": "Bản dịch cho {{language}} đã được cập nhật thành công",
+    "translationDeleted": "Bản dịch cho {{language}} đã được xóa thành công",
+    "confirmDeleteTranslation": "Bạn có chắc chắn muốn xóa bản dịch {{language}}?",
     "addTranslation": "Thêm bản dịch",
     "editTranslation": "Chỉnh sửa bản dịch",
     "deleteTranslation": "Xóa bản dịch",
     "noTranslationsAdded": "Chưa có bản dịch nào được thêm",
-    "translationFor": "Bản dịch cho {language}"
+    "translationFor": "Bản dịch cho {{language}}"
   },
   "media": {
     "title": "Quản lý Media",

@@ -1868,7 +1868,9 @@
       "view_newsroom": "Visit newsroom",
       "latest_news": "Latest news",
       "view_all": "View all news",
-      "read_story": "Read story →",
+      "view_more": "View more news",
+      "view_category": "View {{category}}",
+      "read_story": "Read story",
       "empty_category": "No news articles are available in this category yet.",
       "error_loading": "Unable to load news at the moment.",
       "strategy": {

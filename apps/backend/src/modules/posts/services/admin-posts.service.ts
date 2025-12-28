@@ -103,4 +103,21 @@ export class AdminPostsService {
       );
     }
   }
+
+  async bulkUpdateStatus(
+    ids: string[],
+    status: PostStatus,
+    options?: { publishedAt?: Date | null },
+  ): Promise<number> {
+    try {
+      return await this.postRepository.bulkUpdateStatus(ids, status, options?.publishedAt);
+    } catch (error) {
+      console.error('AdminPostsService.bulkUpdateStatus error:', error);
+      throw this.responseHandler.createError(
+        500,
+        'Failed to update post status',
+        'INTERNAL_SERVER_ERROR'
+      );
+    }
+  }
 }

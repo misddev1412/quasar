@@ -39,8 +39,8 @@ const createPostSchema = z.object({
   })).optional(),
   publishedAt: z.date().optional(),
   scheduledAt: z.date().optional(),
-  isFeatured: z.boolean(),
-  allowComments: z.boolean(),
+  isFeatured: z.boolean().optional().default(false),
+  allowComments: z.boolean().optional().default(true),
   categoryIds: z.array(z.string()).optional(),
 
   // SEO

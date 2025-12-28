@@ -45,6 +45,7 @@ import EditEmailFlowPage from '../pages/email-flows/[id]/edit';
 import PostsIndexPage from '../pages/posts';
 import PostsCreatePage from '../pages/posts/create';
 import PostsEditPage from '../pages/posts/edit';
+import PostDetailPage from '../pages/posts/detail';
 import PostCategoriesPage from '../pages/posts/categories';
 import PostTagsPage from '../pages/posts/tags';
 import SiteContentIndexPage from '../pages/site-content';
@@ -217,6 +218,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/posts" element={<ProtectedRoute><PostsIndexPage /></ProtectedRoute>} />
       <Route path="/posts/create" element={<ProtectedRoute><PostsCreatePage /></ProtectedRoute>} />
       <Route path="/posts/:id" element={<ProtectedRoute><PostsEditPage /></ProtectedRoute>} />
+      <Route path="/posts/:id/detail" element={<ProtectedRoute><PostDetailPage /></ProtectedRoute>} />
       <Route path="/posts/categories" element={<ProtectedRoute><PostCategoriesPage /></ProtectedRoute>} />
       <Route path="/posts/tags" element={<ProtectedRoute><PostTagsPage /></ProtectedRoute>} />
       <Route path="/site-content" element={<ProtectedRoute><SiteContentIndexPage /></ProtectedRoute>} />

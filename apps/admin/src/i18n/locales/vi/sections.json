@@ -331,12 +331,22 @@
             "newsByCategory": {
                 "title": "Danh mục tin tức",
                 "description": "Chọn danh mục và cách hiển thị bài viết cho từng danh mục.",
+                "configureBlocks": "Cấu hình các khối tin tức",
+                "addBlock": "Thêm khối tin tức",
                 "addCategory": "Thêm danh mục tin tức",
                 "rowDescription": "Chọn danh mục và cấu hình hiển thị cho mục tin tức.",
+                "blockIndex": "Khối #{{index}}",
                 "remove": "Xóa",
+                "strategy": "Chiến lược",
+                "displayStyle": "Kiểu hiển thị",
                 "categoryLabel": "Danh mục",
+                "category": "Danh mục",
+                "loading": "Đang tải...",
                 "loadingCategories": "Đang tải danh mục...",
                 "selectCategory": "Chọn danh mục tin tức",
+                "limit": "Giới hạn bài viết",
+                "columns": "Số cột",
+                "columnsDescription": "Số thẻ mỗi hàng ({{min}}-{{max}})",
                 "displayTitle": "Tiêu đề hiển thị",
                 "titlePlaceholder": "Ví dụ: Tin tức nổi bật",
                 "fetchStrategy": "Cách lấy bài viết",
@@ -344,7 +354,29 @@
                 "itemCount": "Số lượng bài viết",
                 "latest": "Tin mới nhất",
                 "mostViewed": "Xem nhiều nhất",
-                "featured": "Biên tập đề xuất"
+                "featured": "Biên tập đề xuất",
+                "card": {
+                    "title": "Hiển thị thẻ bài viết",
+                    "description": "Điều chỉnh giao diện thẻ tin tức cho từng khối.",
+                    "layout": "Bố cục thẻ",
+                    "layoutOptions": {
+                        "grid": "Lưới dọc",
+                        "horizontal": "Ngang chia đôi",
+                        "compact": "Gọn nhẹ"
+                    },
+                    "badgeTone": "Kiểu nhãn",
+                    "badgeToneOptions": {
+                        "primary": "Nổi bật",
+                        "neutral": "Trung tính",
+                        "emphasis": "Tương phản cao"
+                    },
+                    "ctaText": "Nhãn nút CTA",
+                    "ctaPlaceholder": "Ví dụ: Đọc thêm",
+                    "showCategory": "Hiển thị danh mục & thông tin phụ",
+                    "showPublishDate": "Hiển thị ngày xuất bản",
+                    "showExcerpt": "Hiển thị mô tả ngắn",
+                    "showReadMore": "Hiển thị nút \"Đọc thêm\""
+                }
             },
             "productsByCategory": {
                 "strategy": {

@@ -331,12 +331,22 @@
             "newsByCategory": {
                 "title": "News Categories",
                 "description": "Select category and display style for each news category.",
+                "configureBlocks": "Configure news blocks",
+                "addBlock": "Add news block",
                 "addCategory": "Add News Category",
                 "rowDescription": "Configure category and display settings for this news section.",
+                "blockIndex": "Block #{{index}}",
                 "remove": "Remove",
+                "strategy": "Strategy",
+                "displayStyle": "Display Style",
                 "categoryLabel": "Category",
+                "category": "Category",
+                "loading": "Loading...",
                 "loadingCategories": "Loading categories...",
                 "selectCategory": "Select a news category",
+                "limit": "Article Limit",
+                "columns": "Columns",
+                "columnsDescription": "Cards per row ({{min}}-{{max}})",
                 "displayTitle": "Display Title",
                 "titlePlaceholder": "e.g., Latest News",
                 "fetchStrategy": "Fetch Strategy",
@@ -344,7 +354,29 @@
                 "itemCount": "Number of Articles",
                 "latest": "Latest News",
                 "mostViewed": "Most Viewed",
-                "featured": "Editor's Pick"
+                "featured": "Editor's Pick",
+                "card": {
+                    "title": "Card display",
+                    "description": "Control how articles appear inside each block.",
+                    "layout": "Card layout",
+                    "layoutOptions": {
+                        "grid": "Vertical grid",
+                        "horizontal": "Horizontal split",
+                        "compact": "Compact"
+                    },
+                    "badgeTone": "Badge style",
+                    "badgeToneOptions": {
+                        "primary": "Primary accent",
+                        "neutral": "Neutral",
+                        "emphasis": "High contrast"
+                    },
+                    "ctaText": "CTA label",
+                    "ctaPlaceholder": "e.g., Read story",
+                    "showCategory": "Show category & metadata",
+                    "showPublishDate": "Show publish date",
+                    "showExcerpt": "Show short description",
+                    "showReadMore": "Show \"Read more\" link"
+                }
             },
             "productsByCategory": {
                 "strategy": {

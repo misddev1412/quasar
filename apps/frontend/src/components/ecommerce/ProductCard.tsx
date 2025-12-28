@@ -533,7 +533,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {/* Add to Cart Button */}
         <div className="mt-1 pt-1">
           <div className="h-10 flex items-end">
-            {resolvedShowAddToCart && inStock && (
+            {resolvedShowAddToCart && inStock && ((variants && variants.length > 0) || (currentPrice !== undefined && currentPrice > 0)) && (
               <AddToCartButton
                 product={product}
                 onAddToCart={handleAddToCartDirect}
@@ -678,8 +678,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 <div className="flex gap-3">
                   <button
                     onClick={handleAddToCartWithVariant}
-                    disabled={!isCompleteSelection() || !matchingVariant || !canPurchaseVariant(matchingVariant) || isAdding}
-                    className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${!isCompleteSelection() || !matchingVariant || !canPurchaseVariant(matchingVariant) || isAdding
+                    disabled={!isCompleteSelection() || !matchingVariant || !canPurchaseVariant(matchingVariant) || isAdding || matchingVariant.price === 0}
+                    className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${!isCompleteSelection() || !matchingVariant || !canPurchaseVariant(matchingVariant) || isAdding || matchingVariant.price === 0
                       ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                       : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transform hover:scale-105 hover:shadow-lg'
                       }`}
@@ -690,13 +690,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         ? t('ecommerce.productCard.combinationUnavailable', 'Combination Not Available')
                         : !canPurchaseVariant(matchingVariant)
                           ? t('ecommerce.cart.outOfStock', 'Out of Stock')
-                          : isAdding
-                            ? t('ecommerce.cart.adding', 'Adding...')
-                            : isContactPrice
-                              ? t('ecommerce.cart.addToQuote')
-                              : t('ecommerce.cart.addWithPrice', {
-                                price: formatCurrency((matchingVariant.price || 0) * quantity),
-                              })
+                          : matchingVariant.price === 0
+                            ? t('ecommerce.product.priceUpdating', 'Price Updating')
+                            : isAdding
+                              ? t('ecommerce.cart.adding', 'Adding...')
+                              : isContactPrice
+                                ? t('ecommerce.cart.addToQuote')
+                                : t('ecommerce.cart.addWithPrice', {
+                                  price: formatCurrency((matchingVariant.price || 0) * quantity),
+                                })
                     }
                   </button>
                   <button

@@ -64,6 +64,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
   onScrollToReviews,
 }) => {
   const t = useTranslations('product.detail');
+  const tEcommerce = useTranslations('ecommerce.product');
   const { name, brand, sku, status, isActive, variants, tags, isContactPrice } = product;
   const { formatCurrency } = useCurrencyFormatter({ currency: product.currencyCode });
 
@@ -255,20 +256,22 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
             color="primary"
             className="flex-1 font-semibold"
             onPress={onAddToCart}
-            isDisabled={!inStock || (hasAttributeBasedVariants && !selectedVariant)}
+            isDisabled={!inStock || (hasAttributeBasedVariants && !selectedVariant) || currentPrice === 0}
           >
             {!inStock
               ? t('actions.outOfStock')
-              : isContactPrice
-                ? t('actions.addToQuote')
-                : t('actions.addToCart')}
+              : currentPrice === 0
+                ? tEcommerce('priceUpdating')
+                : isContactPrice
+                  ? t('actions.addToQuote')
+                  : t('actions.addToCart')}
           </Button>
 
           <Button
             color="secondary"
             className="flex-1 font-semibold"
             onPress={onBuyNow}
-            isDisabled={!inStock || (hasAttributeBasedVariants && !selectedVariant)}
+            isDisabled={!inStock || (hasAttributeBasedVariants && !selectedVariant) || currentPrice === 0}
           >
             {t('actions.buyNow')}
           </Button>

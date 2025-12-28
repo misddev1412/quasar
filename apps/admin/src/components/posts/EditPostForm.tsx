@@ -39,8 +39,8 @@ const editPostSchema = z.object({
   })).optional(),
   publishedAt: z.date().optional(),
   scheduledAt: z.date().optional(),
-  isFeatured: z.boolean(),
-  allowComments: z.boolean(),
+  isFeatured: z.boolean().optional().default(false),
+  allowComments: z.boolean().optional().default(true),
   categoryIds: z.array(z.string()).optional(),
 
   // SEO
@@ -77,6 +77,7 @@ interface EditPostFormProps {
   isSubmitting?: boolean;
   activeTab?: number;
   onTabChange?: (tabIndex: number) => void;
+  readonly?: boolean;
 }
 
 export const EditPostForm: React.FC<EditPostFormProps> = ({
@@ -86,6 +87,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
   isSubmitting = false,
   activeTab,
   onTabChange,
+  readonly = false,
 }) => {
   const { t } = useTranslationWithBackend();
   const { languageOptions, isLoading: languagesLoading } = useLanguageOptions();
@@ -144,7 +146,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
                   ? t('form.placeholders.select_language')
                   : 'No languages available',
               required: true,
-              disabled: languagesLoading || languageOptions.length === 0,
+              disabled: readonly || languagesLoading || languageOptions.length === 0,
               options: languageOptions.map(option => ({
                 value: option.value,
                 label: option.label,
@@ -160,6 +162,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               type: 'text',
               placeholder: t('form.placeholders.enter_title'),
               required: true,
+              disabled: readonly,
               validation: {
                 minLength: 1,
                 maxLength: 200,
@@ -172,6 +175,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               placeholder: 'post-slug',
               required: true,
               sourceField: 'title',
+              disabled: readonly,
               description: t('form.descriptions.slug_requirements'),
             },
             {
@@ -180,6 +184,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               type: 'textarea',
               placeholder: t('posts.shortDescriptionPlaceholder'),
               required: false,
+              disabled: readonly,
               rows: 3,
               validation: {
                 maxLength: 500,
@@ -191,6 +196,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               type: 'richtext',
               placeholder: t('posts.contentPlaceholder'),
               required: true,
+              disabled: readonly,
               minHeight: '400px',
               validation: {
                 minLength: 10,
@@ -209,6 +215,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               type: 'select',
               placeholder: t('form.placeholders.select_status'),
               required: true,
+              disabled: readonly,
               options: [
                 { value: 'draft', label: t('posts.status.draft') },
                 { value: 'published', label: t('posts.status.published') },
@@ -222,6 +229,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               type: 'select',
               placeholder: t('form.placeholders.select_type'),
               required: true,
+              disabled: readonly,
               options: [
                 { value: 'post', label: t('posts.type.post') },
                 { value: 'page', label: t('posts.type.page') },
@@ -236,6 +244,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               type: 'category-multiselect',
               placeholder: t('posts.select_categories', 'Select categories'),
               required: false,
+              disabled: readonly,
               description: t(
                 'posts.categories_description',
                 'Assign one or more categories to organize this post.'
@@ -248,6 +257,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               label: t('posts.isFeatured'),
               type: 'checkbox',
               required: false,
+              disabled: readonly,
               description: t('form.descriptions.featured_post_description'),
             },
             {
@@ -255,6 +265,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               label: t('posts.allowComments'),
               type: 'checkbox',
               required: false,
+              disabled: readonly,
               description: t('form.descriptions.allow_comments_description'),
             },
           ],
@@ -277,6 +288,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               type: 'media-upload',
               placeholder: 'Upload or drag and drop your featured image',
               required: false,
+              disabled: readonly,
               accept: 'image/*',
               maxSize: 5,
               multiple: false,
@@ -287,6 +299,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               label: 'Image Gallery',
               type: 'image-gallery',
               required: false,
+              disabled: readonly,
               maxImages: 15,
               maxSize: 10,
               description: 'Add up to 15 images to create a gallery for this post. Images can be reordered by dragging.',
@@ -311,6 +324,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               type: 'text',
               placeholder: t('posts.metaTitlePlaceholder'),
               required: false,
+              disabled: readonly,
               validation: {
                 maxLength: 60,
               },
@@ -322,6 +336,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               type: 'textarea',
               placeholder: t('posts.metaDescriptionPlaceholder'),
               required: false,
+              disabled: readonly,
               rows: 3,
               validation: {
                 maxLength: 160,
@@ -334,6 +349,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               type: 'tags',
               placeholder: t('posts.metaKeywordsPlaceholder'),
               required: false,
+              disabled: readonly,
               description: t('form.descriptions.meta_keywords_description'),
             },
           ],
@@ -355,11 +371,13 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               label: '',
               type: 'custom',
               required: false,
+              disabled: readonly,
               component: (
                 <TranslationsSection
                   translations={additionalTranslations}
                   onTranslationsChange={setAdditionalTranslations}
                   primaryLanguage={primaryLanguage}
+                  readonly={readonly}
                 />
               ),
             },
@@ -404,6 +422,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
       activeTab={activeTab}
       onTabChange={onTabChange}
       mode="edit"
+      customActions={readonly ? <></> : undefined}
     />
   );
 };

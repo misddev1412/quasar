@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { SectionTranslationContent } from './HeroSlider';
 import type { ApiResponse } from '../../types/api';
 import type { ViewMoreButtonConfig } from '@shared/types/component.types';
 import SectionContainer from './SectionContainer';
 import { ViewMoreButton } from '../common/ViewMoreButton';
+import NewsCard, { type NewsCardConfig, type NewsCardLayout } from '../news/NewsCard';
 
 export type NewsSectionStrategy = 'latest' | 'most_viewed' | 'featured';
 
@@ -17,6 +17,8 @@ export interface NewsSectionRowConfig {
   title?: string;
   strategy?: NewsSectionStrategy;
   limit?: number;
+  columns?: number;
+  card?: NewsCardConfig;
 }
 
 export interface NewsSectionConfig {
@@ -24,9 +26,20 @@ export interface NewsSectionConfig {
   limit?: number;
   categories?: string[];
   strategy?: NewsSectionStrategy;
+  card?: NewsCardConfig;
 }
 
 const DEFAULT_NEWS_LIMIT = 3;
+const MIN_COLUMNS = 1;
+const MAX_COLUMNS = 6;
+const GRID_COLUMN_CLASSES: Record<number, string> = {
+  1: 'md:grid-cols-1 lg:grid-cols-1',
+  2: 'md:grid-cols-2 lg:grid-cols-2',
+  3: 'md:grid-cols-3 lg:grid-cols-3',
+  4: 'md:grid-cols-4 lg:grid-cols-4',
+  5: 'md:grid-cols-5 lg:grid-cols-5',
+  6: 'md:grid-cols-6 lg:grid-cols-6',
+};
 
 const ensurePositiveNumber = (value: unknown, fallback: number): number => {
   const parsed = Number(value);
@@ -34,6 +47,77 @@ const ensurePositiveNumber = (value: unknown, fallback: number): number => {
     return Math.floor(parsed);
   }
   return fallback;
+};
+
+const clampColumns = (value: unknown, fallback: number): number => {
+  const parsed = ensurePositiveNumber(value, fallback);
+  return Math.max(MIN_COLUMNS, Math.min(MAX_COLUMNS, parsed));
+};
+
+const VALID_CARD_LAYOUTS: NewsCardLayout[] = ['grid', 'horizontal', 'compact'];
+const VALID_BADGE_TONES: NonNullable<NewsCardConfig['badgeTone']>[] = ['primary', 'neutral', 'emphasis'];
+
+const parseBoolean = (value: unknown, fallback: boolean): boolean =>
+  typeof value === 'boolean' ? value : fallback;
+
+const parseOptionalString = (value: unknown): string | undefined =>
+  typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined;
+
+const parseCardLayout = (value: unknown, fallback: NewsCardLayout): NewsCardLayout => {
+  const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
+  if (VALID_CARD_LAYOUTS.includes(normalized as NewsCardLayout)) {
+    return normalized as NewsCardLayout;
+  }
+  return fallback;
+};
+
+const parseBadgeTone = (
+  value: unknown,
+  fallback: NonNullable<NewsCardConfig['badgeTone']>,
+): NonNullable<NewsCardConfig['badgeTone']> => {
+  const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
+  if (VALID_BADGE_TONES.includes(normalized as NonNullable<NewsCardConfig['badgeTone']>)) {
+    return normalized as NonNullable<NewsCardConfig['badgeTone']>;
+  }
+  return fallback;
+};
+
+const sanitizeCardConfig = (value: unknown): NewsCardConfig | undefined => {
+  if (!value || typeof value !== 'object') {
+    return undefined;
+  }
+
+  const raw = value as Record<string, unknown>;
+  const config: NewsCardConfig = {
+    layout: parseCardLayout(raw.layout, 'grid'),
+    showCategory: parseBoolean(raw.showCategory, true),
+    showPublishDate: parseBoolean(raw.showPublishDate, true),
+    showExcerpt: parseBoolean(raw.showExcerpt, true),
+    showReadMore: parseBoolean(raw.showReadMore, true),
+    badgeTone: parseBadgeTone(raw.badgeTone, 'primary'),
+  };
+
+  const clampTitleLines =
+    typeof raw.clampTitleLines === 'number' ? ensurePositiveNumber(raw.clampTitleLines, 2) : undefined;
+  const clampExcerptLines =
+    typeof raw.clampExcerptLines === 'number' ? ensurePositiveNumber(raw.clampExcerptLines, 3) : undefined;
+  const imageHeight = parseOptionalString(raw.imageHeight);
+  const ctaText = parseOptionalString(raw.ctaText);
+
+  if (clampTitleLines) {
+    config.clampTitleLines = clampTitleLines;
+  }
+  if (clampExcerptLines) {
+    config.clampExcerptLines = clampExcerptLines;
+  }
+  if (imageHeight) {
+    config.imageHeight = imageHeight;
+  }
+  if (ctaText) {
+    config.ctaText = ctaText;
+  }
+
+  return config;
 };
 
 const normalizeNewsStrategy = (value?: string): NewsSectionStrategy => {
@@ -54,6 +138,8 @@ const normalizeNewsStrategy = (value?: string): NewsSectionStrategy => {
 const parseNewsRows = (config: NewsSectionConfig): NewsSectionRowConfig[] => {
   const rows = Array.isArray(config?.rows) ? config.rows : [];
   const baseLimit = ensurePositiveNumber(config?.limit, DEFAULT_NEWS_LIMIT);
+  const baseColumns = clampColumns((config as any)?.columns, baseLimit);
+  const baseCard = sanitizeCardConfig((config as any)?.card);
 
   if (rows.length > 0) {
     return rows.map((row, index) => ({
@@ -62,6 +148,8 @@ const parseNewsRows = (config: NewsSectionConfig): NewsSectionRowConfig[] => {
       title: typeof row?.title === 'string' && row.title.trim().length > 0 ? row.title : undefined,
       strategy: normalizeNewsStrategy(row?.strategy ?? config?.strategy),
       limit: ensurePositiveNumber(row?.limit, baseLimit),
+      columns: clampColumns((row as any)?.columns, row?.limit ?? baseColumns),
+      card: sanitizeCardConfig((row as any)?.card) ?? baseCard,
     }));
   }
 
@@ -77,6 +165,8 @@ const parseNewsRows = (config: NewsSectionConfig): NewsSectionRowConfig[] => {
       title: undefined,
       strategy,
       limit: baseLimit,
+      columns: baseColumns,
+      card: baseCard,
     }));
   }
 
@@ -160,6 +250,8 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
         title: row.title,
         strategy: normalizeNewsStrategy(row.strategy),
         limit: ensurePositiveNumber(row.limit ?? limit, DEFAULT_NEWS_LIMIT),
+        columns: clampColumns(row.columns ?? row.limit ?? limit, row.limit ?? limit),
+        card: sanitizeCardConfig(row.card),
       })),
     [baseRows, limit],
   );
@@ -268,21 +360,32 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
           {normalizedRowConfigs.map((row) => {
             const state = rowStates[row.id] || { items: [], isLoading: true };
             const rowHeading = row.title || row.categoryId || t('sections.news.latest_news', 'Latest news');
-
             const viewAllHref = row.categoryId
               ? `/news?category=${encodeURIComponent(row.categoryId)}`
               : '/news';
+            const desiredColumns = clampColumns(
+              row.columns ?? row.limit ?? config.limit ?? DEFAULT_NEWS_LIMIT,
+              row.limit ?? config.limit ?? DEFAULT_NEWS_LIMIT,
+            );
+            const gridClass = GRID_COLUMN_CLASSES[desiredColumns] ?? 'md:grid-cols-3 lg:grid-cols-3';
+            const cardConfig: NewsCardConfig = row.card
+              ? {
+                  ...row.card,
+                  ctaText: row.card?.ctaText || t('sections.news.read_story', 'Read story'),
+                }
+              : { ctaText: t('sections.news.read_story', 'Read story') };
 
             return (
               <div key={row.id} className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
                   <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{rowHeading}</h3>
-                  <Link
+                  <ViewMoreButton
                     href={viewAllHref}
-                    className="text-sm font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200"
-                  >
-                    {t('sections.news.view_all', 'View all news')}
-                  </Link>
+                    label={row.categoryId
+                      ? t('sections.news.view_category', { category: rowHeading })
+                      : t('sections.news.view_more', 'View more news')}
+                    config={viewMoreButtonConfig}
+                  />
                 </div>
                 <div className="space-y-6">
                   {state.error && (
@@ -290,48 +393,46 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
                       {state.error}
                     </div>
                   )}
-                  {state.isLoading
-                    ? Array.from({ length: row.limit }).map((_, index) => (
-                        <article
+                  {state.isLoading ? (
+                    <div className={`grid gap-6 grid-cols-1 sm:grid-cols-2 ${GRID_COLUMN_CLASSES[desiredColumns] ?? 'md:grid-cols-3 lg:grid-cols-3'}`}>
+                      {Array.from({ length: row.limit }).map((_, index) => (
+                        <div
                           key={`skeleton-${row.id}-${index}`}
-                          className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900/40 p-6 shadow-sm animate-pulse"
+                          className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900/40 shadow-sm animate-pulse"
                         >
-                          <div className="h-3 w-1/3 rounded bg-gray-200 dark:bg-gray-700" />
-                          <div className="mt-3 h-5 w-2/3 rounded bg-gray-200 dark:bg-gray-700" />
-                          <div className="mt-4 h-16 rounded bg-gray-100 dark:bg-gray-800" />
-                          <div className="mt-6 h-4 w-32 rounded bg-gray-200 dark:bg-gray-700" />
-                        </article>
-                      ))
-                    : state.items.length > 0
-                    ? state.items.map((post) => {
-                        const metadata = [
-                          post.category,
-                          post.publishDate ? new Date(post.publishDate).toLocaleDateString() : undefined,
-                        ]
-                          .filter(Boolean)
-                          .join(' • ');
-                        return (
-                          <article
-                            key={post.id}
-                            className="rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900/40 shadow-sm p-6 hover:shadow-md dark:hover:shadow-lg transition"
-                          >
-                            <p className="text-xs uppercase tracking-wide text-gray-400 dark:text-gray-500">{metadata}</p>
-                            <h4 className="mt-2 text-xl font-semibold text-gray-900 dark:text-gray-100">{post.title}</h4>
-                            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400 line-clamp-3">{post.excerpt}</p>
-                            <Link
-                              href={`/news/${post.slug}`}
-                              className="mt-4 inline-flex text-sm font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-300 dark:hover:text-indigo-200"
-                            >
-                              {t('sections.news.read_story', 'Read story →')}
-                            </Link>
-                          </article>
-                        );
-                      })
-                    : (
-                      <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 px-4 py-6 text-sm text-gray-500 dark:text-gray-400">
-                        {emptyMessage}
-                      </div>
-                    )}
+                          <div className="h-48 w-full rounded-t-2xl bg-gray-100 dark:bg-gray-800" />
+                          <div className="space-y-3 p-6">
+                            <div className="h-3 w-1/3 rounded bg-gray-200 dark:bg-gray-700" />
+                            <div className="h-5 w-2/3 rounded bg-gray-200 dark:bg-gray-700" />
+                            <div className="h-4 w-full rounded bg-gray-100 dark:bg-gray-800" />
+                            <div className="h-4 w-1/2 rounded bg-gray-100 dark:bg-gray-800" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : state.items.length > 0 ? (
+                    <div className={`grid gap-6 grid-cols-1 sm:grid-cols-2 ${gridClass}`}>
+                      {state.items.map((post) => (
+                        <NewsCard
+                          key={post.id}
+                          item={{
+                            id: post.id,
+                            title: post.title,
+                            slug: post.slug,
+                            excerpt: post.excerpt,
+                            category: post.category,
+                            publishDate: post.publishDate,
+                            image: post.image,
+                          }}
+                          config={cardConfig}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30 px-4 py-6 text-sm text-gray-500 dark:text-gray-400">
+                      {emptyMessage}
+                    </div>
+                  )}
                 </div>
               </div>
             );
