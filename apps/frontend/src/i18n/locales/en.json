@@ -1251,6 +1251,7 @@
   "ecommerce": {
     "product": {
       "outOfStock": "Out of Stock",
+      "priceUpdating": "Price being updated",
       "contactPrice": "Contact Price"
     },
     "checkout": {

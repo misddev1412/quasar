@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: SiteContentPageProps): Promis
     };
   }
 
-  return buildMetadataFromSiteContent(siteContent);
+  return await buildMetadataFromSiteContent(siteContent);
 }
 
 const formatDate = (value?: string | null): string | null => {
@@ -132,7 +132,7 @@ export default async function SiteContentPage({ params }: SiteContentPageProps) 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Hero Section */}
         <section className="relative bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 text-white overflow-hidden">
-    
+
           {/* Overlay Gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent" />
 

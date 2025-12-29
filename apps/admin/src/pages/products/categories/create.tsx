@@ -9,6 +9,7 @@ import { trpc } from '../../../utils/trpc';
 import { CreateCategoryFormData } from '../../../types/product';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { useUrlTabs } from '../../../hooks/useUrlTabs';
+import { cleanSlug, generateSlug } from '../../../utils/slugUtils';
 
 const CategoryCreatePage: React.FC = () => {
   const navigate = useNavigate();
@@ -48,11 +49,16 @@ const CategoryCreatePage: React.FC = () => {
 
   const handleSubmit = async (formData: CreateCategoryFormData & { additionalTranslations?: any[] }) => {
     try {
+      const providedSlug = typeof formData.slug === 'string' ? formData.slug.trim() : '';
+      const normalizedSlug = providedSlug
+        ? cleanSlug(providedSlug)
+        : generateSlug(formData.name || '');
+
       // Transform form data to match API expectations
       const categoryData = {
         name: formData.name,
         description: formData.description || undefined,
-        slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-'),
+        slug: normalizedSlug || undefined,
         parentId: parentId || formData.parentId || undefined,
         isActive: formData.isActive ?? true,
         sortOrder: formData.sortOrder ?? 0,
@@ -71,11 +77,13 @@ const CategoryCreatePage: React.FC = () => {
           try {
             for (const translation of formData.additionalTranslations) {
               if (translation && (translation.name || translation.description)) {
+                const translationSlug = generateSlug(translation.name || '');
                 await createTranslationMutation.mutateAsync({
                   categoryId,
                   locale: translation.locale,
                   name: translation.name,
                   description: translation.description,
+                  slug: translationSlug || undefined,
                 });
               }
             }

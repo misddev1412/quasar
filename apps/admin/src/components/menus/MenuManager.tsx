@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Edit3, Trash2, GripVertical, ChevronDown, ChevronRight, RefreshCcw, Menu, Settings } from 'lucide-react';
+import { Plus, Edit3, Trash2, GripVertical, ChevronDown, ChevronRight, RefreshCcw, Menu, Settings, Copy } from 'lucide-react';
 import { useMenusManager, AdminMenu, MenuTreeNode, ActiveLanguage, MenuFormData } from '../../hooks/useMenusManager';
 import {
   MenuType,
@@ -181,9 +181,10 @@ const MenuItemRow: React.FC<{
   level: number;
   onEdit: (menu: AdminMenu) => void;
   onDelete: (menu: AdminMenu) => void;
+  onClone: (menu: AdminMenu) => void;
   onToggleChildren: (id: string) => void;
   expandedNodes: Set<string>;
-}> = ({ menu, level, onEdit, onDelete, onToggleChildren, expandedNodes }) => {
+}> = ({ menu, level, onEdit, onDelete, onClone, onToggleChildren, expandedNodes }) => {
   const hasChildren = menu.children && menu.children.length > 0;
   const isExpanded = expandedNodes.has(menu.id);
 
@@ -266,6 +267,16 @@ const MenuItemRow: React.FC<{
             <Button
               variant="ghost"
               size="sm"
+              onClick={() => onClone(menu)}
+              className="p-1 text-blue-600 hover:text-blue-700"
+              title="Clone"
+            >
+              <Copy className="w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => onDelete(menu)}
               className="p-1 text-red-600 hover:text-red-700"
             >
@@ -282,6 +293,7 @@ const MenuItemRow: React.FC<{
           level={level + 1}
           onEdit={onEdit}
           onDelete={onDelete}
+          onClone={onClone}
           onToggleChildren={onToggleChildren}
           expandedNodes={expandedNodes}
         />
@@ -756,6 +768,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({ initialMenuGroup }) =>
     createMenu,
     updateMenu,
     deleteMenu,
+    cloneMenu,
     reorderMenus,
     treeQuery,
     languagesQuery,
@@ -781,6 +794,15 @@ export const MenuManager: React.FC<MenuManagerProps> = ({ initialMenuGroup }) =>
       addToast({ title: 'Menu deleted successfully', type: 'success' });
     } catch (error) {
       addToast({ title: 'Failed to delete menu', type: 'error' });
+    }
+  };
+
+  const handleCloneMenu = async (menu: AdminMenu) => {
+    try {
+      await cloneMenu.mutateAsync({ id: menu.id });
+      addToast({ title: 'Menu cloned successfully', type: 'success' });
+    } catch (error) {
+      addToast({ title: 'Failed to clone menu', type: 'error' });
     }
   };
 
@@ -920,6 +942,7 @@ export const MenuManager: React.FC<MenuManagerProps> = ({ initialMenuGroup }) =>
                 level={0}
                 onEdit={handleEditMenu}
                 onDelete={handleDeleteMenu}
+                onClone={handleCloneMenu}
                 onToggleChildren={handleToggleChildren}
                 expandedNodes={expandedNodes}
               />

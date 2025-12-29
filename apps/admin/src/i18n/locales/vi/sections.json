@@ -34,7 +34,10 @@
             },
             "edit": "Chỉnh sửa",
             "delete": "Xóa",
+            "clone": "Nhân bản",
             "noSections": "Chưa có section nào",
+            "sectionCloned": "Đã nhân bản section thành công",
+            "cloneFailed": "Nhân bản thất bại",
             "configEditor": {
                 "rawJson": "Cấu hình JSON thô",
                 "useFormEditor": "Sử dụng trình chỉnh sửa biểu mẫu",
@@ -292,7 +295,83 @@
                     "animatedCounter": "Bộ đếm hoạt hình",
                     "numberOfColumns": "Số cột",
                     "columnsDescription": "Số cột trên màn hình máy tính",
-                    "contentDescription": "Quản lý số liệu thống kê trong cấu hình thành phần."
+                    "contentHeading": "Thẻ số liệu",
+                    "contentDescription": "Thêm các chỉ số có thể nhập thủ công hoặc lấy dữ liệu thực từ đơn hàng, khách hàng.",
+                    "addStat": "Thêm số liệu",
+                    "noStats": "Chưa có số liệu nào. Nhấn \"Thêm số liệu\" để bắt đầu.",
+                    "statLabel": "Số liệu #{{index}}",
+                    "removeStat": "Xóa",
+                    "sourceType": "Nguồn dữ liệu",
+                    "sourceManual": "Nhập thủ công",
+                    "sourceMetric": "Số liệu thực tế",
+                    "selectMetric": "Chọn số liệu",
+                    "metricPlaceholder": "Chọn số liệu",
+                    "metricDescription": "{{description}}",
+                    "metricPreviewLabel": "Giá trị mới nhất: {{value}}",
+                    "manualValue": "Giá trị thủ công",
+                    "manualValuePlaceholder": "Nhập số",
+                    "label": "Nhãn hiển thị",
+                    "labelPlaceholder": "Ví dụ: Đơn hàng giao thành công",
+                    "descriptionLabel": "Mô tả",
+                    "descriptionPlaceholder": "Mô tả bổ sung (không bắt buộc)",
+                    "prefix": "Tiền tố",
+                    "prefixDescription": "Hiển thị trước số (ký hiệu tiền tệ, dấu).",
+                    "suffix": "Hậu tố",
+                    "suffixDescription": "Hiển thị sau số (%, +, đơn vị).",
+                    "metrics": {
+                        "orders": {
+                            "totalOrders": {
+                                "label": "Tổng số đơn hàng",
+                                "description": "Tất cả đơn đã tạo."
+                            },
+                            "deliveredOrders": {
+                                "label": "Đơn đã giao",
+                                "description": "Đơn ở trạng thái đã giao."
+                            },
+                            "totalRevenue": {
+                                "label": "Tổng doanh thu",
+                                "description": "Doanh thu từ các đơn đã thanh toán."
+                            },
+                            "averageOrderValue": {
+                                "label": "Giá trị đơn trung bình",
+                                "description": "Doanh thu trung bình mỗi đơn."
+                            },
+                            "recentOrders": {
+                                "label": "Đơn 30 ngày gần nhất",
+                                "description": "Số đơn tạo trong 30 ngày qua."
+                            },
+                            "recentRevenue": {
+                                "label": "Doanh thu 30 ngày gần nhất",
+                                "description": "Doanh thu thu được trong 30 ngày qua."
+                            }
+                        },
+                        "customers": {
+                            "totalCustomers": {
+                                "label": "Tổng khách hàng",
+                                "description": "Số khách trong hệ thống."
+                            },
+                            "activeCustomers": {
+                                "label": "Khách đang hoạt động",
+                                "description": "Khách có trạng thái ACTIVE."
+                            },
+                            "newCustomersThisMonth": {
+                                "label": "Khách mới trong tháng",
+                                "description": "Khách tạo từ đầu tháng."
+                            },
+                            "vipCustomers": {
+                                "label": "Khách VIP",
+                                "description": "Khách đạt tiêu chí VIP."
+                            },
+                            "averageOrderValue": {
+                                "label": "Giá trị đơn trung bình của khách",
+                                "description": "Giá trị đơn trung bình trên mỗi khách."
+                            },
+                            "averageCustomerLifetime": {
+                                "label": "Vòng đời khách trung bình",
+                                "description": "Số ngày trung bình kể từ đơn đầu tiên."
+                            }
+                        }
+                    }
                 },
                 "brandShowcase": {
                     "layout": "Bố cục",

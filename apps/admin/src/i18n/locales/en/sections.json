@@ -34,7 +34,10 @@
             },
             "edit": "Edit",
             "delete": "Delete",
+            "clone": "Clone",
             "noSections": "No sections found",
+            "sectionCloned": "Section cloned successfully",
+            "cloneFailed": "Failed to clone section",
             "configEditor": {
                 "rawJson": "Raw JSON Configuration",
                 "useFormEditor": "Use Form Editor",
@@ -292,7 +295,83 @@
                     "animatedCounter": "Animated Counter",
                     "numberOfColumns": "Number of columns",
                     "columnsDescription": "Columns on desktop screens",
-                    "contentDescription": "Manage statistics numbers in the component configuration."
+                    "contentHeading": "Statistic cards",
+                    "contentDescription": "Add metrics that can use manual values or live data from orders and customers.",
+                    "addStat": "Add statistic",
+                    "noStats": "No statistics configured yet. Click \"Add statistic\" to get started.",
+                    "statLabel": "Statistic #{{index}}",
+                    "removeStat": "Remove",
+                    "sourceType": "Data source",
+                    "sourceManual": "Manual number",
+                    "sourceMetric": "Real metric",
+                    "selectMetric": "Select metric",
+                    "metricPlaceholder": "Choose a metric",
+                    "metricDescription": "{{description}}",
+                    "metricPreviewLabel": "Latest value: {{value}}",
+                    "manualValue": "Manual value",
+                    "manualValuePlaceholder": "Enter a numeric value",
+                    "label": "Label",
+                    "labelPlaceholder": "e.g., Orders fulfilled",
+                    "descriptionLabel": "Description",
+                    "descriptionPlaceholder": "Optional supporting copy",
+                    "prefix": "Prefix",
+                    "prefixDescription": "Shown before the number (currency symbols, signs).",
+                    "suffix": "Suffix",
+                    "suffixDescription": "Shown after the number (%, +, units).",
+                    "metrics": {
+                        "orders": {
+                            "totalOrders": {
+                                "label": "Total orders",
+                                "description": "All orders created so far."
+                            },
+                            "deliveredOrders": {
+                                "label": "Delivered orders",
+                                "description": "Orders marked as delivered."
+                            },
+                            "totalRevenue": {
+                                "label": "Total revenue",
+                                "description": "Gross revenue from paid orders."
+                            },
+                            "averageOrderValue": {
+                                "label": "Average order value",
+                                "description": "Average revenue per order."
+                            },
+                            "recentOrders": {
+                                "label": "Orders (last 30 days)",
+                                "description": "Orders created in the last 30 days."
+                            },
+                            "recentRevenue": {
+                                "label": "Revenue (last 30 days)",
+                                "description": "Revenue collected in the last 30 days."
+                            }
+                        },
+                        "customers": {
+                            "totalCustomers": {
+                                "label": "Total customers",
+                                "description": "All customers in your CRM."
+                            },
+                            "activeCustomers": {
+                                "label": "Active customers",
+                                "description": "Customers with active status."
+                            },
+                            "newCustomersThisMonth": {
+                                "label": "New customers this month",
+                                "description": "Customers created since the start of this month."
+                            },
+                            "vipCustomers": {
+                                "label": "VIP customers",
+                                "description": "Customers that meet your VIP criteria."
+                            },
+                            "averageOrderValue": {
+                                "label": "Average customer order value",
+                                "description": "Customer-level average order value."
+                            },
+                            "averageCustomerLifetime": {
+                                "label": "Average customer lifetime",
+                                "description": "Average number of days since the first order."
+                            }
+                        }
+                    }
                 },
                 "brandShowcase": {
                     "layout": "Layout",

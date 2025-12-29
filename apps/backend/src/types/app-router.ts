@@ -393,6 +393,13 @@ export const appRouter = router({
       .mutation(() => {
         return {} as ApiResponse;
       }),
+
+    clone: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
   }),
 
   translation: router({
@@ -1178,6 +1185,14 @@ export const appRouter = router({
       }),
 
     delete: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+
+    clone: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
@@ -2865,6 +2880,36 @@ export const appRouter = router({
   clientBrands: router({
     list: procedure
       .input(brandShowcaseRequestSchema.optional())
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  clientNews: router({
+    getNews: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(12),
+        category: z.string().optional(),
+        search: z.string().optional(),
+        isActive: z.boolean().default(true),
+        sortBy: z.enum(['publishDate', 'createdAt', 'sortOrder']).default('publishDate'),
+        sortOrder: z.enum(['asc', 'desc']).default('desc'),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getNewsBySlug: procedure
+      .input(z.object({ slug: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getNewsCategories: procedure
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;

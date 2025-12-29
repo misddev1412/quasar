@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
     };
   }
 
-  return buildMetadataFromSiteContent(siteContent);
+  return await buildMetadataFromSiteContent(siteContent);
 }
 
 export default async function CookiePolicyPage() {

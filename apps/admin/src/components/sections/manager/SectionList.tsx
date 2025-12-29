@@ -8,7 +8,7 @@ import { Button } from '../../common/Button';
 import { ReorderableTable, DragHandle, type ReorderableColumn } from '../../common/ReorderableTable';
 import { Toggle } from '../../common/Toggle';
 import { Dropdown } from '../../common/Dropdown';
-import { FiRefreshCw, FiPlus, FiMoreVertical, FiEdit, FiTrash2 } from 'react-icons/fi';
+import { FiRefreshCw, FiPlus, FiMoreVertical, FiEdit, FiTrash2, FiCopy } from 'react-icons/fi';
 
 interface SectionListProps {
     page: string;
@@ -18,7 +18,7 @@ interface SectionListProps {
 export const SectionList: React.FC<SectionListProps> = ({ page, onPageChange }) => {
     const { t } = useTranslationWithBackend();
     const navigate = useNavigate();
-    const { sections, languages, sectionsQuery, languagesQuery, updateSection, deleteSection, reorderSections } = useSectionsManager(page);
+    const { sections, languages, sectionsQuery, languagesQuery, updateSection, deleteSection, reorderSections, cloneSection } = useSectionsManager(page);
     const { addToast } = useToast();
     const [localSections, setLocalSections] = useState<AdminSection[]>([]);
     const [draggedId, setDraggedId] = useState<string | null>(null);
@@ -51,6 +51,15 @@ export const SectionList: React.FC<SectionListProps> = ({ page, onPageChange }) 
             addToast({ type: 'success', title: t('sections.manager.sectionDeleted'), description: t('sections.manager.sectionRemoved', { sectionType: t(`sections.types.${section.type}`) }) });
         } catch (error: any) {
             addToast({ type: 'error', title: t('sections.manager.deleteFailed'), description: error.message || t('sections.manager.unableToDelete') });
+        }
+    };
+
+    const handleClone = async (section: AdminSection) => {
+        try {
+            await cloneSection.mutateAsync({ id: section.id });
+            addToast({ type: 'success', title: t('sections.manager.sectionCloned'), description: t('sections.manager.sectionCloned') });
+        } catch (error: any) {
+            addToast({ type: 'error', title: t('sections.manager.cloneFailed'), description: error.message || t('sections.manager.cloneFailed') });
         }
     };
 
@@ -201,6 +210,11 @@ export const SectionList: React.FC<SectionListProps> = ({ page, onPageChange }) 
                             label: t('sections.manager.edit'),
                             icon: <FiEdit className="w-4 h-4" />,
                             onClick: () => handleEditNavigate(section),
+                        },
+                        {
+                            label: t('sections.manager.clone'),
+                            icon: <FiCopy className="w-4 h-4" />,
+                            onClick: () => handleClone(section),
                         },
                         {
                             label: t('sections.manager.delete'),

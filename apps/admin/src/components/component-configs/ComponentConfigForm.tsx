@@ -33,6 +33,7 @@ import type { AdminSection } from '../../hooks/useSectionsManager';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { createMainMenuConfig, type MainMenuConfig } from '@shared/types/navigation.types';
 import MainMenuAppearanceEditor from './MainMenuAppearanceEditor';
+import AddToCartButtonEditor, { type AddToCartButtonConfig, type AddToCartButtonTextTransform } from './AddToCartButtonEditor';
 
 type TranslationFn = ReturnType<typeof useTranslationWithBackend>['t'];
 
@@ -57,6 +58,7 @@ interface SidebarMenuSection {
   id: string;
   title: string;
   description: string;
+  headerBackgroundColor: string;
   backgroundColor: string;
   titleFontColor: string;
   titleFontWeight: SidebarTitleFontWeight;
@@ -76,6 +78,7 @@ interface SidebarMenuConfig {
   enabled: boolean;
   title: string;
   description: string;
+  headerBackgroundColor: string;
   showTitle: boolean;
   showSidebarHeader: boolean;
   showDescription: boolean;
@@ -177,6 +180,7 @@ interface PersistedSidebarSection extends Record<string, unknown> {
   id?: string;
   title?: string;
   description?: string;
+  headerBackgroundColor?: string;
   backgroundColor?: string;
   titleFontColor?: string;
   titleFontWeight?: SidebarTitleFontWeight;
@@ -196,6 +200,7 @@ interface PersistedSidebarConfig extends Record<string, unknown> {
   enabled?: boolean;
   title?: string;
   description?: string;
+  headerBackgroundColor?: string;
   showTitle?: boolean;
   showSidebarHeader?: boolean;
   showDescription?: boolean;
@@ -220,6 +225,7 @@ const createSidebarSection = (): SidebarMenuSection => ({
   id: createSidebarId(),
   title: '',
   description: '',
+  headerBackgroundColor: '',
   backgroundColor: '',
   titleFontColor: '',
   titleFontWeight: 'semibold',
@@ -282,6 +288,7 @@ const parseSidebarConfig = (raw?: PersistedSidebarConfig | null): SidebarMenuCon
       enabled: true,
       title: '',
       description: '',
+      headerBackgroundColor: '',
       showTitle: true,
       showSidebarHeader: true,
       showDescription: true,
@@ -289,6 +296,7 @@ const parseSidebarConfig = (raw?: PersistedSidebarConfig | null): SidebarMenuCon
     };
   }
 
+  const headerBackgroundColor = typeof raw.headerBackgroundColor === 'string' ? raw.headerBackgroundColor : '';
   const sections = Array.isArray(raw.sections)
     ? raw.sections.map((section, index) => {
       const baseId = typeof section?.id === 'string' && section.id.trim().length > 0
@@ -302,6 +310,7 @@ const parseSidebarConfig = (raw?: PersistedSidebarConfig | null): SidebarMenuCon
         id: baseId,
         title: typeof section?.title === 'string' ? section.title : '',
         description: typeof section?.description === 'string' ? section.description : '',
+        headerBackgroundColor: typeof section?.headerBackgroundColor === 'string' ? section.headerBackgroundColor : '',
         backgroundColor: typeof section?.backgroundColor === 'string' ? section.backgroundColor : '',
         titleFontColor: typeof section?.titleFontColor === 'string' ? section.titleFontColor : '',
         titleFontWeight: isSidebarTitleFontWeight(section?.titleFontWeight) ? section.titleFontWeight : 'semibold',
@@ -327,6 +336,7 @@ const parseSidebarConfig = (raw?: PersistedSidebarConfig | null): SidebarMenuCon
     enabled: Boolean(raw.enabled ?? true),
     title: typeof raw.title === 'string' ? raw.title : '',
     description: typeof raw.description === 'string' ? raw.description : '',
+    headerBackgroundColor,
     showTitle: raw.showTitle !== false,
     showSidebarHeader: raw.showSidebarHeader !== false,
     showDescription: raw.showDescription !== false,
@@ -577,6 +587,69 @@ const normalizeViewMoreButtonConfig = (raw?: Record<string, unknown>): ViewMoreB
   };
 };
 
+const isAddToCartButtonTextTransform = (value: unknown): value is AddToCartButtonTextTransform =>
+  typeof value === 'string' && ['normal', 'uppercase', 'capitalize'].includes(value);
+
+const DEFAULT_ADD_TO_CART_BUTTON_CONFIG: AddToCartButtonConfig = {
+  backgroundColor: {
+    light: '#3b82f6',
+    dark: '#2563eb',
+  },
+  textColor: {
+    light: '#ffffff',
+    dark: '#ffffff',
+  },
+  textTransform: 'normal',
+  icon: 'shopping-cart',
+};
+
+interface ThemeColors {
+  light?: string;
+  dark?: string;
+}
+
+const normalizeAddToCartButtonConfig = (raw?: Record<string, unknown>): AddToCartButtonConfig => {
+  const source = (raw ?? {}) as Partial<AddToCartButtonConfig>;
+  const backgroundColorSource = (source.backgroundColor && typeof source.backgroundColor === 'object' 
+    ? source.backgroundColor 
+    : {}) as ThemeColors;
+  const textColorSource = (source.textColor && typeof source.textColor === 'object' 
+    ? source.textColor 
+    : {}) as ThemeColors;
+
+  return {
+    backgroundColor: {
+      light: typeof backgroundColorSource.light === 'string' 
+        ? backgroundColorSource.light 
+        : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.backgroundColor.light,
+      dark: typeof backgroundColorSource.dark === 'string' 
+        ? backgroundColorSource.dark 
+        : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.backgroundColor.dark,
+    },
+    textColor: {
+      light: typeof textColorSource.light === 'string' 
+        ? textColorSource.light 
+        : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.textColor.light,
+      dark: typeof textColorSource.dark === 'string' 
+        ? textColorSource.dark 
+        : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.textColor.dark,
+    },
+    textTransform: isAddToCartButtonTextTransform(source.textTransform)
+      ? source.textTransform
+      : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.textTransform,
+    icon: typeof source.icon === 'string' ? source.icon : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.icon,
+  };
+};
+
+const serializeAddToCartButtonConfig = (config: AddToCartButtonConfig): Record<string, unknown> => {
+  return {
+    backgroundColor: config.backgroundColor,
+    textColor: config.textColor,
+    textTransform: config.textTransform,
+    icon: config.icon,
+  };
+};
+
 const sanitizeThemeAwareColor = (color: ThemeAwareColor | undefined): ThemeAwareColor | undefined => {
   const light = typeof color?.light === 'string' && color.light.trim().length > 0 ? color.light.trim() : undefined;
   const dark = typeof color?.dark === 'string' && color.dark.trim().length > 0 ? color.dark.trim() : undefined;
@@ -628,6 +701,86 @@ const sanitizeViewMoreButtonConfig = (config: ViewMoreButtonConfigState): ViewMo
   return sanitized;
 };
 
+type NewsCardLayout = 'grid' | 'horizontal' | 'compact';
+type NewsCardBadgeTone = 'primary' | 'neutral' | 'emphasis';
+type NewsCardToggleKey = 'showCategory' | 'showPublishDate' | 'showExcerpt' | 'showAuthor' | 'showReadMore';
+
+const NEWS_CARD_LAYOUTS: NewsCardLayout[] = ['grid', 'horizontal', 'compact'];
+const NEWS_CARD_BADGE_TONES: NewsCardBadgeTone[] = ['primary', 'neutral', 'emphasis'];
+
+interface NewsCardConfigState extends Record<string, unknown> {
+  layout: NewsCardLayout;
+  showCategory: boolean;
+  showPublishDate: boolean;
+  showExcerpt: boolean;
+  showAuthor: boolean;
+  showReadMore: boolean;
+  clampTitleLines: number;
+  clampExcerptLines: number;
+  ctaText: string;
+  imageHeight: string;
+  badgeTone: NewsCardBadgeTone;
+}
+
+const DEFAULT_NEWS_CARD_CONFIG: NewsCardConfigState = {
+  layout: 'grid',
+  showCategory: true,
+  showPublishDate: true,
+  showExcerpt: true,
+  showAuthor: false,
+  showReadMore: true,
+  clampTitleLines: 2,
+  clampExcerptLines: 3,
+  ctaText: 'Read story',
+  imageHeight: '12rem',
+  badgeTone: 'primary',
+};
+
+const isNewsCardLayout = (value: unknown): value is NewsCardLayout =>
+  typeof value === 'string' && NEWS_CARD_LAYOUTS.includes(value as NewsCardLayout);
+
+const isNewsCardBadgeTone = (value: unknown): value is NewsCardBadgeTone =>
+  typeof value === 'string' && NEWS_CARD_BADGE_TONES.includes(value as NewsCardBadgeTone);
+
+const normalizeClampValue = (value: unknown, fallback: number, min: number, max: number) => {
+  const parsed = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
+  if (Number.isFinite(parsed)) {
+    return Math.min(Math.max(Math.round(parsed as number), min), max);
+  }
+  return fallback;
+};
+
+const normalizeNewsCardConfig = (raw?: Record<string, unknown>): NewsCardConfigState => {
+  const source = raw ?? {};
+  return {
+    layout: isNewsCardLayout(source.layout) ? source.layout : DEFAULT_NEWS_CARD_CONFIG.layout,
+    showCategory: normalizeBooleanValue(source.showCategory, DEFAULT_NEWS_CARD_CONFIG.showCategory),
+    showPublishDate: normalizeBooleanValue(source.showPublishDate, DEFAULT_NEWS_CARD_CONFIG.showPublishDate),
+    showExcerpt: normalizeBooleanValue(source.showExcerpt, DEFAULT_NEWS_CARD_CONFIG.showExcerpt),
+    showAuthor: normalizeBooleanValue(source.showAuthor, DEFAULT_NEWS_CARD_CONFIG.showAuthor),
+    showReadMore: normalizeBooleanValue(source.showReadMore, DEFAULT_NEWS_CARD_CONFIG.showReadMore),
+    clampTitleLines: normalizeClampValue(source.clampTitleLines, DEFAULT_NEWS_CARD_CONFIG.clampTitleLines, 1, 6),
+    clampExcerptLines: normalizeClampValue(source.clampExcerptLines, DEFAULT_NEWS_CARD_CONFIG.clampExcerptLines, 1, 8),
+    ctaText: normalizeStringValue(source.ctaText, DEFAULT_NEWS_CARD_CONFIG.ctaText),
+    imageHeight: normalizeStringValue(source.imageHeight, DEFAULT_NEWS_CARD_CONFIG.imageHeight),
+    badgeTone: isNewsCardBadgeTone(source.badgeTone) ? source.badgeTone : DEFAULT_NEWS_CARD_CONFIG.badgeTone,
+  };
+};
+
+const sanitizeNewsCardConfig = (config: NewsCardConfigState): Record<string, unknown> => ({
+  layout: config.layout,
+  showCategory: Boolean(config.showCategory),
+  showPublishDate: Boolean(config.showPublishDate),
+  showExcerpt: Boolean(config.showExcerpt),
+  showAuthor: Boolean(config.showAuthor),
+  showReadMore: Boolean(config.showReadMore),
+  clampTitleLines: normalizeClampValue(config.clampTitleLines, DEFAULT_NEWS_CARD_CONFIG.clampTitleLines, 1, 6),
+  clampExcerptLines: normalizeClampValue(config.clampExcerptLines, DEFAULT_NEWS_CARD_CONFIG.clampExcerptLines, 1, 8),
+  ctaText: normalizeStringValue(config.ctaText, DEFAULT_NEWS_CARD_CONFIG.ctaText),
+  imageHeight: normalizeStringValue(config.imageHeight, DEFAULT_NEWS_CARD_CONFIG.imageHeight),
+  badgeTone: config.badgeTone,
+});
+
 const sanitizeSidebarItem = (item: SidebarMenuItem): PersistedSidebarItem | null => {
   const trimmedLabel = item.label.trim();
   if (!trimmedLabel) {
@@ -674,11 +827,13 @@ const sanitizeSidebarConfig = (sidebar: SidebarMenuConfig): PersistedSidebarConf
   const showTitle = sidebar.showTitle !== false;
   const showSidebarHeader = sidebar.showSidebarHeader !== false;
   const showDescription = sidebar.showDescription !== false;
+  const trimmedHeaderBackground = (sidebar.headerBackgroundColor || '').trim();
 
   const sections = sidebar.sections
     .map((section) => {
       const trimmedSectionTitle = section.title.trim();
       const trimmedSectionDescription = section.description.trim();
+      const trimmedSectionHeaderBg = section.headerBackgroundColor.trim();
       const trimmedBackgroundColor = section.backgroundColor.trim();
       const trimmedTitleFontColor = section.titleFontColor.trim();
       const trimmedItemFontColor = section.itemFontColor.trim();
@@ -714,6 +869,9 @@ const sanitizeSidebarConfig = (sidebar: SidebarMenuConfig): PersistedSidebarConf
 
       if (trimmedBackgroundColor) {
         sanitizedSection.backgroundColor = trimmedBackgroundColor;
+      }
+      if (trimmedSectionHeaderBg) {
+        sanitizedSection.headerBackgroundColor = trimmedSectionHeaderBg;
       }
       if (trimmedTitleFontColor) {
         sanitizedSection.titleFontColor = trimmedTitleFontColor;
@@ -762,6 +920,10 @@ const sanitizeSidebarConfig = (sidebar: SidebarMenuConfig): PersistedSidebarConf
     showDescription,
     sections,
   };
+
+  if (trimmedHeaderBackground) {
+    sanitized.headerBackgroundColor = trimmedHeaderBackground;
+  }
 
   return sanitized;
 };
@@ -1015,6 +1177,12 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
   const [viewMoreButtonConfig, setViewMoreButtonConfig] = useState<ViewMoreButtonConfigState>(() =>
     normalizeViewMoreButtonConfig(sanitizedInitialDefaultConfig),
   );
+  const [newsCardConfig, setNewsCardConfig] = useState<NewsCardConfigState>(() =>
+    normalizeNewsCardConfig(sanitizedInitialDefaultConfig),
+  );
+  const [addToCartButtonConfig, setAddToCartButtonConfig] = useState<AddToCartButtonConfig>(() =>
+    normalizeAddToCartButtonConfig(sanitizedInitialDefaultConfig),
+  );
   const [defaultConfigEntryErrors, setDefaultConfigEntryErrors] = useState<Record<string, string | undefined>>({});
   const [metadataEntryErrors, setMetadataEntryErrors] = useState<Record<string, string | undefined>>({});
   const [defaultConfigMode, setDefaultConfigMode] = useState<'friendly' | 'json'>('friendly');
@@ -1040,6 +1208,8 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
   const isProductCardPrice = formState.componentKey === 'product_card.info.price';
   const isMainMenuAppearance = formState.componentKey === 'navigation.main_menu';
   const isViewMoreButton = formState.componentKey === 'view_more_button';
+  const isNewsCard = formState.componentKey === 'news_card';
+  const isAddToCartButton = formState.componentKey === 'add_to_cart_button';
   const [pendingChildKey, setPendingChildKey] = useState('');
 
   const syncDefaultConfigState = useCallback((config: Record<string, unknown> | MainMenuConfig) => {
@@ -1097,9 +1267,35 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     syncDefaultConfigState(normalized);
   }, [isViewMoreButton, sanitizedInitialDefaultConfig, syncDefaultConfigState]);
 
+  useEffect(() => {
+    if (!isNewsCard) {
+      return;
+    }
+    const normalized = normalizeNewsCardConfig(sanitizedInitialDefaultConfig);
+    setNewsCardConfig(normalized);
+    syncDefaultConfigState(normalized);
+  }, [isNewsCard, sanitizedInitialDefaultConfig, syncDefaultConfigState]);
+
+  useEffect(() => {
+    if (!isAddToCartButton) {
+      return;
+    }
+    const normalized = normalizeAddToCartButtonConfig(sanitizedInitialDefaultConfig);
+    setAddToCartButtonConfig(normalized);
+    syncDefaultConfigState(serializeAddToCartButtonConfig(normalized));
+  }, [isAddToCartButton, sanitizedInitialDefaultConfig, syncDefaultConfigState]);
+
   // Generic sync for other components
   useEffect(() => {
-    if (isProductCard || isProductCardTitle || isProductCardPrice || isMainMenuAppearance || isViewMoreButton) {
+    if (
+      isProductCard ||
+      isProductCardTitle ||
+      isProductCardPrice ||
+      isMainMenuAppearance ||
+      isViewMoreButton ||
+      isNewsCard ||
+      isAddToCartButton
+    ) {
       return;
     }
     const serializable = sanitizedInitialDefaultConfig as Record<string, unknown>;
@@ -1110,6 +1306,8 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     isProductCardTitle,
     isProductCardPrice,
     isMainMenuAppearance,
+    isNewsCard,
+    isAddToCartButton,
     sanitizedInitialDefaultConfig,
   ]);
 
@@ -1272,6 +1470,32 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
     });
   };
 
+  const handleNewsCardConfigChange = (
+    nextValue: NewsCardConfigState | ((prev: NewsCardConfigState) => NewsCardConfigState),
+  ) => {
+    setNewsCardConfig((prev) => {
+      const resolved = typeof nextValue === 'function' ? nextValue(prev) : nextValue;
+      const normalized = normalizeNewsCardConfig(resolved);
+      if (isNewsCard) {
+        syncDefaultConfigState(normalized);
+      }
+      return normalized;
+    });
+  };
+
+  const handleAddToCartButtonConfigChange = (
+    nextValue: AddToCartButtonConfig | ((prev: AddToCartButtonConfig) => AddToCartButtonConfig),
+  ) => {
+    setAddToCartButtonConfig((prev) => {
+      const resolved = typeof nextValue === 'function' ? nextValue(prev) : nextValue;
+      const normalized = normalizeAddToCartButtonConfig(serializeAddToCartButtonConfig(resolved));
+      if (isAddToCartButton) {
+        syncDefaultConfigState(serializeAddToCartButtonConfig(normalized));
+      }
+      return normalized;
+    });
+  };
+
   const handleAddAllowedChildKey = useCallback((childKey: string) => {
     const trimmedKey = childKey.trim();
     if (!trimmedKey || allowedChildKeysArray.includes(trimmedKey)) {
@@ -1319,6 +1543,10 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
       parsedDefault = productCardPriceConfig;
     } else if (isViewMoreButton) {
       parsedDefault = sanitizeViewMoreButtonConfig(viewMoreButtonConfig);
+    } else if (isNewsCard) {
+      parsedDefault = sanitizeNewsCardConfig(newsCardConfig);
+    } else if (isAddToCartButton) {
+      parsedDefault = serializeAddToCartButtonConfig(addToCartButtonConfig);
     } else {
       const result = parseEntriesToObject(defaultConfigEntries);
       setDefaultConfigEntryErrors(result.errors);
@@ -1422,7 +1650,14 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
       return;
     }
 
-    if (isProductCard || isProductCardTitle || isProductCardPrice || isMainMenuAppearance || isViewMoreButton) {
+    if (
+      isProductCard ||
+      isProductCardTitle ||
+      isProductCardPrice ||
+      isMainMenuAppearance ||
+      isViewMoreButton ||
+      isNewsCard
+    ) {
       const currentConfig = isProductCard
         ? productCardConfig
         : isProductCardTitle
@@ -1431,7 +1666,11 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
             ? productCardPriceConfig
             : isMainMenuAppearance
               ? mainMenuConfig
-              : viewMoreButtonConfig;
+              : isViewMoreButton
+                ? viewMoreButtonConfig
+                : isAddToCartButton
+                  ? addToCartButtonConfig
+                  : newsCardConfig;
 
       const normalizeCustomConfig = (value: Record<string, unknown>) => {
         if (isProductCard) {
@@ -1446,23 +1685,29 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
         if (isMainMenuAppearance) {
           return createMainMenuConfig(value as Partial<MainMenuConfig>);
         }
-        return normalizeViewMoreButtonConfig(value);
+        if (isViewMoreButton) {
+          return normalizeViewMoreButtonConfig(value);
+        }
+        if (isAddToCartButton) {
+          return normalizeAddToCartButtonConfig(value as Record<string, unknown>);
+        }
+        return normalizeNewsCardConfig(value);
       };
 
-      const applyNormalizedConfig = (config: Record<string, unknown>) => {
+      const applyNormalizedConfig = (config: MainMenuConfig | AddToCartButtonConfig | ProductCardConfigState | ProductCardTitleConfigState | ProductCardPriceConfigState | ViewMoreButtonConfigState | NewsCardConfigState) => {
         if (isProductCard) {
           setProductCardConfig(config as ProductCardConfigState);
-          syncDefaultConfigState(config);
+          syncDefaultConfigState(config as Record<string, unknown>);
           return;
         }
         if (isProductCardTitle) {
           setProductCardTitleConfig(config as ProductCardTitleConfigState);
-          syncDefaultConfigState(config);
+          syncDefaultConfigState(config as Record<string, unknown>);
           return;
         }
         if (isProductCardPrice) {
           setProductCardPriceConfig(config as ProductCardPriceConfigState);
-          syncDefaultConfigState(config);
+          syncDefaultConfigState(config as Record<string, unknown>);
           return;
         }
         if (isMainMenuAppearance) {
@@ -1471,13 +1716,28 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
           syncDefaultConfigState(normalizedMenu);
           return;
         }
-        const normalizedViewMore = normalizeViewMoreButtonConfig(config as Record<string, unknown>);
-        setViewMoreButtonConfig(normalizedViewMore);
-        syncDefaultConfigState(normalizedViewMore);
+        if (isViewMoreButton) {
+          const normalizedViewMore = normalizeViewMoreButtonConfig(config as Record<string, unknown>);
+          setViewMoreButtonConfig(normalizedViewMore);
+          syncDefaultConfigState(normalizedViewMore);
+          return;
+        }
+        if (isAddToCartButton) {
+          const normalizedAddToCart = config as AddToCartButtonConfig;
+          setAddToCartButtonConfig(normalizedAddToCart);
+          syncDefaultConfigState(serializeAddToCartButtonConfig(normalizedAddToCart));
+          return;
+        }
+        const normalizedNewsCard = config as NewsCardConfigState;
+        setNewsCardConfig(normalizedNewsCard);
+        syncDefaultConfigState(normalizedNewsCard);
       };
 
       if (nextMode === 'json') {
-        syncDefaultConfigState(currentConfig);
+        const serializedConfig = isAddToCartButton 
+          ? serializeAddToCartButtonConfig(currentConfig as AddToCartButtonConfig)
+          : currentConfig as Record<string, unknown>;
+        syncDefaultConfigState(serializedConfig);
         setJsonErrors((prev) => ({ ...prev, defaultConfig: undefined }));
         setDefaultConfigMode('json');
         return;
@@ -1486,7 +1746,13 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
       try {
         const parsed = defaultConfigRaw.trim() ? JSON.parse(defaultConfigRaw) : {};
         const normalized = normalizeCustomConfig(parsed);
-        applyNormalizedConfig(normalized);
+        if (isAddToCartButton) {
+          const addToCartConfig = normalized as AddToCartButtonConfig;
+          setAddToCartButtonConfig(addToCartConfig);
+          syncDefaultConfigState(serializeAddToCartButtonConfig(addToCartConfig));
+        } else {
+          applyNormalizedConfig(normalized);
+        }
         setJsonErrors((prev) => ({ ...prev, defaultConfig: undefined }));
         setDefaultConfigMode('friendly');
       } catch (error) {
@@ -1844,6 +2110,17 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
               <ViewMoreButtonDefaultsEditor
                 value={viewMoreButtonConfig}
                 onChange={(next) => handleViewMoreButtonConfigChange(next)}
+              />
+            ) : isNewsCard ? (
+              <NewsCardDefaultsEditor
+                value={newsCardConfig}
+                onChange={(next) => handleNewsCardConfigChange(next)}
+              />
+            ) : isAddToCartButton ? (
+              <AddToCartButtonEditor
+                value={addToCartButtonConfig}
+                onChange={(next) => handleAddToCartButtonConfigChange(next)}
+                t={t}
               />
             ) : (
               <KeyValueEditor
@@ -2304,6 +2581,177 @@ const ViewMoreButtonDefaultsEditor: React.FC<ViewMoreButtonDefaultsEditorProps> 
             />
           </div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+interface NewsCardDefaultsEditorProps {
+  value: NewsCardConfigState;
+  onChange: (next: NewsCardConfigState) => void;
+}
+
+const NewsCardDefaultsEditor: React.FC<NewsCardDefaultsEditorProps> = ({ value, onChange }) => {
+  const { t } = useTranslationWithBackend();
+  const layoutOptions: SelectOption[] = [
+    { value: 'grid', label: t('componentConfigs.newsCardLayoutGrid', 'Grid cards') },
+    { value: 'horizontal', label: t('componentConfigs.newsCardLayoutHorizontal', 'Horizontal split') },
+    { value: 'compact', label: t('componentConfigs.newsCardLayoutCompact', 'Compact list') },
+  ];
+  const badgeToneOptions: SelectOption[] = [
+    { value: 'primary', label: t('componentConfigs.badgeTonePrimary', 'Primary') },
+    { value: 'neutral', label: t('componentConfigs.badgeToneNeutral', 'Neutral') },
+    { value: 'emphasis', label: t('componentConfigs.badgeToneEmphasis', 'Emphasis') },
+  ];
+
+  const handleChange = (updates: Partial<NewsCardConfigState>) => {
+    onChange({
+      ...value,
+      ...updates,
+    });
+  };
+
+  const handleClampChange = (field: 'clampTitleLines' | 'clampExcerptLines', rawValue: string) => {
+    const parsed = Number(rawValue);
+    handleChange({
+      [field]: Number.isFinite(parsed) ? parsed : value[field],
+    } as Partial<NewsCardConfigState>);
+  };
+
+  const toggleItems: Array<{ key: NewsCardToggleKey; label: string; description: string }> = [
+    {
+      key: 'showCategory',
+      label: t('componentConfigs.newsCardShowCategory', 'Show category'),
+      description: t('componentConfigs.newsCardShowCategoryDesc', 'Display the category badge when provided.'),
+    },
+    {
+      key: 'showPublishDate',
+      label: t('componentConfigs.newsCardShowDate', 'Show publish date'),
+      description: t('componentConfigs.newsCardShowDateDesc', 'Adds a timestamp under the metadata line.'),
+    },
+    {
+      key: 'showExcerpt',
+      label: t('componentConfigs.newsCardShowExcerpt', 'Show excerpt'),
+      description: t('componentConfigs.newsCardShowExcerptDesc', 'Renders the summary paragraph beneath the title.'),
+    },
+    {
+      key: 'showAuthor',
+      label: t('componentConfigs.newsCardShowAuthor', 'Show author'),
+      description: t('componentConfigs.newsCardShowAuthorDesc', 'Displays the author name when available.'),
+    },
+    {
+      key: 'showReadMore',
+      label: t('componentConfigs.newsCardShowCta', 'Show CTA button'),
+      description: t('componentConfigs.newsCardShowCtaDesc', 'Adds the “Read story” link at the bottom of the card.'),
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <p className="text-sm font-semibold text-neutral-900">
+          {t('componentConfigs.newsCardHeading', 'News card appearance')}
+        </p>
+        <p className="text-xs text-neutral-500">
+          {t('componentConfigs.newsCardDescription', 'Configure layout, metadata, and call-to-action content.')}
+        </p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Select
+          label={t('componentConfigs.newsCardLayoutLabel', 'Layout')}
+          value={value.layout}
+          onChange={(next) => handleChange({
+            layout: isNewsCardLayout(next) ? next : value.layout,
+          })}
+          options={layoutOptions}
+        />
+        <Select
+          label={t('componentConfigs.newsCardBadgeToneLabel', 'Badge tone')}
+          value={value.badgeTone}
+          onChange={(next) => handleChange({
+            badgeTone: isNewsCardBadgeTone(next) ? next : value.badgeTone,
+          })}
+          options={badgeToneOptions}
+        />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-neutral-700">
+            {t('componentConfigs.newsCardTitleClamp', 'Title line clamp')}
+          </label>
+          <Input
+            type="number"
+            min={1}
+            max={6}
+            value={value.clampTitleLines}
+            onChange={(event) => handleClampChange('clampTitleLines', event.target.value)}
+          />
+          <p className="text-[11px] text-neutral-500 mb-0">
+            {t('componentConfigs.newsCardTitleClampDesc', 'Limits the maximum number of visible title lines.')}
+          </p>
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-neutral-700">
+            {t('componentConfigs.newsCardExcerptClamp', 'Excerpt line clamp')}
+          </label>
+          <Input
+            type="number"
+            min={1}
+            max={8}
+            value={value.clampExcerptLines}
+            onChange={(event) => handleClampChange('clampExcerptLines', event.target.value)}
+          />
+          <p className="text-[11px] text-neutral-500 mb-0">
+            {t('componentConfigs.newsCardExcerptClampDesc', 'Controls how much summary text is shown.')}
+          </p>
+        </div>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-neutral-700">
+            {t('componentConfigs.newsCardCtaText', 'CTA text')}
+          </label>
+          <Input
+            value={value.ctaText}
+            onChange={(event) => handleChange({ ctaText: event.target.value })}
+            placeholder={t('componentConfigs.newsCardCtaPlaceholder', 'Read story')}
+          />
+          <p className="text-[11px] text-neutral-500 mb-0">
+            {t('componentConfigs.newsCardCtaDesc', 'Label shown on the read more link/button.')}
+          </p>
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-neutral-700">
+            {t('componentConfigs.newsCardImageHeight', 'Image height')}
+          </label>
+          <Input
+            value={value.imageHeight}
+            onChange={(event) => handleChange({ imageHeight: event.target.value })}
+            placeholder={t('componentConfigs.newsCardImageHeightPlaceholder', '12rem')}
+          />
+          <p className="text-[11px] text-neutral-500 mb-0">
+            {t('componentConfigs.newsCardImageHeightDesc', 'Any valid CSS height value, e.g. 12rem or 320px.')}
+          </p>
+        </div>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        {toggleItems.map((item) => (
+          <div
+            key={item.key}
+            className="flex items-start justify-between gap-3 rounded-lg border border-neutral-200 px-3 py-2"
+          >
+            <div>
+              <p className="text-sm font-medium text-neutral-900 mb-0">{item.label}</p>
+              <p className="text-xs text-neutral-500 mb-0">{item.description}</p>
+            </div>
+            <Toggle
+              checked={Boolean(value[item.key])}
+              onChange={(checked) => handleChange({ [item.key]: checked } as Partial<NewsCardConfigState>)}
+              size="sm"
+              aria-label={item.label}
+            />
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -2971,6 +3419,16 @@ const ProductsByCategorySidebarEditor: React.FC<ProductsByCategorySidebarEditorP
             </div>
           </div>
 
+          <div className="space-y-1">
+            <ColorSelector
+              value={value.headerBackgroundColor || undefined}
+              onChange={(color) => onChange({ ...value, headerBackgroundColor: color || '' })}
+              placeholder={t('componentConfigs.sidebarHeaderBgColorPlaceholder')}
+              label={t('componentConfigs.sidebarHeaderBgColor')}
+            />
+            <p className="text-xs text-neutral-500">{t('componentConfigs.sidebarHeaderBgColorDesc')}</p>
+          </div>
+
           <div className="space-y-4">
             {value.sections.map((section, index) => (
               <SidebarSectionEditor
@@ -3194,6 +3652,15 @@ const SidebarSectionEditor: React.FC<SidebarSectionEditorProps> = ({ section, in
               label={t('componentConfigs.itemTextColor')}
               className="space-y-1"
             />
+          </div>
+          <div className="space-y-1">
+            <ColorSelector
+              value={section.headerBackgroundColor || undefined}
+              onChange={(color) => onChange({ ...section, headerBackgroundColor: color || '' })}
+              placeholder={t('componentConfigs.headerBgColorPlaceholder')}
+              label={t('componentConfigs.headerBgColor')}
+            />
+            <p className="text-xs text-neutral-500">{t('componentConfigs.headerBgColorDesc')}</p>
           </div>
           <div className="space-y-1">
             <ColorSelector

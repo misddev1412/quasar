@@ -17,6 +17,7 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   // User Management
   '/users': { resource: 'user', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/users/dashboard': { resource: 'user', action: PermissionAction.READ, scope: PermissionScope.ANY },
+  '/users/exports': { resource: 'user', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/users/create': { resource: 'user', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
   '/users/:id': { resource: 'user', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
   
@@ -212,3 +213,4 @@ export function getRoutePermission(path: string): RoutePermission | null {
     scope: PermissionScope.ANY,
   };
 }
+

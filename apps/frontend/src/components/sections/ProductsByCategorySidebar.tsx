@@ -22,6 +22,7 @@ const SECTION_TITLE_FONT_SIZE_CLASSES: Record<NormalizedSidebarSection['titleFon
 interface ProductsByCategorySidebarProps {
   sidebarLabel: string;
   title: string;
+  headerBackgroundColor?: string;
   description?: string | null;
   showTitle: boolean;
   showSidebarHeader: boolean;
@@ -65,11 +66,14 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
     'block w-full py-2 text-left text-gray-600 dark:text-gray-300',
     depth === 0 && 'py-2.5',
   );
-  const iconWrapperClass = depth === 0
-    ? 'rounded-full bg-blue-50 p-1.5 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300'
-    : 'rounded-full bg-blue-50/80 p-1.5 text-blue-600 dark:bg-blue-900/30 dark:text-blue-200';
-
   const hasCustomColor = Boolean(itemFontColor);
+
+  // Icon wrapper classes - inherit color from parent
+  const iconWrapperClass = clsx(
+    'rounded-full p-1.5',
+    hasCustomColor ? '' : 'text-gray-900 dark:text-gray-100 group-hover:text-blue-600 group-focus-visible:text-blue-600 dark:group-hover:text-blue-300 dark:group-focus-visible:text-blue-300'
+  );
+
   const customStyle: CSSProperties | undefined = hasCustomColor || itemTextTransform !== 'none'
     ? {
       ...(hasCustomColor ? { color: itemFontColor } : {}),
@@ -93,8 +97,13 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
   const content = (
     <div className="flex items-center gap-2.5 transition-colors duration-150 group-hover:text-blue-600 group-focus-visible:text-blue-600 dark:group-hover:text-blue-300 dark:group-focus-visible:text-blue-200">
       {showIcon && item.icon && (
-        <div className={iconWrapperClass}>
-          <UnifiedIcon icon={item.icon} variant="nav" className="h-4 w-4" />
+        <div className={iconWrapperClass} style={customStyle}>
+          <UnifiedIcon
+            icon={item.icon}
+            variant="nav"
+            className="h-4 w-4"
+            {...(hasCustomColor ? { color: itemFontColor } : {})}
+          />
         </div>
       )}
       <div className="flex-1">
@@ -193,6 +202,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
 export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps> = ({
   sidebarLabel,
   title,
+  headerBackgroundColor,
   description,
   showTitle,
   showSidebarHeader,
@@ -206,10 +216,13 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
   }
 
   return (
-    <aside className="relative z-10 w-full lg:w-1/5">
+    <aside className="relative z-40 w-full lg:w-1/5">
       <div className="lg:sticky lg:top-24 space-y-6">
         {showSidebarHeader && (
-          <div className="rounded-2xl border border-gray-200/80 bg-white/95 p-6 shadow-sm dark:border-gray-800/60 dark:bg-gray-900/70">
+          <div
+            className="rounded-2xl border border-gray-200/80 bg-white/95 p-6 shadow-sm dark:border-gray-800/60 dark:bg-gray-900/70"
+            style={headerBackgroundColor ? { backgroundColor: headerBackgroundColor } : undefined}
+          >
             <p className="text-xs uppercase tracking-[0.3em] text-blue-500 dark:text-blue-300">{sidebarLabel}</p>
             {showTitle && (
               <h3 className="mt-3 text-2xl font-semibold text-gray-900 dark:text-gray-100">
@@ -227,6 +240,7 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
           const sectionTitle = section.title || sectionFallbackTitle;
           const sectionDescription = section.description?.trim();
           const hasCustomBackground = Boolean(section.backgroundColor);
+          const hasCustomHeaderBackground = Boolean(section.headerBackgroundColor);
           const sectionCardStyle: CSSProperties | undefined = hasCustomBackground
             ? { backgroundColor: section.backgroundColor }
             : undefined;
@@ -253,19 +267,23 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
             <div
               key={section.id}
               className={clsx(
-                'rounded-2xl border border-gray-200/80 shadow-sm dark:border-gray-800/60',
+                'rounded-2xl border border-gray-200/80 shadow-sm dark:border-gray-800/60 overflow-hidden',
                 hasCustomBackground ? '' : 'bg-white/95 dark:bg-gray-900/70',
               )}
               style={sectionCardStyle}
             >
-              <div className="border-b border-gray-100 px-5 py-4 dark:border-gray-800/80">
+              <div
+                className="border-b border-gray-100 px-5 py-4 dark:border-gray-800/80"
+                style={hasCustomHeaderBackground ? { backgroundColor: section.headerBackgroundColor } : undefined}
+              >
                 <p className={sectionTitleClasses} style={sectionTitleStyle}>
                   {section.showTitleIcon && section.titleIcon && (
-                    <span
-                      className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-50 text-blue-500 dark:bg-blue-900/30 dark:text-blue-200"
-                      style={hasCustomTitleColor ? { color: section.titleFontColor } : undefined}
-                    >
-                      <UnifiedIcon icon={section.titleIcon} className="h-3.5 w-3.5" />
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-full">
+                      <UnifiedIcon
+                        icon={section.titleIcon}
+                        className="h-3.5 w-3.5"
+                        {...(hasCustomTitleColor ? { color: section.titleFontColor } : {})}
+                      />
                     </span>
                   )}
                   <span>{sectionTitle}</span>

@@ -13,7 +13,7 @@ type MenuSeedData = {
 
 @Injectable()
 export class MenusSeeder implements SeederModule {
-  constructor(private readonly dataSource: DataSource) { }
+  constructor(private readonly dataSource: DataSource) {}
 
   async seed(): Promise<void> {
     const menuRepository = this.dataSource.getRepository(MenuEntity);
@@ -289,30 +289,6 @@ export class MenusSeeder implements SeederModule {
               },
             ],
           },
-          {
-            menu: {
-              menuGroup: 'main',
-              type: MenuType.ORDER_TRACKING,
-              target: MenuTarget.SELF,
-              position: 1,
-              isEnabled: true,
-              icon: 'package-search',
-              config: {},
-              isMegaMenu: false,
-            },
-            translations: [
-              {
-                locale: 'en',
-                label: 'Track Order',
-                description: 'Check your order status',
-              },
-              {
-                locale: 'vi',
-                label: 'Tra cứu đơn hàng',
-                description: 'Kiểm tra trạng thái đơn hàng',
-              },
-            ],
-          },
         ],
       },
       // Footer menu
@@ -445,28 +421,6 @@ export class MenusSeeder implements SeederModule {
           {
             locale: 'vi',
             label: 'Điều khoản dịch vụ',
-          },
-        ],
-      },
-      {
-        menu: {
-          menuGroup: 'footer',
-          type: MenuType.ORDER_TRACKING,
-          target: MenuTarget.SELF,
-          position: 6,
-          isEnabled: true,
-          icon: 'package-search',
-          config: {},
-          isMegaMenu: false,
-        },
-        translations: [
-          {
-            locale: 'en',
-            label: 'Track Order',
-          },
-          {
-            locale: 'vi',
-            label: 'Tra cứu đơn hàng',
           },
         ],
       },
@@ -606,8 +560,6 @@ export class MenusSeeder implements SeederModule {
           icon: 'phone-call',
           textColor: '#fef9c3',
           backgroundColor: '#92400e',
-          borderColor: '#fde68a',
-          borderWidth: '1px',
           config: {
             topPhoneNumber: '(+84) 1900 636 648',
           },
@@ -636,8 +588,6 @@ export class MenusSeeder implements SeederModule {
           icon: 'mail',
           textColor: '#dbeafe',
           backgroundColor: '#1e3a8a',
-          borderColor: '#bfdbfe',
-          borderWidth: '1px',
           config: {
             topEmailAddress: 'support@megastore.vn',
           },
@@ -666,8 +616,6 @@ export class MenusSeeder implements SeederModule {
           icon: 'clock-8',
           textColor: '#c7d2fe',
           backgroundColor: '#312e81',
-          borderColor: '#a5b4fc',
-          borderWidth: '1px',
           config: {
             topTimeFormat: TopMenuTimeFormat.HOURS_MINUTES_DAY_MONTH_YEAR,
           },
@@ -689,15 +637,14 @@ export class MenusSeeder implements SeederModule {
       {
         menu: {
           menuGroup: 'top',
-          type: MenuType.ORDER_TRACKING,
+          type: MenuType.LINK,
+          url: '/track-order',
           target: MenuTarget.SELF,
           position: 3,
           isEnabled: true,
           icon: 'package-search',
           textColor: '#0f172a',
           backgroundColor: '#facc15',
-          borderColor: '#f97316',
-          borderWidth: '1px',
           config: {},
           isMegaMenu: false,
         },
@@ -709,7 +656,7 @@ export class MenusSeeder implements SeederModule {
           },
           {
             locale: 'vi',
-            label: 'Tra cứu đơn hàng',
+            label: 'Theo dõi đơn hàng',
             description: 'Kiểm tra tình trạng giao hàng',
           },
         ],
@@ -724,8 +671,6 @@ export class MenusSeeder implements SeederModule {
           icon: 'badge-check',
           textColor: '#fefefe',
           backgroundColor: '#0ea5e9',
-          borderColor: '#bae6fd',
-          borderWidth: '1px',
           config: {},
           isMegaMenu: false,
         },
@@ -755,8 +700,6 @@ export class MenusSeeder implements SeederModule {
           isEnabled: true,
           icon: 'sparkles',
           textColor: '#1d4ed8',
-          borderColor: '#1d4ed8',
-          borderWidth: '1px',
           config: {
             subMenuVariant: 'link',
             badge: {
@@ -791,8 +734,6 @@ export class MenusSeeder implements SeederModule {
           icon: 'zap',
           textColor: '#ffffff',
           backgroundColor: '#dc2626',
-          borderColor: '#dc2626',
-          borderWidth: '1px',
           config: {
             subMenuVariant: 'button',
             buttonBorderRadius: '9999px',
@@ -823,8 +764,6 @@ export class MenusSeeder implements SeederModule {
           isEnabled: true,
           icon: 'gift',
           textColor: '#7c3aed',
-          borderColor: '#7c3aed',
-          borderWidth: '1px',
           config: {
             subMenuVariant: 'link',
             badge: {
@@ -859,8 +798,6 @@ export class MenusSeeder implements SeederModule {
           icon: 'smartphone',
           textColor: '#ffffff',
           backgroundColor: '#0f172a',
-          borderColor: '#0f172a',
-          borderWidth: '1px',
           config: {
             subMenuVariant: 'button',
             buttonBorderRadius: '12px',
@@ -878,64 +815,6 @@ export class MenusSeeder implements SeederModule {
             locale: 'vi',
             label: 'Tải ứng dụng',
             description: 'Nhận ưu đãi chỉ có trên ứng dụng',
-          },
-        ],
-      },
-      {
-        menu: {
-          menuGroup: 'sub',
-          type: MenuType.CALL_BUTTON,
-          url: 'tel:0917001254',
-          target: MenuTarget.SELF,
-          position: 4,
-          isEnabled: true,
-          icon: 'phone',
-          textColor: '#ffffff',
-          backgroundColor: '#3b82f6',
-          config: {
-            subMenuVariant: 'button',
-            buttonBorderRadius: '12px',
-            callButtonNumber: '0917 00 1254',
-          },
-          isMegaMenu: false,
-        },
-        translations: [
-          {
-            locale: 'en',
-            label: 'Shopping',
-            description: '0917 00 1254',
-          },
-          {
-            locale: 'vi',
-            label: 'Mua hàng',
-            description: '0917 00 1254',
-          },
-        ],
-      },
-      {
-        menu: {
-          menuGroup: 'sub',
-          type: MenuType.SEARCH_BAR,
-          target: MenuTarget.SELF,
-          position: 10,
-          isEnabled: true,
-          icon: 'search',
-          config: {
-            placeholder: 'Search for products...',
-            width: '250px',
-          },
-          isMegaMenu: false,
-        },
-        translations: [
-          {
-            locale: 'en',
-            label: 'Search',
-            description: 'Search products',
-          },
-          {
-            locale: 'vi',
-            label: 'Tìm kiếm',
-            description: 'Tìm kiếm sản phẩm',
           },
         ],
       },
@@ -992,8 +871,12 @@ export class MenusSeeder implements SeederModule {
       for (const menuData of baseMenus) {
         await createMenuWithTranslations(menuData);
       }
+      console.log(`✅ Created ${baseMenus.length} base menu items`);
+    } else {
+      console.log('Menus already seeded, skipping base menu creation');
     }
 
+    let createdActions = 0;
     for (const menuData of headerActionMenus) {
       const actionExists = await menuRepository.findOne({
         where: {
@@ -1007,8 +890,16 @@ export class MenusSeeder implements SeederModule {
       }
 
       await createMenuWithTranslations(menuData);
+      createdActions += 1;
     }
 
+    if (createdActions > 0) {
+      console.log(`✅ Created ${createdActions} header action menu items`);
+    } else {
+      console.log('✅ Header action menu items already exist, skipping');
+    }
+
+    let createdTopMenus = 0;
     for (const menuData of topMenuDefaults) {
       const where = buildMenuLookupCriteria(menuData);
       const existingTopMenu = await menuRepository.findOne({ where });
@@ -1017,8 +908,16 @@ export class MenusSeeder implements SeederModule {
       }
 
       await createMenuWithTranslations(menuData);
+      createdTopMenus += 1;
     }
 
+    if (createdTopMenus > 0) {
+      console.log(`✅ Created ${createdTopMenus} top menu items`);
+    } else {
+      console.log('✅ Top menu items already exist, skipping');
+    }
+
+    let createdSubMenus = 0;
     for (const menuData of subMenuDefaults) {
       const where = buildMenuLookupCriteria(menuData);
       const existingSubMenu = await menuRepository.findOne({ where });
@@ -1027,6 +926,13 @@ export class MenusSeeder implements SeederModule {
       }
 
       await createMenuWithTranslations(menuData);
+      createdSubMenus += 1;
+    }
+
+    if (createdSubMenus > 0) {
+      console.log(`✅ Created ${createdSubMenus} default sub menu items`);
+    } else {
+      console.log('✅ Sub menu defaults already exist, skipping');
     }
   }
 }

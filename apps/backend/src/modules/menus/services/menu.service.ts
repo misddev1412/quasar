@@ -52,7 +52,7 @@ export class MenuService {
   constructor(
     private readonly menuRepository: MenuRepository,
     private readonly menuTranslationRepository: MenuTranslationRepository,
-  ) {}
+  ) { }
 
   async findAll(menuGroup?: string): Promise<MenuEntity[]> {
     return this.menuRepository.findAll(menuGroup);
@@ -145,6 +145,103 @@ export class MenuService {
     }
 
     await this.menuRepository.delete(id);
+  }
+
+  async clone(id: string): Promise<MenuEntity> {
+    const original = await this.menuRepository.findById(id);
+    if (!original) {
+      throw new NotFoundException(`Menu with ID ${id} not found`);
+    }
+
+    // 1. Calculate new position (append at end of current level)
+    const newPosition = await this.menuRepository.getLatestPosition(
+      original.menuGroup,
+      original.parent?.id,
+    );
+
+    // 2. Clone the menu entity
+    const createDto: any = {
+      menuGroup: original.menuGroup,
+      type: original.type,
+      url: original.url,
+      referenceId: original.referenceId,
+      target: original.target,
+      position: newPosition,
+      isEnabled: false, // Disable cloned item by default
+      icon: original.icon,
+      textColor: original.textColor,
+      backgroundColor: original.backgroundColor,
+      borderColor: original.borderColor,
+      borderWidth: original.borderWidth,
+      config: original.config,
+      isMegaMenu: original.isMegaMenu,
+      megaMenuColumns: original.megaMenuColumns,
+      parentId: original.parent?.id,
+    };
+
+    const newMenu = await this.menuRepository.create(createDto);
+
+    // 3. Clone translations with prefix "(Copy)"
+    if (original.translations && original.translations.length > 0) {
+      for (const t of original.translations) {
+        await this.menuTranslationRepository.upsert(newMenu.id, t.locale, {
+          label: `${t.label} (Copy)`,
+          description: t.description,
+          customHtml: t.customHtml,
+          config: t.config,
+        });
+      }
+    }
+
+    // 4. Recursive clone for children
+    if (original.children && original.children.length > 0) {
+      await this.cloneChildren(original.children, newMenu.id);
+    }
+
+    return this.findById(newMenu.id);
+  }
+
+  private async cloneChildren(children: MenuEntity[], parentId: string): Promise<void> {
+    for (const child of children) {
+      // Create child copy
+      const childDto: any = {
+        menuGroup: child.menuGroup,
+        type: child.type,
+        url: child.url,
+        referenceId: child.referenceId,
+        target: child.target,
+        position: child.position,
+        isEnabled: child.isEnabled,
+        icon: child.icon,
+        textColor: child.textColor,
+        backgroundColor: child.backgroundColor,
+        borderColor: child.borderColor,
+        borderWidth: child.borderWidth,
+        config: child.config,
+        isMegaMenu: child.isMegaMenu,
+        megaMenuColumns: child.megaMenuColumns,
+        parentId: parentId,
+      };
+
+      const newChild = await this.menuRepository.create(childDto);
+
+      // Clone child translations
+      if (child.translations) {
+        for (const t of child.translations) {
+          await this.menuTranslationRepository.upsert(newChild.id, t.locale, {
+            label: t.label, // No need to append (Copy) for children usually, or can retain exact name
+            description: t.description,
+            customHtml: t.customHtml,
+            config: t.config,
+          });
+        }
+      }
+
+      // Recurse if this child also has children
+      if (child.children && child.children.length > 0) {
+        await this.cloneChildren(child.children, newChild.id);
+      }
+    }
   }
 
   async reorder(menuGroup: string, reorderData: ReorderMenuDto[]): Promise<MenuEntity[]> {

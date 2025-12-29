@@ -662,6 +662,46 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
     },
   },
   {
+    componentKey: 'news_card',
+    displayName: 'News Card',
+    description: 'Reusable editorial teaser card for latest stories listings and news sections.',
+    componentType: ComponentStructureType.ATOMIC,
+    category: ComponentCategory.CONTENT,
+    position: 4,
+    defaultConfig: {
+      layout: 'grid',
+      showCategory: true,
+      showPublishDate: true,
+      showExcerpt: true,
+      showAuthor: false,
+      showReadMore: true,
+      clampTitleLines: 2,
+      clampExcerptLines: 3,
+      ctaText: 'Read story',
+      imageHeight: '12rem',
+      badgeTone: 'primary',
+    },
+    configSchema: {
+      layout: { type: 'enum', options: ['grid', 'horizontal', 'compact'] },
+      showCategory: { type: 'boolean' },
+      showPublishDate: { type: 'boolean' },
+      showExcerpt: { type: 'boolean' },
+      showAuthor: { type: 'boolean' },
+      showReadMore: { type: 'boolean' },
+      clampTitleLines: { type: 'number', minimum: 1, maximum: 4 },
+      clampExcerptLines: { type: 'number', minimum: 1, maximum: 5 },
+      ctaText: { type: 'string' },
+      imageHeight: { type: 'string', description: 'CSS height value applied to the media area' },
+      badgeTone: { type: 'enum', options: ['primary', 'neutral', 'emphasis'] },
+    },
+    metadata: {
+      componentPath: 'apps/frontend/src/components/news/NewsCard.tsx',
+      propsInterface: 'NewsCardProps',
+      usedIn: ['NewsSection'],
+      dataSource: 'articles',
+    },
+  },
+  {
     componentKey: 'news_section',
     displayName: 'News / Blog Section',
     description: 'Editorial feed that pulls latest or featured news with optional category scoping.',
@@ -912,6 +952,72 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
     },
   },
   {
+    componentKey: 'add_to_cart_button',
+    displayName: 'Add to Cart Button',
+    description: 'Configurable button component for adding products to cart with customizable colors, text transform, and icon.',
+    componentType: ComponentStructureType.ATOMIC,
+    category: ComponentCategory.ACTION,
+    position: 8,
+    isEnabled: true,
+    defaultConfig: {
+      backgroundColor: {
+        light: '#3b82f6',
+        dark: '#2563eb',
+      },
+      textColor: {
+        light: '#ffffff',
+        dark: '#ffffff',
+      },
+      textTransform: 'normal',
+      icon: 'shopping-cart',
+    },
+    configSchema: {
+      backgroundColor: {
+        type: 'object',
+        properties: {
+          light: {
+            type: 'string',
+            description: 'Hex, rgb, or Tailwind-compatible color for light mode background (e.g., #3b82f6, rgb(59, 130, 246))',
+          },
+          dark: {
+            type: 'string',
+            description: 'Hex, rgb, or Tailwind-compatible color for dark mode background (e.g., #2563eb, rgb(37, 99, 235))',
+          },
+        },
+        description: 'Background colors for light and dark themes',
+      },
+      textColor: {
+        type: 'object',
+        properties: {
+          light: {
+            type: 'string',
+            description: 'Hex, rgb, or Tailwind-compatible color for light mode text (e.g., #ffffff, rgb(255, 255, 255))',
+          },
+          dark: {
+            type: 'string',
+            description: 'Hex, rgb, or Tailwind-compatible color for dark mode text (e.g., #ffffff, rgb(255, 255, 255))',
+          },
+        },
+        description: 'Text colors for light and dark themes',
+      },
+      textTransform: {
+        type: 'enum',
+        options: ['normal', 'uppercase', 'capitalize'],
+        description: 'Text transform style: normal (Viết hoa), uppercase (VIẾT HOA), capitalize (Viết Hoa)',
+      },
+      icon: {
+        type: 'string',
+        description: 'Icon name from icon library (e.g., shopping-cart, cart, plus). Leave empty to hide icon.',
+      },
+    },
+    metadata: {
+      componentPath: 'apps/frontend/src/components/ecommerce/AddToCartButton.tsx',
+      propsInterface: 'AddToCartButtonProps',
+      usedIn: ['ProductCard', 'ProductDetail', 'QuickView', 'Cart'],
+      notes: 'Standalone add to cart button component with full customization support for colors, text casing, and icon.',
+    },
+  },
+  {
     componentKey: 'navigation.main_menu',
     displayName: 'Main Menu Appearance',
     description: 'Controls MainMenu background colors and spacing scale for desktop and mobile navigation.',
@@ -929,6 +1035,8 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
         },
       },
       itemSize: { type: 'enum', options: ['compact', 'comfortable', 'spacious'] },
+      paddingTop: { type: 'string', description: 'CSS padding top value for the menu container (e.g., 1rem, 16px)' },
+      paddingBottom: { type: 'string', description: 'CSS padding bottom value for the menu container (e.g., 1rem, 16px)' },
     },
     metadata: {
       componentPath: 'apps/frontend/src/components/menu/MenuNavigation.tsx',

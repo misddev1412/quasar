@@ -13,6 +13,7 @@ import {
 } from '@shared/types/navigation.types';
 import { ColorSelector } from '../common/ColorSelector';
 import { Select } from '../common/Select';
+import { Input } from '../common/Input';
 
 const PREVIEW_ITEMS = ['Shop', 'Collections', 'Brands', 'Contact'];
 
@@ -80,6 +81,20 @@ export const MainMenuAppearanceEditor: React.FC<MainMenuAppearanceEditorProps> =
     onChange({
       ...value,
       itemTransform: transform,
+    });
+  };
+
+  const updatePaddingTop = (paddingTop?: string) => {
+    onChange({
+      ...value,
+      paddingTop: paddingTop?.trim() || undefined,
+    });
+  };
+
+  const updatePaddingBottom = (paddingBottom?: string) => {
+    onChange({
+      ...value,
+      paddingBottom: paddingBottom?.trim() || undefined,
     });
   };
 
@@ -191,6 +206,44 @@ export const MainMenuAppearanceEditor: React.FC<MainMenuAppearanceEditorProps> =
             {t(
               'storefront.mainMenu.itemTransformDescription',
               'Uppercase or capitalize labels to match your typography system.',
+            )}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {t('storefront.mainMenu.paddingTop', 'Padding Top')}
+          </label>
+          <Input
+            value={value.paddingTop || ''}
+            onChange={(e) => updatePaddingTop(e.target.value)}
+            placeholder={t('storefront.mainMenu.paddingPlaceholder', 'e.g., 1rem, 16px, 0.5')}
+            inputSize="md"
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            {t(
+              'storefront.mainMenu.paddingTopDescription',
+              'CSS padding top value for the menu container (e.g., 1rem, 16px). Leave empty to use default.',
+            )}
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {t('storefront.mainMenu.paddingBottom', 'Padding Bottom')}
+          </label>
+          <Input
+            value={value.paddingBottom || ''}
+            onChange={(e) => updatePaddingBottom(e.target.value)}
+            placeholder={t('storefront.mainMenu.paddingPlaceholder', 'e.g., 1rem, 16px, 0.5')}
+            inputSize="md"
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            {t(
+              'storefront.mainMenu.paddingBottomDescription',
+              'CSS padding bottom value for the menu container (e.g., 1rem, 16px). Leave empty to use default.',
             )}
           </p>
         </div>

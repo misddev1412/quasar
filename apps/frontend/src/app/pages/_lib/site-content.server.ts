@@ -76,7 +76,7 @@ export const resolvePreferredLocale = async (
     return cookieLocale;
   }
 
-  const headerList = headers();
+  const headerList = await headers();
   const acceptLanguage = headerList.get('accept-language');
   if (acceptLanguage) {
     const [primary] = acceptLanguage.split(',');
@@ -273,10 +273,10 @@ const pickSeoField = (
   return asNonEmptyString(metadataRecord[field]);
 };
 
-export const buildMetadataFromSiteContent = (
+export const buildMetadataFromSiteContent = async (
   siteContent: SiteContent,
   overrides: Partial<Metadata> = {},
-): Metadata => {
+): Promise<Metadata> => {
   const metadata = siteContent.metadata ?? undefined;
 
   const titleFromMeta = pickSeoField(metadata, 'title');
@@ -284,7 +284,20 @@ export const buildMetadataFromSiteContent = (
   const keywordsFromMeta = pickSeoField(metadata, 'keywords');
   const imageFromMeta = pickSeoField(metadata, 'image');
 
-  const siteName = process.env.NEXT_PUBLIC_SITE_NAME || 'Quasar';
+  // Fetch site name from config API first, then fall back to env variable
+  let siteName = process.env.NEXT_PUBLIC_SITE_NAME || 'Quasar';
+  try {
+    const settingsResponse = (await serverTrpc.settings.getPublicSettings.query()) as ApiResponse<any> | undefined;
+    const settings = settingsResponse?.data || [];
+    const siteNameSetting = settings.find((s: any) => s.key === 'site.name');
+    if (siteNameSetting?.value) {
+      siteName = siteNameSetting.value;
+    }
+  } catch (error) {
+    // If API call fails, continue with env variable fallback
+    console.warn('Failed to fetch site name from config API, using environment variable:', error);
+  }
+
   const resolvedTitle = titleFromMeta || siteContent.title;
   const finalTitle = resolvedTitle.includes(siteName) ? resolvedTitle : `${resolvedTitle} | ${siteName}`;
 

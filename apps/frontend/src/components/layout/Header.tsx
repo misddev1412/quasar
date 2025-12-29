@@ -847,7 +847,14 @@ const Header: React.FC = () => {
         className="sticky top-0 z-50 bg-white dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm"
         style={headerBackgroundStyle}
       >
-        <Container className="py-0" style={headerBackgroundStyle}>
+        <Container 
+          className={mainMenuConfig.paddingTop || mainMenuConfig.paddingBottom ? "" : "py-0"} 
+          style={{
+            ...headerBackgroundStyle,
+            ...(mainMenuConfig.paddingTop ? { paddingTop: mainMenuConfig.paddingTop } : {}),
+            ...(mainMenuConfig.paddingBottom ? { paddingBottom: mainMenuConfig.paddingBottom } : {}),
+          }}
+        >
           <Navbar
             onMenuOpenChange={setIsMenuOpen}
             isMenuOpen={isMenuOpen}

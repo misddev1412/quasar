@@ -735,6 +735,31 @@ export const MenuForm: React.FC<MenuFormProps> = ({
     }));
   };
 
+  // Helper function to update translation config (for searchbar placeholder per language)
+  const updateTranslationConfig = (locale: string, key: string, value: unknown) => {
+    setFormData((prev) => {
+      const translation = prev.translations[locale] || {};
+      const nextConfig = { ...(translation.config || {}) };
+
+      if (value === '' || value === undefined || value === null) {
+        delete nextConfig[key];
+      } else {
+        nextConfig[key] = value;
+      }
+
+      return {
+        ...prev,
+        translations: {
+          ...prev.translations,
+          [locale]: {
+            ...translation,
+            config: Object.keys(nextConfig).length > 0 ? nextConfig : undefined,
+          },
+        },
+      };
+    });
+  };
+
   // Helper function to safely update badge
   const updateBadge = (field: string, value: any) => {
     setFormData(prev => ({
@@ -1052,14 +1077,19 @@ export const MenuForm: React.FC<MenuFormProps> = ({
       {formData.type === MenuType.SEARCH_BAR && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">{t('form.labels.placeholder')}</label>
-            <Input
-              value={getConfigStringValue(formData.config, 'placeholder')}
-              onChange={(e) => updateArbitraryConfigValue('placeholder', e.target.value)}
-              placeholder="Search..."
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonSize')}</label>
+            <Select
+              value={getConfigStringValue(formData.config, 'buttonSize') || 'medium'}
+              onChange={(value) => updateArbitraryConfigValue('buttonSize', value)}
+              options={[
+                { value: 'small', label: t('form.options.small', 'Small') },
+                { value: 'medium', label: t('form.options.medium', 'Medium') },
+                { value: 'large', label: t('form.options.large', 'Large') },
+              ]}
               className="mt-1"
-              inputSize="md"
+              size="md"
             />
+            <p className="text-xs text-gray-500 mt-1">{t('form.helpers.searchBarSize', 'Control the size of the search bar input field.')}</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">{t('form.labels.width')}</label>
@@ -1070,6 +1100,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
               className="mt-1"
               inputSize="md"
             />
+            <p className="text-xs text-gray-500 mt-1">{t('form.helpers.searchBarWidth', 'Set the width of the search bar (e.g., 240px, 100%, auto).')}</p>
           </div>
         </div>
       )}
@@ -1539,6 +1570,20 @@ export const MenuForm: React.FC<MenuFormProps> = ({
                 rows={6}
                 className="mt-1 w-full border border-gray-300 rounded-md px-3.5 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 h-11 resize-none"
               />
+            </div>
+          )}
+
+          {formData.type === MenuType.SEARCH_BAR && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.placeholder')}</label>
+              <Input
+                value={(formData.translations[activeLocale]?.config?.placeholder as string) || ''}
+                onChange={(e) => updateTranslationConfig(activeLocale, 'placeholder', e.target.value)}
+                placeholder="Search..."
+                className="mt-1"
+                inputSize="md"
+              />
+              <p className="text-xs text-gray-500 mt-1">{t('form.helpers.searchBarPlaceholder', 'Placeholder text shown in the search input for this language.')}</p>
             </div>
           )}
 

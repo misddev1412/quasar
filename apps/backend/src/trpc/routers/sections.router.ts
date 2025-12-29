@@ -41,7 +41,7 @@ export class SectionsRouter {
     private readonly sectionsService: SectionsService,
     @Inject(ResponseService)
     private readonly responseService: ResponseService,
-  ) {}
+  ) { }
 
   @Query({
     input: listInputSchema,
@@ -175,6 +175,29 @@ export class SectionsRouter {
         OperationCode.UPDATE,
         ErrorLevelCode.SERVER_ERROR,
         error.message || 'Failed to reorder sections',
+        error,
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({ id: z.string().uuid() }),
+    output: apiResponseSchema,
+  })
+  async clone(
+    @Input() input: { id: string },
+    @Ctx() ctx: AuthenticatedContext,
+  ) {
+    try {
+      const section = await this.sectionsService.clone(input.id, ctx.user?.id);
+      return this.responseService.createCreatedResponse(ModuleCode.CONFIG, 'section', section);
+    } catch (error) {
+      throw this.responseService.createTRPCError(
+        ModuleCode.CONFIG,
+        OperationCode.CREATE,
+        ErrorLevelCode.SERVER_ERROR,
+        error.message || 'Failed to clone section',
         error,
       );
     }

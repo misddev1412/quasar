@@ -3,6 +3,7 @@ import Layout from '../../components/layout/Layout';
 import Link from 'next/link';
 import { serverTrpc } from '../../utils/trpc-server';
 import { notFound } from 'next/navigation';
+import NewsCard from '../../components/news/NewsCard';
 
 // News item interface
 interface NewsItem {
@@ -123,60 +124,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-// News Card Component
-function NewsCard({ item }: { item: NewsItem }) {
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-      {/* Image placeholder */}
-      <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 relative">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-white text-center">
-            <div className="w-16 h-16 mx-auto mb-2 bg-white/20 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-              </svg>
-            </div>
-            <p className="text-sm opacity-90">News Image</p>
-          </div>
-        </div>
-        {/* Category badge */}
-        <div className="absolute top-4 left-4">
-          <span className="bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
-            {item.category}
-          </span>
-        </div>
-      </div>
 
-      {/* Content */}
-      <div className="p-6">
-        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3">
-          <span>{item.author}</span>
-          <span className="mx-2">•</span>
-          <span>{new Date(item.publishDate).toLocaleDateString()}</span>
-        </div>
-
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3 line-clamp-2">
-          {item.title}
-        </h3>
-
-        <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
-          {item.excerpt}
-        </p>
-
-        <Link
-          href={`/news/${item.slug}`}
-          className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
-        >
-          Read More
-          <svg className="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </Link>
-      </div>
-    </div>
-  );
-}
 
 // Server component for news page
 async function NewsPageContent({

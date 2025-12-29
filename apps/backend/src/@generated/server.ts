@@ -148,6 +148,7 @@ const appRouter = t.router({
     create: t.procedure.input(z.any()).mutation(() => null),
     update: t.procedure.input(z.any()).mutation(() => null),
     delete: t.procedure.input(z.any()).mutation(() => null),
+    clone: t.procedure.input(z.any()).mutation(() => null),
     reorder: t.procedure.input(z.any()).mutation(() => null),
     getNextPosition: t.procedure.query(() => null),
   }),

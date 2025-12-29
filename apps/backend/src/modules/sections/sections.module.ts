@@ -8,6 +8,7 @@ import { SectionsService } from './services/sections.service';
 import { LanguageModule } from '../language/language.module';
 import { SharedModule } from '../shared/shared.module';
 import { ComponentConfigsModule } from '../component-configs/component-configs.module';
+import { ProductsModule } from '../products/products.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ComponentConfigsModule } from '../component-configs/component-configs.m
     LanguageModule,
     SharedModule,
     ComponentConfigsModule,
+    ProductsModule,
   ],
   providers: [
     SectionRepository,

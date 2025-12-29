@@ -49,6 +49,7 @@ import CloudQueueIcon from '@mui/icons-material/CloudQueue';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import BuildIcon from '@mui/icons-material/Build';
 import SpaIcon from '@mui/icons-material/Spa';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 export class NavigationService implements INavigationService {
   constructor(private translate: (key: string, fallback?: string) => string) { }
@@ -82,10 +83,20 @@ export class NavigationService implements INavigationService {
             badge: 2,
             subItems: [
               {
+                icon: React.createElement(AnalyticsIcon),
+                label: t('admin.user_dashboard', 'User Dashboard'),
+                path: '/users/dashboard'
+              },
+              {
                 icon: React.createElement(PermIdentityIcon),
                 label: t('admin.user_list'),
                 path: '/users',
                 badge: 2
+              },
+              {
+                icon: React.createElement(FileDownloadIcon),
+                label: t('admin.user_exports', 'User Exports'),
+                path: '/users/exports'
               },
               {
                 icon: React.createElement(ManageAccountsIcon),

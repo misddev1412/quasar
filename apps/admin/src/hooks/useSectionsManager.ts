@@ -95,6 +95,12 @@ export const useSectionsManager = (page: string) => {
     },
   });
 
+  const cloneSection = trpc.sections.clone.useMutation({
+    onSuccess: () => {
+      utils.sections.listAll.invalidate({ page });
+    },
+  });
+
   return {
     sections,
     sectionsQuery,
@@ -104,6 +110,7 @@ export const useSectionsManager = (page: string) => {
     updateSection,
     deleteSection,
     reorderSections,
+    cloneSection,
     sectionTypeLabels: SECTION_TYPE_LABELS,
   };
 };

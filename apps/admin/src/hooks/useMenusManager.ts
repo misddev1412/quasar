@@ -167,6 +167,16 @@ export const useMenusManager = (menuGroup?: string) => {
     },
   });
 
+  const cloneMenu = (trpc.adminMenus as any).clone.useMutation({
+    onSuccess: () => {
+      utils.adminMenus.list.invalidate();
+      utils.adminMenus.statistics.invalidate({ menuGroup });
+      if (menuGroup) {
+        utils.adminMenus.tree.invalidate({ menuGroup });
+      }
+    },
+  });
+
   const fetchChildren = useCallback(
     (input: { menuGroup: string; parentId?: string }) =>
       trpcClient.adminMenus.children.query(input) as Promise<MenuTreeApiResponse>,
@@ -238,6 +248,7 @@ export const useMenusManager = (menuGroup?: string) => {
     updateMenu,
     deleteMenu,
     reorderMenus,
+    cloneMenu,
     fetchChildren,
     fetchNextPosition,
     buildMenuTree,

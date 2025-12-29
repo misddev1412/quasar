@@ -8,6 +8,9 @@ import { useCart } from '../../contexts/CartContext';
 import VariantSelectionModal from './VariantSelectionModal';
 import { useAddToCart } from '../../hooks/useAddToCart';
 import { useTranslation } from 'react-i18next';
+import { useAddToCartButtonConfig } from '../../hooks/useAddToCartButtonConfig';
+import { useTheme } from '../../contexts/ThemeContext';
+import { UnifiedIcon } from '../common/UnifiedIcon';
 
 interface AddToCartButtonProps {
   product: Product;
@@ -43,6 +46,8 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   const { isInCart, getItemQuantity, canAddToCart } = useCart();
   const { addToCart, isAdding } = useAddToCart();
   const { t } = useTranslation();
+  const { config: buttonConfig } = useAddToCartButtonConfig();
+  const { theme } = useTheme();
   const [isAdded, setIsAdded] = useState(false);
   const [selectedQuantity, setSelectedQuantity] = useState(quantity);
   const [showVariantModal, setShowVariantModal] = useState(false);
@@ -217,6 +222,25 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
     setSelectedQuantity(parseInt(event.target.value, 10));
   };
 
+  // Apply config styles
+  const backgroundColor = theme === 'dark' ? buttonConfig.backgroundColor.dark : buttonConfig.backgroundColor.light;
+  const textColor = theme === 'dark' ? buttonConfig.textColor.dark : buttonConfig.textColor.light;
+  const textTransformClass = buttonConfig.textTransform === 'uppercase' 
+    ? 'uppercase' 
+    : buttonConfig.textTransform === 'capitalize' 
+    ? 'capitalize' 
+    : 'normal-case';
+  
+  const buttonStyle: React.CSSProperties = {
+    backgroundColor: backgroundColor || undefined,
+    color: textColor || undefined,
+  };
+
+  const renderIcon = () => {
+    if (!buttonConfig.icon) return null;
+    return <UnifiedIcon icon={buttonConfig.icon} variant="button" size={18} color={textColor} />;
+  };
+
   if (iconOnly) {
     return (
       <Button
@@ -225,6 +249,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         variant={variant}
         color={color}
         className={className}
+        style={buttonStyle}
         onPress={handleAddToCart}
         isLoading={isLoading}
         isDisabled={isDisabled}
@@ -234,6 +259,8 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
           <FiLoader className="animate-spin text-lg" />
         ) : isAdded ? (
           <FiCheck className="text-lg text-green-500" />
+        ) : buttonConfig.icon ? (
+          renderIcon()
         ) : (
           <FiShoppingCart className="text-lg" />
         )}
@@ -264,7 +291,8 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
         size={size}
         variant={variant}
         color={color}
-        className={`${className} ${fullWidth ? 'flex-1' : ''}`}
+        className={`${className} ${fullWidth ? 'flex-1' : ''} ${textTransformClass}`}
+        style={buttonStyle}
         onPress={handleAddToCart}
         isLoading={isLoading}
         isDisabled={isDisabled}
@@ -272,6 +300,8 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
           !isLoading && !iconOnly && (
             isAdded ? (
               <FiCheck className="text-lg text-green-500" />
+            ) : buttonConfig.icon ? (
+              renderIcon()
             ) : (
               <FiShoppingCart className="text-lg" />
             )

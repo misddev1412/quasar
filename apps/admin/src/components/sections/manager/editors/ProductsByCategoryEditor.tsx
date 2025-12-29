@@ -40,6 +40,13 @@ interface CategorySelectOption extends SelectOption {
     categoryName: string;
 }
 
+interface SidebarConfig {
+    title?: string;
+    headerBackgroundColor?: string;
+    description?: string;
+    [key: string]: unknown;
+}
+
 const createRowId = () => `row-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 const normalizeStrategyValue = (value: unknown): ProductsByCategoryStrategy => {
@@ -886,11 +893,12 @@ export const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEd
         return flattenCategoryOptions(categories);
     }, [categoriesData]);
 
-    const sidebarConfig = value?.sidebar;
+    const initialSidebarConfig = (value?.sidebar as SidebarConfig) || {};
     const sanitizedValue = useMemo(() => removeSidebarFromConfig(value), [value]);
     const initialSidebarEnabled = typeof value?.sidebarEnabled === 'boolean' ? value.sidebarEnabled : true;
 
     const [rows, setRows] = useState<ProductsByCategoryAdminRow[]>(() => parseRowsFromValue(sanitizedValue));
+    const [sidebarConfig, setSidebarConfig] = useState<SidebarConfig>(initialSidebarConfig);
     const skipRowsSyncRef = useRef(false);
     const [sidebarEnabled, setSidebarEnabled] = useState<boolean>(initialSidebarEnabled);
 
@@ -905,23 +913,24 @@ export const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEd
 
     useEffect(() => {
         setSidebarEnabled(initialSidebarEnabled);
-    }, [initialSidebarEnabled]);
+        setSidebarConfig(initialSidebarConfig);
+    }, [initialSidebarEnabled, initialSidebarConfig]);
 
     const commitConfig = useCallback(
-        (nextRows: ProductsByCategoryAdminRow[], nextSidebarEnabled: boolean) => {
-            const nextValue = sanitizeConfigValue(sanitizedValue, nextRows, sidebarConfig, nextSidebarEnabled);
+        (nextRows: ProductsByCategoryAdminRow[], nextSidebarEnabled: boolean, nextSidebarConfig: SidebarConfig) => {
+            const nextValue = sanitizeConfigValue(sanitizedValue, nextRows, nextSidebarConfig, nextSidebarEnabled);
             onChange(nextValue);
         },
-        [onChange, sanitizedValue, sidebarConfig],
+        [onChange, sanitizedValue],
     );
 
     const applyUpdate = useCallback(
         (nextRows: ProductsByCategoryAdminRow[]) => {
             skipRowsSyncRef.current = true;
             setRows(nextRows);
-            commitConfig(nextRows, sidebarEnabled);
+            commitConfig(nextRows, sidebarEnabled, sidebarConfig);
         },
-        [commitConfig, sidebarEnabled],
+        [commitConfig, sidebarEnabled, sidebarConfig],
     );
 
     const handleAddRow = useCallback(() => {
@@ -947,9 +956,18 @@ export const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEd
     const handleSidebarToggle = useCallback(
         (enabled: boolean) => {
             setSidebarEnabled(enabled);
-            commitConfig(rows, enabled);
+            commitConfig(rows, enabled, sidebarConfig);
         },
-        [commitConfig, rows],
+        [commitConfig, rows, sidebarConfig],
+    );
+
+    const handleSidebarConfigChange = useCallback(
+        (key: keyof SidebarConfig, val: string) => {
+            const next = { ...sidebarConfig, [key]: val };
+            setSidebarConfig(next);
+            commitConfig(rows, sidebarEnabled, next);
+        },
+        [commitConfig, rows, sidebarEnabled, sidebarConfig],
     );
 
     return (
@@ -965,6 +983,38 @@ export const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEd
                     {t('sections.manager.productsByCategory.sidebarNote')}
                 </p>
             </div>
+
+            {sidebarEnabled && (
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 rounded-xl border border-gray-200/80 bg-gray-50/50 p-4">
+                    <label className="flex flex-col gap-1.5 text-sm text-gray-700">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            {t('sections.manager.productsByCategory.sidebarTitle', 'Sidebar Title')}
+                        </span>
+                        <Input
+                            type="text"
+                            value={sidebarConfig.title || ''}
+                            onChange={(e) => handleSidebarConfigChange('title', e.target.value)}
+                            placeholder={t('sections.manager.productsByCategory.sidebarDefaultTitle', 'Danh mục sản phẩm')}
+                            className="bg-white"
+                        />
+                    </label>
+                    <label className="flex flex-col gap-1.5 text-sm text-gray-700">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            {t('sections.manager.productsByCategory.headerBgColor', 'Header Background Color')}
+                        </span>
+                        <div className="flex items-center gap-2">
+                            <div className="h-10 w-10 rounded border border-gray-200 shadow-sm flex-shrink-0" style={{ backgroundColor: sidebarConfig.headerBackgroundColor || 'transparent' }} />
+                            <Input
+                                type="text"
+                                value={sidebarConfig.headerBackgroundColor || ''}
+                                onChange={(e) => handleSidebarConfigChange('headerBackgroundColor', e.target.value)}
+                                placeholder="#ffffff"
+                                className="bg-white"
+                            />
+                        </div>
+                    </label>
+                </div>
+            )}
 
             <div className="space-y-1">
                 <h4 className="text-sm font-semibold text-gray-700">{t('sections.manager.productsByCategory.displayCategories')}</h4>

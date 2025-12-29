@@ -15,6 +15,8 @@ export interface MainMenuConfig extends Record<string, unknown> {
   itemSize: MainMenuItemSize;
   itemWeight: MainMenuItemWeight;
   itemTransform: MainMenuItemTransform;
+  paddingTop?: string;
+  paddingBottom?: string;
 }
 
 export const MAIN_MENU_ITEM_SIZES: MainMenuItemSize[] = ['compact', 'comfortable', 'spacious'];
@@ -54,6 +56,8 @@ export const DEFAULT_MAIN_MENU_CONFIG: MainMenuConfig = {
   itemSize: 'comfortable',
   itemWeight: 'medium',
   itemTransform: 'normal',
+  paddingTop: undefined,
+  paddingBottom: undefined,
 };
 
 const isMainMenuItemSize = (value: unknown): value is MainMenuItemSize =>
@@ -78,6 +82,14 @@ export const createMainMenuConfig = (input?: Partial<MainMenuConfig>): MainMenuC
     return trimmed.length > 0 ? trimmed : fallback;
   };
 
+  const normalizePadding = (value: unknown): string | undefined => {
+    if (typeof value !== 'string') {
+      return undefined;
+    }
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+  };
+
   return {
     backgroundColor: {
       light: normalizeColor(backgroundColor.light, DEFAULT_MAIN_MENU_CONFIG.backgroundColor.light),
@@ -92,5 +104,7 @@ export const createMainMenuConfig = (input?: Partial<MainMenuConfig>): MainMenuC
     itemTransform: isMainMenuItemTransform(input?.itemTransform)
       ? input!.itemTransform
       : DEFAULT_MAIN_MENU_CONFIG.itemTransform,
+    paddingTop: normalizePadding(input?.paddingTop) ?? DEFAULT_MAIN_MENU_CONFIG.paddingTop,
+    paddingBottom: normalizePadding(input?.paddingBottom) ?? DEFAULT_MAIN_MENU_CONFIG.paddingBottom,
   };
 };

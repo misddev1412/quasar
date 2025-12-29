@@ -59,6 +59,7 @@ export interface ProductsByCategorySidebarSectionConfig {
   id?: string;
   title?: string;
   description?: string;
+  headerBackgroundColor?: string;
   backgroundColor?: string;
   titleFontColor?: string;
   titleFontWeight?: SidebarTitleFontWeight;
@@ -77,6 +78,7 @@ export interface ProductsByCategorySidebarSectionConfig {
 export interface ProductsByCategorySidebarConfig {
   enabled?: boolean;
   title?: string;
+  headerBackgroundColor?: string;
   description?: string;
   showTitle?: boolean;
   showSidebarHeader?: boolean;
@@ -189,6 +191,7 @@ export interface NormalizedSidebarSection {
   id: string;
   title: string;
   description: string;
+  headerBackgroundColor: string;
   backgroundColor: string;
   titleFontColor: string;
   titleFontWeight: SidebarTitleFontWeight;
@@ -207,6 +210,7 @@ export interface NormalizedSidebarSection {
 export interface NormalizedSidebarConfig {
   enabled: boolean;
   title: string;
+  headerBackgroundColor: string;
   description: string;
   showTitle: boolean;
   showSidebarHeader: boolean;
@@ -267,6 +271,7 @@ const normalizeSidebarConfig = (sidebar?: ProductsByCategorySidebarConfig | null
       const id = index === 0 ? baseId : `${baseId}-${index}`;
       const title = normalizeString(section?.title);
       const description = normalizeString(section?.description);
+      const headerBackgroundColor = normalizeString(section?.headerBackgroundColor);
       const backgroundColor = normalizeString(section?.backgroundColor);
       const titleFontColor = normalizeString(section?.titleFontColor);
       const titleFontWeight = normalizeSidebarFontWeight(section?.titleFontWeight);
@@ -287,6 +292,7 @@ const normalizeSidebarConfig = (sidebar?: ProductsByCategorySidebarConfig | null
         id,
         title,
         description,
+        headerBackgroundColor,
         backgroundColor,
         titleFontColor,
         titleFontWeight,
@@ -307,6 +313,7 @@ const normalizeSidebarConfig = (sidebar?: ProductsByCategorySidebarConfig | null
   return {
     enabled: Boolean(sidebar?.enabled) && sections.length > 0,
     title: normalizeString(sidebar?.title),
+    headerBackgroundColor: normalizeString(sidebar?.headerBackgroundColor),
     description: normalizeString(sidebar?.description),
     showTitle,
     showSidebarHeader,
@@ -740,6 +747,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
   const hasHeaderContent = sectionHeading || sectionDescription || sectionCuratedLabel;
   const isSidebarEnabled = sectionSidebarEnabled && sidebarConfig.enabled;
   const sidebarTitleText = sidebarConfig.title || t('sections.products_by_category.sidebar_default_title');
+  const sidebarHeaderBg = sidebarConfig.headerBackgroundColor;
   const sidebarDescriptionText = sidebarConfig.description || t('sections.products_by_category.sidebar_default_description');
   const sidebarShowTitle = sidebarConfig.showTitle;
   const sidebarShowSidebarHeader = sidebarConfig.showSidebarHeader;
@@ -774,6 +782,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
             <ProductsByCategorySidebar
               sidebarLabel={t('sections.products_by_category.sidebar_label')}
               title={sidebarTitleText}
+              headerBackgroundColor={sidebarHeaderBg}
               description={sidebarDescriptionText}
               showTitle={sidebarShowTitle}
               showSidebarHeader={sidebarShowSidebarHeader}

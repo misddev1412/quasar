@@ -10,40 +10,105 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "lib": [
+      "es2020",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@admin/assets/*": ["apps/admin/src/assets/*"],
-      "@admin/components/*": ["apps/admin/src/components/*"],
-      "@admin/config/*": ["apps/admin/src/config/*"],
-      "@admin/contexts/*": ["apps/admin/src/contexts/*"],
-      "@admin/hooks/*": ["apps/admin/src/hooks/*"],
-      "@admin/lib/*": ["apps/admin/src/lib/*"],
-      "@admin/pages/*": ["apps/admin/src/pages/*"],
-      "@admin/routes/*": ["apps/admin/src/routes/*"],
-      "@admin/services/*": ["apps/admin/src/services/*"],
-      "@admin/styles/*": ["apps/admin/src/styles/*"],
-      "@admin/types/*": ["apps/admin/src/types/*"],
-      "@admin/utils/*": ["apps/admin/src/utils/*"],
-      "@backend/config/*": ["apps/backend/src/config/*"],
-      "@backend/modules/*": ["apps/backend/src/modules/*"],
-      "@backend/trpc/*": ["apps/backend/src/trpc/*"],
-      "@worker/config/*": ["apps/worker/src/config/*"],
-      "@worker/queues/*": ["apps/worker/src/queues/*"],
-      "@worker/processors/*": ["apps/worker/src/processors/*"],
-      "@shared": ["libs/shared/src/index.ts"],
-      "@shared/classes/*": ["libs/shared/src/classes/*"],
-      "@shared/entities/*": ["libs/shared/src/entities/*"],
-      "@shared/enums/*": ["libs/shared/src/enums/*"],
-      "@shared/queues": ["libs/shared/src/queues/index.ts"],
-      "@shared/repositories/*": ["libs/shared/src/repositories/*"],
-      "@shared/styles/*": ["libs/shared/src/styles/*"],
-      "@shared/types/*": ["libs/shared/src/types/*"],
-      "@shared/queues/*": ["libs/shared/src/queues/*"],
-      "ui": ["libs/ui/src/index.ts"]
+      "@admin/assets/*": [
+        "apps/admin/src/assets/*"
+      ],
+      "@admin/components/*": [
+        "apps/admin/src/components/*"
+      ],
+      "@admin/config/*": [
+        "apps/admin/src/config/*"
+      ],
+      "@admin/contexts/*": [
+        "apps/admin/src/contexts/*"
+      ],
+      "@admin/hooks/*": [
+        "apps/admin/src/hooks/*"
+      ],
+      "@admin/lib/*": [
+        "apps/admin/src/lib/*"
+      ],
+      "@admin/pages/*": [
+        "apps/admin/src/pages/*"
+      ],
+      "@admin/routes/*": [
+        "apps/admin/src/routes/*"
+      ],
+      "@admin/services/*": [
+        "apps/admin/src/services/*"
+      ],
+      "@admin/styles/*": [
+        "apps/admin/src/styles/*"
+      ],
+      "@admin/types/*": [
+        "apps/admin/src/types/*"
+      ],
+      "@admin/utils/*": [
+        "apps/admin/src/utils/*"
+      ],
+      "@backend/config/*": [
+        "apps/backend/src/config/*"
+      ],
+      "@backend/modules/*": [
+        "apps/backend/src/modules/*"
+      ],
+      "@backend/trpc/*": [
+        "apps/backend/src/trpc/*"
+      ],
+      "@worker/config/*": [
+        "apps/worker/src/config/*"
+      ],
+      "@worker/queues/*": [
+        "apps/worker/src/queues/*"
+      ],
+      "@worker/processors/*": [
+        "apps/worker/src/processors/*"
+      ],
+      "@shared": [
+        "libs/shared/src/index.ts"
+      ],
+      "@shared/classes/*": [
+        "libs/shared/src/classes/*"
+      ],
+      "@shared/entities/*": [
+        "libs/shared/src/entities/*"
+      ],
+      "@shared/enums/*": [
+        "libs/shared/src/enums/*"
+      ],
+      "@shared/queues": [
+        "libs/shared/src/queues/index.ts"
+      ],
+      "@shared/repositories/*": [
+        "libs/shared/src/repositories/*"
+      ],
+      "@shared/styles/*": [
+        "libs/shared/src/styles/*"
+      ],
+      "@shared/types/*": [
+        "libs/shared/src/types/*"
+      ],
+      "@shared/constants/*": [
+        "libs/shared/src/constants/*"
+      ],
+      "@shared/queues/*": [
+        "libs/shared/src/queues/*"
+      ],
+      "ui": [
+        "libs/ui/src/index.ts"
+      ]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }

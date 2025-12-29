@@ -46,6 +46,14 @@ export class CreateMenuDto {
   @IsString()
   borderWidth?: string;
 
+  @IsOptional()
+  @IsString()
+  paddingTop?: string;
+
+  @IsOptional()
+  @IsString()
+  paddingBottom?: string;
+
   @IsObject()
   config: Record<string, unknown>;
 
@@ -130,6 +138,14 @@ export class UpdateMenuDto {
   @IsOptional()
   @IsString()
   borderWidth?: string;
+
+  @IsOptional()
+  @IsString()
+  paddingTop?: string;
+
+  @IsOptional()
+  @IsString()
+  paddingBottom?: string;
 
   @IsOptional()
   @IsObject()

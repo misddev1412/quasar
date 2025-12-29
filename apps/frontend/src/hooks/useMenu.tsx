@@ -18,6 +18,8 @@ export interface MenuItem {
   backgroundColor?: string | null;
   borderColor?: string | null;
   borderWidth?: string | null;
+  paddingTop?: string | null;
+  paddingBottom?: string | null;
   config: Record<string, unknown>;
   isMegaMenu: boolean;
   megaMenuColumns?: number | null;

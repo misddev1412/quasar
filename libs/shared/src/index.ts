@@ -41,3 +41,6 @@ export * from './hooks/useSeo';
 
 // Queue utilities
 export * from './queues'; 
+
+// Constants
+export * from './constants/section-stats.metrics';

@@ -43,7 +43,7 @@ export async function generateMetadata({ searchParams }: HelpPageProps = {}): Pr
   const siteContent = await resolveSiteContent(HELP_CANDIDATES, locale);
 
   if (siteContent) {
-    return buildMetadataFromSiteContent(siteContent);
+    return await buildMetadataFromSiteContent(siteContent);
   }
 
   const t = await getTranslations({ locale, namespace: 'pages.help.seo' });

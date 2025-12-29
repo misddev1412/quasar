@@ -86,7 +86,7 @@ export class AdminMenuRouter {
     private readonly menuService: MenuService,
     @Inject(ResponseService)
     private readonly responseService: ResponseService,
-  ) {}
+  ) { }
 
   @Query({
     input: listInputSchema,
@@ -267,6 +267,26 @@ export class AdminMenuRouter {
         OperationCode.DELETE,
         ErrorLevelCode.SERVER_ERROR,
         'Failed to delete menu',
+        error,
+      );
+    }
+  }
+
+  @Mutation({
+    input: byIdInputSchema,
+    output: apiResponseSchema,
+  })
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  async clone(@Input() input: z.infer<typeof byIdInputSchema>, @Ctx() context: AuthenticatedContext) {
+    try {
+      const menu = await this.menuService.clone(input.id);
+      return this.responseService.createCreatedResponse(ModuleCode.MENU, 'menu', menu);
+    } catch (error) {
+      throw this.responseService.createTRPCError(
+        ModuleCode.MENU,
+        OperationCode.CREATE,
+        ErrorLevelCode.SERVER_ERROR,
+        'Failed to clone menu',
         error,
       );
     }

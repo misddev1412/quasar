@@ -371,10 +371,36 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
 
   if (item.type === MenuType.SEARCH_BAR) {
     const translation = getTranslation(item);
+    // Get placeholder from translation config (multi-language) or fallback to global config or label
     const placeholder =
-      (item.config?.placeholder as string) || translation?.label || 'Search...';
+      (translation?.config?.placeholder as string) ||
+      (item.config?.placeholder as string) ||
+      translation?.label ||
+      'Search...';
     const width = (item.config?.width as string) || '240px';
+    // Use buttonSize to be consistent with other submenu items
+    const size = (item.config?.buttonSize as 'small' | 'medium' | 'large') || 'medium';
     const labelText = translation?.label || placeholder || 'Search';
+
+    // Size-based styling - apply to entire search bar container, similar to resolveButtonSizeClass
+    const sizeClasses = {
+      small: {
+        container: 'px-2.5 py-1.5 h-8', // Same as button small
+        input: 'text-xs',
+        icon: 14,
+      },
+      medium: {
+        container: 'px-3 py-2 h-10', // Same as button medium
+        input: 'text-sm',
+        icon: 16,
+      },
+      large: {
+        container: 'px-4 py-2.5 sm:px-5 sm:py-3 h-12', // Same as button large
+        input: 'text-[15px]',
+        icon: 18,
+      },
+    };
+    const sizeConfig = sizeClasses[size];
 
     const executeSearch = () => {
       const trimmed = searchValue.trim();
@@ -403,6 +429,17 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
       }
     };
 
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        event.stopPropagation();
+        executeSearch();
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        handleClear();
+      }
+    };
+
     return (
       <div
         key={item.id}
@@ -417,22 +454,26 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
           </label>
           <div
             className={clsx(
-              'relative flex items-center rounded-2xl border px-3 py-1.5 transition-all duration-200 backdrop-blur bg-white/80 dark:bg-gray-900/70 border-gray-200/80 dark:border-gray-700/70 shadow-sm',
+              'relative flex items-center rounded-2xl border transition-all duration-200 backdrop-blur bg-white/80 dark:bg-gray-900/70 border-gray-200/80 dark:border-gray-700/70 shadow-sm',
+              sizeConfig.container,
               isSearchFocused && 'border-blue-500 shadow-blue-500/30 dark:border-blue-400',
               searchError && 'border-rose-400 dark:border-rose-500 shadow-rose-500/30'
             )}
           >
             <span className="pointer-events-none text-gray-400 dark:text-gray-500">
-              <UnifiedIcon icon="search" size={16} />
+              <UnifiedIcon icon="search" size={sizeConfig.icon} />
             </span>
             <input
               ref={searchInputRef}
               id={searchInputId}
-              type="search"
+              type="text"
               value={searchValue}
               placeholder={placeholder}
               autoComplete="off"
-              className="peer w-full bg-transparent px-2 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-0 dark:text-gray-100"
+              className={clsx(
+                'peer w-full bg-transparent px-2 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-0 dark:text-gray-100',
+                sizeConfig.input
+              )}
               onFocus={() => setIsSearchFocused(true)}
               onBlur={() => setIsSearchFocused(false)}
               onChange={(event) => {
@@ -441,12 +482,7 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
                   setSearchError(null);
                 }
               }}
-              onKeyDown={(event) => {
-                if (event.key === 'Escape') {
-                  event.preventDefault();
-                  handleClear();
-                }
-              }}
+              onKeyDown={handleKeyDown}
             />
             {searchValue.length > 0 && (
               <button
@@ -458,14 +494,6 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
                 <UnifiedIcon icon="x" size={12} />
               </button>
             )}
-            <div aria-hidden className="mx-2 hidden h-5 w-px bg-gray-200/70 dark:bg-gray-700/70 sm:block" />
-            <button
-              type="submit"
-              className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-white shadow-lg shadow-blue-500/30 transition hover:-translate-y-0.5 hover:shadow-blue-500/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
-            >
-              <UnifiedIcon icon="arrow-right" size={14} className="!text-white" />
-              <span className="hidden sm:inline">{translation?.buttonLabel || 'Search'}</span>
-            </button>
           </div>
         </form>
       </div>

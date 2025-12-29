@@ -12,6 +12,8 @@ export interface StatItemConfig {
   suffix?: string;
   prefix?: string;
   description?: string;
+  sourceType?: 'manual' | 'metric';
+  metricId?: string;
 }
 
 export interface StatsSectionConfig {
@@ -27,10 +29,10 @@ interface StatsSectionProps {
 }
 
 const fallbackStats: StatItemConfig[] = [
-  { id: 'orders', label: 'Orders shipped', value: 12000, suffix: '+', description: 'Since launch' },
-  { id: 'countries', label: 'Cities served', value: 48, description: 'Nationwide coverage' },
-  { id: 'returning', label: 'Returning customers', value: 65, suffix: '%', description: 'Quarterly avg.' },
-  { id: 'rating', label: 'Average rating', value: 4.9, suffix: '/5', description: 'Based on 1,200+ reviews' },
+  { id: 'orders', label: 'Orders shipped', value: 12000, suffix: '+', description: 'Since launch', sourceType: 'manual' },
+  { id: 'countries', label: 'Cities served', value: 48, description: 'Nationwide coverage', sourceType: 'manual' },
+  { id: 'returning', label: 'Returning customers', value: 65, suffix: '%', description: 'Quarterly avg.', sourceType: 'manual' },
+  { id: 'rating', label: 'Average rating', value: 4.9, suffix: '/5', description: 'Based on 1,200+ reviews', sourceType: 'manual' },
 ];
 
 const clampColumns = (value?: number) => {
