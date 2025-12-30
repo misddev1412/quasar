@@ -72,6 +72,7 @@ const MenusPage: React.FC = () => {
     handleAddMenu,
     handleEditMenu,
     handleDeleteMenu,
+    handleCloneMenu,
     handleRefresh,
     resetDragState,
     persistMenuOrder,
@@ -394,6 +395,7 @@ const MenusPage: React.FC = () => {
           reorderMenus={reorderMenus}
           onEditMenu={handleEditMenu}
           onDeleteMenu={handleDeleteMenu}
+          onCloneMenu={handleCloneMenu}
           onAddMenu={handleAddMenu}
           onToggleMenuEnabled={handleToggleMenuEnabled}
           handleRowDragStart={dragHandlers.handleRowDragStart}
@@ -403,10 +405,10 @@ const MenusPage: React.FC = () => {
           handleDragLeave={dragHandlers.handleDragLeave}
           loadingChildren={menuPage.loadingChildren}
           hasChildren={new Set(flatMenuList.filter(item =>
-    ((item as any).hasChildren) ||
-    (menuPage.loadedChildren.has(item.id) && (menuPage.loadedChildren.get(item.id) || []).length > 0) ||
-    (item.children && item.children.length > 0)
-  ).map(item => item.id))}
+            ((item as any).hasChildren) ||
+            (menuPage.loadedChildren.has(item.id) && (menuPage.loadedChildren.get(item.id) || []).length > 0) ||
+            (item.children && item.children.length > 0)
+          ).map(item => item.id))}
           togglingMenuIds={togglingMenuIds}
         />
 

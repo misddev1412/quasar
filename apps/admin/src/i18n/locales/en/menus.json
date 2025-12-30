@@ -52,6 +52,7 @@
         "backgroundColor": "Background Color",
         "borderColor": "Border Color",
         "borderWidth": "Border Width",
+        "widthMode": "Width Mode",
         "subMenuDisplay": "Sub Menu Display",
         "displayType": "Display Type",
         "buttonBorderRadius": "Button Border Radius",
@@ -104,7 +105,9 @@
         "buttonStyling": "Use the color, icon, and link fields above to finish styling the button.",
         "loadingParents": "Loading available parent menus...",
         "errorLoadingParents": "Unable to load parent menus for this group",
-        "measurementCustomHelper": "Enter a number and choose px, rem, or em."
+        "measurementCustomHelper": "Enter a number and choose px, rem, or em.",
+        "searchBarWidthMode": "Choose between a fixed width or an automatic width that fills remaining space.",
+        "searchBarWidth": "Use this as the fixed width or the minimum width when automatic sizing is enabled (e.g., 240px, 100%)."
       },
       "placeholders": {
         "exampleUrl": "https://example.com",
@@ -138,6 +141,8 @@
         "large": "Large",
         "custom": "Custom",
         "useDefault": "Use default",
+        "fixed": "Fixed width",
+        "auto": "Automatic (fill remaining space)",
         "none": "None",
         "pulse": "Pulse",
         "floating": "Floating",

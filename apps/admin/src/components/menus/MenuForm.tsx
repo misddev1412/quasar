@@ -1092,6 +1092,20 @@ export const MenuForm: React.FC<MenuFormProps> = ({
             <p className="text-xs text-gray-500 mt-1">{t('form.helpers.searchBarSize', 'Control the size of the search bar input field.')}</p>
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.widthMode', 'Width Mode')}</label>
+            <Select
+              value={getConfigStringValue(formData.config, 'widthMode') || 'fixed'}
+              onChange={(value) => updateArbitraryConfigValue('widthMode', value)}
+              options={[
+                { value: 'fixed', label: t('form.options.fixed', 'Fixed width') },
+                { value: 'auto', label: t('form.options.auto', 'Automatic (fill remaining space)') },
+              ]}
+              className="mt-1"
+              size="md"
+            />
+            <p className="text-xs text-gray-500 mt-1">{t('form.helpers.searchBarWidthMode', 'Choose how the search bar width should be applied.')}</p>
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700">{t('form.labels.width')}</label>
             <Input
               value={getConfigStringValue(formData.config, 'width')}
@@ -1100,7 +1114,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
               className="mt-1"
               inputSize="md"
             />
-            <p className="text-xs text-gray-500 mt-1">{t('form.helpers.searchBarWidth', 'Set the width of the search bar (e.g., 240px, 100%, auto).')}</p>
+            <p className="text-xs text-gray-500 mt-1">{t('form.helpers.searchBarWidth', 'Used as the fixed width or minimum width when automatic sizing is enabled (e.g., 240px, 100%).')}</p>
           </div>
         </div>
       )}

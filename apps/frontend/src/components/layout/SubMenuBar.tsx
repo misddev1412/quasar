@@ -377,10 +377,20 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
       (item.config?.placeholder as string) ||
       translation?.label ||
       'Search...';
-    const width = (item.config?.width as string) || '240px';
+    const widthValue = typeof item.config?.width === 'string' ? item.config?.width.trim() : '';
+    const resolvedWidth = widthValue.length > 0 ? widthValue : '240px';
+    const widthMode = (item.config?.widthMode as 'auto' | 'fixed') || 'fixed';
+    const isAutoWidth = widthMode === 'auto';
     // Use buttonSize to be consistent with other submenu items
     const size = (item.config?.buttonSize as 'small' | 'medium' | 'large') || 'medium';
     const labelText = translation?.label || placeholder || 'Search';
+    const searchContainerClass = clsx(
+      'flex flex-col',
+      isAutoWidth ? 'flex-1 basis-0 min-w-0' : 'flex-shrink-0'
+    );
+    const searchContainerStyle: React.CSSProperties = isAutoWidth
+      ? { minWidth: resolvedWidth, width: 'auto', maxWidth: '100%' }
+      : { width: resolvedWidth };
 
     // Size-based styling - apply to entire search bar container, similar to resolveButtonSizeClass
     const sizeClasses = {
@@ -443,8 +453,8 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
     return (
       <div
         key={item.id}
-        className="flex flex-col flex-shrink-0"
-        style={{ width }}
+        className={searchContainerClass}
+        style={searchContainerStyle}
         role="search"
         aria-label={labelText}
       >
@@ -454,7 +464,7 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
           </label>
           <div
             className={clsx(
-              'relative flex items-center rounded-2xl border transition-all duration-200 backdrop-blur bg-white/80 dark:bg-gray-900/70 border-gray-200/80 dark:border-gray-700/70 shadow-sm',
+              'relative flex w-full items-center rounded-2xl border transition-all duration-200 backdrop-blur bg-white/80 dark:bg-gray-900/70 border-gray-200/80 dark:border-gray-700/70 shadow-sm',
               sizeConfig.container,
               isSearchFocused && 'border-blue-500 shadow-blue-500/30 dark:border-blue-400',
               searchError && 'border-rose-400 dark:border-rose-500 shadow-rose-500/30'
@@ -572,7 +582,7 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
         title={linkAriaLabel}
         onClick={handleLinkClick}
         className={clsx(
-          'relative flex items-center w-auto min-w-0 max-w-[200px] sm:max-w-[220px] md:max-w-[240px] gap-2 rounded-lg border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900',
+          'relative flex items-center w-auto min-w-0 gap-2 rounded-lg border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900',
           paddingClass,
           variantVisualClass,
           animationClass,

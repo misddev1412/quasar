@@ -45,6 +45,7 @@ interface MenuTableProps {
   reorderMenus: any;
   onEditMenu: (menu: AdminMenu) => void;
   onDeleteMenu: (menu: AdminMenu) => void;
+  onCloneMenu: (menu: AdminMenu) => void;
   onAddMenu: () => void;
   onToggleMenuEnabled: (menu: AdminMenu, nextValue: boolean) => void;
   handleRowDragStart: (event: React.DragEvent<HTMLElement>, menuId: string) => void;
@@ -70,6 +71,7 @@ export const MenuTable: React.FC<MenuTableProps> = ({
   reorderMenus,
   onEditMenu,
   onDeleteMenu,
+  onCloneMenu,
   onAddMenu,
   onToggleMenuEnabled,
   handleRowDragStart,
@@ -113,11 +115,10 @@ export const MenuTable: React.FC<MenuTableProps> = ({
                 <button
                   data-drag-ignore
                   onClick={() => toggleNodeExpansion(item.id)}
-                  className={`flex h-5 w-5 items-center justify-center rounded transition-colors ${
-                    item.level > 0
-                      ? 'bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
+                  className={`flex h-5 w-5 items-center justify-center rounded transition-colors ${item.level > 0
+                    ? 'bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
                   disabled={loadingChildren.has(item.id)}
                 >
                   {loadingChildren.has(item.id) ? (
@@ -129,13 +130,12 @@ export const MenuTable: React.FC<MenuTableProps> = ({
                   )}
                 </button>
               )}
-              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                item.level === 0
-                  ? 'bg-gray-400 dark:bg-gray-500'
-                  : item.level === 1
-                    ? 'bg-blue-400 dark:bg-blue-500'
-                    : 'bg-green-400 dark:bg-green-500'
-              }`} />
+              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${item.level === 0
+                ? 'bg-gray-400 dark:bg-gray-500'
+                : item.level === 1
+                  ? 'bg-blue-400 dark:bg-blue-500'
+                  : 'bg-green-400 dark:bg-green-500'
+                }`} />
               {item.icon && <span className="mr-1"><UnifiedIcon icon={item.icon} variant="table" /></span>}
               {(item.textColor || item.backgroundColor || item.borderColor || item.borderWidth) && (
                 <div className="mr-2 flex gap-1">
@@ -168,13 +168,12 @@ export const MenuTable: React.FC<MenuTableProps> = ({
                 </div>
               )}
               <span
-                className={`font-medium ${
-                  item.level === 0
-                    ? 'text-gray-900 dark:text-gray-100 text-base'
-                    : item.level === 1
-                      ? 'text-gray-800 dark:text-gray-200 text-sm'
-                      : 'text-gray-700 dark:text-gray-300 text-sm'
-                }`}
+                className={`font-medium ${item.level === 0
+                  ? 'text-gray-900 dark:text-gray-100 text-base'
+                  : item.level === 1
+                    ? 'text-gray-800 dark:text-gray-200 text-sm'
+                    : 'text-gray-700 dark:text-gray-300 text-sm'
+                  }`}
                 style={{
                   color: item.textColor || undefined,
                   backgroundColor: item.backgroundColor || undefined,
@@ -186,11 +185,10 @@ export const MenuTable: React.FC<MenuTableProps> = ({
               </span>
             </div>
             {item.url && (
-              <span className={`truncate ${
-                item.level === 0
-                  ? 'text-sm text-gray-500 dark:text-gray-400 ml-7'
-                  : 'text-xs text-gray-400 dark:text-gray-500 ml-7'
-              }`}>
+              <span className={`truncate ${item.level === 0
+                ? 'text-sm text-gray-500 dark:text-gray-400 ml-7'
+                : 'text-xs text-gray-400 dark:text-gray-500 ml-7'
+                }`}>
                 {item.url}
               </span>
             )}
@@ -283,6 +281,11 @@ export const MenuTable: React.FC<MenuTableProps> = ({
               onClick: () => onEditMenu(item),
             },
             {
+              label: 'Clone',
+              icon: <FiPlus className="w-4 h-4" />,
+              onClick: () => onCloneMenu(item),
+            },
+            {
               label: 'Delete',
               icon: <FiTrash2 className="w-4 h-4" />,
               onClick: () => onDeleteMenu(item),
@@ -299,6 +302,7 @@ export const MenuTable: React.FC<MenuTableProps> = ({
     toggleNodeExpansion,
     onEditMenu,
     onDeleteMenu,
+    onCloneMenu,
     onToggleMenuEnabled,
     togglingMenuIds,
   ]);

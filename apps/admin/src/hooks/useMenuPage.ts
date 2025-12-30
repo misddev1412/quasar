@@ -186,6 +186,7 @@ export const useMenuPage = (initialGroup: string = 'main') => {
     updateMenu,
     deleteMenu,
     reorderMenus,
+    cloneMenu,
     fetchChildren,
     fetchNextPosition,
     treeQuery,
@@ -262,6 +263,15 @@ export const useMenuPage = (initialGroup: string = 'main') => {
       addToast({ title: 'Failed to delete menu', type: 'error' });
     }
   }, [deleteMenu, addToast]);
+
+  const handleCloneMenu = useCallback(async (menu: AdminMenu) => {
+    try {
+      await cloneMenu.mutateAsync({ id: menu.id });
+      addToast({ title: 'Menu cloned successfully', type: 'success' });
+    } catch (error) {
+      addToast({ title: 'Failed to clone menu', type: 'error' });
+    }
+  }, [cloneMenu, addToast]);
 
   const handleRefresh = useCallback(() => {
     treeQuery.refetch();
@@ -450,6 +460,7 @@ export const useMenuPage = (initialGroup: string = 'main') => {
     handleAddMenu,
     handleEditMenu,
     handleDeleteMenu,
+    handleCloneMenu,
     handleRefresh,
     resetDragState,
     persistMenuOrder,

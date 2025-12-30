@@ -21,6 +21,7 @@ export interface StatsSectionConfig {
   columns?: number;
   background?: 'surface' | 'primary' | 'dark';
   stats?: StatItemConfig[];
+  fullWidth?: boolean;
 }
 
 interface StatsSectionProps {
@@ -40,6 +41,15 @@ const clampColumns = (value?: number) => {
     return 4;
   }
   return Math.min(Math.max(Math.round(value), 1), 6);
+};
+
+const gridColumnClassMap: Record<number, string> = {
+  1: 'sm:grid-cols-1 lg:grid-cols-1',
+  2: 'sm:grid-cols-2 lg:grid-cols-2',
+  3: 'sm:grid-cols-2 lg:grid-cols-3',
+  4: 'sm:grid-cols-2 lg:grid-cols-4',
+  5: 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5',
+  6: 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6',
 };
 
 const formatValue = (value?: number, suffix?: string, prefix?: string) => {
@@ -62,23 +72,24 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ config, translation 
   const layout = config.layout === 'counter' ? 'counter' : 'grid';
   const columns = clampColumns(config.columns);
   const backgroundClass = backgroundVariants[config.background || 'surface'] || backgroundVariants.surface;
+  const shouldUseFullWidth = config.fullWidth !== false;
 
   const title = translation?.title === null ? '' : (translation?.title || t('sections.stats.title'));
   const subtitle = translation?.subtitle === null ? '' : (translation?.subtitle || t('sections.stats.subtitle'));
   const description = translation?.description === null ? '' : (translation?.description || t('sections.stats.description'));
 
-  const gridClass = columns >= 4 ? 'lg:grid-cols-4 xl:grid-cols-5' : `lg:grid-cols-${columns}`;
+  const gridClass = gridColumnClassMap[columns] || gridColumnClassMap[4];
 
   return (
     <section className={`${backgroundClass} py-16`}>
-      <SectionContainer>
+      <SectionContainer fullWidth={shouldUseFullWidth}>
         <div className="mb-12 max-w-3xl">
           {subtitle && <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-500 dark:text-blue-300">{subtitle}</p>}
           {title && <h2 className="mt-3 text-3xl font-semibold text-gray-900 dark:text-gray-100">{title}</h2>}
           {description && <p className="mt-4 text-base text-gray-600 dark:text-gray-300">{description}</p>}
         </div>
 
-        <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2 ${gridClass}`}>
+        <div className={`grid grid-cols-1 gap-6 ${gridClass}`}>
           {stats.map((stat) => (
             <div
               key={stat.id || stat.label}

@@ -71,9 +71,10 @@ export const StatsEditor: React.FC<StatsEditorProps> = ({ value, onChange }) => 
     };
 
     const handleColumnsChange = (columns: number) => {
+        const nextValue = Number.isNaN(columns) ? 1 : Math.min(Math.max(columns, 1), 6);
         onChange({
             ...(value ?? {}),
-            columns,
+            columns: nextValue,
         });
     };
 
@@ -176,21 +177,19 @@ export const StatsEditor: React.FC<StatsEditorProps> = ({ value, onChange }) => 
                     />
                 </label>
 
-                {currentLayout === 'grid' && (
-                    <label className="flex flex-col gap-1 text-sm text-gray-600">
-                        {t('sections.manager.config.stats.numberOfColumns')}
-                        <Input
-                            type="number"
-                            min={1}
-                            max={6}
-                            value={currentColumns}
-                            onChange={(e) => handleColumnsChange(Number(e.target.value))}
-                            className="text-sm"
-                            inputSize="md"
-                        />
-                        <span className="text-xs text-gray-500">{t('sections.manager.config.stats.columnsDescription')}</span>
-                    </label>
-                )}
+                <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('sections.manager.config.stats.numberOfColumns')}
+                    <Input
+                        type="number"
+                        min={1}
+                        max={6}
+                        value={currentColumns}
+                        onChange={(e) => handleColumnsChange(Number(e.target.value))}
+                        className="text-sm"
+                        inputSize="md"
+                    />
+                    <span className="text-xs text-gray-500">{t('sections.manager.config.stats.columnsDescription')}</span>
+                </label>
             </div>
 
             <div className="rounded-lg border border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-800">
