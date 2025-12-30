@@ -216,7 +216,7 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
   }
 
   return (
-    <aside className="relative z-40 w-full lg:w-1/5">
+    <aside className="relative z-[70] w-full lg:w-1/5">
       <div className="lg:sticky lg:top-24 space-y-6">
         {showSidebarHeader && (
           <div

@@ -16,6 +16,8 @@ export interface BannerCardLink {
   referenceId?: string;
 }
 
+export type BannerLabelTextTransform = 'none' | 'uppercase' | 'capitalize' | 'lowercase';
+
 export interface BannerCardConfig {
   id?: string;
   imageUrl?: string;
@@ -27,6 +29,11 @@ export interface BannerGridConfig {
   cards?: BannerCardConfig[];
   cardBorderRadius?: string;
   cardGap?: string;
+  labelBgColorLight?: string;
+  labelBgColorDark?: string;
+  labelTextColorLight?: string;
+  labelTextColorDark?: string;
+  labelTextTransform?: BannerLabelTextTransform;
 }
 
 interface BannerGridSectionProps {
@@ -60,6 +67,25 @@ const sanitizeDimension = (value?: string, fallback?: string) => {
   return trimmed.length > 0 ? trimmed : fallback;
 };
 
+const sanitizeColorValue = (value?: string) => {
+  if (typeof value !== 'string') {
+    return '';
+  }
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : '';
+};
+
+const isLabelTextTransform = (value?: string): value is BannerLabelTextTransform => {
+  return value === 'none' || value === 'uppercase' || value === 'capitalize' || value === 'lowercase';
+};
+
+const LABEL_TEXT_TRANSFORM_CLASSES: Record<BannerLabelTextTransform, string> = {
+  none: '',
+  uppercase: 'uppercase tracking-wide',
+  capitalize: 'capitalize',
+  lowercase: 'lowercase',
+};
+
 const buildHrefForLink = (link?: BannerCardLink): string | null => {
   if (!link) {
     return null;
@@ -91,6 +117,36 @@ export const BannerGridSection: React.FC<BannerGridSectionProps> = ({ config, tr
   const hasCards = validCards.length > 0;
   const cardBorderRadius = sanitizeDimension(config.cardBorderRadius, DEFAULT_CARD_RADIUS);
   const gridGap = sanitizeDimension(config.cardGap, DEFAULT_CARD_GAP);
+  const labelBgColorLight = sanitizeColorValue(config.labelBgColorLight);
+  const labelBgColorDark = sanitizeColorValue(config.labelBgColorDark);
+  const labelTextColorLight = sanitizeColorValue(config.labelTextColorLight);
+  const labelTextColorDark = sanitizeColorValue(config.labelTextColorDark);
+  const labelTextTransform = isLabelTextTransform(config.labelTextTransform) ? config.labelTextTransform : 'none';
+
+  const labelBadgeStyleVars: React.CSSProperties & { [key: `--${string}`]: string } = {};
+  if (labelBgColorLight) {
+    labelBadgeStyleVars['--banner-label-bg-light'] = labelBgColorLight;
+  }
+  if (labelBgColorDark) {
+    labelBadgeStyleVars['--banner-label-bg-dark'] = labelBgColorDark;
+  }
+  if (labelTextColorLight) {
+    labelBadgeStyleVars['--banner-label-text-light'] = labelTextColorLight;
+  }
+  if (labelTextColorDark) {
+    labelBadgeStyleVars['--banner-label-text-dark'] = labelTextColorDark;
+  }
+
+  const labelBadgeClassName = [
+    'inline-flex items-center rounded-full px-5 py-2 text-sm font-semibold shadow',
+    labelBgColorLight ? 'bg-[var(--banner-label-bg-light)]' : 'bg-white/90',
+    labelBgColorDark ? 'dark:bg-[var(--banner-label-bg-dark)]' : '',
+    labelTextColorLight ? 'text-[var(--banner-label-text-light)]' : 'text-gray-900',
+    labelTextColorDark ? 'dark:text-[var(--banner-label-text-dark)]' : '',
+    LABEL_TEXT_TRANSFORM_CLASSES[labelTextTransform],
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   // null means field is hidden by admin, undefined/empty means visible but no value
   const sectionTitle = translation?.title === null ? '' : (translation?.title || t('sections.banner.title'));
@@ -131,7 +187,7 @@ export const BannerGridSection: React.FC<BannerGridSectionProps> = ({ config, tr
                   <img src={imageUrl} alt={label} className="h-full w-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 flex justify-center p-4">
-                    <span className="inline-flex items-center rounded-full bg-white/90 px-5 py-2 text-sm font-semibold text-gray-900 shadow">
+                    <span className={labelBadgeClassName} style={labelBadgeStyleVars}>
                       {label}
                     </span>
                   </div>

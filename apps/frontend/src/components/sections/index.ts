@@ -19,7 +19,7 @@ export type { ProductsByCategoryConfig, ProductsByCategoryRowConfig, ProductsByC
 export type { NewsSectionConfig, NewsSectionRowConfig, NewsSectionStrategy } from './NewsSection';
 export type { CustomHtmlConfig } from './CustomHtmlSection';
 export type { CTABannerConfig } from './CTABannerSection';
-export type { BannerGridConfig, BannerCardConfig, BannerCardLink } from './BannerGridSection';
+export type { BannerGridConfig, BannerCardConfig, BannerCardLink, BannerLabelTextTransform } from './BannerGridSection';
 export type { FeaturesSectionConfig } from './FeaturesSection';
 export type { TestimonialsSectionConfig } from './TestimonialsSection';
 export type { VideoSectionConfig } from './VideoSection';

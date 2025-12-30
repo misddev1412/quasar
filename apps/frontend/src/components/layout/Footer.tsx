@@ -271,9 +271,9 @@ const Footer: React.FC<FooterProps> = ({
   const rootStyle =
     customBackgroundColor || customTextColor
       ? ({
-          ...(customBackgroundColor ? { backgroundColor: customBackgroundColor } : {}),
-          ...(customTextColor ? { color: customTextColor } : {}),
-        } as React.CSSProperties)
+        ...(customBackgroundColor ? { backgroundColor: customBackgroundColor } : {}),
+        ...(customTextColor ? { color: customTextColor } : {}),
+      } as React.CSSProperties)
       : undefined;
   const getTextStyle = (opacity = 1): React.CSSProperties | undefined =>
     customTextColor ? { color: customTextColor, opacity } : undefined;
@@ -314,25 +314,25 @@ const Footer: React.FC<FooterProps> = ({
 
   const themeClasses = theme === 'dark'
     ? {
-        background: 'bg-gray-900 text-gray-100',
-        border: 'border-gray-800',
-        subtle: 'text-gray-400',
-        link: 'text-gray-300 hover:text-white',
-        divider: 'border-gray-800',
-        inputBg: 'bg-gray-800/70 text-white placeholder-gray-400',
-        inputBorder: 'border-gray-700 focus:ring-blue-400 focus:border-blue-400',
-        button: 'bg-white text-gray-900 hover:bg-gray-100',
-      }
+      background: 'bg-gray-900 text-gray-100',
+      border: 'border-gray-800',
+      subtle: 'text-gray-400',
+      link: 'text-gray-300 hover:text-white',
+      divider: 'border-gray-800',
+      inputBg: 'bg-gray-800/70 text-white placeholder-gray-400',
+      inputBorder: 'border-gray-700 focus:ring-blue-400 focus:border-blue-400',
+      button: 'bg-white text-gray-900 hover:bg-gray-100',
+    }
     : {
-        background: 'bg-gray-50 text-gray-900',
-        border: 'border-gray-200',
-        subtle: 'text-gray-600',
-        link: 'text-gray-600 hover:text-gray-900',
-        divider: 'border-gray-200',
-        inputBg: 'bg-white text-gray-900 placeholder-gray-500',
-        inputBorder: 'border-gray-300 focus:ring-blue-500 focus:border-blue-500',
-        button: 'bg-gray-900 text-white hover:bg-gray-800',
-      };
+      background: 'bg-gray-50 text-gray-900',
+      border: 'border-gray-200',
+      subtle: 'text-gray-600',
+      link: 'text-gray-600 hover:text-gray-900',
+      divider: 'border-gray-200',
+      inputBg: 'bg-white text-gray-900 placeholder-gray-500',
+      inputBorder: 'border-gray-300 focus:ring-blue-500 focus:border-blue-500',
+      button: 'bg-gray-900 text-white hover:bg-gray-800',
+    };
 
   const footerLogoAltText = getSetting('site.footer_logo_alt') || siteName;
   const footerLogoNode =
@@ -638,16 +638,16 @@ const Footer: React.FC<FooterProps> = ({
         label: 'Cập nhật',
         value: lastUpdatedDate
           ? lastUpdatedDate.toLocaleTimeString('vi-VN', {
-              hour: '2-digit',
-              minute: '2-digit',
-            })
+            hour: '2-digit',
+            minute: '2-digit',
+          })
           : 'Đang cập nhật',
         helper: lastUpdatedDate
           ? lastUpdatedDate.toLocaleDateString('vi-VN', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric',
-            })
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+          })
           : '',
         icon: FiClock,
         isTextValue: true,
@@ -695,9 +695,9 @@ const Footer: React.FC<FooterProps> = ({
     const sectionStyle =
       analyticsBackgroundColor || customTextColor
         ? ({
-            ...(analyticsBackgroundColor ? { backgroundColor: analyticsBackgroundColor } : {}),
-            ...(customTextColor ? { color: customTextColor } : {}),
-          } as React.CSSProperties)
+          ...(analyticsBackgroundColor ? { backgroundColor: analyticsBackgroundColor } : {}),
+          ...(customTextColor ? { color: customTextColor } : {}),
+        } as React.CSSProperties)
         : undefined;
 
     return (
@@ -724,12 +724,12 @@ const Footer: React.FC<FooterProps> = ({
                         <Icon className="h-5 w-5" />
                       </div>
                       <div className="space-y-1">
-                        <p className={clsx('text-xs font-semibold uppercase tracking-wide', labelClass)}>
+                        <p className={clsx('text-xs font-semibold uppercase tracking-wide mb-0 mt-0', labelClass)}>
                           {item.label}
                         </p>
                         <p
                           className={clsx(
-                            'font-semibold leading-tight',
+                            'font-semibold leading-tight mb-0 mt-0',
                             item.isTextValue ? 'text-base truncate' : 'text-xl'
                           )}
                           title={item.valueTitle}

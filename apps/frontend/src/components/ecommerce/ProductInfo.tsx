@@ -130,7 +130,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       <div className="space-y-2">
         {isContactPrice ? (
           <span className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
-            Contact Price
+            {tEcommerce('contactPrice')}
           </span>
         ) : (
           <>

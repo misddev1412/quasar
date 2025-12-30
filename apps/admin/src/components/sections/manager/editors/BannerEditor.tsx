@@ -3,18 +3,21 @@ import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithB
 import { Input } from '../../../common/Input';
 import { Select, SelectOption } from '../../../common/Select';
 import { MediaManager } from '../../../common/MediaManager';
-import { Button } from '../../../common/Button';
 import { ImageActionButtons } from '../../../common/ImageActionButtons';
 import { CategorySelector } from '../../../menus/CategorySelector';
 import { ProductSelector } from '../../../menus/ProductSelector';
 import { Image as ImageIcon } from 'lucide-react';
-import { BannerCardConfig, BannerCardLink, BannerLinkType, ConfigChangeHandler } from '../types';
+import { BannerCardConfig, BannerCardLink, BannerLabelTextTransform, BannerLinkType, ConfigChangeHandler } from '../types';
 import { buildBannerLinkHref, ensureNumber } from '../utils';
 
 interface BannerEditorProps {
     value: Record<string, unknown>;
     onChange: ConfigChangeHandler;
 }
+
+const isLabelTextTransform = (value?: string): value is BannerLabelTextTransform => {
+    return value === 'none' || value === 'uppercase' || value === 'capitalize' || value === 'lowercase';
+};
 
 export const BannerEditor: React.FC<BannerEditorProps> = ({ value, onChange }) => {
     const { t } = useTranslationWithBackend();
@@ -33,6 +36,13 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({ value, onChange }) =
     const cards = Array.isArray(value?.cards) ? (value.cards as BannerCardConfig[]) : [];
     const cardBorderRadius = typeof value?.cardBorderRadius === 'string' ? value.cardBorderRadius : '';
     const cardGap = typeof value?.cardGap === 'string' ? value.cardGap : '';
+    const labelBgColorLight = typeof value?.labelBgColorLight === 'string' ? value.labelBgColorLight : '';
+    const labelBgColorDark = typeof value?.labelBgColorDark === 'string' ? value.labelBgColorDark : '';
+    const labelTextColorLight = typeof value?.labelTextColorLight === 'string' ? value.labelTextColorLight : '';
+    const labelTextColorDark = typeof value?.labelTextColorDark === 'string' ? value.labelTextColorDark : '';
+    const labelTextTransform: BannerLabelTextTransform = isLabelTextTransform(value?.labelTextTransform as string)
+        ? (value?.labelTextTransform as BannerLabelTextTransform)
+        : 'none';
     const clampCardCount = (count: number) => Math.min(Math.max(count, 1), 4);
     const rawCount = ensureNumber(value?.cardCount, cards.length > 0 ? cards.length : 1);
     const cardCount = clampCardCount(rawCount);
@@ -128,6 +138,23 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({ value, onChange }) =
         updateConfig({ cardGap: trimmed });
     };
 
+    type LabelColorKey = 'labelBgColorLight' | 'labelBgColorDark' | 'labelTextColorLight' | 'labelTextColorDark';
+
+    const handleLabelColorChange = (key: LabelColorKey, colorValue: string) => {
+        const trimmed = colorValue.trim();
+        if (!trimmed) {
+            const next = { ...(value ?? {}) };
+            delete next[key];
+            onChange(next);
+            return;
+        }
+        updateConfig({ [key]: trimmed } as Record<string, unknown>);
+    };
+
+    const handleLabelTextTransformChange = (nextTransform: BannerLabelTextTransform) => {
+        updateConfig({ labelTextTransform: nextTransform });
+    };
+
     return (
         <div className="space-y-6">
             <label className="flex flex-col gap-1 text-sm text-gray-600">
@@ -168,6 +195,72 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({ value, onChange }) =
                     <span className="text-xs text-gray-500">{t('sections.manager.config.banner.cardGapDescription')}</span>
                 </label>
             </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('sections.manager.config.banner.labelBackgroundLight')}
+                    <Input
+                        value={labelBgColorLight}
+                        placeholder={t('sections.manager.config.banner.labelColorPlaceholder')}
+                        onChange={(e) => handleLabelColorChange('labelBgColorLight', e.target.value)}
+                        className="text-sm"
+                        inputSize="md"
+                    />
+                    <span className="text-xs text-gray-500">{t('sections.manager.config.banner.labelColorDescription')}</span>
+                </label>
+                <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('sections.manager.config.banner.labelBackgroundDark')}
+                    <Input
+                        value={labelBgColorDark}
+                        placeholder={t('sections.manager.config.banner.labelColorPlaceholder')}
+                        onChange={(e) => handleLabelColorChange('labelBgColorDark', e.target.value)}
+                        className="text-sm"
+                        inputSize="md"
+                    />
+                    <span className="text-xs text-gray-500">{t('sections.manager.config.banner.labelColorDescription')}</span>
+                </label>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('sections.manager.config.banner.labelTextColorLight')}
+                    <Input
+                        value={labelTextColorLight}
+                        placeholder={t('sections.manager.config.banner.labelColorPlaceholder')}
+                        onChange={(e) => handleLabelColorChange('labelTextColorLight', e.target.value)}
+                        className="text-sm"
+                        inputSize="md"
+                    />
+                    <span className="text-xs text-gray-500">{t('sections.manager.config.banner.labelColorDescription')}</span>
+                </label>
+                <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('sections.manager.config.banner.labelTextColorDark')}
+                    <Input
+                        value={labelTextColorDark}
+                        placeholder={t('sections.manager.config.banner.labelColorPlaceholder')}
+                        onChange={(e) => handleLabelColorChange('labelTextColorDark', e.target.value)}
+                        className="text-sm"
+                        inputSize="md"
+                    />
+                    <span className="text-xs text-gray-500">{t('sections.manager.config.banner.labelColorDescription')}</span>
+                </label>
+            </div>
+
+            <label className="flex flex-col gap-1 text-sm text-gray-600">
+                {t('sections.manager.config.banner.labelTextTransform')}
+                <Select
+                    value={labelTextTransform}
+                    onChange={(valueOption) => handleLabelTextTransformChange((valueOption as BannerLabelTextTransform) || 'none')}
+                    options={[
+                        { value: 'none', label: t('sections.manager.config.banner.labelTextTransformNone') },
+                        { value: 'uppercase', label: t('sections.manager.config.banner.labelTextTransformUppercase') },
+                        { value: 'capitalize', label: t('sections.manager.config.banner.labelTextTransformCapitalize') },
+                        { value: 'lowercase', label: t('sections.manager.config.banner.labelTextTransformLowercase') },
+                    ]}
+                    className="text-sm"
+                />
+                <span className="text-xs text-gray-500">{t('sections.manager.config.banner.labelTextTransformDescription')}</span>
+            </label>
 
             <div className="space-y-4">
                 {normalizedCards.map((card, idx) => {

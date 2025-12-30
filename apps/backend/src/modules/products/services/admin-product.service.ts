@@ -356,6 +356,7 @@ export class AdminProductService {
         metaDescription: productData.metaDescription || null,
         metaKeywords: productData.metaKeywords || null,
         isFeatured: productData.isFeatured || false,
+        isContactPrice: productData.isContactPrice || false,
         stockQuantity: productData.stockQuantity !== undefined ? productData.stockQuantity : 0,
         enableWarehouseQuantity: productData.enableWarehouseQuantity || false,
         isActive: true, // Default to active
@@ -456,6 +457,7 @@ export class AdminProductService {
         metaDescription: productData.metaDescription || null,
         metaKeywords: productData.metaKeywords || null,
         isFeatured: productData.isFeatured || false,
+        isContactPrice: productData.isContactPrice !== undefined ? productData.isContactPrice : existingProduct.isContactPrice,
         stockQuantity: productData.stockQuantity !== undefined ? productData.stockQuantity : existingProduct.stockQuantity,
         enableWarehouseQuantity: productData.enableWarehouseQuantity !== undefined ? productData.enableWarehouseQuantity : existingProduct.enableWarehouseQuantity,
         isActive: productData.isActive !== undefined ? productData.isActive : true,

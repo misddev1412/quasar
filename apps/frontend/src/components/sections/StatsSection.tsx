@@ -21,7 +21,6 @@ export interface StatsSectionConfig {
   columns?: number;
   background?: 'surface' | 'primary' | 'dark';
   stats?: StatItemConfig[];
-  fullWidth?: boolean;
 }
 
 interface StatsSectionProps {
@@ -72,7 +71,6 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ config, translation 
   const layout = config.layout === 'counter' ? 'counter' : 'grid';
   const columns = clampColumns(config.columns);
   const backgroundClass = backgroundVariants[config.background || 'surface'] || backgroundVariants.surface;
-  const shouldUseFullWidth = config.fullWidth !== false;
 
   const title = translation?.title === null ? '' : (translation?.title || t('sections.stats.title'));
   const subtitle = translation?.subtitle === null ? '' : (translation?.subtitle || t('sections.stats.subtitle'));
@@ -82,7 +80,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ config, translation 
 
   return (
     <section className={`${backgroundClass} py-16`}>
-      <SectionContainer fullWidth={shouldUseFullWidth}>
+      <SectionContainer>
         <div className="mb-12 max-w-3xl">
           {subtitle && <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-500 dark:text-blue-300">{subtitle}</p>}
           {title && <h2 className="mt-3 text-3xl font-semibold text-gray-900 dark:text-gray-100">{title}</h2>}

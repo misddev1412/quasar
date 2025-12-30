@@ -40,6 +40,8 @@ export interface BannerCardConfig {
     link?: BannerCardLink;
 }
 
+export type BannerLabelTextTransform = 'none' | 'uppercase' | 'capitalize' | 'lowercase';
+
 export interface HeroSliderLocaleEditorProps {
     locale: string;
     config: Record<string, unknown>;
