@@ -1,5 +1,6 @@
 import React from 'react';
 import { DynamicIcon, iconNames, type IconName } from 'lucide-react/dynamic';
+import ZaloIcon from '@shared/icons/ZaloIcon';
 
 // Import react-icons for admin compatibility
 import {
@@ -154,6 +155,10 @@ const REACT_ICONS_MAP: Record<string, React.ReactElement> = {
   'md-check': <MdCheck />
 };
 
+const CUSTOM_SVG_ICONS: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+  zalo: ZaloIcon,
+};
+
 const normalizeIconName = (icon: string) =>
   icon.trim().toLowerCase().replace(/[_\s]+/g, '-');
 
@@ -192,6 +197,19 @@ export const UnifiedIcon: React.FC<UnifiedIconProps> = ({
   const baseClasses = getVariantClasses(variant);
   const combinedClassName = [baseClasses, className].filter(Boolean).join(' ');
   const iconStyle = color ? { ...(style || {}), color } : style;
+
+  const CustomSvgIcon = CUSTOM_SVG_ICONS[normalized];
+  if (CustomSvgIcon) {
+    return (
+      <CustomSvgIcon
+        width={size}
+        height={size}
+        className={combinedClassName}
+        style={iconStyle}
+        aria-hidden="true"
+      />
+    );
+  }
 
   if (LUCIDE_ICON_NAMES.has(normalized)) {
     const iconName = normalized as IconName;

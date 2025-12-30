@@ -96,6 +96,9 @@
       "@shared/types/*": [
         "libs/shared/src/types/*"
       ],
+      "@shared/icons/*": [
+        "libs/shared/src/icons/*"
+      ],
       "@shared/constants/*": [
         "libs/shared/src/constants/*"
       ],

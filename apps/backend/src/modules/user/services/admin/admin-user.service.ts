@@ -430,12 +430,29 @@ export class AdminUserService {
   }
 
   private toAdminUserResponse(user: User): AdminUserResponseDto {
+    // Find the first active role, or default to USER
+    let userRole = UserRole.USER;
+
+    if (user.userRoles && user.userRoles.length > 0) {
+      // Prioritize active roles
+      const activeRole = user.userRoles.find(ur => ur.isActive && ur.role);
+      if (activeRole) {
+        userRole = activeRole.role.code;
+      } else {
+        // Fallback to any role if no active one found (or handle as USER)
+        const anyRole = user.userRoles.find(ur => ur.role);
+        if (anyRole) {
+          userRole = anyRole.role.code;
+        }
+      }
+    }
+
     return {
       id: user.id,
       email: user.email,
       username: user.username,
       isActive: user.isActive,
-      role: UserRole.USER, // TODO: Get role from UserRole entity
+      role: userRole,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       profile: user.profile ? {

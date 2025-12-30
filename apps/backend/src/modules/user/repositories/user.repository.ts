@@ -84,7 +84,7 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
   async findWithProfile(id: string): Promise<User | null> {
     return await this.repository.findOne({
       where: { id },
-      relations: ['profile']
+      relations: ['profile', 'userRoles', 'userRoles.role']
     });
   }
 
@@ -136,7 +136,9 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
 
   async findUsersWithFilters(filters: UserFilters): Promise<PaginatedUsers> {
     const queryBuilder = this.repository.createQueryBuilder('user')
-      .leftJoinAndSelect('user.profile', 'profile');
+      .leftJoinAndSelect('user.profile', 'profile')
+      .leftJoinAndSelect('user.userRoles', 'userRoles')
+      .leftJoinAndSelect('userRoles.role', 'role');
 
     // Apply search filter
     if (filters.search) {

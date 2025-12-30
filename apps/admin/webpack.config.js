@@ -13,6 +13,8 @@ process.env.CHOKIDAR_INTERVAL = process.env.CHOKIDAR_INTERVAL || '1000';
 // Load project-specific environment variables for the admin app
 dotenv.config({ path: join(__dirname, '.env') });
 
+const repoRoot = join(__dirname, '..', '..');
+
 const largeStaticDirs = [
   join(__dirname, 'public/tinymce'),
   join(__dirname, 'public/assets/tinymce'),
@@ -27,6 +29,7 @@ module.exports = {
   resolve: {
     alias: {
       '@admin': join(__dirname, 'src'),
+      '@shared/icons': join(repoRoot, 'libs/shared/src/icons'),
       // Redirect NestJS imports to empty stubs (backend-only modules)
       '@nestjs/common': join(__dirname, 'src/stubs/@nestjs/common.ts'),
       '@nestjs/swagger': join(__dirname, 'src/stubs/@nestjs/swagger.ts'),

@@ -216,7 +216,7 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
   }
 
   return (
-    <aside className="relative z-[70] w-full lg:w-1/5">
+    <aside className="relative z-30 w-full lg:w-1/5">
       <div className="lg:sticky lg:top-24 space-y-6">
         {showSidebarHeader && (
           <div
@@ -267,7 +267,7 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
             <div
               key={section.id}
               className={clsx(
-                'rounded-2xl border border-gray-200/80 shadow-sm dark:border-gray-800/60 overflow-hidden',
+                'rounded-2xl border border-gray-200/80 shadow-sm dark:border-gray-800/60 overflow-visible',
                 hasCustomBackground ? '' : 'bg-white/95 dark:bg-gray-900/70',
               )}
               style={sectionCardStyle}

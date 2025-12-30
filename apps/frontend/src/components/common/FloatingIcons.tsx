@@ -14,7 +14,7 @@ const DEFAULT_ICON_BY_TYPE: Record<string, string> = {
   call: 'phone',
   email: 'mail',
   back_to_top: 'arrow-up',
-  zalo: 'chat',
+  zalo: 'zalo',
   messenger: 'chat',
   custom: 'star',
 };
@@ -37,11 +37,20 @@ const EFFECT_CLASS_MAP: Record<FloatingWidgetActionEffect, string> = {
   bounce: 'animate-bounce',
 };
 
+const resolveIconName = (item: FloatingWidgetActionConfig): string => {
+  if (item.type === 'zalo') {
+    if (!item.icon || item.icon === 'chat') {
+      return 'zalo';
+    }
+  }
+  return item.icon || DEFAULT_ICON_BY_TYPE[item.type] || 'star';
+};
+
 const normalizeFloatingIcons = (items: FloatingWidgetActionConfigList): FloatingWidgetActionConfigList =>
   items
     .map((item) => ({
       ...item,
-      icon: item.icon || DEFAULT_ICON_BY_TYPE[item.type] || 'star',
+      icon: resolveIconName(item),
       effect: item.effect || DEFAULT_EFFECT,
       metadata: { ...emptyMetadata(), ...(item.metadata || {}) },
     }))

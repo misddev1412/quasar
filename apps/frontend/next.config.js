@@ -14,11 +14,11 @@ ensureEnv('CHOKIDAR_USEPOLLING', 'true');
 ensureEnv('CHOKIDAR_INTERVAL', '1000');
 
 const withNextIntl = createNextIntlPlugin();
+const repoRoot = path.join(__dirname, '..', '..');
 
 /** @type {import('next').NextConfig} */
 const ensureStandaloneServerEntry = () => {
   try {
-    const repoRoot = path.join(__dirname, '..', '..');
     const nextDistDir = path.join(repoRoot, 'dist', 'apps', 'frontend', '.next');
     const nestedServerEntry = path.join(nextDistDir, 'standalone', 'apps', 'frontend', 'server.js');
     const expectedServerEntry = path.join(nextDistDir, 'standalone', 'server.js');
@@ -74,8 +74,8 @@ const nextConfig = {
       '@utils': path.join(__dirname, 'src/utils'),
       '@contexts': path.join(__dirname, 'src/contexts'),
       '@hooks': path.join(__dirname, 'src/hooks'),
+      '@shared/icons': path.join(repoRoot, 'libs/shared/src/icons'),
     };
-    const repoRoot = path.join(__dirname, '..', '..');
     const toPosixGlob = (value) => value.replace(/\\/g, '/');
     const ignoredGlobs = [
       '**/node_modules/**',

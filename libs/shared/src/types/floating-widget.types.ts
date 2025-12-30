@@ -76,7 +76,7 @@ export const DEFAULT_FLOATING_WIDGET_ACTIONS: FloatingWidgetActionConfigList = [
     id: 'floating-zalo',
     label: 'Chat on Zalo',
     type: 'zalo',
-    icon: 'chat',
+    icon: 'zalo',
     description: 'Message us on Zalo',
     order: 1,
     isActive: true,

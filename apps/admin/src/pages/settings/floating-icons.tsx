@@ -38,7 +38,7 @@ const DEFAULT_ICON_BY_TYPE: Record<FloatingWidgetActionType, string> = {
   call: 'phone',
   email: 'mail',
   back_to_top: 'arrow-up',
-  zalo: 'chat',
+  zalo: 'zalo',
   messenger: 'chat',
   custom: 'star',
 };
@@ -80,11 +80,18 @@ const emptyMetadata = (): NonNullable<FloatingWidgetActionConfig['metadata']> =>
   note: undefined,
 });
 
+const resolveIconName = (item: FloatingWidgetActionConfig): string => {
+  if (item.type === 'zalo' && (!item.icon || item.icon === 'chat')) {
+    return 'zalo';
+  }
+  return item.icon || DEFAULT_ICON_BY_TYPE[item.type];
+};
+
 const normalizeItems = (items: FloatingWidgetActionConfig[]): FloatingWidgetActionConfigList =>
   items
     .map((item) => ({
       ...item,
-      icon: item.icon || DEFAULT_ICON_BY_TYPE[item.type],
+      icon: resolveIconName(item),
       effect: item.effect || 'none',
       metadata: { ...emptyMetadata(), ...(item.metadata || {}) },
     }))
