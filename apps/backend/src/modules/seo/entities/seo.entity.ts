@@ -25,6 +25,9 @@ export class SEOEntity extends SoftDeletableEntity {
   @Column({ type: 'json', nullable: true, name: 'additional_meta_tags' })
   additionalMetaTags: Record<string, string>;
 
+  @Column({ length: 255, nullable: true })
+  image: string;
+
   isActive(isDeleted: boolean = false): boolean {
     return this.active && !isDeleted;
   }

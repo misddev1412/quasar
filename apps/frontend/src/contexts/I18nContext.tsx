@@ -8,6 +8,8 @@ import '../lib/i18n';
 
 export type Locale = 'vi' | 'en';
 
+const FALLBACK_LOCALE: Locale = process.env.NEXT_PUBLIC_DEFAULT_LOCALE === 'en' ? 'en' : 'vi';
+
 interface I18nContextType {
   currentLocale: Locale;
   supportedLocales: readonly Locale[];
@@ -35,14 +37,14 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
         return savedLocale;
       }
       const browserLocale = navigator.language.split('-')[0] as Locale;
-      return ['en', 'vi'].includes(browserLocale) ? browserLocale : 'en';
+      return ['en', 'vi'].includes(browserLocale) ? browserLocale : FALLBACK_LOCALE;
     }
-    return 'en'; // default for SSR
+    return FALLBACK_LOCALE; // default for SSR
   };
 
   const [currentLocale, setCurrentLocale] = useState<Locale>(getInitialLocale());
   const [supportedLocales, setSupportedLocales] = useState<readonly Locale[]>(['en', 'vi']);
-  const [defaultLocale, setDefaultLocale] = useState<Locale>('en');
+  const [defaultLocale, setDefaultLocale] = useState<Locale>(FALLBACK_LOCALE);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -90,7 +92,7 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
     if (localeConfigError) {
       setError('Failed to load locale configuration');
       // Fallback to default configuration
-      const fallbackLocale: Locale = 'en';
+      const fallbackLocale: Locale = FALLBACK_LOCALE;
       setCurrentLocale(fallbackLocale);
       i18n.changeLanguage(fallbackLocale);
     }

@@ -43,6 +43,7 @@ export const floatingWidgetActionSchema = z.object({
   isActive: z.boolean().default(true),
   backgroundColor: z.string().optional(),
   textColor: z.string().optional(),
+  isTransparentBackground: z.boolean().default(false),
   effect: z.enum(floatingWidgetActionEffectValues).default('none'),
   tooltip: z.string().optional(),
   href: z.string().optional(),
@@ -66,6 +67,7 @@ export const DEFAULT_FLOATING_WIDGET_ACTIONS: FloatingWidgetActionConfigList = [
     isActive: true,
     backgroundColor: '#0ea5e9',
     textColor: '#ffffff',
+    isTransparentBackground: false,
     effect: 'ring',
     tooltip: 'Call now',
     metadata: {
@@ -82,6 +84,7 @@ export const DEFAULT_FLOATING_WIDGET_ACTIONS: FloatingWidgetActionConfigList = [
     isActive: true,
     backgroundColor: '#0b93f6',
     textColor: '#ffffff',
+    isTransparentBackground: false,
     effect: 'none',
     tooltip: 'Zalo chat',
     metadata: {
@@ -98,6 +101,7 @@ export const DEFAULT_FLOATING_WIDGET_ACTIONS: FloatingWidgetActionConfigList = [
     isActive: true,
     backgroundColor: '#0084ff',
     textColor: '#ffffff',
+    isTransparentBackground: false,
     effect: 'pulse',
     tooltip: 'Messenger chat',
     metadata: {
@@ -114,6 +118,7 @@ export const DEFAULT_FLOATING_WIDGET_ACTIONS: FloatingWidgetActionConfigList = [
     isActive: true,
     backgroundColor: '#111827',
     textColor: '#ffffff',
+    isTransparentBackground: false,
     effect: 'none',
     tooltip: 'Back to top',
   },

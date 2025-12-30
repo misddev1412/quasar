@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSeoManager, SeoData } from '../../hooks/useSeoManager';
 import { CreateSeoForm } from './CreateSeoForm';
 import cn from 'classnames';
+import { MediaManager } from '../common/MediaManager';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { Toggle } from '../common/Toggle';
 import { useToast } from '../../context/ToastContext';
@@ -22,6 +23,7 @@ const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
+  const [isMediaManagerOpen, setIsMediaManagerOpen] = useState(false);
 
   const handleUpdate = async () => {
     setIsLoading(true);
@@ -83,6 +85,35 @@ const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
         />
       );
     }
+    if (name === 'image') {
+      return (
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            {value && (
+              <div className="relative h-16 w-16 rounded-md overflow-hidden border border-gray-200">
+                <img src={value} alt="Preview" className="h-full w-full object-cover" />
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => setIsMediaManagerOpen(true)}
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 bg-white"
+            >
+              {value ? t('common.change_image', 'Change Image') : t('common.select_image', 'Select Image')}
+            </button>
+            {value && (
+              <button
+                type="button"
+                onClick={() => handleChange({ target: { name: 'image', value: '' } } as any)}
+                className="text-sm text-red-600 hover:text-red-800"
+              >
+                {t('common.remove', 'Remove')}
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    }
     return (
       <input
         type="text"
@@ -98,7 +129,7 @@ const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-4 hover:shadow-md transition-shadow duration-300">
       {isEditing ? (
         <div className="space-y-3">
-          {(['title', 'path', 'description', 'keywords', 'group', 'additionalMetaTags'] as const).map(field => (
+          {(['title', 'path', 'description', 'keywords', 'group', 'image', 'additionalMetaTags'] as const).map(field => (
             <div key={field}>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t(`seo.fields.${field}`)}</label>
               {renderField(field)}
@@ -130,6 +161,19 @@ const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
             </div>
           </div>
         </div>
+      )}
+      {isMediaManagerOpen && (
+        <MediaManager
+          isOpen={isMediaManagerOpen}
+          onClose={() => setIsMediaManagerOpen(false)}
+          onSelect={(files) => {
+            const file = Array.isArray(files) ? files[0] : files;
+            if (file) {
+              setEditedSeo(prev => ({ ...prev, image: file.url }));
+              setIsMediaManagerOpen(false);
+            }
+          }}
+        />
       )}
     </div>
   );
@@ -204,7 +248,7 @@ export const SeoManager: React.FC = () => {
 
   return (
     <>
-     
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-1">
           <CategorySidebar groups={groups} selectedGroup={selectedGroup} onSelectGroup={setSelectedGroup} />

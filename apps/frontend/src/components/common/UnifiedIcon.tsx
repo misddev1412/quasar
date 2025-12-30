@@ -30,7 +30,7 @@ import {
   MdAdd, MdRemove, MdClose, MdCheck
 } from 'react-icons/md';
 
-export type IconVariant = 'nav' | 'nav-active' | 'button' | 'header' | 'default';
+export type IconVariant = 'nav' | 'nav-active' | 'button' | 'header' | 'default' | 'floating';
 
 interface UnifiedIconProps {
   icon?: string | null;
@@ -175,6 +175,8 @@ const getVariantClasses = (variant: IconVariant) => {
       return 'icon-button';
     case 'header':
       return 'icon-header';
+    case 'floating':
+      return 'icon-container';
     default:
       return 'icon-container icon-sm icon-default';
   }

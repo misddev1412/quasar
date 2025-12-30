@@ -33,6 +33,7 @@ type ApiSettingResponse = {
 
 const FLOATING_ICONS_SETTING_KEY = 'storefront.float_icons';
 const FLOATING_ICONS_GROUP = 'storefront-ui';
+const ICON_BOX_SIZE = 54;
 
 const DEFAULT_ICON_BY_TYPE: Record<FloatingWidgetActionType, string> = {
   call: 'phone',
@@ -93,6 +94,7 @@ const normalizeItems = (items: FloatingWidgetActionConfig[]): FloatingWidgetActi
       ...item,
       icon: resolveIconName(item),
       effect: item.effect || 'none',
+      isTransparentBackground: Boolean(item.isTransparentBackground),
       metadata: { ...emptyMetadata(), ...(item.metadata || {}) },
     }))
     .sort((a, b) => a.order - b.order)
@@ -143,6 +145,7 @@ const FloatingIconFormModal: React.FC<FloatingIconFormModalProps> = ({
       isActive: true,
       backgroundColor: '#0ea5e9',
       textColor: '#ffffff',
+      isTransparentBackground: false,
       effect: 'none',
       tooltip: '',
       href: '',
@@ -169,6 +172,7 @@ const FloatingIconFormModal: React.FC<FloatingIconFormModalProps> = ({
         isActive: true,
         backgroundColor: '#0ea5e9',
         textColor: '#ffffff',
+        isTransparentBackground: false,
         effect: 'none',
         tooltip: '',
         href: '',
@@ -420,6 +424,24 @@ const FloatingIconFormModal: React.FC<FloatingIconFormModalProps> = ({
             value={draft.textColor}
             onChange={(color) => handleChange('textColor', color ?? '')}
           />
+
+          <div className="flex items-center gap-3 pt-2">
+            <Toggle
+              checked={Boolean(draft.isTransparentBackground)}
+              onChange={() => handleChange('isTransparentBackground', !draft.isTransparentBackground)}
+            />
+            <div className="space-y-0.5">
+              <p className="text-sm font-medium text-gray-700">
+                {t('floating_icons.form.transparent_bg', 'Transparent background')}
+              </p>
+              <p className="text-xs text-gray-500">
+                {t(
+                  'floating_icons.form.transparent_bg_hint',
+                  'Remove button background and shadow so only the icon is visible.'
+                )}
+              </p>
+            </div>
+          </div>
 
           <div className="flex items-center gap-3 pt-2">
             <Toggle
@@ -734,14 +756,23 @@ const FloatingIconsSettingsPage: React.FC = () => {
             >
               <div className="flex items-start gap-4">
                 <div
-                  className="flex h-12 w-12 items-center justify-center rounded-full"
+                  className="flex items-center justify-center rounded-full"
                   style={{
-                    backgroundColor: item.backgroundColor || '#0ea5e9',
+                    width: ICON_BOX_SIZE,
+                    height: ICON_BOX_SIZE,
+                    backgroundColor: item.isTransparentBackground ? 'transparent' : item.backgroundColor || '#0ea5e9',
                   }}
                 >
                   <UnifiedIcon
                     icon={item.icon || DEFAULT_ICON_BY_TYPE[item.type]}
-                    style={{ color: item.textColor || '#ffffff' }}
+                    variant={item.isTransparentBackground ? 'floating' : 'nav'}
+                    size={item.isTransparentBackground ? ICON_BOX_SIZE : 20}
+                    className={item.isTransparentBackground ? '' : 'h-5 w-5'}
+                    style={
+                      item.isTransparentBackground
+                        ? { color: item.textColor || '#ffffff', width: ICON_BOX_SIZE, height: ICON_BOX_SIZE }
+                        : { color: item.textColor || '#ffffff' }
+                    }
                   />
                 </div>
                 <div>

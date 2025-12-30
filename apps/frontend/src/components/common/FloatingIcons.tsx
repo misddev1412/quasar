@@ -29,6 +29,7 @@ const emptyMetadata = (): NonNullable<FloatingWidgetActionConfig['metadata']> =>
 });
 
 const DEFAULT_EFFECT: FloatingWidgetActionEffect = 'none';
+const BUTTON_SIZE_PX = 54;
 
 const EFFECT_CLASS_MAP: Record<FloatingWidgetActionEffect, string> = {
   none: '',
@@ -52,6 +53,7 @@ const normalizeFloatingIcons = (items: FloatingWidgetActionConfigList): Floating
       ...item,
       icon: resolveIconName(item),
       effect: item.effect || DEFAULT_EFFECT,
+      isTransparentBackground: Boolean(item.isTransparentBackground),
       metadata: { ...emptyMetadata(), ...(item.metadata || {}) },
     }))
     .filter((item) => item.isActive)
@@ -170,14 +172,26 @@ const FloatingIcons: React.FC = () => {
         const effect = item.effect || DEFAULT_EFFECT;
         const iconColor = item.textColor || '#ffffff';
         const isRing = effect === 'ring';
+        const transparentBg = Boolean(item.isTransparentBackground);
+        const iconClassName = transparentBg ? '' : 'h-5 w-5';
+        const iconVariant = transparentBg ? 'floating' : 'nav';
+        const iconSize = transparentBg ? BUTTON_SIZE_PX : 20;
+        const iconStyle = transparentBg
+          ? { color: iconColor, width: BUTTON_SIZE_PX, height: BUTTON_SIZE_PX }
+          : { color: iconColor };
+        const backgroundColor = transparentBg ? 'transparent' : item.backgroundColor || '#0ea5e9';
+        const buttonShapeClasses = transparentBg ? '' : 'shadow-[0_10px_25px_rgba(15,23,42,0.2)]';
+
         return (
           <button
             key={getItemKey(item)}
             type="button"
             onClick={() => handleClick(item)}
-            className={`pointer-events-auto relative flex h-12 w-12 items-center justify-center overflow-visible rounded-full shadow-[0_10px_25px_rgba(15,23,42,0.2)] transition-transform duration-200 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 ${EFFECT_CLASS_MAP[effect]}`}
+            className={`pointer-events-auto relative flex items-center justify-center overflow-visible rounded-full transition-transform duration-200 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 ${buttonShapeClasses} ${EFFECT_CLASS_MAP[effect]}`}
             style={{
-              backgroundColor: item.backgroundColor || '#0ea5e9',
+              backgroundColor,
+              width: BUTTON_SIZE_PX,
+              height: BUTTON_SIZE_PX,
             }}
             aria-label={item.label || item.tooltip || 'Floating action button'}
           >
@@ -192,8 +206,10 @@ const FloatingIcons: React.FC = () => {
             )}
             <UnifiedIcon
               icon={item.icon || DEFAULT_ICON_BY_TYPE[item.type]}
-              className="h-5 w-5"
-              style={{ color: iconColor }}
+              variant={iconVariant}
+              size={iconSize}
+              className={iconClassName}
+              style={iconStyle}
             />
           </button>
         );
@@ -204,14 +220,26 @@ const FloatingIcons: React.FC = () => {
           const effect = item.effect || DEFAULT_EFFECT;
           const iconColor = item.textColor || '#ffffff';
           const isRing = effect === 'ring';
+          const transparentBg = Boolean(item.isTransparentBackground);
+          const iconClassName = transparentBg ? '' : 'h-5 w-5';
+          const iconVariant = transparentBg ? 'floating' : 'nav';
+          const iconSize = transparentBg ? BUTTON_SIZE_PX : 20;
+          const iconStyle = transparentBg
+            ? { color: iconColor, width: BUTTON_SIZE_PX, height: BUTTON_SIZE_PX }
+            : { color: iconColor };
+          const backgroundColor = transparentBg ? 'transparent' : item.backgroundColor || '#0ea5e9';
+          const buttonShapeClasses = transparentBg ? '' : 'shadow-[0_10px_25px_rgba(15,23,42,0.2)]';
+
           return (
             <button
               key={getItemKey(item)}
               type="button"
               onClick={() => handleClick(item)}
-              className={`pointer-events-auto relative flex h-12 w-12 items-center justify-center overflow-visible rounded-full shadow-[0_10px_25px_rgba(15,23,42,0.2)] transition-transform duration-200 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 ${EFFECT_CLASS_MAP[effect]}`}
+              className={`pointer-events-auto relative flex items-center justify-center overflow-visible rounded-full transition-transform duration-200 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 ${buttonShapeClasses} ${EFFECT_CLASS_MAP[effect]}`}
               style={{
-                backgroundColor: item.backgroundColor || '#0ea5e9',
+                backgroundColor,
+                width: BUTTON_SIZE_PX,
+                height: BUTTON_SIZE_PX,
               }}
               aria-label={item.label || item.tooltip || 'Back to top'}
             >
@@ -226,8 +254,10 @@ const FloatingIcons: React.FC = () => {
               )}
               <UnifiedIcon
                 icon={item.icon || DEFAULT_ICON_BY_TYPE[item.type]}
-                className="h-5 w-5"
-                style={{ color: iconColor }}
+                variant={iconVariant}
+                size={iconSize}
+                className={iconClassName}
+                style={iconStyle}
               />
             </button>
           );

@@ -8,6 +8,7 @@ const SeoBaseSchema = z.object({
   group: z.string().max(255).optional().default('general'),
   active: z.boolean().default(true),
   additionalMetaTags: z.record(z.string()).optional().nullable(),
+  image: z.string().max(255).optional().nullable(),
 });
 
 export const CreateSeoDto = SeoBaseSchema;
@@ -37,6 +38,7 @@ export const seoResponseSchema = z.object({
   description: z.string().nullish(),
   keywords: z.string().nullish(),
   additionalMetaTags: z.record(z.string()).nullish(),
+  image: z.string().nullish(),
 });
 
 export type SeoResponseDto = z.infer<typeof seoResponseSchema>; 
