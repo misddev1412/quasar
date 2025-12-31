@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
 import { Input } from '../../../common/Input';
+import { ColorSelector } from '../../../common/ColorSelector';
 import { Select, SelectOption } from '../../../common/Select';
 import { MediaManager } from '../../../common/MediaManager';
 import { ImageActionButtons } from '../../../common/ImageActionButtons';
+import { RevealableUrlInput } from '../../../common/RevealableUrlInput';
 import { CategorySelector } from '../../../menus/CategorySelector';
 import { ProductSelector } from '../../../menus/ProductSelector';
 import { Image as ImageIcon } from 'lucide-react';
@@ -140,8 +142,8 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({ value, onChange }) =
 
     type LabelColorKey = 'labelBgColorLight' | 'labelBgColorDark' | 'labelTextColorLight' | 'labelTextColorDark';
 
-    const handleLabelColorChange = (key: LabelColorKey, colorValue: string) => {
-        const trimmed = colorValue.trim();
+    const handleLabelColorChange = (key: LabelColorKey, colorValue?: string) => {
+        const trimmed = colorValue?.trim() ?? '';
         if (!trimmed) {
             const next = { ...(value ?? {}) };
             delete next[key];
@@ -197,53 +199,49 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({ value, onChange }) =
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <label className="flex flex-col gap-1 text-sm text-gray-600">
-                    {t('sections.manager.config.banner.labelBackgroundLight')}
-                    <Input
+                <div className="flex flex-col gap-1 text-sm text-gray-600">
+                    <ColorSelector
                         value={labelBgColorLight}
                         placeholder={t('sections.manager.config.banner.labelColorPlaceholder')}
-                        onChange={(e) => handleLabelColorChange('labelBgColorLight', e.target.value)}
-                        className="text-sm"
-                        inputSize="md"
+                        onChange={(color) => handleLabelColorChange('labelBgColorLight', color)}
+                        label={t('sections.manager.config.banner.labelBackgroundLight')}
+                        className="w-full"
                     />
                     <span className="text-xs text-gray-500">{t('sections.manager.config.banner.labelColorDescription')}</span>
-                </label>
-                <label className="flex flex-col gap-1 text-sm text-gray-600">
-                    {t('sections.manager.config.banner.labelBackgroundDark')}
-                    <Input
+                </div>
+                <div className="flex flex-col gap-1 text-sm text-gray-600">
+                    <ColorSelector
                         value={labelBgColorDark}
                         placeholder={t('sections.manager.config.banner.labelColorPlaceholder')}
-                        onChange={(e) => handleLabelColorChange('labelBgColorDark', e.target.value)}
-                        className="text-sm"
-                        inputSize="md"
+                        onChange={(color) => handleLabelColorChange('labelBgColorDark', color)}
+                        label={t('sections.manager.config.banner.labelBackgroundDark')}
+                        className="w-full"
                     />
                     <span className="text-xs text-gray-500">{t('sections.manager.config.banner.labelColorDescription')}</span>
-                </label>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <label className="flex flex-col gap-1 text-sm text-gray-600">
-                    {t('sections.manager.config.banner.labelTextColorLight')}
-                    <Input
+                <div className="flex flex-col gap-1 text-sm text-gray-600">
+                    <ColorSelector
                         value={labelTextColorLight}
                         placeholder={t('sections.manager.config.banner.labelColorPlaceholder')}
-                        onChange={(e) => handleLabelColorChange('labelTextColorLight', e.target.value)}
-                        className="text-sm"
-                        inputSize="md"
+                        onChange={(color) => handleLabelColorChange('labelTextColorLight', color)}
+                        label={t('sections.manager.config.banner.labelTextColorLight')}
+                        className="w-full"
                     />
                     <span className="text-xs text-gray-500">{t('sections.manager.config.banner.labelColorDescription')}</span>
-                </label>
-                <label className="flex flex-col gap-1 text-sm text-gray-600">
-                    {t('sections.manager.config.banner.labelTextColorDark')}
-                    <Input
+                </div>
+                <div className="flex flex-col gap-1 text-sm text-gray-600">
+                    <ColorSelector
                         value={labelTextColorDark}
                         placeholder={t('sections.manager.config.banner.labelColorPlaceholder')}
-                        onChange={(e) => handleLabelColorChange('labelTextColorDark', e.target.value)}
-                        className="text-sm"
-                        inputSize="md"
+                        onChange={(color) => handleLabelColorChange('labelTextColorDark', color)}
+                        label={t('sections.manager.config.banner.labelTextColorDark')}
+                        className="w-full"
                     />
                     <span className="text-xs text-gray-500">{t('sections.manager.config.banner.labelColorDescription')}</span>
-                </label>
+                </div>
             </div>
 
             <label className="flex flex-col gap-1 text-sm text-gray-600">
@@ -307,7 +305,7 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({ value, onChange }) =
                                             onSelect={() => setBannerMediaState({ isOpen: true, cardIndex: idx })}
                                             onRemove={() => handleCardChange(idx, { imageUrl: '' })}
                                         />
-                                        <Input value={imageUrl} readOnly className="text-sm" inputSize="md" />
+                                        <RevealableUrlInput value={imageUrl} className="text-sm" inputSize="md" />
                                     </div>
                                 </div>
                             </div>

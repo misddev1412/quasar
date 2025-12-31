@@ -58,6 +58,7 @@ interface SidebarMenuSection {
   id: string;
   title: string;
   description: string;
+  borderRadius: string;
   headerBackgroundColor: string;
   backgroundColor: string;
   titleFontColor: string;
@@ -180,6 +181,7 @@ interface PersistedSidebarSection extends Record<string, unknown> {
   id?: string;
   title?: string;
   description?: string;
+  borderRadius?: string;
   headerBackgroundColor?: string;
   backgroundColor?: string;
   titleFontColor?: string;
@@ -225,6 +227,7 @@ const createSidebarSection = (): SidebarMenuSection => ({
   id: createSidebarId(),
   title: '',
   description: '',
+  borderRadius: '',
   headerBackgroundColor: '',
   backgroundColor: '',
   titleFontColor: '',
@@ -310,6 +313,7 @@ const parseSidebarConfig = (raw?: PersistedSidebarConfig | null): SidebarMenuCon
         id: baseId,
         title: typeof section?.title === 'string' ? section.title : '',
         description: typeof section?.description === 'string' ? section.description : '',
+        borderRadius: typeof section?.borderRadius === 'string' ? section.borderRadius : '',
         headerBackgroundColor: typeof section?.headerBackgroundColor === 'string' ? section.headerBackgroundColor : '',
         backgroundColor: typeof section?.backgroundColor === 'string' ? section.backgroundColor : '',
         titleFontColor: typeof section?.titleFontColor === 'string' ? section.titleFontColor : '',
@@ -833,6 +837,7 @@ const sanitizeSidebarConfig = (sidebar: SidebarMenuConfig): PersistedSidebarConf
     .map((section) => {
       const trimmedSectionTitle = section.title.trim();
       const trimmedSectionDescription = section.description.trim();
+      const trimmedSectionBorderRadius = section.borderRadius.trim();
       const trimmedSectionHeaderBg = section.headerBackgroundColor.trim();
       const trimmedBackgroundColor = section.backgroundColor.trim();
       const trimmedTitleFontColor = section.titleFontColor.trim();
@@ -867,6 +872,9 @@ const sanitizeSidebarConfig = (sidebar: SidebarMenuConfig): PersistedSidebarConf
         items,
       };
 
+      if (trimmedSectionBorderRadius) {
+        sanitizedSection.borderRadius = trimmedSectionBorderRadius;
+      }
       if (trimmedBackgroundColor) {
         sanitizedSection.backgroundColor = trimmedBackgroundColor;
       }
@@ -3670,6 +3678,15 @@ const SidebarSectionEditor: React.FC<SidebarSectionEditorProps> = ({ section, in
               label={t('componentConfigs.groupBackgroundColor')}
             />
             <p className="text-xs text-neutral-500">{t('componentConfigs.leaveEmptyForDefaultBackground')}</p>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t('componentConfigs.groupBorderRadius')}</label>
+            <Input
+              value={section.borderRadius}
+              onChange={(event) => onChange({ ...section, borderRadius: event.target.value })}
+              placeholder={t('componentConfigs.groupBorderRadiusPlaceholder')}
+            />
+            <p className="text-xs text-neutral-500">{t('componentConfigs.groupBorderRadiusDesc')}</p>
           </div>
 
           <div className="space-y-3">

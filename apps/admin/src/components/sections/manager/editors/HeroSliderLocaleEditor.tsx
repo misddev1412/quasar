@@ -4,6 +4,7 @@ import { Button } from '../../../common/Button';
 import { Input } from '../../../common/Input';
 import { MediaManager } from '../../../common/MediaManager';
 import { ImageActionButtons } from '../../../common/ImageActionButtons';
+import { RevealableUrlInput } from '../../../common/RevealableUrlInput';
 import { Image as ImageIcon } from 'lucide-react';
 import { FiPlus, FiTrash2 } from 'react-icons/fi';
 import { HeroSlideConfig, HeroSliderLocaleEditorProps } from '../types';
@@ -165,10 +166,9 @@ export const HeroSliderLocaleEditor: React.FC<HeroSliderLocaleEditorProps> = ({ 
                                                 onRemove={() => updateSlide(idx, 'imageUrl', '')}
                                                 className="sm:justify-start"
                                             />
-                                            <Input
+                                            <RevealableUrlInput
                                                 value={imageUrl}
                                                 placeholder={t('sections.manager.heroSlider.imagePlaceholder')}
-                                                readOnly
                                                 className="text-sm"
                                                 inputSize="md"
                                             />

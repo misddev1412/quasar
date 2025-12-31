@@ -314,11 +314,23 @@
       "description": "Mô tả",
       "keywords": "Từ khóa",
       "group": "Nhóm",
+      "image": "Ảnh mặc định",
       "additionalMetaTags": "Thẻ Meta bổ sung",
-      "active": "Kích hoạt"
+      "active": "Kích hoạt",
+      "ogTitle": "Tiêu đề OG",
+      "ogDescription": "Mô tả OG",
+      "ogImage": "Đường dẫn ảnh OG",
+      "ogUrl": "URL OG",
+      "ogType": "Loại OG",
+      "ogLocale": "Ngôn ngữ OG"
     },
     "placeholders": {
-      "json_format": "Nhập chuỗi định dạng JSON"
+      "json_format": "Nhập chuỗi định dạng JSON",
+      "og_hint": "Kiểm soát cách trang hiển thị khi chia sẻ lên mạng xã hội. Để trống để dùng tiêu đề và mô tả mặc định.",
+      "og_type": "ví dụ: website, article"
+    },
+    "sections": {
+      "open_graph": "Thẻ Open Graph"
     },
     "groups": {
       "general": "Chung",

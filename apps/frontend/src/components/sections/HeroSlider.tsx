@@ -225,8 +225,8 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   const activeSlide = slides[activeIndex] ?? slides[0];
   // null means field is hidden by admin, undefined/empty means visible but no value
   const slideHeading = activeSlide?.title?.trim();
-  const translationHeading = translation?.title === null ? '' : (translation?.title || defaultSlides[0].title);
-  const heading = showTitle ? (slideHeading || translationHeading) : '';
+  const translationHeading = translation?.title === null ? '' : translation?.title?.trim() || '';
+  const heading = showTitle ? (translationHeading || slideHeading || defaultSlides[0].title) : '';
 
   const slideSubtitle = activeSlide?.subtitle?.trim();
   const translationSubtitle = translation?.subtitle === null ? '' : (translation?.subtitle || t('sections.hero.curated_sections'));

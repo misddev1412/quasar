@@ -308,11 +308,23 @@
       "description": "Description",
       "keywords": "Keywords",
       "group": "Group",
+      "image": "Default Image",
       "additionalMetaTags": "Additional Meta Tags",
-      "active": "Active"
+      "active": "Active",
+      "ogTitle": "OG Title",
+      "ogDescription": "OG Description",
+      "ogImage": "OG Image URL",
+      "ogUrl": "OG URL",
+      "ogType": "OG Type",
+      "ogLocale": "OG Locale"
     },
     "placeholders": {
-      "json_format": "Enter a JSON formatted string"
+      "json_format": "Enter a JSON formatted string",
+      "og_hint": "Control how links preview on social networks. Leave empty to fall back to the main title and description.",
+      "og_type": "e.g. website, article, product"
+    },
+    "sections": {
+      "open_graph": "Open Graph Tags"
     },
     "groups": {
       "general": "General",

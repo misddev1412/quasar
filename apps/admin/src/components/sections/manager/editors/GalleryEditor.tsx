@@ -5,6 +5,7 @@ import { Select } from '../../../common/Select';
 import { Button } from '../../../common/Button';
 import { MediaManager } from '../../../common/MediaManager';
 import { ImageActionButtons } from '../../../common/ImageActionButtons';
+import { RevealableUrlInput } from '../../../common/RevealableUrlInput';
 import { TextArea } from '../common';
 import { ConfigChangeHandler } from '../types';
 import { ensureNumber } from '../utils';
@@ -244,7 +245,7 @@ export const GalleryEditor: React.FC<GalleryEditorProps> = ({ value, onChange })
                                             onSelect={() => handleOpenGalleryMedia(idx)}
                                             onRemove={() => handleImageChange(idx, { imageUrl: '' })}
                                         />
-                                        <Input value={imageUrl} readOnly className="text-sm" inputSize="md" />
+                                        <RevealableUrlInput value={imageUrl} className="text-sm" inputSize="md" />
                                     </div>
 
                                     {/* Image Details */}

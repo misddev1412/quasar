@@ -478,8 +478,115 @@
   "placed_on": "Đặt vào ngày",
   "view_customer": "Xem khách hàng",
   "floating_icons": {
+    "navigation": "Biểu tượng nổi",
+    "title": "Biểu tượng nổi",
+    "subtitle": "Quản lý các nút nổi trên cửa hàng của bạn",
+    "state": {
+      "loading": "Đang tải cấu hình..."
+    },
+    "hero": {
+      "pill": "Lối tắt chăm sóc khách hàng",
+      "title": "Tạo trải nghiệm nổi bật với biểu tượng nổi",
+      "description": "Làm nổi bật hotline, chat nhanh hoặc nút cuộn để khách liên hệ ngay.",
+      "tip_customize": "Kết hợp biểu tượng, màu sắc và tooltip theo giọng thương hiệu.",
+      "tip_order": "Sắp xếp ưu tiên để hành động quan trọng luôn gần ngón tay cái.",
+      "tip_effects": "Chọn hiệu ứng nhẹ để thu hút mà không gây xao nhãng."
+    },
+    "metrics": {
+      "total": "Tổng biểu tượng",
+      "active": "Đang hiển thị",
+      "hidden": "Đang ẩn"
+    },
+    "quick_actions": {
+      "title": "Thao tác nhanh",
+      "description": "Thêm lối tắt mới hoặc làm mới dữ liệu. Mọi thay đổi đều được lưu tự động.",
+      "auto_save": "Đang bật tự động lưu"
+    },
+    "empty": {
+      "title": "Chưa có biểu tượng nổi",
+      "subtitle": "Tạo các lối tắt như gọi điện, email hoặc Zalo để khách liên hệ nhanh hơn."
+    },
     "actions": {
-      "add_first": "Tạo biểu tượng nổi đầu tiên"
+      "add": "Thêm biểu tượng",
+      "add_first": "Tạo biểu tượng nổi đầu tiên",
+      "confirm_delete": "Bạn có chắc muốn xóa biểu tượng này?",
+      "move_up": "Lên",
+      "move_down": "Xuống",
+      "refreshing": "Đang làm mới...",
+      "reload": "Tải lại dữ liệu"
+    },
+    "errors": {
+      "invalid_schema": "Cấu trúc dữ liệu biểu tượng không hợp lệ.",
+      "invalid_json": "Không thể đọc cấu hình biểu tượng nổi."
+    },
+    "toast": {
+      "save_success_title": "Đã lưu cấu hình",
+      "save_success_desc": "Biểu tượng nổi sẽ được cập nhật trên cửa hàng sau ít phút.",
+      "save_error_title": "Không thể lưu",
+      "save_error_desc": "Vui lòng thử lại sau.",
+      "delete_success_title": "Đã xóa biểu tượng nổi",
+      "delete_success_desc": "Lối tắt sẽ biến mất khỏi cửa hàng sau ít phút."
+    },
+    "labels": {
+      "active": "Đang hiển thị",
+      "inactive": "Đang ẩn",
+      "tooltip": "Gợi ý",
+      "href": "Liên kết",
+      "effect": "Hiệu ứng",
+      "action_target": "Đích hành động",
+      "auto_generate": "Sinh tự động",
+      "not_set": "Chưa cấu hình",
+      "transparent": "Không nền"
+    },
+    "form": {
+      "create_title": "Thêm biểu tượng nổi",
+      "edit_title": "Chỉnh sửa biểu tượng nổi",
+      "subtitle": "Cấu hình nút hành động xuất hiện trên cửa hàng.",
+      "label": "Tên hiển thị",
+      "label_placeholder": "Ví dụ: Gọi ngay",
+      "type": "Loại hành động",
+      "type_placeholder": "Chọn loại",
+      "phone_number": "Số điện thoại",
+      "phone_placeholder": "Nhập số điện thoại (vd. 0987654321)",
+      "email_placeholder": "Nhập địa chỉ email",
+      "messenger_placeholder": "Liên kết Messenger (https://m.me/trang)",
+      "zalo_placeholder": "Số Zalo hoặc link (https://zalo.me/...)",
+      "custom_placeholder": "URL ngoài hoặc deeplink",
+      "icon": "Biểu tượng",
+      "icon_placeholder": "Chọn biểu tượng",
+      "icon_preview": "Xem trước",
+      "effect": "Hiệu ứng biểu tượng",
+      "effect_placeholder": "Chọn hiệu ứng",
+      "effect_hint": "Dùng hiệu ứng để làm nổi bật các hành động quan trọng như hotline.",
+      "tooltip": "Nội dung tooltip",
+      "tooltip_placeholder": "Gợi ý khi rê chuột (không bắt buộc)",
+      "description": "Mô tả ngắn",
+      "description_placeholder": "Giải thích hành động này dùng để làm gì (không bắt buộc)",
+      "action_target": "Đích hành động",
+      "href": "Ghi đè URL (không bắt buộc)",
+      "href_placeholder": "Để trống để hệ thống tự sinh",
+      "background": "Màu nền",
+      "text_color": "Màu biểu tượng",
+      "transparent_bg": "Không dùng nền",
+      "transparent_bg_hint": "Loại bỏ nền và đổ bóng để chỉ hiển thị biểu tượng.",
+      "active": "Hiển thị trên cửa hàng",
+      "active_hint": "Tắt để ẩn mà không cần xóa biểu tượng.",
+      "submit_create": "Thêm biểu tượng",
+      "submit_edit": "Lưu thay đổi",
+      "effect_option": {
+        "none": "Không hiệu ứng",
+        "pulse": "Nhấp nháy nhẹ",
+        "ring": "Chuông gọi",
+        "bounce": "Nảy"
+      }
+    },
+    "type": {
+      "call": "Gọi điện",
+      "email": "Email",
+      "back_to_top": "Về đầu trang",
+      "zalo": "Zalo",
+      "messenger": "Messenger",
+      "custom": "Tùy chỉnh"
     }
   },
   "admin": {

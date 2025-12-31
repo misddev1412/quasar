@@ -22,6 +22,7 @@ const SECTION_TITLE_FONT_SIZE_CLASSES: Record<NormalizedSidebarSection['titleFon
 interface ProductsByCategorySidebarProps {
   sidebarLabel: string;
   title: string;
+  borderRadius?: string;
   headerBackgroundColor?: string;
   description?: string | null;
   showTitle: boolean;
@@ -202,6 +203,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
 export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps> = ({
   sidebarLabel,
   title,
+  borderRadius,
   headerBackgroundColor,
   description,
   showTitle,
@@ -215,13 +217,18 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
     return null;
   }
 
+  const effectiveBorderRadius = borderRadius || '1rem'; // 16px default (matches rounded-2xl)
+
   return (
     <aside className="relative z-30 w-full lg:w-1/5">
       <div className="lg:sticky lg:top-24 space-y-6">
         {showSidebarHeader && (
           <div
             className="rounded-2xl border border-gray-200/80 bg-white/95 p-6 shadow-sm dark:border-gray-800/60 dark:bg-gray-900/70"
-            style={headerBackgroundColor ? { backgroundColor: headerBackgroundColor } : undefined}
+            style={{
+              ...(headerBackgroundColor ? { backgroundColor: headerBackgroundColor } : {}),
+              borderRadius: effectiveBorderRadius,
+            }}
           >
             <p className="text-xs uppercase tracking-[0.3em] text-blue-500 dark:text-blue-300">{sidebarLabel}</p>
             {showTitle && (
@@ -241,9 +248,12 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
           const sectionDescription = section.description?.trim();
           const hasCustomBackground = Boolean(section.backgroundColor);
           const hasCustomHeaderBackground = Boolean(section.headerBackgroundColor);
-          const sectionCardStyle: CSSProperties | undefined = hasCustomBackground
-            ? { backgroundColor: section.backgroundColor }
-            : undefined;
+          const sectionBorderRadius = section.borderRadius || '1rem'; // Default 16px if not set
+
+          const sectionCardStyle: CSSProperties | undefined = {
+            ...(hasCustomBackground ? { backgroundColor: section.backgroundColor } : {}),
+            borderRadius: sectionBorderRadius,
+          };
           const hasCustomTitleColor = Boolean(section.titleFontColor);
           const sectionTitleStyle: CSSProperties | undefined = hasCustomTitleColor || section.titleTextTransform !== 'none'
             ? {
@@ -267,14 +277,18 @@ export const ProductsByCategorySidebar: React.FC<ProductsByCategorySidebarProps>
             <div
               key={section.id}
               className={clsx(
-                'rounded-2xl border border-gray-200/80 shadow-sm dark:border-gray-800/60 overflow-visible',
+                'border border-gray-200/80 shadow-sm dark:border-gray-800/60 overflow-visible',
                 hasCustomBackground ? '' : 'bg-white/95 dark:bg-gray-900/70',
               )}
               style={sectionCardStyle}
             >
               <div
                 className="border-b border-gray-100 px-5 py-4 dark:border-gray-800/80"
-                style={hasCustomHeaderBackground ? { backgroundColor: section.headerBackgroundColor } : undefined}
+                style={{
+                  ...(hasCustomHeaderBackground ? { backgroundColor: section.headerBackgroundColor } : {}),
+                  borderTopLeftRadius: sectionBorderRadius,
+                  borderTopRightRadius: sectionBorderRadius,
+                }}
               >
                 <p className={sectionTitleClasses} style={sectionTitleStyle}>
                   {section.showTitleIcon && section.titleIcon && (

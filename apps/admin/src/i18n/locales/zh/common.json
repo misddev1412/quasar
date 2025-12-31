@@ -3,6 +3,9 @@
     "success": "成功",
     "error": "错误",
     "cancel": "取消",
+    "show_full_url": "显示完整链接",
+    "hide_full_url": "隐藏链接",
+    "url_hidden": "链接已隐藏",
     "media": {
       "dragDropOrClick": "拖放或点击上传",
       "maxSize": "最大{{maxSize}}MB",

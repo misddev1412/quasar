@@ -59,6 +59,7 @@ export interface ProductsByCategorySidebarSectionConfig {
   id?: string;
   title?: string;
   description?: string;
+  borderRadius?: string;
   headerBackgroundColor?: string;
   backgroundColor?: string;
   titleFontColor?: string;
@@ -78,6 +79,7 @@ export interface ProductsByCategorySidebarSectionConfig {
 export interface ProductsByCategorySidebarConfig {
   enabled?: boolean;
   title?: string;
+  borderRadius?: string;
   headerBackgroundColor?: string;
   description?: string;
   showTitle?: boolean;
@@ -190,6 +192,7 @@ export interface NormalizedSidebarItem {
 export interface NormalizedSidebarSection {
   id: string;
   title: string;
+  borderRadius?: string;
   description: string;
   headerBackgroundColor: string;
   backgroundColor: string;
@@ -210,6 +213,7 @@ export interface NormalizedSidebarSection {
 export interface NormalizedSidebarConfig {
   enabled: boolean;
   title: string;
+  borderRadius?: string;
   headerBackgroundColor: string;
   description: string;
   showTitle: boolean;
@@ -264,12 +268,14 @@ const normalizeSidebarConfig = (sidebar?: ProductsByCategorySidebarConfig | null
   const showTitle = sidebar?.showTitle !== false;
   const showSidebarHeader = sidebar?.showSidebarHeader !== false;
   const showDescription = sidebar?.showDescription !== false;
+  const globalBorderRadius = normalizeString(sidebar?.borderRadius);
 
   const sections = rawSections
     .map((section, index) => {
       const baseId = normalizeString(section?.id) || `sidebar-section-${index}`;
       const id = index === 0 ? baseId : `${baseId}-${index}`;
       const title = normalizeString(section?.title);
+      const borderRadius = normalizeString(section?.borderRadius) || globalBorderRadius || undefined;
       const description = normalizeString(section?.description);
       const headerBackgroundColor = normalizeString(section?.headerBackgroundColor);
       const backgroundColor = normalizeString(section?.backgroundColor);
@@ -291,6 +297,7 @@ const normalizeSidebarConfig = (sidebar?: ProductsByCategorySidebarConfig | null
       return {
         id,
         title,
+        borderRadius,
         description,
         headerBackgroundColor,
         backgroundColor,
@@ -313,6 +320,7 @@ const normalizeSidebarConfig = (sidebar?: ProductsByCategorySidebarConfig | null
   return {
     enabled: Boolean(sidebar?.enabled) && sections.length > 0,
     title: normalizeString(sidebar?.title),
+    borderRadius: normalizeString(sidebar?.borderRadius) || undefined,
     headerBackgroundColor: normalizeString(sidebar?.headerBackgroundColor),
     description: normalizeString(sidebar?.description),
     showTitle,
@@ -782,6 +790,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
             <ProductsByCategorySidebar
               sidebarLabel={t('sections.products_by_category.sidebar_label')}
               title={sidebarTitleText}
+              borderRadius={sidebarConfig.borderRadius}
               headerBackgroundColor={sidebarHeaderBg}
               description={sidebarDescriptionText}
               showTitle={sidebarShowTitle}

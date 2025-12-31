@@ -8,6 +8,10 @@ import { useToast } from '../../context/ToastContext';
 import { Toggle } from '../common/Toggle';
 import { MediaManager } from '../common/MediaManager';
 import { useState } from 'react';
+import { OG_META_FIELDS } from './ogMetaFields';
+import { Button } from '../common/Button';
+import { FiImage } from 'react-icons/fi';
+import { ImageActionButtons } from '../common/ImageActionButtons';
 
 interface CreateSeoFormProps {
   onClose: () => void;
@@ -16,6 +20,7 @@ interface CreateSeoFormProps {
 export const CreateSeoForm: React.FC<CreateSeoFormProps> = ({ onClose }) => {
   const { createSeo, isCreating } = useSeoManager();
   const [isMediaManagerOpen, setIsMediaManagerOpen] = useState(false);
+  const [ogMetaFields, setOgMetaFields] = useState<Record<string, string>>({});
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
 
@@ -33,17 +38,27 @@ export const CreateSeoForm: React.FC<CreateSeoFormProps> = ({ onClose }) => {
       path: '',
       group: 'general',
       active: true,
-      additionalMetaTags: {},
       image: '',
     },
   });
 
+  const handleOgFieldChange = (metaKey: string, value: string) => {
+    setOgMetaFields(prev => {
+      const next = { ...prev };
+      if (!value.trim()) {
+        delete next[metaKey];
+      } else {
+        next[metaKey] = value;
+      }
+      return next;
+    });
+  };
+
   const onSubmit: SubmitHandler<CreateSeoDto> = async (data) => {
     try {
-      // The additionalMetaTags from textarea is a string, so we need to parse it
       const finalData = {
         ...data,
-        additionalMetaTags: data.additionalMetaTags ? JSON.parse(data.additionalMetaTags as any) : {},
+        additionalMetaTags: ogMetaFields,
       };
       await createSeo(finalData);
       addToast({
@@ -69,7 +84,6 @@ export const CreateSeoForm: React.FC<CreateSeoFormProps> = ({ onClose }) => {
     'keywords',
     'group',
     'image',
-    'additionalMetaTags',
   ];
 
   return (
@@ -83,40 +97,34 @@ export const CreateSeoForm: React.FC<CreateSeoFormProps> = ({ onClose }) => {
             name={fieldName}
             control={control}
             render={({ field }) =>
-              fieldName === 'additionalMetaTags' ? (
-                <textarea
-                  {...field}
-                  id={fieldName}
-                  rows={4}
-                  className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder={t('seo.placeholders.json_format', '请输入JSON格式的字符串')}
-                  // Since we expect a string, but the type is Record, we need to stringify it.
-                  value={typeof field.value === 'object' ? JSON.stringify(field.value, null, 2) : field.value?.toString() ?? ''}
-                />
-              ) : fieldName === 'image' ? (
+              fieldName === 'image' ? (
                 <div className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    {field.value && (
-                      <div className="relative h-16 w-16 rounded-md overflow-hidden border border-gray-200">
-                        <img src={field.value as string} alt="Preview" className="h-full w-full object-cover" />
-                      </div>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => setIsMediaManagerOpen(true)}
-                      className="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 bg-white"
-                    >
-                      {field.value ? t('common.change_image', 'Change Image') : t('common.select_image', 'Select Image')}
-                    </button>
-                    {field.value && (
-                      <button
-                        type="button"
-                        onClick={() => field.onChange('')}
-                        className="text-sm text-red-600 hover:text-red-800"
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <div
+                        className={`flex h-24 w-24 items-center justify-center rounded-xl border-2 ${
+                          field.value ? 'border-gray-200 bg-white' : 'border-dashed border-gray-300 bg-gray-50'
+                        } overflow-hidden`}
                       >
-                        {t('common.remove', 'Remove')}
-                      </button>
-                    )}
+                        {field.value ? (
+                          <img src={field.value as string} alt="Preview" className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex flex-col items-center text-gray-400 text-xs">
+                            <FiImage className="h-6 w-6 mb-1" />
+                            <span>{t('common.no_image', 'No image')}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <ImageActionButtons
+                      className="flex-col gap-2 sm:flex-row sm:items-center sm:gap-3"
+                      hasImage={Boolean(field.value)}
+                      selectLabel={t('common.select_image', 'Select Image')}
+                      changeLabel={t('common.change_image', 'Change Image')}
+                      removeLabel={t('common.remove', 'Remove')}
+                      onSelect={() => setIsMediaManagerOpen(true)}
+                      onRemove={() => field.onChange('')}
+                    />
                   </div>
                   <input type="hidden" {...field} value={field.value as string || ''} />
                 </div>
@@ -136,6 +144,40 @@ export const CreateSeoForm: React.FC<CreateSeoFormProps> = ({ onClose }) => {
           )}
         </div>
       ))}
+
+      <div className="rounded-lg border border-gray-200 bg-gray-50/60 p-4 space-y-3">
+        <div className="flex flex-col gap-1">
+          <h3 className="text-sm font-medium text-gray-900">
+            {t('seo.sections.open_graph', 'Open Graph Tags')}
+          </h3>
+          <p className="text-xs text-gray-500">
+            {t(
+              'seo.placeholders.og_hint',
+              'Control how links preview when shared to social platforms.',
+            )}
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-3">
+          {OG_META_FIELDS.map(({ metaKey, labelKey, fallbackLabel }) => (
+            <div key={metaKey}>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t(`seo.fields.${labelKey}`, fallbackLabel)}
+              </label>
+              <input
+                type="text"
+                value={ogMetaFields[metaKey] || ''}
+                onChange={(event) => handleOgFieldChange(metaKey, event.target.value)}
+                className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder={
+                  metaKey === 'og:type'
+                    ? t('seo.placeholders.og_type', 'e.g. website, article')
+                    : undefined
+                }
+              />
+            </div>
+          ))}
+        </div>
+      </div>
 
       <div>
         <label htmlFor="active" className="block text-sm font-medium text-gray-700 mb-1">

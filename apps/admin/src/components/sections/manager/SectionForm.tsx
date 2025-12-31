@@ -167,6 +167,85 @@ export const SectionForm: React.FC<SectionFormProps> = ({ languages, initialStat
         }));
     };
 
+    const searchParams = new URLSearchParams(window.location.search);
+    const isConfigOverrideVisible = searchParams.get('showConfig') === 'true';
+
+    const toggleConfigOverrideVisibility = () => {
+        const currentParams = new URLSearchParams(window.location.search);
+        const visible = currentParams.get('showConfig') === 'true';
+        if (visible) {
+            currentParams.delete('showConfig');
+        } else {
+            currentParams.set('showConfig', 'true');
+        }
+        navigate(`?${currentParams.toString()}`);
+    };
+
+    const translationFields = (
+        <div className="space-y-3 border rounded-lg p-4 bg-gray-50">
+            <label className="flex flex-col gap-1 text-sm text-gray-600">
+                {t('sections.manager.form.title')}
+                <Input
+                    value={activeTranslation.title || ''}
+                    onChange={(e) => handleTranslationChange(activeLocale, 'title', e.target.value)}
+                    className="text-sm"
+                    inputSize="md"
+                />
+            </label>
+            <label className="flex flex-col gap-1 text-sm text-gray-600">
+                {t('sections.manager.form.subtitle')}
+                <Input
+                    value={activeTranslation.subtitle || ''}
+                    onChange={(e) => handleTranslationChange(activeLocale, 'subtitle', e.target.value)}
+                    className="text-sm"
+                    inputSize="md"
+                />
+            </label>
+            <label className="flex flex-col gap-1 text-sm text-gray-600">
+                {t('sections.manager.form.description')}
+                <TextArea
+                    rows={4}
+                    value={activeTranslation.description || ''}
+                    onChange={(e) => handleTranslationChange(activeLocale, 'description', e.target.value)}
+                />
+            </label>
+            {formState.type === SectionType.HERO_SLIDER && (
+                <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('sections.manager.form.heroDescription')}
+                    <TextArea
+                        rows={4}
+                        value={activeTranslation.heroDescription || ''}
+                        onChange={(e) => handleTranslationChange(activeLocale, 'heroDescription', e.target.value)}
+                        placeholder={t('sections.manager.form.heroDescriptionPlaceholder')}
+                    />
+                </label>
+            )}
+            <label className="flex flex-col gap-1 text-sm text-gray-600">
+                <div className="flex items-center justify-between">
+                    <span>{t('sections.manager.form.configOverride')}</span>
+                    <Button variant="ghost" size="sm" type="button" onClick={toggleConfigOverrideVisibility}>
+                        {isConfigOverrideVisible
+                            ? t('sections.manager.form.hideConfig', 'Hide Config')
+                            : t('sections.manager.form.showConfig', 'Show Config')}
+                    </Button>
+                </div>
+                {isConfigOverrideVisible && (
+                    <JsonEditor
+                        value={activeTranslation.configOverride || ''}
+                        onChange={(value) => handleTranslationChange(activeLocale, 'configOverride', value)}
+                        height="300px"
+                        placeholder={t('sections.manager.form.configOverridePlaceholder')}
+                    />
+                )}
+                {!isConfigOverrideVisible && activeTranslation.configOverride && (
+                    <p className="text-xs text-gray-500 italic">
+                        {t('sections.manager.form.configHidden', 'Configuration is set. Click "Show Config" to edit.')}
+                    </p>
+                )}
+            </label>
+        </div>
+    );
+
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -269,88 +348,7 @@ export const SectionForm: React.FC<SectionFormProps> = ({ languages, initialStat
                     </div>
                 </div>
 
-                <div className="space-y-3 border rounded-lg p-4 bg-gray-50">
-                    {fieldVisibility.title !== false && (
-                        <label className="flex flex-col gap-1 text-sm text-gray-600">
-                            {t('sections.manager.form.title')}
-                            <Input
-                                value={activeTranslation.title || ''}
-                                onChange={(e) => handleTranslationChange(activeLocale, 'title', e.target.value)}
-                                className="text-sm"
-                                inputSize="md"
-                            />
-                        </label>
-                    )}
-                    {fieldVisibility.subtitle !== false && (
-                        <label className="flex flex-col gap-1 text-sm text-gray-600">
-                            {t('sections.manager.form.subtitle')}
-                            <Input
-                                value={activeTranslation.subtitle || ''}
-                                onChange={(e) => handleTranslationChange(activeLocale, 'subtitle', e.target.value)}
-                                className="text-sm"
-                                inputSize="md"
-                            />
-                        </label>
-                    )}
-                    {fieldVisibility.description !== false && (
-                        <label className="flex flex-col gap-1 text-sm text-gray-600">
-                            {t('sections.manager.form.description')}
-                            <TextArea
-                                rows={4}
-                                value={activeTranslation.description || ''}
-                                onChange={(e) => handleTranslationChange(activeLocale, 'description', e.target.value)}
-                            />
-                        </label>
-                    )}
-                    {formState.type === SectionType.HERO_SLIDER && fieldVisibility.heroDescription !== false && (
-                        <label className="flex flex-col gap-1 text-sm text-gray-600">
-                            {t('sections.manager.form.heroDescription')}
-                            <TextArea
-                                rows={4}
-                                value={activeTranslation.heroDescription || ''}
-                                onChange={(e) => handleTranslationChange(activeLocale, 'heroDescription', e.target.value)}
-                                placeholder={t('sections.manager.form.heroDescriptionPlaceholder')}
-                            />
-                        </label>
-                    )}
-                    <label className="flex flex-col gap-1 text-sm text-gray-600">
-                        <div className="flex items-center justify-between">
-                            <span>{t('sections.manager.form.configOverride')}</span>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                type="button"
-                                onClick={() => {
-                                    const currentParams = new URLSearchParams(window.location.search);
-                                    const isVisible = currentParams.get('showConfig') === 'true';
-                                    if (isVisible) {
-                                        currentParams.delete('showConfig');
-                                    } else {
-                                        currentParams.set('showConfig', 'true');
-                                    }
-                                    navigate(`?${currentParams.toString()}`);
-                                }}
-                            >
-                                {new URLSearchParams(window.location.search).get('showConfig') === 'true'
-                                    ? t('sections.manager.form.hideConfig', 'Hide Config')
-                                    : t('sections.manager.form.showConfig', 'Show Config')}
-                            </Button>
-                        </div>
-                        {new URLSearchParams(window.location.search).get('showConfig') === 'true' && (
-                            <JsonEditor
-                                value={activeTranslation.configOverride || ''}
-                                onChange={(value) => handleTranslationChange(activeLocale, 'configOverride', value)}
-                                height="300px"
-                                placeholder={t('sections.manager.form.configOverridePlaceholder')}
-                            />
-                        )}
-                        {new URLSearchParams(window.location.search).get('showConfig') !== 'true' && activeTranslation.configOverride && (
-                            <p className="text-xs text-gray-500 italic">
-                                {t('sections.manager.form.configHidden', 'Configuration is set. Click "Show Config" to edit.')}
-                            </p>
-                        )}
-                    </label>
-                </div>
+                {translationFields}
 
                 {formState.type === SectionType.HERO_SLIDER && (
                     <HeroSliderLocaleEditor

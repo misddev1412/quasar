@@ -142,23 +142,25 @@ export const HeroSliderConfigEditor: React.FC<HeroSliderConfigEditorProps> = ({ 
                     </span>
                 </label>
             </div>
-            <label className="flex items-center gap-2 text-sm text-gray-600">
-                <input
-                    type="checkbox"
-                    checked={Boolean(value?.autoplay ?? true)}
-                    onChange={(e) => handleValueChange('autoplay', e.target.checked)}
-                />
-                {t('sections.manager.heroSlider.autoplayEnabled')}
-            </label>
-            <div className="space-y-3 border rounded-lg p-4 bg-gray-50">
-                <label className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label className="flex items-center gap-2 text-sm text-gray-600 border rounded-lg p-3 bg-white">
+                    <input
+                        type="checkbox"
+                        checked={Boolean(value?.autoplay ?? true)}
+                        onChange={(e) => handleValueChange('autoplay', e.target.checked)}
+                    />
+                    <span>{t('sections.manager.heroSlider.autoplayEnabled')}</span>
+                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-600 border rounded-lg p-3 bg-white">
                     <input
                         type="checkbox"
                         checked={overlayEnabled}
                         onChange={(e) => handleOverlayToggle(e.target.checked)}
                     />
-                    {t('sections.manager.heroSlider.enableOverlay')}
+                    <span>{t('sections.manager.heroSlider.enableOverlay')}</span>
                 </label>
+            </div>
+            <div className="space-y-3 border rounded-lg p-4 bg-gray-50">
                 {overlayEnabled && (
                     <div className="space-y-2">
                         <label className="flex flex-col gap-1 text-sm text-gray-600">

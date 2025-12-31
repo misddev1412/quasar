@@ -42,6 +42,7 @@ interface CategorySelectOption extends SelectOption {
 
 interface SidebarConfig {
     title?: string;
+    borderRadius?: string;
     headerBackgroundColor?: string;
     description?: string;
     [key: string]: unknown;
@@ -995,6 +996,18 @@ export const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEd
                             value={sidebarConfig.title || ''}
                             onChange={(e) => handleSidebarConfigChange('title', e.target.value)}
                             placeholder={t('sections.manager.productsByCategory.sidebarDefaultTitle', 'Danh mục sản phẩm')}
+                            className="bg-white"
+                        />
+                    </label>
+                    <label className="flex flex-col gap-1.5 text-sm text-gray-700">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            {t('sections.manager.productsByCategory.borderRadius', 'Border Radius')}
+                        </span>
+                        <Input
+                            type="text"
+                            value={sidebarConfig.borderRadius || ''}
+                            onChange={(e) => handleSidebarConfigChange('borderRadius', e.target.value)}
+                            placeholder="16px"
                             className="bg-white"
                         />
                     </label>

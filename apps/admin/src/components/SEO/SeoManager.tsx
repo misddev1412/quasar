@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSeoManager, SeoData } from '../../hooks/useSeoManager';
 import { CreateSeoForm } from './CreateSeoForm';
 import cn from 'classnames';
@@ -10,12 +10,42 @@ import type { UpdateSeoDto } from '@backend/modules/seo/dto/seo.dto';
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import type { TRPCClientErrorLike } from '@trpc/client';
 import { Button } from '../common/Button';
+import { OG_META_FIELDS } from './ogMetaFields';
+import { FiImage } from 'react-icons/fi';
+import { ImageActionButtons } from '../common/ImageActionButtons';
 
 interface SeoItemProps {
   seo: SeoData;
   onUpdate: (id: string, data: UpdateSeoDto) => Promise<any>;
   onDelete: (id: string) => Promise<any>;
 }
+
+const parseAdditionalMetaTags = (value: SeoData['additionalMetaTags'] | string): Record<string, string> => {
+  if (!value) {
+    return {};
+  }
+
+  if (typeof value === 'string') {
+    try {
+      return value.trim() ? JSON.parse(value) : {};
+    } catch (error) {
+      console.warn('Failed to parse additional meta tags', error);
+      return {};
+    }
+  }
+
+  return value;
+};
+
+const normalizeAdditionalMetaTags = (
+  value: SeoData['additionalMetaTags']
+): Record<string, string> | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  return parseAdditionalMetaTags(value);
+};
 
 const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -24,13 +54,18 @@ const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
   const [isMediaManagerOpen, setIsMediaManagerOpen] = useState(false);
+  const additionalMetaTags = useMemo(() => parseAdditionalMetaTags(editedSeo.additionalMetaTags), [editedSeo.additionalMetaTags]);
 
   const handleUpdate = async () => {
     setIsLoading(true);
     try {
       // a bit of a hack because the entity is not fully exposed on the DTO
       const { id, createdAt, updatedAt, deletedAt, ...updateData } = editedSeo as any;
-      await onUpdate(seo.id, updateData);
+      const payload = {
+        ...updateData,
+        additionalMetaTags: normalizeAdditionalMetaTags(updateData.additionalMetaTags),
+      };
+      await onUpdate(seo.id, payload);
       addToast({ type: 'success', title: t('seo.update_success_title'), description: t('seo.update_success_desc') });
       setIsEditing(false);
     } catch (error: any) {
@@ -61,6 +96,21 @@ const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
     setEditedSeo(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleOgFieldChange = (metaKey: string, value: string) => {
+    setEditedSeo(prev => {
+      const currentTags = parseAdditionalMetaTags(prev.additionalMetaTags);
+      const updatedTags = { ...currentTags };
+
+      if (!value.trim()) {
+        delete updatedTags[metaKey];
+      } else {
+        updatedTags[metaKey] = value;
+      }
+
+      return { ...prev, additionalMetaTags: updatedTags };
+    });
+  };
+
   const handleToggleChange = (field: keyof UpdateSeoDto, value: boolean) => {
     onUpdate(seo.id, { [field]: value })
       .then(() => {
@@ -74,42 +124,33 @@ const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
 
   const renderField = (name: keyof SeoData) => {
     const value = editedSeo[name] as any;
-    if (name === 'additionalMetaTags') {
-      return (
-        <textarea
-          name={name}
-          value={typeof value === 'object' ? JSON.stringify(value, null, 2) : value}
-          onChange={handleChange}
-          rows={5}
-          className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-        />
-      );
-    }
     if (name === 'image') {
       return (
         <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            {value && (
-              <div className="relative h-16 w-16 rounded-md overflow-hidden border border-gray-200">
-                <img src={value} alt="Preview" className="h-full w-full object-cover" />
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={() => setIsMediaManagerOpen(true)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 bg-white"
-            >
-              {value ? t('common.change_image', 'Change Image') : t('common.select_image', 'Select Image')}
-            </button>
-            {value && (
-              <button
-                type="button"
-                onClick={() => handleChange({ target: { name: 'image', value: '' } } as any)}
-                className="text-sm text-red-600 hover:text-red-800"
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div
+                className={`flex h-24 w-24 items-center justify-center rounded-xl border-2 ${value ? 'border-gray-200 bg-white' : 'border-dashed border-gray-300 bg-gray-50'} overflow-hidden`}
               >
-                {t('common.remove', 'Remove')}
-              </button>
-            )}
+                {value ? (
+                  <img src={value} alt="Preview" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex flex-col items-center text-gray-400 text-xs">
+                    <FiImage className="h-6 w-6 mb-1" />
+                    <span>{t('common.no_image', 'No image')}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <ImageActionButtons
+              className="flex-col gap-2 sm:flex-row sm:items-center sm:gap-3"
+              hasImage={Boolean(value)}
+              selectLabel={t('common.select_image', 'Select Image')}
+              changeLabel={t('common.change_image', 'Change Image')}
+              removeLabel={t('common.remove', 'Remove')}
+              onSelect={() => setIsMediaManagerOpen(true)}
+              onRemove={() => handleChange({ target: { name: 'image', value: '' } } as any)}
+            />
           </div>
         </div>
       );
@@ -129,12 +170,38 @@ const SeoItem: React.FC<SeoItemProps> = ({ seo, onUpdate, onDelete }) => {
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-4 hover:shadow-md transition-shadow duration-300">
       {isEditing ? (
         <div className="space-y-3">
-          {(['title', 'path', 'description', 'keywords', 'group', 'image', 'additionalMetaTags'] as const).map(field => (
+          {(['title', 'path', 'description', 'keywords', 'group', 'image'] as const).map(field => (
             <div key={field}>
               <label className="block text-sm font-medium text-gray-700 mb-1">{t(`seo.fields.${field}`)}</label>
               {renderField(field)}
             </div>
           ))}
+          <div className="rounded-lg border border-gray-200 bg-gray-50/60 p-3 space-y-3">
+            <div>
+              <h4 className="text-sm font-medium text-gray-900">{t('seo.sections.open_graph', 'Open Graph Tags')}</h4>
+              <p className="text-xs text-gray-500">
+                {t(
+                  'seo.placeholders.og_hint',
+                  'Control how this page previews when shared on social platforms.',
+                )}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-3">
+              {OG_META_FIELDS.map(({ metaKey, labelKey, fallbackLabel }) => (
+                <div key={metaKey}>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    {t(`seo.fields.${labelKey}`, fallbackLabel)}
+                  </label>
+                  <input
+                    type="text"
+                    value={additionalMetaTags[metaKey] || ''}
+                    onChange={(event) => handleOgFieldChange(metaKey, event.target.value)}
+                    className="block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="flex justify-end space-x-2">
             <Button variant="secondary" size="sm" onClick={() => setIsEditing(false)}>{t('common.cancel')}</Button>
             <Button variant="primary" size="sm" onClick={handleUpdate} isLoading={isLoading}>
