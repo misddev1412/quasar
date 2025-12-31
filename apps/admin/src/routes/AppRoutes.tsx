@@ -15,6 +15,7 @@ import FloatingIconsSettingsPage from '../pages/settings/floating-icons';
 import AdminBrandingPage from '../pages/settings/admin-branding';
 import ThemeSettingsPage from '../pages/settings/theme';
 import MaintenanceSettingsPage from '../pages/settings/maintenance';
+import ThemeManagementPage from '../pages/themes';
 import BrandAssetsPage from '../pages/brand-assets';
 import AnalyticsConfigurationPage from '../pages/analytics';
 import UserProfilePage from '../pages/profile';
@@ -186,6 +187,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/settings/visibility" element={<ProtectedRoute><SettingsVisibilityPage /></ProtectedRoute>} />
       <Route path="/settings/admin-branding" element={<ProtectedRoute><AdminBrandingPage /></ProtectedRoute>} />
       <Route path="/settings/theme" element={<ProtectedRoute><ThemeSettingsPage /></ProtectedRoute>} />
+      <Route path="/themes" element={<ProtectedRoute><ThemeManagementPage /></ProtectedRoute>} />
       <Route path="/storage" element={<ProtectedRoute><StorageConfigPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
       <Route path="/help" element={<ProtectedRoute><HelpPage /></ProtectedRoute>} />

@@ -78,6 +78,7 @@ const defaultSlides: HeroSlideConfig[] = [
 
 const DEFAULT_BACKGROUND = 'linear-gradient(135deg, #1d4ed8 0%, #4338ca 45%, #0f172a 100%)';
 const DEFAULT_OVERLAY_COLOR = 'rgba(15, 23, 42, 0.55)';
+const HERO_ASPECT_RATIO = '1550 / 650';
 
 type ParsedColor = { r: number; g: number; b: number; a: number };
 
@@ -203,6 +204,10 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
       ? { background: overlayBackground }
       : { backgroundColor: overlayBackground }
     : { background: DEFAULT_BACKGROUND };
+  const heroShellStyle: CSSProperties = {
+    ...containerStyle,
+    aspectRatio: HERO_ASPECT_RATIO,
+  };
 
   const overlayStyle: CSSProperties | undefined = overlayEnabled ? buildOverlayStyle(baseOverlayColor, overlayOpacity) : undefined;
   const fieldVisibility = config.fieldVisibility ?? {};
@@ -251,7 +256,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   const contentPaddingClass = isFullWidth
     ? 'px-4 sm:px-8 lg:px-12 xl:px-16'
     : 'px-6 sm:px-10 lg:px-16';
-  const contentWrapperClass = 'py-12 sm:py-16 lg:py-20 xl:py-24 min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[550px] xl:min-h-[600px] 2xl:min-h-[650px] flex flex-col justify-center';
+  const contentWrapperClass = 'py-12 sm:py-16 lg:py-20 xl:py-24 min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[550px] xl:min-h-[600px] 2xl:min-h-[650px] flex h-full flex-col justify-center';
   const backgroundImage = activeSlide?.imageUrl?.trim();
   const backgroundImageValue = backgroundImage
     ? `url('${backgroundImage.replace(/'/g, "\\'")}')`
@@ -275,7 +280,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
     : 'relative overflow-hidden text-white rounded-3xl shadow-2xl border border-white/10 dark:border-white/5';
 
   const heroContent = (
-    <div className={heroShellClass} style={containerStyle}>
+    <div className={heroShellClass} style={heroShellStyle}>
       {backgroundLayerStyle && (
         <div className="absolute inset-0" style={backgroundLayerStyle} />
       )}

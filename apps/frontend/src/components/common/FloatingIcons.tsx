@@ -54,6 +54,8 @@ const normalizeFloatingIcons = (items: FloatingWidgetActionConfigList): Floating
       icon: resolveIconName(item),
       effect: item.effect || DEFAULT_EFFECT,
       isTransparentBackground: Boolean(item.isTransparentBackground),
+      hasSlideOutInfo: Boolean(item.hasSlideOutInfo),
+      slideOutText: item.slideOutText,
       metadata: { ...emptyMetadata(), ...(item.metadata || {}) },
     }))
     .filter((item) => item.isActive)
@@ -182,36 +184,62 @@ const FloatingIcons: React.FC = () => {
         const backgroundColor = transparentBg ? 'transparent' : item.backgroundColor || '#0ea5e9';
         const buttonShapeClasses = transparentBg ? '' : 'shadow-[0_10px_25px_rgba(15,23,42,0.2)]';
 
+
+        const getSlideOutText = () => {
+          if (!item.hasSlideOutInfo) return null;
+          if (item.slideOutText?.trim()) return item.slideOutText;
+          if (item.label?.trim()) return item.label;
+          // Fallback to metadata
+          if (item.type === 'call') return item.metadata?.phoneNumber;
+          if (item.type === 'email') return item.metadata?.email;
+          if (item.type === 'zalo') return item.metadata?.zaloPhone;
+          return null;
+        };
+
+        const slideOutContent = getSlideOutText();
+
         return (
-          <button
-            key={getItemKey(item)}
-            type="button"
-            onClick={() => handleClick(item)}
-            className={`pointer-events-auto relative flex items-center justify-center overflow-visible rounded-full transition-transform duration-200 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 ${buttonShapeClasses} ${EFFECT_CLASS_MAP[effect]}`}
-            style={{
-              backgroundColor,
-              width: BUTTON_SIZE_PX,
-              height: BUTTON_SIZE_PX,
-            }}
-            aria-label={item.label || item.tooltip || 'Floating action button'}
-          >
-            {isRing && (
-              <span
-                aria-hidden="true"
-                className="absolute inset-0 -z-10 rounded-full opacity-60 animate-ping"
+          <div key={getItemKey(item)} className="group pointer-events-auto relative flex items-center justify-end">
+            {slideOutContent && (
+              <div
+                className={`absolute right-full mr-3 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium shadow-lg transition-all duration-300 opacity-0 translate-x-4 invisible group-hover:visible group-hover:opacity-100 group-hover:translate-x-0`}
                 style={{
-                  border: `2px solid ${iconColor}`,
+                  backgroundColor: item.backgroundColor || '#0ea5e9',
+                  color: item.textColor || '#ffffff',
                 }}
-              ></span>
+              >
+                {slideOutContent}
+              </div>
             )}
-            <UnifiedIcon
-              icon={item.icon || DEFAULT_ICON_BY_TYPE[item.type]}
-              variant={iconVariant}
-              size={iconSize}
-              className={iconClassName}
-              style={iconStyle}
-            />
-          </button>
+            <button
+              type="button"
+              onClick={() => handleClick(item)}
+              className={`relative flex items-center justify-center overflow-visible rounded-full transition-transform duration-200 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 ${buttonShapeClasses} ${EFFECT_CLASS_MAP[effect]}`}
+              style={{
+                backgroundColor,
+                width: BUTTON_SIZE_PX,
+                height: BUTTON_SIZE_PX,
+              }}
+              aria-label={item.label || item.tooltip || 'Floating action button'}
+            >
+              {isRing && (
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-0 -z-10 rounded-full opacity-60 animate-ping"
+                  style={{
+                    border: `2px solid ${iconColor}`,
+                  }}
+                ></span>
+              )}
+              <UnifiedIcon
+                icon={item.icon || DEFAULT_ICON_BY_TYPE[item.type]}
+                variant={iconVariant}
+                size={iconSize}
+                className={iconClassName}
+                style={iconStyle}
+              />
+            </button>
+          </div>
         );
       })}
 

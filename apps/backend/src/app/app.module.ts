@@ -89,6 +89,8 @@ import { Service } from '../modules/services/entities/service.entity';
 import { ServiceTranslation } from '../modules/services/entities/service-translation.entity';
 import { ServiceItem } from '../modules/services/entities/service-item.entity';
 import { ServiceItemTranslation } from '../modules/services/entities/service-item-translation.entity';
+import { ThemesModule } from '../modules/themes/themes.module';
+import { ThemeEntity } from '../modules/themes/entities/theme.entity';
 
 
 @Module({
@@ -157,6 +159,7 @@ import { ServiceItemTranslation } from '../modules/services/entities/service-ite
           ServiceTranslation,
           ServiceItem,
           ServiceItemTranslation,
+          ThemeEntity,
         ],
         autoLoadEntities: true
       }),
@@ -192,6 +195,7 @@ import { ServiceItemTranslation } from '../modules/services/entities/service-ite
     DataExportModule,
     MailQueueModule,
     ServicesModule,
+    ThemesModule,
     AppRouterModule,
   ],
   controllers: [AppController],

@@ -18,6 +18,7 @@ import { NotificationsModule } from '../modules/notifications/notifications.modu
 import { SupportModule } from '../modules/support/support.module';
 import { SectionsModule } from '../modules/sections/sections.module';
 import { ServicesModule } from '../modules/services/services.module';
+import { ThemesModule } from '../modules/themes/themes.module';
 import { MenuModule } from '../modules/menus/menus.module';
 import { SiteContentModule } from '../modules/site-content/site-content.module';
 import { SharedModule } from '../modules/shared/shared.module';
@@ -51,6 +52,7 @@ import { AdminComponentConfigsRouter } from '../modules/component-configs/router
 import { ClientComponentConfigsRouter } from '../modules/component-configs/routers/client-component-configs.router';
 import { AdminProductSpecificationLabelsRouter } from '../modules/products/routers/admin-product-specification-labels.router';
 import { ServicesRouter } from '../modules/services/routers/services.router';
+import { AdminThemesRouter } from '../modules/themes/routers/admin-themes.router';
 
 @Module({
   imports: [
@@ -79,6 +81,7 @@ import { ServicesRouter } from '../modules/services/routers/services.router';
     SharedModule,
     ComponentConfigsModule,
     ServicesModule,
+    ThemesModule,
   ],
   providers: [
     ClientNewsRouter,
@@ -107,6 +110,7 @@ import { ServicesRouter } from '../modules/services/routers/services.router';
     ClientComponentConfigsRouter,
     AdminProductSpecificationLabelsRouter,
     ServicesRouter,
+    AdminThemesRouter,
     ResponseService,
   ],
 })

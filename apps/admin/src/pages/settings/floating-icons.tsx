@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { Button } from '../../components/common/Button';
 import { Toggle } from '../../components/common/Toggle';
@@ -183,6 +183,8 @@ const FloatingIconFormModal: React.FC<FloatingIconFormModalProps> = ({
       effect: 'none',
       tooltip: '',
       href: '',
+      hasSlideOutInfo: false,
+      slideOutText: '',
       metadata: emptyMetadata(),
     }
   );
@@ -210,6 +212,8 @@ const FloatingIconFormModal: React.FC<FloatingIconFormModalProps> = ({
         effect: 'none',
         tooltip: '',
         href: '',
+        hasSlideOutInfo: false,
+        slideOutText: '',
         metadata: emptyMetadata(),
       });
     }
@@ -445,6 +449,39 @@ const FloatingIconFormModal: React.FC<FloatingIconFormModalProps> = ({
             />
           </div>
 
+          <div className="md:col-span-2 flex items-center gap-3 pt-2 border-t mt-2">
+            <Toggle
+              checked={Boolean(draft.hasSlideOutInfo)}
+              onChange={() => handleChange('hasSlideOutInfo', !draft.hasSlideOutInfo)}
+            />
+            <div className="space-y-0.5">
+              <p className="text-sm font-medium text-gray-700">
+                {t('floating_icons.form.slide_out', 'Show info on hover')}
+              </p>
+              <p className="text-xs text-gray-500">
+                {t(
+                  'floating_icons.form.slide_out_hint',
+                  'Slide out extra information when hovering over the icon.'
+                )}
+              </p>
+            </div>
+          </div>
+
+          {draft.hasSlideOutInfo && (
+            <div className="md:col-span-2 space-y-2 pl-12">
+              <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-slide-text">
+                {t('floating_icons.form.slide_text', 'Hover info text')}
+              </label>
+              <Input
+                id="floating-icon-slide-text"
+                inputSize="md"
+                placeholder={t('floating_icons.form.slide_text_placeholder', 'e.g. Call us: 0123 456 789 (Leave empty to use Label or Phone)')}
+                value={draft.slideOutText || ''}
+                onChange={(e) => handleChange('slideOutText', e.target.value)}
+              />
+            </div>
+          )}
+
           <ColorSelector
             label={t('floating_icons.form.background', 'Background color')}
             placeholder="#0ea5e9"
@@ -520,6 +557,7 @@ const FloatingIconsSettingsPage: React.FC = () => {
   const [currentSettingId, setCurrentSettingId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [initialLoadError, setInitialLoadError] = useState<string | null>(null);
+  const itemsRef = useRef<FloatingWidgetActionConfigList>([]);
 
   const {
     data: settingResponse,
@@ -590,6 +628,9 @@ const FloatingIconsSettingsPage: React.FC = () => {
 
   const normalizedItems = useMemo(() => normalizeItems(items), [items]);
   const activeCount = useMemo(() => normalizedItems.filter((item) => item.isActive).length, [normalizedItems]);
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   const openCreateModal = () => {
     setModalMode('create');
@@ -640,12 +681,12 @@ const FloatingIconsSettingsPage: React.FC = () => {
         const toastContent =
           options?.toast === undefined
             ? {
-                title: t('floating_icons.toast.save_success_title', 'Configuration saved'),
-                description: t(
-                  'floating_icons.toast.save_success_desc',
-                  'Floating icons will update on the storefront shortly.'
-                ),
-              }
+              title: t('floating_icons.toast.save_success_title', 'Configuration saved'),
+              description: t(
+                'floating_icons.toast.save_success_desc',
+                'Floating icons will update on the storefront shortly.'
+              ),
+            }
             : options.toast;
 
         if (toastContent) {
@@ -687,17 +728,9 @@ const FloatingIconsSettingsPage: React.FC = () => {
         return;
       }
 
-      let updatedItems: FloatingWidgetActionConfigList | null = null;
-
-      setItems((prev) => {
-        const next = normalizeItems(updater(prev));
-        updatedItems = next;
-        return next;
-      });
-
-      if (updatedItems) {
-        await handleSave(updatedItems, options);
-      }
+      const nextItems = normalizeItems(updater(itemsRef.current));
+      setItems(nextItems);
+      await handleSave(nextItems, options);
     },
     [handleSave, isSaving]
   );

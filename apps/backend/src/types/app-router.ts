@@ -80,6 +80,49 @@ const exportJobSchema = z.object({
   completedAt: z.date().nullable().optional(),
 });
 
+const themeModeSchema = z.enum(['light', 'dark']);
+const hexColorSchema = z.string().regex(/^#(?:[0-9a-fA-F]{3}){1,2}$/);
+const themeColorSchema = z.object({
+  bodyBackgroundColor: hexColorSchema,
+  surfaceBackgroundColor: hexColorSchema,
+  textColor: hexColorSchema,
+  mutedTextColor: hexColorSchema,
+  primaryColor: hexColorSchema,
+  primaryTextColor: hexColorSchema,
+  secondaryColor: hexColorSchema,
+  secondaryTextColor: hexColorSchema,
+  accentColor: hexColorSchema,
+  borderColor: hexColorSchema,
+});
+const createThemeInputSchema = z.object({
+  name: z.string().min(2).max(150),
+  slug: z.string().min(2).max(160).regex(/^[a-z0-9-]+$/).optional(),
+  description: z.string().max(500).optional(),
+  mode: themeModeSchema.optional(),
+  isActive: z.boolean().optional(),
+  isDefault: z.boolean().optional(),
+  colors: themeColorSchema,
+});
+const updateThemeInputSchema = z.object({
+  id: z.string().uuid(),
+  data: z.object({
+    name: z.string().min(2).max(150).optional(),
+    slug: z.string().min(2).max(160).regex(/^[a-z0-9-]+$/).optional(),
+    description: z.string().max(500).optional(),
+    mode: themeModeSchema.optional(),
+    isActive: z.boolean().optional(),
+    isDefault: z.boolean().optional(),
+    colors: themeColorSchema.partial().optional(),
+  }),
+});
+const themeFiltersSchema = z.object({
+  page: z.number().int().min(1).optional().default(1),
+  limit: z.number().int().min(1).max(50).optional().default(12),
+  search: z.string().optional(),
+  isActive: z.boolean().optional(),
+  mode: themeModeSchema.optional(),
+});
+
 const exportJobResponseSchema = apiResponseSchema.extend({
   data: exportJobSchema.optional(),
 });
@@ -2399,6 +2442,51 @@ export const appRouter = router({
   }),
 
   // Admin Language router
+  adminThemes: router({
+    getThemes: procedure
+      .input(themeFiltersSchema)
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    getThemeById: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    createTheme: procedure
+      .input(createThemeInputSchema)
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    updateTheme: procedure
+      .input(updateThemeInputSchema)
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    deleteTheme: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    toggleThemeStatus: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    setDefaultTheme: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
   adminLanguage: router({
     getLanguages: procedure
       .input(z.object({

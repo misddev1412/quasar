@@ -47,6 +47,8 @@ export const floatingWidgetActionSchema = z.object({
   effect: z.enum(floatingWidgetActionEffectValues).default('none'),
   tooltip: z.string().optional(),
   href: z.string().optional(),
+  hasSlideOutInfo: z.boolean().default(false),
+  slideOutText: z.string().optional(),
   metadata: floatingWidgetActionMetadataSchema.optional(),
 });
 
@@ -70,6 +72,8 @@ export const DEFAULT_FLOATING_WIDGET_ACTIONS: FloatingWidgetActionConfigList = [
     isTransparentBackground: false,
     effect: 'ring',
     tooltip: 'Call now',
+    hasSlideOutInfo: true,
+    slideOutText: '0987-654-321',
     metadata: {
       phoneNumber: '0987654321',
     },

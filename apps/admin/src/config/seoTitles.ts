@@ -302,6 +302,17 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
       vi: 'Điều chỉnh kiểu chữ, bảng màu và chủ đề component'
     }
   },
+  {
+    path: '/themes',
+    titles: {
+      en: 'Theme Library | {{platformTitle}}',
+      vi: 'Thư Viện Theme | {{platformTitle}}'
+    },
+    description: {
+      en: 'Create and manage reusable body, primary and secondary color palettes',
+      vi: 'Tạo và quản lý các bảng màu sử dụng cho giao diện storefront'
+    }
+  },
 
   // Storage Configuration
   {

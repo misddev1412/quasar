@@ -50,6 +50,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import BuildIcon from '@mui/icons-material/Build';
 import SpaIcon from '@mui/icons-material/Spa';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import PaletteIcon from '@mui/icons-material/Palette';
 
 export class NavigationService implements INavigationService {
   constructor(private translate: (key: string, fallback?: string) => string) { }
@@ -426,6 +427,11 @@ export class NavigationService implements INavigationService {
                 path: '/settings/theme' // Using a distinctive path, but reusing /settings page logic potentially or navigating to preference tab
               },
               {
+                icon: React.createElement(PaletteIcon),
+                label: t('themes.title', 'Thư viện theme'),
+                path: '/themes'
+              },
+              {
                 icon: React.createElement(BuildIcon),
                 label: t('navigation.maintenance_settings', 'Maintenance Mode'),
                 path: '/settings/maintenance'
@@ -593,7 +599,7 @@ export class NavigationService implements INavigationService {
         !!currentPath.match(/^\/permissions\/[^\/]+$/);
     }
 
-    const exactMatchPaths = ['/posts', '/services', '/settings', '/settings/maintenance', '/settings/orders', '/settings/theme', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats'];
+    const exactMatchPaths = ['/posts', '/services', '/settings', '/settings/maintenance', '/settings/orders', '/settings/theme', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats', '/themes'];
     if (exactMatchPaths.includes(path)) {
       return currentPath === path;
     }
