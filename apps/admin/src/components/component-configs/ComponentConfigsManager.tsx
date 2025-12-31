@@ -146,12 +146,6 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
     return () => clearTimeout(timer);
   }, [searchValue]);
 
-  useEffect(() => {
-    if (limit !== preferences.pageSize) {
-      setLimit(preferences.pageSize);
-    }
-  }, [preferences.pageSize, limit]);
-
   const categoryFilterOptions = useMemo(
     () => [
       { value: 'all', label: t('componentConfigs.allCategories', 'All categories') },
@@ -274,10 +268,13 @@ export const ComponentConfigsManager: React.FC<ComponentConfigsManagerProps> = (
   );
 
   useEffect(() => {
+    if (!listQuery.data) {
+      return;
+    }
     if (page !== currentPage) {
       setPage(currentPage);
     }
-  }, [currentPage, page]);
+  }, [currentPage, page, listQuery.data]);
 
   const isFirstMount = React.useRef(true);
 

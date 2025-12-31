@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Progress } from '@heroui/react';
+import { useSettings } from '../../hooks/useSettings';
 
 interface AppLoadingOverlayProps {
   isLoading: boolean;
@@ -14,6 +15,12 @@ export const AppLoadingOverlay: React.FC<AppLoadingOverlayProps> = ({
   progress = 0,
   message = 'Loading...'
 }) => {
+  const { getSetting } = useSettings();
+  const fallbackSiteName = process.env.NEXT_PUBLIC_SITE_NAME || 'Quasar Store';
+  const configuredSiteName = (getSetting('site.name', '') || '').trim();
+  const legacySiteName = (getSetting('site_name', '') || '').trim();
+  const siteName = configuredSiteName || legacySiteName || fallbackSiteName;
+
   if (!isLoading) return null;
 
   return (
@@ -40,7 +47,7 @@ export const AppLoadingOverlay: React.FC<AppLoadingOverlayProps> = ({
             <div className="w-full space-y-4">
               <div className="text-center">
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-                  Quasar Store
+                  {siteName}
                 </h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 animate-pulse">
                   {message}

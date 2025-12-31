@@ -164,6 +164,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     ? variants.find(variant => typeof variant.compareAtPrice === 'number')?.compareAtPrice
     : undefined;
   const displayOriginalPrice = variantOriginalPrice ?? product.compareAtPrice ?? undefined;
+  const isPriceUpdating = currentPrice === 0;
 
   // Prefer backend slug, fallback to generated value
   const productSlug = product.slug || name?.toLowerCase().replace(/\s+/g, '-') || id;
@@ -386,15 +387,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
     cardSettings.priceDisplay === 'inline'
       ? 'flex flex-row items-baseline gap-3 flex-wrap'
       : 'flex flex-col gap-1';
-  const priceValueClass = clsx(
+  const priceValueBaseClass = clsx(
     PRICE_FONT_SIZE_CLASS_MAP[priceSettings.fontSize] ?? PRICE_FONT_SIZE_CLASS_MAP.lg,
     FONT_WEIGHT_CLASS_MAP[priceSettings.fontWeight] ?? FONT_WEIGHT_CLASS_MAP.bold,
-    priceSettings.colorTone !== 'custom' ? PRICE_TONE_CLASS_MAP[priceSettings.colorTone] : '',
     'leading-tight',
   );
+  const priceToneClass = priceSettings.colorTone !== 'custom' ? PRICE_TONE_CLASS_MAP[priceSettings.colorTone] : '';
   const priceColorStyle =
     priceSettings.colorTone === 'custom' && priceSettings.customColor ? { color: priceSettings.customColor } : undefined;
-  const shouldShowOriginalPrice = Boolean(priceSettings.showCompareAtPrice && displayOriginalPrice);
+  const shouldShowOriginalPrice = Boolean(!isPriceUpdating && priceSettings.showCompareAtPrice && displayOriginalPrice);
   const showPriceDivider = Boolean(
     priceSettings.showDivider && shouldShowOriginalPrice && cardSettings.priceDisplay === 'inline',
   );
@@ -514,14 +515,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
               currentPrice !== undefined && currentPrice !== null && (
                 <div className="mt-1 space-y-1">
                   <div className={priceWrapperClasses}>
-                    <span className={priceValueClass} style={priceColorStyle}>
-                      {formatCurrency(currentPrice)}
-                    </span>
-                    {showPriceDivider && <span className="w-px h-4 bg-gray-200 dark:bg-gray-700" />}
-                    {shouldShowOriginalPrice && displayOriginalPrice !== undefined && displayOriginalPrice !== null && (
-                      <span className="text-sm text-gray-500 dark:text-gray-400 line-through">
-                        {formatCurrency(displayOriginalPrice)}
+                    {isPriceUpdating ? (
+                      <span className={clsx(priceValueBaseClass, 'text-gray-500 dark:text-gray-400')}>
+                        {t('ecommerce.product.priceUpdating', 'Giá đang cập nhật')}
                       </span>
+                    ) : (
+                      <>
+                        <span className={clsx(priceValueBaseClass, priceToneClass)} style={priceColorStyle}>
+                          {formatCurrency(currentPrice)}
+                        </span>
+                        {showPriceDivider && <span className="w-px h-4 bg-gray-200 dark:bg-gray-700" />}
+                        {shouldShowOriginalPrice && displayOriginalPrice !== undefined && displayOriginalPrice !== null && (
+                          <span className="text-sm text-gray-500 dark:text-gray-400 line-through">
+                            {formatCurrency(displayOriginalPrice)}
+                          </span>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

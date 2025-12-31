@@ -82,7 +82,7 @@ const PriceDisplay: React.FC<PriceDisplayProps> = ({
     return (
       <div className={`flex items-center gap-2 ${className}`}>
         <span className={`${sizeClasses[size]} ${currentPriceClasses[size]} text-gray-500`}>
-          {t('ecommerce.product.priceUpdating', 'Updating...')}
+          {t('ecommerce.product.priceUpdating', 'Giá đang cập nhật')}
         </span>
       </div>
     );

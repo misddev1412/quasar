@@ -22,6 +22,32 @@ import { useCart } from '../ecommerce/CartProvider';
 const TOP_MENU_GROUP = 'top';
 
 const MAX_MARQUEE_CONTENT_REPEAT = 20;
+const topSkeletonBase =
+  'bg-gradient-to-r from-slate-600/40 via-slate-500/20 to-slate-600/30 dark:from-slate-500/30 dark:via-slate-700/40 dark:to-slate-500/30';
+
+const TopMenuSkeleton: React.FC = () => {
+  const labelWidths = ['w-24', 'w-16', 'w-20', 'w-28'];
+
+  return (
+    <div className="flex w-full flex-wrap items-center gap-3 md:gap-4">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div
+          key={`top-menu-skeleton-${index}`}
+          className="flex min-w-[160px] items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-3 py-2 text-xs text-white/80 shadow-lg/20 backdrop-blur animate-pulse"
+        >
+          <span className={`h-8 w-8 rounded-full ${topSkeletonBase}`} />
+          <div className="space-y-1">
+            <span className={`block h-3 rounded-full ${topSkeletonBase} ${labelWidths[index % labelWidths.length]}`} />
+            <span className={`block h-2 rounded-full opacity-70 ${topSkeletonBase} w-14`} />
+          </div>
+        </div>
+      ))}
+      <div className="flex-1 min-w-[200px]">
+        <div className={`h-10 rounded-2xl ${topSkeletonBase} animate-pulse`} />
+      </div>
+    </div>
+  );
+};
 
 const getConfigString = (config: Record<string, unknown> | undefined, key: string): string | undefined => {
   if (!config || typeof config !== 'object') {

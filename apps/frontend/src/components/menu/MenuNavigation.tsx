@@ -586,7 +586,58 @@ interface MenuNavigationProps {
   onMobileMenuClose?: () => void;
   renderers?: Partial<Record<MenuType, NavigationItemRenderer>>;
   appearanceConfig?: MainMenuConfig;
+  isLoading?: boolean;
 }
+
+const skeletonBaseClass =
+  'bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800';
+
+const DesktopMenuSkeleton: React.FC = () => {
+  const labelWidths = ['w-16', 'w-20', 'w-24', 'w-28'];
+  const metaWidths = ['w-10', 'w-12', 'w-14'];
+
+  return (
+    <div className="hidden lg:flex items-center gap-3">
+      {Array.from({ length: 5 }).map((_, index) => (
+        <div
+          key={`desktop-menu-skeleton-${index}`}
+          className="flex h-11 items-center gap-3 rounded-2xl border border-gray-200/80 dark:border-gray-800/70 bg-white/90 dark:bg-gray-900/60 px-4 py-2 shadow-sm animate-pulse"
+        >
+          <span className={`h-6 w-6 rounded-full ${skeletonBaseClass}`} />
+          <div className="space-y-1.5">
+            <span className={`block h-3 rounded-full ${skeletonBaseClass} ${labelWidths[index % labelWidths.length]}`} />
+            <span className={`block h-2.5 rounded-full opacity-70 ${skeletonBaseClass} ${metaWidths[index % metaWidths.length]}`} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const MobileMenuSkeleton: React.FC = () => {
+  const labelWidths = ['w-24', 'w-28', 'w-32', 'w-36'];
+  const metaWidths = ['w-14', 'w-16', 'w-20'];
+
+  return (
+    <div className="lg:hidden border-t border-gray-200 dark:border-gray-700 divide-y divide-gray-100/80 dark:divide-gray-800/70">
+      {Array.from({ length: 5 }).map((_, index) => (
+        <div
+          key={`mobile-menu-skeleton-${index}`}
+          className="flex items-center justify-between px-4 py-4 bg-white/90 dark:bg-gray-950/80 animate-pulse"
+        >
+          <div className="flex items-center gap-3">
+            <span className={`h-9 w-9 rounded-2xl ${skeletonBaseClass}`} />
+            <div className="space-y-1.5">
+              <span className={`block h-3 rounded-full ${skeletonBaseClass} ${labelWidths[index % labelWidths.length]}`} />
+              <span className={`block h-2.5 rounded-full opacity-70 ${skeletonBaseClass} ${metaWidths[index % metaWidths.length]}`} />
+            </div>
+          </div>
+          <span className={`h-3 w-6 rounded-full ${skeletonBaseClass}`} />
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const MenuNavigation: React.FC<MenuNavigationProps> = ({
   items,
@@ -594,6 +645,7 @@ const MenuNavigation: React.FC<MenuNavigationProps> = ({
   onMobileMenuClose,
   renderers,
   appearanceConfig,
+  isLoading = false,
 }) => {
   const pathname = usePathname();
   const config = appearanceConfig ?? DEFAULT_MAIN_MENU_CONFIG;
@@ -605,8 +657,14 @@ const MenuNavigation: React.FC<MenuNavigationProps> = ({
     (theme === 'dark' ? config.textColor.dark : config.textColor.light)?.trim() || '';
   const navStyle = resolvedTextColor ? { color: resolvedTextColor } : undefined;
 
+  const shouldShowSkeleton = isLoading && items.length === 0;
+
   // Mobile menu
   if (isMobileMenuOpen) {
+    if (shouldShowSkeleton) {
+      return <MobileMenuSkeleton />;
+    }
+
     return (
       <div
         className="lg:hidden border-t border-gray-200 dark:border-gray-700"
@@ -631,6 +689,10 @@ const MenuNavigation: React.FC<MenuNavigationProps> = ({
   }
 
   // Desktop navigation
+  if (shouldShowSkeleton) {
+    return <DesktopMenuSkeleton />;
+  }
+
   return (
     <DesktopNavigation
       pathname={pathname}

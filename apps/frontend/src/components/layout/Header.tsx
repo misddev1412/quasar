@@ -469,7 +469,7 @@ const Header: React.FC = () => {
   const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const { summary, openCart } = useCart(); // Add cart hook
-  const { navigationItems } = useMenu('main');
+  const { navigationItems, isLoading: isMainMenuLoading } = useMenu('main');
   const t = useTranslations();
   const tCart = useTranslations('ecommerce.cart');
   const router = useRouter();
@@ -885,6 +885,7 @@ const Header: React.FC = () => {
                 items={navigationItemsConverted}
                 renderers={navigationRenderers}
                 appearanceConfig={mainMenuConfig}
+                isLoading={isMainMenuLoading}
               />
             </div>
           </NavbarContent>
@@ -939,6 +940,7 @@ const Header: React.FC = () => {
               onMobileMenuClose={() => setIsMenuOpen(false)}
               renderers={navigationRenderers}
               appearanceConfig={mainMenuConfig}
+              isLoading={isMainMenuLoading}
             />
 
             {/* Cart, profile, search, locale, and theme entries are managed entirely via storefront navigation */}

@@ -40,13 +40,13 @@ function AppProviders({ children }: { children: React.ReactNode }) {
 
   return (
     <HelmetProvider>
-      <AppLoadingOverlay
-        isLoading={isLoading}
-        progress={initializationProgress}
-        message={initializationMessage}
-      />
       <TRPCProvider client={trpcClient} queryClient={queryClient}>
         <QueryClientProvider client={queryClient}>
+          <AppLoadingOverlay
+            isLoading={isLoading}
+            progress={initializationProgress}
+            message={initializationMessage}
+          />
           <CurrencyProvider>
             <HeroUIProvider>
               <ThemeProvider>
