@@ -1,4 +1,5 @@
 import { headers, cookies } from 'next/headers';
+import { serverTrpc } from '../utils/trpc-server';
 
 const SUPPORTED_LOCALES = new Set(['en', 'vi']);
 const DEFAULT_LOCALE = 'vi';
@@ -42,6 +43,17 @@ export async function getPreferredLocale(
   const nextLocaleHeader = normalizeLocale(headerList.get('x-next-locale'));
   if (nextLocaleHeader) {
     return nextLocaleHeader;
+  }
+
+  // Try to fetch default locale from backend settings
+  try {
+    const response = await serverTrpc.clientLanguage.getDefaultLanguage.query();
+    if (response?.data?.code) {
+      const backendLocale = normalizeLocale(response.data.code);
+      if (backendLocale) return backendLocale;
+    }
+  } catch (error) {
+    console.warn('Failed to fetch default locale from backend settings:', error);
   }
 
   return DEFAULT_LOCALE;
