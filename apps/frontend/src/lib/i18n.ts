@@ -22,7 +22,7 @@ i18n
   .use(initReactI18next)
   .init({
     fallbackLng: 'en',
-    debug: process.env.NODE_ENV === 'development',
+    debug: process.env.NEXT_PUBLIC_I18N_DEBUG === 'true',
 
     detection: {
       order: ['localStorage', 'cookie', 'navigator', 'htmlTag'],
