@@ -8,6 +8,8 @@ import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middle
 import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
 import { ModuleCode, OperationCode } from '@shared/enums/error-codes.enums';
 import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
+import { THEME_MODES } from '../dto/theme.dto';
+import type { CreateThemeDto, UpdateThemeDto } from '../dto/theme.dto';
 
 const hexColorSchema = z.string().regex(/^#(?:[0-9a-fA-F]{3}){1,2}$/, {
   message: 'Color must be a valid hex value (e.g. #000000)',
@@ -26,19 +28,21 @@ const themeColorSchema = z.object({
   borderColor: hexColorSchema,
 });
 
+const themeModeSchema = z.enum(THEME_MODES);
+
 const themeFiltersSchema = z.object({
   page: z.number().int().min(1).optional().default(1),
   limit: z.number().int().min(1).max(50).optional().default(12),
   search: z.string().optional(),
   isActive: z.boolean().optional(),
-  mode: z.enum(['light', 'dark']).optional(),
+  mode: themeModeSchema.optional(),
 });
 
 const createThemeSchema = z.object({
   name: z.string().min(2).max(150),
   slug: z.string().min(2).max(160).regex(/^[a-z0-9-]+$/).optional(),
   description: z.string().max(500).optional(),
-  mode: z.enum(['light', 'dark']).optional(),
+  mode: themeModeSchema.optional(),
   isActive: z.boolean().optional(),
   isDefault: z.boolean().optional(),
   colors: themeColorSchema,
@@ -50,7 +54,7 @@ const updateThemeSchema = z.object({
     name: z.string().min(2).max(150).optional(),
     slug: z.string().min(2).max(160).regex(/^[a-z0-9-]+$/).optional(),
     description: z.string().max(500).optional(),
-    mode: z.enum(['light', 'dark']).optional(),
+    mode: themeModeSchema.optional(),
     isActive: z.boolean().optional(),
     isDefault: z.boolean().optional(),
     colors: themeColorSchema.partial().optional(),
@@ -114,7 +118,7 @@ export class AdminThemesRouter {
     input: createThemeSchema,
     output: apiResponseSchema,
   })
-  async createTheme(@Input() input: z.infer<typeof createThemeSchema>) {
+  async createTheme(@Input() input: CreateThemeDto) {
     try {
       const theme = await this.adminThemesService.createTheme(input);
       return this.responseService.createTrpcSuccess(theme);
@@ -133,7 +137,7 @@ export class AdminThemesRouter {
     input: updateThemeSchema,
     output: apiResponseSchema,
   })
-  async updateTheme(@Input() input: z.infer<typeof updateThemeSchema>) {
+  async updateTheme(@Input() input: { id: string; data: UpdateThemeDto }) {
     try {
       const theme = await this.adminThemesService.updateTheme(input.id, input.data);
       return this.responseService.createTrpcSuccess(theme);

@@ -15,6 +15,11 @@ import {
   DEFAULT_VISITOR_ANALYTICS_CONFIG,
   VisitorAnalyticsMetricType,
   createFooterConfig,
+  FooterMenuTypographyConfig,
+  FooterMenuFontSize,
+  FooterMenuFontWeight,
+  FooterMenuTextTransform,
+  DEFAULT_MENU_TYPOGRAPHY,
 } from '@shared/types/footer.types';
 import { MenuTarget } from '@shared/enums/menu.enums';
 import { trpc } from '../../utils/trpc';
@@ -189,6 +194,64 @@ const clampLogoSize = (value?: number) => {
   return Math.min(160, Math.max(24, Math.round(value)));
 };
 
+const MENU_FONT_SIZE_CLASS_MAP: Record<FooterMenuFontSize, string> = {
+  xs: 'text-xs',
+  sm: 'text-sm',
+  md: 'text-base',
+  lg: 'text-lg',
+};
+
+const MENU_FONT_WEIGHT_CLASS_MAP: Record<FooterMenuFontWeight, string> = {
+  normal: 'font-normal',
+  medium: 'font-medium',
+  semibold: 'font-semibold',
+  bold: 'font-bold',
+};
+
+const MENU_TEXT_TRANSFORM_CLASS_MAP: Record<FooterMenuTextTransform, string> = {
+  none: 'normal-case',
+  uppercase: 'uppercase',
+  capitalize: 'capitalize',
+  sentence: 'normal-case',
+};
+
+const toLocalizedLower = (value: string) => value.toLocaleLowerCase('vi-VN');
+const toLocalizedUpper = (value: string) => value.toLocaleUpperCase('vi-VN');
+
+const toTitleCase = (value: string) =>
+  value.replace(/\S+/g, (word) => {
+    const firstChar = word.charAt(0);
+    if (!firstChar) return word;
+    const rest = word.slice(1);
+    return `${toLocalizedUpper(firstChar)}${toLocalizedLower(rest)}`;
+  });
+
+const toSentenceCase = (value: string) => {
+  if (!value) return value;
+  const firstNonSpaceIndex = value.search(/\S/);
+  if (firstNonSpaceIndex === -1) {
+    return value;
+  }
+  const prefix = value.slice(0, firstNonSpaceIndex);
+  const firstChar = value.charAt(firstNonSpaceIndex);
+  const rest = value.slice(firstNonSpaceIndex + 1);
+  return `${prefix}${toLocalizedUpper(firstChar)}${toLocalizedLower(rest)}`;
+};
+
+const transformMenuLabel = (label: string, typography: FooterMenuTypographyConfig) => {
+  if (!label) return '';
+  switch (typography.textTransform) {
+    case 'uppercase':
+      return toLocalizedUpper(label);
+    case 'capitalize':
+      return toTitleCase(toLocalizedLower(label));
+    case 'sentence':
+      return toSentenceCase(label);
+    default:
+      return label;
+  }
+};
+
 const normalizeFacebookTabs = (tabs?: string) => {
   if (!tabs) {
     return 'timeline';
@@ -311,6 +374,13 @@ const Footer: React.FC<FooterProps> = ({
   );
   const menuGridClass = getGridClass(footerConfig.columnsPerRow);
   const contentWrapperClass = 'w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8';
+  const menuTypography = footerConfig.menuTypography || DEFAULT_MENU_TYPOGRAPHY;
+  const menuFontSizeClass =
+    MENU_FONT_SIZE_CLASS_MAP[menuTypography.fontSize] || MENU_FONT_SIZE_CLASS_MAP.sm;
+  const menuFontWeightClass =
+    MENU_FONT_WEIGHT_CLASS_MAP[menuTypography.fontWeight] || MENU_FONT_WEIGHT_CLASS_MAP.normal;
+  const menuTextTransformClass =
+    MENU_TEXT_TRANSFORM_CLASS_MAP[menuTypography.textTransform] || MENU_TEXT_TRANSFORM_CLASS_MAP.none;
 
   const themeClasses = theme === 'dark'
     ? {
@@ -351,23 +421,30 @@ const Footer: React.FC<FooterProps> = ({
 
   const renderNavLink = (link: FooterMenuLink) => {
     if (!link.href) return null;
-    const linkClass = clsx('text-sm transition-colors', themeClasses.link);
+    const linkClass = clsx(
+      'transition-colors',
+      themeClasses.link,
+      menuFontSizeClass,
+      menuFontWeightClass,
+      menuTextTransformClass
+    );
     const targetProps =
       link.target === MenuTarget.BLANK
         ? { target: '_blank', rel: 'noopener noreferrer' }
         : {};
+    const formattedLabel = transformMenuLabel(link.label, menuTypography);
 
     if (isExternalLink(link.href)) {
       return (
         <a href={link.href} className={linkClass} style={linkStyle} {...targetProps}>
-          {link.label}
+          {formattedLabel}
         </a>
       );
     }
 
     return (
       <Link href={link.href} className={linkClass} style={linkStyle} {...targetProps}>
-        {link.label}
+        {formattedLabel}
       </Link>
     );
   };

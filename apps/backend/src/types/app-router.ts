@@ -22,6 +22,7 @@ import {
   UpdateServiceSchema,
   ServiceFilterSchema,
 } from '../modules/services/dto/service.dto';
+import { THEME_MODES } from '../modules/themes/dto/theme.dto';
 
 // Zod schemas for validation
 const userRoleSchema = z.enum([
@@ -80,7 +81,7 @@ const exportJobSchema = z.object({
   completedAt: z.date().nullable().optional(),
 });
 
-const themeModeSchema = z.enum(['light', 'dark']);
+const themeModeSchema = z.enum(THEME_MODES);
 const hexColorSchema = z.string().regex(/^#(?:[0-9a-fA-F]{3}){1,2}$/);
 const themeColorSchema = z.object({
   bodyBackgroundColor: hexColorSchema,

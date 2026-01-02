@@ -1,4 +1,5 @@
-export type ThemeMode = 'light' | 'dark';
+export const THEME_MODES = ['LIGHT', 'DARK'] as const;
+export type ThemeMode = (typeof THEME_MODES)[number];
 
 export interface ThemeColorConfigDto {
   bodyBackgroundColor: string;

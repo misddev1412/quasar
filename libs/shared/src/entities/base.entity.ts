@@ -120,7 +120,4 @@ export abstract class SoftDeletableEntity extends BaseEntity {
     return !!this.deletedAt;
   }
 
-  isActive(): boolean {
-    return !this.isDeleted();
-  }
-} 
+}

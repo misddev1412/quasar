@@ -26,7 +26,7 @@ export class AdminThemesService {
       name: dto.name,
       slug,
       description: dto.description,
-      mode: dto.mode ?? 'light',
+      mode: dto.mode ?? 'LIGHT',
       isActive: dto.isActive ?? true,
       ...this.toEntityColors(dto.colors),
     });

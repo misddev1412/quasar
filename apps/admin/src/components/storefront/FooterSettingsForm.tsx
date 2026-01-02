@@ -260,6 +260,36 @@ const FooterSettingsForm: React.FC = () => {
     [t]
   );
 
+  const menuFontSizeOptions = useMemo<SelectOption[]>(
+    () => [
+      { value: 'xs', label: t('storefront.footer.menu_typography.font_size.xs', 'Extra small') },
+      { value: 'sm', label: t('storefront.footer.menu_typography.font_size.sm', 'Small') },
+      { value: 'md', label: t('storefront.footer.menu_typography.font_size.md', 'Medium') },
+      { value: 'lg', label: t('storefront.footer.menu_typography.font_size.lg', 'Large') },
+    ],
+    [t]
+  );
+
+  const menuFontWeightOptions = useMemo<SelectOption[]>(
+    () => [
+      { value: 'normal', label: t('storefront.footer.menu_typography.font_weight.normal', 'Regular') },
+      { value: 'medium', label: t('storefront.footer.menu_typography.font_weight.medium', 'Medium') },
+      { value: 'semibold', label: t('storefront.footer.menu_typography.font_weight.semibold', 'Semibold') },
+      { value: 'bold', label: t('storefront.footer.menu_typography.font_weight.bold', 'Bold') },
+    ],
+    [t]
+  );
+
+  const menuTextTransformOptions = useMemo<SelectOption[]>(
+    () => [
+      { value: 'none', label: t('storefront.footer.menu_typography.case.none', 'Keep original') },
+      { value: 'uppercase', label: t('storefront.footer.menu_typography.case.uppercase', 'Uppercase (VIẾT HOA)') },
+      { value: 'capitalize', label: t('storefront.footer.menu_typography.case.capitalize', 'Capitalize Words (Viết Hoa)') },
+      { value: 'sentence', label: t('storefront.footer.menu_typography.case.sentence', 'Sentence case (Viết hoa)') },
+    ],
+    [t]
+  );
+
   const socialTypeOptions = useMemo<SelectOption[]>(
     () => [
       { value: 'facebook', label: 'Facebook' },
@@ -336,6 +366,20 @@ const FooterSettingsForm: React.FC = () => {
       widget: {
         ...withWidgetDefaults(prev.widget),
         ...payload,
+      },
+    }));
+    setIsDirty(true);
+  };
+
+  const handleMenuTypographyChange = <K extends keyof FooterConfig['menuTypography']>(
+    key: K,
+    value: FooterConfig['menuTypography'][K]
+  ) => {
+    setDraft((prev) => ({
+      ...prev,
+      menuTypography: {
+        ...prev.menuTypography,
+        [key]: value,
       },
     }));
     setIsDirty(true);
@@ -626,6 +670,48 @@ const FooterSettingsForm: React.FC = () => {
               {t('storefront.footer.columns.helper', 'Choose between 1 and 4 columns.')}
             </span>
           </label>
+          <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-4 space-y-4">
+            <div>
+              <p className="text-sm font-semibold text-gray-900">
+                {t('storefront.footer.menu_typography.heading', 'Menu typography')}
+              </p>
+              <p className="text-xs text-gray-500">
+                {t(
+                  'storefront.footer.menu_typography.description',
+                  'Set the font size, weight, and casing for footer menu items.'
+                )}
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Select
+                label={t('storefront.footer.menu_typography.font_size.label', 'Font size')}
+                value={draft.menuTypography.fontSize}
+                onChange={(value) =>
+                  handleMenuTypographyChange('fontSize', value as FooterConfig['menuTypography']['fontSize'])
+                }
+                options={menuFontSizeOptions}
+              />
+              <Select
+                label={t('storefront.footer.menu_typography.font_weight.label', 'Font weight')}
+                value={draft.menuTypography.fontWeight}
+                onChange={(value) =>
+                  handleMenuTypographyChange('fontWeight', value as FooterConfig['menuTypography']['fontWeight'])
+                }
+                options={menuFontWeightOptions}
+              />
+            </div>
+            <Select
+              label={t('storefront.footer.menu_typography.case.label', 'Letter casing')}
+              value={draft.menuTypography.textTransform}
+              onChange={(value) =>
+                handleMenuTypographyChange(
+                  'textTransform',
+                  value as FooterConfig['menuTypography']['textTransform']
+                )
+              }
+              options={menuTextTransformOptions}
+            />
+          </div>
         </div>
 
         <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">

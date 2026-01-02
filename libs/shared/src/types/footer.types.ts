@@ -2,6 +2,9 @@ export type FooterVariant = 'simple' | 'columns' | 'split';
 export type FooterTheme = 'light' | 'dark';
 export type FooterMenuLayout = 'inline' | 'columns';
 export type FooterBrandLayout = 'inline' | 'stacked';
+export type FooterMenuFontSize = 'xs' | 'sm' | 'md' | 'lg';
+export type FooterMenuFontWeight = 'normal' | 'medium' | 'semibold' | 'bold';
+export type FooterMenuTextTransform = 'none' | 'uppercase' | 'capitalize' | 'sentence';
 
 export type FooterSocialType =
   | 'facebook'
@@ -57,6 +60,12 @@ export interface VisitorAnalyticsConfig {
   cards: VisitorAnalyticsCardConfig[];
 }
 
+export interface FooterMenuTypographyConfig {
+  fontSize: FooterMenuFontSize;
+  fontWeight: FooterMenuFontWeight;
+  textTransform: FooterMenuTextTransform;
+}
+
 export interface FooterConfig {
   variant: FooterVariant;
   theme: FooterTheme;
@@ -80,6 +89,7 @@ export interface FooterConfig {
   textColor?: string;
   widget?: FooterWidgetConfig;
   visitorAnalytics?: VisitorAnalyticsConfig;
+  menuTypography: FooterMenuTypographyConfig;
 }
 
 const DEFAULT_WIDGET_CONFIG: FooterWidgetConfig = {
@@ -105,6 +115,12 @@ export const DEFAULT_VISITOR_ANALYTICS_CONFIG: VisitorAnalyticsConfig = {
   columns: 4,
   backgroundColor: '',
   cards: DEFAULT_VISITOR_ANALYTICS_CARDS,
+};
+
+export const DEFAULT_MENU_TYPOGRAPHY: FooterMenuTypographyConfig = {
+  fontSize: 'sm',
+  fontWeight: 'normal',
+  textTransform: 'none',
 };
 
 export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
@@ -177,6 +193,7 @@ export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
   textColor: '',
   widget: DEFAULT_WIDGET_CONFIG,
   visitorAnalytics: DEFAULT_VISITOR_ANALYTICS_CONFIG,
+  menuTypography: DEFAULT_MENU_TYPOGRAPHY,
 };
 
 const VISITOR_ANALYTICS_METRICS: VisitorAnalyticsMetricType[] = [
@@ -247,6 +264,27 @@ const withVisitorAnalyticsDefaults = (config?: VisitorAnalyticsConfig): VisitorA
   };
 };
 
+const isValidMenuFontSize = (value?: string): value is FooterMenuFontSize =>
+  value === 'xs' || value === 'sm' || value === 'md' || value === 'lg';
+
+const isValidMenuFontWeight = (value?: string): value is FooterMenuFontWeight =>
+  value === 'normal' || value === 'medium' || value === 'semibold' || value === 'bold';
+
+const isValidMenuTextTransform = (value?: string): value is FooterMenuTextTransform =>
+  value === 'none' || value === 'uppercase' || value === 'capitalize' || value === 'sentence';
+
+const sanitizeMenuTypography = (
+  typography?: Partial<FooterMenuTypographyConfig>
+): FooterMenuTypographyConfig => ({
+  fontSize: isValidMenuFontSize(typography?.fontSize) ? typography!.fontSize : DEFAULT_MENU_TYPOGRAPHY.fontSize,
+  fontWeight: isValidMenuFontWeight(typography?.fontWeight)
+    ? typography!.fontWeight
+    : DEFAULT_MENU_TYPOGRAPHY.fontWeight,
+  textTransform: isValidMenuTextTransform(typography?.textTransform)
+    ? typography!.textTransform
+    : DEFAULT_MENU_TYPOGRAPHY.textTransform,
+});
+
 export const createFooterConfig = (override?: Partial<FooterConfig>): FooterConfig => {
   const base: FooterConfig = {
     ...DEFAULT_FOOTER_CONFIG,
@@ -257,6 +295,7 @@ export const createFooterConfig = (override?: Partial<FooterConfig>): FooterConf
       ...DEFAULT_VISITOR_ANALYTICS_CONFIG,
       cards: DEFAULT_VISITOR_ANALYTICS_CONFIG.cards.map((card) => ({ ...card })),
     },
+    menuTypography: { ...DEFAULT_MENU_TYPOGRAPHY },
   };
 
   if (!override) {
@@ -305,5 +344,6 @@ export const createFooterConfig = (override?: Partial<FooterConfig>): FooterConf
         }
       : base.widget,
     visitorAnalytics: withVisitorAnalyticsDefaults(override.visitorAnalytics ?? base.visitorAnalytics),
+    menuTypography: sanitizeMenuTypography(override.menuTypography ?? base.menuTypography),
   };
 };

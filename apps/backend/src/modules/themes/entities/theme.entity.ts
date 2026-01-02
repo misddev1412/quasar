@@ -1,7 +1,7 @@
 import { Column, Entity, Index } from 'typeorm';
 import { Expose } from 'class-transformer';
 import { SoftDeletableEntity } from '@shared';
-import { ThemeMode } from '../dto/theme.dto';
+import { ThemeMode, THEME_MODES } from '../dto/theme.dto';
 
 @Entity('themes')
 @Index('IDX_THEMES_SLUG', ['slug'], { unique: true })
@@ -21,7 +21,12 @@ export class ThemeEntity extends SoftDeletableEntity {
   description?: string;
 
   @Expose()
-  @Column({ length: 10, default: 'light' })
+  @Column({
+    type: 'enum',
+    enum: THEME_MODES,
+    enumName: 'theme_mode_enum',
+    default: 'LIGHT',
+  })
   mode: ThemeMode;
 
   @Expose()

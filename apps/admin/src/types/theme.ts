@@ -1,4 +1,4 @@
-export type ThemeMode = 'light' | 'dark';
+export type ThemeMode = 'LIGHT' | 'DARK';
 
 export interface ThemeColorConfig {
   bodyBackgroundColor: string;
