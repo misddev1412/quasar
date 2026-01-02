@@ -21,11 +21,11 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    fallbackLng: 'en',
+    fallbackLng: 'vi',
     debug: process.env.NEXT_PUBLIC_I18N_DEBUG === 'true',
 
     detection: {
-      order: ['localStorage', 'cookie', 'navigator', 'htmlTag'],
+      order: ['localStorage', 'cookie', 'htmlTag'],
       caches: ['localStorage', 'cookie'],
       lookupCookie: 'NEXT_LOCALE',
     },

@@ -21,7 +21,7 @@ const resources = {
 };
 
 const supportedLngs: SupportedLocale[] = ['vi', 'en'];
-const fallbackLng: SupportedLocale = 'en';
+const fallbackLng: SupportedLocale = 'vi';
 
 i18n
   .use(LanguageDetector)
@@ -31,7 +31,7 @@ i18n
     fallbackLng,
     supportedLngs,
     debug: process.env.NODE_ENV === 'development',
-    
+
     interpolation: {
       escapeValue: false, // React already does escaping
     },

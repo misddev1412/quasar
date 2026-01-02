@@ -1,7 +1,7 @@
 import { headers, cookies } from 'next/headers';
 
 const SUPPORTED_LOCALES = new Set(['en', 'vi']);
-const DEFAULT_LOCALE = 'en';
+const DEFAULT_LOCALE = 'vi';
 
 const normalizeLocale = (value?: string | null): string | undefined => {
   if (!value) return undefined;
@@ -29,15 +29,15 @@ export async function getPreferredLocale(
     return cookieLocale;
   }
 
-  const headerList = headers();
-  const acceptLanguage = headerList.get('accept-language');
-  if (acceptLanguage) {
-    const [primary] = acceptLanguage.split(',');
-    const normalizedFromHeader = normalizeLocale(primary);
-    if (normalizedFromHeader) {
-      return normalizedFromHeader;
-    }
-  }
+  const headerList = await headers();
+  // const acceptLanguage = headerList.get('accept-language');
+  // if (acceptLanguage) {
+  //   const [primary] = acceptLanguage.split(',');
+  //   const normalizedFromHeader = normalizeLocale(primary);
+  //   if (normalizedFromHeader) {
+  //     return normalizedFromHeader;
+  //   }
+  // }
 
   const nextLocaleHeader = normalizeLocale(headerList.get('x-next-locale'));
   if (nextLocaleHeader) {

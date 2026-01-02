@@ -28,6 +28,7 @@
     "src/**/*.jsx",
     "src/**/*.ts",
     "src/**/*.tsx",
-    "../../types/svg/**/*.d.ts"
+    "../../types/svg/**/*.d.ts",
+    "src/**/*.json"
   ]
 }
