@@ -22,7 +22,6 @@ import {
   UpdateServiceSchema,
   ServiceFilterSchema,
 } from '../modules/services/dto/service.dto';
-import { THEME_MODES } from '../modules/themes/dto/theme.dto';
 
 // Zod schemas for validation
 const userRoleSchema = z.enum([
@@ -81,7 +80,6 @@ const exportJobSchema = z.object({
   completedAt: z.date().nullable().optional(),
 });
 
-const themeModeSchema = z.enum(THEME_MODES);
 const hexColorSchema = z.string().regex(/^#(?:[0-9a-fA-F]{3}){1,2}$/);
 const themeColorSchema = z.object({
   bodyBackgroundColor: hexColorSchema,
@@ -95,14 +93,21 @@ const themeColorSchema = z.object({
   accentColor: hexColorSchema,
   borderColor: hexColorSchema,
 });
+const themeColorModesSchema = z.object({
+  light: themeColorSchema,
+  dark: themeColorSchema,
+});
+const themeColorModesPartialSchema = z.object({
+  light: themeColorSchema.partial().optional(),
+  dark: themeColorSchema.partial().optional(),
+});
 const createThemeInputSchema = z.object({
   name: z.string().min(2).max(150),
   slug: z.string().min(2).max(160).regex(/^[a-z0-9-]+$/).optional(),
   description: z.string().max(500).optional(),
-  mode: themeModeSchema.optional(),
   isActive: z.boolean().optional(),
   isDefault: z.boolean().optional(),
-  colors: themeColorSchema,
+  colors: themeColorModesSchema,
 });
 const updateThemeInputSchema = z.object({
   id: z.string().uuid(),
@@ -110,10 +115,9 @@ const updateThemeInputSchema = z.object({
     name: z.string().min(2).max(150).optional(),
     slug: z.string().min(2).max(160).regex(/^[a-z0-9-]+$/).optional(),
     description: z.string().max(500).optional(),
-    mode: themeModeSchema.optional(),
     isActive: z.boolean().optional(),
     isDefault: z.boolean().optional(),
-    colors: themeColorSchema.partial().optional(),
+    colors: themeColorModesPartialSchema.optional(),
   }),
 });
 const themeFiltersSchema = z.object({
@@ -121,7 +125,6 @@ const themeFiltersSchema = z.object({
   limit: z.number().int().min(1).max(50).optional().default(12),
   search: z.string().optional(),
   isActive: z.boolean().optional(),
-  mode: themeModeSchema.optional(),
 });
 
 const exportJobResponseSchema = apiResponseSchema.extend({
@@ -2484,6 +2487,14 @@ export const appRouter = router({
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  publicThemes: router({
+    getActiveTheme: procedure
+      .output(apiResponseSchema)
+      .query(() => {
         return {} as ApiResponse;
       }),
   }),

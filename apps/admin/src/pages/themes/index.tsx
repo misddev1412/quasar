@@ -10,7 +10,7 @@ import { Toggle } from '../../components/common/Toggle';
 import { TextareaInput } from '../../components/common/TextareaInput';
 import { Modal } from '../../components/common/Modal';
 import { ConfirmationModal } from '../../components/common/ConfirmationModal';
-import { ThemeRecord, ThemeColorConfig, ThemeMode } from '../../types/theme';
+import { ThemeRecord, ThemeColorConfig, ThemeColorModes } from '../../types/theme';
 import { defaultThemeConfig } from '../../config/theme.config';
 import { trpc } from '../../utils/trpc';
 import clsx from 'clsx';
@@ -21,17 +21,18 @@ interface ThemeFiltersState {
   search: string;
 }
 
+type ColorMode = keyof ThemeColorModes;
+
 interface ThemeFormState {
   name: string;
   slug: string;
   description: string;
-  mode: ThemeMode;
   isActive: boolean;
   setAsDefault: boolean;
-  colors: ThemeColorConfig;
+  colors: ThemeColorModes;
 }
 
-const defaultColorConfig: ThemeColorConfig = {
+const defaultLightColors: ThemeColorConfig = {
   bodyBackgroundColor: defaultThemeConfig.modes.light.background,
   surfaceBackgroundColor: defaultThemeConfig.modes.light.surface,
   textColor: defaultThemeConfig.modes.light.text.primary,
@@ -44,14 +45,36 @@ const defaultColorConfig: ThemeColorConfig = {
   borderColor: defaultThemeConfig.modes.light.border,
 };
 
+const defaultDarkColors: ThemeColorConfig = {
+  bodyBackgroundColor: defaultThemeConfig.modes.dark.background,
+  surfaceBackgroundColor: defaultThemeConfig.modes.dark.surface,
+  textColor: defaultThemeConfig.modes.dark.text.primary,
+  mutedTextColor: defaultThemeConfig.modes.dark.text.muted,
+  primaryColor: defaultThemeConfig.colors.primary,
+  primaryTextColor: '#ffffff',
+  secondaryColor: defaultThemeConfig.colors.secondary,
+  secondaryTextColor: '#ffffff',
+  accentColor: defaultThemeConfig.colors.accent,
+  borderColor: defaultThemeConfig.modes.dark.border,
+};
+
+const defaultColorConfig: ThemeColorModes = {
+  light: { ...defaultLightColors },
+  dark: { ...defaultDarkColors },
+};
+
+const cloneColorModes = (colors: ThemeColorModes): ThemeColorModes => ({
+  light: { ...colors.light },
+  dark: { ...colors.dark },
+});
+
 const createEmptyFormState = (): ThemeFormState => ({
   name: '',
   slug: '',
   description: '',
-  mode: 'LIGHT',
   isActive: true,
   setAsDefault: false,
-  colors: { ...defaultColorConfig },
+  colors: cloneColorModes(defaultColorConfig),
 });
 
 const ThemeManagementPage: React.FC = () => {
@@ -64,6 +87,7 @@ const ThemeManagementPage: React.FC = () => {
   const [formState, setFormState] = useState<ThemeFormState>(createEmptyFormState());
   const [editingTheme, setEditingTheme] = useState<ThemeRecord | null>(null);
   const [confirmState, setConfirmState] = useState<{ open: boolean; theme?: ThemeRecord }>({ open: false });
+  const [activeColorMode, setActiveColorMode] = useState<ColorMode>('light');
 
   const themesQuery = trpc.adminThemes.getThemes.useQuery(filters);
   const createThemeMutation = trpc.adminThemes.createTheme.useMutation();
@@ -96,6 +120,7 @@ const ThemeManagementPage: React.FC = () => {
   const openCreateModal = () => {
     setEditingTheme(null);
     setFormState(createEmptyFormState());
+    setActiveColorMode('light');
     setIsModalOpen(true);
   };
 
@@ -105,22 +130,11 @@ const ThemeManagementPage: React.FC = () => {
       name: theme.name,
       slug: theme.slug,
       description: theme.description || '',
-      mode: theme.mode,
       isActive: theme.isActive,
       setAsDefault: false,
-      colors: {
-        bodyBackgroundColor: theme.bodyBackgroundColor,
-        surfaceBackgroundColor: theme.surfaceBackgroundColor,
-        textColor: theme.textColor,
-        mutedTextColor: theme.mutedTextColor,
-        primaryColor: theme.primaryColor,
-        primaryTextColor: theme.primaryTextColor,
-        secondaryColor: theme.secondaryColor,
-        secondaryTextColor: theme.secondaryTextColor,
-        accentColor: theme.accentColor,
-        borderColor: theme.borderColor,
-      },
+      colors: cloneColorModes(theme.colors || defaultColorConfig),
     });
+    setActiveColorMode('light');
     setIsModalOpen(true);
   };
 
@@ -128,6 +142,7 @@ const ThemeManagementPage: React.FC = () => {
     setIsModalOpen(false);
     setEditingTheme(null);
     setFormState(createEmptyFormState());
+    setActiveColorMode('light');
   };
 
   const handleSearchChange = (value: string) => {
@@ -148,24 +163,25 @@ const ThemeManagementPage: React.FC = () => {
       name: formState.name.trim(),
       slug: formState.slug.trim() || undefined,
       description: formState.description.trim() || undefined,
-      mode: formState.mode,
       isActive: formState.isActive,
-      colors: { ...formState.colors },
+      colors: cloneColorModes(formState.colors),
       ...(formState.setAsDefault ? { isDefault: true } : {}),
     };
+    // Cast until backend AppRouter types for theme mutations are regenerated
+    const trpcPayload = payload as any;
 
     try {
       if (editingTheme) {
         await updateThemeMutation.mutateAsync({
           id: editingTheme.id,
-          data: payload,
+          data: trpcPayload,
         });
         addToast({
           type: 'success',
           title: t('themes.toast.updated', 'Theme updated'),
         });
       } else {
-        await createThemeMutation.mutateAsync(payload);
+        await createThemeMutation.mutateAsync(trpcPayload);
         addToast({
           type: 'success',
           title: t('themes.toast.created', 'Theme created'),
@@ -246,26 +262,32 @@ const ThemeManagementPage: React.FC = () => {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <input
           type="color"
-          value={formState.colors[key]}
+          value={formState.colors[activeColorMode][key]}
           onChange={event =>
             setFormState(prev => ({
               ...prev,
               colors: {
                 ...prev.colors,
-                [key]: event.target.value,
+                [activeColorMode]: {
+                  ...prev.colors[activeColorMode],
+                  [key]: event.target.value,
+                },
               },
             }))
           }
           className="h-11 w-16 rounded border border-gray-300"
         />
         <Input
-          value={formState.colors[key]}
+          value={formState.colors[activeColorMode][key]}
           onChange={event =>
             setFormState(prev => ({
               ...prev,
               colors: {
                 ...prev.colors,
-                [key]: event.target.value,
+                [activeColorMode]: {
+                  ...prev.colors[activeColorMode],
+                  [key]: event.target.value,
+                },
               },
             }))
           }
@@ -359,15 +381,15 @@ const ThemeManagementPage: React.FC = () => {
         ) : (
           <div className="grid gap-5 lg:grid-cols-2">
             {themes.map(theme => {
-              const colorList: Array<{ key: keyof ThemeColorConfig; label: string; value: string }> = [
-                { key: 'bodyBackgroundColor', label: t('themes.colors.body', 'Body'), value: theme.bodyBackgroundColor },
-                { key: 'surfaceBackgroundColor', label: t('themes.colors.surface', 'Surface'), value: theme.surfaceBackgroundColor },
-                { key: 'textColor', label: t('themes.colors.text', 'Text'), value: theme.textColor },
-                { key: 'mutedTextColor', label: t('themes.colors.muted', 'Muted'), value: theme.mutedTextColor },
-                { key: 'primaryColor', label: t('themes.colors.primary', 'Primary'), value: theme.primaryColor },
-                { key: 'secondaryColor', label: t('themes.colors.secondary', 'Secondary'), value: theme.secondaryColor },
-                { key: 'accentColor', label: t('themes.colors.accent', 'Accent'), value: theme.accentColor },
-                { key: 'borderColor', label: t('themes.colors.border', 'Border'), value: theme.borderColor },
+              const colorFields: Array<{ key: keyof ThemeColorConfig; label: string }> = [
+                { key: 'bodyBackgroundColor', label: t('themes.colors.body', 'Body') },
+                { key: 'surfaceBackgroundColor', label: t('themes.colors.surface', 'Surface') },
+                { key: 'textColor', label: t('themes.colors.text', 'Text') },
+                { key: 'mutedTextColor', label: t('themes.colors.muted', 'Muted') },
+                { key: 'primaryColor', label: t('themes.colors.primary', 'Primary') },
+                { key: 'secondaryColor', label: t('themes.colors.secondary', 'Secondary') },
+                { key: 'accentColor', label: t('themes.colors.accent', 'Accent') },
+                { key: 'borderColor', label: t('themes.colors.border', 'Border') },
               ];
 
               return (
@@ -389,16 +411,10 @@ const ThemeManagementPage: React.FC = () => {
                         <span className={clsx('rounded-full px-3 py-1 font-medium', theme.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600')}>
                           {theme.isActive ? t('themes.badges.active', 'Đang dùng') : t('themes.badges.inactive', 'Ngưng')}
                         </span>
-                        <span className="rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-600">
-                          {theme.mode === 'DARK' ? (
-                            <span className="flex items-center gap-1">
-                              <FiMoon /> {t('themes.mode.dark', 'Dark mode')}
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1">
-                              <FiSun /> {t('themes.mode.light', 'Light mode')}
-                            </span>
-                          )}
+                        <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-600">
+                          <FiSun />
+                          <FiMoon />
+                          {t('themes.mode.dual', 'Light & Dark')}
                         </span>
                       </div>
                     </div>
@@ -433,19 +449,36 @@ const ThemeManagementPage: React.FC = () => {
                       </Button>
                     </div>
                   </div>
-                  <div className="mt-4 grid gap-3 md:grid-cols-2">
-                    {colorList.map(color => (
-                      <div key={color.key} className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50/60 px-3 py-2">
-                        <div>
-                          <p className="text-xs font-medium text-gray-600">{color.label}</p>
-                          <p className="font-mono text-sm text-gray-700">{color.value}</p>
+                  <div className="mt-4 space-y-4">
+                    {(['light', 'dark'] as ColorMode[]).map(mode => {
+                      const palette = theme.colors?.[mode] ?? defaultColorConfig[mode];
+                      return (
+                        <div key={mode}>
+                          <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
+                            {mode === 'light' ? <FiSun /> : <FiMoon />}
+                            <span>
+                              {mode === 'light'
+                                ? t('themes.mode.light', 'Light mode')
+                                : t('themes.mode.dark', 'Dark mode')}
+                            </span>
+                          </div>
+                          <div className="grid gap-3 md:grid-cols-2">
+                            {colorFields.map(color => (
+                              <div key={`${mode}-${color.key}`} className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50/60 px-3 py-2">
+                                <div>
+                                  <p className="text-xs font-medium text-gray-600">{color.label}</p>
+                                  <p className="font-mono text-sm text-gray-700">{palette[color.key]}</p>
+                                </div>
+                                <span
+                                  className="h-8 w-8 rounded-full border border-white shadow"
+                                  style={{ backgroundColor: palette[color.key] }}
+                                />
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                        <span
-                          className="h-8 w-8 rounded-full border border-white shadow"
-                          style={{ backgroundColor: color.value }}
-                        />
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               );
@@ -521,19 +554,6 @@ const ThemeManagementPage: React.FC = () => {
                   onChange={event => setFormState(prev => ({ ...prev, slug: event.target.value }))}
                 />
               </div>
-              <div>
-                <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">
-                  {t('themes.fields.mode', 'Chế độ')}
-                </label>
-                <select
-                  value={formState.mode}
-                  onChange={event => setFormState(prev => ({ ...prev, mode: event.target.value as ThemeMode }))}
-                  className="mt-1 block w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-primary-500 focus:outline-none"
-                >
-                  <option value="LIGHT">{t('themes.mode.light', 'Light mode')}</option>
-                  <option value="DARK">{t('themes.mode.dark', 'Dark mode')}</option>
-                </select>
-              </div>
               <div className="space-y-3">
                 <Toggle
                   checked={formState.isActive}
@@ -562,6 +582,27 @@ const ThemeManagementPage: React.FC = () => {
               <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-600">
                 {t('themes.fields.palette', 'Bảng màu')}
               </h3>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {(['light', 'dark'] as ColorMode[]).map(mode => {
+                  const isActiveMode = activeColorMode === mode;
+                  return (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setActiveColorMode(mode)}
+                      className={clsx(
+                        'flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold transition',
+                        isActiveMode ? 'border-primary-500 bg-primary-50 text-primary-600' : 'border-gray-200 bg-white text-gray-600',
+                      )}
+                    >
+                      {mode === 'light' ? <FiSun /> : <FiMoon />}
+                      {mode === 'light'
+                        ? t('themes.mode.light', 'Light mode')
+                        : t('themes.mode.dark', 'Dark mode')}
+                    </button>
+                  );
+                })}
+              </div>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 {renderColorField('bodyBackgroundColor', t('themes.colors.body', 'Body background'))}
                 {renderColorField('surfaceBackgroundColor', t('themes.colors.surface', 'Surface background'))}

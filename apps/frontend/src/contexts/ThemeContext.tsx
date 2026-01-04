@@ -11,11 +11,30 @@ interface ThemeContextType {
   setTheme: (theme: Theme) => void;
 }
 
+interface ThemeColorConfig {
+  bodyBackgroundColor: string;
+  surfaceBackgroundColor: string;
+  textColor: string;
+  mutedTextColor: string;
+  primaryColor: string;
+  primaryTextColor: string;
+  secondaryColor: string;
+  secondaryTextColor: string;
+  accentColor: string;
+  borderColor: string;
+}
+
+interface ThemeColorModes {
+  light: ThemeColorConfig;
+  dark: ThemeColorConfig;
+}
+
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
+  const [themeColors, setThemeColors] = useState<ThemeColorModes | null>(null);
 
   // Fetch theme settings from backend
   const { data: settingsData } = trpc.public.settings.getByGroup.useQuery(
@@ -25,6 +44,34 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       refetchOnWindowFocus: false
     }
   );
+
+  const { data: defaultThemeData } = trpc.publicThemes.getActiveTheme.useQuery(undefined, {
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false
+  });
+
+  useEffect(() => {
+    const colors = (defaultThemeData?.data as { colors?: ThemeColorModes } | undefined)?.colors;
+    if (!colors) return;
+    const root = document.documentElement;
+    const applyPalette = (mode: Theme, palette: ThemeColorConfig) => {
+      const suffix = mode === 'light' ? 'light' : 'dark';
+      root.style.setProperty(`--storefront-body-${suffix}`, palette.bodyBackgroundColor);
+      root.style.setProperty(`--storefront-surface-${suffix}`, palette.surfaceBackgroundColor);
+      root.style.setProperty(`--storefront-text-${suffix}`, palette.textColor);
+      root.style.setProperty(`--storefront-muted-${suffix}`, palette.mutedTextColor);
+      root.style.setProperty(`--storefront-border-${suffix}`, palette.borderColor);
+      root.style.setProperty(`--storefront-accent-${suffix}`, palette.accentColor);
+      root.style.setProperty(`--color-primary-${suffix}`, palette.primaryColor);
+      root.style.setProperty(`--color-secondary-${suffix}`, palette.secondaryColor);
+      root.style.setProperty(`--color-accent-${suffix}`, palette.accentColor);
+    };
+
+    applyPalette('light', colors.light);
+    applyPalette('dark', colors.dark);
+    setThemeColors(colors);
+    root.setAttribute('data-storefront-theme', 'custom');
+  }, [defaultThemeData]);
 
   useEffect(() => {
     if (settingsData?.data) {
@@ -78,6 +125,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => undefined;
   }, []);
 
+  useEffect(() => {
+    if (!themeColors || !mounted) return;
+    applyTheme(theme);
+  }, [themeColors, mounted, theme]);
+
   const applyTheme = (theme: Theme) => {
     const root = document.documentElement;
     if (theme === 'dark') {
@@ -86,6 +138,19 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } else {
       root.classList.remove('dark');
       root.style.colorScheme = 'light';
+    }
+
+    if (themeColors) {
+      const palette = theme === 'dark' ? themeColors.dark : themeColors.light;
+      root.style.setProperty('--color-primary', palette.primaryColor);
+      root.style.setProperty('--color-secondary', palette.secondaryColor);
+      root.style.setProperty('--color-accent', palette.accentColor);
+      root.style.setProperty('--storefront-body', palette.bodyBackgroundColor);
+      root.style.setProperty('--storefront-surface', palette.surfaceBackgroundColor);
+      root.style.setProperty('--storefront-text', palette.textColor);
+      root.style.setProperty('--storefront-muted', palette.mutedTextColor);
+      root.style.setProperty('--storefront-border', palette.borderColor);
+      root.style.setProperty('--storefront-accent', palette.accentColor);
     }
   };
 

@@ -1,8 +1,15 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import slugify from 'slugify';
 import { ThemeRepository } from '../repositories/theme.repository';
-import { CreateThemeDto, ThemeColorConfigDto, ThemeFiltersDto, UpdateThemeDto } from '../dto/theme.dto';
+import {
+  CreateThemeDto,
+  ThemeColorModesDto,
+  ThemeColorModesPartialDto,
+  ThemeFiltersDto,
+  UpdateThemeDto,
+} from '../dto/theme.dto';
 import { ThemeEntity } from '../entities/theme.entity';
+import { buildDefaultColorModes } from '../constants/theme-colors.constant';
 
 @Injectable()
 export class AdminThemesService {
@@ -26,9 +33,8 @@ export class AdminThemesService {
       name: dto.name,
       slug,
       description: dto.description,
-      mode: dto.mode ?? 'LIGHT',
       isActive: dto.isActive ?? true,
-      ...this.toEntityColors(dto.colors),
+      colors: this.mergeColorModes(this.getDefaultColorModes(), dto.colors),
     });
 
     let savedTheme = await this.themeRepository.save(themeEntity);
@@ -41,7 +47,7 @@ export class AdminThemesService {
   }
 
   async updateTheme(id: string, dto: UpdateThemeDto): Promise<ThemeEntity> {
-    await this.getThemeById(id);
+    const theme = await this.getThemeById(id);
 
     const updateData: Partial<ThemeEntity> = {};
 
@@ -53,13 +59,8 @@ export class AdminThemesService {
       updateData.description = dto.description;
     }
 
-    if (dto.mode) {
-      updateData.mode = dto.mode;
-    }
-
     if (typeof dto.isActive === 'boolean') {
       if (dto.isActive === false) {
-        const theme = await this.getThemeById(id);
         if (theme.isDefault) {
           throw new BadRequestException('Cannot deactivate the default theme');
         }
@@ -68,7 +69,7 @@ export class AdminThemesService {
     }
 
     if (dto.colors) {
-      Object.assign(updateData, this.toEntityColors(dto.colors as ThemeColorConfigDto));
+      updateData.colors = this.mergeColorModes(theme.colors ?? this.getDefaultColorModes(), dto.colors);
     }
 
     if (dto.slug || dto.name) {
@@ -133,18 +134,18 @@ export class AdminThemesService {
     }
   }
 
-  private toEntityColors(colors: Partial<ThemeColorConfigDto>): Partial<ThemeEntity> {
-    const mapped: Partial<ThemeEntity> = {};
-    if (colors.bodyBackgroundColor) mapped.bodyBackgroundColor = colors.bodyBackgroundColor;
-    if (colors.surfaceBackgroundColor) mapped.surfaceBackgroundColor = colors.surfaceBackgroundColor;
-    if (colors.textColor) mapped.textColor = colors.textColor;
-    if (colors.mutedTextColor) mapped.mutedTextColor = colors.mutedTextColor;
-    if (colors.primaryColor) mapped.primaryColor = colors.primaryColor;
-    if (colors.primaryTextColor) mapped.primaryTextColor = colors.primaryTextColor;
-    if (colors.secondaryColor) mapped.secondaryColor = colors.secondaryColor;
-    if (colors.secondaryTextColor) mapped.secondaryTextColor = colors.secondaryTextColor;
-    if (colors.accentColor) mapped.accentColor = colors.accentColor;
-    if (colors.borderColor) mapped.borderColor = colors.borderColor;
-    return mapped;
+  private getDefaultColorModes(): ThemeColorModesDto {
+    return buildDefaultColorModes();
+  }
+
+  private mergeColorModes(
+    base: ThemeColorModesDto,
+    incoming: ThemeColorModesDto | ThemeColorModesPartialDto,
+  ): ThemeColorModesDto {
+    const safeBase = base || this.getDefaultColorModes();
+    return {
+      light: { ...safeBase.light, ...(incoming.light || {}) },
+      dark: { ...safeBase.dark, ...(incoming.dark || {}) },
+    };
   }
 }

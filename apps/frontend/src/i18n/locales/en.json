@@ -158,6 +158,12 @@
       "light": "Light",
       "mode": "Mode"
     },
+    "cookie_consent": {
+      "text": "Cookies help Quasar improve the experience.",
+      "learn_more": "Learn more",
+      "decline": "Decline",
+      "accept": "Accept"
+    },
     "loading": {
       "default": "Loading..."
     },
@@ -1899,6 +1905,12 @@
       "description": "Highlight fulfillment benefits, concierge service, and storefront perks.",
       "empty": "Add feature cards in the admin to display them here.",
       "untitledCard": "Untitled feature"
+    },
+    "whyChooseUs": {
+      "title": "Why choose us",
+      "subtitle": "Service commitments your fleet can trust",
+      "description": "Highlight differentiators such as experience, delivery speed, warranty coverage, and engineering quality.",
+      "empty": "Add Why Choose Us cards in the admin to showcase them on the storefront."
     },
     "testimonials": {
       "title": "Loved by customers",

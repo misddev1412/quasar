@@ -158,6 +158,12 @@
       "light": "Sáng",
       "mode": "Chế độ"
     },
+    "cookie_consent": {
+      "text": "Cookie giúp Quasar nâng cao trải nghiệm.",
+      "learn_more": "Tìm hiểu thêm",
+      "decline": "Từ chối",
+      "accept": "Đồng ý"
+    },
     "loading": {
       "default": "Đang tải..."
     },
@@ -1874,6 +1880,12 @@
       "description": "Nhấn mạnh dịch vụ giao nhanh, concierge và ưu đãi riêng trên storefront.",
       "empty": "Hãy thêm các thẻ tính năng trong admin để hiển thị tại đây.",
       "untitledCard": "Tính năng chưa đặt tên"
+    },
+    "whyChooseUs": {
+      "title": "Vì sao chọn chúng tôi",
+      "subtitle": "Cam kết dịch vụ rõ ràng cho từng đơn hàng",
+      "description": "Nêu bật kinh nghiệm, tốc độ bàn giao, bảo hành tận nơi và chất lượng động cơ để khách hàng yên tâm lựa chọn.",
+      "empty": "Thêm các thẻ Why Choose Us trong trang quản trị để hiển thị tại đây."
     },
     "testimonials": {
       "title": "Khách hàng yêu thích",

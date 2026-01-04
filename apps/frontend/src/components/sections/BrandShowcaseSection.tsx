@@ -13,9 +13,6 @@ export interface BrandShowcaseConfig {
   limit?: number;
   columns?: number;
   brandIds?: string[];
-  showDescription?: boolean;
-  showProductCount?: boolean;
-  showWebsiteLink?: boolean;
   logoShape?: 'rounded' | 'circle' | 'square';
   backgroundStyle?: 'surface' | 'muted' | 'contrast';
   sliderAutoplay?: boolean;
@@ -65,15 +62,12 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
   const brandIds = useMemo(() => deriveBrandIds(config.brandIds), [config.brandIds]);
   const brandIdsKey = brandIds.join('|');
   const strategy: BrandShowcaseStrategy = (config.strategy as BrandShowcaseStrategy) || 'newest';
-  const showDescription = config.showDescription === true;
-  const showProductCount = config.showProductCount !== false;
-  const showWebsiteLink = config.showWebsiteLink === true;
   const layout = config.layout === 'slider' ? 'slider' : 'grid';
   const columns = clampColumns(config.columns);
   const backgroundStyle = config.backgroundStyle || 'surface';
   const sliderAutoplay = config.sliderAutoplay !== false;
   const sliderInterval = Math.max(Number(config.sliderInterval) || 6000, 2000);
-  const logoShape = logoShapeVariants[config.logoShape || 'rounded'] || logoShapeVariants.rounded;
+  const logoShapeClass = logoShapeVariants[config.logoShape || 'rounded'] || logoShapeVariants.rounded;
   const shouldPromptForCustom = strategy === 'custom' && brandIds.length === 0;
   const requestLimit = strategy === 'custom' ? Math.max(brandIds.length, 1) : clampLimit(config.limit);
 
@@ -144,13 +138,21 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
   const sectionDescription = translation?.description === null ? '' : (translation?.description || t('sections.brands.description'));
   const backgroundClass = backgroundVariants[backgroundStyle] || backgroundVariants.surface;
   const isContrast = backgroundStyle === 'contrast';
-  const cardBaseClass = isContrast
-    ? 'border border-white/10 bg-white/5 text-white'
-    : 'border border-gray-100 bg-white text-gray-900';
   const subtleTextClass = isContrast ? 'text-gray-300' : 'text-gray-500';
-  const placeholderClass = isContrast
-    ? 'border-white/20 bg-white/5 text-white/80'
-    : 'border-gray-200 bg-white text-gray-600';
+  const mutedTextClass = isContrast ? 'text-white/70' : 'text-gray-500';
+  const cardShellClass = isContrast
+    ? 'rounded-3xl border border-white/10 bg-white/5 p-8 shadow-inner'
+    : 'rounded-3xl border border-gray-100 bg-white p-8 shadow-sm';
+  const logoTileBaseClass = 'flex min-h-[96px] w-full items-center justify-center py-4';
+  const logoTilePlaceholderClass = `${logoTileBaseClass} rounded-2xl ${
+    isContrast ? 'bg-white/10' : 'bg-gray-100'
+  } animate-pulse`;
+  const logoFallbackBadgeClass = isContrast ? 'bg-white/15 text-white' : 'bg-slate-100 text-slate-600';
+  const wrapWithCard = (content: React.ReactNode, extraClass?: string) => (
+    <div className={`${cardShellClass}${extraClass ? ` ${extraClass}` : ''}`}>
+      {content}
+    </div>
+  );
 
   const gridTemplate = useMemo(() => {
     if (columns <= 1) return 'grid-cols-1';
@@ -161,60 +163,47 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
     return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4';
   }, [columns]);
 
-  const renderBrandCard = (brand: BrandSummary) => {
+  const LogoTile: React.FC<{ brand: BrandSummary }> = ({ brand }) => {
     const brandName = brand.name || t('sections.brands.untitled', 'Untitled brand');
-    const productCount = typeof brand.productCount === 'number' ? brand.productCount : null;
-    const productCountLabel =
-      showProductCount && productCount !== null && productCount > 0
-        ? t('sections.brands.product_count', { count: productCount })
-        : null;
+    const fallbackInitials =
+      brandName
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase())
+        .join('') || '★';
 
     return (
-      <div key={brand.id} className={`flex h-full flex-col justify-between rounded-2xl p-6 shadow-sm ${cardBaseClass}`}>
-        <div className="flex items-center gap-4">
-          {brand.logo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={brand.logo} alt={brandName} className={`h-16 w-16 object-cover ${logoShape}`} />
-          ) : (
-            <div className={`flex h-16 w-16 items-center justify-center bg-gradient-to-br from-slate-200 to-slate-100 text-2xl font-semibold text-slate-600 dark:from-slate-700 dark:to-slate-800 ${logoShape}`}>
-              {brandName?.[0] || '★'}
-            </div>
-          )}
-          <div>
-            <p className="text-lg font-semibold">{brandName}</p>
-            {productCountLabel && <p className={`text-sm ${subtleTextClass}`}>{productCountLabel}</p>}
+      <div className={logoTileBaseClass} title={brandName || undefined} data-testid="brand-logo-tile">
+        {brand.logo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={brand.logo}
+            alt={brandName}
+            className={`h-20 w-auto max-w-full object-contain ${logoShapeClass}`}
+          />
+        ) : (
+          <div className={`flex h-20 w-20 items-center justify-center text-xl font-semibold ${logoShapeClass} ${logoFallbackBadgeClass}`} aria-hidden>
+            {fallbackInitials}
           </div>
-        </div>
-        {showDescription && brand.description && (
-          <p className={`mt-4 text-sm leading-relaxed ${subtleTextClass}`}>{brand.description}</p>
         )}
-        {showWebsiteLink && brand.website && (
-          <a
-            href={brand.website}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-4 inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-500"
-          >
-            {t('sections.brands.visit')}
-            <span aria-hidden className="ml-1">↗</span>
-          </a>
-        )}
+        <span className="sr-only">{brandName}</span>
       </div>
     );
   };
 
   const renderContent = () => {
     if (shouldPromptForCustom) {
-      return (
-        <div className={`rounded-2xl border border-dashed px-6 py-10 text-center text-sm ${placeholderClass}`}>
+      return wrapWithCard(
+        <p className={`text-center text-sm ${mutedTextClass}`}>
           {t('sections.brands.empty_custom')}
-        </div>
+        </p>
       );
     }
 
     if (error) {
-      return (
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-6 text-sm text-red-600 dark:border-red-500/60 dark:bg-red-500/10 dark:text-red-200">
+      return wrapWithCard(
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-500/60 dark:bg-red-500/10 dark:text-red-200">
           {error}
         </div>
       );
@@ -222,53 +211,49 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
 
     if (isLoading) {
       const placeholderCount = layout === 'slider' ? Math.min(requestLimit, 4) : Math.min(columns * 2, 6);
-      return (
-        <div className={`grid gap-6 ${gridTemplate}`}>
-          {Array.from({ length: placeholderCount }).map((_, idx) => (
-            <div
-              key={`brand-loading-${idx}`}
-              className={`animate-pulse rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900/40`}
-            >
-              <div className="flex items-center gap-4">
-                <div className={`h-16 w-16 bg-gray-200 dark:bg-gray-700 ${logoShape}`} />
-                <div className="space-y-2">
-                  <div className="h-4 w-32 rounded-full bg-gray-200 dark:bg-gray-700" />
-                  <div className="h-3 w-20 rounded-full bg-gray-200 dark:bg-gray-700" />
-                </div>
+      const placeholderContent =
+        layout === 'slider' ? (
+          <div className="flex gap-4 overflow-hidden">
+            {Array.from({ length: placeholderCount }).map((_, idx) => (
+              <div key={`brand-loading-${idx}`} className="min-w-[170px] flex-1">
+                <div className={logoTilePlaceholderClass} />
               </div>
-            </div>
-          ))}
-        </div>
-      );
+            ))}
+          </div>
+        ) : (
+          <div className={`grid gap-4 ${gridTemplate}`}>
+            {Array.from({ length: placeholderCount }).map((_, idx) => (
+              <div key={`brand-loading-${idx}`} className={logoTilePlaceholderClass} />
+            ))}
+          </div>
+        );
+      return wrapWithCard(placeholderContent);
     }
 
     if (!brands || brands.length === 0) {
-      return (
-        <div className={`rounded-2xl border px-6 py-10 text-center text-sm ${placeholderClass}`}>
+      return wrapWithCard(
+        <p className={`text-center text-sm ${mutedTextClass}`}>
           {t('sections.brands.empty')}
-        </div>
+        </p>
       );
     }
 
     if (layout === 'slider') {
-      return (
-        <div className="relative">
-          <div
-            ref={sliderRef}
-            className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4 pt-2"
-          >
+      return wrapWithCard(
+        <>
+          <div ref={sliderRef} className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 pt-1">
             {brands.map((brand) => (
-              <div key={brand.id} className="min-w-[280px] snap-start">
-                {renderBrandCard(brand)}
+              <div key={brand.id} className="min-w-[180px] snap-start">
+                <LogoTile brand={brand} />
               </div>
             ))}
           </div>
           {brands.length > 1 && (
-            <div className="pointer-events-none absolute inset-y-0 flex w-full items-center justify-between">
+            <div className="pointer-events-none absolute inset-y-0 left-0 right-0 flex items-center justify-between">
               <button
                 type="button"
                 onClick={() => sliderRef.current?.scrollBy({ left: -320, behavior: 'smooth' })}
-                className="pointer-events-auto hidden h-10 w-10 -translate-x-4 items-center justify-center rounded-full border border-white/10 bg-white/70 text-gray-700 shadow dark:bg-gray-900/60 lg:inline-flex"
+                className="pointer-events-auto hidden h-10 w-10 -translate-x-4 items-center justify-center rounded-full border border-white/10 bg-white/80 text-gray-700 shadow dark:bg-gray-900/60 lg:inline-flex"
                 aria-label={t('sections.brands.carousel_prev')}
               >
                 ‹
@@ -276,20 +261,23 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
               <button
                 type="button"
                 onClick={() => sliderRef.current?.scrollBy({ left: 320, behavior: 'smooth' })}
-                className="pointer-events-auto hidden h-10 w-10 translate-x-4 items-center justify-center rounded-full border border-white/10 bg-white/70 text-gray-700 shadow dark:bg-gray-900/60 lg:inline-flex"
+                className="pointer-events-auto hidden h-10 w-10 translate-x-4 items-center justify-center rounded-full border border-white/10 bg-white/80 text-gray-700 shadow dark:bg-gray-900/60 lg:inline-flex"
                 aria-label={t('sections.brands.carousel_next')}
               >
                 ›
               </button>
             </div>
           )}
-        </div>
+        </>,
+        'relative'
       );
     }
 
-    return (
-      <div className={`grid gap-6 ${gridTemplate}`}>
-        {brands.map((brand) => renderBrandCard(brand))}
+    return wrapWithCard(
+      <div className={`grid gap-4 ${gridTemplate}`}>
+        {brands.map((brand) => (
+          <LogoTile key={brand.id} brand={brand} />
+        ))}
       </div>
     );
   };

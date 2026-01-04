@@ -53,6 +53,7 @@ import { ClientComponentConfigsRouter } from '../modules/component-configs/route
 import { AdminProductSpecificationLabelsRouter } from '../modules/products/routers/admin-product-specification-labels.router';
 import { ServicesRouter } from '../modules/services/routers/services.router';
 import { AdminThemesRouter } from '../modules/themes/routers/admin-themes.router';
+import { PublicThemesRouter } from '../modules/themes/routers/public-themes.router';
 
 @Module({
   imports: [
@@ -111,6 +112,7 @@ import { AdminThemesRouter } from '../modules/themes/routers/admin-themes.router
     AdminProductSpecificationLabelsRouter,
     ServicesRouter,
     AdminThemesRouter,
+    PublicThemesRouter,
     ResponseService,
   ],
 })

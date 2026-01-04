@@ -1,6 +1,3 @@
-export const THEME_MODES = ['LIGHT', 'DARK'] as const;
-export type ThemeMode = (typeof THEME_MODES)[number];
-
 export interface ThemeColorConfigDto {
   bodyBackgroundColor: string;
   surfaceBackgroundColor: string;
@@ -14,24 +11,32 @@ export interface ThemeColorConfigDto {
   borderColor: string;
 }
 
+export interface ThemeColorModesDto {
+  light: ThemeColorConfigDto;
+  dark: ThemeColorConfigDto;
+}
+
+export interface ThemeColorModesPartialDto {
+  light?: Partial<ThemeColorConfigDto>;
+  dark?: Partial<ThemeColorConfigDto>;
+}
+
 export interface CreateThemeDto {
   name: string;
   slug?: string;
   description?: string;
-  mode?: ThemeMode;
   isActive?: boolean;
   isDefault?: boolean;
-  colors: ThemeColorConfigDto;
+  colors: ThemeColorModesDto;
 }
 
 export interface UpdateThemeDto {
   name?: string;
   slug?: string;
   description?: string;
-  mode?: ThemeMode;
   isActive?: boolean;
   isDefault?: boolean;
-  colors?: Partial<ThemeColorConfigDto>;
+  colors?: ThemeColorModesPartialDto;
 }
 
 export interface ThemeFiltersDto {
@@ -39,5 +44,4 @@ export interface ThemeFiltersDto {
   limit?: number;
   search?: string;
   isActive?: boolean;
-  mode?: ThemeMode;
 }

@@ -25,9 +25,6 @@ export const BrandShowcaseEditor: React.FC<BrandShowcaseEditorProps> = ({ value,
     const strategy = typeof value?.strategy === 'string' ? (value.strategy as string) : 'newest';
     const limit = Math.min(Math.max(ensureNumber(value?.limit, strategy === 'custom' ? Math.max(brandIds.length, 1) : 8), 1), 30);
     const columns = Math.min(Math.max(ensureNumber(value?.columns, 4), 1), 6);
-    const showDescription = value?.showDescription === true;
-    const showProductCount = value?.showProductCount !== false;
-    const showWebsiteLink = value?.showWebsiteLink === true;
     const logoShape = typeof value?.logoShape === 'string' ? (value.logoShape as string) : 'rounded';
     const backgroundStyle = typeof value?.backgroundStyle === 'string' ? (value.backgroundStyle as string) : 'surface';
     const sliderAutoplay = value?.sliderAutoplay !== false;
@@ -264,33 +261,6 @@ export const BrandShowcaseEditor: React.FC<BrandShowcaseEditorProps> = ({ value,
                         ]}
                         className="text-sm"
                     />
-                </label>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                <label className="flex items-center gap-2 text-sm text-gray-600">
-                    <input
-                        type="checkbox"
-                        checked={showDescription}
-                        onChange={(e) => applyConfig({ showDescription: e.target.checked })}
-                    />
-                    {t('sections.manager.config.brandShowcase.showDescription')}
-                </label>
-                <label className="flex items-center gap-2 text-sm text-gray-600">
-                    <input
-                        type="checkbox"
-                        checked={showProductCount}
-                        onChange={(e) => applyConfig({ showProductCount: e.target.checked })}
-                    />
-                    {t('sections.manager.config.brandShowcase.showProductCount')}
-                </label>
-                <label className="flex items-center gap-2 text-sm text-gray-600">
-                    <input
-                        type="checkbox"
-                        checked={showWebsiteLink}
-                        onChange={(e) => applyConfig({ showWebsiteLink: e.target.checked })}
-                    />
-                    {t('sections.manager.config.brandShowcase.showWebsite')}
                 </label>
             </div>
 

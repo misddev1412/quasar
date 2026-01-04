@@ -18,6 +18,7 @@ import {
   GallerySection,
   ContactFormSection,
   BrandShowcaseSection,
+  WhyChooseUsSection,
 } from '.';
 import type { SectionListItem } from '../../types/sections';
 
@@ -36,6 +37,7 @@ const sectionComponentMap: Record<SectionType, React.ComponentType<any>> = {
   [SectionType.GALLERY]: GallerySection,
   [SectionType.CONTACT_FORM]: ContactFormSection,
   [SectionType.BRAND_SHOWCASE]: BrandShowcaseSection,
+  [SectionType.WHY_CHOOSE_US]: WhyChooseUsSection,
 };
 
 const buildTranslationPayload = (section: SectionListItem) => {

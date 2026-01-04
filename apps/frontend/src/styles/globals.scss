@@ -29,6 +29,77 @@
   /* Consistent Transitions */
   --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Storefront theme palette defaults */
+  --storefront-body-light: #ffffff;
+  --storefront-body-dark: #111827;
+  --storefront-surface-light: #f8fafc;
+  --storefront-surface-dark: #1f2937;
+  --storefront-text-light: #0f172a;
+  --storefront-text-dark: #f9fafb;
+  --storefront-muted-light: #475569;
+  --storefront-muted-dark: #9ca3af;
+  --storefront-border-light: #e2e8f0;
+  --storefront-border-dark: #374151;
+  --storefront-accent-light: #7c3aed;
+  --storefront-accent-dark: #7c3aed;
+
+  --color-primary-light: #2563eb;
+  --color-primary-dark: #2563eb;
+  --color-secondary-light: #0ea5e9;
+  --color-secondary-dark: #0ea5e9;
+  --color-accent-light: #7c3aed;
+  --color-accent-dark: #7c3aed;
+
+  --storefront-body: var(--storefront-body-light);
+  --storefront-surface: var(--storefront-surface-light);
+  --storefront-text: var(--storefront-text-light);
+  --storefront-muted: var(--storefront-muted-light);
+  --storefront-border: var(--storefront-border-light);
+  --storefront-accent: var(--storefront-accent-light);
+  --color-primary: var(--color-primary-light);
+  --color-secondary: var(--color-secondary-light);
+  --color-accent: var(--color-accent-light);
+
+  --color-primary-50: var(--color-primary);
+  --color-primary-100: var(--color-primary);
+  --color-primary-200: var(--color-primary);
+  --color-primary-300: var(--color-primary);
+  --color-primary-400: var(--color-primary);
+  --color-primary-500: var(--color-primary);
+  --color-primary-600: var(--color-primary);
+  --color-primary-700: var(--color-primary);
+  --color-primary-800: var(--color-primary);
+  --color-primary-900: var(--color-primary);
+  --color-primary-950: var(--color-primary);
+}
+
+:root[data-storefront-theme='custom'] .bg-white {
+  background-color: var(--storefront-surface) !important;
+  color: var(--storefront-text);
+}
+
+:root[data-storefront-theme='custom'] .bg-gray-50,
+:root[data-storefront-theme='custom'] .bg-gray-100 {
+  background-color: var(--storefront-surface) !important;
+  color: var(--storefront-text);
+}
+
+:root[data-storefront-theme='custom'] .text-gray-900,
+:root[data-storefront-theme='custom'] .text-gray-800,
+:root[data-storefront-theme='custom'] .text-gray-700,
+:root[data-storefront-theme='custom'] .text-gray-600 {
+  color: var(--storefront-text) !important;
+}
+
+:root[data-storefront-theme='custom'] .text-gray-500,
+:root[data-storefront-theme='custom'] .text-gray-400 {
+  color: var(--storefront-muted) !important;
+}
+
+:root[data-storefront-theme='custom'] .border-gray-200,
+:root[data-storefront-theme='custom'] .border-gray-300 {
+  border-color: var(--storefront-border) !important;
 }
 
 /* Base Layer - Applied globally */
@@ -47,6 +118,8 @@
 
   html {
     @apply bg-white text-gray-900;
+    background-color: var(--storefront-body);
+    color: var(--storefront-text);
   }
 }
 
@@ -57,6 +130,9 @@
     max-width: 100vw;
     overflow: visible;
     min-width: 320px;
+    background-color: var(--storefront-surface);
+    color: var(--storefront-text);
+    border-color: var(--storefront-border);
   }
 
   .mega-menu-content {
@@ -69,6 +145,7 @@
 
   .mega-menu-item {
     @apply group flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200;
+    color: var(--storefront-text);
   }
 
   .mega-menu-item-image {
@@ -105,15 +182,32 @@
 @layer base {
   html.dark {
     @apply bg-gray-900 text-gray-100;
+    --storefront-body: var(--storefront-body-dark);
+    --storefront-surface: var(--storefront-surface-dark);
+    --storefront-text: var(--storefront-text-dark);
+    --storefront-muted: var(--storefront-muted-dark);
+    --storefront-border: var(--storefront-border-dark);
+    --storefront-accent: var(--storefront-accent-dark);
+    --color-primary: var(--color-primary-dark);
+    --color-secondary: var(--color-secondary-dark);
+    --color-accent: var(--color-accent-dark);
+    --color-primary-50: var(--color-primary);
+    --color-primary-100: var(--color-primary);
+    --color-primary-200: var(--color-primary);
+    --color-primary-300: var(--color-primary);
+    --color-primary-400: var(--color-primary);
+    --color-primary-500: var(--color-primary);
+    --color-primary-600: var(--color-primary);
+    --color-primary-700: var(--color-primary);
+    --color-primary-800: var(--color-primary);
+    --color-primary-900: var(--color-primary);
+    --color-primary-950: var(--color-primary);
   }
 
   body {
     @apply bg-white text-gray-900;
-  }
-
-  .dark body {
-    background-color: rgb(17 24 39) !important; /* gray-900 */
-    color: rgb(243 244 246) !important; /* gray-100 */
+    background-color: var(--storefront-surface) !important;
+    color: var(--storefront-text) !important;
   }
 
   /* Consistent Typography */
@@ -168,8 +262,10 @@
 
   /* Card Component */
   .card {
-    @apply bg-white text-gray-900 rounded-lg border border-gray-200 shadow-sm;
-    @apply dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700;
+    @apply rounded-lg border shadow-sm;
+    background-color: var(--storefront-surface);
+    color: var(--storefront-text);
+    border-color: var(--storefront-border);
   }
 
   .card-header {
@@ -193,6 +289,9 @@
            focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400
            disabled:opacity-50 disabled:cursor-not-allowed
            transition-all duration-200;
+    background-color: var(--storefront-surface);
+    color: var(--storefront-text);
+    border-color: var(--storefront-border);
   }
 
   .form-textarea {

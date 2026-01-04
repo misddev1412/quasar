@@ -1,5 +1,3 @@
-export type ThemeMode = 'LIGHT' | 'DARK';
-
 export interface ThemeColorConfig {
   bodyBackgroundColor: string;
   surfaceBackgroundColor: string;
@@ -13,12 +11,17 @@ export interface ThemeColorConfig {
   borderColor: string;
 }
 
-export interface ThemeRecord extends ThemeColorConfig {
+export interface ThemeColorModes {
+  light: ThemeColorConfig;
+  dark: ThemeColorConfig;
+}
+
+export interface ThemeRecord {
+  colors: ThemeColorModes;
   id: string;
   name: string;
   slug: string;
   description?: string | null;
-  mode: ThemeMode;
   isActive: boolean;
   isDefault: boolean;
   createdAt: string | Date;
@@ -30,5 +33,4 @@ export interface ThemeFilters {
   limit?: number;
   search?: string;
   isActive?: boolean;
-  mode?: ThemeMode;
 }
