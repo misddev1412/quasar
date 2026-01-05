@@ -191,7 +191,7 @@ const clampLogoSize = (value?: number) => {
   if (!value || Number.isNaN(value)) {
     return 48;
   }
-  return Math.min(160, Math.max(24, Math.round(value)));
+  return Math.min(640, Math.max(24, Math.round(value)));
 };
 
 const MENU_FONT_SIZE_CLASS_MAP: Record<FooterMenuFontSize, string> = {
@@ -322,12 +322,15 @@ const Footer: React.FC<FooterProps> = ({
   const siteName = getSetting('site.name', getSetting('site_name', propBrandName));
   const brandTitle = footerConfig.brandTitle?.trim() || siteName;
   const brandDescription = footerConfig.brandDescription || propDescription;
+  const brandDescriptionColor = footerConfig.brandDescriptionColor?.trim();
+  const brandDescriptionStyle = brandDescriptionColor ? { color: brandDescriptionColor } : getTextStyle(0.8);
   const variant = footerConfig.variant ?? 'columns';
   const theme = footerConfig.theme ?? 'dark';
   const shouldShowLogo = footerConfig.showBrandLogo !== false;
   const shouldShowBrandTitle = footerConfig.showBrandTitle !== false;
   const brandLayout = footerConfig.brandLayout === 'stacked' ? 'stacked' : 'inline';
   const logoSize = clampLogoSize(footerConfig.logoSize);
+  const isFullWidthLogo = footerConfig.logoFullWidth === true;
   const copyrightText =
     propCopyright || `© ${new Date().getFullYear()} ${siteName}. All rights reserved.`;
   const linkStyle = customTextColor ? { color: customTextColor } : undefined;
@@ -412,7 +415,8 @@ const Footer: React.FC<FooterProps> = ({
         <img
           src={resolvedLogoUrl}
           alt={footerLogoAltText}
-          className="w-full h-full object-contain"
+          className="w-full h-auto object-contain"
+          style={{ maxWidth: '100%' }}
           onError={(event) => {
             event.currentTarget.style.display = 'none';
           }}
@@ -532,62 +536,73 @@ const Footer: React.FC<FooterProps> = ({
         {widget.description}
       </p>
     ) : null;
+    const shouldShowGoogle =
+      (typeof widget.showGoogleMap === 'boolean'
+        ? widget.showGoogleMap
+        : widget.type !== 'facebook_page') && Boolean(widget.googleMapEmbedUrl);
+    const shouldShowFacebook =
+      (typeof widget.showFacebookPage === 'boolean'
+        ? widget.showFacebookPage
+        : widget.type === 'facebook_page') && Boolean(widget.facebookPageUrl);
 
-    if (widget.type === 'google_map' && widget.googleMapEmbedUrl) {
-      return (
-        <div className="space-y-3">
-          {widget.title && (
-            <h4 className="text-sm font-semibold uppercase tracking-wide">{widget.title}</h4>
-          )}
-          {sharedDescription}
-          <div
-            className={clsx('overflow-hidden rounded-xl border', themeClasses.border)}
-            style={customTextColor ? { borderColor: customTextColor } : undefined}
-          >
-            <iframe
-              src={widget.googleMapEmbedUrl}
-              width="100%"
-              height={height}
-              style={{ border: 0 }}
-              loading="lazy"
-              allowFullScreen
-              referrerPolicy="no-referrer-when-downgrade"
-              title={widget.title || 'Google Maps embed'}
-            />
-          </div>
+    if (!shouldShowGoogle && !shouldShowFacebook) {
+      return null;
+    }
+
+    const sections: React.ReactNode[] = [];
+    if (shouldShowGoogle && widget.googleMapEmbedUrl) {
+      sections.push(
+        <div
+          key="google-map"
+          className={clsx('overflow-hidden rounded-xl border', themeClasses.border)}
+          style={customTextColor ? { borderColor: customTextColor } : undefined}
+        >
+          <iframe
+            src={widget.googleMapEmbedUrl}
+            width="100%"
+            height={height}
+            style={{ border: 0 }}
+            loading="lazy"
+            allowFullScreen
+            referrerPolicy="no-referrer-when-downgrade"
+            title={widget.title || 'Google Maps embed'}
+          />
         </div>
       );
     }
 
-    if (widget.type === 'facebook_page' && widget.facebookPageUrl) {
+    if (shouldShowFacebook && widget.facebookPageUrl) {
       const tabs = widget.facebookTabs || 'timeline';
       const fbSrc = buildFacebookEmbedUrl(widget.facebookPageUrl, tabs, height);
-      return (
-        <div className="space-y-3">
-          {widget.title && (
-            <h4 className="text-sm font-semibold uppercase tracking-wide">{widget.title}</h4>
-          )}
-          {sharedDescription}
-          <div
-            className={clsx('overflow-hidden rounded-xl border', themeClasses.border)}
-            style={customTextColor ? { borderColor: customTextColor } : undefined}
-          >
-            <iframe
-              src={fbSrc}
-              width="100%"
-              height={height}
-              style={{ border: 'none', overflow: 'hidden' }}
-              scrolling="no"
-              frameBorder="0"
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-              title={widget.title || 'Facebook fanpage'}
-            />
-          </div>
+      sections.push(
+        <div
+          key="facebook-page"
+          className={clsx('overflow-hidden rounded-xl border', themeClasses.border)}
+          style={customTextColor ? { borderColor: customTextColor } : undefined}
+        >
+          <iframe
+            src={fbSrc}
+            width="100%"
+            height={height}
+            style={{ border: 'none', overflow: 'hidden' }}
+            scrolling="no"
+            frameBorder="0"
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            title={widget.title || 'Facebook fanpage'}
+          />
         </div>
       );
     }
 
-    return null;
+    return (
+      <div className="space-y-3">
+        {widget.title && (
+          <h4 className="text-sm font-semibold uppercase tracking-wide">{widget.title}</h4>
+        )}
+        {sharedDescription}
+        <div className="space-y-4">{sections}</div>
+      </div>
+    );
   };
 
   const renderBrandSection = () => {
@@ -596,16 +611,15 @@ const Footer: React.FC<FooterProps> = ({
       brandLayout === 'stacked'
         ? 'flex flex-col gap-3 items-start'
         : 'flex items-center gap-3 flex-wrap';
-    const logoWrapperStyle = {
-      width: logoSize,
-      height: logoSize,
-    } as React.CSSProperties;
+    const logoWrapperStyle = (isFullWidthLogo
+      ? { width: '100%' }
+      : { width: logoSize }) as React.CSSProperties;
     return (
       <div className="space-y-4">
         {shouldRenderHeading && (
           <div className={brandHeadingClass}>
             {footerLogoNode && (
-              <div className="shrink-0" style={logoWrapperStyle}>
+              <div className={clsx(isFullWidthLogo ? 'w-full' : 'shrink-0')} style={logoWrapperStyle}>
                 {footerLogoNode}
               </div>
             )}
@@ -617,14 +631,14 @@ const Footer: React.FC<FooterProps> = ({
           </div>
         )}
         {footerConfig.showBrandDescription && brandDescription && (
-          <p className={clsx('text-sm max-w-md', themeClasses.subtle)} style={getTextStyle(0.8)}>
+          <p className={clsx('text-sm max-w-md', themeClasses.subtle)} style={brandDescriptionStyle}>
             {brandDescription}
           </p>
         )}
         {footerConfig.customHtml && (
           <div
             className={clsx('text-sm leading-relaxed', themeClasses.subtle)}
-            style={getTextStyle(0.8)}
+            style={brandDescriptionStyle}
             dangerouslySetInnerHTML={{ __html: footerConfig.customHtml }}
           />
         )}

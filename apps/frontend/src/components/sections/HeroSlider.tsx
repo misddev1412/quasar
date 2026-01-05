@@ -43,6 +43,7 @@ export interface HeroSliderConfig {
   layout?: 'full-width' | 'container';
   fieldVisibility?: HeroSliderFieldVisibility;
   buttonVisibility?: HeroSliderButtonVisibility;
+  height?: number;
 }
 
 export interface SectionTranslationContent {
@@ -204,10 +205,17 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
       ? { background: overlayBackground }
       : { backgroundColor: overlayBackground }
     : { background: DEFAULT_BACKGROUND };
-  const heroShellStyle: CSSProperties = {
-    ...containerStyle,
-    aspectRatio: HERO_ASPECT_RATIO,
-  };
+
+  const configuredHeight = config.height;
+  const heroShellStyle: CSSProperties = configuredHeight
+    ? {
+        ...containerStyle,
+        height: `${configuredHeight}px`,
+      }
+    : {
+        ...containerStyle,
+        aspectRatio: HERO_ASPECT_RATIO,
+      };
 
   const overlayStyle: CSSProperties | undefined = overlayEnabled ? buildOverlayStyle(baseOverlayColor, overlayOpacity) : undefined;
   const fieldVisibility = config.fieldVisibility ?? {};
@@ -256,7 +264,9 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   const contentPaddingClass = isFullWidth
     ? 'px-4 sm:px-8 lg:px-12 xl:px-16'
     : 'px-6 sm:px-10 lg:px-16';
-  const contentWrapperClass = 'py-12 sm:py-16 lg:py-20 xl:py-24 min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[550px] xl:min-h-[600px] 2xl:min-h-[650px] flex h-full flex-col justify-center';
+  const contentWrapperClass = configuredHeight
+    ? 'py-12 sm:py-16 lg:py-20 xl:py-24 flex h-full flex-col justify-center'
+    : 'py-12 sm:py-16 lg:py-20 xl:py-24 min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[550px] xl:min-h-[600px] 2xl:min-h-[650px] flex h-full flex-col justify-center';
   const backgroundImage = activeSlide?.imageUrl?.trim();
   const backgroundImageValue = backgroundImage
     ? `url('${backgroundImage.replace(/'/g, "\\'")}')`

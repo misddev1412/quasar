@@ -143,6 +143,24 @@ export const HeroSliderConfigEditor: React.FC<HeroSliderConfigEditorProps> = ({ 
                 </label>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('sections.manager.heroSlider.height')}
+                    <Input
+                        type="number"
+                        min={200}
+                        max={1200}
+                        value={ensureNumber(value?.height, 650)}
+                        onChange={(e) => handleValueChange('height', Number(e.target.value))}
+                        className="text-sm"
+                        inputSize="md"
+                        placeholder="650"
+                    />
+                    <span className="text-xs text-gray-500">
+                        {t('sections.manager.heroSlider.heightDescription')}
+                    </span>
+                </label>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <label className="flex items-center gap-2 text-sm text-gray-600 border rounded-lg p-3 bg-white">
                     <input
                         type="checkbox"

@@ -199,8 +199,11 @@
         "logo_url": "Đường dẫn ảnh",
         "logo_url_placeholder": "https://cdn.example.com/footer-logo.svg",
         "logo_hint": "Có thể dán liên kết ảnh nếu lưu ở nơi khác. Để trống để dùng logo chính.",
-        "logo_size": "Kích thước logo (px)",
-        "logo_size_hint": "Trong khoảng 24px đến 160px.",
+        "logo_width": "Chiều rộng logo (px)",
+        "logo_width_hint": "Trong khoảng 24px đến 640px. Chiều cao tự điều chỉnh.",
+        "logo_full_width": "Dùng toàn bộ chiều ngang (100%)",
+        "logo_full_width_hint": "Cho phép logo phủ hết chiều rộng cột và để chiều cao tự động.",
+        "logo_full_width_badge": "Chiều ngang 100%",
         "layout": {
           "label": "Cách bố trí logo & tiêu đề",
           "inline": "Cùng dòng (logo + tên)",
@@ -216,6 +219,8 @@
         "show_description": "Hiển thị mô tả thương hiệu",
         "show_description_hint": "Bật/tắt đoạn văn dưới logo.",
         "description_label": "Mô tả",
+        "description_color": "Màu đoạn mô tả",
+        "description_color_hint": "Để trống để lấy màu đoạn văn mặc định của giao diện.",
         "custom_html": "HTML tuỳ chỉnh (tuỳ chọn)"
       },
       "newsletter": {

@@ -199,8 +199,11 @@
         "logo_url": "Image URL",
         "logo_url_placeholder": "https://cdn.example.com/footer-logo.svg",
         "logo_hint": "Paste a link if you host assets elsewhere. Leave blank to reuse your main logo.",
-        "logo_size": "Logo size (px)",
-        "logo_size_hint": "Between 24px and 160px.",
+        "logo_width": "Logo width (px)",
+        "logo_width_hint": "Between 24px and 640px. Height adjusts automatically.",
+        "logo_full_width": "Use full width (100%)",
+        "logo_full_width_hint": "Fill the available column width and keep the height automatic.",
+        "logo_full_width_badge": "Full width (100%)",
         "layout": {
           "label": "Logo & title layout",
           "inline": "Inline (logo + title)",
@@ -216,6 +219,8 @@
         "show_description": "Show brand description",
         "show_description_hint": "Toggle the paragraph below the logo.",
         "description_label": "Description",
+        "description_color": "Description color",
+        "description_color_hint": "Override the paragraph color shown under your footer logo.",
         "custom_html": "Custom HTML (optional)"
       },
       "newsletter": {

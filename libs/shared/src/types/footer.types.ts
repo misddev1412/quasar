@@ -29,7 +29,12 @@ export interface FooterSocialLink {
 
 export interface FooterWidgetConfig {
   enabled: boolean;
-  type: FooterWidgetType;
+  /**
+   * @deprecated Use showGoogleMap/showFacebookPage flags instead. Kept for backward compatibility.
+   */
+  type?: FooterWidgetType;
+  showGoogleMap: boolean;
+  showFacebookPage: boolean;
   title?: string;
   description?: string;
   height?: number;
@@ -70,6 +75,7 @@ export interface FooterConfig {
   variant: FooterVariant;
   theme: FooterTheme;
   brandDescription: string;
+  brandDescriptionColor?: string;
   brandTitle?: string;
   showBrandLogo: boolean;
   showBrandTitle: boolean;
@@ -85,6 +91,7 @@ export interface FooterConfig {
   customHtml?: string;
   logoUrl?: string;
   logoSize?: number;
+  logoFullWidth?: boolean;
   backgroundColor?: string;
   textColor?: string;
   widget?: FooterWidgetConfig;
@@ -95,6 +102,8 @@ export interface FooterConfig {
 const DEFAULT_WIDGET_CONFIG: FooterWidgetConfig = {
   enabled: false,
   type: 'google_map',
+  showGoogleMap: true,
+  showFacebookPage: false,
   title: '',
   description: '',
   height: 280,
@@ -127,6 +136,7 @@ export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
   variant: 'columns',
   theme: 'dark',
   brandDescription: 'Discover curated products, helpful resources, and dedicated support from our team.',
+  brandDescriptionColor: '',
   brandTitle: '',
   showBrandLogo: true,
   showBrandTitle: true,
@@ -189,6 +199,7 @@ export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
   customHtml: '',
   logoUrl: '',
   logoSize: 48,
+  logoFullWidth: false,
   backgroundColor: '',
   textColor: '',
   widget: DEFAULT_WIDGET_CONFIG,
@@ -214,7 +225,7 @@ const clampLogoSize = (value?: number) => {
   if (!value || Number.isNaN(value)) {
     return 48;
   }
-  return Math.min(160, Math.max(24, Math.round(value)));
+  return Math.min(640, Math.max(24, Math.round(value)));
 };
 
 const isValidBrandLayout = (value?: string): value is FooterBrandLayout => {
@@ -309,11 +320,19 @@ export const createFooterConfig = (override?: Partial<FooterConfig>): FooterConf
       override.brandTitle !== undefined
         ? (override.brandTitle || '').trim()
         : base.brandTitle,
+    brandDescriptionColor:
+      override.brandDescriptionColor !== undefined
+        ? (override.brandDescriptionColor || '').trim()
+        : base.brandDescriptionColor,
     brandLayout: isValidBrandLayout(override.brandLayout) ? override.brandLayout : base.brandLayout,
     logoSize:
       typeof override.logoSize === 'number'
         ? clampLogoSize(override.logoSize)
         : clampLogoSize(base.logoSize),
+    logoFullWidth:
+      override.logoFullWidth !== undefined
+        ? Boolean(override.logoFullWidth)
+        : base.logoFullWidth ?? DEFAULT_FOOTER_CONFIG.logoFullWidth,
     socialLinks: Array.isArray(override.socialLinks)
       ? override.socialLinks
           .filter((link): link is FooterSocialLink => Boolean(link) && typeof link.id === 'string')
@@ -331,17 +350,36 @@ export const createFooterConfig = (override?: Partial<FooterConfig>): FooterConf
           }))
       : base.extraLinks,
     widget: override.widget
-      ? {
-          ...DEFAULT_WIDGET_CONFIG,
-          ...override.widget,
-          height:
-            typeof override.widget.height === 'number'
-              ? Math.max(160, Math.min(640, Math.round(override.widget.height)))
-              : DEFAULT_WIDGET_CONFIG.height,
-          googleMapEmbedUrl: override.widget.googleMapEmbedUrl?.trim() || '',
-          facebookPageUrl: override.widget.facebookPageUrl?.trim() || '',
-          facebookTabs: override.widget.facebookTabs?.trim() || DEFAULT_WIDGET_CONFIG.facebookTabs,
-        }
+      ? (() => {
+          const overrideWidget = override.widget!;
+          const resolvedType = overrideWidget.type ?? DEFAULT_WIDGET_CONFIG.type;
+          const resolvedShowGoogle =
+            typeof overrideWidget.showGoogleMap === 'boolean'
+              ? overrideWidget.showGoogleMap
+              : resolvedType === 'facebook_page'
+                ? false
+                : DEFAULT_WIDGET_CONFIG.showGoogleMap;
+          const resolvedShowFacebook =
+            typeof overrideWidget.showFacebookPage === 'boolean'
+              ? overrideWidget.showFacebookPage
+              : resolvedType === 'facebook_page'
+                ? true
+                : DEFAULT_WIDGET_CONFIG.showFacebookPage;
+          return {
+            ...DEFAULT_WIDGET_CONFIG,
+            ...overrideWidget,
+            type: resolvedType,
+            showGoogleMap: resolvedShowGoogle,
+            showFacebookPage: resolvedShowFacebook,
+            height:
+              typeof overrideWidget.height === 'number'
+                ? Math.max(160, Math.min(640, Math.round(overrideWidget.height)))
+                : DEFAULT_WIDGET_CONFIG.height,
+            googleMapEmbedUrl: overrideWidget.googleMapEmbedUrl?.trim() || '',
+            facebookPageUrl: overrideWidget.facebookPageUrl?.trim() || '',
+            facebookTabs: overrideWidget.facebookTabs?.trim() || DEFAULT_WIDGET_CONFIG.facebookTabs,
+          };
+        })()
       : base.widget,
     visitorAnalytics: withVisitorAnalyticsDefaults(override.visitorAnalytics ?? base.visitorAnalytics),
     menuTypography: sanitizeMenuTypography(override.menuTypography ?? base.menuTypography),

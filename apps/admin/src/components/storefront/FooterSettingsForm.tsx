@@ -15,13 +15,15 @@ import {
   FooterSocialLink,
   FooterSocialType,
   FooterWidgetConfig,
-  FooterWidgetType,
   VisitorAnalyticsConfig,
   VisitorAnalyticsMetricType,
   DEFAULT_VISITOR_ANALYTICS_CONFIG,
   createFooterConfig,
 } from '@shared/types/footer.types';
 import { MediaManager } from '../common/MediaManager';
+import { ColorSelector } from '../common/ColorSelector';
+import { SimpleRichTextEditor } from '../common/SimpleRichTextEditor';
+import { cn } from '../../utils/cn';
 
 const FOOTER_SETTING_KEY = 'storefront.footer_config';
 
@@ -36,7 +38,7 @@ const clampLogoSize = (value?: number) => {
   if (!value || Number.isNaN(value)) {
     return 48;
   }
-  return Math.min(160, Math.max(24, Math.round(value)));
+  return Math.min(640, Math.max(24, Math.round(value)));
 };
 
 const sanitizeLinks = <T extends FooterSocialLink | FooterExtraLink>(
@@ -110,6 +112,8 @@ const normalizeBrandLayout = (layout?: FooterConfig['brandLayout']): BrandLayout
 const defaultWidgetDraft = (): FooterWidgetConfig => ({
   enabled: false,
   type: 'google_map',
+  showGoogleMap: true,
+  showFacebookPage: false,
   title: '',
   description: '',
   height: 280,
@@ -118,15 +122,41 @@ const defaultWidgetDraft = (): FooterWidgetConfig => ({
   facebookTabs: 'timeline',
 });
 
-const withWidgetDefaults = (widget?: FooterWidgetConfig): FooterWidgetConfig => ({
-  ...defaultWidgetDraft(),
-  ...widget,
-});
+const withWidgetDefaults = (widget?: FooterWidgetConfig): FooterWidgetConfig => {
+  const defaults = defaultWidgetDraft();
+  if (!widget) {
+    return defaults;
+  }
+  const resolvedType = widget.type ?? defaults.type;
+  return {
+    ...defaults,
+    ...widget,
+    type: resolvedType,
+    showGoogleMap:
+      typeof widget.showGoogleMap === 'boolean'
+        ? widget.showGoogleMap
+        : resolvedType === 'facebook_page'
+          ? false
+          : defaults.showGoogleMap,
+    showFacebookPage:
+      typeof widget.showFacebookPage === 'boolean'
+        ? widget.showFacebookPage
+        : resolvedType === 'facebook_page'
+          ? true
+          : defaults.showFacebookPage,
+  };
+};
 
 const sanitizeWidgetConfig = (widget?: FooterWidgetConfig): FooterWidgetConfig => {
   const merged = withWidgetDefaults(widget);
   return {
     ...merged,
+    type:
+      merged.showFacebookPage && !merged.showGoogleMap
+        ? 'facebook_page'
+        : merged.type || 'google_map',
+    showGoogleMap: Boolean(merged.showGoogleMap),
+    showFacebookPage: Boolean(merged.showFacebookPage),
     height: clampWidgetHeight(merged.height),
     googleMapEmbedUrl: merged.googleMapEmbedUrl?.trim() || '',
     facebookPageUrl: merged.facebookPageUrl?.trim() || '',
@@ -210,7 +240,63 @@ const FooterSettingsForm: React.FC = () => {
   const widgetDraft = withWidgetDefaults(draft.widget);
   const visitorAnalyticsDraft = normalizeVisitorAnalyticsState(draft.visitorAnalytics);
   const previewLogoSize = clampLogoSize(draft.logoSize);
+  const isLogoFullWidth = draft.logoFullWidth === true;
   const normalizedBrandLayout = normalizeBrandLayout(draft.brandLayout);
+  const previewBackgroundColor = useMemo(
+    () => draft.backgroundColor?.trim() || (draft.theme === 'dark' ? '#0F172A' : '#F8FAFC'),
+    [draft.backgroundColor, draft.theme]
+  );
+  const previewTextColor = useMemo(
+    () => draft.textColor?.trim() || (draft.theme === 'dark' ? '#F8FAFC' : '#0F172A'),
+    [draft.textColor, draft.theme]
+  );
+  const previewBrandTitle = useMemo(
+    () => draft.brandTitle?.trim() || t('storefront.footer.brand.preview_title', 'Your store name'),
+    [draft.brandTitle, t]
+  );
+  const previewBrandDescription = useMemo(
+    () =>
+      draft.brandDescription?.trim() ||
+      t(
+        'storefront.footer.brand.preview_description',
+        'Add a short sentence that builds trust with visitors.'
+      ),
+    [draft.brandDescription, t]
+  );
+  const brandDescriptionColorValue = draft.brandDescriptionColor?.trim() || '';
+  const previewBrandDescriptionColor = useMemo(
+    () => brandDescriptionColorValue || previewTextColor,
+    [brandDescriptionColorValue, previewTextColor]
+  );
+  const hasCustomBrandDescriptionColor = Boolean(brandDescriptionColorValue);
+  const previewLogoSizeLabel = isLogoFullWidth
+    ? t('storefront.footer.brand.logo_full_width_badge', 'Full width (100%)')
+    : `${previewLogoSize}px`;
+  const previewLogoWrapperClass = cn(
+    'flex items-center justify-center rounded-2xl border border-white/30 bg-white/5 backdrop-blur-sm p-6',
+    isLogoFullWidth ? 'w-full' : 'flex-shrink-0'
+  );
+  const previewLogoWrapperStyle: React.CSSProperties = isLogoFullWidth
+    ? { minHeight: 140 }
+    : { width: previewLogoSize, minHeight: previewLogoSize };
+  const previewLogoImageStyle: React.CSSProperties = isLogoFullWidth
+    ? { width: '100%', height: 'auto' }
+    : { width: previewLogoSize, height: 'auto', maxHeight: previewLogoSize };
+  const previewNewsletterHeading = useMemo(
+    () =>
+      draft.newsletterHeading?.trim() ||
+      t('storefront.footer.brand.preview_newsletter_heading', 'Stay in the loop'),
+    [draft.newsletterHeading, t]
+  );
+  const previewNewsletterDescription = useMemo(
+    () =>
+      draft.newsletterDescription?.trim() ||
+      t(
+        'storefront.footer.brand.preview_newsletter_description',
+        'Share launch announcements, offers, or community updates.'
+      ),
+    [draft.newsletterDescription, t]
+  );
 
   const reloadPreview = () => {
     const frameWindow = iframeRef.current?.contentWindow;
@@ -300,14 +386,6 @@ const FooterSettingsForm: React.FC = () => {
       { value: 'tiktok', label: 'TikTok' },
       { value: 'github', label: 'GitHub' },
       { value: 'custom', label: t('storefront.footer.social.custom', 'Custom') },
-    ],
-    [t]
-  );
-
-  const widgetTypeOptions = useMemo<SelectOption[]>(
-    () => [
-      { value: 'google_map', label: t('storefront.footer.widget.google_map', 'Google Maps embed') },
-      { value: 'facebook_page', label: t('storefront.footer.widget.facebook', 'Facebook fanpage') },
     ],
     [t]
   );
@@ -716,9 +794,93 @@ const FooterSettingsForm: React.FC = () => {
 
         <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">{t('storefront.footer.brand.heading', 'Brand & messaging')}</h3>
-          <div className="rounded-xl border border-gray-100 bg-gray-50/40 p-4 space-y-3">
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col">
+          <div className="rounded-xl border border-gray-100 bg-gray-50/40 p-4 space-y-4">
+            <div className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                {t('storefront.footer.brand.live_preview_label', 'Storefront preview')}
+              </p>
+              <div
+                className="rounded-2xl border border-gray-200 shadow-inner w-full"
+                style={{ backgroundColor: previewBackgroundColor }}
+              >
+                <div className="relative flex flex-col gap-6 px-6 py-8">
+                  <div
+                    className={cn(
+                      'flex flex-wrap items-start gap-6',
+                      normalizedBrandLayout === 'inline' ? 'md:flex-row md:items-center' : 'flex-col'
+                    )}
+                  >
+                    {draft.showBrandLogo !== false && (
+                      <div className={previewLogoWrapperClass} style={previewLogoWrapperStyle}>
+                        {draft.logoUrl ? (
+                          <img
+                            src={draft.logoUrl}
+                            alt="Footer logo preview"
+                            className="object-contain"
+                            style={previewLogoImageStyle}
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center text-white/60 h-16 w-full">
+                            <FiImage className="h-10 w-10" />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <div className="flex flex-1 flex-col gap-2 min-w-0">
+                      <span
+                        className="text-xs font-semibold uppercase tracking-wide"
+                        style={{ color: previewTextColor, opacity: 0.8 }}
+                      >
+                        {t('storefront.footer.brand.preview_badge', 'Live footer preview')}
+                      </span>
+                      {draft.showBrandTitle !== false && (
+                        <p className="text-lg font-semibold break-words" style={{ color: previewTextColor }}>
+                          {previewBrandTitle}
+                        </p>
+                      )}
+                      {draft.showBrandDescription && (
+                        <p
+                          className="text-sm"
+                          style={{
+                            color: previewBrandDescriptionColor,
+                            opacity: hasCustomBrandDescriptionColor ? 1 : 0.85,
+                          }}
+                        >
+                          {previewBrandDescription}
+                        </p>
+                      )}
+                      {draft.showNewsletter && (
+                        <div className="mt-4 space-y-2">
+                          <p className="text-sm font-semibold" style={{ color: previewTextColor }}>
+                            {previewNewsletterHeading}
+                          </p>
+                          <p className="text-xs" style={{ color: previewTextColor, opacity: 0.8 }}>
+                            {previewNewsletterDescription}
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            <div className="flex-1 min-w-[200px] rounded-full bg-white/15 px-4 py-2 text-xs" style={{ color: previewTextColor }}>
+                              email@example.com
+                            </div>
+                            <div className="rounded-full bg-white/25 px-4 py-2 text-xs font-semibold uppercase tracking-wide" style={{ color: previewBackgroundColor }}>
+                              {t('storefront.footer.brand.preview_subscribe', 'Subscribe')}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div
+                    className="w-full border-t border-white/20 pt-4 text-[11px] font-semibold uppercase tracking-wide flex justify-between"
+                    style={{ color: previewTextColor, opacity: 0.75 }}
+                  >
+                    <span>{t('storefront.footer.brand.logo_preview_hint', 'Preview size')}</span>
+                    <span>{previewLogoSizeLabel}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex flex-col gap-1">
                 <p className="text-sm font-semibold text-gray-900">
                   {t('storefront.footer.brand.logo_label', 'Footer logo')}
                 </p>
@@ -729,39 +891,45 @@ const FooterSettingsForm: React.FC = () => {
                   )}
                 </p>
               </div>
-              {draft.logoUrl ? (
-                <img
-                  src={draft.logoUrl}
-                  alt="Footer logo preview"
-                  className="rounded-lg border border-gray-200 object-contain bg-white"
-                  style={{ width: previewLogoSize, height: previewLogoSize }}
-                />
-              ) : (
-                <div
-                  className="rounded-lg border border-dashed border-gray-300 bg-white flex items-center justify-center text-gray-400"
-                  style={{ width: previewLogoSize, height: previewLogoSize }}
-                >
-                  <FiImage className="h-6 w-6" />
-                </div>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button variant="secondary" size="sm" onClick={() => setIsLogoMediaManagerOpen(true)}>
-                {t('storefront.footer.brand.logo_choose', 'Choose logo')}
-              </Button>
-              {draft.logoUrl && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleUpdate('logoUrl', '')}
-                  className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
-                >
-                  {t('storefront.footer.brand.logo_remove', 'Remove')}
+              <div className="flex flex-wrap gap-2">
+                <Button variant="secondary" size="sm" onClick={() => setIsLogoMediaManagerOpen(true)}>
+                  {t('storefront.footer.brand.logo_choose', 'Choose logo')}
                 </Button>
-              )}
+                {draft.logoUrl && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        if (typeof window !== 'undefined') {
+                          window.open(draft.logoUrl, '_blank', 'noopener,noreferrer');
+                        }
+                      }}
+                    >
+                      {t('storefront.footer.brand.logo_open', 'Open in new tab')}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleUpdate('logoUrl', '')}
+                      className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+                    >
+                      {t('storefront.footer.brand.logo_remove', 'Remove')}
+                    </Button>
+                  </>
+                )}
+              </div>
+              <p className="text-xs text-gray-500">
+                {t(
+                  'storefront.footer.brand.logo_tip',
+                  'Transparent PNG or SVG works best. We will reuse your site logo automatically if you leave this blank.'
+                )}
+              </p>
             </div>
-            <label className="flex flex-col gap-1 text-sm text-gray-600">
-              {t('storefront.footer.brand.logo_url', 'Image URL')}
+            <label className="flex flex-col gap-1 rounded-xl border border-gray-200 bg-white/70 p-4 text-sm text-gray-700 shadow-sm">
+              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                {t('storefront.footer.brand.logo_url', 'Image URL')}
+              </span>
               <Input
                 value={draft.logoUrl || ''}
                 onChange={(event) => handleUpdate('logoUrl', event.target.value)}
@@ -771,7 +939,7 @@ const FooterSettingsForm: React.FC = () => {
                 )}
                 className="text-sm"
               />
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-gray-500">
                 {t(
                   'storefront.footer.brand.logo_hint',
                   'Paste a link if you host assets elsewhere. Leave blank to reuse your main logo.'
@@ -781,29 +949,42 @@ const FooterSettingsForm: React.FC = () => {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-1 text-sm text-gray-600">
-              {t('storefront.footer.brand.logo_size', 'Logo size (px)')}
+              {t('storefront.footer.brand.logo_width', 'Logo width (px)')}
               <Input
                 type="number"
                 min={24}
-                max={160}
+                max={640}
                 inputSize="md"
                 className="text-sm"
+                disabled={draft.logoFullWidth === true}
                 value={draft.logoSize ?? 48}
                 onChange={(event) =>
                   handleUpdate('logoSize', clampLogoSize(Number(event.target.value) || draft.logoSize || 48))
                 }
               />
               <span className="text-xs text-gray-400">
-                {t('storefront.footer.brand.logo_size_hint', 'Between 24px and 160px.')}
+                {t(
+                  'storefront.footer.brand.logo_width_hint',
+                  'Between 24px and 640px. Height adjusts automatically.'
+                )}
               </span>
             </label>
-            <Select
-              label={t('storefront.footer.brand.layout.label', 'Logo & title layout')}
-              value={normalizedBrandLayout}
-              onChange={(value) => handleUpdate('brandLayout', value as FooterConfig['brandLayout'])}
-              options={brandLayoutOptions}
+            <Toggle
+              checked={draft.logoFullWidth === true}
+              onChange={(checked) => handleUpdate('logoFullWidth', checked)}
+              label={t('storefront.footer.brand.logo_full_width', 'Use full width (100%)')}
+              description={t(
+                'storefront.footer.brand.logo_full_width_hint',
+                'Fill the available column width and keep the height automatic.'
+              )}
             />
           </div>
+          <Select
+            label={t('storefront.footer.brand.layout.label', 'Logo & title layout')}
+            value={normalizedBrandLayout}
+            onChange={(value) => handleUpdate('brandLayout', value as FooterConfig['brandLayout'])}
+            options={brandLayoutOptions}
+          />
           <label className="flex flex-col gap-1 text-sm text-gray-600">
             {t('storefront.footer.brand.title_override', 'Footer site name')}
             <Input
@@ -837,24 +1018,18 @@ const FooterSettingsForm: React.FC = () => {
             />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-1 text-sm text-gray-600">
-              {t('storefront.footer.brand.background_color', 'Background color')}
-              <Input
-                value={draft.backgroundColor || ''}
-                onChange={(event) => handleUpdate('backgroundColor', event.target.value)}
-                placeholder="#0F172A or rgb(15,23,42)"
-                className="text-sm"
-              />
-            </label>
-            <label className="flex flex-col gap-1 text-sm text-gray-600">
-              {t('storefront.footer.brand.text_color', 'Text color')}
-              <Input
-                value={draft.textColor || ''}
-                onChange={(event) => handleUpdate('textColor', event.target.value)}
-                placeholder="#F8FAFC"
-                className="text-sm"
-              />
-            </label>
+            <ColorSelector
+              label={t('storefront.footer.brand.background_color', 'Background color')}
+              value={draft.backgroundColor || ''}
+              onChange={(color) => handleUpdate('backgroundColor', color || '')}
+              placeholder="#0F172A or rgb(15,23,42)"
+            />
+            <ColorSelector
+              label={t('storefront.footer.brand.text_color', 'Text color')}
+              value={draft.textColor || ''}
+              onChange={(color) => handleUpdate('textColor', color || '')}
+              placeholder="#F8FAFC"
+            />
           </div>
           <p className="text-xs text-gray-400">
             {t('storefront.footer.brand.color_hint', 'Supports HEX, RGB(a), or CSS color keywords. Clear the field to fall back to the theme.')}
@@ -872,14 +1047,42 @@ const FooterSettingsForm: React.FC = () => {
             onChange={(event) => handleUpdate('brandDescription', event.target.value)}
             rows={4}
           />
-          <TextareaInput
-            id="custom-html"
-            label={t('storefront.footer.brand.custom_html', 'Custom HTML (optional)')}
-            value={draft.customHtml}
-            onChange={(event) => handleUpdate('customHtml', event.target.value)}
-            rows={4}
-            placeholder="<p>Custom HTML block...</p>"
-          />
+          <div className="space-y-1">
+            <ColorSelector
+              label={t('storefront.footer.brand.description_color', 'Description color')}
+              value={draft.brandDescriptionColor || ''}
+              onChange={(color) => handleUpdate('brandDescriptionColor', color || '')}
+              placeholder="#94A3B8"
+            />
+            <p className="text-xs text-gray-500">
+              {t(
+                'storefront.footer.brand.description_color_hint',
+                'Leave blank to inherit the default paragraph color for your theme.'
+              )}
+            </p>
+          </div>
+          <div className="space-y-2">
+            <div className="flex flex-col gap-1 text-sm text-gray-600">
+              <span className="font-medium">
+                {t('storefront.footer.brand.custom_html', 'Custom HTML (optional)')}
+              </span>
+              <span className="text-xs text-gray-400">
+                {t(
+                  'storefront.footer.brand.custom_html_description',
+                  'Use simple formatting, links, or embeds to display below the brand column.'
+                )}
+              </span>
+            </div>
+            <SimpleRichTextEditor
+              value={draft.customHtml}
+              onChange={(value) => handleUpdate('customHtml', value)}
+              placeholder="<p>Custom HTML block...</p>"
+              minHeight={180}
+            />
+            <p className="text-xs text-gray-400">
+              {t('storefront.footer.brand.custom_html_hint', 'Basic formatting only. For full control, edit the HTML directly.')}
+            </p>
+          </div>
           <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-4">
             <Toggle
               checked={draft.showNewsletter}
@@ -1010,12 +1213,6 @@ const FooterSettingsForm: React.FC = () => {
         />
         {widgetDraft.enabled && (
           <div className="space-y-4">
-            <Select
-              label={t('storefront.footer.widget.type_label', 'Choose content')}
-              value={widgetDraft.type}
-              onChange={(value) => handleWidgetUpdate({ type: value as FooterWidgetType })}
-              options={widgetTypeOptions}
-            />
             <div className="grid gap-4 md:grid-cols-2">
               <label className="flex flex-col gap-1 text-sm text-gray-600">
                 {t('storefront.footer.widget.title', 'Block title')}
@@ -1048,7 +1245,16 @@ const FooterSettingsForm: React.FC = () => {
               onChange={(event) => handleWidgetUpdate({ description: event.target.value })}
               rows={3}
             />
-            {widgetDraft.type === 'google_map' ? (
+            <Toggle
+              checked={widgetDraft.showGoogleMap}
+              onChange={(checked) => handleWidgetUpdate({ showGoogleMap: checked })}
+              label={t('storefront.footer.widget.show_google', 'Show Google Maps embed')}
+              description={t(
+                'storefront.footer.widget.show_google_hint',
+                'Displays the embedded map using the link below.'
+              )}
+            />
+            {widgetDraft.showGoogleMap && (
               <label className="flex flex-col gap-1 text-sm text-gray-600">
                 {t('storefront.footer.widget.map_url', 'Google Maps embed URL')}
                 <Input
@@ -1061,7 +1267,17 @@ const FooterSettingsForm: React.FC = () => {
                   {t('storefront.footer.widget.map_hint', 'Use the URL from Google Maps → Share → Embed a map.')}
                 </span>
               </label>
-            ) : (
+            )}
+            <Toggle
+              checked={widgetDraft.showFacebookPage}
+              onChange={(checked) => handleWidgetUpdate({ showFacebookPage: checked })}
+              label={t('storefront.footer.widget.show_facebook', 'Show Facebook fanpage')}
+              description={t(
+                'storefront.footer.widget.show_facebook_hint',
+                'Displays the fanpage embed using the link below.'
+              )}
+            />
+            {widgetDraft.showFacebookPage && (
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="flex flex-col gap-1 text-sm text-gray-600 md:col-span-2">
                   {t('storefront.footer.widget.facebook_url', 'Facebook fanpage URL')}

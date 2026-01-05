@@ -28,9 +28,23 @@
             "tableHeaders": {
                 "title": "Tiêu đề",
                 "type": "Loại",
+                "details": "Chi tiết",
                 "enabled": "Trạng thái",
                 "updated": "Cập nhật lần cuối",
                 "actions": "Thao tác"
+            },
+            "details": {
+                "height": "Chiều cao",
+                "totalImages": "Hình ảnh",
+                "autoplay": "Tự động phát",
+                "layout": "Bố cục",
+                "limit": "Giới hạn",
+                "category": "Danh mục",
+                "totalItems": "Mục",
+                "totalMembers": "Thành viên",
+                "totalBrands": "Thương hiệu",
+                "videoUrl": "Video",
+                "columns": "Cột"
             },
             "edit": "Chỉnh sửa",
             "delete": "Xóa",
@@ -117,7 +131,9 @@
                 "primaryButton": "Nút CTA chính",
                 "primaryButtonDescription": "Hiển thị hoặc ẩn nút kêu gọi hành động theo từng slide.",
                 "secondaryButton": "Nút \"Xem các section\"",
-                "secondaryButtonDescription": "Hiển thị hoặc ẩn nút mặc định sections.hero.view_sections."
+                "secondaryButtonDescription": "Hiển thị hoặc ẩn nút mặc định sections.hero.view_sections.",
+                "height": "Chiều cao (px)",
+                "heightDescription": "Chiều cao cố định tính bằng pixel (200-1200). Giữ nguyên trên mọi kích thước màn hình."
             },
             "config": {
                 "header": "Cấu hình Section",

@@ -9,11 +9,370 @@ import { ReorderableTable, DragHandle, type ReorderableColumn } from '../../comm
 import { Toggle } from '../../common/Toggle';
 import { Dropdown } from '../../common/Dropdown';
 import { FiRefreshCw, FiPlus, FiMoreVertical, FiEdit, FiTrash2, FiCopy } from 'react-icons/fi';
+import { SectionType } from '@shared/enums/section.enums';
 
 interface SectionListProps {
     page: string;
     onPageChange: (page: string) => void;
 }
+
+/**
+ * Get consistent badge color for each detail type
+ */
+const getBadgeColor = (detailKey: string): string => {
+    const colorMap: Record<string, string> = {
+        height: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+        totalImages: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+        autoplay: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+        layout: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
+        limit: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+        category: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300',
+        totalItems: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
+        totalMembers: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
+        totalBrands: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+        videoUrl: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+        columns: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
+    };
+
+    return colorMap[detailKey] || 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';
+};
+
+/**
+ * Get badge color for section types
+ */
+const getSectionTypeBadgeColor = (sectionType: SectionType): string => {
+    const colorMap: Record<SectionType, string> = {
+        [SectionType.HERO_SLIDER]: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
+        [SectionType.FEATURED_PRODUCTS]: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+        [SectionType.PRODUCTS_BY_CATEGORY]: 'bg-lime-100 text-lime-700 dark:bg-lime-900/30 dark:text-lime-300',
+        [SectionType.NEWS]: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+        [SectionType.CUSTOM_HTML]: 'bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-300',
+        [SectionType.BANNER]: 'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/30 dark:text-fuchsia-300',
+        [SectionType.TESTIMONIALS]: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300',
+        [SectionType.CTA]: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+        [SectionType.FEATURES]: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
+        [SectionType.GALLERY]: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+        [SectionType.TEAM]: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300',
+        [SectionType.CONTACT_FORM]: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
+        [SectionType.VIDEO]: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
+        [SectionType.STATS]: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+        [SectionType.BRAND_SHOWCASE]: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+        [SectionType.WHY_CHOOSE_US]: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
+    };
+
+    return colorMap[sectionType] || 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';
+};
+
+/**
+ * Extract section-specific details from config for display
+ */
+const getSectionDetails = (section: AdminSection, t: (key: string) => string): React.ReactNode[] => {
+    const config = section.config || {};
+
+    switch (section.type) {
+        case SectionType.HERO_SLIDER: {
+            const details: React.ReactNode[] = [];
+
+            // Height
+            if (typeof config.height === 'number') {
+                details.push(
+                    <span key="height" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('height')}`}>
+                            {t('sections.manager.details.height')}
+                        </span>
+                        <span>{config.height}px</span>
+                    </span>
+                );
+            }
+
+            // Total slides/images
+            const slides = Array.isArray(config.slides) ? config.slides : [];
+            const totalSlides = slides.length;
+            if (totalSlides > 0) {
+                details.push(
+                    <span key="images" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('totalImages')}`}>
+                            {t('sections.manager.details.totalImages')}
+                        </span>
+                        <span>{totalSlides}</span>
+                    </span>
+                );
+            }
+
+            // Autoplay
+            if (config.autoplay !== undefined) {
+                details.push(
+                    <span key="autoplay" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('autoplay')}`}>
+                            {t('sections.manager.details.autoplay')}
+                        </span>
+                        <span>{config.autoplay ? t('common.yes') : t('common.no')}</span>
+                    </span>
+                );
+            }
+
+            return details;
+        }
+
+        case SectionType.GALLERY: {
+            const details: React.ReactNode[] = [];
+
+            // Total images
+            const images = Array.isArray(config.images) ? config.images : [];
+            if (images.length > 0) {
+                details.push(
+                    <span key="images" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('totalImages')}`}>
+                            {t('sections.manager.details.totalImages')}
+                        </span>
+                        <span>{images.length}</span>
+                    </span>
+                );
+            }
+
+            // Layout
+            if (config.layout) {
+                details.push(
+                    <span key="layout" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('layout')}`}>
+                            {t('sections.manager.details.layout')}
+                        </span>
+                        <span>{String(config.layout)}</span>
+                    </span>
+                );
+            }
+
+            return details;
+        }
+
+        case SectionType.FEATURED_PRODUCTS: {
+            const details: React.ReactNode[] = [];
+
+            // Number of products
+            if (typeof config.limit === 'number') {
+                details.push(
+                    <span key="limit" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('limit')}`}>
+                            {t('sections.manager.details.limit')}
+                        </span>
+                        <span>{config.limit}</span>
+                    </span>
+                );
+            }
+
+            return details;
+        }
+
+        case SectionType.PRODUCTS_BY_CATEGORY: {
+            const details: React.ReactNode[] = [];
+
+            // Category ID
+            if (config.categoryId) {
+                details.push(
+                    <span key="category" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('category')}`}>
+                            {t('sections.manager.details.category')}
+                        </span>
+                        <span>{String(config.categoryId)}</span>
+                    </span>
+                );
+            }
+
+            // Number of products
+            if (typeof config.limit === 'number') {
+                details.push(
+                    <span key="limit" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('limit')}`}>
+                            {t('sections.manager.details.limit')}
+                        </span>
+                        <span>{config.limit}</span>
+                    </span>
+                );
+            }
+
+            return details;
+        }
+
+        case SectionType.TESTIMONIALS: {
+            const details: React.ReactNode[] = [];
+
+            // Total testimonials
+            const testimonials = Array.isArray(config.testimonials) ? config.testimonials : [];
+            if (testimonials.length > 0) {
+                details.push(
+                    <span key="items" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('totalItems')}`}>
+                            {t('sections.manager.details.totalItems')}
+                        </span>
+                        <span>{testimonials.length}</span>
+                    </span>
+                );
+            }
+
+            return details;
+        }
+
+        case SectionType.TEAM: {
+            const details: React.ReactNode[] = [];
+
+            // Total team members
+            const members = Array.isArray(config.members) ? config.members : [];
+            if (members.length > 0) {
+                details.push(
+                    <span key="members" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('totalMembers')}`}>
+                            {t('sections.manager.details.totalMembers')}
+                        </span>
+                        <span>{members.length}</span>
+                    </span>
+                );
+            }
+
+            return details;
+        }
+
+        case SectionType.FEATURES: {
+            const details: React.ReactNode[] = [];
+
+            // Total features
+            const features = Array.isArray(config.features) ? config.features : [];
+            if (features.length > 0) {
+                details.push(
+                    <span key="items" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('totalItems')}`}>
+                            {t('sections.manager.details.totalItems')}
+                        </span>
+                        <span>{features.length}</span>
+                    </span>
+                );
+            }
+
+            return details;
+        }
+
+        case SectionType.BANNER: {
+            const details: React.ReactNode[] = [];
+
+            // Layout/Grid
+            if (config.layout) {
+                details.push(
+                    <span key="layout" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('layout')}`}>
+                            {t('sections.manager.details.layout')}
+                        </span>
+                        <span>{String(config.layout)}</span>
+                    </span>
+                );
+            }
+
+            // Total banners
+            const banners = Array.isArray(config.banners) ? config.banners : [];
+            if (banners.length > 0) {
+                details.push(
+                    <span key="items" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('totalItems')}`}>
+                            {t('sections.manager.details.totalItems')}
+                        </span>
+                        <span>{banners.length}</span>
+                    </span>
+                );
+            }
+
+            return details;
+        }
+
+        case SectionType.STATS: {
+            const details: React.ReactNode[] = [];
+
+            // Total stats
+            const stats = Array.isArray(config.stats) ? config.stats : [];
+            if (stats.length > 0) {
+                details.push(
+                    <span key="items" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('totalItems')}`}>
+                            {t('sections.manager.details.totalItems')}
+                        </span>
+                        <span>{stats.length}</span>
+                    </span>
+                );
+            }
+
+            return details;
+        }
+
+        case SectionType.BRAND_SHOWCASE: {
+            const details: React.ReactNode[] = [];
+
+            // Total brands
+            const brands = Array.isArray(config.brands) ? config.brands : [];
+            if (brands.length > 0) {
+                details.push(
+                    <span key="brands" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('totalBrands')}`}>
+                            {t('sections.manager.details.totalBrands')}
+                        </span>
+                        <span>{brands.length}</span>
+                    </span>
+                );
+            }
+
+            return details;
+        }
+
+        case SectionType.VIDEO: {
+            const details: React.ReactNode[] = [];
+
+            // Video source
+            if (config.videoUrl) {
+                const truncatedUrl = String(config.videoUrl).substring(0, 30);
+                details.push(
+                    <span key="video" className="inline-flex items-center gap-1 max-w-xs">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${getBadgeColor('videoUrl')}`}>
+                            {t('sections.manager.details.videoUrl')}
+                        </span>
+                        <span className="truncate">{truncatedUrl}...</span>
+                    </span>
+                );
+            }
+
+            return details;
+        }
+
+        case SectionType.WHY_CHOOSE_US: {
+            const details: React.ReactNode[] = [];
+
+            // Total cards
+            const cards = Array.isArray(config.cards) ? config.cards : [];
+            if (cards.length > 0) {
+                details.push(
+                    <span key="items" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('totalItems')}`}>
+                            {t('sections.manager.details.totalItems')}
+                        </span>
+                        <span>{cards.length}</span>
+                    </span>
+                );
+            }
+
+            // Number of columns
+            if (typeof config.columns === 'number') {
+                details.push(
+                    <span key="columns" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('columns')}`}>
+                            {t('sections.manager.details.columns')}
+                        </span>
+                        <span>{config.columns}</span>
+                    </span>
+                );
+            }
+
+            return details;
+        }
+
+        default:
+            return [];
+    }
+};
 
 export const SectionList: React.FC<SectionListProps> = ({ page, onPageChange }) => {
     const { t } = useTranslationWithBackend();
@@ -169,8 +528,34 @@ export const SectionList: React.FC<SectionListProps> = ({ page, onPageChange }) 
             id: 'type',
             header: t('sections.manager.tableHeaders.type'),
             accessor: (section) => (
-                <span className="text-sm font-medium text-gray-700">{t(`sections.types.${section.type}`)}</span>
+                <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium ${getSectionTypeBadgeColor(section.type)}`}>
+                    {t(`sections.types.${section.type}`)}
+                </span>
             ),
+            hideable: true,
+        },
+        {
+            id: 'details',
+            header: t('sections.manager.tableHeaders.details'),
+            accessor: (section) => {
+                const details = getSectionDetails(section, t);
+                if (details.length === 0) {
+                    return <span className="text-xs text-gray-400">—</span>;
+                }
+
+                // Determine grid columns based on number of details
+                const gridCols = details.length > 5 ? 'grid-cols-2' : 'grid-cols-1';
+
+                return (
+                    <div className={`grid ${gridCols} gap-y-1.5 gap-x-4 text-xs text-gray-600`}>
+                        {details.map((detail, index) => (
+                            <div key={index} className="whitespace-nowrap">
+                                {detail}
+                            </div>
+                        ))}
+                    </div>
+                );
+            },
             hideable: true,
         },
         {

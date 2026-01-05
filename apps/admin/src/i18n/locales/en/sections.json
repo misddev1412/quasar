@@ -28,9 +28,23 @@
             "tableHeaders": {
                 "title": "Title",
                 "type": "Type",
+                "details": "Details",
                 "enabled": "Status",
                 "updated": "Last Updated",
                 "actions": "Actions"
+            },
+            "details": {
+                "height": "Height",
+                "totalImages": "Images",
+                "autoplay": "Autoplay",
+                "layout": "Layout",
+                "limit": "Limit",
+                "category": "Category",
+                "totalItems": "Items",
+                "totalMembers": "Members",
+                "totalBrands": "Brands",
+                "videoUrl": "Video",
+                "columns": "Columns"
             },
             "edit": "Edit",
             "delete": "Delete",
@@ -117,7 +131,9 @@
                 "primaryButton": "Primary CTA button",
                 "primaryButtonDescription": "Show or hide the slide-specific call-to-action.",
                 "secondaryButton": "\"View sections\" button",
-                "secondaryButtonDescription": "Show or hide the sections.hero.view_sections link."
+                "secondaryButtonDescription": "Show or hide the sections.hero.view_sections link.",
+                "height": "Height (px)",
+                "heightDescription": "Fixed height in pixels (200-1200). Stays the same across all screen sizes."
             },
             "config": {
                 "header": "Section configuration",
