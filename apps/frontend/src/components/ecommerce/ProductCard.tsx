@@ -78,9 +78,9 @@ const PRICE_FONT_SIZE_CLASS_MAP: Record<string, string> = {
 };
 
 const PRICE_TONE_CLASS_MAP: Record<string, string> = {
-  muted: 'text-gray-500 dark:text-gray-400',
-  default: 'text-gray-900 dark:text-white',
-  emphasis: 'text-blue-600 dark:text-blue-400',
+  muted: 'storefront-product-card-muted',
+  default: 'storefront-product-card-text',
+  emphasis: 'storefront-product-card-accent',
   custom: '',
 };
 
@@ -374,7 +374,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   const TitleTag = (titleSettings.htmlTag || 'h3') as keyof JSX.IntrinsicElements;
   const titleHoverClass = titleSettings.textColor ? '' : 'group-hover:text-blue-600 dark:group-hover:text-blue-400';
-  const titleBaseColorClass = titleSettings.textColor ? '' : 'text-gray-900 dark:text-white';
+  const titleBaseColorClass = titleSettings.textColor ? '' : 'storefront-product-card-text';
   const titleClassName = clsx(
     titleHoverClass,
     'transition-colors leading-tight',
@@ -404,7 +404,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <div
       className={clsx(
-        'group relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 flex h-full',
+        'group relative storefront-product-card rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-600 flex h-full',
         isHorizontalLayout ? 'flex-col md:flex-row' : 'flex-col',
         className,
       )}
@@ -412,7 +412,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       {/* Product Image */}
       <div
         className={clsx(
-          'relative overflow-hidden bg-white dark:bg-gray-800',
+          'relative overflow-hidden storefront-product-card-media',
           resolvedImageHeight,
           isHorizontalLayout && 'md:w-1/2',
         )}
@@ -460,7 +460,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               isIconOnly
               size="sm"
               variant="light"
-              className="bg-white dark:bg-gray-800 rounded-full shadow-lg hover:scale-110 transition-transform duration-200 border border-gray-200 dark:border-gray-600"
+              className="storefront-product-card-chip rounded-full shadow-lg hover:scale-110 transition-transform duration-200 border border-gray-200 dark:border-gray-600"
               onPress={handleWishlistToggle}
             >
               <span className="text-lg text-red-500">❤️</span>
@@ -471,7 +471,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               isIconOnly
               size="sm"
               variant="light"
-              className="bg-white dark:bg-gray-800 rounded-full shadow-lg hover:scale-110 transition-transform duration-200 border border-gray-200 dark:border-gray-600"
+              className="storefront-product-card-chip rounded-full shadow-lg hover:scale-110 transition-transform duration-200 border border-gray-200 dark:border-gray-600"
               onPress={handleQuickView}
             >
               <span className="text-lg text-blue-600">👁️</span>
@@ -492,13 +492,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
           {/* SKU */}
           {sku && (
-            <div className="text-xs text-gray-500 dark:text-gray-400 font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded inline-block">
+            <div className="text-xs storefront-product-card-muted font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded inline-block">
               SKU: {sku}
             </div>
           )}
 
           {cardSettings.showShortDescription && shortDescription && (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm storefront-product-card-muted">
               {shortDescription}
             </p>
           )}
@@ -507,7 +507,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <div className="h-10">
             {isContactPrice ? (
               <div className="mt-1">
-                <span className="text-lg font-bold text-gray-900 dark:text-white">
+                <span className="text-lg font-bold storefront-product-card-text">
                   {t('ecommerce.product.contactPrice')}
                 </span>
               </div>
@@ -516,7 +516,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 <div className="mt-1 space-y-1">
                   <div className={priceWrapperClasses}>
                     {isPriceUpdating ? (
-                      <span className={clsx(priceValueBaseClass, 'text-gray-500 dark:text-gray-400')}>
+                      <span className={clsx(priceValueBaseClass, 'storefront-product-card-muted')}>
                         {t('ecommerce.product.priceUpdating', 'Giá đang cập nhật')}
                       </span>
                     ) : (
@@ -524,9 +524,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         <span className={clsx(priceValueBaseClass, priceToneClass)} style={priceColorStyle}>
                           {formatCurrency(currentPrice)}
                         </span>
-                        {showPriceDivider && <span className="w-px h-4 bg-gray-200 dark:bg-gray-700" />}
+                        {showPriceDivider && <span className="w-px h-4 storefront-product-card-divider" />}
                         {shouldShowOriginalPrice && displayOriginalPrice !== undefined && displayOriginalPrice !== null && (
-                          <span className="text-sm text-gray-500 dark:text-gray-400 line-through">
+                          <span className="text-sm storefront-product-card-muted line-through">
                             {formatCurrency(displayOriginalPrice)}
                           </span>
                         )}

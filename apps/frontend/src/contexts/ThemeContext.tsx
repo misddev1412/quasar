@@ -51,7 +51,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   useEffect(() => {
-    const colors = (defaultThemeData?.data as { colors?: ThemeColorModes } | undefined)?.colors;
+    const responsePayload = (defaultThemeData as { data?: any } | undefined)?.data ?? defaultThemeData;
+    const colors = (responsePayload as { colors?: ThemeColorModes } | undefined)?.colors;
     if (!colors) return;
     const root = document.documentElement;
     const applyPalette = (mode: Theme, palette: ThemeColorConfig) => {
@@ -71,6 +72,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     applyPalette('dark', colors.dark);
     setThemeColors(colors);
     root.setAttribute('data-storefront-theme', 'custom');
+    const activePalette = theme === 'dark' ? colors.dark : colors.light;
+    root.style.setProperty('--storefront-body', activePalette.bodyBackgroundColor);
+    root.style.setProperty('--storefront-surface', activePalette.surfaceBackgroundColor);
+    root.style.setProperty('--storefront-text', activePalette.textColor);
+    root.style.setProperty('--storefront-muted', activePalette.mutedTextColor);
+    root.style.setProperty('--storefront-border', activePalette.borderColor);
+    root.style.setProperty('--storefront-accent', activePalette.accentColor);
+    root.style.setProperty('--color-primary', activePalette.primaryColor);
+    root.style.setProperty('--color-secondary', activePalette.secondaryColor);
+    root.style.setProperty('--color-accent', activePalette.accentColor);
   }, [defaultThemeData]);
 
   useEffect(() => {

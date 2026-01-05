@@ -657,6 +657,7 @@ const TopMenuBar: React.FC = () => {
     const backgroundColor = item.backgroundColor || undefined;
     const borderColor = item.borderColor || undefined;
     const borderWidth = item.borderWidth || undefined;
+    const hasCustomBorder = Boolean(borderColor || borderWidth);
     let iconNode: React.ReactNode = item.icon ? (
       <UnifiedIcon icon={item.icon} variant="nav" size={16} color={textColor} />
     ) : null;
@@ -667,11 +668,13 @@ const TopMenuBar: React.FC = () => {
     }
 
     const commonClasses = clsx(
-      'flex items-center gap-2 text-xs md:text-sm transition-colors px-2 py-1 rounded-md border border-transparent',
+      'flex items-center gap-2 text-xs md:text-sm transition-colors px-2 py-1 rounded-md',
+      hasCustomBorder ? 'border' : 'border-0',
       backgroundColor ? 'shadow-sm' : 'hover:bg-white/10',
     );
     const compactClasses = clsx(
-      'flex items-center justify-center text-xs md:text-sm transition-colors rounded-full border border-transparent w-9 h-9',
+      'flex items-center justify-center text-xs md:text-sm transition-colors rounded-full w-9 h-9',
+      hasCustomBorder ? 'border' : 'border-0',
       backgroundColor ? 'shadow-sm' : 'hover:bg-white/10',
     );
 

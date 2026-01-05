@@ -385,22 +385,22 @@ const Footer: React.FC<FooterProps> = ({
   const themeClasses = theme === 'dark'
     ? {
       background: 'bg-gray-900 text-gray-100',
-      border: 'border-gray-800',
+      border: 'storefront-footer-border',
       subtle: 'text-gray-400',
       link: 'text-gray-300 hover:text-white',
-      divider: 'border-gray-800',
+      divider: 'storefront-footer-divider',
       inputBg: 'bg-gray-800/70 text-white placeholder-gray-400',
-      inputBorder: 'border-gray-700 focus:ring-blue-400 focus:border-blue-400',
+      inputBorder: 'storefront-footer-input-border focus:ring-blue-400 focus:border-blue-400',
       button: 'bg-white text-gray-900 hover:bg-gray-100',
     }
     : {
       background: 'bg-gray-50 text-gray-900',
-      border: 'border-gray-200',
+      border: 'storefront-footer-border',
       subtle: 'text-gray-600',
       link: 'text-gray-600 hover:text-gray-900',
-      divider: 'border-gray-200',
+      divider: 'storefront-footer-divider',
       inputBg: 'bg-white text-gray-900 placeholder-gray-500',
-      inputBorder: 'border-gray-300 focus:ring-blue-500 focus:border-blue-500',
+      inputBorder: 'storefront-footer-input-border focus:ring-blue-500 focus:border-blue-500',
       button: 'bg-gray-900 text-white hover:bg-gray-800',
     };
 

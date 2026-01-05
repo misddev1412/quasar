@@ -57,7 +57,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <Header />
         <LoyaltyTierBanner />
 
-        <main className="flex-1 w-full">{children}</main>
+        <main className="flex-1 w-full storefront-section-stage">{children}</main>
 
         <Footer />
       </div>

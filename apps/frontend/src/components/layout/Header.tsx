@@ -481,9 +481,11 @@ const Header: React.FC = () => {
   const [categories, setCategories] = useState<Array<{ id: string; name: string; translations?: Array<{ locale: string; name?: string }> }>>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const { theme } = useTheme();
-  const headerBackgroundColor = theme === 'dark'
-    ? mainMenuConfig.backgroundColor.dark
-    : mainMenuConfig.backgroundColor.light;
+  const resolvedHeaderBackground =
+    theme === 'dark' ? mainMenuConfig.backgroundColor.dark : mainMenuConfig.backgroundColor.light;
+  const normalizedHeaderBackground =
+    typeof resolvedHeaderBackground === 'string' ? resolvedHeaderBackground.trim() : '';
+  const headerBackgroundColor = normalizedHeaderBackground.length > 0 ? normalizedHeaderBackground : undefined;
   const headerBackgroundStyle = headerBackgroundColor ? { backgroundColor: headerBackgroundColor } : undefined;
 
   useEffect(() => {
@@ -844,7 +846,7 @@ const Header: React.FC = () => {
     <>
       <TopMenuBar />
       <header
-        className="sticky top-0 z-50 bg-white dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm"
+        className="sticky top-0 z-50 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm"
         style={headerBackgroundStyle}
       >
         <Container 

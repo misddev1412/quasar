@@ -130,6 +130,7 @@ const DesktopNavigationItem: React.FC<{
 }> = ({ item, isActive, onMouseEnter, onMouseLeave }) => {
   const hasChildren = item.children && item.children.length > 0;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const hasCustomBorder = Boolean(item.borderColor || item.borderWidth);
 
   return (
     <div
@@ -148,7 +149,7 @@ const DesktopNavigationItem: React.FC<{
         target={item.target}
         rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
         className={`
-          flex items-center gap-1 text-sm font-medium transition-all duration-200 relative py-2 px-3 rounded-lg border border-transparent
+          flex items-center gap-1 text-sm font-medium transition-all duration-200 relative py-2 px-3 rounded-lg ${hasCustomBorder ? 'border' : 'border-0'}
           ${
             isActive
               ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
@@ -313,6 +314,7 @@ const DesktopNavigation: React.FC<{
         const hasChildren = item.children && item.children.length > 0;
         const isMega = item.isMegaMenu && hasChildren;
         const renderer = renderers?.[item.type];
+        const hasCustomBorder = Boolean(item.borderColor || item.borderWidth);
 
         if (renderer) {
           return (
@@ -335,7 +337,7 @@ const DesktopNavigation: React.FC<{
               target={item.target}
               rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
               className={`
-                flex items-center ${itemSizeStyle.desktopGap} ${itemSizeStyle.desktopText} ${itemWeightClass} ${itemTransformClass} transition-all duration-200 relative ${itemSizeStyle.desktopPadding} rounded-lg border border-transparent
+                flex items-center ${itemSizeStyle.desktopGap} ${itemSizeStyle.desktopText} ${itemWeightClass} ${itemTransformClass} transition-all duration-200 relative ${itemSizeStyle.desktopPadding} rounded-lg ${hasCustomBorder ? 'border' : 'border-0'}
                 ${
                   isActive
                     ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'

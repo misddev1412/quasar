@@ -225,7 +225,7 @@ const FeaturedProducts: React.FC<{
           <Link
             key={item.id}
             href={item.href}
-            className="group flex items-center gap-4 px-4 py-3 bg-white dark:bg-gray-900/40 rounded-lg border border-transparent hover:border-blue-100 dark:hover:border-blue-900 transition-all duration-200"
+            className="group flex items-center gap-4 px-4 py-3 bg-white dark:bg-gray-900/40 rounded-lg border-0 transition-all duration-200"
             onClick={onClose}
             target={item.target === '_blank' ? '_blank' : undefined}
             rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
