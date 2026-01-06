@@ -56,7 +56,7 @@ interface VisitorStatsCard {
   valueTitle?: string;
 }
 
-const SOCIAL_ICON_MAP: Record<FooterSocialType, JSX.Element> = {
+const SOCIAL_ICON_MAP: Record<FooterSocialType, React.JSX.Element> = {
   facebook: (
     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M24 12.073C24 5.373 18.627 0 12 0S0 5.373 0 12.073C0 18.062 4.388 23.027 10.125 23.927V15.542H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -795,6 +795,7 @@ const Footer: React.FC<FooterProps> = ({
       <section
         className={clsx('w-full border-b', sectionBackgroundClass, sectionBorderClass)}
         style={sectionStyle}
+        data-footer-stats
       >
         <SectionContainer disablePadding>
           <div className={clsx(contentWrapperClass, 'py-6')}>
@@ -808,7 +809,6 @@ const Footer: React.FC<FooterProps> = ({
                       'flex h-full flex-col gap-2 rounded-2xl border px-4 py-3 shadow-sm',
                       cardBgClass
                     )}
-                    style={customTextColor ? { borderColor: customTextColor } : undefined}
                   >
                     <div className="flex items-center gap-3">
                       <div className={clsx('flex h-10 w-10 items-center justify-center rounded-full', iconBaseClass)}>
@@ -846,6 +846,7 @@ const Footer: React.FC<FooterProps> = ({
     <footer
       className={clsx(themeClasses.background, 'border-t', themeClasses.border, className)}
       style={rootStyle}
+      data-main-footer
     >
       <div className={clsx(contentWrapperClass, 'py-12 space-y-10')}>
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
@@ -879,6 +880,7 @@ const Footer: React.FC<FooterProps> = ({
     <footer
       className={clsx(themeClasses.background, 'border-t', themeClasses.border, className)}
       style={rootStyle}
+      data-main-footer
     >
       <div className={clsx(contentWrapperClass, 'py-12 space-y-10')}>
         {renderBrandSection()}
@@ -911,6 +913,7 @@ const Footer: React.FC<FooterProps> = ({
     <footer
       className={clsx(themeClasses.background, 'border-t', themeClasses.border, className)}
       style={rootStyle}
+      data-main-footer
     >
       <div className={clsx(contentWrapperClass, 'py-8 space-y-6')}>
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

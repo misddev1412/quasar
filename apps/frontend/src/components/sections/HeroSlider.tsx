@@ -44,6 +44,8 @@ export interface HeroSliderConfig {
   fieldVisibility?: HeroSliderFieldVisibility;
   buttonVisibility?: HeroSliderButtonVisibility;
   height?: number;
+  containerPaddingY?: string;
+  containerBorderRadius?: string;
 }
 
 export interface SectionTranslationContent {
@@ -79,7 +81,7 @@ const defaultSlides: HeroSlideConfig[] = [
 
 const DEFAULT_BACKGROUND = 'linear-gradient(135deg, #1d4ed8 0%, #4338ca 45%, #0f172a 100%)';
 const DEFAULT_OVERLAY_COLOR = 'rgba(15, 23, 42, 0.55)';
-const HERO_ASPECT_RATIO = '1550 / 650';
+const HERO_ASPECT_RATIO = '31 / 9';
 
 type ParsedColor = { r: number; g: number; b: number; a: number };
 
@@ -184,6 +186,10 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   const autoplay = config.autoplay ?? true;
   const layout = config.layout === 'full-width' ? 'full-width' : 'container';
   const isFullWidth = layout === 'full-width';
+  const containerPaddingYRaw = typeof config.containerPaddingY === 'string' ? config.containerPaddingY.trim() : '';
+  const containerPaddingY = containerPaddingYRaw;
+  const containerBorderRadiusRaw = typeof config.containerBorderRadius === 'string' ? config.containerBorderRadius.trim() : '';
+  const containerBorderRadius = containerBorderRadiusRaw;
 
   const overlaySettings = config.overlay ?? {};
   const overlayEnabled = overlaySettings.enabled ?? true;
@@ -206,23 +212,12 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
       : { backgroundColor: overlayBackground }
     : { background: DEFAULT_BACKGROUND };
 
-  const configuredHeight = config.height;
-  // Use standard desktop widths as reference for calculating aspect ratio
-  // Full width: 1920px
-  // Container (max-w-6xl): 1152px
-  const referenceWidth = isFullWidth ? 1920 : 1152;
-
-  const heroShellStyle: CSSProperties = configuredHeight
-    ? {
-      ...containerStyle,
-      // Calculate aspect ratio to maintain the intended proportions from the desktop design
-      aspectRatio: `${referenceWidth} / ${configuredHeight}`,
-      // Remove fixed height so it scales gracefully
-    }
-    : {
-      ...containerStyle,
-      aspectRatio: HERO_ASPECT_RATIO,
-    };
+  const heroShellStyle: CSSProperties = {
+    ...containerStyle,
+    width: '100%',
+    aspectRatio: HERO_ASPECT_RATIO,
+    ...(isFullWidth ? {} : { borderRadius: containerBorderRadius || '1.5rem' }),
+  };
 
   const overlayStyle: CSSProperties | undefined = overlayEnabled ? buildOverlayStyle(baseOverlayColor, overlayOpacity) : undefined;
   const fieldVisibility = config.fieldVisibility ?? {};
@@ -271,9 +266,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   const contentPaddingClass = isFullWidth
     ? 'px-4 sm:px-8 lg:px-12 xl:px-16'
     : 'px-6 sm:px-10 lg:px-16';
-  const contentWrapperClass = configuredHeight
-    ? 'py-12 sm:py-16 lg:py-20 xl:py-24 flex h-full flex-col justify-center'
-    : 'py-12 sm:py-16 lg:py-20 xl:py-24 min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[550px] xl:min-h-[600px] 2xl:min-h-[650px] flex h-full flex-col justify-center';
+  const contentWrapperClass = 'py-12 sm:py-16 lg:py-20 xl:py-24 flex h-full flex-col justify-center';
   const backgroundImage = activeSlide?.imageUrl?.trim();
   const backgroundImageValue = backgroundImage
     ? `url('${backgroundImage.replace(/'/g, "\\'")}')`
@@ -289,12 +282,15 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
     }
     : undefined;
   const outerWrapperClass = isFullWidth
-    ? 'w-full'
-    : 'px-4 sm:px-6 lg:px-8';
-  const constrainedWrapperClass = isFullWidth ? '' : 'max-w-6xl mx-auto w-full';
+    ? 'w-full py-0'
+    : 'max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-0';
+  const outerWrapperStyle: CSSProperties | undefined = !isFullWidth && containerPaddingY
+    ? { paddingTop: containerPaddingY, paddingBottom: containerPaddingY }
+    : undefined;
+  const constrainedWrapperClass = isFullWidth ? '' : 'w-full';
   const heroShellClass = isFullWidth
     ? 'relative overflow-hidden text-white'
-    : 'relative overflow-hidden text-white rounded-3xl shadow-2xl border border-white/10 dark:border-white/5';
+    : 'relative overflow-hidden text-white shadow-2xl border border-white/10 dark:border-white/5';
 
   const heroContent = (
     <div className={heroShellClass} style={heroShellStyle}>
@@ -368,7 +364,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   );
 
   return (
-    <section className={outerWrapperClass}>
+    <section className={outerWrapperClass} style={outerWrapperStyle}>
       {isFullWidth ? (
         heroContent
       ) : (

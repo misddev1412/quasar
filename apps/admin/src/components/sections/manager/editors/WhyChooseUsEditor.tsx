@@ -44,6 +44,7 @@ export const WhyChooseUsEditor: React.FC<WhyChooseUsEditorProps> = ({ value, onC
     const cardBorderColor = typeof value?.cardBorderColor === 'string' ? value.cardBorderColor : '';
     const hexagonSize = typeof value?.hexagonSize === 'string' ? value.hexagonSize : '12rem';
     const hexagonBorderWidth = clampNumber(value?.hexagonBorderWidth, 6, 1, 20);
+    const titleClamp = clampNumber(value?.titleClamp, 2, 0, 3);
     const descriptionClamp = clampNumber(value?.descriptionClamp, 3, 0, 3);
     const uppercaseTitles = value?.uppercaseTitles !== false;
 
@@ -171,6 +172,22 @@ export const WhyChooseUsEditor: React.FC<WhyChooseUsEditorProps> = ({ value, onC
                         inputSize="md"
                     />
                     <span className="text-xs text-gray-500">{t('sections.manager.config.whyChooseUs.hexagonBorderWidthDescription')}</span>
+                </label>
+
+                <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('sections.manager.config.whyChooseUs.titleClamp')}
+                    <Input
+                        type="number"
+                        min={0}
+                        max={3}
+                        value={titleClamp}
+                        onChange={(event) => updateConfig({
+                            titleClamp: clampNumber(Number(event.target.value), titleClamp, 0, 3),
+                        })}
+                        className="text-sm"
+                        inputSize="md"
+                    />
+                    <span className="text-xs text-gray-500">{t('sections.manager.config.whyChooseUs.titleClampDescription')}</span>
                 </label>
 
                 <label className="flex flex-col gap-1 text-sm text-gray-600">

@@ -5,6 +5,7 @@ export { NewsSection } from './NewsSection';
 export { CustomHtmlSection } from './CustomHtmlSection';
 export { CTABannerSection } from './CTABannerSection';
 export { BannerGridSection } from './BannerGridSection';
+export { SideBannersSection } from './SideBannersSection';
 export { FeaturesSection } from './FeaturesSection';
 export { TestimonialsSection } from './TestimonialsSection';
 export { VideoSection } from './VideoSection';
@@ -21,6 +22,7 @@ export type { NewsSectionConfig, NewsSectionRowConfig, NewsSectionStrategy } fro
 export type { CustomHtmlConfig } from './CustomHtmlSection';
 export type { CTABannerConfig } from './CTABannerSection';
 export type { BannerGridConfig, BannerCardConfig, BannerCardLink, BannerLabelTextTransform } from './BannerGridSection';
+export type { SideBannersConfig, SideBannerCardConfig, SideBannerBreakpoint } from './SideBannersSection';
 export type { FeaturesSectionConfig } from './FeaturesSection';
 export type { TestimonialsSectionConfig } from './TestimonialsSection';
 export type { VideoSectionConfig } from './VideoSection';

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SharedModule } from '../shared/shared.module';
 import { FirebaseModule } from '../firebase/firebase.module';
@@ -47,7 +47,7 @@ import { UserModule } from '../user/user.module';
     ]),
     SharedModule,
     FirebaseModule,
-    UserModule,
+    forwardRef(() => UserModule),
   ],
   providers: [
     NotificationRepository,

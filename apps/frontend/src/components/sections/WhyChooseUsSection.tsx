@@ -25,6 +25,7 @@ export interface WhyChooseUsConfig {
   gap?: string;
   cardPadding?: string;
   uppercaseTitles?: boolean;
+  titleClamp?: number;
   descriptionClamp?: number;
   hexagonSize?: string;
   hexagonBorderWidth?: number;
@@ -176,8 +177,9 @@ const HexagonIcon: React.FC<{
 const WhyChooseUsCard: React.FC<{
   item: WhyChooseUsItemConfig;
   config: WhyChooseUsConfig;
+  titleClamp: number;
   descriptionClamp: number;
-}> = ({ item, config, descriptionClamp }) => {
+}> = ({ item, config, titleClamp, descriptionClamp }) => {
   const accentColor = item.accentColor || config.cardBorderColor || '#00A0DC';
   const cardStyles: React.CSSProperties = {
     padding: config.cardPadding || '2rem 1.5rem',
@@ -190,6 +192,7 @@ const WhyChooseUsCard: React.FC<{
     cardStyles.borderColor = config.cardBorderColor;
   }
 
+  const titleClampClass = titleClamp > 0 ? `line-clamp-${Math.min(titleClamp, 3)}` : '';
   const clampClass = descriptionClamp > 0 ? `line-clamp-${Math.min(descriptionClamp, 3)}` : '';
 
   return (
@@ -201,7 +204,7 @@ const WhyChooseUsCard: React.FC<{
         <HexagonIcon item={item} hexagonSize={config.hexagonSize || '12rem'} borderWidth={config.hexagonBorderWidth ?? 6} />
         {item.title && (
           <h3
-            className={`mt-8 text-2xl font-bold tracking-tight text-sky-500 ${config.uppercaseTitles !== false ? 'uppercase tracking-[0.18em] text-base' : ''}`}
+            className={`mt-8 text-2xl font-bold tracking-tight text-sky-500 ${config.uppercaseTitles !== false ? 'uppercase tracking-[0.18em] text-base' : ''} ${titleClampClass}`}
             style={{ color: accentColor }}
           >
             {item.title}
@@ -221,6 +224,7 @@ export const WhyChooseUsSection: React.FC<WhyChooseUsSectionProps> = ({ config, 
   const { t } = useTranslation();
   const columns = clampColumns(config.columns);
   const items = useMemo(() => sanitizeItems(config.items), [config.items]);
+  const titleClamp = typeof config.titleClamp === 'number' ? Math.max(0, config.titleClamp) : 2;
   const descriptionClamp = typeof config.descriptionClamp === 'number' ? Math.max(0, config.descriptionClamp) : 3;
   const gridClass = buildGridClass(columns);
   const gridStyle: React.CSSProperties = {};
@@ -251,7 +255,7 @@ export const WhyChooseUsSection: React.FC<WhyChooseUsSectionProps> = ({ config, 
 
         <div className={`${gridClass} gap-6`} style={gridStyle}>
           {items.map((item, index) => (
-            <WhyChooseUsCard key={item.id || `why-${index}`} item={item} config={config} descriptionClamp={descriptionClamp} />
+            <WhyChooseUsCard key={item.id || `why-${index}`} item={item} config={config} titleClamp={titleClamp} descriptionClamp={descriptionClamp} />
           ))}
         </div>
       </SectionContainer>

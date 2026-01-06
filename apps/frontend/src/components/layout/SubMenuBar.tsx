@@ -805,7 +805,10 @@ const SubMenuBar: React.FC = () => {
 
   return (
     <>
-      <div className="z-30 w-full border-b border-gray-200/70 dark:border-gray-800/70 bg-gradient-to-r from-white/95 via-white/90 to-white/95 dark:from-gray-950/95 dark:via-gray-950/90 shadow-[0_10px_24px_rgba(15,23,42,0.08)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.6)]">
+      <div
+        className="z-30 w-full border-b border-gray-200/70 dark:border-gray-800/70 bg-gradient-to-r from-white/95 via-white/90 to-white/95 dark:from-gray-950/95 dark:via-gray-950/90 shadow-[0_10px_24px_rgba(15,23,42,0.08)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.6)]"
+        data-submenu-bar
+      >
         <div className="pointer-events-none absolute inset-0 w-full bg-gradient-to-r from-blue-50/20 via-transparent to-purple-50/20 dark:from-blue-900/10 dark:via-transparent dark:to-purple-900/10" />
         <Container className="relative z-10 py-2.5" aria-label="secondary storefront navigation">
           <div className="subnav-scroll-area flex items-center gap-2 sm:gap-2.5 overflow-x-auto scrollbar-thin scrollbar-thumb-transparent pb-1 pr-3">

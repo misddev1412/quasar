@@ -7,6 +7,7 @@ import {
   CustomHtmlConfig,
   CTABannerConfig,
   BannerGridConfig,
+  SideBannersConfig,
   FeaturesSectionConfig,
   TestimonialsSectionConfig,
   VideoSectionConfig,
@@ -42,6 +43,7 @@ export type SectionComponentConfigMap = {
   [SectionType.CUSTOM_HTML]: CustomHtmlConfig;
   [SectionType.CTA]: CTABannerConfig;
   [SectionType.BANNER]: BannerGridConfig;
+  [SectionType.SIDE_BANNERS]: SideBannersConfig;
   [SectionType.FEATURES]: FeaturesSectionConfig;
   [SectionType.TESTIMONIALS]: TestimonialsSectionConfig;
   [SectionType.VIDEO]: VideoSectionConfig;

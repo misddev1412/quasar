@@ -377,10 +377,10 @@ const TopMenuMarquee: React.FC<{
     marqueeStyle.flex = '1 1 240px';
   }
 
-  const marqueeTrackStyle: React.CSSProperties = {
+  const marqueeTrackStyle = {
     animationDuration: `${animationDuration}s`,
     '--marquee-translate': `${translatePercent}%`,
-  };
+  } as React.CSSProperties;
 
   const renderTickerEntry = (
     entry: MarqueeDisplayItem,
@@ -391,15 +391,15 @@ const TopMenuMarquee: React.FC<{
   ) => {
     const label = entry.label || entry.href || '';
     const href = entry.href;
-    const wrapperClasses = 'flex items-center gap-2 pr-6 whitespace-nowrap text-xs md:text-sm';
+    const wrapperClasses = 'flex items-center gap-2 pr-6 mr-6 whitespace-nowrap text-xs md:text-sm';
     const keySuffix = isMeasurement ? 'measure' : 'node';
     const key = `${entry.key}-${keySuffix}-${iterationIndex}-${repeatIndex}-${entryIndex}`;
     const baseProps =
       iterationIndex > 0 || isMeasurement
         ? {
-            'aria-hidden': true as const,
-            tabIndex: -1,
-          }
+          'aria-hidden': true as const,
+          tabIndex: -1,
+        }
         : {};
 
     const iconNode = entry.iconName ? (
@@ -465,13 +465,13 @@ const TopMenuMarquee: React.FC<{
       style={marqueeStyle}
     >
       <div className="relative w-full overflow-hidden" ref={marqueeWrapperRef}>
-        <div className="top-menu-marquee-track flex flex-nowrap items-center gap-6" style={marqueeTrackStyle}>
+        <div className="top-menu-marquee-track flex flex-nowrap items-center" style={marqueeTrackStyle}>
           {marqueeSequence}
         </div>
 
         <div
           aria-hidden
-          className="top-menu-marquee-measure flex flex-nowrap items-center gap-6 absolute inset-0 opacity-0 pointer-events-none h-0 overflow-hidden"
+          className="top-menu-marquee-measure flex flex-nowrap items-center absolute inset-0 opacity-0 pointer-events-none h-0 overflow-hidden"
           ref={measurementRef}
         >
           {items.map((entry, entryIndex) => renderTickerEntry(entry, entryIndex, 0, 0, { isMeasurement: true }))}
@@ -808,13 +808,13 @@ const TopMenuBar: React.FC = () => {
         const displayItems: MarqueeDisplayItem[] =
           prioritizedConfigItems.length > 0
             ? prioritizedConfigItems.map((entry, index) => ({
-                key: `${item.id}-cfg-${index}`,
-                label: entry.label || entry.url || undefined,
-                href: entry.url,
-                target: entry.target || MenuTarget.SELF,
-                iconName: entry.icon,
-                iconColor: textColor,
-              }))
+              key: `${item.id}-cfg-${index}`,
+              label: entry.label || entry.url || undefined,
+              href: entry.url,
+              target: entry.target || MenuTarget.SELF,
+              iconName: entry.icon,
+              iconColor: textColor,
+            }))
             : childItems;
 
         if (displayItems.length === 0) {

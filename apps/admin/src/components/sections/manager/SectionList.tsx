@@ -26,12 +26,14 @@ const getBadgeColor = (detailKey: string): string => {
         autoplay: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
         layout: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
         limit: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+        width: 'bg-lime-100 text-lime-700 dark:bg-lime-900/30 dark:text-lime-300',
         category: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300',
         totalItems: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
         totalMembers: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
         totalBrands: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
         videoUrl: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
         columns: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
+        breakpoint: 'bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-300',
     };
 
     return colorMap[detailKey] || 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';
@@ -48,6 +50,7 @@ const getSectionTypeBadgeColor = (sectionType: SectionType): string => {
         [SectionType.NEWS]: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
         [SectionType.CUSTOM_HTML]: 'bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-300',
         [SectionType.BANNER]: 'bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-900/30 dark:text-fuchsia-300',
+        [SectionType.SIDE_BANNERS]: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-200',
         [SectionType.TESTIMONIALS]: 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300',
         [SectionType.CTA]: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
         [SectionType.FEATURES]: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
@@ -160,6 +163,52 @@ const getSectionDetails = (section: AdminSection, t: (key: string) => string): R
                 );
             }
 
+            return details;
+        }
+
+        case SectionType.SIDE_BANNERS: {
+            const details: React.ReactNode[] = [];
+            if (typeof config.width === 'number') {
+                details.push(
+                    <span key="width" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('width')}`}>
+                            {t('sections.manager.details.width')}
+                        </span>
+                        <span>{config.width}px</span>
+                    </span>
+                );
+            }
+            if (typeof config.height === 'number') {
+                details.push(
+                    <span key="height" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('height')}`}>
+                            {t('sections.manager.details.height')}
+                        </span>
+                        <span>{config.height}px</span>
+                    </span>
+                );
+            }
+            const cards = Array.isArray(config.cards) ? config.cards : [];
+            if (cards.length > 0) {
+                details.push(
+                    <span key="banners" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('totalItems')}`}>
+                            {t('sections.manager.details.banners')}
+                        </span>
+                        <span>{cards.length}</span>
+                    </span>
+                );
+            }
+            if (typeof config.hideBelowBreakpoint === 'string') {
+                details.push(
+                    <span key="breakpoint" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('breakpoint')}`}>
+                            {t('sections.manager.details.breakpoint')}
+                        </span>
+                        <span className="uppercase">{config.hideBelowBreakpoint}</span>
+                    </span>
+                );
+            }
             return details;
         }
 

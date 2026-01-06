@@ -95,7 +95,21 @@ export const HeroSliderConfigEditor: React.FC<HeroSliderConfigEditorProps> = ({ 
             ? overlayColor.slice(0, 7)
             : '#000000';
     const currentLayout = value?.layout === 'full-width' ? 'full-width' : 'container';
+    const isContainerLayout = currentLayout === 'container';
+    const containerPaddingValue = typeof value?.containerPaddingY === 'string' ? value.containerPaddingY : '';
+    const containerBorderRadiusValue = typeof value?.containerBorderRadius === 'string' ? value.containerBorderRadius : '';
     const buttonVisibility = (value?.buttonVisibility as { primary?: boolean; secondary?: boolean }) || {};
+    const containerPaddingOptions = [
+        { value: '', label: t('sections.manager.heroSlider.containerPaddingOptionDefault') },
+        { value: '1.5rem', label: t('sections.manager.heroSlider.containerPaddingOptionComfortable') },
+        { value: '3rem', label: t('sections.manager.heroSlider.containerPaddingOptionSpacious') },
+    ];
+    const containerBorderRadiusOptions = [
+        { value: '', label: t('sections.manager.heroSlider.containerBorderRadiusOptionDefault') },
+        { value: '1rem', label: t('sections.manager.heroSlider.containerBorderRadiusOptionRounded') },
+        { value: '1.5rem', label: t('sections.manager.heroSlider.containerBorderRadiusOptionExtraRounded') },
+        { value: '2rem', label: t('sections.manager.heroSlider.containerBorderRadiusOptionPill') },
+    ];
     const handleButtonVisibilityChange = (field: 'primary' | 'secondary', visible: boolean) => {
         const existing = (value?.buttonVisibility as Record<string, boolean>) || {};
         onChange({
@@ -160,6 +174,34 @@ export const HeroSliderConfigEditor: React.FC<HeroSliderConfigEditorProps> = ({ 
                     </span>
                 </label>
             </div>
+            {isContainerLayout && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label className="flex flex-col gap-1 text-sm text-gray-600">
+                        {t('sections.manager.heroSlider.containerPadding')}
+                        <Select
+                            value={containerPaddingValue}
+                            onChange={(next) => handleValueChange('containerPaddingY', next as string)}
+                            options={containerPaddingOptions}
+                            className="text-sm"
+                        />
+                        <span className="text-xs text-gray-500">
+                            {t('sections.manager.heroSlider.containerPaddingDescription')}
+                        </span>
+                    </label>
+                    <label className="flex flex-col gap-1 text-sm text-gray-600">
+                        {t('sections.manager.heroSlider.containerBorderRadius')}
+                        <Select
+                            value={containerBorderRadiusValue}
+                            onChange={(next) => handleValueChange('containerBorderRadius', next as string)}
+                            options={containerBorderRadiusOptions}
+                            className="text-sm"
+                        />
+                        <span className="text-xs text-gray-500">
+                            {t('sections.manager.heroSlider.containerBorderRadiusDescription')}
+                        </span>
+                    </label>
+                </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <label className="flex items-center gap-2 text-sm text-gray-600 border rounded-lg p-3 bg-white">
                     <input

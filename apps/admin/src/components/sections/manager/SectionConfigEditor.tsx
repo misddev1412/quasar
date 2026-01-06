@@ -12,6 +12,7 @@ import { ProductsByCategoryConfigEditor } from './editors/ProductsByCategoryEdit
 import { NewsByCategoryConfigEditor } from './editors/NewsByCategoryEditor';
 import { CustomHtmlEditor } from './editors/CustomHtmlEditor';
 import { BannerEditor } from './editors/BannerEditor';
+import { SideBannersEditor } from './editors/SideBannersEditor';
 import { TestimonialsEditor } from './editors/TestimonialsEditor';
 import { CtaEditor } from './editors/CtaEditor';
 import { FeaturesEditor } from './editors/FeaturesEditor';
@@ -69,6 +70,7 @@ export const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, 
             {type === SectionType.NEWS && <NewsByCategoryConfigEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.CUSTOM_HTML && <CustomHtmlEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.BANNER && <BannerEditor value={value || {}} onChange={onChange} />}
+            {type === SectionType.SIDE_BANNERS && <SideBannersEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.TESTIMONIALS && <TestimonialsEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.CTA && <CtaEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.FEATURES && <FeaturesEditor value={value || {}} onChange={onChange} />}
@@ -87,6 +89,7 @@ export const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, 
                 SectionType.NEWS,
                 SectionType.CUSTOM_HTML,
                 SectionType.BANNER,
+                SectionType.SIDE_BANNERS,
                 SectionType.TESTIMONIALS,
                 SectionType.CTA,
                 SectionType.FEATURES,
