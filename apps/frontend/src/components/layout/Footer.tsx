@@ -323,6 +323,8 @@ const Footer: React.FC<FooterProps> = ({
   const brandTitle = footerConfig.brandTitle?.trim() || siteName;
   const brandDescription = footerConfig.brandDescription || propDescription;
   const brandDescriptionColor = footerConfig.brandDescriptionColor?.trim();
+  const getTextStyle = (opacity = 1): React.CSSProperties | undefined =>
+    customTextColor ? { color: customTextColor, opacity } : undefined;
   const brandDescriptionStyle = brandDescriptionColor ? { color: brandDescriptionColor } : getTextStyle(0.8);
   const variant = footerConfig.variant ?? 'columns';
   const theme = footerConfig.theme ?? 'dark';
@@ -341,8 +343,6 @@ const Footer: React.FC<FooterProps> = ({
         ...(customTextColor ? { color: customTextColor } : {}),
       } as React.CSSProperties)
       : undefined;
-  const getTextStyle = (opacity = 1): React.CSSProperties | undefined =>
-    customTextColor ? { color: customTextColor, opacity } : undefined;
 
   const socialLinks = useMemo(
     () =>
