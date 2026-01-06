@@ -2,6 +2,7 @@ import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { QueuePublisher, QUEUE_NAMES, MESSAGE_TYPES } from '@shared/queues';
 import { DataExportJob } from '../entities/data-export-job.entity';
+import { ExportJobPayload } from '../interfaces/export-payload.interface';
 
 @Injectable()
 export class ExportQueueService implements OnModuleDestroy {
@@ -38,19 +39,23 @@ export class ExportQueueService implements OnModuleDestroy {
   }
 
   async enqueue(job: DataExportJob): Promise<void> {
+    await this.enqueuePayload({
+      jobId: job.id,
+      resource: job.resource,
+      format: job.format,
+      filters: job.filters,
+      columns: job.columns,
+      options: job.options,
+      requestedBy: job.requestedBy,
+    });
+  }
+
+  async enqueuePayload(payload: ExportJobPayload): Promise<void> {
     await this.ensureConnected();
 
     await this.publisher!.publish(QUEUE_NAMES.EXPORT, {
       type: MESSAGE_TYPES.EXPORT_GENERATE,
-      payload: {
-        jobId: job.id,
-        resource: job.resource,
-        format: job.format,
-        filters: job.filters,
-        columns: job.columns,
-        options: job.options,
-        requestedBy: job.requestedBy,
-      },
+      payload,
     });
   }
 

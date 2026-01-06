@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { BaseProcessor } from './base.processor';
 import { QueueMessage } from '../queues';
-import { WorkerExportService, ExportPayload } from '@backend/modules/worker-services';
+import { ExportPayload } from '@backend/modules/worker-services';
+import { WorkerExportService } from '@backend/modules/export';
 
 @Injectable()
 export class ExportProcessor extends BaseProcessor<ExportPayload> {

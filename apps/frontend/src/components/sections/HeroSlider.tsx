@@ -207,15 +207,22 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
     : { background: DEFAULT_BACKGROUND };
 
   const configuredHeight = config.height;
+  // Use standard desktop widths as reference for calculating aspect ratio
+  // Full width: 1920px
+  // Container (max-w-6xl): 1152px
+  const referenceWidth = isFullWidth ? 1920 : 1152;
+
   const heroShellStyle: CSSProperties = configuredHeight
     ? {
-        ...containerStyle,
-        height: `${configuredHeight}px`,
-      }
+      ...containerStyle,
+      // Calculate aspect ratio to maintain the intended proportions from the desktop design
+      aspectRatio: `${referenceWidth} / ${configuredHeight}`,
+      // Remove fixed height so it scales gracefully
+    }
     : {
-        ...containerStyle,
-        aspectRatio: HERO_ASPECT_RATIO,
-      };
+      ...containerStyle,
+      aspectRatio: HERO_ASPECT_RATIO,
+    };
 
   const overlayStyle: CSSProperties | undefined = overlayEnabled ? buildOverlayStyle(baseOverlayColor, overlayOpacity) : undefined;
   const fieldVisibility = config.fieldVisibility ?? {};
@@ -273,13 +280,13 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
     : undefined;
   const backgroundLayerStyle: CSSProperties | undefined = backgroundImageValue
     ? {
-        backgroundImage: backgroundImageValue,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        opacity: overlayEnabled ? 0.7 : 1,
-        filter: overlayEnabled ? 'grayscale(15%)' : 'none',
-        transition: 'opacity 300ms ease',
-      }
+      backgroundImage: backgroundImageValue,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      opacity: overlayEnabled ? 0.7 : 1,
+      filter: overlayEnabled ? 'grayscale(15%)' : 'none',
+      transition: 'opacity 300ms ease',
+    }
     : undefined;
   const outerWrapperClass = isFullWidth
     ? 'w-full'

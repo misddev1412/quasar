@@ -18,7 +18,12 @@ import * as XLSX from 'xlsx';
 import axios from 'axios';
 import * as path from 'path';
 import { FileUploadService } from '@backend/modules/storage/services/file-upload.service';
-import { DataExportService, ExportFormat } from '@backend/modules/export';
+import {
+  DataExportService,
+  ExportFormat,
+  ExportJobRunnerService,
+  ExportJobPayload,
+} from '@backend/modules/export';
 import { PRODUCT_EXPORT_COLUMNS } from '../export/product-export.columns';
 import slugify from 'slugify';
 
@@ -115,6 +120,7 @@ export class AdminProductService {
     private readonly productTransformer: ProductTransformer,
     private readonly fileUploadService: FileUploadService,
     private readonly dataExportService: DataExportService,
+    private readonly exportJobRunnerService: ExportJobRunnerService,
     @InjectRepository(ProductPriceHistory)
     private readonly productPriceHistoryRepository: Repository<ProductPriceHistory>,
     @InjectRepository(ProductVariantPriceHistory)
@@ -1775,7 +1781,7 @@ export class AdminProductService {
     const sanitizedFilters = this.sanitizeExportFilters(parsedFilters);
     const resolvedFormat: ExportFormat = format === 'json' ? 'json' : 'csv';
 
-    return this.dataExportService.requestExportJob({
+    const job = await this.dataExportService.requestExportJob({
       resource: 'products',
       format: resolvedFormat,
       filters: sanitizedFilters,
@@ -1785,6 +1791,22 @@ export class AdminProductService {
       },
       requestedBy,
     });
+
+    const payload: ExportJobPayload = {
+      jobId: job.id,
+      resource: job.resource,
+      format: job.format,
+      filters: job.filters || undefined,
+      columns: job.columns || undefined,
+      options: job.options || undefined,
+      requestedBy: job.requestedBy || undefined,
+    };
+
+    const result = await this.exportJobRunnerService.run(payload);
+    if (result === 'processed') {
+      return (await this.dataExportService.getJob(job.id)) ?? job;
+    }
+    return job;
   }
 
   async estimateProductExport(filters?: string | Record<string, any>) {

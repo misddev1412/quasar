@@ -109,6 +109,7 @@ import { StorageModule } from '../storage/storage.module';
 import { TranslationModule } from '../translation/translation.module';
 import { SettingsModule } from '../settings/settings.module';
 import { DataExportModule } from '../export/data-export.module';
+import { ExportProcessingModule } from '../export/export-processing.module';
 import { PayosService } from './services/payos.service';
 import { PayosWebhookController } from './controllers/payos-webhook.controller';
 
@@ -167,6 +168,7 @@ import { PayosWebhookController } from './controllers/payos-webhook.controller';
     TranslationModule,
     SettingsModule,
     DataExportModule,
+    ExportProcessingModule,
   ],
   controllers: [PayosWebhookController],
   providers: [

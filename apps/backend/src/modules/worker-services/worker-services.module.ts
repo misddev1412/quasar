@@ -91,18 +91,20 @@ import { WorkerEmailService } from './services/worker-email.service';
 import { WorkerNotificationService } from './services/worker-notification.service';
 import { WorkerOrderService } from './services/worker-order.service';
 import { WorkerReportService } from './services/worker-report.service';
-import { WorkerExportService } from './services/worker-export.service';
 import { UserExportHandler } from './handlers/user-export.handler';
 import { ProductExportHandler } from './handlers/product-export.handler';
 import { DataExportModule } from '../export/data-export.module';
 import { StorageModule } from '../storage/storage.module';
 import { OrderExportHandler } from './handlers/order-export.handler';
+import { ExportProcessingModule } from '../export/export-processing.module';
+import { WorkerExportService } from '../export/services/worker-export.service';
 
 @Global()
 @Module({
   imports: [
     ConfigModule,
     DataExportModule,
+    ExportProcessingModule,
     StorageModule,
     TypeOrmModule.forFeature([
       MailProvider,
@@ -198,7 +200,6 @@ import { OrderExportHandler } from './handlers/order-export.handler';
     WorkerNotificationService,
     WorkerOrderService,
     WorkerReportService,
-    WorkerExportService,
     UserExportHandler,
     ProductExportHandler,
     OrderExportHandler,
@@ -210,12 +211,13 @@ import { OrderExportHandler } from './handlers/order-export.handler';
     WorkerOrderService,
     WorkerReportService,
     WorkerExportService,
-    
+
     // Also export base services for direct usage if needed
     MailProviderService,
     NotificationService,
     MailLogService,
     EmailFlowService,
+    ExportProcessingModule,
   ],
 })
 export class WorkerServicesModule {}
