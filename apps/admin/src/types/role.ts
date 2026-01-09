@@ -1,4 +1,5 @@
 // Role-related types and interfaces for the admin application
+import { UserRole } from './user';
 
 export interface Permission {
   id: string;
@@ -12,7 +13,7 @@ export interface Permission {
 export interface Role {
   id: string;
   name: string;
-  code: string; // UserRole enum value
+  code: UserRole;
   description?: string;
   isActive: boolean;
   isDefault: boolean;
@@ -28,6 +29,7 @@ export interface Role {
 
 export interface CreateRoleFormData {
   name: string;
+  code: UserRole;
   description?: string;
   isActive?: boolean;
   isDefault?: boolean;
@@ -36,6 +38,7 @@ export interface CreateRoleFormData {
 
 export interface UpdateRoleFormData {
   name?: string;
+  code?: UserRole;
   description?: string;
   isActive?: boolean;
   isDefault?: boolean;
@@ -69,6 +72,7 @@ export interface GetRolesResponse {
 export interface RoleResponse {
   id: string;
   name: string;
+  code: UserRole;
   description?: string;
   isActive: boolean;
   isDefault: boolean;

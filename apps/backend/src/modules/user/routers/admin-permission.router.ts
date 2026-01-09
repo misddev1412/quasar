@@ -32,6 +32,7 @@ const userRoleSchema = z.enum([
   UserRole.SUPER_ADMIN,
   UserRole.ADMIN,
   UserRole.MANAGER,
+  UserRole.STAFF,
   UserRole.USER,
   UserRole.GUEST
 ]);
@@ -63,6 +64,7 @@ const permissionFilterSchema = z.object({
   search: z.string().optional(),
   page: z.number().min(1).optional().default(1),
   limit: z.number().min(1).max(100).optional().default(10),
+  disablePagination: z.boolean().optional(),
 });
 
 const permissionResponseSchema = z.object({
@@ -149,13 +151,15 @@ export class AdminPermissionRouter {
     @Input() filter: z.infer<typeof permissionFilterSchema>
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
+      const { disablePagination, ...filterParams } = filter;
+
       // If pagination parameters are provided, use paginated method
-      if (filter.page || filter.limit) {
-        const paginatedResult = await this.permissionService.getAllPermissionsWithPagination(filter);
+      if (!disablePagination && (filterParams.page || filterParams.limit)) {
+        const paginatedResult = await this.permissionService.getAllPermissionsWithPagination(filterParams);
         return this.responseHandler.createTrpcSuccess(paginatedResult);
       } else {
         // Fallback to non-paginated method for backward compatibility
-        const permissions = await this.permissionService.getAllPermissions(filter);
+        const permissions = await this.permissionService.getAllPermissions(filterParams);
         return this.responseHandler.createTrpcSuccess(permissions);
       }
     } catch (error) {

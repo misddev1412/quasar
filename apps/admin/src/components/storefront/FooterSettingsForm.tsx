@@ -1061,28 +1061,26 @@ const FooterSettingsForm: React.FC = () => {
               )}
             </p>
           </div>
-          <div className="space-y-2">
-            <div className="flex flex-col gap-1 text-sm text-gray-600">
-              <span className="font-medium">
-                {t('storefront.footer.brand.custom_html', 'Custom HTML (optional)')}
-              </span>
-              <span className="text-xs text-gray-400">
-                {t(
-                  'storefront.footer.brand.custom_html_description',
-                  'Use simple formatting, links, or embeds to display below the brand column.'
-                )}
-              </span>
-            </div>
-            <SimpleRichTextEditor
-              value={draft.customHtml}
-              onChange={(value) => handleUpdate('customHtml', value)}
-              placeholder="<p>Custom HTML block...</p>"
-              minHeight={180}
-            />
-            <p className="text-xs text-gray-400">
-              {t('storefront.footer.brand.custom_html_hint', 'Basic formatting only. For full control, edit the HTML directly.')}
-            </p>
+          <div className="flex flex-col gap-1 text-sm text-gray-600">
+            <span className="font-medium">
+              {t('storefront.footer.brand.custom_html', 'Custom HTML (optional)')}
+            </span>
+            <span className="text-xs text-gray-400">
+              {t(
+                'storefront.footer.brand.custom_html_description',
+                'Use simple formatting, links, or switch to code view for raw HTML.'
+              )}
+            </span>
           </div>
+          <SimpleRichTextEditor
+            value={draft.customHtml}
+            onChange={(value) => handleUpdate('customHtml', value)}
+            placeholder="<p>Custom HTML block...</p>"
+            minHeight={180}
+          />
+          <p className="text-xs text-gray-400">
+            {t('storefront.footer.brand.custom_html_hint', 'Basic formatting only. For full control, use the Code view.')}
+          </p>
           <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-4">
             <Toggle
               checked={draft.showNewsletter}
@@ -1110,8 +1108,8 @@ const FooterSettingsForm: React.FC = () => {
               </div>
             )}
           </div>
+        </div>
       </div>
-    </div>
 
       <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
         <div>

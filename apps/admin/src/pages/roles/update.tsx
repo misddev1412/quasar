@@ -83,6 +83,7 @@ const RoleUpdatePage: React.FC = () => {
       // Transform form data to match API expectations
       const roleData = {
         name: formData.name,
+        code: formData.code,
         description: formData.description,
         isActive: formData.isActive,
         isDefault: formData.isDefault,
@@ -130,6 +131,7 @@ const RoleUpdatePage: React.FC = () => {
     const role = (roleResponse as any).data;
     return {
       name: role.name,
+      code: role.code,
       description: role.description || '',
       isActive: role.isActive,
       isDefault: role.isDefault,

@@ -33,6 +33,7 @@ const USER_ROLE_OPTIONS: SelectOption[] = [
   { value: UserRole.SUPER_ADMIN, label: 'Super Admin' },
   { value: UserRole.ADMIN, label: 'Admin' },
   { value: UserRole.MANAGER, label: 'Manager' },
+  { value: UserRole.STAFF, label: 'Staff' },
   { value: UserRole.USER, label: 'User' },
   { value: UserRole.GUEST, label: 'Guest' },
 ];

@@ -5,6 +5,18 @@ import { FormTabConfig } from '../../types/forms';
 import { CreateUserFormData, createUserSchema } from '../../utils/validation';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { UserRole } from '../../types/user';
+import type { Role as AdminRole } from '../../types/role';
+import { trpc } from '../../utils/trpc';
+
+type RolesListResponse = {
+  data?: {
+    items?: AdminRole[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+};
 
 interface CreateUserFormProps {
   onSubmit: (data: CreateUserFormData) => Promise<void>;
@@ -24,13 +36,40 @@ export const CreateUserForm: React.FC<CreateUserFormProps> = ({
 }) => {
   const { t } = useTranslationWithBackend();
 
-  // Generate user role options with translations
-  const userRoleOptions = [
-    { value: UserRole.USER, label: t('user.roles.user', 'User') },
-    { value: UserRole.MANAGER, label: t('user.roles.manager', 'Manager') },
-    { value: UserRole.ADMIN, label: t('user.roles.admin', 'Admin') },
-    { value: UserRole.SUPER_ADMIN, label: t('user.roles.super_admin', 'Super Admin') },
-  ];
+  // Load available roles directly from backend (Role entity)
+  const { data: rolesResponse, isLoading: rolesLoading } = trpc.adminRole.getAllRoles.useQuery({
+    page: 1,
+    limit: 100,
+    isActive: true,
+  });
+
+  const roleOptions = React.useMemo(() => {
+    const roles = (rolesResponse as RolesListResponse | undefined)?.data?.items || [];
+    if (!roles.length) {
+      return [];
+    }
+
+    return roles
+      .filter(role => role.isActive)
+      .map(role => ({
+        value: role.code || UserRole.USER,
+        label: role.name || t(`user.roles.${role.code || UserRole.USER}`, role.code || UserRole.USER),
+        disabled: !role.isActive,
+      }));
+  }, [rolesResponse, t]);
+
+  const roleFieldDescription = React.useMemo(() => {
+    if (rolesLoading) {
+      return t('form.descriptions.loading_roles', 'Loading available roles...');
+    }
+    if (roleOptions.length === 0) {
+      return t(
+        'form.descriptions.user_role_missing',
+        'No active roles available. Please create a role before assigning it to users.'
+      );
+    }
+    return t('form.descriptions.user_role_description', 'Assign the default permission set for this user.');
+  }, [roleOptions, rolesLoading, t]);
 
   // Define form tabs configuration
   const tabs: FormTabConfig[] = [
@@ -117,9 +156,10 @@ export const CreateUserForm: React.FC<CreateUserFormProps> = ({
               type: 'select',
               placeholder: t('form.placeholders.select_user_role', 'Select user role'),
               required: false,
-              options: userRoleOptions,
+              options: roleOptions,
+              disabled: rolesLoading || roleOptions.length === 0,
               icon: <Shield className="w-4 h-4" />,
-              description: t('form.descriptions.user_role_description', 'Assign the default permission set for this user.'),
+              description: roleFieldDescription,
             },
             {
               name: 'isActive',

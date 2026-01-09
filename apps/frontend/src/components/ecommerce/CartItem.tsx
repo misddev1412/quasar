@@ -84,9 +84,8 @@ const CartItem: React.FC<CartItemProps> = ({
 
   return (
     <div
-      className={`flex gap-3 rounded-lg border border-gray-200/80 bg-white/90 px-3 py-3 text-sm transition-colors hover:border-primary-300 dark:border-gray-700 dark:bg-gray-900/70 ${
-        !inStock ? 'opacity-80' : ''
-      } ${className}`}
+      className={`flex gap-3 rounded-lg border border-gray-200/80 bg-white/90 px-3 py-3 text-sm transition-colors hover:border-primary-300 dark:border-gray-700 dark:bg-gray-900/70 ${!inStock ? 'opacity-80' : ''
+        } ${className}`}
     >
       {/* Product Image */}
       {showImage && (
@@ -113,7 +112,7 @@ const CartItem: React.FC<CartItemProps> = ({
               {name}
             </Link>
             {variantText && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{variantText}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1 mb-0">{variantText}</p>
             )}
             {lowStock && inStock && (
               <span className="mt-0.5 inline-block text-[0.65rem] uppercase tracking-wide text-amber-500">Low stock</span>

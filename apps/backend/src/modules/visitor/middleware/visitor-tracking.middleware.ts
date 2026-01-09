@@ -11,15 +11,15 @@ export class VisitorTrackingMiddleware implements NestMiddleware {
   constructor(
     private readonly visitorTrackingService: VisitorTrackingService,
     private readonly userActivityService: ActivityTrackingService,
-  ) {}
+  ) { }
 
   async use(req: Request, res: Response, next: NextFunction) {
-    try {
-      // Skip tracking for certain paths
-      if (this.shouldSkipTracking(req)) {
-        return next();
-      }
+    // Skip tracking for certain paths - execute immediately outside try/catch
+    if (this.shouldSkipTracking(req)) {
+      return next();
+    }
 
+    try {
       // Track visitor and session
       const { visitorId, sessionId } = await this.visitorTrackingService.trackVisitor(req, res);
 
@@ -72,12 +72,12 @@ export class VisitorTrackingMiddleware implements NestMiddleware {
       // Set tracking start time
       (req as any).trackingStartTime = new Date();
 
-      next();
     } catch (error) {
       this.logger.error('Error in visitor tracking middleware:', error);
       // Continue without tracking if there's an error
-      next();
     }
+
+    next();
   }
 
   private shouldSkipTracking(req: Request): boolean {
@@ -85,18 +85,18 @@ export class VisitorTrackingMiddleware implements NestMiddleware {
 
     // Skip tracking for static assets
     if (url.startsWith('/api/health') ||
-        url.startsWith('/api/healthz') ||
-        url.startsWith('/_next/') ||
-        url.includes('.css') ||
-        url.includes('.js') ||
-        url.includes('.png') ||
-        url.includes('.jpg') ||
-        url.includes('.jpeg') ||
-        url.includes('.gif') ||
-        url.includes('.svg') ||
-        url.includes('.ico') ||
-        url.includes('.woff') ||
-        url.includes('.woff2')) {
+      url.startsWith('/api/healthz') ||
+      url.startsWith('/_next/') ||
+      url.includes('.css') ||
+      url.includes('.js') ||
+      url.includes('.png') ||
+      url.includes('.jpg') ||
+      url.includes('.jpeg') ||
+      url.includes('.gif') ||
+      url.includes('.svg') ||
+      url.includes('.ico') ||
+      url.includes('.woff') ||
+      url.includes('.woff2')) {
       return true;
     }
 

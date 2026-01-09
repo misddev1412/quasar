@@ -1,4 +1,5 @@
-import { IsString, IsBoolean, IsOptional, MinLength, IsArray, IsUUID } from 'class-validator';
+import { IsString, IsBoolean, IsOptional, MinLength, IsArray, IsUUID, IsEnum } from 'class-validator';
+import { UserRole } from '@shared';
 
 export class AdminCreateRoleDto {
   @IsString()
@@ -16,6 +17,10 @@ export class AdminCreateRoleDto {
   @IsOptional()
   @IsBoolean()
   isDefault?: boolean;
+
+  @IsOptional()
+  @IsEnum(UserRole)
+  code?: UserRole;
 
   @IsOptional()
   @IsArray()
@@ -42,6 +47,10 @@ export class AdminUpdateRoleDto {
   isDefault?: boolean;
 
   @IsOptional()
+  @IsEnum(UserRole)
+  code?: UserRole;
+
+  @IsOptional()
   @IsArray()
   @IsUUID('4', { each: true })
   permissionIds?: string[];
@@ -50,7 +59,7 @@ export class AdminUpdateRoleDto {
 export class AdminRoleResponseDto {
   id: string;
   name: string;
-  code: string; // UserRole enum value
+  code: UserRole; // UserRole enum value
   description?: string;
   isActive: boolean;
   isDefault: boolean;

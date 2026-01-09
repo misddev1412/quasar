@@ -37,7 +37,8 @@ export class AuthService {
     const userWithRoles = await this.userRepository.findWithRoles(user.id);
 
     // Get primary role (first active role or default to USER)
-    const primaryRole = userWithRoles?.userRoles?.find(ur => ur.isActive)?.role?.code || UserRole.USER;
+    const primaryRoleCode = userWithRoles?.userRoles?.find(ur => ur.isActive)?.role?.code;
+    const primaryRole = this.normalizeRoleCode(primaryRoleCode);
 
     const payload: JwtPayload = {
       email: user.email,
@@ -166,6 +167,13 @@ export class AuthService {
       }
       throw new UnauthorizedException('Firebase authentication failed');
     }
+  }
+
+  private normalizeRoleCode(code?: string): UserRole {
+    if (code && Object.values(UserRole).includes(code as UserRole)) {
+      return code as UserRole;
+    }
+    return UserRole.USER;
   }
 
   async getFirebaseWebConfig() {

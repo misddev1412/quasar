@@ -48,11 +48,18 @@ export const SimpleRichTextEditor: React.FC<SimpleRichTextEditorProps> = ({
   const [fontSizeValue, setFontSizeValue] = useState('');
   const [textColor, setTextColor] = useState('#111827');
 
+  const [isHtmlMode, setIsHtmlMode] = useState(false);
+  // Keep local content state to sync between views
+  const [content, setContent] = useState(value);
+
   useEffect(() => {
+    setContent(value || '');
     if (editorRef.current && editorRef.current.innerHTML !== value) {
-      editorRef.current.innerHTML = value || '';
+      if (!isHtmlMode) {
+        editorRef.current.innerHTML = value || '';
+      }
     }
-  }, [value]);
+  }, [value, isHtmlMode]);
 
   const focusEditor = () => {
     if (!editorRef.current) return;
@@ -60,7 +67,7 @@ export const SimpleRichTextEditor: React.FC<SimpleRichTextEditorProps> = ({
   };
 
   const handleCommand = (command: string) => {
-    if (disabled) return;
+    if (disabled || isHtmlMode) return;
     focusEditor();
     if (command === 'createLink') {
       const url = window.prompt('Enter URL');
@@ -75,11 +82,23 @@ export const SimpleRichTextEditor: React.FC<SimpleRichTextEditorProps> = ({
 
   const handleInput = () => {
     if (!editorRef.current) return;
-    onChange?.(editorRef.current.innerHTML);
+    const newContent = editorRef.current.innerHTML;
+    setContent(newContent);
+    onChange?.(newContent);
+  };
+
+  const handleHtmlChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newContent = e.target.value;
+    setContent(newContent);
+    onChange?.(newContent);
+  };
+
+  const toggleHtmlMode = () => {
+    setIsHtmlMode(!isHtmlMode);
   };
 
   const applyFontSize = (size: string) => {
-    if (disabled) return;
+    if (disabled || isHtmlMode) return;
     setFontSizeValue(size);
     focusEditor();
     document.execCommand('fontSize', false, size);
@@ -87,7 +106,7 @@ export const SimpleRichTextEditor: React.FC<SimpleRichTextEditorProps> = ({
 
   const handleBlockChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const block = event.target.value;
-    if (disabled) return;
+    if (disabled || isHtmlMode) return;
     focusEditor();
     document.execCommand('formatBlock', false, block);
   };
@@ -95,7 +114,7 @@ export const SimpleRichTextEditor: React.FC<SimpleRichTextEditorProps> = ({
   const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const color = event.target.value;
     setTextColor(color);
-    if (disabled) return;
+    if (disabled || isHtmlMode) return;
     focusEditor();
     document.execCommand('foreColor', false, color);
   };
@@ -109,7 +128,7 @@ export const SimpleRichTextEditor: React.FC<SimpleRichTextEditorProps> = ({
               key={command}
               type="button"
               onClick={() => handleCommand(command)}
-              disabled={disabled}
+              disabled={disabled || isHtmlMode}
               className="rounded-md px-2 py-1 text-xs uppercase tracking-wide hover:bg-gray-100 disabled:opacity-40"
               title={label}
             >
@@ -119,9 +138,9 @@ export const SimpleRichTextEditor: React.FC<SimpleRichTextEditorProps> = ({
         </div>
         <div className="h-6 w-px bg-gray-200" />
         <select
-          className="rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-600 focus:border-primary-400 focus:outline-none"
+          className="rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-600 focus:border-primary-400 focus:outline-none disabled:opacity-50"
           onChange={handleBlockChange}
-          disabled={disabled}
+          disabled={disabled || isHtmlMode}
           defaultValue="P"
         >
           {BLOCK_TYPES.map((block) => (
@@ -135,14 +154,14 @@ export const SimpleRichTextEditor: React.FC<SimpleRichTextEditorProps> = ({
           <div className="flex items-center gap-1 rounded-md border border-gray-200 bg-white px-1 py-0.5">
             <button
               type="button"
-              disabled={disabled}
+              disabled={disabled || isHtmlMode}
               onClick={() => {
                 setFontSizeValue('');
                 focusEditor();
                 document.execCommand('removeFormat', false);
               }}
               className={cn(
-                'rounded px-2 py-1 text-[11px] uppercase tracking-wide',
+                'rounded px-2 py-1 text-[11px] uppercase tracking-wide disabled:opacity-50',
                 fontSizeValue === '' ? 'bg-primary-50 text-primary-600 border border-primary-200' : 'text-gray-600 hover:bg-gray-100'
               )}
             >
@@ -152,10 +171,10 @@ export const SimpleRichTextEditor: React.FC<SimpleRichTextEditorProps> = ({
               <button
                 key={size.value}
                 type="button"
-                disabled={disabled}
+                disabled={disabled || isHtmlMode}
                 onClick={() => applyFontSize(size.value)}
                 className={cn(
-                  'rounded px-2 py-1 text-[11px] uppercase tracking-wide',
+                  'rounded px-2 py-1 text-[11px] uppercase tracking-wide disabled:opacity-50',
                   fontSizeValue === size.value
                     ? 'bg-primary-50 text-primary-600 border border-primary-200'
                     : 'text-gray-600 hover:bg-gray-100'
@@ -172,28 +191,51 @@ export const SimpleRichTextEditor: React.FC<SimpleRichTextEditorProps> = ({
             type="color"
             value={textColor}
             onChange={handleColorChange}
-            disabled={disabled}
-            className="h-6 w-6 cursor-pointer rounded border border-gray-200 bg-white p-0"
+            disabled={disabled || isHtmlMode}
+            className="h-6 w-6 cursor-pointer rounded border border-gray-200 bg-white p-0 disabled:opacity-50"
           />
         </label>
+        <div className="flex-1" />
+        <button
+          type="button"
+          onClick={toggleHtmlMode}
+          className={cn(
+            "rounded-md px-2 py-1 text-xs font-semibold uppercase tracking-wide transition-colors",
+            isHtmlMode ? "bg-primary-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          )}
+        >
+          {isHtmlMode ? 'Visual' : 'Code'}
+        </button>
       </div>
-      <div
-        ref={editorRef}
-        contentEditable={!disabled}
-        className={cn(
-          'prose prose-sm max-w-none px-4 py-3 outline-none focus:ring-2 focus:ring-primary-200 rounded-b-xl',
-          !value && !isFocused ? 'text-gray-400 before:content-[attr(data-placeholder)] before:pointer-events-none before:text-gray-400' : ''
-        )}
-        style={{ minHeight }}
-        data-placeholder={placeholder}
-        onInput={handleInput}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => {
-          setIsFocused(false);
-          handleInput();
-        }}
-        suppressContentEditableWarning
-      />
+
+      {isHtmlMode ? (
+        <textarea
+          value={content}
+          onChange={handleHtmlChange}
+          className="w-full resize-y border-0 bg-gray-50 p-4 font-mono text-xs text-gray-800 focus:ring-0 focus:outline-none rounded-b-xl"
+          style={{ minHeight }}
+          placeholder={placeholder}
+          disabled={disabled}
+        />
+      ) : (
+        <div
+          ref={editorRef}
+          contentEditable={!disabled}
+          className={cn(
+            'prose prose-sm max-w-none px-4 py-3 outline-none focus:ring-2 focus:ring-primary-200 rounded-b-xl',
+            !content && !isFocused ? 'text-gray-400 before:content-[attr(data-placeholder)] before:pointer-events-none before:text-gray-400' : ''
+          )}
+          style={{ minHeight }}
+          data-placeholder={placeholder}
+          onInput={handleInput}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => {
+            setIsFocused(false);
+            handleInput();
+          }}
+          suppressContentEditableWarning
+        />
+      )}
     </div>
   );
 };

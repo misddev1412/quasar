@@ -12,6 +12,7 @@ export type MainMenuItemTransform = 'normal' | 'uppercase' | 'capitalize';
 export interface MainMenuConfig extends Record<string, unknown> {
   backgroundColor: MainMenuThemeColors;
   textColor: MainMenuThemeColors;
+  burgerMenuColor: MainMenuThemeColors;
   itemSize: MainMenuItemSize;
   itemWeight: MainMenuItemWeight;
   itemTransform: MainMenuItemTransform;
@@ -53,6 +54,10 @@ export const DEFAULT_MAIN_MENU_CONFIG: MainMenuConfig = {
     light: '#0f172a',
     dark: '#f8fafc',
   },
+  burgerMenuColor: {
+    light: '#ffffff',
+    dark: '#ffffff',
+  },
   itemSize: 'comfortable',
   itemWeight: 'medium',
   itemTransform: 'normal',
@@ -72,6 +77,7 @@ const isMainMenuItemTransform = (value: unknown): value is MainMenuItemTransform
 export const createMainMenuConfig = (input?: Partial<MainMenuConfig>): MainMenuConfig => {
   const backgroundColor: Partial<MainMenuThemeColors> = input?.backgroundColor ?? {};
   const textColor: Partial<MainMenuThemeColors> = input?.textColor ?? {};
+  const burgerMenuColor: Partial<MainMenuThemeColors> = input?.burgerMenuColor ?? {};
 
   const normalizeColor = (value: unknown, fallback: string) => {
     if (typeof value !== 'string') {
@@ -98,6 +104,10 @@ export const createMainMenuConfig = (input?: Partial<MainMenuConfig>): MainMenuC
     textColor: {
       light: normalizeColor(textColor.light, DEFAULT_MAIN_MENU_CONFIG.textColor.light),
       dark: normalizeColor(textColor.dark, DEFAULT_MAIN_MENU_CONFIG.textColor.dark),
+    },
+    burgerMenuColor: {
+      light: normalizeColor(burgerMenuColor.light, DEFAULT_MAIN_MENU_CONFIG.burgerMenuColor.light),
+      dark: normalizeColor(burgerMenuColor.dark, DEFAULT_MAIN_MENU_CONFIG.burgerMenuColor.dark),
     },
     itemSize: isMainMenuItemSize(input?.itemSize) ? input!.itemSize : DEFAULT_MAIN_MENU_CONFIG.itemSize,
     itemWeight: isMainMenuItemWeight(input?.itemWeight) ? input!.itemWeight : DEFAULT_MAIN_MENU_CONFIG.itemWeight,

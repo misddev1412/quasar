@@ -202,23 +202,23 @@ const Logo: React.FC<{ currentLocale: string }> = ({ currentLocale }) => {
   const { getSiteLogo, getSetting, settings } = useSettings();
   const siteLogo = getSiteLogo();
   const siteName = getSetting('site.name');
-  
+
   // Get alt text from brand-assets config, fallback to site name
   const logoAltText = getSetting('site.logo_alt') || siteName;
-  
+
   // Check if logo image should be shown (default: true when no setting exists)
   const logoShowLogoSetting = settings.find((s: any) => s.key === 'site.logo_show_logo');
   // If setting exists, check its value; if not exists or still loading, default to true
-  const showLogoImage = logoShowLogoSetting 
-    ? logoShowLogoSetting.value === 'true' 
+  const showLogoImage = logoShowLogoSetting
+    ? logoShowLogoSetting.value === 'true'
     : true; // Default to true when setting doesn't exist
-  
+
   // Check if text should be shown next to logo (default: true when no setting exists)
   const logoShowTextSetting = settings.find((s: any) => s.key === 'site.logo_show_text');
-  const showLogoText = logoShowTextSetting 
-    ? logoShowTextSetting.value === 'true' 
+  const showLogoText = logoShowTextSetting
+    ? logoShowTextSetting.value === 'true'
     : true; // Default to true when setting doesn't exist
-  
+
   // Get text content from brand-assets config, fallback to site name
   const logoTextContent = getSetting('site.logo_text') || siteName;
 
@@ -470,6 +470,7 @@ const Header: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const { summary, openCart } = useCart(); // Add cart hook
   const { navigationItems, isLoading: isMainMenuLoading } = useMenu('main');
+  const { navigationItems: topNavigationItems } = useMenu('top'); // Fetch top menu items
   const t = useTranslations();
   const tCart = useTranslations('ecommerce.cart');
   const router = useRouter();
@@ -487,6 +488,11 @@ const Header: React.FC = () => {
     typeof resolvedHeaderBackground === 'string' ? resolvedHeaderBackground.trim() : '';
   const headerBackgroundColor = normalizedHeaderBackground.length > 0 ? normalizedHeaderBackground : undefined;
   const headerBackgroundStyle = headerBackgroundColor ? { backgroundColor: headerBackgroundColor } : undefined;
+
+  const resolvedBurgerColor =
+    theme === 'dark' ? mainMenuConfig.burgerMenuColor?.dark : mainMenuConfig.burgerMenuColor?.light;
+  // Default to white if configuration is missing, as requested
+  const burgerColor = resolvedBurgerColor || '#ffffff';
 
   useEffect(() => {
     let isMounted = true;
@@ -562,6 +568,17 @@ const Header: React.FC = () => {
 
   const navigationItemsConverted = convertToNavigationItems(navigationItems);
 
+  // Filter and convert top menu items for mobile
+  const topNavigationItemsConverted = convertToNavigationItems(
+    topNavigationItems.filter((item) =>
+      [
+        MenuType.USER_PROFILE,
+      ].includes(item.type as MenuType)
+    )
+  );
+
+  const mobileNavigationItems = [...navigationItemsConverted, ...topNavigationItemsConverted];
+
   const cartLabel =
     summary.totalItems > 0
       ? tCart('aria_labels.cart_button', { count: summary.totalItems })
@@ -599,42 +616,49 @@ const Header: React.FC = () => {
           <span>{t('layout.header.search.open')}</span>
         </button>
       ),
-    [MenuType.LOCALE_SWITCHER]: ({ context }) => (
-      <div className={context === 'desktop' ? 'flex items-center' : 'w-full px-2'}>
-        <LanguageSwitcher />
+    [MenuType.LOCALE_SWITCHER]: ({ context, textColor }) => (
+      <div
+        className={context === 'desktop' ? 'flex items-center' : 'w-full'}
+        style={{ color: textColor }}
+      >
+        <LanguageSwitcher variant={context === 'desktop' ? 'default' : 'mobile'} />
       </div>
     ),
-    [MenuType.THEME_TOGGLE]: ({ context }) => (
+    [MenuType.THEME_TOGGLE]: ({ context, textColor }) => (
       <div
         className={
           context === 'desktop'
             ? 'flex items-center'
-            : 'flex items-center justify-between gap-3 px-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 w-full'
+            : `flex items-center justify-between text-base font-medium ${textColor ? '' : 'text-gray-700 dark:text-gray-300'} w-full`
         }
+        style={{ color: textColor }}
       >
         {context === 'mobile' && <span>Theme</span>}
         <ThemeToggle />
       </div>
     ),
-    [MenuType.CART_BUTTON]: ({ context, closeMobileMenu }) =>
+    [MenuType.CART_BUTTON]: ({ context, closeMobileMenu, textColor }) =>
       context === 'desktop' ? (
-        <CartDropdownIcon className="text-gray-700 dark:text-gray-300" />
+        <span style={{ color: textColor }}>
+          <CartDropdownIcon className={textColor ? '' : "text-gray-700 dark:text-gray-300"} />
+        </span>
       ) : (
         <button
-          className="w-full text-base text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-3 py-2 transition-colors rounded-lg px-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+          className={`w-full text-base ${textColor ? '' : 'text-gray-700 dark:text-gray-300'} hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-3 transition-colors`}
+          style={{ color: textColor }}
           onClick={() => {
             openCart();
             closeMobileMenu?.();
           }}
           aria-label={cartLabel}
         >
-          <span className="text-gray-500 dark:text-gray-400">
+          <span className={textColor ? '' : "text-gray-500 dark:text-gray-400"} style={{ color: textColor }}>
             <Icons.Cart />
           </span>
           <span>{cartLabel}</span>
         </button>
       ),
-    [MenuType.USER_PROFILE]: ({ context, closeMobileMenu }) => {
+    [MenuType.USER_PROFILE]: ({ context, closeMobileMenu, textColor }) => {
       if (isAuthenticated) {
         if (context === 'desktop') {
           return (
@@ -648,9 +672,10 @@ const Header: React.FC = () => {
         }
 
         return (
-          <div className="flex flex-col gap-2 w-full">
+          <div className="flex flex-col gap-4 w-full">
             <button
-              className="w-full text-base text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-3 py-2 transition-colors rounded-lg px-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+              className={`w-full text-base ${textColor ? '' : 'text-gray-700 dark:text-gray-300'} hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-3 transition-colors`}
+              style={{ color: textColor }}
               onClick={() => {
                 router.push('/profile');
                 closeMobileMenu?.();
@@ -660,7 +685,7 @@ const Header: React.FC = () => {
               <span>{t('layout.header.user.account')}</span>
             </button>
             <button
-              className="w-full text-base text-red-600 hover:text-red-700 flex items-center gap-3 py-2 transition-colors rounded-lg px-2 hover:bg-red-50"
+              className="w-full text-base text-red-600 hover:text-red-700 flex items-center gap-3 transition-colors"
               onClick={() => {
                 handleLogout();
                 closeMobileMenu?.();
@@ -682,6 +707,7 @@ const Header: React.FC = () => {
                 variant="light"
                 aria-label="User menu"
                 className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                style={{ color: textColor }}
               >
                 <Icons.UserCircle />
               </Button>
@@ -708,24 +734,28 @@ const Header: React.FC = () => {
       }
 
       return (
-        <div className="flex flex-col gap-2 w-full px-2">
+        <div className="flex flex-col -mx-4 -my-3 w-[calc(100%+2rem)]">
           <button
-            className="w-full rounded-lg border border-blue-500 text-blue-600 py-2 font-medium hover:bg-blue-50"
+            className={`w-full text-base ${textColor ? '' : 'text-gray-700 dark:text-gray-300'} hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-3 transition-colors px-4 py-3 border-b border-gray-200 dark:border-gray-700`}
+            style={{ color: textColor }}
             onClick={() => {
               router.push('/login');
               closeMobileMenu?.();
             }}
           >
-            {t('layout.header.guest.signin')}
+            <Icons.User />
+            <span>{t('layout.header.guest.signin')}</span>
           </button>
           <button
-            className="w-full rounded-lg bg-blue-600 text-white py-2 font-medium hover:bg-blue-700"
+            className={`w-full text-base ${textColor ? '' : 'text-gray-700 dark:text-gray-300'} hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-3 transition-colors px-4 py-3`}
+            style={{ color: textColor }}
             onClick={() => {
               router.push('/register');
               closeMobileMenu?.();
             }}
           >
-            {t('layout.header.guest.signup')}
+            <Icons.UserCircle />
+            <span>{t('layout.header.guest.signup')}</span>
           </button>
         </div>
       );
@@ -850,8 +880,8 @@ const Header: React.FC = () => {
         data-main-header
         style={headerBackgroundStyle}
       >
-        <Container 
-          className={mainMenuConfig.paddingTop || mainMenuConfig.paddingBottom ? "" : "py-0"} 
+        <Container
+          className={mainMenuConfig.paddingTop || mainMenuConfig.paddingBottom ? "" : "py-0"}
           style={{
             ...headerBackgroundStyle,
             ...(mainMenuConfig.paddingTop ? { paddingTop: mainMenuConfig.paddingTop } : {}),
@@ -870,88 +900,132 @@ const Header: React.FC = () => {
             height="4rem"
             style={headerBackgroundStyle}
           >
-          {/* Left Section: Logo - 15% width */}
-          <NavbarContent justify="start" className="!flex-grow-0 !basis-[15%] max-w-[15%]">
-            <NavbarMenuToggle
-              aria-label={isMenuOpen ? t('layout.header.menu.close') : t('layout.header.menu.open')}
-              className="sm:hidden text-gray-600 dark:text-gray-400"
-            />
-            <NavbarBrand>
-              <Logo currentLocale={currentLocale} />
-            </NavbarBrand>
-          </NavbarContent>
+            {/* Mobile: Toggle (Left) */}
+            <NavbarContent justify="start" className="lg:hidden shrink-0">
+              <NavbarMenuToggle
+                aria-label={isMenuOpen ? t('layout.header.menu.close') : t('layout.header.menu.open')}
+                style={{ color: burgerColor }}
+              />
+            </NavbarContent>
 
-          {/* Right Section: Navigation + Actions - 85% width */}
-          <NavbarContent justify="end" className="!flex-grow-0 !basis-[85%] max-w-[85%] gap-2 hidden lg:flex">
-            <div className="flex items-center justify-between">
+            {/* Mobile: Logo (Center) */}
+            <NavbarContent justify="center" className="lg:hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-auto h-full pointer-events-none">
+              <div className="pointer-events-auto flex items-center h-full">
+                <NavbarBrand className="max-w-[calc(100vw-100px)]">
+                  <Logo currentLocale={currentLocale} />
+                </NavbarBrand>
+              </div>
+            </NavbarContent>
+
+            {/* Desktop: Logo (Left) */}
+            <NavbarContent justify="start" className="!flex-grow-0 !basis-[15%] max-w-[15%] hidden lg:flex">
+              <NavbarBrand>
+                <Logo currentLocale={currentLocale} />
+              </NavbarBrand>
+            </NavbarContent>
+
+            {/* Right Section: Navigation + Actions - 85% width */}
+            <NavbarContent justify="end" className="!flex-grow-0 !basis-[85%] max-w-[85%] gap-2 hidden lg:flex">
+              <div className="flex items-center justify-between">
+                <MenuNavigation
+                  items={navigationItemsConverted}
+                  renderers={navigationRenderers}
+                  appearanceConfig={mainMenuConfig}
+                  isLoading={isMainMenuLoading}
+                />
+              </div>
+            </NavbarContent>
+
+            {/* Mobile: Actions only */}
+            <NavbarContent justify="end" className="gap-1 lg:hidden">
+              {/* Language Switcher */}
+              <NavbarItem>
+                <LanguageSwitcher variant="minimal" iconColor={burgerColor} />
+              </NavbarItem>
+
+              {/* Theme Toggle */}
+              <NavbarItem>
+                <ThemeToggle style={{ color: burgerColor }} disableHover />
+              </NavbarItem>
+
+              {/* Cart */}
+              <NavbarItem>
+                <Button
+                  isIconOnly
+                  variant="light"
+                  size="sm"
+                  aria-label={cartLabel}
+                  onPress={openCart}
+                  style={{ color: burgerColor }}
+                  className="transition-colors"
+                >
+                  <Badge
+                    content={summary.totalItems > 0 ? summary.totalItems : null}
+                    color="primary"
+                    shape="circle"
+                    isInvisible={summary.totalItems === 0}
+                    size="sm"
+                  >
+                    <Icons.Cart />
+                  </Badge>
+                </Button>
+              </NavbarItem>
+
+              {/* Action Buttons */}
+              {isAuthenticated && (
+                <>
+                  <NavbarItem className="hidden sm:flex">
+                    <NotificationDropdown />
+                  </NavbarItem>
+                  <NavbarItem className="hidden sm:flex">
+                    <IconButtonWithBadge
+                      icon={<Icons.Heart />}
+                      badge="5"
+                      badgeColor="secondary"
+                      label={t('layout.header.actions.wishlist')}
+                      onClick={() => router.push('/wishlist')}
+                    />
+                  </NavbarItem>
+                </>
+              )}
+            </NavbarContent>
+
+            {/* Mobile Menu */}
+            <NavbarMenu
+              className="px-0 pt-0 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md"
+              style={headerBackgroundStyle}
+            >
+              {/* Mobile Search */}
+              <div className="px-4 pt-6 pb-4">
+                <SearchInput
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  onSubmit={(e) => {
+                    handleSearch(e);
+                    setIsMenuOpen(false);
+                  }}
+                  size="lg"
+                  placeholder={t('layout.header.search.placeholder')}
+                  fullWidth
+                />
+              </div>
+
+              {/* Navigation Items */}
               <MenuNavigation
-                items={navigationItemsConverted}
+                items={mobileNavigationItems}
+                isMobileMenuOpen={isMenuOpen}
+                onMobileMenuClose={() => setIsMenuOpen(false)}
                 renderers={navigationRenderers}
                 appearanceConfig={mainMenuConfig}
                 isLoading={isMainMenuLoading}
               />
-            </div>
-          </NavbarContent>
 
-          {/* Mobile: Actions only */}
-          <NavbarContent justify="end" className="gap-2 lg:hidden">
-            {/* Action Buttons */}
-            {isAuthenticated && (
-              <>
-                <NavbarItem>
-                  <NotificationDropdown />
-                </NavbarItem>
-                <NavbarItem className="hidden sm:flex">
-                  <IconButtonWithBadge
-                    icon={<Icons.Heart />}
-                    badge="5"
-                    badgeColor="secondary"
-                    label={t('layout.header.actions.wishlist')}
-                    onClick={() => router.push('/wishlist')}
-                  />
-                </NavbarItem>
-              </>
-            )}
+              {/* Cart, profile, search, locale, and theme entries are managed entirely via storefront navigation */}
+            </NavbarMenu>
 
-            {/* Cart, profile, search, locale, and theme actions are only rendered when configured in the storefront menu */}
-          </NavbarContent>
-
-          {/* Mobile Menu */}
-          <NavbarMenu
-            className="px-0 pt-0 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md"
-            style={headerBackgroundStyle}
-          >
-            {/* Mobile Search */}
-            <div className="px-4 pt-6 pb-4">
-              <SearchInput
-                value={searchQuery}
-                onChange={setSearchQuery}
-                onSubmit={(e) => {
-                  handleSearch(e);
-                  setIsMenuOpen(false);
-                }}
-                size="lg"
-                placeholder={t('layout.header.search.placeholder')}
-                fullWidth
-              />
-            </div>
-
-            {/* Navigation Items */}
-            <MenuNavigation
-              items={navigationItemsConverted}
-              isMobileMenuOpen={isMenuOpen}
-              onMobileMenuClose={() => setIsMenuOpen(false)}
-              renderers={navigationRenderers}
-              appearanceConfig={mainMenuConfig}
-              isLoading={isMainMenuLoading}
-            />
-
-            {/* Cart, profile, search, locale, and theme entries are managed entirely via storefront navigation */}
-          </NavbarMenu>
-
-          {/* Shopping Cart Modal - disabled since we're using dropdown */}
-          {/* <ShoppingCart /> */}
-        </Navbar>
+            {/* Shopping Cart Modal - disabled since we're using dropdown */}
+            {/* <ShoppingCart /> */}
+          </Navbar>
         </Container>
       </header>
 
@@ -959,230 +1033,229 @@ const Header: React.FC = () => {
       <SubMenuBar />
 
       {mounted && isSearchOpen
-          ? createPortal(
-              <div
-                className="hidden lg:flex fixed inset-0 z-[70] items-center justify-center px-4 py-16"
-                onClick={() => setIsSearchOpen(false)}
+        ? createPortal(
+          <div
+            className="hidden lg:flex fixed inset-0 z-[70] items-center justify-center px-4 py-16"
+            onClick={() => setIsSearchOpen(false)}
+          >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
+            <div
+              className="relative w-full max-w-3xl rounded-3xl border border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-950/95 shadow-2xl"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <Button
+                isIconOnly
+                type="button"
+                variant="light"
+                aria-label={t('layout.header.search.close')}
+                className="absolute top-4 right-4 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                onPress={() => setIsSearchOpen(false)}
               >
-                <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
-                <div
-                  className="relative w-full max-w-3xl rounded-3xl border border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-950/95 shadow-2xl"
-                  onClick={(event) => event.stopPropagation()}
-                >
+                <Icons.Close />
+              </Button>
+
+              <form
+                className="space-y-6 sm:space-y-8 p-6 sm:p-10 pt-14 sm:pt-16"
+                onSubmit={handleSearch}
+              >
+                <div className="space-y-2">
+                  <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-gray-100">
+                    {t('layout.header.search.title')}
+                  </h2>
+                  <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
+                    {t('layout.header.search.subtitle')}
+                  </p>
+                </div>
+
+                <Input
+                  ref={searchInputRef}
+                  type="search"
+                  value={searchQuery}
+                  onValueChange={setSearchQuery}
+                  placeholder={t('layout.header.search.placeholder')}
+                  size="lg"
+                  variant="bordered"
+                  radius="lg"
+                  icon={
+                    <span className="text-gray-400 dark:text-gray-500">
+                      <Icons.Search />
+                    </span>
+                  }
+                  classNames={{
+                    inputWrapper:
+                      'h-14 sm:h-16 px-4 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/70 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
+                    input: 'text-base sm:text-lg text-gray-900 dark:text-gray-100',
+                  }}
+                />
+
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <Button
-                    isIconOnly
-                    type="button"
+                    size="sm"
                     variant="light"
-                    aria-label={t('layout.header.search.close')}
-                    className="absolute top-4 right-4 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                    onPress={() => setIsSearchOpen(false)}
+                    type="button"
+                    aria-expanded={isAdvancedOpen}
+                    aria-controls={advancedSectionId}
+                    onPress={() => setIsAdvancedOpen((prev) => !prev)}
+                    className="self-start"
                   >
-                    <Icons.Close />
+                    {isAdvancedOpen
+                      ? t('layout.header.search.hide_advanced')
+                      : t('layout.header.search.show_advanced')}
                   </Button>
+                  <Button color="primary" type="submit">
+                    {t('layout.header.search.submit')}
+                  </Button>
+                </div>
 
-                  <form
-                    className="space-y-6 sm:space-y-8 p-6 sm:p-10 pt-14 sm:pt-16"
-                    onSubmit={handleSearch}
+                {isAdvancedOpen && (
+                  <div
+                    id={advancedSectionId}
+                    className="space-y-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/85 p-6 shadow-inner"
                   >
-                    <div className="space-y-2">
-                      <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-gray-100">
-                        {t('layout.header.search.title')}
-                      </h2>
-                      <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
-                        {t('layout.header.search.subtitle')}
-                      </p>
-                    </div>
-
-                    <Input
-                      ref={searchInputRef}
-                      type="search"
-                      value={searchQuery}
-                      onValueChange={setSearchQuery}
-                      placeholder={t('layout.header.search.placeholder')}
-                      size="lg"
-                      variant="bordered"
-                      radius="lg"
-                      icon={
-                        <span className="text-gray-400 dark:text-gray-500">
-                          <Icons.Search />
-                        </span>
-                      }
-                      classNames={{
-                        inputWrapper:
-                          'h-14 sm:h-16 px-4 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/70 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
-                        input: 'text-base sm:text-lg text-gray-900 dark:text-gray-100',
-                      }}
-                    />
-
-                    <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="space-y-1">
+                        <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">
+                          {t('layout.header.search.filters.heading')}
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {t('layout.header.search.filters.description')}
+                        </p>
+                      </div>
                       <Button
-                        size="sm"
                         variant="light"
+                        size="sm"
                         type="button"
-                        aria-expanded={isAdvancedOpen}
-                        aria-controls={advancedSectionId}
-                        onPress={() => setIsAdvancedOpen((prev) => !prev)}
-                        className="self-start"
+                        onPress={() => {
+                          setCategoryFilter('');
+                          setMinPriceFilter('');
+                          setMaxPriceFilter('');
+                          setCategorySearch('');
+                          setIsCategoryDropdownOpen(false);
+                        }}
                       >
-                        {isAdvancedOpen
-                          ? t('layout.header.search.hide_advanced')
-                          : t('layout.header.search.show_advanced')}
-                      </Button>
-                      <Button color="primary" type="submit">
-                        {t('layout.header.search.submit')}
+                        {t('layout.header.search.filters.reset')}
                       </Button>
                     </div>
 
-                    {isAdvancedOpen && (
-                      <div
-                        id={advancedSectionId}
-                        className="space-y-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/85 p-6 shadow-inner"
-                      >
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div className="space-y-1">
-                            <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">
-                              {t('layout.header.search.filters.heading')}
-                            </h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              {t('layout.header.search.filters.description')}
-                            </p>
-                          </div>
-                          <Button
-                            variant="light"
-                            size="sm"
-                            type="button"
-                            onPress={() => {
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <div className="sm:col-span-1 relative">
+                        <Input
+                          label={t('layout.header.search.filters.category.label')}
+                          placeholder={t('layout.header.search.filters.category.placeholder')}
+                          value={categorySearch}
+                          onValueChange={(value) => {
+                            setCategorySearch(value);
+                            if (!value) {
                               setCategoryFilter('');
-                              setMinPriceFilter('');
-                              setMaxPriceFilter('');
-                              setCategorySearch('');
-                              setIsCategoryDropdownOpen(false);
-                            }}
-                          >
-                            {t('layout.header.search.filters.reset')}
-                          </Button>
-                        </div>
-
-                        <div className="grid gap-4 sm:grid-cols-3">
-                          <div className="sm:col-span-1 relative">
-                            <Input
-                              label={t('layout.header.search.filters.category.label')}
-                              placeholder={t('layout.header.search.filters.category.placeholder')}
-                              value={categorySearch}
-                              onValueChange={(value) => {
-                                setCategorySearch(value);
-                                if (!value) {
-                                  setCategoryFilter('');
-                                }
-                                setIsCategoryDropdownOpen(true);
-                              }}
-                              onFocus={() => setIsCategoryDropdownOpen(true)}
-                              onBlur={() => {
-                                // delay closing to allow click events on dropdown items
-                                setTimeout(() => setIsCategoryDropdownOpen(false), 150);
-                              }}
-                              variant="bordered"
-                              radius="lg"
-                              size="md"
-                              classNames={{
-                                label: 'text-sm font-medium text-gray-600 dark:text-gray-300',
-                                inputWrapper:
-                                  'h-12 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/60 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
-                                input: 'text-sm text-gray-900 dark:text-gray-100',
-                              }}
-                              fullWidth
-                            />
-                            {isCategoryDropdownOpen && (
-                              <div className="absolute z-40 mt-2 max-h-56 w-full overflow-y-auto rounded-xl border border-gray-200 bg-white/95 shadow-xl dark:border-gray-800 dark:bg-gray-950">
-                                {isLoadingCategories ? (
-                                  <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
-                                    {t('layout.header.search.filters.loading')}
-                                  </div>
-                                ) : normalizedCategories.length === 0 ? (
-                                  <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
-                                    {t('layout.header.search.filters.empty')}
-                                  </div>
-                                ) : filteredCategories.length === 0 ? (
-                                  <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
-                                    {t('layout.header.search.filters.no_results')}
-                                  </div>
-                                ) : (
-                                  filteredCategories.map((category) => {
-                                    const isSelected = category.id === categoryFilter;
-                                    return (
-                                      <button
-                                        key={category.id}
-                                        type="button"
-                                        className={`w-full px-4 py-2 text-left text-sm transition-colors ${
-                                          isSelected
-                                            ? 'bg-blue-500/10 text-blue-600 dark:text-blue-300'
-                                            : 'hover:bg-gray-100 dark:hover:bg-gray-800'
-                                        }`}
-                                        onMouseDown={() => {
-                                          setCategoryFilter(category.id);
-                                          setCategorySearch(category.name);
-                                          setIsCategoryDropdownOpen(false);
-                                        }}
-                                      >
-                                        {category.name}
-                                      </button>
-                                    );
-                                  })
-                                )}
+                            }
+                            setIsCategoryDropdownOpen(true);
+                          }}
+                          onFocus={() => setIsCategoryDropdownOpen(true)}
+                          onBlur={() => {
+                            // delay closing to allow click events on dropdown items
+                            setTimeout(() => setIsCategoryDropdownOpen(false), 150);
+                          }}
+                          variant="bordered"
+                          radius="lg"
+                          size="md"
+                          classNames={{
+                            label: 'text-sm font-medium text-gray-600 dark:text-gray-300',
+                            inputWrapper:
+                              'h-12 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/60 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
+                            input: 'text-sm text-gray-900 dark:text-gray-100',
+                          }}
+                          fullWidth
+                        />
+                        {isCategoryDropdownOpen && (
+                          <div className="absolute z-40 mt-2 max-h-56 w-full overflow-y-auto rounded-xl border border-gray-200 bg-white/95 shadow-xl dark:border-gray-800 dark:bg-gray-950">
+                            {isLoadingCategories ? (
+                              <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                                {t('layout.header.search.filters.loading')}
                               </div>
+                            ) : normalizedCategories.length === 0 ? (
+                              <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                                {t('layout.header.search.filters.empty')}
+                              </div>
+                            ) : filteredCategories.length === 0 ? (
+                              <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                                {t('layout.header.search.filters.no_results')}
+                              </div>
+                            ) : (
+                              filteredCategories.map((category) => {
+                                const isSelected = category.id === categoryFilter;
+                                return (
+                                  <button
+                                    key={category.id}
+                                    type="button"
+                                    className={`w-full px-4 py-2 text-left text-sm transition-colors ${isSelected
+                                      ? 'bg-blue-500/10 text-blue-600 dark:text-blue-300'
+                                      : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                                      }`}
+                                    onMouseDown={() => {
+                                      setCategoryFilter(category.id);
+                                      setCategorySearch(category.name);
+                                      setIsCategoryDropdownOpen(false);
+                                    }}
+                                  >
+                                    {category.name}
+                                  </button>
+                                );
+                              })
                             )}
                           </div>
-                          <Input
-                            label={t('layout.header.search.filters.min_price.label')}
-                            placeholder={t('layout.header.search.filters.min_price.placeholder')}
-                            type="number"
-                            value={minPriceFilter}
-                            onChange={(event) => setMinPriceFilter(event.target.value)}
-                            variant="bordered"
-                            radius="lg"
-                            size="md"
-                            inputMode="numeric"
-                            fullWidth
-                            classNames={{
-                              label: 'text-sm font-medium text-gray-600 dark:text-gray-300',
-                              inputWrapper:
-                                'h-12 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/60 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
-                              input: 'text-sm text-gray-900 dark:text-gray-100',
-                            }}
-                          />
-                          <Input
-                            label={t('layout.header.search.filters.max_price.label')}
-                            placeholder={t('layout.header.search.filters.max_price.placeholder')}
-                            type="number"
-                            value={maxPriceFilter}
-                            onChange={(event) => setMaxPriceFilter(event.target.value)}
-                            variant="bordered"
-                            radius="lg"
-                            size="md"
-                            inputMode="numeric"
-                            fullWidth
-                            classNames={{
-                              label: 'text-sm font-medium text-gray-600 dark:text-gray-300',
-                              inputWrapper:
-                                'h-12 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/60 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
-                              input: 'text-sm text-gray-900 dark:text-gray-100',
-                            }}
-                          />
-                        </div>
-
-                        <div className="flex justify-end">
-                          <Button color="primary" type="submit">
-                            {t('layout.header.search.filters.apply')}
-                          </Button>
-                        </div>
+                        )}
                       </div>
-                    )}
-                  </form>
-                </div>
-              </div>,
-              document.body
-            )
-          : null}
+                      <Input
+                        label={t('layout.header.search.filters.min_price.label')}
+                        placeholder={t('layout.header.search.filters.min_price.placeholder')}
+                        type="number"
+                        value={minPriceFilter}
+                        onChange={(event) => setMinPriceFilter(event.target.value)}
+                        variant="bordered"
+                        radius="lg"
+                        size="md"
+                        inputMode="numeric"
+                        fullWidth
+                        classNames={{
+                          label: 'text-sm font-medium text-gray-600 dark:text-gray-300',
+                          inputWrapper:
+                            'h-12 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/60 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
+                          input: 'text-sm text-gray-900 dark:text-gray-100',
+                        }}
+                      />
+                      <Input
+                        label={t('layout.header.search.filters.max_price.label')}
+                        placeholder={t('layout.header.search.filters.max_price.placeholder')}
+                        type="number"
+                        value={maxPriceFilter}
+                        onChange={(event) => setMaxPriceFilter(event.target.value)}
+                        variant="bordered"
+                        radius="lg"
+                        size="md"
+                        inputMode="numeric"
+                        fullWidth
+                        classNames={{
+                          label: 'text-sm font-medium text-gray-600 dark:text-gray-300',
+                          inputWrapper:
+                            'h-12 border-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 bg-white/95 dark:bg-gray-950/60 shadow-sm focus-within:border-blue-500 focus-within:shadow-md transition-all',
+                          input: 'text-sm text-gray-900 dark:text-gray-100',
+                        }}
+                      />
+                    </div>
+
+                    <div className="flex justify-end">
+                      <Button color="primary" type="submit">
+                        {t('layout.header.search.filters.apply')}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </form>
+            </div>
+          </div>,
+          document.body
+        )
+        : null}
     </>
   );
 };

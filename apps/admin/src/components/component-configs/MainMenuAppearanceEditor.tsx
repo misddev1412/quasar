@@ -63,6 +63,16 @@ export const MainMenuAppearanceEditor: React.FC<MainMenuAppearanceEditorProps> =
     });
   };
 
+  const updateBurgerMenuColor = (mode: keyof MainMenuConfig['burgerMenuColor'], color?: string) => {
+    onChange({
+      ...value,
+      burgerMenuColor: {
+        ...value.burgerMenuColor,
+        [mode]: color || '',
+      },
+    });
+  };
+
   const updateItemSize = (size: MainMenuItemSize) => {
     onChange({
       ...value,
@@ -137,6 +147,21 @@ export const MainMenuAppearanceEditor: React.FC<MainMenuAppearanceEditorProps> =
           onChange={(color) => updateTextColor('dark', color)}
           label={t('storefront.mainMenu.darkTextColor', 'Dark mode text color')}
           placeholder="#f8fafc"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <ColorSelector
+          value={value.burgerMenuColor?.light}
+          onChange={(color) => updateBurgerMenuColor('light', color)}
+          label={t('storefront.mainMenu.lightBurgerColor', 'Light mode burger menu color')}
+          placeholder="#ffffff"
+        />
+        <ColorSelector
+          value={value.burgerMenuColor?.dark}
+          onChange={(color) => updateBurgerMenuColor('dark', color)}
+          label={t('storefront.mainMenu.darkBurgerColor', 'Dark mode burger menu color')}
+          placeholder="#ffffff"
         />
       </div>
 

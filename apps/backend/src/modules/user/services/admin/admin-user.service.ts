@@ -148,6 +148,18 @@ export class AdminUserService {
         );
       }
 
+      if (updateUserDto.role) {
+        const role = await this.userRepository.findRoleByCode(updateUserDto.role);
+        if (!role) {
+          throw this.responseHandler.createError(
+            ApiStatusCodes.NOT_FOUND,
+            'Role not found',
+            'NOT_FOUND'
+          );
+        }
+        await this.userRepository.setActiveRoleForUser(id, role.id);
+      }
+
       // Get user with profile after update
       const userWithProfile = await this.userRepository.findWithProfile(id);
       return this.toAdminUserResponse(userWithProfile || updatedUser);
@@ -437,12 +449,12 @@ export class AdminUserService {
       // Prioritize active roles
       const activeRole = user.userRoles.find(ur => ur.isActive && ur.role);
       if (activeRole) {
-        userRole = activeRole.role.code;
+        userRole = this.normalizeRoleCode(activeRole.role.code);
       } else {
         // Fallback to any role if no active one found (or handle as USER)
         const anyRole = user.userRoles.find(ur => ur.role);
         if (anyRole) {
-          userRole = anyRole.role.code;
+          userRole = this.normalizeRoleCode(anyRole.role.code);
         }
       }
     }
@@ -470,4 +482,11 @@ export class AdminUserService {
       } : undefined,
     };
   }
-} 
+
+  private normalizeRoleCode(code?: string): UserRole {
+    if (code && Object.values(UserRole).includes(code as UserRole)) {
+      return code as UserRole;
+    }
+    return UserRole.USER;
+  }
+}

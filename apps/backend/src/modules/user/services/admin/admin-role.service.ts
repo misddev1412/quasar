@@ -81,14 +81,23 @@ export class AdminRoleService {
     }
 
     try {
+      const requestedCode = createRoleDto.code ?? UserRole.USER;
+      const existingCode = await this.roleRepository.findByCode(requestedCode);
+      if (existingCode) {
+        throw this.responseHandler.createError(
+          ApiStatusCodes.CONFLICT,
+          'Role with this code already exists',
+          'CONFLICT'
+        );
+      }
+
       // Create the role
       const roleData = {
         name: createRoleDto.name,
         description: createRoleDto.description,
         isActive: createRoleDto.isActive ?? true,
         isDefault: createRoleDto.isDefault ?? false,
-        // Generate a unique code based on name (simplified approach)
-        code: this.generateRoleCode(createRoleDto.name)
+        code: requestedCode
       };
 
       const role = await this.roleRepository.save(roleData);
@@ -138,6 +147,17 @@ export class AdminRoleService {
       }
     }
 
+    if (updateRoleDto.code && updateRoleDto.code !== existingRole.code) {
+      const codeExists = await this.roleRepository.findByCode(updateRoleDto.code);
+      if (codeExists) {
+        throw this.responseHandler.createError(
+          ApiStatusCodes.CONFLICT,
+          'Role with this code already exists',
+          'CONFLICT'
+        );
+      }
+    }
+
     try {
       // Update role basic information
       const updateData: Partial<Role> = {};
@@ -145,6 +165,7 @@ export class AdminRoleService {
       if (updateRoleDto.description !== undefined) updateData.description = updateRoleDto.description;
       if (updateRoleDto.isActive !== undefined) updateData.isActive = updateRoleDto.isActive;
       if (updateRoleDto.isDefault !== undefined) updateData.isDefault = updateRoleDto.isDefault;
+      if (updateRoleDto.code !== undefined) updateData.code = updateRoleDto.code;
 
       const updatedRole = await this.roleRepository.update(id, updateData);
       if (!updatedRole) {
@@ -315,13 +336,14 @@ export class AdminRoleService {
     }
 
     try {
+      const duplicateCode = await this.findAvailableRoleCode(sourceRole.code);
       // Create the duplicated role
       const roleData = {
         name: duplicateName,
         description: sourceRole.description ? `${sourceRole.description} (Copy)` : undefined,
         isActive: sourceRole.isActive,
         isDefault: false, // Duplicated roles should never be default
-        code: this.generateRoleCode(duplicateName)
+        code: duplicateCode
       };
 
       const duplicatedRole = await this.roleRepository.save(roleData);
@@ -556,33 +578,31 @@ export class AdminRoleService {
     await this.assignPermissionsToRole(roleId, permissionsToAdd);
   }
 
-  private generateRoleCode(name: string): UserRole {
-    // This is a simplified approach - in a real application, you might want
-    // to have a more sophisticated mapping or allow custom codes
-    const normalizedName = name.toUpperCase().replace(/\s+/g, '_');
+  private async findAvailableRoleCode(preferred?: UserRole): Promise<UserRole> {
+    const codes = Object.values(UserRole) as UserRole[];
+    const orderedCodes = preferred
+      ? [preferred, ...codes.filter(code => code !== preferred)]
+      : codes;
 
-    // Map to existing UserRole enum values or default to USER
-    switch (normalizedName) {
-      case 'SUPER_ADMIN':
-      case 'SUPERADMIN':
-        return UserRole.SUPER_ADMIN;
-      case 'ADMIN':
-      case 'ADMINISTRATOR':
-        return UserRole.ADMIN;
-      case 'MANAGER':
-        return UserRole.MANAGER;
-      case 'GUEST':
-        return UserRole.GUEST;
-      default:
-        return UserRole.USER;
+    for (const code of orderedCodes) {
+      const existingRole = await this.roleRepository.findByCode(code);
+      if (!existingRole) {
+        return code;
+      }
     }
+
+    throw this.responseHandler.createError(
+      ApiStatusCodes.CONFLICT,
+      'All role codes are already in use. Please reassign or remove an existing role before duplicating.',
+      'CONFLICT'
+    );
   }
 
   private toAdminRoleResponse(role: Role | RoleWithCounts): AdminRoleResponseDto {
     const response: AdminRoleResponseDto = {
       id: role.id,
       name: role.name,
-      code: role.code, // Include the UserRole enum value
+      code: role.code,
       description: role.description,
       isActive: role.isActive,
       isDefault: role.isDefault,

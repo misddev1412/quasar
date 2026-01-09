@@ -67,21 +67,37 @@ export const PermissionCheckboxGrid: React.FC<PermissionCheckboxGridProps> = ({
   const [selectedResource, setSelectedResource] = useState<string>('all');
 
   // Fetch permissions using the real API
-  const { data, isLoading, error } = trpc.adminPermission.getAllPermissions.useQuery({});
+  const permissionQueryInput = useMemo(
+    () =>
+      ({
+        disablePagination: true,
+      }) as Parameters<typeof trpc.adminPermission.getAllPermissions.useQuery>[0] & {
+        disablePagination?: boolean;
+      },
+    []
+  );
+
+  const { data, isLoading, error } = trpc.adminPermission.getAllPermissions.useQuery(permissionQueryInput);
 
   // Process permissions data
   const permissions = useMemo(() => {
     if (!data || !(data as any)?.data) return [];
-    const rawData = (data as any).data;
+    const responseData = (data as any).data;
+
+    let rawPermissions: unknown = responseData;
+    if (responseData && Array.isArray((responseData as any).data)) {
+      rawPermissions = (responseData as any).data;
+    } else if (responseData && Array.isArray((responseData as any).items)) {
+      rawPermissions = (responseData as any).items;
+    }
     
-    // Ensure we have an array
-    if (!Array.isArray(rawData)) {
-      console.warn('Permissions API returned non-array data:', rawData);
+    if (!Array.isArray(rawPermissions)) {
+      console.warn('Permissions API returned unexpected data shape:', responseData);
       return [];
     }
     
     // Validate each permission object has required fields
-    return rawData.filter(p => p && typeof p === 'object' && p.id && p.name && p.resource && p.action && p.scope) as Permission[];
+    return rawPermissions.filter(p => p && typeof p === 'object' && (p as Permission).id && (p as Permission).name && (p as Permission).resource && (p as Permission).action && (p as Permission).scope) as Permission[];
   }, [data]);
 
   // Group permissions by resource

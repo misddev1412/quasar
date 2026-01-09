@@ -22,12 +22,16 @@ interface ThemeToggleProps {
   className?: string;
   showLabel?: boolean;
   size?: 'sm' | 'md' | 'lg';
+  style?: React.CSSProperties;
+  disableHover?: boolean;
 }
 
 export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   className = '',
   showLabel = false,
-  size = 'sm'
+  size = 'sm',
+  style,
+  disableHover = false
 }) => {
   const { theme, toggleTheme } = useTheme();
 
@@ -37,8 +41,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
       variant="light"
       size={size}
       onPress={toggleTheme}
+      style={style}
       className={`
-        hover:bg-gray-100 dark:hover:bg-gray-800
+        ${!disableHover ? 'hover:bg-gray-100 dark:hover:bg-gray-800' : 'hover:bg-transparent'}
         transition-all duration-200
         ${className}
       `}

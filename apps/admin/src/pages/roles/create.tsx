@@ -45,6 +45,7 @@ const RoleCreatePage: React.FC = () => {
       // Transform form data to match API expectations
       const roleData = {
         name: formData.name,
+        code: formData.code,
         description: formData.description || undefined,
         isActive: formData.isActive ?? true,
         isDefault: formData.isDefault ?? false,

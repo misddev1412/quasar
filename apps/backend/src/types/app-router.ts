@@ -1641,6 +1641,7 @@ export const appRouter = router({
         search: z.string().optional(),
         page: z.number().min(1).optional().default(1),
         limit: z.number().min(1).max(100).optional().default(10),
+        disablePagination: z.boolean().optional(),
       }))
       .output(apiResponseSchema)
       .query(() => {

@@ -88,7 +88,7 @@ export class RoleRepository extends BaseRepository<Role> {
       const role = new Role();
       role.id = raw.roleId;
       role.name = raw.roleName;
-      role.code = raw.roleCode;
+      role.code = raw.roleCode as UserRole;
       role.description = raw.roleDescription;
       role.isActive = raw.roleIsActive;
       role.isDefault = raw.roleIsDefault;

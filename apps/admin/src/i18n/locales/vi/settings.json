@@ -221,7 +221,8 @@
         "description_label": "Mô tả",
         "description_color": "Màu đoạn mô tả",
         "description_color_hint": "Để trống để lấy màu đoạn văn mặc định của giao diện.",
-        "custom_html": "HTML tuỳ chỉnh (tuỳ chọn)"
+        "custom_html": "HTML tuỳ chỉnh (tuỳ chọn)",
+        "custom_html_description": "Sử dụng định dạng đơn giản, liên kết, hoặc chuyển sang chế độ Code để nhập HTML thuần."
       },
       "newsletter": {
         "enable": "Hiện form đăng ký email",

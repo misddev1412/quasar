@@ -7,7 +7,7 @@ import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
 import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
 import { RequirePermission } from '../../../trpc/middlewares/permission.middleware';
-import { PermissionAction, PermissionScope } from '@shared';
+import { PermissionAction, PermissionScope, UserRole } from '@shared';
 
 // Create permission middleware classes at module level so they can be registered as providers
 const requireReadAnyRole = RequirePermission({
@@ -49,11 +49,14 @@ export const AdminRolePermissions = [
 ];
 
 // Zod schemas for validation
+const roleCodeSchema = z.nativeEnum(UserRole);
+
 const adminCreateRoleSchema = z.object({
   name: z.string().min(2).max(100),
   description: z.string().optional(),
   isActive: z.boolean().optional(),
   isDefault: z.boolean().optional(),
+  code: roleCodeSchema.optional(),
   permissionIds: z.array(z.string().uuid()).optional(),
 });
 
@@ -62,6 +65,7 @@ const adminUpdateRoleSchema = z.object({
   description: z.string().optional(),
   isActive: z.boolean().optional(),
   isDefault: z.boolean().optional(),
+  code: roleCodeSchema.optional(),
   permissionIds: z.array(z.string().uuid()).optional(),
 });
 

@@ -13,6 +13,7 @@ import { MenuTarget, MenuType } from '@shared/enums/menu.enums';
 import { useSettings } from '../../hooks/useSettings';
 import CartDropdown from '../ecommerce/CartDropdown';
 import { useCart } from '../../contexts/CartContext';
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
 
 const SUB_MENU_GROUP = 'sub';
 const SUB_MENU_VISIBILITY_SETTING_KEY = 'storefront.sub_menu_enabled';
@@ -211,6 +212,7 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
 
   const buttonRef = useRef<HTMLAnchorElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null); // Added for responsive search
   const [searchValue, setSearchValue] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
@@ -371,7 +373,6 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
 
   if (item.type === MenuType.SEARCH_BAR) {
     const translation = getTranslation(item);
-    // Get placeholder from translation config (multi-language) or fallback to global config or label
     const placeholder =
       (translation?.config?.placeholder as string) ||
       (item.config?.placeholder as string) ||
@@ -381,34 +382,22 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
     const resolvedWidth = widthValue.length > 0 ? widthValue : '240px';
     const widthMode = (item.config?.widthMode as 'auto' | 'fixed') || 'fixed';
     const isAutoWidth = widthMode === 'auto';
-    // Use buttonSize to be consistent with other submenu items
     const size = (item.config?.buttonSize as 'small' | 'medium' | 'large') || 'medium';
     const labelText = translation?.label || placeholder || 'Search';
+
+    // Desktop Container Styles
     const searchContainerClass = clsx(
-      'flex flex-col',
+      'flex-col hidden xl:flex', // Hidden on small screens, flex on xl
       isAutoWidth ? 'flex-1 basis-0 min-w-0' : 'flex-shrink-0'
     );
     const searchContainerStyle: React.CSSProperties = isAutoWidth
       ? { minWidth: resolvedWidth, width: 'auto', maxWidth: '100%' }
       : { width: resolvedWidth };
 
-    // Size-based styling - apply to entire search bar container, similar to resolveButtonSizeClass
     const sizeClasses = {
-      small: {
-        container: 'px-2.5 py-1.5 h-8', // Same as button small
-        input: 'text-xs',
-        icon: 14,
-      },
-      medium: {
-        container: 'px-3 py-2 h-10', // Same as button medium
-        input: 'text-sm',
-        icon: 16,
-      },
-      large: {
-        container: 'px-4 py-2.5 sm:px-5 sm:py-3 h-12', // Same as button large
-        input: 'text-[15px]',
-        icon: 18,
-      },
+      small: { container: 'px-2.5 py-1.5 h-8', input: 'text-xs', icon: 14 },
+      medium: { container: 'px-3 py-2 h-10', input: 'text-sm', icon: 16 },
+      large: { container: 'px-4 py-2.5 sm:px-5 sm:py-3 h-12', input: 'text-[15px]', icon: 18 },
     };
     const sizeConfig = sizeClasses[size];
 
@@ -421,9 +410,8 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
       setSearchError(null);
       router.push(`/search?q=${encodeURIComponent(trimmed)}`);
       setSearchValue(trimmed);
-      if (searchInputRef.current) {
-        searchInputRef.current.blur();
-      }
+      if (searchInputRef.current) searchInputRef.current.blur();
+      if (mobileSearchInputRef.current) mobileSearchInputRef.current.blur();
     };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -434,9 +422,8 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
     const handleClear = () => {
       setSearchValue('');
       setSearchError(null);
-      if (searchInputRef.current) {
-        searchInputRef.current.focus();
-      }
+      if (searchInputRef.current?.offsetParent) searchInputRef.current.focus();
+      if (mobileSearchInputRef.current?.offsetParent) mobileSearchInputRef.current.focus();
     };
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -450,63 +437,87 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
       }
     };
 
-    return (
-      <div
-        key={item.id}
-        className={searchContainerClass}
-        style={searchContainerStyle}
-        role="search"
-        aria-label={labelText}
-      >
-        <form onSubmit={handleSubmit} className="w-full space-y-1">
-          <label htmlFor={searchInputId} className="sr-only">
-            {labelText}
-          </label>
-          <div
+    const renderSearchForm = (inputRef: React.RefObject<HTMLInputElement | null>) => (
+      <form onSubmit={handleSubmit} className="w-full space-y-1">
+        <label htmlFor={inputRef === searchInputRef ? searchInputId : `${searchInputId}-mobile`} className="sr-only">{labelText}</label>
+        <div
+          className={clsx(
+            'relative flex w-full items-center rounded-2xl border transition-all duration-200 backdrop-blur bg-white/80 dark:bg-gray-900/70 border-gray-200/80 dark:border-gray-700/70 shadow-sm',
+            sizeConfig.container,
+            isSearchFocused && 'border-blue-500 shadow-blue-500/30 dark:border-blue-400',
+            searchError && 'border-rose-400 dark:border-rose-500 shadow-rose-500/30'
+          )}
+        >
+          <span className="pointer-events-none text-gray-400 dark:text-gray-500">
+            <UnifiedIcon icon="search" size={sizeConfig.icon} />
+          </span>
+          <input
+            ref={inputRef as React.RefObject<HTMLInputElement>}
+            id={inputRef === searchInputRef ? searchInputId : `${searchInputId}-mobile`}
+            type="text"
+            value={searchValue}
+            placeholder={placeholder}
+            autoComplete="off"
             className={clsx(
-              'relative flex w-full items-center rounded-2xl border transition-all duration-200 backdrop-blur bg-white/80 dark:bg-gray-900/70 border-gray-200/80 dark:border-gray-700/70 shadow-sm',
-              sizeConfig.container,
-              isSearchFocused && 'border-blue-500 shadow-blue-500/30 dark:border-blue-400',
-              searchError && 'border-rose-400 dark:border-rose-500 shadow-rose-500/30'
+              'peer w-full bg-transparent px-2 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-0 dark:text-gray-100',
+              sizeConfig.input
             )}
-          >
-            <span className="pointer-events-none text-gray-400 dark:text-gray-500">
-              <UnifiedIcon icon="search" size={sizeConfig.icon} />
-            </span>
-            <input
-              ref={searchInputRef}
-              id={searchInputId}
-              type="text"
-              value={searchValue}
-              placeholder={placeholder}
-              autoComplete="off"
-              className={clsx(
-                'peer w-full bg-transparent px-2 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-0 dark:text-gray-100',
-                sizeConfig.input
-              )}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
-              onChange={(event) => {
-                setSearchValue(event.target.value);
-                if (searchError) {
-                  setSearchError(null);
-                }
-              }}
-              onKeyDown={handleKeyDown}
-            />
-            {searchValue.length > 0 && (
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setIsSearchFocused(false)}
+            onChange={(event) => {
+              setSearchValue(event.target.value);
+              if (searchError) setSearchError(null);
+            }}
+            onKeyDown={handleKeyDown}
+          />
+          {searchValue.length > 0 && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full text-gray-400 transition hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+              aria-label="Clear search input"
+            >
+              <UnifiedIcon icon="x" size={12} />
+            </button>
+          )}
+        </div>
+      </form>
+    );
+
+    return (
+      <>
+        {/* Desktop Version */}
+        <div
+          key={item.id}
+          className={searchContainerClass}
+          style={searchContainerStyle}
+          role="search"
+          aria-label={labelText}
+        >
+          {renderSearchForm(searchInputRef)}
+        </div>
+
+        {/* Mobile/Tablet Compact Version (Below XL) - Hidden on Mobile (< lg) */}
+        <div className="hidden lg:flex xl:hidden items-center">
+          <Dropdown placement="bottom-end">
+            <DropdownTrigger>
               <button
-                type="button"
-                onClick={handleClear}
-                className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full text-gray-400 transition hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
-                aria-label="Clear search input"
+                className="flex items-center justify-center p-2 text-gray-600 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 focus:outline-none"
+                aria-label={labelText}
               >
-                <UnifiedIcon icon="x" size={12} />
+                <UnifiedIcon icon="search" size={Math.max(20, sizeConfig.icon + 4)} />
               </button>
-            )}
-          </div>
-        </form>
-      </div>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Search" variant="flat" className="min-w-[280px] p-2">
+              <DropdownItem key="search-input" isReadOnly className="cursor-default hover:!bg-transparent data-[hover=true]:bg-transparent">
+                <div onKeyDown={(e) => e.stopPropagation()}>
+                  {renderSearchForm(mobileSearchInputRef)}
+                </div>
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        </div>
+      </>
     );
   }
 

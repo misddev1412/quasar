@@ -100,9 +100,11 @@ export interface NavigationItemRendererProps {
   item: NavigationItem;
   context: 'desktop' | 'mobile';
   closeMobileMenu?: () => void;
+  textColor?: string;
 }
 
 export type NavigationItemRenderer = (props: NavigationItemRendererProps) => React.ReactNode;
+
 
 const getBorderStyles = (item: NavigationItem): React.CSSProperties => {
   const style: React.CSSProperties = {};
@@ -150,10 +152,9 @@ const DesktopNavigationItem: React.FC<{
         rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
         className={`
           flex items-center gap-1 text-sm font-medium transition-all duration-200 relative py-2 px-3 rounded-lg ${hasCustomBorder ? 'border' : 'border-0'}
-          ${
-            isActive
-              ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
+          ${isActive
+            ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
+            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
           }
         `}
         style={getBorderStyles(item)}
@@ -173,19 +174,19 @@ const DesktopNavigationItem: React.FC<{
           onMouseLeave={() => setIsDropdownOpen(false)}
         >
           <div className="py-2">
-              {item.children?.map((child) => (
-                <Link
-                  key={child.id}
-                  href={child.href || '#'}
-                  target={child.target}
+            {item.children?.map((child) => (
+              <Link
+                key={child.id}
+                href={child.href || '#'}
+                target={child.target}
                 rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
-              className="
+                className="
                 block px-4 py-2 text-sm text-gray-700 dark:text-gray-300
                 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800
                 transition-colors
               "
-              style={getBorderStyles(child)}
-            >
+                style={getBorderStyles(child)}
+              >
                 <div className="flex items-center justify-between gap-3">
                   <span className="flex items-center gap-2">
                     <UnifiedIcon icon={child.icon} variant="nav" />
@@ -244,7 +245,7 @@ const EnhancedMegaMenuDropdown: React.FC<{
   return (
     <div
       className="absolute top-full left-0 right-0 mt-1 z-[60]"
-      onMouseEnter={() => {}}
+      onMouseEnter={() => { }}
       onMouseLeave={onClose}
     >
       <div className="w-full left-0 right-0">
@@ -319,7 +320,7 @@ const DesktopNavigation: React.FC<{
         if (renderer) {
           return (
             <div key={item.id} className="flex items-center">
-              {renderer({ item, context: 'desktop' })}
+              {renderer({ item, context: 'desktop', textColor })}
             </div>
           );
         }
@@ -338,10 +339,9 @@ const DesktopNavigation: React.FC<{
               rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
               className={`
                 flex items-center ${itemSizeStyle.desktopGap} ${itemSizeStyle.desktopText} ${itemWeightClass} ${itemTransformClass} transition-all duration-200 relative ${itemSizeStyle.desktopPadding} rounded-lg ${hasCustomBorder ? 'border' : 'border-0'}
-                ${
-                  isActive
-                    ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                    : `${textColor ? '' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'} hover:underline hover:font-semibold underline-offset-4`
+                ${isActive
+                  ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                  : `${textColor ? '' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'} hover:underline hover:font-semibold underline-offset-4`
                 }
               `}
               style={{
@@ -465,7 +465,7 @@ const MobileMenuItem: React.FC<{
   if (renderer) {
     return (
       <div className="border-b border-gray-200 dark:border-gray-700 px-4 py-3">
-        {renderer({ item, context: 'mobile', closeMobileMenu: onClose })}
+        {renderer({ item, context: 'mobile', closeMobileMenu: onClose, textColor })}
       </div>
     );
   }
@@ -477,41 +477,40 @@ const MobileMenuItem: React.FC<{
         <Link
           href={item.href || '#'}
           target={item.target}
-              rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
-              className={`
+          rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
+          className={`
                 flex-1 ${itemSizeStyle.mobileText} ${itemWeightClass} ${itemTransformClass} transition-colors ${itemSizeStyle.mobilePadding}
-                ${
-                  isActive
-                    ? 'text-blue-600 dark:text-blue-400'
-                    : `${textColor ? '' : 'text-gray-700 dark:text-gray-300'}`
-                }
+                ${isActive
+              ? 'text-blue-600 dark:text-blue-400'
+              : `${textColor ? '' : 'text-gray-700 dark:text-gray-300'}`
+            }
               `}
-              style={{
-                ...getBorderStyles(item),
-                color: !isActive && textColor ? textColor : undefined,
-              }}
-              onClick={() => {
-                if (!hasChildren) {
-                  onClose();
-                }
-              }}
-            >
-              <span className={`flex items-center ${itemSizeStyle.mobileGap}`}>
-                <UnifiedIcon icon={item.icon} variant="button" color={iconColor} />
-                <span>{item.name}</span>
-              </span>
-            </Link>
-            {hasChildren && (
-              <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className={`p-3 ${textColor ? '' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
-                style={textColor ? { color: textColor } : undefined}
-              >
-                <ChevronDownIcon
-                  className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-                />
-              </button>
-            )}
+          style={{
+            ...getBorderStyles(item),
+            color: !isActive && textColor ? textColor : undefined,
+          }}
+          onClick={() => {
+            if (!hasChildren) {
+              onClose();
+            }
+          }}
+        >
+          <span className={`flex items-center ${itemSizeStyle.mobileGap}`}>
+            <UnifiedIcon icon={item.icon} variant="button" color={iconColor} />
+            <span>{item.name}</span>
+          </span>
+        </Link>
+        {hasChildren && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className={`p-3 ${textColor ? '' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+            style={textColor ? { color: textColor } : undefined}
+          >
+            <ChevronDownIcon
+              className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+            />
+          </button>
+        )}
       </div>
 
       {isExpanded && hasChildren && (

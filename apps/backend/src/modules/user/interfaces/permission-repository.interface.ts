@@ -34,6 +34,7 @@ export interface PermissionFilter {
   search?: string;
   page?: number;
   limit?: number;
+  disablePagination?: boolean;
 }
 
 export interface IPermissionRepository {

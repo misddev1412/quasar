@@ -170,7 +170,15 @@ export const BannerGridSection: React.FC<BannerGridSectionProps> = ({ config, tr
             {t('sections.banner.empty')}
           </div>
         ) : (
-          <div className={`grid ${getGridClass(validCards.length)}`} style={{ gap: gridGap }}>
+          <div
+            className={`
+              flex flex-nowrap overflow-x-auto snap-mandatory snap-x -mx-4 px-4 pb-6 gap-4
+              [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']
+              lg:grid lg:mx-0 lg:px-0 lg:pb-0 lg:gap-6
+              ${getGridClass(validCards.length)}
+            `}
+            style={{ gap: gridGap }}
+          >
             {validCards.map((card, idx) => {
               const imageUrl = (card.imageUrl || '').trim();
               const link = card.link;
@@ -180,7 +188,7 @@ export const BannerGridSection: React.FC<BannerGridSectionProps> = ({ config, tr
 
               const imageElement = (
                 <div
-                  className="relative aspect-[4/3] w-full overflow-hidden bg-gray-900 shadow-xl"
+                  className="relative aspect-[3/1] lg:aspect-[4/3] w-full overflow-hidden bg-gray-900 shadow-xl"
                   style={{ borderRadius: cardBorderRadius }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -195,14 +203,17 @@ export const BannerGridSection: React.FC<BannerGridSectionProps> = ({ config, tr
               );
 
               return (
-                <article key={card.id || `banner-card-${idx}`}>
+                <article
+                  key={card.id || `banner-card-${idx}`}
+                  className="w-full min-w-full snap-center flex-shrink-0"
+                >
                   {href ? (
                     target === '_blank' ? (
-                      <a href={href} target="_blank" rel="noopener noreferrer" className="block">
+                      <a href={href} target="_blank" rel="noopener noreferrer" className="block h-full">
                         {imageElement}
                       </a>
                     ) : (
-                      <Link href={href} className="block">
+                      <Link href={href} className="block h-full">
                         {imageElement}
                       </Link>
                     )

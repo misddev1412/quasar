@@ -9,6 +9,8 @@ import { Button } from '../common/Button';
 import { PermissionCheckboxGrid } from './PermissionCheckboxGrid';
 import { SectionHeader } from '../common/SectionHeader';
 import Tabs from '../common/Tabs';
+import { Select } from '../common/Select';
+import { UserRole } from '../../types/user';
 
 interface UpdateRoleFormProps {
   onSubmit: (data: UpdateRoleFormData) => Promise<void>;
@@ -32,6 +34,14 @@ export const UpdateRoleForm: React.FC<UpdateRoleFormProps> = ({
 }) => {
   const { t } = useTranslationWithBackend();
   const [internalActiveTab, setInternalActiveTab] = useState(0);
+  const roleCodeOptions = useMemo(() => [
+    { value: UserRole.SUPER_ADMIN, label: t('user.roles.super_admin', 'Super Admin') },
+    { value: UserRole.ADMIN, label: t('user.roles.admin', 'Admin') },
+    { value: UserRole.MANAGER, label: t('user.roles.manager', 'Manager') },
+    { value: UserRole.STAFF, label: t('user.roles.staff', 'Staff') },
+    { value: UserRole.USER, label: t('user.roles.user', 'User') },
+    { value: UserRole.GUEST, label: t('user.roles.guest', 'Guest') },
+  ], [t]);
   
   // Use external tab control if provided, otherwise use internal state
   const activeTab = externalActiveTab !== undefined ? externalActiveTab : internalActiveTab;
@@ -50,6 +60,7 @@ export const UpdateRoleForm: React.FC<UpdateRoleFormProps> = ({
     defaultValues: {
       isActive: true,
       isDefault: false,
+      code: UserRole.USER,
       permissionIds: '',
       ...initialValues,
     },
@@ -61,6 +72,7 @@ export const UpdateRoleForm: React.FC<UpdateRoleFormProps> = ({
       reset({
         isActive: true,
         isDefault: false,
+        code: initialValues.code ?? UserRole.USER,
         permissionIds: '',
         ...initialValues,
       });
@@ -122,6 +134,23 @@ export const UpdateRoleForm: React.FC<UpdateRoleFormProps> = ({
               rows={3}
               description={t('form.descriptions.role_description', 'Brief description of the role and its purpose')}
             />
+
+            <Select
+              id="code"
+              label={t('role.code', 'Role Code')}
+              value={watch('code') ?? ''}
+              onChange={(value) => setValue('code', value as UserRole, { shouldValidate: true })}
+              options={roleCodeOptions}
+              placeholder={t('form.placeholders.select_role_code', 'Select role code')}
+              required
+              disabled={isDefaultRole}
+              error={errors.code?.message}
+            />
+            <p className="text-xs text-gray-600 dark:text-gray-400">
+              {isDefaultRole
+                ? t('form.descriptions.role_code_locked', 'Default role code cannot be changed.')
+                : t('form.descriptions.role_code', 'Choose how this role will be identified across the application.')}
+            </p>
           </div>
 
           {/* Role Settings */}

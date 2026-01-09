@@ -57,6 +57,9 @@ export const createRoleSchema = z.object({
     .min(2, 'Role name must be at least 2 characters')
     .max(100, 'Role name must not exceed 100 characters')
     .regex(/^[a-zA-Z0-9\s\-_]+$/, 'Role name can only contain letters, numbers, spaces, hyphens, and underscores'),
+  code: z.nativeEnum(UserRole, {
+    errorMap: () => ({ message: 'Please select a valid role code' }),
+  }),
   description: z.string()
     .max(500, 'Description must not exceed 500 characters')
     .optional(),
@@ -71,6 +74,9 @@ export const updateRoleSchema = z.object({
     .max(100, 'Role name must not exceed 100 characters')
     .regex(/^[a-zA-Z0-9\s\-_]+$/, 'Role name can only contain letters, numbers, spaces, hyphens, and underscores')
     .optional(),
+  code: z.nativeEnum(UserRole, {
+    errorMap: () => ({ message: 'Please select a valid role code' }),
+  }).optional(),
   description: z.string()
     .max(500, 'Description must not exceed 500 characters')
     .optional(),
@@ -201,6 +207,7 @@ export const validateForm = <T>(schema: z.ZodSchema<T>, values: any): { isValid:
 export const userRoleOptions = [
   { value: UserRole.USER, label: 'User' },
   { value: UserRole.MANAGER, label: 'Manager' },
+  { value: UserRole.STAFF, label: 'Staff' },
   { value: UserRole.ADMIN, label: 'Admin' },
   { value: UserRole.SUPER_ADMIN, label: 'Super Admin' },
 ];

@@ -58,7 +58,7 @@ export class AdminPermissionService {
       throw new NotFoundException(`Role with ID '${roleId}' not found`);
     }
     
-    return role.code;
+    return role.code as UserRole;
   }
 
   // Permission CRUD operations

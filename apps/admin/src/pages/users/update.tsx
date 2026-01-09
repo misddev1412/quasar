@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { User as UserIcon, ArrowLeft, Lock, Mail, Phone, Settings as SettingsIcon, Home } from 'lucide-react';
+import { User as UserIcon, ArrowLeft, Lock, Mail, Phone, Settings as SettingsIcon, Home, Shield } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../../components/common/Card';
 import { Breadcrumb } from '../../components/common/Breadcrumb';
 import BaseLayout from '../../components/layout/BaseLayout';
@@ -12,8 +12,19 @@ import { FormTabConfig } from '../../types/forms';
 import { z } from 'zod';
 import { commonValidation } from '../../utils/validation';
 import { UserRole } from '../../types/user';
+import type { Role as AdminRole } from '../../types/role';
 import { useAuth } from '../../context/AuthContext';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
+
+type RolesListResponse = {
+  data?: {
+    items?: AdminRole[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+};
 
 // Form data type for update (extended to include profile and password fields)
 type UpdateUserFormData = {
@@ -121,17 +132,50 @@ const UserUpdatePage: React.FC = () => {
     } as Partial<UpdateUserFormData>;
   }, [userResponse]);
 
+  // Load role options from backend so labels come from Role entity
+  const { data: rolesResponse, isLoading: rolesLoading } = trpc.adminRole.getAllRoles.useQuery({
+    page: 1,
+    limit: 100,
+    isActive: true,
+  });
+
+  const roleOptions = useMemo(() => {
+    const roles = (rolesResponse as RolesListResponse | undefined)?.data?.items || [];
+    return roles
+      .filter(role => role.isActive)
+      .map(role => ({
+        value: role.code || UserRole.USER,
+        label: role.name || t(`user.roles.${role.code || UserRole.USER}`, role.code || UserRole.USER),
+        disabled: !role.isActive,
+      }));
+  }, [rolesResponse, t]);
+
+  const roleFieldDescription = useMemo(() => {
+    if (rolesLoading) {
+      return t('form.descriptions.loading_roles', 'Loading available roles...');
+    }
+    if (!roleOptions.length) {
+      return t(
+        'form.descriptions.user_role_missing',
+        'No active roles available. Please create a role before assigning it to users.'
+      );
+    }
+    return t('form.descriptions.user_role_description', 'Assign the default permission set for this user.');
+  }, [roleOptions, rolesLoading, t]);
+
   const handleSubmit = async (formData: UpdateUserFormData) => {
     if (!id) return;
 
     try {
+      const nextRole = formData.role ?? initialValues.role;
+
       // 1) Update account fields
       await updateUserMutation.mutateAsync({
         id,
         email: formData.email,
         username: formData.username,
         isActive: formData.isActive,
-        role: formData.role ? (formData.role.toString() as 'SUPER_ADMIN' | 'ADMIN' | 'MANAGER' | 'USER' | 'GUEST') : undefined,
+        role: nextRole,
       } as any);
 
       // 2) Update profile fields — now allowed for any user by admin
@@ -260,12 +304,10 @@ const UserUpdatePage: React.FC = () => {
               type: 'select',
               placeholder: t('form.placeholders.select_user_role', 'Select user role'),
               required: false,
-              options: [
-                { value: UserRole.USER, label: t('user.roles.user', 'User') },
-                { value: UserRole.MANAGER, label: t('user.roles.manager', 'Manager') },
-                { value: UserRole.ADMIN, label: t('user.roles.admin', 'Admin') },
-                { value: UserRole.SUPER_ADMIN, label: t('user.roles.super_admin', 'Super Admin') },
-              ],
+              options: roleOptions,
+              disabled: rolesLoading || roleOptions.length === 0,
+              icon: <Shield className="w-4 h-4" />,
+              description: roleFieldDescription,
             },
             {
               name: 'isActive',

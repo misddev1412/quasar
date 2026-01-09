@@ -641,9 +641,56 @@ const TopMenuBar: React.FC = () => {
       return [] as MenuItem[];
     }
 
-    return treeData
+    const rawItems = treeData
       .filter((item) => item.isEnabled && (!item.parentId || item.parentId === null))
       .sort((a, b) => a.position - b.position);
+
+    const phoneItems = rawItems.filter((i) => i.type === MenuType.TOP_PHONE);
+
+    // If 0 or 1 phone item, return as is
+    if (phoneItems.length <= 1) {
+      return rawItems;
+    }
+
+    // Identify the position to insert the group (at the first phone's position)
+    const firstPhoneIndex = rawItems.findIndex((i) => i.type === MenuType.TOP_PHONE);
+
+    // Create a synthetic group item
+    const groupItem = {
+      ...phoneItems[0], // Inherit props from first phone
+      id: 'phone-group-synthetic',
+      type: 'TOP_PHONE_GROUP' as MenuType, // Custom type
+      children: phoneItems, // Store the phones as children
+    };
+
+    // Construct new list: items before first phone + group + items after (excluding phones)
+    // Actually easiest is to filter out all phones, then splice. 
+    // BUT we want to preserve relative order if they were scattered? 
+    // User said "if there are multiple... group them". Usually they are next to each other.
+    // I'll place the group at the location of the *first* phone found.
+
+    const nonPhoneItems = rawItems.filter((i) => i.type !== MenuType.TOP_PHONE);
+
+    // We need to re-insert at the correct visual index. 
+    // Since we filtered "nonPhoneItems", the index might shift.
+    // Let's use map/reduce or just splice on a copy.
+    const result = [...rawItems];
+    // Replaces the first phone with group, removes others.
+    let groupInserted = false;
+
+    return result.reduce((acc, curr) => {
+      if (curr.type === MenuType.TOP_PHONE) {
+        if (!groupInserted) {
+          acc.push(groupItem);
+          groupInserted = true;
+        }
+        // Skip subsequent phones
+        return acc;
+      }
+      acc.push(curr);
+      return acc;
+    }, [] as MenuItem[]);
+
   }, [treeData]);
 
   if (!isLoading && items.length === 0) {
@@ -697,6 +744,51 @@ const TopMenuBar: React.FC = () => {
     }
 
     switch (item.type) {
+      case 'TOP_PHONE_GROUP' as MenuType: {
+        const phones = item.children || [];
+        // Use the styling of the first item (inherited) for the trigger
+        const triggerClasses = !label && !iconNode ? compactClasses : commonClasses;
+
+        return (
+          <div key={item.id} className={triggerClasses} style={style}>
+            <Dropdown placement="bottom-end">
+              <DropdownTrigger>
+                <button
+                  className="flex items-center justify-center w-full h-full gap-2 focus:outline-none"
+                  aria-label="Contact Phones"
+                >
+                  <UnifiedIcon icon="phone" variant="nav" size={16} color={textColor} />
+                  {label && <span className="font-medium">{label}</span>}
+                  <ChevronDownIcon />
+                </button>
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Phone Numbers" variant="flat">
+                {phones.map((phoneItem: MenuItem) => {
+                  const phoneNumber = getConfigString(phoneItem.config, 'topPhoneNumber');
+                  const phoneLabel = getLabel(phoneItem);
+                  const display = phoneLabel || phoneNumber || 'Phone';
+
+                  if (!phoneNumber) return null;
+
+                  return (
+                    <DropdownItem
+                      key={phoneItem.id}
+                      href={`tel:${getNormalizedTel(phoneNumber)}`}
+                      className="min-h-[38px]"
+                    >
+                      <div className="flex items-center gap-2">
+                        <UnifiedIcon icon={phoneItem.icon || "phone"} size={14} className="text-gray-500" />
+                        <span className="font-medium">{display}</span>
+                      </div>
+                    </DropdownItem>
+                  );
+                })}
+              </DropdownMenu>
+            </Dropdown>
+          </div>
+        );
+      }
+
       case MenuType.TOP_PHONE: {
         const phoneNumber = getConfigString(item.config, 'topPhoneNumber');
         if (!phoneNumber) {
@@ -893,7 +985,7 @@ const TopMenuBar: React.FC = () => {
   };
 
   return (
-    <div className="bg-slate-900 text-gray-100 border-b border-slate-800/60 shadow-sm">
+    <div className="bg-slate-900 text-gray-100 border-b border-slate-800/60 shadow-sm hidden lg:block">
       <Container className="py-1">
         <div className="flex w-full flex-wrap items-center justify-between gap-2 md:gap-3">
           {isLoading && items.length === 0 ? (

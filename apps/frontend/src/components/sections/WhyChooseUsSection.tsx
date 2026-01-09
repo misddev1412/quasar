@@ -32,7 +32,6 @@ export interface WhyChooseUsConfig {
   cardBackground?: string;
   cardBorderColor?: string;
   items?: WhyChooseUsItemConfig[];
-  background?: string;
 }
 
 interface WhyChooseUsSectionProps {
@@ -160,7 +159,7 @@ const HexagonIcon: React.FC<{
             clipPath: hexagonShape,
             background: innerBackground,
           }}
-          >
+        >
           <UnifiedIcon
             icon={item.icon}
             variant="floating"
@@ -245,13 +244,8 @@ export const WhyChooseUsSection: React.FC<WhyChooseUsSectionProps> = ({ config, 
   const sectionSubtitle = translation?.subtitle === null ? '' : (translation?.subtitle || t('sections.whyChooseUs.subtitle'));
   const sectionDescription = translation?.description === null ? '' : (translation?.description || t('sections.whyChooseUs.description'));
 
-  const sectionStyle: React.CSSProperties = {};
-  if (config.background) {
-    sectionStyle.background = config.background;
-  }
-
   return (
-    <section className="py-20" style={sectionStyle}>
+    <section className="py-20">
       <SectionContainer>
         <div className="mx-auto mb-12 max-w-3xl text-center">
           {sectionSubtitle && <p className="text-xs font-semibold uppercase tracking-[0.4em] text-sky-500">{sectionSubtitle}</p>}
@@ -259,9 +253,16 @@ export const WhyChooseUsSection: React.FC<WhyChooseUsSectionProps> = ({ config, 
           {sectionDescription && <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">{sectionDescription}</p>}
         </div>
 
-        <div className={`${gridClass} gap-6`} style={gridStyle}>
+        <div className={`
+          flex flex-nowrap overflow-x-auto snap-mandatory snap-x -mx-4 px-4 pb-8 gap-4
+          [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']
+          lg:grid lg:mx-0 lg:px-0 lg:pb-0 lg:gap-6
+          ${gridClass.replace('grid ', '')}
+        `} style={gridStyle}>
           {items.map((item, index) => (
-            <WhyChooseUsCard key={item.id || `why-${index}`} item={item} config={config} titleClamp={titleClamp} descriptionClamp={descriptionClamp} />
+            <div key={item.id || `why-${index}`} className="min-w-[85vw] sm:min-w-[45vw] lg:min-w-0 lg:w-auto snap-center">
+              <WhyChooseUsCard item={item} config={config} titleClamp={titleClamp} descriptionClamp={descriptionClamp} />
+            </div>
           ))}
         </div>
       </SectionContainer>

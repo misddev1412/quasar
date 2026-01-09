@@ -19,6 +19,7 @@ const userRoleSchema = z.enum([
   UserRole.SUPER_ADMIN,
   UserRole.ADMIN,
   UserRole.MANAGER,
+  UserRole.STAFF,
   UserRole.USER,
   UserRole.GUEST
 ]);

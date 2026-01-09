@@ -8,11 +8,7 @@ export class Role extends BaseEntity {
   @Column({ unique: true })
   name: string;
 
-  @Column({ 
-    type: 'enum', 
-    enum: UserRole,
-    unique: true 
-  })
+  @Column({ name: 'code', type: 'varchar', length: 100, unique: true })
   code: UserRole;
 
   @Column({ nullable: true })

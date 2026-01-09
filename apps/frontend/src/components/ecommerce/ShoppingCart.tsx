@@ -182,8 +182,8 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
       <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
         <CartIcon className="h-5 w-5" />
       </div>
-      <h3 className="mb-1 text-base font-semibold text-gray-900 dark:text-white">{t('empty.title')}</h3>
-      <p className="mb-4 max-w-xs text-sm text-gray-500 dark:text-gray-400">{t('empty.description')}</p>
+      <h3 className="mb-0 text-base font-semibold text-gray-900 dark:text-white">{t('empty.title')}</h3>
+      <p className="max-w-xs text-sm text-gray-500 dark:text-gray-400 mb-0">{t('empty.description')}</p>
       <Button color="primary" onPress={closeCartAndNotify} size="md" className="px-6">
         {t('empty.continue')}
       </Button>
@@ -331,19 +331,19 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
     return (
       <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
         <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-900/60">
-          <p className="text-[0.65rem] uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">Items</p>
-          <p className="text-lg font-semibold text-gray-900 dark:text-white">{summary.totalItems}</p>
+          <p className="text-[0.65rem] uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 mb-0">Items</p>
+          <p className="text-lg font-semibold text-gray-900 dark:text-white mb-0">{summary.totalItems}</p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-right dark:border-gray-700 dark:bg-gray-900/60">
-          <p className="text-[0.65rem] uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">Total</p>
-          <p className="text-lg font-semibold text-gray-900 dark:text-white">
+          <p className="text-[0.65rem] uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 mb-0">Total</p>
+          <p className="text-lg font-semibold text-gray-900 dark:text-white mb-0">
             {formatMoney(summary.totals.total)}
           </p>
         </div>
         {hasDiscount && (
           <div className="col-span-2 rounded-lg border border-emerald-200 bg-emerald-50/70 px-3 py-2 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200">
-            <p className="text-[0.65rem] uppercase tracking-[0.2em]">Savings</p>
-            <p className="text-base font-semibold">-{formatMoney(summary.totals.discount)}</p>
+            <p className="text-[0.65rem] uppercase tracking-[0.2em] mb-0">Savings</p>
+            <p className="text-base font-semibold mb-0">-{formatMoney(summary.totals.discount)}</p>
           </div>
         )}
       </div>
@@ -360,10 +360,10 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
               <CartIcon className="h-4 w-4" />
             </span>
             <div>
-              <p className="text-[0.65rem] uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">{t('title')}</p>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{cartLabel}</h2>
+              <p className="text-[0.65rem] uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500 mb-0">{t('title')}</p>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-0">{cartLabel}</h2>
               {hasCartItems && (
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-0">
                   {summary.totalItems} {summary.totalItems === 1 ? 'item' : 'items'} · {formatMoney(summary.totals.subtotal)}
                 </p>
               )}

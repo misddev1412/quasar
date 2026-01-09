@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { BaseRepository, UserRole } from '@shared';
 import { User } from '../entities/user.entity';
 import { UserProfile } from '../entities/user-profile.entity';
+import { UserRole as UserRoleEntity } from '../entities/user-role.entity';
 import {
   IUserRepository,
   CreateUserDto,
@@ -34,6 +35,8 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
     private readonly userRepository: Repository<User>,
     @InjectRepository(UserProfile)
     private readonly userProfileRepository: Repository<UserProfile>,
+    @InjectRepository(UserRoleEntity)
+    private readonly userRoleRepository: Repository<UserRoleEntity>,
   ) {
     super(userRepository);
   }
@@ -239,38 +242,55 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
   }
 
   async assignRoleToUser(userId: string, roleId: string): Promise<void> {
-    // This method assumes you have a UserRole junction table
-    // You'll need to implement this based on your database schema
-    // For now, I'll add a basic implementation that should be adjusted based on your schema
-
-    const userRoleRepository = this.repository.manager.getRepository('UserRole');
-
-    // Check if association already exists
-    const existing = await userRoleRepository.findOne({
+    const existing = await this.userRoleRepository.findOne({
       where: { userId, roleId }
     });
 
     if (!existing) {
-      await userRoleRepository.save({
+      const userRole = this.userRoleRepository.create({
         userId,
         roleId,
         isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
       });
+      await this.userRoleRepository.save(userRole);
     } else if (!existing.isActive) {
-      // Reactivate if it was previously deactivated
-      await userRoleRepository.update(existing.id, {
+      await this.userRoleRepository.update(existing.id, {
         isActive: true,
         updatedAt: new Date()
       });
     }
   }
 
-  async getUserCountByRole(roleId: string): Promise<number> {
-    const userRoleRepository = this.repository.manager.getRepository('UserRole');
+  async setActiveRoleForUser(userId: string, roleId: string): Promise<void> {
+    await this.userRoleRepository.update(
+      { userId },
+      {
+        isActive: false,
+        updatedAt: new Date(),
+      }
+    );
 
-    const count = await userRoleRepository.count({
+    const existing = await this.userRoleRepository.findOne({
+      where: { userId, roleId }
+    });
+
+    if (existing) {
+      await this.userRoleRepository.update(existing.id, {
+        isActive: true,
+        updatedAt: new Date(),
+      });
+    } else {
+      const userRole = this.userRoleRepository.create({
+        userId,
+        roleId,
+        isActive: true,
+      });
+      await this.userRoleRepository.save(userRole);
+    }
+  }
+
+  async getUserCountByRole(roleId: string): Promise<number> {
+    const count = await this.userRoleRepository.count({
       where: {
         roleId,
         isActive: true
