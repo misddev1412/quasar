@@ -479,7 +479,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
       }}
     >
       <div
-        className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] flex flex-col border border-gray-200 dark:border-gray-700"
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] flex flex-col min-h-0 border border-gray-200 dark:border-gray-700"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -621,7 +621,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
             </div>
 
             {/* Library Content */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto min-h-0">
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center p-12">
                   <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600 mb-4"></div>
@@ -919,7 +919,7 @@ export const MediaManager: React.FC<MediaManagerProps> = ({
 
         {/* Upload Tab Content */}
         {activeTab === 'upload' && (
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto min-h-0 p-6">
             {/* Upload Area */}
             <div
               className={clsx(

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { TRPCError } from '@trpc/server';
 import { TRPCMiddleware, MiddlewareOptions, MiddlewareResponse } from 'nestjs-trpc';
 import { AuthenticatedContext } from '../context';
-import { UserRole } from '@shared';
 
 @Injectable()
 export class SuperAdminMiddleware implements TRPCMiddleware {
@@ -18,7 +17,7 @@ export class SuperAdminMiddleware implements TRPCMiddleware {
     }
 
     // Check if user has super admin privileges
-    if (ctx.user.role !== UserRole.SUPER_ADMIN) {
+    if (!ctx.user.isSuperAdmin) {
       throw new TRPCError({
         code: 'FORBIDDEN',
         message: 'Super admin access required',

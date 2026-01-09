@@ -3,7 +3,7 @@ import { TRPCError } from '@trpc/server';
 import { TRPCMiddleware, MiddlewareOptions, MiddlewareResponse } from 'nestjs-trpc';
 import { AuthenticatedContext } from '../context';
 import { PermissionAction, PermissionScope, UserRole } from '@shared';
-import { PermissionCheckerService } from '@backend/modules/shared/services/permission-checker.service';
+import { Permission } from '../modules/user/entities/permission.entity';
 
 export interface RequiredPermission {
   resource: string;
@@ -11,15 +11,64 @@ export interface RequiredPermission {
   scope: PermissionScope;
 }
 
+interface PermissionCheckResult {
+  granted: boolean;
+  attributes: string[];
+}
+
+function hasPermission(
+  permissions: Permission[] = [],
+  resource: string,
+  action: PermissionAction,
+  scope: PermissionScope
+): PermissionCheckResult {
+  if (!permissions || permissions.length === 0) {
+    return { granted: false, attributes: [] };
+  }
+
+  const exactMatch = permissions.find(
+    permission =>
+      permission.resource === resource &&
+      permission.action === action &&
+      permission.scope === scope
+  );
+
+  if (exactMatch) {
+    return {
+      granted: true,
+      attributes: exactMatch.attributes?.length ? exactMatch.attributes : ['*'],
+    };
+  }
+
+  if (scope === PermissionScope.OWN) {
+    const anyScopeMatch = permissions.find(
+      permission =>
+        permission.resource === resource &&
+        permission.action === action &&
+        permission.scope === PermissionScope.ANY
+    );
+
+    if (anyScopeMatch) {
+      return {
+        granted: true,
+        attributes: anyScopeMatch.attributes?.length ? anyScopeMatch.attributes : ['*'],
+      };
+    }
+  }
+
+  return { granted: false, attributes: [] };
+}
+
+function isSuperAdmin(ctx: AuthenticatedContext): boolean {
+  return ctx.user?.isSuperAdmin || ctx.user?.role === UserRole.SUPER_ADMIN;
+}
+
 export function RequirePermission(permission: RequiredPermission): Type<TRPCMiddleware> {
   @Injectable()
   class PermissionMiddleware implements TRPCMiddleware {
-    constructor(private readonly permissionChecker: PermissionCheckerService) {}
-
     async use(opts: MiddlewareOptions<AuthenticatedContext>): Promise<MiddlewareResponse> {
       const { ctx, next } = opts;
-      
-      // This middleware should be used after AuthMiddleware, so user should exist
+
       if (!ctx.user) {
         throw new TRPCError({
           code: 'UNAUTHORIZED',
@@ -27,8 +76,7 @@ export function RequirePermission(permission: RequiredPermission): Type<TRPCMidd
         });
       }
 
-      // Bypass permission check for super_admin - full access
-      if (ctx.user.role === UserRole.SUPER_ADMIN) {
+      if (isSuperAdmin(ctx)) {
         return next({
           ctx: {
             ...ctx,
@@ -38,32 +86,12 @@ export function RequirePermission(permission: RequiredPermission): Type<TRPCMidd
         });
       }
 
-      // Check if user has the required permission
-      const checker = this.permissionChecker.can(ctx.user.role);
-      let permissionCheck;
-      
-      if (permission.action === PermissionAction.CREATE && permission.scope === PermissionScope.OWN) {
-        permissionCheck = await checker.createOwn(permission.resource);
-      } else if (permission.action === PermissionAction.CREATE && permission.scope === PermissionScope.ANY) {
-        permissionCheck = await checker.createAny(permission.resource);
-      } else if (permission.action === PermissionAction.READ && permission.scope === PermissionScope.OWN) {
-        permissionCheck = await checker.readOwn(permission.resource);
-      } else if (permission.action === PermissionAction.READ && permission.scope === PermissionScope.ANY) {
-        permissionCheck = await checker.readAny(permission.resource);
-      } else if (permission.action === PermissionAction.UPDATE && permission.scope === PermissionScope.OWN) {
-        permissionCheck = await checker.updateOwn(permission.resource);
-      } else if (permission.action === PermissionAction.UPDATE && permission.scope === PermissionScope.ANY) {
-        permissionCheck = await checker.updateAny(permission.resource);
-      } else if (permission.action === PermissionAction.DELETE && permission.scope === PermissionScope.OWN) {
-        permissionCheck = await checker.deleteOwn(permission.resource);
-      } else if (permission.action === PermissionAction.DELETE && permission.scope === PermissionScope.ANY) {
-        permissionCheck = await checker.deleteAny(permission.resource);
-      } else {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Invalid permission action or scope',
-        });
-      }
+      const permissionCheck = hasPermission(
+        ctx.user.permissions,
+        permission.resource,
+        permission.action,
+        permission.scope
+      );
 
       if (!permissionCheck.granted) {
         throw new TRPCError({
@@ -77,7 +105,7 @@ export function RequirePermission(permission: RequiredPermission): Type<TRPCMidd
         ctx: {
           ...ctx,
           user: ctx.user,
-          permission: permissionCheck, // Add permission info to context
+          permission: permissionCheck,
         },
       });
     }
@@ -86,11 +114,8 @@ export function RequirePermission(permission: RequiredPermission): Type<TRPCMidd
   return mixin(PermissionMiddleware);
 }
 
-// Convenient permission middleware for common use cases
 @Injectable()
 export class CanCreateOwn implements TRPCMiddleware {
-  constructor(private readonly permissionChecker: PermissionCheckerService) {}
-
   private resource: string;
 
   setResource(resource: string): this {
@@ -100,7 +125,7 @@ export class CanCreateOwn implements TRPCMiddleware {
 
   async use(opts: MiddlewareOptions<AuthenticatedContext>): Promise<MiddlewareResponse> {
     const { ctx, next } = opts;
-    
+
     if (!ctx.user) {
       throw new TRPCError({
         code: 'UNAUTHORIZED',
@@ -108,8 +133,7 @@ export class CanCreateOwn implements TRPCMiddleware {
       });
     }
 
-    // Bypass permission check for super_admin - full access
-    if (ctx.user.role === UserRole.SUPER_ADMIN) {
+    if (isSuperAdmin(ctx)) {
       return next({
         ctx: {
           ...ctx,
@@ -119,9 +143,12 @@ export class CanCreateOwn implements TRPCMiddleware {
       });
     }
 
-    const permissionCheck = await this.permissionChecker
-      .can(ctx.user.role)
-      .createOwn(this.resource);
+    const permissionCheck = hasPermission(
+      ctx.user.permissions,
+      this.resource,
+      PermissionAction.CREATE,
+      PermissionScope.OWN
+    );
 
     if (!permissionCheck.granted) {
       throw new TRPCError({
@@ -143,8 +170,6 @@ export class CanCreateOwn implements TRPCMiddleware {
 
 @Injectable()
 export class CanCreateAny implements TRPCMiddleware {
-  constructor(private readonly permissionChecker: PermissionCheckerService) {}
-
   private resource: string;
 
   setResource(resource: string): this {
@@ -154,7 +179,7 @@ export class CanCreateAny implements TRPCMiddleware {
 
   async use(opts: MiddlewareOptions<AuthenticatedContext>): Promise<MiddlewareResponse> {
     const { ctx, next } = opts;
-    
+
     if (!ctx.user) {
       throw new TRPCError({
         code: 'UNAUTHORIZED',
@@ -162,8 +187,7 @@ export class CanCreateAny implements TRPCMiddleware {
       });
     }
 
-    // Bypass permission check for super_admin - full access
-    if (ctx.user.role === UserRole.SUPER_ADMIN) {
+    if (isSuperAdmin(ctx)) {
       return next({
         ctx: {
           ...ctx,
@@ -173,9 +197,12 @@ export class CanCreateAny implements TRPCMiddleware {
       });
     }
 
-    const permissionCheck = await this.permissionChecker
-      .can(ctx.user.role)
-      .createAny(this.resource);
+    const permissionCheck = hasPermission(
+      ctx.user.permissions,
+      this.resource,
+      PermissionAction.CREATE,
+      PermissionScope.ANY
+    );
 
     if (!permissionCheck.granted) {
       throw new TRPCError({
@@ -197,8 +224,6 @@ export class CanCreateAny implements TRPCMiddleware {
 
 @Injectable()
 export class CanReadAny implements TRPCMiddleware {
-  constructor(private readonly permissionChecker: PermissionCheckerService) {}
-
   private resource: string;
 
   setResource(resource: string): this {
@@ -208,7 +233,7 @@ export class CanReadAny implements TRPCMiddleware {
 
   async use(opts: MiddlewareOptions<AuthenticatedContext>): Promise<MiddlewareResponse> {
     const { ctx, next } = opts;
-    
+
     if (!ctx.user) {
       throw new TRPCError({
         code: 'UNAUTHORIZED',
@@ -216,8 +241,7 @@ export class CanReadAny implements TRPCMiddleware {
       });
     }
 
-    // Bypass permission check for super_admin - full access
-    if (ctx.user.role === UserRole.SUPER_ADMIN) {
+    if (isSuperAdmin(ctx)) {
       return next({
         ctx: {
           ...ctx,
@@ -227,9 +251,12 @@ export class CanReadAny implements TRPCMiddleware {
       });
     }
 
-    const permissionCheck = await this.permissionChecker
-      .can(ctx.user.role)
-      .readAny(this.resource);
+    const permissionCheck = hasPermission(
+      ctx.user.permissions,
+      this.resource,
+      PermissionAction.READ,
+      PermissionScope.ANY
+    );
 
     if (!permissionCheck.granted) {
       throw new TRPCError({
@@ -251,8 +278,6 @@ export class CanReadAny implements TRPCMiddleware {
 
 @Injectable()
 export class CanUpdateOwn implements TRPCMiddleware {
-  constructor(private readonly permissionChecker: PermissionCheckerService) {}
-
   private resource: string;
 
   setResource(resource: string): this {
@@ -262,7 +287,7 @@ export class CanUpdateOwn implements TRPCMiddleware {
 
   async use(opts: MiddlewareOptions<AuthenticatedContext>): Promise<MiddlewareResponse> {
     const { ctx, next } = opts;
-    
+
     if (!ctx.user) {
       throw new TRPCError({
         code: 'UNAUTHORIZED',
@@ -270,8 +295,7 @@ export class CanUpdateOwn implements TRPCMiddleware {
       });
     }
 
-    // Bypass permission check for super_admin - full access
-    if (ctx.user.role === UserRole.SUPER_ADMIN) {
+    if (isSuperAdmin(ctx)) {
       return next({
         ctx: {
           ...ctx,
@@ -281,9 +305,12 @@ export class CanUpdateOwn implements TRPCMiddleware {
       });
     }
 
-    const permissionCheck = await this.permissionChecker
-      .can(ctx.user.role)
-      .updateOwn(this.resource);
+    const permissionCheck = hasPermission(
+      ctx.user.permissions,
+      this.resource,
+      PermissionAction.UPDATE,
+      PermissionScope.OWN
+    );
 
     if (!permissionCheck.granted) {
       throw new TRPCError({
@@ -305,8 +332,6 @@ export class CanUpdateOwn implements TRPCMiddleware {
 
 @Injectable()
 export class CanDeleteAny implements TRPCMiddleware {
-  constructor(private readonly permissionChecker: PermissionCheckerService) {}
-
   private resource: string;
 
   setResource(resource: string): this {
@@ -316,7 +341,7 @@ export class CanDeleteAny implements TRPCMiddleware {
 
   async use(opts: MiddlewareOptions<AuthenticatedContext>): Promise<MiddlewareResponse> {
     const { ctx, next } = opts;
-    
+
     if (!ctx.user) {
       throw new TRPCError({
         code: 'UNAUTHORIZED',
@@ -324,8 +349,7 @@ export class CanDeleteAny implements TRPCMiddleware {
       });
     }
 
-    // Bypass permission check for super_admin - full access
-    if (ctx.user.role === UserRole.SUPER_ADMIN) {
+    if (isSuperAdmin(ctx)) {
       return next({
         ctx: {
           ...ctx,
@@ -335,9 +359,12 @@ export class CanDeleteAny implements TRPCMiddleware {
       });
     }
 
-    const permissionCheck = await this.permissionChecker
-      .can(ctx.user.role)
-      .deleteAny(this.resource);
+    const permissionCheck = hasPermission(
+      ctx.user.permissions,
+      this.resource,
+      PermissionAction.DELETE,
+      PermissionScope.ANY
+    );
 
     if (!permissionCheck.granted) {
       throw new TRPCError({
@@ -355,4 +382,4 @@ export class CanDeleteAny implements TRPCMiddleware {
       },
     });
   }
-} 
+}

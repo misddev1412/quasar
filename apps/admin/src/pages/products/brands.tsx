@@ -66,8 +66,6 @@ const BrandsPage: React.FC = () => {
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const urlUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const utils = trpc.useContext();
-
   // Function to update URL parameters
   const updateUrlParams = useCallback((params: Record<string, string | undefined>) => {
     if (urlUpdateTimeoutRef.current) {
@@ -125,7 +123,13 @@ const BrandsPage: React.FC = () => {
     isActive: filters.isActive,
   };
 
-  const { data: brandsData, isLoading, error, refetch, isFetching } = trpc.adminProductBrands.getAll.useQuery(queryParams, {
+  const {
+    data: brandsData,
+    isLoading,
+    error,
+    refetch: refetchBrands,
+    isFetching
+  } = trpc.adminProductBrands.getAll.useQuery(queryParams, {
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -135,7 +139,11 @@ const BrandsPage: React.FC = () => {
   const totalPages = Math.ceil(totalBrands / limit);
 
   // Fetch brand statistics
-  const { data: statsData, isLoading: statsLoading } = trpc.adminProductBrands.getStats.useQuery(undefined, {
+  const {
+    data: statsData,
+    isLoading: statsLoading,
+    refetch: refetchStats
+  } = trpc.adminProductBrands.getStats.useQuery(undefined, {
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -183,7 +191,8 @@ const BrandsPage: React.FC = () => {
         title: t('brands.deleteSuccess', 'Brand deleted successfully'), 
         type: 'success' 
       });
-      refetch();
+      refetchBrands();
+      refetchStats();
     },
     onError: (error) => {
       addToast({ 
@@ -300,8 +309,9 @@ const BrandsPage: React.FC = () => {
   }, [selectedBrandIds.size, addToast]);
 
   const handleRefresh = useCallback(() => {
-    refetch();
-  }, [refetch]);
+    refetchBrands();
+    refetchStats();
+  }, [refetchBrands, refetchStats]);
 
   const handleFilterToggle = () => {
     setShowFilters(!showFilters);
@@ -653,7 +663,8 @@ const BrandsPage: React.FC = () => {
         onClose={() => setCreateDialogOpen(false)}
         onSuccess={() => {
           setCreateDialogOpen(false);
-          refetch();
+          refetchBrands();
+          refetchStats();
         }}
       />
 
@@ -668,7 +679,8 @@ const BrandsPage: React.FC = () => {
         onSuccess={() => {
           setEditDialogOpen(false);
           setEditingBrand(null);
-          refetch();
+          refetchBrands();
+          refetchStats();
         }}
       />
     </BaseLayout>

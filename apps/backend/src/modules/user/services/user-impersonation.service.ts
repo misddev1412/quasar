@@ -19,7 +19,8 @@ export interface AuthUser {
   id: string;
   email: string;
   username: string;
-  role: UserRole;
+  role: UserRole | string;
+  isSuperAdmin: boolean;
   isActive: boolean;
 }
 
@@ -54,7 +55,7 @@ export class UserImpersonationService {
     }
   ): Promise<ImpersonationStartResult> {
     // 1. Validate admin is SUPER_ADMIN
-    if (adminUser.role !== UserRole.SUPER_ADMIN) {
+    if (!adminUser.isSuperAdmin) {
       throw new UnauthorizedException('Only super admins can impersonate users');
     }
 

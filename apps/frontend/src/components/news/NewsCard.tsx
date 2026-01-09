@@ -83,7 +83,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ item, config, className }) =
   return (
     <article
       className={clsx(
-        'group overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900/40 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:hover:shadow-primary/20',
+        'group overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:hover:shadow-primary/20',
         className,
       )}
     >
@@ -122,7 +122,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ item, config, className }) =
           </div>
         )}
 
-        <div className={clsx('flex flex-1 flex-col gap-3 px-6 py-5', layoutClass)}>
+        <div className={clsx('flex flex-1 flex-col gap-3 px-6 py-5 bg-white dark:bg-gray-950/60', layoutClass)}>
           {merged.showCategory && metadata && (
             <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600 dark:text-indigo-300">{metadata}</p>
           )}

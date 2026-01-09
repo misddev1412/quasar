@@ -7,13 +7,21 @@ import { resolveLocaleFromRequest } from '../modules/shared/utils/locale.util';
 import { Permission } from '../modules/user/entities/permission.entity';
 import { PermissionRepository } from '../modules/user/repositories/permission.repository';
 import { JwtPayload } from '../auth/auth.service';
+import { UserRepository } from '../modules/user/repositories/user.repository';
 
 export interface AuthUser {
   id: string;
   email: string;
   username: string;
-  role: UserRole;
+  role: UserRole | string;
   isActive: boolean;
+  isSuperAdmin: boolean;
+  roleIds: string[];
+  roles: Array<{
+    id: string;
+    name: string;
+    code: UserRole | string;
+  }>;
   permissions: Permission[];
 }
 
@@ -30,6 +38,7 @@ export class AppContext implements TRPCContext {
   constructor(
     private readonly jwtService: JwtService,
     private readonly permissionRepository: PermissionRepository,
+    private readonly userRepository: UserRepository,
     private readonly moduleRef: ModuleRef,
   ) {}
 
@@ -50,16 +59,27 @@ export class AppContext implements TRPCContext {
         if (!payload.sub || typeof payload.sub !== 'string') {
           console.warn('Invalid JWT token: missing or invalid user ID');
         } else {
-          // Load user permissions based on role
-          const permissions = await this.permissionRepository.findPermissionsByRole(payload.role);
+          const userWithRoles = await this.userRepository.findWithRoles(payload.sub);
+          const activeRoles = userWithRoles?.userRoles?.filter(ur => ur.isActive && ur.role);
+          const roleIds = activeRoles?.map(ur => ur.roleId) || [];
+          const permissions = await this.permissionRepository.findPermissionsByRoleIds(roleIds);
+          const isSuperAdmin = activeRoles?.some(ur => ur.role?.code === UserRole.SUPER_ADMIN) || false;
+          const primaryRole = activeRoles?.[0]?.role?.code || payload.role;
 
           // Create user object from JWT payload with permissions
           user = {
             id: payload.sub, // 用户ID
             email: payload.email,
             username: payload.username || '',
-            role: payload.role,
-            isActive: payload.isActive || true,
+            role: isSuperAdmin ? UserRole.SUPER_ADMIN : primaryRole,
+            isActive: userWithRoles?.isActive ?? payload.isActive ?? true,
+            isSuperAdmin,
+            roleIds,
+            roles: activeRoles?.map(ur => ({
+              id: ur.role?.id || ur.roleId,
+              name: ur.role?.name,
+              code: ur.role?.code || '',
+            })) || [],
             permissions,
           };
         }
@@ -85,4 +105,5 @@ export class AppContext implements TRPCContext {
       resolve,
     };
   }
+
 }

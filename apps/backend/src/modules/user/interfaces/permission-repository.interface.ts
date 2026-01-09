@@ -50,6 +50,7 @@ export interface IPermissionRepository {
   assignPermissionToRole(createRolePermissionDto: CreateRolePermissionDto): Promise<RolePermission>;
   removePermissionFromRole(roleId: string, permissionId: string): Promise<boolean>;
   findPermissionsByRole(roleId: string): Promise<Permission[]>;
+  findPermissionsByRoleIds(roleIds: string[]): Promise<Permission[]>;
   findRolePermissions(roleId: string): Promise<RolePermission[]>;
   
   // Permission checking

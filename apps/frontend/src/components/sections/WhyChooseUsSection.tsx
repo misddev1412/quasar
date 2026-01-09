@@ -174,6 +174,12 @@ const HexagonIcon: React.FC<{
   );
 };
 
+const getTitleMinHeight = (shouldUppercase: boolean, clamp: number) => {
+  const lineHeightRem = shouldUppercase ? 1.5 : 2;
+  const lines = Math.min(Math.max(clamp, 1), 3);
+  return `${lineHeightRem * lines}rem`;
+};
+
 const WhyChooseUsCard: React.FC<{
   item: WhyChooseUsItemConfig;
   config: WhyChooseUsConfig;
@@ -205,7 +211,10 @@ const WhyChooseUsCard: React.FC<{
         {item.title && (
           <h3
             className={`mt-8 text-2xl font-bold tracking-tight text-sky-500 ${config.uppercaseTitles !== false ? 'uppercase tracking-[0.18em] text-base' : ''} ${titleClampClass}`}
-            style={{ color: accentColor }}
+            style={{
+              color: accentColor,
+              minHeight: titleClamp > 0 ? getTitleMinHeight(config.uppercaseTitles !== false, titleClamp) : undefined,
+            }}
           >
             {item.title}
           </h3>
@@ -242,10 +251,7 @@ export const WhyChooseUsSection: React.FC<WhyChooseUsSectionProps> = ({ config, 
   }
 
   return (
-    <section
-      className="py-20 bg-gradient-to-b from-white via-sky-50/30 to-white dark:from-slate-950 dark:via-slate-900 dark:to-black"
-      style={sectionStyle}
-    >
+    <section className="py-20" style={sectionStyle}>
       <SectionContainer>
         <div className="mx-auto mb-12 max-w-3xl text-center">
           {sectionSubtitle && <p className="text-xs font-semibold uppercase tracking-[0.4em] text-sky-500">{sectionSubtitle}</p>}

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { BaseRepository, PermissionAction, PermissionScope, UserRole, PaginatedResponseDto } from '@shared';
 import { Permission } from '../entities/permission.entity';
 import { RolePermission } from '../entities/role-permission.entity';
@@ -199,6 +199,29 @@ export class PermissionRepository extends BaseRepository<Permission> implements 
     return rolePermissions
       .map(rp => rp.permission)
       .filter(permission => permission.isActive);
+  }
+
+  async findPermissionsByRoleIds(roleIds: string[]): Promise<Permission[]> {
+    if (!roleIds || roleIds.length === 0) {
+      return [];
+    }
+
+    const rolePermissions = await this.rolePermissionRepository.find({
+      where: {
+        roleId: In(roleIds),
+        isActive: true
+      },
+      relations: ['permission']
+    });
+
+    const uniquePermissions = new Map<string, Permission>();
+    for (const rp of rolePermissions) {
+      if (rp.permission?.isActive) {
+        uniquePermissions.set(rp.permission.id, rp.permission);
+      }
+    }
+
+    return Array.from(uniquePermissions.values());
   }
 
   async findRolePermissions(roleId: string): Promise<RolePermission[]> {

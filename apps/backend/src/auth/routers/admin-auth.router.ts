@@ -11,6 +11,7 @@ import { UserRole } from '@shared';
 import { AuthMiddleware } from '../../trpc/middlewares/auth.middleware';
 import { AuthenticatedContext } from '../../trpc/context';
 import { ActivityType } from '../../modules/user/entities/user-activity.entity';
+import { PermissionRepository } from '../../modules/user/repositories/permission.repository';
 
 // Zod schemas for validation
 const loginSchema = z.object({
@@ -30,6 +31,8 @@ export class AdminAuthRouter {
     private readonly responseHandler: ResponseService,
     @Inject(ActivityTrackingService)
     private readonly activityTrackingService: ActivityTrackingService,
+    @Inject(PermissionRepository)
+    private readonly permissionRepository: PermissionRepository,
   ) {}
 
   @Mutation({
@@ -178,13 +181,14 @@ export class AdminAuthRouter {
         );
       }
 
-      // Check if the user still has admin role
       const userWithRoles = await this.userRepository.findWithRoles(user.id);
-      const hasAdminRole = userWithRoles?.userRoles?.some(ur =>
-        ur.isActive && [UserRole.SUPER_ADMIN, UserRole.ADMIN].includes(ur.role?.code as UserRole)
-      );
+      const activeRoles = userWithRoles?.userRoles?.filter(ur => ur.isActive);
+      const roleIds = activeRoles?.map(ur => ur.roleId) || [];
+      const permissions = await this.permissionRepository.findPermissionsByRoleIds(roleIds);
+      const isSuperAdmin = activeRoles?.some(ur => ur.role?.code === UserRole.SUPER_ADMIN);
+      const hasAdminPermissions = permissions.length > 0;
 
-      if (!hasAdminRole) {
+      if (!isSuperAdmin && !hasAdminPermissions) {
         throw this.responseHandler.createTRPCError(
           20, // ModuleCode.AUTH
           3,  // OperationCode.VERIFY

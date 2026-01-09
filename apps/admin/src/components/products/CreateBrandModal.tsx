@@ -17,6 +17,18 @@ interface CreateBrandModalProps {
   onSuccess: () => void;
 }
 
+const createInitialFormState = () => ({
+  name: '',
+  description: '',
+  website: '',
+  isActive: true,
+});
+
+const createInitialTranslations = (): Record<string, Record<string, string>> => ({
+  en: {},
+  vi: {},
+});
+
 export const CreateBrandModal: React.FC<CreateBrandModalProps> = ({
   isOpen,
   onClose,
@@ -25,19 +37,13 @@ export const CreateBrandModal: React.FC<CreateBrandModalProps> = ({
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
   
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    website: '',
-    isActive: true,
-  });
+  const [formData, setFormData] = useState(createInitialFormState);
   
   const [selectedLogo, setSelectedLogo] = useState<string>('');
   const [isMediaManagerOpen, setIsMediaManagerOpen] = useState(false);
-  const [translations, setTranslations] = useState<Record<string, Record<string, string>>>({
-    en: {},
-    vi: {},
-  });
+  const [translations, setTranslations] = useState<Record<string, Record<string, string>>>(
+    createInitialTranslations,
+  );
 
   const createMutation = trpc.adminProductBrands.create.useMutation({
     onSuccess: async (result: any) => {
@@ -65,6 +71,10 @@ export const CreateBrandModal: React.FC<CreateBrandModalProps> = ({
         title: t('brands.createSuccess', 'Brand created successfully'),
         type: 'success',
       });
+      setFormData(createInitialFormState());
+      setSelectedLogo('');
+      setTranslations(createInitialTranslations());
+      setIsMediaManagerOpen(false);
       onSuccess();
     },
     onError: (error) => {

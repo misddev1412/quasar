@@ -1,6 +1,5 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import { AuthenticatedContext } from './context';
-import { ApiErrorReasons, ApiStatusCodes, UserRole } from '@shared';
 import { createErrorFormatter } from './error-formatter';
 
 // Initialize tRPC with context and errorFormatter
@@ -37,10 +36,11 @@ export const adminProcedure = t.procedure.use(({ ctx, next }) => {
     });
   }
 
-  if (ctx.user.role !== UserRole.ADMIN) {
+  const hasAdminPermissions = ctx.user.permissions && ctx.user.permissions.length > 0;
+  if (!ctx.user.isSuperAdmin && !hasAdminPermissions) {
     throw new TRPCError({
       code: 'FORBIDDEN',
-      message: 'You must be an admin to access this resource',
+      message: 'Admin permissions required',
     });
   }
 
