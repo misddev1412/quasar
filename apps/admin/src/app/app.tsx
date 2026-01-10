@@ -14,6 +14,7 @@ import { RouteLoadingProvider } from '../context/RouteLoadingContext';
 import RouteLoadingIndicator from '../components/common/RouteLoadingIndicator';
 import { DynamicFavicon } from '../components/common/DynamicFavicon';
 import { Toaster } from 'react-hot-toast';
+import { I18nProvider } from '../contexts/I18nContext';
 
 // Inner component that consumes CustomTheme to generate MUI Theme
 const ThemedApp = () => {
@@ -99,7 +100,9 @@ export function App() {
       <Router>
         <CustomThemeProvider>
           <Toaster position="top-right" />
-          <ThemedApp />
+          <I18nProvider>
+            <ThemedApp />
+          </I18nProvider>
         </CustomThemeProvider>
       </Router>
     </HelmetProvider>

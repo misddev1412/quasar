@@ -9,7 +9,7 @@ import '@shared/styles/css/index.css';
 // Import admin-specific styles, including Tailwind
 import './styles.scss';
 
-// Set default locale to English
+// Legacy locale bootstrap (does not force a default)
 import './setDefaultLocale';
 
 // Initialize i18n

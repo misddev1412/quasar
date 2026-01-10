@@ -23,6 +23,8 @@ const localeFlags: Record<SupportedLocale, string> = {
 };
 
 const LOCALE_STORAGE_KEY = 'admin-locale';
+const USER_LOCALE_KEY = 'admin-locale-source';
+const USER_LOCALE_VALUE = 'user';
 
 const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({ 
   className = '',
@@ -74,6 +76,8 @@ const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({
     if (locale !== currentLocale && !isLoading) {
       try {
         await i18n.changeLanguage(locale);
+        localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+        localStorage.setItem(USER_LOCALE_KEY, USER_LOCALE_VALUE);
       } catch (error) {
         console.error('❌ Failed to change language:', error);
       }

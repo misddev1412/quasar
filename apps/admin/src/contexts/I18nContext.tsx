@@ -12,6 +12,8 @@ export type Locale = SupportedLocale;
 
 const FALLBACK_LOCALE: Locale = 'vi';
 const STORAGE_KEY = 'admin-locale';
+const USER_LOCALE_KEY = 'admin-locale-source';
+const USER_LOCALE_VALUE = 'user';
 
 interface I18nContextType {
     currentLocale: Locale;
@@ -93,26 +95,27 @@ export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
     useEffect(() => {
         // Cast to any to avoid unknown type errors if types aren't inferred correctly
         const configData = localeConfigData as any;
+        const resolvedConfig =
+            configData?.data ??
+            configData?.result?.data?.data ??
+            configData?.result?.data?.data?.data;
 
-        if (configData?.status === 'OK' && configData.data) {
-            const config = configData.data;
+        if (configData?.status === 'OK' && resolvedConfig) {
+            const config = resolvedConfig;
             // Map frontend config types to admin types if necessary
             // Assuming config.supportedLocales is string[] and matches Locale[]
             setSupportedLocales(config.supportedLocales as Locale[]);
-            setDefaultLocale(FALLBACK_LOCALE);
+            setDefaultLocale(config.defaultLocale as Locale);
 
             // Set initial locale logic
-            const savedLocale = localStorage.getItem(STORAGE_KEY) as Locale;
-
-            // If we have a saved locale, strictly use it.
-            // If NOT, we should use the defaultLocale from DB.
-            // Frontent also checks browser locale, maybe we should too, 
-            // but usually Admin tools enforce a default unless changed.
-
-            let targetLocale = savedLocale;
+            const savedLocale = localStorage.getItem(STORAGE_KEY) as Locale | null;
+            const hasUserOverride = localStorage.getItem(USER_LOCALE_KEY) === USER_LOCALE_VALUE;
+            let targetLocale = hasUserOverride ? savedLocale : null;
 
             if (!targetLocale || !config.supportedLocales.includes(targetLocale)) {
-                targetLocale = FALLBACK_LOCALE;
+                targetLocale = config.defaultLocale as Locale;
+                localStorage.setItem(STORAGE_KEY, targetLocale);
+                localStorage.setItem(USER_LOCALE_KEY, 'api');
             }
 
             if (targetLocale !== currentLocale) {

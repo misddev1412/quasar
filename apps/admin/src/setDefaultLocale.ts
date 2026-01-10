@@ -1,10 +1,7 @@
 (function() {
   try {
-    // Only set default locale if none exists in localStorage
-    const existingLocale = localStorage.getItem('admin-locale');
-    if (!existingLocale) {
-      localStorage.setItem('admin-locale', 'vi');
-    }
+    // Defer to locale config API; avoid forcing a localStorage default here.
+    localStorage.getItem('admin-locale');
   } catch (e) {
     console.error('Failed to set admin locale:', e);
   }
