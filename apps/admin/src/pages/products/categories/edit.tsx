@@ -74,14 +74,26 @@ const EditCategoryPage: React.FC = () => {
   const onSubmit = async (data: EditCategoryFormData) => {
     if (!id) return;
     
-    updateMutation.mutate({
+    const payload = {
       id,
       ...data,
       image: data.image || undefined,
+      heroBackgroundImage: data.heroBackgroundImage || undefined,
+      heroOverlayEnabled: data.heroOverlayEnabled,
+      heroOverlayColor: data.heroOverlayColor || undefined,
+      heroOverlayOpacity: data.heroOverlayOpacity,
       description: data.description || undefined,
       parentId: data.parentId || undefined,
       slug: data.slug || undefined,
-    });
+      showTitle: data.showTitle,
+      showProductCount: data.showProductCount,
+      showSubcategoryCount: data.showSubcategoryCount,
+      showCta: data.showCta,
+      ctaLabel: data.ctaLabel || undefined,
+      ctaUrl: data.ctaUrl || undefined,
+    } as Parameters<typeof updateMutation.mutate>[0];
+
+    updateMutation.mutate(payload);
   };
 
   const actions = [

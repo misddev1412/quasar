@@ -6,12 +6,10 @@ import clsx from 'clsx';
 import { FiUsers, FiEye, FiTrendingUp, FiClock } from 'react-icons/fi';
 import SectionContainer from '../sections/SectionContainer';
 import { useSettings } from '../../hooks/useSettings';
-import useMenu from '../../hooks/useMenu';
 import {
   FooterConfig,
   FooterSocialLink,
   FooterSocialType,
-  FooterWidgetConfig,
   DEFAULT_VISITOR_ANALYTICS_CONFIG,
   VisitorAnalyticsMetricType,
   createFooterConfig,
@@ -20,8 +18,9 @@ import {
   FooterMenuFontWeight,
   FooterMenuTextTransform,
   DEFAULT_MENU_TYPOGRAPHY,
+  FooterMenuColumnConfig,
+  FooterMenuLinkConfig,
 } from '@shared/types/footer.types';
-import { MenuTarget } from '@shared/enums/menu.enums';
 import { trpc } from '../../utils/trpc';
 
 interface FooterProps {
@@ -31,19 +30,6 @@ interface FooterProps {
   description?: string;
   copyright?: string;
   configOverride?: FooterConfig | null;
-}
-
-interface FooterMenuLink {
-  id: string;
-  label: string;
-  href: string;
-  target?: MenuTarget;
-}
-
-interface FooterMenuColumn {
-  id: string;
-  title?: string;
-  links: FooterMenuLink[];
 }
 
 interface VisitorStatsCard {
@@ -106,50 +92,99 @@ const isExternalLink = (href?: string) => {
   return /^https?:\/\//i.test(href) || href.startsWith('mailto:') || href.startsWith('tel:');
 };
 
-const buildColumnsFromMenu = (
-  items: ReturnType<typeof useMenu>['navigationItems'],
-  config: FooterConfig
-): FooterMenuColumn[] => {
-  if (!items || items.length === 0) {
+const resolveFooterLinkHref = (link: FooterMenuLinkConfig): string => {
+  const fallbackUrl = link.url?.trim() || '';
+  const referenceId = link.referenceId?.trim() || '';
+  const linkType = link.linkType || 'external';
+
+  switch (linkType) {
+    case 'product':
+      return referenceId ? `/products/${referenceId}` : fallbackUrl || '#';
+    case 'category':
+      return referenceId ? `/categories/${referenceId}` : fallbackUrl || '#';
+    case 'post':
+      return referenceId ? `/blog/${referenceId}` : fallbackUrl || '#';
+    case 'site_content': {
+      if (referenceId) {
+        if (/^https?:/i.test(referenceId)) {
+          return referenceId;
+        }
+
+        if (referenceId.startsWith('/')) {
+          return referenceId.startsWith('/pages/') ? referenceId : `/pages${referenceId}`;
+        }
+
+        const normalized = referenceId.replace(/^pages\//i, '').replace(/^\/+/, '');
+        if (normalized.length > 0) {
+          return `/pages/${normalized}`;
+        }
+      }
+
+      return fallbackUrl || '#';
+    }
+    default:
+      return fallbackUrl || '#';
+  }
+};
+
+const buildColumnsFromConfig = (config: FooterConfig): FooterMenuColumnConfig[] => {
+  const columns = config.menuColumns;
+  if (!Array.isArray(columns)) {
     return [];
   }
 
-  const hasNestedChildren = items.some((item) => item.children && item.children.length > 0);
-  if (hasNestedChildren && config.menuLayout === 'columns') {
-    return items.map((item) => ({
-      id: item.id,
-      title: item.name,
-      links: (item.children && item.children.length > 0 ? item.children : [item]).map((child) => ({
-        id: child.id,
-        label: child.name,
-        href: child.href,
-        target: child.target,
-      })),
-    }));
+  const normalized = columns
+    .filter((column) => column && column.isActive !== false)
+    .map((column) => ({
+      ...column,
+      title: column.title?.trim() || '',
+      links: (column.links || [])
+        .filter((link) => {
+          if (!link || link.isActive === false) {
+            return false;
+          }
+          const label = link.label?.trim() || '';
+          const linkType = link.linkType || 'external';
+          const hasTarget =
+            linkType === 'external' ? Boolean(link.url?.trim()) : Boolean(link.referenceId?.trim());
+          return Boolean(label) && hasTarget;
+        })
+        .map((link) => ({
+          ...link,
+          label: link.label.trim(),
+          url: link.url?.trim() || '',
+          referenceId: link.referenceId?.trim() || '',
+          target: link.target === '_blank' ? '_blank' : '_self',
+        })),
+    }))
+    .filter((column) => column.links.length > 0 || column.title);
+
+  if (config.menuLayout !== 'inline') {
+    return normalized;
   }
 
-  const columnsCount = Math.max(1, config.columnsPerRow || 3);
-  const perColumn = Math.max(1, Math.ceil(items.length / columnsCount));
-  const columns: FooterMenuColumn[] = [];
+  const allLinks = normalized.flatMap((column) => column.links);
+  if (!allLinks.length) {
+    return [];
+  }
+
+  const columnsCount = Math.max(1, Math.min(4, config.columnsPerRow || 3));
+  const perColumn = Math.max(1, Math.ceil(allLinks.length / columnsCount));
+  const distributed: FooterMenuColumnConfig[] = [];
 
   for (let columnIndex = 0; columnIndex < columnsCount; columnIndex += 1) {
     const start = columnIndex * perColumn;
     const end = start + perColumn;
-    const slice = items.slice(start, end);
+    const slice = allLinks.slice(start, end);
     if (!slice.length) continue;
-
-    columns.push({
-      id: `column-${columnIndex}`,
-      links: slice.map((item) => ({
-        id: item.id,
-        label: item.name,
-        href: item.href,
-        target: item.target,
-      })),
+    distributed.push({
+      id: `footer-column-${columnIndex}`,
+      title: '',
+      links: slice,
     });
   }
 
-  return columns;
+  return distributed;
 };
 
 const getGridClass = (columnsPerRow?: number): string => {
@@ -289,7 +324,6 @@ const Footer: React.FC<FooterProps> = ({
   const footerConfig = configOverride ? createFooterConfig(configOverride) : getFooterConfig();
   const visitorAnalyticsConfig = footerConfig.visitorAnalytics ?? DEFAULT_VISITOR_ANALYTICS_CONFIG;
   const shouldFetchVisitorStats = visitorAnalyticsConfig.enabled !== false;
-  const { navigationItems } = useMenu('footer');
   const visitorStatsQuery = (trpc as any).clientVisitorStats.getPublicStats.useQuery(
     {},
     {
@@ -360,20 +394,13 @@ const Footer: React.FC<FooterProps> = ({
     [footerConfig.extraLinks]
   );
 
-  const inlineMenuLinks: FooterMenuLink[] = useMemo(
-    () =>
-      (navigationItems || []).map((item) => ({
-        id: item.id,
-        label: item.name,
-        href: item.href,
-        target: item.target,
-      })),
-    [navigationItems]
-  );
-
   const menuColumns = useMemo(
-    () => buildColumnsFromMenu(navigationItems, footerConfig),
-    [navigationItems, footerConfig]
+    () => buildColumnsFromConfig(footerConfig),
+    [footerConfig.columnsPerRow, footerConfig.menuColumns, footerConfig.menuLayout]
+  );
+  const inlineMenuLinks = useMemo(
+    () => menuColumns.flatMap((column) => column.links),
+    [menuColumns]
   );
   const menuGridClass = getGridClass(footerConfig.columnsPerRow);
   const contentWrapperClass = 'w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8';
@@ -423,8 +450,9 @@ const Footer: React.FC<FooterProps> = ({
         />
       ) : null));
 
-  const renderNavLink = (link: FooterMenuLink) => {
-    if (!link.href) return null;
+  const renderNavLink = (link: FooterMenuLinkConfig) => {
+    const href = resolveFooterLinkHref(link);
+    if (!href || href === '#') return null;
     const linkClass = clsx(
       'transition-colors',
       themeClasses.link,
@@ -432,22 +460,19 @@ const Footer: React.FC<FooterProps> = ({
       menuFontWeightClass,
       menuTextTransformClass
     );
-    const targetProps =
-      link.target === MenuTarget.BLANK
-        ? { target: '_blank', rel: 'noopener noreferrer' }
-        : {};
+    const targetProps = link.target === '_blank' ? { target: '_blank', rel: 'noopener noreferrer' } : {};
     const formattedLabel = transformMenuLabel(link.label, menuTypography);
 
-    if (isExternalLink(link.href)) {
+    if (isExternalLink(href)) {
       return (
-        <a href={link.href} className={linkClass} style={linkStyle} {...targetProps}>
+        <a href={href} className={linkClass} style={linkStyle} {...targetProps}>
           {formattedLabel}
         </a>
       );
     }
 
     return (
-      <Link href={link.href} className={linkClass} style={linkStyle} {...targetProps}>
+      <Link href={href} className={linkClass} style={linkStyle} {...targetProps}>
         {formattedLabel}
       </Link>
     );
@@ -661,7 +686,9 @@ const Footer: React.FC<FooterProps> = ({
       </p>
       <div className="flex flex-wrap items-center gap-4 text-sm">
         {extraLinks.map((link) => (
-          <span key={link.id}>{renderNavLink({ id: link.id, label: link.label, href: link.url })}</span>
+          <span key={link.id}>
+            {renderNavLink({ id: link.id, label: link.label, url: link.url, target: '_self' })}
+          </span>
         ))}
       </div>
     </div>
@@ -865,7 +892,7 @@ const Footer: React.FC<FooterProps> = ({
               ))
             ) : (
               <div className={clsx('text-sm', themeClasses.subtle)} style={getTextStyle(0.75)}>
-                No footer links yet. Manage them from the admin dashboard.
+                No footer links yet. Add them in the storefront footer settings.
               </div>
             )}
           </div>
@@ -898,11 +925,11 @@ const Footer: React.FC<FooterProps> = ({
                 </ul>
               </div>
             ))
-          ) : (
-            <div className={clsx('text-sm', themeClasses.subtle)} style={getTextStyle(0.75)}>
-              No footer links yet. Manage them from the admin dashboard.
-            </div>
-          )}
+            ) : (
+              <div className={clsx('text-sm', themeClasses.subtle)} style={getTextStyle(0.75)}>
+                No footer links yet. Add them in the storefront footer settings.
+              </div>
+            )}
         </div>
         {renderFooterBottom()}
       </div>

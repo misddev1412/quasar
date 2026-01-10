@@ -6,7 +6,7 @@ import { FieldValues } from 'react-hook-form';
 export interface FormFieldConfig {
   name: string;
   label: string;
-  type: 'text' | 'email' | 'password' | 'password-simple' | 'select' | 'multiselect' | 'textarea' | 'checkbox' | 'tel' | 'phone' | 'number' | 'richtext' | 'role-multiselect' | 'category-multiselect' | 'custom' | 'tags' | 'file-types' | 'media-upload' | 'image-gallery' | 'product-media' | 'slug' | 'date';
+  type: 'text' | 'email' | 'password' | 'password-simple' | 'select' | 'multiselect' | 'textarea' | 'checkbox' | 'tel' | 'phone' | 'number' | 'richtext' | 'role-multiselect' | 'category-multiselect' | 'custom' | 'tags' | 'file-types' | 'media-upload' | 'image-gallery' | 'product-media' | 'slug' | 'date' | 'color';
   placeholder?: string;
   required?: boolean;
   options?: Array<{ value: string; label: string; disabled?: boolean }>;
@@ -80,6 +80,7 @@ export interface EntityFormProps<T extends FieldValues = FieldValues> {
   initialValues?: Partial<T>;
   onSubmit: (values: T, options?: FormSubmitOptions) => Promise<void | unknown>;
   isSubmitting?: boolean;
+  isDisabled?: boolean;
   customActions?: ReactNode;
   submitButtonText?: string;
   cancelButtonText?: string;

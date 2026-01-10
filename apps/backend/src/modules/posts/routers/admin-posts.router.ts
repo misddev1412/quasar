@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
+import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { AdminPostsService } from '../services/admin-posts.service';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
@@ -8,12 +9,15 @@ import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middle
 import { PostStatus, PostType } from '../entities/post.entity';
 import { apiResponseSchema, paginatedResponseSchema } from '../../../trpc/schemas/response.schemas';
 import { AuthenticatedContext } from '../../../trpc/context';
+import { PermissionAction, PermissionScope } from '@shared';
+import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
 import {
   CreatePostSchema,
   UpdatePostSchema,
   CreatePostDto,
   UpdatePostDto,
 } from '../dto/post.dto';
+import { resolvePermissionScope } from '../../shared/utils/permission-utils';
 
 // Zod schemas for validation
 const postStatusSchema = z.enum([
@@ -178,8 +182,45 @@ export class AdminPostsRouter {
   })
   async updatePost(
     @Input() input: z.infer<typeof updateAdminPostSchema>,
+    @Ctx() ctx: AuthenticatedContext,
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
+      const permissionScope = resolvePermissionScope(
+        ctx.user?.permissions,
+        'post',
+        PermissionAction.UPDATE
+      );
+
+      if (!permissionScope) {
+        throw this.responseHandler.createTRPCError(
+          31,
+          3,
+          ErrorLevelCode.AUTHORIZATION,
+          'Insufficient permissions to update post'
+        );
+      }
+
+      if (permissionScope === PermissionScope.OWN) {
+        const post = await this.adminPostsService.getPostById(input.id);
+        if (!post) {
+          throw this.responseHandler.createTRPCError(
+            31,
+            3,
+            ErrorLevelCode.NOT_FOUND,
+            'Post not found'
+          );
+        }
+
+        if (!ctx.user?.id || post.author_id !== ctx.user.id) {
+          throw this.responseHandler.createTRPCError(
+            31,
+            3,
+            ErrorLevelCode.AUTHORIZATION,
+            'You can only update posts you created'
+          );
+        }
+      }
+
       const updatedPost = await this.adminPostsService.updatePost(
         input.id,
         input.data as UpdatePostDto,
@@ -196,6 +237,9 @@ export class AdminPostsRouter {
 
       return this.responseHandler.createTrpcSuccess(updatedPost);
     } catch (error) {
+      if (error instanceof TRPCError) {
+        throw error;
+      }
       throw this.responseHandler.createTRPCError(
         31, // ModuleCode.ARTICLE
         3,  // OperationCode.UPDATE

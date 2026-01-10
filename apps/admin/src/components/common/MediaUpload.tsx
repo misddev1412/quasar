@@ -50,13 +50,26 @@ export const MediaUpload: React.FC<MediaUploadProps> = ({
   const [dragActive, setDragActive] = useState(false);
   const [showMediaManager, setShowMediaManager] = useState(false);
 
-  // Initialize uploaded files from value prop
+  // Initialize selected media from value prop so existing URLs render in edit forms.
   useEffect(() => {
-    if (value && uploadedFiles.length === 0) {
-      // If value is provided but no files are loaded, this might be from initial form data
-      // In a real implementation, you might want to fetch file info from URLs
+    if (!value) {
+      setSelectedMedia([]);
+      return;
     }
-  }, [value, uploadedFiles.length]);
+
+    const urls = Array.isArray(value) ? value : [value];
+    const normalized = urls
+      .map((url) => (typeof url === 'string' ? url.trim() : ''))
+      .filter(Boolean)
+      .map((url, index) => ({
+        id: `existing-${index}-${url}`,
+        url,
+        type: 'image',
+        originalName: url.split('/').pop() || 'image',
+      }));
+
+    setSelectedMedia(normalized);
+  }, [value]);
 
   const getFileType = (file: File): UploadedFile['type'] => {
     if (file.type.startsWith('image/')) return 'image';

@@ -154,7 +154,7 @@ const HexagonIcon: React.FC<{
         }}
       >
         <div
-          className="flex h-full w-full items-center justify-center shadow-[0_25px_60px_rgba(14,165,233,0.25)] dark:bg-slate-900"
+          className="flex h-full w-full items-center justify-center dark:bg-slate-900"
           style={{
             clipPath: hexagonShape,
             background: innerBackground,
@@ -202,7 +202,7 @@ const WhyChooseUsCard: React.FC<{
 
   return (
     <article
-      className="group relative flex h-full flex-col items-center rounded-[32px] border border-slate-100 bg-white/80 text-center shadow-[0_30px_60px_rgba(15,23,42,0.08)] transition hover:-translate-y-2 hover:bg-white hover:shadow-[0_40px_90px_rgba(2,132,199,0.25)] dark:border-slate-800 dark:bg-slate-900/60"
+      className="group relative flex h-full flex-col items-center rounded-[32px] border border-slate-100 bg-white/80 text-center transition hover:-translate-y-2 hover:bg-white dark:border-slate-800 dark:bg-slate-900/60"
       style={cardStyles}
     >
       <div className="flex flex-1 flex-col items-center text-center">

@@ -20,6 +20,16 @@ export interface Category {
   parent?: Category;
   children?: Category[];
   image?: string;
+  heroBackgroundImage?: string;
+  heroOverlayEnabled?: boolean;
+  heroOverlayColor?: string;
+  heroOverlayOpacity?: number;
+  showTitle?: boolean;
+  showProductCount?: boolean;
+  showSubcategoryCount?: boolean;
+  showCta?: boolean;
+  ctaLabel?: string;
+  ctaUrl?: string;
   isActive: boolean;
   sortOrder: number;
   level: number;
@@ -173,6 +183,7 @@ export interface Product {
   viewCount: number;
   createdAt: Date;
   updatedAt: Date;
+  createdBy?: string;
   translations?: ProductTranslation[];
 }
 
@@ -352,6 +363,16 @@ export interface CreateCategoryFormData {
   description?: string;
   parentId?: string;
   image?: string;
+  heroBackgroundImage?: string;
+  heroOverlayEnabled?: boolean;
+  heroOverlayColor?: string;
+  heroOverlayOpacity?: number;
+  showTitle?: boolean;
+  showProductCount?: boolean;
+  showSubcategoryCount?: boolean;
+  showCta?: boolean;
+  ctaLabel?: string;
+  ctaUrl?: string;
   isActive: boolean;
   sortOrder: number;
   seoTitle?: string;

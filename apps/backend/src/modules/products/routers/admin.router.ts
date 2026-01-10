@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
+import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { AdminProductService } from '../services/admin-product.service';
@@ -10,6 +11,9 @@ import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middle
 import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
 import { AuthenticatedContext } from '../../../trpc/context';
 import { ProductStatus } from '../entities/product.entity';
+import { PermissionAction, PermissionScope } from '@shared';
+import { ErrorLevelCode } from '@shared/enums/error-codes.enums';
+import { resolvePermissionScope } from '../../shared/utils/permission-utils';
 
 export const productStatusSchema = z.nativeEnum(ProductStatus);
 const exportFormatSchema = z.enum(['csv', 'json']);
@@ -721,9 +725,46 @@ export class AdminProductsRouter {
     output: apiResponseSchema,
   })
   async update(
-    @Input() input: { id: string } & z.infer<typeof updateProductSchema>
+    @Input() input: { id: string } & z.infer<typeof updateProductSchema>,
+    @Ctx() ctx: AuthenticatedContext,
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
+      const permissionScope = resolvePermissionScope(
+        ctx.user?.permissions,
+        'product',
+        PermissionAction.UPDATE
+      );
+
+      if (!permissionScope) {
+        throw this.responseHandler.createTRPCError(
+          15,
+          3,
+          ErrorLevelCode.AUTHORIZATION,
+          'Insufficient permissions to update product'
+        );
+      }
+
+      if (permissionScope === PermissionScope.OWN) {
+        const existingProduct = await this.productRepository.findById(input.id);
+        if (!existingProduct) {
+          throw this.responseHandler.createTRPCError(
+            15,
+            3,
+            ErrorLevelCode.NOT_FOUND,
+            'Product not found'
+          );
+        }
+
+        if (!ctx.user?.id || existingProduct.createdBy !== ctx.user.id) {
+          throw this.responseHandler.createTRPCError(
+            15,
+            3,
+            ErrorLevelCode.AUTHORIZATION,
+            'You can only update products you created'
+          );
+        }
+      }
+
       const { id, categoryId, categoryIds, ...restInput } = input;
       const normalizedCategoryIds = normalizeCategoryIdsInput(categoryIds, categoryId);
       const updateDto = {
@@ -734,6 +775,9 @@ export class AdminProductsRouter {
       const product = await this.productService.updateProduct(id, updateDto);
       return this.responseHandler.createTrpcSuccess(product);
     } catch (error) {
+      if (error instanceof TRPCError) {
+        throw error;
+      }
       throw this.responseHandler.createTRPCError(
         15, // ModuleCode.PRODUCT
         3,  // OperationCode.UPDATE

@@ -820,12 +820,14 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
               const normalizedCategoryName = state.categoryName?.trim() || null;
 
               const normalizedRowCategoryId = normalizeString(row.categoryId);
-              const hasCategoryNavigation = Boolean(state.categorySlug || normalizedRowCategoryId);
-              const ctaHref = state.categorySlug
-                ? `/categories/${state.categorySlug}`
-                : normalizedRowCategoryId
-                  ? `/categories/${normalizedRowCategoryId}`
-                  : '/products';
+              const fallbackSlug = normalizedRowCategoryId && !isValidUuid(normalizedRowCategoryId)
+                ? normalizedRowCategoryId
+                : null;
+              const resolvedSlugForCta = state.categorySlug || fallbackSlug;
+              const hasCategoryNavigation = Boolean(resolvedSlugForCta);
+              const ctaHref = resolvedSlugForCta
+                ? `/categories/${resolvedSlugForCta}`
+                : '/products';
 
               const strategyLabel = t(strategyTranslationKeyMap[row.strategy]);
               const badgeClass = strategyBadgeClassMap[row.strategy];

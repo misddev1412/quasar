@@ -39,6 +39,90 @@ export class Category extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'hero_background_image',
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+  })
+  heroBackgroundImage?: string;
+
+  @Expose()
+  @Column({
+    name: 'hero_overlay_enabled',
+    type: 'boolean',
+    default: true,
+  })
+  heroOverlayEnabled: boolean;
+
+  @Expose()
+  @Column({
+    name: 'hero_overlay_color',
+    type: 'varchar',
+    length: 32,
+    nullable: true,
+  })
+  heroOverlayColor?: string;
+
+  @Expose()
+  @Column({
+    name: 'hero_overlay_opacity',
+    type: 'int',
+    default: 70,
+  })
+  heroOverlayOpacity: number;
+
+  @Expose()
+  @Column({
+    name: 'show_title',
+    type: 'boolean',
+    default: true,
+  })
+  showTitle: boolean;
+
+  @Expose()
+  @Column({
+    name: 'show_product_count',
+    type: 'boolean',
+    default: true,
+  })
+  showProductCount: boolean;
+
+  @Expose()
+  @Column({
+    name: 'show_subcategory_count',
+    type: 'boolean',
+    default: true,
+  })
+  showSubcategoryCount: boolean;
+
+  @Expose()
+  @Column({
+    name: 'show_cta',
+    type: 'boolean',
+    default: true,
+  })
+  showCta: boolean;
+
+  @Expose()
+  @Column({
+    name: 'cta_label',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  ctaLabel?: string;
+
+  @Expose()
+  @Column({
+    name: 'cta_url',
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+  })
+  ctaUrl?: string;
+
+  @Expose()
+  @Column({
     name: 'is_active',
     type: 'boolean',
     default: true,

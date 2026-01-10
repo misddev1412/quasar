@@ -44,6 +44,16 @@ export const createCategorySchema = z.object({
   isActive: z.boolean().default(true),
   sortOrder: z.number().min(0).default(0),
   image: z.string().optional(),
+  heroBackgroundImage: z.string().optional(),
+  heroOverlayEnabled: z.boolean().optional(),
+  heroOverlayColor: z.string().optional(),
+  heroOverlayOpacity: z.number().min(0).max(100).optional(),
+  showTitle: z.boolean().optional(),
+  showProductCount: z.boolean().optional(),
+  showSubcategoryCount: z.boolean().optional(),
+  showCta: z.boolean().optional(),
+  ctaLabel: z.string().optional(),
+  ctaUrl: z.string().optional(),
 });
 
 export const updateCategorySchema = z.object({
@@ -53,6 +63,16 @@ export const updateCategorySchema = z.object({
   isActive: z.boolean().optional(),
   sortOrder: z.number().min(0).optional(),
   image: z.string().optional(),
+  heroBackgroundImage: z.string().optional(),
+  heroOverlayEnabled: z.boolean().optional(),
+  heroOverlayColor: z.string().optional(),
+  heroOverlayOpacity: z.number().min(0).max(100).optional(),
+  showTitle: z.boolean().optional(),
+  showProductCount: z.boolean().optional(),
+  showSubcategoryCount: z.boolean().optional(),
+  showCta: z.boolean().optional(),
+  ctaLabel: z.string().optional(),
+  ctaUrl: z.string().optional(),
 });
 
 export const createCategoryTranslationSchema = z.object({

@@ -11,7 +11,7 @@ import type {
 } from '../types/product';
 
 export interface GetCategoryProductsParams {
-  categoryId: string;
+  categoryRef: string;
   page?: number;
   limit?: number;
   sortBy?: string;
@@ -77,7 +77,7 @@ export class CategoryService {
   static async getCategoryProducts(params: GetCategoryProductsParams): Promise<CategoryProductListResponse> {
     try {
       const response = await trpcClient.clientProducts.getProductsByCategory.query({
-        categoryId: params.categoryId,
+        categoryId: params.categoryRef,
         page: params.page || 1,
         limit: params.limit || 12,
         sortBy: params.sortBy,

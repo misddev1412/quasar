@@ -132,6 +132,16 @@ export interface Category {
   description?: string;
   parentId?: string;
   image?: string;
+  heroBackgroundImage?: string;
+  heroOverlayEnabled?: boolean;
+  heroOverlayColor?: string;
+  heroOverlayOpacity?: number;
+  showTitle?: boolean;
+  showProductCount?: boolean;
+  showSubcategoryCount?: boolean;
+  showCta?: boolean;
+  ctaLabel?: string;
+  ctaUrl?: string;
   isActive: boolean;
   sortOrder: number;
   level: number;

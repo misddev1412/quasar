@@ -1,43 +1,29 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@heroui/react';
 import CategoryCard from './CategoryCard';
 import ProductCard from './ProductCard';
-import type { BreadcrumbItem } from 'ui';
-import PageBreadcrumbs from '../common/PageBreadcrumbs';
 import { CategoryService } from '../../services/category.service';
 import type { Category, Product } from '../../types/product';
 import type { PaginationInfo } from '../../types/trpc';
 
 interface CategoryDetailPageProps {
   category: Category;
+  categorySlug?: string;
   initialProducts: Product[];
   subcategories: Category[];
 }
 
 const layout = {
-  container: 'space-y-12 lg:space-y-16',
-  hero: 'relative overflow-hidden rounded-3xl border border-emerald-200/70 dark:border-emerald-400/15 bg-gradient-to-br from-emerald-50 via-white to-cyan-50 dark:from-emerald-950/45 dark:via-emerald-900/25 dark:to-cyan-900/25 px-6 py-10 sm:px-8 lg:px-12 shadow-sm',
-  heroGrid: 'relative z-10 grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.1fr,0.9fr]',
-  heroBadge: 'inline-flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-200 bg-white/85 dark:bg-emerald-900/50 border border-emerald-200/70 dark:border-emerald-500/20 rounded-full px-4 py-2 shadow-sm',
-  heroTitle: 'text-3xl md:text-4xl lg:text-5xl font-bold text-emerald-900 dark:text-white tracking-tight',
-  heroDescription: 'text-base md:text-lg text-emerald-800/85 dark:text-emerald-100/85 leading-relaxed max-w-2xl',
-  heroStats: 'flex flex-wrap items-center gap-3 mt-6',
-  heroStatPill: 'inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 dark:bg-emerald-900/50 border border-emerald-200/80 dark:border-emerald-500/20 text-sm font-medium text-emerald-800 dark:text-emerald-100 shadow-sm backdrop-blur',
-  heroImageCard: 'relative w-full h-60 sm:h-72 lg:h-80 rounded-3xl overflow-hidden border border-emerald-100/70 dark:border-emerald-500/20 bg-white/75 dark:bg-emerald-950/40 shadow-lg',
-  card: 'rounded-3xl border border-gray-200/70 dark:border-gray-700/60 bg-white dark:bg-gray-900/50 shadow-sm p-6 sm:p-8 lg:p-10',
-  sectionHeader: 'flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-6 border-b border-gray-200 dark:border-gray-800',
-  sectionTitle: 'text-2xl lg:text-3xl font-semibold text-gray-900 dark:text-white',
-  helpText: 'text-sm text-gray-500 dark:text-gray-400 max-w-xl',
+  wrapper: 'space-y-12',
+  sectionHeader: 'flex flex-col gap-4 border-b border-gray-200 pb-6 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between',
+  sectionTitle: 'text-2xl font-bold text-gray-900 dark:text-white lg:text-3xl',
+  sectionDescription: 'text-sm text-gray-600 dark:text-gray-300 max-w-xl',
   mutedText: 'text-sm text-gray-600 dark:text-gray-300',
-  statusBlock: 'flex flex-col items-center justify-center gap-4 text-center py-12'
+  statusBlock: 'flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-gray-200 bg-gray-50/60 py-12 text-center dark:border-gray-700/60 dark:bg-gray-900/30',
 } as const;
-
-const friendlyFallbackDescription = (name: string) =>
-  `Discover cheerful finds in our ${name} corner. Everything here is handpicked to make shopping feel easy and welcoming.`;
 
 const ensureNonNegativeInteger = (value: unknown, fallback: number): number => {
   if (typeof value !== 'number' || !Number.isFinite(value)) {
@@ -94,6 +80,7 @@ const useVisiblePages = (totalPages: number, currentPage: number) => {
 
 const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
   category,
+  categorySlug,
   initialProducts,
   subcategories,
 }) => {
@@ -115,15 +102,6 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const breadcrumbItems = useMemo<BreadcrumbItem[]>(
-    () => [
-      { label: 'Home', href: '/' },
-      { label: 'Categories', href: '/categories' },
-      { label: category.name, isCurrent: true },
-    ],
-    [category.name]
-  );
-
   const numberFormatter = useMemo(() => new Intl.NumberFormat(), []);
   const totalKnownProducts = useMemo(() => {
     const candidates: Array<unknown> = [pagination.total, category.productCount, products.length];
@@ -137,27 +115,6 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
     return 0;
   }, [pagination.total, category.productCount, products.length]);
 
-  const heroStats = useMemo(
-    () => [
-      {
-        icon: '🛒',
-        label: 'products',
-        value: numberFormatter.format(totalKnownProducts),
-      },
-      {
-        icon: '🧭',
-        label: 'subcategories',
-        value: numberFormatter.format(subcategories.length),
-      },
-      {
-        icon: '✨',
-        label: 'status',
-        value: category.isActive ? 'Ready for you' : 'Coming soon',
-      },
-    ],
-    [category.isActive, numberFormatter, subcategories.length, totalKnownProducts]
-  );
-
   const visiblePages = useVisiblePages(pagination.totalPages ?? 0, currentPage);
 
   const fetchProducts = useCallback(async () => {
@@ -165,7 +122,7 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
     setError(null);
     try {
       const response = await CategoryService.getCategoryProducts({
-        categoryId: category.id,
+        categoryRef: categorySlug?.trim() || category.id,
         page: currentPage,
         limit: 12,
         sortBy,
@@ -179,7 +136,7 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [category.id, currentPage, sortBy]);
+  }, [category.id, categorySlug, currentPage, sortBy]);
 
   useEffect(() => {
     fetchProducts();
@@ -200,79 +157,17 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
   const showInitialLoader = isRefreshing && noProducts;
   const showEmptyState = !isLoading && noProducts && !error;
 
-  const friendlyDescription = category.description?.trim() || friendlyFallbackDescription(category.name);
-
   return (
-    <div className={layout.container}>
-      <section className={layout.hero}>
-        <div className="absolute -top-32 -right-24 h-64 w-64 rounded-full bg-emerald-400/25 blur-3xl" />
-        <div className="absolute -bottom-28 -left-20 h-56 w-56 rounded-full bg-cyan-400/20 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.65),_transparent_60%)]" />
-
-        <div className={layout.heroGrid}>
-          <div>
-            <div className={layout.heroBadge}>
-              <span aria-hidden="true">🌿</span>
-              <span>Curated with care</span>
-            </div>
-            <h1 className={`${layout.heroTitle} mt-6`}>{category.name}</h1>
-            <p className={`${layout.heroDescription} mt-4`}>{friendlyDescription}</p>
-            <div className={layout.heroStats}>
-              {heroStats.map((stat) => (
-                <span key={stat.label} className={layout.heroStatPill}>
-                  <span aria-hidden="true" className="text-lg">{stat.icon}</span>
-                  <span className="flex flex-col leading-none">
-                    <span className="text-sm font-semibold">{stat.value}</span>
-                    <span className="text-[11px] uppercase tracking-wide opacity-80">{stat.label}</span>
-                  </span>
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className={layout.heroImageCard}>
-            {category.image ? (
-              <>
-                <Image
-                  src={category.image}
-                  alt={category.name}
-                  fill
-                  sizes="(min-width: 1024px) 32rem, 100vw"
-                  className="object-cover"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 via-transparent to-transparent" aria-hidden="true" />
-              </>
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-emerald-700 dark:text-emerald-200">
-                <span className="text-5xl" aria-hidden="true">🛍️</span>
-                <p className="text-base font-semibold">We\'re dressing up this space</p>
-                <p className="text-xs text-emerald-700/80 dark:text-emerald-100/80">
-                  A lovely photo will be here soon. Until then, enjoy the curated picks below.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="relative z-10 mt-8">
-          <PageBreadcrumbs
-            items={breadcrumbItems}
-            showBackground={false}
-            fullWidth={false}
-          />
-        </div>
-      </section>
-
+    <div className={layout.wrapper}>
       {subcategories.length > 0 && (
-        <section className={layout.card} aria-labelledby="subcategory-heading">
+        <section aria-labelledby="subcategory-heading">
           <div className={layout.sectionHeader}>
             <div>
               <h2 id="subcategory-heading" className={layout.sectionTitle}>
-                Explore friendly subcategories
+                Subcategories in {category.name}
               </h2>
-              <p className={layout.helpText}>
-                Narrow things down to find the perfect match within {category.name}.
+              <p className={layout.sectionDescription}>
+                Browse focused collections to narrow down your search.
               </p>
             </div>
             <Link
@@ -296,15 +191,15 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
         </section>
       )}
 
-      <section className={layout.card} aria-labelledby="category-products-heading">
+      <section aria-labelledby="category-products-heading">
         <div className={layout.sectionHeader}>
           <div>
             <h2 id="category-products-heading" className={layout.sectionTitle}>
-              Cheerful picks in {category.name}
+              {category.name} picks
             </h2>
-            <p className={layout.helpText}>
+            <p className={layout.sectionDescription}>
               Showing {products.length > 0 ? numberFormatter.format(products.length) : '0'} of{' '}
-              {numberFormatter.format(totalKnownProducts)} friendly suggestions.
+              {numberFormatter.format(totalKnownProducts)} products.
             </p>
           </div>
 
@@ -312,7 +207,7 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
             {isRefreshing && (
               <span className="inline-flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-300">
                 <span className="h-2.5 w-2.5 animate-spin rounded-full border-2 border-emerald-400 border-r-transparent" aria-hidden="true" />
-                Updating suggestions…
+                Updating products...
               </span>
             )}
             <div className="flex items-center gap-2">
@@ -336,11 +231,10 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
 
         {error ? (
           <div className={layout.statusBlock}>
-            <span className="text-4xl" aria-hidden="true">😅</span>
             <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">We hit a small snag</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">We hit a small snag</h3>
               <p className={layout.mutedText}>
-                We couldn\'t refresh the products just now. Give it another try and we\'ll gather new ideas for you.
+                We could not refresh the products just now. Please try again in a moment.
               </p>
             </div>
             <Button onClick={fetchProducts} color="primary" variant="solid">
@@ -351,17 +245,16 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
           <div className={layout.statusBlock}>
             <span className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-400 border-t-transparent" aria-hidden="true" />
             <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Gathering lovely products…</h3>
-              <p className={layout.mutedText}>Sit tight for a moment while we bring the best picks to the top.</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Loading products...</h3>
+              <p className={layout.mutedText}>Hang tight while we bring in the latest items.</p>
             </div>
           </div>
         ) : showEmptyState ? (
           <div className={layout.statusBlock}>
-            <span className="text-5xl" aria-hidden="true">🌱</span>
             <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">No products yet</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">No products yet</h3>
               <p className={layout.mutedText}>
-                This category is getting ready for its first arrivals. Check back soon or keep exploring other areas.
+                This category is getting ready for its first arrivals. Explore other categories in the meantime.
               </p>
             </div>
             <Link href="/categories">
@@ -387,7 +280,7 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
               <div className="flex justify-center pt-6">
                 <span className="inline-flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-300">
                   <span className="h-3 w-3 animate-spin rounded-full border-2 border-emerald-400 border-r-transparent" aria-hidden="true" />
-                  Loading more friendly picks…
+                  Loading more products...
                 </span>
               </div>
             )}
@@ -420,7 +313,7 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
                     >
                       1
                     </Button>
-                    {visiblePages[0] > 2 && <span className="px-1 text-sm text-gray-400">…</span>}
+                    {visiblePages[0] > 2 && <span className="px-1 text-sm text-gray-400">...</span>}
                   </>
                 )}
 
@@ -440,7 +333,7 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
                 {pagination.totalPages > 5 && visiblePages[visiblePages.length - 1] < pagination.totalPages && (
                   <>
                     {visiblePages[visiblePages.length - 1] < pagination.totalPages - 1 && (
-                      <span className="px-1 text-sm text-gray-400">…</span>
+                      <span className="px-1 text-sm text-gray-400">...</span>
                     )}
                     <Button
                       onClick={() => setCurrentPage(pagination.totalPages)}

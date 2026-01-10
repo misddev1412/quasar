@@ -137,11 +137,21 @@ export const BannerGridSection: React.FC<BannerGridSectionProps> = ({ config, tr
     labelBadgeStyleVars['--banner-label-text-dark'] = labelTextColorDark;
   }
 
+  const labelBadgeInlineStyle: React.CSSProperties & { [key: `--${string}`]: string } = {
+    ...labelBadgeStyleVars,
+  };
+  if (!labelBgColorLight && !labelBgColorDark) {
+    labelBadgeInlineStyle.backgroundColor = 'var(--storefront-surface)';
+  }
+  if (!labelTextColorLight && !labelTextColorDark) {
+    labelBadgeInlineStyle.color = 'var(--storefront-text)';
+  }
+
   const labelBadgeClassName = [
     'inline-flex items-center rounded-full px-5 py-2 text-sm font-semibold shadow',
-    labelBgColorLight ? 'bg-[var(--banner-label-bg-light)]' : 'bg-white/90',
+    labelBgColorLight ? 'bg-[var(--banner-label-bg-light)]' : '',
     labelBgColorDark ? 'dark:bg-[var(--banner-label-bg-dark)]' : '',
-    labelTextColorLight ? 'text-[var(--banner-label-text-light)]' : 'text-gray-900',
+    labelTextColorLight ? 'text-[var(--banner-label-text-light)]' : '',
     labelTextColorDark ? 'dark:text-[var(--banner-label-text-dark)]' : '',
     LABEL_TEXT_TRANSFORM_CLASSES[labelTextTransform],
   ]
@@ -155,18 +165,37 @@ export const BannerGridSection: React.FC<BannerGridSectionProps> = ({ config, tr
   const hasHeaderContent = sectionTitle || sectionSubtitle || sectionDescription;
 
   return (
-    <section className="py-16 bg-gray-50 dark:bg-gray-950">
+    <section className="py-16" style={{ backgroundColor: 'var(--storefront-surface)' }}>
       <SectionContainer>
         {hasHeaderContent && (
           <div className="mb-10 max-w-3xl">
-            {sectionSubtitle && <p className="text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">{sectionSubtitle}</p>}
-            {sectionTitle && <h2 className="mt-3 text-3xl font-semibold text-gray-900 dark:text-gray-100">{sectionTitle}</h2>}
-            {sectionDescription && <p className="mt-3 text-base text-gray-600 dark:text-gray-400">{sectionDescription}</p>}
+            {sectionSubtitle && (
+              <p className="text-sm font-semibold uppercase tracking-wide" style={{ color: 'var(--color-primary)' }}>
+                {sectionSubtitle}
+              </p>
+            )}
+            {sectionTitle && (
+              <h2 className="mt-3 text-3xl font-semibold" style={{ color: 'var(--storefront-text)' }}>
+                {sectionTitle}
+              </h2>
+            )}
+            {sectionDescription && (
+              <p className="mt-3 text-base" style={{ color: 'var(--storefront-muted)' }}>
+                {sectionDescription}
+              </p>
+            )}
           </div>
         )}
 
         {!hasCards ? (
-          <div className="rounded-xl border border-dashed border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40 px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+          <div
+            className="rounded-xl border border-dashed px-6 py-10 text-center text-sm"
+            style={{
+              borderColor: 'var(--storefront-border)',
+              backgroundColor: 'var(--storefront-body)',
+              color: 'var(--storefront-muted)',
+            }}
+          >
             {t('sections.banner.empty')}
           </div>
         ) : (
@@ -195,7 +224,7 @@ export const BannerGridSection: React.FC<BannerGridSectionProps> = ({ config, tr
                   <img src={imageUrl} alt={label} className="h-full w-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 flex justify-center p-4">
-                    <span className={labelBadgeClassName} style={labelBadgeStyleVars}>
+                    <span className={labelBadgeClassName} style={labelBadgeInlineStyle}>
                       {label}
                     </span>
                   </div>

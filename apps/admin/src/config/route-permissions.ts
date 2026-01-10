@@ -78,7 +78,7 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   // Posts
   '/posts': { resource: 'post', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/posts/create': { resource: 'post', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
-  '/posts/:id': { resource: 'post', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
+  '/posts/:id': { resource: 'post', action: PermissionAction.UPDATE, scope: PermissionScope.OWN },
   '/posts/:id/detail': { resource: 'post', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/posts/categories': { resource: 'post_category', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/posts/tags': { resource: 'post_tag', action: PermissionAction.READ, scope: PermissionScope.ANY },
@@ -131,7 +131,7 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   '/products/exports': { resource: 'product', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/products/create': { resource: 'product', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
   '/products/:id': { resource: 'product', action: PermissionAction.READ, scope: PermissionScope.ANY },
-  '/products/:id/edit': { resource: 'product', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
+  '/products/:id/edit': { resource: 'product', action: PermissionAction.UPDATE, scope: PermissionScope.OWN },
   '/products/attributes': { resource: 'product_attribute', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/products/brands': { resource: 'product_brand', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/products/suppliers': { resource: 'product_supplier', action: PermissionAction.READ, scope: PermissionScope.ANY },

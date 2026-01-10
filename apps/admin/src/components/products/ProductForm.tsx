@@ -208,6 +208,7 @@ export interface ProductFormProps {
   activeTab?: number;
   onTabChange?: (index: number) => void;
   actionsAlignment?: FormActionsAlignment;
+  readonly?: boolean;
 }
 
 export type ProductFormSubmitAction = 'save' | 'save_and_continue';
@@ -224,6 +225,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   activeTab,
   onTabChange,
   actionsAlignment,
+  readonly = false,
 }) => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
@@ -1091,6 +1093,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   };
 
   const handleSubmit = async (data: ProductFormData) => {
+    if (readonly) {
+      return;
+    }
+
     try {
       const normalizedCompareAtPrice = compareAtPrice === '' ? null : Number(compareAtPrice) || 0;
       const normalizedSlug = (data.slug || '').trim();
@@ -1216,7 +1222,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         type="button"
         variant="outline"
         onClick={onCancel}
-        disabled={isSubmitting}
+        disabled={isSubmitting || readonly}
       >
         {t('common.cancel', 'Cancel')}
       </Button>
@@ -1225,7 +1231,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         variant="secondary"
         onClick={() => handleSubmitActionSelect('save_and_continue')}
         isLoading={isSubmitting && lastSubmitAction === 'save_and_continue'}
-        disabled={isSubmitting}
+        disabled={isSubmitting || readonly}
       >
         {isSubmitting && lastSubmitAction === 'save_and_continue'
           ? t('common.saving', 'Saving...')
@@ -1236,7 +1242,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         variant="primary"
         onClick={() => handleSubmitActionSelect('save')}
         isLoading={isSubmitting && lastSubmitAction === 'save'}
-        disabled={isSubmitting && lastSubmitAction !== 'save'}
+        disabled={readonly || (isSubmitting && lastSubmitAction !== 'save')}
       >
         {isSubmitting && lastSubmitAction === 'save'
           ? t('common.saving', 'Saving...')
@@ -1252,6 +1258,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       onSubmit={handleSubmit}
       onCancel={onCancel}
       isSubmitting={isSubmitting}
+      isDisabled={readonly}
       validationSchema={productSchema as any}
       submitButtonText={primarySubmitText}
       cancelButtonText={t('common.cancel', 'Cancel')}

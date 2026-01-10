@@ -415,6 +415,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
       onSubmit={handleFormSubmit}
       onCancel={onCancel}
       isSubmitting={isSubmitting}
+      isDisabled={readonly}
       validationSchema={editPostSchema}
       submitButtonText={t('posts.update')}
       cancelButtonText={t('common.cancel')}

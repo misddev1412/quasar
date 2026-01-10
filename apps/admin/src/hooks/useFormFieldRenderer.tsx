@@ -12,6 +12,7 @@ import { PhoneInputField } from '../components/common/PhoneInputField';
 import { Select } from '../components/common/Select';
 import { TextareaInput } from '../components/common/TextareaInput';
 import { FormSection } from '../components/common/FormSection';
+import { ColorSelector } from '../components/common/ColorSelector';
 import { RichTextEditor } from '../components/common/RichTextEditor';
 import { RoleMultiSelect } from '../components/common/RoleMultiSelect';
 import { TagInput } from '../components/common/TagInput';
@@ -693,6 +694,33 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
           />
         );
 
+      case 'color':
+        return (
+          <Controller
+            key={field.name}
+            name={fieldName}
+            control={control}
+            render={({ field: formField }) => (
+              <div className="space-y-2">
+                <ColorSelector
+                  value={formField.value || ''}
+                  onChange={formField.onChange}
+                  label={field.label}
+                  placeholder={field.placeholder}
+                />
+                {field.description && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {field.description}
+                  </p>
+                )}
+                {error && (
+                  <p className="text-xs text-red-500">{error}</p>
+                )}
+              </div>
+            )}
+          />
+        );
+
       default:
         return null;
     }
@@ -754,24 +782,45 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                 </div>
               </div>
               <div className="space-y-6">
-                {visibleFields.length > 0 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {visibleFields.map((field) => {
-                      // Checkbox fields should only span 1 column to allow them to be placed side by side
-                      // Other wide fields (textarea, richtext, etc.) span full width
-                      const shouldSpanFullWidth = field.type !== 'checkbox' &&
-                        (field.type === 'textarea' || field.type === 'richtext' || field.type === 'role-multiselect' ||
-                         field.type === 'custom' || field.type === 'file-types' || field.type === 'media-upload' ||
-                         field.type === 'image-gallery' || field.type === 'product-media');
+                {visibleFields.length > 0 && (() => {
+                  const checkboxFields = visibleFields.filter((field) => field.type === 'checkbox');
+                  const otherFields = visibleFields.filter((field) => field.type !== 'checkbox');
 
-                      return (
-                        <div key={field.name} className={clsx(shouldSpanFullWidth && 'md:col-span-2')}>
-                          {renderField(field, tabIndex)}
+                  return (
+                    <>
+                      {checkboxFields.length > 0 && (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          {checkboxFields.map((field) => (
+                            <div key={field.name}>
+                              {renderField(field, tabIndex)}
+                            </div>
+                          ))}
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
+                      )}
+
+                      {otherFields.length > 0 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {otherFields.map((field) => {
+                            const shouldSpanFullWidth = field.type === 'textarea' ||
+                              field.type === 'richtext' ||
+                              field.type === 'role-multiselect' ||
+                              field.type === 'custom' ||
+                              field.type === 'file-types' ||
+                              field.type === 'media-upload' ||
+                              field.type === 'image-gallery' ||
+                              field.type === 'product-media';
+
+                            return (
+                              <div key={field.name} className={clsx(shouldSpanFullWidth && 'md:col-span-2')}>
+                                {renderField(field, tabIndex)}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
                 {section.customContent && (
                   <div className="w-full">
                     {section.customContent}

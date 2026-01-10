@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
-import { FiArrowDown, FiArrowUp, FiImage, FiInfo, FiPlus, FiRefreshCw, FiTrash2 } from 'react-icons/fi';
+import { FiArrowDown, FiArrowUp, FiImage, FiPlus, FiRefreshCw, FiTrash2 } from 'react-icons/fi';
 import { useSettings } from '../../hooks/useSettings';
 import { useToast } from '../../context/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -8,10 +8,13 @@ import { Select, SelectOption } from '../common/Select';
 import { Input } from '../common/Input';
 import TextareaInput from '../common/TextareaInput';
 import { Toggle } from '../common/Toggle';
-import { useNavigate } from 'react-router-dom';
 import {
   FooterConfig,
   FooterExtraLink,
+  FooterMenuColumnConfig,
+  FooterMenuLinkConfig,
+  FooterMenuLinkType,
+  FooterMenuLinkTarget,
   FooterSocialLink,
   FooterSocialType,
   FooterWidgetConfig,
@@ -24,6 +27,10 @@ import { MediaManager } from '../common/MediaManager';
 import { ColorSelector } from '../common/ColorSelector';
 import { SimpleRichTextEditor } from '../common/SimpleRichTextEditor';
 import { cn } from '../../utils/cn';
+import { ProductSelector } from '../menus/ProductSelector';
+import { CategorySelector } from '../menus/CategorySelector';
+import { SiteContentSelector } from '../site-content/SiteContentSelector';
+import { PostSelector } from '../posts/PostSelector';
 
 const FOOTER_SETTING_KEY = 'storefront.footer_config';
 
@@ -44,6 +51,40 @@ const clampLogoSize = (value?: number) => {
 const sanitizeLinks = <T extends FooterSocialLink | FooterExtraLink>(
   items: T[],
 ): T[] => items.map((item, index) => ({ ...item, order: index }));
+
+const isValidMenuTarget = (value?: string): value is FooterMenuLinkTarget =>
+  value === '_self' || value === '_blank';
+
+const isValidFooterLinkType = (value?: string): value is FooterMenuLinkType =>
+  value === 'external' ||
+  value === 'product' ||
+  value === 'category' ||
+  value === 'post' ||
+  value === 'site_content';
+
+const sanitizeMenuColumns = (columns: FooterMenuColumnConfig[]): FooterMenuColumnConfig[] =>
+  columns
+    .map((column, columnIndex) => {
+      const links =
+        column.links?.map((link, linkIndex) => ({
+          id: link.id || `footer-link-${columnIndex}-${linkIndex}`,
+          label: link.label?.trim() || '',
+          url: link.url?.trim() || '',
+          linkType: isValidFooterLinkType(link.linkType) ? link.linkType : 'external',
+          referenceId: link.referenceId?.trim() || '',
+          target: isValidMenuTarget(link.target) ? link.target : '_self',
+          isActive: link.isActive !== undefined ? Boolean(link.isActive) : true,
+        })) ?? [];
+      const filteredLinks = links.filter((link) => link.label || link.url || link.referenceId);
+
+      return {
+        id: column.id || `footer-column-${columnIndex}`,
+        title: column.title?.trim() || '',
+        isActive: column.isActive !== undefined ? Boolean(column.isActive) : true,
+        links: filteredLinks,
+      };
+    })
+    .filter((column) => column.links.length > 0);
 
 const clampWidgetHeight = (value?: number) => {
   if (!value || Number.isNaN(value)) {
@@ -168,7 +209,6 @@ const FooterSettingsForm: React.FC = () => {
   const { settings, isLoading, updateSetting, createSetting } = useSettings({ group: 'storefront-ui' });
   const { addToast } = useToast();
   const { t } = useTranslationWithBackend();
-  const navigate = useNavigate();
   const footerSetting = useMemo(
     () => settings.find((setting) => setting.key === FOOTER_SETTING_KEY),
     [settings]
@@ -376,6 +416,25 @@ const FooterSettingsForm: React.FC = () => {
     [t]
   );
 
+  const menuLinkTypeOptions = useMemo<SelectOption[]>(
+    () => [
+      { value: 'external', label: t('storefront.footer.menu_links.type.external', 'External URL') },
+      { value: 'product', label: t('storefront.footer.menu_links.type.product', 'Product') },
+      { value: 'category', label: t('storefront.footer.menu_links.type.category', 'Category') },
+      { value: 'post', label: t('storefront.footer.menu_links.type.post', 'Post') },
+      { value: 'site_content', label: t('storefront.footer.menu_links.type.site_content', 'Site content') },
+    ],
+    [t]
+  );
+
+  const menuLinkTargetOptions = useMemo<SelectOption[]>(
+    () => [
+      { value: '_self', label: t('storefront.footer.menu_links.target.self', 'Same tab') },
+      { value: '_blank', label: t('storefront.footer.menu_links.target.blank', 'New tab') },
+    ],
+    [t]
+  );
+
   const socialTypeOptions = useMemo<SelectOption[]>(
     () => [
       { value: 'facebook', label: 'Facebook' },
@@ -434,6 +493,38 @@ const FooterSettingsForm: React.FC = () => {
       extraLinks: prev.extraLinks.map((link) =>
         link.id === id ? { ...link, ...payload } : link
       ),
+    }));
+    setIsDirty(true);
+  };
+
+  const handleMenuColumnUpdate = (id: string, payload: Partial<FooterMenuColumnConfig>) => {
+    setDraft((prev) => ({
+      ...prev,
+      menuColumns: prev.menuColumns.map((column) =>
+        column.id === id ? { ...column, ...payload } : column
+      ),
+    }));
+    setIsDirty(true);
+  };
+
+  const handleMenuLinkUpdate = (
+    columnId: string,
+    linkId: string,
+    payload: Partial<FooterMenuLinkConfig>
+  ) => {
+    setDraft((prev) => ({
+      ...prev,
+      menuColumns: prev.menuColumns.map((column) => {
+        if (column.id !== columnId) {
+          return column;
+        }
+        return {
+          ...column,
+          links: (column.links || []).map((link) =>
+            link.id === linkId ? { ...link, ...payload } : link
+          ),
+        };
+      }),
     }));
     setIsDirty(true);
   };
@@ -553,6 +644,48 @@ const FooterSettingsForm: React.FC = () => {
     setIsDirty(true);
   };
 
+  const addMenuColumn = () => {
+    setDraft((prev) => ({
+      ...prev,
+      menuColumns: [
+        ...prev.menuColumns,
+        {
+          id: generateId(),
+          title: '',
+          links: [],
+          isActive: true,
+        },
+      ],
+    }));
+    setIsDirty(true);
+  };
+
+  const addMenuLink = (columnId: string) => {
+    setDraft((prev) => ({
+      ...prev,
+      menuColumns: prev.menuColumns.map((column) =>
+        column.id === columnId
+          ? {
+              ...column,
+              links: [
+                ...(column.links || []),
+                {
+                  id: generateId(),
+                  label: t('storefront.footer.menu_links.new_label', 'New link'),
+                  url: '',
+                  linkType: 'external',
+                  referenceId: '',
+                  target: '_self',
+                  isActive: true,
+                },
+              ],
+            }
+          : column
+      ),
+    }));
+    setIsDirty(true);
+  };
+
   const moveSocialLink = (index: number, delta: number) => {
     setDraft((prev) => {
       const next = [...prev.socialLinks];
@@ -581,6 +714,40 @@ const FooterSettingsForm: React.FC = () => {
     setIsDirty(true);
   };
 
+  const moveMenuColumn = (index: number, delta: number) => {
+    setDraft((prev) => {
+      const next = [...prev.menuColumns];
+      const target = index + delta;
+      if (target < 0 || target >= next.length) {
+        return prev;
+      }
+      const [item] = next.splice(index, 1);
+      next.splice(target, 0, item);
+      return { ...prev, menuColumns: next };
+    });
+    setIsDirty(true);
+  };
+
+  const moveMenuLink = (columnId: string, index: number, delta: number) => {
+    setDraft((prev) => {
+      const nextColumns = prev.menuColumns.map((column) => {
+        if (column.id !== columnId) {
+          return column;
+        }
+        const links = [...(column.links || [])];
+        const target = index + delta;
+        if (target < 0 || target >= links.length) {
+          return column;
+        }
+        const [item] = links.splice(index, 1);
+        links.splice(target, 0, item);
+        return { ...column, links };
+      });
+      return { ...prev, menuColumns: nextColumns };
+    });
+    setIsDirty(true);
+  };
+
   const removeSocialLink = (id: string) => {
     setDraft((prev) => ({
       ...prev,
@@ -593,6 +760,30 @@ const FooterSettingsForm: React.FC = () => {
     setDraft((prev) => ({
       ...prev,
       extraLinks: sanitizeLinks(prev.extraLinks.filter((link) => link.id !== id)),
+    }));
+    setIsDirty(true);
+  };
+
+  const removeMenuColumn = (id: string) => {
+    setDraft((prev) => ({
+      ...prev,
+      menuColumns: prev.menuColumns.filter((column) => column.id !== id),
+    }));
+    setIsDirty(true);
+  };
+
+  const removeMenuLink = (columnId: string, linkId: string) => {
+    setDraft((prev) => ({
+      ...prev,
+      menuColumns: prev.menuColumns.map((column) => {
+        if (column.id !== columnId) {
+          return column;
+        }
+        return {
+          ...column,
+          links: (column.links || []).filter((link) => link.id !== linkId),
+        };
+      }),
     }));
     setIsDirty(true);
   };
@@ -616,6 +807,7 @@ const FooterSettingsForm: React.FC = () => {
       brandTitle: draft.brandTitle?.trim() || '',
       logoSize: clampLogoSize(draft.logoSize),
       columnsPerRow: clampColumns(draft.columnsPerRow),
+      menuColumns: sanitizeMenuColumns(draft.menuColumns || []),
       socialLinks: sanitizeLinks(
         draft.socialLinks
           .filter((link) => link.label?.trim() || link.url?.trim())
@@ -674,23 +866,6 @@ const FooterSettingsForm: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-indigo-200 bg-indigo-50/70 p-5 text-indigo-900 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-start gap-3">
-          <FiInfo className="h-5 w-5 shrink-0 mt-1" />
-          <div>
-            <p className="font-medium">
-              {t('storefront.footer.menu_hint.title', 'Footer links are powered by the footer menu.')}
-            </p>
-            <p className="text-sm opacity-80">
-              {t('storefront.footer.menu_hint.description', 'Create columns by adding parent menu items with children.')}
-            </p>
-          </div>
-        </div>
-        <Button variant="outline" onClick={() => navigate('/menus/footer')}>
-          {t('storefront.footer.menu_hint.btn', 'Open footer menu')}
-        </Button>
-      </div>
-
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">
@@ -1108,6 +1283,254 @@ const FooterSettingsForm: React.FC = () => {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {t('storefront.footer.menu_columns.heading', 'Footer menu columns')}
+            </h3>
+            <p className="text-sm text-gray-500">
+              {t(
+                'storefront.footer.menu_columns.description',
+                'Configure which links appear in each footer column.'
+              )}
+            </p>
+          </div>
+          <Button variant="outline" size="sm" startIcon={<FiPlus />} onClick={addMenuColumn}>
+            {t('storefront.footer.menu_columns.add_column', 'Add column')}
+          </Button>
+        </div>
+        <div className="space-y-4">
+          {draft.menuColumns.map((column, columnIndex) => (
+            <div key={column.id} className="rounded-xl border border-gray-100 p-4 shadow-sm space-y-4">
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <p className="font-medium text-gray-900">
+                    {t('storefront.footer.menu_columns.column_label', 'Column {{index}}', {
+                      index: columnIndex + 1,
+                    })}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {t('storefront.footer.menu_columns.column_hint', 'Add a heading and a list of links.')}
+                  </p>
+                </div>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => moveMenuColumn(columnIndex, -1)}
+                    disabled={columnIndex === 0}
+                    aria-label={t('common.move_up', 'Move up')}
+                  >
+                    <FiArrowUp />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => moveMenuColumn(columnIndex, 1)}
+                    disabled={columnIndex === draft.menuColumns.length - 1}
+                    aria-label={t('common.move_down', 'Move down')}
+                  >
+                    <FiArrowDown />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeMenuColumn(column.id)}
+                    aria-label={t('common.remove', 'Remove')}
+                  >
+                    <FiTrash2 />
+                  </Button>
+                </div>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="flex flex-col gap-1 text-sm text-gray-600">
+                  {t('storefront.footer.menu_columns.title', 'Column title')}
+                  <Input
+                    value={column.title || ''}
+                    onChange={(event) => handleMenuColumnUpdate(column.id, { title: event.target.value })}
+                    className="text-sm"
+                    placeholder={t('storefront.footer.menu_columns.title_placeholder', 'Customer service')}
+                  />
+                </label>
+                <Toggle
+                  checked={column.isActive !== false}
+                  onChange={(checked) => handleMenuColumnUpdate(column.id, { isActive: checked })}
+                  label={t('storefront.footer.menu_columns.visible', 'Visible')}
+                  description={t('storefront.footer.menu_columns.visible_hint', 'Hide the column without deleting it.')}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-gray-900">
+                  {t('storefront.footer.menu_links.heading', 'Links')}
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  startIcon={<FiPlus />}
+                  onClick={() => addMenuLink(column.id)}
+                >
+                  {t('storefront.footer.menu_links.add', 'Add link')}
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {column.links && column.links.length > 0 ? (
+                  column.links.map((link, linkIndex) => {
+                    const linkType = link.linkType || 'external';
+                    return (
+                    <div key={link.id} className="rounded-lg border border-gray-100 p-4 shadow-sm">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-medium text-gray-900">
+                          {t('storefront.footer.menu_links.item_label', 'Link {{index}}', {
+                            index: linkIndex + 1,
+                          })}
+                        </p>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => moveMenuLink(column.id, linkIndex, -1)}
+                            disabled={linkIndex === 0}
+                            aria-label={t('common.move_up', 'Move up')}
+                          >
+                            <FiArrowUp />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => moveMenuLink(column.id, linkIndex, 1)}
+                            disabled={linkIndex === (column.links?.length || 0) - 1}
+                            aria-label={t('common.move_down', 'Move down')}
+                          >
+                            <FiArrowDown />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeMenuLink(column.id, link.id)}
+                            aria-label={t('common.remove', 'Remove')}
+                          >
+                            <FiTrash2 />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="mt-4 grid gap-4 md:grid-cols-2">
+                        <Select
+                          label={t('storefront.footer.menu_links.type', 'Link type')}
+                          value={linkType}
+                          onChange={(value) =>
+                            handleMenuLinkUpdate(column.id, link.id, { linkType: value as FooterMenuLinkType })
+                          }
+                          options={menuLinkTypeOptions}
+                        />
+                        <label className="flex flex-col gap-1 text-sm text-gray-600">
+                          {t('storefront.footer.menu_links.label', 'Label')}
+                          <Input
+                            value={link.label}
+                            onChange={(event) =>
+                              handleMenuLinkUpdate(column.id, link.id, { label: event.target.value })
+                            }
+                            className="text-sm"
+                          />
+                        </label>
+                        {linkType === 'external' && (
+                          <label className="flex flex-col gap-1 text-sm text-gray-600">
+                            {t('storefront.footer.menu_links.url', 'URL')}
+                            <Input
+                              value={link.url}
+                              onChange={(event) =>
+                                handleMenuLinkUpdate(column.id, link.id, { url: event.target.value })
+                              }
+                              className="text-sm"
+                            />
+                          </label>
+                        )}
+                        {linkType === 'product' && (
+                          <div className="md:col-span-2">
+                            <ProductSelector
+                              value={link.referenceId || undefined}
+                              onChange={(value) =>
+                                handleMenuLinkUpdate(column.id, link.id, { referenceId: value || '' })
+                              }
+                            />
+                          </div>
+                        )}
+                        {linkType === 'category' && (
+                          <div className="md:col-span-2">
+                            <CategorySelector
+                              value={link.referenceId || undefined}
+                              onChange={(value) =>
+                                handleMenuLinkUpdate(column.id, link.id, { referenceId: value || '' })
+                              }
+                            />
+                          </div>
+                        )}
+                        {linkType === 'post' && (
+                          <div className="md:col-span-2">
+                            <PostSelector
+                              value={link.referenceId || undefined}
+                              onChange={(value) =>
+                                handleMenuLinkUpdate(column.id, link.id, { referenceId: value || '' })
+                              }
+                            />
+                          </div>
+                        )}
+                        {linkType === 'site_content' && (
+                          <div className="md:col-span-2">
+                            <SiteContentSelector
+                              value={link.referenceId || undefined}
+                              onChange={(value) =>
+                                handleMenuLinkUpdate(column.id, link.id, { referenceId: value || '' })
+                              }
+                              valueType="slug"
+                            />
+                          </div>
+                        )}
+                        <Select
+                          label={t('storefront.footer.menu_links.target', 'Target')}
+                          value={link.target || '_self'}
+                          onChange={(value) =>
+                            handleMenuLinkUpdate(column.id, link.id, { target: value as FooterMenuLinkTarget })
+                          }
+                          options={menuLinkTargetOptions}
+                        />
+                        <Toggle
+                          checked={link.isActive !== false}
+                          onChange={(checked) =>
+                            handleMenuLinkUpdate(column.id, link.id, { isActive: checked })
+                          }
+                          label={t('storefront.footer.menu_links.visible', 'Visible')}
+                          description={t(
+                            'storefront.footer.menu_links.visible_hint',
+                            'Hide without deleting by turning this off.'
+                          )}
+                        />
+                      </div>
+                    </div>
+                    );
+                  })
+                ) : (
+                  <p className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-4 text-sm text-gray-500">
+                    {t(
+                      'storefront.footer.menu_links.empty',
+                      'Add at least one link to display this column.'
+                    )}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
+          {draft.menuColumns.length === 0 && (
+            <p className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-4 text-sm text-gray-500">
+              {t(
+                'storefront.footer.menu_columns.empty',
+                'No footer columns yet. Add your first column to start building the footer menu.'
+              )}
+            </p>
+          )}
         </div>
       </div>
 

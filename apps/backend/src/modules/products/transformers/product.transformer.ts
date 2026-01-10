@@ -29,6 +29,7 @@ export interface TransformedProduct {
   enableWarehouseQuantity: boolean;
   createdAt: Date;
   updatedAt: Date;
+  createdBy: string | null;
 
   // Related data
   brand: TransformedBrand | null;
@@ -225,6 +226,7 @@ export class ProductTransformer {
       enableWarehouseQuantity: product.enableWarehouseQuantity || false,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
+      createdBy: product.createdBy || null,
 
       // Related data
       brand,

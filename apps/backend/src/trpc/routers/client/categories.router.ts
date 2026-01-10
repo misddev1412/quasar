@@ -13,7 +13,7 @@ export class ClientCategoriesRouter {
     private readonly categoryRepository: CategoryRepository,
     @Inject(ResponseService)
     private readonly responseHandler: ResponseService,
-  ) {}
+  ) { }
 
   @Query({
     output: apiResponseSchema,
@@ -51,7 +51,7 @@ export class ClientCategoriesRouter {
     try {
       const { id } = params;
 
-      const category = await this.categoryRepository.findById(id);
+      const category = await this.categoryRepository.findById(id, ['translations']);
 
       if (!category || !category.isActive) {
         throw new Error('Category not found');
@@ -99,20 +99,37 @@ export class ClientCategoriesRouter {
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const { slug } = params;
+      let category = null;
 
-      // For now, search by name since slug isn't implemented in the entity
-      const categories = await this.categoryRepository.findMany({
-        page: 1,
-        limit: 1,
-        search: slug.replace(/-/g, ' '),
-        isActive: true,
-      });
+      // 1. Try to find by UUID if it looks like one
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (uuidRegex.test(slug)) {
+        category = await this.categoryRepository.findById(slug);
+      }
 
-      if (!categories.items || categories.items.length === 0) {
+      // 2. If not found by ID, try to find by slug
+      if (!category) {
+        category = await this.categoryRepository.findBySlugWithTranslation(slug);
+      }
+
+      // 3. Fallback: search by name (legacy behavior)
+      if (!category) {
+        const categories = await this.categoryRepository.findMany({
+          page: 1,
+          limit: 1,
+          search: slug.replace(/-/g, ' '),
+          isActive: true,
+        });
+        if (categories.items && categories.items.length > 0) {
+          category = categories.items[0];
+        }
+      }
+
+      if (!category) {
         throw new Error('Category not found');
       }
 
-      const formattedCategory = this.formatCategoryForResponse(categories.items[0]);
+      const formattedCategory = this.formatCategoryForResponse(category);
 
       return this.responseHandler.createTrpcSuccess(formattedCategory);
     } catch (error) {
@@ -162,6 +179,16 @@ export class ClientCategoriesRouter {
       description: category.description,
       parentId: category.parentId,
       image: category.image,
+      heroBackgroundImage: category.heroBackgroundImage,
+      heroOverlayEnabled: category.heroOverlayEnabled,
+      heroOverlayColor: category.heroOverlayColor,
+      heroOverlayOpacity: category.heroOverlayOpacity,
+      showTitle: category.showTitle,
+      showProductCount: category.showProductCount,
+      showSubcategoryCount: category.showSubcategoryCount,
+      showCta: category.showCta,
+      ctaLabel: category.ctaLabel,
+      ctaUrl: category.ctaUrl,
       isActive: category.isActive,
       sortOrder: category.sortOrder,
       level: category.level,

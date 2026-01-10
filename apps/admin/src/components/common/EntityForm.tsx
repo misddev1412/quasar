@@ -28,6 +28,7 @@ export function EntityForm<T extends FieldValues = FieldValues>({
   initialValues = {} as Partial<T>,
   onSubmit,
   isSubmitting = false,
+  isDisabled = false,
   customActions,
   submitButtonText = 'Create',
   cancelButtonText = 'Cancel',
@@ -105,11 +106,13 @@ export function EntityForm<T extends FieldValues = FieldValues>({
 
   return (
     <form onSubmit={handleFormSubmit} className={clsx('space-y-4', className)}>
-      <Tabs
-        tabs={tabsConfig}
-        activeTab={activeTab}
-        onTabChange={handleTabChange} // Handle tab changes with URL persistence
-      />
+      <fieldset className="m-0 min-w-0 border-0 p-0" disabled={isDisabled}>
+        <Tabs
+          tabs={tabsConfig}
+          activeTab={activeTab}
+          onTabChange={handleTabChange} // Handle tab changes with URL persistence
+        />
+      </fieldset>
 
       {/* Form Actions */}
       <div
@@ -125,7 +128,7 @@ export function EntityForm<T extends FieldValues = FieldValues>({
                 type="button"
                 variant="outline"
                 onClick={onCancel}
-                disabled={isSubmitting}
+                disabled={isSubmitting || isDisabled}
               >
                 {cancelButtonText}
               </Button>
@@ -137,7 +140,7 @@ export function EntityForm<T extends FieldValues = FieldValues>({
                   variant="secondary"
                   onClick={() => handleSubmitActionSelect('save_and_stay')}
                   isLoading={isSubmitting && lastSubmitAction === 'save_and_stay'}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isDisabled}
                 >
                   {isSubmitting && lastSubmitAction === 'save_and_stay'
                     ? t('common.saving', 'Saving...')
@@ -148,7 +151,7 @@ export function EntityForm<T extends FieldValues = FieldValues>({
                   variant="primary"
                   onClick={() => handleSubmitActionSelect('save')}
                   isLoading={isSubmitting && lastSubmitAction === 'save'}
-                  disabled={isSubmitting && lastSubmitAction !== 'save'}
+                  disabled={isDisabled || (isSubmitting && lastSubmitAction !== 'save')}
                 >
                   {isSubmitting && lastSubmitAction === 'save'
                     ? t('common.saving', 'Saving...')
@@ -160,7 +163,7 @@ export function EntityForm<T extends FieldValues = FieldValues>({
                 type="submit"
                 variant="primary"
                 isLoading={isSubmitting}
-                disabled={isSubmitting}
+                disabled={isSubmitting || isDisabled}
                 onClick={() => handleSubmitActionSelect('save')}
               >
                 {submitButtonText}

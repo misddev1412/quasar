@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { FileText, ArrowLeft, FolderOpen } from 'lucide-react';
 import { FiHome, FiEdit3 } from 'react-icons/fi';
 import { Card, CardHeader, CardContent } from '../../components/common/Card';
@@ -11,6 +11,9 @@ import { useUrlTabs } from '../../hooks/useUrlTabs';
 import { useToast } from '../../context/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { FormSubmitOptions, FormSubmitAction } from '../../types/forms';
+import { useAuth } from '../../hooks/useAuth';
+import { canEditRouteResource } from '../../utils/permission-access';
+import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 
 interface UpdatePostPayload {
   status: 'draft' | 'published' | 'archived' | 'scheduled';
@@ -57,6 +60,8 @@ const EditPostPage: React.FC = () => {
   const { t } = useTranslationWithBackend();
   const [showMediaManager, setShowMediaManager] = useState(false);
   const lastSubmitActionRef = useRef<FormSubmitAction>('save');
+  const { user } = useAuth();
+  const location = useLocation();
 
   // Use URL tabs hook with tab keys for clean URLs
   const { activeTab, handleTabChange } = useUrlTabs({
@@ -70,6 +75,16 @@ const EditPostPage: React.FC = () => {
     { id: id as string },
     { enabled: !!id }
   );
+
+  const post = (postData as any)?.data;
+  const postOwnerId =
+    post?.author?.id ||
+    post?.authorId ||
+    post?.author_id ||
+    post?.createdBy ||
+    post?.created_by;
+  const canEdit = canEditRouteResource(location.pathname, user, postOwnerId);
+  const isEditRestricted = Boolean(post) && !canEdit;
 
   // tRPC mutation for updating post
   const updatePostMutation = trpc.adminPosts.updatePost.useMutation({
@@ -98,7 +113,6 @@ const EditPostPage: React.FC = () => {
 
   // Transform post data for the form
   const initialFormData = useMemo(() => {
-    const post = (postData as any)?.data;
     if (!post) return {};
     
     return {
@@ -120,7 +134,7 @@ const EditPostPage: React.FC = () => {
       additionalTranslations: post?.translations?.slice(1) || [], // Additional translations excluding the first one
       categoryIds: post?.categories?.map((category: any) => category.id) || [],
     };
-  }, [postData]);
+  }, [post]);
 
   // Handle missing ID early (after all hooks)
   if (!id) {
@@ -129,6 +143,18 @@ const EditPostPage: React.FC = () => {
   }
 
   const handleSubmit = async (formData: any, options?: FormSubmitOptions) => {
+    if (isEditRestricted) {
+      addToast({
+        type: 'error',
+        title: t('common.permission_denied', 'Permission denied'),
+        description: t(
+          'posts.edit_restricted',
+          'You can only edit posts you created unless you are an admin.'
+        ),
+      });
+      return;
+    }
+
     // Track the submit action
     lastSubmitActionRef.current = options?.submitAction || 'save';
 
@@ -208,6 +234,7 @@ const EditPostPage: React.FC = () => {
       onClick: () => setShowMediaManager(true),
       icon: <FolderOpen className="w-4 h-4" />,
       variant: 'primary' as const,
+      disabled: isEditRestricted,
     },
   ];
 
@@ -246,14 +273,28 @@ const EditPostPage: React.FC = () => {
     }
 
     return (
-      <EditPostForm
-        initialData={initialFormData}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        isSubmitting={updatePostMutation.isPending}
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-      />
+      <>
+        {isEditRestricted && (
+          <Alert variant="warning">
+            <AlertTitle>{t('common.permission_denied', 'Permission denied')}</AlertTitle>
+            <AlertDescription>
+              {t(
+                'posts.edit_restricted',
+                'You can only edit posts you created unless you are an admin.'
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+        <EditPostForm
+          initialData={initialFormData}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          isSubmitting={updatePostMutation.isPending}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          readonly={isEditRestricted}
+        />
+      </>
     );
   };
 

@@ -51,6 +51,26 @@ export interface FooterExtraLink {
   isActive: boolean;
 }
 
+export type FooterMenuLinkTarget = '_self' | '_blank';
+export type FooterMenuLinkType = 'external' | 'product' | 'category' | 'post' | 'site_content';
+
+export interface FooterMenuLinkConfig {
+  id: string;
+  label: string;
+  url: string;
+  linkType?: FooterMenuLinkType;
+  referenceId?: string;
+  target?: FooterMenuLinkTarget;
+  isActive?: boolean;
+}
+
+export interface FooterMenuColumnConfig {
+  id: string;
+  title?: string;
+  links: FooterMenuLinkConfig[];
+  isActive?: boolean;
+}
+
 export type VisitorAnalyticsMetricType = 'visitors' | 'pageViews' | 'topPage' | 'lastUpdated';
 
 export interface VisitorAnalyticsCardConfig {
@@ -83,6 +103,7 @@ export interface FooterConfig {
   brandLayout?: FooterBrandLayout;
   menuLayout: FooterMenuLayout;
   columnsPerRow: number;
+  menuColumns?: FooterMenuColumnConfig[];
   socialLinks: FooterSocialLink[];
   extraLinks: FooterExtraLink[];
   showNewsletter: boolean;
@@ -144,6 +165,7 @@ export const DEFAULT_FOOTER_CONFIG: FooterConfig = {
   brandLayout: 'inline',
   menuLayout: 'columns',
   columnsPerRow: 3,
+  menuColumns: [],
   socialLinks: [
     {
       id: 'facebook',
@@ -228,6 +250,16 @@ const clampLogoSize = (value?: number) => {
   return Math.min(640, Math.max(24, Math.round(value)));
 };
 
+const isValidMenuTarget = (value?: string): value is FooterMenuLinkTarget =>
+  value === '_self' || value === '_blank';
+
+const isValidFooterLinkType = (value?: string): value is FooterMenuLinkType =>
+  value === 'external' ||
+  value === 'product' ||
+  value === 'category' ||
+  value === 'post' ||
+  value === 'site_content';
+
 const isValidBrandLayout = (value?: string): value is FooterBrandLayout => {
   if (!value) {
     return false;
@@ -296,6 +328,35 @@ const sanitizeMenuTypography = (
     : DEFAULT_MENU_TYPOGRAPHY.textTransform,
 });
 
+const sanitizeMenuColumns = (
+  columns?: FooterMenuColumnConfig[]
+): FooterMenuColumnConfig[] => {
+  if (!Array.isArray(columns)) {
+    return [];
+  }
+
+  return columns
+    .filter((column): column is FooterMenuColumnConfig => Boolean(column))
+    .map((column, columnIndex) => ({
+      id: column.id || `footer-column-${columnIndex}`,
+      title: column.title?.trim() || '',
+      isActive: column.isActive !== undefined ? Boolean(column.isActive) : true,
+      links: Array.isArray(column.links)
+        ? column.links
+            .filter((link): link is FooterMenuLinkConfig => Boolean(link))
+            .map((link, linkIndex) => ({
+              id: link.id || `footer-link-${columnIndex}-${linkIndex}`,
+              label: link.label?.trim() || '',
+              url: link.url?.trim() || '',
+              linkType: isValidFooterLinkType(link.linkType) ? link.linkType : 'external',
+              referenceId: link.referenceId?.trim() || '',
+              target: isValidMenuTarget(link.target) ? link.target : '_self',
+              isActive: link.isActive !== undefined ? Boolean(link.isActive) : true,
+            }))
+        : [],
+    }));
+};
+
 export const createFooterConfig = (override?: Partial<FooterConfig>): FooterConfig => {
   const base: FooterConfig = {
     ...DEFAULT_FOOTER_CONFIG,
@@ -349,6 +410,7 @@ export const createFooterConfig = (override?: Partial<FooterConfig>): FooterConf
             order: typeof link.order === 'number' ? link.order : index,
           }))
       : base.extraLinks,
+    menuColumns: sanitizeMenuColumns(override.menuColumns ?? base.menuColumns),
     widget: override.widget
       ? (() => {
           const overrideWidget = override.widget!;

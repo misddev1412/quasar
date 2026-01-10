@@ -9,6 +9,7 @@ interface SiteContentSelectorProps {
   onChange: (value: string | undefined) => void;
   placeholder?: string;
   disabled?: boolean;
+  valueType?: 'id' | 'slug';
 }
 
 export const SiteContentSelector: React.FC<SiteContentSelectorProps> = ({
@@ -16,6 +17,7 @@ export const SiteContentSelector: React.FC<SiteContentSelectorProps> = ({
   onChange,
   placeholder = 'Select site content...',
   disabled = false,
+  valueType = 'id',
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -27,7 +29,7 @@ export const SiteContentSelector: React.FC<SiteContentSelectorProps> = ({
   });
 
   const options: SelectOption[] = siteContentOptions.map((content: SiteContentOption) => ({
-    value: content.id,
+    value: valueType === 'slug' ? content.slug : content.id,
     label: `${content.title} (${content.code})`,
     description: `${content.category} - ${content.languageCode}`,
   }));

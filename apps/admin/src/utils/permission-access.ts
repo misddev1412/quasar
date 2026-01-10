@@ -1,4 +1,4 @@
-import { PermissionScope } from '@shared';
+import { PermissionAction, PermissionScope } from '@shared';
 import { getRoutePermission } from '../config/route-permissions';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,6 +19,26 @@ export function isSuperAdminUser(user: UserRecord): boolean {
   const normalizedRole = String(roleValue || '').toLowerCase();
 
   return normalizedRole === 'super_admin' || normalizedRole === 'superadmin' || roleValue === 'SUPER_ADMIN';
+}
+
+export function isAdminUser(user: UserRecord): boolean {
+  if (!user) {
+    return false;
+  }
+
+  if (isSuperAdminUser(user)) {
+    return true;
+  }
+
+  const role = user.role;
+  const roleValue = typeof role === 'string'
+    ? role
+    : typeof role === 'object' && role?.code
+    ? role.code
+    : '';
+  const normalizedRole = String(roleValue || '').toLowerCase();
+
+  return normalizedRole === 'admin' || roleValue === 'ADMIN';
 }
 
 export function hasPermissionForRoute(path: string, user: UserRecord): boolean {
@@ -63,4 +83,77 @@ export function hasPermissionForRoute(path: string, user: UserRecord): boolean {
 
     return permissionScope === requiredScope || permissionScope === PermissionScope.ANY;
   });
+}
+
+function hasScopePermission(
+  user: UserRecord,
+  resource: string,
+  action: PermissionAction,
+  scope: PermissionScope
+): boolean {
+  if (!user) {
+    return false;
+  }
+
+  if (isSuperAdminUser(user)) {
+    return true;
+  }
+
+  const userPermissions = Array.isArray(user.permissions) ? user.permissions : [];
+  if (userPermissions.length === 0) {
+    return false;
+  }
+
+  const requiredResource = String(resource).toLowerCase();
+  const requiredAction = String(action).toLowerCase();
+  const requiredScope = String(scope).toLowerCase();
+
+  return userPermissions.some((permission) => {
+    if (!permission || permission.isActive === false) {
+      return false;
+    }
+
+    const permissionResource = String(permission.resource || '').toLowerCase();
+    const permissionAction = String(permission.action || '').toLowerCase();
+    const permissionScope = String(permission.scope || '').toLowerCase();
+
+    return (
+      permissionResource === requiredResource &&
+      permissionAction === requiredAction &&
+      permissionScope === requiredScope
+    );
+  });
+}
+
+export function canEditRouteResource(
+  path: string,
+  user: UserRecord,
+  ownerId?: string | null
+): boolean {
+  if (!user) {
+    return false;
+  }
+
+  if (isSuperAdminUser(user)) {
+    return true;
+  }
+
+  const requiredPermission = getRoutePermission(path);
+  if (!requiredPermission) {
+    return false;
+  }
+
+  if (requiredPermission.scope !== PermissionScope.OWN) {
+    return true;
+  }
+
+  if (hasScopePermission(user, requiredPermission.resource, requiredPermission.action, PermissionScope.ANY)) {
+    return true;
+  }
+
+  if (!ownerId || !user.id) {
+    return false;
+  }
+
+  return user.id === ownerId;
 }

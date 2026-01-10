@@ -28,12 +28,36 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
     }
   };
 
-  // Generate slug from name
-  const slug = name.toLowerCase().replace(/\s+/g, '-');
+  // Determine the best identifier for the link
+  // User prefers slugs over IDs for aesthetics/SEO.
+  // Priority:
+  // 1. Translation Slug (Official, stored in DB)
+  // 2. Name-based Slug (Generated, relies on backend fuzzy search)
+  // 3. ID (Fallback)
+
+  let linkSlug: string | undefined;
+
+  // 1. Try translation slug
+  if (Array.isArray(category.translations) && category.translations.length > 0) {
+    const translation = category.translations.find(t => t.slug);
+    if (translation && translation.slug) {
+      linkSlug = translation.slug;
+    }
+  }
+
+  // 2. Provide fallback: Name-based slug (User preference)
+  if (!linkSlug && name) {
+    linkSlug = name.toLowerCase().trim().replace(/\s+/g, '-');
+  }
+
+  // 3. Absolute fallback: ID
+  if (!linkSlug) {
+    linkSlug = id;
+  }
 
   return (
     <Link
-      href={`/categories/${slug}`}
+      href={`/categories/${linkSlug}`}
       className={`group ${className}`}
       onClick={handleClick}
     >
@@ -52,7 +76,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
             </div>
           )}
 
-  
+
           {/* Product Count Badge */}
           {showProductCount && productCount !== undefined && (
             <Chip

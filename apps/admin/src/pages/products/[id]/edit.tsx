@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Package } from 'lucide-react';
 import { FiHome, FiPackage } from 'react-icons/fi';
 import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
@@ -9,12 +9,17 @@ import { useToast } from '../../../context/ToastContext';
 import { useUrlTabs } from '../../../hooks/useUrlTabs';
 import { trpc } from '../../../utils/trpc';
 import { Product } from '../../../types/product';
+import { useAuth } from '../../../hooks/useAuth';
+import { canEditRouteResource } from '../../../utils/permission-access';
+import { Alert, AlertDescription, AlertTitle } from '../../../components/common/Alert';
 
 const EditProductPage: React.FC = () => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const location = useLocation();
   const trpcContext = trpc.useContext();
   const lastSubmitActionRef = useRef<ProductFormSubmitAction>('save');
 
@@ -37,6 +42,9 @@ const EditProductPage: React.FC = () => {
   );
 
   const product = (productData as any)?.data as Product;
+  const productOwnerId = product?.createdBy || (product as any)?.created_by;
+  const canEdit = canEditRouteResource(location.pathname, user, productOwnerId);
+  const isEditRestricted = Boolean(product) && !canEdit;
 
   const updateProductMutation = trpc.adminProducts.update.useMutation({
     onSuccess: async (_data, variables) => {
@@ -70,6 +78,17 @@ const EditProductPage: React.FC = () => {
 
   const handleSubmit = async (data: ProductFormData, options?: ProductFormSubmitOptions) => {
     if (!id) return;
+    if (isEditRestricted) {
+      addToast({
+        type: 'error',
+        title: t('common.permission_denied', 'Permission denied'),
+        description: t(
+          'products.edit_restricted',
+          'You can only edit products you created unless you are an admin.'
+        ),
+      });
+      return;
+    }
 
     try {
       lastSubmitActionRef.current =
@@ -118,6 +137,17 @@ const EditProductPage: React.FC = () => {
         }
       ]}
     >
+      {isEditRestricted && (
+        <Alert variant="warning">
+          <AlertTitle>{t('common.permission_denied', 'Permission denied')}</AlertTitle>
+          <AlertDescription>
+            {t(
+              'products.edit_restricted',
+              'You can only edit products you created unless you are an admin.'
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
       {product && (
         <ProductForm
           product={product}
@@ -127,6 +157,7 @@ const EditProductPage: React.FC = () => {
           activeTab={activeTab}
           onTabChange={handleTabChange}
           actionsAlignment="end"
+          readonly={isEditRestricted}
         />
       )}
     </CreatePageTemplate>
