@@ -139,7 +139,13 @@ export class AdminUserService {
     }
 
     try {
-      const updatedUser = await this.userRepository.update(id, updateUserDto);
+      const updateData: any = { ...updateUserDto };
+
+      if (updateUserDto.password) {
+        updateData.password = await this.authService.hashPassword(updateUserDto.password);
+      }
+
+      const updatedUser = await this.userRepository.update(id, updateData);
       if (!updatedUser) {
         throw this.responseHandler.createError(
           ApiStatusCodes.NOT_FOUND,

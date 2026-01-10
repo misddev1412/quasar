@@ -31,7 +31,7 @@ async function bootstrap() {
 
   const port = Number(process.env.BACKEND_PORT || process.env.PORT || 3000);
   await app.listen(port);
-  
+
   Logger.log(
     `🚀 Backend application is running on: http://localhost:${port}`
   );

@@ -7,14 +7,14 @@ import { CreateLanguageDto, UpdateLanguageDto, LanguageFiltersDto } from '../dto
 export class AdminLanguageService {
   constructor(
     private readonly languageRepository: LanguageRepository,
-  ) {}
+  ) { }
 
   /**
    * Get all languages with pagination and filtering
    */
   async getLanguages(filters: LanguageFiltersDto) {
     const { page = 1, limit = 10, search, isActive } = filters;
-    
+
     return this.languageRepository.findWithFilters({
       page,
       limit,
@@ -54,7 +54,12 @@ export class AdminLanguageService {
   async getDefaultLanguage(): Promise<Language> {
     const defaultLanguage = await this.languageRepository.findDefault();
     if (!defaultLanguage) {
-      // Fallback to English if no default is set
+      // Fallback to Vietnamese first, then English if no default is set
+      const vietnamese = await this.languageRepository.findByCode('vi');
+      if (vietnamese) {
+        return this.setDefaultLanguage(vietnamese.id);
+      }
+
       const english = await this.languageRepository.findByCode('en');
       if (english) {
         return this.setDefaultLanguage(english.id);

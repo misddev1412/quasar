@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { trpc, createTrpcClient } from '../utils/trpc';
 import { Toaster } from 'react-hot-toast';
+import { I18nProvider } from '../contexts/I18nContext';
 
 function QuasarApp({ Component, pageProps }: AppProps) {
   const [queryClient] = useState(
@@ -22,10 +23,10 @@ function QuasarApp({ Component, pageProps }: AppProps) {
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <>
+        <I18nProvider>
           <Component {...pageProps} />
           <Toaster position="top-right" />
-        </>
+        </I18nProvider>
       </QueryClientProvider>
     </trpc.Provider>
   );

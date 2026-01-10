@@ -76,13 +76,23 @@ export class AdminAuthRouter {
       }
 
 
-      // Check if the user has admin role
+      // Check if the user has any active admin permission (or super admin)
       const userWithRoles = await this.userRepository.findWithRoles(user.id);
-      const hasAdminRole = userWithRoles?.userRoles?.some(ur =>
-        ur.isActive && [UserRole.SUPER_ADMIN, UserRole.ADMIN].includes(ur.role?.code as UserRole)
-      );
+      const activeRoles = userWithRoles?.userRoles?.filter(ur => ur.isActive) || [];
+      const roleIds = activeRoles.map(ur => ur.roleId);
+      const permissions = await this.permissionRepository.findPermissionsByRoleIds(roleIds);
+      const isSuperAdmin = activeRoles.some(ur => ur.role?.code === UserRole.SUPER_ADMIN);
+      const hasAdminPermissions = permissions.length > 0;
+      const primaryRole = activeRoles[0]?.role?.code || UserRole.USER;
+      const permissionPayload = permissions.map(permission => ({
+        id: permission.id,
+        name: permission.name,
+        resource: permission.resource,
+        action: permission.action,
+        scope: permission.scope,
+      }));
 
-      if (!hasAdminRole) {
+      if (!isSuperAdmin && !hasAdminPermissions) {
         // Track failed admin access attempt
         await this.trackFailedLogin(activityContext, input.email, 'No admin access');
 
@@ -113,7 +123,9 @@ export class AdminAuthRouter {
           user: {
             id: user.id,
             email: user.email,
-            username: user.username
+            username: user.username,
+            role: isSuperAdmin ? UserRole.SUPER_ADMIN : primaryRole,
+            permissions: permissionPayload,
           },
           ...tokens
         }
@@ -187,6 +199,13 @@ export class AdminAuthRouter {
       const permissions = await this.permissionRepository.findPermissionsByRoleIds(roleIds);
       const isSuperAdmin = activeRoles?.some(ur => ur.role?.code === UserRole.SUPER_ADMIN);
       const hasAdminPermissions = permissions.length > 0;
+      const permissionPayload = permissions.map(permission => ({
+        id: permission.id,
+        name: permission.name,
+        resource: permission.resource,
+        action: permission.action,
+        scope: permission.scope,
+      }));
 
       if (!isSuperAdmin && !hasAdminPermissions) {
         throw this.responseHandler.createTRPCError(
@@ -206,7 +225,8 @@ export class AdminAuthRouter {
           email: user.email,
           username: user.username,
           role: ctx.user.role,
-          isActive: user.isActive
+          isActive: user.isActive,
+          permissions: permissionPayload,
         }
       );
     } catch (error) {

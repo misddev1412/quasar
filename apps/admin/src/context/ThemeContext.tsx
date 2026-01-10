@@ -187,11 +187,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // TRPC Hooks for backend sync
   const utils = trpc.useContext();
+  const hasAuthToken = typeof window !== 'undefined' && Boolean(localStorage.getItem('admin_access_token'));
   const { data: settingsData } = trpc.adminSettings.list.useQuery({
     group: 'appearance',
     limit: 100
   }, {
-    enabled: typeof window !== 'undefined'
+    enabled: hasAuthToken
   });
 
   const bulkUpdateMutation = trpc.adminSettings.bulkUpdate.useMutation({

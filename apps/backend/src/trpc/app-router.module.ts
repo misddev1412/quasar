@@ -22,11 +22,13 @@ import { ThemesModule } from '../modules/themes/themes.module';
 import { MenuModule } from '../modules/menus/menus.module';
 import { SiteContentModule } from '../modules/site-content/site-content.module';
 import { SharedModule } from '../modules/shared/shared.module';
+import { TranslationModule } from '../modules/translation/translation.module';
 import { ResponseService } from '../modules/shared/services/response.service';
 import { ClientNewsRouter } from './routers/client/news.router';
 import { ClientCategoriesRouter } from './routers/client/categories.router';
 import { ClientProductsRouter } from './routers/client/products.router';
 import { ClientBrandsRouter } from './routers/client/brands.router';
+import { TranslationRouter } from './routers/translation.router';
 import { SectionsRouter } from './routers/sections.router';
 import { AdminMenuRouter } from '../modules/menus/routers/admin-menu.router';
 import { ClientMenuRouter } from '../modules/menus/routers/client-menu.router';
@@ -83,6 +85,7 @@ import { PublicThemesRouter } from '../modules/themes/routers/public-themes.rout
     ComponentConfigsModule,
     ServicesModule,
     ThemesModule,
+    TranslationModule,
   ],
   providers: [
     ClientNewsRouter,
@@ -113,6 +116,8 @@ import { PublicThemesRouter } from '../modules/themes/routers/public-themes.rout
     ServicesRouter,
     AdminThemesRouter,
     PublicThemesRouter,
+    PublicThemesRouter,
+    TranslationRouter,
     ResponseService,
   ],
 })

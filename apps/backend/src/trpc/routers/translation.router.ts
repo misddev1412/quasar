@@ -5,6 +5,7 @@ import { TranslationService } from '../../modules/translation/services/translati
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { AuthMiddleware } from '../middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../middlewares/admin-role.middleware';
+import { AdminLanguageService } from '../../modules/language/services/admin-language.service';
 import { ApiStatusCodes, MessageLevelCode } from '@shared';
 import { ModuleCode, OperationCode, ErrorLevelCode } from '@shared/enums/error-codes.enums';
 import { apiResponseSchema } from '../schemas/response.schemas';
@@ -43,24 +44,31 @@ const deleteTranslationSchema = z.object({
 
 @Router({ alias: 'translation' })
 @Injectable()
-export class TranslationRouter  {
+export class TranslationRouter {
   constructor(
     @Inject(TranslationService)
     private readonly translationService: TranslationService,
     @Inject(ResponseService)
     private readonly responseHandler: ResponseService,
-  ) {}
+    @Inject(AdminLanguageService)
+    private readonly languageService: AdminLanguageService,
+  ) { }
 
   @Query({
     output: apiResponseSchema,
   })
   async getLocaleConfig(): Promise<z.infer<typeof apiResponseSchema>> {
     try {
+      const [defaultLang, activeLangs] = await Promise.all([
+        this.languageService.getDefaultLanguage(),
+        this.languageService.getActiveLanguages(),
+      ]);
+
       const config = {
-        defaultLocale: 'vi' as const,
-        supportedLocales: ['vi', 'en'] as const,
+        defaultLocale: defaultLang.code,
+        supportedLocales: activeLangs.map(l => l.code),
       };
-      
+
       return this.responseHandler.createSuccessResponse(
         ModuleCode.TRANSLATION,
         OperationCode.READ,
@@ -87,12 +95,12 @@ export class TranslationRouter  {
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       const translations = await this.translationService.getTranslations(input.locale);
-      
+
       const result = {
         locale: input.locale,
         translations,
       };
-      
+
       return this.responseHandler.createSuccessResponse(
         ModuleCode.TRANSLATION,
         OperationCode.READ,
@@ -123,7 +131,7 @@ export class TranslationRouter  {
         input.locale,
         input.defaultValue
       );
-      
+
       return this.responseHandler.createSuccessResponse(
         ModuleCode.TRANSLATION,
         OperationCode.READ,
@@ -156,7 +164,7 @@ export class TranslationRouter  {
         input.value,
         input.namespace
       );
-      
+
       return this.responseHandler.createCreatedResponse(
         ModuleCode.TRANSLATION,
         'translation',
@@ -187,7 +195,7 @@ export class TranslationRouter  {
         input.value,
         input.namespace
       );
-      
+
       return this.responseHandler.createUpdatedResponse(
         ModuleCode.TRANSLATION,
         'translation',
@@ -216,7 +224,7 @@ export class TranslationRouter  {
         input.key,
         input.locale
       );
-      
+
       if (!success) {
         throw this.responseHandler.createError(
           ApiStatusCodes.NOT_FOUND,
@@ -224,7 +232,7 @@ export class TranslationRouter  {
           'NOT_FOUND'
         );
       }
-      
+
       return this.responseHandler.createDeletedResponse(
         ModuleCode.TRANSLATION,
         'translation'
@@ -246,7 +254,7 @@ export class TranslationRouter  {
   async clearCache(): Promise<z.infer<typeof apiResponseSchema>> {
     try {
       this.translationService.clearCache();
-      
+
       return this.responseHandler.createSuccessResponse(
         ModuleCode.TRANSLATION,
         OperationCode.UPDATE,

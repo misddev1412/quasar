@@ -1,12 +1,13 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FiLock, FiHome, FiArrowLeft } from 'react-icons/fi';
+import { FiLock, FiMail } from 'react-icons/fi';
 import SeoHead from '../components/SEO/SeoHead';
 import { SeoData } from '../hooks/useSeo';
+import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 
 export const Unauthorized: React.FC = () => {
-  const navigate = useNavigate();
-  
+  const { t } = useTranslationWithBackend();
+  const supportEmail = t('help.support_email', 'support@quasar.dev');
+
   // Define static SEO data for unauthorized page
   const seoData: SeoData = {
     path: '/unauthorized',
@@ -38,25 +39,14 @@ export const Unauthorized: React.FC = () => {
             Xin lỗi, bạn không có quyền truy cập vào trang này. 
             Vui lòng liên hệ quản trị viên nếu bạn cần quyền truy cập.
           </p>
-          
-          {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
-            >
-              <FiArrowLeft className="w-5 h-5" />
-              Quay lại
-            </button>
-            
-            <Link 
-              to="/" 
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg transition-colors"
-            >
-              <FiHome className="w-5 h-5" />
-              Về trang chủ
-            </Link>
-          </div>
+
+          <button
+            onClick={() => { window.location.href = `mailto:${supportEmail}`; }}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg transition-colors"
+          >
+            <FiMail className="w-5 h-5" />
+            Liên hệ quản trị viên
+          </button>
         </div>
       </div>
     </>
@@ -64,8 +54,6 @@ export const Unauthorized: React.FC = () => {
 };
 
 export default Unauthorized;
-
-
 
 
 

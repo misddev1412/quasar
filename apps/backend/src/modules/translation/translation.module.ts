@@ -7,11 +7,13 @@ import { AdminTranslationService } from './services/admin-translation.service';
 import { TranslationRouter } from '../../trpc/routers/translation.router';
 import { AdminTranslationRouter } from './routers/admin-translation.router';
 import { SharedModule } from '../shared/shared.module';
+import { LanguageModule } from '../language/language.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Translation]),
-    SharedModule
+    SharedModule,
+    LanguageModule
   ],
   providers: [
     TranslationRepository,
@@ -28,4 +30,4 @@ import { SharedModule } from '../shared/shared.module';
     AdminTranslationRouter
   ]
 })
-export class TranslationModule {} 
+export class TranslationModule { } 

@@ -176,6 +176,7 @@ const UserUpdatePage: React.FC = () => {
         username: formData.username,
         isActive: formData.isActive,
         role: nextRole,
+        password: formData.newPassword,
       } as any);
 
       // 2) Update profile fields — now allowed for any user by admin
@@ -188,24 +189,7 @@ const UserUpdatePage: React.FC = () => {
         } as any);
       }
 
-      const isEditingSelf = authUser?.id === id;
-
-
-      // 3) Update password — remove current password verification on this page
-      if (formData.newPassword) {
-        if (isEditingSelf) {
-          await updatePasswordMutation.mutateAsync({
-            newPassword: formData.newPassword as string,
-          } as any);
-        } else {
-          // TODO: When backend adds admin endpoint to set another user's password by id, call it here
-          addToast({
-            type: 'info',
-            title: t('common.info', 'Info'),
-            description: t('messages.password_update_admin_limit', 'Admins can update other users\' passwords without current password once backend supports it. Currently not available.')
-          });
-        }
-      }
+      // Password update is now handled in step 1
 
       // Invalidate queries to refresh data
       trpcContext.adminUser.getAllUsers.invalidate();
@@ -325,37 +309,37 @@ const UserUpdatePage: React.FC = () => {
       label: t('form.tabs.preferences', 'Preferences'),
       icon: <SettingsIcon className="w-4 h-4" />,
       sections: [
+        {
+          title: t('form.sections.notification_settings', 'Notification settings'),
+          description: t('form.sections.notification_settings_description', 'Choose which updates this user receives.'),
+          icon: <SettingsIcon className="w-4 h-4" />,
+          fields: [
             {
-              title: t('form.sections.notification_settings', 'Notification settings'),
-              description: t('form.sections.notification_settings_description', 'Choose which updates this user receives.'),
-              icon: <SettingsIcon className="w-4 h-4" />,
-              fields: [
-                {
-                  name: 'emailNotifications',
-                  label: t('user.email_notifications', 'Email notifications'),
-                  type: 'checkbox',
-                  required: false,
-                  description: t('form.descriptions.email_notifications_description', 'Allow transactional or system emails.'),
-                },
-                {
-                  name: 'smsNotifications',
-                  label: t('user.sms_notifications', 'SMS notifications'),
-                  type: 'checkbox',
-                  required: false,
-                  description: t('form.descriptions.sms_notifications_description', 'Allow SMS alerts if a valid phone number exists.'),
-                },
-                {
-                  name: 'marketingEmails',
-                  label: t('user.marketing_emails', 'Marketing emails'),
-                  type: 'checkbox',
-                  required: false,
-                  description: t('form.descriptions.marketing_emails_description', 'Subscribe the user to marketing updates.'),
-                },
-              ],
+              name: 'emailNotifications',
+              label: t('user.email_notifications', 'Email notifications'),
+              type: 'checkbox',
+              required: false,
+              description: t('form.descriptions.email_notifications_description', 'Allow transactional or system emails.'),
+            },
+            {
+              name: 'smsNotifications',
+              label: t('user.sms_notifications', 'SMS notifications'),
+              type: 'checkbox',
+              required: false,
+              description: t('form.descriptions.sms_notifications_description', 'Allow SMS alerts if a valid phone number exists.'),
+            },
+            {
+              name: 'marketingEmails',
+              label: t('user.marketing_emails', 'Marketing emails'),
+              type: 'checkbox',
+              required: false,
+              description: t('form.descriptions.marketing_emails_description', 'Subscribe the user to marketing updates.'),
             },
           ],
         },
-      ];
+      ],
+    },
+  ];
 
   const actions = [
     {
@@ -427,22 +411,22 @@ const UserUpdatePage: React.FC = () => {
         />
 
         <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="flex-shrink-0 w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
-              <UserIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-3">
+              <div className="flex-shrink-0 w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
+                <UserIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  {t('admin.user_information')}
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {t('admin.user_information_description')}
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                {t('admin.user_information')}
-              </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {t('admin.user_information_description')}
-              </p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0">{renderContent()}</CardContent>
+          </CardHeader>
+          <CardContent className="pt-0">{renderContent()}</CardContent>
         </Card>
       </div>
     </BaseLayout>

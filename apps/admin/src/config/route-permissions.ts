@@ -33,6 +33,10 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   
   // Settings
   '/settings': { resource: 'setting', action: PermissionAction.READ, scope: PermissionScope.ANY },
+  '/settings/admin-branding': { resource: 'setting', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
+  '/settings/maintenance': { resource: 'setting', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
+  '/settings/orders': { resource: 'setting', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
+  '/settings/theme': { resource: 'setting', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
   '/settings/floating-icons': { resource: 'setting', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
   '/settings/visibility': { resource: 'setting', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
   
@@ -66,13 +70,23 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   '/email-flows': { resource: 'email_flow', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/email-flows/create': { resource: 'email_flow', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
   '/email-flows/:id/edit': { resource: 'email_flow', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
+
+  // Mail Logs
+  '/mail-logs': { resource: 'mail_log', action: PermissionAction.READ, scope: PermissionScope.ANY },
+  '/mail-logs/:id': { resource: 'mail_log', action: PermissionAction.READ, scope: PermissionScope.ANY },
   
   // Posts
   '/posts': { resource: 'post', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/posts/create': { resource: 'post', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
   '/posts/:id': { resource: 'post', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
+  '/posts/:id/detail': { resource: 'post', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/posts/categories': { resource: 'post_category', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/posts/tags': { resource: 'post_tag', action: PermissionAction.READ, scope: PermissionScope.ANY },
+
+  // Services
+  '/services': { resource: 'service', action: PermissionAction.READ, scope: PermissionScope.ANY },
+  '/services/create': { resource: 'service', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
+  '/services/:id/edit': { resource: 'service', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
   
   // Site Content
   '/site-content': { resource: 'site_content', action: PermissionAction.READ, scope: PermissionScope.ANY },
@@ -83,6 +97,11 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   '/languages': { resource: 'language', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/languages/create': { resource: 'language', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
   '/languages/:id/edit': { resource: 'language', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
+
+  // Translations
+  '/translations': { resource: 'translation', action: PermissionAction.READ, scope: PermissionScope.ANY },
+  '/translations/create': { resource: 'translation', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
+  '/translations/:id/edit': { resource: 'translation', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
   
   // Currencies
   '/currencies': { resource: 'currency', action: PermissionAction.READ, scope: PermissionScope.ANY },
@@ -109,7 +128,9 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   
   // Products
   '/products': { resource: 'product', action: PermissionAction.READ, scope: PermissionScope.ANY },
+  '/products/exports': { resource: 'product', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/products/create': { resource: 'product', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
+  '/products/:id': { resource: 'product', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/products/:id/edit': { resource: 'product', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
   '/products/attributes': { resource: 'product_attribute', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/products/brands': { resource: 'product_brand', action: PermissionAction.READ, scope: PermissionScope.ANY },
@@ -138,6 +159,9 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   
   // Support Clients
   '/support-clients': { resource: 'support_client', action: PermissionAction.READ, scope: PermissionScope.ANY },
+
+  // Messages
+  '/messages': { resource: 'message', action: PermissionAction.READ, scope: PermissionScope.ANY },
   
   // Sections
   '/sections/:page': { resource: 'section', action: PermissionAction.READ, scope: PermissionScope.ANY },
@@ -157,6 +181,7 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   
   // Orders
   '/orders': { resource: 'order', action: PermissionAction.READ, scope: PermissionScope.ANY },
+  '/orders/exports': { resource: 'order', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/orders/new': { resource: 'order', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
   '/orders/:id': { resource: 'order', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/orders/:id/edit': { resource: 'order', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
@@ -183,6 +208,9 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   
   // Help
   '/help': { resource: 'help', action: PermissionAction.READ, scope: PermissionScope.ANY },
+
+  // Themes
+  '/themes': { resource: 'theme', action: PermissionAction.READ, scope: PermissionScope.ANY },
 };
 
 /**
@@ -213,4 +241,3 @@ export function getRoutePermission(path: string): RoutePermission | null {
     scope: PermissionScope.ANY,
   };
 }
-

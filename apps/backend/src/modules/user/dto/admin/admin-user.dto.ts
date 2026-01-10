@@ -48,6 +48,11 @@ export class AdminUpdateUserDto {
   isActive?: boolean;
 
   @IsOptional()
+  @IsString()
+  @MinLength(8)
+  password?: string;
+
+  @IsOptional()
   @IsEnum(UserRole)
   role?: UserRole;
 }

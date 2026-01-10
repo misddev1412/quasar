@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import useAuthVerification from '../hooks/useAuthVerification';
 import Home from '../pages/Home';
@@ -140,6 +140,7 @@ import { PhoneInputTest } from '../components/test/PhoneInputTest';
 import { VisitorAnalyticsPage } from '../components/visitor-analytics';
 import VisitorAnalyticsPageWrapper from '../components/visitor-analytics/VisitorAnalyticsPageWrapper';
 import AppLayout from '../components/layout/AppLayout';
+import { hasPermissionForRoute, isSuperAdminUser } from '../utils/permission-access';
 
 // 优化 ProtectedRoute 支持 children 形式，避免不必要的 profile 拉取
 interface ProtectedRouteProps {
@@ -147,7 +148,8 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
+  const location = useLocation();
 
   // Use the auth verification hook to automatically verify authentication on protected pages
   useAuthVerification();
@@ -165,7 +167,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <Navigate to="/auth/login" replace />;
   }
 
-  // Let backend API handle permission checks - if API returns 403, error link will redirect to /unauthorized
+  if (user && !isSuperAdminUser(user) && user.permissions === undefined) {
+    return (
+      <AppLayout>
+        <div className="flex justify-center items-center h-[70vh]">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary-500"></div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!hasPermissionForRoute(location.pathname, user)) {
+    return (
+      <AppLayout>
+        <Unauthorized />
+      </AppLayout>
+    );
+  }
+
   return <AppLayout>{children}</AppLayout>;
 };
 
