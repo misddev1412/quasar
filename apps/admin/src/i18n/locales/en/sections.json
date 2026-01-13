@@ -62,6 +62,16 @@
                 "noDedicatedEditor": "No dedicated editor for this type yet. Switch to raw JSON mode.",
                 "openJsonEditor": "Open JSON editor"
             },
+            "tabs": {
+                "content": "Content",
+                "heading": "Heading",
+                "productsDisplay": "Products & Display",
+                "categories": "Categories",
+                "sidebar": "Sidebar",
+                "brands": "Brands",
+                "testimonials": "Testimonials",
+                "display": "Display"
+            },
             "form": {
                 "page": "Page",
                 "pagePlaceholder": "Select a page...",
@@ -586,6 +596,29 @@
                     "showReadMore": "Show \"Read more\" link"
                 }
             },
+            "headingConfig": {
+                "headingStyle": "Heading Style",
+                "headingStyleDefault": "Default",
+                "headingStyleBanner": "Color Bar",
+                "titleCase": "Title Case",
+                "titleCaseOptions": {
+                    "normal": "Normal",
+                    "uppercase": "Uppercase",
+                    "capitalize": "Capitalize",
+                    "lowercase": "Lowercase"
+                },
+                "defaultPlaceholder": "Default",
+                "titleSize": "Title Size & Bar Height",
+                "sizePresets": {
+                    "mini": "Mini (XS / 40px)",
+                    "compact": "Compact (SM / 48px)",
+                    "standard": "Standard (MD / 56px)",
+                    "spacious": "Spacious (LG / 72px)",
+                    "hero": "Hero (XL / 88px)"
+                },
+                "headingBackground": "Heading Background",
+                "headingText": "Heading Text"
+            },
             "productsByCategory": {
                 "strategy": {
                     "latest": "Latest Products",
@@ -599,6 +632,11 @@
                 "sidebarNote": "Edit mega menu content in Component Configs > products_by_category.",
                 "displayCategories": "Display Categories",
                 "displayCategoriesDescription": "Add multiple categories to display featured products by group.",
+                "headingConfigAllTitle": "Heading config (apply to all)",
+                "headingConfigAllDescription": "Update once and apply to every category heading.",
+                "openHeadingConfigAll": "Open common config",
+                "closeHeadingConfigAll": "Hide common config",
+                "applyHeadingConfigAll": "Apply to all",
                 "addCategory": "Add Category",
                 "categoryIndex": "Category",
                 "categoryDescription": "Select category and product display style.",

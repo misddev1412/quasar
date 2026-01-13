@@ -19,6 +19,9 @@ export interface FeaturedProductsConfig {
   headingStyle?: 'default' | 'banner';
   headingBackgroundColor?: string;
   headingTextColor?: string;
+  headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
+  headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingBarHeight?: number;
 }
 
 interface FeaturedProductsProps {
@@ -99,6 +102,9 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
             headingStyle={config.headingStyle}
             headingBackgroundColor={config.headingBackgroundColor}
             headingTextColor={config.headingTextColor}
+            headingTextTransform={config.headingTextTransform}
+            headingTitleSize={config.headingTitleSize}
+            headingBarHeight={config.headingBarHeight}
           />
         )}
 

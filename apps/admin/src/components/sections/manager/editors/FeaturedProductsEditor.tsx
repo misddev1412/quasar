@@ -2,12 +2,13 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
 import { Input } from '../../../common/Input';
 import { Toggle } from '../../../common/Toggle';
+import Tabs from '../../../common/Tabs';
 import { trpc } from '../../../../utils/trpc';
 import SelectComponent, { components as selectComponents, type MenuListProps } from 'react-select';
 import { ConfigChangeHandler, ProductOption } from '../types';
 import { ensureNumber, mapProductToOption } from '../utils';
 import { Image as ImageIcon } from 'lucide-react';
-import { SectionHeadingConfig, SectionHeadingConfigData } from '../common/SectionHeadingConfig';
+import { SectionHeadingConfig, SectionHeadingConfigData, SectionHeadingTextTransform, SectionHeadingTitleSize } from '../common/SectionHeadingConfig';
 
 interface FeaturedProductsConfigEditorProps {
     value: Record<string, unknown>;
@@ -26,6 +27,9 @@ interface FeaturedProductsConfig {
     headingStyle?: HeadingStyle;
     headingBackgroundColor?: string;
     headingTextColor?: string;
+    headingTextTransform?: SectionHeadingTextTransform;
+    headingTitleSize?: SectionHeadingTitleSize;
+    headingBarHeight?: number;
     displayStyle?: string;
     itemsPerRow?: number;
 }
@@ -34,6 +38,7 @@ const DEFAULT_LIMIT = 4;
 
 export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditorProps> = ({ value, onChange }) => {
     const { t } = useTranslationWithBackend();
+    const [activeTab, setActiveTab] = useState(0);
 
     // Parse initial config
     const config = useMemo<FeaturedProductsConfig>(() => ({
@@ -46,6 +51,9 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
         headingStyle: (value?.headingStyle as HeadingStyle) || 'default',
         headingBackgroundColor: typeof value?.headingBackgroundColor === 'string' ? value.headingBackgroundColor : undefined,
         headingTextColor: typeof value?.headingTextColor === 'string' ? value.headingTextColor : undefined,
+        headingTextTransform: typeof value?.headingTextTransform === 'string' ? (value.headingTextTransform as SectionHeadingTextTransform) : undefined,
+        headingTitleSize: typeof value?.headingTitleSize === 'string' ? (value.headingTitleSize as SectionHeadingTitleSize) : undefined,
+        headingBarHeight: typeof value?.headingBarHeight === 'number' ? value.headingBarHeight : undefined,
         displayStyle: typeof value?.displayStyle === 'string' ? value.displayStyle : 'grid',
         itemsPerRow: ensureNumber(value?.itemsPerRow, 4),
     }), [value]);
@@ -314,105 +322,133 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <label className="flex flex-col gap-1 text-sm text-gray-600">
-                    {t('sections.manager.featuredProducts.title')}
-                    <Input
-                        value={config.title}
-                        onChange={(e) => handleConfigChange({ title: e.target.value })}
-                    />
-                </label>
-                <label className="flex flex-col gap-1 text-sm text-gray-600">
-                    {t('sections.manager.featuredProducts.limit')}
-                    <Input
-                        type="number"
-                        min={1}
-                        value={config.limit}
-                        onChange={(e) => handleConfigChange({ limit: Number(e.target.value) || 1 })}
-                    />
-                </label>
-            </div>
+            <Tabs
+                tabs={[
+                    {
+                        label: t('sections.manager.tabs.content', 'Content'),
+                        content: (
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                    <label className="flex flex-col gap-1 text-sm text-gray-600">
+                                        {t('sections.manager.featuredProducts.title')}
+                                        <Input
+                                            value={config.title}
+                                            onChange={(e) => handleConfigChange({ title: e.target.value })}
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-1 text-sm text-gray-600">
+                                        {t('sections.manager.featuredProducts.limit')}
+                                        <Input
+                                            type="number"
+                                            min={1}
+                                            value={config.limit}
+                                            onChange={(e) => handleConfigChange({ limit: Number(e.target.value) || 1 })}
+                                        />
+                                    </label>
+                                </div>
 
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <Toggle
-                    label={t('sections.manager.featuredProducts.showTitle')}
-                    checked={config.showTitle}
-                    onChange={(checked) => handleConfigChange({ showTitle: checked })}
-                />
-                <Toggle
-                    label={t('sections.manager.featuredProducts.showDescription')}
-                    checked={config.showDescription}
-                    onChange={(checked) => handleConfigChange({ showDescription: checked })}
-                />
-            </div>
+                                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                    <Toggle
+                                        label={t('sections.manager.featuredProducts.showTitle')}
+                                        checked={config.showTitle}
+                                        onChange={(checked) => handleConfigChange({ showTitle: checked })}
+                                    />
+                                    <Toggle
+                                        label={t('sections.manager.featuredProducts.showDescription')}
+                                        checked={config.showDescription}
+                                        onChange={(checked) => handleConfigChange({ showDescription: checked })}
+                                    />
+                                </div>
+                            </div>
+                        ),
+                    },
+                    {
+                        label: t('sections.manager.tabs.heading', 'Heading'),
+                        content: (
+                            <SectionHeadingConfig
+                                data={{
+                                    headingStyle: config.headingStyle,
+                                    headingBackgroundColor: config.headingBackgroundColor,
+                                    headingTextColor: config.headingTextColor,
+                                    headingTextTransform: config.headingTextTransform,
+                                    headingTitleSize: config.headingTitleSize,
+                                    headingBarHeight: config.headingBarHeight,
+                                }}
+                                onChange={(data: SectionHeadingConfigData) => handleConfigChange(data)}
+                            />
+                        ),
+                    },
+                    {
+                        label: t('sections.manager.tabs.productsDisplay', 'Products & Display'),
+                        content: (
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700">
+                                        {t('sections.manager.featuredProducts.selectProducts')}
+                                    </label>
+                                    <SelectComponent<ProductOption, true>
+                                        isMulti
+                                        placeholder={t('sections.manager.productsByCategory.searchProducts')}
+                                        value={selectedOptions}
+                                        onChange={(items) => handleSelectionChange(items as ProductOption[])}
+                                        options={allOptions}
+                                        inputValue={searchTerm}
+                                        onInputChange={(val, actionMeta) => {
+                                            if (actionMeta.action === 'input-change') {
+                                                setSearchTerm(val);
+                                            }
+                                        }}
+                                        closeMenuOnSelect={false}
+                                        hideSelectedOptions={false}
+                                        isLoading={productsQuery.isLoading && page === 1}
+                                        isClearable={false}
+                                        loadingMessage={() => t('sections.manager.productsByCategory.loadingProducts')}
+                                        noOptionsMessage={() => (debouncedSearch ? t('sections.manager.productsByCategory.noProductsFound') : t('sections.manager.productsByCategory.startTyping'))}
+                                        styles={productSelectStyles}
+                                        components={{ MenuList }}
+                                        formatOptionLabel={formatOptionLabel}
+                                        menuPortalTarget={menuPortalTarget}
+                                        menuPlacement="auto"
+                                        className="react-select-container"
+                                        classNamePrefix="react-select"
+                                        onMenuScrollToBottom={() => {
+                                            loadMore();
+                                        }}
+                                    />
+                                </div>
 
-                <SectionHeadingConfig
-                    data={{
-                        headingStyle: config.headingStyle,
-                        headingBackgroundColor: config.headingBackgroundColor,
-                        headingTextColor: config.headingTextColor,
-                    }}
-                    onChange={(data: SectionHeadingConfigData) => handleConfigChange(data)}
-                />
-
-            <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">{t('sections.manager.featuredProducts.selectProducts')}</label>
-                <SelectComponent<ProductOption, true>
-                    isMulti
-                    placeholder={t('sections.manager.productsByCategory.searchProducts')}
-                    value={selectedOptions}
-                    onChange={(items) => handleSelectionChange(items as ProductOption[])}
-                    options={allOptions}
-                    inputValue={searchTerm}
-                    onInputChange={(val, actionMeta) => {
-                        if (actionMeta.action === 'input-change') {
-                            setSearchTerm(val);
-                        }
-                    }}
-                    closeMenuOnSelect={false}
-                    hideSelectedOptions={false}
-                    isLoading={productsQuery.isLoading && page === 1}
-                    isClearable={false}
-                    loadingMessage={() => t('sections.manager.productsByCategory.loadingProducts')}
-                    noOptionsMessage={() => (debouncedSearch ? t('sections.manager.productsByCategory.noProductsFound') : t('sections.manager.productsByCategory.startTyping'))}
-                    styles={productSelectStyles}
-                    components={{ MenuList }}
-                    formatOptionLabel={formatOptionLabel}
-                    menuPortalTarget={menuPortalTarget}
-                    menuPlacement="auto"
-                    className="react-select-container"
-                    classNamePrefix="react-select"
-                    onMenuScrollToBottom={() => {
-                        loadMore();
-                    }}
-                />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <label className="flex flex-col gap-1 text-sm text-gray-600">
-                    {t('sections.manager.productsByCategory.style')}
-                    <select
-                        className="border rounded-md px-3.5 py-2.5 text-sm !h-11"
-                        value={config.displayStyle}
-                        onChange={(e) => handleConfigChange({ displayStyle: e.target.value })}
-                    >
-                        <option value="grid">Grid</option>
-                        <option value="carousel">Carousel</option>
-                    </select>
-                </label>
-                <label className="flex flex-col gap-1 text-sm text-gray-600">
-                    {t('sections.manager.productsByCategory.itemsPerRow')}
-                    <Input
-                        type="number"
-                        min={1}
-                        max={6}
-                        value={config.itemsPerRow}
-                        onChange={(e) => handleConfigChange({ itemsPerRow: Number(e.target.value) || 1 })}
-                        className="text-sm w-20"
-                        inputSize="md"
-                    />
-                </label>
-            </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <label className="flex flex-col gap-1 text-sm text-gray-600">
+                                        {t('sections.manager.productsByCategory.style')}
+                                        <select
+                                            className="border rounded-md px-3.5 py-2.5 text-sm !h-11"
+                                            value={config.displayStyle}
+                                            onChange={(e) => handleConfigChange({ displayStyle: e.target.value })}
+                                        >
+                                            <option value="grid">Grid</option>
+                                            <option value="carousel">Carousel</option>
+                                        </select>
+                                    </label>
+                                    <label className="flex flex-col gap-1 text-sm text-gray-600">
+                                        {t('sections.manager.productsByCategory.itemsPerRow')}
+                                        <Input
+                                            type="number"
+                                            min={1}
+                                            max={6}
+                                            value={config.itemsPerRow}
+                                            onChange={(e) => handleConfigChange({ itemsPerRow: Number(e.target.value) || 1 })}
+                                            className="text-sm w-20"
+                                            inputSize="md"
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+                        ),
+                    },
+                ]}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+            />
         </div>
     );
 };

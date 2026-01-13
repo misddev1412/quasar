@@ -1,12 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
 import { Input } from '../../../common/Input';
 import { Toggle } from '../../../common/Toggle';
 import { SearchSelect } from '../../../common/SearchSelect';
+import Tabs from '../../../common/Tabs';
 import { trpc } from '../../../../utils/trpc';
 import { ConfigChangeHandler } from '../types';
 import { ensureNumber } from '../utils';
-import { SectionHeadingConfig, SectionHeadingConfigData } from '../common/SectionHeadingConfig';
+import { SectionHeadingConfig, SectionHeadingConfigData, SectionHeadingTextTransform, SectionHeadingTitleSize } from '../common/SectionHeadingConfig';
 
 interface NewsByCategoryConfigEditorProps {
     value: Record<string, unknown>;
@@ -26,6 +27,9 @@ interface NewsByCategoryConfig {
     headingStyle?: HeadingStyle;
     headingBackgroundColor?: string;
     headingTextColor?: string;
+    headingTextTransform?: SectionHeadingTextTransform;
+    headingTitleSize?: SectionHeadingTitleSize;
+    headingBarHeight?: number;
 }
 
 interface CategoryOption {
@@ -35,6 +39,7 @@ interface CategoryOption {
 
 export const NewsByCategoryEditor: React.FC<NewsByCategoryConfigEditorProps> = ({ value, onChange }) => {
     const { t } = useTranslationWithBackend();
+    const [activeTab, setActiveTab] = useState(0);
 
     // Fetch news categories
     const { data: categoriesData, isLoading: categoriesLoading } = trpc.adminPostCategories.getCategories.useQuery();
@@ -58,6 +63,9 @@ export const NewsByCategoryEditor: React.FC<NewsByCategoryConfigEditorProps> = (
         headingStyle: (value?.headingStyle as HeadingStyle) || 'default',
         headingBackgroundColor: typeof value?.headingBackgroundColor === 'string' ? value.headingBackgroundColor : undefined,
         headingTextColor: typeof value?.headingTextColor === 'string' ? value.headingTextColor : undefined,
+        headingTextTransform: typeof value?.headingTextTransform === 'string' ? (value.headingTextTransform as SectionHeadingTextTransform) : undefined,
+        headingTitleSize: typeof value?.headingTitleSize === 'string' ? (value.headingTitleSize as SectionHeadingTitleSize) : undefined,
+        headingBarHeight: typeof value?.headingBarHeight === 'number' ? value.headingBarHeight : undefined,
     }), [value]);
 
     const handleChange = (updates: Partial<NewsByCategoryConfig>) => {
@@ -78,78 +86,102 @@ export const NewsByCategoryEditor: React.FC<NewsByCategoryConfigEditorProps> = (
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <label className="flex flex-col gap-2 text-sm text-gray-700">
-                    <span className="font-medium">{t('sections.manager.newsByCategory.title', 'Title')}</span>
-                    <Input
-                        value={config.title}
-                        onChange={(e) => handleChange({ title: e.target.value })}
-                        placeholder={t('sections.manager.newsByCategory.titlePlaceholder', 'e.g. Latest News')}
-                    />
-                </label>
-                <label className="flex flex-col gap-2 text-sm text-gray-700">
-                    <span className="font-medium">{t('sections.manager.newsByCategory.category', 'Category')}</span>
-                    <SearchSelect<CategoryOption>
-                        isClearable
-                        isSearchable
-                        isDisabled={categoriesLoading}
-                        isLoading={categoriesLoading}
-                        options={categoryOptions}
-                        value={selectedCategoryOption}
-                        onChange={(option) => handleChange({ categoryId: (option as CategoryOption)?.value })}
-                        placeholder={t('sections.manager.newsByCategory.selectCategory', 'Select a category')}
-                        size="md"
-                    />
-                </label>
-            </div>
+            <Tabs
+                tabs={[
+                    {
+                        label: t('sections.manager.tabs.content', 'Content'),
+                        content: (
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                    <label className="flex flex-col gap-2 text-sm text-gray-700">
+                                        <span className="font-medium">{t('sections.manager.newsByCategory.title', 'Title')}</span>
+                                        <Input
+                                            value={config.title}
+                                            onChange={(e) => handleChange({ title: e.target.value })}
+                                            placeholder={t('sections.manager.newsByCategory.titlePlaceholder', 'e.g. Latest News')}
+                                        />
+                                    </label>
+                                    <label className="flex flex-col gap-2 text-sm text-gray-700">
+                                        <span className="font-medium">{t('sections.manager.newsByCategory.category', 'Category')}</span>
+                                        <SearchSelect<CategoryOption>
+                                            isClearable
+                                            isSearchable
+                                            isDisabled={categoriesLoading}
+                                            isLoading={categoriesLoading}
+                                            options={categoryOptions}
+                                            value={selectedCategoryOption}
+                                            onChange={(option) => handleChange({ categoryId: (option as CategoryOption)?.value })}
+                                            placeholder={t('sections.manager.newsByCategory.selectCategory', 'Select a category')}
+                                            size="md"
+                                        />
+                                    </label>
+                                </div>
 
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <label className="flex flex-col gap-2 text-sm text-gray-700">
-                    <span className="font-medium">{t('sections.manager.newsByCategory.limit', 'Number of posts')}</span>
-                    <Input
-                        type="number"
-                        min={1}
-                        max={12}
-                        value={config.limit}
-                        onChange={(e) => handleChange({ limit: Number(e.target.value) || 4 })}
-                    />
-                </label>
-            </div>
-
-            <SectionHeadingConfig
-                data={{
-                    headingStyle: config.headingStyle,
-                    headingBackgroundColor: config.headingBackgroundColor,
-                    headingTextColor: config.headingTextColor,
-                }}
-                onChange={handleHeadingConfigChange}
+                                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                    <label className="flex flex-col gap-2 text-sm text-gray-700">
+                                        <span className="font-medium">{t('sections.manager.newsByCategory.limit', 'Number of posts')}</span>
+                                        <Input
+                                            type="number"
+                                            min={1}
+                                            max={12}
+                                            value={config.limit}
+                                            onChange={(e) => handleChange({ limit: Number(e.target.value) || 4 })}
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+                        ),
+                    },
+                    {
+                        label: t('sections.manager.tabs.heading', 'Heading'),
+                        content: (
+                            <SectionHeadingConfig
+                                data={{
+                                    headingStyle: config.headingStyle,
+                                    headingBackgroundColor: config.headingBackgroundColor,
+                                    headingTextColor: config.headingTextColor,
+                                    headingTextTransform: config.headingTextTransform,
+                                    headingTitleSize: config.headingTitleSize,
+                                    headingBarHeight: config.headingBarHeight,
+                                }}
+                                onChange={handleHeadingConfigChange}
+                            />
+                        ),
+                    },
+                    {
+                        label: t('sections.manager.tabs.display', 'Display'),
+                        content: (
+                            <div className="space-y-3 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                                <h4 className="text-sm font-medium text-gray-900">{t('sections.manager.newsByCategory.displayOptions', 'Display Options')}</h4>
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    <Toggle
+                                        label={t('sections.manager.newsByCategory.showTitle', 'Show Section Title')}
+                                        checked={config.showTitle}
+                                        onChange={(checked) => handleChange({ showTitle: checked })}
+                                    />
+                                    <Toggle
+                                        label={t('sections.manager.newsByCategory.showImage', 'Show Thumbnail')}
+                                        checked={config.showImage}
+                                        onChange={(checked) => handleChange({ showImage: checked })}
+                                    />
+                                    <Toggle
+                                        label={t('sections.manager.newsByCategory.showDate', 'Show Date')}
+                                        checked={config.showDate}
+                                        onChange={(checked) => handleChange({ showDate: checked })}
+                                    />
+                                    <Toggle
+                                        label={t('sections.manager.newsByCategory.showExcerpt', 'Show Excerpt')}
+                                        checked={config.showExcerpt}
+                                        onChange={(checked) => handleChange({ showExcerpt: checked })}
+                                    />
+                                </div>
+                            </div>
+                        ),
+                    },
+                ]}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
             />
-
-            <div className="space-y-3 rounded-lg border border-gray-100 bg-gray-50 p-4">
-                <h4 className="text-sm font-medium text-gray-900">{t('sections.manager.newsByCategory.displayOptions', 'Display Options')}</h4>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <Toggle
-                        label={t('sections.manager.newsByCategory.showTitle', 'Show Section Title')}
-                        checked={config.showTitle}
-                        onChange={(checked) => handleChange({ showTitle: checked })}
-                    />
-                    <Toggle
-                        label={t('sections.manager.newsByCategory.showImage', 'Show Thumbnail')}
-                        checked={config.showImage}
-                        onChange={(checked) => handleChange({ showImage: checked })}
-                    />
-                    <Toggle
-                        label={t('sections.manager.newsByCategory.showDate', 'Show Date')}
-                        checked={config.showDate}
-                        onChange={(checked) => handleChange({ showDate: checked })}
-                    />
-                    <Toggle
-                        label={t('sections.manager.newsByCategory.showExcerpt', 'Show Excerpt')}
-                        checked={config.showExcerpt}
-                        onChange={(checked) => handleChange({ showExcerpt: checked })}
-                    />
-                </div>
-            </div>
         </div>
     );
 };

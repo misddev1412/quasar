@@ -222,7 +222,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ className }
             textValue="View all notifications"
             onPress={viewAllNotifications}
           >
-            <span className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+            <span className="text-sm text-blue-600 dark:text-blue-400 font-semibold">
               {t('notifications.viewAll')}
             </span>
           </DropdownItem>

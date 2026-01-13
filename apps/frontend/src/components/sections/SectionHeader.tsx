@@ -4,6 +4,8 @@ import { cn } from '../../utils/cn';
 import { ArrowRight } from 'lucide-react';
 
 export type SectionHeadingStyle = 'default' | 'banner';
+export type SectionHeadingTextTransform = 'none' | 'uppercase' | 'capitalize' | 'lowercase';
+export type SectionHeadingTitleSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 export interface SectionHeaderProps {
     title?: string;
@@ -14,6 +16,9 @@ export interface SectionHeaderProps {
     headingStyle?: SectionHeadingStyle;
     headingBackgroundColor?: string;
     headingTextColor?: string;
+    headingTextTransform?: SectionHeadingTextTransform;
+    headingTitleSize?: SectionHeadingTitleSize;
+    headingBarHeight?: number;
     className?: string;
     theme?: 'light' | 'dark';
 }
@@ -27,12 +32,34 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
     headingStyle = 'default',
     headingBackgroundColor,
     headingTextColor,
+    headingTextTransform,
+    headingTitleSize,
+    headingBarHeight,
     className,
     theme,
 }) => {
     // Determine effective text colors based on theme
     const isDarkTheme = theme === 'dark';
     const headingTextStyle = headingTextColor ? { color: headingTextColor } : undefined;
+    const headingTransformStyle =
+        headingTextTransform && headingTextTransform !== 'none' ? { textTransform: headingTextTransform } : undefined;
+
+    const mergeStyles = (base?: React.CSSProperties, extra?: React.CSSProperties) => {
+        if (base && extra) return { ...base, ...extra };
+        return base || extra;
+    };
+
+    const titleSizeClassMap: Record<SectionHeadingTitleSize, string> = {
+        xs: 'text-lg md:text-xl',
+        sm: 'text-xl md:text-2xl',
+        md: 'text-2xl md:text-3xl',
+        lg: 'text-3xl md:text-4xl',
+        xl: 'text-4xl md:text-5xl',
+    };
+
+    const resolvedTitleSize: SectionHeadingTitleSize =
+        headingTitleSize || (headingStyle === 'banner' ? 'md' : 'lg');
+    const titleSizeClass = titleSizeClassMap[resolvedTitleSize] || titleSizeClassMap.lg;
 
     // Helper to get text color classes
     const getTitleColor = () => {
@@ -51,12 +78,16 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
     };
 
     if (headingStyle === 'banner') {
+        const resolvedBarHeight =
+            typeof headingBarHeight === 'number' && headingBarHeight > 0 ? headingBarHeight : 56;
+        const titleStyle = mergeStyles(headingTextStyle, headingTransformStyle);
+        const ctaStyle = mergeStyles(headingTextStyle, headingTransformStyle);
         return (
             <div
                 className={cn('mb-8 rounded-xl px-6 py-3 md:mb-10 md:px-10 md:py-4', className)}
                 style={{
                     backgroundColor: headingBackgroundColor || '#f3f4f6',
-                    minHeight: 56,
+                    minHeight: resolvedBarHeight,
                 }}
             >
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -68,9 +99,9 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
                         )}
 
                         {title && (
-                        <h2 className="mb-0 text-2xl font-bold md:text-3xl" style={headingTextStyle}>
-                            {title}
-                        </h2>
+                            <h2 className={cn('mb-0 font-bold', titleSizeClass)} style={titleStyle}>
+                                {title}
+                            </h2>
                         )}
 
                         {description && (
@@ -84,9 +115,9 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
                         <Link
                             href={ctaLink}
                             className={cn(
-                                "inline-flex items-center gap-2 text-sm font-semibold transition-opacity hover:opacity-80"
+                                "inline-flex items-center gap-2 text-sm font-bold transition-opacity hover:opacity-80"
                             )}
-                            style={headingTextStyle}
+                            style={ctaStyle}
                         >
                             {ctaLabel}
                             <ArrowRight className="h-4 w-4" />
@@ -109,15 +140,16 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
                     </p>
                 )}
                 {title && (
-                        <h2
-                            className={cn(
-                                "mb-0 text-3xl font-bold md:text-4xl",
-                                getTitleColor()
-                            )}
-                            style={headingTextStyle}
-                        >
-                            {title}
-                        </h2>
+                    <h2
+                        className={cn(
+                            "mb-0 font-bold",
+                            titleSizeClass,
+                            getTitleColor()
+                        )}
+                        style={mergeStyles(headingTextStyle, headingTransformStyle)}
+                    >
+                        {title}
+                    </h2>
                 )}
                 {description && (
                     <p className={cn(
@@ -133,10 +165,10 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
                 <Link
                     href={ctaLink}
                     className={cn(
-                        "group inline-flex items-center gap-2 text-sm font-semibold transition-colors",
+                        "group inline-flex items-center gap-2 text-sm font-bold transition-colors",
                         isDarkTheme ? "text-blue-300 hover:text-blue-200" : "text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                     )}
-                    style={headingTextStyle}
+                    style={mergeStyles(headingTextStyle, headingTransformStyle)}
                 >
                     {ctaLabel}
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

@@ -31,6 +31,9 @@ export interface ProductsByCategoryRowConfig {
   headingStyle?: 'default' | 'banner';
   headingBackgroundColor?: string;
   headingTextColor?: string;
+  headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
+  headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingBarHeight?: number;
 }
 
 export interface ProductsByCategoryConfig {
@@ -113,6 +116,9 @@ interface NormalizedRowConfig {
   headingStyle: 'default' | 'banner';
   headingBackgroundColor?: string;
   headingTextColor?: string;
+  headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
+  headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingBarHeight?: number;
 }
 
 interface RowRenderState {
@@ -137,6 +143,8 @@ interface CategoryReference {
 const DEFAULT_LIMIT = 6;
 const SIDEBAR_TITLE_FONT_WEIGHT_VALUES: SidebarTitleFontWeight[] = ['normal', 'medium', 'semibold', 'bold'];
 const SIDEBAR_TITLE_FONT_SIZE_VALUES: SidebarTitleFontSize[] = ['xs', 'sm', 'base', 'lg'];
+const HEADING_TEXT_TRANSFORM_VALUES = ['none', 'uppercase', 'capitalize', 'lowercase'] as const;
+const HEADING_TITLE_SIZE_VALUES = ['xs', 'sm', 'md', 'lg', 'xl'] as const;
 
 const normalizeSidebarFontWeight = (value?: string | null): SidebarTitleFontWeight => {
   const normalized = normalizeString(value) as SidebarTitleFontWeight;
@@ -180,6 +188,25 @@ const normalizeStrategy = (value?: string | null): ProductsByCategoryStrategy =>
     default:
       return 'latest';
   }
+};
+
+const normalizeHeadingTextTransform = (value?: string | null) => {
+  const normalized = normalizeString(value).toLowerCase();
+  return HEADING_TEXT_TRANSFORM_VALUES.includes(normalized as (typeof HEADING_TEXT_TRANSFORM_VALUES)[number])
+    ? (normalized as (typeof HEADING_TEXT_TRANSFORM_VALUES)[number])
+    : undefined;
+};
+
+const normalizeHeadingTitleSize = (value?: string | null) => {
+  const normalized = normalizeString(value).toLowerCase();
+  return HEADING_TITLE_SIZE_VALUES.includes(normalized as (typeof HEADING_TITLE_SIZE_VALUES)[number])
+    ? (normalized as (typeof HEADING_TITLE_SIZE_VALUES)[number])
+    : undefined;
+};
+
+const normalizeHeadingBarHeight = (value?: unknown): number | undefined => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : undefined;
 };
 
 const normalizeDisplayStyle = (value?: string | null): 'grid' | 'carousel' => {
@@ -417,6 +444,9 @@ const normalizeRows = (config: ProductsByCategoryConfig): NormalizedRowConfig[] 
         headingStyle: (row.headingStyle === 'banner' ? 'banner' : 'default'),
         headingBackgroundColor: typeof row.headingBackgroundColor === 'string' ? row.headingBackgroundColor : undefined,
         headingTextColor: typeof row.headingTextColor === 'string' ? row.headingTextColor : undefined,
+        headingTextTransform: normalizeHeadingTextTransform(row.headingTextTransform),
+        headingTitleSize: normalizeHeadingTitleSize(row.headingTitleSize),
+        headingBarHeight: normalizeHeadingBarHeight(row.headingBarHeight),
       });
     });
 
@@ -444,6 +474,9 @@ const normalizeRows = (config: ProductsByCategoryConfig): NormalizedRowConfig[] 
     showCategoryLabel: true,
     showStrategyLabel: true,
     headingStyle: 'default',
+    headingTextTransform: undefined,
+    headingTitleSize: undefined,
+    headingBarHeight: undefined,
   });
 
   return rows;
@@ -1010,8 +1043,6 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
 
               return (
                 <div key={row.id} className="space-y-6">
-
-
                   <SectionHeader
                     title={showDisplayTitle ? (categoryLabel || undefined) : undefined}
                     subtitle={showStrategyLabel ? (strategyLabel || undefined) : undefined}
@@ -1021,6 +1052,9 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
                     headingStyle={row.headingStyle}
                     headingBackgroundColor={row.headingBackgroundColor}
                     headingTextColor={row.headingTextColor}
+                    headingTextTransform={row.headingTextTransform}
+                    headingTitleSize={row.headingTitleSize}
+                    headingBarHeight={row.headingBarHeight}
                     className="mb-8"
                   />
 

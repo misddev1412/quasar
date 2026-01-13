@@ -23,6 +23,9 @@ export interface NewsSectionRowConfig {
   headingStyle?: 'default' | 'banner';
   headingBackgroundColor?: string;
   headingTextColor?: string;
+  headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
+  headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingBarHeight?: number;
 }
 
 export interface NewsSectionConfig {
@@ -34,6 +37,9 @@ export interface NewsSectionConfig {
   headingStyle?: 'default' | 'banner';
   headingBackgroundColor?: string;
   headingTextColor?: string;
+  headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
+  headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingBarHeight?: number;
 }
 
 const DEFAULT_NEWS_LIMIT = 3;
@@ -63,12 +69,39 @@ const clampColumns = (value: unknown, fallback: number): number => {
 
 const VALID_CARD_LAYOUTS: NewsCardLayout[] = ['grid', 'horizontal', 'compact'];
 const VALID_BADGE_TONES: NonNullable<NewsCardConfig['badgeTone']>[] = ['primary', 'neutral', 'emphasis'];
+const VALID_HEADING_TRANSFORMS = ['none', 'uppercase', 'capitalize', 'lowercase'] as const;
+const VALID_HEADING_SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const;
 
 const parseBoolean = (value: unknown, fallback: boolean): boolean =>
   typeof value === 'boolean' ? value : fallback;
 
 const parseOptionalString = (value: unknown): string | undefined =>
   typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined;
+
+const parseHeadingTransform = (
+  value: unknown,
+): NewsSectionRowConfig['headingTextTransform'] | undefined => {
+  if (typeof value !== 'string') return undefined;
+  const normalized = value.trim().toLowerCase();
+  return VALID_HEADING_TRANSFORMS.includes(normalized as (typeof VALID_HEADING_TRANSFORMS)[number])
+    ? (normalized as NewsSectionRowConfig['headingTextTransform'])
+    : undefined;
+};
+
+const parseHeadingTitleSize = (
+  value: unknown,
+): NewsSectionRowConfig['headingTitleSize'] | undefined => {
+  if (typeof value !== 'string') return undefined;
+  const normalized = value.trim().toLowerCase();
+  return VALID_HEADING_SIZES.includes(normalized as (typeof VALID_HEADING_SIZES)[number])
+    ? (normalized as NewsSectionRowConfig['headingTitleSize'])
+    : undefined;
+};
+
+const parseHeadingBarHeight = (value: unknown): number | undefined => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : undefined;
+};
 
 const parseCardLayout = (value: unknown, fallback: NewsCardLayout): NewsCardLayout => {
   const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
@@ -147,6 +180,9 @@ const parseNewsRows = (config: NewsSectionConfig): NewsSectionRowConfig[] => {
   const baseLimit = ensurePositiveNumber(config?.limit, DEFAULT_NEWS_LIMIT);
   const baseColumns = clampColumns((config as any)?.columns, baseLimit);
   const baseCard = sanitizeCardConfig((config as any)?.card);
+  const baseHeadingTransform = parseHeadingTransform(config?.headingTextTransform);
+  const baseHeadingTitleSize = parseHeadingTitleSize(config?.headingTitleSize);
+  const baseHeadingBarHeight = parseHeadingBarHeight(config?.headingBarHeight);
 
   if (rows.length > 0) {
     return rows.map((row, index) => ({
@@ -160,6 +196,9 @@ const parseNewsRows = (config: NewsSectionConfig): NewsSectionRowConfig[] => {
       headingStyle: (row?.headingStyle === 'banner' ? 'banner' : 'default'),
       headingBackgroundColor: typeof row?.headingBackgroundColor === 'string' ? row.headingBackgroundColor : undefined,
       headingTextColor: typeof row?.headingTextColor === 'string' ? row.headingTextColor : undefined,
+      headingTextTransform: parseHeadingTransform(row?.headingTextTransform) ?? baseHeadingTransform,
+      headingTitleSize: parseHeadingTitleSize(row?.headingTitleSize) ?? baseHeadingTitleSize,
+      headingBarHeight: parseHeadingBarHeight(row?.headingBarHeight) ?? baseHeadingBarHeight,
     }));
   }
 
@@ -402,6 +441,9 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
                   headingStyle={row.headingStyle}
                   headingBackgroundColor={row.headingBackgroundColor}
                   headingTextColor={row.headingTextColor}
+                  headingTextTransform={row.headingTextTransform}
+                  headingTitleSize={row.headingTitleSize}
+                  headingBarHeight={row.headingBarHeight}
                 />
                 <div className="space-y-6">
                   {state.error && (

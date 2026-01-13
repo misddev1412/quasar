@@ -1,15 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { FiPlus, FiTrash2 } from 'react-icons/fi';
+import { FiChevronDown, FiPlus, FiTrash2 } from 'react-icons/fi';
 import { Toggle } from '../../../common/Toggle';
 import { Input } from '../../../common/Input';
 import { SearchSelect } from '../../../common/SearchSelect';
 import { Button } from '../../../common/Button';
+import Tabs from '../../../common/Tabs';
 import { trpc } from '../../../../utils/trpc';
 import { useToast } from '@admin/contexts/ToastContext';
 import SelectComponent, { components as selectComponents, type MenuListProps, type FilterOptionOption } from 'react-select';
 import { ConfigChangeHandler, ProductOption, SelectOption } from '../types';
-import { SectionHeadingConfig, SectionHeadingConfigData } from '../common/SectionHeadingConfig';
+import { SectionHeadingConfig, SectionHeadingConfigData, SectionHeadingTextTransform, SectionHeadingTitleSize } from '../common/SectionHeadingConfig';
 import { ensureNumber, mapProductToOption } from '../utils';
 import { Image as ImageIcon } from 'lucide-react';
 
@@ -36,6 +37,9 @@ interface ProductsByCategoryAdminRow {
     headingStyle?: HeadingStyle;
     headingBackgroundColor?: string;
     headingTextColor?: string;
+    headingTextTransform?: SectionHeadingTextTransform;
+    headingTitleSize?: SectionHeadingTitleSize;
+    headingBarHeight?: number;
 }
 
 const DEFAULT_ROW_LIMIT = 6;
@@ -70,6 +74,15 @@ const createDefaultRow = (): ProductsByCategoryAdminRow => ({
     showCategoryLabel: true,
     showStrategyLabel: true,
     headingStyle: 'default',
+});
+
+const buildHeadingConfigFromRow = (row?: ProductsByCategoryAdminRow): SectionHeadingConfigData => ({
+    headingStyle: row?.headingStyle ?? 'default',
+    headingBackgroundColor: row?.headingBackgroundColor,
+    headingTextColor: row?.headingTextColor,
+    headingTextTransform: row?.headingTextTransform,
+    headingTitleSize: row?.headingTitleSize,
+    headingBarHeight: row?.headingBarHeight,
 });
 
 const flattenCategoryOptions = (categories: any[], prefix = ''): CategorySelectOption[] => {
@@ -124,6 +137,9 @@ const parseRowsFromValue = (value: any): ProductsByCategoryAdminRow[] => {
                 headingStyle: (row?.headingStyle as HeadingStyle) || 'default',
                 headingBackgroundColor: typeof row?.headingBackgroundColor === 'string' ? row.headingBackgroundColor : undefined,
                 headingTextColor: typeof row?.headingTextColor === 'string' ? row.headingTextColor : undefined,
+                headingTextTransform: typeof row?.headingTextTransform === 'string' ? (row.headingTextTransform as SectionHeadingTextTransform) : undefined,
+                headingTitleSize: typeof row?.headingTitleSize === 'string' ? (row.headingTitleSize as SectionHeadingTitleSize) : undefined,
+                headingBarHeight: typeof row?.headingBarHeight === 'number' ? row.headingBarHeight : undefined,
             };
         });
     }
@@ -152,6 +168,9 @@ const parseRowsFromValue = (value: any): ProductsByCategoryAdminRow[] => {
             headingStyle: (value?.headingStyle as HeadingStyle) || 'default',
             headingBackgroundColor: typeof value?.headingBackgroundColor === 'string' ? value.headingBackgroundColor : undefined,
             headingTextColor: typeof value?.headingTextColor === 'string' ? value.headingTextColor : undefined,
+            headingTextTransform: typeof value?.headingTextTransform === 'string' ? (value.headingTextTransform as SectionHeadingTextTransform) : undefined,
+            headingTitleSize: typeof value?.headingTitleSize === 'string' ? (value.headingTitleSize as SectionHeadingTitleSize) : undefined,
+            headingBarHeight: typeof value?.headingBarHeight === 'number' ? value.headingBarHeight : undefined,
         }];
     }
 
@@ -179,6 +198,9 @@ const sanitizeConfigValue = (
             headingStyle: row.headingStyle,
             headingBackgroundColor: row.headingBackgroundColor,
             headingTextColor: row.headingTextColor,
+            headingTextTransform: row.headingTextTransform,
+            headingTitleSize: row.headingTitleSize,
+            headingBarHeight: row.headingBarHeight,
         };
     });
 
@@ -207,6 +229,9 @@ const rowsAreEqual = (rows: ProductsByCategoryAdminRow[], otherRows: ProductsByC
         if (row.headingStyle !== other.headingStyle) return false;
         if (row.headingBackgroundColor !== other.headingBackgroundColor) return false;
         if (row.headingTextColor !== other.headingTextColor) return false;
+        if (row.headingTextTransform !== other.headingTextTransform) return false;
+        if (row.headingTitleSize !== other.headingTitleSize) return false;
+        if (row.headingBarHeight !== other.headingBarHeight) return false;
         return row.productIds.every((id, idx) => id === other.productIds[idx]);
     });
 };
@@ -736,15 +761,6 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                     />
                 </div>
 
-                <SectionHeadingConfig
-                    data={{
-                        headingStyle: (row.headingStyle as any) || 'default',
-                        headingBackgroundColor: row.headingBackgroundColor,
-                        headingTextColor: row.headingTextColor,
-                    }}
-                    onChange={handleHeadingConfigChange}
-                />
-
                 {isCustomStrategy && row.categoryId ? (
                     <div className="space-y-3">
                         <span className="text-sm font-medium text-gray-700">Chọn sản phẩm</span>
@@ -851,6 +867,18 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                         )}
                     </div>
                 )}
+
+                <SectionHeadingConfig
+                    data={{
+                        headingStyle: (row.headingStyle as HeadingStyle) || 'default',
+                        headingBackgroundColor: row.headingBackgroundColor,
+                        headingTextColor: row.headingTextColor,
+                        headingTextTransform: row.headingTextTransform,
+                        headingTitleSize: row.headingTitleSize,
+                        headingBarHeight: row.headingBarHeight,
+                    }}
+                    onChange={handleHeadingConfigChange}
+                />
             </div>
         </div>
     );
@@ -875,6 +903,12 @@ export const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEd
     const [sidebarConfig, setSidebarConfig] = useState<SidebarConfig>(initialSidebarConfig);
     const skipRowsSyncRef = useRef(false);
     const [sidebarEnabled, setSidebarEnabled] = useState<boolean>(initialSidebarEnabled);
+    const [commonHeadingConfig, setCommonHeadingConfig] = useState<SectionHeadingConfigData>(() =>
+        buildHeadingConfigFromRow(parseRowsFromValue(sanitizedValue)[0])
+    );
+    const headingConfigInitRef = useRef(false);
+    const [isCommonHeadingOpen, setIsCommonHeadingOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState(0);
 
     useEffect(() => {
         if (skipRowsSyncRef.current) {
@@ -884,6 +918,12 @@ export const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEd
         const nextRows = parseRowsFromValue(sanitizedValue);
         setRows((prev) => (rowsAreEqual(prev, nextRows) ? prev : nextRows));
     }, [sanitizedValue]);
+
+    useEffect(() => {
+        if (headingConfigInitRef.current) return;
+        headingConfigInitRef.current = true;
+        setCommonHeadingConfig(buildHeadingConfigFromRow(rows[0]));
+    }, [rows]);
 
     useEffect(() => {
         setSidebarEnabled(initialSidebarEnabled);
@@ -944,93 +984,177 @@ export const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEd
         [commitConfig, rows, sidebarEnabled, sidebarConfig],
     );
 
+    const handleApplyHeadingConfigToAll = useCallback(() => {
+        const nextRows = rows.map((row) => ({
+            ...row,
+            headingStyle: commonHeadingConfig.headingStyle ?? 'default',
+            headingBackgroundColor: commonHeadingConfig.headingBackgroundColor,
+            headingTextColor: commonHeadingConfig.headingTextColor,
+            headingTextTransform: commonHeadingConfig.headingTextTransform,
+            headingTitleSize: commonHeadingConfig.headingTitleSize,
+            headingBarHeight: commonHeadingConfig.headingBarHeight,
+        }));
+        applyUpdate(nextRows);
+    }, [applyUpdate, commonHeadingConfig, rows]);
+
     return (
         <div className="space-y-6">
-            <div className="rounded-xl border border-gray-200/80 bg-white shadow-sm px-5 py-4">
-                <Toggle
-                    checked={sidebarEnabled}
-                    onChange={handleSidebarToggle}
-                    label={t('sections.manager.productsByCategory.enableSidebar')}
-                    description={t('sections.manager.productsByCategory.sidebarDescription')}
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                    {t('sections.manager.productsByCategory.sidebarNote')}
-                </p>
-            </div>
+            <Tabs
+                tabs={[
+                    {
+                        label: t('sections.manager.tabs.categories', 'Categories'),
+                        content: (
+                            <div className="space-y-6">
+                                <div className="space-y-1">
+                                    <h4 className="text-sm font-semibold text-gray-700">{t('sections.manager.productsByCategory.displayCategories')}</h4>
+                                    <p className="text-xs text-gray-500">{t('sections.manager.productsByCategory.displayCategoriesDescription')}</p>
+                                </div>
 
-            {sidebarEnabled && (
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 rounded-xl border border-gray-200/80 bg-gray-50/50 p-4">
-                    <label className="flex flex-col gap-1.5 text-sm text-gray-700">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                            {t('sections.manager.productsByCategory.sidebarTitle', 'Sidebar Title')}
-                        </span>
-                        <Input
-                            type="text"
-                            value={sidebarConfig.title || ''}
-                            onChange={(e) => handleSidebarConfigChange('title', e.target.value)}
-                            placeholder={t('sections.manager.productsByCategory.sidebarDefaultTitle', 'Danh mục sản phẩm')}
-                            className="bg-white"
-                        />
-                    </label>
-                    <label className="flex flex-col gap-1.5 text-sm text-gray-700">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                            {t('sections.manager.productsByCategory.borderRadius', 'Border Radius')}
-                        </span>
-                        <Input
-                            type="text"
-                            value={sidebarConfig.borderRadius || ''}
-                            onChange={(e) => handleSidebarConfigChange('borderRadius', e.target.value)}
-                            placeholder="16px"
-                            className="bg-white"
-                        />
-                    </label>
-                    <label className="flex flex-col gap-1.5 text-sm text-gray-700">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                            {t('sections.manager.productsByCategory.headerBgColor', 'Header Background Color')}
-                        </span>
-                        <div className="flex items-center gap-2">
-                            <div className="h-10 w-10 rounded border border-gray-200 shadow-sm flex-shrink-0" style={{ backgroundColor: sidebarConfig.headerBackgroundColor || 'transparent' }} />
-                            <Input
-                                type="text"
-                                value={sidebarConfig.headerBackgroundColor || ''}
-                                onChange={(e) => handleSidebarConfigChange('headerBackgroundColor', e.target.value)}
-                                placeholder="#ffffff"
-                                className="bg-white"
-                            />
-                        </div>
-                    </label>
-                </div>
-            )}
+                                <div className="rounded-xl border border-gray-200/80 bg-white p-4 shadow-sm space-y-3">
+                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                        <div className="space-y-1">
+                                            <h4 className="text-sm font-semibold text-gray-700">
+                                                {t('sections.manager.productsByCategory.headingConfigAllTitle', 'Heading config (apply to all)')}
+                                            </h4>
+                                            <p className="text-xs text-gray-500">
+                                                {t('sections.manager.productsByCategory.headingConfigAllDescription', 'Update once and apply to every category heading.')}
+                                            </p>
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="secondary"
+                                            onClick={() => setIsCommonHeadingOpen((prev) => !prev)}
+                                            className={`self-start sm:self-auto border text-gray-700 ${isCommonHeadingOpen ? 'border-blue-200 bg-blue-50' : 'border-gray-200 bg-transparent hover:bg-gray-50'}`}
+                                        >
+                                            <FiChevronDown className={`mr-1.5 h-4 w-4 transition-transform ${isCommonHeadingOpen ? 'rotate-180' : ''}`} />
+                                            {isCommonHeadingOpen
+                                                ? t('sections.manager.productsByCategory.closeHeadingConfigAll', 'Hide common config')
+                                                : t('sections.manager.productsByCategory.openHeadingConfigAll', 'Open common config')}
+                                        </Button>
+                                    </div>
+                                    {isCommonHeadingOpen && (
+                                        <div className="space-y-3">
+                                            <SectionHeadingConfig
+                                                data={commonHeadingConfig}
+                                                onChange={setCommonHeadingConfig}
+                                            />
+                                            <div className="flex justify-end">
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    variant="secondary"
+                                                    onClick={handleApplyHeadingConfigToAll}
+                                                >
+                                                    {t('sections.manager.productsByCategory.applyHeadingConfigAll', 'Apply to all')}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
 
-            <div className="space-y-1">
-                <h4 className="text-sm font-semibold text-gray-700">{t('sections.manager.productsByCategory.displayCategories')}</h4>
-                <p className="text-xs text-gray-500">{t('sections.manager.productsByCategory.displayCategoriesDescription')}</p>
-            </div>
+                                <div className="space-y-4">
+                                    {rows.map((row, index) => (
+                                        <CategoryRowEditor
+                                            key={row.id}
+                                            index={index}
+                                            row={row}
+                                            categoryOptions={categoryOptions}
+                                            categoriesLoading={categoriesLoading}
+                                            onChange={(nextRow) => handleRowChange(row.id, nextRow)}
+                                            onRemove={() => handleRemoveRow(row.id)}
+                                            canRemove={rows.length > 1}
+                                        />
+                                    ))}
+                                </div>
 
-            <div className="space-y-4">
-                {rows.map((row, index) => (
-                    <CategoryRowEditor
-                        key={row.id}
-                        index={index}
-                        row={row}
-                        categoryOptions={categoryOptions}
-                        categoriesLoading={categoriesLoading}
-                        onChange={(nextRow) => handleRowChange(row.id, nextRow)}
-                        onRemove={() => handleRemoveRow(row.id)}
-                        canRemove={rows.length > 1}
-                    />
-                ))}
-            </div>
+                                <button
+                                    type="button"
+                                    onClick={handleAddRow}
+                                    className="w-full flex items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 bg-white py-3 text-sm font-medium text-gray-600 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                >
+                                    <FiPlus className="w-4 h-4" />
+                                    {t('sections.manager.productsByCategory.addCategory')}
+                                </button>
+                            </div>
+                        ),
+                    },
+                    {
+                        label: t('sections.manager.tabs.heading', 'Heading'),
+                        content: (
+                            <div className="rounded-xl border border-gray-200/80 bg-white p-4 shadow-sm">
+                                <p className="text-sm text-gray-600">
+                                    {t('sections.manager.productsByCategory.headingConfigAllDescription', 'Update once and apply to every category heading.')}
+                                </p>
+                            </div>
+                        ),
+                    },
+                    {
+                        label: t('sections.manager.tabs.sidebar', 'Sidebar'),
+                        content: (
+                            <div className="space-y-6">
+                                <div className="rounded-xl border border-gray-200/80 bg-white shadow-sm px-5 py-4">
+                                    <Toggle
+                                        checked={sidebarEnabled}
+                                        onChange={handleSidebarToggle}
+                                        label={t('sections.manager.productsByCategory.enableSidebar')}
+                                        description={t('sections.manager.productsByCategory.sidebarDescription')}
+                                    />
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        {t('sections.manager.productsByCategory.sidebarNote')}
+                                    </p>
+                                </div>
 
-            <button
-                type="button"
-                onClick={handleAddRow}
-                className="w-full flex items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 bg-white py-3 text-sm font-medium text-gray-600 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-            >
-                <FiPlus className="w-4 h-4" />
-                {t('sections.manager.productsByCategory.addCategory')}
-            </button>
-
+                                {sidebarEnabled && (
+                                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 rounded-xl border border-gray-200/80 bg-gray-50/50 p-4">
+                                        <label className="flex flex-col gap-1.5 text-sm text-gray-700">
+                                            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                                {t('sections.manager.productsByCategory.sidebarTitle', 'Sidebar Title')}
+                                            </span>
+                                            <Input
+                                                type="text"
+                                                value={sidebarConfig.title || ''}
+                                                onChange={(e) => handleSidebarConfigChange('title', e.target.value)}
+                                                placeholder={t('sections.manager.productsByCategory.sidebarDefaultTitle', 'Danh mục sản phẩm')}
+                                                className="bg-white"
+                                            />
+                                        </label>
+                                        <label className="flex flex-col gap-1.5 text-sm text-gray-700">
+                                            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                                {t('sections.manager.productsByCategory.borderRadius', 'Border Radius')}
+                                            </span>
+                                            <Input
+                                                type="text"
+                                                value={sidebarConfig.borderRadius || ''}
+                                                onChange={(e) => handleSidebarConfigChange('borderRadius', e.target.value)}
+                                                placeholder="16px"
+                                                className="bg-white"
+                                            />
+                                        </label>
+                                        <label className="flex flex-col gap-1.5 text-sm text-gray-700">
+                                            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                                {t('sections.manager.productsByCategory.headerBgColor', 'Header Background Color')}
+                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <div className="h-10 w-10 rounded border border-gray-200 shadow-sm flex-shrink-0" style={{ backgroundColor: sidebarConfig.headerBackgroundColor || 'transparent' }} />
+                                                <Input
+                                                    type="text"
+                                                    value={sidebarConfig.headerBackgroundColor || ''}
+                                                    onChange={(e) => handleSidebarConfigChange('headerBackgroundColor', e.target.value)}
+                                                    placeholder="#ffffff"
+                                                    className="bg-white"
+                                                />
+                                            </div>
+                                        </label>
+                                    </div>
+                                )}
+                            </div>
+                        ),
+                    },
+                ]}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+            />
         </div>
     );
 };

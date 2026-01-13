@@ -260,7 +260,7 @@ const FeaturedProducts: React.FC<{
         <div className="mt-4 text-center">
           <Link
             href="/featured-products"
-            className="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-200 gap-1"
+            className="inline-flex items-center text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-200 gap-1"
             onClick={onClose}
           >
             {viewAllProductsLabel}

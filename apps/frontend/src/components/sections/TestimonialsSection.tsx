@@ -26,6 +26,9 @@ export interface TestimonialsSectionConfig {
   headingStyle?: 'default' | 'banner';
   headingBackgroundColor?: string;
   headingTextColor?: string;
+  headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
+  headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingBarHeight?: number;
 }
 
 interface TestimonialsSectionProps {
@@ -128,6 +131,9 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ config
           headingStyle={config.headingStyle}
           headingBackgroundColor={config.headingBackgroundColor}
           headingTextColor={config.headingTextColor}
+          headingTextTransform={config.headingTextTransform}
+          headingTitleSize={config.headingTitleSize}
+          headingBarHeight={config.headingBarHeight}
           theme="dark"
           className="mb-12"
         />

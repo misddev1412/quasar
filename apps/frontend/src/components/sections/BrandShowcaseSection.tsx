@@ -21,6 +21,9 @@ export interface BrandShowcaseConfig {
   headingStyle?: 'default' | 'banner';
   headingBackgroundColor?: string;
   headingTextColor?: string;
+  headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
+  headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  headingBarHeight?: number;
 }
 
 interface BrandShowcaseSectionProps {
@@ -298,6 +301,9 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
             headingStyle={config.headingStyle}
             headingBackgroundColor={config.headingBackgroundColor}
             headingTextColor={config.headingTextColor}
+            headingTextTransform={config.headingTextTransform}
+            headingTitleSize={config.headingTitleSize}
+            headingBarHeight={config.headingBarHeight}
             className="mb-12"
           />
         )}

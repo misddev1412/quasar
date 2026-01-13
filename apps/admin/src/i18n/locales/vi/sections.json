@@ -62,6 +62,16 @@
                 "noDedicatedEditor": "Chưa có trình chỉnh sửa chuyên dụng cho loại này. Chuyển sang chế độ JSON thô.",
                 "openJsonEditor": "Mở trình chỉnh sửa JSON"
             },
+            "tabs": {
+                "content": "Nội dung",
+                "heading": "Tiêu đề",
+                "productsDisplay": "Sản phẩm & hiển thị",
+                "categories": "Danh mục",
+                "sidebar": "Sidebar",
+                "brands": "Thương hiệu",
+                "testimonials": "Đánh giá",
+                "display": "Hiển thị"
+            },
             "form": {
                 "page": "Trang",
                 "pagePlaceholder": "Chọn trang...",
@@ -586,6 +596,29 @@
                     "showReadMore": "Hiển thị nút \"Đọc thêm\""
                 }
             },
+            "headingConfig": {
+                "headingStyle": "Kiểu tiêu đề",
+                "headingStyleDefault": "Mặc định",
+                "headingStyleBanner": "Thanh màu",
+                "titleCase": "Kiểu chữ tiêu đề",
+                "titleCaseOptions": {
+                    "normal": "Bình thường",
+                    "uppercase": "Viết hoa",
+                    "capitalize": "Viết hoa chữ cái đầu",
+                    "lowercase": "Viết thường"
+                },
+                "defaultPlaceholder": "Mặc định",
+                "titleSize": "Cỡ tiêu đề & chiều cao thanh",
+                "sizePresets": {
+                    "mini": "Nhỏ (XS / 40px)",
+                    "compact": "Gọn (SM / 48px)",
+                    "standard": "Chuẩn (MD / 56px)",
+                    "spacious": "Rộng (LG / 72px)",
+                    "hero": "Hero (XL / 88px)"
+                },
+                "headingBackground": "Nền tiêu đề",
+                "headingText": "Chữ tiêu đề"
+            },
             "productsByCategory": {
                 "strategy": {
                     "latest": "Sản phẩm mới nhất",
@@ -599,6 +632,11 @@
                 "sidebarNote": "Chỉnh sửa nội dung mega menu tại mục Component Configs > products_by_category.",
                 "displayCategories": "Danh mục hiển thị",
                 "displayCategoriesDescription": "Thêm nhiều danh mục để hiển thị sản phẩm nổi bật theo từng nhóm.",
+                "headingConfigAllTitle": "Cấu hình tiêu đề (áp dụng cho tất cả)",
+                "headingConfigAllDescription": "Chỉnh một lần và áp cho tiêu đề của mọi danh mục.",
+                "openHeadingConfigAll": "Mở cấu hình chung",
+                "closeHeadingConfigAll": "Ẩn cấu hình chung",
+                "applyHeadingConfigAll": "Áp dụng cho tất cả",
                 "addCategory": "Thêm danh mục",
                 "categoryIndex": "Danh mục",
                 "categoryDescription": "Chọn danh mục và kiểu hiển thị nội dung sản phẩm.",
