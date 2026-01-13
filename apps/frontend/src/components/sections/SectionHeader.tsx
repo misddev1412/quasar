@@ -30,7 +30,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
     className,
     theme,
 }) => {
-    // Determine effective text colors based on theme or background image
+    // Determine effective text colors based on theme
     const isDarkTheme = theme === 'dark';
     const headingTextStyle = headingTextColor ? { color: headingTextColor } : undefined;
 
@@ -68,9 +68,9 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
                         )}
 
                         {title && (
-                            <h2 className="text-2xl font-bold md:text-3xl">
-                                {title}
-                            </h2>
+                        <h2 className="mb-0 text-2xl font-bold md:text-3xl" style={headingTextStyle}>
+                            {title}
+                        </h2>
                         )}
 
                         {description && (
@@ -109,12 +109,15 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
                     </p>
                 )}
                 {title && (
-                    <h2 className={cn(
-                        "text-3xl font-bold md:text-4xl",
-                        getTitleColor()
-                    )}>
-                        {title}
-                    </h2>
+                        <h2
+                            className={cn(
+                                "mb-0 text-3xl font-bold md:text-4xl",
+                                getTitleColor()
+                            )}
+                            style={headingTextStyle}
+                        >
+                            {title}
+                        </h2>
                 )}
                 {description && (
                     <p className={cn(
@@ -133,6 +136,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
                         "group inline-flex items-center gap-2 text-sm font-semibold transition-colors",
                         isDarkTheme ? "text-blue-300 hover:text-blue-200" : "text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                     )}
+                    style={headingTextStyle}
                 >
                     {ctaLabel}
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

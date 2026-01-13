@@ -8,6 +8,7 @@ export interface SectionHeadingConfigData {
     headingStyle?: SectionHeadingStyle;
     headingBackgroundColor?: string;
     headingTextColor?: string;
+    headingBackgroundImage?: string;
 }
 
 interface SectionHeadingConfigProps {
