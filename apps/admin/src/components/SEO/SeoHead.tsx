@@ -12,7 +12,6 @@ interface SeoHeadProps {
 }
 
 export const SeoHead: React.FC<SeoHeadProps> = ({ path, data, defaultSeo }) => {
-  // 如果提供了完整的data，则直接使用它，否则从useSeo获取
   const { 
     seo = null,
     isLoading
@@ -33,7 +32,6 @@ export const SeoHead: React.FC<SeoHeadProps> = ({ path, data, defaultSeo }) => {
   }
   
   if (!seo) {
-    // 默认SEO回退方案
     return (
       <Helmet>
         <title>{platformTitle}</title>
@@ -72,9 +70,8 @@ export const SeoHead: React.FC<SeoHeadProps> = ({ path, data, defaultSeo }) => {
       {/* Locale */}
       {seo.locale && <meta property="og:locale" content={seo.locale} />}
       
-      {/* 渲染additionalMetaTags（如果有的话） */}
+      {}
       {seo.additionalMetaTags && Object.entries(seo.additionalMetaTags).map(([name, content]) => {
-        // 根据名称决定是渲染为普通meta标签还是og标签
         if (name.startsWith('og:')) {
           return <meta key={name} property={name} content={content} />;
         }

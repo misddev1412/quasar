@@ -6,7 +6,7 @@ import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend
 import { trpc } from '../../utils/trpc';
 import { debounce } from 'lodash';
 import { CreateCustomerForm, CreateCustomerFormData } from './CreateCustomerForm';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 
 export interface Customer {
   id: string;

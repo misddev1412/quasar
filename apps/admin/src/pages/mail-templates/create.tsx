@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Home, Settings, Send, FileText, Users } from 'lucide-react';
 import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useEmailChannels } from '../../hooks/useEmailChannels';

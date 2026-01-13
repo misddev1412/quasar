@@ -29,7 +29,7 @@ import { StatisticsGrid, StatisticData } from '../../components/common/Statistic
 import { Table, Column } from '../../components/common/Table';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import type { NotificationEventKey } from '../../types/notification-events';
 import { NOTIFICATION_EVENT_OPTIONS } from '../../types/notification-events';

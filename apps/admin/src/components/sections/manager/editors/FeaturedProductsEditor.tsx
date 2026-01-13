@@ -1,24 +1,58 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
 import { Input } from '../../../common/Input';
-import { Image as ImageIcon } from 'lucide-react';
+import { Toggle } from '../../../common/Toggle';
 import { trpc } from '../../../../utils/trpc';
 import SelectComponent, { components as selectComponents, type MenuListProps } from 'react-select';
 import { ConfigChangeHandler, ProductOption } from '../types';
-import { mapProductToOption, ensureNumber } from '../utils';
+import { ensureNumber, mapProductToOption } from '../utils';
+import { Image as ImageIcon } from 'lucide-react';
+import { SectionHeadingConfig, SectionHeadingConfigData } from '../common/SectionHeadingConfig';
 
 interface FeaturedProductsConfigEditorProps {
     value: Record<string, unknown>;
     onChange: ConfigChangeHandler;
 }
 
+type HeadingStyle = 'default' | 'banner';
+
+interface FeaturedProductsConfig {
+    title?: string;
+    description?: string;
+    productIds?: string[];
+    limit?: number;
+    showTitle?: boolean;
+    showDescription?: boolean;
+    headingStyle?: HeadingStyle;
+    headingBackgroundColor?: string;
+    headingBackgroundImage?: string;
+    displayStyle?: string;
+    itemsPerRow?: number;
+}
+
+const DEFAULT_LIMIT = 4;
+
 export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditorProps> = ({ value, onChange }) => {
     const { t } = useTranslationWithBackend();
-    const selectedIds = Array.isArray(value?.productIds) ? (value.productIds as string[]) : [];
+
+    // Parse initial config
+    const config = useMemo<FeaturedProductsConfig>(() => ({
+        title: typeof value?.title === 'string' ? value.title : '',
+        description: typeof value?.description === 'string' ? value.description : '',
+        productIds: Array.isArray(value?.productIds) ? value.productIds : [],
+        limit: ensureNumber(value?.limit, DEFAULT_LIMIT),
+        showTitle: value?.showTitle !== false,
+        showDescription: value?.showDescription !== false,
+        headingStyle: (value?.headingStyle as HeadingStyle) || 'default',
+        headingBackgroundColor: typeof value?.headingBackgroundColor === 'string' ? value.headingBackgroundColor : undefined,
+        headingBackgroundImage: typeof value?.headingBackgroundImage === 'string' ? value.headingBackgroundImage : undefined,
+        displayStyle: typeof value?.displayStyle === 'string' ? value.displayStyle : 'grid',
+        itemsPerRow: ensureNumber(value?.itemsPerRow, 4),
+    }), [value]);
+
+    const selectedIds = config.productIds || [];
     const [optionsMap, setOptionsMap] = useState<Record<string, ProductOption>>({});
     const [searchOptions, setSearchOptions] = useState<ProductOption[]>([]);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [previewOptions, setPreviewOptions] = useState<ProductOption[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [page, setPage] = useState(1);
@@ -28,14 +62,14 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
     // @ts-ignore
     const menuPortalTarget = typeof window !== 'undefined' ? window.document.body : undefined;
 
-    useEffect(() => {
+    React.useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(searchTerm.trim());
         }, 300);
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
-    useEffect(() => {
+    React.useEffect(() => {
         setPage(1);
         setSearchOptions([]);
     }, [debouncedSearch]);
@@ -49,7 +83,7 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
         },
     );
 
-    useEffect(() => {
+    React.useEffect(() => {
         const payload = (productsQuery.data as any)?.data;
         if (!payload) {
             if (!productsQuery.isFetching && !productsQuery.isLoading) {
@@ -64,7 +98,7 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
 
         setOptionsMap((prev) => {
             const next = { ...prev };
-            mapped.forEach((option) => {
+            mapped.forEach((option: any) => {
                 next[option.value] = option;
             });
             return next;
@@ -74,8 +108,8 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
             if (page === 1) {
                 return mapped;
             }
-            const existing = new Map(prev.map((option) => [option.value, option]));
-            mapped.forEach((option) => {
+            const existing = new Map(prev.map((option: any) => [option.value, option]));
+            mapped.forEach((option: any) => {
                 if (!existing.has(option.value)) {
                     existing.set(option.value, option);
                 }
@@ -84,10 +118,9 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
         });
 
         setHasMore(payload.page < payload.totalPages);
-        setPreviewOptions(mapped.slice(0, value?.limit ? Number(value.limit) : 4));
-    }, [productsQuery.data, page, productsQuery.isFetching, productsQuery.isLoading, t, value?.limit]);
+    }, [productsQuery.data, page, productsQuery.isFetching, productsQuery.isLoading, t]);
 
-    useEffect(() => {
+    React.useEffect(() => {
         const missing = selectedIds.filter((id) => !optionsMap[id]);
         if (missing.length === 0) return;
 
@@ -147,6 +180,24 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
         return selectedIds.map((id) => optionsMap[id] || { value: id, label: `Product ${id}`, image: null });
     }, [optionsMap, selectedIds]);
 
+    const handleConfigChange = (newConfig: Partial<FeaturedProductsConfig>) => {
+        onChange({
+            ...value,
+            ...newConfig,
+        });
+    };
+
+    const handleSelectionChange = (items: readonly ProductOption[] | null) => {
+        const ids = (items ?? []).map((item) => item.value);
+        handleConfigChange({ productIds: ids });
+    };
+
+    const loadMore = useCallback(() => {
+        if (hasMore && !productsQuery.isFetching) {
+            setPage((prev) => prev + 1);
+        }
+    }, [hasMore, productsQuery.isFetching]);
+
     const productSelectStyles = useMemo(
         () => ({
             control: (provided: any, state: any) => ({
@@ -200,34 +251,6 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
         }),
         [],
     );
-
-    const loadMore = useCallback(() => {
-        if (hasMore && !productsQuery.isFetching) {
-            setPage((prev) => prev + 1);
-        }
-    }, [hasMore, productsQuery.isFetching]);
-
-    const handleSelectionChange = (items: readonly ProductOption[] | null) => {
-        const ids = (items ?? []).map((item) => item.value);
-        onChange({
-            ...(value ?? {}),
-            productIds: ids,
-        });
-    };
-
-    const handleDisplayStyleChange = (next: string) => {
-        onChange({
-            ...(value ?? {}),
-            displayStyle: next,
-        });
-    };
-
-    const handleItemsPerRowChange = (next: number) => {
-        onChange({
-            ...(value ?? {}),
-            itemsPerRow: next,
-        });
-    };
 
     const MenuList = (props: MenuListProps<ProductOption>) => (
         <selectComponents.MenuList {...props}>
@@ -290,9 +313,50 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('sections.manager.featuredProducts.title')}
+                    <Input
+                        value={config.title}
+                        onChange={(e) => handleConfigChange({ title: e.target.value })}
+                    />
+                </label>
+                <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('sections.manager.featuredProducts.limit')}
+                    <Input
+                        type="number"
+                        min={1}
+                        value={config.limit}
+                        onChange={(e) => handleConfigChange({ limit: Number(e.target.value) || 1 })}
+                    />
+                </label>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <Toggle
+                    label={t('sections.manager.featuredProducts.showTitle')}
+                    checked={config.showTitle}
+                    onChange={(checked) => handleConfigChange({ showTitle: checked })}
+                />
+                <Toggle
+                    label={t('sections.manager.featuredProducts.showDescription')}
+                    checked={config.showDescription}
+                    onChange={(checked) => handleConfigChange({ showDescription: checked })}
+                />
+            </div>
+
+            <SectionHeadingConfig
+                data={{
+                    headingStyle: config.headingStyle,
+                    headingBackgroundColor: config.headingBackgroundColor,
+                    headingBackgroundImage: config.headingBackgroundImage,
+                }}
+                onChange={(data: SectionHeadingConfigData) => handleConfigChange(data)}
+            />
+
             <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">{t('sections.manager.productsByCategory.featureProducts')}</label>
+                <label className="text-sm font-medium text-gray-700">{t('sections.manager.featuredProducts.selectProducts')}</label>
                 <SelectComponent<ProductOption, true>
                     isMulti
                     placeholder={t('sections.manager.productsByCategory.searchProducts')}
@@ -322,44 +386,6 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
                         loadMore();
                     }}
                 />
-                <p className="text-xs text-gray-500">
-                    {t('sections.manager.productsByCategory.productsAppearOrder')}
-                </p>
-            </div>
-
-            <div className="space-y-3">
-                {selectedOptions.length === 0 ? (
-                    <div className="border border-dashed border-gray-300 rounded-lg p-4 text-sm text-gray-500">
-                        {t('sections.manager.productsByCategory.noProductsSelected')}
-                    </div>
-                ) : (
-                    <div className="space-y-2">
-                        {selectedOptions.map((option, index) => (
-                            <div
-                                key={option.value}
-                                className="flex items-center gap-3 border border-gray-200 rounded-lg p-3 bg-white"
-                            >
-                                {option.image ? (
-                                    <img src={option.image} alt={option.label} className="w-12 h-12 rounded-md object-cover" />
-                                ) : (
-                                    <div className="w-12 h-12 rounded-md bg-gray-100 flex items-center justify-center text-gray-400">
-                                        <ImageIcon className="w-5 h-5" />
-                                    </div>
-                                )}
-                                <div className="flex-1">
-                                    <p className="text-sm font-medium text-gray-900">
-                                        {index + 1}. {option.label}
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                        {option.sku ? `SKU: ${option.sku}` : t('sections.manager.productsByCategory.noSku')}
-                                        {option.brandName ? ` · ${option.brandName}` : ''}
-                                        {option.priceLabel ? ` · ${option.priceLabel}` : ''}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -367,8 +393,8 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
                     {t('sections.manager.productsByCategory.style')}
                     <select
                         className="border rounded-md px-3.5 py-2.5 text-sm !h-11"
-                        value={(value?.displayStyle as string) || 'grid'}
-                        onChange={(e) => handleDisplayStyleChange(e.target.value)}
+                        value={config.displayStyle}
+                        onChange={(e) => handleConfigChange({ displayStyle: e.target.value })}
                     >
                         <option value="grid">Grid</option>
                         <option value="carousel">Carousel</option>
@@ -380,8 +406,8 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
                         type="number"
                         min={1}
                         max={6}
-                        value={ensureNumber(value?.itemsPerRow, 4)}
-                        onChange={(e) => handleItemsPerRowChange(Number(e.target.value) || 1)}
+                        value={config.itemsPerRow}
+                        onChange={(e) => handleConfigChange({ itemsPerRow: Number(e.target.value) || 1 })}
                         className="text-sm w-20"
                         inputSize="md"
                     />

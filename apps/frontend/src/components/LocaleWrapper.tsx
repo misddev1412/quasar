@@ -5,6 +5,8 @@ import NextIntlProvider from './NextIntlProvider';
 import enMessages from '../i18n/locales/en.json';
 import viMessages from '../i18n/locales/vi.json';
 import i18n from '../lib/i18n';
+import { trpc } from '../utils/trpc';
+import { mergeMessages } from '../i18n/mergeMessages';
 
 const supportedLocales = ['en', 'vi'] as const;
 type SupportedLocale = (typeof supportedLocales)[number];
@@ -35,14 +37,41 @@ const syncI18nLanguage = (nextLocale: SupportedLocale) => {
 interface LocaleWrapperProps {
   children: React.ReactNode;
   initialLocale: string;
+  initialMessages?: Record<string, any>;
 }
 
-export default function LocaleWrapper({ children, initialLocale }: LocaleWrapperProps) {
+export default function LocaleWrapper({ children, initialLocale, initialMessages }: LocaleWrapperProps) {
   const initial = React.useMemo(() => normalizeLocale(initialLocale), [initialLocale]);
   const [locale, setLocale] = React.useState<SupportedLocale>(() => {
     syncI18nLanguage(initial);
     return initial;
   });
+  const { data: translationsData } = trpc.translation.getTranslations.useQuery(
+    { locale },
+    {
+      enabled: Boolean(locale),
+      retry: 1,
+      staleTime: 1000 * 60 * 10,
+    }
+  );
+
+  const resolvedMessages = React.useMemo(() => {
+    const baseMessages = messages[locale] || messages.en;
+    const apiTranslations =
+      translationsData?.success && translationsData.data?.translations
+        ? translationsData.data.translations
+        : null;
+
+    if (apiTranslations) {
+      return mergeMessages(baseMessages, apiTranslations);
+    }
+
+    if (locale === initial && initialMessages) {
+      return initialMessages;
+    }
+
+    return baseMessages;
+  }, [locale, initial, initialMessages, translationsData]);
 
   React.useEffect(() => {
     const normalized = normalizeLocale(initialLocale);
@@ -113,7 +142,7 @@ export default function LocaleWrapper({ children, initialLocale }: LocaleWrapper
   }, [locale]);
 
   return (
-    <NextIntlProvider locale={locale} messages={messages[locale] || messages.en}>
+    <NextIntlProvider locale={locale} messages={resolvedMessages}>
       {children}
     </NextIntlProvider>
   );

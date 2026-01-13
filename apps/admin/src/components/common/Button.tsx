@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
@@ -38,20 +38,16 @@ export const Button: React.FC<ButtonProps> = ({
   const { isDarkMode, currentMode } = useTheme();
   const resolvedStartIcon = startIcon ?? icon;
 
-  // 检查是否在登录页面
   const isLoginPage = typeof document !== 'undefined' && 
     document.body.classList.contains('login-page');
 
-  // 根据变体获取类名
   const getVariantClasses = () => {
-    // 为登录页面主按钮使用CSS变量
     if (variant === 'primary' && isLoginPage) {
       return isDarkMode
         ? 'themed-button shadow-md hover:shadow-lg bg-gradient-to-r from-primary-500 to-primary-700'
         : 'themed-button shadow-md hover:shadow-lg bg-gradient-to-r from-primary-700 to-primary-900 font-semibold';
     }
 
-    // 标准变体类
     const classes = {
       primary: `themed-button bg-gradient-to-r ${
         isDarkMode 
@@ -80,17 +76,14 @@ export const Button: React.FC<ButtonProps> = ({
     lg: 'h-12 px-6 text-lg',      // 48px height (matches input lg)
   };
 
-  // 为登录页面添加自定义按钮动画效果
   const getAnimationClass = () => {
     return isLoginPage && variant === 'primary' && !disabled && !isLoading
       ? 'hover:scale-[1.02] hover:-translate-y-0.5 transform transition-all duration-200'
       : 'hover:scale-[1.01] transition-all duration-200';
   };
 
-  // 按钮圆角
   const borderRadiusClass = 'rounded-[var(--border-radius)]';
 
-  // 更好的按钮阴影
   const getShadowClass = () => {
     if (disabled || isLoading) return '';
     

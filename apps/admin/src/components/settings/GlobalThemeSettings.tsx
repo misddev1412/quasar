@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import LocaleSwitcher from '../LocaleSwitcher';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { Button } from '../common/Button';
 import { Sun, Moon } from 'lucide-react';
 

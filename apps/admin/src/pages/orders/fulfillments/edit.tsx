@@ -9,7 +9,7 @@ import { Button } from '../../../components/common/Button';
 import { Loading } from '../../../components/common/Loading';
 import { FormSection } from '../../../components/common/FormSection';
 import { Badge } from '../../../components/common/Badge';
-import { useToast } from '../../../context/ToastContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { trpc } from '../../../utils/trpc';
 import { Input } from '../../../components/common/Input';

@@ -7,7 +7,7 @@ import { TextareaInput } from '../../components/common/TextareaInput';
 import { Toggle } from '../../components/common/Toggle';
 import { Button } from '../../components/common/Button';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { parseValidationErrors, getErrorMessage, isValidationError } from '../../utils/errorUtils';
 

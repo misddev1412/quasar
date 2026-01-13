@@ -4,7 +4,7 @@ import { Mail, Settings } from 'lucide-react';
 import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
 import { EntityForm } from '../../../components/common/EntityForm';
 import { FormTabConfig } from '../../../types/forms';
-import { useToast } from '../../../context/ToastContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { trpc } from '../../../utils/trpc';
 import { z } from 'zod';
 import { Loading } from '../../../components/common/Loading';

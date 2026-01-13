@@ -7,7 +7,7 @@ import GlobalThemeSettings from '../../components/settings/GlobalThemeSettings';
 import { Button } from '../../components/common/Button';
 import { defaultThemeConfig, ThemeConfig } from '../../config/theme.config';
 import { trpc } from '../../utils/trpc';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 
 const ThemeSettingsPage: React.FC = () => {
     const { t } = useTranslationWithBackend();

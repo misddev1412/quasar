@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLayout } from '../../contexts/LayoutContext';
-import { useTheme } from '../../context/ThemeContext';
-import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   AppBar,
   Toolbar,

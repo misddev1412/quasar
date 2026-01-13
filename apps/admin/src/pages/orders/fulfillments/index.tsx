@@ -19,7 +19,7 @@ import { Dropdown } from '../../../components/common/Dropdown';
 import { Table, Column } from '../../../components/common/Table';
 import { Badge } from '../../../components/common/Badge';
 import BaseLayout from '../../../components/layout/BaseLayout';
-import { useToast } from '../../../context/ToastContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { Loading } from '../../../components/common/Loading';
 import { Breadcrumb } from '../../../components/common/Breadcrumb';

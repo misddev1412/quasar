@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Shield } from 'lucide-react';
 import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
 import { CreateRoleForm } from '../../components/role/CreateRoleForm';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { CreateRoleFormData } from '../../utils/validation';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';

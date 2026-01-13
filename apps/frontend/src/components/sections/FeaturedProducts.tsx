@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { SectionHeader } from './SectionHeader';
 import { useTranslation } from 'react-i18next';
 import { SectionTranslationContent } from './HeroSlider';
 import type { ViewMoreButtonConfig } from '@shared/types/component.types';
@@ -15,6 +16,9 @@ export interface FeaturedProductsConfig {
   productIds?: string[];
   displayStyle?: 'grid' | 'carousel';
   itemsPerRow?: number;
+  headingStyle?: 'default' | 'banner';
+  headingBackgroundColor?: string;
+  headingBackgroundImage?: string;
 }
 
 interface FeaturedProductsProps {
@@ -86,28 +90,16 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
     <section id="sections" className="py-16 bg-white dark:bg-gray-950">
       <SectionContainer paddingClassName="px-6 lg:px-8">
         {hasContent && (
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
-            <div>
-              {sectionTitle && (
-                <h2 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
-                  {sectionTitle}
-                </h2>
-              )}
-              {sectionSubtitle && (
-                <p className="mt-2 text-gray-500 dark:text-gray-400">{sectionSubtitle}</p>
-              )}
-              {sectionDescription && (
-                <p className="mt-3 text-sm text-gray-500 dark:text-gray-400 max-w-2xl">
-                  {sectionDescription}
-                </p>
-              )}
-            </div>
-            <ViewMoreButton
-              href="/products"
-              label={t('sections.featured_products.browse_catalog')}
-              config={viewMoreButtonConfig}
-            />
-          </div>
+          <SectionHeader
+            title={sectionTitle}
+            subtitle={sectionSubtitle}
+            description={sectionDescription}
+            ctaLabel={t('sections.featured_products.browse_catalog')}
+            ctaLink="/products"
+            headingStyle={config.headingStyle}
+            headingBackgroundColor={config.headingBackgroundColor}
+            headingBackgroundImage={config.headingBackgroundImage}
+          />
         )}
 
         {productIds.length === 0 ? (

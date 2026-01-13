@@ -9,7 +9,7 @@ import { LazyLoadingCategoryTreeView } from '../../components/products/LazyLoadi
 import { CategoryFilter, CategoryFilterOptions } from '../../components/products/CategoryFilter';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';

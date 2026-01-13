@@ -30,6 +30,9 @@
       "@admin/contexts/*": [
         "apps/admin/src/contexts/*"
       ],
+      "@admin/context/*": [
+        "apps/admin/src/contexts/*"
+      ],
       "@admin/hooks/*": [
         "apps/admin/src/hooks/*"
       ],

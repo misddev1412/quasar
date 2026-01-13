@@ -5,7 +5,7 @@ import { FiHome, FiSettings } from 'react-icons/fi';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useSettings, SettingData } from '../../hooks/useSettings';
 import { Toggle } from '../../components/common/Toggle';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 

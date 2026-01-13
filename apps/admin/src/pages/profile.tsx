@@ -5,7 +5,7 @@ import { AdminUpdatePasswordDto, AdminUpdateUserProfileDto, AdminUserResponseDto
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 import { useUrlTabs } from '../hooks/useUrlTabs';
 import { trpc } from '../utils/trpc';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../contexts/ToastContext';
 import BaseLayout from '../components/layout/BaseLayout';
 import { Breadcrumb } from '../components/common/Breadcrumb';
 import Tabs from '../components/common/Tabs';

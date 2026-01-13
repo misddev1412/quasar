@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiStar } from 'react-icons/fi';
 import { CreatePageTemplate } from '../../../../components/common/CreatePageTemplate';
 import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { useToast } from '../../../../context/ToastContext';
+import { useToast } from '../../../../contexts/ToastContext';
 import { trpc } from '../../../../utils/trpc';
 import {
   LoyaltyTierForm,

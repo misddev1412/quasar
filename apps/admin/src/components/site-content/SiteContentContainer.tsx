@@ -9,7 +9,7 @@ import { Dropdown } from '../common/Dropdown';
 import { StatisticsGrid, StatisticData } from '../common/StatisticsGrid';
 import { Table, Column, SortDescriptor } from '../common/Table';
 import { Loading } from '../common/Loading';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
 import { SiteContentCategory, SiteContentStatus } from '@shared/enums/site-content.enums';

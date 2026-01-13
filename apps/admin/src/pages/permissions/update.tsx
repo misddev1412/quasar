@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Lock, ArrowLeft, Shield, Settings, Trash2, Home } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../../components/common/Card';
 import BaseLayout from '../../components/layout/BaseLayout';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useUrlTabs } from '../../hooks/useUrlTabs';

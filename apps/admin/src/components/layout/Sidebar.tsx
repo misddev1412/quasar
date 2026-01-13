@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useLayout } from '../../contexts/LayoutContext';
-import { useTheme } from '../../context/ThemeContext';
-import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import Logo from './Logo';
 import UserInfo from './UserInfo';

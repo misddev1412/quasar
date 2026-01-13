@@ -4,10 +4,9 @@ import { CreateSettingForm } from './CreateSettingForm';
 import cn from 'classnames';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { Toggle } from '../common/Toggle';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { Button } from '../common/Button';
 
-// 设置项卡片组件
 interface SettingItemProps {
   setting: SettingData;
   onUpdate: (id: string, data: Partial<Omit<SettingData, 'id'>>) => Promise<void>;
@@ -252,7 +251,6 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
   );
 };
 
-// 设置组卡片组件
 const SettingGroupCard: React.FC<{
   title: string;
   settings: any[];
@@ -281,7 +279,6 @@ const SettingGroupCard: React.FC<{
 
 
 
-// 空状态提示组件
 const EmptyState: React.FC<{ onCreateClick: () => void }> = ({ onCreateClick }) => {
   const { t } = useTranslationWithBackend();
 
@@ -324,7 +321,6 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
   group = null
 }) => {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(group);
-  // 如果外部没有提供模态框控制，则使用内部状态
   const [internalModalOpen, setInternalModalOpen] = useState(false);
   const { groupedSettings: rawGroupedSettings, isLoading, updateSetting } = useSettings({ group: group || undefined });
 
@@ -390,10 +386,8 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
   }, [rawGroupedSettings]);
   const { t } = useTranslationWithBackend();
 
-  // 确定是否显示模态框
   const isCreateModalOpen = onOpenCreateModal ? isModalOpen : internalModalOpen;
 
-  // 处理模态框关闭
   const handleCloseModal = () => {
     if (onCloseModal) {
       onCloseModal();
@@ -402,7 +396,6 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
     }
   };
 
-  // 处理打开模态框
   const handleOpenModal = () => {
     if (onOpenCreateModal) {
       onOpenCreateModal();
@@ -411,7 +404,6 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
     }
   };
 
-  // 模拟数据 - 当真实数据为空时使用
   const placeholderSettings = {
     "general": [
       {
@@ -475,10 +467,8 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
     ]
   };
 
-  // 检查是否真的为空（而不只是加载中）
   const isEmpty = !isLoading && (!groupedSettings || Object.keys(groupedSettings).length === 0);
 
-  // 决定显示真实数据还是占位数据
   const settingsToDisplay = isEmpty ? placeholderSettings : (groupedSettings || {});
   const groups = Object.keys(settingsToDisplay);
 
@@ -526,7 +516,7 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
         </div>
       </div>
 
-      {/* 创建设置对话框 */}
+      {}
       {isCreateModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-[9998] flex items-center justify-center p-4 animate-fadeIn">
           <div
@@ -554,7 +544,6 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
   );
 };
 
-// 添加必要的全局CSS动画
 const styleSheet = document.createElement('style');
 styleSheet.type = 'text/css';
 styleSheet.innerHTML = `

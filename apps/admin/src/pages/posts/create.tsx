@@ -4,7 +4,7 @@ import { FileText, FolderOpen } from 'lucide-react';
 import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
 import { CreatePostForm } from '../../components/posts/CreatePostForm';
 import { MediaManager } from '../../components/common/MediaManager';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { FormSubmitOptions, FormSubmitAction } from '../../types/forms';

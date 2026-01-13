@@ -10,7 +10,7 @@ import { ConfirmationModal } from '../../components/common/ConfirmationModal';
 import { Select } from '../../components/common/Select';
 import { Modal } from '../../components/common/Modal';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { CreateSupportClientModal } from '../../components/support-clients/CreateSupportClientModal';
 import { EditSupportClientModal } from '../../components/support-clients/EditSupportClientModal';

@@ -4,7 +4,7 @@ import { Mail, Settings, Server, Key, Mail as MailIcon, Gauge, Activity } from '
 import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
 import { EntityForm } from '../../../components/common/EntityForm';
 import { FormTabConfig } from '../../../types/forms';
-import { useToast } from '../../../context/ToastContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { trpc } from '../../../utils/trpc';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { useUrlTabs } from '../../../hooks/useUrlTabs';

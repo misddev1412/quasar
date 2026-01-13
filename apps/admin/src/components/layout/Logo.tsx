@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useBrandingSetting } from '../../hooks/useBrandingSetting';
 import {

@@ -9,7 +9,7 @@ import { Toggle } from '../common/Toggle';
 import { Loading } from '../common/Loading';
 import { Alert, AlertDescription } from '../common/Alert';
 import { useTelegramNotificationConfigs } from '../../hooks/useTelegramNotificationConfigs';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 
 type FormState = {
   name: string;

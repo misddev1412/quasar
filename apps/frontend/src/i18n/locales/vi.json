@@ -1816,7 +1816,7 @@
     "products_by_category": {
       "title": "Sản phẩm nổi bật",
       "description": "Khám phá các sản phẩm mới và được tuyển chọn trong danh mục này.",
-      "view_category": "Xem danh mục",
+      "view_category": "Xem tất cả",
       "category_label": "Danh mục {{category}}",
       "curated_category": "Bộ sưu tập tuyển chọn",
       "loading": "Đang tải sản phẩm...",
@@ -1842,7 +1842,7 @@
     },
     "featured_products": {
       "title": "Sản phẩm nổi bật",
-      "browse_catalog": "Duyệt danh mục",
+      "browse_catalog": "Xem tất cả",
       "placeholder_empty": "Hãy chọn sản phẩm để hiển thị ở mục này."
     },
     "news": {

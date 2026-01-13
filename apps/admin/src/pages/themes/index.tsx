@@ -3,7 +3,7 @@ import { FiEdit2, FiFeather, FiHome, FiMoon, FiPlus, FiRefreshCw, FiSearch, FiSt
 import BaseLayout from '../../components/layout/BaseLayout';
 import { withAdminSeo } from '../../components/SEO/withAdminSeo';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { Toggle } from '../../components/common/Toggle';

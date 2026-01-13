@@ -4,7 +4,7 @@ import { FormInput } from '@admin/components/common/FormInput';
 import { Button } from '@admin/components/common/Button';
 import { MailIcon, LockIcon, AlertIcon } from '@admin/components/common/Icons';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => Promise<void>;
@@ -27,7 +27,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
-    // 密码验证
     if (password.length < 6) {
       setPasswordError(t('auth.password_min_length') || '密码长度必须至少为6个字符');
       return;
@@ -43,7 +42,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     </Link>
   );
 
-  // 获取按钮样式类名
   const getButtonClassName = () => {
     return `mt-2 btn-primary ${isDarkMode 
       ? 'bg-gradient-to-r from-primary-500 to-primary-700' 
@@ -57,7 +55,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-700'} mt-2 text-center`}>{t('auth.enter_credentials')}</p>
       </div>
       
-      {/* 错误信息 - 使用更醒目的样式 */}
+      {}
       {error && (
         <div className="mb-6 p-4 rounded-lg bg-red-50 border-l-4 border-red-600 text-red-800 shadow-lg animate-pulse-slow transition-all duration-300">
           <div className="flex items-center">
@@ -72,9 +70,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         </div>
       )}
       
-      {/* 表单 */}
+      {}
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* 邮箱输入 */}
+        {}
         <FormInput 
           id="email"
           type="email"
@@ -88,7 +86,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           className="form-input"
         />
         
-        {/* 密码输入 */}
+        {}
         <FormInput 
           id="password"
           type="password"
@@ -109,7 +107,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           error={passwordError}
         />
         
-        {/* 记住我 */}
+        {}
         <div className="flex items-center">
           <input
             id="remember_me"
@@ -124,7 +122,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           </label>
         </div>
         
-        {/* 登录按钮 */}
+        {}
         <Button
           type="submit"
           variant="primary"
@@ -136,7 +134,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         </Button>
       </form>
       
-      {/* 支持链接 */}
+      {}
       <div className="mt-8">
         <p className={`text-center text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
           {t('common.need_help')} <a href="#" className={`font-medium ${isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-primary-700 hover:text-primary-800'} transition-colors duration-200`}>{t('common.contact_admin')}</a>

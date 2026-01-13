@@ -7,7 +7,7 @@ import { Table, Column } from '../../components/common/Table';
 import { Button } from '../../components/common/Button';
 import { Dropdown } from '../../components/common/Dropdown';
 import { ConfirmationModal } from '../../components/common/ConfirmationModal';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
 import { Translation, TranslationFiltersType } from '../../types/translation';

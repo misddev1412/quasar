@@ -42,7 +42,7 @@ export class AuthService {
 
     const payload: JwtPayload = {
       email: user.email,
-      sub: user.id, // 确保sub是用户ID而不是角色
+      sub: user.id,
       username: user.username,
       role: primaryRole,
       isActive: user.isActive

@@ -7,11 +7,10 @@ import { AlertBox } from '../common/AlertBox';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useStyleUtils } from '../../utils/styleUtils';
 import { useFirebaseAuth } from '../../hooks/useFirebaseAuth';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { firebaseService } from '../../services/firebase.service';
 import FirebaseEmailLoginModal from './FirebaseEmailLoginModal';
 
-// 仅表示UI所需的props
 interface LoginFormUIProps {
   email: string;
   password: string;
@@ -30,7 +29,6 @@ interface LoginFormUIProps {
   isFirebaseSubmitting?: boolean;
 }
 
-// 纯UI组件，不包含业务逻辑
 export const LoginFormUI: React.FC<LoginFormUIProps> = ({
   email,
   password,
@@ -51,7 +49,6 @@ export const LoginFormUI: React.FC<LoginFormUIProps> = ({
   const { t } = useTranslationWithBackend();
   const { getTextColorClass, getButtonClass } = useStyleUtils();
 
-  // 获取忘记密码链接
   const forgotPasswordLink = (
     <Link 
       to="/auth/forgot-password" 
@@ -71,9 +68,9 @@ export const LoginFormUI: React.FC<LoginFormUIProps> = ({
       </div>
 
 
-      {/* 登录表单 */}
+      {}
       <form onSubmit={onSubmit} className="space-y-4 sm:space-y-6">
-        {/* 邮箱输入 */}
+        {}
         <FormInput 
           id="email"
           type="email"
@@ -87,7 +84,7 @@ export const LoginFormUI: React.FC<LoginFormUIProps> = ({
           className="form-input"
         />
         
-        {/* 密码输入 */}
+        {}
         <FormInput 
           id="password"
           type="password"
@@ -102,7 +99,7 @@ export const LoginFormUI: React.FC<LoginFormUIProps> = ({
           className="form-input"
         />
         
-        {/* 记住我 */}
+        {}
         <div className="flex items-start space-x-3">
           <div className="relative inline-flex flex-shrink-0 items-center justify-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 w-9 h-5 cursor-pointer" 
                style={{ backgroundColor: rememberMe ? '#2563eb' : '#d1d5db' }}>
@@ -132,7 +129,7 @@ export const LoginFormUI: React.FC<LoginFormUIProps> = ({
           </label>
         </div>
         
-        {/* 登录按钮 */}
+        {}
         <Button
           type="submit"
           variant="primary"
@@ -251,7 +248,7 @@ export const LoginFormUI: React.FC<LoginFormUIProps> = ({
         </>
       )}
 
-      {/* 支持链接 */}
+      {}
       <div className="mt-6 sm:mt-8">
         <p className={`text-center text-xs sm:text-sm ${getTextColorClass()}`}>
           {t('common.need_help')} <a href="#" className={`font-medium ${getTextColorClass('text-slate-400 hover:text-slate-300', 'text-primary-700 hover:text-primary-800')} transition-colors duration-200`}>{t('common.contact_admin')}</a>
@@ -261,13 +258,11 @@ export const LoginFormUI: React.FC<LoginFormUIProps> = ({
   );
 };
 
-// 业务逻辑组件props
 interface LoginFormProps {
   onSubmit: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   isSubmitting?: boolean;
 }
 
-// 业务逻辑组件，连接UI和数据
 export const LoginForm: React.FC<LoginFormProps> = ({
   onSubmit,
   isSubmitting = false
@@ -283,18 +278,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     initialized: firebaseInitialized 
   } = useFirebaseAuth();
   
-  // 使用表单状态管理
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [rememberMe, setRememberMe] = React.useState(false);
   const [isFirebaseSubmitting, setIsFirebaseSubmitting] = React.useState(false);
   const [showFirebaseEmailModal, setShowFirebaseEmailModal] = React.useState(false);
 
-  // 处理表单提交
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // 密码验证
     if (password.length < 6) {
       addToast({
         type: 'error',
@@ -306,17 +298,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     await onSubmit(email, password, rememberMe);
   };
 
-  // 处理密码变更
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
   };
 
-  // 处理Firebase邮箱登录 - 打开模态框
   const handleFirebaseEmailLogin = async () => {
     setShowFirebaseEmailModal(true);
   };
 
-  // 处理Firebase邮箱登录发送
   const handleSendFirebaseEmail = async (emailAddress: string) => {
     setIsFirebaseSubmitting(true);
     try {
@@ -329,7 +318,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     }
   };
 
-  // 处理Google登录
   const handleGoogleLogin = async () => {
     if (!firebaseInitialized) {
       addToast({
@@ -355,7 +343,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     }
   };
 
-  // 处理Facebook登录
   const handleFacebookLogin = async () => {
     if (!firebaseInitialized) {
       addToast({
@@ -381,7 +368,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     }
   };
 
-  // 处理Twitter登录
   const handleTwitterLogin = async () => {
     if (!firebaseInitialized) {
       addToast({
@@ -407,7 +393,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     }
   };
 
-  // 处理GitHub登录
   const handleGithubLogin = async () => {
     if (!firebaseInitialized) {
       addToast({
@@ -433,7 +418,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     }
   };
 
-  // 渲染UI组件
   return (
     <>
       <LoginFormUI

@@ -6,7 +6,7 @@ import { Input } from '../common/Input';
 import { Checkbox } from '../common/Checkbox';
 import { Card } from '../common/Card';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { TranslationTabs } from '../common/TranslationTabs';
 import { MediaManager } from '../common/MediaManager';
 import { trpc } from '../../utils/trpc';

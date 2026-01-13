@@ -21,7 +21,7 @@ import { Select, SelectOption } from '../common/Select';
 import { Toggle } from '../common/Toggle';
 import { Modal } from '../common/Modal';
 import { Input } from '../common/Input';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { cn } from '@admin/lib/utils';
 import { SiteContentSelector } from '../site-content/SiteContentSelector';
 

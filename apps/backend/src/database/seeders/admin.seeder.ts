@@ -23,13 +23,10 @@ export class AdminSeeder {
     private readonly userRoleRepository: Repository<UserRoleEntity>,
   ) {}
 
-  /**
-   * 生成root admin用户
-   */
+  
   async seed(): Promise<void> {
     this.logger.log('🔑 创建root admin账户...');
     
-    // 检查是否已经存在admin用户
     const existingAdmin = await this.userRepository.findOne({
       where: { username: 'rootadmin' }
     });
@@ -39,7 +36,6 @@ export class AdminSeeder {
       return;
     }
 
-    // 查找super_admin角色
     const superAdminRole = await this.roleRepository.findOne({
       where: { code: UserRole.SUPER_ADMIN }
     });
@@ -50,7 +46,6 @@ export class AdminSeeder {
     }
 
     try {
-      // 创建root admin用户
       const password = await bcrypt.hash('Quasar@123', 10);
       
       const admin = this.userRepository.create({
@@ -62,7 +57,6 @@ export class AdminSeeder {
       
       const savedAdmin = await this.userRepository.save(admin);
       
-      // 创建用户个人资料
       const profile = this.userProfileRepository.create({
         userId: savedAdmin.id,
         firstName: 'Root',
@@ -73,7 +67,6 @@ export class AdminSeeder {
       
       await this.userProfileRepository.save(profile);
       
-      // 分配SUPER_ADMIN角色
       const userRole = this.userRoleRepository.create({
         userId: savedAdmin.id,
         roleId: superAdminRole.id,
@@ -89,9 +82,7 @@ export class AdminSeeder {
     }
   }
 
-  /**
-   * 安全模式种子 - 仅当数据库为空时
-   */
+  
   async seedIfEmpty(): Promise<void> {
     const count = await this.userRepository.count();
     

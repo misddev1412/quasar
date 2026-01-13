@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
+import { SectionHeader } from './SectionHeader';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SectionTranslationContent } from './HeroSlider';
@@ -26,6 +28,9 @@ export interface ProductsByCategoryRowConfig {
   showDisplayTitle?: boolean;
   showCategoryLabel?: boolean;
   showStrategyLabel?: boolean;
+  headingStyle?: 'default' | 'banner';
+  headingBackgroundColor?: string;
+  headingBackgroundImage?: string;
 }
 
 export interface ProductsByCategoryConfig {
@@ -105,6 +110,9 @@ interface NormalizedRowConfig {
   showDisplayTitle: boolean;
   showCategoryLabel: boolean;
   showStrategyLabel: boolean;
+  headingStyle: 'default' | 'banner';
+  headingBackgroundColor?: string;
+  headingBackgroundImage?: string;
 }
 
 interface RowRenderState {
@@ -406,6 +414,9 @@ const normalizeRows = (config: ProductsByCategoryConfig): NormalizedRowConfig[] 
         showDisplayTitle,
         showCategoryLabel,
         showStrategyLabel,
+        headingStyle: (row.headingStyle === 'banner' ? 'banner' : 'default'),
+        headingBackgroundColor: typeof row.headingBackgroundColor === 'string' ? row.headingBackgroundColor : undefined,
+        headingBackgroundImage: typeof row.headingBackgroundImage === 'string' ? row.headingBackgroundImage : undefined,
       });
     });
 
@@ -432,6 +443,7 @@ const normalizeRows = (config: ProductsByCategoryConfig): NormalizedRowConfig[] 
     showDisplayTitle: true,
     showCategoryLabel: true,
     showStrategyLabel: true,
+    headingStyle: 'default',
   });
 
   return rows;
@@ -537,6 +549,9 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
       showDisplayTitle: row.showDisplayTitle,
       showCategoryLabel: row.showCategoryLabel,
       showStrategyLabel: row.showStrategyLabel,
+      headingStyle: row.headingStyle,
+      headingBackgroundColor: row.headingBackgroundColor,
+      headingBackgroundImage: row.headingBackgroundImage,
     }))),
     [rows],
   );
@@ -995,34 +1010,19 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
 
               return (
                 <div key={row.id} className="space-y-6">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div>
-                      {showDisplayTitle && (
-                        <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{categoryLabel}</h3>
-                      )}
-                      {shouldRenderMetaRow && (
-                        <div className={metaWrapperClass}>
-                          {showStrategyLabel && (
-                            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wide ${badgeClass}`}>
-                              {strategyLabel}
-                            </span>
-                          )}
-                          {showNormalizedCategoryLabel && (
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                              {normalizedCategoryName}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    {hasCategoryNavigation && (
-                      <ViewMoreButton
-                        href={ctaHref}
-                        label={t('sections.products_by_category.view_category')}
-                        config={viewMoreButtonConfig}
-                      />
-                    )}
-                  </div>
+
+
+                  <SectionHeader
+                    title={showDisplayTitle ? (categoryLabel || undefined) : undefined}
+                    subtitle={showStrategyLabel ? (strategyLabel || undefined) : undefined}
+                    description={showNormalizedCategoryLabel ? (normalizedCategoryName || undefined) : undefined}
+                    ctaLabel={hasCategoryNavigation ? t('sections.products_by_category.view_category') : undefined}
+                    ctaLink={hasCategoryNavigation ? ctaHref : undefined}
+                    headingStyle={row.headingStyle}
+                    headingBackgroundColor={row.headingBackgroundColor}
+                    headingBackgroundImage={row.headingBackgroundImage}
+                    className="mb-8"
+                  />
 
                   {bodyContent}
                 </div>
@@ -1031,7 +1031,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
           </div>
         </div>
       </SectionContainer>
-    </section>
+    </section >
   );
 };
 

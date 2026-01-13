@@ -8,7 +8,7 @@ import { Button } from '../../components/common/Button';
 import { Dropdown } from '../../components/common/Dropdown';
 import { ConfirmationModal } from '../../components/common/ConfirmationModal';
 import { CurrencyFilters } from '../../components/features/CurrencyFilters';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
 import { Currency, CurrencyFiltersType } from '../../types/currency';

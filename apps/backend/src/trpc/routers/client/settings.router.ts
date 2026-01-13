@@ -40,7 +40,6 @@ export class ClientSettingsRouter {
     try {
       const setting = await this.settingService.findByKey(input.key, ctx.locale);
       
-      // 只返回公开设置
       if (!setting.isPublic) {
         return this.responseService.createReadResponse(
           15, // ModuleCode.SETTINGS

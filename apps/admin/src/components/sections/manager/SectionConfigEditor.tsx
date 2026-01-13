@@ -9,7 +9,7 @@ import { SectionConfigEditorProps } from './types';
 import { HeroSliderConfigEditor } from './editors/HeroSliderConfigEditor';
 import { FeaturedProductsConfigEditor } from './editors/FeaturedProductsEditor';
 import { ProductsByCategoryConfigEditor } from './editors/ProductsByCategoryEditor';
-import { NewsByCategoryConfigEditor } from './editors/NewsByCategoryEditor';
+import { NewsByCategoryEditor } from './editors/NewsByCategoryEditor';
 import { CustomHtmlEditor } from './editors/CustomHtmlEditor';
 import { BannerEditor } from './editors/BannerEditor';
 import { SideBannersEditor } from './editors/SideBannersEditor';
@@ -67,7 +67,7 @@ export const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, 
             {type === SectionType.HERO_SLIDER && <HeroSliderConfigEditor value={value} onChange={onChange} />}
             {type === SectionType.FEATURED_PRODUCTS && <FeaturedProductsConfigEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.PRODUCTS_BY_CATEGORY && <ProductsByCategoryConfigEditor value={value || {}} onChange={onChange} />}
-            {type === SectionType.NEWS && <NewsByCategoryConfigEditor value={value || {}} onChange={onChange} />}
+            {type === SectionType.NEWS && <NewsByCategoryEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.CUSTOM_HTML && <CustomHtmlEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.BANNER && <BannerEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.SIDE_BANNERS && <SideBannersEditor value={value || {}} onChange={onChange} />}

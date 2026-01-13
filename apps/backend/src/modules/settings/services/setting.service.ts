@@ -28,11 +28,8 @@ export class SettingService {
     return this.translationService.getTranslation(key, resolvedLocale, fallback);
   }
 
-  /**
-   * 创建新设置
-   */
+  
   async create(createSettingDto: CreateSettingDto, locale?: SupportedLocale): Promise<SettingEntity> {
-    // 检查键是否已存在
     const exists = await this.settingRepository.existsByKey(createSettingDto.key);
     if (exists) {
       const message = await this.translateMessage(
@@ -61,9 +58,7 @@ export class SettingService {
     return this.settingRepository.save(settingEntity);
   }
 
-  /**
-   * 批量创建或更新设置
-   */
+  
   async bulkUpdate(bulkUpdateDto: BulkUpdateSettingsDto, locale?: SupportedLocale): Promise<boolean> {
     if (!bulkUpdateDto.settings || bulkUpdateDto.settings.length === 0) {
       return false;
@@ -72,13 +67,11 @@ export class SettingService {
     const keys = bulkUpdateDto.settings.map(s => s.key);
     const existingSettings = await this.settingRepository.findByKeys(keys);
 
-    // 创建键值映射以便快速查找
     const keyToSettingMap = new Map<string, SettingEntity>();
     existingSettings.forEach(setting => {
       keyToSettingMap.set(setting.key, setting);
     });
 
-    // 创建或更新每个设置
     for (const settingData of bulkUpdateDto.settings) {
       const existingSetting = keyToSettingMap.get(settingData.key);
       const normalizedValue = await this.normalizeValueForStorage(
@@ -113,7 +106,6 @@ export class SettingService {
           await this.settingRepository.update(existingSetting.id, updatePayload);
         }
       } else {
-        // 创建新设置
         await this.create({
           key: settingData.key,
           value: normalizedValue ?? undefined,
@@ -127,16 +119,12 @@ export class SettingService {
     return true;
   }
 
-  /**
-   * 获取所有设置
-   */
+  
   async findAll(): Promise<SettingEntity[]> {
     return this.settingRepository.find();
   }
 
-  /**
-   * 通过ID获取设置
-   */
+  
   async findById(id: string, locale?: SupportedLocale): Promise<SettingEntity> {
     const setting = await this.settingRepository.findById(id);
     if (!setting) {
@@ -156,9 +144,7 @@ export class SettingService {
     return setting;
   }
 
-  /**
-   * 通过键获取设置
-   */
+  
   async findByKey(key: string, locale?: SupportedLocale): Promise<SettingEntity> {
     const setting = await this.settingRepository.findByKey(key);
     if (!setting) {
@@ -186,30 +172,22 @@ export class SettingService {
     return setting?.value ?? null;
   }
 
-  /**
-   * 通过组获取设置
-   */
+  
   async findByGroup(group: string): Promise<SettingEntity[]> {
     return this.settingRepository.findByGroup(group);
   }
 
-  /**
-   * 获取公开组设置
-   */
+  
   async findPublicByGroup(group: string): Promise<SettingEntity[]> {
     return this.settingRepository.findPublicByGroup(group);
   }
 
-  /**
-   * 获取公开设置
-   */
+  
   async findPublicSettings(): Promise<SettingEntity[]> {
     return this.settingRepository.findPublicSettings();
   }
 
-  /**
-   * 更新设置
-   */
+  
   async update(id: string, updateSettingDto: UpdateSettingDto, locale?: SupportedLocale): Promise<SettingEntity> {
     const setting = await this.settingRepository.findById(id);
     if (!setting) {
@@ -239,9 +217,7 @@ export class SettingService {
     return this.settingRepository.update(id, dataToUpdate);
   }
 
-  /**
-   * 删除设置
-   */
+  
   async delete(id: string, locale?: SupportedLocale): Promise<boolean> {
     const setting = await this.settingRepository.findById(id);
     if (!setting) {
@@ -262,9 +238,7 @@ export class SettingService {
     return this.settingRepository.softDelete(id);
   }
 
-  /**
-   * 分页获取设置
-   */
+  
   async findPaginated(params: {
     page: number;
     limit: number;

@@ -51,7 +51,7 @@ jest.mock('../../utils/trpc', () => ({
   },
 }));
 
-jest.mock('../../context/ToastContext', () => ({
+jest.mock('../../contexts/ToastContext', () => ({
   useToast: () => ({
     addToast: jest.fn(),
   }),

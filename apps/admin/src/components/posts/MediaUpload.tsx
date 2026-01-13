@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef } from 'react';
 import { FiUpload, FiX, FiImage, FiFile } from 'react-icons/fi';
 import { Button } from '../common/Button';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 
 interface MediaUploadProps {
   onUpload: (url: string) => void;

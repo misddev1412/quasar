@@ -5,7 +5,7 @@ import { TranslationTabs } from '../common/TranslationTabs';
 import { FormTabConfig, FormActionsAlignment } from '../../types/forms';
 import { CreateProductFormData, Product, ProductVariant, ProductMedia, ProductWarehouseQuantity } from '../../types/product';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { z } from 'zod';
 import { ProductVariantsSection, VariantMatrixItem } from './ProductVariantsSection';

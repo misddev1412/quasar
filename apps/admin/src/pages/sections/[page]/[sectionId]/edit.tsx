@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { CreatePageTemplate } from '../../../../components/common/CreatePageTemplate';
 import { SectionForm, SectionFormState, buildSectionPayload, sectionToFormState } from '../../../../components/sections/SectionsManager';
 import { useSectionsManager, SectionComponentSummary } from '../../../../hooks/useSectionsManager';
-import { useToast } from '../../../../context/ToastContext';
+import { useToast } from '../../../../contexts/ToastContext';
 
 interface LinkedComponentNode extends SectionComponentSummary {
   children: LinkedComponentNode[];

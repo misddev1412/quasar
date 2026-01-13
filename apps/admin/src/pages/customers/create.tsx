@@ -4,7 +4,7 @@ import { UserPlus } from 'lucide-react';
 import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
 import { CreateCustomerForm, CreateCustomerFormData } from '../../components/customers/CreateCustomerForm';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
 import { trpc } from '../../utils/trpc';
 

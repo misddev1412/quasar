@@ -8,7 +8,7 @@ import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 import { Table, Column } from '../../components/common/Table';
 import { trpc } from '../../utils/trpc';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { UserFilters } from '../../components/features/UserFilters';
 import { UserFiltersType } from '../../types/user';

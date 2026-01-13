@@ -20,7 +20,7 @@ import {
 import { Button } from '../../../components/common/Button';
 import { Badge } from '../../../components/common/Badge';
 import BaseLayout from '../../../components/layout/BaseLayout';
-import { useToast } from '../../../context/ToastContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { useUrlTabs } from '../../../hooks/useUrlTabs';
 import { Loading } from '../../../components/common/Loading';

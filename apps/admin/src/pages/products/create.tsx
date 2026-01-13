@@ -5,7 +5,7 @@ import { FiHome, FiPackage } from 'react-icons/fi';
 import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
 import { ProductForm, ProductFormData, ProductFormSubmitOptions } from '../../components/products/ProductForm';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
 import { trpc } from '../../utils/trpc';
 

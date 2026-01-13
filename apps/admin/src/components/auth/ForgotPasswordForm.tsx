@@ -3,7 +3,7 @@ import { FormInput } from '../common/FormInput';
 import { Button } from '../common/Button';
 import { MailIcon, AlertIcon } from '../common/Icons';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface ForgotPasswordFormProps {
   onSubmit: (email: string) => Promise<void>;
@@ -34,14 +34,12 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
     </a>
   );
 
-  // 获取按钮样式类名
   const getButtonClassName = () => {
     return `mt-2 btn-primary ${isDarkMode 
       ? 'bg-gradient-to-r from-primary-500 to-primary-700' 
       : 'bg-gradient-to-r from-primary-700 to-primary-900 shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40'}`;
   };
 
-  // 显示成功提交信息
   if (isSubmitted) {
     return (
       <div className="w-full">
@@ -82,7 +80,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-700'} mt-2 text-center`}>{t('auth.enter_email')}</p>
       </div>
       
-      {/* 错误信息 - 使用更醒目的样式 */}
+      {}
       {error && (
         <div className="mb-6 p-4 rounded-lg bg-red-50 border-l-4 border-red-600 text-red-800 shadow-lg animate-pulse-slow transition-all duration-300">
           <div className="flex items-center">
@@ -96,9 +94,9 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         </div>
       )}
       
-      {/* 表单 */}
+      {}
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* 邮箱输入 */}
+        {}
         <FormInput 
           id="email"
           type="email"
@@ -113,7 +111,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
           className="form-input"
         />
         
-        {/* 提交按钮 */}
+        {}
         <Button
           type="submit"
           variant="primary"
@@ -125,7 +123,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         </Button>
       </form>
       
-      {/* 支持链接 */}
+      {}
       <div className="mt-8">
         <p className={`text-center text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-700'}`}>
           {t('common.need_help')} <a href="#" className={`font-medium ${isDarkMode ? 'text-slate-400 hover:text-slate-300' : 'text-primary-700 hover:text-primary-800'} transition-colors duration-200`}>{t('common.contact_admin')}</a>

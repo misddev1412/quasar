@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getRequestConfig } from 'next-intl/server';
+import { getMergedMessages } from './server-messages';
 
 // Can be imported from a shared config
 const locales = ['en', 'vi'];
@@ -9,7 +10,8 @@ export default getRequestConfig(async ({ locale }) => {
   if (!locales.includes(locale as any)) notFound();
 
   return {
-    messages: (await import(`./locales/${locale}.json`)).default,
+    locale: locale as string,
+    messages: await getMergedMessages(locale as string),
     timeZone: 'Asia/Ho_Chi_Minh'
   };
 });

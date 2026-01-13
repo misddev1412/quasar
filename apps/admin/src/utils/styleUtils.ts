@@ -1,11 +1,6 @@
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../contexts/ThemeContext';
 
-/**
- * 为深色/浅色模式获取文本颜色类
- * @param isDarkMode - 是否为深色模式
- * @param darkClass - 深色模式下使用的类名
- * @param lightClass - 浅色模式下使用的类名
- */
+
 export const getTextColorClass = (
   isDarkMode: boolean, 
   darkClass = 'text-gray-300', 
@@ -14,12 +9,7 @@ export const getTextColorClass = (
   return isDarkMode ? darkClass : lightClass;
 };
 
-/**
- * 为深色/浅色模式获取背景颜色类
- * @param isDarkMode - 是否为深色模式
- * @param darkClass - 深色模式下使用的类名
- * @param lightClass - 浅色模式下使用的类名
- */
+
 export const getBackgroundColorClass = (
   isDarkMode: boolean, 
   darkClass = 'bg-gray-800', 
@@ -28,12 +18,7 @@ export const getBackgroundColorClass = (
   return isDarkMode ? darkClass : lightClass;
 };
 
-/**
- * 为深色/浅色模式获取边框颜色类
- * @param isDarkMode - 是否为深色模式
- * @param darkClass - 深色模式下使用的类名
- * @param lightClass - 浅色模式下使用的类名
- */
+
 export const getBorderColorClass = (
   isDarkMode: boolean, 
   darkClass = 'border-gray-700', 
@@ -42,11 +27,7 @@ export const getBorderColorClass = (
   return isDarkMode ? darkClass : lightClass;
 };
 
-/**
- * 为主要和次要按钮获取按钮样式类
- * @param isDarkMode - 是否为深色模式
- * @param variant - 按钮变体（primary 或 secondary）
- */
+
 export const getButtonClass = (
   isDarkMode: boolean, 
   variant: 'primary' | 'secondary' = 'primary'
@@ -62,19 +43,12 @@ export const getButtonClass = (
   }
 };
 
-/**
- * 获取页面主要容器的样式类
- * @param isDarkMode - 是否为深色模式
- */
+
 export const getContainerClass = (isDarkMode: boolean): string => {
   return `${getBackgroundColorClass(isDarkMode)} ${getBorderColorClass(isDarkMode)} rounded-lg shadow-lg p-6`;
 };
 
-/**
- * 获取表单输入框的样式类
- * @param isDarkMode - 是否为深色模式
- * @param hasError - 是否有错误
- */
+
 export const getFormInputClass = (isDarkMode: boolean, hasError = false): string => {
   const baseClasses = 'block w-full rounded-md px-4 py-3 border focus:ring-2 focus:ring-offset-2';
   const errorClasses = hasError 
@@ -88,19 +62,14 @@ export const getFormInputClass = (isDarkMode: boolean, hasError = false): string
   return `${baseClasses} ${themeClasses} ${errorClasses}`;
 };
 
-/**
- * 获取错误消息样式类
- * @param isDarkMode - 是否为深色模式
- */
+
 export const getErrorMessageClass = (isDarkMode: boolean): string => {
   return isDarkMode 
     ? 'text-red-400 text-sm mt-1'
     : 'text-red-600 text-sm mt-1';
 };
 
-/**
- * 样式工具Hook，提供基于当前主题的样式类
- */
+
 export const useStyleUtils = () => {
   const { isDarkMode } = useTheme();
   

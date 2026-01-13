@@ -8,7 +8,7 @@ import { EditPostForm } from '../../components/posts/EditPostForm';
 import { MediaManager } from '../../components/common/MediaManager';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { FormSubmitOptions, FormSubmitAction } from '../../types/forms';
 import { useAuth } from '../../hooks/useAuth';

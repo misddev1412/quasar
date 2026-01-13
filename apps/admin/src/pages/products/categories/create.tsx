@@ -4,7 +4,7 @@ import { FolderPlus } from 'lucide-react';
 import { FiHome, FiPackage, FiFolderPlus } from 'react-icons/fi';
 import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
 import { CreateCategoryForm } from '../../../components/products/CreateCategoryForm';
-import { useToast } from '../../../context/ToastContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { trpc } from '../../../utils/trpc';
 import { CreateCategoryFormData } from '../../../types/product';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';

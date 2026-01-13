@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
 import { SectionForm, SectionFormState, buildSectionPayload } from '../../../components/sections/SectionsManager';
 import { useSectionsManager } from '../../../hooks/useSectionsManager';
-import { useToast } from '../../../context/ToastContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { SectionType } from '@shared/enums/section.enums';
 
 const CreateSectionPage: React.FC = () => {

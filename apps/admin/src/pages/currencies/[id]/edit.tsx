@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FiDollarSign } from 'react-icons/fi';
 import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
 import { EditCurrencyForm } from '../../../components/currencies/EditCurrencyForm';
-import { useToast } from '../../../context/ToastContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { trpc } from '../../../utils/trpc';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { UpdateCurrencyFormData } from '../../../utils/validation';

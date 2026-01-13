@@ -11,7 +11,6 @@ interface SeoFormData {
   isActive?: boolean;
 }
 
-// 删除本地定义的 ApiResponse 接口，使用共享库的 BaseApiResponse
 
 export function SeoDemo() {
   const [searchPath, setSearchPath] = useState<string>('/');

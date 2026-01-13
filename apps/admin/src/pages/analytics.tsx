@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useSettings, SettingData } from '../hooks/useSettings';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../contexts/ToastContext';
 import { Toggle } from '../components/common/Toggle';
 import { Button } from '../components/common/Button';
 import { FiSettings, FiGlobe, FiBarChart2, FiInfo, FiCheck, FiX, FiHome } from 'react-icons/fi';

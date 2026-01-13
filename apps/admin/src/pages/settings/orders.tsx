@@ -4,7 +4,7 @@ import BaseLayout from '../../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { FiSettings, FiHome, FiHash, FiRefreshCw, FiCheck, FiAlertCircle } from 'react-icons/fi';
 import { useSettings } from '../../hooks/useSettings';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { Button } from '../../components/common/Button';
 import { Toggle } from '../../components/common/Toggle';
 

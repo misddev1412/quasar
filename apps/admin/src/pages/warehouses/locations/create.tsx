@@ -5,7 +5,7 @@ import { Button } from '../../../components/common/Button';
 import { Card } from '../../../components/common/Card';
 import BaseLayout from '../../../components/layout/BaseLayout';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
-import { useToast } from '../../../context/ToastContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { trpc } from '../../../utils/trpc';
 import { Loading } from '../../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../../components/common/Alert';

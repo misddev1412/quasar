@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLayout } from '../../contexts/LayoutContext';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 
 const Footer: React.FC = () => {

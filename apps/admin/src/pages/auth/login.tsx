@@ -1,5 +1,5 @@
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import AuthCard from '../../components/auth/AuthCard';
 import LoginForm from '../../components/auth/LoginForm';
 import LoginSkeleton from '../../components/auth/LoginSkeleton';

@@ -8,7 +8,7 @@ import { Button } from '../../components/common/Button';
 import { Dropdown } from '../../components/common/Dropdown';
 import { ConfirmationModal } from '../../components/common/ConfirmationModal';
 import { ShippingProviderFilters } from '../../components/features/ShippingProviderFilters';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
 import { ShippingProvider, ShippingProviderFiltersType } from '../../types/shipping-provider';

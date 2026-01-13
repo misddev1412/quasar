@@ -7,7 +7,7 @@ import { Select } from '../common/Select';
 import { Checkbox } from '../common/Checkbox';
 import { DialogClose } from '../common/Dialog';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 
 type ProductStatusOption = 'ACTIVE' | 'DRAFT' | 'INACTIVE' | 'DISCONTINUED';

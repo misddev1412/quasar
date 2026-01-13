@@ -9,7 +9,7 @@ import TextareaInput from '../../components/common/TextareaInput';
 import { Modal } from '../../components/common/Modal';
 import { ColorSelector } from '../../components/common/ColorSelector';
 import { Badge } from '../../components/common/Badge';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
 import {

@@ -74,7 +74,7 @@ const addSystemPreferenceOverride = () => {
       const style = document.createElement('style');
       style.id = 'system-preference-override';
       style.innerHTML = `
-        /* 覆盖系统暗色模式首选项 */
+        
         @media (prefers-color-scheme: dark) {
           :root:not(.dark) {
             color-scheme: light;

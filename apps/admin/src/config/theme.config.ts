@@ -52,11 +52,8 @@ export interface ThemeConfig {
   primaryColor: string;
   secondaryColor: string;
   fontFamily: string;
-  // 新增主题颜色配置
   colors: ThemeColors;
-  // 新增深色和浅色模式的颜色配置
   modes: ThemeColorModes;
-  // 启用圆角边缘
   borderRadius: 'none' | 'sm' | 'md' | 'lg' | 'xl';
 }
 
@@ -84,16 +81,15 @@ export const defaultThemeConfig: ThemeConfig = {
   primaryColor: 'primary',
   secondaryColor: 'secondary',
   fontFamily: 'Inter, sans-serif',
-  // 默认颜色配置
   colors: {
-    primary: '#2563eb', // 加深主色调提高对比度
-    secondary: '#0284c7', // 加深次要颜色提高对比度
-    accent: '#7c3aed', // 加深强调色
-    neutral: '#4b5563', // 加深中性色
-    success: '#16a34a', // 加深成功色
-    warning: '#d97706', // 加深警告色
-    error: '#dc2626', // 加深错误色
-    info: '#0284c7', // 加深信息色
+    primary: '#2563eb',
+    secondary: '#0284c7',
+    accent: '#7c3aed',
+    neutral: '#4b5563',
+    success: '#16a34a',
+    warning: '#d97706',
+    error: '#dc2626',
+    info: '#0284c7',
 
     // Defaults for new shades
     primaryHover: '#1d4ed8',
@@ -103,17 +99,16 @@ export const defaultThemeConfig: ThemeConfig = {
     secondaryLight: '#38bdf8',
     secondaryDark: '#0c4a6e',
   },
-  // 默认深色和浅色模式配置
   modes: {
     light: {
       background: '#ffffff',
       surface: '#f8fafc',
       text: {
-        primary: '#0f172a', // 更深的主要文本颜色
-        secondary: '#334155', // 更深的次要文本颜色
-        muted: '#64748b'  // 更深的静音文本颜色
+        primary: '#0f172a',
+        secondary: '#334155',
+        muted: '#64748b'
       },
-      border: '#cbd5e1' // 更深的边框颜色
+      border: '#cbd5e1'
     },
     dark: {
       background: '#111827',

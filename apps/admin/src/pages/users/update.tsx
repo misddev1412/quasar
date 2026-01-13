@@ -4,7 +4,7 @@ import { User as UserIcon, ArrowLeft, Lock, Mail, Phone, Settings as SettingsIco
 import { Card, CardHeader, CardContent } from '../../components/common/Card';
 import { Breadcrumb } from '../../components/common/Breadcrumb';
 import BaseLayout from '../../components/layout/BaseLayout';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { EntityForm } from '../../components/common/EntityForm';
@@ -13,7 +13,7 @@ import { z } from 'zod';
 import { commonValidation } from '../../utils/validation';
 import { UserRole } from '../../types/user';
 import type { Role as AdminRole } from '../../types/role';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
 
 type RolesListResponse = {

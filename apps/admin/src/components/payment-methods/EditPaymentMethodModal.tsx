@@ -6,7 +6,7 @@ import { FormInput } from '../common/FormInput';
 import { Checkbox } from '../common/Checkbox';
 import { Card, CardHeader, CardContent } from '../common/Card';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 
 interface PaymentMethod {

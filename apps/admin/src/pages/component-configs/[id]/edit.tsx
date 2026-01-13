@@ -4,7 +4,7 @@ import { FiBox } from 'react-icons/fi';
 import type { ApiResponse } from '@backend/trpc/schemas/response.schemas';
 import { ComponentConfigForm, type ComponentConfigFormValues } from '../../../components/component-configs/ComponentConfigForm';
 import { trpc } from '../../../utils/trpc';
-import { useToast } from '../../../context/ToastContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import {
   collectDescendantIds,

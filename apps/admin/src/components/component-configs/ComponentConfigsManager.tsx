@@ -7,7 +7,7 @@ import { Button } from '../common/Button';
 import { Select } from '../common/Select';
 import { Toggle } from '../common/Toggle';
 import { Dropdown } from '../common/Dropdown';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { Input } from '../common/Input';
 import { Badge } from '../common/Badge';
 import { Table, type Column, type SortDescriptor } from '../common/Table';

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FiTruck, FiHome } from 'react-icons/fi';
 import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
 import CreateShippingProviderForm, { CreateShippingProviderFormData } from '../../../components/shipping-providers/CreateShippingProviderForm';
-import { useToast } from '../../../context/ToastContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { useUrlTabs } from '../../../hooks/useUrlTabs';
 import { trpc } from '../../../utils/trpc';

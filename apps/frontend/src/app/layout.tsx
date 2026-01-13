@@ -1,11 +1,13 @@
 import '../styles.scss';
 import { Providers } from './providers';
-import LocaleWrapper from '../components/LocaleWrapper';
+// import LocaleWrapper from '../components/LocaleWrapper'; // Removed
 import { DynamicFavicon } from '../components/common/DynamicFavicon';
 import { getPreferredLocale } from '../lib/server-locale';
+import { getMergedMessages } from '../i18n/server-messages';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getPreferredLocale();
+  const messages = await getMergedMessages(locale);
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -15,12 +17,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body>
-        <LocaleWrapper initialLocale={locale}>
-          <Providers>
-            <DynamicFavicon />
-            {children}
-          </Providers>
-        </LocaleWrapper>
+        <Providers locale={locale} messages={messages}>
+          <DynamicFavicon />
+          {children}
+        </Providers>
       </body>
     </html>
   );

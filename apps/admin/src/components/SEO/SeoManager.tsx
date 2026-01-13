@@ -5,7 +5,7 @@ import cn from 'classnames';
 import { MediaManager } from '../common/MediaManager';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { Toggle } from '../common/Toggle';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import type { UpdateSeoDto } from '@backend/modules/seo/dto/seo.dto';
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import type { TRPCClientErrorLike } from '@trpc/client';

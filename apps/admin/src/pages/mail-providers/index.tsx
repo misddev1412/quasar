@@ -12,7 +12,7 @@ import { ConfirmationModal } from '../../components/common/ConfirmationModal';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { Input } from '../../components/common/Input';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/common/Dialog';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { trpc } from '../../utils/trpc';
 

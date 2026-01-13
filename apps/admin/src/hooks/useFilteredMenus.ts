@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { MenuGroup, MenuItem } from '../domains/navigation/types/MenuItem';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { hasPermissionForRoute, isSuperAdminUser } from '../utils/permission-access';
 
 /**

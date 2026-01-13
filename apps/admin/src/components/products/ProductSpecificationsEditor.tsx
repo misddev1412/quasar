@@ -7,7 +7,7 @@ import { stripNumberLeadingZeros } from '../../utils/inputUtils';
 import { SpecificationLabelSelect, SpecificationLabelOption } from './SpecificationLabelSelect';
 import { Modal } from '../common/Modal';
 import { trpc } from '../../utils/trpc';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { BASE_LABEL_CLASS } from '../common/styles';
 
 export interface ProductSpecificationFormItem {

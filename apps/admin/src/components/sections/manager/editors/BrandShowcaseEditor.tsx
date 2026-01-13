@@ -1,358 +1,230 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
 import { Input } from '../../../common/Input';
-import { Select } from '../../../common/Select';
-import { BrandSelector } from '../../../menus/BrandSelector';
-import { ConfigChangeHandler, CustomBrandSummary } from '../types';
+import { Toggle } from '../../../common/Toggle';
+import { MediaManager } from '../../../common/MediaManager';
+import { ImageActionButtons } from '../../../common/ImageActionButtons';
+import { RevealableUrlInput } from '../../../common/RevealableUrlInput';
+import { ConfigChangeHandler } from '../types';
 import { ensureNumber } from '../utils';
-import { FiChevronUp, FiChevronDown, FiTrash2 } from 'react-icons/fi';
+import { FiPlus, FiTrash2 } from 'react-icons/fi';
+import { Image as ImageIcon } from 'lucide-react';
+import { SectionHeadingConfig, SectionHeadingConfigData } from '../common/SectionHeadingConfig';
 
 interface BrandShowcaseEditorProps {
     value: Record<string, unknown>;
     onChange: ConfigChangeHandler;
 }
 
+type HeadingStyle = 'default' | 'banner';
+
+interface BrandItem {
+    id: string;
+    name: string;
+    logo?: string;
+    url?: string;
+}
+
+interface BrandShowcaseConfig {
+    title: string;
+    description: string;
+    showTitle: boolean;
+    columns: number;
+    brands: BrandItem[];
+    headingStyle?: HeadingStyle;
+    headingBackgroundColor?: string;
+    headingBackgroundImage?: string;
+}
+
+const DEFAULT_COLUMNS = 6;
+
+const createDefaultBrand = (): BrandItem => ({
+    id: crypto.randomUUID(),
+    name: '',
+});
+
 export const BrandShowcaseEditor: React.FC<BrandShowcaseEditorProps> = ({ value, onChange }) => {
     const { t } = useTranslationWithBackend();
-    const [brandSelectorValue, setBrandSelectorValue] = useState<string | undefined>(undefined);
-    const [customBrandDetails, setCustomBrandDetails] = useState<Record<string, CustomBrandSummary>>({});
-    const [isLoadingBrandDetails, setIsLoadingBrandDetails] = useState(false);
-    const [brandLoadError, setBrandLoadError] = useState<string | null>(null);
+    const [mediaModalOpen, setMediaModalOpen] = useState(false);
+    const [editingBrandId, setEditingBrandId] = useState<string | null>(null);
 
-    const brandIds = Array.isArray(value?.brandIds) ? (value.brandIds as string[]) : [];
+    const config = useMemo<BrandShowcaseConfig>(() => ({
+        title: typeof value?.title === 'string' ? value.title : '',
+        description: typeof value?.description === 'string' ? value.description : '',
+        showTitle: value?.showTitle !== false,
+        columns: ensureNumber(value?.columns, DEFAULT_COLUMNS),
+        brands: Array.isArray(value?.brands) ? (value.brands as BrandItem[]) : [],
+        headingStyle: (value?.headingStyle as HeadingStyle) || 'default',
+        headingBackgroundColor: typeof value?.headingBackgroundColor === 'string' ? value.headingBackgroundColor : undefined,
+        headingBackgroundImage: typeof value?.headingBackgroundImage === 'string' ? value.headingBackgroundImage : undefined,
+    }), [value]);
 
-    const layout = value?.layout === 'slider' ? 'slider' : 'grid';
-    const strategy = typeof value?.strategy === 'string' ? (value.strategy as string) : 'newest';
-    const limit = Math.min(Math.max(ensureNumber(value?.limit, strategy === 'custom' ? Math.max(brandIds.length, 1) : 8), 1), 30);
-    const columns = Math.min(Math.max(ensureNumber(value?.columns, 4), 1), 6);
-    const logoShape = typeof value?.logoShape === 'string' ? (value.logoShape as string) : 'rounded';
-    const backgroundStyle = typeof value?.backgroundStyle === 'string' ? (value.backgroundStyle as string) : 'surface';
-    const sliderAutoplay = value?.sliderAutoplay !== false;
-    const sliderInterval = Math.max(ensureNumber(value?.sliderInterval, 6000), 1000);
-
-    useEffect(() => {
-        if (brandIds.length === 0) return;
-
-        const missingIds = brandIds.filter((id) => !customBrandDetails[id]);
-
-        if (missingIds.length === 0) return;
-
-        let isMounted = true;
-
-        const fetchBrands = async () => {
-            setIsLoadingBrandDetails(true);
-            setBrandLoadError(null);
-            try {
-                const { trpcClient } = await import('../../../../utils/trpc');
-                const results = await Promise.all(
-                    missingIds.map(async (id) => {
-                        try {
-                            const result = await trpcClient.adminProductBrands.getById.query({ id });
-                            return result && (result as any).data ? (result as any).data : null;
-                        } catch (err) {
-                            console.error(`Failed to load brand ${id}`, err);
-                            return null;
-                        }
-                    })
-                );
-
-                if (isMounted) {
-                    const newDetails: Record<string, CustomBrandSummary> = {};
-                    results.forEach((brand) => {
-                        if (brand) {
-                            newDetails[brand.id] = {
-                                id: brand.id,
-                                name: brand.name,
-                                description: brand.description,
-                                logo: brand.logo,
-                            };
-                        }
-                    });
-                    setCustomBrandDetails((prev) => ({ ...prev, ...newDetails }));
-                }
-            } catch (err) {
-                if (isMounted) {
-                    console.error('Error fetching brand details:', err);
-                    setBrandLoadError(t('sections.manager.config.brandShowcase.errorLoadingBrands'));
-                }
-            } finally {
-                if (isMounted) {
-                    setIsLoadingBrandDetails(false);
-                }
-            }
-        };
-
-        fetchBrands();
-
-        return () => {
-            isMounted = false;
-        };
-    }, [brandIds, customBrandDetails, t]);
-
-    const applyConfig = (partial: Record<string, unknown>) => {
+    const handleChange = (updates: Partial<BrandShowcaseConfig>) => {
         onChange({
-            ...(value ?? {}),
-            ...partial,
+            ...value,
+            ...updates,
         });
     };
 
-    const setBrandIds = (ids: string[]) => {
-        const next = { ...(value ?? {}) } as Record<string, unknown>;
-        if (ids.length > 0) {
-            next.brandIds = ids;
-        } else {
-            delete next.brandIds;
-        }
-        onChange(next);
+    const handleBrandsChange = (newBrands: BrandItem[]) => {
+        handleChange({ brands: newBrands });
     };
 
-    const handleBrandSelection = (brandId?: string) => {
-        setBrandSelectorValue(brandId);
-        if (!brandId || brandIds.includes(brandId)) {
-            return;
-        }
-        setBrandIds([...brandIds, brandId]);
-        setBrandSelectorValue(undefined);
+    const handleAddBrand = () => {
+        handleBrandsChange([...config.brands, createDefaultBrand()]);
     };
 
-    const handleBrandRemoval = (brandId: string) => {
-        setBrandIds(brandIds.filter((id) => id !== brandId));
+    const handleRemoveBrand = (id: string) => {
+        handleBrandsChange(config.brands.filter((b) => b.id !== id));
     };
 
-    const handleMoveBrand = (index: number, direction: number) => {
-        const targetIndex = index + direction;
-        if (targetIndex < 0 || targetIndex >= brandIds.length) {
-            return;
+    const handleBrandUpdate = (id: string, updates: Partial<BrandItem>) => {
+        handleBrandsChange(
+            config.brands.map((b) => (b.id === id ? { ...b, ...updates } : b))
+        );
+    };
+
+    const handleMediaSelect = (selection: any) => {
+        if (!editingBrandId) return;
+        const selected = Array.isArray(selection) ? selection[0] : selection;
+        if (selected && typeof selected.url === 'string') {
+            handleBrandUpdate(editingBrandId, { logo: selected.url });
         }
-        const next = [...brandIds];
-        const [removed] = next.splice(index, 1);
-        next.splice(targetIndex, 0, removed);
-        setBrandIds(next);
+        setMediaModalOpen(false);
+        setEditingBrandId(null);
+    };
+
+    const handleHeadingConfigChange = (data: SectionHeadingConfigData) => {
+        onChange({
+            ...value,
+            ...data,
+        });
     };
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <label className="flex flex-col gap-1 text-sm text-gray-600">
-                    {t('sections.manager.config.brandShowcase.layout')}
-                    <Select
-                        value={layout}
-                        onChange={(next) => applyConfig({ layout: (next as 'grid' | 'slider') || 'grid' })}
-                        options={[
-                            { value: 'grid', label: t('sections.manager.config.brandShowcase.layoutGrid') },
-                            { value: 'slider', label: t('sections.manager.config.brandShowcase.layoutSlider') },
-                        ]}
-                        className="text-sm"
+            <div className="space-y-4">
+                <label className="flex flex-col gap-2 text-sm text-gray-700">
+                    <span className="font-medium">{t('sections.manager.brands.title', 'Section Title')}</span>
+                    <Input
+                        value={config.title}
+                        onChange={(e) => handleChange({ title: e.target.value })}
                     />
-                    <span className="text-xs text-gray-500">{t('sections.manager.config.brandShowcase.layoutDescription')}</span>
                 </label>
-
-                <label className="flex flex-col gap-1 text-sm text-gray-600">
-                    {t('sections.manager.config.brandShowcase.source')}
-                    <Select
-                        value={strategy}
-                        onChange={(next) => applyConfig({ strategy: (next as string) || 'newest' })}
-                        options={[
-                            { value: 'newest', label: t('sections.manager.config.brandShowcase.sourceNewest') },
-                            { value: 'alphabetical', label: t('sections.manager.config.brandShowcase.sourceAlphabetical') },
-                            { value: 'custom', label: t('sections.manager.config.brandShowcase.sourceCustom') },
-                        ]}
-                        className="text-sm"
+                <label className="flex flex-col gap-2 text-sm text-gray-700">
+                    <span className="font-medium">{t('sections.manager.brands.description', 'Description')}</span>
+                    <Input
+                        value={config.description}
+                        onChange={(e) => handleChange({ description: e.target.value })}
                     />
-                    <span className="text-xs text-gray-500">
-                        {t('sections.manager.config.brandShowcase.sourceDescription')}
-                    </span>
                 </label>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <label className="flex flex-col gap-1 text-sm text-gray-600">
-                    {t('sections.manager.config.brandShowcase.limit')}
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <Toggle
+                    label={t('sections.manager.brands.showTitle', 'Show Title')}
+                    checked={config.showTitle}
+                    onChange={(checked) => handleChange({ showTitle: checked })}
+                />
+                <label className="flex flex-col gap-2 text-sm text-gray-700">
+                    <span className="font-medium">{t('sections.manager.brands.columns', 'Columns')}</span>
                     <Input
                         type="number"
                         min={1}
-                        max={30}
-                        disabled={strategy === 'custom'}
-                        value={limit}
-                        onChange={(e) => applyConfig({ limit: Math.min(Math.max(Number(e.target.value) || 1, 1), 30) })}
-                        className="text-sm"
-                        inputSize="md"
+                        max={12}
+                        value={config.columns}
+                        onChange={(e) => handleChange({ columns: Number(e.target.value) || DEFAULT_COLUMNS })}
                     />
-                    <span className="text-xs text-gray-500">
-                        {strategy === 'custom'
-                            ? t('sections.manager.config.brandShowcase.limitCustomDescription')
-                            : t('sections.manager.config.brandShowcase.limitDescription')}
-                    </span>
                 </label>
-
-                {layout === 'grid' && (
-                    <label className="flex flex-col gap-1 text-sm text-gray-600">
-                        {t('sections.manager.config.brandShowcase.columns')}
-                        <Input
-                            type="number"
-                            min={1}
-                            max={6}
-                            value={columns}
-                            onChange={(e) => applyConfig({ columns: Math.min(Math.max(Number(e.target.value) || 1, 1), 6) })}
-                            className="text-sm"
-                            inputSize="md"
-                        />
-                        <span className="text-xs text-gray-500">{t('sections.manager.config.brandShowcase.columnsDescription')}</span>
-                    </label>
-                )}
             </div>
 
-            {layout === 'slider' && (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <label className="flex items-center gap-2 text-sm text-gray-600">
-                        <input
-                            type="checkbox"
-                            checked={sliderAutoplay}
-                            onChange={(e) => applyConfig({ sliderAutoplay: e.target.checked })}
-                        />
-                        {t('sections.manager.config.brandShowcase.autoplay')}
-                        <span className="text-xs text-gray-500">
-                            {t('sections.manager.config.brandShowcase.autoplayDescription')}
-                        </span>
-                    </label>
+            <SectionHeadingConfig
+                data={{
+                    headingStyle: config.headingStyle,
+                    headingBackgroundColor: config.headingBackgroundColor,
+                    headingBackgroundImage: config.headingBackgroundImage,
+                }}
+                onChange={handleHeadingConfigChange}
+            />
 
-                    <label className="flex flex-col gap-1 text-sm text-gray-600">
-                        {t('sections.manager.config.brandShowcase.autoplayInterval')}
-                        <Input
-                            type="number"
-                            min={1000}
-                            step={250}
-                            value={sliderInterval}
-                            onChange={(e) => applyConfig({ sliderInterval: Math.max(Number(e.target.value) || 1000, 1000) })}
-                            className="text-sm"
-                            inputSize="md"
-                        />
-                        <span className="text-xs text-gray-500">
-                            {t('sections.manager.config.brandShowcase.autoplayIntervalDescription')}
-                        </span>
-                    </label>
+            <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50 p-4">
+                <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium text-gray-900">{t('sections.manager.brands.brandsList', 'Brands')}</h4>
+                    <button
+                        type="button"
+                        onClick={handleAddBrand}
+                        className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-blue-600 hover:text-blue-700"
+                    >
+                        <FiPlus className="h-4 w-4" />
+                        {t('sections.manager.brands.addBrand', 'Add Brand')}
+                    </button>
                 </div>
-            )}
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <label className="flex flex-col gap-1 text-sm text-gray-600">
-                    {t('sections.manager.config.brandShowcase.logoShape')}
-                    <Select
-                        value={logoShape}
-                        onChange={(next) => applyConfig({ logoShape: next })}
-                        options={[
-                            { value: 'rounded', label: t('sections.manager.config.brandShowcase.logoRounded') },
-                            { value: 'circle', label: t('sections.manager.config.brandShowcase.logoCircle') },
-                            { value: 'square', label: t('sections.manager.config.brandShowcase.logoSquare') },
-                        ]}
-                        className="text-sm"
-                    />
-                </label>
-
-                <label className="flex flex-col gap-1 text-sm text-gray-600">
-                    {t('sections.manager.config.brandShowcase.background')}
-                    <Select
-                        value={backgroundStyle}
-                        onChange={(next) => applyConfig({ backgroundStyle: next })}
-                        options={[
-                            { value: 'surface', label: t('sections.manager.config.brandShowcase.backgroundSurface') },
-                            { value: 'muted', label: t('sections.manager.config.brandShowcase.backgroundMuted') },
-                            { value: 'contrast', label: t('sections.manager.config.brandShowcase.backgroundContrast') },
-                        ]}
-                        className="text-sm"
-                    />
-                </label>
-            </div>
-
-            {strategy === 'custom' && (
-                <div className="space-y-4 rounded-xl border border-dashed border-gray-300 bg-gray-50/60 p-4">
-                    <div className="flex flex-col gap-2 text-sm text-gray-600">
-                        <span>{t('sections.manager.config.brandShowcase.customBrands')}</span>
-                        <BrandSelector value={brandSelectorValue} onChange={handleBrandSelection} />
-                        <span className="text-xs text-gray-500">
-                            {t('sections.manager.config.brandShowcase.customBrandsDescription')}
-                        </span>
-                    </div>
-
-                    {brandLoadError && (
-                        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
-                            {brandLoadError}
-                        </p>
-                    )}
-
-                    {isLoadingBrandDetails && (
-                        <p className="text-xs text-gray-500">
-                            {t('sections.manager.config.brandShowcase.loadingBrands')}
-                        </p>
-                    )}
-
-                    {brandIds.length === 0 ? (
-                        <p className="text-xs text-gray-500">
-                            {t('sections.manager.config.brandShowcase.noBrands')}
-                        </p>
-                    ) : (
-                        <div className="space-y-3">
-                            {brandIds.map((id, index) => {
-                                const detail = customBrandDetails[id];
-                                return (
-                                    <div
-                                        key={id}
-                                        className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3 shadow-sm"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            {detail?.logo ? (
-                                                <img
-                                                    src={detail.logo}
-                                                    alt={detail.name}
-                                                    className="h-10 w-10 rounded-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-500">
-                                                    {(detail?.name || id).charAt(0).toUpperCase()}
-                                                </div>
-                                            )}
-                                            <div>
-                                                <p className="text-sm font-medium text-gray-900">{detail?.name || t('sections.manager.config.brandShowcase.unknownBrand')}</p>
-                                                {detail?.description && (
-                                                    <p className="text-xs text-gray-500 line-clamp-2">{detail.description}</p>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-1">
-                                            <button
-                                                type="button"
-                                                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-40"
-                                                onClick={() => handleMoveBrand(index, -1)}
-                                                disabled={index === 0}
-                                                aria-label={t('sections.manager.config.brandShowcase.moveUp')}
-                                            >
-                                                <FiChevronUp />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-40"
-                                                onClick={() => handleMoveBrand(index, 1)}
-                                                disabled={index === brandIds.length - 1}
-                                                aria-label={t('sections.manager.config.brandShowcase.moveDown')}
-                                            >
-                                                <FiChevronDown />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-red-500 hover:bg-red-50"
-                                                onClick={() => handleBrandRemoval(id)}
-                                                aria-label={t('sections.manager.config.brandShowcase.removeBrand')}
-                                            >
-                                                <FiTrash2 />
-                                            </button>
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                <div className="space-y-3">
+                    {config.brands.map((brand, index) => (
+                        <div key={brand.id} className="flex gap-4 rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
+                            <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50">
+                                {brand.logo ? (
+                                    <img src={brand.logo} alt={brand.name} className="max-h-full max-w-full rounded object-contain p-1" />
+                                ) : (
+                                    <ImageIcon className="h-6 w-6 text-gray-400" />
+                                )}
+                            </div>
+                            <div className="flex flex-1 flex-col gap-3">
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    <Input
+                                        placeholder={t('sections.manager.brands.namePlaceholder', 'Brand Name')}
+                                        value={brand.name}
+                                        onChange={(e) => handleBrandUpdate(brand.id, { name: e.target.value })}
+                                        className="text-sm"
+                                        inputSize="sm"
+                                    />
+                                    <Input
+                                        placeholder={t('sections.manager.brands.urlPlaceholder', 'Link URL (optional)')}
+                                        value={brand.url || ''}
+                                        onChange={(e) => handleBrandUpdate(brand.id, { url: e.target.value })}
+                                        className="text-sm"
+                                        inputSize="sm"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <ImageActionButtons
+                                        hasImage={Boolean(brand.logo)}
+                                        onSelect={() => {
+                                            setEditingBrandId(brand.id);
+                                            setMediaModalOpen(true);
+                                        }}
+                                        onRemove={() => handleBrandUpdate(brand.id, { logo: '' })}
+                                        selectLabel={t('common.selectImage', 'Select Image')}
+                                        changeLabel={t('common.change', 'Change')}
+                                        removeLabel={t('common.remove', 'Remove')}
+                                    />
+                                    {config.brands.length > 1 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveBrand(brand.id)}
+                                            className="ml-auto text-gray-400 hover:text-red-500"
+                                        >
+                                            <FiTrash2 className="h-4 w-4" />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
                         </div>
-                    )}
+                    ))}
                 </div>
-            )}
+            </div>
+
+            <MediaManager
+                isOpen={mediaModalOpen}
+                onClose={() => {
+                    setMediaModalOpen(false);
+                    setEditingBrandId(null);
+                }}
+                onSelect={handleMediaSelect}
+                multiple={false}
+                accept="image/*"
+            />
         </div>
     );
 };

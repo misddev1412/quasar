@@ -7,7 +7,6 @@ interface CreateSettingFormProps {
   onClose: () => void;
 }
 
-// 定义设置类型联合类型
 type SettingType = 'string' | 'number' | 'boolean' | 'json' | 'array';
 
 export const CreateSettingForm: React.FC<CreateSettingFormProps> = ({ onClose }) => {
@@ -17,7 +16,7 @@ export const CreateSettingForm: React.FC<CreateSettingFormProps> = ({ onClose })
   const [formData, setFormData] = useState<Partial<SettingData>>({
     key: '',
     value: '',
-    type: 'string' as SettingType, // 使用明确的类型断言
+    type: 'string' as SettingType,
     description: '',
     group: '',
     isPublic: false
@@ -26,7 +25,6 @@ export const CreateSettingForm: React.FC<CreateSettingFormProps> = ({ onClose })
   const [error, setError] = useState<string | null>(null);
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    // 确保type值为有效的SettingType类型
     const typeValue = e.target.value as SettingType;
     setFormData(prev => ({ ...prev, type: typeValue }));
   };
@@ -35,7 +33,6 @@ export const CreateSettingForm: React.FC<CreateSettingFormProps> = ({ onClose })
     const { name, value, type } = e.target;
     
     if (name === 'type') {
-      // 对type字段使用专门的处理函数
       handleTypeChange(e as React.ChangeEvent<HTMLSelectElement>);
     } else {
       const val = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;

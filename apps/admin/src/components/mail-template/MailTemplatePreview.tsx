@@ -6,7 +6,7 @@ import { FormInput } from '../common/FormInput';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { MailTemplate, ProcessedTemplate } from '../../types/mail-template';
 import { trpc } from '../../utils/trpc';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { Loading } from '../common/Loading';
 import { Alert, AlertDescription } from '../common/Alert';
 

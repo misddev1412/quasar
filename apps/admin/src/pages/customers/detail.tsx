@@ -9,7 +9,7 @@ import { Card } from '../../components/common/Card';
 import { AddressBookModal } from '../../components/customers/AddressBookModal';
 import { AddressBookList } from '../../components/customers/AddressBookList';
 import { AddressBook } from '../../types/address-book';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 
 const CustomerDetailPage: React.FC = () => {
   const navigate = useNavigate();

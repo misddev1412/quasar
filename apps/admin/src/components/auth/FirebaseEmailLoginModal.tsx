@@ -3,7 +3,7 @@ import { Button } from '../common/Button';
 import { FormInput } from '../common/FormInput';
 import { MailIcon } from '../common/Icons';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 
 interface FirebaseEmailLoginModalProps {
   isOpen: boolean;

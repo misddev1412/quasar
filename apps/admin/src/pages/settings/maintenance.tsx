@@ -7,7 +7,7 @@ import { useSettings, SettingData } from '../../hooks/useSettings';
 import { Toggle } from '../../components/common/Toggle';
 import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 
 const MAINTENANCE_ENABLED_KEY = 'storefront.maintenance_enabled';
 const MAINTENANCE_MESSAGE_KEY = 'storefront.maintenance_message';

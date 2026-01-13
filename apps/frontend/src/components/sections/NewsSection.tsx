@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SectionHeader } from './SectionHeader';
 import { SectionTranslationContent } from './HeroSlider';
 import type { ApiResponse } from '../../types/api';
 import type { ViewMoreButtonConfig } from '@shared/types/component.types';
@@ -19,6 +20,9 @@ export interface NewsSectionRowConfig {
   limit?: number;
   columns?: number;
   card?: NewsCardConfig;
+  headingStyle?: 'default' | 'banner';
+  headingBackgroundColor?: string;
+  headingBackgroundImage?: string;
 }
 
 export interface NewsSectionConfig {
@@ -27,6 +31,9 @@ export interface NewsSectionConfig {
   categories?: string[];
   strategy?: NewsSectionStrategy;
   card?: NewsCardConfig;
+  headingStyle?: 'default' | 'banner';
+  headingBackgroundColor?: string;
+  headingBackgroundImage?: string;
 }
 
 const DEFAULT_NEWS_LIMIT = 3;
@@ -150,6 +157,9 @@ const parseNewsRows = (config: NewsSectionConfig): NewsSectionRowConfig[] => {
       limit: ensurePositiveNumber(row?.limit, baseLimit),
       columns: clampColumns((row as any)?.columns, row?.limit ?? baseColumns),
       card: sanitizeCardConfig((row as any)?.card) ?? baseCard,
+      headingStyle: (row?.headingStyle === 'banner' ? 'banner' : 'default'),
+      headingBackgroundColor: typeof row?.headingBackgroundColor === 'string' ? row.headingBackgroundColor : undefined,
+      headingBackgroundImage: typeof row?.headingBackgroundImage === 'string' ? row.headingBackgroundImage : undefined,
     }));
   }
 
@@ -239,7 +249,10 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
         title: translation?.title || undefined,
         strategy,
         limit,
-      },
+        headingStyle: (config?.headingStyle === 'banner' ? 'banner' : 'default'),
+        headingBackgroundColor: config?.headingBackgroundColor,
+        headingBackgroundImage: config?.headingBackgroundImage,
+      } as NewsSectionRowConfig,
     ];
   }, [rows, fallbackCategories, translation?.title, strategy, limit]);
   const normalizedRowConfigs = useMemo(
@@ -252,6 +265,9 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
         limit: ensurePositiveNumber(row.limit ?? limit, DEFAULT_NEWS_LIMIT),
         columns: clampColumns(row.columns ?? row.limit ?? limit, row.limit ?? limit),
         card: sanitizeCardConfig(row.card),
+        headingStyle: row.headingStyle,
+        headingBackgroundColor: row.headingBackgroundColor,
+        headingBackgroundImage: row.headingBackgroundImage,
       })),
     [baseRows, limit],
   );
@@ -370,23 +386,23 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
             const gridClass = GRID_COLUMN_CLASSES[desiredColumns] ?? 'md:grid-cols-3 lg:grid-cols-3';
             const cardConfig: NewsCardConfig = row.card
               ? {
-                  ...row.card,
-                  ctaText: row.card?.ctaText || t('sections.news.read_story', 'Read story'),
-                }
+                ...row.card,
+                ctaText: row.card?.ctaText || t('sections.news.read_story', 'Read story'),
+              }
               : { ctaText: t('sections.news.read_story', 'Read story') };
 
             return (
               <div key={row.id} className="space-y-4">
-                <div className="flex items-center justify-between gap-4">
-                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{rowHeading}</h3>
-                  <ViewMoreButton
-                    href={viewAllHref}
-                    label={row.categoryId
-                      ? t('sections.news.view_category', { category: rowHeading })
-                      : t('sections.news.view_more', 'View more news')}
-                    config={viewMoreButtonConfig}
-                  />
-                </div>
+                <SectionHeader
+                  title={rowHeading}
+                  ctaLabel={row.categoryId
+                    ? t('sections.news.view_category', { category: rowHeading })
+                    : t('sections.news.view_more', 'View more news')}
+                  ctaLink={viewAllHref}
+                  headingStyle={row.headingStyle}
+                  headingBackgroundColor={row.headingBackgroundColor}
+                  headingBackgroundImage={row.headingBackgroundImage}
+                />
                 <div className="space-y-6">
                   {state.error && (
                     <div className="rounded-lg border border-red-200 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-200">

@@ -12,7 +12,6 @@ export const errorLink: TRPCLink<AppRouter> = () => {
           observer.next(value);
         },
         error(err: any) {
-          // 检查网络错误
           if (err.message === 'Failed to fetch' || err instanceof TypeError) {
             appEvents.emit('show-toast', {
               type: 'error',
@@ -20,7 +19,6 @@ export const errorLink: TRPCLink<AppRouter> = () => {
               description: i18n.t('messages.network_error_desc'),
             });
           }
-          // 检查JSON解析错误（当服务器返回HTML时发生）
           else if (err.message.includes('Unexpected token')) {
             appEvents.emit('show-toast', {
               type: 'error',
@@ -28,14 +26,12 @@ export const errorLink: TRPCLink<AppRouter> = () => {
               description: i18n.t('messages.invalid_response_desc'),
             });
           }
-          // 检查权限错误 (FORBIDDEN)
           else if (
             err.data?.code === 'FORBIDDEN' ||
             err.data?.status === 'FORBIDDEN' ||
             err.message?.includes('Insufficient permissions') ||
             err.message?.includes('FORBIDDEN')
           ) {
-            // 导航到未授权页面
             if (typeof window !== 'undefined' && window.location.pathname !== '/unauthorized') {
               window.location.href = '/unauthorized';
             }

@@ -3,6 +3,7 @@
 import React from 'react';
 import type { SectionTranslationContent } from './HeroSlider';
 import { useTranslation } from 'react-i18next';
+import { SectionHeader } from './SectionHeader';
 import SectionContainer from './SectionContainer';
 
 export interface TestimonialConfig {
@@ -22,6 +23,9 @@ export interface TestimonialsSectionConfig {
   autoplay?: boolean;
   interval?: number;
   testimonials?: TestimonialConfig[];
+  headingStyle?: 'default' | 'banner';
+  headingBackgroundColor?: string;
+  headingBackgroundImage?: string;
 }
 
 interface TestimonialsSectionProps {
@@ -117,11 +121,16 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ config
   return (
     <section className="bg-gray-950/90 py-20 text-white">
       <SectionContainer>
-        <div className="mb-12 max-w-3xl">
-          {sectionSubtitle && <p className="text-sm font-semibold uppercase tracking-[0.25em] text-blue-300">{sectionSubtitle}</p>}
-          {sectionTitle && <h2 className="mt-3 text-3xl font-semibold text-white">{sectionTitle}</h2>}
-          {sectionDescription && <p className="mt-4 text-base text-blue-100">{sectionDescription}</p>}
-        </div>
+        <SectionHeader
+          title={sectionTitle}
+          subtitle={sectionSubtitle}
+          description={sectionDescription}
+          headingStyle={config.headingStyle}
+          headingBackgroundColor={config.headingBackgroundColor}
+          headingBackgroundImage={config.headingBackgroundImage}
+          theme="dark"
+          className="mb-12"
+        />
 
         {layout === 'grid' ? (
           <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2 ${gridClass}`}>

@@ -30,7 +30,7 @@ import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
 import { Dropdown } from '../../components/common/Dropdown';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { Link } from 'react-router-dom';
 import type { CustomerTransaction, CustomerTransactionStatus } from '../../types/transactions';

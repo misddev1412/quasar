@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export const LoginSkeleton: React.FC = () => {
     const { isDarkMode } = useTheme();

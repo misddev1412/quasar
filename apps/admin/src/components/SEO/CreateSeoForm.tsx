@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { CreateSeoDto } from '@backend/modules/seo/dto/seo.dto';
 import { useSeoManager } from '../../hooks/useSeoManager';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { Toggle } from '../common/Toggle';
 import { MediaManager } from '../common/MediaManager';
 import { useState } from 'react';

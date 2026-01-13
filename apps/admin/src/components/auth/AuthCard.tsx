@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { FeatureItem } from '../common/FeatureItem';
 import { ShieldIcon, BoltIcon, ChartIcon } from '../common/Icons';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import LocaleSwitcher from '../LocaleSwitcher';
 import { useBrandingSetting } from '../../hooks/useBrandingSetting';
 import {

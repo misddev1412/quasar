@@ -11,7 +11,7 @@ import { CustomerSearchModal, Customer } from '../../components/customers/Custom
 import { OrderSearchModal, OrderSummary } from '../../components/orders/OrderSearchModal';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { TransactionFilterState, TransactionStatsSummary, CustomerTransaction, CustomerTransactionStatus } from '../../types/transactions';
 import type { Currency } from '../../types/currency';
 import type { PaginatedResponse, ApiResponse } from '@backend/trpc/schemas/response.schemas';

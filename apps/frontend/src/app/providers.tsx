@@ -14,6 +14,7 @@ import { AppLoadingOverlay } from '../components/common/AppLoadingOverlay';
 import { CartWrapper } from '../components/ecommerce/CartProvider';
 import ImpersonationBanner from '../components/common/ImpersonationBanner';
 import '../lib/i18n';
+import LocaleWrapper from '../components/LocaleWrapper';
 
 import { useFCM } from '../hooks/useFCM';
 import { CurrencyProvider } from '../contexts/CurrencyContext';
@@ -33,7 +34,7 @@ function FCMListener() {
   return null;
 }
 
-function AppProviders({ children }: { children: React.ReactNode }) {
+function AppProviders({ children, locale, messages }: { children: React.ReactNode; locale: string; messages: any }) {
   const { isLoading, initializationProgress, initializationMessage } = useAppInit();
   const [trpcClient] = useState(() => createTrpcClient());
   const TRPCProvider = (trpc as any).Provider;
@@ -42,15 +43,16 @@ function AppProviders({ children }: { children: React.ReactNode }) {
     <HelmetProvider>
       <TRPCProvider client={trpcClient} queryClient={queryClient}>
         <QueryClientProvider client={queryClient}>
-          <AppLoadingOverlay
-            isLoading={isLoading}
-            progress={initializationProgress}
-            message={initializationMessage}
-          />
-          <CurrencyProvider>
-            <HeroUIProvider>
-              <ThemeProvider>
-                <ToastProvider>
+          <LocaleWrapper initialLocale={locale} initialMessages={messages}>
+            <AppLoadingOverlay
+              isLoading={isLoading}
+              progress={initializationProgress}
+              message={initializationMessage}
+            />
+            <CurrencyProvider>
+              <HeroUIProvider>
+                <ThemeProvider>
+                  <ToastProvider>
                     <AuthProvider>
                       <FCMListener />
                       <CartWrapper taxRate={0.08} defaultShippingCost={5.99}>
@@ -58,10 +60,11 @@ function AppProviders({ children }: { children: React.ReactNode }) {
                         {children}
                       </CartWrapper>
                     </AuthProvider>
-                </ToastProvider>
-              </ThemeProvider>
-            </HeroUIProvider>
-          </CurrencyProvider>
+                  </ToastProvider>
+                </ThemeProvider>
+              </HeroUIProvider>
+            </CurrencyProvider>
+          </LocaleWrapper>
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </TRPCProvider>
@@ -69,10 +72,12 @@ function AppProviders({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({ children, locale, messages }: { children: React.ReactNode; locale: string; messages: any }) {
   return (
     <AppInitProvider>
-      <AppProviders>{children}</AppProviders>
+      <AppProviders locale={locale} messages={messages}>
+        {children}
+      </AppProviders>
     </AppInitProvider>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLayout } from '../../contexts/LayoutContext';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { AnalyticsProvider } from '../common/AnalyticsProvider';
 import Sidebar from './Sidebar';
 import Header from './Header';
@@ -19,7 +19,6 @@ import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend
 import { useAdminSeo } from '../../hooks/useAdminSeo';
 import { Z_INDEX } from '../../utils/zIndex';
 
-// 快速操作按钮容器
 const QuickActionsFab = styled('div')({
   position: 'fixed',
   bottom: '30px',
@@ -30,7 +29,6 @@ const QuickActionsFab = styled('div')({
   zIndex: Z_INDEX.FLOATING_BUTTONS
 });
 
-// 返回顶部按钮容器
 const BackToTopButton = styled('div')({
   position: 'fixed',
   bottom: '100px',
@@ -38,7 +36,6 @@ const BackToTopButton = styled('div')({
   zIndex: Z_INDEX.FLOATING_BUTTONS
 });
 
-// 速度拨号样式
 const StyledSpeedDial = styled(SpeedDial)({
   '& .MuiFab-root': {
     width: '48px',
@@ -64,13 +61,11 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   // Use admin SEO for automatic meta title management
   useAdminSeo();
   
-  // 滚动触发器，当页面滚动超过100px时触发
   const trigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 100,
   });
 
-  // 滚动到顶部的函数
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -78,7 +73,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     });
   };
 
-  // 快速操作选项
   const quickActions = [
     {
       icon: <PersonAddIcon />,
@@ -106,7 +100,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     }
   ];
 
-  // 快速操作悬浮按钮
   const renderQuickActions = () => (
     <QuickActionsFab>
       <StyledSpeedDial
@@ -147,7 +140,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     </QuickActionsFab>
   );
 
-  // 返回顶部按钮
   const renderBackToTop = () => (
     <BackToTopButton>
       <Zoom in={trigger}>
@@ -172,10 +164,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <div className={`min-h-screen flex flex-col w-full ${isDarkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
       <div className="flex flex-grow w-full overflow-hidden">
-        {/* 垂直布局的侧边栏 */}
+        {}
         {type === 'vertical' && <Sidebar />}
 
-        {/* 主内容区域 */}
+        {}
         <div
           className={`
             flex flex-col flex-grow w-full overflow-hidden relative
@@ -184,28 +176,28 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           `}
           style={{ zIndex: Z_INDEX.MAIN_CONTENT }}
         >
-          {/* 水平布局的顶部导航 */}
+          {}
           {type === 'horizontal' && <HorizontalNav />}
 
-          {/* 顶部栏 */}
+          {}
           <Header />
 
-          {/* 内容区域 */}
+          {}
           <Content>
             <AnalyticsProvider>
               {children}
             </AnalyticsProvider>
           </Content>
 
-          {/* 底部 */}
+          {}
           <Footer />
         </div>
       </div>
 
-      {/* 返回顶部按钮 */}
+      {}
       {renderBackToTop()}
 
-      {/* 渲染快速操作按钮 - 在屏幕右下角 */}
+      {}
       {renderQuickActions()}
     </div>
   );

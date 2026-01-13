@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { SectionHeader } from './SectionHeader';
 import SectionContainer from './SectionContainer';
 import type { SectionTranslationContent } from './HeroSlider';
 import { BrandService } from '../../services/brand.service';
@@ -17,6 +18,9 @@ export interface BrandShowcaseConfig {
   backgroundStyle?: 'surface' | 'muted' | 'contrast';
   sliderAutoplay?: boolean;
   sliderInterval?: number;
+  headingStyle?: 'default' | 'banner';
+  headingBackgroundColor?: string;
+  headingBackgroundImage?: string;
 }
 
 interface BrandShowcaseSectionProps {
@@ -144,9 +148,8 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
     ? 'rounded-3xl border border-white/10 bg-white/5 p-8 shadow-inner'
     : 'rounded-3xl border border-gray-100 bg-white p-8 shadow-sm';
   const logoTileBaseClass = 'flex min-h-[96px] w-full items-center justify-center py-4';
-  const logoTilePlaceholderClass = `${logoTileBaseClass} rounded-2xl ${
-    isContrast ? 'bg-white/10' : 'bg-gray-100'
-  } animate-pulse`;
+  const logoTilePlaceholderClass = `${logoTileBaseClass} rounded-2xl ${isContrast ? 'bg-white/10' : 'bg-gray-100'
+    } animate-pulse`;
   const logoFallbackBadgeClass = isContrast ? 'bg-white/15 text-white' : 'bg-slate-100 text-slate-600';
   const wrapWithCard = (content: React.ReactNode, extraClass?: string) => (
     <div className={`${cardShellClass}${extraClass ? ` ${extraClass}` : ''}`}>
@@ -288,23 +291,15 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
     <section className={`${backgroundClass} py-16`}>
       <SectionContainer>
         {hasHeaderContent && (
-          <div className="mb-12 flex flex-col gap-2">
-            {sectionSubtitle && (
-              <p className={`text-xs font-semibold uppercase tracking-[0.3em] ${isContrast ? 'text-blue-200' : 'text-blue-600'}`}>
-                {sectionSubtitle}
-              </p>
-            )}
-            {sectionTitle && (
-              <h2 className={`text-3xl font-semibold ${isContrast ? 'text-white' : 'text-gray-900'}`}>
-                {sectionTitle}
-              </h2>
-            )}
-            {sectionDescription && (
-              <p className={`text-base ${subtleTextClass}`}>
-                {sectionDescription}
-              </p>
-            )}
-          </div>
+          <SectionHeader
+            title={sectionTitle}
+            subtitle={sectionSubtitle}
+            description={sectionDescription}
+            headingStyle={config.headingStyle}
+            headingBackgroundColor={config.headingBackgroundColor}
+            headingBackgroundImage={config.headingBackgroundImage}
+            className="mb-12"
+          />
         )}
         {renderContent()}
       </SectionContainer>

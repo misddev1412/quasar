@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { UserPlus } from 'lucide-react';
 import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
 import { CreateUserForm } from '../../components/user/CreateUserForm';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { CreateUserFormData } from '../../utils/validation';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';

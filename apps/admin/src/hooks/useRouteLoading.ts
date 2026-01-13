@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useRouteLoading as useRouteLoadingContext } from '../context/RouteLoadingContext';
+import { useRouteLoading as useRouteLoadingContext } from '../contexts/RouteLoadingContext';
 
 export const useRouteLoading = () => {
   const { startLoading, stopLoading, isLoading } = useRouteLoadingContext();

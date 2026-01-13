@@ -11,22 +11,19 @@ import 'reflect-metadata';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors(); // 允许跨域请求
+  app.enableCors();
 
-  // 全局异常过滤器
   app.useGlobalFilters(new GlobalExceptionFilter());
 
-  // 全局启用验证管道
   app.useGlobalPipes(new ValidationPipe({
-    whitelist: true, // 自动剥离非DTO中定义的属性
-    forbidNonWhitelisted: true, // 如果存在非白名单属性，则抛出错误
-    transform: true, // 自动转换payload为DTO实例类型
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
     transformOptions: {
       enableImplicitConversion: true
     }
   }));
 
-  // 全局启用序列化拦截器，以配合class-transformer使用
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   const port = Number(process.env.BACKEND_PORT || process.env.PORT || 3000);

@@ -21,18 +21,7 @@ interface BaseLayoutProps {
   breadcrumbs?: BreadcrumbItem[];
 }
 
-/**
- * 基础布局组件 - 提供统一的页面布局结构
- * 
- * 使用方法：
- * <BaseLayout 
- *   title="页面标题" 
- *   description="页面描述" 
- *   actions={[{ label: '按钮', onClick: handleClick, primary: true }]}
- * >
- *   {页面内容}
- * </BaseLayout>
- */
+
 const BaseLayout: React.FC<BaseLayoutProps> = ({
   title,
   description,
@@ -48,7 +37,7 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({
         <Breadcrumb items={breadcrumbs} />
       )}
 
-      {/* 页面顶部：标题和操作按钮 */}
+      {}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-bold mb-1">{title}</h1>
@@ -76,7 +65,7 @@ const BaseLayout: React.FC<BaseLayoutProps> = ({
         )}
       </div>
 
-      {/* 主内容区域 */}
+      {}
       <div className={containerClassName}>
         {children}
       </div>

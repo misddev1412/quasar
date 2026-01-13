@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
 import { CreatePermissionForm } from '../../components/permission/CreatePermissionForm';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { CreatePermissionFormData } from '../../types/permission';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';

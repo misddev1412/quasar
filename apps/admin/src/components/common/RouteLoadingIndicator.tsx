@@ -1,6 +1,6 @@
 import React from 'react';
 import { LinearProgress, styled } from '@mui/material';
-import { useRouteLoading } from '../../context/RouteLoadingContext';
+import { useRouteLoading } from '../../contexts/RouteLoadingContext';
 
 const LoadingBar = styled(LinearProgress)(({ theme }) => ({
   position: 'fixed',

@@ -5,7 +5,7 @@ import { ComponentStructureType } from '@shared/enums/component.enums';
 import type { ApiResponse } from '@backend/trpc/schemas/response.schemas';
 import { ComponentConfigForm, type ComponentConfigFormValues } from '../../components/component-configs/ComponentConfigForm';
 import { trpc } from '../../utils/trpc';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { flattenComponents, type ComponentConfigNode } from '../../components/component-configs/componentConfigTree';
 import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';

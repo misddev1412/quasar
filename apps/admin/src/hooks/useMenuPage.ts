@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../contexts/ToastContext';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 import { useTablePreferences } from '../hooks/useTablePreferences';
 import { useMenusManager, AdminMenu, MenuTreeNode } from '../hooks/useMenusManager';

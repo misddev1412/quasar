@@ -4,7 +4,7 @@ import { FiArrowLeft } from 'react-icons/fi';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { Loading } from '../../components/common/Loading';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
 import SiteContentForm, {

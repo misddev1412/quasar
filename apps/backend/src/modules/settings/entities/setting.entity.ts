@@ -29,9 +29,7 @@ export class SettingEntity extends SoftDeletableEntity {
   @Column({ length: 500, nullable: true })
   description: string;
 
-  /**
-   * 转换设置值为指定类型
-   */
+  
   getTypedValue(): any {
     if (!this.value) return null;
 

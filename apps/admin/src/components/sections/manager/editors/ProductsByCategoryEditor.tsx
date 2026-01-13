@@ -1,16 +1,17 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
+import { FiPlus, FiTrash2 } from 'react-icons/fi';
 import { Toggle } from '../../../common/Toggle';
 import { Input } from '../../../common/Input';
-import { Button } from '../../../common/Button';
 import { SearchSelect } from '../../../common/SearchSelect';
-import { useToast } from '../../../../context/ToastContext';
+import { Button } from '../../../common/Button';
 import { trpc } from '../../../../utils/trpc';
-import { FiPlus, FiTrash2 } from 'react-icons/fi';
-import { Image as ImageIcon } from 'lucide-react';
+import { useToast } from '@admin/contexts/ToastContext';
 import SelectComponent, { components as selectComponents, type MenuListProps, type FilterOptionOption } from 'react-select';
 import { ConfigChangeHandler, ProductOption, SelectOption } from '../types';
+import { SectionHeadingConfig, SectionHeadingConfigData } from '../common/SectionHeadingConfig';
 import { ensureNumber, mapProductToOption } from '../utils';
+import { Image as ImageIcon } from 'lucide-react';
 
 interface ProductsByCategoryConfigEditorProps {
     value: Record<string, unknown>;
@@ -19,6 +20,7 @@ interface ProductsByCategoryConfigEditorProps {
 
 type ProductsByCategoryStrategy = 'latest' | 'featured' | 'bestsellers' | 'custom';
 type ProductsByCategoryDisplayStyle = 'grid' | 'carousel';
+type HeadingStyle = 'default' | 'banner';
 
 interface ProductsByCategoryAdminRow {
     id: string;
@@ -31,48 +33,33 @@ interface ProductsByCategoryAdminRow {
     showDisplayTitle: boolean;
     showCategoryLabel: boolean;
     showStrategyLabel: boolean;
+    headingStyle?: HeadingStyle;
+    headingBackgroundColor?: string;
+    headingBackgroundImage?: string;
 }
 
 const DEFAULT_ROW_LIMIT = 6;
 
 interface CategorySelectOption extends SelectOption {
-    searchText: string;
     categoryName: string;
+    searchText: string;
 }
 
 interface SidebarConfig {
     title?: string;
     borderRadius?: string;
     headerBackgroundColor?: string;
-    description?: string;
-    [key: string]: unknown;
 }
 
-const createRowId = () => `row-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-
-const normalizeStrategyValue = (value: unknown): ProductsByCategoryStrategy => {
-    const raw = typeof value === 'string' ? value.trim() : '';
-    switch (raw) {
-        case 'featured':
-            return 'featured';
-        case 'bestsellers':
-            return 'bestsellers';
-        case 'custom':
-            return 'custom';
-        case 'most_viewed':
-            return 'featured';
-        default:
-            return 'latest';
-    }
-};
-
-const normalizeDisplayStyle = (value: unknown): ProductsByCategoryDisplayStyle => {
-    const raw = typeof value === 'string' ? value.trim().toLowerCase() : '';
-    return raw === 'carousel' ? 'carousel' : 'grid';
-};
+const STRATEGY_SELECT_OPTIONS: { value: ProductsByCategoryStrategy; label: string }[] = [
+    { value: 'latest', label: 'Mới nhất' },
+    { value: 'featured', label: 'Nổi bật' },
+    { value: 'bestsellers', label: 'Bán chạy' },
+    { value: 'custom', label: 'Tùy chỉnh' },
+];
 
 const createDefaultRow = (): ProductsByCategoryAdminRow => ({
-    id: createRowId(),
+    id: crypto.randomUUID(),
     categoryId: undefined,
     title: '',
     strategy: 'latest',
@@ -82,49 +69,51 @@ const createDefaultRow = (): ProductsByCategoryAdminRow => ({
     showDisplayTitle: true,
     showCategoryLabel: true,
     showStrategyLabel: true,
+    headingStyle: 'default',
 });
 
 const flattenCategoryOptions = (categories: any[], prefix = ''): CategorySelectOption[] => {
-    if (!Array.isArray(categories)) {
-        return [];
+    if (!Array.isArray(categories)) return [];
+    let options: CategorySelectOption[] = [];
+    for (const cat of categories) {
+        const optionLabel = prefix ? `${prefix} > ${cat.name}` : cat.name;
+        options.push({
+            value: cat.id,
+            label: optionLabel,
+            categoryName: cat.name,
+            searchText: `${cat.name} ${optionLabel}`.toLowerCase(),
+        });
+        if (cat.children && cat.children.length > 0) {
+            options = options.concat(flattenCategoryOptions(cat.children, optionLabel));
+        }
     }
-
-    return categories.flatMap((category: any) => {
-        const label = prefix ? `${prefix} › ${category.name}` : category.name;
-        const searchPieces = [category?.name, category?.id, category?.slug, prefix]
-            .map((piece) => (typeof piece === 'string' ? piece.trim().toLowerCase() : ''))
-            .filter(Boolean);
-
-        const currentOption: CategorySelectOption = {
-            value: category.id,
-            label,
-            searchText: searchPieces.join(' '),
-            categoryName: typeof category?.name === 'string' ? category.name : label,
-        };
-
-        const children = flattenCategoryOptions(category.children, label);
-        return [currentOption, ...children];
-    });
+    return options;
 };
 
-const parseRowsFromValue = (raw: Record<string, unknown>): ProductsByCategoryAdminRow[] => {
-    const rawRows = Array.isArray(raw?.rows) ? (raw.rows as any[]) : [];
-    const globalDisplayStyle = normalizeDisplayStyle(raw?.displayStyle);
+const removeSidebarFromConfig = (config: any): any => {
+    if (!config) return {};
+    const copy = { ...config };
+    delete copy.sidebar;
+    delete copy.sidebarEnabled;
+    return copy;
+};
 
-    if (rawRows.length > 0) {
-        return rawRows.map((row, index) => {
-            const id = typeof row?.id === 'string' && row.id.trim().length > 0 ? row.id : createRowId();
-            const strategy = normalizeStrategyValue(row?.strategy);
-            const productIds = Array.isArray(row?.productIds)
-                ? row.productIds.filter((idValue: unknown): idValue is string => typeof idValue === 'string' && idValue.trim().length > 0)
-                : [];
-            const limit = ensureNumber(row?.limit, DEFAULT_ROW_LIMIT);
-            const displayStyle = normalizeDisplayStyle((row as any)?.displayStyle ?? globalDisplayStyle);
+const parseRowsFromValue = (value: any): ProductsByCategoryAdminRow[] => {
+    if (Array.isArray(value?.rows) && value.rows.length > 0) {
+        return value.rows.map((row: any) => {
+            const limit = ensureNumber(row.limit, DEFAULT_ROW_LIMIT);
+            const strategy = (['latest', 'featured', 'bestsellers', 'custom'].includes(row.strategy)
+                ? row.strategy
+                : 'latest') as ProductsByCategoryStrategy;
+            const displayStyle = (['grid', 'carousel'].includes(row.displayStyle)
+                ? row.displayStyle
+                : 'grid') as ProductsByCategoryDisplayStyle;
+            const productIds = Array.isArray(row.productIds) ? row.productIds : [];
 
             return {
-                id: index === 0 ? id : `${id}-${index}`,
-                categoryId: typeof row?.categoryId === 'string' ? row.categoryId : undefined,
-                title: typeof row?.title === 'string' ? row.title : '',
+                id: row.id || crypto.randomUUID(),
+                categoryId: row.categoryId,
+                title: row.title || '',
                 strategy,
                 productIds,
                 limit,
@@ -132,90 +121,79 @@ const parseRowsFromValue = (raw: Record<string, unknown>): ProductsByCategoryAdm
                 showDisplayTitle: row?.showDisplayTitle !== false,
                 showCategoryLabel: row?.showCategoryLabel !== false,
                 showStrategyLabel: row?.showStrategyLabel !== false,
+                headingStyle: (row?.headingStyle as HeadingStyle) || 'default',
+                headingBackgroundColor: typeof row?.headingBackgroundColor === 'string' ? row.headingBackgroundColor : undefined,
+                headingBackgroundImage: typeof row?.headingBackgroundImage === 'string' ? row.headingBackgroundImage : undefined,
             };
         });
     }
 
-    const legacyCategoryId = typeof raw?.categoryId === 'string' ? raw.categoryId : undefined;
-    const legacyProductIds = Array.isArray(raw?.productIds)
-        ? (raw.productIds as unknown[]).filter((idValue): idValue is string => typeof idValue === 'string' && idValue.trim().length > 0)
-        : [];
-    const legacySort = typeof raw?.sort === 'string' ? raw.sort : 'latest';
-    const legacyDisplayStyle = normalizeDisplayStyle(raw?.displayStyle);
+    if (value?.categoryId) {
+        const limit = ensureNumber(value.limit, DEFAULT_ROW_LIMIT);
+        const strategy = (['latest', 'featured', 'bestsellers', 'custom'].includes(value.strategy)
+            ? value.strategy
+            : 'latest') as ProductsByCategoryStrategy;
+        const displayStyle = (['grid', 'carousel'].includes(value.displayStyle)
+            ? value.displayStyle
+            : 'grid') as ProductsByCategoryDisplayStyle;
+        const productIds = Array.isArray(value.productIds) ? value.productIds : [];
 
-    return [{
-        id: createRowId(),
-        categoryId: legacyCategoryId,
-        title: '',
-        strategy: normalizeStrategyValue(legacySort),
-        productIds: legacyProductIds,
-        limit: ensureNumber((raw?.limit as number) ?? DEFAULT_ROW_LIMIT, DEFAULT_ROW_LIMIT),
-        displayStyle: legacyDisplayStyle,
-        showDisplayTitle: true,
-        showCategoryLabel: true,
-        showStrategyLabel: true,
-    }];
+        return [{
+            id: crypto.randomUUID(),
+            categoryId: value.categoryId,
+            title: value.title || '',
+            strategy,
+            productIds,
+            limit,
+            displayStyle,
+            showDisplayTitle: value?.showDisplayTitle !== false,
+            showCategoryLabel: value?.showCategoryLabel !== false,
+            showStrategyLabel: value?.showStrategyLabel !== false,
+            headingStyle: (value?.headingStyle as HeadingStyle) || 'default',
+            headingBackgroundColor: typeof value?.headingBackgroundColor === 'string' ? value.headingBackgroundColor : undefined,
+            headingBackgroundImage: typeof value?.headingBackgroundImage === 'string' ? value.headingBackgroundImage : undefined,
+        }];
+    }
+
+    return [createDefaultRow()];
 };
 
 const sanitizeConfigValue = (
-    base: Record<string, unknown>,
+    originalValue: any,
     rows: ProductsByCategoryAdminRow[],
-    sidebar: unknown,
-    sidebarEnabled: boolean,
-): Record<string, unknown> => {
+    sidebarConfig: SidebarConfig,
+    sidebarEnabled: boolean
+) => {
     const sanitizedRows = rows.map((row) => {
-        const trimmedTitle = typeof row.title === 'string' ? row.title.trim() : '';
         return {
             id: row.id,
             categoryId: row.categoryId,
-            title: trimmedTitle || undefined,
+            title: row.title,
             strategy: row.strategy,
-            productIds: row.productIds,
             limit: row.limit,
+            productIds: row.productIds,
             displayStyle: row.displayStyle,
             showDisplayTitle: row.showDisplayTitle,
             showCategoryLabel: row.showCategoryLabel,
             showStrategyLabel: row.showStrategyLabel,
+            headingStyle: row.headingStyle,
+            headingBackgroundColor: row.headingBackgroundColor,
+            headingBackgroundImage: row.headingBackgroundImage,
         };
     });
 
-    const next: Record<string, unknown> = { ...(base ?? {}) };
-    delete next.categoryId;
-    delete next.productIds;
-    delete next.sort;
-    delete next.limit;
-    delete next.displayStyle;
-
-    next.rows = sanitizedRows;
-    if (typeof sidebar !== 'undefined') {
-        next.sidebar = sidebar;
-    }
-    next.sidebarEnabled = sidebarEnabled;
-
-    return next;
+    return {
+        ...originalValue,
+        rows: sanitizedRows,
+        sidebar: sidebarConfig,
+        sidebarEnabled,
+    };
 };
 
-const removeSidebarFromConfig = (raw?: Record<string, unknown>): Record<string, unknown> => {
-    if (!raw || typeof raw !== 'object') {
-        return {};
-    }
-    const base = { ...raw };
-    if ('sidebar' in base) {
-        delete base.sidebar;
-    }
-    return base;
-};
-
-const rowsAreEqual = (
-    a: ProductsByCategoryAdminRow[],
-    b: ProductsByCategoryAdminRow[],
-): boolean => {
-    if (a === b) return true;
-    if (a.length !== b.length) return false;
-
-    return a.every((row, index) => {
-        const other = b[index];
-        if (!other) return false;
+const rowsAreEqual = (rows: ProductsByCategoryAdminRow[], otherRows: ProductsByCategoryAdminRow[]): boolean => {
+    if (rows.length !== otherRows.length) return false;
+    return rows.every((row, index) => {
+        const other = otherRows[index];
         if (row.id !== other.id) return false;
         if (row.categoryId !== other.categoryId) return false;
         if (row.title !== other.title) return false;
@@ -226,6 +204,9 @@ const rowsAreEqual = (
         if (row.showCategoryLabel !== other.showCategoryLabel) return false;
         if (row.showStrategyLabel !== other.showStrategyLabel) return false;
         if (row.productIds.length !== other.productIds.length) return false;
+        if (row.headingStyle !== other.headingStyle) return false;
+        if (row.headingBackgroundColor !== other.headingBackgroundColor) return false;
+        if (row.headingBackgroundImage !== other.headingBackgroundImage) return false;
         return row.productIds.every((id, idx) => id === other.productIds[idx]);
     });
 };
@@ -235,7 +216,7 @@ interface CategoryRowEditorProps {
     row: ProductsByCategoryAdminRow;
     categoryOptions: CategorySelectOption[];
     categoriesLoading: boolean;
-    onChange: (row: ProductsByCategoryAdminRow) => void;
+    onChange: (nextRow: ProductsByCategoryAdminRow) => void;
     onRemove: () => void;
     canRemove: boolean;
 }
@@ -250,34 +231,10 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
     canRemove,
 }) => {
     const { t } = useTranslationWithBackend();
-
-    const STRATEGY_SELECT_OPTIONS = useMemo(() => [
-        { value: 'latest', label: t('sections.manager.productsByCategory.latest') },
-        { value: 'best_selling', label: t('sections.manager.productsByCategory.bestSelling') },
-        { value: 'featured', label: t('sections.manager.productsByCategory.featured') },
-        { value: 'custom', label: t('sections.manager.productsByCategory.custom') },
-    ], [t]);
-
     const { addToast } = useToast();
-    const selectedIds = row.productIds;
+    const selectedCategoryOption = categoryOptions.find((opt) => opt.value === row.categoryId) || null;
     const isCustomStrategy = row.strategy === 'custom';
-
-    const selectedCategoryOption = useMemo<CategorySelectOption | null>(() => {
-        if (!row.categoryId) {
-            return null;
-        }
-        const existing = categoryOptions.find((option) => option.value === row.categoryId);
-        if (existing) {
-            return existing;
-        }
-        const fallbackLabel = `ID: ${row.categoryId}`;
-        return {
-            value: row.categoryId,
-            label: fallbackLabel,
-            searchText: [fallbackLabel, row.categoryId.toLowerCase()].join(' '),
-            categoryName: fallbackLabel,
-        };
-    }, [categoryOptions, row.categoryId]);
+    const selectedIds = row.productIds || [];
 
     const categoryFilterOption = useCallback(
         (candidate: FilterOptionOption<CategorySelectOption>, rawInput: string) => {
@@ -378,7 +335,7 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
         if (isCustomStrategy) {
             setOptionsMap((prev) => {
                 const next = { ...prev };
-                mapped.forEach((option) => {
+                mapped.forEach((option: any) => {
                     next[option.value] = option;
                 });
                 return next;
@@ -390,7 +347,7 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                 return mapped;
             }
             const existing = new Map(prev.map((option) => [option.value, option]));
-            mapped.forEach((option) => {
+            mapped.forEach((option: any) => {
                 if (!existing.has(option.value)) {
                     existing.set(option.value, option);
                 }
@@ -652,6 +609,13 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
         });
     };
 
+    const handleHeadingConfigChange = (data: SectionHeadingConfigData) => {
+        onChange({
+            ...row,
+            ...data,
+        });
+    };
+
     return (
         <div className="rounded-xl border border-gray-200/80 bg-white/90 shadow-sm">
             <div className="flex flex-col gap-4 border-b border-gray-100 bg-gray-50/80 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
@@ -771,6 +735,15 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                         className="rounded-xl border border-gray-100 bg-white px-4 py-3 shadow-sm"
                     />
                 </div>
+
+                <SectionHeadingConfig
+                    data={{
+                        headingStyle: (row.headingStyle as any) || 'default',
+                        headingBackgroundColor: row.headingBackgroundColor,
+                        headingBackgroundImage: row.headingBackgroundImage,
+                    }}
+                    onChange={handleHeadingConfigChange}
+                />
 
                 {isCustomStrategy && row.categoryId ? (
                     <div className="space-y-3">

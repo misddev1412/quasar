@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import VisitorStatisticsDashboard from './VisitorStatisticsDashboard';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 
 // Working visitor analytics page with mock data
 export default function VisitorAnalyticsPageWrapper() {

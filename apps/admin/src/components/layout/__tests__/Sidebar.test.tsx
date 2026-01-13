@@ -4,8 +4,8 @@ import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Sidebar from '../Sidebar';
 import { LayoutProvider } from '../../../contexts/LayoutContext';
-import { ThemeProvider as CustomThemeProvider } from '../../../context/ThemeContext';
-import { AuthProvider } from '../../../context/AuthContext';
+import { ThemeProvider as CustomThemeProvider } from '../../../contexts/ThemeContext';
+import { AuthProvider } from '../../../contexts/AuthContext';
 
 // Mock the translation hook
 jest.mock('../../../hooks/useTranslationWithBackend', () => ({

@@ -3,7 +3,7 @@ import { SupportedLocale } from '@shared';
 import { useTranslation } from 'react-i18next';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 import { getSupportedLocales } from '../i18n';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { useActiveLanguages } from '../hooks/useLanguages';
 
 interface LocaleSwitcherProps {

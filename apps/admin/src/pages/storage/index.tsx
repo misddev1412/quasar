@@ -7,7 +7,7 @@ import { EntityForm } from '../../components/common/EntityForm';
 import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { FormTabConfig } from '../../types/forms';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { z } from 'zod';
 

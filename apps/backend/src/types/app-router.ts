@@ -3017,37 +3017,83 @@ export const appRouter = router({
       }),
   }),
 
-  clientProducts: router({
-    list: procedure
-      .input(z.object({
-        page: z.number().min(1).default(1),
-        limit: z.number().min(1).max(100).default(10),
-        search: z.string().optional(),
-        categoryId: z.string().optional(),
-        brandId: z.string().optional(),
-        priceRange: z.object({
-          min: z.number().min(0).optional(),
-          max: z.number().min(0).optional(),
-        }).optional(),
-        sortBy: z.enum(['name', 'price', 'popularity', 'newest']).default('newest'),
-        sortOrder: z.enum(['ASC', 'DESC']).default('DESC'),
-      }).optional())
-      .output(paginatedResponseSchema)
+  clientCategories: router({
+    getCategories: procedure
+      .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;
       }),
 
-    detail: procedure
+    getCategoryById: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;
       }),
 
-    featured: procedure
+    getCategoryBySlug: procedure
+      .input(z.object({ slug: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getCategoryTree: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getRootCategories: procedure
+      .input(z.object({ parentId: z.string().uuid().optional() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  clientProducts: router({
+    getProducts: procedure
       .input(z.object({
-        limit: z.number().min(1).max(50).default(10),
-      }).optional())
+        page: z.number().int().positive().default(1),
+        limit: z.number().int().positive().max(100).default(20),
+        search: z.string().optional(),
+        category: z.string().optional(),
+        brand: z.string().optional(),
+        minPrice: z.number().positive().optional(),
+        maxPrice: z.number().positive().optional(),
+        status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE', 'DISCONTINUED']).optional(),
+        isActive: z.boolean().optional(),
+        isFeatured: z.boolean().optional(),
+        sortBy: z.enum(['name', 'price', 'createdAt', 'sortOrder']).default('createdAt'),
+        sortOrder: z.enum(['ASC', 'DESC']).default('DESC'),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getProductById: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getProductBySlug: procedure
+      .input(z.object({ slug: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getNewProducts: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getFeaturedProducts: procedure
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;
@@ -3062,24 +3108,18 @@ export const appRouter = router({
         return {} as ApiResponse;
       }),
 
-    byCategory: procedure
+    getProductsByCategory: procedure
       .input(z.object({
-        categoryId: z.string(),
-        page: z.number().min(1).default(1),
-        limit: z.number().min(1).max(100).default(10),
+        categoryId: z.string().optional(),
+        strategy: z.enum(['latest', 'featured', 'bestsellers', 'custom']).optional(),
       }))
-      .output(paginatedResponseSchema)
+      .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;
       }),
 
-    byBrand: procedure
-      .input(z.object({
-        brandId: z.string(),
-        page: z.number().min(1).default(1),
-        limit: z.number().min(1).max(100).default(10),
-      }))
-      .output(paginatedResponseSchema)
+    getProductFilters: procedure
+      .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;
       }),

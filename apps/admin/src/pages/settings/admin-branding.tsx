@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import BaseLayout from '../../components/layout/BaseLayout';
 import { withAdminSeo } from '../../components/SEO/withAdminSeo';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { Button } from '../../components/common/Button';
 import toast from 'react-hot-toast';
 import { Input } from '../../components/common/Input';
@@ -20,7 +20,7 @@ import {
 import { trpc } from '../../utils/trpc';
 import { FiHome, FiSettings, FiImage, FiBookOpen, FiLayout } from 'react-icons/fi';
 import GlobalThemeSettings from '../../components/settings/GlobalThemeSettings';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const numberOrUndefined = (value: string): number | undefined => {
   const parsed = Number(value);

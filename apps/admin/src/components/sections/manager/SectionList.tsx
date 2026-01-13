@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { useSectionsManager, AdminSection } from '../../../hooks/useSectionsManager';
-import { useToast } from '../../../context/ToastContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { Select } from '../../common/Select';
 import { Button } from '../../common/Button';
 import { ReorderableTable, DragHandle, type ReorderableColumn } from '../../common/ReorderableTable';

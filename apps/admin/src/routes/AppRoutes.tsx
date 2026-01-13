@@ -142,7 +142,6 @@ import VisitorAnalyticsPageWrapper from '../components/visitor-analytics/Visitor
 import AppLayout from '../components/layout/AppLayout';
 import { hasPermissionForRoute, isSuperAdminUser } from '../utils/permission-access';
 
-// 优化 ProtectedRoute 支持 children 形式，避免不必要的 profile 拉取
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }

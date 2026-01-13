@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Dialog, DialogContent } from './Dialog';
-import { useModalContext } from '../../context/ModalContext';
+import { useModalContext } from '../../contexts/ModalContext';
 
 interface ModalProps {
   isOpen: boolean;

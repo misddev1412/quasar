@@ -5,7 +5,7 @@ import { Input } from '../common/Input';
 import { Switch } from '../common/Switch';
 import { MediaManager } from '../common/MediaManager';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../contexts/ToastContext';
 import { useSettings } from '../../hooks/useSettings';
 
 interface AssetConfig {
