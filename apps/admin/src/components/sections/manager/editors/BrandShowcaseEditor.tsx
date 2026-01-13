@@ -33,7 +33,7 @@ interface BrandShowcaseConfig {
     brands: BrandItem[];
     headingStyle?: HeadingStyle;
     headingBackgroundColor?: string;
-    headingBackgroundImage?: string;
+    headingTextColor?: string;
 }
 
 const DEFAULT_COLUMNS = 6;
@@ -56,7 +56,7 @@ export const BrandShowcaseEditor: React.FC<BrandShowcaseEditorProps> = ({ value,
         brands: Array.isArray(value?.brands) ? (value.brands as BrandItem[]) : [],
         headingStyle: (value?.headingStyle as HeadingStyle) || 'default',
         headingBackgroundColor: typeof value?.headingBackgroundColor === 'string' ? value.headingBackgroundColor : undefined,
-        headingBackgroundImage: typeof value?.headingBackgroundImage === 'string' ? value.headingBackgroundImage : undefined,
+        headingTextColor: typeof value?.headingTextColor === 'string' ? value.headingTextColor : undefined,
     }), [value]);
 
     const handleChange = (updates: Partial<BrandShowcaseConfig>) => {
@@ -142,7 +142,7 @@ export const BrandShowcaseEditor: React.FC<BrandShowcaseEditorProps> = ({ value,
                 data={{
                     headingStyle: config.headingStyle,
                     headingBackgroundColor: config.headingBackgroundColor,
-                    headingBackgroundImage: config.headingBackgroundImage,
+                    headingTextColor: config.headingTextColor,
                 }}
                 onChange={handleHeadingConfigChange}
             />

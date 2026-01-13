@@ -25,7 +25,7 @@ export interface TestimonialsSectionConfig {
   testimonials?: TestimonialConfig[];
   headingStyle?: 'default' | 'banner';
   headingBackgroundColor?: string;
-  headingBackgroundImage?: string;
+  headingTextColor?: string;
 }
 
 interface TestimonialsSectionProps {
@@ -127,7 +127,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ config
           description={sectionDescription}
           headingStyle={config.headingStyle}
           headingBackgroundColor={config.headingBackgroundColor}
-          headingBackgroundImage={config.headingBackgroundImage}
+          headingTextColor={config.headingTextColor}
           theme="dark"
           className="mb-12"
         />

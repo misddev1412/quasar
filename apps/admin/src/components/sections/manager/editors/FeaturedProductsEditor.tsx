@@ -25,7 +25,7 @@ interface FeaturedProductsConfig {
     showDescription?: boolean;
     headingStyle?: HeadingStyle;
     headingBackgroundColor?: string;
-    headingBackgroundImage?: string;
+    headingTextColor?: string;
     displayStyle?: string;
     itemsPerRow?: number;
 }
@@ -45,7 +45,7 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
         showDescription: value?.showDescription !== false,
         headingStyle: (value?.headingStyle as HeadingStyle) || 'default',
         headingBackgroundColor: typeof value?.headingBackgroundColor === 'string' ? value.headingBackgroundColor : undefined,
-        headingBackgroundImage: typeof value?.headingBackgroundImage === 'string' ? value.headingBackgroundImage : undefined,
+        headingTextColor: typeof value?.headingTextColor === 'string' ? value.headingTextColor : undefined,
         displayStyle: typeof value?.displayStyle === 'string' ? value.displayStyle : 'grid',
         itemsPerRow: ensureNumber(value?.itemsPerRow, 4),
     }), [value]);
@@ -346,14 +346,14 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
                 />
             </div>
 
-            <SectionHeadingConfig
-                data={{
-                    headingStyle: config.headingStyle,
-                    headingBackgroundColor: config.headingBackgroundColor,
-                    headingBackgroundImage: config.headingBackgroundImage,
-                }}
-                onChange={(data: SectionHeadingConfigData) => handleConfigChange(data)}
-            />
+                <SectionHeadingConfig
+                    data={{
+                        headingStyle: config.headingStyle,
+                        headingBackgroundColor: config.headingBackgroundColor,
+                        headingTextColor: config.headingTextColor,
+                    }}
+                    onChange={(data: SectionHeadingConfigData) => handleConfigChange(data)}
+                />
 
             <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">{t('sections.manager.featuredProducts.selectProducts')}</label>

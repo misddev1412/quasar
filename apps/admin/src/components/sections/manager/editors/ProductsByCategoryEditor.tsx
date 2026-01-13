@@ -35,7 +35,7 @@ interface ProductsByCategoryAdminRow {
     showStrategyLabel: boolean;
     headingStyle?: HeadingStyle;
     headingBackgroundColor?: string;
-    headingBackgroundImage?: string;
+    headingTextColor?: string;
 }
 
 const DEFAULT_ROW_LIMIT = 6;
@@ -123,7 +123,7 @@ const parseRowsFromValue = (value: any): ProductsByCategoryAdminRow[] => {
                 showStrategyLabel: row?.showStrategyLabel !== false,
                 headingStyle: (row?.headingStyle as HeadingStyle) || 'default',
                 headingBackgroundColor: typeof row?.headingBackgroundColor === 'string' ? row.headingBackgroundColor : undefined,
-                headingBackgroundImage: typeof row?.headingBackgroundImage === 'string' ? row.headingBackgroundImage : undefined,
+                headingTextColor: typeof row?.headingTextColor === 'string' ? row.headingTextColor : undefined,
             };
         });
     }
@@ -151,7 +151,7 @@ const parseRowsFromValue = (value: any): ProductsByCategoryAdminRow[] => {
             showStrategyLabel: value?.showStrategyLabel !== false,
             headingStyle: (value?.headingStyle as HeadingStyle) || 'default',
             headingBackgroundColor: typeof value?.headingBackgroundColor === 'string' ? value.headingBackgroundColor : undefined,
-            headingBackgroundImage: typeof value?.headingBackgroundImage === 'string' ? value.headingBackgroundImage : undefined,
+            headingTextColor: typeof value?.headingTextColor === 'string' ? value.headingTextColor : undefined,
         }];
     }
 
@@ -178,7 +178,7 @@ const sanitizeConfigValue = (
             showStrategyLabel: row.showStrategyLabel,
             headingStyle: row.headingStyle,
             headingBackgroundColor: row.headingBackgroundColor,
-            headingBackgroundImage: row.headingBackgroundImage,
+            headingTextColor: row.headingTextColor,
         };
     });
 
@@ -206,7 +206,7 @@ const rowsAreEqual = (rows: ProductsByCategoryAdminRow[], otherRows: ProductsByC
         if (row.productIds.length !== other.productIds.length) return false;
         if (row.headingStyle !== other.headingStyle) return false;
         if (row.headingBackgroundColor !== other.headingBackgroundColor) return false;
-        if (row.headingBackgroundImage !== other.headingBackgroundImage) return false;
+        if (row.headingTextColor !== other.headingTextColor) return false;
         return row.productIds.every((id, idx) => id === other.productIds[idx]);
     });
 };
@@ -740,7 +740,7 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                     data={{
                         headingStyle: (row.headingStyle as any) || 'default',
                         headingBackgroundColor: row.headingBackgroundColor,
-                        headingBackgroundImage: row.headingBackgroundImage,
+                        headingTextColor: row.headingTextColor,
                     }}
                     onChange={handleHeadingConfigChange}
                 />

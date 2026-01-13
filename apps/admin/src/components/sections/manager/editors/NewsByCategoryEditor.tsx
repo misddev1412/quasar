@@ -25,7 +25,7 @@ interface NewsByCategoryConfig {
     showExcerpt: boolean;
     headingStyle?: HeadingStyle;
     headingBackgroundColor?: string;
-    headingBackgroundImage?: string;
+    headingTextColor?: string;
 }
 
 interface CategoryOption {
@@ -57,7 +57,7 @@ export const NewsByCategoryEditor: React.FC<NewsByCategoryConfigEditorProps> = (
         showExcerpt: value?.showExcerpt !== false,
         headingStyle: (value?.headingStyle as HeadingStyle) || 'default',
         headingBackgroundColor: typeof value?.headingBackgroundColor === 'string' ? value.headingBackgroundColor : undefined,
-        headingBackgroundImage: typeof value?.headingBackgroundImage === 'string' ? value.headingBackgroundImage : undefined,
+        headingTextColor: typeof value?.headingTextColor === 'string' ? value.headingTextColor : undefined,
     }), [value]);
 
     const handleChange = (updates: Partial<NewsByCategoryConfig>) => {
@@ -120,7 +120,7 @@ export const NewsByCategoryEditor: React.FC<NewsByCategoryConfigEditorProps> = (
                 data={{
                     headingStyle: config.headingStyle,
                     headingBackgroundColor: config.headingBackgroundColor,
-                    headingBackgroundImage: config.headingBackgroundImage,
+                    headingTextColor: config.headingTextColor,
                 }}
                 onChange={handleHeadingConfigChange}
             />

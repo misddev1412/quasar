@@ -34,7 +34,7 @@ interface TestimonialsConfig {
     items: TestimonialItem[];
     headingStyle?: HeadingStyle;
     headingBackgroundColor?: string;
-    headingBackgroundImage?: string;
+    headingTextColor?: string;
 }
 
 const DEFAULT_COLUMNS = 3;
@@ -59,7 +59,7 @@ export const TestimonialsEditor: React.FC<TestimonialsEditorProps> = ({ value, o
         items: Array.isArray(value?.items) ? (value.items as TestimonialItem[]) : [],
         headingStyle: (value?.headingStyle as HeadingStyle) || 'default',
         headingBackgroundColor: typeof value?.headingBackgroundColor === 'string' ? value.headingBackgroundColor : undefined,
-        headingBackgroundImage: typeof value?.headingBackgroundImage === 'string' ? value.headingBackgroundImage : undefined,
+        headingTextColor: typeof value?.headingTextColor === 'string' ? value.headingTextColor : undefined,
     }), [value]);
 
     const handleChange = (updates: Partial<TestimonialsConfig>) => {
@@ -145,7 +145,7 @@ export const TestimonialsEditor: React.FC<TestimonialsEditorProps> = ({ value, o
                 data={{
                     headingStyle: config.headingStyle,
                     headingBackgroundColor: config.headingBackgroundColor,
-                    headingBackgroundImage: config.headingBackgroundImage,
+                    headingTextColor: config.headingTextColor,
                 }}
                 onChange={handleHeadingConfigChange}
             />

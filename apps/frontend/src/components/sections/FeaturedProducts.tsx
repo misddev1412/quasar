@@ -18,7 +18,7 @@ export interface FeaturedProductsConfig {
   itemsPerRow?: number;
   headingStyle?: 'default' | 'banner';
   headingBackgroundColor?: string;
-  headingBackgroundImage?: string;
+  headingTextColor?: string;
 }
 
 interface FeaturedProductsProps {
@@ -98,7 +98,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
             ctaLink="/products"
             headingStyle={config.headingStyle}
             headingBackgroundColor={config.headingBackgroundColor}
-            headingBackgroundImage={config.headingBackgroundImage}
+            headingTextColor={config.headingTextColor}
           />
         )}
 

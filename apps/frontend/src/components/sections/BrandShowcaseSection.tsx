@@ -20,7 +20,7 @@ export interface BrandShowcaseConfig {
   sliderInterval?: number;
   headingStyle?: 'default' | 'banner';
   headingBackgroundColor?: string;
-  headingBackgroundImage?: string;
+  headingTextColor?: string;
 }
 
 interface BrandShowcaseSectionProps {
@@ -297,7 +297,7 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
             description={sectionDescription}
             headingStyle={config.headingStyle}
             headingBackgroundColor={config.headingBackgroundColor}
-            headingBackgroundImage={config.headingBackgroundImage}
+            headingTextColor={config.headingTextColor}
             className="mb-12"
           />
         )}

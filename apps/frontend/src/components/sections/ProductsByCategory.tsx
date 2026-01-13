@@ -30,7 +30,7 @@ export interface ProductsByCategoryRowConfig {
   showStrategyLabel?: boolean;
   headingStyle?: 'default' | 'banner';
   headingBackgroundColor?: string;
-  headingBackgroundImage?: string;
+  headingTextColor?: string;
 }
 
 export interface ProductsByCategoryConfig {
@@ -112,7 +112,7 @@ interface NormalizedRowConfig {
   showStrategyLabel: boolean;
   headingStyle: 'default' | 'banner';
   headingBackgroundColor?: string;
-  headingBackgroundImage?: string;
+  headingTextColor?: string;
 }
 
 interface RowRenderState {
@@ -416,7 +416,7 @@ const normalizeRows = (config: ProductsByCategoryConfig): NormalizedRowConfig[] 
         showStrategyLabel,
         headingStyle: (row.headingStyle === 'banner' ? 'banner' : 'default'),
         headingBackgroundColor: typeof row.headingBackgroundColor === 'string' ? row.headingBackgroundColor : undefined,
-        headingBackgroundImage: typeof row.headingBackgroundImage === 'string' ? row.headingBackgroundImage : undefined,
+        headingTextColor: typeof row.headingTextColor === 'string' ? row.headingTextColor : undefined,
       });
     });
 
@@ -551,7 +551,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
       showStrategyLabel: row.showStrategyLabel,
       headingStyle: row.headingStyle,
       headingBackgroundColor: row.headingBackgroundColor,
-      headingBackgroundImage: row.headingBackgroundImage,
+      headingTextColor: row.headingTextColor,
     }))),
     [rows],
   );
@@ -1020,7 +1020,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, 
                     ctaLink={hasCategoryNavigation ? ctaHref : undefined}
                     headingStyle={row.headingStyle}
                     headingBackgroundColor={row.headingBackgroundColor}
-                    headingBackgroundImage={row.headingBackgroundImage}
+                    headingTextColor={row.headingTextColor}
                     className="mb-8"
                   />
 

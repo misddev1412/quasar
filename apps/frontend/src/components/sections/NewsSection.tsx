@@ -22,7 +22,7 @@ export interface NewsSectionRowConfig {
   card?: NewsCardConfig;
   headingStyle?: 'default' | 'banner';
   headingBackgroundColor?: string;
-  headingBackgroundImage?: string;
+  headingTextColor?: string;
 }
 
 export interface NewsSectionConfig {
@@ -33,7 +33,7 @@ export interface NewsSectionConfig {
   card?: NewsCardConfig;
   headingStyle?: 'default' | 'banner';
   headingBackgroundColor?: string;
-  headingBackgroundImage?: string;
+  headingTextColor?: string;
 }
 
 const DEFAULT_NEWS_LIMIT = 3;
@@ -159,7 +159,7 @@ const parseNewsRows = (config: NewsSectionConfig): NewsSectionRowConfig[] => {
       card: sanitizeCardConfig((row as any)?.card) ?? baseCard,
       headingStyle: (row?.headingStyle === 'banner' ? 'banner' : 'default'),
       headingBackgroundColor: typeof row?.headingBackgroundColor === 'string' ? row.headingBackgroundColor : undefined,
-      headingBackgroundImage: typeof row?.headingBackgroundImage === 'string' ? row.headingBackgroundImage : undefined,
+      headingTextColor: typeof row?.headingTextColor === 'string' ? row.headingTextColor : undefined,
     }));
   }
 
@@ -251,7 +251,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
         limit,
         headingStyle: (config?.headingStyle === 'banner' ? 'banner' : 'default'),
         headingBackgroundColor: config?.headingBackgroundColor,
-        headingBackgroundImage: config?.headingBackgroundImage,
+        headingTextColor: config?.headingTextColor,
       } as NewsSectionRowConfig,
     ];
   }, [rows, fallbackCategories, translation?.title, strategy, limit]);
@@ -267,7 +267,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
         card: sanitizeCardConfig(row.card),
         headingStyle: row.headingStyle,
         headingBackgroundColor: row.headingBackgroundColor,
-        headingBackgroundImage: row.headingBackgroundImage,
+        headingTextColor: row.headingTextColor,
       })),
     [baseRows, limit],
   );
@@ -401,7 +401,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
                   ctaLink={viewAllHref}
                   headingStyle={row.headingStyle}
                   headingBackgroundColor={row.headingBackgroundColor}
-                  headingBackgroundImage={row.headingBackgroundImage}
+                  headingTextColor={row.headingTextColor}
                 />
                 <div className="space-y-6">
                   {state.error && (
