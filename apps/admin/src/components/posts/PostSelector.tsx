@@ -7,7 +7,7 @@ import { Post, PostStatus } from '../../types/post';
 
 interface PostSelectorProps {
   value?: string;
-  onChange: (value: string | undefined) => void;
+  onChange: (value: string | undefined, option?: SelectOption) => void;
   placeholder?: string;
   disabled?: boolean;
 }
@@ -57,7 +57,11 @@ export const PostSelector: React.FC<PostSelectorProps> = ({
       <div className="relative">
         <Select
           value={value || ''}
-          onChange={(selectedValue) => onChange(selectedValue || undefined)}
+          onChange={(selectedValue) => {
+            const resolved = selectedValue || undefined;
+            const option = options.find((candidate) => candidate.value === resolved);
+            onChange(resolved, option);
+          }}
           options={options}
           placeholder={placeholder}
           disabled={disabled}

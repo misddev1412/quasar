@@ -152,6 +152,9 @@
     "search": {
       "placeholder": "Search products..."
     },
+    "pagination": {
+      "summary": "Showing {{start}} to {{end}} of {{total}} items"
+    },
     "theme": {
       "switchTo": "Switch to {{mode}} mode",
       "dark": "Dark",
@@ -317,6 +320,29 @@
     }
   },
   "pages": {
+    "category_detail": {
+      "subcategories_title": "Subcategories in {{category}}",
+      "subcategories_description": "Browse focused collections to narrow down your search.",
+      "view_all_categories": "View all categories",
+      "products_title": "{{category}} picks",
+      "products_description": "Showing {{shown}} of {{total}} products.",
+      "updating_products": "Updating products...",
+      "sort": {
+        "newest": "Newest first",
+        "price_low_high": "Price: Low to High",
+        "price_high_low": "Price: High to Low",
+        "name": "Name"
+      },
+      "error_title": "We hit a small snag",
+      "error_description": "We could not refresh the products just now. Please try again in a moment.",
+      "try_again": "Try again",
+      "loading_title": "Loading products...",
+      "loading_description": "Hang tight while we bring in the latest items.",
+      "empty_title": "No products yet",
+      "empty_description": "This category is getting ready for its first arrivals. Explore other categories in the meantime.",
+      "browse_other_categories": "Browse other categories",
+      "loading_more": "Loading more products..."
+    },
     "order_tracking": {
       "page_title": "Track Your Order",
       "page_description": "Track your order status and shipping information",

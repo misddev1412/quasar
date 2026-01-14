@@ -469,6 +469,12 @@ const FooterSettingsForm: React.FC = () => {
     [t]
   );
 
+  const defaultMenuLinkLabel = t('storefront.footer.menu_links.new_label', 'New link');
+  const isDefaultMenuLinkLabel = (label?: string) => {
+    const normalized = (label || '').trim();
+    return normalized.length === 0 || normalized === defaultMenuLinkLabel || normalized === 'New link';
+  };
+
   const handleUpdate = <K extends keyof FooterConfig>(key: K, value: FooterConfig[K]) => {
     setDraft((prev) => ({
       ...prev,
@@ -527,6 +533,22 @@ const FooterSettingsForm: React.FC = () => {
       }),
     }));
     setIsDirty(true);
+  };
+
+  const handleMenuLinkReferenceUpdate = (
+    columnId: string,
+    linkId: string,
+    currentLabel: string | undefined,
+    referenceId: string | undefined,
+    optionLabel?: string
+  ) => {
+    const payload: Partial<FooterMenuLinkConfig> = {
+      referenceId: referenceId || '',
+    };
+    if (optionLabel && isDefaultMenuLinkLabel(currentLabel)) {
+      payload.label = optionLabel;
+    }
+    handleMenuLinkUpdate(columnId, linkId, payload);
   };
 
   const handleWidgetUpdate = (payload: Partial<FooterWidgetConfig>) => {
@@ -1452,8 +1474,14 @@ const FooterSettingsForm: React.FC = () => {
                           <div className="md:col-span-2">
                             <ProductSelector
                               value={link.referenceId || undefined}
-                              onChange={(value) =>
-                                handleMenuLinkUpdate(column.id, link.id, { referenceId: value || '' })
+                              onChange={(value, option) =>
+                                handleMenuLinkReferenceUpdate(
+                                  column.id,
+                                  link.id,
+                                  link.label,
+                                  value,
+                                  option?.label
+                                )
                               }
                             />
                           </div>
@@ -1462,8 +1490,14 @@ const FooterSettingsForm: React.FC = () => {
                           <div className="md:col-span-2">
                             <CategorySelector
                               value={link.referenceId || undefined}
-                              onChange={(value) =>
-                                handleMenuLinkUpdate(column.id, link.id, { referenceId: value || '' })
+                              onChange={(value, option) =>
+                                handleMenuLinkReferenceUpdate(
+                                  column.id,
+                                  link.id,
+                                  link.label,
+                                  value,
+                                  option?.label
+                                )
                               }
                             />
                           </div>
@@ -1472,8 +1506,14 @@ const FooterSettingsForm: React.FC = () => {
                           <div className="md:col-span-2">
                             <PostSelector
                               value={link.referenceId || undefined}
-                              onChange={(value) =>
-                                handleMenuLinkUpdate(column.id, link.id, { referenceId: value || '' })
+                              onChange={(value, option) =>
+                                handleMenuLinkReferenceUpdate(
+                                  column.id,
+                                  link.id,
+                                  link.label,
+                                  value,
+                                  option?.label
+                                )
                               }
                             />
                           </div>
@@ -1482,8 +1522,14 @@ const FooterSettingsForm: React.FC = () => {
                           <div className="md:col-span-2">
                             <SiteContentSelector
                               value={link.referenceId || undefined}
-                              onChange={(value) =>
-                                handleMenuLinkUpdate(column.id, link.id, { referenceId: value || '' })
+                              onChange={(value, option) =>
+                                handleMenuLinkReferenceUpdate(
+                                  column.id,
+                                  link.id,
+                                  link.label,
+                                  value,
+                                  option?.label
+                                )
                               }
                               valueType="slug"
                             />

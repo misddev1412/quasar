@@ -16,7 +16,7 @@ interface ProductOption {
 
 interface ProductSelectorProps {
   value?: string;
-  onChange: (productId: string | undefined) => void;
+  onChange: (productId: string | undefined, option?: ProductOption) => void;
 }
 
 const currencyFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
@@ -341,9 +341,9 @@ export const ProductSelector: React.FC<ProductSelectorProps> = ({ value, onChang
         value={selectedOption}
         onChange={(option) => {
           setSelectedOption(option);
-          onChange(option?.value);
-        setSearchTerm(''); // Clear search term when option is selected
-      }}
+          onChange(option?.value, option ?? undefined);
+          setSearchTerm(''); // Clear search term when option is selected
+        }}
       options={allOptions}
       inputValue={isMenuOpen ? searchTerm : ''}
       onInputChange={(value, actionMeta) => {

@@ -17,7 +17,7 @@ interface CategoryOption {
 
 interface CategorySelectorProps {
   value?: string;
-  onChange: (categoryId: string | undefined) => void;
+  onChange: (categoryId: string | undefined, option?: CategoryOption) => void;
 }
 
 const mapCategoryToOption = (category: any): CategoryOption => {
@@ -369,9 +369,9 @@ export const CategorySelector: React.FC<CategorySelectorProps> = ({ value, onCha
         value={selectedOption}
         onChange={(option) => {
           setSelectedOption(option);
-          onChange(option?.value);
-        setSearchTerm(''); // Clear search term when option is selected
-      }}
+          onChange(option?.value, option ?? undefined);
+          setSearchTerm(''); // Clear search term when option is selected
+        }}
       options={allOptions}
       inputValue={isMenuOpen ? searchTerm : ''}
       onInputChange={(value, actionMeta) => {

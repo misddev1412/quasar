@@ -152,6 +152,9 @@
     "search": {
       "placeholder": "Tìm kiếm sản phẩm..."
     },
+    "pagination": {
+      "summary": "Hiển thị {{start}} đến {{end}} trong tổng số {{total}} mục"
+    },
     "theme": {
       "switchTo": "Chuyển sang chế độ {{mode}}",
       "dark": "Tối",
@@ -314,6 +317,29 @@
     }
   },
   "pages": {
+    "category_detail": {
+      "subcategories_title": "Danh mục con của {{category}}",
+      "subcategories_description": "Khám phá các bộ sưu tập chuyên biệt để thu hẹp tìm kiếm.",
+      "view_all_categories": "Xem tất cả danh mục",
+      "products_title": "Gợi ý từ {{category}}",
+      "products_description": "Hiển thị {{shown}} trên tổng {{total}} sản phẩm.",
+      "updating_products": "Đang cập nhật sản phẩm...",
+      "sort": {
+        "newest": "Mới nhất",
+        "price_low_high": "Giá: Thấp đến Cao",
+        "price_high_low": "Giá: Cao đến Thấp",
+        "name": "Tên"
+      },
+      "error_title": "Đã xảy ra sự cố nhỏ",
+      "error_description": "Không thể làm mới sản phẩm lúc này. Vui lòng thử lại sau.",
+      "try_again": "Thử lại",
+      "loading_title": "Đang tải sản phẩm...",
+      "loading_description": "Vui lòng đợi trong khi chúng tôi tải các sản phẩm mới nhất.",
+      "empty_title": "Chưa có sản phẩm",
+      "empty_description": "Danh mục này đang chuẩn bị các sản phẩm đầu tiên. Hãy khám phá danh mục khác trong lúc chờ.",
+      "browse_other_categories": "Xem danh mục khác",
+      "loading_more": "Đang tải thêm sản phẩm..."
+    },
     "order_tracking": {
       "page_title": "Tra cứu đơn hàng",
       "page_description": "Theo dõi trạng thái đơn hàng và thông tin vận chuyển",

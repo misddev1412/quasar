@@ -6,7 +6,7 @@ import { Input } from '../common/Input';
 
 interface SiteContentSelectorProps {
   value?: string;
-  onChange: (value: string | undefined) => void;
+  onChange: (value: string | undefined, option?: SelectOption) => void;
   placeholder?: string;
   disabled?: boolean;
   valueType?: 'id' | 'slug';
@@ -41,7 +41,9 @@ export const SiteContentSelector: React.FC<SiteContentSelectorProps> = ({
   };
 
   const handleSelectChange = (selectedValue: string) => {
-    onChange(selectedValue === '' ? undefined : selectedValue);
+    const resolved = selectedValue === '' ? undefined : selectedValue;
+    const option = options.find((candidate) => candidate.value === resolved);
+    onChange(resolved, option);
   };
 
   return (
