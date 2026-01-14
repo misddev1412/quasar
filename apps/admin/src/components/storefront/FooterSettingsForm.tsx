@@ -12,6 +12,7 @@ import {
   FooterConfig,
   FooterExtraLink,
   FooterMenuColumnConfig,
+  FooterMenuColumnSection,
   FooterMenuLinkConfig,
   FooterMenuLinkType,
   FooterMenuLinkTarget,
@@ -62,6 +63,22 @@ const isValidFooterLinkType = (value?: string): value is FooterMenuLinkType =>
   value === 'post' ||
   value === 'site_content';
 
+const DEFAULT_MENU_COLUMN_SECTION_ORDER: FooterMenuColumnSection[] = ['links', 'customHtml', 'widget'];
+
+const normalizeMenuColumnSectionOrder = (order?: FooterMenuColumnSection[]) => {
+  if (!Array.isArray(order)) {
+    return [...DEFAULT_MENU_COLUMN_SECTION_ORDER];
+  }
+  const allowed = new Set(DEFAULT_MENU_COLUMN_SECTION_ORDER);
+  const unique = Array.from(new Set(order.filter((section) => allowed.has(section))));
+  DEFAULT_MENU_COLUMN_SECTION_ORDER.forEach((section) => {
+    if (!unique.includes(section)) {
+      unique.push(section);
+    }
+  });
+  return unique;
+};
+
 const sanitizeMenuColumns = (columns: FooterMenuColumnConfig[]): FooterMenuColumnConfig[] =>
   columns
     .map((column, columnIndex) => {
@@ -76,15 +93,27 @@ const sanitizeMenuColumns = (columns: FooterMenuColumnConfig[]): FooterMenuColum
           isActive: link.isActive !== undefined ? Boolean(link.isActive) : true,
         })) ?? [];
       const filteredLinks = links.filter((link) => link.label || link.url || link.referenceId);
+      const customHtml = column.customHtml?.trim() || '';
+      const widget = sanitizeColumnWidget(column.widget);
 
       return {
         id: column.id || `footer-column-${columnIndex}`,
         title: column.title?.trim() || '',
+        customHtml,
+        sectionOrder: normalizeMenuColumnSectionOrder(column.sectionOrder),
+        widget,
         isActive: column.isActive !== undefined ? Boolean(column.isActive) : true,
         links: filteredLinks,
       };
     })
-    .filter((column) => column.links.length > 0);
+    .filter((column) => {
+      const widget = column.widget;
+      const hasWidget =
+        widget?.enabled &&
+        ((widget.type === 'facebook_page' && widget.facebookPageUrl) ||
+          (widget.type === 'google_map' && widget.googleMapEmbedUrl));
+      return column.links.length > 0 || Boolean(column.title) || Boolean(column.customHtml) || Boolean(hasWidget);
+    });
 
 const clampWidgetHeight = (value?: number) => {
   if (!value || Number.isNaN(value)) {
@@ -163,6 +192,25 @@ const defaultWidgetDraft = (): FooterWidgetConfig => ({
   facebookTabs: 'timeline',
 });
 
+const defaultColumnWidgetDraft = (): NonNullable<FooterMenuColumnConfig['widget']> => ({
+  enabled: false,
+  type: 'google_map',
+  title: '',
+  description: '',
+  height: 280,
+  googleMapEmbedUrl: '',
+  facebookPageUrl: '',
+  facebookTabs: 'timeline',
+});
+
+const withColumnWidgetDefaults = (
+  widget?: FooterMenuColumnConfig['widget']
+): NonNullable<FooterMenuColumnConfig['widget']> => ({
+  ...defaultColumnWidgetDraft(),
+  ...widget,
+  type: widget?.type === 'facebook_page' ? 'facebook_page' : 'google_map',
+});
+
 const withWidgetDefaults = (widget?: FooterWidgetConfig): FooterWidgetConfig => {
   const defaults = defaultWidgetDraft();
   if (!widget) {
@@ -185,6 +233,23 @@ const withWidgetDefaults = (widget?: FooterWidgetConfig): FooterWidgetConfig => 
         : resolvedType === 'facebook_page'
           ? true
           : defaults.showFacebookPage,
+  };
+};
+
+const sanitizeColumnWidget = (
+  widget?: FooterMenuColumnConfig['widget']
+): FooterMenuColumnConfig['widget'] => {
+  if (!widget) {
+    return undefined;
+  }
+  const merged = withColumnWidgetDefaults(widget);
+  return {
+    ...merged,
+    enabled: Boolean(merged.enabled),
+    height: clampWidgetHeight(merged.height),
+    googleMapEmbedUrl: merged.googleMapEmbedUrl?.trim() || '',
+    facebookPageUrl: merged.facebookPageUrl?.trim() || '',
+    facebookTabs: merged.facebookTabs?.trim() || 'timeline',
   };
 };
 
@@ -435,6 +500,15 @@ const FooterSettingsForm: React.FC = () => {
     [t]
   );
 
+  const columnWidgetOptions = useMemo<SelectOption[]>(
+    () => [
+      { value: 'none', label: t('storefront.footer.menu_columns.widget.none', 'No embed') },
+      { value: 'google_map', label: t('storefront.footer.menu_columns.widget.google', 'Google Maps') },
+      { value: 'facebook_page', label: t('storefront.footer.menu_columns.widget.facebook', 'Facebook fanpage') },
+    ],
+    [t]
+  );
+
   const socialTypeOptions = useMemo<SelectOption[]>(
     () => [
       { value: 'facebook', label: 'Facebook' },
@@ -509,6 +583,49 @@ const FooterSettingsForm: React.FC = () => {
       menuColumns: prev.menuColumns.map((column) =>
         column.id === id ? { ...column, ...payload } : column
       ),
+    }));
+    setIsDirty(true);
+  };
+
+  const moveMenuColumnSection = (columnId: string, section: FooterMenuColumnSection, delta: number) => {
+    setDraft((prev) => ({
+      ...prev,
+      menuColumns: prev.menuColumns.map((column) => {
+        if (column.id !== columnId) {
+          return column;
+        }
+        const order = normalizeMenuColumnSectionOrder(column.sectionOrder);
+        const index = order.indexOf(section);
+        const targetIndex = index + delta;
+        if (index === -1 || targetIndex < 0 || targetIndex >= order.length) {
+          return column;
+        }
+        const next = [...order];
+        [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+        return { ...column, sectionOrder: next };
+      }),
+    }));
+    setIsDirty(true);
+  };
+
+  const handleMenuColumnWidgetUpdate = (
+    id: string,
+    payload: Partial<NonNullable<FooterMenuColumnConfig['widget']>>
+  ) => {
+    setDraft((prev) => ({
+      ...prev,
+      menuColumns: prev.menuColumns.map((column) => {
+        if (column.id !== id) {
+          return column;
+        }
+        return {
+          ...column,
+          widget: {
+            ...withColumnWidgetDefaults(column.widget),
+            ...payload,
+          },
+        };
+      }),
     }));
     setIsDirty(true);
   };
@@ -674,6 +791,9 @@ const FooterSettingsForm: React.FC = () => {
         {
           id: generateId(),
           title: '',
+          customHtml: '',
+          widget: defaultColumnWidgetDraft(),
+          sectionOrder: [...DEFAULT_MENU_COLUMN_SECTION_ORDER],
           links: [],
           isActive: true,
         },
@@ -1326,7 +1446,16 @@ const FooterSettingsForm: React.FC = () => {
           </Button>
         </div>
         <div className="space-y-4">
-          {draft.menuColumns.map((column, columnIndex) => (
+          {draft.menuColumns.map((column, columnIndex) => {
+            const columnWidget = withColumnWidgetDefaults(column.widget);
+            const widgetMode = columnWidget.enabled ? columnWidget.type : 'none';
+            const sectionOrder = normalizeMenuColumnSectionOrder(column.sectionOrder);
+            const sectionLabels: Record<FooterMenuColumnSection, string> = {
+              links: t('storefront.footer.menu_columns.section_order.links', 'Links'),
+              customHtml: t('storefront.footer.menu_columns.section_order.custom_html', 'Custom HTML'),
+              widget: t('storefront.footer.menu_columns.section_order.widget', 'Embed'),
+            };
+            return (
             <div key={column.id} className="rounded-xl border border-gray-100 p-4 shadow-sm space-y-4">
               <div className="flex items-center justify-between gap-2">
                 <div>
@@ -1385,11 +1514,76 @@ const FooterSettingsForm: React.FC = () => {
                   description={t('storefront.footer.menu_columns.visible_hint', 'Hide the column without deleting it.')}
                 />
               </div>
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-gray-900">
-                  {t('storefront.footer.menu_links.heading', 'Links')}
+              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-4 space-y-3">
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {t('storefront.footer.menu_columns.section_order.heading', 'Section order')}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {t(
+                      'storefront.footer.menu_columns.section_order.description',
+                      'Reorder the links, custom HTML, and embed blocks inside this column.'
+                    )}
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  {sectionOrder.map((section, index) => (
+                    <div key={section} className="flex items-center justify-between gap-2">
+                      <span className="text-sm text-gray-700">{sectionLabels[section]}</span>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => moveMenuColumnSection(column.id, section, -1)}
+                          disabled={index === 0}
+                          aria-label={t('common.move_up', 'Move up')}
+                        >
+                          <FiArrowUp />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => moveMenuColumnSection(column.id, section, 1)}
+                          disabled={index === sectionOrder.length - 1}
+                          aria-label={t('common.move_down', 'Move down')}
+                        >
+                          <FiArrowDown />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex flex-col gap-1 text-sm text-gray-600">
+                  <span className="font-medium">
+                    {t('storefront.footer.menu_columns.custom_html', 'Custom HTML (optional)')}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {t(
+                      'storefront.footer.menu_columns.custom_html_description',
+                      'Add a small HTML block below the column links.'
+                    )}
+                  </span>
+                </div>
+                <SimpleRichTextEditor
+                  value={column.customHtml || ''}
+                  onChange={(value) => handleMenuColumnUpdate(column.id, { customHtml: value })}
+                  placeholder="<p>Custom HTML block...</p>"
+                  minHeight={140}
+                />
+                <p className="text-xs text-gray-400">
+                  {t(
+                    'storefront.footer.menu_columns.custom_html_hint',
+                    'Basic formatting only. For full control, use the Code view.'
+                  )}
                 </p>
-                <Button
+              </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-gray-900">
+                    {t('storefront.footer.menu_links.heading', 'Links')}
+                  </p>
+                  <Button
                   variant="outline"
                   size="sm"
                   startIcon={<FiPlus />}
@@ -1397,6 +1591,111 @@ const FooterSettingsForm: React.FC = () => {
                 >
                   {t('storefront.footer.menu_links.add', 'Add link')}
                 </Button>
+              </div>
+              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-4 space-y-4">
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {t('storefront.footer.menu_columns.widget.heading', 'Embedded content')}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {t(
+                      'storefront.footer.menu_columns.widget.description',
+                      'Show a Google Map or Facebook fanpage inside this column.'
+                    )}
+                  </p>
+                </div>
+                <Select
+                  label={t('storefront.footer.menu_columns.widget.label', 'Embed type')}
+                  value={widgetMode}
+                  onChange={(value) => {
+                    if (value === 'none') {
+                      handleMenuColumnWidgetUpdate(column.id, { enabled: false });
+                    } else {
+                      handleMenuColumnWidgetUpdate(column.id, {
+                        enabled: true,
+                        type: value as FooterWidgetConfig['type'],
+                      });
+                    }
+                  }}
+                  options={columnWidgetOptions}
+                />
+                {columnWidget.enabled && (
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <label className="flex flex-col gap-1 text-sm text-gray-600">
+                      {t('storefront.footer.menu_columns.widget.height', 'Embed height (px)')}
+                      <Input
+                        type="number"
+                        min={160}
+                        max={640}
+                        inputSize="md"
+                        value={columnWidget.height ?? 280}
+                        onChange={(event) =>
+                          handleMenuColumnWidgetUpdate(column.id, {
+                            height: Number(event.target.value) || columnWidget.height,
+                          })
+                        }
+                        className="text-sm"
+                      />
+                    </label>
+                    {columnWidget.type === 'google_map' && (
+                      <label className="flex flex-col gap-1 text-sm text-gray-600 md:col-span-2">
+                        {t('storefront.footer.menu_columns.widget.map_url', 'Google Maps embed URL')}
+                        <Input
+                          value={columnWidget.googleMapEmbedUrl || ''}
+                          onChange={(event) =>
+                            handleMenuColumnWidgetUpdate(column.id, {
+                              googleMapEmbedUrl: event.target.value,
+                            })
+                          }
+                          placeholder="https://www.google.com/maps/embed?pb=..."
+                          className="text-sm"
+                        />
+                        <span className="text-xs text-gray-400">
+                          {t(
+                            'storefront.footer.menu_columns.widget.map_hint',
+                            'Use the URL from Google Maps → Share → Embed a map.'
+                          )}
+                        </span>
+                      </label>
+                    )}
+                    {columnWidget.type === 'facebook_page' && (
+                      <>
+                        <label className="flex flex-col gap-1 text-sm text-gray-600 md:col-span-2">
+                          {t('storefront.footer.menu_columns.widget.facebook_url', 'Facebook fanpage URL')}
+                          <Input
+                            value={columnWidget.facebookPageUrl || ''}
+                            onChange={(event) =>
+                              handleMenuColumnWidgetUpdate(column.id, {
+                                facebookPageUrl: event.target.value,
+                              })
+                            }
+                            placeholder="https://facebook.com/your-page"
+                            className="text-sm"
+                          />
+                        </label>
+                        <label className="flex flex-col gap-1 text-sm text-gray-600">
+                          {t('storefront.footer.menu_columns.widget.facebook_tabs', 'Tabs (optional)')}
+                          <Input
+                            value={columnWidget.facebookTabs || ''}
+                            onChange={(event) =>
+                              handleMenuColumnWidgetUpdate(column.id, {
+                                facebookTabs: event.target.value,
+                              })
+                            }
+                            placeholder="timeline, messages"
+                            className="text-sm"
+                          />
+                          <span className="text-xs text-gray-400">
+                            {t(
+                              'storefront.footer.menu_columns.widget.facebook_tabs_hint',
+                              'Comma-separated list. Default is "timeline".'
+                            )}
+                          </span>
+                        </label>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="space-y-3">
                 {column.links && column.links.length > 0 ? (
@@ -1568,7 +1867,8 @@ const FooterSettingsForm: React.FC = () => {
                 )}
               </div>
             </div>
-          ))}
+            );
+          })}
           {draft.menuColumns.length === 0 && (
             <p className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-4 text-sm text-gray-500">
               {t(

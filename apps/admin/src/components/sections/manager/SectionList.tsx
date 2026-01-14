@@ -69,8 +69,12 @@ const getSectionTypeBadgeColor = (sectionType: SectionType): string => {
 /**
  * Extract section-specific details from config for display
  */
-const getSectionDetails = (section: AdminSection, t: (key: string) => string): React.ReactNode[] => {
-    const config = section.config || {};
+const getSectionDetails = (
+    section: AdminSection,
+    t: (key: string) => string,
+    configOverride?: Record<string, unknown> | null,
+): React.ReactNode[] => {
+    const config = configOverride ? { ...(section.config || {}), ...configOverride } : (section.config || {});
 
     switch (section.type) {
         case SectionType.HERO_SLIDER: {
@@ -587,7 +591,8 @@ export const SectionList: React.FC<SectionListProps> = ({ page, onPageChange }) 
             id: 'details',
             header: t('sections.manager.tableHeaders.details'),
             accessor: (section) => {
-                const details = getSectionDetails(section, t);
+                const translation = section.translations.find((trans) => trans.locale === defaultLanguage) || section.translations[0];
+                const details = getSectionDetails(section, t, (translation?.configOverride as Record<string, unknown>) || undefined);
                 if (details.length === 0) {
                     return <span className="text-xs text-gray-400">—</span>;
                 }

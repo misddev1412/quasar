@@ -20,6 +20,8 @@ import {
   DEFAULT_MENU_TYPOGRAPHY,
   FooterMenuColumnConfig,
   FooterMenuLinkConfig,
+  FooterMenuColumnWidgetConfig,
+  FooterMenuColumnSection,
 } from '@shared/types/footer.types';
 import { trpc } from '../../utils/trpc';
 
@@ -127,6 +129,32 @@ const resolveFooterLinkHref = (link: FooterMenuLinkConfig): string => {
   }
 };
 
+const normalizeColumnWidget = (
+  widget?: FooterMenuColumnWidgetConfig
+): FooterMenuColumnWidgetConfig | null => {
+  if (!widget) {
+    return null;
+  }
+  const type = widget.type === 'facebook_page' ? 'facebook_page' : 'google_map';
+  const normalized: FooterMenuColumnWidgetConfig = {
+    ...widget,
+    enabled: Boolean(widget.enabled),
+    type,
+    title: widget.title?.trim() || '',
+    description: widget.description?.trim() || '',
+    height: clampWidgetHeight(widget.height),
+    googleMapEmbedUrl: widget.googleMapEmbedUrl?.trim() || '',
+    facebookPageUrl: widget.facebookPageUrl?.trim() || '',
+    facebookTabs: widget.facebookTabs?.trim() || 'timeline',
+  };
+  const hasUrl =
+    type === 'google_map' ? Boolean(normalized.googleMapEmbedUrl) : Boolean(normalized.facebookPageUrl);
+  if (!normalized.enabled || !hasUrl) {
+    return null;
+  }
+  return normalized;
+};
+
 const buildColumnsFromConfig = (config: FooterConfig): FooterMenuColumnConfig[] => {
   const columns = config.menuColumns;
   if (!Array.isArray(columns)) {
@@ -138,6 +166,9 @@ const buildColumnsFromConfig = (config: FooterConfig): FooterMenuColumnConfig[] 
     .map((column) => ({
       ...column,
       title: column.title?.trim() || '',
+      customHtml: column.customHtml?.trim() || '',
+      sectionOrder: normalizeMenuColumnSectionOrder(column.sectionOrder),
+      widget: normalizeColumnWidget(column.widget) || undefined,
       links: (column.links || [])
         .filter((link) => {
           if (!link || link.isActive === false) {
@@ -157,9 +188,13 @@ const buildColumnsFromConfig = (config: FooterConfig): FooterMenuColumnConfig[] 
           target: link.target === '_blank' ? '_blank' : '_self',
         })),
     }))
-    .filter((column) => column.links.length > 0 || column.title);
+    .filter((column) => column.links.length > 0 || column.title || column.customHtml || column.widget);
 
-  if (config.menuLayout !== 'inline') {
+  const hasStructuredColumns = normalized.some(
+    (column) => column.widget || column.customHtml || Boolean(column.title)
+  );
+
+  if (config.menuLayout !== 'inline' || hasStructuredColumns) {
     return normalized;
   }
 
@@ -180,6 +215,7 @@ const buildColumnsFromConfig = (config: FooterConfig): FooterMenuColumnConfig[] 
     distributed.push({
       id: `footer-column-${columnIndex}`,
       title: '',
+      sectionOrder: [...DEFAULT_MENU_COLUMN_SECTION_ORDER],
       links: slice,
     });
   }
@@ -215,12 +251,12 @@ const getVisitorAnalyticsGridClass = (columns: number): string => {
   }
 };
 
-const clampWidgetHeight = (value?: number) => {
+function clampWidgetHeight(value?: number) {
   if (!value || Number.isNaN(value)) {
     return 280;
   }
   return Math.min(640, Math.max(160, Math.round(value)));
-};
+}
 
 const clampLogoSize = (value?: number) => {
   if (!value || Number.isNaN(value)) {
@@ -248,6 +284,22 @@ const MENU_TEXT_TRANSFORM_CLASS_MAP: Record<FooterMenuTextTransform, string> = {
   uppercase: 'uppercase',
   capitalize: 'capitalize',
   sentence: 'normal-case',
+};
+
+const DEFAULT_MENU_COLUMN_SECTION_ORDER: FooterMenuColumnSection[] = ['links', 'customHtml', 'widget'];
+
+const normalizeMenuColumnSectionOrder = (order?: FooterMenuColumnSection[]) => {
+  if (!Array.isArray(order)) {
+    return [...DEFAULT_MENU_COLUMN_SECTION_ORDER];
+  }
+  const allowed = new Set(DEFAULT_MENU_COLUMN_SECTION_ORDER);
+  const unique = Array.from(new Set(order.filter((section) => allowed.has(section))));
+  DEFAULT_MENU_COLUMN_SECTION_ORDER.forEach((section) => {
+    if (!unique.includes(section)) {
+      unique.push(section);
+    }
+  });
+  return unique;
 };
 
 const toLocalizedLower = (value: string) => value.toLocaleLowerCase('vi-VN');
@@ -630,6 +682,106 @@ const Footer: React.FC<FooterProps> = ({
     );
   };
 
+  const renderColumnWidget = (widget: FooterMenuColumnWidgetConfig) => {
+    const height = clampWidgetHeight(widget.height);
+    const wrapperClass = clsx('overflow-hidden rounded-xl border', themeClasses.border);
+
+    if (widget.type === 'google_map' && widget.googleMapEmbedUrl) {
+      return (
+        <div className="space-y-2">
+          {widget.title && (
+            <p className="text-xs font-semibold uppercase tracking-wide">{widget.title}</p>
+          )}
+          {widget.description && (
+            <p className={clsx('text-sm', themeClasses.subtle)} style={getTextStyle(0.8)}>
+              {widget.description}
+            </p>
+          )}
+          <div className={wrapperClass} style={customTextColor ? { borderColor: customTextColor } : undefined}>
+            <iframe
+              src={widget.googleMapEmbedUrl}
+              width="100%"
+              height={height}
+              style={{ border: 0 }}
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+              title={widget.title || 'Google Maps embed'}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    if (widget.type === 'facebook_page' && widget.facebookPageUrl) {
+      const fbSrc = buildFacebookEmbedUrl(widget.facebookPageUrl, widget.facebookTabs || 'timeline', height);
+      return (
+        <div className="space-y-2">
+          {widget.title && (
+            <p className="text-xs font-semibold uppercase tracking-wide">{widget.title}</p>
+          )}
+          {widget.description && (
+            <p className={clsx('text-sm', themeClasses.subtle)} style={getTextStyle(0.8)}>
+              {widget.description}
+            </p>
+          )}
+          <div className={wrapperClass} style={customTextColor ? { borderColor: customTextColor } : undefined}>
+            <iframe
+              src={fbSrc}
+              width="100%"
+              height={height}
+              style={{ border: 'none', overflow: 'hidden' }}
+              scrolling="no"
+              frameBorder="0"
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+              title={widget.title || 'Facebook fanpage'}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  const renderColumnSections = (column: FooterMenuColumnConfig) => {
+    const order = normalizeMenuColumnSectionOrder(column.sectionOrder);
+    return order
+      .map((section) => {
+        if (section === 'links') {
+          if (!column.links.length) return null;
+          return (
+            <ul key="links" className="space-y-2">
+              {column.links.map((link) => (
+                <li key={link.id}>{renderNavLink(link)}</li>
+              ))}
+            </ul>
+          );
+        }
+        if (section === 'customHtml') {
+          if (!column.customHtml) return null;
+          return (
+            <div
+              key="customHtml"
+              className={clsx('text-sm leading-relaxed break-words max-w-full', themeClasses.subtle)}
+              style={{
+                ...getTextStyle(0.8),
+                maxWidth: '100%',
+                overflowWrap: 'anywhere',
+              }}
+              dangerouslySetInnerHTML={{ __html: column.customHtml }}
+            />
+          );
+        }
+        if (section === 'widget') {
+          if (!column.widget) return null;
+          return <div key="widget">{renderColumnWidget(column.widget)}</div>;
+        }
+        return null;
+      })
+      .filter((section): section is React.ReactNode => Boolean(section));
+  };
+
   const renderBrandSection = () => {
     const shouldRenderHeading = Boolean(footerLogoNode) || shouldShowBrandTitle;
     const brandHeadingClass =
@@ -883,11 +1035,7 @@ const Footer: React.FC<FooterProps> = ({
               menuColumns.map((column) => (
                 <div key={column.id} className="space-y-3">
                   {column.title && <h3 className="text-sm font-semibold uppercase tracking-wide">{column.title}</h3>}
-                  <ul className="space-y-2">
-                    {column.links.map((link) => (
-                      <li key={link.id}>{renderNavLink(link)}</li>
-                    ))}
-                  </ul>
+                  {renderColumnSections(column)}
                 </div>
               ))
             ) : (
@@ -918,11 +1066,7 @@ const Footer: React.FC<FooterProps> = ({
                 {column.title && (
                   <h3 className="text-sm font-semibold uppercase tracking-wide">{column.title}</h3>
                 )}
-                <ul className="space-y-2">
-                  {column.links.map((link) => (
-                    <li key={link.id}>{renderNavLink(link)}</li>
-                  ))}
-                </ul>
+                {renderColumnSections(column)}
               </div>
             ))
             ) : (

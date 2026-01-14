@@ -18,6 +18,17 @@ export type FooterSocialType =
 
 export type FooterWidgetType = 'google_map' | 'facebook_page';
 
+export interface FooterMenuColumnWidgetConfig {
+  enabled: boolean;
+  type: FooterWidgetType;
+  title?: string;
+  description?: string;
+  height?: number;
+  googleMapEmbedUrl?: string;
+  facebookPageUrl?: string;
+  facebookTabs?: string;
+}
+
 export interface FooterSocialLink {
   id: string;
   label: string;
@@ -53,6 +64,7 @@ export interface FooterExtraLink {
 
 export type FooterMenuLinkTarget = '_self' | '_blank';
 export type FooterMenuLinkType = 'external' | 'product' | 'category' | 'post' | 'site_content';
+export type FooterMenuColumnSection = 'links' | 'customHtml' | 'widget';
 
 export interface FooterMenuLinkConfig {
   id: string;
@@ -67,6 +79,9 @@ export interface FooterMenuLinkConfig {
 export interface FooterMenuColumnConfig {
   id: string;
   title?: string;
+  customHtml?: string;
+  widget?: FooterMenuColumnWidgetConfig;
+  sectionOrder?: FooterMenuColumnSection[];
   links: FooterMenuLinkConfig[];
   isActive?: boolean;
 }
@@ -250,8 +265,32 @@ const clampLogoSize = (value?: number) => {
   return Math.min(640, Math.max(24, Math.round(value)));
 };
 
+const clampWidgetHeight = (value?: number) => {
+  if (!value || Number.isNaN(value)) {
+    return 280;
+  }
+  return Math.min(640, Math.max(160, Math.round(value)));
+};
+
 const isValidMenuTarget = (value?: string): value is FooterMenuLinkTarget =>
   value === '_self' || value === '_blank';
+
+const DEFAULT_MENU_COLUMN_SECTION_ORDER: FooterMenuColumnSection[] = ['links', 'customHtml', 'widget'];
+
+const sanitizeMenuColumnSectionOrder = (order?: FooterMenuColumnSection[]) => {
+  if (!Array.isArray(order)) {
+    return [...DEFAULT_MENU_COLUMN_SECTION_ORDER];
+  }
+
+  const allowed = new Set(DEFAULT_MENU_COLUMN_SECTION_ORDER);
+  const unique = Array.from(new Set(order.filter((section) => allowed.has(section))));
+  DEFAULT_MENU_COLUMN_SECTION_ORDER.forEach((section) => {
+    if (!unique.includes(section)) {
+      unique.push(section);
+    }
+  });
+  return unique;
+};
 
 const isValidFooterLinkType = (value?: string): value is FooterMenuLinkType =>
   value === 'external' ||
@@ -340,6 +379,20 @@ const sanitizeMenuColumns = (
     .map((column, columnIndex) => ({
       id: column.id || `footer-column-${columnIndex}`,
       title: column.title?.trim() || '',
+      customHtml: column.customHtml?.trim() || '',
+      sectionOrder: sanitizeMenuColumnSectionOrder(column.sectionOrder),
+      widget: column.widget
+        ? {
+            enabled: Boolean(column.widget.enabled),
+            type: (column.widget.type === 'facebook_page' ? 'facebook_page' : 'google_map') as FooterWidgetType,
+            title: column.widget.title?.trim() || '',
+            description: column.widget.description?.trim() || '',
+            height: clampWidgetHeight(column.widget.height),
+            googleMapEmbedUrl: column.widget.googleMapEmbedUrl?.trim() || '',
+            facebookPageUrl: column.widget.facebookPageUrl?.trim() || '',
+            facebookTabs: column.widget.facebookTabs?.trim() || 'timeline',
+          }
+        : undefined,
       isActive: column.isActive !== undefined ? Boolean(column.isActive) : true,
       links: Array.isArray(column.links)
         ? column.links
@@ -354,7 +407,15 @@ const sanitizeMenuColumns = (
               isActive: link.isActive !== undefined ? Boolean(link.isActive) : true,
             }))
         : [],
-    }));
+    }))
+    .filter((column) => {
+      const widget = column.widget;
+      const hasWidget =
+        widget?.enabled &&
+        ((widget.type === 'facebook_page' && widget.facebookPageUrl) ||
+          (widget.type === 'google_map' && widget.googleMapEmbedUrl));
+      return Boolean(column.title) || Boolean(column.customHtml) || column.links.length > 0 || Boolean(hasWidget);
+    });
 };
 
 export const createFooterConfig = (override?: Partial<FooterConfig>): FooterConfig => {

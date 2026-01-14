@@ -836,6 +836,154 @@ export class SectionsSeeder implements SeederModule {
       },
       {
         section: {
+          page: 'news',
+          type: SectionType.HERO_SLIDER,
+          position: 0,
+          isEnabled: true,
+          config: {
+            autoplay: true,
+            interval: 7000,
+            layout: 'container',
+            slides: [
+              {
+                id: 'news-hero-1',
+                title: 'Stories that shape the roadmap',
+                subtitle: 'Highlights, announcements, and press coverage',
+                imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1600&q=80',
+                ctaLabel: 'Explore newsroom',
+                ctaUrl: '/news',
+              },
+              {
+                id: 'news-hero-2',
+                title: 'Launch updates & editorials',
+                subtitle: 'Stay current on the latest developments',
+                imageUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&q=80',
+                ctaLabel: 'Read updates',
+                ctaUrl: '/news',
+              },
+            ],
+          },
+        },
+        translations: [
+          {
+            locale: 'en',
+            title: 'Newsroom',
+            subtitle: 'Company updates, insights, and highlights',
+            description: 'Stay in the loop with curated updates, press stories, and product announcements.',
+            heroDescription: 'Bring your newsroom to life with a configurable hero section.',
+          },
+          {
+            locale: 'vi',
+            title: 'Tin tức & cập nhật',
+            subtitle: 'Thông báo mới nhất từ đội ngũ',
+            description: 'Tổng hợp thông tin, bài viết nổi bật và cập nhật sản phẩm quan trọng.',
+            heroDescription: 'Trình bày điểm nhấn của trang tin với hero linh hoạt.',
+          },
+        ],
+      },
+      {
+        section: {
+          page: 'news',
+          type: SectionType.NEWS,
+          position: 1,
+          isEnabled: true,
+          config: {
+            rows: [
+              {
+                id: 'news-latest-list',
+                title: 'Tin mới nhất',
+                strategy: 'latest',
+                limit: 5,
+                columns: 1,
+                card: {
+                  layout: 'horizontal',
+                  badgeTone: 'primary',
+                  ctaText: 'Đọc thêm',
+                  showCategory: true,
+                  showPublishDate: true,
+                  showExcerpt: true,
+                  showReadMore: true,
+                },
+              },
+              {
+                id: 'news-featured',
+                title: 'Tin nổi bật',
+                strategy: 'featured',
+                limit: 4,
+                columns: 2,
+                card: {
+                  layout: 'grid',
+                  badgeTone: 'emphasis',
+                  ctaText: 'Xem chi tiết',
+                  showCategory: true,
+                  showPublishDate: true,
+                  showExcerpt: true,
+                  showReadMore: true,
+                },
+              },
+              {
+                id: 'news-grid',
+                title: 'Tin tổng hợp',
+                strategy: 'latest',
+                limit: 6,
+                columns: 3,
+                card: {
+                  layout: 'grid',
+                  badgeTone: 'neutral',
+                  ctaText: 'Xem thêm',
+                  showCategory: true,
+                  showPublishDate: true,
+                  showExcerpt: false,
+                  showReadMore: true,
+                },
+              },
+            ],
+          },
+        },
+        translations: [
+          {
+            locale: 'en',
+            title: 'News layout mix',
+            subtitle: 'Latest, featured, and grid stories',
+            description: 'Combine multiple newsroom layouts in one configurable section.',
+            heroDescription: null,
+          },
+          {
+            locale: 'vi',
+            title: 'Tổng hợp nội dung tin tức',
+            subtitle: 'Tin mới, nổi bật và dạng lưới',
+            description: 'Kết hợp nhiều bố cục hiển thị tin tức trong một section.',
+            heroDescription: null,
+          },
+        ],
+      },
+      {
+        section: {
+          page: 'news',
+          type: SectionType.CUSTOM_HTML,
+          position: 2,
+          isEnabled: true,
+          config: {
+            html: '<section class="rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 p-10 text-white">\n  <div class="mx-auto max-w-3xl text-center">\n    <p class="text-sm uppercase tracking-[0.3em] text-indigo-200">Newsletter</p>\n    <h3 class="mt-3 text-3xl font-semibold">Nhận bản tin mới nhất</h3>\n    <p class="mt-4 text-white/70">Cập nhật tin tức, sự kiện và thông báo mới nhất mỗi tuần.</p>\n    <form class="mt-6 flex flex-col gap-3 sm:flex-row">\n      <input type="email" placeholder="Email của bạn" class="flex-1 rounded-full px-4 py-3 text-sm text-slate-900" />\n      <button type="button" class="rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-900">Đăng ký</button>\n    </form>\n  </div>\n</section>',
+          },
+        },
+        translations: [
+          {
+            locale: 'en',
+            title: 'Subscribe for weekly updates',
+            description: 'Get the latest headlines and product news delivered to your inbox.',
+            heroDescription: null,
+          },
+          {
+            locale: 'vi',
+            title: 'Đăng ký nhận bản tin',
+            description: 'Nhận thông báo mới nhất về sự kiện và sản phẩm mỗi tuần.',
+            heroDescription: null,
+          },
+        ],
+      },
+      {
+        section: {
           page: 'product',
           type: SectionType.HERO_SLIDER,
           position: 0,
