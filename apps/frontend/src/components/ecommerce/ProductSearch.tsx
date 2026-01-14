@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input, Button, Card, Divider } from '@heroui/react';
 import { Product } from './ProductCard';
+import { useTranslation } from 'react-i18next';
 
 interface ProductSearchProps {
   onSearch?: (query: string) => void;
@@ -23,7 +24,7 @@ interface ProductSearchProps {
 const ProductSearch: React.FC<ProductSearchProps> = ({
   onSearch,
   onSuggestionSelect,
-  placeholder = 'Search products...',
+  placeholder,
   className = '',
   size = 'md',
   variant = 'flat',
@@ -41,6 +42,8 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t('common.searchBar.placeholder');
 
   const router = useRouter();
   const searchRef = useRef<HTMLDivElement>(null);
@@ -265,7 +268,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
             setShowDropdown(true);
           }}
           onFocus={() => setShowDropdown(true)}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           size={size}
           variant={variant}
           fullWidth={fullWidth}
@@ -285,7 +288,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
           startContent={<span className="text-lg mr-2">🔍</span>}
         />
         <Button type="submit" color="primary" size={size} className="ml-2">
-          Search
+          {t('common.searchBar.submit')}
         </Button>
       </form>
 
@@ -297,14 +300,14 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
             <>
               <div className="p-3">
                 <div className="flex justify-between items-center mb-2">
-                  <h4 className="text-sm font-semibold text-gray-700">Recent Searches</h4>
+                  <h4 className="text-sm font-semibold text-gray-700">{t('common.searchBar.recent')}</h4>
                   <Button
                     size="sm"
                     variant="light"
                     onPress={handleClearRecentSearches}
                     className="text-xs"
                   >
-                    Clear
+                    {t('common.searchBar.clear')}
                   </Button>
                 </div>
                 <div className="space-y-1">
@@ -330,7 +333,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
           {/* Suggestions */}
           {suggestions.length > 0 && (
             <div className="p-3">
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">Suggestions</h4>
+              <h4 className="text-sm font-semibold text-gray-700 mb-2">{t('common.searchBar.suggestions')}</h4>
               <div className="space-y-1">
                 {suggestions.map((product, index) => {
                   const adjustedIndex = recentSearches.length + index;

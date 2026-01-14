@@ -14,6 +14,7 @@ import { useSettings } from '../../hooks/useSettings';
 import CartDropdown from '../ecommerce/CartDropdown';
 import { useCart } from '../../contexts/CartContext';
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
+import { useTranslation } from 'react-i18next';
 
 const SUB_MENU_GROUP = 'sub';
 const SUB_MENU_VISIBILITY_SETTING_KEY = 'storefront.sub_menu_enabled';
@@ -182,6 +183,7 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
   getEnabledChildren,
   renderChildLink,
 }) => {
+  const { t } = useTranslation();
   const badge = getBadgeConfig(item);
   const label = getLabel(item);
   const description = getDescription(item);
@@ -377,13 +379,13 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
       (translation?.config?.placeholder as string) ||
       (item.config?.placeholder as string) ||
       translation?.label ||
-      'Search...';
+      t('common.searchBar.placeholder');
     const widthValue = typeof item.config?.width === 'string' ? item.config?.width.trim() : '';
     const resolvedWidth = widthValue.length > 0 ? widthValue : '240px';
     const widthMode = (item.config?.widthMode as 'auto' | 'fixed') || 'fixed';
     const isAutoWidth = widthMode === 'auto';
     const size = (item.config?.buttonSize as 'small' | 'medium' | 'large') || 'medium';
-    const labelText = translation?.label || placeholder || 'Search';
+    const labelText = translation?.label || placeholder || t('common.searchBar.label');
 
     // Desktop Container Styles
     const searchContainerClass = clsx(
@@ -404,7 +406,7 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
     const executeSearch = () => {
       const trimmed = searchValue.trim();
       if (!trimmed) {
-        setSearchError('Please enter a keyword to search');
+        setSearchError(t('common.searchBar.missingKeyword'));
         return;
       }
       setSearchError(null);
@@ -475,7 +477,7 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
               type="button"
               onClick={handleClear}
               className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full text-gray-400 transition hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
-              aria-label="Clear search input"
+              aria-label={t('common.searchBar.clearAria')}
             >
               <UnifiedIcon icon="x" size={12} />
             </button>
@@ -508,7 +510,7 @@ const SubMenuItem: React.FC<SubMenuItemProps> = ({
                 <UnifiedIcon icon="search" size={Math.max(20, sizeConfig.icon + 4)} />
               </button>
             </DropdownTrigger>
-            <DropdownMenu aria-label="Search" variant="flat" className="min-w-[280px] p-2">
+            <DropdownMenu aria-label={t('common.searchBar.label')} variant="flat" className="min-w-[280px] p-2">
               <DropdownItem key="search-input" isReadOnly className="cursor-default hover:!bg-transparent data-[hover=true]:bg-transparent">
                 <div onKeyDown={(e) => e.stopPropagation()}>
                   {renderSearchForm(mobileSearchInputRef)}
@@ -685,6 +687,7 @@ const getBadgeConfig = (item: MenuItem): BadgeConfig | null => {
 const SubMenuBar: React.FC = () => {
   const localeValue = useLocale();
   const normalizedLocale = localeValue.split('-')[0];
+  const { t } = useTranslation();
   const { getSettingAsBoolean } = useSettings();
   const isSubMenuEnabled = getSettingAsBoolean(SUB_MENU_VISIBILITY_SETTING_KEY, true);
   const { treeData, isLoading, getLabel, getDescription, buildHref } = useMenu(SUB_MENU_GROUP);

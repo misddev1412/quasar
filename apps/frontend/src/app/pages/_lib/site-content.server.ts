@@ -285,7 +285,7 @@ export const buildMetadataFromSiteContent = async (
   const imageFromMeta = pickSeoField(metadata, 'image');
 
   // Fetch site name from config API first, then fall back to env variable
-  let siteName = process.env.NEXT_PUBLIC_SITE_NAME || 'Quasar';
+  let siteName = process.env.NEXT_PUBLIC_SITE_NAME || 'Storefront';
   try {
     const settingsResponse = (await serverTrpc.settings.getPublicSettings.query()) as ApiResponse<any> | undefined;
     const settings = settingsResponse?.data || [];

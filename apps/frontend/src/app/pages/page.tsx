@@ -4,6 +4,7 @@ import { Breadcrumb } from 'ui';
 import Layout from '../../components/layout/Layout';
 import PageBreadcrumbs from '../../components/common/PageBreadcrumbs';
 import { SiteContentCategory } from '@shared/enums/site-content.enums';
+import { getPublicSiteName } from '../../lib/site-name';
 import {
   extractSummary,
   fetchSiteContentList,
@@ -11,10 +12,12 @@ import {
   resolvePreferredLocale,
 } from './_lib/site-content.server';
 
+const siteName = getPublicSiteName();
+
 export const metadata: Metadata = {
-  title: 'Site Pages | Quasar',
+  title: `Site Pages | ${siteName}`,
   description:
-    'Browse published informational pages including guides, policies, FAQs, and more curated for the Quasar storefront.',
+    `Browse published informational pages including guides, policies, FAQs, and more curated for the ${siteName} storefront.`,
 };
 
 interface SiteContentListPageProps {

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Search, Filter } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export interface FilterOption {
   value: string;
@@ -22,13 +23,15 @@ export interface SearchFilterProps {
 export function SearchFilter({
   searchValue = '',
   onSearchChange,
-  searchPlaceholder = 'Search...',
+  searchPlaceholder,
   filterValue = '',
   onFilterChange,
   filterOptions = [],
   filterPlaceholder = 'Filter...',
   className = ''
 }: SearchFilterProps) {
+  const { t } = useTranslation();
+  const resolvedSearchPlaceholder = searchPlaceholder ?? t('common.searchBar.placeholder');
   return (
     <div className={`flex flex-col md:flex-row gap-4 ${className}`}>
       {onSearchChange && (
@@ -37,7 +40,7 @@ export function SearchFilter({
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
-              placeholder={searchPlaceholder}
+              placeholder={resolvedSearchPlaceholder}
               value={searchValue}
               onChange={(e) => onSearchChange(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"

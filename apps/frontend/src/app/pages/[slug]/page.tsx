@@ -5,6 +5,7 @@ import { Breadcrumb } from 'ui';
 import Layout from '../../../components/layout/Layout';
 import PageBreadcrumbs from '../../../components/common/PageBreadcrumbs';
 import type { SiteContent } from '../../../types/site-content';
+import { getPublicSiteName } from '../../../lib/site-name';
 import {
   buildMetadataFromSiteContent,
   extractSummary,
@@ -26,9 +27,10 @@ export async function generateMetadata({ params }: SiteContentPageProps): Promis
   const siteContent = await fetchSiteContentBySlug(slug, locale);
 
   if (!siteContent) {
+    const siteName = getPublicSiteName();
     return {
-      title: 'Page Not Found | Quasar',
-      description: 'The requested page could not be found on the Quasar storefront.',
+      title: `Page Not Found | ${siteName}`,
+      description: `The requested page could not be found on the ${siteName} storefront.`,
     };
   }
 

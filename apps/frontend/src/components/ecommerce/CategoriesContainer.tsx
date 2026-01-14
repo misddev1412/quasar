@@ -5,6 +5,7 @@ import CategoryCard from './CategoryCard';
 import { Button } from '@heroui/react';
 import { CategoryService } from '../../services/category.service';
 import type { Category, CategoryTree } from '../../types/product';
+import { useTranslation } from 'react-i18next';
 
 interface CategoriesContainerProps {
   initialCategories?: Category[];
@@ -185,6 +186,7 @@ interface CategoryTreeNodeProps {
 }
 
 const CategoryTreeNode: React.FC<CategoryTreeNodeProps> = ({ category, level }) => {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(level < 2); // Auto-expand first 2 levels
 
   const hasChildren = category.children && category.children.length > 0;
@@ -218,7 +220,7 @@ const CategoryTreeNode: React.FC<CategoryTreeNodeProps> = ({ category, level }) 
         <div className="flex items-center gap-4">
           {category.productCount !== undefined && (
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              {category.productCount} products
+              {t('ecommerce.categoryCard.productCount', { count: category.productCount })}
             </span>
           )}
           <a
@@ -226,7 +228,7 @@ const CategoryTreeNode: React.FC<CategoryTreeNodeProps> = ({ category, level }) 
             className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 text-sm font-medium"
             onClick={(e) => e.stopPropagation()}
           >
-            View Products →
+            {t('ecommerce.categoryCard.viewProducts')} →
           </a>
         </div>
       </div>

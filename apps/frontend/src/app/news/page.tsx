@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { serverTrpc } from '../../utils/trpc-server';
 import { notFound } from 'next/navigation';
 import NewsCard from '../../components/news/NewsCard';
+import { getPublicSiteName } from '../../lib/site-name';
 
 // News item interface
 interface NewsItem {
@@ -77,6 +78,9 @@ async function getNewsData(page = 1, limit = 12, category?: string, search?: str
 
 // Generate metadata for news page
 export async function generateMetadata(): Promise<Metadata> {
+  const siteName = getPublicSiteName();
+  const title = `Latest News - ${siteName}`;
+
   try {
     const { newsData } = await getNewsData(1, 1); // Get latest news for metadata
 
@@ -86,11 +90,11 @@ export async function generateMetadata(): Promise<Metadata> {
       : 'Stay updated with our latest news, announcements, and company updates';
 
     return {
-      title: 'Latest News - Quasar',
+      title,
       description,
       keywords: 'news, updates, announcements, company news, press releases',
       openGraph: {
-        title: 'Latest News - Quasar',
+        title,
         description,
         url: `${process.env.NEXT_PUBLIC_SITE_URL}/news`,
         type: 'website',
@@ -98,7 +102,7 @@ export async function generateMetadata(): Promise<Metadata> {
       },
       twitter: {
         card: 'summary_large_image',
-        title: 'Latest News - Quasar',
+        title,
         description,
         images: latestNews?.image ? [latestNews.image] : undefined,
       },
@@ -106,18 +110,18 @@ export async function generateMetadata(): Promise<Metadata> {
   } catch (error) {
     // Fallback metadata if data fetching fails
     return {
-      title: 'Latest News - Quasar',
+      title,
       description: 'Stay updated with our latest news, announcements, and company updates',
       keywords: 'news, updates, announcements, company news, press releases',
       openGraph: {
-        title: 'Latest News - Quasar',
+        title,
         description: 'Stay updated with our latest news, announcements, and company updates',
         url: `${process.env.NEXT_PUBLIC_SITE_URL}/news`,
         type: 'website',
       },
       twitter: {
         card: 'summary_large_image',
-        title: 'Latest News - Quasar',
+        title,
         description: 'Stay updated with our latest news, announcements, and company updates',
       },
     };
@@ -147,7 +151,7 @@ async function NewsPageContent({
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 py-16 lg:py-20 -mt-8 -mx-8">
+      <section className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 py-16 lg:py-20 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">

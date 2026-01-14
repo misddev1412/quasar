@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { getServerSideSEOWithFallback } from '../lib/seo-server';
+import { getPublicSiteName } from '../lib/site-name';
 import Layout from '../components/layout/Layout';
 import { fetchSections } from '../services/sections.service';
 import { renderSections } from '../components/sections';
@@ -7,18 +8,20 @@ import type { SectionListItem } from '../types/sections';
 import type { SEOData } from '../types/trpc';
 import { getPreferredLocale } from '../lib/server-locale';
 
+const defaultSiteName = getPublicSiteName();
+
 // Fallback SEO data for home page
 const homeSEOFallback: SEOData = {
-  title: 'Quasar - Home',
-  description: 'Welcome to Quasar - A modern web application platform',
-  keywords: 'quasar, home, web application, platform, javascript, typescript, react',
+  title: `${defaultSiteName} - Home`,
+  description: `Welcome to ${defaultSiteName} - A modern web application platform`,
+  keywords: 'home, web application, platform, javascript, typescript, react',
 };
 
 // Generate metadata for server-side SEO
 export async function generateMetadata(): Promise<Metadata> {
   const seoData = await getServerSideSEOWithFallback('/', homeSEOFallback);
 
-  const siteName = 'Quasar';
+  const siteName = getPublicSiteName();
   const title = seoData.title.includes(siteName)
     ? seoData.title
     : `${seoData.title} | ${siteName}`;

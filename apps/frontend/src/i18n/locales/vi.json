@@ -152,6 +152,16 @@
     "search": {
       "placeholder": "Tìm kiếm sản phẩm..."
     },
+    "searchBar": {
+      "label": "Tìm kiếm",
+      "placeholder": "Tìm kiếm sản phẩm...",
+      "submit": "Tìm kiếm",
+      "clear": "Xóa",
+      "clearAria": "Xóa nội dung tìm kiếm",
+      "recent": "Tìm kiếm gần đây",
+      "suggestions": "Gợi ý",
+      "missingKeyword": "Vui lòng nhập từ khóa để tìm kiếm"
+    },
     "pagination": {
       "summary": "Hiển thị {{start}} đến {{end}} trong tổng số {{total}} mục"
     },
@@ -1578,6 +1588,11 @@
       "combinationUnavailable": "Tổ hợp không khả dụng",
       "imageAlt": "Hình ảnh sản phẩm",
       "startingFrom": "Giá từ {{price}}"
+    },
+    "categoryCard": {
+      "viewProducts": "Xem sản phẩm",
+      "productCount_one": "{{count}} sản phẩm",
+      "productCount_other": "{{count}} sản phẩm"
     }
   },
   "product": {

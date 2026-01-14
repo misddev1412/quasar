@@ -4,14 +4,13 @@ import { serverTrpc } from '../../utils/trpc-server';
 import type { Product } from '../../types/product';
 import type { Review } from '../../components/ecommerce/ReviewList';
 import type { Comment } from '../../components/ecommerce/CommentSection';
+import { getPublicSiteName } from '../../lib/site-name';
 
 interface ProductQueryResult {
   data?: {
     product?: Product;
   };
 }
-
-const SITE_NAME = 'Quasar';
 
 export const emptyReviews: Review[] = [];
 export const emptyComments: Comment[] = [];
@@ -86,7 +85,8 @@ export const buildProductMetadata = (product: Product, pathname: string): Metada
   const primaryImage = product.media?.find(m => m.isPrimary) || product.media?.[0];
   const imageUrl = primaryImage?.url;
 
-  const formattedTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
+  const siteName = getPublicSiteName();
+  const formattedTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
 
   return {
     title: formattedTitle,

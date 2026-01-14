@@ -5,6 +5,7 @@ import {
   resolvePreferredLocale,
   resolveSiteContent,
 } from '../pages/_lib/site-content.server';
+import { getPublicSiteName } from '../../lib/site-name';
 
 const COOKIE_CANDIDATES = [
   { type: 'code' as const, value: 'cookie_policy' },
@@ -19,9 +20,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteContent = await resolveSiteContent(COOKIE_CANDIDATES, locale);
 
   if (!siteContent) {
+    const siteName = getPublicSiteName();
     return {
-      title: 'Cookie Policy | Quasar',
-      description: 'Learn how Quasar uses cookies to enhance your browsing experience and keep your data secure.',
+      title: `Cookie Policy | ${siteName}`,
+      description: `Learn how ${siteName} uses cookies to enhance your browsing experience and keep your data secure.`,
     };
   }
 
@@ -38,4 +40,3 @@ export default async function CookiePolicyPage() {
 
   redirect(`/pages/${siteContent.slug}`);
 }
-

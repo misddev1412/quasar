@@ -814,6 +814,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
   const sectionDescription = translation?.description === null ? '' : (translation?.description || t('sections.products_by_category.description'));
   const sectionCuratedLabel = translation?.subtitle === null ? '' : normalizeString(translation?.subtitle);
   const hasHeaderContent = sectionHeading || sectionDescription || sectionCuratedLabel;
+  const showSectionHeader = rows.length === 0 && hasHeaderContent;
   const isSidebarEnabled = sectionSidebarEnabled && sidebarConfig.enabled;
   const sidebarTitleText = sidebarConfig.title || t('sections.products_by_category.sidebar_default_title');
   const sidebarHeaderBg = sidebarConfig.headerBackgroundColor;
@@ -830,7 +831,7 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
   return (
     <section className="py-16 bg-white dark:bg-gray-950">
       <SectionContainer paddingClassName="px-6 lg:px-8">
-        {hasHeaderContent && (
+        {showSectionHeader && (
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
             <div>
               {sectionCuratedLabel && (

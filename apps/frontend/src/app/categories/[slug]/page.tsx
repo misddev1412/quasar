@@ -9,6 +9,7 @@ import { Button } from '@heroui/react';
 import { serverTrpc } from '../../../utils/trpc-server';
 import type { Category } from '../../../types/product';
 import type { Product } from '../../../types/product';
+import { getPublicSiteName } from '../../../lib/site-name';
 
 const clampOpacity = (value: number) => Math.min(1, Math.max(0, value));
 
@@ -54,7 +55,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const keywords = `${category.name}, category, shopping, online store, products`;
   const imageUrl = category.image;
 
-  const siteName = 'Quasar';
+  const siteName = getPublicSiteName();
   const formattedTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
 
   return {
@@ -116,7 +117,7 @@ async function CategoryPageContent({ params }: CategoryPageProps) {
 
   return (
     <Layout>
-      <section className="relative overflow-hidden bg-emerald-900 py-16 lg:py-20 -mt-8">
+      <section className="relative overflow-hidden bg-emerald-900 py-16 lg:py-20">
         {heroBackground && (
           <div
             className="absolute inset-0 bg-cover bg-center"

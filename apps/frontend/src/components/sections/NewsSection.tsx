@@ -291,6 +291,9 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
         headingStyle: (config?.headingStyle === 'banner' ? 'banner' : 'default'),
         headingBackgroundColor: config?.headingBackgroundColor,
         headingTextColor: config?.headingTextColor,
+        headingTextTransform: parseHeadingTransform(config?.headingTextTransform),
+        headingTitleSize: parseHeadingTitleSize(config?.headingTitleSize),
+        headingBarHeight: parseHeadingBarHeight(config?.headingBarHeight),
       } as NewsSectionRowConfig,
     ];
   }, [rows, fallbackCategories, translation?.title, strategy, limit]);
@@ -307,6 +310,9 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
         headingStyle: row.headingStyle,
         headingBackgroundColor: row.headingBackgroundColor,
         headingTextColor: row.headingTextColor,
+        headingTextTransform: row.headingTextTransform,
+        headingTitleSize: row.headingTitleSize,
+        headingBarHeight: row.headingBarHeight,
       })),
     [baseRows, limit],
   );
@@ -389,11 +395,12 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
   const sectionTitle = translation?.title === null ? '' : (translation?.title || t('sections.news.latest_stories', 'Latest stories'));
   const sectionDescription = translation?.description === null ? '' : (translation?.description || '');
   const hasHeaderContent = sectionTitle || sectionDescription;
+  const showSectionHeader = normalizedRowConfigs.length === 0 && hasHeaderContent;
 
   return (
     <section className="py-16 bg-white dark:bg-gray-950">
       <SectionContainer paddingClassName="px-6 lg:px-8">
-        {hasHeaderContent && (
+        {showSectionHeader && (
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
             <div>
               {sectionTitle && (

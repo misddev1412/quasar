@@ -7,6 +7,9 @@ import type { Product } from '../../types/product';
 import type { PaginationInfo } from '../../types/api';
 import { serverTrpc } from '../../utils/trpc-server';
 import { formatCurrencyValue } from '../../utils/currency';
+import { getPublicSiteName } from '../../lib/site-name';
+import { getPreferredLocale } from '../../lib/server-locale';
+import { getTranslations } from 'next-intl/server';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -198,7 +201,7 @@ export async function generateMetadata({
   const minPrice = parseNumericParam(getFirstParam(resolved.minPrice));
   const maxPrice = parseNumericParam(getFirstParam(resolved.maxPrice));
 
-  const siteName = 'Quasar';
+  const siteName = getPublicSiteName();
   const safeQuery = query ? query.replace(/\s+/g, ' ').slice(0, 100) : '';
   const baseTitle = 'Search Products';
   const title = safeQuery
@@ -251,6 +254,8 @@ export default async function SearchPage({
   searchParams?: Record<string, string | string[] | undefined>;
 }) {
   const resolved = searchParams || {};
+  const locale = await getPreferredLocale(resolved);
+  const t = await getTranslations({ locale, namespace: 'common.searchBar' });
   const currencyResponse = await serverTrpc.clientCurrency.getDefaultCurrency.query();
   const currencyData = (currencyResponse as any)?.data ?? {};
   const currencyCode = currencyData?.code || 'USD';
@@ -391,9 +396,9 @@ export default async function SearchPage({
                 type="search"
                 name="q"
                 defaultValue={query}
-                placeholder="Search for products..."
+                placeholder={t('placeholder')}
                 className="w-full px-5 py-3 rounded-xl border border-transparent shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-300 focus:border-blue-500 text-base text-gray-900"
-                aria-label="Search products"
+                aria-label={t('label')}
               />
             </div>
             <input type="hidden" name="page" value="1" />
@@ -408,7 +413,7 @@ export default async function SearchPage({
               type="submit"
               className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white/90 text-blue-700 font-semibold shadow-lg hover:bg-white transition-colors"
             >
-              Search
+              {t('submit')}
             </button>
           </form>
 

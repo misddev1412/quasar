@@ -5,6 +5,7 @@ import {
   resolvePreferredLocale,
   resolveSiteContent,
 } from '../pages/_lib/site-content.server';
+import { getPublicSiteName } from '../../lib/site-name';
 
 const ABOUT_CANDIDATES = [
   { type: 'code' as const, value: 'about_us' },
@@ -20,9 +21,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteContent = await resolveSiteContent(ABOUT_CANDIDATES, locale);
 
   if (!siteContent) {
+    const siteName = getPublicSiteName();
     return {
-      title: 'About Us | Quasar',
-      description: 'Discover the mission, vision, and team behind the Quasar storefront experience.',
+      title: `About Us | ${siteName}`,
+      description: `Discover the mission, vision, and team behind the ${siteName} storefront experience.`,
     };
   }
 
@@ -39,4 +41,3 @@ export default async function AboutPage() {
 
   redirect(`/pages/${siteContent.slug}`);
 }
-

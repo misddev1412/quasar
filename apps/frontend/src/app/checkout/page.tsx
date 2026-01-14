@@ -1,18 +1,22 @@
 import type { Metadata } from 'next';
 import Layout from '../../components/layout/Layout';
 import CheckoutPageClient from './CheckoutPageClient';
+import { getPublicSiteName } from '../../lib/site-name';
+
+const siteName = getPublicSiteName();
+const title = `Checkout | ${siteName}`;
 
 export const metadata: Metadata = {
-  title: 'Checkout | Quasar Storefront',
-  description: 'Securely complete your purchase on the Quasar storefront.',
+  title,
+  description: 'Securely complete your purchase on the storefront.',
   openGraph: {
-    title: 'Checkout | Quasar Storefront',
-    description: 'Securely complete your purchase on the Quasar storefront.',
+    title,
+    description: 'Securely complete your purchase on the storefront.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Checkout | Quasar Storefront',
-    description: 'Securely complete your purchase on the Quasar storefront.',
+    title,
+    description: 'Securely complete your purchase on the storefront.',
   },
 };
 

@@ -1,5 +1,8 @@
+'use client';
+
 import { forwardRef } from 'react';
 import Input from './Input';
+import { useTranslation } from 'react-i18next';
 
 interface SearchInputProps {
   value: string;
@@ -19,7 +22,9 @@ const SearchIcon = () => (
 );
 
 export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
-  ({ value, onChange, onSubmit, placeholder = "Search products...", size = 'md', className = '', fullWidth = false }, ref) => {
+  ({ value, onChange, onSubmit, placeholder, size = 'md', className = '', fullWidth = false }, ref) => {
+    const { t } = useTranslation();
+    const resolvedPlaceholder = placeholder ?? t('common.searchBar.placeholder');
     const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
       onSubmit?.(e);
@@ -38,7 +43,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           type="search"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           icon={<SearchIcon />}
           size={size}
           radius="full"

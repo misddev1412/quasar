@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import Layout from '../../../components/layout/Layout';
 import { serverTrpc } from '../../../utils/trpc-server';
 import PageBreadcrumbs from '../../../components/common/PageBreadcrumbs';
+import { getPublicSiteName } from '../../../lib/site-name';
 
 // News item interface
 interface NewsItem {
@@ -59,7 +60,7 @@ export async function generateMetadata({ params }: NewsPageProps): Promise<Metad
   const keywords = `${newsItem.title}, ${newsItem.category}, news, updates, announcements`;
   const imageUrl = newsItem.image;
 
-  const siteName = 'Quasar';
+  const siteName = getPublicSiteName();
   const formattedTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
 
   return {

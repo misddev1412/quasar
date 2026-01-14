@@ -2,22 +2,26 @@ import { Metadata } from 'next';
 import Layout from '../../components/layout/Layout';
 import PageBreadcrumbs from '../../components/common/PageBreadcrumbs';
 import CategoriesContainer from '../../components/ecommerce/CategoriesContainer';
+import { getPublicSiteName } from '../../lib/site-name';
 
 // Generate metadata for categories page
 export async function generateMetadata(): Promise<Metadata> {
+  const siteName = getPublicSiteName();
+  const title = `Categories - ${siteName}`;
+
   return {
-    title: 'Categories - Quasar',
+    title,
     description: 'Browse our product categories and find exactly what you\'re looking for',
     keywords: 'categories, shop, product categories, browse, find products',
     openGraph: {
-      title: 'Categories - Quasar',
+      title,
       description: 'Browse our product categories and find exactly what you\'re looking for',
       url: 'http://localhost:3001/categories',
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Categories - Quasar',
+      title,
       description: 'Browse our product categories and find exactly what you\'re looking for',
     },
   };

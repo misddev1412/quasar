@@ -5,6 +5,7 @@ import {
   resolvePreferredLocale,
   resolveSiteContent,
 } from '../pages/_lib/site-content.server';
+import { getPublicSiteName } from '../../lib/site-name';
 
 const CONTACT_CANDIDATES = [
   { type: 'code' as const, value: 'contact_us' },
@@ -20,9 +21,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteContent = await resolveSiteContent(CONTACT_CANDIDATES, locale);
 
   if (!siteContent) {
+    const siteName = getPublicSiteName();
     return {
-      title: 'Contact Us | Quasar',
-      description: 'Reach the Quasar support team for product questions, orders, or partnership inquiries.',
+      title: `Contact Us | ${siteName}`,
+      description: `Reach the ${siteName} support team for product questions, orders, or partnership inquiries.`,
     };
   }
 
@@ -39,4 +41,3 @@ export default async function ContactPage() {
 
   redirect(`/pages/${siteContent.slug}`);
 }
-

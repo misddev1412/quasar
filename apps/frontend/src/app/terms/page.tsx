@@ -5,6 +5,7 @@ import {
   resolvePreferredLocale,
   resolveSiteContent,
 } from '../pages/_lib/site-content.server';
+import { getPublicSiteName } from '../../lib/site-name';
 
 const TERMS_CANDIDATES = [
   { type: 'code' as const, value: 'terms_of_service' },
@@ -19,9 +20,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteContent = await resolveSiteContent(TERMS_CANDIDATES, locale);
 
   if (!siteContent) {
+    const siteName = getPublicSiteName();
     return {
-      title: 'Terms of Service | Quasar',
-      description: 'Review our terms of service to understand the rules and guidelines for using the Quasar storefront.',
+      title: `Terms of Service | ${siteName}`,
+      description: `Review our terms of service to understand the rules and guidelines for using the ${siteName} storefront.`,
     };
   }
 
@@ -38,4 +40,3 @@ export default async function TermsOfServicePage() {
 
   redirect(`/pages/${siteContent.slug}`);
 }
-

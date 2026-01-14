@@ -783,6 +783,12 @@ const STOREFRONT_COMPONENT_CONFIGS: ComponentConfigSeed[] = [
             strategy: { type: 'enum', options: ['latest', 'most_viewed', 'featured'] },
             limit: { type: 'number' },
             columns: { type: 'number', minimum: 1, maximum: 6 },
+            headingStyle: { type: 'enum', options: ['default', 'banner'] },
+            headingBackgroundColor: { type: 'string' },
+            headingTextColor: { type: 'string' },
+            headingTextTransform: { type: 'enum', options: ['none', 'uppercase', 'capitalize', 'lowercase'] },
+            headingTitleSize: { type: 'enum', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
+            headingBarHeight: { type: 'number' },
             card: {
               type: 'object',
               properties: {

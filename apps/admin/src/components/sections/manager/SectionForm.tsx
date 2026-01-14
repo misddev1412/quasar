@@ -167,6 +167,10 @@ export const SectionForm: React.FC<SectionFormProps> = ({ languages, initialStat
         }));
     };
 
+    const isMultiBlockSection =
+        formState.type === SectionType.NEWS
+        || formState.type === SectionType.PRODUCTS_BY_CATEGORY;
+
     const searchParams = new URLSearchParams(window.location.search);
     const isConfigOverrideVisible = searchParams.get('showConfig') === 'true';
 
@@ -293,38 +297,40 @@ export const SectionForm: React.FC<SectionFormProps> = ({ languages, initialStat
                 onChange={(config) => setFormState((prev) => ({ ...prev, config }))}
             />
 
-            <div className="space-y-3 border rounded-lg p-4 bg-white">
-                <h4 className="text-sm font-semibold text-gray-700">{t('sections.manager.form.fieldVisibility', 'Field Visibility')}</h4>
-                <p className="text-xs text-gray-500">{t('sections.manager.form.fieldVisibilityDescription', 'Control which fields are visible in the translation section')}</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <Toggle
-                        checked={fieldVisibility.title ?? true}
-                        onChange={(checked) => handleFieldVisibilityChange('title', checked)}
-                        label={t('sections.manager.form.showTitle', 'Show Title')}
-                        description={t('sections.manager.form.showTitleDescription', 'Display title field in translations')}
-                    />
-                    <Toggle
-                        checked={fieldVisibility.subtitle ?? true}
-                        onChange={(checked) => handleFieldVisibilityChange('subtitle', checked)}
-                        label={t('sections.manager.form.showSubtitle', 'Show Subtitle')}
-                        description={t('sections.manager.form.showSubtitleDescription', 'Display subtitle field in translations')}
-                    />
-                    <Toggle
-                        checked={fieldVisibility.description ?? true}
-                        onChange={(checked) => handleFieldVisibilityChange('description', checked)}
-                        label={t('sections.manager.form.showDescription', 'Show Description')}
-                        description={t('sections.manager.form.showDescriptionDescription', 'Display description field in translations')}
-                    />
-                    {formState.type === SectionType.HERO_SLIDER && (
+            {!isMultiBlockSection && (
+                <div className="space-y-3 border rounded-lg p-4 bg-white">
+                    <h4 className="text-sm font-semibold text-gray-700">{t('sections.manager.form.fieldVisibility', 'Field Visibility')}</h4>
+                    <p className="text-xs text-gray-500">{t('sections.manager.form.fieldVisibilityDescription', 'Control which fields are visible in the translation section')}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <Toggle
-                            checked={fieldVisibility.heroDescription ?? true}
-                            onChange={(checked) => handleFieldVisibilityChange('heroDescription', checked)}
-                            label={t('sections.manager.form.showHeroDescription', 'Show Hero Description')}
-                            description={t('sections.manager.form.showHeroDescriptionDescription', 'Display hero description field in translations')}
+                            checked={fieldVisibility.title ?? true}
+                            onChange={(checked) => handleFieldVisibilityChange('title', checked)}
+                            label={t('sections.manager.form.showTitle', 'Show Title')}
+                            description={t('sections.manager.form.showTitleDescription', 'Display title field in translations')}
                         />
-                    )}
+                        <Toggle
+                            checked={fieldVisibility.subtitle ?? true}
+                            onChange={(checked) => handleFieldVisibilityChange('subtitle', checked)}
+                            label={t('sections.manager.form.showSubtitle', 'Show Subtitle')}
+                            description={t('sections.manager.form.showSubtitleDescription', 'Display subtitle field in translations')}
+                        />
+                        <Toggle
+                            checked={fieldVisibility.description ?? true}
+                            onChange={(checked) => handleFieldVisibilityChange('description', checked)}
+                            label={t('sections.manager.form.showDescription', 'Show Description')}
+                            description={t('sections.manager.form.showDescriptionDescription', 'Display description field in translations')}
+                        />
+                        {formState.type === SectionType.HERO_SLIDER && (
+                            <Toggle
+                                checked={fieldVisibility.heroDescription ?? true}
+                                onChange={(checked) => handleFieldVisibilityChange('heroDescription', checked)}
+                                label={t('sections.manager.form.showHeroDescription', 'Show Hero Description')}
+                                description={t('sections.manager.form.showHeroDescriptionDescription', 'Display hero description field in translations')}
+                            />
+                        )}
+                    </div>
                 </div>
-            </div>
+            )}
 
             <div className="space-y-3">
                 <div className="flex items-center justify-between">

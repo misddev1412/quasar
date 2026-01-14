@@ -15,8 +15,8 @@ export const DynamicFavicon: React.FC<DynamicFaviconProps> = ({
 
   useEffect(() => {
     const updateFavicon = (url: string) => {
-      // Remove existing favicon links
-      const existingLinks = document.querySelectorAll('link[rel="icon"], link[rel="apple-touch-icon"]');
+      // Only remove links managed by this component to avoid conflicting with Next/React head updates.
+      const existingLinks = document.querySelectorAll('link[data-dynamic-favicon="true"]');
       existingLinks.forEach(link => link.remove());
 
       // Add new favicon link
@@ -24,12 +24,14 @@ export const DynamicFavicon: React.FC<DynamicFaviconProps> = ({
       link.rel = 'icon';
       link.href = url;
       link.type = 'image/x-icon';
+      link.setAttribute('data-dynamic-favicon', 'true');
       document.head.appendChild(link);
 
       // Add apple touch icon
       const appleLink = document.createElement('link');
       appleLink.rel = 'apple-touch-icon';
       appleLink.href = url;
+      appleLink.setAttribute('data-dynamic-favicon', 'true');
       document.head.appendChild(appleLink);
     };
 

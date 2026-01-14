@@ -152,6 +152,16 @@
     "search": {
       "placeholder": "Search products..."
     },
+    "searchBar": {
+      "label": "Search",
+      "placeholder": "Search products...",
+      "submit": "Search",
+      "clear": "Clear",
+      "clearAria": "Clear search input",
+      "recent": "Recent Searches",
+      "suggestions": "Suggestions",
+      "missingKeyword": "Please enter a keyword to search"
+    },
     "pagination": {
       "summary": "Showing {{start}} to {{end}} of {{total}} items"
     },
@@ -1602,6 +1612,11 @@
       "combinationUnavailable": "Combination Not Available",
       "imageAlt": "Product Image",
       "startingFrom": "Starting from {{price}}"
+    },
+    "categoryCard": {
+      "viewProducts": "View Products",
+      "productCount_one": "{{count}} product",
+      "productCount_other": "{{count}} products"
     }
   },
   "product": {

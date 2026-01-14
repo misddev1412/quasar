@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Layout from '../../../components/layout/Layout';
 import CheckoutSuccessPageClient from './CheckoutSuccessPageClient';
+import { getPublicSiteName } from '../../../lib/site-name';
 
 type SearchParams = {
   [key: string]: string | string[] | undefined;
@@ -14,16 +15,19 @@ const getParam = (params: SearchParams, key: string): string | undefined => {
   return value ?? undefined;
 };
 
+const siteName = getPublicSiteName();
+const title = `Order Confirmed | ${siteName}`;
+
 export const metadata: Metadata = {
-  title: 'Order Confirmed | Quasar Storefront',
+  title,
   description: 'Thank you for your order. We have sent a confirmation to your email address.',
   openGraph: {
-    title: 'Order Confirmed | Quasar Storefront',
+    title,
     description: 'Thank you for your order. We have sent a confirmation to your email address.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Order Confirmed | Quasar Storefront',
+    title,
     description: 'Thank you for your order. We have sent a confirmation to your email address.',
   },
 };

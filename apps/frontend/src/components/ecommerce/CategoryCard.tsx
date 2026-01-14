@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Card, Chip } from '@heroui/react';
 import type { Category } from '../../types/product';
+import { useTranslation } from 'react-i18next';
 
 interface CategoryCardProps {
   category: Category;
@@ -20,7 +21,11 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   imageHeight = 'h-48',
   onCategoryClick,
 }) => {
+  const { t } = useTranslation();
   const { id, name, description, image, productCount } = category;
+  const productCountLabel = typeof productCount === 'number'
+    ? t('ecommerce.categoryCard.productCount', { count: productCount })
+    : null;
 
   const handleClick = () => {
     if (onCategoryClick) {
@@ -84,7 +89,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
               variant="flat"
               className="absolute top-2 right-2 bg-white bg-opacity-80"
             >
-              {productCount} {productCount === 1 ? 'product' : 'products'}
+              {productCountLabel}
             </Chip>
           )}
         </div>
@@ -102,7 +107,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
           {/* View Products Button */}
           <div className="mt-4">
             <span className="text-sm font-medium text-primary-500 group-hover:text-primary-600 transition-colors">
-              View Products →
+              {t('ecommerce.categoryCard.viewProducts')} →
             </span>
           </div>
         </div>

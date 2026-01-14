@@ -5,6 +5,7 @@ import {
   resolvePreferredLocale,
   resolveSiteContent,
 } from '../pages/_lib/site-content.server';
+import { getPublicSiteName } from '../../lib/site-name';
 
 const PRIVACY_CANDIDATES = [
   { type: 'code' as const, value: 'privacy_policy' },
@@ -19,8 +20,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteContent = await resolveSiteContent(PRIVACY_CANDIDATES, locale);
 
   if (!siteContent) {
+    const siteName = getPublicSiteName();
     return {
-      title: 'Privacy Policy | Quasar',
+      title: `Privacy Policy | ${siteName}`,
       description: 'Read our privacy policy to learn how we protect and manage your personal information.',
     };
   }
@@ -38,4 +40,3 @@ export default async function PrivacyPolicyPage() {
 
   redirect(`/pages/${siteContent.slug}`);
 }
-

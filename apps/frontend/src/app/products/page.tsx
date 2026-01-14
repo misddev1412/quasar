@@ -4,22 +4,26 @@ import ProductsContainer from '../../components/ecommerce/ProductsContainer';
 import { fetchSections } from '../../services/sections.service';
 import { renderSections } from '../../components/sections';
 import { getPreferredLocale } from '../../lib/server-locale';
+import { getPublicSiteName } from '../../lib/site-name';
 
 // Generate metadata for products page
 export async function generateMetadata(): Promise<Metadata> {
+  const siteName = getPublicSiteName();
+  const title = `Products - ${siteName}`;
+
   return {
-    title: 'Products - Quasar',
+    title,
     description: 'Browse our extensive collection of high-quality products at competitive prices',
     keywords: 'products, shop, online store, buy, deals',
     openGraph: {
-      title: 'Products - Quasar',
+      title,
       description: 'Browse our extensive collection of high-quality products at competitive prices',
       url: 'http://localhost:3001/products',
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Products - Quasar',
+      title,
       description: 'Browse our extensive collection of high-quality products at competitive prices',
     },
   };

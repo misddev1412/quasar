@@ -38,7 +38,7 @@ const deriveVariantPrice = (product: Product): number | null => {
   return Math.min(...variantPrices);
 };
 
-const normalizeProductPricing = (product: Product): Product => {
+export const normalizeProductPricing = (product: Product): Product => {
   const source = product as MaybePricedProduct;
   const directPrice = coercePriceValue(source.price);
 

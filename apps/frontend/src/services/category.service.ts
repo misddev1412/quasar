@@ -9,6 +9,7 @@ import type {
   CategoryTree,
   Product
 } from '../types/product';
+import { normalizeProductPricing } from './product.service';
 
 export interface GetCategoryProductsParams {
   categoryRef: string;
@@ -87,7 +88,7 @@ export class CategoryService {
       const paginateData = response.data;
       if (paginateData?.items && paginateData.pagination) {
         return {
-          items: paginateData.items,
+          items: paginateData.items.map(normalizeProductPricing),
           pagination: paginateData.pagination
         };
       }
