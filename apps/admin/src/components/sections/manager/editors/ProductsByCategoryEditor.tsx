@@ -49,12 +49,6 @@ interface CategorySelectOption extends SelectOption {
     searchText: string;
 }
 
-interface SidebarConfig {
-    title?: string;
-    borderRadius?: string;
-    headerBackgroundColor?: string;
-}
-
 const STRATEGY_SELECT_OPTIONS: { value: ProductsByCategoryStrategy; label: string }[] = [
     { value: 'latest', label: 'Mới nhất' },
     { value: 'featured', label: 'Nổi bật' },
@@ -177,12 +171,7 @@ const parseRowsFromValue = (value: any): ProductsByCategoryAdminRow[] => {
     return [createDefaultRow()];
 };
 
-const sanitizeConfigValue = (
-    originalValue: any,
-    rows: ProductsByCategoryAdminRow[],
-    sidebarConfig: SidebarConfig,
-    sidebarEnabled: boolean
-) => {
+const sanitizeConfigValue = (originalValue: any, rows: ProductsByCategoryAdminRow[]) => {
     const sanitizedRows = rows.map((row) => {
         return {
             id: row.id,
@@ -207,8 +196,6 @@ const sanitizeConfigValue = (
     return {
         ...originalValue,
         rows: sanitizedRows,
-        sidebar: sidebarConfig,
-        sidebarEnabled,
     };
 };
 
@@ -895,14 +882,10 @@ export const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEd
         return flattenCategoryOptions(categories);
     }, [categoriesData]);
 
-    const initialSidebarConfig = (value?.sidebar as SidebarConfig) || {};
     const sanitizedValue = useMemo(() => removeSidebarFromConfig(value), [value]);
-    const initialSidebarEnabled = typeof value?.sidebarEnabled === 'boolean' ? value.sidebarEnabled : true;
 
     const [rows, setRows] = useState<ProductsByCategoryAdminRow[]>(() => parseRowsFromValue(sanitizedValue));
-    const [sidebarConfig, setSidebarConfig] = useState<SidebarConfig>(initialSidebarConfig);
     const skipRowsSyncRef = useRef(false);
-    const [sidebarEnabled, setSidebarEnabled] = useState<boolean>(initialSidebarEnabled);
     const [commonHeadingConfig, setCommonHeadingConfig] = useState<SectionHeadingConfigData>(() =>
         buildHeadingConfigFromRow(parseRowsFromValue(sanitizedValue)[0])
     );
@@ -925,14 +908,9 @@ export const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEd
         setCommonHeadingConfig(buildHeadingConfigFromRow(rows[0]));
     }, [rows]);
 
-    useEffect(() => {
-        setSidebarEnabled(initialSidebarEnabled);
-        setSidebarConfig(initialSidebarConfig);
-    }, [initialSidebarEnabled, initialSidebarConfig]);
-
     const commitConfig = useCallback(
-        (nextRows: ProductsByCategoryAdminRow[], nextSidebarEnabled: boolean, nextSidebarConfig: SidebarConfig) => {
-            const nextValue = sanitizeConfigValue(sanitizedValue, nextRows, nextSidebarConfig, nextSidebarEnabled);
+        (nextRows: ProductsByCategoryAdminRow[]) => {
+            const nextValue = sanitizeConfigValue(sanitizedValue, nextRows);
             onChange(nextValue);
         },
         [onChange, sanitizedValue],
@@ -942,9 +920,9 @@ export const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEd
         (nextRows: ProductsByCategoryAdminRow[]) => {
             skipRowsSyncRef.current = true;
             setRows(nextRows);
-            commitConfig(nextRows, sidebarEnabled, sidebarConfig);
+            commitConfig(nextRows);
         },
-        [commitConfig, sidebarEnabled, sidebarConfig],
+        [commitConfig],
     );
 
     const handleAddRow = useCallback(() => {
@@ -965,23 +943,6 @@ export const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEd
             applyUpdate(updated);
         },
         [applyUpdate, rows],
-    );
-
-    const handleSidebarToggle = useCallback(
-        (enabled: boolean) => {
-            setSidebarEnabled(enabled);
-            commitConfig(rows, enabled, sidebarConfig);
-        },
-        [commitConfig, rows, sidebarConfig],
-    );
-
-    const handleSidebarConfigChange = useCallback(
-        (key: keyof SidebarConfig, val: string) => {
-            const next = { ...sidebarConfig, [key]: val };
-            setSidebarConfig(next);
-            commitConfig(rows, sidebarEnabled, next);
-        },
-        [commitConfig, rows, sidebarEnabled, sidebarConfig],
     );
 
     const handleApplyHeadingConfigToAll = useCallback(() => {
@@ -1086,68 +1047,6 @@ export const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEd
                                 <p className="text-sm text-gray-600">
                                     {t('sections.manager.productsByCategory.headingConfigAllDescription', 'Update once and apply to every category heading.')}
                                 </p>
-                            </div>
-                        ),
-                    },
-                    {
-                        label: t('sections.manager.tabs.sidebar', 'Sidebar'),
-                        content: (
-                            <div className="space-y-6">
-                                <div className="rounded-xl border border-gray-200/80 bg-white shadow-sm px-5 py-4">
-                                    <Toggle
-                                        checked={sidebarEnabled}
-                                        onChange={handleSidebarToggle}
-                                        label={t('sections.manager.productsByCategory.enableSidebar')}
-                                        description={t('sections.manager.productsByCategory.sidebarDescription')}
-                                    />
-                                    <p className="mt-1 text-xs text-gray-500">
-                                        {t('sections.manager.productsByCategory.sidebarNote')}
-                                    </p>
-                                </div>
-
-                                {sidebarEnabled && (
-                                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 rounded-xl border border-gray-200/80 bg-gray-50/50 p-4">
-                                        <label className="flex flex-col gap-1.5 text-sm text-gray-700">
-                                            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                                {t('sections.manager.productsByCategory.sidebarTitle', 'Sidebar Title')}
-                                            </span>
-                                            <Input
-                                                type="text"
-                                                value={sidebarConfig.title || ''}
-                                                onChange={(e) => handleSidebarConfigChange('title', e.target.value)}
-                                                placeholder={t('sections.manager.productsByCategory.sidebarDefaultTitle', 'Danh mục sản phẩm')}
-                                                className="bg-white"
-                                            />
-                                        </label>
-                                        <label className="flex flex-col gap-1.5 text-sm text-gray-700">
-                                            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                                {t('sections.manager.productsByCategory.borderRadius', 'Border Radius')}
-                                            </span>
-                                            <Input
-                                                type="text"
-                                                value={sidebarConfig.borderRadius || ''}
-                                                onChange={(e) => handleSidebarConfigChange('borderRadius', e.target.value)}
-                                                placeholder="16px"
-                                                className="bg-white"
-                                            />
-                                        </label>
-                                        <label className="flex flex-col gap-1.5 text-sm text-gray-700">
-                                            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                                {t('sections.manager.productsByCategory.headerBgColor', 'Header Background Color')}
-                                            </span>
-                                            <div className="flex items-center gap-2">
-                                                <div className="h-10 w-10 rounded border border-gray-200 shadow-sm flex-shrink-0" style={{ backgroundColor: sidebarConfig.headerBackgroundColor || 'transparent' }} />
-                                                <Input
-                                                    type="text"
-                                                    value={sidebarConfig.headerBackgroundColor || ''}
-                                                    onChange={(e) => handleSidebarConfigChange('headerBackgroundColor', e.target.value)}
-                                                    placeholder="#ffffff"
-                                                    className="bg-white"
-                                                />
-                                            </div>
-                                        </label>
-                                    </div>
-                                )}
                             </div>
                         ),
                     },

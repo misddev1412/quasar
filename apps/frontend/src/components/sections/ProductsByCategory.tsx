@@ -100,6 +100,7 @@ interface ProductsByCategoryProps {
   config: ProductsByCategoryConfig;
   translation?: SectionTranslationContent | null;
   viewMoreButtonConfig?: ViewMoreButtonConfig;
+  sidebarConfigOverride?: ProductsByCategorySidebarConfig | null;
 }
 
 interface NormalizedRowConfig {
@@ -563,13 +564,25 @@ const strategyTranslationKeyMap: Record<ProductsByCategoryStrategy, string> = {
   custom: 'sections.products_by_category.strategies.custom',
 };
 
-export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({ config, translation, viewMoreButtonConfig }) => {
+export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
+  config,
+  translation,
+  viewMoreButtonConfig,
+  sidebarConfigOverride,
+}) => {
   const { t, i18n } = useTranslation();
 
   const configKey = useMemo(() => JSON.stringify(config ?? {}), [config]);
   const rows = useMemo(() => normalizeRows(config), [configKey]);
-  const sidebarConfig = useMemo(() => normalizeSidebarConfig(config?.sidebar), [configKey]);
-  const sectionSidebarEnabled = typeof config.sidebarEnabled === 'boolean' ? config.sidebarEnabled : true;
+  const sidebarKey = useMemo(
+    () => JSON.stringify(sidebarConfigOverride ?? null),
+    [sidebarConfigOverride],
+  );
+  const sidebarConfig = useMemo(
+    () => normalizeSidebarConfig(sidebarConfigOverride ?? null),
+    [sidebarKey],
+  );
+  const sectionSidebarEnabled = true;
   const normalizedRowsKey = useMemo(
     () => JSON.stringify(rows.map((row) => ({
       id: row.id,

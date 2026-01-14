@@ -377,12 +377,25 @@ export const safeParseJson = (value: string) => {
     }
 };
 
+const sanitizeSectionConfig = (type: SectionType, config?: Record<string, unknown>) => {
+    if (!config || typeof config !== 'object') {
+        return {};
+    }
+    if (type !== SectionType.PRODUCTS_BY_CATEGORY) {
+        return config;
+    }
+    const sanitized = { ...config };
+    delete sanitized.sidebar;
+    delete sanitized.sidebarEnabled;
+    return sanitized;
+};
+
 export const buildSectionPayload = (state: SectionFormState) => ({
     page: state.page,
     type: state.type,
     isEnabled: state.isEnabled,
     position: state.position,
-    config: state.config,
+    config: sanitizeSectionConfig(state.type, state.config),
     translations: Object.entries(state.translations).map(([locale, translation]) => ({
         locale,
         title: translation.title || undefined,
@@ -398,7 +411,7 @@ export const sectionToFormState = (section: AdminSection): SectionFormState => (
     type: section.type,
     isEnabled: section.isEnabled,
     position: section.position,
-    config: section.config || {},
+    config: sanitizeSectionConfig(section.type, section.config || {}),
     translations: section.translations.reduce<Record<string, SectionTranslationForm>>((acc, translation) => {
         acc[translation.locale] = {
             title: translation.title || '',

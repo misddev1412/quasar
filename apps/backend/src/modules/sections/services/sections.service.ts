@@ -155,8 +155,31 @@ export class SectionsService {
     }
 
     const merged = { ...(config ?? {}) };
-    if (defaults.sidebar && !merged.sidebar) {
-      merged.sidebar = defaults.sidebar;
+    if (section.type === 'products_by_category') {
+      if (defaults.sidebar && typeof defaults.sidebar === 'object') {
+        merged.sidebar = defaults.sidebar;
+      } else if (merged.sidebar) {
+        delete merged.sidebar;
+      }
+      if ('sidebarEnabled' in merged) {
+        delete merged.sidebarEnabled;
+      }
+      return merged;
+    }
+
+    if (defaults.sidebar && typeof defaults.sidebar === 'object') {
+      if (merged.sidebar && typeof merged.sidebar === 'object') {
+        const mergedSidebar = { ...defaults.sidebar, ...merged.sidebar };
+        if (merged.sidebar.enabled === undefined && defaults.sidebar.enabled !== undefined) {
+          mergedSidebar.enabled = defaults.sidebar.enabled;
+        }
+        if (merged.sidebar.sections === undefined && defaults.sidebar.sections !== undefined) {
+          mergedSidebar.sections = defaults.sidebar.sections;
+        }
+        merged.sidebar = mergedSidebar;
+      } else if (!merged.sidebar) {
+        merged.sidebar = defaults.sidebar;
+      }
     }
 
     return merged;

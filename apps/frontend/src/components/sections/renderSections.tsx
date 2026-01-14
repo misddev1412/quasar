@@ -22,6 +22,7 @@ import {
   WhyChooseUsSection,
 } from '.';
 import type { SectionListItem } from '../../types/sections';
+import type { ProductsByCategorySidebarConfig } from './ProductsByCategory';
 
 const sectionComponentMap: Record<SectionType, React.ComponentType<any>> = {
   [SectionType.HERO_SLIDER]: HeroSlider,
@@ -63,6 +64,29 @@ interface ComponentConfigResponse {
   defaultConfig?: Record<string, unknown> | null;
 }
 
+async function fetchProductsByCategorySidebarConfig(): Promise<ProductsByCategorySidebarConfig | undefined> {
+  try {
+    const apiResponse = (await serverTrpc.clientComponentConfigs.listByKeys.query({
+      componentKeys: ['products_by_category'],
+    })) as ApiResponse<ComponentConfigResponse[]> | undefined;
+    const items = apiResponse?.data ?? [];
+    const config = items.find((item) => item.componentKey === 'products_by_category');
+    const rawDefault = config?.defaultConfig ?? null;
+
+    if (rawDefault && typeof rawDefault === 'object') {
+      const sidebar = (rawDefault as { sidebar?: ProductsByCategorySidebarConfig | null }).sidebar;
+      if (sidebar && typeof sidebar === 'object') {
+        return sidebar;
+      }
+    }
+
+    return undefined;
+  } catch (error) {
+    console.error('Failed to fetch ProductsByCategory sidebar config:', error);
+    return undefined;
+  }
+}
+
 async function fetchViewMoreButtonConfig(): Promise<ViewMoreButtonConfig | undefined> {
   try {
     const apiResponse = (await serverTrpc.clientComponentConfigs.listByKeys.query({
@@ -88,7 +112,10 @@ async function fetchViewMoreButtonConfig(): Promise<ViewMoreButtonConfig | undef
 }
 
 export const renderSections = async (sections: SectionListItem[]): Promise<React.ReactNode[]> => {
-  const viewMoreButtonConfig = await fetchViewMoreButtonConfig();
+  const [viewMoreButtonConfig, productsByCategorySidebarConfig] = await Promise.all([
+    fetchViewMoreButtonConfig(),
+    fetchProductsByCategorySidebarConfig(),
+  ]);
 
   return sections
     .map((section) => {
@@ -112,6 +139,9 @@ export const renderSections = async (sections: SectionListItem[]): Promise<React
           config={section.config as Record<string, unknown>}
           translation={translation}
           {...(shouldPassButtonConfig && { viewMoreButtonConfig })}
+          {...(section.type === SectionType.PRODUCTS_BY_CATEGORY && {
+            sidebarConfigOverride: productsByCategorySidebarConfig,
+          })}
         />
       );
     })
