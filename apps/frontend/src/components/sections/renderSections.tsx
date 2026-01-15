@@ -5,6 +5,7 @@ import type { ApiResponse } from '../../types/api';
 import { serverTrpc } from '../../utils/trpc-server';
 import {
   HeroSlider,
+  ProductListSection,
   FeaturedProducts,
   ProductsByCategory,
   NewsSection,
@@ -26,6 +27,7 @@ import type { ProductsByCategorySidebarConfig } from './ProductsByCategory';
 
 const sectionComponentMap: Record<SectionType, React.ComponentType<any>> = {
   [SectionType.HERO_SLIDER]: HeroSlider,
+  [SectionType.PRODUCT_LIST]: ProductListSection,
   [SectionType.FEATURED_PRODUCTS]: FeaturedProducts,
   [SectionType.PRODUCTS_BY_CATEGORY]: ProductsByCategory,
   [SectionType.NEWS]: NewsSection,

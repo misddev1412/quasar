@@ -7,6 +7,7 @@ export enum SectionPage {
 
 export enum SectionType {
   HERO_SLIDER = 'hero_slider',
+  PRODUCT_LIST = 'product_list',
   FEATURED_PRODUCTS = 'featured_products',
   PRODUCTS_BY_CATEGORY = 'products_by_category',
   NEWS = 'news',
@@ -27,6 +28,7 @@ export enum SectionType {
 
 export const SECTION_TYPE_LABELS: Record<SectionType, string> = {
   [SectionType.HERO_SLIDER]: 'Hero Slider',
+  [SectionType.PRODUCT_LIST]: 'Product List',
   [SectionType.FEATURED_PRODUCTS]: 'Featured Products',
   [SectionType.PRODUCTS_BY_CATEGORY]: 'Products by Category',
   [SectionType.NEWS]: 'News',

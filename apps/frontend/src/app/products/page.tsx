@@ -5,6 +5,7 @@ import { fetchSections } from '../../services/sections.service';
 import { renderSections } from '../../components/sections';
 import { getPreferredLocale } from '../../lib/server-locale';
 import { getPublicSiteName } from '../../lib/site-name';
+import { SectionType } from '@shared/enums/section.enums';
 
 // Generate metadata for products page
 export async function generateMetadata(): Promise<Metadata> {
@@ -57,6 +58,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const sections = await fetchSections('product', locale);
   const orderedSections = [...sections].sort((a, b) => a.position - b.position);
   const renderedSections = await renderSections(orderedSections);
+  const hasProductListSection = orderedSections.some((section) => section.type === SectionType.PRODUCT_LIST);
 
   return (
     <Layout>
@@ -66,11 +68,13 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         renderDefaultProductHero()
       )}
 
-      <section className="py-12 lg:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ProductsContainer />
-        </div>
-      </section>
+      {!hasProductListSection && (
+        <section className="py-12 lg:py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <ProductsContainer />
+          </div>
+        </section>
+      )}
     </Layout>
   );
 }

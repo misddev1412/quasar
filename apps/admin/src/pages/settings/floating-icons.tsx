@@ -52,6 +52,7 @@ const DEFAULT_ICON_BY_TYPE: Record<FloatingWidgetActionType, string> = {
   zalo: 'zalo',
   messenger: 'chat',
   custom: 'star',
+  group_phone: 'phone',
 };
 
 const ICON_OPTIONS = [
@@ -89,6 +90,7 @@ const emptyMetadata = (): NonNullable<FloatingWidgetActionConfig['metadata']> =>
   zaloPhone: undefined,
   customUrl: undefined,
   note: undefined,
+  groupPhoneList: [],
 });
 
 const resolveIconName = (item: FloatingWidgetActionConfig): string => {
@@ -110,6 +112,10 @@ const getMetadataValueByType = (item: FloatingWidgetActionConfig): string | unde
       return item.metadata?.zaloPhone;
     case 'custom':
       return item.metadata?.customUrl;
+    case 'group_phone':
+      return item.metadata?.groupPhoneList
+        ?.map((p) => `${p.label}: ${p.phoneNumber}`)
+        .join(', ');
     default:
       return undefined;
   }
@@ -252,6 +258,54 @@ const FloatingIconFormModal: React.FC<FloatingIconFormModalProps> = ({
     });
   };
 
+  const handleAddGroupPhone = () => {
+    setDraft((prev) => ({
+      ...prev,
+      metadata: {
+        ...emptyMetadata(),
+        ...(prev.metadata || {}),
+        groupPhoneList: [
+          ...(prev.metadata?.groupPhoneList || []),
+          { label: '', phoneNumber: '', icon: 'phone', textColor: '#000000' },
+        ],
+      },
+    }));
+  };
+
+  const handleRemoveGroupPhone = (index: number) => {
+    setDraft((prev) => ({
+      ...prev,
+      metadata: {
+        ...emptyMetadata(),
+        ...(prev.metadata || {}),
+        groupPhoneList: (prev.metadata?.groupPhoneList || []).filter(
+          (_, i) => i !== index
+        ),
+      },
+    }));
+  };
+
+  const handleGroupPhoneChange = (
+    index: number,
+    field: 'label' | 'phoneNumber' | 'icon' | 'textColor',
+    value: string
+  ) => {
+    setDraft((prev) => {
+      const newList = [...(prev.metadata?.groupPhoneList || [])];
+      if (newList[index]) {
+        newList[index] = { ...newList[index], [field]: value };
+      }
+      return {
+        ...prev,
+        metadata: {
+          ...emptyMetadata(),
+          ...(prev.metadata || {}),
+          groupPhoneList: newList,
+        },
+      };
+    });
+  };
+
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!draft.label.trim()) {
@@ -268,54 +322,208 @@ const FloatingIconFormModal: React.FC<FloatingIconFormModalProps> = ({
     switch (draft.type) {
       case 'call':
         return (
-          <PhoneInputField
-            id="floating-icon-phone"
-            label={t('floating_icons.form.phone_number', 'Phone number')}
-            placeholder={t('floating_icons.form.phone_placeholder', 'Enter phone number (e.g. 0987654321)')}
-            value={draft.metadata?.phoneNumber}
-            onChange={(value) => handleMetadataChange('phoneNumber', value)}
-          />
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
+              {t('floating_icons.form.action_target', 'Action target')}
+            </label>
+            <PhoneInputField
+              id="floating-icon-phone"
+              label={t('floating_icons.form.phone_number', 'Phone number')}
+              placeholder={t('floating_icons.form.phone_placeholder', 'Enter phone number (e.g. 0987654321)')}
+              value={draft.metadata?.phoneNumber}
+              onChange={(value) => handleMetadataChange('phoneNumber', value)}
+            />
+          </div>
         );
       case 'email':
         return (
-          <Input
-            id="floating-icon-email"
-            type="email"
-            inputSize="md"
-            placeholder={t('floating_icons.form.email_placeholder', 'Enter email address')}
-            value={draft.metadata?.email || ''}
-            onChange={(e) => handleMetadataChange('email', e.target.value)}
-          />
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
+              {t('floating_icons.form.action_target', 'Action target')}
+            </label>
+            <Input
+              id="floating-icon-email"
+              type="email"
+              inputSize="md"
+              placeholder={t('floating_icons.form.email_placeholder', 'Enter email address')}
+              value={draft.metadata?.email || ''}
+              onChange={(e) => handleMetadataChange('email', e.target.value)}
+            />
+          </div>
         );
       case 'messenger':
         return (
-          <Input
-            id="floating-icon-messenger"
-            inputSize="md"
-            placeholder={t('floating_icons.form.messenger_placeholder', 'Messenger URL (https://m.me/your-page)')}
-            value={draft.metadata?.messengerLink || ''}
-            onChange={(e) => handleMetadataChange('messengerLink', e.target.value)}
-          />
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
+              {t('floating_icons.form.action_target', 'Action target')}
+            </label>
+            <Input
+              id="floating-icon-messenger"
+              inputSize="md"
+              placeholder={t('floating_icons.form.messenger_placeholder', 'Messenger URL (https://m.me/your-page)')}
+              value={draft.metadata?.messengerLink || ''}
+              onChange={(e) => handleMetadataChange('messengerLink', e.target.value)}
+            />
+          </div>
         );
       case 'zalo':
         return (
-          <Input
-            id="floating-icon-zalo"
-            inputSize="md"
-            placeholder={t('floating_icons.form.zalo_placeholder', 'Zalo phone or link (https://zalo.me/...)')}
-            value={draft.metadata?.zaloPhone || ''}
-            onChange={(e) => handleMetadataChange('zaloPhone', e.target.value)}
-          />
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
+              {t('floating_icons.form.action_target', 'Action target')}
+            </label>
+            <Input
+              id="floating-icon-zalo"
+              inputSize="md"
+              placeholder={t('floating_icons.form.zalo_placeholder', 'Zalo phone or link (https://zalo.me/...)')}
+              value={draft.metadata?.zaloPhone || ''}
+              onChange={(e) => handleMetadataChange('zaloPhone', e.target.value)}
+            />
+          </div>
         );
       case 'custom':
         return (
-          <Input
-            id="floating-icon-custom"
-            inputSize="md"
-            placeholder={t('floating_icons.form.custom_placeholder', 'External URL or deeplink')}
-            value={draft.metadata?.customUrl || ''}
-            onChange={(e) => handleMetadataChange('customUrl', e.target.value)}
-          />
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
+              {t('floating_icons.form.action_target', 'Action target')}
+            </label>
+            <Input
+              id="floating-icon-custom"
+              inputSize="md"
+              placeholder={t('floating_icons.form.custom_placeholder', 'External URL or deeplink')}
+              value={draft.metadata?.customUrl || ''}
+              onChange={(e) => handleMetadataChange('customUrl', e.target.value)}
+            />
+          </div>
+        );
+      case 'group_phone':
+        return (
+          <div className="space-y-4 rounded-xl border border-gray-100 bg-gray-50/50 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="text-sm font-semibold text-gray-900">
+                  {t('floating_icons.form.phone_list', 'Phone numbers')}
+                </label>
+                <p className="text-xs text-gray-500">
+                  {t('floating_icons.form.phone_list_hint', 'Add multiple numbers for different departments')}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleAddGroupPhone}
+                startIcon={<FiPlus />}
+                type="button"
+                className="shadow-sm"
+              >
+                {t('common.add', 'Add')}
+              </Button>
+            </div>
+
+            <div className="space-y-3">
+              {draft.metadata?.groupPhoneList?.map((item, idx) => (
+                <div key={idx} className="group relative rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-sky-100 ring-1 ring-transparent hover:ring-sky-100">
+                  <div className="grid gap-4 sm:grid-cols-12">
+                    <div className="sm:col-span-5 space-y-1">
+                      <label className="text-xs font-medium text-gray-500">
+                        {t('floating_icons.form.label_placeholder', 'Label')}
+                      </label>
+                      <Input
+                        placeholder={t('floating_icons.form.label_placeholder', 'e.g. Sales')}
+                        value={item.label}
+                        onChange={(e) =>
+                          handleGroupPhoneChange(idx, 'label', e.target.value)
+                        }
+                        inputSize="sm"
+                        className="bg-gray-50"
+                      />
+                    </div>
+                    <div className="sm:col-span-6 space-y-1">
+                      <label className="text-xs font-medium text-gray-500">
+                        {t('floating_icons.form.phone_placeholder', 'Phone')}
+                      </label>
+                      <Input
+                        placeholder="e.g. 0987 654 321"
+                        value={item.phoneNumber}
+                        onChange={(e) =>
+                          handleGroupPhoneChange(idx, 'phoneNumber', e.target.value)
+                        }
+                        inputSize="sm"
+                        className="font-mono bg-gray-50"
+                      />
+                    </div>
+                    <div className="sm:col-span-1 flex items-end justify-end pb-0.5">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-gray-400 hover:text-red-500 hover:bg-red-50"
+                        icon={<FiTrash2 className="h-4 w-4" />}
+                        onClick={() => handleRemoveGroupPhone(idx)}
+                        type="button"
+                        title="Remove"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex items-center gap-6 border-t border-gray-50 pt-3">
+                    <div className="flex-1 max-w-[140px]">
+                      <label className="mb-1.5 block text-xs font-medium text-gray-500">
+                        {t('floating_icons.form.icon', 'Icon')}
+                      </label>
+                      <Select
+                        value={item.icon || 'phone'}
+                        options={ICON_OPTIONS}
+                        onChange={(value) => handleGroupPhoneChange(idx, 'icon', value as string)}
+                        size="sm"
+                        className="w-full"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="mb-1.5 block text-xs font-medium text-gray-500">
+                        {t('floating_icons.form.text_color', 'Color')}
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <div className="relative h-8 w-8 overflow-hidden rounded-full ring-1 ring-gray-200 shadow-sm transition-transform active:scale-95">
+                          <input
+                            type="color"
+                            value={item.textColor || '#000000'}
+                            onChange={(e) => handleGroupPhoneChange(idx, 'textColor', e.target.value)}
+                            className="absolute -top-1/2 -left-1/2 h-[200%] w-[200%] cursor-pointer border-0 p-0"
+                            title={t('floating_icons.form.text_color_picker', 'Pick a color')}
+                          />
+                        </div>
+                        <span className="font-mono text-xs text-gray-600 bg-gray-50 px-2 py-1 rounded border border-gray-100">
+                          {item.textColor || '#000000'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {(!draft.metadata?.groupPhoneList ||
+                draft.metadata.groupPhoneList.length === 0) && (
+                  <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white py-8 text-center">
+                    <div className="bg-gray-50 p-3 rounded-full mb-3">
+                      <FiZap className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {t('floating_icons.form.no_phones_title', 'No numbers added')}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1 max-w-xs mx-auto">
+                      {t('floating_icons.form.no_phones', 'Add phone numbers that will appear when customers hover over the icon.')}
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleAddGroupPhone}
+                      className="mt-3 text-sky-600 hover:text-sky-700 hover:bg-sky-50"
+                    >
+                      {t('common.add_now', 'Add number now')}
+                    </Button>
+                  </div>
+                )}
+            </div>
+          </div>
         );
       default:
         return null;
@@ -323,221 +531,261 @@ const FloatingIconFormModal: React.FC<FloatingIconFormModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <h2 className="text-xl font-semibold">
-            {mode === 'create'
-              ? t('floating_icons.form.create_title', 'Add floating icon')
-              : t('floating_icons.form.edit_title', 'Edit floating icon')}
-          </h2>
-          <p className="text-sm text-gray-500 mt-1">
-            {t('floating_icons.form.subtitle', 'Configure action button that appears on the storefront.')}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-label">
-              {t('floating_icons.form.label', 'Display name')} <span className="text-red-500">*</span>
-            </label>
-            <Input
-              id="floating-icon-label"
-              inputSize="md"
-              placeholder={t('floating_icons.form.label_placeholder', 'e.g. Call us now')}
-              value={draft.label}
-              onChange={(e) => handleChange('label', e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-type">
-              {t('floating_icons.form.type', 'Action type')}
-            </label>
-            <Select
-              id="floating-icon-type"
-              value={draft.type}
-              options={TYPE_OPTIONS}
-              onChange={(value) => handleTypeChange(value as FloatingWidgetActionType)}
-              placeholder={t('floating_icons.form.type_placeholder', 'Choose type')}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-icon">
-              {t('floating_icons.form.icon', 'Icon')}
-            </label>
-            <Select
-              id="floating-icon-icon"
-              value={draft.icon || DEFAULT_ICON_BY_TYPE[draft.type]}
-              options={ICON_OPTIONS}
-              onChange={(value) => handleChange('icon', value)}
-              placeholder={t('floating_icons.form.icon_placeholder', 'Choose icon')}
-            />
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <span>{t('floating_icons.form.icon_preview', 'Preview')}:</span>
-              <UnifiedIcon
-                icon={draft.icon || DEFAULT_ICON_BY_TYPE[draft.type]}
-                style={{ color: draft.textColor || '#ffffff' }}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-effect">
-              {t('floating_icons.form.effect', 'Icon animation')}
-            </label>
-            <Select
-              id="floating-icon-effect"
-              value={draft.effect || 'none'}
-              options={effectOptions}
-              onChange={(value) => handleChange('effect', value as FloatingWidgetActionEffect)}
-              placeholder={t('floating_icons.form.effect_placeholder', 'Select animation')}
-            />
-            <p className="text-xs text-gray-500">
-              {t('floating_icons.form.effect_hint', 'Use animations to highlight important actions like hotlines.')}
+    <Modal isOpen={isOpen} onClose={onClose} size="xl">
+      <form onSubmit={handleSubmit} className="flex flex-col h-[85vh]">
+        <div className="flex items-center justify-between border-b px-6 py-4">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">
+              {mode === 'create'
+                ? t('floating_icons.form.create_title', 'Add Floating Icon')
+                : t('floating_icons.form.edit_title', 'Edit Floating Icon')}
+            </h2>
+            <p className="mt-1 text-sm text-gray-500">
+              {t('floating_icons.form.subtitle', 'Configure action button that appears on the storefront.')}
             </p>
           </div>
+          <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400 hover:text-gray-500">
+            <span className="sr-only">Close</span>
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </Button>
+        </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-tooltip">
-              {t('floating_icons.form.tooltip', 'Tooltip text')}
-            </label>
-            <Input
-              id="floating-icon-tooltip"
-              inputSize="md"
-              placeholder={t('floating_icons.form.tooltip_placeholder', 'Optional hover tooltip')}
-              value={draft.tooltip || ''}
-              onChange={(e) => handleChange('tooltip', e.target.value)}
-            />
-          </div>
+        <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+          <div className="space-y-8 max-w-4xl mx-auto">
+            {/* Section 1: General Info */}
+            <section className="space-y-4">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500 border-b pb-2 mb-4">
+                {t('floating_icons.sections.general', 'General Information')}
+              </h3>
+              <div className="grid gap-5 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-label">
+                    {t('floating_icons.form.label', 'Display Name')} <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    id="floating-icon-label"
+                    inputSize="md"
+                    placeholder={t('floating_icons.form.label_placeholder', 'e.g. Call Support')}
+                    value={draft.label}
+                    onChange={(e) => handleChange('label', e.target.value)}
+                    required
+                  />
+                </div>
 
-          <div className="md:col-span-2 space-y-2">
-            <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-description">
-              {t('floating_icons.form.description', 'Short description')}
-            </label>
-            <TextareaInput
-              id="floating-icon-description"
-              label=""
-              rows={3}
-              placeholder={t('floating_icons.form.description_placeholder', 'Explain what this action does (optional)')}
-              value={draft.description || ''}
-              onChange={(event) => handleChange('description', event.target.value)}
-            />
-          </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-type">
+                    {t('floating_icons.form.type', 'Action Type')}
+                  </label>
+                  <Select
+                    id="floating-icon-type"
+                    value={draft.type}
+                    options={TYPE_OPTIONS}
+                    onChange={(value) => handleTypeChange(value as FloatingWidgetActionType)}
+                    placeholder="Select type"
+                  />
+                </div>
+              </div>
 
-          <div className="space-y-2">
-            {draft.type !== 'call' && (
-              <label className="text-sm font-medium text-gray-700">
-                {t('floating_icons.form.action_target', 'Action target')}
-              </label>
-            )}
-            {renderTypeSpecificFields()}
-          </div>
+              {/* Rendering Type Specific fields here if distinct enough, otherwise put in configuration */}
+              {renderTypeSpecificFields()}
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-href">
-              {t('floating_icons.form.href', 'Override URL (optional)')}
-            </label>
-            <Input
-              id="floating-icon-href"
-              inputSize="md"
-              placeholder={t('floating_icons.form.href_placeholder', 'Leave empty to auto-generate')}
-              value={draft.href || ''}
-              onChange={(e) => handleChange('href', e.target.value)}
-            />
-          </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-href">
+                  {t('floating_icons.form.href', 'Override URL (Optional)')}
+                </label>
+                <div className="relative">
+                  <Input
+                    id="floating-icon-href"
+                    inputSize="md"
+                    placeholder="https://..."
+                    value={draft.href || ''}
+                    onChange={(e) => handleChange('href', e.target.value)}
+                    className="pl-9"
+                  />
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                    <span className="text-sm">🔗</span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  {t('floating_icons.form.href_hint', 'Leave empty to use automatic behavior based on type.')}
+                </p>
+              </div>
+            </section>
 
-          <div className="md:col-span-2 flex items-center gap-3 pt-2 border-t mt-2">
-            <Toggle
-              checked={Boolean(draft.hasSlideOutInfo)}
-              onChange={() => handleChange('hasSlideOutInfo', !draft.hasSlideOutInfo)}
-            />
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-gray-700">
-                {t('floating_icons.form.slide_out', 'Show info on hover')}
-              </p>
-              <p className="text-xs text-gray-500">
-                {t(
-                  'floating_icons.form.slide_out_hint',
-                  'Slide out extra information when hovering over the icon.'
+            {/* Section 2: Content */}
+            <section className="space-y-4">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500 border-b pb-2 mb-4">
+                {t('floating_icons.sections.content', 'Content & Tooltip')}
+              </h3>
+              <div className="grid gap-5 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-tooltip">
+                    {t('floating_icons.form.tooltip', 'Tooltip Text')}
+                  </label>
+                  <Input
+                    id="floating-icon-tooltip"
+                    inputSize="md"
+                    placeholder={t('floating_icons.form.tooltip_placeholder', 'Text shown on hover')}
+                    value={draft.tooltip || ''}
+                    onChange={(e) => handleChange('tooltip', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-description">
+                    {t('floating_icons.form.description', 'Internal Description')}
+                  </label>
+                  <Input
+                    id="floating-icon-description"
+                    inputSize="md"
+                    placeholder={t('floating_icons.form.description_placeholder', 'For admin reference only')}
+                    value={draft.description || ''}
+                    onChange={(e) => handleChange('description', e.target.value)}
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* Section 3: Appearance */}
+            <section className="space-y-4">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500 border-b pb-2 mb-4">
+                {t('floating_icons.sections.appearance', 'Appearance')}
+              </h3>
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-icon">
+                      {t('floating_icons.form.icon', 'Main Button Icon')}
+                    </label>
+                    <div className="flex gap-3">
+                      <div className="flex-1">
+                        <Select
+                          id="floating-icon-icon"
+                          value={draft.icon || DEFAULT_ICON_BY_TYPE[draft.type]}
+                          options={ICON_OPTIONS}
+                          onChange={(value) => handleChange('icon', value)}
+                        />
+                      </div>
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg border bg-gray-50 text-gray-600 shadow-sm transition-colors" style={{ color: draft.textColor, backgroundColor: draft.isTransparentBackground ? 'transparent' : draft.backgroundColor }}>
+                        <UnifiedIcon
+                          icon={draft.icon || DEFAULT_ICON_BY_TYPE[draft.type]}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-effect">
+                      {t('floating_icons.form.effect', 'Animation Effect')}
+                    </label>
+                    <Select
+                      id="floating-icon-effect"
+                      value={draft.effect || 'none'}
+                      options={effectOptions}
+                      onChange={(value) => handleChange('effect', value as FloatingWidgetActionEffect)}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <ColorSelector
+                    label={t('floating_icons.form.background', 'Button Background')}
+                    placeholder="#0ea5e9"
+                    value={draft.backgroundColor}
+                    onChange={(color) => handleChange('backgroundColor', color ?? '')}
+                  />
+                  <ColorSelector
+                    label={t('floating_icons.form.text_color', 'Icon Color')}
+                    placeholder="#ffffff"
+                    value={draft.textColor}
+                    onChange={(color) => handleChange('textColor', color ?? '')}
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* Section 4: Advanced Settings */}
+            <section className="space-y-4">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500 border-b pb-2 mb-4">
+                {t('floating_icons.sections.settings', 'Display Settings')}
+              </h3>
+
+              <div className="space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <label className="text-sm font-medium text-gray-900">
+                      {t('floating_icons.form.active', 'Active Status')}
+                    </label>
+                    <p className="text-xs text-gray-500">
+                      {t('floating_icons.form.active_hint', 'Visible on storefront')}
+                    </p>
+                  </div>
+                  <Toggle
+                    checked={draft.isActive}
+                    onChange={() => handleChange('isActive', !draft.isActive)}
+                  />
+                </div>
+                <div className="h-px bg-gray-200" />
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <label className="text-sm font-medium text-gray-900">
+                      {t('floating_icons.form.transparent_bg', 'Transparent Background')}
+                    </label>
+                    <p className="text-xs text-gray-500">
+                      {t('floating_icons.form.transparent_bg_hint', 'Remove background color and shadow')}
+                    </p>
+                  </div>
+                  <Toggle
+                    checked={Boolean(draft.isTransparentBackground)}
+                    onChange={() => handleChange('isTransparentBackground', !draft.isTransparentBackground)}
+                  />
+                </div>
+              </div>
+
+              {/* Slide out settings */}
+              <div className="mt-4 space-y-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <Toggle
+                    checked={Boolean(draft.hasSlideOutInfo)}
+                    onChange={() => handleChange('hasSlideOutInfo', !draft.hasSlideOutInfo)}
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {t('floating_icons.form.slide_out', 'Slide Out Information')}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {t('floating_icons.form.slide_out_desc', 'Show a text bubble next to the icon on hover')}
+                    </p>
+                  </div>
+                </div>
+
+                {draft.hasSlideOutInfo && (
+                  <div className="pl-14 pt-2 animate-in fade-in slide-in-from-top-1">
+                    <label className="mb-1.5 block text-xs font-medium text-gray-700">
+                      {t('floating_icons.form.slide_text', 'Hover Text content')}
+                    </label>
+                    <Input
+                      placeholder={t('floating_icons.form.slide_text_placeholder', 'Default text to show...')}
+                      value={draft.slideOutText || ''}
+                      onChange={(e) => handleChange('slideOutText', e.target.value)}
+                      inputSize="sm"
+                    />
+                  </div>
                 )}
-              </p>
-            </div>
-          </div>
-
-          {draft.hasSlideOutInfo && (
-            <div className="md:col-span-2 space-y-2 pl-12">
-              <label className="text-sm font-medium text-gray-700" htmlFor="floating-icon-slide-text">
-                {t('floating_icons.form.slide_text', 'Hover info text')}
-              </label>
-              <Input
-                id="floating-icon-slide-text"
-                inputSize="md"
-                placeholder={t('floating_icons.form.slide_text_placeholder', 'e.g. Call us: 0123 456 789 (Leave empty to use Label or Phone)')}
-                value={draft.slideOutText || ''}
-                onChange={(e) => handleChange('slideOutText', e.target.value)}
-              />
-            </div>
-          )}
-
-          <ColorSelector
-            label={t('floating_icons.form.background', 'Background color')}
-            placeholder="#0ea5e9"
-            value={draft.backgroundColor}
-            onChange={(color) => handleChange('backgroundColor', color ?? '')}
-          />
-
-          <ColorSelector
-            label={t('floating_icons.form.text_color', 'Icon color')}
-            placeholder="#ffffff"
-            value={draft.textColor}
-            onChange={(color) => handleChange('textColor', color ?? '')}
-          />
-
-          <div className="flex items-center gap-3 pt-2">
-            <Toggle
-              checked={Boolean(draft.isTransparentBackground)}
-              onChange={() => handleChange('isTransparentBackground', !draft.isTransparentBackground)}
-            />
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-gray-700">
-                {t('floating_icons.form.transparent_bg', 'Transparent background')}
-              </p>
-              <p className="text-xs text-gray-500">
-                {t(
-                  'floating_icons.form.transparent_bg_hint',
-                  'Remove button background and shadow so only the icon is visible.'
-                )}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 pt-2">
-            <Toggle
-              checked={draft.isActive}
-              onChange={() => handleChange('isActive', !draft.isActive)}
-            />
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-gray-700">
-                {t('floating_icons.form.active', 'Show on storefront')}
-              </p>
-              <p className="text-xs text-gray-500">
-                {t('floating_icons.form.active_hint', 'Disable to hide without deleting the icon.')}
-              </p>
-            </div>
+              </div>
+            </section>
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4">
-          <Button variant="secondary" type="button" onClick={onClose}>
+        <div className="flex justify-end gap-3 border-t bg-gray-50 px-6 py-4">
+          <Button variant="ghost" type="button" onClick={onClose}>
             {t('common.cancel', 'Cancel')}
           </Button>
-          <Button variant="primary" type="submit">
+          <Button variant="primary" type="submit" className="min-w-[100px]">
             {mode === 'create'
-              ? t('floating_icons.form.submit_create', 'Add icon')
-              : t('floating_icons.form.submit_edit', 'Save changes')}
+              ? t('floating_icons.form.submit_create', 'Create Icon')
+              : t('floating_icons.form.submit_edit', 'Save Changes')}
           </Button>
         </div>
       </form>

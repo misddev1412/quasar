@@ -40,6 +40,7 @@
                 "autoplay": "Tự động phát",
                 "layout": "Bố cục",
                 "limit": "Giới hạn",
+                "pageSize": "Số sản phẩm/trang",
                 "category": "Danh mục",
                 "totalItems": "Mục",
                 "totalMembers": "Thành viên",
@@ -47,7 +48,8 @@
                 "videoUrl": "Video",
                 "columns": "Cột",
                 "banners": "Số banner",
-                "breakpoint": "Breakpoint"
+                "breakpoint": "Breakpoint",
+                "sidebar": "Sidebar"
             },
             "edit": "Chỉnh sửa",
             "delete": "Xóa",
@@ -161,6 +163,15 @@
             },
             "config": {
                 "header": "Cấu hình Section",
+                "productList": {
+                    "pageSize": "Số sản phẩm mỗi trang",
+                    "gridColumns": "Số cột hiển thị",
+                    "gridColumnsOption": "{{count}} cột",
+                    "showSidebar": "Hiện bộ lọc sidebar",
+                    "stickySidebar": "Cố định sidebar",
+                    "showSort": "Hiện sắp xếp",
+                    "showHeader": "Hiện tiêu đề"
+                },
                 "customHtml": {
                     "title": "HTML Tùy chỉnh",
                     "editAsJson": "Chỉnh sửa dạng JSON",
@@ -686,7 +697,8 @@
             "contact_form": "Form liên hệ",
             "video": "Video",
             "stats": "Thống kê",
-            "brand_showcase": "Thương hiệu nổi bật"
+            "brand_showcase": "Thương hiệu nổi bật",
+            "product_list": "Danh sách sản phẩm"
         },
         "pages": {
             "home": "Trang chủ",

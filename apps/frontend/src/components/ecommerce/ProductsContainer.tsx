@@ -11,9 +11,31 @@ import type { PaginationInfo } from '../../types/trpc';
 
 interface ProductsContainerProps {
   initialProducts?: Product[];
+  pageSize?: number;
+  gridColumns?: number;
+  showSidebar?: boolean;
+  stickySidebar?: boolean;
+  showSort?: boolean;
+  showHeader?: boolean;
+  heading?: string;
+  subheading?: string;
 }
 
-const ProductsContainer: React.FC<ProductsContainerProps> = ({ initialProducts }) => {
+const ProductsContainer: React.FC<ProductsContainerProps> = ({
+  initialProducts,
+  pageSize = 12,
+  gridColumns = 3,
+  showSidebar = true,
+  stickySidebar = true,
+  showSort = true,
+  showHeader = true,
+  heading,
+  subheading,
+}) => {
+  const resolvedHeading = heading === undefined ? 'All Products' : heading;
+  const resolvedSubheading = subheading ?? '';
+  const hasHeading = resolvedHeading.trim().length > 0;
+  const hasSubheading = resolvedSubheading.trim().length > 0;
   // State for products and filters
   const [sortBy, setSortBy] = useState('createdAt');
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,7 +57,7 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({ initialProducts }
   const [products, setProducts] = useState<Product[]>(initialProducts || []);
   const [pagination, setPagination] = useState<PaginationInfo>({
     page: 1,
-    limit: 12,
+    limit: pageSize,
     total: 0,
     totalPages: 0,
   });
@@ -57,7 +79,7 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({ initialProducts }
     try {
       const response = await ProductService.getProducts({
         page: currentPage,
-        limit: 12,
+        limit: pageSize,
         search: filters.search,
         category: filters.category,
         brand: filters.brand,
@@ -95,12 +117,21 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({ initialProducts }
   useEffect(() => {
     fetchProducts();
     fetchFilters();
-  }, [currentPage, sortBy, filters.search, filters.category, filters.brand, filters.minPrice, filters.maxPrice, filters.isActive, filters.isFeatured, filters.inStock, filters.hasDiscount, filters.tags, filters.rating]);
+  }, [currentPage, pageSize, sortBy, filters.search, filters.category, filters.brand, filters.minPrice, filters.maxPrice, filters.isActive, filters.isFeatured, filters.inStock, filters.hasDiscount, filters.tags, filters.rating]);
 
   // Update pagination when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [sortBy, filters.search, filters.category, filters.brand, filters.minPrice, filters.maxPrice, filters.isActive, filters.isFeatured, filters.inStock, filters.hasDiscount, filters.tags, filters.rating]);
+  }, [pageSize, sortBy, filters.search, filters.category, filters.brand, filters.minPrice, filters.maxPrice, filters.isActive, filters.isFeatured, filters.inStock, filters.hasDiscount, filters.tags, filters.rating]);
+
+  useEffect(() => {
+    setPagination((prev) => ({
+      ...prev,
+      limit: pageSize,
+      page: 1,
+    }));
+    setCurrentPage(1);
+  }, [pageSize]);
 
   const handleSortChange = (value: string) => {
     setSortBy(value);
@@ -162,49 +193,68 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({ initialProducts }
     );
   }
 
+  const gridClass =
+    gridColumns >= 4
+      ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+      : gridColumns === 2
+        ? 'grid-cols-1 sm:grid-cols-2'
+        : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+
+  const shouldRenderHeader = showHeader || showSort;
+
   return (
     <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
       {/* Advanced Filter Sidebar */}
-      <div className="lg:w-[30%]">
-        <div className="sticky top-24">
-          <ProductFilterSidebar
-            filters={filters}
-            availableFilters={availableFilters}
-            onFilterChange={handleFilterChange}
-            onClearFilters={clearFilters}
-          />
+      {showSidebar && (
+        <div className="lg:w-[30%]">
+          <div className={stickySidebar ? 'sticky top-24' : ''}>
+            <ProductFilterSidebar
+              filters={filters}
+              availableFilters={availableFilters}
+              onFilterChange={handleFilterChange}
+              onClearFilters={clearFilters}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Products Grid */}
-      <div className="lg:w-[70%]">
+      <div className={showSidebar ? 'lg:w-[70%]' : 'w-full'}>
         {/* Results Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-6 border-b border-gray-200 dark:border-gray-700">
-          <div>
-            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              All Products
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300 text-sm">
-              Showing {products.length} of {pagination.total} products
-            </p>
+        {shouldRenderHeader && (
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-6 border-b border-gray-200 dark:border-gray-700">
+            {showHeader && (
+              <div>
+                {hasHeading && (
+                  <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                    {resolvedHeading}
+                  </h2>
+                )}
+                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  {hasSubheading ? resolvedSubheading : `Showing ${products.length} of ${pagination.total} products`}
+                </p>
+              </div>
+            )}
+            {showSort && (
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Sort by:</span>
+                <select
+                  className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={sortBy}
+                  onChange={(e) => handleSortChange(e.target.value)}
+                >
+                  <option value="createdAt">Newest First</option>
+                  <option value="price">Price: Low to High</option>
+                  <option value="price_DESC">Price: High to Low</option>
+                  <option value="name">Name</option>
+                </select>
+              </div>
+            )}
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Sort by:</span>
-            <select
-              className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={sortBy}
-              onChange={(e) => handleSortChange(e.target.value)}
-            >
-              <option value="createdAt">Newest First</option>
-              <option value="price">Price: Low to High</option>
-              <option value="price_DESC">Price: High to Low</option>
-              <option value="name">Name</option>
-            </select>
-          </div>
-        </div>
+        )}
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className={`grid ${gridClass} gap-6 lg:gap-8`}>
           {products.map((product) => (
             <ProductCard
               key={product.id}

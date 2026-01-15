@@ -1,6 +1,7 @@
 import { SectionType } from '@shared/enums/section.enums';
 import {
   HeroSliderConfig,
+  ProductListSectionConfig,
   FeaturedProductsConfig,
   ProductsByCategoryConfig,
   NewsSectionConfig,
@@ -37,6 +38,7 @@ export interface SectionListItem {
 
 export type SectionComponentConfigMap = {
   [SectionType.HERO_SLIDER]: HeroSliderConfig;
+  [SectionType.PRODUCT_LIST]: ProductListSectionConfig;
   [SectionType.FEATURED_PRODUCTS]: FeaturedProductsConfig;
   [SectionType.PRODUCTS_BY_CATEGORY]: ProductsByCategoryConfig;
   [SectionType.NEWS]: NewsSectionConfig;

@@ -8,6 +8,13 @@ import { Switch } from '../../../common/Switch';
 import { IconSelector } from '../../../menus/IconSelector';
 import { UnifiedIcon } from '../../../common/UnifiedIcon';
 import { ConfigChangeHandler } from '../types';
+import {
+    SectionHeadingConfig,
+    SectionHeadingConfigData,
+    SectionHeadingStyle,
+    SectionHeadingTextTransform,
+    SectionHeadingTitleSize,
+} from '../common/SectionHeadingConfig';
 
 interface WhyChooseUsItemConfig {
     id?: string;
@@ -47,6 +54,18 @@ export const WhyChooseUsEditor: React.FC<WhyChooseUsEditorProps> = ({ value, onC
     const titleClamp = clampNumber(value?.titleClamp, 2, 0, 3);
     const descriptionClamp = clampNumber(value?.descriptionClamp, 3, 0, 3);
     const uppercaseTitles = value?.uppercaseTitles !== false;
+    const headingConfig: SectionHeadingConfigData = {
+        headingStyle: (value?.headingStyle as SectionHeadingStyle) || 'default',
+        headingBackgroundColor: typeof value?.headingBackgroundColor === 'string' ? value.headingBackgroundColor : undefined,
+        headingTextColor: typeof value?.headingTextColor === 'string' ? value.headingTextColor : undefined,
+        headingTextTransform: typeof value?.headingTextTransform === 'string'
+            ? (value.headingTextTransform as SectionHeadingTextTransform)
+            : undefined,
+        headingTitleSize: typeof value?.headingTitleSize === 'string'
+            ? (value.headingTitleSize as SectionHeadingTitleSize)
+            : undefined,
+        headingBarHeight: typeof value?.headingBarHeight === 'number' ? value.headingBarHeight : undefined,
+    };
 
     const updateConfig = (partial: Record<string, unknown>) => {
         onChange({
@@ -63,6 +82,13 @@ export const WhyChooseUsEditor: React.FC<WhyChooseUsEditorProps> = ({ value, onC
             delete draft[key];
         }
         onChange(draft);
+    };
+
+    const handleHeadingConfigChange = (data: SectionHeadingConfigData) => {
+        onChange({
+            ...(value ?? {}),
+            ...data,
+        });
     };
 
     const handleItemChange = (index: number, payload: Partial<WhyChooseUsItemConfig>) => {
@@ -237,6 +263,11 @@ export const WhyChooseUsEditor: React.FC<WhyChooseUsEditorProps> = ({ value, onC
                     />
                 </label>
             </div>
+
+            <SectionHeadingConfig
+                data={headingConfig}
+                onChange={handleHeadingConfigChange}
+            />
 
             <div className="rounded-2xl border border-dashed border-gray-200 p-4 dark:border-gray-800">
                 <div className="flex flex-col gap-1">

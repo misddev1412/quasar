@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { SectionTranslationContent } from './HeroSlider';
 import SectionContainer from './SectionContainer';
+import { SectionHeader, type SectionHeadingStyle, type SectionHeadingTextTransform, type SectionHeadingTitleSize } from './SectionHeader';
 import UnifiedIcon from '../common/UnifiedIcon';
 
 export interface WhyChooseUsItemConfig {
@@ -31,6 +32,12 @@ export interface WhyChooseUsConfig {
   hexagonBorderWidth?: number;
   cardBackground?: string;
   cardBorderColor?: string;
+  headingStyle?: SectionHeadingStyle;
+  headingBackgroundColor?: string;
+  headingTextColor?: string;
+  headingTextTransform?: SectionHeadingTextTransform;
+  headingTitleSize?: SectionHeadingTitleSize;
+  headingBarHeight?: number;
   items?: WhyChooseUsItemConfig[];
 }
 
@@ -243,15 +250,25 @@ export const WhyChooseUsSection: React.FC<WhyChooseUsSectionProps> = ({ config, 
   const sectionTitle = translation?.title === null ? '' : (translation?.title || t('sections.whyChooseUs.title'));
   const sectionSubtitle = translation?.subtitle === null ? '' : (translation?.subtitle || t('sections.whyChooseUs.subtitle'));
   const sectionDescription = translation?.description === null ? '' : (translation?.description || t('sections.whyChooseUs.description'));
+  const hasHeaderContent = sectionTitle || sectionSubtitle || sectionDescription;
 
   return (
     <section className="py-20">
       <SectionContainer>
-        <div className="mx-auto mb-12 max-w-3xl text-center">
-          {sectionSubtitle && <p className="text-xs font-semibold uppercase tracking-[0.4em] text-sky-500">{sectionSubtitle}</p>}
-          {sectionTitle && <h2 className="mt-4 text-3xl font-semibold text-slate-900 dark:text-white">{sectionTitle}</h2>}
-          {sectionDescription && <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">{sectionDescription}</p>}
-        </div>
+        {hasHeaderContent && (
+          <SectionHeader
+            title={sectionTitle}
+            subtitle={sectionSubtitle}
+            description={sectionDescription}
+            headingStyle={config.headingStyle}
+            headingBackgroundColor={config.headingBackgroundColor}
+            headingTextColor={config.headingTextColor}
+            headingTextTransform={config.headingTextTransform}
+            headingTitleSize={config.headingTitleSize}
+            headingBarHeight={config.headingBarHeight}
+            className="mb-12"
+          />
+        )}
 
         <div className={`
           flex flex-nowrap overflow-x-auto snap-mandatory snap-x -mx-4 px-4 pb-8 gap-4

@@ -1,4 +1,5 @@
 export { HeroSlider } from './HeroSlider';
+export { ProductListSection } from './ProductListSection';
 export { FeaturedProducts } from './FeaturedProducts';
 export { ProductsByCategory } from './ProductsByCategory';
 export { NewsSection } from './NewsSection';
@@ -16,6 +17,7 @@ export { BrandShowcaseSection } from './BrandShowcaseSection';
 export { WhyChooseUsSection } from './WhyChooseUsSection';
 export { renderSections, sectionComponentMap } from './renderSections';
 export type { HeroSliderConfig, SectionTranslationContent } from './HeroSlider';
+export type { ProductListSectionConfig } from './ProductListSection';
 export type { FeaturedProductsConfig } from './FeaturedProducts';
 export type { ProductsByCategoryConfig, ProductsByCategoryRowConfig, ProductsByCategoryStrategy } from './ProductsByCategory';
 export type { NewsSectionConfig, NewsSectionRowConfig, NewsSectionStrategy } from './NewsSection';

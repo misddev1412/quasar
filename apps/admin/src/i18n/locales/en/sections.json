@@ -40,6 +40,7 @@
                 "autoplay": "Autoplay",
                 "layout": "Layout",
                 "limit": "Limit",
+                "pageSize": "Page size",
                 "category": "Category",
                 "totalItems": "Items",
                 "totalMembers": "Members",
@@ -47,7 +48,8 @@
                 "videoUrl": "Video",
                 "columns": "Columns",
                 "banners": "Banners",
-                "breakpoint": "Breakpoint"
+                "breakpoint": "Breakpoint",
+                "sidebar": "Sidebar"
             },
             "edit": "Edit",
             "delete": "Delete",
@@ -161,6 +163,15 @@
             },
             "config": {
                 "header": "Section configuration",
+                "productList": {
+                    "pageSize": "Products per page",
+                    "gridColumns": "Grid columns",
+                    "gridColumnsOption": "{{count}} columns",
+                    "showSidebar": "Show sidebar filter",
+                    "stickySidebar": "Sticky sidebar",
+                    "showSort": "Show sort",
+                    "showHeader": "Show header"
+                },
                 "customHtml": {
                     "title": "Custom HTML",
                     "editAsJson": "Edit as JSON",
@@ -686,7 +697,8 @@
             "contact_form": "Contact Form",
             "video": "Video",
             "stats": "Statistics",
-            "brand_showcase": "Brand showcase"
+            "brand_showcase": "Brand showcase",
+            "product_list": "Product list"
         },
         "pages": {
             "home": "Home",

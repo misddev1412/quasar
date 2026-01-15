@@ -1071,6 +1071,38 @@ export class SectionsSeeder implements SeederModule {
       },
       {
         section: {
+          page: 'product',
+          type: SectionType.PRODUCT_LIST,
+          position: 2,
+          isEnabled: true,
+          config: {
+            showSidebar: true,
+            stickySidebar: true,
+            pageSize: 12,
+            gridColumns: 3,
+            showSort: true,
+            showHeader: true,
+          },
+        },
+        translations: [
+          {
+            locale: 'en',
+            title: 'All products',
+            subtitle: 'Browse the full catalog with filters and sorting',
+            description: 'Use filters to narrow down by brand, category, and price.',
+            heroDescription: null,
+          },
+          {
+            locale: 'vi',
+            title: 'Tất cả sản phẩm',
+            subtitle: 'Duyệt danh mục với bộ lọc và sắp xếp',
+            description: 'Áp dụng bộ lọc theo thương hiệu, danh mục và giá để tìm nhanh hơn.',
+            heroDescription: null,
+          },
+        ],
+      },
+      {
+        section: {
           page: 'product_detail',
           type: SectionType.FEATURED_PRODUCTS,
           position: 0,

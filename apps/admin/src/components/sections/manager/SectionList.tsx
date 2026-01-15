@@ -45,6 +45,7 @@ const getBadgeColor = (detailKey: string): string => {
 const getSectionTypeBadgeColor = (sectionType: SectionType): string => {
     const colorMap: Record<SectionType, string> = {
         [SectionType.HERO_SLIDER]: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
+        [SectionType.PRODUCT_LIST]: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
         [SectionType.FEATURED_PRODUCTS]: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
         [SectionType.PRODUCTS_BY_CATEGORY]: 'bg-lime-100 text-lime-700 dark:bg-lime-900/30 dark:text-lime-300',
         [SectionType.NEWS]: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
@@ -163,6 +164,45 @@ const getSectionDetails = (
                             {t('sections.manager.details.limit')}
                         </span>
                         <span>{config.limit}</span>
+                    </span>
+                );
+            }
+
+            return details;
+        }
+
+        case SectionType.PRODUCT_LIST: {
+            const details: React.ReactNode[] = [];
+
+            if (typeof config.pageSize === 'number') {
+                details.push(
+                    <span key="pageSize" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('limit')}`}>
+                            {t('sections.manager.details.pageSize')}
+                        </span>
+                        <span>{config.pageSize}</span>
+                    </span>
+                );
+            }
+
+            if (typeof config.gridColumns === 'number') {
+                details.push(
+                    <span key="columns" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('columns')}`}>
+                            {t('sections.manager.details.columns')}
+                        </span>
+                        <span>{config.gridColumns}</span>
+                    </span>
+                );
+            }
+
+            if (config.showSidebar !== undefined) {
+                details.push(
+                    <span key="sidebar" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('layout')}`}>
+                            {t('sections.manager.details.sidebar')}
+                        </span>
+                        <span>{config.showSidebar ? t('common.yes') : t('common.no')}</span>
                     </span>
                 );
             }

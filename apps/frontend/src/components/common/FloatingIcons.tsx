@@ -17,6 +17,7 @@ const DEFAULT_ICON_BY_TYPE: Record<string, string> = {
   zalo: 'zalo',
   messenger: 'chat',
   custom: 'star',
+  group_phone: 'phone',
 };
 
 const emptyMetadata = (): NonNullable<FloatingWidgetActionConfig['metadata']> => ({
@@ -26,6 +27,7 @@ const emptyMetadata = (): NonNullable<FloatingWidgetActionConfig['metadata']> =>
   zaloPhone: undefined,
   customUrl: undefined,
   note: undefined,
+  groupPhoneList: [],
 });
 
 const DEFAULT_EFFECT: FloatingWidgetActionEffect = 'none';
@@ -198,18 +200,56 @@ const FloatingIcons: React.FC = () => {
 
         const slideOutContent = getSlideOutText();
 
+        const isGroupPhone = item.type === 'group_phone';
+        const groupPhoneList = item.metadata?.groupPhoneList || [];
+
         return (
-          <div key={getItemKey(item)} className="group pointer-events-auto relative flex items-center justify-end">
-            {slideOutContent && (
+          <div
+            key={getItemKey(item)}
+            className="group pointer-events-auto relative flex items-center justify-end"
+          >
+            {isGroupPhone && groupPhoneList.length > 0 ? (
               <div
-                className={`absolute right-full mr-3 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium shadow-lg transition-all duration-300 opacity-0 translate-x-4 invisible group-hover:visible group-hover:opacity-100 group-hover:translate-x-0`}
-                style={{
-                  backgroundColor: item.backgroundColor || '#0ea5e9',
-                  color: item.textColor || '#ffffff',
-                }}
+                className={`absolute right-full bottom-0 mr-3 whitespace-nowrap rounded-2xl bg-white shadow-xl ring-1 ring-gray-100 transition-all duration-300 opacity-0 translate-x-4 invisible group-hover:visible group-hover:opacity-100 group-hover:translate-x-0 overflow-hidden`}
               >
-                {slideOutContent}
+                <div className="flex flex-col min-w-[200px]">
+                  {groupPhoneList.map((phoneItem, idx) => {
+                    // Use item color or fallback to black/dark gray for readability on white
+                    const itemColor = phoneItem.textColor || '#1f2937';
+                    return (
+                      <a
+                        key={idx}
+                        href={`tel:${phoneItem.phoneNumber.replace(/\D/g, '')}`}
+                        className="flex items-center gap-3 p-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
+                        style={{ color: itemColor }}
+                      >
+                        <div
+                          className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100/80"
+                          style={{ color: itemColor }}
+                        >
+                          <UnifiedIcon icon={phoneItem.icon || 'phone'} size={16} style={{ color: itemColor }} />
+                        </div>
+                        <div className="flex flex-col leading-tight">
+                          <span className="text-xs font-medium opacity-70">{phoneItem.label}</span>
+                          <span className="font-bold">{phoneItem.phoneNumber}</span>
+                        </div>
+                      </a>
+                    );
+                  })}
+                </div>
               </div>
+            ) : (
+              slideOutContent && (
+                <div
+                  className={`absolute right-full mr-3 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium shadow-lg transition-all duration-300 opacity-0 translate-x-4 invisible group-hover:visible group-hover:opacity-100 group-hover:translate-x-0`}
+                  style={{
+                    backgroundColor: item.backgroundColor || '#0ea5e9',
+                    color: item.textColor || '#ffffff',
+                  }}
+                >
+                  {slideOutContent}
+                </div>
+              )
             )}
             <button
               type="button"

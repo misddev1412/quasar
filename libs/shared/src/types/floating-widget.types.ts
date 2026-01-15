@@ -7,6 +7,7 @@ export const floatingWidgetActionTypeValues = [
   'zalo',
   'messenger',
   'custom',
+  'group_phone',
 ] as const;
 
 export type FloatingWidgetActionType = typeof floatingWidgetActionTypeValues[number];
@@ -28,6 +29,16 @@ export const floatingWidgetActionMetadataSchema = z
     zaloPhone: z.string().optional(),
     customUrl: z.string().optional(),
     note: z.string().optional(),
+    groupPhoneList: z
+      .array(
+        z.object({
+          label: z.string().min(1),
+          phoneNumber: z.string().min(1),
+          icon: z.string().optional(),
+          textColor: z.string().optional(),
+        })
+      )
+      .optional(),
   })
   .partial();
 

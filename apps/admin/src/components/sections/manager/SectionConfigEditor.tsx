@@ -7,6 +7,7 @@ import { SectionConfigEditorProps } from './types';
 
 // Editors
 import { HeroSliderConfigEditor } from './editors/HeroSliderConfigEditor';
+import { ProductListEditor } from './editors/ProductListEditor';
 import { FeaturedProductsConfigEditor } from './editors/FeaturedProductsEditor';
 import { ProductsByCategoryConfigEditor } from './editors/ProductsByCategoryEditor';
 import { NewsByCategoryEditor } from './editors/NewsByCategoryEditor';
@@ -65,6 +66,7 @@ export const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, 
             </div>
 
             {type === SectionType.HERO_SLIDER && <HeroSliderConfigEditor value={value} onChange={onChange} />}
+            {type === SectionType.PRODUCT_LIST && <ProductListEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.FEATURED_PRODUCTS && <FeaturedProductsConfigEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.PRODUCTS_BY_CATEGORY && <ProductsByCategoryConfigEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.NEWS && <NewsByCategoryEditor value={value || {}} onChange={onChange} />}
@@ -84,6 +86,7 @@ export const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, 
 
             {![
                 SectionType.HERO_SLIDER,
+                SectionType.PRODUCT_LIST,
                 SectionType.FEATURED_PRODUCTS,
                 SectionType.PRODUCTS_BY_CATEGORY,
                 SectionType.NEWS,
