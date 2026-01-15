@@ -263,6 +263,7 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
                   key={product.id}
                   product={product}
                   onAddToCart={handleAddToCart}
+                  priceLoadingMode="skeleton"
                   className="transition-transform duration-200 hover:-translate-y-1"
                 />
               ))}

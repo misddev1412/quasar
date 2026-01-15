@@ -51,6 +51,7 @@ interface ProductCardProps {
   showQuickView?: boolean;
   className?: string;
   imageHeight?: string;
+  priceLoadingMode?: 'text' | 'skeleton';
   onAddToCart?: (product: Product, quantity?: number, variant?: ProductVariant | null) => void | boolean | Promise<void | boolean>;
   onWishlistToggle?: (productId: string) => void;
   onQuickView?: (product: Product) => void;
@@ -91,6 +92,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   showQuickView,
   className = '',
   imageHeight,
+  priceLoadingMode = 'text',
   onAddToCart,
   onWishlistToggle,
   onQuickView,
@@ -165,6 +167,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
     : undefined;
   const displayOriginalPrice = variantOriginalPrice ?? product.compareAtPrice ?? undefined;
   const isPriceUpdating = currentPrice === 0;
+  const isPricePending = currentPrice === 0 || currentPrice === undefined || currentPrice === null || Number.isNaN(currentPrice);
+  const showPriceSkeleton = !isContactPrice && priceLoadingMode === 'skeleton' && isPricePending;
 
   // Prefer backend slug, fallback to generated value
   const productSlug = product.slug || name?.toLowerCase().replace(/\s+/g, '-') || id;
@@ -510,6 +514,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 <span className="text-lg font-bold storefront-product-card-text">
                   {t('ecommerce.product.contactPrice')}
                 </span>
+              </div>
+            ) : showPriceSkeleton ? (
+              <div className="mt-1">
+                <div className="h-5 w-28 rounded-full bg-gray-200/80 dark:bg-gray-700/60 animate-pulse" />
               </div>
             ) : (
               currentPrice !== undefined && currentPrice !== null && (
