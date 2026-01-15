@@ -124,15 +124,12 @@
     "post": "Post",
     "posts": "Posts",
     "noDescription": "No description",
-    "loading": "Loading...",
-    "error": "Error",
     "success": "Success",
     "cancel": "Cancel",
     "save": "Save",
     "delete": "Delete",
     "edit": "Edit",
     "add": "Add",
-    "search": "Search",
     "clear": "Clear",
     "back": "Back",
     "next": "Next",
@@ -307,10 +304,6 @@
           "reset": "Reset"
         }
       },
-      "menu": {
-        "close": "Close menu",
-        "open": "Open menu"
-      },
       "actions": {
         "notifications": "Notifications",
         "wishlist": "Wishlist",
@@ -399,24 +392,6 @@
       "need_help": "Need help with your order?",
       "contact_support": "Contact Support"
     },
-    "profile": {
-      "orders": {
-        "title": "My Orders",
-        "subtitle": "View your order history and track your packages",
-        "recent_orders": "Recent Orders",
-        "search_orders": "Search orders...",
-        "all_statuses": "All Statuses",
-        "status_pending": "Pending",
-        "status_confirmed": "Confirmed",
-        "status_processing": "Processing",
-        "status_shipped": "Shipped",
-        "status_delivered": "Delivered",
-        "status_cancelled": "Cancelled",
-        "no_orders": "No Orders Found",
-        "no_orders_desc": "You haven't placed any orders yet.",
-        "order_cancelled": "Order cancelled successfully"
-      }
-    },
     "home": {
       "title": "Home",
       "description": "Welcome to our website - Your trusted partner in ecommerce",
@@ -462,10 +437,6 @@
           }
         }
       }
-    },
-    "dashboard": {
-      "title": "Dashboard Page",
-      "description": "This is the Dashboard page for locale routing"
     },
     "test_simple": {
       "title": "Simple Test Page",
@@ -884,7 +855,6 @@
         "profile_picture": "Profile Picture",
         "profile_picture_desc": "Upload a new profile picture. Recommended size: 200x200 pixels.",
         "full_name": "Full Name",
-        "phone": "Phone Number",
         "avatar_url": "Avatar URL",
         "bio": "Bio",
         "bio_placeholder": "Tell us a little about yourself...",
@@ -974,32 +944,6 @@
         "type_billing": "Billing",
         "type_shipping": "Shipping",
         "type_both": "Both"
-      },
-      "security": {
-        "title": "Security",
-        "subtitle": "Manage your password and security settings",
-        "currentPassword": "Current Password",
-        "newPassword": "New Password",
-        "passwordHint": "Password must be at least 8 characters long",
-        "confirmPassword": "Confirm New Password",
-        "change": "Change Password"
-      },
-      "notifications": {
-        "title": "Notification Preferences",
-        "subtitle": "Choose how you want to receive notifications",
-        "email": {
-          "title": "Email Notifications",
-          "description": "Receive notifications via email"
-        },
-        "push": {
-          "title": "Push Notifications",
-          "description": "Receive push notifications in your browser"
-        },
-        "sms": {
-          "title": "SMS Notifications",
-          "description": "Receive notifications via SMS"
-        },
-        "save": "Save Preferences"
       },
       "sidebar": {
         "title": "Profile Menu",
@@ -1663,7 +1607,88 @@
         "subtitle": "Feedback from real customers",
         "countLabel": "{count, plural, one {{count} review} other {{count} reviews}}",
         "shareTitle": "Share your experience",
-        "shareSubtitle": "Tell others what you liked or what could be better."
+        "shareSubtitle": "Tell others what you liked or what could be better.",
+        "emptyTitle": "No reviews yet",
+        "emptyDescription": "Be the first to review this product!",
+        "verifiedPurchase": "Verified Purchase",
+        "actions": {
+          "helpful": "Helpful ({count})",
+          "report": "Report"
+        },
+        "sort": {
+          "newest": "Newest",
+          "highest": "Highest Rated",
+          "lowest": "Lowest Rated",
+          "mostHelpful": "Most Helpful",
+          "oldest": "Oldest"
+        }
+      },
+      "brand": "Brand",
+      "sku": "SKU",
+      "inStock": "In Stock",
+      "outOfStock": "Out of Stock",
+      "quantity": "Quantity",
+      "startingFrom": "Starting from {price}",
+      "video": {
+        "defaultTitle": "Product Video",
+        "loadError": "Failed to load video",
+        "playError": "Failed to play video",
+        "unavailableTitle": "Video Unavailable",
+        "cta": "Watch Video"
+      },
+      "comments": {
+        "time": {
+          "justNow": "Just now",
+          "hoursAgo": "{count}h ago",
+          "daysAgo": "{count}d ago"
+        },
+        "verified": "Verified",
+        "like": "Like",
+        "reply": "Reply",
+        "report": "Report",
+        "replyPlaceholder": "Reply to {name}...",
+        "postReply": "Post Reply",
+        "cancel": "Cancel",
+        "emptyTitle": "No comments yet",
+        "emptyDescription": "Be the first to share your thoughts!",
+        "formTitle": "Leave a Comment",
+        "placeholder": "Share your thoughts about this product...",
+        "postComment": "Post Comment",
+        "title": "Comments ({count})",
+        "sort": {
+          "newest": "Newest",
+          "popular": "Popular"
+        },
+        "pagination": {
+          "previous": "Previous",
+          "next": "Next"
+        }
+      },
+      "crossSell": {
+        "relatedTitle": "Related Products",
+        "sectionTitle": "You May Also Like",
+        "sectionSubtitle": "Discover more products that complement your interests",
+        "tabs": {
+          "related": "Related",
+          "boughtTogether": "Frequently Bought Together",
+          "recommended": "Recommended",
+          "trending": "Trending"
+        },
+        "descriptions": {
+          "related": "Similar products you might like",
+          "boughtTogether": "Customers also bought these items",
+          "recommended": "Recommended based on your preferences",
+          "trending": "Popular items right now"
+        },
+        "empty": {
+          "title": "No products found",
+          "description": "Check back later for new recommendations."
+        },
+        "completeSet": {
+          "title": "Complete the Set",
+          "subtitle": "Save when you buy these items together",
+          "addAll": "Add All to Cart"
+        }
       },
       "questions": {
         "title": "Customer Questions",
@@ -1697,6 +1722,7 @@
       },
       "description": {
         "title": "Description",
+        "toc": "TABLE OF CONTENTS",
         "fallback": "Detailed description will be available soon.",
         "readMore": "Read more",
         "readLess": "Show less",
@@ -1850,7 +1876,6 @@
     "of": "of",
     "showing": "Showing",
     "to": "to",
-    "of": "of",
     "entries": "entries",
     "per_page": "Per page",
     "go_to_page": "Go to page"

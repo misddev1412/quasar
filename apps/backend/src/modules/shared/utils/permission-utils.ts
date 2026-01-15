@@ -10,8 +10,13 @@ type PermissionRecord = {
 export function resolvePermissionScope(
   permissions: PermissionRecord[] | undefined,
   resource: string,
-  action: PermissionAction
+  action: PermissionAction,
+  isSuperAdmin?: boolean
 ): PermissionScope | null {
+  if (isSuperAdmin) {
+    return PermissionScope.ANY;
+  }
+
   if (!permissions || permissions.length === 0) {
     return null;
   }

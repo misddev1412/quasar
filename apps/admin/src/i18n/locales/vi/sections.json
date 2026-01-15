@@ -315,6 +315,23 @@
                         "moveDown": "Di chuyển xuống"
                     }
                 },
+                "product_details": {
+                    "showSidebar": "Hiển thị Sidebar (Thông số kỹ thuật)",
+                    "showDescription": "Hiển thị Tab Mô tả",
+                    "showReviews": "Hiển thị Tab Đánh giá",
+                    "showQuestions": "Hiển thị Tab Hỏi đáp",
+                    "showTableOfContents": "Hiển thị Mục lục",
+                    "policies": {
+                        "title": "Chính sách dịch vụ (Boxes)",
+                        "description": "Cấu hình các box chính sách hiển thị dưới mô tả",
+                        "add": "Thêm Policy Box",
+                        "cardTitle": "Policy Box",
+                        "label": "Box #{{index}}",
+                        "titleLabel": "Tiêu đề",
+                        "descriptionLabel": "Mô tả",
+                        "iconLabel": "Biểu tượng"
+                    }
+                },
                 "gallery": {
                     "gap": "Khoảng cách giữa các ảnh (gap)",
                     "gapDescription": "Giá trị CSS cho khoảng cách (ví dụ: 1rem, 20px)",
@@ -704,7 +721,8 @@
             "home": "Trang chủ",
             "news": "Tin tức",
             "product": "Sản phẩm",
-            "product_detail": "Chi tiết sản phẩm"
+            "product_detail": "Chi tiết sản phẩm",
+            "product_detail_description": "Cấu hình nội dung và thứ tự hiển thị cho trang chi tiết sản phẩm."
         }
     }
 }

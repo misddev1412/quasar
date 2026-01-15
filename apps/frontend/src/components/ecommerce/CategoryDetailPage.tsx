@@ -137,9 +137,10 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
   const isRefreshing = isLoading && currentPage === 1;
   const isPaginating = isLoading && currentPage > 1;
   const noProducts = products.length === 0;
-  const showInitialLoader = isRefreshing && noProducts;
-  const showEmptyState = !isLoading && noProducts && !error;
-  const showPagination = !showInitialLoader && !error && !showEmptyState;
+  const showProductSkeleton = !error && isRefreshing && noProducts;
+  const showEmptyState = !showProductSkeleton && noProducts && !error;
+  const showPagination = !showProductSkeleton && !error && !showEmptyState;
+  const skeletonCount = 12;
 
   return (
     <div className={layout.wrapper}>
@@ -229,15 +230,21 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({
               {t('pages.category_detail.try_again')}
             </Button>
           </div>
-        ) : showInitialLoader ? (
-          <div className={layout.statusBlock}>
-            <span className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-400 border-t-transparent" aria-hidden="true" />
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {t('pages.category_detail.loading_title')}
-              </h3>
-              <p className={layout.mutedText}>{t('pages.category_detail.loading_description')}</p>
-            </div>
+        ) : showProductSkeleton ? (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: skeletonCount }).map((_, index) => (
+              <div
+                key={`category-products-skeleton-${index}`}
+                className="animate-pulse rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/30"
+              >
+                <div className="h-44 rounded-t-xl bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800" />
+                <div className="p-4 space-y-3">
+                  <div className="h-3 w-24 rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-4 w-full rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-3 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : showEmptyState ? (
           <div className={layout.statusBlock}>

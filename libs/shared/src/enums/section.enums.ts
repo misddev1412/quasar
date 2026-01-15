@@ -24,6 +24,7 @@ export enum SectionType {
   STATS = 'stats',
   BRAND_SHOWCASE = 'brand_showcase',
   WHY_CHOOSE_US = 'why_choose_us',
+  PRODUCT_DETAILS = 'product_details',
 }
 
 export const SECTION_TYPE_LABELS: Record<SectionType, string> = {
@@ -45,4 +46,5 @@ export const SECTION_TYPE_LABELS: Record<SectionType, string> = {
   [SectionType.STATS]: 'Statistics',
   [SectionType.BRAND_SHOWCASE]: 'Brand showcase',
   [SectionType.WHY_CHOOSE_US]: 'Why choose us',
+  [SectionType.PRODUCT_DETAILS]: 'Product Details (Desc, Specs, Policies)',
 };

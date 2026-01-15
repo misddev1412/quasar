@@ -1,6 +1,9 @@
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Button, Card } from '@heroui/react';
-import { FiCamera } from 'react-icons/fi';
+import { useTranslations } from 'next-intl';
+import { FiCamera, FiPlay, FiPause, FiVolume2, FiMaximize } from 'react-icons/fi';
 
 interface ProductVideoProps {
   videoUrl: string;
@@ -16,13 +19,15 @@ interface ProductVideoProps {
 const ProductVideo: React.FC<ProductVideoProps> = ({
   videoUrl,
   thumbnailUrl,
-  title = 'Product Video',
+  title,
   autoplay = false,
   controls = true,
   loop = false,
   muted = false,
   className = '',
 }) => {
+  const t = useTranslations('product.detail.video');
+  const displayTitle = title || t('defaultTitle');
   const [isPlaying, setIsPlaying] = useState(autoplay);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +40,7 @@ const ProductVideo: React.FC<ProductVideoProps> = ({
 
     const handleCanPlay = () => setIsLoading(false);
     const handleError = (e: any) => {
-      setError('Failed to load video');
+      setError(t('loadError'));
       setIsLoading(false);
     };
     const handlePlay = () => setIsPlaying(true);
@@ -59,7 +64,7 @@ const ProductVideo: React.FC<ProductVideoProps> = ({
       video.removeEventListener('play', handlePlay);
       video.removeEventListener('pause', handlePause);
     };
-  }, [autoplay]);
+  }, [autoplay, t]);
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -69,7 +74,7 @@ const ProductVideo: React.FC<ProductVideoProps> = ({
       video.pause();
     } else {
       video.play().catch(() => {
-        setError('Failed to play video');
+        setError(t('playError'));
       });
     }
   };
@@ -95,7 +100,7 @@ const ProductVideo: React.FC<ProductVideoProps> = ({
     return (
       <Card className={`p-8 text-center ${className}`}>
         <FiCamera className="w-16 h-16 mb-4" />
-        <h3 className="text-lg font-semibold mb-2">Video Unavailable</h3>
+        <h3 className="text-lg font-semibold mb-2">{t('unavailableTitle')}</h3>
         <p className="text-gray-600">{error}</p>
       </Card>
     );
@@ -131,18 +136,18 @@ const ProductVideo: React.FC<ProductVideoProps> = ({
           >
             <div className="w-16 h-16 bg-white bg-opacity-80 rounded-full flex items-center justify-center transform transition-transform duration-200 group-hover:scale-110">
               {isPlaying ? (
-                <span className="text-2xl text-gray-800">⏸️</span>
+                <FiPause className="text-4xl text-gray-800" />
               ) : (
-                <span className="text-2xl text-gray-800">▶️</span>
+                <FiPlay className="text-4xl text-gray-800 ml-1" />
               )}
             </div>
           </button>
         )}
 
         {/* Video Title */}
-        {title && (
+        {displayTitle && (
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/50 to-transparent p-4">
-            <h3 className="text-white font-medium">{title}</h3>
+            <h3 className="text-white font-medium">{displayTitle}</h3>
           </div>
         )}
       </div>
@@ -158,11 +163,11 @@ const ProductVideo: React.FC<ProductVideoProps> = ({
               className="text-white"
               onPress={togglePlay}
             >
-              {isPlaying ? '⏸️' : '▶️'}
+              {isPlaying ? <FiPause /> : <FiPlay />}
             </Button>
 
             <div className="flex-1 flex items-center gap-2">
-              <span className="text-white text-sm">🔊</span>
+              <FiVolume2 className="text-white text-lg" />
               <input
                 type="range"
                 min="0"
@@ -181,7 +186,7 @@ const ProductVideo: React.FC<ProductVideoProps> = ({
               className="text-white"
               onPress={toggleFullscreen}
             >
-              {isFullscreen ? '⛶' : '⛶'}
+              {isFullscreen ? <FiMaximize /> : <FiMaximize />}
             </Button>
           </div>
         </div>
@@ -196,7 +201,7 @@ const ProductVideo: React.FC<ProductVideoProps> = ({
           className="absolute top-2 right-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white"
           onPress={toggleFullscreen}
         >
-          ⛶
+          <FiMaximize className="text-xl" />
         </Button>
       )}
     </div>

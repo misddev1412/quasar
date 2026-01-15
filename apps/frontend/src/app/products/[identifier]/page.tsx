@@ -36,13 +36,13 @@ async function ProductPageContent({ params, searchParams }: ProductPageProps) {
   ]);
 
   const orderedSections = [...sections].sort((a, b) => a.position - b.position);
-  const renderedSections = await renderSections(orderedSections);
+  // Filter out product_detail specific sections from generic rendering if they need special handling client-side
+  // or just pass all sections to client and let client render?
+  // Current decision: Pass ALL sections to Client, and remove server-side renderSections for this page
+  // to ensure correct order interleaving.
 
   return (
     <Layout>
-      {renderedSections.length > 0 && (
-        <div className="mb-12 space-y-12">{renderedSections}</div>
-      )}
       <ProductDetailClient
         product={product}
         relatedProducts={detailProps.relatedProducts}
@@ -51,6 +51,7 @@ async function ProductPageContent({ params, searchParams }: ProductPageProps) {
         trendingProducts={detailProps.trendingProducts}
         reviews={detailProps.reviews}
         comments={detailProps.comments}
+        sections={orderedSections} // Pass sections to client
       />
     </Layout>
   );

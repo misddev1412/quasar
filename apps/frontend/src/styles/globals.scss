@@ -74,10 +74,7 @@
   --color-primary-950: var(--color-primary);
 }
 
-:root[data-storefront-theme='custom'] .bg-white {
-  background-color: var(--storefront-surface) !important;
-  color: var(--storefront-text);
-}
+
 
 :root[data-storefront-theme='custom'] .text-gray-900,
 :root[data-storefront-theme='custom'] .text-gray-800,

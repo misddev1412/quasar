@@ -62,6 +62,7 @@ const getSectionTypeBadgeColor = (sectionType: SectionType): string => {
         [SectionType.STATS]: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
         [SectionType.BRAND_SHOWCASE]: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
         [SectionType.WHY_CHOOSE_US]: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
+        [SectionType.PRODUCT_DETAILS]: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
     };
 
     return colorMap[sectionType] || 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';

@@ -315,6 +315,23 @@
                         "moveDown": "Move down"
                     }
                 },
+                "product_details": {
+                    "showSidebar": "Show Sidebar (Specifications)",
+                    "showDescription": "Show Description Tab",
+                    "showReviews": "Show Reviews Tab",
+                    "showQuestions": "Show Questions Tab",
+                    "showTableOfContents": "Show Table of Contents",
+                    "policies": {
+                        "title": "Service Policies (Boxes)",
+                        "description": "Configure the policy boxes displayed below description",
+                        "add": "Add Policy Box",
+                        "cardTitle": "Policy Box",
+                        "label": "Box #{{index}}",
+                        "titleLabel": "Title",
+                        "descriptionLabel": "Description",
+                        "iconLabel": "Icon"
+                    }
+                },
                 "gallery": {
                     "gap": "Gap between images",
                     "gapDescription": "CSS value for spacing (e.g., 1rem, 20px)",
@@ -704,7 +721,8 @@
             "home": "Home",
             "news": "News",
             "product": "Product",
-            "product_detail": "Product Detail"
+            "product_detail": "Product Detail",
+            "product_detail_description": "Configure content and display order for product detail page sections."
         }
     }
 }

@@ -27,7 +27,7 @@ export class ClientProductsRouter {
     private readonly responseHandler: ResponseService,
     @Inject(AdminCurrencyService)
     private readonly currencyService: AdminCurrencyService,
-  ) {}
+  ) { }
 
   private isUuid(value: string): boolean {
     return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(value);
@@ -464,17 +464,17 @@ export class ClientProductsRouter {
         filters,
         relations: [
           'brand',
-          'supplier',
-          'warranty',
+          // 'supplier', // Not needed for list view
+          // 'warranty', // Not needed for list view
           'variants',
           'variants.variantItems',
           'variants.variantItems.attribute',
           'variants.variantItems.attributeValue',
           'media',
-          'tags',
+          // 'tags', // Not needed for list view
           'productCategories',
           'productCategories.category',
-          'specifications',
+          // 'specifications', // Not needed for list view
           'translations',
         ],
       });
@@ -650,83 +650,83 @@ export class ClientProductsRouter {
     }));
     const tags = Array.isArray(product.tags)
       ? product.tags.map((tag: any) => ({
-          id: tag.id,
-          name: tag.name,
-          color: tag.color,
-        }))
+        id: tag.id,
+        name: tag.name,
+        color: tag.color,
+      }))
       : [];
 
     const variants = Array.isArray(product.variants)
       ? product.variants.map((variant: any) => {
-          const variantItems = Array.isArray(variant.variantItems)
-            ? variant.variantItems
-                .map((item: any) => {
-                  const attributeId = item.attributeId || item.attribute?.id || null;
-                  const attributeValueId = item.attributeValueId || item.attributeValue?.id || null;
+        const variantItems = Array.isArray(variant.variantItems)
+          ? variant.variantItems
+            .map((item: any) => {
+              const attributeId = item.attributeId || item.attribute?.id || null;
+              const attributeValueId = item.attributeValueId || item.attributeValue?.id || null;
 
-                  return {
-                    id: item.id,
-                    attributeId,
-                    attributeValueId,
-                    sortOrder: item.sortOrder ?? 0,
-                    attribute: item.attribute
-                      ? {
-                          id: item.attribute.id,
-                          name: item.attribute.name,
-                          displayName: item.attribute.displayName,
-                          type: item.attribute.type,
-                        }
-                      : undefined,
-                    attributeValue: item.attributeValue
-                      ? {
-                          id: item.attributeValue.id,
-                          value: item.attributeValue.value,
-                          displayValue: item.attributeValue.displayValue,
-                        }
-                      : undefined,
-                  };
-                })
-                .filter((item: any) => Boolean(item.attributeId && item.attributeValueId))
-            : [];
+              return {
+                id: item.id,
+                attributeId,
+                attributeValueId,
+                sortOrder: item.sortOrder ?? 0,
+                attribute: item.attribute
+                  ? {
+                    id: item.attribute.id,
+                    name: item.attribute.name,
+                    displayName: item.attribute.displayName,
+                    type: item.attribute.type,
+                  }
+                  : undefined,
+                attributeValue: item.attributeValue
+                  ? {
+                    id: item.attributeValue.id,
+                    value: item.attributeValue.value,
+                    displayValue: item.attributeValue.displayValue,
+                  }
+                  : undefined,
+              };
+            })
+            .filter((item: any) => Boolean(item.attributeId && item.attributeValueId))
+          : [];
 
-          const attributeSelections: Record<string, string> = {};
-          variantItems.forEach((item: any) => {
-            if (item.attributeId && item.attributeValueId) {
-              attributeSelections[item.attributeId] = item.attributeValueId;
-            }
-          });
+        const attributeSelections: Record<string, string> = {};
+        variantItems.forEach((item: any) => {
+          if (item.attributeId && item.attributeValueId) {
+            attributeSelections[item.attributeId] = item.attributeValueId;
+          }
+        });
 
-          return {
-            id: variant.id,
-            productId: product.id,
-            sku: variant.sku,
-            name: variant.name,
-            price: Number(variant.price) || 0,
-            compareAtPrice: variant.compareAtPrice ?? variant.comparePrice ?? null,
-            costPrice: variant.costPrice ?? null,
-            stockQuantity: Number(variant.stockQuantity) || 0,
-            weight: variant.weight ?? null,
-            dimensions: variant.dimensions ?? null,
-            isActive: variant.isActive,
-            sortOrder: variant.sortOrder ?? 0,
-            trackInventory: variant.trackInventory ?? false,
-            allowBackorders: variant.allowBackorders ?? false,
-            attributes: attributeSelections,
-            variantItems,
-          };
-        })
+        return {
+          id: variant.id,
+          productId: product.id,
+          sku: variant.sku,
+          name: variant.name,
+          price: Number(variant.price) || 0,
+          compareAtPrice: variant.compareAtPrice ?? variant.comparePrice ?? null,
+          costPrice: variant.costPrice ?? null,
+          stockQuantity: Number(variant.stockQuantity) || 0,
+          weight: variant.weight ?? null,
+          dimensions: variant.dimensions ?? null,
+          isActive: variant.isActive,
+          sortOrder: variant.sortOrder ?? 0,
+          trackInventory: variant.trackInventory ?? false,
+          allowBackorders: variant.allowBackorders ?? false,
+          attributes: attributeSelections,
+          variantItems,
+        };
+      })
       : [];
 
     const media = Array.isArray(product.media)
       ? product.media.map((media: any) => ({
-          id: media.id,
-          url: media.url,
-          type: media.type,
-          altText: media.altText,
-          isPrimary: media.isPrimary,
-          isImage: media.isImage,
-          sortOrder: media.sortOrder,
-        }))
+        id: media.id,
+        url: media.url,
+        type: media.type,
+        altText: media.altText,
+        isPrimary: media.isPrimary,
+        isImage: media.isImage,
+        sortOrder: media.sortOrder,
+      }))
       : [];
 
     const imageUrls = media
@@ -752,23 +752,23 @@ export class ClientProductsRouter {
 
     const categories = Array.isArray(product.productCategories)
       ? product.productCategories.map((pc: any) => ({
-          id: pc.category.id,
-          name: pc.category.name,
-          slug: pc.category.slug,
-          description: pc.category.description,
-          parentId: pc.category.parentId,
-        }))
+        id: pc.category.id,
+        name: pc.category.name,
+        slug: pc.category.slug,
+        description: pc.category.description,
+        parentId: pc.category.parentId,
+      }))
       : [];
 
     const specifications = Array.isArray(product.specifications)
       ? product.specifications
-          .sort((a: any, b: any) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
-          .map((spec: any) => ({
-            id: spec.id,
-            name: spec.name,
-            value: spec.value,
-            sortOrder: spec.sortOrder ?? 0,
-          }))
+        .sort((a: any, b: any) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+        .map((spec: any) => ({
+          id: spec.id,
+          name: spec.name,
+          value: spec.value,
+          sortOrder: spec.sortOrder ?? 0,
+        }))
       : [];
 
     return {
@@ -792,29 +792,29 @@ export class ClientProductsRouter {
       updatedAt: product.updatedAt,
       brand: product.brand
         ? {
-            id: product.brand.id,
-            name: product.brand.name,
-            slug: product.brand.slug,
-            logo: product.brand.logo,
-            description: product.brand.description,
-          }
+          id: product.brand.id,
+          name: product.brand.name,
+          slug: product.brand.slug,
+          logo: product.brand.logo,
+          description: product.brand.description,
+        }
         : undefined,
       supplier: product.supplier
         ? {
-            id: product.supplier.id,
-            name: product.supplier.name,
-            email: product.supplier.email,
-            phone: product.supplier.phone,
-            address: product.supplier.address,
-          }
+          id: product.supplier.id,
+          name: product.supplier.name,
+          email: product.supplier.email,
+          phone: product.supplier.phone,
+          address: product.supplier.address,
+        }
         : undefined,
       warranty: product.warranty
         ? {
-            id: product.warranty.id,
-            name: product.warranty.name,
-            duration: product.warranty.duration,
-            description: product.warranty.description,
-          }
+          id: product.warranty.id,
+          name: product.warranty.name,
+          duration: product.warranty.duration,
+          description: product.warranty.description,
+        }
         : undefined,
       tags,
       variants,

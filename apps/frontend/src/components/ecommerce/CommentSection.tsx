@@ -1,5 +1,9 @@
+'use client';
+
 import React, { useState } from 'react';
-import { Button, Card, Input, Textarea, Avatar, Chip, Divider } from '@heroui/react';
+import { Button, Card, Textarea, Avatar, Chip } from '@heroui/react';
+import { useTranslations } from 'next-intl';
+import { FiThumbsUp, FiMessageSquare, FiAlertTriangle } from 'react-icons/fi';
 
 export interface Comment {
   id: string;
@@ -31,7 +35,6 @@ interface CommentSectionProps {
 }
 
 const CommentSection: React.FC<CommentSectionProps> = ({
-  productId,
   comments = [],
   loading = false,
   onCommentSubmit,
@@ -42,6 +45,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
   commentsPerPage = 10,
   sortType = 'newest',
 }) => {
+  const t = useTranslations('product.detail.comments');
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState('');
@@ -97,11 +101,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
 
     if (diffInHours < 1) {
-      return 'Just now';
+      return t('time.justNow');
     } else if (diffInHours < 24) {
-      return `${diffInHours}h ago`;
+      return t('time.hoursAgo', { count: diffInHours });
     } else if (diffInHours < 168) {
-      return `${Math.floor(diffInHours / 24)}d ago`;
+      return t('time.daysAgo', { count: Math.floor(diffInHours / 24) });
     } else {
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
@@ -126,7 +130,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
             <span className="font-medium text-sm">{comment.userName}</span>
             {comment.isVerified && (
               <Chip size="sm" color="primary" variant="flat">
-                ✓ Verified
+                ✓ {t('verified')}
               </Chip>
             )}
             <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
@@ -140,8 +144,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({
               variant="light"
               className={`text-xs ${comment.isLiked ? 'text-blue-600' : 'text-gray-500'}`}
               onPress={() => handleLikeComment(comment.id)}
+              startContent={<FiThumbsUp className={comment.isLiked ? "fill-current" : ""} />}
             >
-              👍 {comment.likes > 0 ? comment.likes : ''}
+              {comment.likes > 0 ? comment.likes : t('like')}
             </Button>
 
             {!isReply && (
@@ -150,8 +155,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                 variant="light"
                 className="text-xs text-gray-500"
                 onPress={() => setReplyingTo(comment.id)}
+                startContent={<FiMessageSquare />}
               >
-                💬 Reply
+                {t('reply')}
               </Button>
             )}
 
@@ -160,8 +166,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({
               variant="light"
               className="text-xs text-gray-500"
               onPress={() => onCommentReport?.(comment.id)}
+              startContent={<FiAlertTriangle />}
             >
-              ⚠️ Report
+              {t('report')}
             </Button>
           </div>
 
@@ -171,7 +178,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
               <Textarea
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
-                placeholder={`Reply to ${comment.userName}...`}
+                placeholder={t('replyPlaceholder', { name: comment.userName })}
                 minRows={2}
                 className="mb-2"
               />
@@ -182,7 +189,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                   onPress={() => handleSubmitReply(comment.id)}
                   isDisabled={!replyContent.trim()}
                 >
-                  Post Reply
+                  {t('postReply')}
                 </Button>
                 <Button
                   size="sm"
@@ -192,7 +199,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
                     setReplyContent('');
                   }}
                 >
-                  Cancel
+                  {t('cancel')}
                 </Button>
               </div>
             </div>
@@ -211,9 +218,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 
   const renderEmptyState = () => (
     <Card className="p-8 text-center">
-      <div className="text-5xl mb-4">💬</div>
-      <h3 className="text-xl font-semibold mb-2">No comments yet</h3>
-      <p className="text-gray-600">Be the first to share your thoughts!</p>
+      <div className="text-5xl mb-4 flex justify-center text-gray-300">
+        <FiMessageSquare />
+      </div>
+      <h3 className="text-xl font-semibold mb-2">{t('emptyTitle')}</h3>
+      <p className="text-gray-600">{t('emptyDescription')}</p>
     </Card>
   );
 
@@ -246,11 +255,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({
         {/* Comment Form */}
         <div className="mt-6">
           <Card className="p-4">
-            <h3 className="text-lg font-semibold mb-3">Leave a Comment</h3>
+            <h3 className="text-lg font-semibold mb-3">{t('formTitle')}</h3>
             <Textarea
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Share your thoughts about this product..."
+              placeholder={t('placeholder')}
               minRows={3}
               className="mb-3"
             />
@@ -259,7 +268,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
               onPress={handleSubmitComment}
               isDisabled={!newComment.trim()}
             >
-              Post Comment
+              {t('postComment')}
             </Button>
           </Card>
         </div>
@@ -272,12 +281,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({
       {/* Comment Input */}
       <Card className="p-4 mb-6">
         <h3 className="text-lg font-semibold mb-3">
-          Comments ({comments.length})
+          {t('title', { count: comments.length })}
         </h3>
         <Textarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Share your thoughts about this product..."
+          placeholder={t('placeholder')}
           minRows={3}
           className="mb-3"
         />
@@ -289,7 +298,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
               color={currentSortType === 'newest' ? 'primary' : 'default'}
               onPress={() => setCurrentSortType('newest')}
             >
-              Newest
+              {t('sort.newest')}
             </Button>
             <Button
               size="sm"
@@ -297,7 +306,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
               color={currentSortType === 'popular' ? 'primary' : 'default'}
               onPress={() => setCurrentSortType('popular')}
             >
-              Popular
+              {t('sort.popular')}
             </Button>
           </div>
           <Button
@@ -305,7 +314,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
             onPress={handleSubmitComment}
             isDisabled={!newComment.trim()}
           >
-            Post Comment
+            {t('postComment')}
           </Button>
         </div>
       </Card>
@@ -325,7 +334,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
               isDisabled={currentPage === 1}
               onPress={() => setCurrentPage(currentPage - 1)}
             >
-              Previous
+              {t('pagination.previous')}
             </Button>
 
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -359,7 +368,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
               isDisabled={currentPage === totalPages}
               onPress={() => setCurrentPage(currentPage + 1)}
             >
-              Next
+              {t('pagination.next')}
             </Button>
           </div>
         </div>

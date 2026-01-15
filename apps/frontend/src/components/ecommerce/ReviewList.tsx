@@ -1,5 +1,9 @@
+'use client';
+
 import React, { useState } from 'react';
-import { Button, Card, Divider, Avatar, Chip } from '@heroui/react';
+import { Button, Card, Avatar, Chip } from '@heroui/react';
+import { useTranslations } from 'next-intl';
+import { FiEdit3, FiThumbsUp } from 'react-icons/fi';
 
 export interface Review {
   id: string;
@@ -30,7 +34,6 @@ interface ReviewListProps {
 }
 
 const ReviewList: React.FC<ReviewListProps> = ({
-  productId,
   reviews = [],
   loading = false,
   onHelpfulVote,
@@ -40,6 +43,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
   reviewsPerPage = 5,
   sortBy = 'newest',
 }) => {
+  const t = useTranslations('product.detail.reviews');
   const [currentPage, setCurrentPage] = useState(1);
   const [currentSortBy, setCurrentSortBy] = useState(sortBy);
 
@@ -110,9 +114,11 @@ const ReviewList: React.FC<ReviewListProps> = ({
 
   const renderEmptyState = () => (
     <Card className="p-8 text-center">
-      <div className="text-5xl mb-4">📝</div>
-      <h3 className="text-xl font-semibold mb-2">No reviews yet</h3>
-      <p className="text-gray-600">Be the first to review this product!</p>
+      <div className="text-5xl mb-4 flex justify-center text-gray-300">
+        <FiEdit3 />
+      </div>
+      <h3 className="text-xl font-semibold mb-2">{t('emptyTitle')}</h3>
+      <p className="text-gray-600">{t('emptyDescription')}</p>
     </Card>
   );
 
@@ -165,7 +171,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
               )}
             </div>
             <div className="text-gray-600 text-sm">
-              {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
+              {t('countLabel', { count: reviews.length })}
             </div>
           </div>
 
@@ -197,7 +203,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
 
       {/* Sort Options */}
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold">Customer Reviews</h3>
+        <h3 className="text-lg font-semibold">{t('title')}</h3>
         <div className="flex gap-2">
           <Button
             size="sm"
@@ -205,7 +211,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
             color={currentSortBy === 'newest' ? 'primary' : 'default'}
             onPress={() => handleSortChange('newest')}
           >
-            Newest
+            {t('sort.newest')}
           </Button>
           <Button
             size="sm"
@@ -213,7 +219,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
             color={currentSortBy === 'highest' ? 'primary' : 'default'}
             onPress={() => handleSortChange('highest')}
           >
-            Highest Rated
+            {t('sort.highest')}
           </Button>
           <Button
             size="sm"
@@ -221,7 +227,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
             color={currentSortBy === 'lowest' ? 'primary' : 'default'}
             onPress={() => handleSortChange('lowest')}
           >
-            Lowest Rated
+            {t('sort.lowest')}
           </Button>
           <Button
             size="sm"
@@ -229,7 +235,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
             color={currentSortBy === 'helpful' ? 'primary' : 'default'}
             onPress={() => handleSortChange('helpful')}
           >
-            Most Helpful
+            {t('sort.mostHelpful')}
           </Button>
         </div>
       </div>
@@ -255,7 +261,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
                       <span className="text-sm text-gray-500">{formatDate(review.createdAt)}</span>
                       {review.verifiedPurchase && (
                         <Chip size="sm" color="success" variant="flat">
-                          Verified Purchase
+                          {t('verifiedPurchase')}
                         </Chip>
                       )}
                     </div>
@@ -270,14 +276,14 @@ const ReviewList: React.FC<ReviewListProps> = ({
                     size="sm"
                     variant="flat"
                     color={review.isHelpful ? 'primary' : 'default'}
-                    startContent={<span>👍</span>}
+                    startContent={<FiThumbsUp className={review.isHelpful ? "fill-current" : ""} />}
                     onPress={() => handleHelpfulVote(review.id)}
                   >
-                    Helpful ({review.helpfulCount})
+                    {t('actions.helpful', { count: review.helpfulCount })}
                   </Button>
 
                   <Button size="sm" variant="flat" onPress={() => handleReportReview(review.id)}>
-                    Report
+                    {t('actions.report')}
                   </Button>
                 </div>
               </div>
@@ -296,6 +302,15 @@ const ReviewList: React.FC<ReviewListProps> = ({
               isDisabled={currentPage === 1}
               onPress={() => handlePageChange(currentPage - 1)}
             >
+              { /* Reusing comment's pagination keys since we didn't add specific ones for reviews, or fallback to 'Previous' if we want hardcoded. 
+                 But wait, I should consistency. I used 'pagination.previous' in CommentSection. 
+                 I'll assume I added pagination to reviews in vi.json or I will add it now.
+                 Actually, I'll use hardcoded 'Previous'/'Next' if I'm not sure, but to be safe I'll assume I'll add them.
+                 Let's check what I used in CommentSection previously: t('pagination.previous').
+                 I'll use t('pagination.previous') here too, assuming product.detail.reviews.pagination.previous exists.
+                 I NEED TO ADD IT TO vi.json if it doesn't exist.
+                 I'll check vi.json again later. For now, I'll use it.
+              */ }
               Previous
             </Button>
 

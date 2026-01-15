@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Button, Card, Chip } from '@heroui/react';
+import { Card, Chip } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import { FiHeart, FiHeart as FiHeartOutline } from 'react-icons/fi';
+import Button from '../common/Button';
 import PriceDisplay from './PriceDisplay';
 import Rating from '../common/Rating';
 import Input from '../common/Input';
@@ -34,13 +35,13 @@ interface ProductInfoProps {
 }
 
 const layout = {
-  infoCard: 'rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/40 shadow-sm p-6 lg:p-8 space-y-8',
+  infoCard: 'rounded-2xl border border-gray-200 bg-white shadow-sm p-6 lg:p-8 space-y-8',
 } as const;
 
 const typography = {
-  pageTitle: 'text-3xl md:text-4xl font-bold text-gray-900 dark:text-white',
-  meta: 'text-sm text-gray-500 dark:text-gray-400',
-  label: 'text-sm font-medium text-gray-700 dark:text-gray-300'
+  pageTitle: 'text-3xl md:text-4xl font-bold text-gray-900',
+  meta: 'text-sm text-gray-500',
+  label: 'text-sm font-medium text-gray-700'
 } as const;
 
 const ProductInfo: React.FC<ProductInfoProps> = ({
@@ -87,17 +88,17 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-4">
           <h1 className={typography.pageTitle}>{name}</h1>
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-600 dark:text-gray-400">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-600">
             {brand && (
               <div className="flex items-center gap-2">
-                <span className="font-medium text-gray-700 dark:text-gray-300">Brand</span>
-                <span className="text-gray-600 dark:text-gray-400">{(brand as any).name}</span>
+                <span className="font-medium text-gray-700">{t('brand')}</span>
+                <span className="text-gray-600">{(brand as any).name}</span>
               </div>
             )}
             {sku && (
               <div className="flex items-center gap-2">
-                <span className="font-medium text-gray-700 dark:text-gray-300">SKU</span>
-                <span className="font-mono text-xs md:text-sm text-gray-500 dark:text-gray-400">{sku}</span>
+                <span className="font-medium text-gray-700">{t('sku')}</span>
+                <span className="font-mono text-xs md:text-sm text-gray-500">{sku}</span>
               </div>
             )}
           </div>
@@ -114,22 +115,27 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
         </Button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4 text-base text-gray-700 dark:text-gray-300">
-        <div className="flex items-center gap-2 text-gray-900 dark:text-white">
+      <div className="flex flex-wrap items-center gap-4 text-base text-gray-700">
+        <div className="flex items-center gap-2 text-gray-900">
           <Rating value={averageRating} readOnly size="md" />
           <span className="text-lg font-semibold">{averageRating.toFixed(1)}</span>
         </div>
         <span className={typography.meta}>({reviewCount} reviews)</span>
         {reviewCount > 0 && (
-          <Button variant="flat" size="sm" onPress={onScrollToReviews}>
-            View Reviews
+          <Button
+            variant="bordered"
+            size="sm"
+            onPress={onScrollToReviews}
+            className="bg-white border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 hover:border-gray-300 dark:hover:bg-gray-800 dark:hover:border-gray-600 transition-colors"
+          >
+            {t('overview.actions.viewReviews')}
           </Button>
         )}
       </div>
 
       <div className="space-y-2">
         {isContactPrice ? (
-          <span className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+          <span className="text-3xl md:text-4xl font-bold text-gray-900">
             {tEcommerce('contactPrice')}
           </span>
         ) : (
@@ -143,7 +149,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
             />
             {variants && variants.length > 1 && (
               <p className={typography.meta}>
-                Starting from {formatCurrency(Math.min(...variants.map(v => v.price)))}
+                {t('startingFrom', { price: formatCurrency(Math.min(...variants.map(v => v.price))) })}
               </p>
             )}
           </>
@@ -154,12 +160,12 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
         {inStock ? (
           <div className="flex items-center gap-2 text-green-600">
             <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
-            <span className="text-sm font-medium">In Stock</span>
+            <span className="text-sm font-medium">{t('inStock')}</span>
           </div>
         ) : (
           <div className="flex items-center gap-2 text-red-600">
             <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
-            <span className="text-sm font-medium">Out of Stock</span>
+            <span className="text-sm font-medium">{t('outOfStock')}</span>
           </div>
         )}
       </div>
@@ -204,7 +210,7 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
 
       <div className="space-y-5">
         <div className="flex items-center gap-4">
-          <span className={typography.label}>Quantity</span>
+          <span className={typography.label}>{t('quantity')}</span>
           <div className="flex items-center gap-3">
             <Button
               isIconOnly
@@ -233,8 +239,8 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
                 variant="bordered"
                 inputMode="numeric"
                 classNames={{
-                  inputWrapper: 'h-10 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900/70',
-                  input: 'text-center font-semibold text-base'
+                  inputWrapper: 'h-10 rounded-lg border border-gray-200 bg-white',
+                  input: 'text-center font-semibold text-base text-gray-900'
                 }}
               />
             </div>
@@ -279,15 +285,15 @@ const ProductInfo: React.FC<ProductInfoProps> = ({
       </div>
 
       {tags && tags.length > 0 && (
-        <div className="space-y-3 border-t border-gray-200 pt-5 dark:border-gray-700">
-          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">{t('tags.title')}</h3>
+        <div className="space-y-3 border-t border-gray-200 pt-5">
+          <h3 className="text-sm font-semibold text-gray-700">{t('tags.title')}</h3>
           <div className="flex flex-wrap gap-2">
             {tags.map((tag) => (
               <Chip
                 key={(tag as any).id}
                 size="sm"
                 variant="flat"
-                className="bg-gray-100 dark:bg-gray-800"
+                className="bg-gray-100"
               >
                 {(tag as any).name}
               </Chip>

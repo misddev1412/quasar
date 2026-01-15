@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Button, Image } from '@heroui/react';
+import { Image } from '@heroui/react';
 import { FiSearch, FiX } from 'react-icons/fi';
+import Button from '../common/Button';
 import Modal from '../common/Modal';
 
 interface ProductGalleryProps {
@@ -125,9 +126,8 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({
           {images.map((image, index) => (
             <button
               key={index}
-              className={`flex-shrink-0 rounded-md overflow-hidden border-2 ${
-                index === currentIndex ? 'border-primary-500' : 'border-gray-200'
-              }`}
+              className={`flex-shrink-0 rounded-md overflow-hidden border-2 ${index === currentIndex ? 'border-primary-500' : 'border-gray-200'
+                }`}
               onClick={() => handleImageSelect(index)}
             >
               <Image

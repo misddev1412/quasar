@@ -1,5 +1,10 @@
+'use client';
+
 import React, { useState } from 'react';
-import { Button, Card, Chip, Tabs, Tab } from '@heroui/react';
+import { Card, Chip, Tabs, Tab } from '@heroui/react';
+import { useTranslations } from 'next-intl';
+import { FiPackage, FiPlus } from 'react-icons/fi';
+import Button from '../common/Button';
 import ProductCard from './ProductCard';
 import type { Product } from '../../types/product';
 
@@ -25,6 +30,8 @@ const CrossSellSection: React.FC<CrossSellSectionProps> = ({
   showTabs = true,
   maxProducts = 8,
 }) => {
+  const t = useTranslations('product.detail.crossSell');
+
   const [activeTab, setActiveTab] = useState('related');
   const [selectedTab, setSelectedTab] = useState<'related' | 'bought-together' | 'recommended' | 'trending'>('related');
 
@@ -69,13 +76,13 @@ const CrossSellSection: React.FC<CrossSellSectionProps> = ({
   const getTabDescription = (tab: string) => {
     switch (tab) {
       case 'related':
-        return 'Similar products you might like';
+        return t('descriptions.related');
       case 'bought-together':
-        return 'Customers also bought these items';
+        return t('descriptions.boughtTogether');
       case 'recommended':
-        return 'Recommended based on your preferences';
+        return t('descriptions.recommended');
       case 'trending':
-        return 'Popular items right now';
+        return t('descriptions.trending');
       default:
         return '';
     }
@@ -85,9 +92,11 @@ const CrossSellSection: React.FC<CrossSellSectionProps> = ({
     if (currentProducts.length === 0) {
       return (
         <Card className="p-8 text-center">
-          <div className="text-5xl mb-4">📦</div>
-          <h3 className="text-xl font-semibold mb-2">No products found</h3>
-          <p className="text-gray-600">Check back later for new recommendations.</p>
+          <div className="text-5xl mb-4 flex justify-center text-gray-300">
+            <FiPackage />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">{t('empty.title')}</h3>
+          <p className="text-gray-600">{t('empty.description')}</p>
         </Card>
       );
     }
@@ -98,14 +107,14 @@ const CrossSellSection: React.FC<CrossSellSectionProps> = ({
         {selectedTab === 'bought-together' && currentProducts.length > 1 && (
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-6 mb-6">
             <div className="text-center mb-4">
-              <h3 className="text-xl font-semibold mb-2">Complete the Set</h3>
-              <p className="text-gray-600 mb-4">Save when you buy these items together</p>
+              <h3 className="text-xl font-semibold mb-2">{t('completeSet.title')}</h3>
+              <p className="text-gray-600 mb-4">{t('completeSet.subtitle')}</p>
               <div className="flex items-center justify-center gap-4 mb-4">
                 <span className="text-2xl font-bold text-blue-600">
                   ${getTotalPrice().toFixed(2)}
                 </span>
                 <Button color="primary" size="lg">
-                  Add All to Cart
+                  {t('completeSet.addAll')}
                 </Button>
               </div>
             </div>
@@ -119,7 +128,7 @@ const CrossSellSection: React.FC<CrossSellSectionProps> = ({
               {/* Add visual connector for "Frequently Bought Together" */}
               {selectedTab === 'bought-together' && index < currentProducts.length - 1 && (
                 <div className="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-10">
-                  <span className="text-2xl text-gray-400">+</span>
+                  <FiPlus className="text-2xl text-gray-400" />
                 </div>
               )}
 
@@ -139,7 +148,7 @@ const CrossSellSection: React.FC<CrossSellSectionProps> = ({
   if (!showTabs) {
     return (
       <div className={className}>
-        <h2 className="text-2xl font-bold mb-6">Related Products</h2>
+        <h2 className="text-2xl font-bold mb-6">{t('relatedTitle')}</h2>
         {renderTabContent()}
       </div>
     );
@@ -148,9 +157,9 @@ const CrossSellSection: React.FC<CrossSellSectionProps> = ({
   return (
     <div className={className}>
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-center mb-4">You May Also Like</h2>
+        <h2 className="text-3xl font-bold text-center mb-4">{t('sectionTitle')}</h2>
         <p className="text-gray-600 text-center mb-8">
-          Discover more products that complement your interests
+          {t('sectionSubtitle')}
         </p>
 
         <Tabs
@@ -161,13 +170,13 @@ const CrossSellSection: React.FC<CrossSellSectionProps> = ({
         >
           <Tab key="related" title={
             <div className="flex items-center gap-2">
-              <span>Related</span>
+              <span>{t('tabs.related')}</span>
               <Chip size="sm" variant="flat">{products.related.length}</Chip>
             </div>
           }>
             <div className="mt-6">
               <p className="text-gray-600 mb-6 text-center">
-                Similar products you might like
+                {t('descriptions.related')}
               </p>
               {renderTabContent()}
             </div>
@@ -175,13 +184,13 @@ const CrossSellSection: React.FC<CrossSellSectionProps> = ({
 
           <Tab key="bought-together" title={
             <div className="flex items-center gap-2">
-              <span>Frequently Bought Together</span>
+              <span>{t('tabs.boughtTogether')}</span>
               <Chip size="sm" variant="flat">{products.frequentlyBoughtTogether.length}</Chip>
             </div>
           }>
             <div className="mt-6">
               <p className="text-gray-600 mb-6 text-center">
-                Customers also bought these items
+                {t('descriptions.boughtTogether')}
               </p>
               {renderTabContent()}
             </div>
@@ -189,13 +198,13 @@ const CrossSellSection: React.FC<CrossSellSectionProps> = ({
 
           <Tab key="recommended" title={
             <div className="flex items-center gap-2">
-              <span>Recommended</span>
+              <span>{t('tabs.recommended')}</span>
               <Chip size="sm" variant="flat">{products.recommended.length}</Chip>
             </div>
           }>
             <div className="mt-6">
               <p className="text-gray-600 mb-6 text-center">
-                Recommended based on your preferences
+                {t('descriptions.recommended')}
               </p>
               {renderTabContent()}
             </div>
@@ -203,13 +212,13 @@ const CrossSellSection: React.FC<CrossSellSectionProps> = ({
 
           <Tab key="trending" title={
             <div className="flex items-center gap-2">
-              <span>Trending</span>
+              <span>{t('tabs.trending')}</span>
               <Chip size="sm" variant="flat">{products.trending.length}</Chip>
             </div>
           }>
             <div className="mt-6">
               <p className="text-gray-600 mb-6 text-center">
-                Popular items right now
+                {t('descriptions.trending')}
               </p>
               {renderTabContent()}
             </div>

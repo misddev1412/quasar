@@ -7,6 +7,8 @@ import type { Product, ProductVariant } from '../../types/product';
 import type { Review } from '../../components/ecommerce/ReviewList';
 import type { Comment } from '../../components/ecommerce/CommentSection';
 
+import type { SectionListItem } from '../../types/sections';
+
 interface ProductDetailClientProps {
   product: Product;
   relatedProducts?: Product[];
@@ -15,6 +17,7 @@ interface ProductDetailClientProps {
   trendingProducts?: Product[];
   reviews?: Review[];
   comments?: Comment[];
+  sections?: SectionListItem[];
 }
 
 const ProductDetailClient: React.FC<ProductDetailClientProps> = ({
@@ -25,6 +28,7 @@ const ProductDetailClient: React.FC<ProductDetailClientProps> = ({
   trendingProducts = [],
   reviews = [],
   comments = [],
+  sections = [],
 }) => {
   const { addToCart } = useAddToCart();
 
@@ -44,6 +48,7 @@ const ProductDetailClient: React.FC<ProductDetailClientProps> = ({
       reviews={reviews}
       comments={comments}
       onAddToCart={handleAddToCart}
+      sections={sections}
     />
   );
 };

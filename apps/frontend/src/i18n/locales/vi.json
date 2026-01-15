@@ -124,15 +124,12 @@
     "post": "Bài viết",
     "posts": "Bài viết",
     "noDescription": "Không có mô tả",
-    "loading": "Đang tải...",
-    "error": "Lỗi",
     "success": "Thành công",
     "cancel": "Hủy",
     "save": "Lưu",
     "delete": "Xóa",
     "edit": "Chỉnh sửa",
     "add": "Thêm",
-    "search": "Tìm kiếm",
     "clear": "Xóa",
     "back": "Quay lại",
     "next": "Tiếp theo",
@@ -304,10 +301,6 @@
           "reset": "Đặt lại"
         }
       },
-      "menu": {
-        "close": "Đóng menu",
-        "open": "Mở menu"
-      },
       "actions": {
         "notifications": "Thông báo",
         "wishlist": "Danh sách yêu thích",
@@ -396,24 +389,6 @@
       "need_help": "Cần hỗ trợ về đơn hàng?",
       "contact_support": "Liên hệ hỗ trợ"
     },
-    "profile": {
-      "orders": {
-        "title": "Đơn hàng của tôi",
-        "subtitle": "Xem lịch sử đơn hàng và theo dõi gói hàng của bạn",
-        "recent_orders": "Đơn hàng gần đây",
-        "search_orders": "Tìm kiếm đơn hàng...",
-        "all_statuses": "Tất cả trạng thái",
-        "status_pending": "Chờ xử lý",
-        "status_confirmed": "Đã xác nhận",
-        "status_processing": "Đang xử lý",
-        "status_shipped": "Đã vận chuyển",
-        "status_delivered": "Đã giao hàng",
-        "status_cancelled": "Đã hủy",
-        "no_orders": "Không tìm thấy đơn hàng",
-        "no_orders_desc": "Bạn chưa đặt đơn hàng nào.",
-        "order_cancelled": "Hủy đơn hàng thành công"
-      }
-    },
     "home": {
       "title": "Trang chủ",
       "description": "Chào mừng đến với website của chúng tôi - Đối tác đáng tin cậy của bạn trong thương mại điện tử",
@@ -459,10 +434,6 @@
           }
         }
       }
-    },
-    "dashboard": {
-      "title": "Trang Dashboard",
-      "description": "Đây là trang Dashboard phục vụ định tuyến đa ngôn ngữ"
     },
     "test_simple": {
       "title": "Trang kiểm tra đơn giản",
@@ -866,7 +837,6 @@
         "profile_picture": "Ảnh đại diện",
         "profile_picture_desc": "Tải lên ảnh đại diện mới. Kích thước đề xuất: 200x200 pixels.",
         "full_name": "Họ và tên",
-        "phone": "Số điện thoại",
         "avatar_url": "URL ảnh đại diện",
         "bio": "Tiểu sử",
         "bio_placeholder": "Hãy kể cho chúng tôi một chút về bản thân bạn...",
@@ -951,32 +921,6 @@
         "type_billing": "Thanh toán",
         "type_shipping": "Giao hàng",
         "type_both": "Cả hai"
-      },
-      "security": {
-        "title": "Bảo mật",
-        "subtitle": "Quản lý mật khẩu và cài đặt bảo mật của bạn",
-        "currentPassword": "Mật khẩu hiện tại",
-        "newPassword": "Mật khẩu mới",
-        "passwordHint": "Mật khẩu phải có ít nhất 8 ký tự",
-        "confirmPassword": "Xác nhận mật khẩu mới",
-        "change": "Thay đổi mật khẩu"
-      },
-      "notifications": {
-        "title": "Tùy chọn thông báo",
-        "subtitle": "Chọn cách bạn muốn nhận thông báo",
-        "email": {
-          "title": "Thông báo email",
-          "description": "Nhận thông báo qua email"
-        },
-        "push": {
-          "title": "Thông báo đẩy",
-          "description": "Nhận thông báo đẩy trong trình duyệt của bạn"
-        },
-        "sms": {
-          "title": "Thông báo SMS",
-          "description": "Nhận thông báo qua SMS"
-        },
-        "save": "Lưu tùy chọn"
       },
       "sidebar": {
         "title": "Menu hồ sơ",
@@ -1639,7 +1583,92 @@
         "subtitle": "Những phản hồi thực tế",
         "countLabel": "{count, plural, one {{count} đánh giá} other {{count} đánh giá}}",
         "shareTitle": "Chia sẻ trải nghiệm của bạn",
-        "shareSubtitle": "Hãy cho mọi người biết điều bạn thích hoặc chưa hài lòng."
+        "shareSubtitle": "Hãy cho mọi người biết điều bạn thích hoặc chưa hài lòng.",
+        "emptyTitle": "Chưa có đánh giá nào",
+        "emptyDescription": "Hãy là người đầu tiên đánh giá sản phẩm này!",
+        "verifiedPurchase": "Đã mua hàng",
+        "actions": {
+          "helpful": "Hữu ích ({count})",
+          "report": "Báo cáo"
+        },
+        "sort": {
+          "newest": "Mới nhất",
+          "highest": "Đánh giá cao nhất",
+          "lowest": "Đánh giá thấp nhất",
+          "mostHelpful": "Hữu ích nhất",
+          "oldest": "Cũ nhất"
+        },
+        "pagination": {
+          "previous": "Trước",
+          "next": "Sau"
+        }
+      },
+      "brand": "Thương hiệu",
+      "sku": "SKU",
+      "inStock": "Còn hàng",
+      "outOfStock": "Hết hàng",
+      "quantity": "Số lượng",
+      "startingFrom": "Giá từ {price}",
+      "video": {
+        "defaultTitle": "Video sản phẩm",
+        "loadError": "Không thể tải video",
+        "playError": "Không thể phát video",
+        "unavailableTitle": "Video không khả dụng",
+        "cta": "Xem Video"
+      },
+      "comments": {
+        "time": {
+          "justNow": "Vừa xong",
+          "hoursAgo": "{count} giờ trước",
+          "daysAgo": "{count} ngày trước"
+        },
+        "verified": "Đã xác thực",
+        "like": "Thích",
+        "reply": "Trả lời",
+        "report": "Báo cáo",
+        "replyPlaceholder": "Trả lời {name}...",
+        "postReply": "Gửi trả lời",
+        "cancel": "Hủy",
+        "emptyTitle": "Chưa có bình luận",
+        "emptyDescription": "Hãy là người đầu tiên chia sẻ suy nghĩ của bạn!",
+        "formTitle": "Để lại bình luận",
+        "placeholder": "Chia sẻ suy nghĩ của bạn về sản phẩm này...",
+        "postComment": "Gửi bình luận",
+        "title": "Bình luận ({count})",
+        "sort": {
+          "newest": "Mới nhất",
+          "popular": "Phổ biến nhất"
+        },
+        "pagination": {
+          "previous": "Trước",
+          "next": "Sau"
+        }
+      },
+      "crossSell": {
+        "relatedTitle": "Sản phẩm liên quan",
+        "sectionTitle": "Có thể bạn cũng thích",
+        "sectionSubtitle": "Khám phá thêm các sản phẩm phù hợp với sở thích của bạn",
+        "tabs": {
+          "related": "Liên quan",
+          "boughtTogether": "Thường mua cùng",
+          "recommended": "Gợi ý",
+          "trending": "Xu hướng"
+        },
+        "descriptions": {
+          "related": "Sản phẩm tương tự bạn có thể thích",
+          "boughtTogether": "Khách hàng khác cũng mua những món này",
+          "recommended": "Gợi ý dựa trên sở thích của bạn",
+          "trending": "Sản phẩm phổ biến ngay bây giờ"
+        },
+        "empty": {
+          "title": "Không tìm thấy sản phẩm",
+          "description": "Quay lại sau để xem các gợi ý mới."
+        },
+        "completeSet": {
+          "title": "Mua trọn bộ",
+          "subtitle": "Tiết kiệm hơn khi mua cùng nhau",
+          "addAll": "Thêm tất cả vào giỏ"
+        }
       },
       "questions": {
         "title": "Câu hỏi từ khách hàng",
@@ -1672,6 +1701,7 @@
       },
       "description": {
         "title": "Mô tả",
+        "toc": "MỤC LỤC",
         "fallback": "Nội dung mô tả sẽ được cập nhật trong thời gian tới.",
         "readMore": "Xem thêm",
         "readLess": "Thu gọn",
@@ -1825,7 +1855,6 @@
     "of": "của",
     "showing": "Hiển thị",
     "to": "đến",
-    "of": "của",
     "entries": "mục",
     "per_page": "Mỗi trang",
     "go_to_page": "Đến trang"

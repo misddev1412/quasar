@@ -188,7 +188,8 @@ export class AdminPostsRouter {
       const permissionScope = resolvePermissionScope(
         ctx.user?.permissions,
         'post',
-        PermissionAction.UPDATE
+        PermissionAction.UPDATE,
+        ctx.user?.isSuperAdmin
       );
 
       if (!permissionScope) {

@@ -24,6 +24,7 @@ import { VideoEditor } from './editors/VideoEditor';
 import { StatsEditor } from './editors/StatsEditor';
 import { BrandShowcaseEditor } from './editors/BrandShowcaseEditor';
 import { WhyChooseUsEditor } from './editors/WhyChooseUsEditor';
+import { ProductDetailsEditor } from './editors/ProductDetailsEditor';
 
 export const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, value, onChange }) => {
     const { t } = useTranslationWithBackend();
@@ -83,6 +84,7 @@ export const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, 
             {type === SectionType.STATS && <StatsEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.BRAND_SHOWCASE && <BrandShowcaseEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.WHY_CHOOSE_US && <WhyChooseUsEditor value={value || {}} onChange={onChange} />}
+            {type === SectionType.PRODUCT_DETAILS && <ProductDetailsEditor value={value || {}} onChange={onChange} />}
 
             {![
                 SectionType.HERO_SLIDER,
@@ -103,6 +105,7 @@ export const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, 
                 SectionType.STATS,
                 SectionType.BRAND_SHOWCASE,
                 SectionType.WHY_CHOOSE_US,
+                SectionType.PRODUCT_DETAILS,
             ].includes(type) && (
                     <div className="space-y-2">
                         <p className="text-xs text-gray-500">{t('sections.manager.configEditor.noDedicatedEditor')}</p>

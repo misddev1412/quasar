@@ -7,7 +7,7 @@ import { SectionType } from '@shared/enums/section.enums';
 
 @Injectable()
 export class SectionsSeeder implements SeederModule {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(private readonly dataSource: DataSource) { }
 
   async seed(): Promise<void> {
     const sectionRepository = this.dataSource.getRepository(SectionEntity);
@@ -802,6 +802,124 @@ export class SectionsSeeder implements SeederModule {
           },
         ],
       },
+      // PRODUCT DETAIL PAGE SECTIONS
+      {
+        section: {
+          page: 'product_detail',
+          type: SectionType.PRODUCT_DETAILS,
+          position: 0,
+          isEnabled: true,
+          config: {
+            showDescription: true,
+            showSpecifications: true,
+            policies: [
+              {
+                id: 'pdp-policy-shipping',
+                icon: 'truck',
+                title: 'Free Shipping',
+                description: 'Free shipping for orders over 500k.',
+              },
+              {
+                id: 'pdp-policy-return',
+                icon: 'refresh-cw',
+                title: 'Easy Return',
+                description: 'Support 30 days return policy.',
+              },
+              {
+                id: 'pdp-policy-warranty',
+                icon: 'shield-check',
+                title: 'Official Warranty',
+                description: 'Includes 1 year warranty.',
+              },
+            ],
+          },
+        },
+        translations: [
+          {
+            locale: 'en',
+            title: 'Product Details',
+            description: 'Main product information including description, specifications and policy highlights.',
+          },
+          {
+            locale: 'vi',
+            title: 'Chi tiết sản phẩm',
+            description: 'Thông tin chính bao gồm mô tả, thông số kỹ thuật và các chính sách nổi bật.',
+          },
+        ],
+      },
+      {
+        section: {
+          page: 'product_detail',
+          type: SectionType.VIDEO,
+          position: 1,
+          isEnabled: true,
+          config: {
+            type: 'embed',
+            autoplay: false,
+            videos: [
+              {
+                id: 'pdp-video-demo',
+                type: 'embed',
+                title: 'Product Demo',
+                description: 'See the product in action.',
+                embedUrl: 'https://www.youtube.com/embed/mNFVvHxkNNM?rel=0&showinfo=0',
+                posterImage: 'https://images.unsplash.com/photo-1475180098004-ca77a66827be?auto=format&fit=crop&w=1600&q=80',
+              },
+            ],
+          },
+        },
+        translations: [
+          {
+            locale: 'en',
+            title: 'Product Video',
+            description: 'Watch our product demonstration video.',
+          },
+          {
+            locale: 'vi',
+            title: 'Video sản phẩm',
+            description: 'Xem video giới thiệu chi tiết về sản phẩm.',
+          },
+        ],
+      },
+      {
+        section: {
+          page: 'product_detail',
+          type: SectionType.TESTIMONIALS,
+          position: 2,
+          isEnabled: true,
+          config: {
+            layout: 'slider',
+            columns: 2,
+            autoplay: true,
+            testimonials: [
+              {
+                id: 'pdp-review-1',
+                quote: 'The quality exceeded my expectations. formatting is great.',
+                customerName: 'Minh Anh',
+                rating: 5,
+              },
+              {
+                id: 'pdp-review-2',
+                quote: 'Very fast delivery and good customer service.',
+                customerName: 'Tuan Hung',
+                rating: 4.5,
+              },
+            ],
+          },
+        },
+        translations: [
+          {
+            locale: 'en',
+            title: 'Customer Reviews',
+            description: 'See what other customers are saying.',
+          },
+          {
+            locale: 'vi',
+            title: 'Đánh giá từ khách hàng',
+            description: 'Xem cảm nhận của khách hàng đã mua sản phẩm.',
+          },
+        ],
+      },
       {
         section: {
           page: 'home',
@@ -1104,37 +1222,8 @@ export class SectionsSeeder implements SeederModule {
       {
         section: {
           page: 'product_detail',
-          type: SectionType.FEATURED_PRODUCTS,
-          position: 0,
-          isEnabled: true,
-          config: {
-            productIds: ['SKU-2001', 'SKU-2002', 'SKU-2003'],
-            displayStyle: 'grid',
-            itemsPerRow: 3,
-          },
-        },
-        translations: [
-          {
-            locale: 'en',
-            title: 'Complete the look',
-            subtitle: 'Pairs well with your current selection',
-            description: 'Show complementary items, bundle-ready accessories, or seasonal add-ons that enhance the product detail page.',
-            heroDescription: null,
-          },
-          {
-            locale: 'vi',
-            title: 'Hoàn thiện trải nghiệm',
-            subtitle: 'Kết hợp hoàn hảo với sản phẩm bạn đang xem',
-            description: 'Gợi ý phụ kiện đi kèm, combo ưu đãi và sản phẩm bổ trợ ngay trên trang chi tiết.',
-            heroDescription: null,
-          },
-        ],
-      },
-      {
-        section: {
-          page: 'product_detail',
           type: SectionType.CUSTOM_HTML,
-          position: 1,
+          position: 3,
           isEnabled: true,
           config: {
             html: '<section class="rounded-3xl border border-gray-200 bg-white/90 dark:bg-gray-900/40 p-8 shadow-lg">\n  <div class="grid gap-6 md:grid-cols-2 items-center">\n    <div>\n      <p class="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-500 mb-2">Why shoppers love this collection</p>\n      <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Crafted with premium materials & verified supply chain partners</h2>\n      <p class="text-gray-600 dark:text-gray-300">Use this slot to highlight sustainability claims, warranty information, fit guides, or brand storytelling specific to the PDP.</p>\n    </div>\n    <div class="bg-indigo-50 dark:bg-indigo-900/40 rounded-2xl p-6">\n      <ul class="space-y-3 text-gray-700 dark:text-gray-200 text-sm">\n        <li class="flex items-start gap-3"><span class="text-indigo-500 mt-1">✓</span> Responsive layout that adapts across desktop and mobile PDPs</li>\n        <li class="flex items-start gap-3"><span class="text-indigo-500 mt-1">✓</span> Localized messaging through translation overrides per locale</li>\n        <li class="flex items-start gap-3"><span class="text-indigo-500 mt-1">✓</span> Drop rich media, icons, and supporting copy using HTML blocks</li>\n      </ul>\n    </div>\n  </div>\n</section>',

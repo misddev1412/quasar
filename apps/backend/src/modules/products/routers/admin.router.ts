@@ -268,7 +268,7 @@ export class AdminProductsRouter {
     private readonly productService: AdminProductService,
     @Inject(ProductRepository)
     private readonly productRepository: ProductRepository,
-  ) {}
+  ) { }
 
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware) // Temporarily commented for debugging
   @Query({
@@ -732,7 +732,8 @@ export class AdminProductsRouter {
       const permissionScope = resolvePermissionScope(
         ctx.user?.permissions,
         'product',
-        PermissionAction.UPDATE
+        PermissionAction.UPDATE,
+        ctx.user?.isSuperAdmin
       );
 
       if (!permissionScope) {

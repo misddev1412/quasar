@@ -57,6 +57,18 @@
       "@admin/utils/*": [
         "apps/admin/src/utils/*"
       ],
+      "@frontend/components/*": [
+        "apps/frontend/src/components/*"
+      ],
+      "@frontend/hooks/*": [
+        "apps/frontend/src/hooks/*"
+      ],
+      "@frontend/types/*": [
+        "apps/frontend/src/types/*"
+      ],
+      "@frontend/*": [
+        "apps/frontend/src/*"
+      ],
       "@backend/config/*": [
         "apps/backend/src/config/*"
       ],
