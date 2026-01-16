@@ -1212,11 +1212,6 @@
     }
   },
   "ecommerce": {
-    "product": {
-      "outOfStock": "Hết hàng",
-      "priceUpdating": "Giá đang cập nhật",
-      "contactPrice": "Liên hệ báo giá"
-    },
     "checkout": {
       "title": "Thanh toán",
       "subtitle": "Kiểm tra đơn hàng và hoàn tất thanh toán.",
@@ -1479,9 +1474,14 @@
         "description": "Mô tả"
       },
       "validation": {
-        "out_of_stock": "Một số mặt hàng trong giỏ của bạn đã hết hàng",
-        "low_stock": "Một số mặt hàng có số lượng tồn kho hạn chế",
+        "out_of_stock": "{productName} đã hết hàng",
+        "out_of_stock_generic": "Một số mặt hàng trong giỏ của bạn đã hết hàng",
+        "low_stock_warning": "Chỉ còn {quantity} {productName} trong kho",
+        "low_stock_generic": "Một số mặt hàng có số lượng tồn kho hạn chế",
+        "quantity_limit": "Số lượng vượt quá tồn kho của {productName}. Tối đa cho phép: {quantity}",
         "quantity_exceeded": "Số lượng vượt quá số lượng tồn kho",
+        "variant_unavailable": "Biến thể đã chọn của {productName} không còn khả dụng",
+        "product_unavailable": "{productName} không còn khả dụng",
         "price_changed": "Giá sản phẩm đã thay đổi kể từ khi bạn thêm vào giỏ hàng"
       },
       "summary": {
@@ -1497,6 +1497,14 @@
         "continue": "Tiếp tục mua sắm",
         "updating": "Đang cập nhật...",
         "removing": "Đang xóa..."
+      },
+      "items": {
+        "remove": "Xóa",
+        "quantity": "Số lượng",
+        "low_stock": "Sắp hết hàng",
+        "unavailable": "Hết hàng",
+        "decrease_quantity": "Giảm số lượng",
+        "increase_quantity": "Tăng số lượng"
       },
       "item": {
         "quantity": "Số lượng",
@@ -1540,6 +1548,9 @@
     }
   },
   "product": {
+    "outOfStock": "Hết hàng",
+    "priceUpdating": "Giá đang cập nhật",
+    "contactPrice": "Liên hệ báo giá",
     "detail": {
       "breadcrumb": {
         "home": "Trang chủ",

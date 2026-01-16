@@ -32,6 +32,7 @@ export const SectionForm: React.FC<SectionFormProps> = ({ languages, initialStat
         { value: 'news', label: t('sections.pages.news') },
         { value: 'product', label: t('sections.pages.product') },
         { value: 'product_detail', label: t('sections.pages.product_detail') },
+        { value: 'news_detail', label: t('sections.pages.news_detail') },
     ], [t]);
 
     const sectionTypeOptions = useMemo(() => (Object.entries(SECTION_TYPE_LABELS) as Array<[SectionType, string]>).map(([value]) => ({

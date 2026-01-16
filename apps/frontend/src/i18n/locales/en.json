@@ -689,390 +689,110 @@
         "registrationFailed": "Registration failed. Please try again."
       }
     },
-    "about": {
-      "title": "About Us",
-      "subtitle": "Learn more about our mission and values",
-      "mission": {
-        "title": "Our Mission",
-        "description": "We are dedicated to creating exceptional user experiences through innovative technology and thoughtful design. Our frontend service provides clients with modern, responsive, and performant web applications built with the latest technologies like React, HeroUI, and Tailwind CSS."
+    "validation": {
+      "low_stock_warning": "Only {quantity} {productName} left in stock",
+      "out_of_stock": "{productName} is out of stock",
+      "quantity_limit": "Quantity exceeds available stock for {productName}. Maximum allowed: {quantity}",
+      "variant_unavailable": "Selected variant for {productName} is no longer available",
+      "product_unavailable": "{productName} is no longer available",
+      "unknown_product_unavailable": "Product is no longer available"
+    }
+  },
+  "about": {
+    "title": "About Us",
+    "subtitle": "Learn more about our mission and values",
+    "mission": {
+      "title": "Our Mission",
+      "description": "We are dedicated to creating exceptional user experiences through innovative technology and thoughtful design. Our frontend service provides clients with modern, responsive, and performant web applications built with the latest technologies like React, HeroUI, and Tailwind CSS."
+    },
+    "values": {
+      "title": "Our Values",
+      "innovation": {
+        "title": "Innovation",
+        "description": "Constantly pushing boundaries and embracing new technologies."
       },
-      "values": {
-        "title": "Our Values",
-        "innovation": {
-          "title": "Innovation",
-          "description": "Constantly pushing boundaries and embracing new technologies."
-        },
-        "quality": {
-          "title": "Quality",
-          "description": "Delivering excellence in every line of code we write."
-        },
-        "collaboration": {
-          "title": "Collaboration",
-          "description": "Working together to achieve extraordinary results."
-        },
-        "userFocus": {
-          "title": "User Focus",
-          "description": "Putting user experience at the center of everything we do."
-        }
+      "quality": {
+        "title": "Quality",
+        "description": "Delivering excellence in every line of code we write."
+      },
+      "collaboration": {
+        "title": "Collaboration",
+        "description": "Working together to achieve extraordinary results."
+      },
+      "userFocus": {
+        "title": "User Focus",
+        "description": "Putting user experience at the center of everything we do."
       }
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Get in touch with our team",
+    "info": {
+      "title": "Get in Touch",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address"
     },
-    "contact": {
-      "title": "Contact Us",
-      "subtitle": "Get in touch with our team",
-      "info": {
-        "title": "Get in Touch",
-        "email": "Email",
-        "phone": "Phone",
-        "address": "Address"
+    "form": {
+      "title": "Send us a Message",
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter your name"
       },
-      "form": {
-        "title": "Send us a Message",
-        "name": {
-          "label": "Name",
-          "placeholder": "Enter your name"
-        },
-        "email": {
-          "label": "Email",
-          "placeholder": "Enter your email"
-        },
-        "message": {
-          "label": "Message",
-          "placeholder": "Enter your message"
-        },
-        "submit": "Send Message",
-        "success": "Thank you for your message! We will get back to you soon."
-      }
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter your email"
+      },
+      "message": {
+        "label": "Message",
+        "placeholder": "Enter your message"
+      },
+      "submit": "Send Message",
+      "success": "Thank you for your message! We will get back to you soon."
+    }
+  },
+  "dashboard": {
+    "seo": {
+      "title": "Dashboard",
+      "description": "Manage your account and view your activity"
     },
-    "dashboard": {
-      "seo": {
-        "title": "Dashboard",
-        "description": "Manage your account and view your activity"
-      },
-      "welcome": "Welcome back, {{name}}!",
-      "subtitle": "Here's what's happening with your account today.",
-      "stats": {
-        "orders": "Total Orders",
-        "products": "Available Products",
-        "status": "Account Status",
-        "active": "Active"
-      },
-      "activity": {
-        "title": "Recent Activity",
-        "orderPrefix": "Order #",
-        "empty": "No recent activity to show"
-      },
-      "quickActions": {
-        "title": "Quick Actions",
-        "browse": "Browse Products",
-        "orders": "View Orders",
-        "profile": "Edit Profile",
-        "settings": "Settings"
-      },
-      "loading": "Loading dashboard..."
+    "welcome": "Welcome back, {{name}}!",
+    "subtitle": "Here's what's happening with your account today.",
+    "stats": {
+      "orders": "Total Orders",
+      "products": "Available Products",
+      "status": "Account Status",
+      "active": "Active"
     },
-    "profile": {
-      "seo": {
-        "title": "My Profile",
-        "description": "Manage your account settings and preferences"
-      },
-      "pages": {
-        "overview": {
-          "title": "Profile Overview",
-          "description": "Manage your profile information and settings"
-        },
-        "orders": {
-          "title": "My Orders",
-          "description": "View and track your order history",
-          "subtitle": "View your order history and track your packages",
-          "recent_orders": "Recent Orders",
-          "search_orders": "Search orders...",
-          "all_statuses": "All Statuses",
-          "status_pending": "Pending",
-          "status_confirmed": "Confirmed",
-          "status_processing": "Processing",
-          "status_shipped": "Shipped",
-          "status_delivered": "Delivered",
-          "status_cancelled": "Cancelled",
-          "no_orders": "No Orders Found",
-          "no_orders_desc": "You haven't placed any orders yet.",
-          "order_cancelled": "Order cancelled successfully",
-          "items": "items",
-          "item": "item"
-        },
-        "edit": {
-          "title": "Edit Profile",
-          "description": "Update your personal information"
-        },
-        "security": {
-          "title": "Security Settings",
-          "description": "Manage your account security and privacy"
-        },
-        "preferences": {
-          "title": "Preferences",
-          "description": "Customize your account preferences and settings"
-        },
-        "payment": {
-          "title": "Payment Methods",
-          "description": "Manage your payment methods and billing information"
-        },
-        "loyalty": {
-          "title": "Loyalty Program",
-          "description": "View your loyalty points, rewards, and benefits"
-        },
-        "addresses": {
-          "title": "Address Book",
-          "description": "Manage your shipping and billing addresses"
-        },
-        "notifications": {
-          "title": "Notifications",
-          "description": "Manage your notification preferences and alerts"
-        },
-        "wishlist": {
-          "title": "Wishlist",
-          "description": "Manage your saved items and wishlist"
-        }
-      },
+    "activity": {
+      "title": "Recent Activity",
+      "orderPrefix": "Order #",
+      "empty": "No recent activity to show"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "browse": "Browse Products",
+      "orders": "View Orders",
+      "profile": "Edit Profile",
+      "settings": "Settings"
+    },
+    "loading": "Loading dashboard..."
+  },
+  "profile": {
+    "seo": {
       "title": "My Profile",
-      "subtitle": "Manage your account settings and preferences",
-      "tabs": {
-        "profile": "Profile Information",
-        "security": "Security",
-        "notifications": "Notifications"
-      },
-      "profile": {
-        "title": "Profile Information",
-        "subtitle": "Update your account information",
-        "name": "Full Name",
-        "email": "Email Address",
-        "phone": "Phone Number",
-        "avatar": "Profile Picture URL",
-        "avatarPlaceholder": "https://example.com/avatar.jpg",
-        "save": "Save Changes",
-        "update_success": "Profile Updated Successfully",
-        "update_success_desc": "Your profile information has been updated successfully.",
-        "update_error": "Update Failed",
-        "update_error_desc": "There was an error updating your profile. Please try again.",
-        "profile_picture": "Profile Picture",
-        "profile_picture_desc": "Upload a new profile picture. Recommended size: 200x200 pixels.",
-        "full_name": "Full Name",
-        "avatar_url": "Avatar URL",
-        "bio": "Bio",
-        "bio_placeholder": "Tell us a little about yourself...",
-        "save_changes": "Save Changes"
-      },
-      "personal_info": {
-        "title": "Personal Information",
-        "subtitle": "Update your personal and contact information",
-        "update_success": "Profile Updated Successfully",
-        "update_success_desc": "Your profile information has been updated successfully.",
-        "update_error": "Update Failed",
-        "update_error_desc": "There was an error updating your profile. Please try again.",
-        "profile_picture": "Profile Picture",
-        "profile_picture_desc": "Upload a new profile picture. Recommended size: 200x200 pixels.",
-        "full_name": "Full Name",
-        "email": "Email Address",
-        "phone": "Phone Number",
-        "avatar_url": "Avatar URL",
-        "bio": "Bio",
-        "bio_placeholder": "Tell us a little about yourself...",
-        "save_changes": "Save Changes",
-        "change_avatar": "Change Avatar",
-        "upload_new_picture": "Upload New Picture",
-        "select_profile_picture": "Select Profile Picture",
-        "avatar_updated": "Avatar Updated",
-        "avatar_updated_desc": "Your profile picture has been updated successfully."
-      },
-      "addresses": {
-        "title": "Addresses",
-        "subtitle": "Manage your saved addresses",
-        "add_address": "Add Address",
-        "add_new_address": "Add New Address",
-        "address_type": "Address Type",
-        "type_home": "Home",
-        "type_work": "Work",
-        "type_other": "Other",
-        "street": "Street Address",
-        "city": "City",
-        "state": "State",
-        "zip_code": "ZIP Code",
-        "country": "Country",
-        "set_as_default": "Set as default address",
-        "no_addresses": "No Saved Addresses",
-        "no_addresses_desc": "You haven't saved any addresses yet. Add your first address to make checkout faster.",
-        "add_first_address": "Add Your First Address",
-        "default": "Default",
-        "set_default": "Set as Default",
-        "incomplete_address": "Incomplete Address",
-        "incomplete_address_desc": "Please fill in all required fields (Street, City, ZIP Code).",
-        "added_success": "Address Added Successfully",
-        "added_success_desc": "Your new address has been saved successfully.",
-        "removed_success": "Address Removed",
-        "removed_success_desc": "The address has been removed from your account.",
-        "update_success": "Address Updated Successfully",
-        "update_success_desc": "Your address has been updated successfully.",
-        "edit_address": "Edit Address",
-        "confirm_delete": "Are you sure you want to delete this address?",
-        "save_error": "Failed to save address. Please try again.",
-        "delete_error": "Failed to delete address. Please try again.",
-        "default_set": "Default Address Set",
-        "default_set_desc": "This address has been set as your default.",
-        "set_default_error": "Failed to set default address. Please try again.",
-        "first_name": "First Name",
-        "last_name": "Last Name",
-        "phone_number": "Phone Number",
-        "email": "Email",
-        "company_name": "Company Name",
-        "address_line_1": "Address Line 1",
-        "address_line_2": "Address Line 2",
-        "postal_code": "Postal Code",
-        "province": "Province/State",
-        "ward": "Ward/District",
-        "label": "Label",
-        "label_placeholder": "e.g., Home, Work, Parents",
-        "select_label": "Select Label",
-        "label_home": "Home",
-        "label_company": "Company",
-        "label_apartment": "Apartment",
-        "label_office": "Office",
-        "label_parents": "Parents",
-        "label_other": "Other",
-        "delivery_instructions": "Delivery Instructions",
-        "delivery_instructions_placeholder": "e.g., Leave at the door, Call upon arrival",
-        "select_country": "Select Country",
-        "select_province": "Select Province/State",
-        "select_ward": "Select Ward/District",
-        "type_billing": "Billing",
-        "type_shipping": "Shipping",
-        "type_both": "Both"
-      },
-      "sidebar": {
-        "title": "Profile Menu",
-        "subtitle": "Navigate through your profile sections",
-        "main_section": "Main",
-        "account_section": "Account",
-        "shopping_section": "Shopping",
-        "preferences_section": "Preferences",
-        "overview": "Overview",
-        "overview_desc": "View your profile summary and statistics",
-        "personal_info": "Personal Information",
-        "personal_info_desc": "Update your personal details and contact information",
-        "security": "Security",
-        "security_desc": "Manage your password and security settings",
-        "notifications": "Notifications",
-        "notifications_desc": "Configure your notification preferences",
-        "addresses": "Addresses",
-        "addresses_desc": "Manage your saved addresses",
-        "payment": "Payment Methods",
-        "payment_desc": "Manage your payment options",
-        "wishlist": "Wishlist",
-        "wishlist_desc": "View your saved items",
-        "loyalty": "Loyalty Points",
-        "loyalty_desc": "Manage your loyalty points and rewards",
-        "orders": "Orders",
-        "orders_desc": "View your order history",
-        "preferences": "Preferences",
-        "preferences_desc": "Customize your account preferences",
-        "quick_actions": "Quick Actions",
-        "download_app": "Download App",
-        "help_center": "Help Center"
-      },
+      "description": "Manage your account settings and preferences"
+    },
+    "pages": {
       "overview": {
-        "total_orders": "Total Orders",
-        "wishlist_items": "Wishlist Items",
-        "saved_cards": "Saved Cards",
-        "saved_addresses": "Saved Addresses",
-        "guest_user": "Guest User",
-        "member_since": "Member since {date}",
-        "verified_account": "Verified Account",
-        "personal_info": "Personal Information",
-        "edit": "Edit",
-        "preferences": "Preferences",
-        "change_profile_picture": "Change Profile Picture",
-        "full_name": "Full Name",
-        "email": "Email",
-        "phone": "Phone",
-        "not_provided": "Not provided",
-        "email_notifications": "Email Notifications",
-        "enabled": "Enabled",
-        "disabled": "Disabled",
-        "default_language": "Default Language",
-        "two_factor_auth": "Two-Factor Authentication",
-        "recent_activity": "Recent Activity",
-        "order_placed": "Order placed",
-        "item_added_wishlist": "Item added to wishlist",
-        "address_added": "Address added",
-        "online": "Online",
-        "active": "Active",
-        "days_ago": "{{count}} days ago",
-        "days_ago_1": "1 day ago",
-        "weeks_ago": "{{count}} weeks ago",
-        "weeks_ago_1": "1 week ago"
-      },
-      "security": {
-        "title": "Security Settings",
-        "description": "Manage your account security and privacy",
-        "disabled_message": "Security component temporarily disabled for testing",
-        "password": "Password",
-        "password_set": "Your password is set",
-        "password_not_set": "No password set",
-        "change_password": "Change Password",
-        "last_changed": "Last changed",
-        "two_factor": "Two-Factor Authentication",
-        "two_factor_enabled": "Two-factor authentication is enabled using {method}",
-        "two_factor_disabled": "Two-factor authentication is disabled",
-        "enable": "Enable",
-        "disable": "Disable",
-        "active_sessions": "Active Sessions",
-        "sessions_description": "Manage your active login sessions",
-        "current_session": "Current Session",
-        "revoke_all": "Revoke All Sessions",
-        "current_password": "Current Password",
-        "new_password": "New Password",
-        "confirm_password": "Confirm Password",
-        "passwords_do_not_match": "Passwords do not match",
-        "change": "Change",
-        "changing": "Changing...",
-        "cancel": "Cancel",
-        "password_changed": "Password changed successfully",
-        "setup_2fa": "Setup Two-Factor Authentication",
-        "select_method": "Select verification method",
-        "authenticator_app": "Authenticator App",
-        "email": "Email",
-        "sms": "SMS",
-        "setup": "Setup",
-        "setting_up": "Setting up...",
-        "2fa_setup_initiated": "2FA setup initiated",
-        "2fa_verified": "2FA verified successfully",
-        "2fa_disabled": "2FA disabled successfully",
-        "enter_password_to_disable": "Enter your password to disable 2FA",
-        "session_revoked": "Session revoked successfully",
-        "all_sessions_revoked": "All sessions revoked successfully",
-        "copied_to_clipboard": "Copied to clipboard",
-        "password_min_length": "Password must be at least 8 characters long",
-        "current_password_required": "Current password is required",
-        "new_password_required": "New password is required",
-        "confirm_password_required": "Please confirm your new password",
-        "password_too_short": "Password must be at least 8 characters long"
-      },
-      "notifications": {
-        "coming_soon": "Notification Settings Coming Soon",
-        "coming_soon_desc": "Notification preferences will be available here"
-      },
-      "payment": {
-        "title": "Payment Methods",
-        "subtitle": "Manage your payment options",
-        "coming_soon": "Payment Methods Coming Soon",
-        "coming_soon_desc": "Payment management will be available here"
-      },
-      "wishlist": {
-        "title": "My Wishlist",
-        "subtitle": "View your saved items",
-        "coming_soon": "Wishlist Coming Soon",
-        "coming_soon_desc": "Your wishlist will be available here"
+        "title": "Profile Overview",
+        "description": "Manage your profile information and settings"
       },
       "orders": {
-        "title": "Order History",
-        "subtitle": "View your order history",
+        "title": "My Orders",
+        "description": "View and track your order history",
+        "subtitle": "View your order history and track your packages",
         "recent_orders": "Recent Orders",
         "search_orders": "Search orders...",
         "all_statuses": "All Statuses",
@@ -1088,47 +808,335 @@
         "items": "items",
         "item": "item"
       },
+      "edit": {
+        "title": "Edit Profile",
+        "description": "Update your personal information"
+      },
+      "security": {
+        "title": "Security Settings",
+        "description": "Manage your account security and privacy"
+      },
       "preferences": {
         "title": "Preferences",
-        "subtitle": "Customize your account preferences",
-        "coming_soon": "Preferences Coming Soon",
-        "coming_soon_desc": "Preference settings will be available here",
-        "language": "Language & Region",
-        "language_label": "Language",
-        "language_value": "English (US)",
-        "timezone_label": "Time Zone",
-        "timezone_value": "UTC-8 (Pacific Time)",
-        "change": "Change",
-        "appearance": "Appearance",
-        "theme_label": "Theme",
-        "theme_value": "Light Mode"
+        "description": "Customize your account preferences and settings"
       },
-      "loading": "Loading profile...",
-      "errors": {
-        "passwordMismatch": "New passwords do not match",
-        "passwordMinLength": "Password must be at least 8 characters"
+      "payment": {
+        "title": "Payment Methods",
+        "description": "Manage your payment methods and billing information"
+      },
+      "loyalty": {
+        "title": "Loyalty Program",
+        "description": "View your loyalty points, rewards, and benefits"
+      },
+      "addresses": {
+        "title": "Address Book",
+        "description": "Manage your shipping and billing addresses"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Manage your notification preferences and alerts"
+      },
+      "wishlist": {
+        "title": "Wishlist",
+        "description": "Manage your saved items and wishlist"
       }
     },
-    "notFound": {
-      "title": "Page Not Found",
-      "heading": "Oops! Page Not Found",
-      "description": "Sorry, we couldn't find the page you're looking for. The page might have been moved or deleted.",
-      "searchPlaceholder": "Search our products...",
-      "searchTitle": "Looking for something specific?",
-      "categoriesTitle": "Popular Categories",
-      "helpTitle": "Need help? Check out these resources:",
-      "backToHome": "Back to Home",
-      "browseProducts": "Browse Products",
-      "goBack": "Go Back",
-      "contactSupport": "Contact Support",
-      "helpCenter": "Help Center",
-      "faq": "FAQ",
-      "categories": {
-        "electronics": "Electronics",
-        "fashion": "Fashion",
-        "homeGarden": "Home & Garden",
-        "sports": "Sports"
-      }
+    "title": "My Profile",
+    "subtitle": "Manage your account settings and preferences",
+    "tabs": {
+      "profile": "Profile Information",
+      "security": "Security",
+      "notifications": "Notifications"
+    },
+    "profile": {
+      "title": "Profile Information",
+      "subtitle": "Update your account information",
+      "name": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "avatar": "Profile Picture URL",
+      "avatarPlaceholder": "https://example.com/avatar.jpg",
+      "save": "Save Changes",
+      "update_success": "Profile Updated Successfully",
+      "update_success_desc": "Your profile information has been updated successfully.",
+      "update_error": "Update Failed",
+      "update_error_desc": "There was an error updating your profile. Please try again.",
+      "profile_picture": "Profile Picture",
+      "profile_picture_desc": "Upload a new profile picture. Recommended size: 200x200 pixels.",
+      "full_name": "Full Name",
+      "avatar_url": "Avatar URL",
+      "bio": "Bio",
+      "bio_placeholder": "Tell us a little about yourself...",
+      "save_changes": "Save Changes"
+    },
+    "personal_info": {
+      "title": "Personal Information",
+      "subtitle": "Update your personal and contact information",
+      "update_success": "Profile Updated Successfully",
+      "update_success_desc": "Your profile information has been updated successfully.",
+      "update_error": "Update Failed",
+      "update_error_desc": "There was an error updating your profile. Please try again.",
+      "profile_picture": "Profile Picture",
+      "profile_picture_desc": "Upload a new profile picture. Recommended size: 200x200 pixels.",
+      "full_name": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "avatar_url": "Avatar URL",
+      "bio": "Bio",
+      "bio_placeholder": "Tell us a little about yourself...",
+      "save_changes": "Save Changes",
+      "change_avatar": "Change Avatar",
+      "upload_new_picture": "Upload New Picture",
+      "select_profile_picture": "Select Profile Picture",
+      "avatar_updated": "Avatar Updated",
+      "avatar_updated_desc": "Your profile picture has been updated successfully."
+    },
+    "addresses": {
+      "title": "Addresses",
+      "subtitle": "Manage your saved addresses",
+      "add_address": "Add Address",
+      "add_new_address": "Add New Address",
+      "address_type": "Address Type",
+      "type_home": "Home",
+      "type_work": "Work",
+      "type_other": "Other",
+      "street": "Street Address",
+      "city": "City",
+      "state": "State",
+      "zip_code": "ZIP Code",
+      "country": "Country",
+      "set_as_default": "Set as default address",
+      "no_addresses": "No Saved Addresses",
+      "no_addresses_desc": "You haven't saved any addresses yet. Add your first address to make checkout faster.",
+      "add_first_address": "Add Your First Address",
+      "default": "Default",
+      "set_default": "Set as Default",
+      "incomplete_address": "Incomplete Address",
+      "incomplete_address_desc": "Please fill in all required fields (Street, City, ZIP Code).",
+      "added_success": "Address Added Successfully",
+      "added_success_desc": "Your new address has been saved successfully.",
+      "removed_success": "Address Removed",
+      "removed_success_desc": "The address has been removed from your account.",
+      "update_success": "Address Updated Successfully",
+      "update_success_desc": "Your address has been updated successfully.",
+      "edit_address": "Edit Address",
+      "confirm_delete": "Are you sure you want to delete this address?",
+      "save_error": "Failed to save address. Please try again.",
+      "delete_error": "Failed to delete address. Please try again.",
+      "default_set": "Default Address Set",
+      "default_set_desc": "This address has been set as your default.",
+      "set_default_error": "Failed to set default address. Please try again.",
+      "first_name": "First Name",
+      "last_name": "Last Name",
+      "phone_number": "Phone Number",
+      "email": "Email",
+      "company_name": "Company Name",
+      "address_line_1": "Address Line 1",
+      "address_line_2": "Address Line 2",
+      "postal_code": "Postal Code",
+      "province": "Province/State",
+      "ward": "Ward/District",
+      "label": "Label",
+      "label_placeholder": "e.g., Home, Work, Parents",
+      "select_label": "Select Label",
+      "label_home": "Home",
+      "label_company": "Company",
+      "label_apartment": "Apartment",
+      "label_office": "Office",
+      "label_parents": "Parents",
+      "label_other": "Other",
+      "delivery_instructions": "Delivery Instructions",
+      "delivery_instructions_placeholder": "e.g., Leave at the door, Call upon arrival",
+      "select_country": "Select Country",
+      "select_province": "Select Province/State",
+      "select_ward": "Select Ward/District",
+      "type_billing": "Billing",
+      "type_shipping": "Shipping",
+      "type_both": "Both"
+    },
+    "sidebar": {
+      "title": "Profile Menu",
+      "subtitle": "Navigate through your profile sections",
+      "main_section": "Main",
+      "account_section": "Account",
+      "shopping_section": "Shopping",
+      "preferences_section": "Preferences",
+      "overview": "Overview",
+      "overview_desc": "View your profile summary and statistics",
+      "personal_info": "Personal Information",
+      "personal_info_desc": "Update your personal details and contact information",
+      "security": "Security",
+      "security_desc": "Manage your password and security settings",
+      "notifications": "Notifications",
+      "notifications_desc": "Configure your notification preferences",
+      "addresses": "Addresses",
+      "addresses_desc": "Manage your saved addresses",
+      "payment": "Payment Methods",
+      "payment_desc": "Manage your payment options",
+      "wishlist": "Wishlist",
+      "wishlist_desc": "View your saved items",
+      "loyalty": "Loyalty Points",
+      "loyalty_desc": "Manage your loyalty points and rewards",
+      "orders": "Orders",
+      "orders_desc": "View your order history",
+      "preferences": "Preferences",
+      "preferences_desc": "Customize your account preferences",
+      "quick_actions": "Quick Actions",
+      "download_app": "Download App",
+      "help_center": "Help Center"
+    },
+    "overview": {
+      "total_orders": "Total Orders",
+      "wishlist_items": "Wishlist Items",
+      "saved_cards": "Saved Cards",
+      "saved_addresses": "Saved Addresses",
+      "guest_user": "Guest User",
+      "member_since": "Member since {date}",
+      "verified_account": "Verified Account",
+      "personal_info": "Personal Information",
+      "edit": "Edit",
+      "preferences": "Preferences",
+      "change_profile_picture": "Change Profile Picture",
+      "full_name": "Full Name",
+      "email": "Email",
+      "phone": "Phone",
+      "not_provided": "Not provided",
+      "email_notifications": "Email Notifications",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "default_language": "Default Language",
+      "two_factor_auth": "Two-Factor Authentication",
+      "recent_activity": "Recent Activity",
+      "order_placed": "Order placed",
+      "item_added_wishlist": "Item added to wishlist",
+      "address_added": "Address added",
+      "online": "Online",
+      "active": "Active",
+      "days_ago": "{{count}} days ago",
+      "days_ago_1": "1 day ago",
+      "weeks_ago": "{{count}} weeks ago",
+      "weeks_ago_1": "1 week ago"
+    },
+    "security": {
+      "title": "Security Settings",
+      "description": "Manage your account security and privacy",
+      "disabled_message": "Security component temporarily disabled for testing",
+      "password": "Password",
+      "password_set": "Your password is set",
+      "password_not_set": "No password set",
+      "change_password": "Change Password",
+      "last_changed": "Last changed",
+      "two_factor": "Two-Factor Authentication",
+      "two_factor_enabled": "Two-factor authentication is enabled using {method}",
+      "two_factor_disabled": "Two-factor authentication is disabled",
+      "enable": "Enable",
+      "disable": "Disable",
+      "active_sessions": "Active Sessions",
+      "sessions_description": "Manage your active login sessions",
+      "current_session": "Current Session",
+      "revoke_all": "Revoke All Sessions",
+      "current_password": "Current Password",
+      "new_password": "New Password",
+      "confirm_password": "Confirm Password",
+      "passwords_do_not_match": "Passwords do not match",
+      "change": "Change",
+      "changing": "Changing...",
+      "cancel": "Cancel",
+      "password_changed": "Password changed successfully",
+      "setup_2fa": "Setup Two-Factor Authentication",
+      "select_method": "Select verification method",
+      "authenticator_app": "Authenticator App",
+      "email": "Email",
+      "sms": "SMS",
+      "setup": "Setup",
+      "setting_up": "Setting up...",
+      "2fa_setup_initiated": "2FA setup initiated",
+      "2fa_verified": "2FA verified successfully",
+      "2fa_disabled": "2FA disabled successfully",
+      "enter_password_to_disable": "Enter your password to disable 2FA",
+      "session_revoked": "Session revoked successfully",
+      "all_sessions_revoked": "All sessions revoked successfully",
+      "copied_to_clipboard": "Copied to clipboard",
+      "password_min_length": "Password must be at least 8 characters long",
+      "current_password_required": "Current password is required",
+      "new_password_required": "New password is required",
+      "confirm_password_required": "Please confirm your new password",
+      "password_too_short": "Password must be at least 8 characters long"
+    },
+    "notifications": {
+      "coming_soon": "Notification Settings Coming Soon",
+      "coming_soon_desc": "Notification preferences will be available here"
+    },
+    "payment": {
+      "title": "Payment Methods",
+      "subtitle": "Manage your payment options",
+      "coming_soon": "Payment Methods Coming Soon",
+      "coming_soon_desc": "Payment management will be available here"
+    },
+    "wishlist": {
+      "title": "My Wishlist",
+      "subtitle": "View your saved items",
+      "coming_soon": "Wishlist Coming Soon",
+      "coming_soon_desc": "Your wishlist will be available here"
+    },
+    "orders": {
+      "title": "Order History",
+      "subtitle": "View your order history",
+      "recent_orders": "Recent Orders",
+      "search_orders": "Search orders...",
+      "all_statuses": "All Statuses",
+      "status_pending": "Pending",
+      "status_confirmed": "Confirmed",
+      "status_processing": "Processing",
+      "status_shipped": "Shipped",
+      "status_delivered": "Delivered",
+      "status_cancelled": "Cancelled",
+      "no_orders": "No Orders Found",
+      "no_orders_desc": "You haven't placed any orders yet.",
+      "order_cancelled": "Order cancelled successfully",
+      "items": "items",
+      "item": "item"
+    },
+    "preferences": {
+      "title": "Preferences",
+      "subtitle": "Customize your account preferences",
+      "coming_soon": "Preferences Coming Soon",
+      "coming_soon_desc": "Preference settings will be available here",
+      "language": "Language & Region",
+      "language_label": "Language",
+      "language_value": "English (US)",
+      "timezone_label": "Time Zone",
+      "timezone_value": "UTC-8 (Pacific Time)",
+      "change": "Change",
+      "appearance": "Appearance",
+      "theme_label": "Theme",
+      "theme_value": "Light Mode"
+    },
+    "loading": "Loading profile...",
+    "errors": {
+      "passwordMismatch": "New passwords do not match",
+      "passwordMinLength": "Password must be at least 8 characters"
+    }
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "heading": "Oops! Page Not Found",
+    "description": "Sorry, we couldn't find the page you're looking for. The page might have been moved or deleted.",
+    "searchPlaceholder": "Search our products...",
+    "searchTitle": "Looking for something specific?",
+    "categoriesTitle": "Popular Categories",
+    "helpTitle": "Need help? Check out these resources:",
+    "backToHome": "Back to Home",
+    "browseProducts": "Browse Products",
+    "goBack": "Go Back",
+    "contactSupport": "Contact Support",
+    "helpCenter": "Help Center",
+    "faq": "FAQ",
+    "categories": {
+      "electronics": "Electronics",
+      "fashion": "Fashion",
+      "homeGarden": "Home & Garden",
+      "sports": "Sports"
     }
   },
   "loyalty": {
@@ -1235,11 +1243,6 @@
     }
   },
   "ecommerce": {
-    "product": {
-      "outOfStock": "Out of Stock",
-      "priceUpdating": "Price being updated",
-      "contactPrice": "Contact Price"
-    },
     "checkout": {
       "title": "Checkout",
       "subtitle": "Review your items and complete your order.",
@@ -1503,9 +1506,14 @@
         "description": "Description"
       },
       "validation": {
-        "out_of_stock": "Some items in your cart are out of stock",
-        "low_stock": "Some items have limited stock",
+        "out_of_stock": "{productName} is out of stock",
+        "out_of_stock_generic": "Some items in your cart are out of stock",
+        "low_stock_warning": "Only {quantity} {productName} left in stock",
+        "low_stock_generic": "Some items have limited stock",
+        "quantity_limit": "Quantity exceeds available stock for {productName}. Maximum allowed: {quantity}",
         "quantity_exceeded": "Quantity exceeds available stock",
+        "variant_unavailable": "Selected variant for {productName} is no longer available",
+        "product_unavailable": "{productName} is no longer available",
         "price_changed": "Item prices have changed since you added them to your cart"
       },
       "summary": {
@@ -1521,6 +1529,14 @@
         "continue": "Continue Shopping",
         "updating": "Updating...",
         "removing": "Removing..."
+      },
+      "items": {
+        "remove": "Remove",
+        "quantity": "Quantity",
+        "low_stock": "Low stock",
+        "unavailable": "Unavailable",
+        "decrease_quantity": "Decrease quantity",
+        "increase_quantity": "Increase quantity"
       },
       "item": {
         "quantity": "Quantity",
@@ -1564,6 +1580,9 @@
     }
   },
   "product": {
+    "outOfStock": "Out of Stock",
+    "priceUpdating": "Price being updated",
+    "contactPrice": "Contact Price",
     "detail": {
       "breadcrumb": {
         "home": "Home",

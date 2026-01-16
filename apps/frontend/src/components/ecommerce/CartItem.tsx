@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { Button, Image, Input } from '@heroui/react';
+import { useTranslations } from 'next-intl';
+import { Button, Image, Input, Tooltip } from '@heroui/react';
 import PriceDisplay from './PriceDisplay';
 import type { CartItemDetails } from '../../types/cart';
 
@@ -24,6 +25,13 @@ const CloseIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+const TrashIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+    <path d="M3 6h18" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+  </svg>
+);
+
 interface CartItemProps {
   item: CartItemDetails;
   onUpdateQuantity: (itemId: string, quantity: number) => void;
@@ -43,6 +51,7 @@ const CartItem: React.FC<CartItemProps> = ({
   showImage = true,
   showControls = true,
 }) => {
+  const t = useTranslations('ecommerce.cart.items');
   const { id, product, quantity, variant, unitPrice, totalPrice, inStock, lowStock, maxQuantity } = item;
   const { name, media, slug } = product;
 
@@ -84,17 +93,17 @@ const CartItem: React.FC<CartItemProps> = ({
 
   return (
     <div
-      className={`flex gap-3 rounded-lg border border-gray-200/80 bg-white/90 px-3 py-3 text-sm transition-colors hover:border-primary-300 dark:border-gray-700 dark:bg-gray-900/70 ${!inStock ? 'opacity-80' : ''
+      className={`flex gap-3 rounded-xl border border-gray-100 bg-white p-2.5 transition-all hover:border-gray-300 dark:border-gray-800 dark:bg-gray-800/60 dark:hover:border-gray-700 ${!inStock ? 'opacity-70 grayscale' : ''
         } ${className}`}
     >
       {/* Product Image */}
       {showImage && (
-        <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
+        <div className="h-28 w-24 flex-shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
           <Link href={slug ? `/products/${slug}` : '#'}>
             <Image
               src={getProductImage()}
               alt={name}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
               removeWrapper
             />
           </Link>
@@ -102,41 +111,54 @@ const CartItem: React.FC<CartItemProps> = ({
       )}
 
       {/* Product Details */}
-      <div className="flex flex-1 flex-col gap-2">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <Link
-              href={slug ? `/products/${slug}` : '#'}
-              className="block text-sm font-medium text-gray-900 transition-colors hover:text-primary-500 dark:text-white line-clamp-2 leading-tight break-words"
-            >
-              {name}
-            </Link>
-            {variantText && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1 mb-0">{variantText}</p>
-            )}
+      <div className="flex flex-1 flex-col justify-between py-0.5">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 space-y-1">
+              <Tooltip content={name} closeDelay={0}>
+                <Link
+                  href={slug ? `/products/${slug}` : '#'}
+                  className="block text-sm font-semibold text-gray-900 transition-colors hover:text-primary-600 dark:text-white dark:hover:text-primary-400 line-clamp-1 leading-snug"
+                >
+                  {name}
+                </Link>
+              </Tooltip>
+              {variantText && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{variantText}</p>
+              )}
+            </div>
+            <div className="shrink-0 text-right">
+              <div className="text-sm font-bold text-gray-900 dark:text-white">
+                <PriceDisplay price={totalPrice} currency={currency} />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-1">
             {lowStock && inStock && (
-              <span className="mt-0.5 inline-block text-[0.65rem] uppercase tracking-wide text-amber-500">Low stock</span>
+              <span className="inline-flex items-center rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20 dark:bg-amber-900/30 dark:text-amber-400 dark:ring-amber-500/20">
+                {t('low_stock')}
+              </span>
             )}
             {!inStock && (
-              <span className="mt-0.5 inline-block text-[0.65rem] uppercase tracking-wide text-red-500">Unavailable</span>
+              <span className="inline-flex items-center rounded-full bg-red-50 px-1.5 py-0.5 text-[10px] font-medium text-red-700 ring-1 ring-inset ring-red-600/10 dark:bg-red-900/30 dark:text-red-400 dark:ring-red-500/20">
+                {t('unavailable')}
+              </span>
             )}
-          </div>
-          <div className="shrink-0 text-right text-sm font-semibold text-gray-900 dark:text-white">
-            <PriceDisplay price={totalPrice} currency={currency} />
           </div>
         </div>
 
         {showControls && (
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-1 rounded-md border border-gray-200 bg-white px-1 py-0.5 dark:border-gray-700 dark:bg-gray-900">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex h-8 items-center rounded-lg border border-gray-200 bg-gray-50 p-1 dark:border-gray-700 dark:bg-gray-800">
               <Button
                 isIconOnly
                 size="sm"
                 variant="light"
-                className="h-6 w-6 min-w-0 rounded-md bg-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                className="h-6 w-6 min-w-0 rounded-md bg-white text-gray-600 shadow-sm hover:text-primary-600 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-300"
                 onPress={() => handleQuantityStep(-1)}
                 isDisabled={!inStock || !canDecrease}
-                aria-label="Decrease quantity"
+                aria-label={t('decrease_quantity')}
               >
                 <MinusIcon className="h-3 w-3" />
               </Button>
@@ -150,20 +172,20 @@ const CartItem: React.FC<CartItemProps> = ({
                 onValueChange={handleQuantityInputChange}
                 classNames={{
                   inputWrapper:
-                    'h-7 w-11 min-w-[2.5rem] border border-transparent bg-transparent px-0 shadow-none data-[focus=true]:border-primary-200 dark:data-[focus=true]:border-primary-500/40',
-                  input: 'text-center text-xs font-semibold text-gray-900 dark:text-white',
+                    'h-6 w-10 min-w-[2rem] bg-transparent shadow-none px-0 !border-none group-data-[focus=true]:bg-transparent',
+                  input: 'text-center text-xs font-semibold text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
                 }}
                 isDisabled={!inStock}
-                aria-label="Cart item quantity"
+                aria-label={t('quantity')}
               />
               <Button
                 isIconOnly
                 size="sm"
                 variant="light"
-                className="h-6 w-6 min-w-0 rounded-md bg-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                className="h-6 w-6 min-w-0 rounded-md bg-white text-gray-600 shadow-sm hover:text-primary-600 disabled:opacity-50 dark:bg-gray-700 dark:text-gray-300"
                 onPress={() => handleQuantityStep(1)}
                 isDisabled={!inStock || !canIncrease}
-                aria-label="Increase quantity"
+                aria-label={t('increase_quantity')}
               >
                 <PlusIcon className="h-3 w-3" />
               </Button>
@@ -174,10 +196,10 @@ const CartItem: React.FC<CartItemProps> = ({
               variant="light"
               color="danger"
               onPress={handleRemove}
-              className="text-red-500 hover:text-red-600"
-              aria-label="Remove item"
+              className="text-gray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20"
+              aria-label={t('remove')}
             >
-              <CloseIcon className="h-3.5 w-3.5" />
+              <TrashIcon className="h-4 w-4" />
             </Button>
           </div>
         )}

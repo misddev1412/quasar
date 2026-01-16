@@ -3,6 +3,7 @@ export enum SectionPage {
   NEWS = 'news',
   PRODUCT = 'product',
   PRODUCT_DETAIL = 'product_detail',
+  NEWS_DETAIL = 'news_detail',
 }
 
 export enum SectionType {
@@ -25,6 +26,7 @@ export enum SectionType {
   BRAND_SHOWCASE = 'brand_showcase',
   WHY_CHOOSE_US = 'why_choose_us',
   PRODUCT_DETAILS = 'product_details',
+  NEWS_DETAILS = 'news_details',
 }
 
 export const SECTION_TYPE_LABELS: Record<SectionType, string> = {
@@ -47,4 +49,5 @@ export const SECTION_TYPE_LABELS: Record<SectionType, string> = {
   [SectionType.BRAND_SHOWCASE]: 'Brand showcase',
   [SectionType.WHY_CHOOSE_US]: 'Why choose us',
   [SectionType.PRODUCT_DETAILS]: 'Product Details (Desc, Specs, Policies)',
+  [SectionType.NEWS_DETAILS]: 'News Details',
 };

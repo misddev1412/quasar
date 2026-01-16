@@ -6,7 +6,6 @@ import CartItem from './CartItem';
 import { PriceDisplay } from './PriceDisplay';
 import { useCart } from '../../contexts/CartContext';
 import { useTranslations } from 'next-intl';
-import type { ShippingOption } from '../../types/cart';
 import { useRouter } from 'next/navigation';
 import { useCurrencyFormatter } from '../../hooks/useCurrencyFormatter';
 
@@ -57,6 +56,35 @@ const InfoIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+const TrashIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+    <path d="M3 6h18" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+  </svg>
+);
+
+const CreditCardIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+    <rect x="2" y="5" width="20" height="14" rx="2" />
+    <path d="M2 10h20" />
+  </svg>
+);
+
+const ArrowRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+    <path d="M5 12h14" />
+    <path d="m12 5 7 7-7 7" />
+  </svg>
+);
+
+const ShoppingBagIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <path d="M16 10a4 4 0 0 1-8 0" />
+  </svg>
+);
+
 interface ShoppingCartProps {
   isOpen?: boolean;
   onClose?: () => void;
@@ -76,8 +104,6 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
   className = '',
   showCheckoutButton = true,
   showClearButton = true,
-  showShippingOptions = true,
-  showDiscountCode = true,
   onCheckout,
 }) => {
   const t = useTranslations('ecommerce.cart');
@@ -87,21 +113,14 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
     summary,
     isLoading,
     validation,
-    shippingOption,
-    appliedDiscounts,
     updateQuantity,
     removeItem,
     clearCart,
-    applyDiscountCode,
-    removeDiscount,
-    setShippingOption,
     closeCart: contextCloseCart,
     isOpen: contextIsOpen,
   } = useCart();
 
   const [isConfirmingClear, setIsConfirmingClear] = useState(false);
-  const [discountCode, setDiscountCode] = useState('');
-  const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
   const { formatCurrency } = useCurrencyFormatter({ currency: summary.totals.currency });
 
   const cartLabel =
@@ -109,36 +128,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
       ? t('aria_labels.cart_button', { count: summary.totalItems })
       : t('aria_labels.cart_button_empty');
   const hasCartItems = !summary.isEmpty;
-  const hasDiscount = summary.totals.discount > 0;
   const formatMoney = (value: number) => formatCurrency(value);
-
-  // Sample shipping options - in production, these would come from an API
-  const shippingOptions: ShippingOption[] = [
-    {
-      id: 'standard',
-      name: 'Standard Shipping',
-      description: '5-7 business days',
-      cost: 5.99,
-      estimatedDays: '5-7',
-      type: 'standard',
-    },
-    {
-      id: 'express',
-      name: 'Express Shipping',
-      description: '2-3 business days',
-      cost: 12.99,
-      estimatedDays: '2-3',
-      type: 'express',
-    },
-    {
-      id: 'overnight',
-      name: 'Overnight Shipping',
-      description: 'Next business day',
-      cost: 24.99,
-      estimatedDays: '1',
-      type: 'overnight',
-    },
-  ];
 
   const closeCartAndNotify = useCallback(() => {
     contextCloseCart();
@@ -154,20 +144,6 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
     setIsConfirmingClear(false);
   };
 
-  const handleApplyDiscount = async () => {
-    if (!discountCode.trim()) return;
-
-    setIsApplyingDiscount(true);
-    try {
-      await applyDiscountCode(discountCode.trim());
-      setDiscountCode('');
-    } catch (error) {
-      // Error is handled by the cart context
-    } finally {
-      setIsApplyingDiscount(false);
-    }
-  };
-
   const handleCheckout = () => {
     if (onCheckout) {
       onCheckout();
@@ -178,13 +154,19 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
   };
 
   const renderEmptyCart = () => (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white/70 px-4 py-10 text-center dark:border-gray-700 dark:bg-gray-900/40">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-        <CartIcon className="h-5 w-5" />
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white/50 px-4 py-12 text-center dark:border-gray-700 dark:bg-gray-900/40">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 text-gray-400 shadow-sm dark:bg-gray-800 dark:text-gray-500">
+        <CartIcon className="h-6 w-6" />
       </div>
-      <h3 className="mb-0 text-base font-semibold text-gray-900 dark:text-white">{t('empty.title')}</h3>
-      <p className="max-w-xs text-sm text-gray-500 dark:text-gray-400 mb-0">{t('empty.description')}</p>
-      <Button color="primary" onPress={closeCartAndNotify} size="md" className="px-6">
+      <h3 className="mb-1 text-base font-semibold text-gray-900 dark:text-white">{t('empty.title')}</h3>
+      <p className="mb-6 max-w-xs text-xs text-gray-500 dark:text-gray-400">{t('empty.description')}</p>
+      <Button
+        color="primary"
+        onPress={closeCartAndNotify}
+        size="md"
+        className="px-6 font-medium shadow-md shadow-primary/20"
+        startContent={<ShoppingBagIcon className="h-4 w-4" />}
+      >
         {t('empty.continue')}
       </Button>
     </div>
@@ -196,240 +178,108 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
     }
 
     return (
-      <div className="mb-3 space-y-2 text-sm">
+      <div className="mb-4 space-y-2">
         {validation.errors.map((error, index) => (
           <div
             key={`error-${index}`}
-            className="flex items-start gap-2 rounded-lg border border-red-100 bg-red-50/80 px-3 py-2 text-red-600 dark:border-red-500/30 dark:bg-red-500/5 dark:text-red-200"
+            className="flex items-start gap-2 rounded-lg border border-danger-100 bg-danger-50/50 p-3 text-xs text-danger-600 dark:border-danger-500/30 dark:bg-danger-500/10 dark:text-danger-400"
           >
             <AlertIcon className="mt-0.5 h-4 w-4 flex-shrink-0" />
-            <span className="leading-snug">{error.message}</span>
+            <span className="font-medium leading-relaxed">{error.message}</span>
           </div>
         ))}
         {validation.warnings.map((warning, index) => (
           <div
             key={`warning-${index}`}
-            className="flex items-start gap-2 rounded-lg border border-amber-100 bg-amber-50/80 px-3 py-2 text-amber-600 dark:border-amber-500/30 dark:bg-amber-500/5 dark:text-amber-200"
+            className="flex items-start gap-2 rounded-lg border border-warning-100 bg-warning-50/50 p-3 text-xs text-warning-700 dark:border-warning-500/30 dark:bg-warning-500/10 dark:text-warning-400"
           >
             <InfoIcon className="mt-0.5 h-4 w-4 flex-shrink-0" />
-            <span className="leading-snug">{warning.message}</span>
+            <span className="font-medium leading-relaxed">{warning.message}</span>
           </div>
         ))}
       </div>
     );
   };
 
-  const renderShippingOptions = () => {
-    if (!showShippingOptions || summary.isEmpty) return null;
-
-    return (
-      <div className="mb-5 rounded-xl border border-gray-200/70 bg-white/80 px-3 py-3 text-sm dark:border-gray-700 dark:bg-gray-900/60">
-        <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-300">
-          <TruckIcon className="h-3.5 w-3.5" />
-          Shipping
-        </div>
-        <div className="space-y-2">
-          {shippingOptions.map((option) => {
-            const isSelected = shippingOption?.id === option.id;
-
-            return (
-              <label
-                key={option.id}
-                className={`flex cursor-pointer items-center justify-between rounded-lg border px-3 py-2 ${isSelected
-                  ? 'border-primary-200 bg-primary-50/70 dark:border-primary-500/40 dark:bg-primary-500/10'
-                  : 'border-gray-200 bg-white/70 hover:border-primary-100 dark:border-gray-700 dark:bg-gray-900/40'
-                  }`}
-              >
-                <div className="flex items-center gap-3">
-                  <input
-                    type="radio"
-                    name="shipping"
-                    checked={isSelected}
-                    onChange={() => setShippingOption(option)}
-                    className="text-primary-500"
-                  />
-                  <div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">{option.name}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{option.description}</div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                    {formatMoney(option.cost)}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">{option.estimatedDays} days</div>
-                </div>
-              </label>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  const renderDiscountCode = () => {
-    if (!showDiscountCode || summary.isEmpty) return null;
-
-    return (
-      <div className="mb-5 space-y-3 text-sm">
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-300">
-          <TagIcon className="h-3.5 w-3.5" />
-          Discount
-        </div>
-        <div className="flex gap-2">
-          <Input
-            type="text"
-            size="sm"
-            placeholder="Enter code"
-            value={discountCode}
-            onChange={(e) => setDiscountCode(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleApplyDiscount()}
-            className="flex-1"
-          />
-          <Button
-            color="primary"
-            variant="flat"
-            size="sm"
-            onPress={handleApplyDiscount}
-            isLoading={isApplyingDiscount}
-            isDisabled={!discountCode.trim()}
-          >
-            Apply
-          </Button>
-        </div>
-        <div className="space-y-2">
-          {appliedDiscounts.map((discount, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50/80 px-3 py-2 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200"
-            >
-              <div className="flex items-center gap-2">
-                <Chip color="success" variant="flat" size="sm">
-                  {discount.code}
-                </Chip>
-                <span className="text-xs">{discount.description}</span>
-              </div>
-              <Button
-                isIconOnly
-                size="sm"
-                variant="light"
-                color="danger"
-                onPress={() => removeDiscount(discount.code)}
-              >
-                <CloseIcon className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  const renderCartHighlights = () => {
-    if (!hasCartItems) return null;
-
-    return (
-      <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-        <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-900/60">
-          <p className="text-[0.65rem] uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 mb-0">Items</p>
-          <p className="text-lg font-semibold text-gray-900 dark:text-white mb-0">{summary.totalItems}</p>
-        </div>
-        <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-right dark:border-gray-700 dark:bg-gray-900/60">
-          <p className="text-[0.65rem] uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 mb-0">Total</p>
-          <p className="text-lg font-semibold text-gray-900 dark:text-white mb-0">
-            {formatMoney(summary.totals.total)}
-          </p>
-        </div>
-        {hasDiscount && (
-          <div className="col-span-2 rounded-lg border border-emerald-200 bg-emerald-50/70 px-3 py-2 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200">
-            <p className="text-[0.65rem] uppercase tracking-[0.2em] mb-0">Savings</p>
-            <p className="text-base font-semibold mb-0">-{formatMoney(summary.totals.discount)}</p>
-          </div>
-        )}
-      </div>
-    );
-  };
+  /* Removed renderCartHighlights as per user request */
 
   const renderCartContent = () => (
-    <div className="flex h-full max-h-[78vh] min-h-[55vh] flex-col">
+    <div className="flex h-full max-h-[85vh] min-h-[50vh] flex-col bg-white dark:bg-gray-900">
       {/* Cart Header */}
-      <CardHeader className="flex-shrink-0 border-b border-gray-100 px-4 py-4 sm:px-6 dark:border-gray-800">
-        <div className="flex w-full items-start justify-between gap-3">
+      <div className="flex-shrink-0 border-b border-gray-100 bg-white px-5 py-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex w-full items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-primary-500 dark:border-gray-700 dark:bg-gray-900">
-              <CartIcon className="h-4 w-4" />
-            </span>
-            <div>
-              <p className="text-[0.65rem] uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500 mb-0">{t('title')}</p>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-0">{cartLabel}</h2>
-              {hasCartItems && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-0">
-                  {summary.totalItems} {summary.totalItems === 1 ? 'item' : 'items'} · {formatMoney(summary.totals.subtotal)}
-                </p>
-              )}
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600 shadow-sm dark:bg-primary-500/20 dark:text-primary-300">
+              <CartIcon className="h-5 w-5" />
             </div>
+            <h2 className="m-0 text-lg font-bold leading-none text-gray-900 dark:text-white">
+              {t('title')}
+            </h2>
           </div>
-          <div className="flex items-center gap-2">
-            {hasCartItems && (
-              <span className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-600 dark:border-gray-700 dark:text-gray-300">
-                {summary.totalItems}
-              </span>
-            )}
-
-          </div>
+          {onClose && (
+            <Button
+              isIconOnly
+              variant="light"
+              onPress={closeCartAndNotify}
+              className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+              radius="full"
+              size="sm"
+            >
+              <CloseIcon className="h-5 w-5" />
+            </Button>
+          )}
         </div>
-        {renderCartHighlights()}
-      </CardHeader>
+      </div>
 
       {/* Cart Items */}
-      <CardBody className="flex-1 min-h-0 overflow-y-auto px-4 py-4 sm:px-6">
+      <div className="flex-1 overflow-y-auto px-5 py-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
         {summary.isEmpty ? (
           renderEmptyCart()
         ) : (
-          <div className="space-y-4 pb-4">
-            {renderValidationAlerts()}
-            {items.map((item) => (
-              <CartItem
-                key={item.id}
-                item={item}
-                onUpdateQuantity={updateQuantity}
-                onRemove={removeItem}
-                currency={summary.totals.currency}
-              />
-            ))}
-            {renderShippingOptions()}
-            {renderDiscountCode()}
+          <div className="space-y-4 pb-2">
+            <div className="space-y-3">
+              {renderValidationAlerts()}
+              {items.map((item) => (
+                <CartItem
+                  key={item.id}
+                  item={item}
+                  onUpdateQuantity={updateQuantity}
+                  onRemove={removeItem}
+                  currency={summary.totals.currency}
+                />
+              ))}
+            </div>
           </div>
         )}
-      </CardBody>
+      </div>
 
       {/* Cart Footer */}
       {hasCartItems && (
-        <CardFooter className="flex-shrink-0 flex-col gap-3 border-t border-gray-100 px-4 py-4 sm:px-6 dark:border-gray-800">
+        <div className="flex-shrink-0 flex-col gap-3 border-t border-gray-100 bg-white px-5 py-4 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)] dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
           {/* Cart Summary */}
-          <div className="w-full space-y-2 rounded-xl border border-gray-200 bg-white/80 p-3 text-sm dark:border-gray-700 dark:bg-gray-900/60">
-            <div className="flex justify-between text-gray-600 dark:text-gray-400">
-              <span>Subtotal</span>
-              <PriceDisplay price={summary.totals.subtotal} currency={summary.totals.currency} />
+          <div className="space-y-2 mb-1">
+            <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+              <span className="capitalize">{t('items_count_single', { count: '' }).replace(/\d+/, '').trim() || 'Items'}</span>
+              <span className="text-base font-semibold text-gray-900 dark:text-white">{summary.totalItems}</span>
             </div>
-            <div className="flex justify-between text-gray-600 dark:text-gray-400">
-              <span>Shipping</span>
-              <PriceDisplay price={summary.totals.shipping} currency={summary.totals.currency} />
+            <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+              <span>{t('summary.subtotal')}</span>
+              <span className="font-medium text-gray-900 dark:text-white">
+                <PriceDisplay price={summary.totals.subtotal} currency={summary.totals.currency} />
+              </span>
             </div>
-            <div className="flex justify-between text-gray-600 dark:text-gray-400">
-              <span>Tax</span>
-              <PriceDisplay price={summary.totals.tax} currency={summary.totals.currency} />
+            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+              <span>{t('summary.tax')}</span>
+              <span className="font-medium text-gray-900 dark:text-white">
+                <PriceDisplay price={summary.totals.tax} currency={summary.totals.currency} />
+              </span>
             </div>
-            {summary.totals.discount > 0 && (
-              <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                <span>Discount</span>
-                <span>-{formatMoney(summary.totals.discount)}</span>
+            <div className="my-2 h-px bg-dashed border-t border-gray-200 dark:border-gray-700" />
+            <div className="flex items-center justify-between">
+              <span className="text-base font-bold text-gray-900 dark:text-white">{t('summary.total')}</span>
+              <div className="text-lg font-bold text-primary-600 dark:text-primary-400">
+                <PriceDisplay price={summary.totals.total} currency={summary.totals.currency} size="lg" />
               </div>
-            )}
-            <div className="h-px bg-gray-200 dark:bg-gray-700" />
-            <div className="flex items-center justify-between text-base font-semibold text-gray-900 dark:text-white">
-              <span>Total</span>
-              <PriceDisplay price={summary.totals.total} currency={summary.totals.currency} size="lg" />
             </div>
           </div>
 
@@ -442,29 +292,41 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
                 onPress={handleCheckout}
                 isLoading={isLoading}
                 isDisabled={!summary.isValid || summary.hasOutOfStockItems}
-                className="w-full"
+                className="w-full font-bold shadow-md shadow-primary/20"
+                startContent={!isLoading && <CreditCardIcon className="h-4 w-4" />}
+                endContent={!isLoading && <ArrowRightIcon className="h-4 w-4" />}
               >
                 {t('actions.checkout')}
               </Button>
             )}
-            {showClearButton && (
-              <Button
-                variant="flat"
-                color="danger"
-                size="md"
-                onPress={() => setIsConfirmingClear(true)}
-                className="w-full"
-              >
-                {t('actions.clear')}
-              </Button>
-            )}
-            {isModal && (
-              <Button variant="light" size="md" onPress={closeCartAndNotify} className="w-full">
-                {t('actions.continue')}
-              </Button>
-            )}
+
+            <div className="grid grid-cols-2 gap-2">
+              {showClearButton && (
+                <Button
+                  variant="flat"
+                  color="danger"
+                  size="sm"
+                  onPress={() => setIsConfirmingClear(true)}
+                  className="w-full font-medium"
+                  startContent={<TrashIcon className="h-4 w-4" />}
+                >
+                  {t('actions.clear')}
+                </Button>
+              )}
+              {isModal && (
+                <Button
+                  variant="light"
+                  size="sm"
+                  onPress={closeCartAndNotify}
+                  className="w-full font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                  startContent={<ShoppingBagIcon className="h-4 w-4" />}
+                >
+                  {t('actions.continue')}
+                </Button>
+              )}
+            </div>
           </div>
-        </CardFooter>
+        </div>
       )}
     </div>
   );
@@ -478,7 +340,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
           size="xl"
           backdrop="blur"
         >
-          <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+          <div className="overflow-hidden bg-white dark:bg-gray-900 sm:rounded-2xl">
             {renderCartContent()}
           </div>
         </Modal>
@@ -490,29 +352,31 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
           size="sm"
           backdrop="blur"
         >
-          <CustomCard padding="lg">
+          <CustomCard padding="lg" className="border-0 shadow-none">
             <CardHeader>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Clear Cart</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('clear.title')}</h3>
             </CardHeader>
             <CardBody>
-              <p className="text-gray-600 dark:text-gray-400">
-                Are you sure you want to remove all items from your cart? This action cannot be undone.
+              <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                {t('clear.message')}
               </p>
             </CardBody>
             <CardFooter>
-              <div className="flex justify-end gap-2 w-full">
+              <div className="flex justify-end gap-3 w-full">
                 <Button
                   variant="flat"
                   onPress={() => setIsConfirmingClear(false)}
+                  className="font-medium"
                 >
-                  Cancel
+                  {t('clear.cancel')}
                 </Button>
                 <Button
                   color="danger"
                   onPress={handleClearCart}
                   isLoading={isLoading}
+                  className="font-medium shadow-lg shadow-danger/20"
                 >
-                  Clear Cart
+                  {t('clear.confirm')}
                 </Button>
               </div>
             </CardFooter>
@@ -528,9 +392,9 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
 
   return (
     <>
-      <CustomCard variant="default" padding="none" className={`max-h-[82vh] ${className}`}>
+      <div className={`overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900 ${className}`}>
         {renderCartContent()}
-      </CustomCard>
+      </div>
 
       {/* Clear Cart Confirmation Modal */}
       <Modal
@@ -539,29 +403,31 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
         size="sm"
         backdrop="blur"
       >
-        <CustomCard padding="lg">
+        <CustomCard padding="lg" className="border-0 shadow-none">
           <CardHeader>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Clear Cart</h3>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('clear.title')}</h3>
           </CardHeader>
           <CardBody>
-            <p className="text-gray-600 dark:text-gray-400">
-              Are you sure you want to remove all items from your cart? This action cannot be undone.
+            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+              {t('clear.message')}
             </p>
           </CardBody>
           <CardFooter>
-            <div className="flex justify-end gap-2 w-full">
+            <div className="flex justify-end gap-3 w-full">
               <Button
                 variant="flat"
                 onPress={() => setIsConfirmingClear(false)}
+                className="font-medium"
               >
-                Cancel
+                {t('clear.cancel')}
               </Button>
               <Button
                 color="danger"
                 onPress={handleClearCart}
                 isLoading={isLoading}
+                className="font-medium shadow-lg shadow-danger/20"
               >
-                Clear Cart
+                {t('clear.confirm')}
               </Button>
             </div>
           </CardFooter>

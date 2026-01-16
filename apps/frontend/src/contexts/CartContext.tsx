@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback, useRef } from 'react';
 import { CartContextType, CartItem, CartItemDetails, CartSummary, CartTotals, CartValidation, CartStorage, CartEvent, ShippingOption, AppliedDiscount, DiscountCode } from '../types/cart';
 import { Product, ProductVariant } from '../types/product';
+import { useTranslations } from 'next-intl';
 
 const CART_STORAGE_KEY = 'shopping-cart';
 const CART_VERSION = '1.0.0';
@@ -131,6 +132,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({
   defaultShippingCost = 5.99,
   maxQuantity = 99,
 }) => {
+  const t = useTranslations('ecommerce.cart.validation');
   const [state, dispatch] = useReducer(cartReducer, initialState);
   const eventListeners = useRef<((event: CartEvent) => void)[]>([]);
 
@@ -257,7 +259,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({
         // Find variant if specified
         let variant: ProductVariant | undefined;
         let unitPrice = product.price || 0;
-        let inStock = product.isActive;
+        let inStock = product.isActive ?? false;
         let lowStock = false;
         let stockQuantity = 0;
 
@@ -319,7 +321,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({
           errors.push({
             type: 'product_unavailable',
             itemId: item.id,
-            message: `Product ${item.productId} is no longer available`,
+            message: t('product_unavailable', { productName: item.productId }),
             severity: 'error',
           });
           continue;
@@ -330,7 +332,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({
           errors.push({
             type: 'product_unavailable',
             itemId: item.id,
-            message: `${product.name} is no longer available`,
+            message: t('product_unavailable', { productName: product.name }),
             severity: 'error',
           });
           continue;
@@ -348,7 +350,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({
             errors.push({
               type: 'variant_unavailable',
               itemId: item.id,
-              message: `Selected variant for ${product.name} is no longer available`,
+              message: t('variant_unavailable', { productName: product.name }),
               severity: 'error',
             });
             continue;
@@ -379,7 +381,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({
           errors.push({
             type: 'out_of_stock',
             itemId: item.id,
-            message: `${product.name} is out of stock`,
+            message: t('out_of_stock', { productName: product.name }),
             severity: 'error',
           });
         }
@@ -388,7 +390,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({
           warnings.push({
             type: 'low_stock',
             itemId: item.id,
-            message: `Only ${stockQuantity} ${product.name} left in stock`,
+            message: t('low_stock_warning', { quantity: stockQuantity, productName: product.name }),
           });
         }
 
@@ -396,7 +398,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({
           errors.push({
             type: 'quantity_limit',
             itemId: item.id,
-            message: `Quantity exceeds available stock for ${product.name}. Maximum allowed: ${stockQuantity}`,
+            message: t('quantity_limit', { productName: product.name, quantity: stockQuantity }),
             severity: 'error',
           });
         }
@@ -424,7 +426,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({
 
     dispatch({ type: 'SET_VALIDATION', payload: validation });
     return validation;
-  }, [state.items, maxQuantity]);
+  }, [state.items, maxQuantity, t]);
 
   // Add item to cart
   const addItem = useCallback(async (productId: string, quantity: number, variantId?: string) => {
@@ -450,7 +452,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({
       // Find variant if specified
       let variant: ProductVariant | undefined;
       let unitPrice = product.price || 0;
-      let inStock = product.isActive;
+      let inStock: boolean = product.isActive;
       let stockQuantity = 0;
 
       if (variantId && product.variants) {

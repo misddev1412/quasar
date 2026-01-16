@@ -96,6 +96,7 @@ import TransactionsPage from '../pages/transactions';
 import TransactionDetailPage from '../pages/transactions/[id]';
 import SupportClientsPage from '../pages/support-clients';
 import ProductDetailSectionsPage from '../pages/sections/product_detail';
+import NewsDetailSectionsPage from '../pages/sections/news_detail';
 import SectionsPage from '../pages/sections';
 import CreateSectionPage from '../pages/sections/[page]/create';
 import EditSectionPage from '../pages/sections/[page]/[sectionId]/edit';
@@ -299,6 +300,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/visitor-analytics" element={<ProtectedRoute><VisitorAnalyticsPageWrapper /></ProtectedRoute>} />
       <Route path="/sections" element={<Navigate to="/sections/home" replace />} />
       <Route path="/sections/product_detail" element={<ProtectedRoute><ProductDetailSectionsPage /></ProtectedRoute>} />
+      <Route path="/sections/news_detail" element={<ProtectedRoute><NewsDetailSectionsPage /></ProtectedRoute>} />
       <Route path="/sections/:page" element={<ProtectedRoute><SectionsPage /></ProtectedRoute>} />
       <Route path="/sections/:page/create" element={<ProtectedRoute><CreateSectionPage /></ProtectedRoute>} />
       <Route path="/sections/:page/:sectionId/edit" element={<ProtectedRoute><EditSectionPage /></ProtectedRoute>} />

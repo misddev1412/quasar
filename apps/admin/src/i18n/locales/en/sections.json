@@ -715,14 +715,17 @@
             "video": "Video",
             "stats": "Statistics",
             "brand_showcase": "Brand showcase",
-            "product_list": "Product list"
+            "product_list": "Product list",
+            "news_details": "News Details"
         },
         "pages": {
             "home": "Home",
             "news": "News",
             "product": "Product",
             "product_detail": "Product Detail",
-            "product_detail_description": "Configure content and display order for product detail page sections."
+            "product_detail_description": "Configure content and display order for product detail page sections.",
+            "news_detail": "News Detail",
+            "news_detail_description": "Configure content and display order for news detail page sections."
         }
     }
 }

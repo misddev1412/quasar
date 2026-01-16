@@ -715,14 +715,17 @@
             "video": "Video",
             "stats": "Thống kê",
             "brand_showcase": "Thương hiệu nổi bật",
-            "product_list": "Danh sách sản phẩm"
+            "product_list": "Danh sách sản phẩm",
+            "news_details": "Chi tiết tin tức"
         },
         "pages": {
             "home": "Trang chủ",
             "news": "Tin tức",
             "product": "Sản phẩm",
             "product_detail": "Chi tiết sản phẩm",
-            "product_detail_description": "Cấu hình nội dung và thứ tự hiển thị cho trang chi tiết sản phẩm."
+            "product_detail_description": "Cấu hình nội dung và thứ tự hiển thị cho trang chi tiết sản phẩm.",
+            "news_detail": "Chi tiết tin tức",
+            "news_detail_description": "Cấu hình nội dung và thứ tự hiển thị cho trang chi tiết tin tức."
         }
     }
 }
