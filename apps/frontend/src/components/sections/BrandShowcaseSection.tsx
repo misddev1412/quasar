@@ -150,7 +150,7 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
   const cardShellClass = isContrast
     ? 'rounded-3xl border border-white/10 bg-white/5 p-8 shadow-inner'
     : 'rounded-3xl border border-gray-100 bg-white p-8 shadow-sm';
-  const logoTileBaseClass = 'flex min-h-[96px] w-full items-center justify-center py-4';
+  const logoTileBaseClass = 'relative flex min-h-[96px] w-full items-center justify-center py-4';
   const logoTilePlaceholderClass = `${logoTileBaseClass} rounded-2xl ${isContrast ? 'bg-white/10' : 'bg-gray-100'
     } animate-pulse`;
   const logoFallbackBadgeClass = isContrast ? 'bg-white/15 text-white' : 'bg-slate-100 text-slate-600';
