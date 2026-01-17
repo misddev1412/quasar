@@ -219,12 +219,12 @@ const convertToMegaMenuSections = (item: NavigationItem): MegaMenuSection[] => {
     items: child.children?.map((grandChild) => ({
       id: grandChild.id,
       name: grandChild.name,
-      href: grandChild.href,
+      href: grandChild.href || '#',
       description: grandChild.description,
-      icon: grandChild.icon,
+      icon: grandChild.icon || undefined,
       target: grandChild.target,
       image: grandChild.image,
-      badge: grandChild.badge,
+      badge: grandChild.badge ? { text: grandChild.badge, color: '#ffffff', backgroundColor: '#ef4444' } : undefined,
       featured: grandChild.featured,
     })) || []
   }));
@@ -479,7 +479,7 @@ const MobileMenuItem: React.FC<{
           target={item.target}
           rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
           className={`
-                flex-1 ${itemSizeStyle.mobileText} ${itemWeightClass} ${itemTransformClass} transition-colors ${itemSizeStyle.mobilePadding}
+                flex-1 ${itemSizeStyle.mobileText} ${itemWeightClass} uppercase transition-colors ${itemSizeStyle.mobilePadding}
                 ${isActive
               ? 'text-blue-600 dark:text-blue-400'
               : `${textColor ? '' : 'text-gray-700 dark:text-gray-300'}`
@@ -522,7 +522,7 @@ const MobileMenuItem: React.FC<{
                 target={child.target}
                 rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
                 className={`
-                  block py-2 px-8 text-sm
+                  block py-2 px-8 text-sm uppercase
                   ${textColor ? '' : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'}
                   transition-colors
                 `}
@@ -538,7 +538,7 @@ const MobileMenuItem: React.FC<{
                 </span>
                 {child.description && (
                   <p
-                    className={`text-xs mt-1 ${textColor ? '' : 'text-gray-500 dark:text-gray-400'}`}
+                    className={`text-xs mt-1 normal-case ${textColor ? '' : 'text-gray-500 dark:text-gray-400'}`}
                     style={{ color: textColor || undefined }}
                   >
                     {child.description}
@@ -555,7 +555,7 @@ const MobileMenuItem: React.FC<{
                       target={grandChild.target}
                       rel={grandChild.target === '_blank' ? 'noopener noreferrer' : undefined}
                       className={`
-                        block text-sm py-1 px-4
+                        block text-sm py-1 px-4 uppercase
                         ${textColor ? '' : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'}
                         transition-colors
                       `}

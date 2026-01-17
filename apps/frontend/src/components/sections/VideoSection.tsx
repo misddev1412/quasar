@@ -272,24 +272,23 @@ export const VideoSection: React.FC<VideoSectionProps> = ({ config, translation 
   const backgroundLight = (config.backgroundColor || '').trim() || '#0f172a';
   const backgroundDark = (config.backgroundColorDark || '').trim() || backgroundLight || '#030712';
   const sectionStyle = React.useMemo(
-    () =>
-      {
-        const ctaLight = getCtaColors(backgroundLight, '#f8fafc', '#0f172a');
-        const ctaDark = getCtaColors(backgroundDark, '#f8fafc', '#0f172a');
-        return {
-          '--video-bg-light': backgroundLight,
-          '--video-bg-dark': backgroundDark,
-          '--video-cta-bg-light': ctaLight.background,
-          '--video-cta-text-light': ctaLight.text,
-          '--video-cta-bg-dark': ctaDark.background,
-          '--video-cta-text-dark': ctaDark.text,
-        } as CSSProperties;
-      },
+    () => {
+      const ctaLight = getCtaColors(backgroundLight, '#f8fafc', '#0f172a');
+      const ctaDark = getCtaColors(backgroundDark, '#f8fafc', '#0f172a');
+      return {
+        '--video-bg-light': backgroundLight,
+        '--video-bg-dark': backgroundDark,
+        '--video-cta-bg-light': ctaLight.background,
+        '--video-cta-text-light': ctaLight.text,
+        '--video-cta-bg-dark': ctaDark.background,
+        '--video-cta-text-dark': ctaDark.text,
+      } as CSSProperties;
+    },
     [backgroundLight, backgroundDark],
   );
 
   return (
-    <section className="bg-[var(--video-bg-light)] py-20 text-white dark:bg-[var(--video-bg-dark)]" style={sectionStyle}>
+    <section className="bg-[var(--video-bg-light)] py-4 lg:py-16 text-white dark:bg-[var(--video-bg-dark)]" style={sectionStyle}>
       <SectionContainer className="grid gap-10 lg:grid-cols-2 lg:items-center">
         <div>
           <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-2xl">
@@ -336,9 +335,8 @@ export const VideoSection: React.FC<VideoSectionProps> = ({ config, translation 
                     key={slide.id || `slide-${index}`}
                     type="button"
                     onClick={() => setActiveIndex(index)}
-                    className={`h-2.5 rounded-full transition-all duration-200 ${
-                      isActive ? 'w-10 bg-white' : 'w-2.5 bg-white/40 hover:bg-white/60'
-                    }`}
+                    className={`h-2.5 rounded-full transition-all duration-200 ${isActive ? 'w-10 bg-white' : 'w-2.5 bg-white/40 hover:bg-white/60'
+                      }`}
                     aria-label={t('sections.video.pagination_label', { index: index + 1 })}
                     aria-current={isActive}
                   >

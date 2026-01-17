@@ -253,7 +253,7 @@ export const WhyChooseUsSection: React.FC<WhyChooseUsSectionProps> = ({ config, 
   const hasHeaderContent = sectionTitle || sectionSubtitle || sectionDescription;
 
   return (
-    <section className="py-20">
+    <section className="py-4 lg:py-16">
       <SectionContainer>
         {hasHeaderContent && (
           <SectionHeader

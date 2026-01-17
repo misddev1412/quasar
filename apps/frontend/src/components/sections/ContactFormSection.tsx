@@ -67,7 +67,7 @@ export const ContactFormSection: React.FC<ContactFormSectionProps> = ({ config, 
   const perks = Array.isArray(config.perks) ? config.perks : [];
 
   return (
-    <section className="bg-gray-50 py-20 dark:bg-gray-950">
+    <section className="py-4 lg:py-16">
       <SectionContainer className="grid gap-10 lg:grid-cols-2">
         <div>
           {subtitle && <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600 dark:text-blue-300">{subtitle}</p>}

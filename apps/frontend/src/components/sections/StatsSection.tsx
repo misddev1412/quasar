@@ -60,7 +60,7 @@ const formatValue = (value?: number, suffix?: string, prefix?: string) => {
 };
 
 const backgroundVariants: Record<string, string> = {
-  surface: 'bg-gray-50 dark:bg-gray-900',
+  surface: '',
   primary: 'bg-gradient-to-br from-blue-600 to-indigo-700 text-white',
   dark: 'bg-gray-900 text-white',
 };
@@ -79,7 +79,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ config, translation 
   const gridClass = gridColumnClassMap[columns] || gridColumnClassMap[4];
 
   return (
-    <section className={`${backgroundClass} py-16`}>
+    <section className={`${backgroundClass} py-4 lg:py-16`}>
       <SectionContainer>
         <div className="mb-12 max-w-3xl">
           {subtitle && <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-500 dark:text-blue-300">{subtitle}</p>}
@@ -87,14 +87,15 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ config, translation 
           {description && <p className="mt-4 text-base text-gray-600 dark:text-gray-300">{description}</p>}
         </div>
 
-        <div className={`grid grid-cols-1 gap-6 ${gridClass}`}>
+        <div className={`flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 lg:grid lg:gap-6 lg:pb-0 ${gridClass}`}>
           {stats.map((stat) => (
             <div
               key={stat.id || stat.label}
               className={
-                layout === 'counter'
+                (layout === 'counter'
                   ? 'rounded-2xl border border-white/10 bg-white/5 p-6 text-white shadow-lg backdrop-blur'
-                  : 'rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950'
+                  : 'rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950') +
+                ' min-w-[85%] sm:min-w-[350px] flex-none snap-center lg:min-w-0'
               }
             >
               <p className="text-sm uppercase tracking-[0.3em] text-gray-500 dark:text-gray-400">{stat.label || t('sections.stats.untitled')}</p>

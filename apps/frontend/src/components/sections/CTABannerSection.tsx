@@ -150,10 +150,10 @@ export const CTABannerSection: React.FC<CTABannerSectionProps> = ({ config, tran
 
   const badgeStyle: CSSProperties | undefined = accentColor
     ? {
-        borderColor: accentColor,
-        color: accentColor,
-        backgroundColor: `${accentColor}1A`,
-      }
+      borderColor: accentColor,
+      color: accentColor,
+      backgroundColor: `${accentColor}1A`,
+    }
     : undefined;
 
   const primaryButtonStyle: CSSProperties | undefined = accentColor
@@ -231,7 +231,7 @@ export const CTABannerSection: React.FC<CTABannerSectionProps> = ({ config, tran
   );
 
   return (
-    <section className="py-16 bg-transparent dark:bg-gray-950">
+    <section className="py-4 lg:py-16 dark:bg-gray-950" style={{ backgroundColor: 'var(--storefront-surface)' }}>
       {layout === 'container' ? (
         <SectionContainer className="max-w-6xl">{content}</SectionContainer>
       ) : (

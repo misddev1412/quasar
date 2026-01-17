@@ -22,6 +22,7 @@ import {
 } from '@heroui/react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslations } from 'next-intl';
+import { UnifiedIcon } from '../common/UnifiedIcon';
 import SearchInput from '../common/SearchInput';
 import Input from '../common/Input';
 import ThemeToggle from '../common/ThemeToggle';
@@ -471,6 +472,7 @@ const Header: React.FC = () => {
   const { summary, openCart } = useCart(); // Add cart hook
   const { navigationItems, isLoading: isMainMenuLoading } = useMenu('main');
   const { navigationItems: topNavigationItems } = useMenu('top'); // Fetch top menu items
+  const { navigationItems: subNavigationItems } = useMenu('sub'); // Fetch sub menu items
   const t = useTranslations();
   const tCart = useTranslations('ecommerce.cart');
   const router = useRouter();
@@ -577,7 +579,12 @@ const Header: React.FC = () => {
     )
   );
 
-  const mobileNavigationItems = [...navigationItemsConverted, ...topNavigationItemsConverted];
+  const subNavigationItemsConverted = convertToNavigationItems(subNavigationItems);
+
+  const phoneItems = subNavigationItemsConverted.filter(item => item.type === MenuType.CALL_BUTTON);
+  const otherSubItems = subNavigationItemsConverted.filter(item => item.type !== MenuType.CALL_BUTTON);
+
+  const mobileNavigationItems = [...navigationItemsConverted, ...otherSubItems, ...topNavigationItemsConverted];
 
   const cartLabel =
     summary.totalItems > 0
@@ -876,7 +883,7 @@ const Header: React.FC = () => {
     <>
       <TopMenuBar />
       <header
-        className="sticky top-0 z-50 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm"
+        className="sticky top-0 z-50 backdrop-blur-md lg:border-b border-gray-200 dark:border-gray-800 shadow-sm"
         data-main-header
         style={headerBackgroundStyle}
       >
@@ -1019,6 +1026,31 @@ const Header: React.FC = () => {
                 appearanceConfig={mainMenuConfig}
                 isLoading={isMainMenuLoading}
               />
+
+              {/* Phone Items */}
+              {phoneItems.length > 0 && (
+                <div className="px-4 pb-6 space-y-3 mt-4 pt-2">
+                  {phoneItems.map((item) => (
+                    <Button
+                      key={item.id}
+                      as={Link}
+                      href={item.href || '#'}
+                      color="primary"
+                      className="w-full font-semibold shadow-lg shadow-blue-500/20 uppercase"
+                      size="lg"
+                      startContent={item.icon ? <UnifiedIcon icon={item.icon} className="!text-inherit" /> : undefined}
+                      onPress={() => setIsMenuOpen(false)}
+                    >
+                      {item.name}
+                      {item.description && (
+                        <span className="text-xs opacity-80 font-normal ml-1">
+                          {item.description}
+                        </span>
+                      )}
+                    </Button>
+                  ))}
+                </div>
+              )}
 
               {/* Cart, profile, search, locale, and theme entries are managed entirely via storefront navigation */}
             </NavbarMenu>

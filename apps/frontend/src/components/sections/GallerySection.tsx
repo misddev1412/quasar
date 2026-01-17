@@ -83,7 +83,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ config, translat
   const description = translation?.description === null ? '' : (translation?.description || t('sections.gallery.description'));
 
   return (
-    <section className="bg-white py-16 dark:bg-gray-950">
+    <section className="py-4 lg:py-16">
       <SectionContainer>
         <div className="mb-12 max-w-4xl">
           {subtitle && <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600 dark:text-blue-300">{subtitle}</p>}

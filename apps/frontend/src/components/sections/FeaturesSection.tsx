@@ -202,11 +202,10 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({ config, transl
               key={item.id || `feature-tab-${idx}`}
               type="button"
               onClick={() => handleTabChange(idx)}
-              className={`w-full rounded-xl px-4 py-3 text-left text-sm font-medium transition ${
-                idx === activeIndex
+              className={`w-full rounded-xl px-4 py-3 text-left text-sm font-medium transition ${idx === activeIndex
                   ? 'bg-blue-600/10 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200'
                   : 'text-gray-600 hover:bg-gray-100/80 dark:text-gray-400 dark:hover:bg-gray-800/60'
-              }`}
+                }`}
             >
               {item.title || t('sections.features.untitledCard')}
             </button>
@@ -237,7 +236,7 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({ config, transl
   );
 
   return (
-    <section className="bg-white py-16 dark:bg-gray-950">
+    <section className="py-4 lg:py-16">
       <SectionContainer>
         <div className="mb-12 max-w-3xl">
           {eyebrow && <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-300">{eyebrow}</p>}

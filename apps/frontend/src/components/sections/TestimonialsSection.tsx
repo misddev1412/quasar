@@ -122,7 +122,7 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ config
   })();
 
   return (
-    <section className="bg-gray-950/90 py-20 text-white">
+    <section className="bg-gray-950/90 py-4 lg:py-16 text-white">
       <SectionContainer>
         <SectionHeader
           title={sectionTitle}

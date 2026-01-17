@@ -90,7 +90,7 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
   const hasContent = sectionTitle || sectionSubtitle || sectionDescription;
 
   return (
-    <section id="sections" className="py-16 bg-white dark:bg-gray-950">
+    <section className="py-4 lg:py-16" style={{ backgroundColor: 'var(--storefront-surface)' }}>
       <SectionContainer paddingClassName="px-6 lg:px-8">
         {hasContent && (
           <SectionHeader

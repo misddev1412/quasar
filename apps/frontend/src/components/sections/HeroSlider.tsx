@@ -212,12 +212,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
       : { backgroundColor: overlayBackground }
     : { background: DEFAULT_BACKGROUND };
 
-  const heroShellStyle: CSSProperties = {
-    ...containerStyle,
-    width: '100%',
-    aspectRatio: HERO_ASPECT_RATIO,
-    ...(isFullWidth ? {} : { borderRadius: containerBorderRadius || '1.5rem' }),
-  };
+
 
   const overlayStyle: CSSProperties | undefined = overlayEnabled ? buildOverlayStyle(baseOverlayColor, overlayOpacity) : undefined;
   const fieldVisibility = config.fieldVisibility ?? {};
@@ -283,15 +278,23 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
     : undefined;
   const outerWrapperClass = isFullWidth
     ? 'w-full py-0'
-    : 'max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-0';
+    : 'w-full px-0 lg:max-w-7xl lg:mx-auto lg:px-8 py-0 lg:py-[var(--hero-padding-y)]';
   const outerWrapperStyle: CSSProperties | undefined = !isFullWidth && containerPaddingY
-    ? { paddingTop: containerPaddingY, paddingBottom: containerPaddingY }
+    ? { '--hero-padding-y': containerPaddingY } as CSSProperties
     : undefined;
   const constrainedWrapperClass = isFullWidth ? '' : 'w-full';
-  const heroShellClass = isFullWidth
-    ? 'relative overflow-hidden text-white'
-    : 'relative overflow-hidden text-white shadow-2xl border border-white/10 dark:border-white/5';
 
+  // Mobile: square aspect ratio, no radius/shadow/border. Desktop: wide aspect ratio, radius/shadow/border enabled.
+  const heroShellClass = isFullWidth
+    ? 'relative overflow-hidden text-white aspect-[5/4] sm:aspect-[31/9]'
+    : 'relative overflow-hidden text-white aspect-[5/4] lg:aspect-[31/9] rounded-none lg:rounded-[var(--hero-radius)] shadow-none lg:shadow-2xl border-none lg:border lg:border-white/10 dark:lg:border-white/5';
+
+  const heroShellStyle: CSSProperties = {
+    ...containerStyle,
+    width: '100%',
+    // Pass radius as CSS variable for responsive usage
+    '--hero-radius': containerBorderRadius || '1.5rem',
+  } as CSSProperties;
   const heroContent = (
     <div className={heroShellClass} style={heroShellStyle}>
       {backgroundLayerStyle && (

@@ -398,7 +398,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
   const showSectionHeader = normalizedRowConfigs.length === 0 && hasHeaderContent;
 
   return (
-    <section className="py-16 bg-white dark:bg-gray-950">
+    <section className="py-4 lg:py-16 bg-white dark:bg-gray-950">
       <SectionContainer paddingClassName="px-6 lg:px-8">
         {showSectionHeader && (
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">

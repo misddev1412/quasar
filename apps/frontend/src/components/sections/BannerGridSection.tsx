@@ -165,7 +165,7 @@ export const BannerGridSection: React.FC<BannerGridSectionProps> = ({ config, tr
   const hasHeaderContent = sectionTitle || sectionSubtitle || sectionDescription;
 
   return (
-    <section className="py-16" style={{ backgroundColor: 'var(--storefront-surface)' }}>
+    <section className="py-4 lg:py-16" style={{ backgroundColor: 'var(--storefront-surface)' }}>
       <SectionContainer>
         {hasHeaderContent && (
           <div className="mb-10 max-w-3xl">
@@ -217,7 +217,7 @@ export const BannerGridSection: React.FC<BannerGridSectionProps> = ({ config, tr
 
               const imageElement = (
                 <div
-                  className="relative aspect-[3/1] lg:aspect-[4/3] w-full overflow-hidden bg-gray-900 shadow-xl"
+                  className="relative aspect-[4/3] w-full overflow-hidden bg-gray-900 shadow-xl"
                   style={{ borderRadius: cardBorderRadius }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}

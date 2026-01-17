@@ -280,12 +280,21 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
     }
 
     return wrapWithCard(
-      <div className={`grid gap-4 ${gridTemplate}`}>
+
+      <div className={`
+        flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 snap-x snap-mandatory 
+        scrollbar-hide scroll-smooth
+        lg:grid lg:pb-0 lg:mx-0 lg:px-0 lg:snap-none
+        ${gridTemplate}
+      `}>
         {brands.map((brand) => (
-          <LogoTile key={brand.id} brand={brand} />
+          <div key={brand.id} className="min-w-[140px] w-[40%] sm:w-[25%] shrink-0 snap-center lg:w-auto lg:min-w-0">
+            <LogoTile brand={brand} />
+          </div>
         ))}
       </div>
     );
+
   };
 
   const hasHeaderContent = sectionTitle || sectionSubtitle || sectionDescription;
