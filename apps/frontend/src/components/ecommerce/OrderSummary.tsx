@@ -258,13 +258,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       </div>
 
       {/* Additional Info */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <div className="text-xs text-gray-500 space-y-1">
-          <div>• {t('notes.free_shipping')}</div>
-          <div>• {t('notes.money_back')}</div>
-          <div>• {t('notes.secure_checkout')}</div>
-        </div>
-      </div>
+
     </Card>
   );
 };

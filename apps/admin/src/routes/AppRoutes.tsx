@@ -9,7 +9,7 @@ import NotFound from '../pages/NotFound';
 import Unauthorized from '../pages/Unauthorized';
 import SeoPage from '../pages/seo';
 import SettingsPage from '../pages/settings';
-import OrderSettingsPage from '../pages/settings/orders';
+// import OrderSettingsPage from '../pages/settings/orders';
 import SettingsVisibilityPage from '../pages/settings/visibility';
 import FloatingIconsSettingsPage from '../pages/settings/floating-icons';
 import AdminBrandingPage from '../pages/settings/admin-branding';
@@ -104,6 +104,7 @@ import MenusPage from '../pages/menus';
 import HelpPage from '../pages/help';
 import StorefrontFooterPage from '../pages/storefront/footer';
 import StorefrontCheckoutSettingsPage from '../pages/storefront/checkout';
+import EcommerceSettingsPage from '../pages/settings/ecommerce';
 import ComponentConfigsPage from '../pages/component-configs';
 import ComponentConfigCreatePage from '../pages/component-configs/create';
 import ComponentConfigEditPage from '../pages/component-configs/[id]/edit';
@@ -202,10 +203,13 @@ const AppRoutes: React.FC = () => {
       <Route path="/analytics" element={<ProtectedRoute><AnalyticsConfigurationPage /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
       <Route path="/settings/maintenance" element={<ProtectedRoute><MaintenanceSettingsPage /></ProtectedRoute>} />
-      <Route path="/settings/orders" element={<ProtectedRoute><OrderSettingsPage /></ProtectedRoute>} />
+      <Route path="/settings/maintenance" element={<ProtectedRoute><MaintenanceSettingsPage /></ProtectedRoute>} />
+      {/* <Route path="/settings/orders" element={<ProtectedRoute><OrderSettingsPage /></ProtectedRoute>} /> - Moved to Ecommerce */}
+      <Route path="/settings/floating-icons" element={<ProtectedRoute><FloatingIconsSettingsPage /></ProtectedRoute>} />
       <Route path="/settings/floating-icons" element={<ProtectedRoute><FloatingIconsSettingsPage /></ProtectedRoute>} />
       <Route path="/settings/visibility" element={<ProtectedRoute><SettingsVisibilityPage /></ProtectedRoute>} />
       <Route path="/settings/admin-branding" element={<ProtectedRoute><AdminBrandingPage /></ProtectedRoute>} />
+      <Route path="/settings/ecommerce" element={<ProtectedRoute><EcommerceSettingsPage /></ProtectedRoute>} />
       <Route path="/settings/theme" element={<ProtectedRoute><ThemeSettingsPage /></ProtectedRoute>} />
       <Route path="/themes" element={<ProtectedRoute><ThemeManagementPage /></ProtectedRoute>} />
       <Route path="/storage" element={<ProtectedRoute><StorageConfigPage /></ProtectedRoute>} />

@@ -34,6 +34,23 @@ function FCMListener() {
   return null;
 }
 
+function CartSettingsWrapper({ children }: { children: React.ReactNode }) {
+  const { data: settingsResponse } = trpc.settings.getPublicSettings.useQuery();
+  const settings = settingsResponse?.data || [];
+
+  const taxEnabledSetting = Array.isArray(settings) ? settings.find((s: any) => s.key === 'ecommerce.tax_enabled') : null;
+  const taxRateSetting = Array.isArray(settings) ? settings.find((s: any) => s.key === 'ecommerce.tax_rate') : null;
+
+  const taxEnabled = taxEnabledSetting?.value === 'true';
+  const taxRate = taxEnabled && taxRateSetting?.value ? Number(taxRateSetting.value) / 100 : 0;
+
+  return (
+    <CartWrapper taxRate={taxRate} defaultShippingCost={5.99}>
+      {children}
+    </CartWrapper>
+  );
+}
+
 function AppProviders({ children, locale, messages }: { children: React.ReactNode; locale: string; messages: any }) {
   const { isLoading, initializationProgress, initializationMessage } = useAppInit();
   const [trpcClient] = useState(() => createTrpcClient());
@@ -55,10 +72,10 @@ function AppProviders({ children, locale, messages }: { children: React.ReactNod
                   <ToastProvider>
                     <AuthProvider>
                       <FCMListener />
-                      <CartWrapper taxRate={0.08} defaultShippingCost={5.99}>
+                      <CartSettingsWrapper>
                         <ImpersonationBanner />
                         {children}
-                      </CartWrapper>
+                      </CartSettingsWrapper>
                     </AuthProvider>
                   </ToastProvider>
                 </ThemeProvider>

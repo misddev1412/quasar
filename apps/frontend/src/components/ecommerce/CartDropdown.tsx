@@ -124,7 +124,7 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('empty.title')}</h3>
         <p className="mx-auto max-w-[15rem] text-sm text-gray-500 dark:text-gray-400">{t('empty.description')}</p>
       </div>
-      <Button color="primary" size="sm" className="mt-2" onPress={closeCart}>
+      <Button variant="bordered" color="primary" size="sm" className="mt-2" onPress={closeCart}>
         {t('empty.continue')}
       </Button>
     </div>
@@ -189,28 +189,28 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
                     onChange={() => setShippingOption(option)}
                     className="mt-1 text-primary-500"
                   />
-                <div>
-                  <div className="flex items-center gap-3 text-sm font-medium text-gray-900 dark:text-white">
-                    <span
-                      className={clsx(
-                        'inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400',
-                        isSelected && 'bg-primary-100 text-primary-600 dark:bg-primary-500/20 dark:text-primary-200'
-                      )}
-                    >
-                      <FiTruck className="text-base" />
-                    </span>
-                    <span>{option.name}</span>
+                  <div>
+                    <div className="flex items-center gap-3 text-sm font-medium text-gray-900 dark:text-white">
+                      <span
+                        className={clsx(
+                          'inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400',
+                          isSelected && 'bg-primary-100 text-primary-600 dark:bg-primary-500/20 dark:text-primary-200'
+                        )}
+                      >
+                        <FiTruck className="text-base" />
+                      </span>
+                      <span>{option.name}</span>
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{option.description}</p>
                   </div>
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{option.description}</p>
                 </div>
-              </div>
                 <div className="text-right">
                   <div className="text-sm font-semibold text-gray-900 dark:text-white">
                     {formatCurrency(option.cost)}
                   </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">{t('shipping.days', { days: option.estimatedDays })}</div>
-              </div>
-            </label>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{t('shipping.days', { days: option.estimatedDays })}</div>
+                </div>
+              </label>
             );
           })}
         </div>
@@ -367,7 +367,7 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
             </div>
 
             {/* Cart Actions */}
-            <div className="mt-5 flex flex-col gap-2">
+            <div className="mt-5 flex flex-col gap-3">
               {showCheckoutButton && (
                 <Button
                   color="primary"
@@ -391,7 +391,7 @@ const CartDropdown: React.FC<CartDropdownProps> = ({
                   {t('actions.clear')}
                 </Button>
               )}
-              <Button variant="light" size="sm" onPress={closeCart} className="w-full">
+              <Button variant="bordered" size="sm" onPress={closeCart} className="w-full">
                 {t('actions.continue')}
               </Button>
             </div>

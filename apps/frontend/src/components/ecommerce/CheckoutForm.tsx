@@ -607,7 +607,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         {isAuthStatePending ? (
           <Card className="p-6">
             <div className="flex items-center justify-center py-16">
-              <Spinner size="lg" label={t('form.auth.loading')} labelPlacement="right" />
+              <Spinner size="lg" label={t('form.auth.loading')} />
             </div>
           </Card>
         ) : isCheckoutLocked ? (
@@ -639,30 +639,26 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                       <div className="relative flex w-full items-center justify-center">
                         {index > 0 && (
                           <span
-                            className={`absolute left-0 right-1/2 top-1/2 h-1 -translate-y-1/2 rounded-full ${
-                              isReached ? 'bg-primary-500' : 'bg-gray-200'
-                            }`}
+                            className={`absolute left-0 right-1/2 top-1/2 h-1 -translate-y-1/2 rounded-full ${isReached ? 'bg-primary-500' : 'bg-gray-200'
+                              }`}
                           />
                         )}
                         {index < CHECKOUT_STEP_KEYS.length - 1 && (
                           <span
-                            className={`absolute left-1/2 right-0 top-1/2 h-1 -translate-y-1/2 rounded-full ${
-                              isCompleted ? 'bg-primary-500' : 'bg-gray-200'
-                            }`}
+                            className={`absolute left-1/2 right-0 top-1/2 h-1 -translate-y-1/2 rounded-full ${isCompleted ? 'bg-primary-500' : 'bg-gray-200'
+                              }`}
                           />
                         )}
                         <div
-                          className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
-                            isReached ? 'bg-primary-500 text-white' : 'bg-gray-200 text-gray-600'
-                          }`}
+                          className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${isReached ? 'bg-primary-500 text-white' : 'bg-gray-200 text-gray-600'
+                            }`}
                         >
                           {stepNumber}
                         </div>
                       </div>
                       <span
-                        className={`mt-3 text-center text-sm ${
-                          isReached ? 'text-primary-500 font-medium' : 'text-gray-500'
-                        }`}
+                        className={`mt-3 text-center text-sm ${isReached ? 'text-primary-500 font-medium' : 'text-gray-500'
+                          }`}
                       >
                         {stepLabels[stepKey]}
                       </span>
@@ -696,11 +692,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                         <span className="block font-medium text-primary-800">{t('form.auth.guest.title')}</span>
                         <span className="mt-1 block text-primary-600">{t('form.auth.guest.description')}</span>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        <Button size="sm" color="primary" onPress={handleLoginRedirect}>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <Button className="w-full sm:w-40" size="sm" color="primary" onPress={handleLoginRedirect}>
                           {t('form.auth.actions.login')}
                         </Button>
-                        <Button size="sm" variant="flat" onPress={handleRegisterRedirect}>
+                        <Button className="w-full sm:w-40" size="sm" variant="flat" onPress={handleRegisterRedirect}>
                           {t('form.auth.actions.register')}
                         </Button>
                       </div>
@@ -725,11 +721,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                         {savedAddresses.map((address) => (
                           <label
                             key={address.id}
-                            className={`flex items-start gap-3 rounded-xl border p-4 transition-colors ${
-                              selectedSavedAddressId === address.id
-                                ? 'border-primary-500 bg-primary-50/40'
-                                : 'border-gray-200 bg-white'
-                            }`}
+                            className={`flex items-start gap-3 rounded-xl border p-4 transition-colors ${selectedSavedAddressId === address.id
+                              ? 'border-primary-500 bg-primary-50/40'
+                              : 'border-gray-200 bg-white'
+                              }`}
                           >
                             <input
                               type="radio"
@@ -839,7 +834,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   >
                     {deliveryMethodsQuery.isLoading ? (
                       <div className="py-6 flex justify-center">
-                        <Spinner size="sm" label={t('form.delivery.loading')} labelPlacement="right" />
+                        <Spinner size="sm" label={t('form.delivery.loading')} />
                       </div>
                     ) : deliveryMethodsQuery.isError ? (
                       <div className="rounded-lg border border-dashed border-danger-300 bg-danger-50/40 p-4 text-sm text-danger-600">

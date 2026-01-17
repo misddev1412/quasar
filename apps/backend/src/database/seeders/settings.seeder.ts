@@ -12,7 +12,7 @@ export class SettingsSeeder {
   constructor(
     @InjectRepository(SettingEntity)
     private readonly settingRepository: Repository<SettingEntity>,
-  ) {}
+  ) { }
 
   async seed(): Promise<void> {
     this.logger.log('开始播种设置...');
@@ -343,12 +343,29 @@ export class SettingsSeeder {
         group: 'analytics',
         isPublic: false,
         description: 'Anonymize IP addresses in analytics tracking',
+      },
+      // Ecommerce Configuration
+      {
+        key: 'ecommerce.tax_enabled',
+        value: 'false',
+        type: 'boolean' as const,
+        group: 'ecommerce',
+        isPublic: true,
+        description: 'Enable or disable tax calculation at checkout',
+      },
+      {
+        key: 'ecommerce.tax_rate',
+        value: '0',
+        type: 'number' as const,
+        group: 'ecommerce',
+        isPublic: true,
+        description: 'Tax percentage applied (e.g. 8 for 8%)',
       }
     ];
 
     for (const settingData of defaultSettings) {
       const existing = await this.settingRepository.findOne({ where: { key: settingData.key } });
-      
+
       if (!existing) {
         const setting = this.settingRepository.create(settingData);
         await this.settingRepository.save(setting);

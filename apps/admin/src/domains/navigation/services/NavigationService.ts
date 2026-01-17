@@ -438,8 +438,8 @@ export class NavigationService implements INavigationService {
               },
               {
                 icon: React.createElement(ShoppingCartIcon),
-                label: t('navigation.order_settings', 'Cài đặt đơn hàng'),
-                path: '/settings/orders'
+                label: t('settings.ecommerce_and_orders', 'Ecommerce & Orders'),
+                path: '/settings/ecommerce'
               },
               {
                 icon: React.createElement(FlashOnIcon),

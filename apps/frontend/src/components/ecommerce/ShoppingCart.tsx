@@ -257,7 +257,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
       {hasCartItems && (
         <div className="flex-shrink-0 flex-col gap-3 border-t border-gray-100 bg-white px-5 py-4 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)] dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
           {/* Cart Summary */}
-          <div className="space-y-2 mb-1">
+          <div className="space-y-2 mb-5">
             <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
               <span className="capitalize">{t('items_count_single', { count: '' }).replace(/\d+/, '').trim() || 'Items'}</span>
               <span className="text-base font-semibold text-gray-900 dark:text-white">{summary.totalItems}</span>
@@ -284,7 +284,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
           </div>
 
           {/* Cart Actions */}
-          <div className="flex w-full flex-col gap-2">
+          <div className="flex w-full flex-col gap-3">
             {showCheckoutButton && (
               <Button
                 color="primary"
@@ -300,7 +300,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
               </Button>
             )}
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               {showClearButton && (
                 <Button
                   variant="flat"
@@ -315,10 +315,10 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
               )}
               {isModal && (
                 <Button
-                  variant="light"
+                  variant="bordered"
                   size="sm"
                   onPress={closeCartAndNotify}
-                  className="w-full font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400"
+                  className="w-full font-medium"
                   startContent={<ShoppingBagIcon className="h-4 w-4" />}
                 >
                   {t('actions.continue')}

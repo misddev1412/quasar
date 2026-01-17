@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSettings, SettingData } from '../../hooks/useSettings';
 import { CreateSettingForm } from './CreateSettingForm';
+import { CreateSettingModal } from './CreateSettingModal';
 import cn from 'classnames';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { Toggle } from '../common/Toggle';
@@ -45,6 +46,11 @@ const ICONS: { [key: string]: React.ReactNode } = {
   other: (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+    </svg>
+  ),
+  ecommerce: (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
   ),
 };
@@ -96,20 +102,6 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
   const toggleBooleanValue = () => {
     const newValue = value === 'true' ? 'false' : 'true';
     setValue(newValue);
-    // For boolean, we might want to auto-save or just update state for manual save.
-    // Based on user request for "input forms", manual save is usually preferred for consistency,
-    // but toggles often imply immediate action. 
-    // However, to keep "save" button logic consistent, let's treat it as an input that needs saving?
-    // Actually, widespread pattern for toggles is immediate save. 
-    // BUT the request says "displayed as input forms".
-    // Let's stick to immediate save for toggles as it's better UX, but update the local state correctly.
-    // Wait, if I change it to manual save, the toggle will just change state.
-    // Let's keep immediate save for bools as it was before, it's friendlier.
-
-    // Actually, for consistency with the "form" feel, maybe manual save is better?
-    // Let's stick to immediate save for boolean for now as it was explicitly coded that way, 
-    // unless "form" implies everything needs a save button.
-    // Let's keep immediate save for toggles to avoid confusion unless user complaints.
 
     if (setting.type === 'boolean') {
       onUpdate(setting.id, { value: newValue })
@@ -162,8 +154,7 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
     switch (setting.type) {
       case 'boolean':
         return (
-          <div className="flex items-center justify-between py-2">
-            <span className="text-sm text-gray-700">{value === 'true' ? t('common.enabled', '启用') : t('common.disabled', '禁用')}</span>
+          <div className="flex items-center justify-between">
             <Toggle
               checked={value === 'true'}
               onChange={toggleBooleanValue}
@@ -202,24 +193,32 @@ const SettingItem: React.FC<SettingItemProps> = ({ setting, onUpdate }) => {
     }
   };
 
+  // Hide public toggle for certain groups or specific settings if needed
+  // For 'ecommerce' group, the public toggle is often confusing as these are usually backend configs or controlled explicitly
+  // We can hide it if the group is specifically 'ecommerce' (though setting.group might be string)
+  // Or we can rely on a prop, but SettingItem doesn't receive 'group' from props, only 'setting' object which has group.
+  const showPublicToggle = setting.group !== 'ecommerce';
+
   return (
     <div className="bg-gray-50 rounded-lg border border-gray-200 p-3 hover:border-gray-300 transition-colors duration-200">
       <div className="flex justify-between items-start mb-2">
         <div className="flex-grow pr-4">
-          <label className="block text-sm font-medium text-gray-900 mb-0.5 pointer-events-none">
+          <label className="block text-sm font-medium text-gray-900 mb-0.5">
             {t(`settings.keys.${setting.key}`, setting.key)}
           </label>
           {setting.description && (
             <p className="text-xs text-gray-500">{t(`settings.descriptions.${setting.key}`, setting.description)}</p>
           )}
         </div>
-        <div className="flex-shrink-0">
-          <Toggle
-            checked={setting.isPublic}
-            onChange={togglePublic}
-            size="sm"
-          />
-        </div>
+        {showPublicToggle && (
+          <div className="flex-shrink-0" title={t('settings.public_visibility', 'Public Visibility')}>
+            <Toggle
+              checked={setting.isPublic}
+              onChange={togglePublic}
+              size="sm"
+            />
+          </div>
+        )}
       </div>
 
       <div className="mt-2 space-y-3">
@@ -312,13 +311,15 @@ interface SettingsManagerProps {
   onOpenCreateModal?: () => void;
   onCloseModal?: () => void;
   group?: string | null;
+  allowedGroups?: string[];
 }
 
 export const SettingsManager: React.FC<SettingsManagerProps> = ({
   isModalOpen = false,
   onOpenCreateModal,
   onCloseModal,
-  group = null
+  group = null,
+  allowedGroups = ALLOWED_GROUPS
 }) => {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(group);
   const [internalModalOpen, setInternalModalOpen] = useState(false);
@@ -368,7 +369,7 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
 
     Object.keys(rawGroupedSettings).forEach(group => {
       // Filter out groups that are not in the allowed list
-      if (!ALLOWED_GROUPS.includes(group)) {
+      if (!allowedGroups.includes(group)) {
         return;
       }
 
@@ -383,7 +384,7 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
     });
 
     return filteredSettings;
-  }, [rawGroupedSettings]);
+  }, [rawGroupedSettings, allowedGroups]);
   const { t } = useTranslationWithBackend();
 
   const isCreateModalOpen = onOpenCreateModal ? isModalOpen : internalModalOpen;
@@ -464,6 +465,26 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
         group: "other",
         isPublic: false
       }
+    ],
+    "ecommerce": [
+      {
+        id: "placeholder_tax_enabled",
+        key: "ecommerce.tax_enabled",
+        value: "false",
+        type: "boolean",
+        description: "Enable tax calculation for checkout",
+        group: "ecommerce",
+        isPublic: true
+      },
+      {
+        id: "placeholder_tax_rate",
+        key: "ecommerce.tax_rate",
+        value: "0",
+        type: "number",
+        description: "Tax rate in percentage (e.g. 10 for 10%)",
+        group: "ecommerce",
+        isPublic: true
+      }
     ]
   };
 
@@ -516,40 +537,11 @@ export const SettingsManager: React.FC<SettingsManagerProps> = ({
         </div>
       </div>
 
-      {}
-      {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[9998] flex items-center justify-center p-4 animate-fadeIn">
-          <div
-            className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl transform transition-all animate-scaleIn"
-            style={{ maxHeight: '90vh', overflowY: 'auto' }}
-          >
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">{t('settings.create_new_setting', '创建新设置')}</h2>
-              <Button
-                variant="ghost"
-                onClick={handleCloseModal}
-                className="!p-1.5 text-gray-400 hover:text-gray-600"
-                aria-label={t('common.close', '关闭')}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </Button>
-            </div>
-            <CreateSettingForm onClose={handleCloseModal} />
-          </div>
-        </div>
-      )}
+      { }
+      <CreateSettingModal
+        isOpen={isCreateModalOpen}
+        onClose={handleCloseModal}
+      />
     </>
   );
-};
-
-const styleSheet = document.createElement('style');
-styleSheet.type = 'text/css';
-styleSheet.innerHTML = `
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  .animate-fadeIn { animation: fadeIn 0.2s ease-out; }
-  .animate-scaleIn { animation: scaleIn 0.2s ease-out; }
-`;
-document.head.appendChild(styleSheet); 
+}; 

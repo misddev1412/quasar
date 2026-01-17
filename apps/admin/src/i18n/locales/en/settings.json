@@ -8,6 +8,7 @@
     "empty_state_message": "You haven't created any system settings yet. Click the button below to add your first setting.",
     "no_real_data": "Currently displaying sample data. You can click the 'Add Setting' button to create real system settings.",
     "groups": {
+      "ecommerce": "Ecommerce",
       "general": "General",
       "other": "Other",
       "pagination": "Pagination",
@@ -23,6 +24,8 @@
       "default_pagination_desc": "Default Pagination Count"
     },
     "keys": {
+      "ecommerce.tax_enabled": "Enable Tax",
+      "ecommerce.tax_rate": "Tax Rate (%)",
       "admin.items_per_page": "Items Per Page",
       "admin.sidebar_collapsed": "Sidebar Collapsed",
       "admin.theme": "Admin Theme",
@@ -34,11 +37,15 @@
       "storefront.maintenance_password": "Maintenance password",
       "storefront.maintenance_message": "Maintenance message",
       "orders.order_number_format": "Order number format",
+      "orders.order_number_format_label": "Order Number Format",
+      "orders.order_number_format_hint": "Customize how your order numbers look using tokens.",
       "maintenance_mode": "Maintenance Mode",
       "contact_email": "Contact Email",
       "default_pagination": "Default Pagination"
     },
     "descriptions": {
+      "ecommerce.tax_enabled": "Enable or disable tax calculation during checkout.",
+      "ecommerce.tax_rate": "The percentage of tax to apply (e.g., 8 means 8%).",
       "admin.items_per_page": "Number of items to display per page",
       "admin.sidebar_collapsed": "Whether the sidebar is collapsed by default",
       "admin.theme": "The visual theme for the admin dashboard",
@@ -50,10 +57,25 @@
       "storefront.maintenance_password": "Password required to bypass the maintenance screen",
       "storefront.maintenance_message": "Short message shown on the maintenance screen",
       "orders.order_number_format": "Format pattern for generated order numbers. Use tokens like {{YYYY}}, {{YY}}, {{MM}}, {{DD}}, and {{SEQ4}} for a zero-padded sequence.",
+      "pattern": "Format Pattern",
+      "require_sequence": "Require {{SEQn}} to identify uniqueness",
+      "live_preview": "Live Preview",
+      "available_tokens": "Available Tokens",
+      "preview_note": "Using current date for preview",
+      "sequence_warning": "Sequence token recommended",
+      "tokens": {
+        "year_full": "Year 4-digits",
+        "year_short": "Year 2-digits",
+        "month": "Month 2-digits",
+        "day": "Day 2-digits",
+        "sequence": "Sequence number",
+        "random": "Random string"
+      },
       "maintenance_mode": "Enable or disable maintenance mode",
       "contact_email": "The contact email for the admin",
       "default_pagination": "The default number of items per page for pagination"
     },
+    "ecommerce_and_orders": "Ecommerce & Orders",
     "update_success_title": "Update Successful",
     "update_success_desc": "The setting has been successfully updated.",
     "update_failed_title": "Update Failed",
@@ -84,6 +106,8 @@
       "create": "Create Setting",
       "creating": "Creating..."
     },
+    "order_format_saved": "Order number format saved successfully.",
+    "order_format_save_failed": "Failed to save order number format.",
     "maintenance": {
       "title": "Maintenance Mode",
       "description": "Control the storefront maintenance lock screen and messaging.",

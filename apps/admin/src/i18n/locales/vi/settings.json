@@ -8,6 +8,7 @@
     "empty_state_message": "Bạn chưa tạo bất kỳ cài đặt hệ thống nào. Nhấp vào nút bên dưới để thêm cài đặt đầu tiên của bạn.",
     "no_real_data": "Hiện đang hiển thị dữ liệu mẫu. Bạn có thể nhấp vào nút 'Thêm cài đặt' để tạo cài đặt hệ thống thực.",
     "groups": {
+      "ecommerce": "Thương mại điện tử",
       "general": "Chung",
       "other": "Khác",
       "pagination": "Phân trang",
@@ -23,6 +24,8 @@
       "default_pagination_desc": "Số lượng phân trang mặc định"
     },
     "keys": {
+      "ecommerce.tax_enabled": "Bật tính thuế",
+      "ecommerce.tax_rate": "Thuế suất (%)",
       "admin.items_per_page": "Số mục mỗi trang",
       "admin.sidebar_collapsed": "Thu gọn thanh bên",
       "admin.theme": "Chủ đề quản trị",
@@ -34,11 +37,16 @@
       "storefront.maintenance_password": "Mật khẩu bảo trì",
       "storefront.maintenance_message": "Thông báo bảo trì",
       "orders.order_number_format": "Định dạng mã đơn hàng",
+      "orders.order_number_format_label": "Định dạng mã đơn hàng",
+      "orders.order_number_format_hint": "Tùy chỉnh cách hiển thị số đơn hàng của bạn bằng cách sử dụng các token.",
       "maintenance_mode": "Chế độ bảo trì",
       "contact_email": "Email liên hệ",
       "default_pagination": "Phân trang mặc định"
     },
     "descriptions": {
+      "ecommerce.tax_enabled": "Bật hoặc tắt tính thuế khi thanh toán.",
+      "ecommerce.tax_rate": "Phần trăm thuế áp dụng (ví dụ: 8 nghĩa là 8%).",
+      "ecommerce.description": "Quản lý thuế, vận chuyển và các cấu hình thương mại điện tử khác.",
       "admin.items_per_page": "Số lượng mục hiển thị trên mỗi trang",
       "admin.sidebar_collapsed": "Thanh bên có được thu gọn theo mặc định hay không",
       "admin.theme": "Chủ đề trực quan cho bảng điều khiển quản trị",
@@ -50,10 +58,25 @@
       "storefront.maintenance_password": "Mật khẩu cần nhập để bỏ qua trang bảo trì",
       "storefront.maintenance_message": "Thông điệp hiển thị trên trang bảo trì",
       "orders.order_number_format": "Mẫu định dạng để tạo mã đơn hàng. Dùng các token như {{YYYY}}, {{YY}}, {{MM}}, {{DD}} và {{SEQ4}} cho số thứ tự có thêm số 0 ở đầu.",
+      "pattern": "Mẫu định dạng",
+      "require_sequence": "Bắt buộc điền {{SEQn}} để đảm bảo tính duy nhất",
+      "live_preview": "Xem trước trực tiếp",
+      "available_tokens": "Các token có sẵn",
+      "preview_note": "Sử dụng ngày hiện tại để xem trước",
+      "sequence_warning": "Khuyến nghị sử dụng token chuỗi số tự động",
+      "tokens": {
+        "year_full": "Năm 4 chữ số",
+        "year_short": "Năm 2 chữ số",
+        "month": "Tháng 2 chữ số",
+        "day": "Ngày 2 chữ số",
+        "sequence": "Số thứ tự",
+        "random": "Chuỗi ngẫu nhiên"
+      },
       "maintenance_mode": "Bật hoặc tắt chế độ bảo trì",
       "contact_email": "Email liên hệ cho quản trị viên",
       "default_pagination": "Số lượng mục mặc định trên mỗi trang để phân trang"
     },
+    "ecommerce_and_orders": "Thương mại điện tử & Đơn hàng",
     "update_success_title": "Cập nhật thành công",
     "update_success_desc": "Cài đặt đã được cập nhật thành công.",
     "update_failed_title": "Cập nhật thất bại",
@@ -84,6 +107,8 @@
       "create": "Tạo cài đặt",
       "creating": "Đang tạo..."
     },
+    "order_format_saved": "Định dạng số đơn hàng đã được lưu thành công.",
+    "order_format_save_failed": "Không thể lưu định dạng số đơn hàng.",
     "maintenance": {
       "title": "Chế độ bảo trì",
       "description": "Quản lý trang bảo trì và thông điệp hiển thị trên storefront.",
