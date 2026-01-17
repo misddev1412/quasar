@@ -58,6 +58,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
 }) => {
   const hasChildren = item.children.length > 0;
   const isRootWithChildren = depth === 0 && hasChildren;
+  const [isMobileExpanded, setIsMobileExpanded] = React.useState(false);
   const containerOffsetClass = !isInsideHoverPanel && depth > 0 ? 'pl-4' : '';
   const linkWrapperClasses = clsx(
     'group block w-full text-left transition duration-150',
@@ -131,20 +132,36 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
             href={item.href}
             className={linkWrapperClasses}
             aria-label={getLinkAriaLabel(item)}
+            onClick={(event) => {
+              if (isRootWithChildren && typeof window !== 'undefined' && window.innerWidth < 1024) {
+                event.preventDefault();
+                setIsMobileExpanded((prev) => !prev);
+              }
+            }}
           >
             {content}
           </Link>
         ) : (
-          <div className={staticWrapperClasses}>{content}</div>
+          <button
+            type="button"
+            className={staticWrapperClasses}
+            onClick={() => {
+              if (isRootWithChildren) {
+                setIsMobileExpanded((prev) => !prev);
+              }
+            }}
+          >
+            {content}
+          </button>
         )}
 
         {hasChildren && isRootWithChildren && (
           <div
             className={clsx(
-              'pointer-events-none absolute left-full top-0 hidden min-w-[240px] max-w-sm translate-x-4 opacity-0 transition-all duration-200 ease-out delay-150 pl-4',
+              'pointer-events-none absolute left-full top-0 hidden min-w-[240px] max-w-sm translate-x-4 opacity-0 transition-all duration-200 ease-out delay-150 pl-4 lg:flex',
               'flex-col',
-              'group-hover:pointer-events-auto group-hover:translate-x-0 group-hover:opacity-100 group-hover:flex group-hover:delay-0',
-              'group-focus-within:pointer-events-auto group-focus-within:flex group-focus-within:translate-x-0 group-focus-within:opacity-100 group-focus-within:delay-0',
+              'group-hover:pointer-events-auto group-hover:translate-x-0 group-hover:opacity-100 group-hover:delay-0',
+              'group-focus-within:pointer-events-auto group-focus-within:translate-x-0 group-focus-within:opacity-100 group-focus-within:delay-0',
               'z-30',
             )}
           >
@@ -172,6 +189,25 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
           </div>
         )}
       </div>
+
+      {hasChildren && isRootWithChildren && isMobileExpanded && (
+        <div className="lg:hidden mt-2 ml-4 pl-3 border-l border-blue-100/70 dark:border-blue-900/40 divide-y divide-blue-100/70 dark:divide-blue-900/30">
+          {item.children.map((child) => (
+            <SidebarMenuItem
+              key={child.id}
+              item={child}
+              depth={depth + 1}
+              getLinkAriaLabel={getLinkAriaLabel}
+              isInsideHoverPanel={isInsideHoverPanel}
+              showIcon={showIcon}
+              itemFontSize={itemFontSize}
+              itemFontWeight={itemFontWeight}
+              itemFontColor={itemFontColor}
+              itemTextTransform={itemTextTransform}
+            />
+          ))}
+        </div>
+      )}
 
       {hasChildren && !isRootWithChildren && (
         <div
