@@ -34,6 +34,8 @@ export interface BannerGridConfig {
   labelTextColorLight?: string;
   labelTextColorDark?: string;
   labelTextTransform?: BannerLabelTextTransform;
+  hideOverlay?: boolean;
+  hideLabel?: boolean;
 }
 
 interface BannerGridSectionProps {
@@ -222,12 +224,16 @@ export const BannerGridSection: React.FC<BannerGridSectionProps> = ({ config, tr
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={imageUrl} alt={label} className="h-full w-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 flex justify-center p-4">
-                    <span className={labelBadgeClassName} style={labelBadgeInlineStyle}>
-                      {label}
-                    </span>
-                  </div>
+                  {!config.hideOverlay && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                  )}
+                  {!config.hideLabel && (
+                    <div className="absolute inset-x-0 bottom-0 flex justify-center p-4">
+                      <span className={labelBadgeClassName} style={labelBadgeInlineStyle}>
+                        {label}
+                      </span>
+                    </div>
+                  )}
                 </div>
               );
 

@@ -223,7 +223,11 @@
                     "linkProduct": "Product",
                     "linkResourceDescription": "Search and select a resource",
                     "linkPreview": "Link Preview",
-                    "openInNewTab": "Open in new tab"
+                    "openInNewTab": "Open in new tab",
+                    "hideOverlay": "Hide overlay",
+                    "hideOverlayDescription": "Hide the dark gradient overlay on the image",
+                    "hideLabel": "Hide label",
+                    "hideLabelDescription": "Hide the label text on the image"
                 },
                 "sideBanners": {
                     "width": "Banner width (px)",

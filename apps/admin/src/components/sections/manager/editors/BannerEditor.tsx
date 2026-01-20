@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Image as ImageIcon } from 'lucide-react';
 import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
 import { Input } from '../../../common/Input';
 import { ColorSelector } from '../../../common/ColorSelector';
@@ -8,8 +9,13 @@ import { ImageActionButtons } from '../../../common/ImageActionButtons';
 import { RevealableUrlInput } from '../../../common/RevealableUrlInput';
 import { CategorySelector } from '../../../menus/CategorySelector';
 import { ProductSelector } from '../../../menus/ProductSelector';
-import { Image as ImageIcon } from 'lucide-react';
-import { BannerCardConfig, BannerCardLink, BannerLabelTextTransform, BannerLinkType, ConfigChangeHandler } from '../types';
+import {
+    BannerCardConfig,
+    BannerCardLink,
+    BannerLabelTextTransform,
+    BannerLinkType,
+    ConfigChangeHandler,
+} from '../types';
 import { buildBannerLinkHref, ensureNumber } from '../utils';
 
 interface BannerEditorProps {
@@ -42,9 +48,15 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({ value, onChange }) =
     const labelBgColorDark = typeof value?.labelBgColorDark === 'string' ? value.labelBgColorDark : '';
     const labelTextColorLight = typeof value?.labelTextColorLight === 'string' ? value.labelTextColorLight : '';
     const labelTextColorDark = typeof value?.labelTextColorDark === 'string' ? value.labelTextColorDark : '';
-    const labelTextTransform: BannerLabelTextTransform = isLabelTextTransform(value?.labelTextTransform as string)
-        ? (value?.labelTextTransform as BannerLabelTextTransform)
+
+    const rawTransform = value?.labelTextTransform as string | undefined;
+    const labelTextTransform: BannerLabelTextTransform = isLabelTextTransform(rawTransform)
+        ? rawTransform
         : 'none';
+
+    const hideOverlay = Boolean(value?.hideOverlay);
+    const hideLabel = Boolean(value?.hideLabel);
+
     const clampCardCount = (count: number) => Math.min(Math.max(count, 1), 4);
     const rawCount = ensureNumber(value?.cardCount, cards.length > 0 ? cards.length : 1);
     const cardCount = clampCardCount(rawCount);
@@ -163,7 +175,7 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({ value, onChange }) =
                 {t('sections.manager.config.banner.cardCount')}
                 <Select
                     value={String(cardCount)}
-                    onChange={(valueOption) => handleCardCountChange(Number(valueOption) || cardCount)}
+                    onChange={(val) => handleCardCountChange(Number(val) || cardCount)}
                     options={[1, 2, 3, 4].map((count) => ({
                         value: String(count),
                         label: t('sections.manager.config.banner.cardCountOption', { count }),
@@ -248,7 +260,7 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({ value, onChange }) =
                 {t('sections.manager.config.banner.labelTextTransform')}
                 <Select
                     value={labelTextTransform}
-                    onChange={(valueOption) => handleLabelTextTransformChange((valueOption as BannerLabelTextTransform) || 'none')}
+                    onChange={(val) => handleLabelTextTransformChange((val as BannerLabelTextTransform) || 'none')}
                     options={[
                         { value: 'none', label: t('sections.manager.config.banner.labelTextTransformNone') },
                         { value: 'uppercase', label: t('sections.manager.config.banner.labelTextTransformUppercase') },
@@ -259,6 +271,33 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({ value, onChange }) =
                 />
                 <span className="text-xs text-gray-500">{t('sections.manager.config.banner.labelTextTransformDescription')}</span>
             </label>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <label className="flex items-center gap-2 text-sm text-gray-600">
+                    <input
+                        type="checkbox"
+                        checked={hideOverlay}
+                        onChange={(e) => updateConfig({ hideOverlay: e.target.checked })}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <div>
+                        <p>{t('sections.manager.config.banner.hideOverlay')}</p>
+                        <p className="text-xs text-gray-500">{t('sections.manager.config.banner.hideOverlayDescription')}</p>
+                    </div>
+                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-600">
+                    <input
+                        type="checkbox"
+                        checked={hideLabel}
+                        onChange={(e) => updateConfig({ hideLabel: e.target.checked })}
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <div>
+                        <p>{t('sections.manager.config.banner.hideLabel')}</p>
+                        <p className="text-xs text-gray-500">{t('sections.manager.config.banner.hideLabelDescription')}</p>
+                    </div>
+                </label>
+            </div>
 
             <div className="space-y-4">
                 {normalizedCards.map((card, idx) => {
@@ -324,7 +363,7 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({ value, onChange }) =
                                     {t('sections.manager.config.banner.linkType')}
                                     <Select
                                         value={linkType}
-                                        onChange={(valueOption) => handleLinkTypeChange(idx, (valueOption as BannerLinkType) || 'custom')}
+                                        onChange={(val) => handleLinkTypeChange(idx, (val as BannerLinkType) || 'custom')}
                                         options={linkTypeOptions}
                                         className="text-sm"
                                     />
@@ -383,6 +422,7 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({ value, onChange }) =
                                     type="checkbox"
                                     checked={openInNewTab}
                                     onChange={(e) => handleCardLinkChange(idx, { target: e.target.checked ? '_blank' : '_self' })}
+                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                 />
                                 {t('sections.manager.config.banner.openInNewTab')}
                             </label>

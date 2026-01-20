@@ -223,7 +223,11 @@
                     "linkProduct": "Sản phẩm",
                     "linkResourceDescription": "Tìm kiếm và chọn tài nguyên",
                     "linkPreview": "Xem trước liên kết",
-                    "openInNewTab": "Mở trong tab mới"
+                    "openInNewTab": "Mở trong tab mới",
+                    "hideOverlay": "Ẩn lớp phủ",
+                    "hideOverlayDescription": "Ẩn lớp gradient tối trên hình ảnh",
+                    "hideLabel": "Ẩn tiêu đề",
+                    "hideLabelDescription": "Ẩn văn bản tiêu đề trên hình ảnh"
                 },
                 "sideBanners": {
                     "width": "Chiều rộng banner (px)",
