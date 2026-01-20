@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useImperativeHandle, useRef } from 'react';
-import { FieldValues } from 'react-hook-form';
+import { FieldValues, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
 import clsx from 'clsx';
 import { Button } from './Button';
@@ -105,74 +105,76 @@ export function EntityForm<T extends FieldValues = FieldValues>({
   };
 
   return (
-    <form onSubmit={handleFormSubmit} className={clsx('space-y-4', className)}>
-      <fieldset className="m-0 min-w-0 border-0 p-0" disabled={isDisabled}>
-        <Tabs
-          tabs={tabsConfig}
-          activeTab={activeTab}
-          onTabChange={handleTabChange} // Handle tab changes with URL persistence
-        />
-      </fieldset>
+    <FormProvider {...form}>
+      <form onSubmit={handleFormSubmit} className={clsx('space-y-4', className)}>
+        <fieldset className="m-0 min-w-0 border-0 p-0" disabled={isDisabled}>
+          <Tabs
+            tabs={tabsConfig}
+            activeTab={activeTab}
+            onTabChange={handleTabChange} // Handle tab changes with URL persistence
+          />
+        </fieldset>
 
-      {/* Form Actions */}
-      <div
-        className={clsx(
-          'flex items-center space-x-4 pt-4 border-t border-gray-200 dark:border-gray-700',
-          alignmentClassMap[actionsAlignment] || alignmentClassMap.end,
-        )}
-      >
-        {customActions ?? (
-          <>
-            {showCancelButton && onCancel && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                disabled={isSubmitting || isDisabled}
-              >
-                {cancelButtonText}
-              </Button>
-            )}
-            {shouldShowSaveAndStay ? (
-              <>
+        {/* Form Actions */}
+        <div
+          className={clsx(
+            'flex items-center space-x-4 pt-4 border-t border-gray-200 dark:border-gray-700',
+            alignmentClassMap[actionsAlignment] || alignmentClassMap.end,
+          )}
+        >
+          {customActions ?? (
+            <>
+              {showCancelButton && onCancel && (
                 <Button
-                  type="submit"
-                  variant="secondary"
-                  onClick={() => handleSubmitActionSelect('save_and_stay')}
-                  isLoading={isSubmitting && lastSubmitAction === 'save_and_stay'}
+                  type="button"
+                  variant="outline"
+                  onClick={onCancel}
                   disabled={isSubmitting || isDisabled}
                 >
-                  {isSubmitting && lastSubmitAction === 'save_and_stay'
-                    ? t('common.saving', 'Saving...')
-                    : t('common.save_and_stay', 'Save and stay')}
+                  {cancelButtonText}
                 </Button>
+              )}
+              {shouldShowSaveAndStay ? (
+                <>
+                  <Button
+                    type="submit"
+                    variant="secondary"
+                    onClick={() => handleSubmitActionSelect('save_and_stay')}
+                    isLoading={isSubmitting && lastSubmitAction === 'save_and_stay'}
+                    disabled={isSubmitting || isDisabled}
+                  >
+                    {isSubmitting && lastSubmitAction === 'save_and_stay'
+                      ? t('common.saving', 'Saving...')
+                      : t('common.save_and_stay', 'Save and stay')}
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    onClick={() => handleSubmitActionSelect('save')}
+                    isLoading={isSubmitting && lastSubmitAction === 'save'}
+                    disabled={isDisabled || (isSubmitting && lastSubmitAction !== 'save')}
+                  >
+                    {isSubmitting && lastSubmitAction === 'save'
+                      ? t('common.saving', 'Saving...')
+                      : submitButtonText}
+                  </Button>
+                </>
+              ) : (
                 <Button
                   type="submit"
                   variant="primary"
+                  isLoading={isSubmitting}
+                  disabled={isSubmitting || isDisabled}
                   onClick={() => handleSubmitActionSelect('save')}
-                  isLoading={isSubmitting && lastSubmitAction === 'save'}
-                  disabled={isDisabled || (isSubmitting && lastSubmitAction !== 'save')}
                 >
-                  {isSubmitting && lastSubmitAction === 'save'
-                    ? t('common.saving', 'Saving...')
-                    : submitButtonText}
+                  {submitButtonText}
                 </Button>
-              </>
-            ) : (
-              <Button
-                type="submit"
-                variant="primary"
-                isLoading={isSubmitting}
-                disabled={isSubmitting || isDisabled}
-                onClick={() => handleSubmitActionSelect('save')}
-              >
-                {submitButtonText}
-              </Button>
-            )}
-          </>
-        )}
-      </div>
-    </form>
+              )}
+            </>
+          )}
+        </div>
+      </form>
+    </FormProvider>
   );
 }
 

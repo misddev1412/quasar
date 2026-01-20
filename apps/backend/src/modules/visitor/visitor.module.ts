@@ -1,6 +1,7 @@
-import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Visitor, VisitorSession, PageView } from './entities';
+import { VisitorStatistics } from './entities/visitor-statistics.entity';
 import { VisitorRepository } from './repositories/visitor.repository';
 import { VisitorTrackingService } from './services/visitor-tracking.service';
 import { AdminVisitorStatisticsService } from './services/admin/admin-visitor-statistics.service';
@@ -12,7 +13,7 @@ import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Visitor, VisitorSession, PageView]),
+    TypeOrmModule.forFeature([Visitor, VisitorSession, PageView, VisitorStatistics]),
     SharedModule,
     UserModule,
   ],

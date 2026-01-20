@@ -20,6 +20,7 @@ import { SectionsSeeder } from './sections.seeder';
 import { MenusSeeder } from './menus.seeder';
 import { ComponentConfigsSeeder } from './component-configs.seeder';
 import { NotificationEventFlowSeeder } from './notification-event-flow.seeder';
+import { ServicesSeeder } from './services.seeder';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { NotificationEventFlowSeeder } from './notification-event-flow.seeder';
     SeederModule,
   ],
 })
-export class DynamicSeederApp {}
+export class DynamicSeederApp { }
 
 // Map of available seeders
 const AVAILABLE_SEEDERS = {
@@ -45,6 +46,7 @@ const AVAILABLE_SEEDERS = {
   menus: MenusSeeder,
   'component-configs': ComponentConfigsSeeder,
   'notification-event-flows': NotificationEventFlowSeeder,
+  services: ServicesSeeder,
 } as const;
 
 const printLine = (text = '') => {

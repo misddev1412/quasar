@@ -391,6 +391,24 @@ export const appRouter = router({
         return {} as ApiResponse;
       }),
   }),
+  clientServices: router({
+    getServices: procedure
+      .input(z.object({
+        page: z.number().min(1).default(1),
+        limit: z.number().min(1).max(100).default(10),
+        search: z.string().optional(),
+      }))
+      .output(paginatedResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+    getServiceById: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
 
   // Define type information for client-side usage
   // The actual implementation is handled by NestJS-tRPC at runtime

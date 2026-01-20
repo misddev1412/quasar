@@ -3,7 +3,7 @@ import { ColorSelector } from '@admin/components/common/ColorSelector';
 import { Select } from '@admin/components/common/Select';
 import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
 
-export type SectionHeadingStyle = 'default' | 'banner';
+export type SectionHeadingStyle = 'default' | 'banner' | 'curved';
 export type SectionHeadingTextTransform = 'none' | 'uppercase' | 'capitalize' | 'lowercase';
 export type SectionHeadingTitleSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -83,6 +83,7 @@ export const SectionHeadingConfig: React.FC<SectionHeadingConfigProps> = ({ data
                     options={[
                         { value: 'default', label: t('sections.manager.headingConfig.headingStyleDefault', 'Default') },
                         { value: 'banner', label: t('sections.manager.headingConfig.headingStyleBanner', 'Color Bar') },
+                        { value: 'curved', label: t('sections.manager.headingConfig.headingStyleCurved', 'Curved') },
                     ]}
                     className="text-sm"
                 />
@@ -135,6 +136,30 @@ export const SectionHeadingConfig: React.FC<SectionHeadingConfigProps> = ({ data
                             value={data.headingTextColor || ''}
                             onChange={handleTextColorChange}
                             placeholder="#111827"
+                            label={t('sections.manager.headingConfig.headingText', 'Heading Text')}
+                            className="w-full"
+                        />
+                    </div>
+                </div>
+            )}
+
+            {data.headingStyle === 'curved' && (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="flex flex-col gap-1">
+                        <ColorSelector
+                            value={data.headingBackgroundColor || ''}
+                            onChange={handleBackgroundColorChange}
+                            placeholder="#f97316"
+                            label={t('sections.manager.headingConfig.headingBackground', 'Heading Background (Orange)')}
+                            className="w-full"
+                        />
+                        <p className={'text-xs text-gray-400'}>{t('sections.manager.headingConfig.curvedBackgroundHelp', 'Sets the background tab color & bottom border')}</p>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                        <ColorSelector
+                            value={data.headingTextColor || ''}
+                            onChange={handleTextColorChange}
+                            placeholder="#ffffff"
                             label={t('sections.manager.headingConfig.headingText', 'Heading Text')}
                             className="w-full"
                         />

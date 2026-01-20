@@ -36,7 +36,7 @@ export class ClientVisitorStatsRouter {
     private readonly visitorTrackingService: VisitorTrackingService,
     @Inject(ResponseService)
     private readonly responseHandler: ResponseService,
-  ) {}
+  ) { }
 
   @Query({
     input: GetPublicStatsSchema,
@@ -47,20 +47,7 @@ export class ClientVisitorStatsRouter {
   ) {
     try {
       // Return limited public statistics for storefront display
-      const overallStats = await this.adminVisitorStatisticsService.getOverallStatistics(input.days);
-      const topPages = await this.adminVisitorStatisticsService.getTopPages(input.limit, input.days);
-
-      const publicStats = {
-        totalVisitors: overallStats.visitors.totalVisitors,
-        totalPageViews: overallStats.pageViews.totalPageViews,
-        topPages: topPages.map(page => ({
-          url: page.url,
-          title: page.title,
-          views: page.uniqueViews
-        })),
-        // Don't expose sensitive data like IPs, detailed analytics, etc.
-        lastUpdated: new Date().toISOString(),
-      };
+      const publicStats = await this.adminVisitorStatisticsService.getStorefrontStats(input.days);
 
       return this.responseHandler.createTrpcSuccess(publicStats);
     } catch (error) {

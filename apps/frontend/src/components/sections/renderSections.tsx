@@ -21,6 +21,10 @@ import {
   ContactFormSection,
   BrandShowcaseSection,
   WhyChooseUsSection,
+  ServiceListSection,
+  TeamSection,
+  ProductDetailsSection,
+  NewsDetailsSection,
 } from '.';
 import type { SectionListItem } from '../../types/sections';
 import type { ProductsByCategorySidebarConfig } from './ProductsByCategory';
@@ -43,6 +47,10 @@ const sectionComponentMap: Record<SectionType, React.ComponentType<any>> = {
   [SectionType.CONTACT_FORM]: ContactFormSection,
   [SectionType.BRAND_SHOWCASE]: BrandShowcaseSection,
   [SectionType.WHY_CHOOSE_US]: WhyChooseUsSection,
+  [SectionType.SERVICE_LIST]: ServiceListSection,
+  [SectionType.TEAM]: TeamSection,
+  [SectionType.PRODUCT_DETAILS]: ProductDetailsSection,
+  [SectionType.NEWS_DETAILS]: NewsDetailsSection,
 };
 
 const buildTranslationPayload = (section: SectionListItem) => {

@@ -61,8 +61,8 @@ export class ServicesService {
     });
   }
 
-  async findAll(query: ServiceFilterDto): Promise<{ items: Service[]; total: number; page: number; pageSize: number; totalPages: number }> {
-    const { page, limit, search, isActive } = query;
+  async findAll(query: ServiceFilterDto): Promise<{ items: Service[]; total: number; page: number; limit: number; totalPages: number }> {
+    const { page, limit, search, isActive, ids } = query;
     const skip = (page - 1) * limit;
 
     const qb = this.serviceRepository.createQueryBuilder('service');
@@ -71,6 +71,10 @@ export class ServicesService {
     qb.leftJoinAndSelect('service.items', 'items');
     qb.leftJoinAndSelect('items.translations', 'itemTranslations');
     qb.leftJoinAndSelect('service.currency', 'currency');
+
+    if (ids && ids.length > 0) {
+      qb.andWhere('service.id IN (:...ids)', { ids });
+    }
 
     if (isActive !== undefined) {
       qb.andWhere('service.isActive = :isActive', { isActive });
@@ -89,7 +93,7 @@ export class ServicesService {
       items,
       total,
       page,
-      pageSize: limit,
+      limit,
       totalPages: Math.ceil(total / limit),
     };
   }

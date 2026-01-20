@@ -264,7 +264,7 @@ export class AdminUserService {
       throw new Error('Invalid old password');
     }
 
-    user.password = newPass;
+    user.password = await this.authService.hashPassword(newPass);
     await this.userRepository.save(user);
 
     return true;

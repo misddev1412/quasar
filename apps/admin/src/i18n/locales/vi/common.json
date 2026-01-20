@@ -182,6 +182,8 @@
     "pleaseTryAgainLater": "Vui lòng thử lại sau.",
     "genericError": "Đã xảy ra lỗi. Vui lòng thử lại.",
     "enable": "Bật",
-    "disable": "Tắt"
+    "disable": "Tắt",
+    "translations": "Bản dịch",
+    "translations_desc": "Quản lý nội dung bằng các ngôn ngữ khác"
   }
 }

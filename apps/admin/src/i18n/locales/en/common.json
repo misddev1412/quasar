@@ -182,6 +182,8 @@
     "pleaseTryAgainLater": "Please try again later.",
     "genericError": "An error occurred. Please try again.",
     "enable": "Enable",
-    "disable": "Disable"
+    "disable": "Disable",
+    "translations": "Translations",
+    "translations_desc": "Manage content in other languages"
   }
 }

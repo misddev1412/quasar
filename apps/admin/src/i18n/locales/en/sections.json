@@ -633,6 +633,8 @@
                 "headingStyle": "Heading Style",
                 "headingStyleDefault": "Default",
                 "headingStyleBanner": "Color Bar",
+                "headingStyleCurved": "Curved Style",
+                "curvedBackgroundHelp": "Sets the background tab color & bottom border",
                 "titleCase": "Title Case",
                 "titleCaseOptions": {
                     "normal": "Normal",

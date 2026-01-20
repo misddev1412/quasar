@@ -219,6 +219,11 @@ export class NavigationService implements INavigationService {
             icon: React.createElement(BusinessIcon),
             label: t('suppliers.title', 'Nhà cung cấp'),
             path: '/products/suppliers'
+          },
+          {
+            icon: React.createElement(ViewListIcon),
+            label: t('product_bundles.title', 'Product Bundles'),
+            path: '/product-bundles'
           }
         ]
       },

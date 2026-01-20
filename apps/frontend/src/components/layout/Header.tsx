@@ -568,7 +568,17 @@ const Header: React.FC = () => {
     );
   }, [normalizedCategories, categorySearch]);
 
-  const navigationItemsConverted = convertToNavigationItems(navigationItems);
+  const navigationItemsConverted = [
+    ...convertToNavigationItems(navigationItems),
+    {
+      id: 'services-link',
+      type: MenuType.LINK,
+      name: t('layout.header.services'),
+      href: '/services',
+      target: '_self',
+      children: [],
+    } as NavigationItem
+  ];
 
   // Filter and convert top menu items for mobile
   const topNavigationItemsConverted = convertToNavigationItems(

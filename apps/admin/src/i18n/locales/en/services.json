@@ -1,0 +1,29 @@
+{
+    "services": {
+        "entity_name": "Service",
+        "entity_name_plural": "Services",
+        "edit_title": "Edit Service",
+        "edit_desc": "Update service details",
+        "create_title": "Create Service",
+        "create_desc": "Add a new service",
+        "general": "General",
+        "basic_info": "Basic Information",
+        "basic_info_desc": "Basic details about the service",
+        "language_desc": "Primary language for this service",
+        "name": "Service Name",
+        "name_placeholder": "e.g. Premium Cleaning",
+        "description": "Short Description",
+        "description_placeholder": "Service summary",
+        "content": "Full Content",
+        "content_placeholder": "Detailed service description...",
+        "pricing_media": "Pricing & Media",
+        "price": "Unit Price",
+        "contact_price": "Contact for Price",
+        "contact_price_desc": "Hide price and show \"Contact us\" instead",
+        "thumbnail": "Thumbnail",
+        "items": "Service Items",
+        "items_list": "Items List",
+        "items_desc": "Add sub-items or variants included in this service",
+        "update_success": "Service updated successfully"
+    }
+}

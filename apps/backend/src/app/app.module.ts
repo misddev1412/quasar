@@ -91,6 +91,7 @@ import { ServiceItem } from '../modules/services/entities/service-item.entity';
 import { ServiceItemTranslation } from '../modules/services/entities/service-item-translation.entity';
 import { ThemesModule } from '../modules/themes/themes.module';
 import { ThemeEntity } from '../modules/themes/entities/theme.entity';
+import { ProductBundlesModule } from '../modules/product-bundles/product-bundles.module';
 
 
 @Module({
@@ -196,6 +197,7 @@ import { ThemeEntity } from '../modules/themes/entities/theme.entity';
     MailQueueModule,
     ServicesModule,
     ThemesModule,
+    ProductBundlesModule,
     AppRouterModule,
   ],
   controllers: [AppController],

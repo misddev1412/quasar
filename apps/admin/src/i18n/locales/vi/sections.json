@@ -633,6 +633,8 @@
                 "headingStyle": "Kiểu tiêu đề",
                 "headingStyleDefault": "Mặc định",
                 "headingStyleBanner": "Thanh màu",
+                "headingStyleCurved": "Kiểu cong",
+                "curvedBackgroundHelp": "Cấu hình màu nền tab & viền dưới",
                 "titleCase": "Kiểu chữ tiêu đề",
                 "titleCaseOptions": {
                     "normal": "Bình thường",

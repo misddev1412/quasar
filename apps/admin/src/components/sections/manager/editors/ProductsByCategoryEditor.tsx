@@ -21,7 +21,7 @@ interface ProductsByCategoryConfigEditorProps {
 
 type ProductsByCategoryStrategy = 'latest' | 'featured' | 'bestsellers' | 'custom';
 type ProductsByCategoryDisplayStyle = 'grid' | 'carousel';
-type HeadingStyle = 'default' | 'banner';
+type HeadingStyle = 'default' | 'banner' | 'curved';
 
 interface ProductsByCategoryAdminRow {
     id: string;

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ProductsModule } from '../modules/products/products.module';
+import { ProductBundlesModule } from '../modules/product-bundles/product-bundles.module';
 import { FirebaseModule } from '../modules/firebase/firebase.module';
 import { AuthModule } from '../auth/auth.module';
 import { UserModule } from '../modules/user/user.module';
@@ -54,8 +55,10 @@ import { AdminComponentConfigsRouter } from '../modules/component-configs/router
 import { ClientComponentConfigsRouter } from '../modules/component-configs/routers/client-component-configs.router';
 import { AdminProductSpecificationLabelsRouter } from '../modules/products/routers/admin-product-specification-labels.router';
 import { ServicesRouter } from '../modules/services/routers/services.router';
+import { ClientServicesRouter } from './routers/client/services.router';
 import { AdminThemesRouter } from '../modules/themes/routers/admin-themes.router';
 import { PublicThemesRouter } from '../modules/themes/routers/public-themes.router';
+import { AdminProductBundlesRouter } from '../modules/product-bundles/routers/admin-product-bundles.router';
 
 @Module({
   imports: [
@@ -86,6 +89,7 @@ import { PublicThemesRouter } from '../modules/themes/routers/public-themes.rout
     ServicesModule,
     ThemesModule,
     TranslationModule,
+    ProductBundlesModule,
   ],
   providers: [
     ClientNewsRouter,
@@ -114,11 +118,13 @@ import { PublicThemesRouter } from '../modules/themes/routers/public-themes.rout
     ClientComponentConfigsRouter,
     AdminProductSpecificationLabelsRouter,
     ServicesRouter,
+    ClientServicesRouter,
     AdminThemesRouter,
     PublicThemesRouter,
     PublicThemesRouter,
     TranslationRouter,
     ResponseService,
+    AdminProductBundlesRouter,
   ],
 })
 export class AppRouterModule { }

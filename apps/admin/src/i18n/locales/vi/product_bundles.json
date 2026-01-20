@@ -1,0 +1,19 @@
+{
+    "title": "Bộ sản phẩm",
+    "create_title": "Tạo bộ sản phẩm",
+    "create_description": "Tạo một bộ sản phẩm mới từ các sản phẩm và danh mục.",
+    "edit_title": "Chỉnh sửa bộ sản phẩm",
+    "edit_description": "Cập nhật chi tiết và cấu hình bộ sản phẩm.",
+    "entity_name": "Bộ sản phẩm",
+    "general_desc": "Thông tin cơ bản về bộ sản phẩm này",
+    "items": "Cấu hình bộ sản phẩm",
+    "items_desc": "Định nghĩa các bước hoặc thành phần cho bộ sản phẩm này",
+    "add_item": "Thêm thành phần",
+    "item_label": "Nhãn (Ví dụ: CPU, Mainboard)",
+    "mode": "Chế độ chọn",
+    "mode_category": "Chọn từ Danh mục",
+    "mode_product": "Sản phẩm cụ thể",
+    "select_categories": "Chọn danh mục",
+    "select_products": "Chọn sản phẩm",
+    "items_count": "Số lượng mục"
+}

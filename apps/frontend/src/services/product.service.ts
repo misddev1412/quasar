@@ -218,12 +218,16 @@ export class ProductService {
 
   static async getProductsByCategory(
     categoryId?: string,
-    options: { strategy?: 'latest' | 'featured' | 'bestsellers' | 'custom' } = {},
+    options: {
+      strategy?: 'latest' | 'featured' | 'bestsellers' | 'custom';
+      limit?: number;
+    } = {},
   ): Promise<ProductListResponse> {
     try {
       const response = await trpcClient.clientProducts.getProductsByCategory.query({
         categoryId,
         strategy: options.strategy,
+        limit: options.limit,
       }) as unknown as PaginatedApiResponse<Product>;
 
       // For paginated responses, the data is directly in response.data

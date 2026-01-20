@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { z } from 'zod';
 import { FileText, Globe, DollarSign, List, Image } from 'lucide-react';
 import { EntityForm } from '../common/EntityForm';
-import { FormTabConfig, FormSubmitOptions } from '../../types/forms';
+import { FormTabConfig, FormSubmitAction } from '../../types/forms';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useLanguageOptions } from '../../hooks/useLanguages';
-import { TranslationsSection } from '../posts/TranslationsSection'; // Reusing
+import { ServiceTranslationsSection } from './ServiceTranslationsSection';
 import { ServiceItemsEditor } from './ServiceItemsEditor';
 
 const serviceSchema = z.object({
@@ -33,12 +33,18 @@ const serviceSchema = z.object({
 
 type ServiceFormData = z.infer<typeof serviceSchema>;
 
+export interface ServiceFormSubmitOptions {
+    submitAction?: FormSubmitAction;
+}
+
 interface ServiceFormProps {
     initialValues?: Partial<ServiceFormData>;
-    onSubmit: (data: any) => Promise<void>;
+    onSubmit: (data: any, options?: ServiceFormSubmitOptions) => Promise<void>;
     onCancel: () => void;
     isSubmitting?: boolean;
     mode?: 'create' | 'edit';
+    activeTab?: number;
+    onTabChange?: (index: number) => void;
 }
 
 export const ServiceForm: React.FC<ServiceFormProps> = ({
@@ -47,9 +53,12 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     onCancel,
     isSubmitting,
     mode = 'create',
+    activeTab,
+    onTabChange,
 }) => {
     const { t } = useTranslationWithBackend();
     const { languageOptions } = useLanguageOptions();
+    const submitActionRef = useRef<FormSubmitAction>('save');
 
     // State for translations
     const [additionalTranslations, setAdditionalTranslations] = useState<any[]>(initialValues?.additionalTranslations || []);
@@ -96,7 +105,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
                             name: 'content',
                             label: t('services.content', 'Full Content'),
                             type: 'richtext',
-                            minHeight: '300px',
+                            minHeight: '500px',
                         },
                         {
                             name: 'isActive',
@@ -171,15 +180,10 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
                             label: '',
                             type: 'custom',
                             component: (
-                                <TranslationsSection
+                                <ServiceTranslationsSection
                                     translations={additionalTranslations}
                                     onTranslationsChange={setAdditionalTranslations}
                                     primaryLanguage={primaryLanguage}
-                                // Mapping custom field names if needed by TranslationsSection
-                                // TranslationsSection typically expects { locale, title, content, ... }
-                                // ServiceTranslation needs { locale, name, content, description }
-                                // I might need to adapt the props or the component if TranslationsSection is strictly 'title'-based.
-                                // Let's assume it supports generic fields or we map 'name' to 'title' logic.
                                 />
                             )
                         }
@@ -195,7 +199,7 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
             ...data,
             items,
             additionalTranslations,
-            // If translation section uses 'title', we map it to 'name' for backend
+            // Prepare translations for backend
             translations: [
                 {
                     locale: data.languageCode || 'en',
@@ -203,13 +207,12 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
                     description: data.description,
                     content: data.content
                 },
-                ...additionalTranslations.map((t: any) => ({
-                    ...t,
-                    name: t.title || t.name, // Handle mapping if TranslationsSection uses title
-                }))
+                ...additionalTranslations
             ]
         };
-        await onSubmit(submissionData);
+
+        // Pass the current submit action from the ref (which EntityForm updates)
+        await onSubmit(submissionData, { submitAction: submitActionRef.current });
     };
 
     const defaultValues: any = {
@@ -231,6 +234,9 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
             onCancel={onCancel}
             isSubmitting={isSubmitting}
             mode={mode}
+            activeTab={activeTab}
+            onTabChange={onTabChange}
+            showSaveAndStay={true}
         />
     );
 };

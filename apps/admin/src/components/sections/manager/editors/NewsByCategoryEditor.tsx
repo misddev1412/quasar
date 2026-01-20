@@ -21,7 +21,7 @@ interface NewsByCategoryConfigEditorProps {
 }
 
 type NewsStrategy = 'latest' | 'most_viewed' | 'featured';
-type HeadingStyle = 'default' | 'banner';
+type HeadingStyle = 'default' | 'banner' | 'curved';
 type NewsCardLayout = 'grid' | 'horizontal' | 'compact';
 type NewsCardBadgeTone = 'primary' | 'neutral' | 'emphasis';
 

@@ -430,7 +430,8 @@ export class SectionsService {
         }
       }
 
-      return (await this.sectionRepository.findById(id)) as SectionEntity;
+      const updated = (await this.sectionRepository.findById(id)) as SectionEntity;
+      return updated;
     } catch (error) {
       if (error instanceof Error && error.message === 'Section not found') {
         throw error;

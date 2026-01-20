@@ -18,6 +18,9 @@ import {
   SectionTranslationContent,
   BrandShowcaseConfig,
   WhyChooseUsConfig,
+  TeamConfig,
+  ProductDetailsConfig,
+  NewsDetailsConfig,
 } from '../components/sections';
 
 export interface SectionTranslation extends SectionTranslationContent {
@@ -54,6 +57,10 @@ export type SectionComponentConfigMap = {
   [SectionType.CONTACT_FORM]: ContactFormConfig;
   [SectionType.BRAND_SHOWCASE]: BrandShowcaseConfig;
   [SectionType.WHY_CHOOSE_US]: WhyChooseUsConfig;
+  [SectionType.TEAM]: TeamConfig;
+  [SectionType.PRODUCT_DETAILS]: ProductDetailsConfig;
+  [SectionType.NEWS_DETAILS]: NewsDetailsConfig;
+  [SectionType.SERVICE_LIST]: Record<string, unknown>; // TODO: Add ServiceListConfig
 };
 
 export type SectionConfigByType<T extends SectionType> = SectionComponentConfigMap[T];

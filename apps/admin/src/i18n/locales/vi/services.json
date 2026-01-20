@@ -1,0 +1,29 @@
+{
+    "services": {
+        "entity_name": "Dịch vụ",
+        "entity_name_plural": "Dịch vụ",
+        "edit_title": "Chỉnh sửa Dịch vụ",
+        "edit_desc": "Cập nhật chi tiết dịch vụ",
+        "create_title": "Tạo Dịch vụ",
+        "create_desc": "Thêm dịch vụ mới",
+        "general": "Chung",
+        "basic_info": "Thông tin cơ bản",
+        "basic_info_desc": "Chi tiết cơ bản về dịch vụ",
+        "language_desc": "Ngôn ngữ chính cho dịch vụ này",
+        "name": "Tên Dịch vụ",
+        "name_placeholder": "ví dụ: Vệ sinh cao cấp",
+        "description": "Mô tả ngắn",
+        "description_placeholder": "Tóm tắt dịch vụ",
+        "content": "Nội dung đầy đủ",
+        "content_placeholder": "Mô tả chi tiết dịch vụ...",
+        "pricing_media": "Giá & Hình ảnh",
+        "price": "Đơn giá",
+        "contact_price": "Liên hệ để biết giá",
+        "contact_price_desc": "Ẩn giá và hiển thị \"Liên hệ\" thay thế",
+        "thumbnail": "Hình đại diện",
+        "items": "Hạng mục dịch vụ",
+        "items_list": "Danh sách hạng mục",
+        "items_desc": "Thêm các hạng mục con hoặc biến thể có trong dịch vụ này",
+        "update_success": "Cập nhật dịch vụ thành công"
+    }
+}

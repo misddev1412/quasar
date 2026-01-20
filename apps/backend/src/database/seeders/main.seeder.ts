@@ -23,6 +23,7 @@ import { SiteContentSeeder } from './site-content.seeder';
 import { ComponentConfigsSeeder } from './component-configs.seeder';
 import { AttributesSeeder } from './attributes.seeder';
 import { NotificationEventFlowSeeder } from './notification-event-flow.seeder';
+import { ServicesSeeder } from './services.seeder';
 import databaseConfig from '../../config/database.config';
 
 @Module({
@@ -34,14 +35,14 @@ import databaseConfig from '../../config/database.config';
     SeederModule,
   ],
 })
-export class MainSeederApp {}
+export class MainSeederApp { }
 
 /**
  * Bootstrap the seeder application
  */
 export async function bootstrap() {
   const app = await NestFactory.create(MainSeederApp);
-  
+
   try {
     const permissionSeeder = app.get(PermissionSeeder);
     const seoSeeder = app.get(SeoSeeder);
@@ -58,6 +59,7 @@ export async function bootstrap() {
     const componentConfigsSeeder = app.get(ComponentConfigsSeeder);
     const attributesSeeder = app.get(AttributesSeeder);
     const notificationEventFlowSeeder = app.get(NotificationEventFlowSeeder);
+    const servicesSeeder = app.get(ServicesSeeder);
 
     // Run seeders in order (countries first, then currencies, then administrative divisions, then permissions and admin, then warehouses, then user activities)
     await countriesSeeder.seed();
@@ -74,6 +76,7 @@ export async function bootstrap() {
     await menusSeeder.seed();
     await warehouseSeeder.seed();
     await siteContentSeeder.seed();
+    await servicesSeeder.seed();
     await userActivitySeeder.seed();
 
   } catch (error) {

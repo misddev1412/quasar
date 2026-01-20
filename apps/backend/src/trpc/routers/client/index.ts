@@ -6,3 +6,4 @@ export { ClientProductsRouter } from './products.router';
 export { ClientCategoriesRouter } from './categories.router';
 export { ClientNewsRouter } from './news.router';
 export { ClientBrandsRouter } from './brands.router';
+export { ClientServicesRouter } from './services.router';

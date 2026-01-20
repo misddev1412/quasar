@@ -22,7 +22,12 @@ import { MenuTranslationEntity } from '../../modules/menus/entities/menu-transla
 import { SiteContentEntity } from '../../modules/site-content/entities/site-content.entity';
 import { ComponentConfigEntity } from '../../modules/component-configs/entities/component-config.entity';
 import { Attribute } from '../../modules/products/entities/attribute.entity';
+
 import { AttributeValue } from '../../modules/products/entities/attribute-value.entity';
+import { Service } from '../../modules/services/entities/service.entity';
+import { ServiceTranslation } from '../../modules/services/entities/service-translation.entity';
+import { ServiceItem } from '../../modules/services/entities/service-item.entity';
+import { ServiceItemTranslation } from '../../modules/services/entities/service-item-translation.entity';
 import { PermissionRepository } from '../../modules/user/repositories/permission.repository';
 import { AdminPermissionService } from '../../modules/user/services/admin/admin-permission.service';
 import { PermissionCheckerService } from '../../modules/shared/services/permission-checker.service';
@@ -41,7 +46,9 @@ import { SiteContentSeeder } from './site-content.seeder';
 import { ComponentConfigsSeeder } from './component-configs.seeder';
 import { AttributesSeeder } from './attributes.seeder';
 import { NotificationEventFlow } from '../../modules/notifications/entities/notification-event-flow.entity';
+
 import { NotificationEventFlowSeeder } from './notification-event-flow.seeder';
+import { ServicesSeeder } from './services.seeder';
 
 @Module({
   imports: [
@@ -69,7 +76,12 @@ import { NotificationEventFlowSeeder } from './notification-event-flow.seeder';
       ComponentConfigEntity,
       Attribute,
       AttributeValue,
+
       NotificationEventFlow,
+      Service,
+      ServiceTranslation,
+      ServiceItem,
+      ServiceItemTranslation,
     ]),
   ],
   providers: [
@@ -91,6 +103,7 @@ import { NotificationEventFlowSeeder } from './notification-event-flow.seeder';
     ComponentConfigsSeeder,
     AttributesSeeder,
     NotificationEventFlowSeeder,
+    ServicesSeeder,
   ],
   exports: [
     PermissionSeeder,
@@ -108,6 +121,7 @@ import { NotificationEventFlowSeeder } from './notification-event-flow.seeder';
     ComponentConfigsSeeder,
     AttributesSeeder,
     NotificationEventFlowSeeder,
+    ServicesSeeder,
   ],
 })
-export class SeederModule {}
+export class SeederModule { }

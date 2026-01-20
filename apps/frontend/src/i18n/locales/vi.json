@@ -240,6 +240,15 @@
       }
     }
   },
+  "services": {
+    "common": {
+      "unnamedService": "Dịch vụ",
+      "contactForPrice": "Liên hệ báo giá",
+      "price": "Giá",
+      "contactUs": "Liên hệ",
+      "viewDetails": "Xem chi tiết"
+    }
+  },
   "layout": {
     "header": {
       "brand": "Cửa hàng Quasar",

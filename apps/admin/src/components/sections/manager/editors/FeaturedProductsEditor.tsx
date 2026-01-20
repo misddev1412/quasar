@@ -15,7 +15,7 @@ interface FeaturedProductsConfigEditorProps {
     onChange: ConfigChangeHandler;
 }
 
-type HeadingStyle = 'default' | 'banner';
+type HeadingStyle = 'default' | 'banner' | 'curved';
 
 interface FeaturedProductsConfig {
     title?: string;

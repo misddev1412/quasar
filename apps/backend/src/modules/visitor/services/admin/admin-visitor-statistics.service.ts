@@ -5,7 +5,7 @@ import { VisitorType, VisitorSource, SessionStatus, PageViewType } from '../../e
 
 @Injectable()
 export class AdminVisitorStatisticsService {
-  constructor(private readonly visitorRepository: VisitorRepository) {}
+  constructor(private readonly visitorRepository: VisitorRepository) { }
 
   async getOverallStatistics(days: number = 30) {
     const startDate = startOfDay(subDays(new Date(), days));
@@ -26,6 +26,25 @@ export class AdminVisitorStatisticsService {
       visitors: visitorStats,
       sessions: sessionStats,
       pageViews: pageViewStats,
+    };
+  }
+
+  async getStorefrontStats(days: number = 30) {
+    const startDate = startOfDay(subDays(new Date(), days));
+    const endDate = endOfDay(new Date());
+
+    const basicStats = await this.visitorRepository.getBasicStats(startDate, endDate);
+    const topPages = await this.visitorRepository.findPopularPages(5, startDate, endDate);
+
+    return {
+      totalVisitors: basicStats.totalVisitors,
+      totalPageViews: basicStats.totalPageViews,
+      topPages: topPages.map(page => ({
+        url: page.url,
+        title: page.title,
+        views: page.uniqueViews
+      })),
+      lastUpdated: new Date().toISOString(),
     };
   }
 

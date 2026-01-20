@@ -24,6 +24,7 @@ import { SlugField } from '../components/posts/SlugField';
 import { CategoryMultiSelect } from '../components/common/CategoryMultiSelect';
 import { DateInput } from '../components/common/DateInput';
 import { trpc } from '../utils/trpc';
+import { BASE_LABEL_CLASS } from '../components/common/styles';
 
 export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
   form: UseFormReturn<T>,
@@ -107,7 +108,7 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
               const toggleVisibility = () => {
                 setShowPasswordFields(prev => {
                   const next = { ...prev, [field.name]: !prev[field.name] } as Record<string, boolean>;
-                  try { console.debug('Password visibility toggled', { field: field.name, nextVisible: next[field.name] }); } catch {}
+                  try { console.debug('Password visibility toggled', { field: field.name, nextVisible: next[field.name] }); } catch { }
                   return next;
                 });
                 requestAnimationFrame(() => inputElRef.current?.focus());
@@ -187,7 +188,7 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
             render={({ field: formField }) => {
               const value = (formField.value as string) || '';
               const isVisible = !!showPasswordFields[field.name];
-              
+
               const toggleVisibility = () => {
                 setShowPasswordFields(prev => ({
                   ...prev,
@@ -288,7 +289,7 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
               return (
                 <div className="space-y-2">
                   {field.label && (
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label className={BASE_LABEL_CLASS}>
                       {field.label}
                       {field.required && <span className="text-red-500 ml-1">*</span>}
                     </label>
@@ -296,9 +297,8 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                   <div className="relative">
                     <button
                       type="button"
-                      className={`w-full px-3 py-2 text-left bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-lg shadow-sm focus:border-primary focus:ring-1 focus:ring-primary ${
-                        field.disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
-                      } ${error ? 'border-error focus:border-error focus:ring-error' : ''}`}
+                      className={`w-full px-3 py-2 text-left bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-lg shadow-sm focus:border-primary focus:ring-1 focus:ring-primary ${field.disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
+                        } ${error ? 'border-error focus:border-error focus:ring-error' : ''}`}
                       onClick={() => !field.disabled && setIsOpen(!isOpen)}
                       disabled={field.disabled}
                     >
@@ -328,9 +328,8 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                             </div>
                           )}
                         </div>
-                        <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${
-                          isOpen ? 'rotate-180' : ''
-                        }`} />
+                        <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${isOpen ? 'rotate-180' : ''
+                          }`} />
                       </div>
                     </button>
 
@@ -343,11 +342,10 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                             className="w-full px-3 py-2 text-left hover:bg-neutral-50 dark:hover:bg-neutral-800 flex items-center gap-2 text-sm"
                             onClick={() => handleToggleOption(option.value)}
                           >
-                            <div className={`w-4 h-4 border rounded flex items-center justify-center ${
-                              value.includes(option.value)
-                                ? 'bg-primary border-primary text-white'
-                                : 'border-neutral-300 dark:border-neutral-600'
-                            }`}>
+                            <div className={`w-4 h-4 border rounded flex items-center justify-center ${value.includes(option.value)
+                              ? 'bg-primary border-primary text-white'
+                              : 'border-neutral-300 dark:border-neutral-600'
+                              }`}>
                               {value.includes(option.value) && (
                                 <Check className="w-3 h-3" />
                               )}
@@ -398,7 +396,7 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
             render={({ field: formField }) => (
               <div className="space-y-2">
                 {field.label && (
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label className={BASE_LABEL_CLASS}>
                     {field.label}
                     {field.required && <span className="text-red-500 ml-1">*</span>}
                   </label>
@@ -433,7 +431,7 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
               <div className="space-y-2">
                 <div className="flex flex-col space-y-2">
                   <div className="flex-1">
-                    <label htmlFor={commonProps.id} className="text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer">
+                    <label htmlFor={commonProps.id} className={clsx(BASE_LABEL_CLASS, "cursor-pointer")}>
                       {field.label}
                       {field.required && <span className="text-red-500 ml-1">*</span>}
                     </label>
@@ -444,7 +442,7 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                     )}
                   </div>
                   <div className="relative inline-flex flex-shrink-0 items-center justify-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 w-9 h-5 bg-primary-600 cursor-pointer"
-                       style={{ backgroundColor: formField.value ? '#2563eb' : '#d1d5db' }}>
+                    style={{ backgroundColor: formField.value ? '#2563eb' : '#d1d5db' }}>
                     <button
                       type="button"
                       role="switch"
@@ -520,14 +518,14 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                 categorySource={field.categorySource}
               />
             )}
-        />
+          />
         );
 
       case 'custom':
         return (
           <div key={field.name} className="w-full space-y-2">
             {field.label && (
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className={BASE_LABEL_CLASS}>
                 {field.label}
                 {field.required && <span className="text-red-500 ml-1">*</span>}
               </label>
@@ -552,14 +550,14 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
             render={({ field: formField }) => (
               <div className="space-y-2">
                 {field.label && (
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label className={BASE_LABEL_CLASS}>
                     {field.label}
                     {field.required && <span className="text-red-500 ml-1">*</span>}
                   </label>
                 )}
                 <TagInput
                   value={
-                    typeof formField.value === 'string' 
+                    typeof formField.value === 'string'
                       ? formField.value.split(',').map(tag => tag.trim()).filter(Boolean)
                       : formField.value || []
                   }
@@ -736,12 +734,12 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
           if (section.dependsOn) {
             const dependentFieldValue = watch(section.dependsOn.field as FieldPath<T>);
             const expectedValue = section.dependsOn.value;
-            
+
             // Support both single value and array of values
             const shouldShowSection = Array.isArray(expectedValue)
               ? expectedValue.includes(dependentFieldValue)
               : dependentFieldValue === expectedValue;
-            
+
             if (!shouldShowSection) {
               return null;
             }
@@ -752,12 +750,12 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
             if (field.dependsOn) {
               const dependentFieldValue = watch(field.dependsOn.field as FieldPath<T>);
               const expectedValue = field.dependsOn.value;
-              
+
               // Support both single value and array of values
               const shouldShow = Array.isArray(expectedValue)
                 ? expectedValue.includes(dependentFieldValue)
                 : dependentFieldValue === expectedValue;
-              
+
               return shouldShow;
             }
             return true;

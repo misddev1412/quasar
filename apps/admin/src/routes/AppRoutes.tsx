@@ -83,6 +83,9 @@ import ProductExportsPage from '../pages/products/exports';
 import AttributesPage from '../pages/products/attributes';
 import BrandsPage from '../pages/products/brands';
 import SuppliersPage from '../pages/products/suppliers';
+import ProductBundleListPage from '../pages/product-bundles/ProductBundleListPage';
+import ProductBundleCreatePage from '../pages/product-bundles/ProductBundleCreatePage';
+import ProductBundleEditPage from '../pages/product-bundles/ProductBundleEditPage';
 // Warehouse Management
 import WarehousesIndexPage from '../pages/warehouses';
 import WarehouseCreatePage from '../pages/warehouses/create';
@@ -289,6 +292,10 @@ const AppRoutes: React.FC = () => {
       <Route path="/products/attributes" element={<ProtectedRoute><AttributesPage /></ProtectedRoute>} />
       <Route path="/products/brands" element={<ProtectedRoute><BrandsPage /></ProtectedRoute>} />
       <Route path="/products/suppliers" element={<ProtectedRoute><SuppliersPage /></ProtectedRoute>} />
+      {/* Product Bundles */}
+      <Route path="/product-bundles" element={<ProtectedRoute><ProductBundleListPage /></ProtectedRoute>} />
+      <Route path="/product-bundles/create" element={<ProtectedRoute><ProductBundleCreatePage /></ProtectedRoute>} />
+      <Route path="/product-bundles/:id/edit" element={<ProtectedRoute><ProductBundleEditPage /></ProtectedRoute>} />
       {/* Warehouse Management */}
       <Route path="/warehouses" element={<ProtectedRoute><WarehousesIndexPage /></ProtectedRoute>} />
       <Route path="/warehouses/create" element={<ProtectedRoute><WarehouseCreatePage /></ProtectedRoute>} />

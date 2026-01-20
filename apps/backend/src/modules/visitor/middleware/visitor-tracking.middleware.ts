@@ -105,8 +105,10 @@ export class VisitorTrackingMiddleware implements NestMiddleware {
       return true;
     }
 
-    // Skip tracking for API routes that don't need visitor tracking
-    if (url.startsWith('/api/auth') || url.startsWith('/trpc/admin')) {
+    // Skip tracking for all API and TRPC routes
+    // We rely on the frontend explicitly calling trackStorefrontVisitor to count "screen views"
+    // instead of counting every API call as a visit
+    if (url.startsWith('/api/') || url.startsWith('/trpc/')) {
       return true;
     }
 

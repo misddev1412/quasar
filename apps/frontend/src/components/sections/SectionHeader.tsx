@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { cn } from '../../utils/cn';
 import { ArrowRight } from 'lucide-react';
 
-export type SectionHeadingStyle = 'default' | 'banner';
+export type SectionHeadingStyle = 'default' | 'banner' | 'curved';
 export type SectionHeadingTextTransform = 'none' | 'uppercase' | 'capitalize' | 'lowercase';
 export type SectionHeadingTitleSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -77,53 +77,65 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
         return "text-blue-600 dark:text-blue-400";
     };
 
-    if (headingStyle === 'banner') {
-        const resolvedBarHeight =
-            typeof headingBarHeight === 'number' && headingBarHeight > 0 ? headingBarHeight : 56;
+    if (headingStyle === 'curved') {
         const titleStyle = mergeStyles(headingTextStyle, headingTransformStyle);
-        const ctaStyle = mergeStyles(headingTextStyle, headingTransformStyle);
+        const resolvedBarHeight = 4; // Height of the bottom border in px
+
         return (
-            <div
-                className={cn('mb-8 rounded-xl px-6 py-3 md:mb-10 md:px-10 md:py-4', className)}
-                style={{
-                    backgroundColor: headingBackgroundColor || '#f3f4f6',
-                    minHeight: resolvedBarHeight,
-                }}
-            >
-                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div className="max-w-3xl" style={headingTextStyle}>
-                        {subtitle && (
-                            <p className="text-sm font-semibold uppercase tracking-wider">
-                                {subtitle}
-                            </p>
-                        )}
+            <div className={cn("mb-8 md:mb-10", className)}>
+                <div className="flex items-end justify-between">
+                    <div className="relative">
+                        {/* The Tab Shape */}
+                        <div
+                            className="relative z-10 flex items-center px-6 py-2 rounded-tl-2xl rounded-tr-[2rem] ltr:rounded-tr-[2rem] rtl:rounded-tl-[2rem] rtl:rounded-tr-none"
+                            style={{
+                                backgroundColor: headingBackgroundColor || '#f97316', // Default to orange if not set
+                                color: headingTextColor || '#ffffff',
+                            }}
+                        >
+                            {title && (
+                                <h2 className={cn('mb-0 font-bold uppercase text-white', titleSizeClass)} style={titleStyle}>
+                                    {title}
+                                </h2>
+                            )}
+                        </div>
 
-                        {title && (
-                            <h2 className={cn('mb-0 font-bold', titleSizeClass)} style={titleStyle}>
-                                {title}
-                            </h2>
-                        )}
-
-                        {description && (
-                            <p className="text-base md:text-lg">
-                                {description}
-                            </p>
-                        )}
+                        {/* Curve smoothing element (optional visual polish, keeping it simple for now with rounded-tr-[2rem]) */}
                     </div>
 
                     {ctaLink && ctaLabel && (
-                        <Link
-                            href={ctaLink}
-                            className={cn(
-                                "inline-flex items-center gap-2 text-sm font-bold transition-opacity hover:opacity-80"
-                            )}
-                            style={ctaStyle}
-                        >
-                            {ctaLabel}
-                            <ArrowRight className="h-4 w-4" />
-                        </Link>
+                        <div className="mb-2">
+                            <Link
+                                href={ctaLink}
+                                className={cn(
+                                    "inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                                )}
+                            >
+                                {ctaLabel}
+                                <span className="text-xs">-&gt;</span>
+                            </Link>
+                        </div>
                     )}
                 </div>
+
+                {/* Full width bottom border */}
+                <div
+                    className="w-full"
+                    style={{
+                        height: `${resolvedBarHeight}px`,
+                        backgroundColor: headingBackgroundColor || '#f97316',
+                        marginTop: '-1px' // Overlap slightly to ensure seamless connection
+                    }}
+                />
+
+                {description && (
+                    <p className={cn(
+                        "mt-4 text-lg",
+                        getDescriptionColor()
+                    )}>
+                        {description}
+                    </p>
+                )}
             </div>
         );
     }

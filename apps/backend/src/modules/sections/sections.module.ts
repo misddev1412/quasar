@@ -12,7 +12,10 @@ import { ProductsModule } from '../products/products.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([SectionEntity, SectionTranslationEntity]),
+    TypeOrmModule.forFeature([
+      SectionEntity,
+      SectionTranslationEntity,
+    ]),
     LanguageModule,
     SharedModule,
     ComponentConfigsModule,
@@ -29,4 +32,4 @@ import { ProductsModule } from '../products/products.module';
     SectionTranslationRepository,
   ],
 })
-export class SectionsModule {}
+export class SectionsModule { }

@@ -1,0 +1,19 @@
+{
+    "title": "Product Bundles",
+    "create_title": "Create Product Bundle",
+    "create_description": "Create a new bundle of products and categories.",
+    "edit_title": "Edit Product Bundle",
+    "edit_description": "Update product bundle details and configuration.",
+    "entity_name": "Product Bundle",
+    "general_desc": "Basic details about this bundle",
+    "items": "Bundle Items",
+    "items_desc": "Define the steps or components for this bundle",
+    "add_item": "Add Item",
+    "item_label": "Label",
+    "mode": "Mode",
+    "mode_category": "Select from Category",
+    "mode_product": "Specific Products",
+    "select_categories": "Select Categories",
+    "select_products": "Select Products",
+    "items_count": "Items Count"
+}

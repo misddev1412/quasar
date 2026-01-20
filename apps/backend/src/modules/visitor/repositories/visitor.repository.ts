@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, MoreThan, SelectQueryBuilder } from 'typeorm';
 import { Visitor, VisitorType, VisitorSource } from '../entities/visitor.entity';
+import { VisitorStatistics } from '../entities/visitor-statistics.entity';
 import { VisitorSession, SessionStatus } from '../entities/visitor-session.entity';
 import { PageView, PageViewType } from '../entities/page-view.entity';
 import { IVisitorRepository } from '../interfaces/visitor-repository.interface';
@@ -15,7 +16,66 @@ export class VisitorRepository implements IVisitorRepository {
     private readonly sessionRepo: Repository<VisitorSession>,
     @InjectRepository(PageView)
     private readonly pageViewRepo: Repository<PageView>,
-  ) {}
+    @InjectRepository(VisitorStatistics)
+    private readonly statisticsRepo: Repository<VisitorStatistics>,
+  ) { }
+
+  // Statistics increment methods
+  private async getTodayStatistics(): Promise<VisitorStatistics> {
+    const today = new Date().toISOString().split('T')[0];
+    let stats = await this.statisticsRepo.findOne({ where: { date: today } });
+
+    if (!stats) {
+      try {
+        stats = this.statisticsRepo.create({ date: today });
+        await this.statisticsRepo.save(stats);
+      } catch (error) {
+        // Handle race condition where another request created the record
+        if (error.code === '23505') { // Unique violation
+          stats = await this.statisticsRepo.findOne({ where: { date: today } });
+        } else {
+          throw error;
+        }
+      }
+    }
+    return stats;
+  }
+
+  async incrementVisitorCount(isNew: boolean): Promise<void> {
+    const today = new Date().toISOString().split('T')[0];
+    await this.statisticsRepo.query(
+      `INSERT INTO visitor_statistics (date, "total_visitors", "new_visitors", "returning_visitors")
+       VALUES ($1, 1, $2, $3)
+       ON CONFLICT (date) DO UPDATE SET
+       "total_visitors" = visitor_statistics."total_visitors" + 1,
+       "new_visitors" = visitor_statistics."new_visitors" + $2,
+       "returning_visitors" = visitor_statistics."returning_visitors" + $3`,
+      [today, isNew ? 1 : 0, isNew ? 0 : 1]
+    );
+  }
+
+  async incrementSessionCount(): Promise<void> {
+    const today = new Date().toISOString().split('T')[0];
+    await this.statisticsRepo.query(
+      `INSERT INTO visitor_statistics (date, "total_sessions")
+       VALUES ($1, 1)
+       ON CONFLICT (date) DO UPDATE SET
+       "total_sessions" = visitor_statistics."total_sessions" + 1`,
+      [today]
+    );
+  }
+
+  async incrementPageViewCount(): Promise<void> {
+    const today = new Date().toISOString().split('T')[0];
+    await this.statisticsRepo.query(
+      `INSERT INTO visitor_statistics (date, "total_page_views")
+       VALUES ($1, 1)
+       ON CONFLICT (date) DO UPDATE SET
+       "total_page_views" = visitor_statistics."total_page_views" + 1`,
+      [today]
+    );
+  }
+
 
   // Visitor operations
   async findByVisitorId(visitorId: string): Promise<Visitor | null> {
@@ -66,25 +126,13 @@ export class VisitorRepository implements IVisitorRepository {
   }
 
   async getVisitorStats(startDate: Date, endDate: Date): Promise<any> {
-    const totalVisitors = await this.visitorRepo.count({
-      where: {
-        createdAt: Between(startDate, endDate)
-      }
-    });
-
-    const newVisitors = await this.visitorRepo.count({
-      where: {
-        createdAt: Between(startDate, endDate),
-        visitorType: VisitorType.NEW
-      }
-    });
-
-    const returningVisitors = await this.visitorRepo.count({
-      where: {
-        createdAt: Between(startDate, endDate),
-        visitorType: VisitorType.RETURNING
-      }
-    });
+    const { totalVisitors, newVisitors, returningVisitors } = await this.statisticsRepo
+      .createQueryBuilder('stats')
+      .select('SUM(stats.totalVisitors)', 'totalVisitors')
+      .addSelect('SUM(stats.newVisitors)', 'newVisitors')
+      .addSelect('SUM(stats.returningVisitors)', 'returningVisitors')
+      .where('stats.date BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .getRawOne();
 
     const visitorsBySource = await this.visitorRepo
       .createQueryBuilder('visitor')
@@ -95,9 +143,9 @@ export class VisitorRepository implements IVisitorRepository {
       .getRawMany();
 
     return {
-      totalVisitors,
-      newVisitors,
-      returningVisitors,
+      totalVisitors: parseInt(totalVisitors || '0'),
+      newVisitors: parseInt(newVisitors || '0'),
+      returningVisitors: parseInt(returningVisitors || '0'),
       visitorsBySource
     };
   }
@@ -145,11 +193,11 @@ export class VisitorRepository implements IVisitorRepository {
   }
 
   async getSessionStats(startDate: Date, endDate: Date): Promise<any> {
-    const totalSessions = await this.sessionRepo.count({
-      where: {
-        createdAt: Between(startDate, endDate)
-      }
-    });
+    const { totalSessions } = await this.statisticsRepo
+      .createQueryBuilder('stats')
+      .select('SUM(stats.totalSessions)', 'totalSessions')
+      .where('stats.date BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .getRawOne();
 
     const avgDuration = await this.sessionRepo
       .createQueryBuilder('session')
@@ -177,7 +225,7 @@ export class VisitorRepository implements IVisitorRepository {
     });
 
     return {
-      totalSessions,
+      totalSessions: parseInt(totalSessions || '0'),
       avgDuration: avgDuration?.avgDuration || 0,
       avgPageViews: avgPageViews?.avgPageViews || 0,
       bounceRate: totalSessionsForBounce > 0 ? (bounceRate / totalSessionsForBounce) * 100 : 0
@@ -232,11 +280,11 @@ export class VisitorRepository implements IVisitorRepository {
   }
 
   async getPageViewStats(startDate: Date, endDate: Date): Promise<any> {
-    const totalPageViews = await this.pageViewRepo.count({
-      where: {
-        createdAt: Between(startDate, endDate)
-      }
-    });
+    const { totalPageViews } = await this.statisticsRepo
+      .createQueryBuilder('stats')
+      .select('SUM(stats.totalPageViews)', 'totalPageViews')
+      .where('stats.date BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .getRawOne();
 
     const pageViewsByType = await this.pageViewRepo
       .createQueryBuilder('pageView')
@@ -247,8 +295,24 @@ export class VisitorRepository implements IVisitorRepository {
       .getRawMany();
 
     return {
-      totalPageViews,
+      totalPageViews: parseInt(totalPageViews || '0'),
       pageViewsByType
+    };
+  }
+
+  async getBasicStats(startDate: Date, endDate: Date): Promise<{ totalVisitors: number; totalPageViews: number; totalSessions: number }> {
+    const stats = await this.statisticsRepo
+      .createQueryBuilder('stats')
+      .select('SUM(stats.total_visitors)', 'totalVisitors')
+      .addSelect('SUM(stats.total_page_views)', 'totalPageViews')
+      .addSelect('SUM(stats.total_sessions)', 'totalSessions')
+      .where('stats.date BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .getRawOne();
+
+    return {
+      totalVisitors: parseInt(stats?.totalVisitors || '0'),
+      totalPageViews: parseInt(stats?.totalPageViews || '0'),
+      totalSessions: parseInt(stats?.totalSessions || '0'),
     };
   }
 
@@ -434,42 +498,22 @@ export class VisitorRepository implements IVisitorRepository {
   }
 
   async getDailyVisitorStats(startDate: Date, endDate: Date): Promise<any[]> {
-    const dailyStats = await this.visitorRepo
-      .createQueryBuilder('visitor')
-      .select("DATE(visitor.createdAt)", 'date')
-      .addSelect('COUNT(*)', 'visitors')
-      .addSelect("SUM(CASE WHEN visitor.visitorType = 'new' THEN 1 ELSE 0 END)", 'newVisitors')
-      .addSelect("SUM(CASE WHEN visitor.visitorType = 'returning' THEN 1 ELSE 0 END)", 'returningVisitors')
-      .leftJoin('visitor.sessions', 'session')
-      .addSelect('COUNT(DISTINCT session.id)', 'sessions')
-      .where('visitor.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
-      .groupBy("DATE(visitor.createdAt)")
-      .orderBy('date', 'ASC')
-      .getRawMany();
+    const dailyStats = await this.statisticsRepo
+      .createQueryBuilder('stats')
+      .where('stats.date BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .orderBy('stats.date', 'ASC')
+      .getMany();
 
-    // Get daily page views
-    const pageViewsByDate = await this.pageViewRepo
-      .createQueryBuilder('pageView')
-      .select("DATE(pageView.createdAt)", 'date')
-      .addSelect('COUNT(*)', 'pageViews')
-      .where('pageView.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
-      .groupBy("DATE(pageView.createdAt)")
-      .getRawMany();
-
-    // Merge the data
-    return dailyStats.map(stat => {
-      const pageViewStat = pageViewsByDate.find(pv => pv.date === stat.date);
-      return {
-        date: stat.date,
-        visitors: parseInt(stat.visitors),
-        newVisitors: parseInt(stat.newVisitors),
-        returningVisitors: parseInt(stat.returningVisitors),
-        sessions: parseInt(stat.sessions),
-        pageViews: pageViewStat ? parseInt(pageViewStat.pageViews) : 0,
-        avgSessionDuration: 0, // Would need additional calculation
-        avgPageViews: 0, // Would need additional calculation
-        bounceRate: 0 // Would need additional calculation
-      };
-    });
+    return dailyStats.map(stat => ({
+      date: stat.date,
+      visitors: stat.totalVisitors,
+      newVisitors: stat.newVisitors,
+      returningVisitors: stat.returningVisitors,
+      sessions: stat.totalSessions,
+      pageViews: stat.totalPageViews,
+      avgSessionDuration: 0,
+      avgPageViews: stat.totalSessions > 0 ? stat.totalPageViews / stat.totalSessions : 0,
+      bounceRate: 0
+    }));
   }
 }

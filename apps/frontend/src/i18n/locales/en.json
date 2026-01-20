@@ -240,6 +240,15 @@
       }
     }
   },
+  "services": {
+    "common": {
+      "unnamedService": "Unnamed Service",
+      "contactForPrice": "Contact for Price",
+      "price": "Price",
+      "contactUs": "Contact Us",
+      "viewDetails": "View Details"
+    }
+  },
   "currencies": {
     "currencies": "Currency Management"
   },

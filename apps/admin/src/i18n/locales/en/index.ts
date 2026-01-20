@@ -20,6 +20,8 @@ import menus from './menus.json';
 import posts from './posts.json';
 import componentConfigs from './component_configs.json';
 import permissions from './permissions.json';
+import services from './services.json';
+import product_bundles from './product_bundles.json';
 
 export default {
   ...common,
@@ -44,4 +46,6 @@ export default {
   ...posts,
   ...componentConfigs,
   ...permissions,
+  ...services,
+  product_bundles,
 };

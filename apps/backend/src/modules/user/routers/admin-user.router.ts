@@ -40,6 +40,7 @@ const adminUpdateUserSchema = z.object({
   username: z.string().optional(),
   isActive: z.boolean().optional(),
   role: userRoleSchema.optional(),
+  password: z.string().min(8).optional(),
 });
 
 const adminUpdateUserProfileSchema = z.object({
@@ -156,7 +157,7 @@ export class AdminUserRouter {
     private readonly adminUserService: AdminUserService,
     @Inject(ResponseService)
     private readonly responseHandler: ResponseService,
-  ) {}
+  ) { }
 
   @UseMiddlewares(
     AuthMiddleware,

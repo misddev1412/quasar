@@ -25,7 +25,7 @@ export interface StorefrontVisitorPayload {
 export class VisitorTrackingService {
   private readonly logger = new Logger(VisitorTrackingService.name);
 
-  constructor(private readonly visitorRepository: VisitorRepository) {}
+  constructor(private readonly visitorRepository: VisitorRepository) { }
 
   async trackVisitor(req: Request, res: Response): Promise<{ visitorId: string; sessionId: string }> {
     try {
@@ -56,6 +56,7 @@ export class VisitorTrackingService {
         });
 
         visitor = await this.visitorRepository.createVisitor(visitorData);
+        await this.visitorRepository.incrementVisitorCount(true);
       } else {
         // Returning visitor - update type if needed
         if (visitor.visitorType === VisitorType.NEW) {
@@ -80,6 +81,7 @@ export class VisitorTrackingService {
         });
 
         session = await this.visitorRepository.createSession(sessionData);
+        await this.visitorRepository.incrementSessionCount();
       }
 
       return { visitorId: visitor.id, sessionId: session.id };
@@ -122,6 +124,7 @@ export class VisitorTrackingService {
       });
 
       await this.visitorRepository.createPageView(pageViewData);
+      await this.visitorRepository.incrementPageViewCount();
 
       // Get current session and increment page views count
       const currentSession = await this.visitorRepository.findBySessionId(sessionId);
@@ -176,6 +179,7 @@ export class VisitorTrackingService {
         });
 
         visitor = await this.visitorRepository.createVisitor(visitorData);
+        await this.visitorRepository.incrementVisitorCount(true);
       } else if (visitor.visitorType === VisitorType.NEW) {
         visitor = await this.visitorRepository.updateVisitor(visitor.id, {
           visitorType: VisitorType.RETURNING,
@@ -202,6 +206,7 @@ export class VisitorTrackingService {
         });
 
         session = await this.visitorRepository.createSession(sessionData);
+        await this.visitorRepository.incrementSessionCount();
       }
 
       const resolvedPageTitle =
@@ -221,6 +226,7 @@ export class VisitorTrackingService {
           scrollDepthPercent: payload.scrollDepthPercent,
         })
       );
+      await this.visitorRepository.incrementPageViewCount();
 
       await this.visitorRepository.updateSession(session.id, {
         pageViewsCount: (session.pageViewsCount || 0) + 1,
@@ -383,13 +389,13 @@ export class VisitorTrackingService {
       const referrerDomain = refUrl?.hostname?.toLowerCase();
       if (referrerDomain) {
         if (referrerDomain.includes('google') || referrerDomain.includes('bing') ||
-            referrerDomain.includes('yahoo') || referrerDomain.includes('duckduckgo')) {
+          referrerDomain.includes('yahoo') || referrerDomain.includes('duckduckgo')) {
           return VisitorSource.SEARCH_ENGINE;
         }
 
         if (referrerDomain.includes('facebook') || referrerDomain.includes('twitter') ||
-            referrerDomain.includes('instagram') || referrerDomain.includes('linkedin') ||
-            referrerDomain.includes('pinterest') || referrerDomain.includes('reddit')) {
+          referrerDomain.includes('instagram') || referrerDomain.includes('linkedin') ||
+          referrerDomain.includes('pinterest') || referrerDomain.includes('reddit')) {
           return VisitorSource.SOCIAL_MEDIA;
         }
 

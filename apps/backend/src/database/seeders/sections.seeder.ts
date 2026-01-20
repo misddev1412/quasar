@@ -1244,6 +1244,32 @@ export class SectionsSeeder implements SeederModule {
           },
         ],
       },
+      {
+        section: {
+          page: 'home',
+          type: SectionType.SERVICE_LIST,
+          position: 14,
+          isEnabled: true,
+          config: {
+            serviceIds: [], // Defaults to showing all services
+            showHeader: true,
+          },
+        },
+        translations: [
+          {
+            locale: 'en',
+            title: 'Our Services',
+            subtitle: 'Professional solutions for your business',
+            description: 'Explore our comprehensive range of services designed to meet your needs.',
+          },
+          {
+            locale: 'vi',
+            title: 'Dịch vụ của chúng tôi',
+            subtitle: 'Giải pháp chuyên nghiệp cho doanh nghiệp',
+            description: 'Khám phá các dịch vụ đa dạng được thiết kế riêng cho nhu cầu của bạn.',
+          },
+        ],
+      },
     ];
 
     let createdCount = 0;

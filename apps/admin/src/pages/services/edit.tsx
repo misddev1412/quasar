@@ -1,12 +1,14 @@
-import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useRef } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { trpc } from '../../utils/trpc';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { ServiceForm } from '../../components/services/ServiceForm';
+import { ServiceForm, ServiceFormSubmitOptions } from '../../components/services/ServiceForm';
 import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
 import { FileText } from 'lucide-react';
 import { Loading } from '../../components/common/Loading';
+import { useUrlTabs } from '../../hooks/useUrlTabs';
+import { FormSubmitAction } from '../../types/forms';
 
 type ServiceTranslation = {
     id?: string;
@@ -26,6 +28,15 @@ const EditServicePage = () => {
     const navigate = useNavigate();
     const { t } = useTranslationWithBackend();
     const { addToast } = useToast();
+    const trpcContext = trpc.useContext();
+    const lastSubmitActionRef = useRef<FormSubmitAction>('save');
+
+    // Use URL tabs hook with tab keys for clean URLs
+    const { activeTab, handleTabChange } = useUrlTabs({
+        defaultTab: 0,
+        tabParam: 'tab',
+        tabKeys: ['general', 'items', 'translations'] // Maps to ServiceForm tab IDs
+    });
 
     const { data: serviceResponse, isLoading, error } = trpc.services.getServiceById.useQuery(
         { id: id! },
@@ -34,9 +45,19 @@ const EditServicePage = () => {
     const service = (serviceResponse as { data?: ServiceEntity } | undefined)?.data;
 
     const updateMutation = trpc.services.updateService.useMutation({
-        onSuccess: () => {
+        onSuccess: async (_data, variables) => {
+            // Invalidate queries
+            await Promise.all([
+                trpcContext.services.getServiceById.invalidate({ id: id! }),
+                trpcContext.services.getServices.invalidate(),
+            ]);
+
             addToast({ title: t('services.update_success', 'Service updated successfully'), type: 'success' });
-            navigate('/services');
+
+            const shouldNavigateAway = lastSubmitActionRef.current !== 'save_and_stay';
+            if (shouldNavigateAway) {
+                navigate('/services');
+            }
         },
         onError: (error) => {
             addToast({ title: error.message || 'Failed to update service', type: 'error' });
@@ -76,10 +97,12 @@ const EditServicePage = () => {
         items: service.items,
     };
 
-    const handleSubmit = async (data: any) => {
+    const handleSubmit = async (data: any, options?: ServiceFormSubmitOptions) => {
         const {
             unitPrice, isContactPrice, isActive, thumbnail, currencyId, items, translations
         } = data;
+
+        lastSubmitActionRef.current = options?.submitAction === 'save_and_stay' ? 'save_and_stay' : 'save';
 
         await updateMutation.mutateAsync({
             id: id!,
@@ -95,22 +118,42 @@ const EditServicePage = () => {
         });
     };
 
+    const handleCancel = () => navigate('/services');
+
     return (
         <CreatePageTemplate
-            title={t('services.edit_title', 'Edit Service')}
+            title={service.name ? `${t('services.edit_title', 'Edit Service')}: ${service.name}` : t('services.edit_title', 'Edit Service')}
             description={t('services.edit_desc', 'Update service details')}
             icon={<FileText className="w-5 h-5" />}
             entityName={t('services.entity_name', 'Service')}
             entityNamePlural={t('services.entity_name_plural', 'Services')}
             backUrl="/services"
-            onBack={() => navigate('/services')}
+            onBack={handleCancel}
+            isSubmitting={updateMutation.isPending}
+            mode="update"
+            maxWidth="full"
+            breadcrumbs={[
+                {
+                    label: t('navigation.home', 'Home'),
+                    href: '/',
+                },
+                {
+                    label: t('services.entity_name_plural', 'Services'),
+                    onClick: handleCancel,
+                },
+                {
+                    label: service.name || t('services.edit_title', 'Edit Service'),
+                }
+            ]}
         >
             <ServiceForm
                 initialValues={initialValues}
                 onSubmit={handleSubmit}
-                onCancel={() => navigate('/services')}
+                onCancel={handleCancel}
                 isSubmitting={updateMutation.isPending}
                 mode="edit"
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
             />
         </CreatePageTemplate>
     );
