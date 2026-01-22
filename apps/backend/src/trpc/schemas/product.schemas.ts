@@ -18,6 +18,10 @@ const productBaseSchema = z.object({
   isActive: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
   sortOrder: z.number().int().optional(),
+  viewCount: z.number().int().min(0).optional(),
+  soldCount: z.number().int().min(0).optional(),
+  averageRating: z.number().min(0).max(5).nullable().optional(),
+  reviewCount: z.number().int().min(0).nullable().optional(),
 });
 
 // Product media schema

@@ -98,6 +98,7 @@ import { ProductBundlesModule } from '../modules/product-bundles/product-bundles
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['../../.env', '.env'], // Priority: Root env, then local
       load: [databaseConfig],
     }),
     TypeOrmModule.forRootAsync({

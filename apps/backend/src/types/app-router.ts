@@ -3593,6 +3593,30 @@ export const appRouter = router({
         return {} as ApiResponse;
       }),
 
+    importFromExcel: procedure
+      .input(z.object({
+        fileName: z.string().optional(),
+        fileData: z.string(),
+        overrideExisting: z.boolean().optional(),
+        dryRun: z.boolean().optional(),
+        defaultIsActive: z.boolean().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    downloadExcelTemplate: procedure
+      .input(z.object({}))
+      .output(z.object({
+        data: z.string(),
+        filename: z.string(),
+        mimeType: z.string(),
+      }))
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
     getStats: procedure
       .output(apiResponseSchema)
       .query(() => {

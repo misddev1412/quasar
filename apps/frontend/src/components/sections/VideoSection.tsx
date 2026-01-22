@@ -35,6 +35,7 @@ export interface VideoSectionConfig {
     href?: string;
     openInNewTab?: boolean;
   };
+  layout?: 'featured' | 'carousel';
   videos?: VideoSlideConfig[];
 }
 
@@ -238,39 +239,49 @@ export const VideoSection: React.FC<VideoSectionProps> = ({ config, translation 
 
     return normalizeSlides(fallbackSlides);
   }, [config, translation]);
+
   const [activeIndex, setActiveIndex] = React.useState(0);
+  const [carouselIndex, setCarouselIndex] = React.useState(0);
+  const carouselRef = React.useRef<HTMLDivElement>(null);
+
   React.useEffect(() => {
     if (activeIndex >= slides.length) {
       setActiveIndex(0);
     }
   }, [activeIndex, slides.length]);
+
   const activeSlide = slides[activeIndex] || slides[0];
   const isEmbed = (activeSlide?.type || 'embed') !== 'upload';
   const firstSlide = slides[0];
   const fallbackTitle = activeSlide?.title || firstSlide?.title || '';
   const fallbackSubtitle = activeSlide?.description || '';
   const fallbackDescription = '';
+
   const title =
     translation?.title === null
       ? ''
       : translation?.title?.trim()
         ? translation.title
-        : fallbackTitle || t('sections.video.title');
+        : config.layout === 'carousel' ? '' : (fallbackTitle || t('sections.video.title'));
+
   const subtitle =
     translation?.subtitle === null
       ? ''
       : translation?.subtitle?.trim()
         ? translation.subtitle
-        : fallbackSubtitle || t('sections.video.subtitle');
+        : config.layout === 'carousel' ? '' : (fallbackSubtitle || t('sections.video.subtitle'));
+
   const description =
     translation?.description === null
       ? ''
       : translation?.description?.trim()
         ? translation.description
-        : fallbackDescription || t('sections.video.description');
+        : config.layout === 'carousel' ? '' : (fallbackDescription || t('sections.video.description'));
+
   const slideCta = activeSlide?.cta || config.cta;
   const backgroundLight = (config.backgroundColor || '').trim() || '#0f172a';
   const backgroundDark = (config.backgroundColorDark || '').trim() || backgroundLight || '#030712';
+
   const sectionStyle = React.useMemo(
     () => {
       const ctaLight = getCtaColors(backgroundLight, '#f8fafc', '#0f172a');
@@ -287,6 +298,133 @@ export const VideoSection: React.FC<VideoSectionProps> = ({ config, translation 
     [backgroundLight, backgroundDark],
   );
 
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (carouselRef.current) {
+      const { scrollLeft, clientWidth } = carouselRef.current;
+      const scrollAmount = clientWidth;
+      const newScrollLeft = direction === 'left' ? scrollLeft - scrollAmount : scrollLeft + scrollAmount;
+
+      carouselRef.current.scrollTo({
+        left: newScrollLeft,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  if (config.layout === 'carousel') {
+    return (
+      <section className="bg-[var(--video-bg-light)] py-8 lg:py-16 text-white dark:bg-[var(--video-bg-dark)]" style={sectionStyle}>
+        <SectionContainer>
+          {(translation?.title || translation?.description) && (
+            <div className="mb-10 text-center">
+              {translation?.title && <h2 className="text-3xl font-semibold text-white mb-4">{translation.title}</h2>}
+              {translation?.description && <p className="text-base text-blue-100 max-w-2xl mx-auto">{translation.description}</p>}
+            </div>
+          )}
+
+          <div className="relative group">
+            {/* Navigation Buttons */}
+            <button
+              onClick={() => scrollCarousel('left')}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-opacity opacity-0 group-hover:opacity-100 disabled:opacity-0 -ml-4 lg:-ml-12"
+              aria-label="Previous videos"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+            </button>
+
+            <button
+              onClick={() => scrollCarousel('right')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-opacity opacity-0 group-hover:opacity-100 disabled:opacity-0 -mr-4 lg:-mr-12"
+              aria-label="Next videos"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+            </button>
+
+            {/* Carousel Container */}
+            <div
+              ref={carouselRef}
+              className="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory scrollbar-hide scroll-smooth"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {slides.map((slide, index) => {
+                const isSlideEmbed = (slide?.type || 'embed') !== 'upload';
+                return (
+                  <div key={slide.id || index} className="min-w-[85vw] sm:min-w-[calc(50%-12px)] lg:min-w-[calc(33.333%-16px)] snap-center flex flex-col bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:bg-gray-900 dark:border-gray-800 transition-transform duration-300 hover:-translate-y-1">
+                    <div className="relative aspect-video w-full bg-black">
+                      {isSlideEmbed ? (
+                        <iframe
+                          src={slide.embedUrl}
+                          title={slide.title || 'Video'}
+                          className="w-full h-full"
+                          loading="lazy"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      ) : (
+                        <video
+                          src={slide.videoUrl}
+                          poster={slide.posterImage}
+                          controls
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                      {/* Overlay Play Button for non-iframe if needed, but standard controls used above */}
+                    </div>
+
+                    <div className="p-5 flex flex-col flex-grow">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-2" title={slide.title}>
+                        {slide.title || t('sections.video.untitledVideo')}
+                      </h3>
+                      {slide.description && (
+                        <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 mb-4 flex-grow">
+                          {slide.description}
+                        </p>
+                      )}
+
+                      <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                        {/* Example CTA button based on user request image */}
+                        <a
+                          href={slide.cta?.href || slide.embedUrl || slide.videoUrl || '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
+                        >
+                          {t('sections.video.watchOnYoutube', 'Watch on YouTube')}
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" /></svg>
+                        </a>
+
+                        {/* Time or other metadata can go here if available */}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination Dots */}
+            <div className="flex justify-center gap-2 mt-4">
+              {slides.map((_, idx) => (
+                <button
+                  key={idx}
+                  className={`w-2 h-2 rounded-full transition-colors ${idx === carouselIndex ? 'bg-white' : 'bg-white/30'}`} // Note: real active index tracking requires scroll listener, omitting for simplicity or implementing scroll listener
+                  aria-label={`Go to slide ${idx + 1}`}
+                  onClick={() => {
+                    if (carouselRef.current) {
+                      const itemWidth = carouselRef.current.clientWidth / (window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1);
+                      carouselRef.current.scrollTo({ left: idx * itemWidth, behavior: 'smooth' });
+                    }
+                  }}
+                />
+              ))}
+            </div>
+
+          </div>
+        </SectionContainer>
+      </section>
+    );
+  }
+
+  // Fallback to original layout
   return (
     <section className="bg-[var(--video-bg-light)] py-4 lg:py-16 text-white dark:bg-[var(--video-bg-dark)]" style={sectionStyle}>
       <SectionContainer className="grid gap-10 lg:grid-cols-2 lg:items-center">

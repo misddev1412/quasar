@@ -21,6 +21,7 @@ import { ProductWarehouseQuantity } from './entities/product-warehouse-quantity.
 import { ProductTranslation } from './entities/product-translation.entity';
 import { ProductPriceHistory } from './entities/product-price-history.entity';
 import { ProductVariantPriceHistory } from './entities/product-variant-price-history.entity';
+import { ProductReview } from './entities/product-review.entity';
 import { PurchaseOrder } from './entities/purchase-order.entity';
 import { PurchaseOrderItem } from './entities/purchase-order-item.entity';
 import { StockMovement } from './entities/stock-movement.entity';
@@ -73,6 +74,7 @@ import { OrderFulfillmentRepository } from './repositories/order-fulfillment.rep
 import { FulfillmentItemRepository } from './repositories/fulfillment-item.repository';
 import { DeliveryTrackingRepository } from './repositories/delivery-tracking.repository';
 import { AdminProductService } from './services/admin-product.service';
+import { AdminCategoryService } from './services/admin-category.service';
 import { WarehouseService } from './services/warehouse.service';
 import { PurchaseOrderService } from './services/purchase-order.service';
 import { AdminOrderService } from './services/admin-order.service';
@@ -137,6 +139,7 @@ import { PayosWebhookController } from './controllers/payos-webhook.controller';
       ProductTranslation,
       ProductPriceHistory,
       ProductVariantPriceHistory,
+      ProductReview,
       PurchaseOrder,
       PurchaseOrderItem,
       StockMovement,
@@ -201,6 +204,7 @@ import { PayosWebhookController } from './controllers/payos-webhook.controller';
     DeliveryTrackingRepository,
     ProductTransformer,
     AdminProductService,
+    AdminCategoryService,
     WarehouseService,
     PurchaseOrderService,
     AdminOrderService,

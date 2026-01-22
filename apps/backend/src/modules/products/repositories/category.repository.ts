@@ -173,6 +173,19 @@ export class CategoryRepository {
     });
   }
 
+  async findByNameAndParent(name: string, parentId: string | null): Promise<Category[]> {
+    const queryBuilder = this.categoryRepository.createQueryBuilder('category')
+      .where('LOWER(category.name) = :name', { name: name.toLowerCase() });
+
+    if (parentId === null) {
+      queryBuilder.andWhere('category.parent_id IS NULL');
+    } else {
+      queryBuilder.andWhere('category.parent_id = :parentId', { parentId });
+    }
+
+    return queryBuilder.getMany();
+  }
+
   // Note: slug is now handled in translations, use findBySlugWithTranslation instead
   async findBySlug(slug: string): Promise<Category | null> {
     // This method is deprecated - slug is now in translations

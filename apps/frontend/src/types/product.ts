@@ -23,6 +23,9 @@ export interface Product {
   isActive?: boolean;
   isContactPrice?: boolean;
   isFeatured?: boolean;
+  averageRating?: number | null;
+  reviewCount?: number | null;
+  soldCount?: number | null;
   sortOrder?: number;
   brand?: Record<string, unknown>;
   supplier?: Record<string, unknown>;

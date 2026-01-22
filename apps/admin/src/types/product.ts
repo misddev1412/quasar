@@ -181,6 +181,9 @@ export interface Product {
   isDigital?: boolean;
   sortOrder: number;
   viewCount: number;
+  soldCount?: number;
+  averageRating?: number | null;
+  reviewCount?: number | null;
   createdAt: Date;
   updatedAt: Date;
   createdBy?: string;

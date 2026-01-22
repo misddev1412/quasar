@@ -116,6 +116,9 @@ export const ALL_MENU_TYPE_OPTIONS: MenuSelectOption[] = [
 
 export const TOP_MENU_ALLOWED_TYPES: MenuType[] = [
   MenuType.LINK,
+  MenuType.PRODUCT,
+  MenuType.CATEGORY,
+  MenuType.BRAND,
   MenuType.CUSTOM_HTML,
   MenuType.THEME_TOGGLE,
   MenuType.USER_PROFILE,

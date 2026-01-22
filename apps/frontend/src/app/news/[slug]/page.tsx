@@ -67,12 +67,16 @@ export async function generateMetadata({ params }: NewsPageProps): Promise<Metad
     title: formattedTitle,
     description,
     keywords,
+    alternates: {
+      canonical: `${process.env.NEXT_PUBLIC_SITE_URL}${pathname}`,
+    },
     openGraph: {
       title: formattedTitle,
       description,
       url: `${process.env.NEXT_PUBLIC_SITE_URL}${pathname}`,
       type: 'article',
       publishedTime: newsItem.publishDate,
+      modifiedTime: newsItem.updatedAt ? new Date(newsItem.updatedAt).toISOString() : newsItem.publishDate,
       authors: [newsItem.author],
       section: newsItem.category,
       images: imageUrl ? [{ url: imageUrl }] : undefined,
@@ -109,9 +113,79 @@ async function NewsPageContent({ params }: NewsPageProps) {
   }) as any;
 
   const relatedNews = relatedNewsResponse?.data?.items?.filter((item: NewsItem) => item.id !== newsItem.id).slice(0, 3) as RelatedNewsItem[] || [];
+  const pathname = `/news/${slug}`;
+  const siteName = getPublicSiteName();
+  const canonicalUrl = `${process.env.NEXT_PUBLIC_SITE_URL}${pathname}`;
+  const description = newsItem.excerpt || `Read the latest news: ${newsItem.title}. Stay updated with our announcements and updates.`;
+  const publishedIso = new Date(newsItem.publishDate).toISOString();
+  const updatedIso = newsItem.updatedAt ? new Date(newsItem.updatedAt).toISOString() : publishedIso;
+  const keywords = `${newsItem.title}, ${newsItem.category}, news, updates, announcements`;
+
+  const articleJsonLd: Record<string, unknown> = {
+    '@type': 'NewsArticle',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': canonicalUrl,
+    },
+    headline: newsItem.title,
+    description,
+    datePublished: publishedIso,
+    dateModified: updatedIso,
+    author: {
+      '@type': 'Person',
+      name: newsItem.author,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: siteName,
+      url: process.env.NEXT_PUBLIC_SITE_URL,
+    },
+    articleSection: newsItem.category,
+    keywords,
+    url: canonicalUrl,
+  };
+
+  if (newsItem.image) {
+    articleJsonLd.image = [newsItem.image];
+  }
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      articleJsonLd,
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: `${process.env.NEXT_PUBLIC_SITE_URL}/`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'News',
+            item: `${process.env.NEXT_PUBLIC_SITE_URL}/news`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: newsItem.title,
+            item: canonicalUrl,
+          },
+        ],
+      },
+    ],
+  };
 
   return (
     <Layout>
+      <script
+        type="application/ld+json"
+        // JSON-LD is server-rendered so crawlers get structured data without JS.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Breadcrumb */}
         <PageBreadcrumbs

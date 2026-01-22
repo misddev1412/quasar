@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiPlus, FiMoreVertical, FiFolder, FiFolderPlus, FiEdit2, FiTrash2, FiRefreshCw, FiActivity, FiEye, FiTag, FiFilter, FiHome, FiPackage } from 'react-icons/fi';
+import { FiPlus, FiMoreVertical, FiFolder, FiFolderPlus, FiEdit2, FiTrash2, FiRefreshCw, FiActivity, FiEye, FiTag, FiFilter, FiHome, FiPackage, FiUpload, FiDownload } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { Dropdown } from '../../components/common/Dropdown';
@@ -14,6 +14,7 @@ import { trpc } from '../../utils/trpc';
 import { Loading } from '../../components/common/Loading';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { Category } from '../../types/product';
+import { CategoryImportModal } from '../../components/products/CategoryImportModal';
 
 const CategoriesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const CategoriesPage: React.FC = () => {
   // State management
   const [searchValue, setSearchValue] = useState(() => searchParams.get('search') || '');
   const [showFilters, setShowFilters] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [filters, setFilters] = useState<CategoryFilterOptions>({
     search: searchParams.get('search') || undefined,
     isActive: searchParams.get('isActive') ? searchParams.get('isActive') === 'true' : undefined,
@@ -80,6 +82,18 @@ const CategoriesPage: React.FC = () => {
 
   const handleCreateCategory = () => {
     navigate('/products/categories/create');
+  };
+
+  const handleOpenImportModal = () => {
+    setIsImportModalOpen(true);
+  };
+
+  const handleCloseImportModal = () => {
+    setIsImportModalOpen(false);
+  };
+
+  const handleImportSuccess = () => {
+    utils.adminProductCategories.getTree.invalidate();
   };
 
   const handleRefresh = useCallback(() => {
@@ -143,6 +157,40 @@ const CategoriesPage: React.FC = () => {
     navigate(`/products/categories/create?parentId=${parentCategory.id}`);
   }, [navigate]);
 
+  const handleDownloadTemplate = useCallback(async () => {
+    try {
+      const { trpcClient } = await import('../../utils/trpc');
+      const response = await trpcClient.adminProductCategories.downloadExcelTemplate.query({});
+      const payload = (response as any)?.data?.filename ? (response as any).data : response;
+      if (!payload?.data || !payload?.filename) {
+        throw new Error('Template data is missing.');
+      }
+
+      const byteCharacters = atob(payload.data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i += 1) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: payload.mimeType || 'application/octet-stream' });
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = payload.filename || 'category-import-template.xlsx';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error: any) {
+      addToast({
+        type: 'error',
+        title: t('common.error', 'Error'),
+        description: error?.message || t('categories.import.template_error', 'Failed to download template.'),
+      });
+    }
+  }, [addToast, t]);
+
   const handleDeleteCategory = useCallback(async (category: Category) => {
     const confirmDelete = window.confirm(
       t('categories.deleteConfirm', 'Are you sure you want to delete this category? This action cannot be undone.')
@@ -204,6 +252,16 @@ const CategoriesPage: React.FC = () => {
   // Actions
   const actions = useMemo(() => [
     {
+      label: t('categories.import.action', 'Import from Excel'),
+      onClick: handleOpenImportModal,
+      icon: <FiUpload />,
+    },
+    {
+      label: t('categories.import.download_template', 'Download template'),
+      onClick: handleDownloadTemplate,
+      icon: <FiDownload />,
+    },
+    {
       label: t('categories.create', 'Create Category'),
       onClick: handleCreateCategory,
       primary: true,
@@ -220,7 +278,7 @@ const CategoriesPage: React.FC = () => {
       icon: <FiFilter />,
       active: showFilters,
     },
-  ], [handleCreateCategory, handleRefresh, handleFilterToggle, showFilters, t]);
+  ], [handleCreateCategory, handleRefresh, handleFilterToggle, handleDownloadTemplate, handleOpenImportModal, showFilters, t]);
 
 
   // Statistics cards
@@ -366,6 +424,12 @@ const CategoriesPage: React.FC = () => {
             />
           </div>
         </Card>
+
+        <CategoryImportModal
+          isOpen={isImportModalOpen}
+          onClose={handleCloseImportModal}
+          onImportSuccess={handleImportSuccess}
+        />
 
       </div>
     </BaseLayout>

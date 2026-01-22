@@ -850,5 +850,10 @@
     "tax_exempt_description": "Khách hàng được miễn thuế",
     "tax_id": "Mã số thuế",
     "enter_tax_id": "Nhập mã số thuế"
+  },
+  "layout": {
+    "header": {
+      "services": "Dịch vụ"
+    }
   }
 }

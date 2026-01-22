@@ -430,6 +430,9 @@
                 },
                 "video": {
                     "settings": "Cài đặt chung",
+                    "layout": "Bố cục",
+                    "layoutFeatured": "Video Nổi bật (Mặc định)",
+                    "layoutCarousel": "Carousel (Danh sách)",
                     "videosList": "Danh sách video",
                     "addVideo": "Thêm video",
                     "untitledVideo": "Video chưa đặt tên",

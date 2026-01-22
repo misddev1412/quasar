@@ -13,6 +13,7 @@ import { SectionFormState, SectionTranslationForm } from './types';
 import { ActiveLanguage, AdminSection } from '../../../hooks/useSectionsManager';
 import { cn } from '@admin/lib/utils';
 import { HeroSliderLocaleEditor } from './editors/HeroSliderLocaleEditor';
+import { RichTextEditor } from '../../common/RichTextEditor';
 
 interface SectionFormProps {
     languages: ActiveLanguage[];
@@ -206,25 +207,42 @@ export const SectionForm: React.FC<SectionFormProps> = ({ languages, initialStat
                     inputSize="md"
                 />
             </label>
-            <label className="flex flex-col gap-1 text-sm text-gray-600">
-                {t('sections.manager.form.description')}
-                <TextArea
-                    rows={4}
-                    value={activeTranslation.description || ''}
-                    onChange={(e) => handleTranslationChange(activeLocale, 'description', e.target.value)}
-                />
-            </label>
-            {formState.type === SectionType.HERO_SLIDER && (
-                <label className="flex flex-col gap-1 text-sm text-gray-600">
-                    {t('sections.manager.form.heroDescription')}
-                    <TextArea
-                        rows={4}
-                        value={activeTranslation.heroDescription || ''}
-                        onChange={(e) => handleTranslationChange(activeLocale, 'heroDescription', e.target.value)}
-                        placeholder={t('sections.manager.form.heroDescriptionPlaceholder')}
-                    />
-                </label>
-            )}
+
+            {
+                formState.type === SectionType.INTRODUCTION ? (
+                    <label className="flex flex-col gap-1 text-sm text-gray-600">
+                        {t('sections.manager.form.description')}
+                        <RichTextEditor
+                            value={activeTranslation.description || ''}
+                            onChange={(value) => handleTranslationChange(activeLocale, 'description', value)}
+                            placeholder={t('sections.manager.form.descriptionPlaceholder', 'Enter description...')}
+                            minHeight="300px"
+                        />
+                    </label>
+                ) : (
+                    <label className="flex flex-col gap-1 text-sm text-gray-600">
+                        {t('sections.manager.form.description')}
+                        <TextArea
+                            rows={4}
+                            value={activeTranslation.description || ''}
+                            onChange={(e) => handleTranslationChange(activeLocale, 'description', e.target.value)}
+                        />
+                    </label>
+                )
+            }
+            {
+                formState.type === SectionType.HERO_SLIDER && (
+                    <label className="flex flex-col gap-1 text-sm text-gray-600">
+                        {t('sections.manager.form.heroDescription')}
+                        <TextArea
+                            rows={4}
+                            value={activeTranslation.heroDescription || ''}
+                            onChange={(e) => handleTranslationChange(activeLocale, 'heroDescription', e.target.value)}
+                            placeholder={t('sections.manager.form.heroDescriptionPlaceholder')}
+                        />
+                    </label>
+                )
+            }
             <label className="flex flex-col gap-1 text-sm text-gray-600">
                 <div className="flex items-center justify-between">
                     <span>{t('sections.manager.form.configOverride')}</span>
@@ -248,7 +266,7 @@ export const SectionForm: React.FC<SectionFormProps> = ({ languages, initialStat
                     </p>
                 )}
             </label>
-        </div>
+        </div >
     );
 
     return (

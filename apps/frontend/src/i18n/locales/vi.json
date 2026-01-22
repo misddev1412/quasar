@@ -1986,7 +1986,8 @@
       "title": "Hậu trường sản xuất",
       "subtitle": "Câu chuyện phía sau sản phẩm",
       "description": "Kết hợp nội dung truyền cảm hứng với hành động mua hàng trực tiếp.",
-      "pagination_label": "Chuyển đến video {{index}}"
+      "pagination_label": "Chuyển đến video {{index}}",
+      "watchOnYoutube": "Xem trên YouTube"
     },
     "stats": {
       "title": "Chứng minh bằng con số",

@@ -1,11 +1,13 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
+import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { CategoryRepository } from '../repositories/category.repository';
+import { AdminCategoryService } from '../services/admin-category.service';
 import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
 import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '../../../trpc/context';
 
 export const getCategoriesQuerySchema = z.object({
   page: z.number().min(1).default(1),
@@ -95,12 +97,22 @@ export const updateCategoryTranslationSchema = z.object({
   metaKeywords: z.string().optional(),
 });
 
+export const importCategoryFromExcelSchema = z.object({
+  fileName: z.string().optional(),
+  fileData: z.string().min(1, 'File data is required'),
+  overrideExisting: z.boolean().optional(),
+  dryRun: z.boolean().optional(),
+  defaultIsActive: z.boolean().optional(),
+});
+
 @Router({ alias: 'adminProductCategories' })
 @Injectable()
 export class AdminProductCategoriesRouter {
   constructor(
     @Inject(CategoryRepository)
     private readonly categoryRepository: CategoryRepository,
+    @Inject(AdminCategoryService)
+    private readonly categoryService: AdminCategoryService,
     @Inject(ResponseService)
     private readonly responseHandler: ResponseService,
   ) {}
@@ -295,6 +307,70 @@ export class AdminProductCategoriesRouter {
         4,  // OperationCode.DELETE
         30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
         error.message || 'Failed to delete category'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: importCategoryFromExcelSchema,
+    output: apiResponseSchema,
+  })
+  async importFromExcel(
+    @Input()
+    input: z.infer<typeof importCategoryFromExcelSchema>,
+    @Ctx() ctx: AuthenticatedContext,
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const result = await this.categoryService.importCategoriesFromExcel({
+        fileName: input.fileName || 'categories-import.xlsx',
+        fileData: input.fileData,
+        overrideExisting: input.overrideExisting,
+        dryRun: input.dryRun,
+        defaultIsActive: input.defaultIsActive,
+        actorId: ctx?.user?.id || null,
+      });
+
+      return this.responseHandler.createTrpcSuccess(result);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50, // ModuleCode.PRODUCT
+        1,  // OperationCode.CREATE
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+        error.message || 'Failed to import categories from Excel'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({}),
+    output: z.object({
+      data: z.string(),
+      filename: z.string(),
+      mimeType: z.string(),
+    }),
+  })
+  async downloadExcelTemplate(
+    @Input() input: {},
+    @Ctx() ctx: AuthenticatedContext,
+  ): Promise<{ data: string; filename: string; mimeType: string }> {
+    try {
+      const buffer = await this.categoryService.generateExcelTemplate(ctx.locale);
+      const base64Data = buffer.toString('base64');
+      const filename = `category-import-template-${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      return {
+        data: base64Data,
+        filename,
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      };
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50, // ModuleCode.PRODUCT
+        4,  // OperationCode.READ
+        30, // ErrorLevelCode.BUSINESS_LOGIC_ERROR
+        error.message || 'Failed to generate Excel template'
       );
     }
   }

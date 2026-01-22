@@ -108,6 +108,93 @@ export const buildProductMetadata = (product: Product, pathname: string): Metada
   };
 };
 
+const resolveProductImages = (product: Product): string[] => {
+  const mediaImages = Array.isArray(product.media)
+    ? product.media.filter((media) => media.isImage).map((media) => media.url)
+    : [];
+  const imageUrls = Array.isArray((product as any).imageUrls)
+    ? (product as any).imageUrls as string[]
+    : [];
+
+  if (imageUrls.length > 0) {
+    return imageUrls;
+  }
+
+  return mediaImages;
+};
+
+const resolveProductPrice = (product: Product): number | null => {
+  if (Array.isArray(product.variants) && product.variants.length > 0) {
+    const variantPrices = product.variants
+      .map((variant) => Number(variant.price))
+      .filter((price) => Number.isFinite(price));
+    if (variantPrices.length > 0) {
+      return Math.min(...variantPrices);
+    }
+  }
+
+  const priceValue = Number(product.price);
+  return Number.isFinite(priceValue) ? priceValue : null;
+};
+
+const normalizeRatingValue = (value: number | null | undefined): number | null => {
+  if (typeof value !== 'number' || Number.isNaN(value)) {
+    return null;
+  }
+
+  if (value < 0) {
+    return 0;
+  }
+
+  if (value > 5) {
+    return 5;
+  }
+
+  return value;
+};
+
+export const buildProductJsonLd = (product: Product, pathname: string) => {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || '';
+  const productUrl = siteUrl ? `${siteUrl}${pathname}` : undefined;
+  const images = resolveProductImages(product);
+  const price = resolveProductPrice(product);
+  const ratingValue = normalizeRatingValue(product.averageRating ?? null);
+  const reviewCount = typeof product.reviewCount === 'number' ? product.reviewCount : null;
+  const inStock = product.isActive && product.status === 'ACTIVE' && (product.totalStock ?? 0) > 0;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    url: productUrl,
+    image: images.length > 0 ? images : undefined,
+    description: product.metaDescription || product.description || undefined,
+    sku: product.sku || undefined,
+    brand: (product.brand as any)?.name
+      ? {
+        '@type': 'Brand',
+        name: (product.brand as any).name,
+      }
+      : undefined,
+    offers: price && price > 0 && product.currencyCode
+      ? {
+        '@type': 'Offer',
+        url: productUrl,
+        priceCurrency: product.currencyCode,
+        price,
+        availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      }
+      : undefined,
+    aggregateRating: ratingValue !== null && reviewCount !== null && reviewCount > 0
+      ? {
+        '@type': 'AggregateRating',
+        ratingValue,
+        reviewCount,
+      }
+      : undefined,
+  };
+};
+
 export const buildProductDetailProps = async () => {
   const relatedProducts = await fetchFeaturedProducts();
 

@@ -373,7 +373,27 @@ export class ProductRepository {
       return sum + variantValue;
     }, 0);
     
-    const totalViews = 0; // Would need to implement view tracking
+    const totals = products.reduce(
+      (acc, product) => {
+        const reviewCount = Number(product.reviewCount || 0);
+        const averageRating = Number(product.averageRating || 0);
+        acc.totalReviews += reviewCount;
+        acc.totalRatingSum += reviewCount > 0 ? averageRating * reviewCount : 0;
+        acc.totalViews += Number(product.viewCount || 0);
+        acc.totalSoldUnits += Number(product.soldCount || 0);
+        return acc;
+      },
+      {
+        totalReviews: 0,
+        totalRatingSum: 0,
+        totalViews: 0,
+        totalSoldUnits: 0,
+      }
+    );
+
+    const averageRating = totals.totalReviews > 0
+      ? totals.totalRatingSum / totals.totalReviews
+      : 0;
     
     // Categories breakdown using ProductCategory junction
     const categoryStats = products.reduce((acc, product) => {
@@ -406,14 +426,27 @@ export class ProductRepository {
       featuredProducts,
       totalStockValue: Math.round(totalStockValue),
       averagePrice: totalProducts > 0 ? Math.round(totalStockValue / totalProducts) : 0,
-      totalViews,
+      totalViews: totals.totalViews,
+      totalSoldUnits: totals.totalSoldUnits,
+      totalReviews: totals.totalReviews,
+      averageRating: Number.isFinite(averageRating) ? Math.round((averageRating + Number.EPSILON) * 100) / 100 : 0,
       categoryStats,
       brandStats,
       recentProducts: products
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
         .slice(0, 5),
       topViewedProducts: products
-        .slice(0, 5), // Would sort by view count when implemented
+        .slice()
+        .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))
+        .slice(0, 5),
+      topSellingProducts: products
+        .slice()
+        .sort((a, b) => (b.soldCount || 0) - (a.soldCount || 0))
+        .slice(0, 5),
+      topRatedProducts: products
+        .slice()
+        .sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0))
+        .slice(0, 5),
     };
   }
 

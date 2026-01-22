@@ -15,6 +15,7 @@ import { ProductSpecification } from './product-specification.entity';
 import { ProductWarehouseQuantity } from './product-warehouse-quantity.entity';
 import { ProductTranslation } from './product-translation.entity';
 import { ProductPriceHistory } from './product-price-history.entity';
+import { ProductReview } from './product-review.entity';
 
 export enum ProductStatus {
   DRAFT = 'DRAFT',
@@ -175,6 +176,40 @@ export class Product extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'average_rating',
+    type: 'decimal',
+    precision: 3,
+    scale: 2,
+    nullable: true,
+  })
+  averageRating?: number;
+
+  @Expose()
+  @Column({
+    name: 'review_count',
+    type: 'int',
+    nullable: true,
+  })
+  reviewCount?: number;
+
+  @Expose()
+  @Column({
+    name: 'view_count',
+    type: 'int',
+    default: 0,
+  })
+  viewCount: number;
+
+  @Expose()
+  @Column({
+    name: 'sold_count',
+    type: 'int',
+    default: 0,
+  })
+  soldCount: number;
+
+  @Expose()
+  @Column({
     name: 'stock_quantity',
     type: 'int',
     default: 0,
@@ -256,6 +291,9 @@ export class Product extends BaseEntity {
 
   @OneToMany(() => ProductPriceHistory, (history) => history.product)
   priceHistory: ProductPriceHistory[];
+
+  @OneToMany(() => ProductReview, (review) => review.product)
+  reviews: ProductReview[];
 
   // Getter for categories through ProductCategory junction
   async getCategories(): Promise<Category[]> {

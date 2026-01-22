@@ -6,6 +6,7 @@ import { databaseConfig, rabbitmqConfig, cronConfig } from '../config';
 import { AppService } from './app.service';
 import { DataExportModule } from '@backend/modules/export/data-export.module';
 import { ExportJobDispatcher } from '../jobs/export-job-dispatcher.service';
+import { ProductStatsRecomputeJob } from '../jobs/product-stats-recompute.service';
 
 const projectRoot = join(__dirname, '../../../../../..');
 const cronEnvPath = join(projectRoot, 'apps/cron/.env');
@@ -26,6 +27,6 @@ const cronEnvPath = join(projectRoot, 'apps/cron/.env');
     }),
     DataExportModule,
   ],
-  providers: [AppService, ExportJobDispatcher],
+  providers: [AppService, ExportJobDispatcher, ProductStatsRecomputeJob],
 })
 export class AppModule {}

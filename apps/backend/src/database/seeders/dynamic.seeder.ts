@@ -24,7 +24,10 @@ import { ServicesSeeder } from './services.seeder';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      envFilePath: ['../../.env', '.env'],
+      isGlobal: true,
+    }),
     TypeOrmModule.forRootAsync({
       useFactory: () => databaseConfig(),
     }),

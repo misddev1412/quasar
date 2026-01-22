@@ -19,6 +19,10 @@ export interface TransformedProduct {
   price: number;
   compareAtPrice: number | null;
   sortOrder: number;
+  viewCount: number;
+  soldCount: number;
+  averageRating: number | null;
+  reviewCount: number | null;
   brandId: string | null;
   categoryIds: string[];
   warrantyId: string | null;
@@ -216,6 +220,14 @@ export class ProductTransformer {
         ? Number(product.compareAtPrice)
         : null,
       sortOrder: product.sortOrder || 0,
+      viewCount: product.viewCount || 0,
+      soldCount: product.soldCount || 0,
+      averageRating: product.averageRating !== undefined && product.averageRating !== null
+        ? Number(product.averageRating)
+        : null,
+      reviewCount: product.reviewCount !== undefined && product.reviewCount !== null
+        ? Number(product.reviewCount)
+        : null,
       brandId: product.brandId || null,
       categoryIds: categories.map(c => c.id),
       warrantyId: product.warrantyId || null,
@@ -317,6 +329,14 @@ export class ProductTransformer {
       status: product.status,
       isActive: product.isActive,
       isFeatured: product.isFeatured,
+      viewCount: product.viewCount || 0,
+      soldCount: product.soldCount || 0,
+      averageRating: product.averageRating !== undefined && product.averageRating !== null
+        ? Number(product.averageRating)
+        : null,
+      reviewCount: product.reviewCount !== undefined && product.reviewCount !== null
+        ? Number(product.reviewCount)
+        : null,
       brandId: product.brandId || null,
       categoryIds: categories.map(c => c.id),
       createdAt: product.createdAt,

@@ -802,6 +802,36 @@ export class SectionsSeeder implements SeederModule {
           },
         ],
       },
+      {
+        section: {
+          page: 'home',
+          type: SectionType.INTRODUCTION,
+          position: 14,
+          isEnabled: true,
+          config: {
+            stats: [
+              { id: 'exp', value: '30+', label: 'Năm kinh nghiệm' },
+              { id: 'customers', value: '1000+', label: 'Khách hàng' },
+              { id: 'delay', value: '24/7', label: 'Hỗ trợ kỹ thuật' },
+              { id: 'satisfaction', value: '100%', label: 'Khách hàng hài lòng' },
+            ],
+            ctaLabel: 'Tìm hiểu thêm',
+            ctaUrl: '/about',
+          },
+        },
+        translations: [
+          {
+            locale: 'en',
+            title: 'INTRODUCTION TO QUASAR',
+            description: '<p>Quasar is a leading provider of comprehensive e-commerce solutions, dedicated to empowering businesses with cutting-edge technology and exceptional service.</p><p><br></p><p>We are a pioneer in the digital commerce industry, offering scalable and resilient platforms for modern retail. As a trusted partner to global brands, we provide an ecosystem of tools for store management, analytics, and omnichannel growth. Our platform is built on modern architecture ensuring high performance, security, and seamless operation. With a global expert team, Quasar is committed to innovation and dedicated support, driving the sustainable development of your business.</p>',
+          },
+          {
+            locale: 'vi',
+            title: 'GIỚI THIỆU VỀ QUASAR',
+            description: '<p>Quasar là đơn vị tiên phong cung cấp các giải pháp thương mại điện tử toàn diện, cam kết mang đến công nghệ tiên tiến và dịch vụ xuất sắc cho doanh nghiệp.</p><p><br></p><p>Chúng tôi cung cấp nền tảng linh hoạt và mạnh mẽ giúp doanh nghiệp bán lẻ hiện đại quản lý cửa hàng, phân tích dữ liệu và phát triển đa kênh hiệu quả. Là đối tác tin cậy của nhiều thương hiệu toàn cầu, hệ thống của chúng tôi đảm bảo hiệu suất cao, bảo mật và vận hành tối ưu. Với đội ngũ chuyên gia tận tâm, Quasar cam kết chất lượng vượt trội, đồng hành cùng sự phát triển bền vững của doanh nghiệp bạn.</p>',
+          },
+        ],
+      },
       // PRODUCT DETAIL PAGE SECTIONS
       {
         section: {

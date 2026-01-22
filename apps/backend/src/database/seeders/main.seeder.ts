@@ -28,7 +28,10 @@ import databaseConfig from '../../config/database.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      envFilePath: ['../../.env', '.env'],
+      isGlobal: true,
+    }),
     TypeOrmModule.forRootAsync({
       useFactory: () => databaseConfig(),
     }),

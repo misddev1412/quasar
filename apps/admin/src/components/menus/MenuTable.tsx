@@ -30,6 +30,7 @@ import { ReorderableTable, DragHandle, type ReorderableColumn } from '../../comp
 import { UnifiedIcon } from '../../components/common/UnifiedIcon';
 import { Toggle } from '../../components/common/Toggle';
 import { AdminMenu, MenuTreeNode } from '../../hooks/useMenusManager';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { ALL_MENU_TYPE_OPTIONS } from '../../hooks/useMenuPage';
 
 interface MenuTableProps {
@@ -83,6 +84,9 @@ export const MenuTable: React.FC<MenuTableProps> = ({
   hasChildren = new Set(),
   togglingMenuIds = new Set(),
 }) => {
+  const { i18n } = useTranslationWithBackend();
+  const currentLocale = i18n.resolvedLanguage || 'en';
+
   const columns: ReorderableColumn<AdminMenu & { level: number; children: MenuTreeNode[] }>[] = useMemo(() => [
     {
       id: 'menu',
@@ -174,14 +178,9 @@ export const MenuTable: React.FC<MenuTableProps> = ({
                     ? 'text-gray-800 dark:text-gray-200 text-sm'
                     : 'text-gray-700 dark:text-gray-300 text-sm'
                   }`}
-                style={{
-                  color: item.textColor || undefined,
-                  backgroundColor: item.backgroundColor || undefined,
-                  padding: item.backgroundColor ? '2px 6px' : undefined,
-                  borderRadius: item.backgroundColor ? '4px' : undefined,
-                }}
+                style={{}}
               >
-                {item.translations.find(t => t.locale === 'en')?.label || item.translations[0]?.label || 'Untitled'}
+                {item.translations.find(t => t.locale === currentLocale)?.label || item.translations.find(t => t.locale === 'en')?.label || item.translations[0]?.label || 'Untitled'}
               </span>
             </div>
             {item.url && (
@@ -218,6 +217,7 @@ export const MenuTable: React.FC<MenuTableProps> = ({
           ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
           : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
         const menuLabel =
+          item.translations?.find((translation) => translation.locale === currentLocale)?.label ||
           item.translations?.find((translation) => translation.locale === 'en')?.label ||
           item.translations?.[0]?.label ||
           item.url ||
@@ -304,7 +304,9 @@ export const MenuTable: React.FC<MenuTableProps> = ({
     onDeleteMenu,
     onCloneMenu,
     onToggleMenuEnabled,
+    onToggleMenuEnabled,
     togglingMenuIds,
+    currentLocale,
   ]);
 
   return (

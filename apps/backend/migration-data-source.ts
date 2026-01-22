@@ -3,7 +3,7 @@ const { config } = require('dotenv');
 const path = require('path');
 
 // Load environment variables
-config();
+config({ path: path.resolve(__dirname, '../../.env') });
 
 // Migration-specific DataSource - no entities imported to avoid circular dependencies
 const migrationDataSource = new DataSource({

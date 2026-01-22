@@ -53,10 +53,15 @@ export interface ProductStatsResponse {
   totalStockValue: number;
   averagePrice: number;
   totalViews: number;
+  totalSoldUnits: number;
+  totalReviews: number;
+  averageRating: number;
   categoryStats: Record<string, number>;
   brandStats: Record<string, number>;
   recentProducts: Product[];
   topViewedProducts: Product[];
+  topSellingProducts: Product[];
+  topRatedProducts: Product[];
 }
 
 export interface ImportProductsFromExcelParams {

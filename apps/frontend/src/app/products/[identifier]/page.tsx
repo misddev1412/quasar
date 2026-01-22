@@ -3,6 +3,7 @@ import ProductDetailClient from '../ProductDetailClient';
 import Layout from '../../../components/layout/Layout';
 import {
   buildProductDetailProps,
+  buildProductJsonLd,
   buildProductMetadata,
   fetchProductByIdentifier,
 } from '../productPageUtils';
@@ -36,6 +37,7 @@ async function ProductPageContent({ params, searchParams }: ProductPageProps) {
   ]);
 
   const orderedSections = [...sections].sort((a, b) => a.position - b.position);
+  const productJsonLd = buildProductJsonLd(product, `/products/${resolvedParams.identifier}`);
   // Filter out product_detail specific sections from generic rendering if they need special handling client-side
   // or just pass all sections to client and let client render?
   // Current decision: Pass ALL sections to Client, and remove server-side renderSections for this page
@@ -43,6 +45,10 @@ async function ProductPageContent({ params, searchParams }: ProductPageProps) {
 
   return (
     <Layout>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <ProductDetailClient
         product={product}
         relatedProducts={detailProps.relatedProducts}

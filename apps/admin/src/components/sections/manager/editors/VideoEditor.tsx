@@ -37,7 +37,7 @@ const VideoEditorComponent: React.FC<VideoEditorProps> = ({ value, onChange }) =
         onChange({
             ...(value ?? {}),
             [path]: newValue,
-});
+        });
     };
 
     const currentAutoplay = Boolean(value?.autoplay ?? false);
@@ -85,6 +85,19 @@ const VideoEditorComponent: React.FC<VideoEditorProps> = ({ value, onChange }) =
                     <span className="text-xs text-gray-500 ml-1">
                         - {t('sections.manager.config.video.autoplayDescription')}
                     </span>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <label className="space-y-1">
+                        <span className="text-sm text-gray-600">{t('sections.manager.config.video.layout')}</span>
+                        <Select
+                            value={value?.layout as string || 'featured'}
+                            onChange={(val) => handleValueChange('layout', val)}
+                            options={[
+                                { value: 'featured', label: t('sections.manager.config.video.layoutFeatured') },
+                                { value: 'carousel', label: t('sections.manager.config.video.layoutCarousel') },
+                            ]}
+                        />
+                    </label>
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <ColorSelector

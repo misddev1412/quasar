@@ -28,6 +28,7 @@ export enum SectionType {
   PRODUCT_DETAILS = 'product_details',
   NEWS_DETAILS = 'news_details',
   SERVICE_LIST = 'service_list',
+  INTRODUCTION = 'introduction',
 }
 
 export const SECTION_TYPE_LABELS: Record<SectionType, string> = {
@@ -52,4 +53,5 @@ export const SECTION_TYPE_LABELS: Record<SectionType, string> = {
   [SectionType.PRODUCT_DETAILS]: 'Product Details',
   [SectionType.NEWS_DETAILS]: 'News Details',
   [SectionType.SERVICE_LIST]: 'Service List',
+  [SectionType.INTRODUCTION]: 'Introduction',
 };

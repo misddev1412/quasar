@@ -590,9 +590,9 @@ export const MenuForm: React.FC<MenuFormProps> = ({
       marqueeItems.map((item, idx) =>
         idx === index
           ? {
-              ...item,
-              [field]: value,
-            }
+            ...item,
+            [field]: value,
+          }
           : item,
       ),
     );
@@ -642,9 +642,9 @@ export const MenuForm: React.FC<MenuFormProps> = ({
       items.map((item, idx) =>
         idx === index
           ? {
-              ...item,
-              [field]: value,
-            }
+            ...item,
+            [field]: value,
+          }
           : item,
       ),
     );
@@ -685,42 +685,7 @@ export const MenuForm: React.FC<MenuFormProps> = ({
     });
   };
 
-  const handleMenuGroupChange = (group: string) => {
-    setFormData(prev => {
-      const isTopGroup = group === TOP_MENU_GROUP;
-      const isSubGroup = group === SUB_MENU_GROUP;
 
-      let nextType = prev.type;
-      if (isTopGroup && !TOP_MENU_ALLOWED_TYPES.includes(nextType)) {
-        nextType = TOP_MENU_ALLOWED_TYPES[0];
-      }
-
-      if (!isTopGroup && TOP_MENU_ONLY_TYPES.includes(nextType as typeof TOP_MENU_ONLY_TYPES[number])) {
-        nextType = MenuType.LINK;
-      }
-
-      const nextConfig = sanitizeConfigForType(prev.config, nextType);
-      if (isTopGroup && nextType === MenuType.TOP_CURRENT_TIME && typeof nextConfig['topTimeFormat'] !== 'string') {
-        nextConfig['topTimeFormat'] = TopMenuTimeFormat.HOURS_MINUTES;
-      }
-
-      return {
-        ...prev,
-        menuGroup: group,
-        type: nextType,
-        parentId: undefined,
-        isMegaMenu: isTopGroup ? false : prev.isMegaMenu,
-        megaMenuColumns: isTopGroup ? undefined : prev.megaMenuColumns,
-        url: requiresUrl(nextType) ? prev.url : undefined,
-        referenceId: requiresReferenceId(nextType) ? prev.referenceId : undefined,
-        config: nextConfig,
-        subMenuVariant: isSubGroup ? (prev.subMenuVariant || 'button') : undefined,
-        buttonBorderRadius: isSubGroup ? (prev.buttonBorderRadius || '9999px') : undefined,
-        buttonAnimation: isSubGroup ? prev.buttonAnimation : undefined,
-        minimalStyling: isSubGroup ? prev.minimalStyling : false,
-      };
-    });
-  };
 
   const updateTranslation = (locale: string, field: keyof MenuTranslationForm, value: any) => {
     setFormData(prev => ({
@@ -794,29 +759,14 @@ export const MenuForm: React.FC<MenuFormProps> = ({
     }));
   };
 
-  const groupOptions: SelectOption[] = [
-    ...DEFAULT_MENU_GROUP_OPTIONS.map(opt => ({
-      value: opt.value,
-      label: t(`groups.${opt.value}`)
-    })),
-    ...menuGroups.filter(group => !DEFAULT_MENU_GROUP_OPTIONS.find(opt => opt.value === group))
-      .map(group => ({ value: group, label: group })),
-  ];
+
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">{t('form.labels.menuGroup')}</label>
-          <Select
-            value={formData.menuGroup}
-            onChange={handleMenuGroupChange}
-            options={groupOptions}
-            className="mt-1"
-            size="md"
-          />
-        </div>
 
+
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">{t('form.labels.type')}</label>
           <Select
@@ -827,297 +777,317 @@ export const MenuForm: React.FC<MenuFormProps> = ({
             size="md"
           />
         </div>
+
+        <div>
+          <ParentMenuSelector
+            value={formData.parentId}
+            onChange={(parentId) => updateFormData('parentId', parentId)}
+            menuTree={parentMenuTree}
+            currentMenuId={menu?.id}
+            menuGroup={formData.menuGroup}
+          />
+          {isParentLoading && (
+            <p className="text-xs text-gray-500 mt-1">{t('form.helpers.loadingParents')}</p>
+          )}
+          {!isParentLoading && parentMenuError && (
+            <p className="text-xs text-red-500 mt-1">{t('form.helpers.errorLoadingParents')}</p>
+          )}
+        </div>
       </div>
 
-      <div>
-        <ParentMenuSelector
-          value={formData.parentId}
-          onChange={(parentId) => updateFormData('parentId', parentId)}
-          menuTree={parentMenuTree}
-          currentMenuId={menu?.id}
-          menuGroup={formData.menuGroup}
-        />
-        {isParentLoading && (
-          <p className="text-xs text-gray-500 mt-1">{t('form.helpers.loadingParents')}</p>
-        )}
-        {!isParentLoading && parentMenuError && (
-          <p className="text-xs text-red-500 mt-1">{t('form.helpers.errorLoadingParents')}</p>
-        )}
-      </div>
-
-      {(formData.type === MenuType.LINK || formData.type === MenuType.BANNER) && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">{t('form.labels.url')}</label>
-            <Input
-              value={formData.url || ''}
-              onChange={(e) => updateFormData('url', e.target.value)}
-              placeholder={t('form.placeholders.exampleUrl')}
-              className="mt-1"
-              inputSize="md"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">{t('form.labels.target')}</label>
-            <Select
-              value={formData.target}
-              onChange={(value) => updateFormData('target', value as MenuTarget)}
-              options={targetOptions}
-              className="mt-1"
-              size="md"
-            />
-          </div>
-        </div>
-      )}
-
-      {formData.type === MenuType.PRODUCT && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700">{t('form.labels.product')}</label>
-          <div className="mt-1">
-            <ProductSelector
-              value={formData.referenceId}
-              onChange={(productId) => updateFormData('referenceId', productId)}
-            />
-          </div>
-        </div>
-      )}
-
-      {formData.type === MenuType.CATEGORY && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700">{t('form.labels.category')}</label>
-          <div className="mt-1">
-            <CategorySelector
-              value={formData.referenceId}
-              onChange={(categoryId) => updateFormData('referenceId', categoryId)}
-            />
-          </div>
-        </div>
-      )}
-
-      {formData.type === MenuType.BRAND && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700">{t('form.labels.brand')}</label>
-          <div className="mt-1">
-            <BrandSelector
-              value={formData.referenceId}
-              onChange={(brandId) => updateFormData('referenceId', brandId)}
-            />
-          </div>
-        </div>
-      )}
-
-      {formData.type === MenuType.TOP_PHONE && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700">{t('form.labels.phoneNumber')}</label>
-          <Input
-            value={getTopMenuConfigValue(formData.config, 'topPhoneNumber')}
-            onChange={(e) => updateConfigValue('topPhoneNumber', e.target.value)}
-            placeholder={t('form.placeholders.phoneExample')}
-            className="mt-1"
-            inputSize="md"
-          />
-          <p className="text-xs text-gray-500 mt-1">{t('form.helpers.topPhone')}</p>
-        </div>
-      )}
-
-      {formData.type === MenuType.TOP_EMAIL && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700">{t('form.labels.emailAddress')}</label>
-          <Input
-            type="email"
-            value={getTopMenuConfigValue(formData.config, 'topEmailAddress')}
-            onChange={(e) => updateConfigValue('topEmailAddress', e.target.value)}
-            placeholder={t('form.placeholders.emailExample')}
-            className="mt-1"
-            inputSize="md"
-          />
-          <p className="text-xs text-gray-500 mt-1">{t('form.helpers.topEmail')}</p>
-        </div>
-      )}
-
-      {formData.type === MenuType.TOP_CURRENT_TIME && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700">{t('form.labels.dateTimeFormat')}</label>
-          <Select
-            value={
-              getTopMenuConfigValue(formData.config, 'topTimeFormat') || TopMenuTimeFormat.HOURS_MINUTES
-            }
-            onChange={(value) => updateConfigValue('topTimeFormat', value)}
-            options={topTimeFormatOptions}
-            className="mt-1"
-            size="md"
-          />
-          <p className="text-xs text-gray-500 mt-1" dangerouslySetInnerHTML={{ __html: t('form.helpers.topTime') }} />
-        </div>
-      )}
-
-      {formData.type === MenuType.TOP_MARQUEE && (
-        <div className="space-y-4">
+      {
+        (formData.type === MenuType.LINK || formData.type === MenuType.BANNER) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">{t('form.labels.marqueeMaxWidth')}</label>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.url')}</label>
               <Input
-                value={getConfigStringValue(formData.config, TOP_MARQUEE_WIDTH_KEY)}
-                onChange={(e) => updateArbitraryConfigValue(TOP_MARQUEE_WIDTH_KEY, e.target.value)}
-                placeholder={t('form.placeholders.maxWidth')}
+                value={formData.url || ''}
+                onChange={(e) => updateFormData('url', e.target.value)}
+                placeholder={t('form.placeholders.exampleUrl')}
                 className="mt-1"
                 inputSize="md"
               />
-              <p className="text-xs text-gray-500 mt-1">{t('form.helpers.topMarquee')}</p>
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700">{t('form.labels.marqueeSpeed')}</label>
-              <Input
-                type="number"
-                min="1"
-                step="0.5"
-                value={getConfigStringValue(formData.config, TOP_MARQUEE_SPEED_KEY)}
-                onChange={(e) => updateArbitraryConfigValue(TOP_MARQUEE_SPEED_KEY, e.target.value)}
-                placeholder={t('form.placeholders.marqueeSpeed', '16')}
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.target')}</label>
+              <Select
+                value={formData.target}
+                onChange={(value) => updateFormData('target', value as MenuTarget)}
+                options={targetOptions}
                 className="mt-1"
-                inputSize="md"
+                size="md"
               />
-              <p className="text-xs text-gray-500 mt-1">{t('form.helpers.topMarqueeSpeed', 'Duration in seconds for a full loop.')}</p>
             </div>
           </div>
+        )
+      }
 
-          <div className="space-y-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">{t('form.labels.marqueeItems')}</label>
-              <p className="text-xs text-gray-500 mt-1">{t('form.helpers.topMarqueeItems')}</p>
+      {
+        formData.type === MenuType.PRODUCT && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.product')}</label>
+            <div className="mt-1">
+              <ProductSelector
+                value={formData.referenceId}
+                onChange={(productId) => updateFormData('referenceId', productId)}
+              />
             </div>
-
-            {marqueeItems.length === 0 ? (
-              <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-500">
-                {t('form.helpers.topMarqueeItemsEmpty', 'Add at least one ticker entry to display in the marquee.')}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {marqueeItems.map((marqueeItem, index) => (
-                  <div key={`marquee-${index}`} className="rounded-lg border border-gray-200 p-4 space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-xs font-medium text-gray-600">{t('form.labels.label')}</label>
-                        <Input
-                          value={marqueeItem.label}
-                          onChange={(e) => handleMarqueeItemChange(index, 'label', e.target.value)}
-                          placeholder={t('form.placeholders.marqueeLabel', 'Flash sale is live!')}
-                          className="mt-1"
-                          inputSize="md"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-gray-600">{t('form.labels.url')}</label>
-                        <Input
-                          value={marqueeItem.url || ''}
-                          onChange={(e) => handleMarqueeItemChange(index, 'url', e.target.value)}
-                          placeholder={t('form.placeholders.marqueeUrl', 'https://example.com/promo')}
-                          className="mt-1"
-                          inputSize="md"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <IconSelector
-                          value={marqueeItem.icon || ''}
-                          onChange={(icon) => handleMarqueeItemChange(index, 'icon', icon)}
-                          label={t('form.labels.icon', 'Icon')}
-                          placeholder={t('form.placeholders.marqueeIcon', 'heroicons:megaphone')}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-gray-600">{t('form.labels.target')}</label>
-                        <Select
-                          value={marqueeItem.target}
-                          onChange={(value) => handleMarqueeItemChange(index, 'target', value as MenuTarget)}
-                          options={targetOptions}
-                          className="mt-1"
-                          size="md"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-end">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="text-red-600 hover:text-red-700"
-                        onClick={() => handleRemoveMarqueeItem(index)}
-                      >
-                        {t('form.buttons.removeMarqueeItem', 'Remove')}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <Button type="button" variant="outline" onClick={handleAddMarqueeItem}>
-              {t('form.buttons.addMarqueeItem', 'Add ticker item')}
-            </Button>
           </div>
-        </div>
-      )}
+        )
+      }
 
-      {formData.type === MenuType.CALL_BUTTON && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700">{t('form.labels.phoneNumber')}</label>
-          <Input
-            value={getConfigStringValue(formData.config, CALL_BUTTON_CONFIG_KEY)}
-            onChange={(e) => updateArbitraryConfigValue(CALL_BUTTON_CONFIG_KEY, e.target.value)}
-            placeholder={t('form.placeholders.phoneExample')}
-            className="mt-1"
-            inputSize="md"
-          />
-          <p className="text-xs text-gray-500 mt-1" dangerouslySetInnerHTML={{ __html: t('form.helpers.callButton') }} />
-        </div>
-      )}
+      {
+        formData.type === MenuType.CATEGORY && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.category')}</label>
+            <div className="mt-1">
+              <CategorySelector
+                value={formData.referenceId}
+                onChange={(categoryId) => updateFormData('referenceId', categoryId)}
+              />
+            </div>
+          </div>
+        )
+      }
 
-      {formData.type === MenuType.SEARCH_BAR && (
-        <div className="space-y-4">
+      {
+        formData.type === MenuType.BRAND && (
           <div>
-            <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonSize')}</label>
-            <Select
-              value={getConfigStringValue(formData.config, 'buttonSize') || 'medium'}
-              onChange={(value) => updateArbitraryConfigValue('buttonSize', value)}
-              options={[
-                { value: 'small', label: t('form.options.small', 'Small') },
-                { value: 'medium', label: t('form.options.medium', 'Medium') },
-                { value: 'large', label: t('form.options.large', 'Large') },
-              ]}
-              className="mt-1"
-              size="md"
-            />
-            <p className="text-xs text-gray-500 mt-1">{t('form.helpers.searchBarSize', 'Control the size of the search bar input field.')}</p>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.brand')}</label>
+            <div className="mt-1">
+              <BrandSelector
+                value={formData.referenceId}
+                onChange={(brandId) => updateFormData('referenceId', brandId)}
+              />
+            </div>
           </div>
+        )
+      }
+
+      {
+        formData.type === MenuType.TOP_PHONE && (
           <div>
-            <label className="block text-sm font-medium text-gray-700">{t('form.labels.widthMode', 'Width Mode')}</label>
-            <Select
-              value={getConfigStringValue(formData.config, 'widthMode') || 'fixed'}
-              onChange={(value) => updateArbitraryConfigValue('widthMode', value)}
-              options={[
-                { value: 'fixed', label: t('form.options.fixed', 'Fixed width') },
-                { value: 'auto', label: t('form.options.auto', 'Automatic (fill remaining space)') },
-              ]}
-              className="mt-1"
-              size="md"
-            />
-            <p className="text-xs text-gray-500 mt-1">{t('form.helpers.searchBarWidthMode', 'Choose how the search bar width should be applied.')}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">{t('form.labels.width')}</label>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.phoneNumber')}</label>
             <Input
-              value={getConfigStringValue(formData.config, 'width')}
-              onChange={(e) => updateArbitraryConfigValue('width', e.target.value)}
-              placeholder="e.g. 200px or 100%"
+              value={getTopMenuConfigValue(formData.config, 'topPhoneNumber')}
+              onChange={(e) => updateConfigValue('topPhoneNumber', e.target.value)}
+              placeholder={t('form.placeholders.phoneExample')}
               className="mt-1"
               inputSize="md"
             />
-            <p className="text-xs text-gray-500 mt-1">{t('form.helpers.searchBarWidth', 'Used as the fixed width or minimum width when automatic sizing is enabled (e.g., 240px, 100%).')}</p>
+            <p className="text-xs text-gray-500 mt-1">{t('form.helpers.topPhone')}</p>
           </div>
-        </div>
-      )}
+        )
+      }
+
+      {
+        formData.type === MenuType.TOP_EMAIL && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.emailAddress')}</label>
+            <Input
+              type="email"
+              value={getTopMenuConfigValue(formData.config, 'topEmailAddress')}
+              onChange={(e) => updateConfigValue('topEmailAddress', e.target.value)}
+              placeholder={t('form.placeholders.emailExample')}
+              className="mt-1"
+              inputSize="md"
+            />
+            <p className="text-xs text-gray-500 mt-1">{t('form.helpers.topEmail')}</p>
+          </div>
+        )
+      }
+
+      {
+        formData.type === MenuType.TOP_CURRENT_TIME && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.dateTimeFormat')}</label>
+            <Select
+              value={
+                getTopMenuConfigValue(formData.config, 'topTimeFormat') || TopMenuTimeFormat.HOURS_MINUTES
+              }
+              onChange={(value) => updateConfigValue('topTimeFormat', value)}
+              options={topTimeFormatOptions}
+              className="mt-1"
+              size="md"
+            />
+            <p className="text-xs text-gray-500 mt-1" dangerouslySetInnerHTML={{ __html: t('form.helpers.topTime') }} />
+          </div>
+        )
+      }
+
+      {
+        formData.type === MenuType.TOP_MARQUEE && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">{t('form.labels.marqueeMaxWidth')}</label>
+                <Input
+                  value={getConfigStringValue(formData.config, TOP_MARQUEE_WIDTH_KEY)}
+                  onChange={(e) => updateArbitraryConfigValue(TOP_MARQUEE_WIDTH_KEY, e.target.value)}
+                  placeholder={t('form.placeholders.maxWidth')}
+                  className="mt-1"
+                  inputSize="md"
+                />
+                <p className="text-xs text-gray-500 mt-1">{t('form.helpers.topMarquee')}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">{t('form.labels.marqueeSpeed')}</label>
+                <Input
+                  type="number"
+                  min="1"
+                  step="0.5"
+                  value={getConfigStringValue(formData.config, TOP_MARQUEE_SPEED_KEY)}
+                  onChange={(e) => updateArbitraryConfigValue(TOP_MARQUEE_SPEED_KEY, e.target.value)}
+                  placeholder={t('form.placeholders.marqueeSpeed', '16')}
+                  className="mt-1"
+                  inputSize="md"
+                />
+                <p className="text-xs text-gray-500 mt-1">{t('form.helpers.topMarqueeSpeed', 'Duration in seconds for a full loop.')}</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">{t('form.labels.marqueeItems')}</label>
+                <p className="text-xs text-gray-500 mt-1">{t('form.helpers.topMarqueeItems')}</p>
+              </div>
+
+              {marqueeItems.length === 0 ? (
+                <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-500">
+                  {t('form.helpers.topMarqueeItemsEmpty', 'Add at least one ticker entry to display in the marquee.')}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {marqueeItems.map((marqueeItem, index) => (
+                    <div key={`marquee-${index}`} className="rounded-lg border border-gray-200 p-4 space-y-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600">{t('form.labels.label')}</label>
+                          <Input
+                            value={marqueeItem.label}
+                            onChange={(e) => handleMarqueeItemChange(index, 'label', e.target.value)}
+                            placeholder={t('form.placeholders.marqueeLabel', 'Flash sale is live!')}
+                            className="mt-1"
+                            inputSize="md"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600">{t('form.labels.url')}</label>
+                          <Input
+                            value={marqueeItem.url || ''}
+                            onChange={(e) => handleMarqueeItemChange(index, 'url', e.target.value)}
+                            placeholder={t('form.placeholders.marqueeUrl', 'https://example.com/promo')}
+                            className="mt-1"
+                            inputSize="md"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <IconSelector
+                            value={marqueeItem.icon || ''}
+                            onChange={(icon) => handleMarqueeItemChange(index, 'icon', icon)}
+                            label={t('form.labels.icon', 'Icon')}
+                            placeholder={t('form.placeholders.marqueeIcon', 'heroicons:megaphone')}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600">{t('form.labels.target')}</label>
+                          <Select
+                            value={marqueeItem.target}
+                            onChange={(value) => handleMarqueeItemChange(index, 'target', value as MenuTarget)}
+                            options={targetOptions}
+                            className="mt-1"
+                            size="md"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-end">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          className="text-red-600 hover:text-red-700"
+                          onClick={() => handleRemoveMarqueeItem(index)}
+                        >
+                          {t('form.buttons.removeMarqueeItem', 'Remove')}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <Button type="button" variant="outline" onClick={handleAddMarqueeItem}>
+                {t('form.buttons.addMarqueeItem', 'Add ticker item')}
+              </Button>
+            </div>
+          </div>
+        )
+      }
+
+      {
+        formData.type === MenuType.CALL_BUTTON && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700">{t('form.labels.phoneNumber')}</label>
+            <Input
+              value={getConfigStringValue(formData.config, CALL_BUTTON_CONFIG_KEY)}
+              onChange={(e) => updateArbitraryConfigValue(CALL_BUTTON_CONFIG_KEY, e.target.value)}
+              placeholder={t('form.placeholders.phoneExample')}
+              className="mt-1"
+              inputSize="md"
+            />
+            <p className="text-xs text-gray-500 mt-1" dangerouslySetInnerHTML={{ __html: t('form.helpers.callButton') }} />
+          </div>
+        )
+      }
+
+      {
+        formData.type === MenuType.SEARCH_BAR && (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonSize')}</label>
+              <Select
+                value={getConfigStringValue(formData.config, 'buttonSize') || 'medium'}
+                onChange={(value) => updateArbitraryConfigValue('buttonSize', value)}
+                options={[
+                  { value: 'small', label: t('form.options.small', 'Small') },
+                  { value: 'medium', label: t('form.options.medium', 'Medium') },
+                  { value: 'large', label: t('form.options.large', 'Large') },
+                ]}
+                className="mt-1"
+                size="md"
+              />
+              <p className="text-xs text-gray-500 mt-1">{t('form.helpers.searchBarSize', 'Control the size of the search bar input field.')}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.widthMode', 'Width Mode')}</label>
+              <Select
+                value={getConfigStringValue(formData.config, 'widthMode') || 'fixed'}
+                onChange={(value) => updateArbitraryConfigValue('widthMode', value)}
+                options={[
+                  { value: 'fixed', label: t('form.options.fixed', 'Fixed width') },
+                  { value: 'auto', label: t('form.options.auto', 'Automatic (fill remaining space)') },
+                ]}
+                className="mt-1"
+                size="md"
+              />
+              <p className="text-xs text-gray-500 mt-1">{t('form.helpers.searchBarWidthMode', 'Choose how the search bar width should be applied.')}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.width')}</label>
+              <Input
+                value={getConfigStringValue(formData.config, 'width')}
+                onChange={(e) => updateArbitraryConfigValue('width', e.target.value)}
+                placeholder="e.g. 200px or 100%"
+                className="mt-1"
+                inputSize="md"
+              />
+              <p className="text-xs text-gray-500 mt-1">{t('form.helpers.searchBarWidth', 'Used as the fixed width or minimum width when automatic sizing is enabled (e.g., 240px, 100%).')}</p>
+            </div>
+          </div>
+        )
+      }
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -1151,382 +1121,394 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
         <IconSelector
           value={formData.icon}
           onChange={(icon) => updateFormData('icon', icon)}
           label={t('form.labels.icon', 'Icon')}
           placeholder={t('form.placeholders.marqueeIcon', 'heroicons:megaphone')}
         />
+      </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ColorSelector
           value={formData.textColor}
           onChange={(color) => updateFormData('textColor', color)}
           placeholder="#000000"
           label={t('form.labels.textColor')}
         />
-      </div>
-
-      <ColorSelector
-        value={formData.backgroundColor}
-        onChange={(color) => updateFormData('backgroundColor', color)}
-        placeholder="#FFFFFF"
-        label={t('form.labels.backgroundColor')}
-      />
-
-      <ColorSelector
-        value={formData.borderColor}
-        onChange={(color) => updateFormData('borderColor', color)}
-        placeholder="#E5E7EB"
-        label={t('form.labels.borderColor')}
-      />
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">{t('form.labels.borderWidth')}</label>
-        <Input
-          value={formData.borderWidth || ''}
-          onChange={(e) => updateFormData('borderWidth', e.target.value)}
-          placeholder={t('form.placeholders.pxExample')}
-          className="mt-1"
-          inputSize="md"
+        <ColorSelector
+          value={formData.backgroundColor}
+          onChange={(color) => updateFormData('backgroundColor', color)}
+          placeholder="#FFFFFF"
+          label={t('form.labels.backgroundColor')}
         />
       </div>
 
-      {isSubMenu && (
-        <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('form.labels.subMenuDisplay')}</h4>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">{t('form.labels.displayType')}</label>
-            <Select
-              value={formData.subMenuVariant || 'link'}
-              onChange={(value) => handleSubMenuVariantChange(value as 'link' | 'button')}
-              options={[
-                { value: 'link', label: t('form.options.menuItem') },
-                { value: 'button', label: t('form.options.customButton') },
-              ]}
-              className="mt-1"
-              size="md"
-            />
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ColorSelector
+          value={formData.borderColor}
+          onChange={(color) => updateFormData('borderColor', color)}
+          placeholder="#E5E7EB"
+          label={t('form.labels.borderColor')}
+        />
+        <div>
+          <label className="block text-sm font-medium text-gray-700">{t('form.labels.borderWidth')}</label>
+          <Input
+            value={formData.borderWidth || ''}
+            onChange={(e) => updateFormData('borderWidth', e.target.value)}
+            placeholder={t('form.placeholders.pxExample')}
+            className="mt-1"
+            inputSize="md"
+          />
+        </div>
+      </div>
 
-          {!formData.isMegaMenu && (
+      {
+        isSubMenu && (
+          <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
+            <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('form.labels.subMenuDisplay')}</h4>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.displayType')}</label>
+              <Select
+                value={formData.subMenuVariant || 'link'}
+                onChange={(value) => handleSubMenuVariantChange(value as 'link' | 'button')}
+                options={[
+                  { value: 'link', label: t('form.options.menuItem') },
+                  { value: 'button', label: t('form.options.customButton') },
+                ]}
+                className="mt-1"
+                size="md"
+              />
+            </div>
+
+            {!formData.isMegaMenu && (
+              <div className="pt-1">
+                <Toggle
+                  checked={formData.showTitle !== false}
+                  onChange={(checked) => updateFormData('showTitle', checked)}
+                  label={t('form.labels.showTitle')}
+                />
+              </div>
+            )}
+
             <div className="pt-1">
+              <Toggle
+                checked={!!formData.minimalStyling}
+                onChange={(checked) => updateFormData('minimalStyling', checked)}
+                label={t('form.labels.minimalStyling')}
+              />
+            </div>
+
+            {formData.subMenuVariant === 'button' && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonBorderRadius')}</label>
+                    <MeasurementPresetInput
+                      value={formData.buttonBorderRadius || ''}
+                      onChange={(val) => updateFormData('buttonBorderRadius', val || undefined)}
+                      presets={{ small: '4px', medium: '12px', large: '9999px' }}
+                      labels={{
+                        default: t('form.options.useDefault'),
+                        small: t('form.options.small'),
+                        medium: t('form.options.medium'),
+                        large: t('form.options.large'),
+                        custom: t('form.options.custom'),
+                        customHelper: t('form.helpers.measurementCustomHelper'),
+                      }}
+                      className="mt-1"
+                      selectPlaceholder="Choose a preset"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">{t('form.helpers.buttonBorderRadius')}</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonSize')}</label>
+                    <Select
+                      value={formData.buttonSize || 'medium'}
+                      onChange={(value) => updateFormData('buttonSize', value as 'small' | 'medium' | 'large')}
+                      options={[
+                        { value: 'small', label: t('form.options.small') },
+                        { value: 'medium', label: t('form.options.medium') },
+                        { value: 'large', label: t('form.options.large') },
+                      ]}
+                      className="mt-1"
+                      size="md"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonAnimation')}</label>
+                    <Select
+                      value={formData.buttonAnimation || 'none'}
+                      onChange={(value) => updateFormData('buttonAnimation', value as 'none' | 'pulse' | 'float' | 'ring')}
+                      options={[
+                        { value: 'none', label: t('form.options.none') },
+                        { value: 'pulse', label: t('form.options.pulse') },
+                        { value: 'float', label: t('form.options.floating') },
+                        { value: 'ring', label: t('form.options.ring') },
+                      ]}
+                      className="mt-1"
+                      size="md"
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">{t('form.helpers.buttonStyling')}</p>
+              </>
+            )}
+          </div>
+        )
+      }
+
+      {/* Enhanced Customization Options */}
+      {
+        formData.isMegaMenu && (
+          <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
+            <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('form.labels.megaMenuCustomization')}</h4>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">{t('form.labels.layout')}</label>
+                <Select
+                  value={formData.layout || 'vertical'}
+                  onChange={(value) => updateFormData('layout', value as 'vertical' | 'grid' | 'horizontal')}
+                  options={[
+                    { value: 'vertical', label: t('form.options.vertical') },
+                    { value: 'grid', label: t('form.options.grid') },
+                    { value: 'horizontal', label: t('form.options.horizontal') }
+                  ]}
+                  className="mt-1"
+                  size="md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">{t('form.labels.iconSize')}</label>
+                <Select
+                  value={formData.imageSize || 'medium'}
+                  onChange={(value) => updateFormData('imageSize', value as 'small' | 'medium' | 'large')}
+                  options={[
+                    { value: 'small', label: t('form.options.small') },
+                    { value: 'medium', label: t('form.options.medium') },
+                    { value: 'large', label: t('form.options.large') }
+                  ]}
+                  className="mt-1"
+                  size="md"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">{t('form.labels.hoverEffect')}</label>
+                <Select
+                  value={formData.hoverEffect || 'none'}
+                  onChange={(value) => updateFormData('hoverEffect', value as 'none' | 'scale' | 'slide' | 'fade')}
+                  options={[
+                    { value: 'none', label: t('form.options.none') },
+                    { value: 'scale', label: t('form.options.scale') },
+                    { value: 'slide', label: t('form.options.slide') },
+                    { value: 'fade', label: t('form.options.fade') }
+                  ]}
+                  className="mt-1"
+                  size="md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">{t('form.labels.maxItems')}</label>
+                <Input
+                  type="number"
+                  value={formData.maxItems || ''}
+                  onChange={(e) => updateFormData('maxItems', parseInt(e.target.value) || undefined)}
+                  placeholder={t('form.placeholders.unlimited')}
+                  className="mt-1"
+                  inputSize="md"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">{t('form.labels.columnSpan')}</label>
+                <Input
+                  type="number"
+                  value={formData.columnSpan || ''}
+                  onChange={(e) => updateFormData('columnSpan', parseInt(e.target.value) || undefined)}
+                  placeholder="1"
+                  className="mt-1"
+                  inputSize="md"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
               <Toggle
                 checked={formData.showTitle !== false}
                 onChange={(checked) => updateFormData('showTitle', checked)}
                 label={t('form.labels.showTitle')}
               />
-            </div>
-          )}
-
-          <div className="pt-1">
-            <Toggle
-              checked={!!formData.minimalStyling}
-              onChange={(checked) => updateFormData('minimalStyling', checked)}
-              label={t('form.labels.minimalStyling')}
-            />
-          </div>
-
-          {formData.subMenuVariant === 'button' && (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonBorderRadius')}</label>
-                  <MeasurementPresetInput
-                    value={formData.buttonBorderRadius || ''}
-                    onChange={(val) => updateFormData('buttonBorderRadius', val || undefined)}
-                    presets={{ small: '4px', medium: '12px', large: '9999px' }}
-                    labels={{
-                      default: t('form.options.useDefault'),
-                      small: t('form.options.small'),
-                      medium: t('form.options.medium'),
-                      large: t('form.options.large'),
-                      custom: t('form.options.custom'),
-                      customHelper: t('form.helpers.measurementCustomHelper'),
-                    }}
-                    className="mt-1"
-                    selectPlaceholder="Choose a preset"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">{t('form.helpers.buttonBorderRadius')}</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonSize')}</label>
-                  <Select
-                    value={formData.buttonSize || 'medium'}
-                    onChange={(value) => updateFormData('buttonSize', value as 'small' | 'medium' | 'large')}
-                    options={[
-                      { value: 'small', label: t('form.options.small') },
-                      { value: 'medium', label: t('form.options.medium') },
-                      { value: 'large', label: t('form.options.large') },
-                    ]}
-                    className="mt-1"
-                    size="md"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonAnimation')}</label>
-                  <Select
-                    value={formData.buttonAnimation || 'none'}
-                    onChange={(value) => updateFormData('buttonAnimation', value as 'none' | 'pulse' | 'float' | 'ring')}
-                    options={[
-                      { value: 'none', label: t('form.options.none') },
-                      { value: 'pulse', label: t('form.options.pulse') },
-                      { value: 'float', label: t('form.options.floating') },
-                      { value: 'ring', label: t('form.options.ring') },
-                    ]}
-                    className="mt-1"
-                    size="md"
-                  />
-                </div>
-              </div>
-              <p className="text-xs text-gray-500">{t('form.helpers.buttonStyling')}</p>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* Enhanced Customization Options */}
-      {formData.isMegaMenu && (
-        <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('form.labels.megaMenuCustomization')}</h4>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">{t('form.labels.layout')}</label>
-              <Select
-                value={formData.layout || 'vertical'}
-                onChange={(value) => updateFormData('layout', value as 'vertical' | 'grid' | 'horizontal')}
-                options={[
-                  { value: 'vertical', label: t('form.options.vertical') },
-                  { value: 'grid', label: t('form.options.grid') },
-                  { value: 'horizontal', label: t('form.options.horizontal') }
-                ]}
-                className="mt-1"
-                size="md"
+              <Toggle
+                checked={formData.showDescription !== false}
+                onChange={(checked) => updateFormData('showDescription', checked)}
+                label={t('form.labels.showDescription')}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">{t('form.labels.iconSize')}</label>
-              <Select
-                value={formData.imageSize || 'medium'}
-                onChange={(value) => updateFormData('imageSize', value as 'small' | 'medium' | 'large')}
-                options={[
-                  { value: 'small', label: t('form.options.small') },
-                  { value: 'medium', label: t('form.options.medium') },
-                  { value: 'large', label: t('form.options.large') }
-                ]}
-                className="mt-1"
-                size="md"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">{t('form.labels.hoverEffect')}</label>
-              <Select
-                value={formData.hoverEffect || 'none'}
-                onChange={(value) => updateFormData('hoverEffect', value as 'none' | 'scale' | 'slide' | 'fade')}
-                options={[
-                  { value: 'none', label: t('form.options.none') },
-                  { value: 'scale', label: t('form.options.scale') },
-                  { value: 'slide', label: t('form.options.slide') },
-                  { value: 'fade', label: t('form.options.fade') }
-                ]}
-                className="mt-1"
-                size="md"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">{t('form.labels.maxItems')}</label>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.customCssClass')}</label>
               <Input
-                type="number"
-                value={formData.maxItems || ''}
-                onChange={(e) => updateFormData('maxItems', parseInt(e.target.value) || undefined)}
-                placeholder={t('form.placeholders.unlimited')}
+                value={formData.customClass || ''}
+                onChange={(e) => updateFormData('customClass', e.target.value)}
+                placeholder={t('form.placeholders.customClassExample')}
                 className="mt-1"
                 inputSize="md"
               />
             </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">{t('form.labels.columnSpan')}</label>
-              <Input
-                type="number"
-                value={formData.columnSpan || ''}
-                onChange={(e) => updateFormData('columnSpan', parseInt(e.target.value) || undefined)}
-                placeholder="1"
-                className="mt-1"
-                inputSize="md"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Toggle
-              checked={formData.showTitle !== false}
-              onChange={(checked) => updateFormData('showTitle', checked)}
-              label={t('form.labels.showTitle')}
-            />
-            <Toggle
-              checked={formData.showDescription !== false}
-              onChange={(checked) => updateFormData('showDescription', checked)}
-              label={t('form.labels.showDescription')}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">{t('form.labels.customCssClass')}</label>
-            <Input
-              value={formData.customClass || ''}
-              onChange={(e) => updateFormData('customClass', e.target.value)}
-              placeholder={t('form.placeholders.customClassExample')}
-              className="mt-1"
-              inputSize="md"
-            />
-          </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Badge Configuration */}
-      <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
-        <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('form.labels.badgeConfiguration')}</h4>
+      {
+        !isTopMenu && (
+          <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
+            <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('form.labels.badgeConfiguration')}</h4>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">{t('form.labels.badgeText')}</label>
-          <Input
-            value={formData.badge?.text || ''}
-            onChange={(e) => updateBadge('text', e.target.value)}
-            placeholder={t('form.placeholders.badgeTextNew')}
-            className="mt-1"
-            inputSize="md"
-          />
-        </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.badgeText')}</label>
+              <Input
+                value={formData.badge?.text || ''}
+                onChange={(e) => updateBadge('text', e.target.value)}
+                placeholder={t('form.placeholders.badgeTextNew')}
+                className="mt-1"
+                inputSize="md"
+              />
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <ColorSelector
-            value={formData.badge?.color}
-            onChange={(color) => updateBadge('color', color)}
-            placeholder={t('form.placeholders.colorExample').replace('#000000', '#FFFFFF')}
-            label={t('form.labels.badgeTextColor')}
-          />
-          <ColorSelector
-            value={formData.badge?.backgroundColor}
-            onChange={(color) => updateBadge('backgroundColor', color)}
-            placeholder="#EF4444"
-            label={t('form.labels.badgeBackgroundColor')}
-          />
-        </div>
-      </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <ColorSelector
+                value={formData.badge?.color}
+                onChange={(color) => updateBadge('color', color)}
+                placeholder={t('form.placeholders.colorExample').replace('#000000', '#FFFFFF')}
+                label={t('form.labels.badgeTextColor')}
+              />
+              <ColorSelector
+                value={formData.badge?.backgroundColor}
+                onChange={(color) => updateBadge('backgroundColor', color)}
+                placeholder="#EF4444"
+                label={t('form.labels.badgeBackgroundColor')}
+              />
+            </div>
+          </div>
+        )
+      }
 
       {/* Banner Configuration */}
-      {formData.type === MenuType.BANNER && (
-        <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('form.labels.bannerConfiguration')}</h4>
+      {
+        formData.type === MenuType.BANNER && (
+          <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
+            <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('form.labels.bannerConfiguration')}</h4>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">{t('form.labels.bannerTitle')}</label>
-            <Input
-              value={formData.bannerConfig?.title || ''}
-              onChange={(e) => updateBannerConfig('title', e.target.value)}
-              placeholder={t('form.placeholders.bannerTitle')}
-              className="mt-1"
-              inputSize="md"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">{t('form.labels.subtitle')}</label>
-            <Input
-              value={formData.bannerConfig?.subtitle || ''}
-              onChange={(e) => updateBannerConfig('subtitle', e.target.value)}
-              placeholder={t('form.placeholders.bannerSubtitle')}
-              className="mt-1"
-              inputSize="md"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">{t('form.labels.description')}</label>
-            <textarea
-              value={formData.bannerConfig?.description || ''}
-              onChange={(e) => updateBannerConfig('description', e.target.value)}
-              placeholder={t('form.placeholders.bannerDescription')}
-              rows={3}
-              className="mt-1 w-full border border-gray-300 rounded-md px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 h-11 resize-none"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonText')}</label>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.bannerTitle')}</label>
               <Input
-                value={formData.bannerConfig?.buttonText || ''}
-                onChange={(e) => updateBannerConfig('buttonText', e.target.value)}
-                placeholder={t('form.placeholders.shopNow')}
+                value={formData.bannerConfig?.title || ''}
+                onChange={(e) => updateBannerConfig('title', e.target.value)}
+                placeholder={t('form.placeholders.bannerTitle')}
                 className="mt-1"
                 inputSize="md"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonLink')}</label>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.subtitle')}</label>
               <Input
-                value={formData.bannerConfig?.buttonLink || ''}
-                onChange={(e) => updateBannerConfig('buttonLink', e.target.value)}
-                placeholder={t('form.placeholders.specialOffers')}
+                value={formData.bannerConfig?.subtitle || ''}
+                onChange={(e) => updateBannerConfig('subtitle', e.target.value)}
+                placeholder={t('form.placeholders.bannerSubtitle')}
+                className="mt-1"
+                inputSize="md"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.description')}</label>
+              <textarea
+                value={formData.bannerConfig?.description || ''}
+                onChange={(e) => updateBannerConfig('description', e.target.value)}
+                placeholder={t('form.placeholders.bannerDescription')}
+                rows={3}
+                className="mt-1 w-full border border-gray-300 rounded-md px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 h-11 resize-none"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonText')}</label>
+                <Input
+                  value={formData.bannerConfig?.buttonText || ''}
+                  onChange={(e) => updateBannerConfig('buttonText', e.target.value)}
+                  placeholder={t('form.placeholders.shopNow')}
+                  className="mt-1"
+                  inputSize="md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">{t('form.labels.buttonLink')}</label>
+                <Input
+                  value={formData.bannerConfig?.buttonLink || ''}
+                  onChange={(e) => updateBannerConfig('buttonLink', e.target.value)}
+                  placeholder={t('form.placeholders.specialOffers')}
+                  className="mt-1"
+                  inputSize="md"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <ColorSelector
+                value={formData.bannerConfig?.backgroundColor}
+                onChange={(color) => updateBannerConfig('backgroundColor', color)}
+                placeholder="#7C3AED"
+                label={t('form.labels.bannerBackground')}
+              />
+              <ColorSelector
+                value={formData.bannerConfig?.textColor}
+                onChange={(color) => updateBannerConfig('textColor', color)}
+                placeholder={t('form.placeholders.colorExample').replace('#000000', '#FFFFFF')}
+                label={t('form.labels.bannerTextColor')}
+              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700">{t('form.labels.position')}</label>
+                <Select
+                  value={formData.bannerConfig?.position || 'bottom'}
+                  onChange={(value) => updateBannerConfig('position', value as 'top' | 'bottom')}
+                  options={[
+                    { value: 'top', label: t('form.options.top') },
+                    { value: 'bottom', label: t('form.options.bottom') }
+                  ]}
+                  className="mt-1"
+                  size="md"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.backgroundImageUrl')}</label>
+              <Input
+                value={formData.bannerConfig?.backgroundImage || ''}
+                onChange={(e) => updateBannerConfig('backgroundImage', e.target.value)}
+                placeholder={t('form.placeholders.imageUrl')}
                 className="mt-1"
                 inputSize="md"
               />
             </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <ColorSelector
-              value={formData.bannerConfig?.backgroundColor}
-              onChange={(color) => updateBannerConfig('backgroundColor', color)}
-              placeholder="#7C3AED"
-              label={t('form.labels.bannerBackground')}
-            />
-            <ColorSelector
-              value={formData.bannerConfig?.textColor}
-              onChange={(color) => updateBannerConfig('textColor', color)}
-              placeholder={t('form.placeholders.colorExample').replace('#000000', '#FFFFFF')}
-              label={t('form.labels.bannerTextColor')}
-            />
-            <div>
-              <label className="block text-sm font-medium text-gray-700">{t('form.labels.position')}</label>
-              <Select
-                value={formData.bannerConfig?.position || 'bottom'}
-                onChange={(value) => updateBannerConfig('position', value as 'top' | 'bottom')}
-                options={[
-                  { value: 'top', label: t('form.options.top') },
-                  { value: 'bottom', label: t('form.options.bottom') }
-                ]}
-                className="mt-1"
-                size="md"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">{t('form.labels.backgroundImageUrl')}</label>
-            <Input
-              value={formData.bannerConfig?.backgroundImage || ''}
-              onChange={(e) => updateBannerConfig('backgroundImage', e.target.value)}
-              placeholder={t('form.placeholders.imageUrl')}
-              className="mt-1"
-              inputSize="md"
-            />
-          </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Translations */}
       <div className="space-y-3">
@@ -1699,6 +1681,6 @@ export const MenuForm: React.FC<MenuFormProps> = ({
           {menu ? t('form.buttons.update') : t('form.buttons.create')}
         </Button>
       </div>
-    </form>
+    </form >
   );
 };
