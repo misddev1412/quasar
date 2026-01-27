@@ -10,7 +10,12 @@
       "enter_permission_description": "Nhập mô tả quyền hạn (tùy chọn)",
       "select_resource": "Chọn tài nguyên",
       "select_action": "Chọn hành động",
-      "select_scope": "Chọn phạm vi"
+      "select_scope": "Chọn phạm vi",
+      "select_brand": "Chọn thương hiệu",
+      "select_category": "Chọn danh mục",
+      "select_featured": "Chọn sản phẩm nổi bật",
+      "select_active": "Chọn trạng thái hoạt động",
+      "select_stock": "Chọn mức tồn kho"
     },
     "descriptions": {
       "post_language_description": "Chọn ngôn ngữ chính cho bài viết này",
@@ -122,6 +127,8 @@
       "per_page_25": "25 mỗi trang",
       "per_page_50": "50 mỗi trang",
       "per_page_100": "100 mỗi trang",
+      "per_page_250": "250 mỗi trang",
+      "per_page_500": "500 mỗi trang",
       "show": "Hiển thị",
       "showing": "Hiển thị",
       "to": "đến",

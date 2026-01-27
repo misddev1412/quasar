@@ -10,7 +10,12 @@
       "enter_permission_description": "Enter permission description (optional)",
       "select_resource": "Select resource",
       "select_action": "Select action",
-      "select_scope": "Select scope"
+      "select_scope": "Select scope",
+      "select_brand": "Select brand",
+      "select_category": "Select category",
+      "select_featured": "Select featured",
+      "select_active": "Select active",
+      "select_stock": "Select stock"
     },
     "descriptions": {
       "post_language_description": "Select the primary language for this post",
@@ -122,6 +127,8 @@
       "per_page_25": "25 per page",
       "per_page_50": "50 per page",
       "per_page_100": "100 per page",
+      "per_page_250": "250 per page",
+      "per_page_500": "500 per page",
       "show": "Show",
       "showing": "Showing",
       "to": "to",

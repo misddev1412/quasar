@@ -53,6 +53,14 @@ const appRouter = t.router({
     updateConfig: t.procedure.input(z.any()).mutation(() => null),
     deleteConfig: t.procedure.input(z.any()).mutation(() => null),
   }),
+  adminOpenAiConfig: t.router({
+    getAllConfigs: t.procedure.query(() => null),
+    getConfig: t.procedure.query(() => null),
+    createConfig: t.procedure.input(z.any()).mutation(() => null),
+    updateConfig: t.procedure.input(z.any()).mutation(() => null),
+    deleteConfig: t.procedure.input(z.any()).mutation(() => null),
+    generateSeoArticle: t.procedure.input(z.any()).mutation(() => null),
+  }),
   adminLanguage: t.router({
     getLanguages: t.procedure.query(() => null),
     getActiveLanguages: t.procedure.query(() => null),
@@ -757,6 +765,3 @@ const appRouter = t.router({
     clearCache: t.procedure.input(z.any()).mutation(() => null),
   }),
 });
-
-// Export the proper tRPC router type
-export type AppRouter = typeof appRouter;

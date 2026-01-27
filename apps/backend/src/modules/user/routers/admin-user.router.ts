@@ -88,7 +88,7 @@ const adminUserResponseSchema = z.object({
 
 const getAllUsersQuerySchema = z.object({
   page: z.number().min(1).default(1),
-  limit: z.number().min(1).max(100).default(10),
+  limit: z.number().min(1).max(500).default(10),
   search: z.string().optional(),
   role: userRoleSchema.optional(),
   isActive: z.boolean().optional(),

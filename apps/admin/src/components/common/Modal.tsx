@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Dialog, DialogContent } from './Dialog';
+import { Dialog, DialogContent, DialogTitle } from './Dialog';
 import { useModalContext } from '../../contexts/ModalContext';
 
 interface ModalProps {
@@ -90,6 +90,7 @@ export const Modal: React.FC<ModalProps> = ({
         hideCloseButton={hideCloseButton}
         closeButtonClassName={closeButtonClassName}
       >
+        <DialogTitle className="sr-only">Modal</DialogTitle>
         {children}
       </DialogContent>
     </Dialog>

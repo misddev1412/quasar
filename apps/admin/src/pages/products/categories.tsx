@@ -47,7 +47,7 @@ const CategoriesPage: React.FC = () => {
   //   retry: false,
   //   refetchOnWindowFocus: false,
   // });
-  
+
   const statsLoading = false;
   const statsData = null;
 
@@ -56,17 +56,19 @@ const CategoriesPage: React.FC = () => {
   // Mutations
   const deleteMutation = trpc.adminProductCategories.delete.useMutation({
     onSuccess: () => {
-      addToast({ 
-        title: t('categories.deleteSuccess', 'Category deleted successfully'), 
-        type: 'success' 
+      addToast({
+        title: t('categories.deleteSuccess', 'Category deleted successfully'),
+        type: 'success'
       });
       utils.adminProductCategories.getTree.invalidate();
+      utils.adminProductCategories.getRootCategories.invalidate();
+      utils.adminProductCategories.getCategoryChildren.invalidate();
     },
     onError: (error) => {
-      addToast({ 
-        title: t('common.error', 'Error'), 
-        description: error.message, 
-        type: 'error' 
+      addToast({
+        title: t('common.error', 'Error'),
+        description: error.message,
+        type: 'error'
       });
     },
   });
@@ -94,11 +96,15 @@ const CategoriesPage: React.FC = () => {
 
   const handleImportSuccess = () => {
     utils.adminProductCategories.getTree.invalidate();
+    utils.adminProductCategories.getRootCategories.invalidate();
+    utils.adminProductCategories.getCategoryChildren.invalidate();
   };
 
   const handleRefresh = useCallback(() => {
     refetch();
-  }, [refetch]);
+    utils.adminProductCategories.getRootCategories.invalidate();
+    utils.adminProductCategories.getCategoryChildren.invalidate();
+  }, [refetch, utils]);
 
   const handleFilterToggle = () => {
     setShowFilters(!showFilters);
@@ -106,7 +112,7 @@ const CategoriesPage: React.FC = () => {
 
   const handleFiltersChange = useCallback((newFilters: CategoryFilterOptions) => {
     setFilters(newFilters);
-    
+
     // Update search params
     const params = new URLSearchParams();
     if (newFilters.search) params.set('search', newFilters.search);
@@ -115,9 +121,9 @@ const CategoriesPage: React.FC = () => {
     if (newFilters.level !== undefined) params.set('level', newFilters.level.toString());
     if (newFilters.dateFrom) params.set('dateFrom', newFilters.dateFrom);
     if (newFilters.dateTo) params.set('dateTo', newFilters.dateTo);
-    
+
     setSearchParams(params);
-    
+
     // Update searchValue for compatibility with existing tree view
     setSearchValue(newFilters.search || '');
   }, [setSearchParams]);
@@ -214,10 +220,10 @@ const CategoriesPage: React.FC = () => {
         }
       };
     }
-    
+
     // Fallback calculation from current data
     if (!categories.length) return null;
-    
+
     // Flatten categories to calculate stats
     const flattenForStats = (cats: Category[], level = 0): (Category & { level: number })[] => {
       const result: (Category & { level: number })[] = [];
@@ -229,14 +235,14 @@ const CategoriesPage: React.FC = () => {
       });
       return result;
     };
-    
+
     const allCategories = flattenForStats(categories);
     const total = allCategories.length;
     const active = allCategories.filter((c) => c.isActive).length;
     const inactive = total - active;
     const rootCategories = categories.length;
     const maxDepth = Math.max(...allCategories.map(c => c.level)) + 1;
-    
+
     return {
       data: {
         total,
@@ -252,7 +258,7 @@ const CategoriesPage: React.FC = () => {
   // Actions
   const actions = useMemo(() => [
     {
-      label: t('categories.import.action', 'Import from Excel'),
+      label: t('common.import_from_excel', 'Import from Excel'),
       onClick: handleOpenImportModal,
       icon: <FiUpload />,
     },
@@ -339,10 +345,10 @@ const CategoriesPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <BaseLayout 
-        title={t('categories.title', 'Categories')} 
-        description={t('categories.description', 'Manage product categories')} 
-        actions={actions} 
+      <BaseLayout
+        title={t('categories.title', 'Categories')}
+        description={t('categories.description', 'Manage product categories')}
+        actions={actions}
         fullWidth={true}
         breadcrumbs={breadcrumbs}
       >
@@ -355,10 +361,10 @@ const CategoriesPage: React.FC = () => {
 
   if (error) {
     return (
-      <BaseLayout 
-        title={t('categories.title', 'Categories')} 
-        description={t('categories.description', 'Manage product categories')} 
-        actions={actions} 
+      <BaseLayout
+        title={t('categories.title', 'Categories')}
+        description={t('categories.description', 'Manage product categories')}
+        actions={actions}
         fullWidth={true}
         breadcrumbs={breadcrumbs}
       >
@@ -410,7 +416,7 @@ const CategoriesPage: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="p-6">
             <LazyLoadingCategoryTreeView
               onEdit={handleEditCategory}

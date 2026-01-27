@@ -19,7 +19,7 @@ const Spinner = ({ className = "" }) => (
   </svg>
 );
 
-export const Button: React.FC<ButtonProps> = ({
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
   type = 'button',
   variant = 'primary',
   size = 'md',
@@ -34,11 +34,11 @@ export const Button: React.FC<ButtonProps> = ({
   endIcon,
   icon,
   ...props
-}) => {
+}, ref) => {
   const { isDarkMode, currentMode } = useTheme();
   const resolvedStartIcon = startIcon ?? icon;
 
-  const isLoginPage = typeof document !== 'undefined' && 
+  const isLoginPage = typeof document !== 'undefined' &&
     document.body.classList.contains('login-page');
 
   const getVariantClasses = () => {
@@ -49,12 +49,11 @@ export const Button: React.FC<ButtonProps> = ({
     }
 
     const classes = {
-      primary: `themed-button bg-gradient-to-r ${
-        isDarkMode 
-          ? 'from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800' 
+      primary: `themed-button bg-gradient-to-r ${isDarkMode
+          ? 'from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800'
           : 'from-primary-700 to-primary-900 hover:from-primary-800 hover:to-primary-950'
-      } text-white font-semibold shadow-md hover:shadow-lg`,
-      secondary: isDarkMode 
+        } text-white font-semibold shadow-md hover:shadow-lg`,
+      secondary: isDarkMode
         ? `${active ? 'bg-primary-500/20 border-primary-500 text-primary-400' : 'bg-theme-surface text-theme-primary border-theme-border'} border hover:bg-opacity-80`
         : `${active ? 'bg-primary-100 border-primary-500 text-primary-700' : 'bg-slate-200 text-slate-800 border-slate-300'} border hover:bg-slate-300 font-medium`,
       outline: isDarkMode
@@ -65,7 +64,7 @@ export const Button: React.FC<ButtonProps> = ({
         : `${active ? 'bg-primary-100 text-primary-700' : 'bg-transparent text-slate-800'} hover:bg-slate-100 font-medium`,
       danger: 'bg-error-600 hover:bg-error-700 text-white font-semibold shadow-md',
     };
-    
+
     return classes[variant];
   };
 
@@ -86,26 +85,25 @@ export const Button: React.FC<ButtonProps> = ({
 
   const getShadowClass = () => {
     if (disabled || isLoading) return '';
-    
+
     if (variant === 'primary' || variant === 'danger') {
-      return isDarkMode 
-        ? 'shadow-md hover:shadow-lg' 
+      return isDarkMode
+        ? 'shadow-md hover:shadow-lg'
         : 'shadow-md hover:shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40';
     }
-    
+
     return '';
   };
 
   return (
     <button
       type={type}
+      ref={ref}
       disabled={disabled || isLoading}
       onClick={onClick}
-      className={`flex justify-center items-center ${borderRadiusClass} transition-all duration-200 ${
-        fullWidth ? 'w-full' : ''
-      } ${getVariantClasses()} ${sizeClasses[size]} ${getShadowClass()} ${
-        disabled || isLoading ? 'opacity-70 cursor-not-allowed' : getAnimationClass()
-      } ${className}`}
+      className={`flex justify-center items-center ${borderRadiusClass} transition-all duration-200 ${fullWidth ? 'w-full' : ''
+        } ${getVariantClasses()} ${sizeClasses[size]} ${getShadowClass()} ${disabled || isLoading ? 'opacity-70 cursor-not-allowed' : getAnimationClass()
+        } ${className}`}
       {...props}
     >
       {isLoading && <Spinner className="animate-spin -ml-1 mr-2 h-5 w-5" />}
@@ -114,6 +112,7 @@ export const Button: React.FC<ButtonProps> = ({
       {!isLoading && endIcon && <span className="ml-2">{endIcon}</span>}
     </button>
   );
-};
+});
+Button.displayName = 'Button';
 
 export default Button; 

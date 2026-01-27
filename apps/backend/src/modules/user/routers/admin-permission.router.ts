@@ -12,9 +12,9 @@ import { apiResponseSchema } from '../../../trpc/schemas/response.schemas';
 
 // Zod schemas for validation
 const permissionActionSchema = z.enum([
-  PermissionAction.CREATE, 
-  PermissionAction.READ, 
-  PermissionAction.UPDATE, 
+  PermissionAction.CREATE,
+  PermissionAction.READ,
+  PermissionAction.UPDATE,
   PermissionAction.DELETE,
   PermissionAction.EXECUTE,
   PermissionAction.APPROVE,
@@ -23,7 +23,7 @@ const permissionActionSchema = z.enum([
   PermissionAction.ARCHIVE
 ]);
 const permissionScopeSchema = z.enum([
-  PermissionScope.OWN, 
+  PermissionScope.OWN,
   PermissionScope.DEPARTMENT,
   PermissionScope.ORGANIZATION,
   PermissionScope.ANY
@@ -63,7 +63,7 @@ const permissionFilterSchema = z.object({
   isActive: z.boolean().optional(),
   search: z.string().optional(),
   page: z.number().min(1).optional().default(1),
-  limit: z.number().min(1).max(100).optional().default(10),
+  limit: z.number().min(1).max(500).optional().default(10),
   disablePagination: z.boolean().optional(),
 });
 
@@ -108,7 +108,7 @@ export class AdminPermissionRouter {
     private readonly permissionService: AdminPermissionService,
     @Inject(ResponseService)
     private readonly responseHandler: ResponseService,
-  ) {}
+  ) { }
 
   // Permission CRUD operations
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
@@ -129,7 +129,7 @@ export class AdminPermissionRouter {
         description: createPermissionDto.description,
         attributes: createPermissionDto.attributes,
       };
-      
+
       const permission = await this.permissionService.createPermission(permissionData);
       return this.responseHandler.createTrpcSuccess(permission);
     } catch (error) {
@@ -320,7 +320,7 @@ export class AdminPermissionRouter {
         scope: grant.scope,
         attributes: grant.attributes,
       }));
-      
+
       await this.permissionService.grant(grants);
       return this.responseHandler.createSuccessResponse(
         ModuleCode.PERMISSION,
@@ -360,7 +360,7 @@ export class AdminPermissionRouter {
     try {
       const checker = this.permissionService.can(input.role);
       let permissionCheck;
-      
+
       if (input.action === PermissionAction.CREATE && input.scope === PermissionScope.OWN) {
         permissionCheck = await checker.createOwn(input.resource);
       } else if (input.action === PermissionAction.CREATE && input.scope === PermissionScope.ANY) {
@@ -386,7 +386,7 @@ export class AdminPermissionRouter {
         attributes: permissionCheck.attributes,
         permission: permissionCheck.permission,
       };
-      
+
       return this.responseHandler.createReadResponse(ModuleCode.PERMISSION, 'permission check', result);
     } catch (error) {
       throw this.responseHandler.createTRPCError(

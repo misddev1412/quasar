@@ -251,6 +251,7 @@
   },
   "layout": {
     "header": {
+      "services": "Dịch vụ",
       "brand": "Cửa hàng Quasar",
       "nav": {
         "home": "Trang chủ",

@@ -16,7 +16,7 @@ export class ServiceItem extends BaseEntity {
     @Expose()
     @Column({
         type: 'decimal',
-        precision: 10,
+        precision: 15,
         scale: 2,
         nullable: true,
     })

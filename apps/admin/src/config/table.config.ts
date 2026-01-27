@@ -16,10 +16,11 @@ export interface PageSizeOption {
  */
 export const DEFAULT_PAGE_SIZE_OPTIONS: PageSizeOption[] = [
   { value: '10', labelKey: 'table.pagination.per_page_10' },
-  { value: '20', labelKey: 'table.pagination.per_page_20' },
   { value: '25', labelKey: 'table.pagination.per_page_25' },
   { value: '50', labelKey: 'table.pagination.per_page_50' },
   { value: '100', labelKey: 'table.pagination.per_page_100' },
+  { value: '250', labelKey: 'table.pagination.per_page_250' },
+  { value: '500', labelKey: 'table.pagination.per_page_500' },
 ];
 
 /**
@@ -28,19 +29,19 @@ export const DEFAULT_PAGE_SIZE_OPTIONS: PageSizeOption[] = [
 export const TABLE_CONFIG = {
   // Default page size
   DEFAULT_PAGE_SIZE: 10,
-  
+
   // Maximum page size allowed
-  MAX_PAGE_SIZE: 100,
-  
+  MAX_PAGE_SIZE: 500,
+
   // Default debounce delay for search (in milliseconds)
   SEARCH_DEBOUNCE_DELAY: 400,
-  
+
   // Default maximum table height
   DEFAULT_MAX_HEIGHT: '70vh',
-  
+
   // Default density
   DEFAULT_DENSITY: 'normal' as const,
-  
+
   // Default pagination options
   PAGE_SIZE_OPTIONS: DEFAULT_PAGE_SIZE_OPTIONS,
 } as const;

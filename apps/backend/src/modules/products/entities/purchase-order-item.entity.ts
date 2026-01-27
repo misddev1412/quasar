@@ -37,18 +37,18 @@ export class PurchaseOrderItem extends BaseEntity {
 
   @Expose()
   @Column({
-    name: 'unit_cost',
+    name: 'unit_price',
     type: 'decimal',
-    precision: 10,
+    precision: 15,
     scale: 2,
   })
   unitCost: number;
 
   @Expose()
   @Column({
-    name: 'total_cost',
+    name: 'total_price',
     type: 'decimal',
-    precision: 10,
+    precision: 15,
     scale: 2,
   })
   totalCost: number;

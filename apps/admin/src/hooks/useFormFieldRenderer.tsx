@@ -799,7 +799,8 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                       {otherFields.length > 0 && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {otherFields.map((field) => {
-                            const shouldSpanFullWidth = field.type === 'textarea' ||
+                            const shouldSpanFullWidth = field.fullWidth ||
+                              field.type === 'textarea' ||
                               field.type === 'richtext' ||
                               field.type === 'role-multiselect' ||
                               field.type === 'custom' ||

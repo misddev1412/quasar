@@ -75,7 +75,7 @@ export class OrderItem extends BaseEntity {
   @Column({
     name: 'unit_price',
     type: 'decimal',
-    precision: 10,
+    precision: 15,
     scale: 2,
   })
   unitPrice: number;
@@ -84,7 +84,7 @@ export class OrderItem extends BaseEntity {
   @Column({
     name: 'total_price',
     type: 'decimal',
-    precision: 10,
+    precision: 15,
     scale: 2,
   })
   totalPrice: number;
@@ -93,7 +93,7 @@ export class OrderItem extends BaseEntity {
   @Column({
     name: 'discount_amount',
     type: 'decimal',
-    precision: 10,
+    precision: 15,
     scale: 2,
     default: 0,
   })
@@ -103,7 +103,7 @@ export class OrderItem extends BaseEntity {
   @Column({
     name: 'tax_amount',
     type: 'decimal',
-    precision: 10,
+    precision: 15,
     scale: 2,
     default: 0,
   })

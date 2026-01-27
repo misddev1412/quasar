@@ -20,6 +20,7 @@ import { StorageModule } from '../modules/storage/storage.module';
 import { AuthModule } from '../auth/auth.module';
 import { SharedModule } from '../modules/shared/shared.module';
 import { FirebaseModule } from '../modules/firebase/firebase.module';
+import { OpenAiModule } from '../modules/openai/openai.module';
 import { ProductsModule } from '../modules/products/products.module';
 import { NotificationsModule } from '../modules/notifications/notifications.module';
 import { SectionsModule } from '../modules/sections/sections.module';
@@ -53,6 +54,7 @@ import { MailQueue } from '../modules/mail-queue/entities/mail-queue.entity';
 import { Language } from '../modules/language/entities/language.entity';
 import { Media } from '../modules/storage/entities/media.entity';
 import { FirebaseConfigEntity } from '../modules/firebase/entities/firebase-config.entity';
+import { OpenAiConfigEntity } from '../modules/openai/entities/openai-config.entity';
 import { Brand } from '../modules/products/entities/brand.entity';
 import { Category } from '../modules/products/entities/category.entity';
 import { Product } from '../modules/products/entities/product.entity';
@@ -92,6 +94,8 @@ import { ServiceItemTranslation } from '../modules/services/entities/service-ite
 import { ThemesModule } from '../modules/themes/themes.module';
 import { ThemeEntity } from '../modules/themes/entities/theme.entity';
 import { ProductBundlesModule } from '../modules/product-bundles/product-bundles.module';
+import { ImportModule } from '../modules/import/import.module';
+import { DataImportJob } from '../modules/import/entities/data-import-job.entity';
 
 
 @Module({
@@ -133,6 +137,7 @@ import { ProductBundlesModule } from '../modules/product-bundles/product-bundles
           Language,
           Media,
           FirebaseConfigEntity,
+          OpenAiConfigEntity,
           Brand,
           Category,
           Product,
@@ -162,12 +167,14 @@ import { ProductBundlesModule } from '../modules/product-bundles/product-bundles
           ServiceItem,
           ServiceItemTranslation,
           ThemeEntity,
+          DataImportJob,
         ],
         autoLoadEntities: true
       }),
     }),
     AuthModule,
     FirebaseModule,
+    OpenAiModule,
     TRPCModule.forRoot({
       context: AppContext,
       errorFormatter: createErrorFormatter('TRPCModule.forRoot'),
@@ -199,6 +206,7 @@ import { ProductBundlesModule } from '../modules/product-bundles/product-bundles
     ServicesModule,
     ThemesModule,
     ProductBundlesModule,
+    ImportModule,
     AppRouterModule,
   ],
   controllers: [AppController],

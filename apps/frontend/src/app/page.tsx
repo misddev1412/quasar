@@ -35,11 +35,13 @@ export async function generateMetadata(): Promise<Metadata> {
       description: seoData.description || undefined,
       url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/`,
       type: 'website',
+      images: seoData.ogImage ? [{ url: seoData.ogImage }] : undefined,
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description: seoData.description || undefined,
+      images: seoData.ogImage ? [seoData.ogImage] : undefined,
     },
     other: seoData.additionalMetaTags || undefined,
   };

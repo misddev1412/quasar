@@ -33,11 +33,12 @@ import { useMainMenuConfig } from '../../hooks/useMainMenuConfig';
 import { useTheme } from '../../contexts/ThemeContext';
 import { CartIcon, CartDropdownIcon, ShoppingCart, useCart } from '../ecommerce/CartProvider';
 import Container from '../common/Container';
-import { useMenu } from '../../hooks/useMenu';
+import { useMenu, MenuItem, MenuTranslation } from '../../hooks/useMenu';
 import { CategoryService } from '../../services/category.service';
 import MenuNavigation, { NavigationItem, NavigationItemRenderer } from '../menu/MenuNavigation';
 import MegaMenu, { MegaMenuSection } from '../menu/MegaMenu';
 import TopMenuBar from './TopMenuBar';
+import BrandMenuBar from './BrandMenuBar';
 import SubMenuBar from './SubMenuBar';
 import { MenuType } from '@shared/enums/menu.enums';
 
@@ -198,30 +199,62 @@ const Icons = {
 // User menu items configuration - will be used with t() function
 
 // Logo Component
-const Logo: React.FC<{ currentLocale: string }> = ({ currentLocale }) => {
+const getLocalizedContent = (item: MenuItem | null | undefined, key: keyof MenuTranslation, locale: string): string => {
+  if (!item) return '';
+  const translation = item.translations?.find(t => t.locale === locale) ||
+    item.translations?.find(t => t.locale === 'en');
+  return (translation?.[key] as string) || '';
+};
+
+const Logo: React.FC<{ currentLocale: string; logoItem?: MenuItem }> = ({ currentLocale, logoItem }) => {
   const t = useTranslations();
   const { getSiteLogo, getSetting, settings } = useSettings();
-  const siteLogo = getSiteLogo();
+
+  // Logic for logo image
+  // Priority: 
+  // 1. logoItem.config.image (if LINK/BRAND type)
+  // 2. logoItem.config.brandAssetKey (if LOGO type) -> getSetting
+  // 3. NO FALLBACK (matches BrandMenuBar logic)
+  const logoImage = useMemo(() => {
+    if (logoItem) {
+      if (logoItem.type === MenuType.LOGO) {
+        const assetKey = (logoItem.config?.brandAssetKey as string) || 'site.logo';
+        return getSetting(assetKey);
+      }
+      if (logoItem.config?.image) {
+        return logoItem.config.image as string;
+      }
+    }
+    return ''; // No fallback to getSiteLogo()
+  }, [logoItem, getSetting]);
+
+  const siteLogo = logoImage;
   const siteName = getSetting('site.name');
 
   // Get alt text from brand-assets config, fallback to site name
-  const logoAltText = getSetting('site.logo_alt') || siteName;
+  const logoAltText = (logoItem && getLocalizedContent(logoItem, 'label', currentLocale)) || getSetting('site.logo_alt') || siteName;
 
-  // Check if logo image should be shown (default: true when no setting exists)
+  // Check if logo image should be shown
   const logoShowLogoSetting = settings.find((s: any) => s.key === 'site.logo_show_logo');
-  // If setting exists, check its value; if not exists or still loading, default to true
   const showLogoImage = logoShowLogoSetting
     ? logoShowLogoSetting.value === 'true'
     : true; // Default to true when setting doesn't exist
 
-  // Check if text should be shown next to logo (default: true when no setting exists)
+  // Check if text should be shown next to logo
+  // Priority: logoItem.config.showTitle -> settings 'site.logo_show_text' -> default true
   const logoShowTextSetting = settings.find((s: any) => s.key === 'site.logo_show_text');
-  const showLogoText = logoShowTextSetting
+  const globalShowLogoText = logoShowTextSetting
     ? logoShowTextSetting.value === 'true'
-    : true; // Default to true when setting doesn't exist
+    : true;
 
-  // Get text content from brand-assets config, fallback to site name
-  const logoTextContent = getSetting('site.logo_text') || siteName;
+  let showLogoText = globalShowLogoText;
+  if (logoItem && logoItem.config && typeof logoItem.config.showTitle !== 'undefined') {
+    showLogoText = logoItem.config.showTitle !== false;
+  }
+
+  // Get text content
+  const logoLabel = logoItem ? getLocalizedContent(logoItem, 'label', currentLocale) : undefined;
+  const logoTextContent = logoLabel || getSetting('site.logo_text') || siteName;
 
 
   return (
@@ -241,8 +274,8 @@ const Logo: React.FC<{ currentLocale: string }> = ({ currentLocale }) => {
           }}
         />
       )}
-      {/* Default Logo - Show when logo is enabled but no siteLogo uploaded */}
-      {showLogoImage && !siteLogo && (
+      {/* Default Logo - Show when logo is enabled AND logoItem exists but no siteLogo uploaded */}
+      {showLogoImage && !siteLogo && logoItem && (
         <div className="w-11 h-11 min-w-[44px] min-h-[44px] bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow default-logo flex-shrink-0">
           <span className="text-white font-bold text-xl">Q</span>
         </div>
@@ -529,6 +562,19 @@ const Header: React.FC = () => {
     };
   }, []);
 
+  // Helper to check if item has an image
+  const hasImage = (item: MenuItem) => {
+    const img = item.config?.image;
+    return typeof img === 'string' && img.length > 0;
+  };
+
+  // Find logo item in main menu (Logic matches BrandMenuBar)
+  const logoItem = useMemo(() => {
+    return navigationItems.find(
+      (item) => (hasImage(item) && (item.type === MenuType.LINK || item.type === MenuType.BRAND)) || item.type === MenuType.LOGO
+    );
+  }, [navigationItems]);
+
   const normalizedCategories = useMemo(() => {
     const seen = new Set<string>();
 
@@ -569,7 +615,10 @@ const Header: React.FC = () => {
   }, [normalizedCategories, categorySearch]);
 
   const navigationItemsConverted = [
-    ...convertToNavigationItems(navigationItems),
+    ...convertToNavigationItems(navigationItems.filter((item) =>
+      // Filter out the item used as logo so it doesn't appear in nav
+      item.id !== logoItem?.id
+    )),
     {
       id: 'services-link',
       type: MenuType.LINK,
@@ -892,6 +941,9 @@ const Header: React.FC = () => {
   return (
     <>
       <TopMenuBar />
+      <div className="hidden md:block">
+        <BrandMenuBar />
+      </div>
       <header
         className="sticky top-0 z-50 backdrop-blur-md lg:border-b border-gray-200 dark:border-gray-800 shadow-sm"
         data-main-header
@@ -929,21 +981,23 @@ const Header: React.FC = () => {
             <NavbarContent justify="center" className="lg:hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-auto h-full pointer-events-none">
               <div className="pointer-events-auto flex items-center h-full">
                 <NavbarBrand className="max-w-[calc(100vw-100px)]">
-                  <Logo currentLocale={currentLocale} />
+                  <Logo currentLocale={currentLocale} logoItem={logoItem} />
                 </NavbarBrand>
               </div>
             </NavbarContent>
 
-            {/* Desktop: Logo (Left) */}
-            <NavbarContent justify="start" className="!flex-grow-0 !basis-[15%] max-w-[15%] hidden lg:flex">
-              <NavbarBrand>
-                <Logo currentLocale={currentLocale} />
-              </NavbarBrand>
-            </NavbarContent>
+            {/* Desktop: Logo (Left) - Only render if configured */}
+            {logoItem && (
+              <NavbarContent justify="start" className="flex-grow-0 shrink-0 hidden lg:flex mr-4">
+                <NavbarBrand>
+                  <Logo currentLocale={currentLocale} logoItem={logoItem} />
+                </NavbarBrand>
+              </NavbarContent>
+            )}
 
-            {/* Right Section: Navigation + Actions - 85% width */}
-            <NavbarContent justify="end" className="!flex-grow-0 !basis-[85%] max-w-[85%] gap-2 hidden lg:flex">
-              <div className="flex items-center justify-between">
+            {/* Right Section: Navigation + Actions - Flexible width */}
+            <NavbarContent justify="start" className="flex-grow gap-2 hidden lg:flex">
+              <div className="flex items-center w-full">
                 <MenuNavigation
                   items={navigationItemsConverted}
                   renderers={navigationRenderers}

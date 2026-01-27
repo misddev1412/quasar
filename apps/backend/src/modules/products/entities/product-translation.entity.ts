@@ -45,6 +45,9 @@ export class ProductTranslation extends BaseEntity {
   @Column({ name: 'meta_keywords', type: 'text', nullable: true })
   metaKeywords?: string;
 
+  @Column({ name: 'og_image', length: 500, nullable: true })
+  ogImage?: string;
+
   @ManyToOne(() => Product, (product) => product.translations, {
     onDelete: 'CASCADE',
   })

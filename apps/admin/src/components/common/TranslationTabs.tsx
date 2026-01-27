@@ -5,13 +5,14 @@ import { Card } from './Card';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { BASE_LABEL_CLASS } from './styles';
 import { RichTextEditor } from './RichTextEditor';
+import { MediaUpload } from './MediaUpload';
 
 interface TranslationField {
   name: string;
   label: string;
   value: string;
   onChange: (value: string) => void;
-  type?: 'text' | 'textarea' | 'slug' | 'richtext';
+  type?: 'text' | 'textarea' | 'slug' | 'richtext' | 'media-upload';
   placeholder?: string;
   required?: boolean;
   rows?: number;
@@ -126,6 +127,13 @@ export const TranslationTabs: React.FC<TranslationTabsProps> = ({
                   maxLength={field.validation?.maxLength}
                   disabled={field.disabled}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:text-gray-500"
+                />
+              ) : field.type === 'media-upload' ? (
+                <MediaUpload
+                  value={getFieldValue(activeLocale, field.name)}
+                  onChange={(value) => handleTranslationChange(activeLocale, field.name, Array.isArray(value) ? value[0] : value)}
+                  placeholder={field.placeholder}
+                  disabled={field.disabled}
                 />
               ) : (
                 <Input

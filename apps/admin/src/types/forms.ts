@@ -30,6 +30,7 @@ export interface FormFieldConfig {
   dependsOn?: { field: string; value: any }; // for conditional fields
   component?: ReactNode; // for custom components
   onValueChange?: (value: unknown) => void; // callback when field value changes
+  fullWidth?: boolean; // whether the field should span full width in grid
   // Media upload specific options
   accept?: string; // file types to accept
   maxSize?: number; // max file size in MB

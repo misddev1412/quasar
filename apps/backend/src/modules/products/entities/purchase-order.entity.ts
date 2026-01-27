@@ -78,7 +78,7 @@ export class PurchaseOrder extends BaseEntity {
   @Column({
     name: 'subtotal',
     type: 'decimal',
-    precision: 10,
+    precision: 15,
     scale: 2,
     default: 0,
   })
@@ -88,7 +88,7 @@ export class PurchaseOrder extends BaseEntity {
   @Column({
     name: 'tax_amount',
     type: 'decimal',
-    precision: 10,
+    precision: 15,
     scale: 2,
     default: 0,
   })
@@ -98,7 +98,7 @@ export class PurchaseOrder extends BaseEntity {
   @Column({
     name: 'shipping_cost',
     type: 'decimal',
-    precision: 10,
+    precision: 15,
     scale: 2,
     default: 0,
   })
@@ -108,7 +108,7 @@ export class PurchaseOrder extends BaseEntity {
   @Column({
     name: 'total_amount',
     type: 'decimal',
-    precision: 10,
+    precision: 15,
     scale: 2,
     default: 0,
   })

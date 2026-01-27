@@ -29,6 +29,7 @@ export interface TransformedProduct {
   metaTitle: string | null;
   metaDescription: string | null;
   metaKeywords: string | null;
+  ogImage: string | null;
   stockQuantity: number;
   enableWarehouseQuantity: boolean;
   createdAt: Date;
@@ -65,6 +66,7 @@ export interface TransformedProductTranslation {
   metaTitle: string | null;
   metaDescription: string | null;
   metaKeywords: string | null;
+  ogImage: string | null;
 }
 
 export interface TransformedBrand {
@@ -169,16 +171,17 @@ export class ProductTransformer {
     const specifications = this.extractAndTransformSpecifications(product);
     const translations = Array.isArray(product.translations)
       ? product.translations.map((translation) => ({
-          id: translation.id,
-          locale: translation.locale,
-          name: translation.name || null,
-          description: translation.description || null,
-          shortDescription: translation.shortDescription || null,
-          slug: translation.slug || null,
-          metaTitle: translation.metaTitle || null,
-          metaDescription: translation.metaDescription || null,
-          metaKeywords: translation.metaKeywords || null,
-        }))
+        id: translation.id,
+        locale: translation.locale,
+        name: translation.name || null,
+        description: translation.description || null,
+        shortDescription: translation.shortDescription || null,
+        slug: translation.slug || null,
+        metaTitle: translation.metaTitle || null,
+        metaDescription: translation.metaDescription || null,
+        metaKeywords: translation.metaKeywords || null,
+        ogImage: translation.ogImage || null,
+      }))
       : [];
 
     // Calculate computed properties
@@ -234,6 +237,7 @@ export class ProductTransformer {
       metaTitle: product.metaTitle || null,
       metaDescription: product.metaDescription || null,
       metaKeywords: product.metaKeywords || null,
+      ogImage: product.ogImage || null,
       stockQuantity: product.stockQuantity || 0,
       enableWarehouseQuantity: product.enableWarehouseQuantity || false,
       createdAt: product.createdAt,

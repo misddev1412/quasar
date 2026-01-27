@@ -44,6 +44,12 @@ interface ImportSummary {
   errors?: Array<{ row: number; message: string }>;
   createdProductIds?: string[];
   updatedProductIds?: string[];
+  details?: Array<{
+    row: number;
+    productName: string;
+    status: 'IMPORTED' | 'UPDATED' | 'SKIPPED' | 'ERROR';
+    message?: string;
+  }>;
 }
 
 const statusOptions: Array<{ value: ProductStatusOption; label: string }> = [
@@ -60,6 +66,7 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
 }) => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
+  const utils = trpc.useUtils();
 
   const fileInputId = useId();
   const statusSelectId = useId();
@@ -71,6 +78,12 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
   const [defaultIsActive, setDefaultIsActive] = useState(true);
   const [importSummary, setImportSummary] = useState<ImportSummary | null>(null);
   const [readingFile, setReadingFile] = useState(false);
+  const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
+
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [status, setStatus] = useState<'IDLE' | 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'>('IDLE');
+
 
   const selectedFileMeta = useMemo(() => {
     if (!selectedFile) return null;
@@ -83,6 +96,74 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
 
   const importMutation = trpc.adminProducts.importFromExcel.useMutation();
 
+  // Use a query to poll for job status, enabled only when we have a jobId and status is not final
+  const jobStatusQuery = trpc.adminImport.getJobStatus.useQuery(
+    { id: jobId! },
+    {
+      enabled: !!jobId && (status === 'PENDING' || status === 'PROCESSING'),
+      refetchInterval: (data) => {
+        const job = (data as any)?.data;
+        if (job?.status === 'completed' || job?.status === 'failed') {
+          return false;
+        }
+        return 1000; // Poll every 1 second
+      },
+    }
+  );
+
+  // Effect to sync query result with local state to handle completion
+  React.useEffect(() => {
+    const jobData = (jobStatusQuery.data as any)?.data;
+    if (jobData) {
+      const jobStatus = jobData.status?.toUpperCase() as any;
+      setStatus(jobStatus);
+      setProgress(jobData.progress);
+
+      if (jobStatus === 'COMPLETED') {
+        setImportSummary(jobData.result as ImportSummary);
+        setJobId(null); // Stop polling effectively
+
+        const summary = jobData.result as ImportSummary;
+        if (summary) {
+          const descriptionParts = [
+            t('products.import.imported_count', '{{count}} created', { count: summary.imported ?? 0 }),
+          ];
+          if ((summary.updated ?? 0) > 0) {
+            descriptionParts.push(
+              t('products.import.updated_count', '{{count}} updated', { count: summary.updated ?? 0 })
+            );
+          }
+          if ((summary.errors?.length ?? 0) > 0) {
+            descriptionParts.push(
+              t('products.import.errors_count', '{{count}} errors', { count: summary.errors?.length ?? 0 })
+            );
+          }
+
+          addToast({
+            type: 'success',
+            title: dryRun
+              ? t('products.import.dry_run_complete', 'Dry-run completed')
+              : t('products.import.success', 'Import completed'),
+            description: descriptionParts.join(' • '),
+          });
+        }
+
+        if (!dryRun) {
+          onImportSuccess?.();
+        }
+      } else if (jobStatus === 'FAILED') {
+        setJobId(null);
+        const result = jobData.result as any;
+        addToast({
+          type: 'error',
+          title: t('common.error', 'Error'),
+          description: result?.error || t('products.import.failed', 'Import failed'),
+        });
+      }
+    }
+  }, [jobStatusQuery.data, dryRun, onImportSuccess, t, addToast]);
+
+
   const resetState = useCallback(() => {
     setSelectedFile(null);
     setImportSummary(null);
@@ -91,12 +172,19 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
     setDefaultStatus('DRAFT');
     setDefaultIsActive(true);
     setReadingFile(false);
+    setJobId(null);
+    setProgress(0);
+    setStatus('IDLE');
   }, []);
 
   const handleClose = useCallback(() => {
+    if (status === 'PROCESSING') {
+      // Maybe warn user that import continues in background? 
+      // For now just close.
+    }
     resetState();
     onClose();
-  }, [onClose, resetState]);
+  }, [onClose, resetState, status]);
 
   const readFileAsBase64 = useCallback(async (file: File): Promise<string> => {
     setReadingFile(true);
@@ -147,72 +235,43 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
     [fileInputId]
   );
 
-  const handleDownloadTemplate = () => {
-    const headers = [
-      'Product Name',
-      'Product SKU',
-      'Description',
-      'Status',
-      'Is Active',
-      'Is Featured',
-      'Brand ID',
-      'Category IDs',
-      'Product Image URLs',
-      'Variant Name',
-      'Variant SKU',
-      'Variant Price',
-      'Variant Compare Price',
-      'Variant Cost',
-      'Stock Quantity',
-      'Low Stock Threshold',
-      'Track Inventory',
-      'Allow Backorders',
-      'Tags',
-      'Variant Thumbnail URL',
-      'Variant Sort Order',
-      'Variant Attribute: Color',
-      'Variant Attribute: Size'
-    ];
+  const handleDownloadTemplate = async () => {
+    try {
+      setIsDownloadingTemplate(true);
+      const result = await utils.adminProducts.downloadExcelTemplate.fetch({}) as {
+        data: string;
+        filename: string;
+        mimeType: string;
+      };
 
-    const sampleRow = [
-      'Sample Product',
-      'SKU-001',
-      'Short description for the product',
-      'ACTIVE',
-      'TRUE',
-      'FALSE',
-      '',
-      'category-id-1,category-id-2',
-      'https://example.com/sample-product.jpg|https://example.com/sample-product-alt.jpg',
-      'Default Variant',
-      'SKU-001-RED-L',
-      '199000',
-      '',
-      '',
-      '50',
-      '5',
-      'TRUE',
-      'FALSE',
-      'sample,product',
-      'https://example.com/sample-variant-thumb.jpg',
-      '0',
-      'Red',
-      'L'
-    ];
+      // Convert base64 to blob
+      const byteCharacters = atob(result.data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: result.mimeType });
 
-    const csvContent = [headers, sampleRow]
-      .map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(','))
-      .join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'product-import-template.csv';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = result.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download template:', error);
+      addToast({
+        type: 'error',
+        title: t('common.error', 'Error'),
+        description: t('products.import.download_failed', 'Failed to download template'),
+      });
+    } finally {
+      setIsDownloadingTemplate(false);
+    }
   };
 
   const summaryCards = useMemo(() => {
@@ -256,6 +315,8 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
 
     try {
       const base64 = await readFileAsBase64(selectedFile);
+      setImportSummary(null);
+
       const response = await importMutation.mutateAsync({
         fileName: selectedFile.name,
         fileData: base64,
@@ -265,41 +326,10 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
         defaultIsActive,
       });
 
-      const summary = (response as any)?.data as ImportSummary | undefined;
-      setImportSummary(summary ?? null);
+      setJobId((response as any).data.jobId);
+      setStatus('PENDING');
+      setProgress(0);
 
-      if (summary) {
-        const descriptionParts = [
-          t('products.import.imported_count', '{{count}} created', { count: summary.imported ?? 0 }),
-        ];
-        if ((summary.updated ?? 0) > 0) {
-          descriptionParts.push(
-            t('products.import.updated_count', '{{count}} updated', { count: summary.updated ?? 0 })
-          );
-        }
-        if ((summary.errors?.length ?? 0) > 0) {
-          descriptionParts.push(
-            t('products.import.errors_count', '{{count}} errors', { count: summary.errors?.length ?? 0 })
-          );
-        }
-
-        addToast({
-          type: 'success',
-          title: dryRun
-            ? t('products.import.dry_run_complete', 'Dry-run completed')
-            : t('products.import.success', 'Import completed'),
-          description: descriptionParts.join(' • '),
-        });
-      } else {
-        addToast({
-          type: 'success',
-          title: t('products.import.success', 'Import completed'),
-        });
-      }
-
-      if (!dryRun) {
-        onImportSuccess?.();
-      }
     } catch (error: any) {
       const message = error?.message || t('products.import.failed', 'Failed to import products.');
       addToast({
@@ -310,7 +340,7 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
     }
   };
 
-  const isBusy = importMutation.isPending || readingFile;
+  const isBusy = importMutation.isPending || readingFile || isDownloadingTemplate || status === 'PENDING' || status === 'PROCESSING';
 
   return (
     <Modal
@@ -318,7 +348,7 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
       onClose={handleClose}
       size="xl"
       modalId="product-import-modal"
-      hideCloseButton
+      hideCloseButton={isBusy}
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -337,16 +367,20 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
               size="sm"
               startIcon={<FiDownload />}
               onClick={handleDownloadTemplate}
+              isLoading={isDownloadingTemplate}
+              disabled={isDownloadingTemplate || isBusy}
             >
               {t('products.import.download_template', 'Download template')}
             </Button>
-            <DialogClose
-              type="button"
-              className="grid h-10 w-10 place-items-center rounded-full border border-gray-200 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-background dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
-            >
-              <FiX className="h-5 w-5" />
-              <span className="sr-only">{t('common.close', 'Close')}</span>
-            </DialogClose>
+            {!isBusy && (
+              <DialogClose
+                type="button"
+                className="grid h-10 w-10 place-items-center rounded-full border border-gray-200 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-background dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+              >
+                <FiX className="h-5 w-5" />
+                <span className="sr-only">{t('common.close', 'Close')}</span>
+              </DialogClose>
+            )}
           </div>
         </header>
 
@@ -368,9 +402,12 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
 
                 <label
                   htmlFor={fileInputId}
-                  tabIndex={0}
-                  onKeyDown={handleDropZoneKeyDown}
-                  className="group relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-gray-300 bg-white px-6 py-8 text-center shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 hover:border-primary/70 dark:border-gray-600 dark:bg-gray-900"
+                  tabIndex={isBusy ? -1 : 0}
+                  onKeyDown={!isBusy ? handleDropZoneKeyDown : undefined}
+                  className={`group relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed bg-white px-6 py-8 text-center shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:bg-gray-900 ${isBusy
+                    ? 'border-gray-200 opacity-50 cursor-not-allowed dark:border-gray-700'
+                    : 'border-gray-300 hover:border-primary/70 dark:border-gray-600'
+                    }`}
                 >
                   <input
                     id={fileInputId}
@@ -378,6 +415,7 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
                     accept=".xlsx,.xls,.csv"
                     className="hidden"
                     onChange={handleFileChange}
+                    disabled={isBusy}
                   />
                   <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <FiUpload className="h-6 w-6" />
@@ -399,9 +437,11 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
                             </>
                           ) : null}
                         </p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">
-                          {t('products.import.replace_hint', 'Click to replace file')}
-                        </p>
+                        {!isBusy && (
+                          <p className="text-xs text-gray-400 dark:text-gray-500">
+                            {t('products.import.replace_hint', 'Click to replace file')}
+                          </p>
+                        )}
                       </>
                     ) : (
                       <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -411,6 +451,25 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
                   </div>
                 </label>
               </div>
+
+              {/* Progress Bar */}
+              {(status === 'PENDING' || status === 'PROCESSING') && (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
+                    <span>{status === 'PENDING' ? t('common.pending', 'Pending...') : t('common.processing', 'Processing...')}</span>
+                    <span>{progress}%</span>
+                  </div>
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                    <div
+                      className="h-full bg-primary-500 transition-all duration-300 ease-out"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-center text-gray-500 animate-pulse">
+                    {t('products.import.do_not_close', 'Please wait. This may take a while depending on file size.')}
+                  </p>
+                </div>
+              )}
 
               <div className="grid gap-4 lg:grid-cols-2">
                 <div className="group relative flex flex-col gap-3 rounded-xl border border-gray-200 bg-white px-6 py-6 transition hover:border-primary/60 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 dark:border-gray-700 dark:bg-gray-900">
@@ -438,6 +497,7 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
                     }))}
                     size="lg"
                     className="flex-1"
+                    disabled={isBusy}
                   />
                 </div>
 
@@ -455,6 +515,7 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
                     onCheckedChange={(checked) => setDefaultIsActive(Boolean(checked))}
                     aria-label="default-active"
                     className="mt-1 shrink-0"
+                    disabled={isBusy}
                   />
                 </div>
               </div>
@@ -474,6 +535,7 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
                     onCheckedChange={(checked) => setOverrideExisting(Boolean(checked))}
                     aria-label="override-existing"
                     className="mt-1 shrink-0"
+                    disabled={isBusy}
                   />
                 </div>
 
@@ -491,6 +553,7 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
                     onCheckedChange={(checked) => setDryRun(Boolean(checked))}
                     aria-label="dry-run"
                     className="mt-1 shrink-0"
+                    disabled={isBusy}
                   />
                 </div>
               </div>
@@ -585,11 +648,57 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
                 </div>
               )}
             </CardContent>
+
+            {importSummary.details && importSummary.details.length > 0 && (
+              <div className="border-t border-gray-200 px-6 py-6 dark:border-gray-700">
+                <h3 className="mb-4 text-sm font-semibold text-gray-800 dark:text-gray-100">
+                  {t('products.import.details_title', 'Import details')}
+                </h3>
+                <div className="max-h-60 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-800">
+                      <tr>
+                        <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
+                          {t('products.import.row', 'Row')}
+                        </th>
+                        <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
+                          {t('products.import.product_name', 'Product Name')}
+                        </th>
+                        <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
+                          {t('products.import.status', 'Status')}
+                        </th>
+                        <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
+                          {t('products.import.message', 'Message')}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
+                      {importSummary.details.map((detail, idx) => (
+                        <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                          <td className="px-3 py-2 whitespace-nowrap text-xs text-gray-500 dark:text-gray-400">
+                            {detail.row}
+                          </td>
+                          <td className="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900 dark:text-gray-100">
+                            {detail.productName || <span className="text-gray-400 italic">Unknown</span>}
+                          </td>
+                          <td className="px-3 py-2 whitespace-nowrap text-xs">
+                            {getStatusBadge(detail.status)}
+                          </td>
+                          <td className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">
+                            {detail.message || '-'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </Card>
         )}
 
         <footer className="flex justify-end gap-3">
-          <Button type="button" variant="secondary" onClick={handleClose} disabled={isBusy}>
+          <Button type="button" variant="secondary" onClick={handleClose} disabled={isBusy && status !== 'PENDING' && status !== 'PROCESSING'}>
             {importSummary && !dryRun ? t('common.close', 'Close') : t('common.cancel', 'Cancel')}
           </Button>
           <Button
@@ -597,7 +706,7 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
             variant="primary"
             startIcon={<FiUpload />}
             disabled={!selectedFile || isBusy}
-            isLoading={isBusy}
+            isLoading={isBusy && status !== 'PENDING' && status !== 'PROCESSING'}
           >
             {dryRun
               ? t('products.import.run_validation', 'Validate file')
@@ -607,6 +716,37 @@ export const ProductImportModal: React.FC<ProductImportModalProps> = ({
       </form>
     </Modal>
   );
+};
+
+const getStatusBadge = (status: 'IMPORTED' | 'UPDATED' | 'SKIPPED' | 'ERROR') => {
+  switch (status) {
+    case 'IMPORTED':
+      return (
+        <span className="inline-flex items-center rounded-full bg-success-50 px-2 py-1 text-xs font-medium text-success-700 ring-1 ring-inset ring-success-600/20 dark:bg-success-400/10 dark:text-success-400 dark:ring-success-400/30">
+          Imported
+        </span>
+      );
+    case 'UPDATED':
+      return (
+        <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">
+          Updated
+        </span>
+      );
+    case 'SKIPPED':
+      return (
+        <span className="inline-flex items-center rounded-full bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">
+          Skipped
+        </span>
+      );
+    case 'ERROR':
+      return (
+        <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">
+          Error
+        </span>
+      );
+    default:
+      return null;
+  }
 };
 
 export default ProductImportModal;

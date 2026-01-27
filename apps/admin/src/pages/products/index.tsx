@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTableState } from '../../hooks/useTableState';
 import {
   FiPlus,
   FiMoreVertical,
@@ -207,9 +208,7 @@ const ProductVariantInlineList: React.FC<ProductVariantInlineListProps> = ({
                       <div className="font-semibold text-gray-900 dark:text-gray-100">
                         {variant.name || variant.sku || t('products.unknown_variant', 'Variant')}
                       </div>
-                      {variant.sku && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400">SKU: {variant.sku}</div>
-                      )}
+                      <div className="text-xs text-gray-500 dark:text-gray-400">SKU: {variant.sku || '-'}</div>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -309,32 +308,46 @@ export const ProductsPage: React.FC = () => {
   const { t } = useTranslationWithBackend();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Table preferences with persistence
-  const { preferences, updatePageSize, updateVisibleColumns } = useTablePreferences('products-table', {
-    pageSize: parseInt(searchParams.get('limit') || '10'),
-    visibleColumns: new Set(['product', 'sku', 'brand', 'category', 'status', 'warehouseQuantity', 'createdAt']),
-  });
-
-  // Initialize state from URL parameters
-  const [page, setPage] = useState(() => parseInt(searchParams.get('page') || '1'));
-  const [limit, setLimit] = useState(preferences.pageSize);
-  const [searchValue, setSearchValue] = useState(() => searchParams.get('search') || '');
-  const [debouncedSearchValue, setDebouncedSearchValue] = useState(() => searchParams.get('search') || '');
-  const [filters, setFilters] = useState<ProductFiltersType>({
+  // Initial filters from URL
+  const [initialFilters] = useState(() => ({
     status: searchParams.get('status') as any || undefined,
-  });
-  const [showFilters, setShowFilters] = useState(false);
-  const [sortBy, setSortBy] = useState(() => searchParams.get('sortBy') || 'createdAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(() =>
-    searchParams.get('sortOrder') === 'asc' ? 'asc' : 'desc'
-  );
+    brandId: searchParams.get('brandId') || undefined,
+    categoryIds: searchParams.get('categoryIds') ? searchParams.get('categoryIds')?.split(',') : undefined,
+    isFeatured: searchParams.get('isFeatured') === 'true' ? true : searchParams.get('isFeatured') === 'false' ? false : undefined,
+    isActive: searchParams.get('isActive') === 'true' ? true : searchParams.get('isActive') === 'false' ? false : undefined,
+    minPrice: searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : undefined,
+    maxPrice: searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : undefined,
+    hasStock: searchParams.get('hasStock') === 'true' ? true : searchParams.get('hasStock') === 'false' ? false : undefined,
+    createdFrom: searchParams.get('createdFrom') || undefined,
+    createdTo: searchParams.get('createdTo') || undefined,
+  }));
 
-  // Column visibility state
-  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(() => {
-    const initial = preferences.visibleColumns ? new Set(preferences.visibleColumns) : new Set(['product', 'sku', 'brand', 'category', 'status', 'createdAt', 'actions']);
-    if (!initial.has('actions')) initial.add('actions');
-    return initial;
+  const productTableState = useTableState<ProductFiltersType>({
+    tableId: 'products-table',
+    defaultPreferences: {
+      visibleColumns: ['product', 'sku', 'brand', 'category', 'status', 'createdAt', 'actions']
+    },
+    initialFilters,
   });
+
+  const {
+    page,
+    limit,
+    searchValue,
+    debouncedSearchValue,
+    filters,
+    setFilters,
+    showFilters,
+    setShowFilters,
+    sortBy,
+    sortOrder,
+    visibleColumns,
+    handleSortChange,
+    handlePageChange,
+    handlePageSizeChange,
+    handleColumnVisibilityChange,
+    setSearchValue
+  } = productTableState;
 
   // Selected products for bulk actions
   const [selectedProductIds, setSelectedProductIds] = useState<Set<string | number>>(new Set());
@@ -351,66 +364,6 @@ export const ProductsPage: React.FC = () => {
 
   const showVariantsQuickView = isVariantsModalOpen && !isVariantEditModalOpen;
 
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const urlUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Function to update URL parameters
-  const updateUrlParams = useCallback((params: Record<string, string | undefined>) => {
-    if (urlUpdateTimeoutRef.current) {
-      clearTimeout(urlUpdateTimeoutRef.current);
-    }
-
-    urlUpdateTimeoutRef.current = setTimeout(() => {
-      const newSearchParams = new URLSearchParams();
-
-      // Add non-empty parameters to URL
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== '' && value !== null) {
-          newSearchParams.set(key, value);
-        }
-      });
-
-      // Update URL without causing navigation
-      setSearchParams(newSearchParams, { replace: true });
-    }, 100);
-  }, [setSearchParams]);
-
-  // Debounce search value for API calls and URL updates
-  useEffect(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    searchTimeoutRef.current = setTimeout(() => {
-      setDebouncedSearchValue(searchValue);
-      setPage(1); // Reset to first page when search changes
-
-      // Update URL with search parameter and all filters
-      updateUrlParams({
-        search: searchValue || undefined,
-        status: filters.status || undefined,
-        brandId: filters.brandId || undefined,
-        categoryIds: filters.categoryIds?.join(',') || undefined,
-        isFeatured: filters.isFeatured?.toString() || undefined,
-        isActive: filters.isActive?.toString() || undefined,
-        minPrice: filters.minPrice?.toString() || undefined,
-        maxPrice: filters.maxPrice?.toString() || undefined,
-        hasStock: filters.hasStock?.toString() || undefined,
-        createdFrom: filters.createdFrom || undefined,
-        createdTo: filters.createdTo || undefined,
-        page: searchValue ? '1' : String(page),
-        limit: limit !== 10 ? String(limit) : undefined,
-        sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
-        sortOrder: sortOrder !== 'desc' ? sortOrder : undefined,
-      });
-    }, 400);
-
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, [searchValue, filters, page, sortBy, sortOrder, updateUrlParams, limit]);
 
   // Build query parameters - match the API schema exactly
   const queryParams = {
@@ -699,90 +652,7 @@ export const ProductsPage: React.FC = () => {
     }
   }, [addToast, refetch]);
 
-  // Handle pagination
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-    updateUrlParams({
-      search: searchValue || undefined,
-      status: filters.status || undefined,
-      brandId: filters.brandId || undefined,
-      categoryIds: filters.categoryIds?.join(',') || undefined,
-      isFeatured: filters.isFeatured?.toString() || undefined,
-      isActive: filters.isActive?.toString() || undefined,
-      minPrice: filters.minPrice?.toString() || undefined,
-      maxPrice: filters.maxPrice?.toString() || undefined,
-      hasStock: filters.hasStock?.toString() || undefined,
-      createdFrom: filters.createdFrom || undefined,
-      createdTo: filters.createdTo || undefined,
-      page: newPage > 1 ? String(newPage) : undefined,
-      limit: limit !== 10 ? String(limit) : undefined,
-      sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
-      sortOrder: sortOrder !== 'desc' ? sortOrder : undefined,
-    });
-  };
-
-  const handlePageSizeChange = (newLimit: number) => {
-    setLimit(newLimit);
-    setPage(1);
-    updatePageSize(newLimit);
-    updateUrlParams({
-      search: searchValue || undefined,
-      status: filters.status || undefined,
-      brandId: filters.brandId || undefined,
-      categoryIds: filters.categoryIds?.join(',') || undefined,
-      isFeatured: filters.isFeatured?.toString() || undefined,
-      isActive: filters.isActive?.toString() || undefined,
-      minPrice: filters.minPrice?.toString() || undefined,
-      maxPrice: filters.maxPrice?.toString() || undefined,
-      hasStock: filters.hasStock?.toString() || undefined,
-      createdFrom: filters.createdFrom || undefined,
-      createdTo: filters.createdTo || undefined,
-      page: undefined,
-      limit: newLimit !== 10 ? String(newLimit) : undefined,
-      sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
-      sortOrder: sortOrder !== 'desc' ? sortOrder : undefined,
-    });
-  };
-
-  // Handle sorting
-  const handleSortChange = (sortDescriptor: SortDescriptor<Product>) => {
-    const newSortBy = String(sortDescriptor.columnAccessor);
-    const newSortOrder = sortDescriptor.direction;
-    setSortBy(newSortBy);
-    setSortOrder(newSortOrder);
-    setPage(1);
-    updateUrlParams({
-      search: searchValue || undefined,
-      status: filters.status || undefined,
-      brandId: filters.brandId || undefined,
-      categoryIds: filters.categoryIds?.join(',') || undefined,
-      isFeatured: filters.isFeatured?.toString() || undefined,
-      isActive: filters.isActive?.toString() || undefined,
-      minPrice: filters.minPrice?.toString() || undefined,
-      maxPrice: filters.maxPrice?.toString() || undefined,
-      hasStock: filters.hasStock?.toString() || undefined,
-      createdFrom: filters.createdFrom || undefined,
-      createdTo: filters.createdTo || undefined,
-      page: undefined,
-      limit: limit !== 10 ? String(limit) : undefined,
-      sortBy: newSortBy !== 'createdAt' ? newSortBy : undefined,
-      sortOrder: newSortOrder !== 'desc' ? newSortOrder : undefined,
-    });
-  };
-
-  // Handle column visibility
-  const handleColumnVisibilityChange = (columnId: string, visible: boolean) => {
-    setVisibleColumns(prev => {
-      const newSet = new Set(prev);
-      if (visible) {
-        newSet.add(columnId);
-      } else {
-        newSet.delete(columnId);
-      }
-      updateVisibleColumns(newSet);
-      return newSet;
-    });
-  };
+  // Handle bulk actions
 
   // Handle bulk actions
   const handleBulkAction = useCallback(async (action: 'activate' | 'deactivate' | 'delete') => {
@@ -871,41 +741,11 @@ export const ProductsPage: React.FC = () => {
 
   const handleFilterChange = (newFilters: ProductFiltersType) => {
     setFilters(newFilters);
-    setPage(1); // Reset to first page when filters change
-
-    // Update URL with new filters
-    updateUrlParams({
-      search: searchValue || undefined,
-      status: newFilters.status || undefined,
-      brandId: newFilters.brandId || undefined,
-      categoryIds: newFilters.categoryIds?.join(',') || undefined,
-      isFeatured: newFilters.isFeatured?.toString() || undefined,
-      isActive: newFilters.isActive?.toString() || undefined,
-      minPrice: newFilters.minPrice?.toString() || undefined,
-      maxPrice: newFilters.maxPrice?.toString() || undefined,
-      hasStock: newFilters.hasStock?.toString() || undefined,
-      createdFrom: newFilters.createdFrom || undefined,
-      createdTo: newFilters.createdTo || undefined,
-      page: undefined, // Reset to first page
-      limit: limit !== 10 ? String(limit) : undefined,
-      sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
-      sortOrder: sortOrder !== 'desc' ? sortOrder : undefined,
-    });
   };
 
   const handleClearFilters = () => {
     const clearedFilters: ProductFiltersType = {};
     setFilters(clearedFilters);
-    setPage(1);
-
-    // Update URL to remove all filters
-    updateUrlParams({
-      search: searchValue || undefined,
-      page: undefined,
-      limit: limit !== 10 ? String(limit) : undefined,
-      sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
-      sortOrder: sortOrder !== 'desc' ? sortOrder : undefined,
-    });
   };
 
   // Calculate active filter count
@@ -966,11 +806,9 @@ export const ProductsPage: React.FC = () => {
                   </button>
                 )}
               </div>
-              {product.sku && (
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  SKU: {product.sku}
-                </div>
-              )}
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                SKU: {product.sku || '-'}
+              </div>
             </div>
           </div>
         );
@@ -981,7 +819,7 @@ export const ProductsPage: React.FC = () => {
     {
       id: 'sku',
       header: t('products.sku', 'SKU'),
-      accessor: 'sku',
+      accessor: (product) => product.sku || '-',
       isSortable: true,
       hideable: true,
     },
@@ -1114,7 +952,7 @@ export const ProductsPage: React.FC = () => {
 
   const actions = useMemo(() => [
     {
-      label: t('products.import.action', 'Import from Excel'),
+      label: t('common.import_from_excel', 'Import from Excel'),
       onClick: handleOpenImportModal,
       icon: <FiUpload />,
     },
@@ -1283,7 +1121,7 @@ export const ProductsPage: React.FC = () => {
           onBulkAction={handleBulkAction}
           // Sorting
           sortDescriptor={sortDescriptor}
-          onSortChange={handleSortChange}
+          onSortChange={(descriptor) => handleSortChange(String(descriptor.columnAccessor), descriptor.direction)}
           // Enhanced pagination with page size selection
           pagination={{
             currentPage: page,

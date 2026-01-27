@@ -18,6 +18,7 @@
     "filters": "Filters",
     "export": "Export",
     "import": "Import",
+    "import_from_excel": "Import from Excel",
     "refresh": "Refresh",
     "confirm": "Confirm",
     "yes": "Yes",

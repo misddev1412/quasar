@@ -21,6 +21,7 @@ export enum MenuType {
   TOP_EMAIL = 'top_email',
   TOP_CURRENT_TIME = 'top_current_time',
   TOP_MARQUEE = 'top_marquee',
+  LOGO = 'logo',
 }
 
 export enum MenuTarget {
@@ -65,6 +66,7 @@ export const MENU_TYPE_LABELS: Record<MenuType, string> = {
   [MenuType.TOP_EMAIL]: 'Email',
   [MenuType.TOP_CURRENT_TIME]: 'Current Time',
   [MenuType.TOP_MARQUEE]: 'Marquee Ticker',
+  [MenuType.LOGO]: 'Brand Logo',
 };
 
 export const MENU_TARGET_LABELS: Record<MenuTarget, string> = {

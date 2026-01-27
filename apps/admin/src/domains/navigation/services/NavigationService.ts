@@ -51,6 +51,7 @@ import BuildIcon from '@mui/icons-material/Build';
 import SpaIcon from '@mui/icons-material/Spa';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import PaletteIcon from '@mui/icons-material/Palette';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
 export class NavigationService implements INavigationService {
   constructor(private translate: (key: string, fallback?: string) => string) { }
@@ -400,6 +401,11 @@ export class NavigationService implements INavigationService {
             icon: React.createElement(FirebaseIcon),
             label: t('navigation.firebase_configs', 'Cấu hình Firebase'),
             path: '/firebase-configs'
+          },
+          {
+            icon: React.createElement(AutoAwesomeIcon),
+            label: t('navigation.openai_configs', 'Cấu hình OpenAI'),
+            path: '/openai-configs'
           },
           {
             icon: React.createElement(ImageIcon),

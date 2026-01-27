@@ -2836,6 +2836,17 @@ export const appRouter = router({
         return {} as ApiResponse;
       }),
 
+    downloadExcelTemplate: procedure
+      .input(z.object({}))
+      .output(z.object({
+        data: z.string(),
+        filename: z.string(),
+        mimeType: z.string(),
+      }))
+      .query(() => {
+        return {} as { data: string; filename: string; mimeType: string };
+      }),
+
     detail: procedure
       .input(z.object({ id: z.string().uuid() }))
       .output(apiResponseSchema)
@@ -3333,6 +3344,74 @@ export const appRouter = router({
 
     deleteConfig: procedure
       .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
+  // Admin OpenAI Config router
+  adminOpenAiConfig: router({
+    getAllConfigs: procedure
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    getConfig: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    createConfig: procedure
+      .input(z.object({
+        name: z.string().min(1),
+        model: z.string().min(1),
+        apiKey: z.string().min(1),
+        baseUrl: z.string().optional(),
+        active: z.boolean().default(true),
+        description: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    updateConfig: procedure
+      .input(z.object({
+        id: z.string().uuid(),
+        name: z.string().min(1).optional(),
+        model: z.string().min(1).optional(),
+        apiKey: z.string().min(1).optional(),
+        baseUrl: z.string().optional(),
+        active: z.boolean().optional(),
+        description: z.string().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    deleteConfig: procedure
+      .input(z.object({ id: z.string().uuid() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    generateSeoArticle: procedure
+      .input(z.object({
+        topic: z.string().min(3),
+        keywords: z.array(z.string()).optional(),
+        language: z.string().optional(),
+        tone: z.string().optional(),
+        wordCount: z.number().int().min(300).max(4000).optional(),
+        audience: z.string().optional(),
+        includeFaq: z.boolean().optional(),
+        configId: z.string().uuid().optional(),
+      }))
       .output(apiResponseSchema)
       .mutation(() => {
         return {} as ApiResponse;
@@ -6413,6 +6492,14 @@ export const appRouter = router({
       }),
   }),
 
+  adminImport: router({
+    getJobStatus: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
 });
 
 // For nestjs-trpc, the actual router structure is generated at runtime

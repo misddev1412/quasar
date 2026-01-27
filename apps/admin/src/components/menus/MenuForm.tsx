@@ -10,6 +10,7 @@ import ParentMenuSelector from './ParentMenuSelector';
 import { IconSelector } from './IconSelector';
 import { ColorSelector } from '../common/ColorSelector';
 import { MeasurementPresetInput } from '../common/MeasurementPresetInput';
+import { RichTextEditor } from '../common/RichTextEditor';
 import { AdminMenu, MenuTreeNode } from '../../hooks/useMenusManager';
 import {
   MenuType,
@@ -62,7 +63,7 @@ const normalizeBannerConfig = (
   };
 };
 
-const requiresUrl = (type: MenuType) => type === MenuType.LINK || type === MenuType.BANNER;
+const requiresUrl = (type: MenuType) => type === MenuType.LINK || type === MenuType.BANNER || type === MenuType.LOGO;
 const requiresReferenceId = (type: MenuType) =>
   type === MenuType.PRODUCT || type === MenuType.CATEGORY || type === MenuType.BRAND;
 
@@ -819,6 +820,14 @@ export const MenuForm: React.FC<MenuFormProps> = ({
                 size="md"
               />
             </div>
+
+            <div className="md:col-span-2 pt-1">
+              <Toggle
+                checked={formData.showTitle !== false}
+                onChange={(checked) => updateFormData('showTitle', checked)}
+                label={t('form.labels.showTitle', 'Show site name next to logo')}
+              />
+            </div>
           </div>
         )
       }
@@ -859,6 +868,13 @@ export const MenuForm: React.FC<MenuFormProps> = ({
               <BrandSelector
                 value={formData.referenceId}
                 onChange={(brandId) => updateFormData('referenceId', brandId)}
+              />
+            </div>
+            <div className="pt-3">
+              <Toggle
+                checked={formData.showTitle !== false}
+                onChange={(checked) => updateFormData('showTitle', checked)}
+                label={t('form.labels.showTitle', 'Show site name next to logo')}
               />
             </div>
           </div>
@@ -1038,6 +1054,18 @@ export const MenuForm: React.FC<MenuFormProps> = ({
               inputSize="md"
             />
             <p className="text-xs text-gray-500 mt-1" dangerouslySetInnerHTML={{ __html: t('form.helpers.callButton') }} />
+
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.paddingY', 'Vertical Padding (px) - Default 0')}</label>
+              <Input
+                type="number"
+                value={getConfigStringValue(formData.config, 'paddingY') || '0'}
+                onChange={(e) => updateArbitraryConfigValue('paddingY', e.target.value)}
+                placeholder="0"
+                className="mt-1"
+                inputSize="md"
+              />
+            </div>
           </div>
         )
       }
@@ -1510,6 +1538,50 @@ export const MenuForm: React.FC<MenuFormProps> = ({
         )
       }
 
+      {
+        formData.type === MenuType.LOGO && (
+          <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
+            <h4 className="text-sm font-semibold text-gray-700 mb-3">{t('form.labels.logoConfiguration', 'Logo Configuration')}</h4>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.selectBrandAsset', 'Select Brand Asset')}</label>
+              <Select
+                value={getConfigStringValue(formData.config, 'brandAssetKey') || 'site.logo'}
+                onChange={(value) => updateArbitraryConfigValue('brandAssetKey', value)}
+                options={[
+                  { value: 'site.logo', label: t('brand.assets.main_logo.title', 'Main Logo') },
+                  { value: 'site.footer_logo', label: t('brand.assets.footer_logo.title', 'Footer Logo') },
+                  { value: 'site.favicon', label: t('brand.assets.favicon.title', 'Favicon') },
+                ]}
+                className="mt-1"
+                size="md"
+              />
+              <p className="text-xs text-gray-500 mt-1">{t('form.helpers.brandAssetSelect', 'Select which brand asset to display. Update these assets in Brand & Site Assets.')}</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">{t('form.labels.url')}</label>
+              <Input
+                value={formData.url || ''}
+                onChange={(e) => updateFormData('url', e.target.value)}
+                placeholder={t('form.placeholders.url', '/')}
+                className="mt-1"
+                inputSize="md"
+              />
+              <p className="text-xs text-gray-500 mt-1">{t('form.helpers.logoUrl', 'Optional link when clicking the logo (defaults to home).')}</p>
+            </div>
+
+            <div className="pt-1">
+              <Toggle
+                checked={formData.showTitle !== false}
+                onChange={(checked) => updateFormData('showTitle', checked)}
+                label={t('form.labels.showTitle', 'Show site name next to logo')}
+              />
+            </div>
+          </div>
+        )
+      }
+
       {/* Translations */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
@@ -1558,13 +1630,12 @@ export const MenuForm: React.FC<MenuFormProps> = ({
 
           {formData.type === MenuType.CUSTOM_HTML && (
             <div>
-              <label className="block text-sm font-medium text-gray-700">{t('form.labels.customHtml')}</label>
-              <textarea
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('form.labels.customHtml')}</label>
+              <RichTextEditor
                 value={formData.translations[activeLocale]?.customHtml || ''}
-                onChange={(e) => updateTranslation(activeLocale, 'customHtml', e.target.value)}
+                onChange={(value) => updateTranslation(activeLocale, 'customHtml', value)}
                 placeholder={t('form.placeholders.customHtmlContent')}
-                rows={6}
-                className="mt-1 w-full border border-gray-300 rounded-md px-3.5 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 h-11 resize-none"
+                minHeight="300px"
               />
             </div>
           )}

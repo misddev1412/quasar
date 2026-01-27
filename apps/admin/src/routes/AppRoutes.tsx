@@ -70,6 +70,9 @@ import StorageConfigPage from '../pages/storage';
 import FirebaseConfigsPage from '../pages/firebase-configs';
 import CreateFirebaseConfigPage from '../pages/firebase-configs/create';
 import EditFirebaseConfigPage from '../pages/firebase-configs/[id]';
+import OpenAiConfigsPage from '../pages/openai-configs';
+import CreateOpenAiConfigPage from '../pages/openai-configs/create';
+import EditOpenAiConfigPage from '../pages/openai-configs/[id]';
 import NotificationsPage from '../pages/notifications';
 import NotificationPreferencesPage from '../pages/notifications/preferences';
 import NotificationEventFlowsPage from '../pages/notifications/event-flows';
@@ -277,6 +280,9 @@ const AppRoutes: React.FC = () => {
       <Route path="/firebase-configs" element={<ProtectedRoute><FirebaseConfigsPage /></ProtectedRoute>} />
       <Route path="/firebase-configs/create" element={<ProtectedRoute><CreateFirebaseConfigPage /></ProtectedRoute>} />
       <Route path="/firebase-configs/:id" element={<ProtectedRoute><EditFirebaseConfigPage /></ProtectedRoute>} />
+      <Route path="/openai-configs" element={<ProtectedRoute><OpenAiConfigsPage /></ProtectedRoute>} />
+      <Route path="/openai-configs/create" element={<ProtectedRoute><CreateOpenAiConfigPage /></ProtectedRoute>} />
+      <Route path="/openai-configs/:id" element={<ProtectedRoute><EditOpenAiConfigPage /></ProtectedRoute>} />
       {/* Notifications */}
       <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
       <Route path="/notifications/preferences" element={<ProtectedRoute><NotificationPreferencesPage /></ProtectedRoute>} />

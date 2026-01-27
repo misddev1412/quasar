@@ -114,6 +114,7 @@ import { DataExportModule } from '../export/data-export.module';
 import { ExportProcessingModule } from '../export/export-processing.module';
 import { PayosService } from './services/payos.service';
 import { PayosWebhookController } from './controllers/payos-webhook.controller';
+import { ImportModule } from '../import/import.module';
 
 @Module({
   imports: [
@@ -172,6 +173,7 @@ import { PayosWebhookController } from './controllers/payos-webhook.controller';
     SettingsModule,
     DataExportModule,
     ExportProcessingModule,
+    ImportModule,
   ],
   controllers: [PayosWebhookController],
   providers: [

@@ -49,7 +49,7 @@ export class InventoryItem extends BaseEntity {
   @Column({
     name: 'unit_cost',
     type: 'decimal',
-    precision: 10,
+    precision: 15,
     scale: 2,
     default: 0,
   })

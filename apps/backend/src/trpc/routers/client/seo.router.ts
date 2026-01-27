@@ -14,7 +14,7 @@ export class ClientSeoRouter {
     private readonly seoService: SEOService,
     @Inject(ResponseService)
     private readonly responseService: ResponseService,
-  ) {}
+  ) { }
 
   @Query({
     input: getSeoByPathSchema,
@@ -28,6 +28,7 @@ export class ClientSeoRouter {
         title: seo.title,
         description: seo.description,
         keywords: seo.keywords,
+        ogImage: seo.image,
         additionalMetaTags: seo.additionalMetaTags
       };
 
@@ -42,6 +43,7 @@ export class ClientSeoRouter {
         title: 'Products',
         description: 'Browse our wide range of high-quality products',
         keywords: 'products, shopping, online store, quality',
+        ogImage: null,
         additionalMetaTags: {}
       };
 

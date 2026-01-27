@@ -13,7 +13,7 @@ type MenuSeedData = {
 
 @Injectable()
 export class MenusSeeder implements SeederModule {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(private readonly dataSource: DataSource) { }
 
   async seed(): Promise<void> {
     const menuRepository = this.dataSource.getRepository(MenuEntity);
@@ -917,6 +917,107 @@ export class MenusSeeder implements SeederModule {
       console.log('✅ Top menu items already exist, skipping');
     }
 
+    const brandHeaderDefaults: MenuSeedData[] = [
+      {
+        menu: {
+          menuGroup: 'brand_header',
+          type: MenuType.LINK,
+          url: '/',
+          target: MenuTarget.SELF,
+          position: 0,
+          isEnabled: true,
+          config: {
+            image: '/public/images/logo_mga.png', // Assuming this path or similar
+          },
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'MGA Forklift',
+          },
+          {
+            locale: 'vi',
+            label: 'MGA Forklift',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'brand_header',
+          type: MenuType.CUSTOM_HTML,
+          target: MenuTarget.SELF,
+          position: 1,
+          isEnabled: true,
+          config: {},
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            customHtml: 'MGA FORKLIFT ASSEMBLED SKD IN VIETNAM<br/>ISUZU ENGINE IMPORTED DOMESTICALLY FROM JAPAN<br/>SALE AND RENTAL AT BEST PRICE',
+          },
+          {
+            locale: 'vi',
+            customHtml: 'XE NÂNG MGA FORKLIFT LẮP RÁP SKD TẠI VIỆT NAM<br/>ĐỘNG CƠ ISUZU NHẬP KHẨU NỘI ĐỊA TỪ NHẬT BẢN<br/>BÁN VÀ CHO THUÊ GIÁ TỐT NHẤT',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'brand_header',
+          type: MenuType.CALL_BUTTON,
+          target: MenuTarget.SELF,
+          position: 2,
+          isEnabled: true,
+          icon: 'phone',
+          config: {
+            callButtonNumber: '0917 00 1254',
+          },
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Buy Now',
+            description: 'Sales',
+          },
+          {
+            locale: 'vi',
+            label: 'Mua hàng',
+            description: 'Mua hàng',
+          },
+        ],
+      },
+      {
+        menu: {
+          menuGroup: 'brand_header',
+          type: MenuType.CALL_BUTTON,
+          target: MenuTarget.SELF,
+          position: 3,
+          isEnabled: true,
+          icon: 'headset',
+          config: {
+            callButtonNumber: '0918 865 060',
+          },
+          isMegaMenu: false,
+        },
+        translations: [
+          {
+            locale: 'en',
+            label: 'Customer Service',
+            description: 'Support',
+          },
+          {
+            locale: 'vi',
+            label: 'Dịch vụ khách hàng',
+            description: 'CSKH',
+          },
+        ],
+      },
+    ];
+
+    const allMenus = [...baseMenus, ...headerActionMenus, ...topMenuDefaults, ...subMenuDefaults, ...brandHeaderDefaults];
     let createdSubMenus = 0;
     for (const menuData of subMenuDefaults) {
       const where = buildMenuLookupCriteria(menuData);
@@ -933,6 +1034,24 @@ export class MenusSeeder implements SeederModule {
       console.log(`✅ Created ${createdSubMenus} default sub menu items`);
     } else {
       console.log('✅ Sub menu defaults already exist, skipping');
+    }
+
+    let createdBrandHeaderMenus = 0;
+    for (const menuData of brandHeaderDefaults) {
+      const where = buildMenuLookupCriteria(menuData);
+      const existingBrandHeaderMenu = await menuRepository.findOne({ where });
+      if (existingBrandHeaderMenu) {
+        continue;
+      }
+
+      await createMenuWithTranslations(menuData);
+      createdBrandHeaderMenus += 1;
+    }
+
+    if (createdBrandHeaderMenus > 0) {
+      console.log(`✅ Created ${createdBrandHeaderMenus} brand header menu items`);
+    } else {
+      console.log('✅ Brand header menu items already exist, skipping');
     }
   }
 }

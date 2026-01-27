@@ -7,25 +7,40 @@ import { getPreferredLocale } from '../../lib/server-locale';
 import { getPublicSiteName } from '../../lib/site-name';
 import { SectionType } from '@shared/enums/section.enums';
 
+import { getServerSideSEOWithFallback } from '../../lib/seo-server';
+import type { SEOData } from '../../types/trpc';
+
+// Fallback SEO data for products page
+const productsSEOFallback: SEOData = {
+  title: 'Products',
+  description: 'Browse our extensive collection of high-quality products at competitive prices',
+  keywords: 'products, shop, online store, buy, deals',
+};
+
 // Generate metadata for products page
 export async function generateMetadata(): Promise<Metadata> {
+  const seoData = await getServerSideSEOWithFallback('/products', productsSEOFallback);
   const siteName = getPublicSiteName();
-  const title = `Products - ${siteName}`;
+  const title = seoData.title.includes(siteName)
+    ? seoData.title
+    : `${seoData.title} | ${siteName}`;
 
   return {
     title,
-    description: 'Browse our extensive collection of high-quality products at competitive prices',
-    keywords: 'products, shop, online store, buy, deals',
+    description: seoData.description || undefined,
+    keywords: seoData.keywords || undefined,
     openGraph: {
       title,
-      description: 'Browse our extensive collection of high-quality products at competitive prices',
-      url: 'http://localhost:3001/products',
+      description: seoData.description || undefined,
+      url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'}/products`,
       type: 'website',
+      images: seoData.ogImage ? [{ url: seoData.ogImage }] : undefined,
     },
     twitter: {
       card: 'summary_large_image',
       title,
-      description: 'Browse our extensive collection of high-quality products at competitive prices',
+      description: seoData.description || undefined,
+      images: seoData.ogImage ? [seoData.ogImage] : undefined,
     },
   };
 }

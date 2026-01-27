@@ -95,6 +95,7 @@ const productSchema = z.object({
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
+  ogImage: z.string().optional(),
   isContactPrice: z.boolean().default(false),
   isFeatured: z.boolean().default(false),
   price: z.number().min(0).optional(),
@@ -170,13 +171,13 @@ export interface ProductFormData {
   warehouseQuantities?: ProductWarehouseQuantity[];
   variants?: VariantMatrixItem[] | BackendVariant[];
   specifications?: SpecificationFormValue[];
+  ogImage?: string;
 }
 
-const SUPPORTED_TRANSLATION_LOCALES = ['en', 'vi'] as const;
-type SupportedTranslationLocale = (typeof SUPPORTED_TRANSLATION_LOCALES)[number];
+import { useActiveLanguages } from '../../hooks/useLanguages';
 
-const isSupportedTranslationLocale = (value: string): value is SupportedTranslationLocale =>
-  (SUPPORTED_TRANSLATION_LOCALES as readonly string[]).includes(value);
+const isSupportedTranslationLocale = (value: string, supportedLocales: string[]): boolean =>
+  supportedLocales.includes(value);
 
 interface ProductTranslationFormValues {
   name?: string;
@@ -186,13 +187,14 @@ interface ProductTranslationFormValues {
   metaTitle?: string;
   metaDescription?: string;
   metaKeywords?: string;
+  ogImage?: string;
   [key: string]: string | undefined;
 }
 
-type TranslationState = Record<SupportedTranslationLocale, ProductTranslationFormValues>;
+type TranslationState = Record<string, ProductTranslationFormValues>;
 
-const createEmptyTranslationState = (): TranslationState =>
-  SUPPORTED_TRANSLATION_LOCALES.reduce((acc, locale) => {
+const createEmptyTranslationState = (locales: string[]): TranslationState =>
+  locales.reduce((acc, locale) => {
     acc[locale] = {};
     return acc;
   }, {} as TranslationState);
@@ -228,6 +230,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   readonly = false,
 }) => {
   const { t } = useTranslationWithBackend();
+  const { activeLanguages, isLoading: languagesLoading } = useActiveLanguages();
+  const supportedLocales = React.useMemo(() => activeLanguages.map(l => l.code), [activeLanguages]);
   const { addToast } = useToast();
   const showSaveAndContinueActions = Boolean(product?.id);
   const submitActionRef = useRef<ProductFormSubmitAction>('save');
@@ -272,8 +276,16 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     });
   });
 
-  const [translations, setTranslations] = useState<TranslationState>(() => createEmptyTranslationState());
-  const [initialTranslations, setInitialTranslations] = useState<TranslationState>(() => createEmptyTranslationState());
+  const [translations, setTranslations] = useState<TranslationState>({});
+  const [initialTranslations, setInitialTranslations] = useState<TranslationState>({});
+
+  useEffect(() => {
+    if (activeLanguages.length > 0 && Object.keys(translations).length === 0) {
+      const emptyState = createEmptyTranslationState(supportedLocales);
+      setTranslations(emptyState);
+      setInitialTranslations(cloneTranslationState(emptyState));
+    }
+  }, [activeLanguages, supportedLocales]);
 
   const [enableWarehouseQuantity, setEnableWarehouseQuantity] = useState(() => product?.enableWarehouseQuantity || false);
   const [warehouseQuantities, setWarehouseQuantities] = useState<ProductWarehouseQuantity[]>(() => product?.warehouseQuantities || []);
@@ -309,16 +321,18 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   });
 
   useEffect(() => {
+    if (activeLanguages.length === 0) return;
+
     if (!product?.translations || product.translations.length === 0) {
-      const emptyState = createEmptyTranslationState();
+      const emptyState = createEmptyTranslationState(supportedLocales);
       setTranslations(emptyState);
       setInitialTranslations(cloneTranslationState(emptyState));
       return;
     }
 
-    const nextState = createEmptyTranslationState();
+    const nextState = createEmptyTranslationState(supportedLocales);
     product.translations.forEach((translation) => {
-      if (!translation?.locale || !isSupportedTranslationLocale(translation.locale)) {
+      if (!translation?.locale || !isSupportedTranslationLocale(translation.locale, supportedLocales)) {
         return;
       }
 
@@ -330,12 +344,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         metaTitle: translation.metaTitle || '',
         metaDescription: translation.metaDescription || '',
         metaKeywords: translation.metaKeywords || '',
+        ogImage: translation.ogImage || '',
       };
     });
 
     setTranslations(nextState);
     setInitialTranslations(cloneTranslationState(nextState));
-  }, [product?.translations]);
+  }, [product?.translations, activeLanguages]);
 
   const hasTranslationContent = (data?: ProductTranslationFormValues) => {
     if (!data) {
@@ -349,7 +364,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       data.slug ||
       data.metaTitle ||
       data.metaDescription ||
-      data.metaKeywords
+      data.metaKeywords ||
+      data.ogImage
     );
   };
 
@@ -365,6 +381,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       'metaTitle',
       'metaDescription',
       'metaKeywords',
+      'ogImage',
     ];
 
     return fields.some((field) => (previous[field] || '') !== (current[field] || ''));
@@ -442,7 +459,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const deleteTranslationMutation = ensureMutation(adminProductsRouterAny?.deleteProductTranslation?.useMutation?.());
 
   const handleTranslationChanges = async (targetProductId: string) => {
-    for (const locale of SUPPORTED_TRANSLATION_LOCALES) {
+    for (const locale of supportedLocales) {
       const current = translations[locale];
       const initial = initialTranslations[locale];
       const hasInitial = hasTranslationContent(initial);
@@ -497,7 +514,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     const nextState = cloneTranslationState(translations);
 
     Object.entries(updated).forEach(([locale, values]) => {
-      if (!isSupportedTranslationLocale(locale)) {
+      if (!isSupportedTranslationLocale(locale, supportedLocales)) {
         return;
       }
 
@@ -719,6 +736,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               required: false,
               description: t('products.categories_description', 'Select one or more categories for this product'),
               maxItems: 5,
+              fullWidth: true,
             },
             {
               name: 'brandId',
@@ -928,6 +946,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             <TranslationTabs
               translations={translations}
               onTranslationsChange={handleTranslationTabsChange}
+              supportedLocales={activeLanguages.map(l => ({
+                code: l.code,
+                name: l.name,
+                flag: l.icon || '🌍',
+              }))}
               entityName={product?.name || ''}
               fields={[
                 {
@@ -982,6 +1005,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   validation: { maxLength: 60 },
                 },
                 {
+                  name: 'metaKeywords',
+                  label: t('products.meta_keywords', 'Meta Keywords'),
+                  value: '',
+                  onChange: () => { },
+                  type: 'text',
+                  placeholder: t('products.meta_keywords_placeholder', 'keyword1, keyword2'),
+                  required: false,
+                },
+                {
                   name: 'metaDescription',
                   label: t('products.meta_description', 'Meta Description'),
                   value: '',
@@ -993,13 +1025,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   validation: { maxLength: 160 },
                 },
                 {
-                  name: 'metaKeywords',
-                  label: t('products.meta_keywords', 'Meta Keywords'),
+                  name: 'ogImage',
+                  label: t('products.og_image', 'OG Image'),
                   value: '',
                   onChange: () => { },
-                  type: 'text',
-                  placeholder: t('products.meta_keywords_placeholder', 'keyword1, keyword2'),
+                  type: 'media-upload',
+                  placeholder: t('products.og_image_placeholder', 'Select OG image'),
                   required: false,
+                  description: t('products.og_image_help', 'Recommended size: 1200x630px'),
                 },
               ]}
             />
@@ -1029,6 +1062,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               description: t('products.meta_title_description', 'Recommended length: 50-60 characters'),
             },
             {
+              name: 'metaKeywords',
+              label: t('products.meta_keywords', 'Meta Keywords'),
+              type: 'text',
+              placeholder: t('products.meta_keywords_placeholder', 'keyword1, keyword2, keyword3'),
+              required: false,
+              description: t('products.meta_keywords_description', 'Separate keywords with commas'),
+            },
+            {
               name: 'metaDescription',
               label: t('products.meta_description', 'Meta Description'),
               type: 'textarea',
@@ -1041,12 +1082,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               description: t('products.meta_description_help', 'Recommended length: 150-160 characters'),
             },
             {
-              name: 'metaKeywords',
-              label: t('products.meta_keywords', 'Meta Keywords'),
-              type: 'text',
-              placeholder: t('products.meta_keywords_placeholder', 'keyword1, keyword2, keyword3'),
+              name: 'ogImage',
+              label: t('products.og_image', 'OG Image'),
+              type: 'media-upload',
+              placeholder: t('products.og_image_placeholder', 'Select OG image'),
               required: false,
-              description: t('products.meta_keywords_description', 'Separate keywords with commas'),
+              description: t('products.og_image_description', 'Recommended size: 1200x630px. This image will be shown when shared on social media.'),
             },
           ],
         },
@@ -1082,6 +1123,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     metaTitle: product?.metaTitle || '',
     metaDescription: product?.metaDescription || '',
     metaKeywords: product?.metaKeywords || '',
+    ogImage: product?.ogImage || '',
     price: product?.price || 0,
     compareAtPrice: product?.compareAtPrice ?? null,
     isContactPrice: product?.isContactPrice || false,

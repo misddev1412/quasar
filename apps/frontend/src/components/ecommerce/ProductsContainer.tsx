@@ -161,38 +161,6 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({
     });
   };
 
-  // Handle loading and error states
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">Loading products...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-center">
-          <div className="text-red-500 text-lg mb-4">Error loading products</div>
-          <p className="text-gray-600 dark:text-gray-300 mb-4">
-            {error}
-          </p>
-          <Button
-            onClick={fetchProducts}
-            color="primary"
-            variant="bordered"
-          >
-            Try Again
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   const gridClass =
     gridColumns >= 4
       ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
@@ -202,24 +170,40 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({
 
   const shouldRenderHeader = showHeader || showSort;
 
-  return (
-    <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
-      {/* Advanced Filter Sidebar */}
-      {showSidebar && (
-        <div className="lg:w-[30%]">
-          <div className={stickySidebar ? 'sticky top-24' : ''}>
-            <ProductFilterSidebar
-              filters={filters}
-              availableFilters={availableFilters}
-              onFilterChange={handleFilterChange}
-              onClearFilters={clearFilters}
-            />
+  const renderProductGrid = () => {
+    if (isLoading) {
+      return (
+        <div className="flex justify-center items-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-300">Loading products...</p>
           </div>
         </div>
-      )}
+      );
+    }
 
-      {/* Products Grid */}
-      <div className={showSidebar ? 'lg:w-[70%]' : 'w-full'}>
+    if (error) {
+      return (
+        <div className="flex justify-center items-center h-64">
+          <div className="text-center">
+            <div className="text-red-500 text-lg mb-4">Error loading products</div>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              {error}
+            </p>
+            <Button
+              onClick={fetchProducts}
+              color="primary"
+              variant="bordered"
+            >
+              Try Again
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <>
         {/* Results Header */}
         {shouldRenderHeader && (
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-6 border-b border-gray-200 dark:border-gray-700">
@@ -302,6 +286,29 @@ const ProductsContainer: React.FC<ProductsContainerProps> = ({
             </Button>
           </div>
         )}
+      </>
+    );
+  };
+
+  return (
+    <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
+      {/* Advanced Filter Sidebar */}
+      {showSidebar && (
+        <div className="lg:w-[30%]">
+          <div className={stickySidebar ? 'sticky top-24' : ''}>
+            <ProductFilterSidebar
+              filters={filters}
+              availableFilters={availableFilters}
+              onFilterChange={handleFilterChange}
+              onClearFilters={clearFilters}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Products Grid */}
+      <div className={showSidebar ? 'lg:w-[70%]' : 'w-full'}>
+        {renderProductGrid()}
       </div>
     </div>
   );

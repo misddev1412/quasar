@@ -83,7 +83,7 @@ export const buildProductMetadata = (product: Product, pathname: string): Metada
   const description = product.metaDescription || product.description || `Buy ${product.name} at our store. High-quality product with excellent value.`;
   const keywords = product.metaKeywords || `${product.name}, ${product.category || 'product'}, shopping, online store`;
   const primaryImage = product.media?.find(m => m.isPrimary) || product.media?.[0];
-  const imageUrl = primaryImage?.url;
+  const imageUrl = product.ogImage || primaryImage?.url;
 
   const siteName = getPublicSiteName();
   const formattedTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;

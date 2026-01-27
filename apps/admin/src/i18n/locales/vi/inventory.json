@@ -129,5 +129,10 @@
     "deleteError": "Xóa nhà cung cấp thất bại",
     "deleteConfirm": "Bạn có chắc chắn muốn xóa nhà cung cấp này không?",
     "noSuppliers": "Không tìm thấy nhà cung cấp"
+  },
+  "inventory": {
+    "stockLevel": "Mức tồn kho",
+    "hasStock": "Còn hàng",
+    "noStock": "Hết hàng"
   }
 }

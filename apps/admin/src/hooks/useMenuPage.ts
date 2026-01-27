@@ -77,6 +77,7 @@ export const DEFAULT_MENU_GROUP_OPTIONS = [
   { value: 'main', label: 'Main Menu' },
   { value: SUB_MENU_GROUP, label: 'Sub Menu' },
   { value: TOP_MENU_GROUP, label: 'Top Menu' },
+  { value: 'brand_header', label: 'Brand Header' },
   { value: 'footer', label: 'Footer Menu' },
   { value: 'mobile', label: 'Mobile Menu' },
 ];
@@ -100,6 +101,7 @@ export const MENU_TYPE_OPTIONS: MenuSelectOption[] = [
   { value: MenuType.USER_PROFILE, label: 'User Profile' },
   { value: MenuType.CALL_BUTTON, label: 'Call Button' },
   { value: MenuType.ORDER_TRACKING, label: 'Order Tracking' },
+  { value: MenuType.LOGO, label: 'Brand Logo' },
 ];
 
 export const TOP_MENU_TYPE_OPTIONS: MenuSelectOption[] = [

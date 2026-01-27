@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTableState } from '../../hooks/useTableState';
 import { FiPlus, FiMoreVertical, FiUser, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiExternalLink, FiShoppingBag, FiGlobe, FiTrendingUp, FiMail, FiPhone, FiHome, FiPackage } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
@@ -92,94 +93,54 @@ const SuppliersPage: React.FC = () => {
   const { t } = useTranslationWithBackend();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Table preferences with persistence
-  const { preferences, updatePageSize, updateVisibleColumns } = useTablePreferences('suppliers-table', {
-    pageSize: parseInt(searchParams.get('limit') || '10'),
-    visibleColumns: new Set(['supplier', 'contact', 'location', 'status', 'productsCount', 'createdAt']),
-  });
-
-  // Initialize state from URL parameters
-  const [page, setPage] = useState(() => parseInt(searchParams.get('page') || '1'));
-  const [limit, setLimit] = useState(preferences.pageSize);
-  const [searchValue, setSearchValue] = useState(() => searchParams.get('search') || '');
-  const [debouncedSearchValue, setDebouncedSearchValue] = useState(() => searchParams.get('search') || '');
-  const [filters, setFilters] = useState<SupplierFiltersType>({
+  // Initial filters from URL
+  const initialFilters = useMemo(() => ({
     isActive: searchParams.get('isActive') ? searchParams.get('isActive') === 'true' : undefined,
     country: searchParams.get('country') || undefined,
-  });
-  const [showFilters, setShowFilters] = useState(false);
-  const [sortBy, setSortBy] = useState(() => searchParams.get('sortBy') || 'createdAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(() =>
-    searchParams.get('sortOrder') === 'asc' ? 'asc' : 'desc'
-  );
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
+  }), []);
 
-  // Column visibility state
-  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(() => {
-    const initial = preferences.visibleColumns ? new Set(preferences.visibleColumns) : new Set(['supplier', 'contact', 'location', 'status', 'productsCount', 'createdAt', 'actions']);
-    if (!initial.has('actions')) initial.add('actions');
-    return initial;
+  const supplierTableState = useTableState<SupplierFiltersType>({
+    tableId: 'suppliers-table',
+    defaultPreferences: {
+      visibleColumns: ['supplier', 'contact', 'location', 'status', 'productsCount', 'createdAt', 'actions']
+    },
+    initialFilters,
   });
+
+  const {
+    page,
+    limit,
+    searchValue,
+    debouncedSearchValue,
+    filters,
+    setFilters,
+    showFilters,
+    setShowFilters,
+    sortBy,
+    sortOrder,
+    visibleColumns,
+    handleSortChange,
+    handlePageChange,
+    handlePageSizeChange,
+    handleColumnVisibilityChange,
+    setSearchValue
+  } = supplierTableState;
 
   // Selected suppliers for bulk actions
   const [selectedSupplierIds, setSelectedSupplierIds] = useState<Set<string | number>>(new Set());
 
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const urlUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
   const utils = trpc.useContext();
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
 
-  // Function to update URL parameters
-  const updateUrlParams = useCallback((params: Record<string, string | undefined>) => {
-    if (urlUpdateTimeoutRef.current) {
-      clearTimeout(urlUpdateTimeoutRef.current);
-    }
 
-    urlUpdateTimeoutRef.current = setTimeout(() => {
-      const newSearchParams = new URLSearchParams();
 
-      // Add non-empty parameters to URL
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== '' && value !== null) {
-          newSearchParams.set(key, value);
-        }
-      });
 
-      // Update URL without causing navigation
-      setSearchParams(newSearchParams, { replace: true });
-    }, 100);
-  }, [setSearchParams]);
 
-  // Debounce search value for API calls and URL updates
-  useEffect(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
 
-    searchTimeoutRef.current = setTimeout(() => {
-      setDebouncedSearchValue(searchValue);
-      setPage(1); // Reset to first page when search changes
 
-      // Update URL with search parameter and all filters
-      updateUrlParams({
-        search: searchValue || undefined,
-        isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
-        country: filters.country || undefined,
-        page: searchValue ? '1' : String(page),
-        limit: limit !== 10 ? String(limit) : undefined,
-        sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
-        sortOrder: sortOrder !== 'desc' ? sortOrder : undefined,
-      });
-    }, 400);
 
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, [searchValue, filters, page, sortBy, sortOrder, updateUrlParams, limit]);
 
   // Build query parameters - match the API schema exactly
   const queryParams = {
@@ -290,67 +251,6 @@ const SuppliersPage: React.FC = () => {
       addToast({ type: 'error', title: 'Delete failed', description: e?.message || 'Failed to delete supplier' });
     }
   }, [deleteMutation, addToast, t]);
-
-  // Handle pagination
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-    updateUrlParams({
-      search: searchValue || undefined,
-      isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
-      country: filters.country || undefined,
-      page: newPage > 1 ? String(newPage) : undefined,
-      limit: limit !== 10 ? String(limit) : undefined,
-      sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
-      sortOrder: sortOrder !== 'desc' ? sortOrder : undefined,
-    });
-  };
-
-  const handlePageSizeChange = (newLimit: number) => {
-    setLimit(newLimit);
-    setPage(1);
-    updatePageSize(newLimit);
-    updateUrlParams({
-      search: searchValue || undefined,
-      isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
-      country: filters.country || undefined,
-      page: undefined,
-      limit: newLimit !== 10 ? String(newLimit) : undefined,
-      sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
-      sortOrder: sortOrder !== 'desc' ? sortOrder : undefined,
-    });
-  };
-
-  // Handle sorting
-  const handleSortChange = (sortDescriptor: SortDescriptor<Supplier>) => {
-    const newSortBy = String(sortDescriptor.columnAccessor);
-    const newSortOrder = sortDescriptor.direction;
-    setSortBy(newSortBy);
-    setSortOrder(newSortOrder);
-    setPage(1);
-    updateUrlParams({
-      search: searchValue || undefined,
-      isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
-      country: filters.country || undefined,
-      page: undefined,
-      limit: limit !== 10 ? String(limit) : undefined,
-      sortBy: newSortBy !== 'createdAt' ? newSortBy : undefined,
-      sortOrder: newSortOrder !== 'desc' ? newSortOrder : undefined,
-    });
-  };
-
-  // Handle column visibility
-  const handleColumnVisibilityChange = (columnId: string, visible: boolean) => {
-    setVisibleColumns(prev => {
-      const newSet = new Set(prev);
-      if (visible) {
-        newSet.add(columnId);
-      } else {
-        newSet.delete(columnId);
-      }
-      updateVisibleColumns(newSet);
-      return newSet;
-    });
-  };
 
   // Handle bulk actions
   const handleBulkAction = useCallback((action: string) => {
@@ -488,11 +388,10 @@ const SuppliersPage: React.FC = () => {
       header: t('suppliers.status', 'Status'),
       accessor: (supplier) => (
         <span
-          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            supplier.isActive
-              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-              : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-          }`}
+          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${supplier.isActive
+            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+            : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+            }`}
         >
           {supplier.isActive ? t('common.active', 'Active') : t('common.inactive', 'Inactive')}
         </span>
@@ -733,7 +632,7 @@ const SuppliersPage: React.FC = () => {
           onBulkAction={handleBulkAction}
           // Sorting
           sortDescriptor={sortDescriptor}
-          onSortChange={handleSortChange}
+          onSortChange={(descriptor) => handleSortChange(String(descriptor.columnAccessor), descriptor.direction)}
           // Enhanced pagination with page size selection
           pagination={{
             currentPage: page,

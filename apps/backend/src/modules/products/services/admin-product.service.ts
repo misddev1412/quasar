@@ -18,6 +18,7 @@ import * as XLSX from 'xlsx';
 import axios from 'axios';
 import * as path from 'path';
 import { FileUploadService } from '@backend/modules/storage/services/file-upload.service';
+import { MediaService } from '@backend/modules/storage/services/media.service';
 import {
   DataExportService,
   ExportFormat,
@@ -25,6 +26,7 @@ import {
   ExportJobPayload,
 } from '@backend/modules/export';
 import { PRODUCT_EXPORT_COLUMNS } from '../export/product-export.columns';
+import { ImportJobService } from '../../import/services/import-job.service';
 import slugify from 'slugify';
 
 export interface AdminProductFilters {
@@ -83,6 +85,16 @@ export interface ImportProductsFromExcelResult {
   errors: Array<{ row: number; message: string }>;
   createdProductIds: string[];
   updatedProductIds: string[];
+  details: Array<{
+    row: number;
+    productName: string;
+    status: 'IMPORTED' | 'UPDATED' | 'SKIPPED' | 'ERROR';
+    message?: string;
+  }>;
+  translationImported?: number;
+  translationUpdated?: number;
+  translationSkipped?: number;
+  translationDuplicates?: number;
 }
 
 interface ReuploadedImageResult {
@@ -124,12 +136,14 @@ export class AdminProductService {
     private readonly responseHandler: ResponseService,
     private readonly productTransformer: ProductTransformer,
     private readonly fileUploadService: FileUploadService,
+    private readonly mediaService: MediaService,
     private readonly dataExportService: DataExportService,
     private readonly exportJobRunnerService: ExportJobRunnerService,
     @InjectRepository(ProductPriceHistory)
     private readonly productPriceHistoryRepository: Repository<ProductPriceHistory>,
     @InjectRepository(ProductVariantPriceHistory)
     private readonly productVariantPriceHistoryRepository: Repository<ProductVariantPriceHistory>,
+    private readonly importJobService: ImportJobService,
   ) { }
 
   private isUuid(value: string): boolean {
@@ -164,6 +178,212 @@ export class AdminProductService {
 
     const product = await this.productRepository.findBySlug(normalized);
     return product?.id ?? null;
+  }
+
+  async generateExcelTemplate(locale: string = 'en'): Promise<Buffer> {
+    const workbook = XLSX.utils.book_new();
+
+    const isVi = locale === 'vi';
+
+    // 1. Template Sheet
+    const templateHeaders = isVi ? [
+      'Mã sản phẩm',
+      'Tên sản phẩm',
+      'SKU',
+      'Mô tả',
+      'Mô tả ngắn',
+      'Trạng thái',
+      'Giá bán',
+      'Giá gốc (So sánh)',
+      'Giá niêm yết',
+      'Số lượng tồn',
+      'Bật kho hàng',
+      'Mã thương hiệu',
+      'Mã bảo hành',
+      'Nổi bật',
+      'Liên hệ báo giá',
+      'Kích hoạt',
+      'Hình ảnh (ngăn cách bởi dấu phẩy)',
+      'Danh mục (UUIDs ngăn cách bởi dấu phẩy)',
+    ] : [
+      'Product ID',
+      'Name',
+      'SKU',
+      'Description',
+      'Short Description',
+      'Status',
+      'Price',
+      'Compare At Price',
+      'Cost Price',
+      'Stock Quantity',
+      'Track Inventory',
+      'Brand ID',
+      'Warranty ID',
+      'Is Featured',
+      'Contact Price',
+      'Is Active',
+      'Images (comma separated)',
+      'Category IDs (comma separated)',
+    ];
+
+    const templateSample = isVi ? {
+      'Mã sản phẩm': '',
+      'Tên sản phẩm': 'Sản phẩm mẫu',
+      'SKU': 'SP-001',
+      'Mô tả': 'Mô tả chi tiết sản phẩm',
+      'Mô tả ngắn': 'Mô tả ngắn gọn',
+      'Trạng thái': 'PUBLISHED',
+      'Giá bán': 100000,
+      'Giá gốc (So sánh)': 120000,
+      'Giá niêm yết': 80000,
+      'Số lượng tồn': 100,
+      'Bật kho hàng': 'true',
+      'Mã thương hiệu': '',
+      'Mã bảo hành': '',
+      'Nổi bật': 'false',
+      'Liên hệ báo giá': 'false',
+      'Kích hoạt': 'true',
+      'Hình ảnh (ngăn cách bởi dấu phẩy)': 'https://example.com/image1.jpg, https://example.com/image2.jpg',
+      'Danh mục (UUIDs ngăn cách bởi dấu phẩy)': '',
+    } : {
+      'Product ID': '',
+      'Name': 'Sample Product',
+      'SKU': 'PROD-001',
+      'Description': 'Detailed product description',
+      'Short Description': 'Short summary',
+      'Status': 'PUBLISHED',
+      'Price': 100.00,
+      'Compare At Price': 120.00,
+      'Cost Price': 80.00,
+      'Stock Quantity': 100,
+      'Track Inventory': 'true',
+      'Brand ID': '',
+      'Warranty ID': '',
+      'Is Featured': 'false',
+      'Contact Price': 'false',
+      'Is Active': 'true',
+      'Images (comma separated)': 'https://example.com/image1.jpg, https://example.com/image2.jpg',
+      'Category IDs (comma separated)': '',
+    };
+
+    const templateSheet = XLSX.utils.json_to_sheet([templateSample], { header: templateHeaders });
+    XLSX.utils.book_append_sheet(workbook, templateSheet, 'Template');
+
+    // 2. Instructions Sheet
+    const instructionsData = isVi ? [
+      ['Hướng dẫn nhập sản phẩm'],
+      [''],
+      ['1. THÔNG TIN CƠ BẢN'],
+      ['- Mã sản phẩm: UUID (để trống nếu tạo mới, điền vào nếu cập nhật)'],
+      ['- Tên sản phẩm: Bắt buộc'],
+      ['- SKU: Mã sản phẩm duy nhất (Bắt buộc)'],
+      ['- Trạng thái: DRAFT (Nháp), PUBLISHED (Xuất bản), ARCHIVED (Lưu trữ)'],
+      [''],
+      ['2. GIÁ & KHO'],
+      ['- Giá bán: Số (VNĐ)'],
+      ['- Giá gốc (So sánh): Giá trước khi giảm'],
+      ['- Số lượng tồn: Số lượng trong kho'],
+      ['- Bật kho hàng: true/false (Có quản lý tồn kho không)'],
+      [''],
+      ['3. PHÂN LOẠI & LIÊN KẾT'],
+      ['- Mã thương hiệu: UUID của thương hiệu'],
+      ['- Danh mục: Danh sách UUID danh mục, ngăn cách bởi dấu phẩy'],
+      [''],
+      ['4. CÀI ĐẶT KHÁC'],
+      ['- Nổi bật: true/false'],
+      ['- Liên hệ báo giá: true/false (Ẩn giá, hiện nút liên hệ)'],
+      ['- Kích hoạt: true/false'],
+      ['- Hình ảnh: Danh sách URL ảnh, ngăn cách bởi dấu phẩy'],
+      [''],
+      ['5. SHEET BẢN DỊCH (Translations)'],
+      ['- Dùng để nhập đa ngôn ngữ cho sản phẩm'],
+      ['- Mã sản phẩm: UUID của sản phẩm cần dịch (Bắt buộc)'],
+      ['- Ngôn ngữ: Mã ngôn ngữ (vi, en, ...)'],
+      ['- Các trường có thể dịch: Tên, Mô tả, Mô tả ngắn, Tiêu đề SEO, Mô tả SEO...'],
+    ] : [
+      ['Product Import Instructions'],
+      [''],
+      ['1. BASIC INFO'],
+      ['- Product ID: UUID (leave empty for new, fill to update)'],
+      ['- Name: Required'],
+      ['- SKU: Unique Product Code (Required)'],
+      ['- Status: DRAFT, PUBLISHED, ARCHIVED'],
+      [''],
+      ['2. PRICING & INVENTORY'],
+      ['- Price: Number'],
+      ['- Compare At Price: Original price before discount'],
+      ['- Stock Quantity: Number'],
+      ['- Track Inventory: true/false'],
+      [''],
+      ['3. CLASSIFICATION'],
+      ['- Brand ID: UUID of brand'],
+      ['- Category IDs: Comma separated UUIDs'],
+      [''],
+      ['4. SETTINGS'],
+      ['- Is Featured: true/false'],
+      ['- Contact Price: true/false (Hide price, show contact button)'],
+      ['- Is Active: true/false'],
+      ['- Images: Comma separated URLs'],
+      [''],
+      ['5. TRANSLATIONS SHEET'],
+      ['- Use this sheet for multi-language support'],
+      ['- Product ID: UUID of the product (Required)'],
+      ['- Locale: Language code (en, vi, ...)'],
+      ['- Translatable fields: Name, Description, Short Description, SEO Title...'],
+    ];
+
+    const instructionsSheet = XLSX.utils.aoa_to_sheet(instructionsData);
+    XLSX.utils.book_append_sheet(workbook, instructionsSheet, 'Instructions');
+
+    // 3. Translations Sheet
+    const translationHeaders = isVi ? [
+      'Mã sản phẩm',
+      'Ngôn ngữ',
+      'Tên sản phẩm',
+      'Mô tả',
+      'Mô tả ngắn',
+      'Đường dẫn (Slug)',
+      'Tiêu đề SEO',
+      'Mô tả SEO',
+      'Từ khóa SEO'
+    ] : [
+      'Product ID',
+      'Locale',
+      'Name',
+      'Description',
+      'Short Description',
+      'Slug',
+      'SEO Title',
+      'SEO Description',
+      'Meta Keywords'
+    ];
+
+    const translationSample = isVi ? {
+      'Mã sản phẩm': '',
+      'Ngôn ngữ': 'en',
+      'Tên sản phẩm': 'Product Name',
+      'Mô tả': 'Product Description',
+      'Mô tả ngắn': 'Short Description',
+      'Đường dẫn (Slug)': 'product-slug-en',
+      'Tiêu đề SEO': 'SEO Title',
+      'Mô tả SEO': 'SEO Description',
+      'Từ khóa SEO': 'keyword1, keyword2'
+    } : {
+      'Product ID': '',
+      'Locale': 'vi',
+      'Name': 'Tên sản phẩm',
+      'Description': 'Mô tả sản phẩm',
+      'Short Description': 'Mô tả ngắn',
+      'Slug': 'bep-tu-doi',
+      'SEO Title': 'Tiêu đề SEO',
+      'SEO Description': 'Mô tả SEO',
+      'Meta Keywords': 'tu khoa 1, tu khoa 2'
+    };
+
+    const translationsSheet = XLSX.utils.json_to_sheet([translationSample], { header: translationHeaders });
+    XLSX.utils.book_append_sheet(workbook, translationsSheet, 'Translations');
+
+    return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
   }
 
   async getAllProducts(filters: AdminProductFilters) {
@@ -366,6 +586,7 @@ export class AdminProductService {
         metaTitle: productData.metaTitle || null,
         metaDescription: productData.metaDescription || null,
         metaKeywords: productData.metaKeywords || null,
+        ogImage: productData.ogImage || null,
         isFeatured: productData.isFeatured || false,
         isContactPrice: productData.isContactPrice || false,
         stockQuantity: productData.stockQuantity !== undefined ? productData.stockQuantity : 0,
@@ -467,6 +688,7 @@ export class AdminProductService {
         metaTitle: productData.metaTitle || null,
         metaDescription: productData.metaDescription || null,
         metaKeywords: productData.metaKeywords || null,
+        ogImage: productData.ogImage || null,
         isFeatured: productData.isFeatured || false,
         isContactPrice: productData.isContactPrice !== undefined ? productData.isContactPrice : existingProduct.isContactPrice,
         stockQuantity: productData.stockQuantity !== undefined ? productData.stockQuantity : existingProduct.stockQuantity,
@@ -650,7 +872,7 @@ export class AdminProductService {
     return this.updateProduct(id, { isActive });
   }
 
-  async importProductsFromExcel(params: ImportProductsFromExcelParams): Promise<ImportProductsFromExcelResult> {
+  async importProductsFromExcel(params: ImportProductsFromExcelParams): Promise<{ jobId: string }> {
     const {
       fileData,
       fileName,
@@ -658,6 +880,7 @@ export class AdminProductService {
       dryRun = false,
       defaultStatus = ProductStatus.DRAFT,
       defaultIsActive = true,
+      actorId,
     } = params;
 
     if (!fileData || fileData.trim().length === 0) {
@@ -668,666 +891,917 @@ export class AdminProductService {
       );
     }
 
-    const summary: ImportProductsFromExcelResult = {
-      totalRows: 0,
-      imported: 0,
-      skipped: 0,
-      duplicates: 0,
-      updated: 0,
-      errors: [],
-      createdProductIds: [],
-      updatedProductIds: [],
-    };
+    // Create a new import job
+    const job = await this.importJobService.createJob('products', fileName, actorId ?? undefined);
 
-    const sanitizeBase64 = (input: string): string => {
-      const trimmed = input.trim();
-      const commaIndex = trimmed.indexOf(',');
-      if (commaIndex !== -1) {
-        return trimmed.slice(commaIndex + 1);
-      }
-      return trimmed;
-    };
+    // Run processing in background
+    (async () => {
+      const summary: ImportProductsFromExcelResult = {
+        totalRows: 0,
+        imported: 0,
+        skipped: 0,
+        duplicates: 0,
+        updated: 0,
+        errors: [],
+        createdProductIds: [],
+        updatedProductIds: [],
+        details: [],
+        translationImported: 0,
+        translationUpdated: 0,
+        translationSkipped: 0,
+        translationDuplicates: 0,
+      };
 
-    const toBuffer = (input: string): Buffer => {
+      const sanitizeBase64 = (input: string): string => {
+        const trimmed = input.trim();
+        const commaIndex = trimmed.indexOf(',');
+        if (commaIndex !== -1) {
+          return trimmed.slice(commaIndex + 1);
+        }
+        return trimmed;
+      };
+
+      const toBuffer = (input: string): Buffer => {
+        try {
+          return Buffer.from(sanitizeBase64(input), 'base64');
+        } catch (error) {
+          throw this.responseHandler.createError(
+            ApiStatusCodes.BAD_REQUEST,
+            'Invalid file content. Expected base64 encoded data.',
+            'BAD_REQUEST',
+          );
+        }
+      };
+
+      const buffer = toBuffer(fileData);
+
+      let workbook: XLSX.WorkBook;
       try {
-        return Buffer.from(sanitizeBase64(input), 'base64');
+        workbook = XLSX.read(buffer, { type: 'buffer' });
       } catch (error) {
         throw this.responseHandler.createError(
           ApiStatusCodes.BAD_REQUEST,
-          'Invalid file content. Expected base64 encoded data.',
+          `Unable to read Excel file${fileName ? ` ${fileName}` : ''}. Please ensure the file is a valid .xlsx or .xls document.`,
           'BAD_REQUEST',
         );
       }
-    };
 
-    const buffer = toBuffer(fileData);
-
-    let workbook: XLSX.WorkBook;
-    try {
-      workbook = XLSX.read(buffer, { type: 'buffer' });
-    } catch (error) {
-      throw this.responseHandler.createError(
-        ApiStatusCodes.BAD_REQUEST,
-        `Unable to read Excel file${fileName ? ` ${fileName}` : ''}. Please ensure the file is a valid .xlsx or .xls document.`,
-        'BAD_REQUEST',
-      );
-    }
-
-    if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
-      throw this.responseHandler.createError(
-        ApiStatusCodes.BAD_REQUEST,
-        'The uploaded workbook does not contain any sheets.',
-        'BAD_REQUEST',
-      );
-    }
-
-    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-    if (!worksheet) {
-      throw this.responseHandler.createError(
-        ApiStatusCodes.BAD_REQUEST,
-        'The first sheet of the workbook is empty or unreadable.',
-        'BAD_REQUEST',
-      );
-    }
-
-    const rawRows = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet, {
-      defval: '',
-      raw: false,
-      blankrows: false,
-    });
-
-    if (!rawRows.length) {
-      throw this.responseHandler.createError(
-        ApiStatusCodes.BAD_REQUEST,
-        'No data rows found in the uploaded file.',
-        'BAD_REQUEST',
-      );
-    }
-
-    summary.totalRows = rawRows.length;
-
-    const normalizeString = (value: any): string => {
-      if (value === null || value === undefined) return '';
-      return String(value).trim();
-    };
-
-    const removeDiacritics = (value: string): string =>
-      value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-
-    const normalizeKey = (key: string): string => {
-      if (!key) {
-        return '';
-      }
-      const normalized = removeDiacritics(normalizeString(key));
-      return normalized.toLowerCase().replace(/[^a-z0-9]+/g, '');
-    };
-
-    const normalizedKeyToHeader = new Map<string, string>();
-    const normalizedRows = rawRows.map((row) => {
-      const normalizedEntry: Record<string, any> = {};
-      Object.entries(row).forEach(([header, value]) => {
-        const normalizedKey = normalizeKey(header);
-        if (normalizedKey) {
-          normalizedEntry[normalizedKey] = value;
-          if (!normalizedKeyToHeader.has(normalizedKey)) {
-            normalizedKeyToHeader.set(normalizedKey, header);
-          }
-        }
-      });
-      return normalizedEntry;
-    });
-
-    const columnMap: Record<string, string[]> = {
-      name: ['name', 'productname', 'tensanpham'],
-      sku: ['sku', 'productsku', 'masp', 'masanpham'],
-      description: ['description', 'productdescription', 'mota', 'motasanpham'],
-      status: ['status', 'trangthai'],
-      isActive: ['isactive', 'kichhoat', 'active'],
-      isFeatured: ['isfeatured', 'noibat', 'featured'],
-      brandId: ['brandid', 'brand', 'mathuonghieu', 'thuonghieu'],
-      categoryIds: ['categoryids', 'categories', 'category', 'danhmuc', 'danhsachdanhmuc'],
-      tags: ['tags', 'nhan', 'tukhoa'],
-      variantName: ['variantname', 'tenphienban', 'variationname'],
-      variantSku: ['variantsku', 'skuvariant', 'maphienban'],
-      variantBarcode: ['variantbarcode', 'barcode', 'mabarcode'],
-      price: ['price', 'gia', 'productprice', 'variantprice', 'giaban'],
-      compareAtPrice: ['compareatprice', 'compareprice', 'giacu', 'giathamchieu'],
-      costPrice: ['costprice', 'giavon', 'cost'],
-      stockQuantity: ['stockquantity', 'tonkho', 'soluong', 'inventory'],
-      lowStockThreshold: ['lowstockthreshold', 'canhbaoton', 'nguongcanhbao'],
-      trackInventory: ['trackinventory', 'theodoiton', 'quanlyton'],
-      allowBackorders: ['allowbackorders', 'chophephethang', 'chophepbackorder'],
-      productImageUrls: ['productimage', 'productimages', 'productimageurl', 'productimageurls', 'image', 'images', 'imageurl', 'imageurls', 'anh', 'hinhanh', 'hinhanhsanpham'],
-      variantImageUrl: ['variantimage', 'variantimages', 'variantimageurl', 'variantimageurls', 'anhphienban', 'hinhanhphienban', 'variantthumbnail', 'variantthumbnailurl', 'thumbnailvariant', 'thumbnailvarianturl'],
-      variantSortOrder: ['variantsortorder', 'variantsort', 'variantorder', 'sapxepvariant'],
-      variantIsActive: ['variantisactive', 'variantactive', 'kichhoatvariant', 'activevariant'],
-    };
-
-    const knownColumnKeys = new Set<string>();
-    Object.values(columnMap).forEach((keys) => {
-      keys.forEach((key) => knownColumnKeys.add(key));
-    });
-
-    const getFromRow = (row: Record<string, any>, keys: string[]): any => {
-      for (const key of keys) {
-        if (Object.prototype.hasOwnProperty.call(row, key)) {
-          const value = row[key];
-          if (value !== undefined && value !== null && normalizeString(value) !== '') {
-            return value;
-          }
-        }
-      }
-      return undefined;
-    };
-
-    const parseBoolean = (value: any, fallback: boolean): boolean => {
-      if (value === undefined || value === null || normalizeString(value) === '') {
-        return fallback;
+      if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+        throw this.responseHandler.createError(
+          ApiStatusCodes.BAD_REQUEST,
+          'The uploaded workbook does not contain any sheets.',
+          'BAD_REQUEST',
+        );
       }
 
-      const normalized = normalizeKey(String(value));
-      if (['1', 'true', 'yes', 'co', 'dang', 'kichhoat', 'active'].includes(normalized)) {
-        return true;
-      }
-      if (['0', 'false', 'no', 'khong', 'ngung', 'inactive', 'tamdung'].includes(normalized)) {
-        return false;
-      }
-      return fallback;
-    };
-
-    const parseNumber = (value: any, fallback = 0): number => {
-      if (value === undefined || value === null || normalizeString(value) === '') {
-        return fallback;
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      if (!worksheet) {
+        throw this.responseHandler.createError(
+          ApiStatusCodes.BAD_REQUEST,
+          'The first sheet of the workbook is empty or unreadable.',
+          'BAD_REQUEST',
+        );
       }
 
-      const raw = String(value).trim();
-      const noSpaces = raw.replace(/\s+/g, '');
-      const hasComma = noSpaces.includes(',');
-      const hasDot = noSpaces.includes('.');
-
-      let normalizedNumeric = noSpaces;
-      if (hasComma && hasDot) {
-        normalizedNumeric = normalizedNumeric.replace(/,/g, '');
-      } else if (hasComma && !hasDot) {
-        normalizedNumeric = normalizedNumeric.replace(/,/g, '.');
-      }
-
-      const num = Number(normalizedNumeric);
-      return Number.isFinite(num) ? num : fallback;
-    };
-
-    const parseStatus = (value: any): ProductStatus => {
-      if (value === undefined || value === null || normalizeString(value) === '') {
-        return defaultStatus;
-      }
-
-      const normalized = normalizeKey(String(value));
-      switch (normalized) {
-        case 'active':
-        case 'kichhoat':
-        case 'dangban':
-        case 'ban':
-          return ProductStatus.ACTIVE;
-        case 'inactive':
-        case 'ngunghoatdong':
-        case 'tamdung':
-          return ProductStatus.INACTIVE;
-        case 'discontinued':
-        case 'ngunghoanly':
-        case 'hetban':
-          return ProductStatus.DISCONTINUED;
-        case 'draft':
-        case 'nhap':
-        case 'banthao':
-          return ProductStatus.DRAFT;
-        default:
-          return defaultStatus;
-      }
-    };
-
-    const parseCategories = (value: any): string[] => {
-      const normalizedValue = normalizeString(value);
-      if (!normalizedValue) {
-        return [];
-      }
-      const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
-      return normalizedValue
-        .split(/[;,|]/)
-        .map((part) => normalizeString(removeDiacritics(part)).replace(/[^a-zA-Z0-9-]/g, ''))
-        .filter((part) => uuidRegex.test(part));
-    };
-
-    const parseImageUrls = (value: any): string[] => {
-      const normalizedValue = normalizeString(value);
-      if (!normalizedValue) {
-        return [];
-      }
-
-      const potentialUrls = normalizedValue
-        .split(/[\n\r;,|]+/)
-        .map((part) => part.trim())
-        .filter(Boolean);
-
-      const httpRegex = /^https?:\/\//i;
-      const cleanedUrls = potentialUrls
-        .map((candidate) => candidate.replace(/\s+/g, ''))
-        .filter((candidate) => httpRegex.test(candidate));
-
-      return Array.from(new Set(cleanedUrls));
-    };
-
-    const parseFirstImageUrl = (value: any): string | null => {
-      const urls = parseImageUrls(value);
-      return urls.length > 0 ? urls[0] : null;
-    };
-
-    const selectAttributes = await this.attributeRepository.getSelectAttributes();
-
-    const attributeLookupByKey = new Map<string, { attribute: any; valueLookup: Map<string, any> }>();
-    const attributeValueById = new Map<string, any>();
-
-    for (const attribute of selectAttributes) {
-      const rawValues = (attribute as any).values;
-      const values: any[] = Array.isArray(rawValues) ? rawValues : await rawValues;
-
-      const valueLookup = new Map<string, any>();
-      values.forEach((value) => {
-        if (value && value.id) {
-          attributeValueById.set(String(value.id).toLowerCase(), value);
-        }
-        const normalizedValue = normalizeKey(value?.value || '');
-        if (normalizedValue) {
-          valueLookup.set(normalizedValue, value);
-        }
-        const normalizedDisplayValue = normalizeKey(value?.displayValue || '');
-        if (normalizedDisplayValue) {
-          valueLookup.set(normalizedDisplayValue, value);
-        }
+      const rawRows = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet, {
+        defval: '',
+        raw: false,
+        blankrows: false,
       });
 
-      const info = { attribute, valueLookup };
-      const attributeKeys = [
-        normalizeKey(attribute?.name || ''),
-        normalizeKey(attribute?.displayName || ''),
-        normalizeKey(attribute?.code || ''),
-        normalizeKey(attribute?.id || ''),
-      ].filter((key) => key);
-
-      attributeKeys.forEach((key) => {
-        if (!attributeLookupByKey.has(key)) {
-          attributeLookupByKey.set(key, info);
-        }
-      });
-    }
-
-    const variantAttributePrefixes = ['variantattribute', 'variantattr', 'variantoption', 'thuoctinhphienban', 'thuoctinhbien'];
-    const extractVariantAttributeKey = (normalizedKey: string): string | null => {
-      for (const prefix of variantAttributePrefixes) {
-        if (normalizedKey.startsWith(prefix) && normalizedKey.length > prefix.length) {
-          return normalizedKey.slice(prefix.length);
-        }
-      }
-      return null;
-    };
-
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-    const productGroups = new Map<string, {
-      productData: any;
-      categoryIds: Set<string>;
-      tags: Set<string>;
-      productImageUrls: Set<string>;
-      variants: Array<{ rowNumber: number; variant: any; sourceImageUrl: string | null; sortOrderProvided: boolean }>;
-      rowNumbers: number[];
-    }>();
-
-    for (let index = 0; index < normalizedRows.length; index += 1) {
-      const row = normalizedRows[index];
-      const spreadsheetRowNumber = index + 2;
-
-      const rawName = getFromRow(row, columnMap.name);
-      const name = normalizeString(rawName);
-
-      if (!name) {
-        summary.skipped += 1;
-        summary.errors.push({
-          row: spreadsheetRowNumber,
-          message: 'Missing required field: product name',
-        });
-        continue;
+      if (!rawRows.length) {
+        throw this.responseHandler.createError(
+          ApiStatusCodes.BAD_REQUEST,
+          'No data rows found in the uploaded file.',
+          'BAD_REQUEST',
+        );
       }
 
-      const skuValue = getFromRow(row, columnMap.sku);
-      const sku = normalizeString(skuValue) || null;
+      summary.totalRows = rawRows.length;
 
-      const productKey = sku ? `sku:${normalizeKey(sku)}` : `name:${normalizeKey(name) || name.toLowerCase()}`;
-
-      const description = normalizeString(getFromRow(row, columnMap.description)) || null;
-      const status = parseStatus(getFromRow(row, columnMap.status));
-      const isActive = parseBoolean(getFromRow(row, columnMap.isActive), defaultIsActive);
-      const isFeatured = parseBoolean(getFromRow(row, columnMap.isFeatured), false);
-      const brandIdRaw = normalizeString(getFromRow(row, columnMap.brandId));
-      const brandId = brandIdRaw || null;
-      const categoryIds = parseCategories(getFromRow(row, columnMap.categoryIds));
-      const tagsRaw = normalizeString(getFromRow(row, columnMap.tags));
-      const tags = tagsRaw
-        ? tagsRaw
-          .split(/[;,|]/)
-          .map((tag) => normalizeString(tag))
-          .filter(Boolean)
-        : [];
-
-      const productImageUrls = parseImageUrls(getFromRow(row, columnMap.productImageUrls));
-
-      const variantName = normalizeString(getFromRow(row, columnMap.variantName)) || `${name} Variant`;
-      const variantSku = normalizeString(getFromRow(row, columnMap.variantSku)) || (sku || null);
-      const variantBarcode = normalizeString(getFromRow(row, columnMap.variantBarcode)) || null;
-      const price = parseNumber(getFromRow(row, columnMap.price));
-
-      const compareAtPriceRaw = getFromRow(row, columnMap.compareAtPrice);
-      const compareAtPrice = compareAtPriceRaw !== undefined && compareAtPriceRaw !== null && normalizeString(compareAtPriceRaw) !== ''
-        ? parseNumber(compareAtPriceRaw, 0)
-        : null;
-
-      const costPriceRaw = getFromRow(row, columnMap.costPrice);
-      const costPrice = costPriceRaw !== undefined && costPriceRaw !== null && normalizeString(costPriceRaw) !== ''
-        ? parseNumber(costPriceRaw, 0)
-        : null;
-      const stockQuantity = parseNumber(getFromRow(row, columnMap.stockQuantity), 0);
-      const lowStockThresholdRaw = getFromRow(row, columnMap.lowStockThreshold);
-      const lowStockThresholdValue = lowStockThresholdRaw !== undefined && lowStockThresholdRaw !== null && normalizeString(lowStockThresholdRaw) !== ''
-        ? parseNumber(lowStockThresholdRaw, 0)
-        : null;
-      const trackInventory = parseBoolean(getFromRow(row, columnMap.trackInventory), true);
-      const allowBackorders = parseBoolean(getFromRow(row, columnMap.allowBackorders), false);
-      const variantImageUrl = parseFirstImageUrl(getFromRow(row, columnMap.variantImageUrl));
-      const variantIsActive = parseBoolean(getFromRow(row, columnMap.variantIsActive), true);
-      const variantSortOrderRaw = getFromRow(row, columnMap.variantSortOrder);
-      const variantSortOrder = variantSortOrderRaw !== undefined && variantSortOrderRaw !== null && normalizeString(variantSortOrderRaw) !== ''
-        ? parseNumber(variantSortOrderRaw, 0)
-        : undefined;
-
-      const attributeItems: Array<{ attributeId: string; attributeValueId: string; sortOrder: number }> = [];
-      const seenAttributeIds = new Set<string>();
-      let attributeError = false;
-
-      for (const [normalizedKey, cellValue] of Object.entries(row)) {
-        if (knownColumnKeys.has(normalizedKey)) {
-          continue;
-        }
-        const attributeKey = extractVariantAttributeKey(normalizedKey);
-        if (!attributeKey) {
-          continue;
-        }
-
-        const attributeInfo = attributeLookupByKey.get(attributeKey);
-        if (!attributeInfo) {
-          const header = normalizedKeyToHeader.get(normalizedKey) || attributeKey;
-          summary.errors.push({
-            row: spreadsheetRowNumber,
-            message: `Unknown variant attribute '${header}'.`,
-          });
-          attributeError = true;
-          continue;
-        }
-
-        if (seenAttributeIds.has(attributeInfo.attribute.id)) {
-          summary.errors.push({
-            row: spreadsheetRowNumber,
-            message: `Attribute '${attributeInfo.attribute.displayName || attributeInfo.attribute.name}' is provided more than once for the same variant.`,
-          });
-          attributeError = true;
-          continue;
-        }
-
-        const rawAttributeValue = normalizeString(cellValue);
-        if (!rawAttributeValue) {
-          continue;
-        }
-
-        let resolvedValue = null;
-        if (uuidRegex.test(rawAttributeValue)) {
-          const directValue = attributeValueById.get(rawAttributeValue.toLowerCase());
-          if (directValue && directValue.attributeId === attributeInfo.attribute.id) {
-            resolvedValue = directValue;
-          }
-        }
-
-        if (!resolvedValue) {
-          const normalizedValueKey = normalizeKey(rawAttributeValue);
-          if (normalizedValueKey) {
-            resolvedValue = attributeInfo.valueLookup.get(normalizedValueKey) || null;
-          }
-        }
-
-        if (!resolvedValue) {
-          summary.errors.push({
-            row: spreadsheetRowNumber,
-            message: `Invalid value '${rawAttributeValue}' for attribute '${attributeInfo.attribute.displayName || attributeInfo.attribute.name}'.`,
-          });
-          attributeError = true;
-          continue;
-        }
-
-        seenAttributeIds.add(attributeInfo.attribute.id);
-        attributeItems.push({
-          attributeId: attributeInfo.attribute.id,
-          attributeValueId: resolvedValue.id,
-          sortOrder: attributeItems.length,
-        });
-      }
-
-      if (attributeError) {
-        summary.skipped += 1;
-        continue;
-      }
-
-      let group = productGroups.get(productKey);
-      if (!group) {
-        const baseData: any = {
-          name,
-          description,
-          sku,
-          status,
-          isActive,
-          isFeatured,
-        };
-        if (brandId) {
-          baseData.brandId = brandId;
-        }
-
-        group = {
-          productData: baseData,
-          categoryIds: new Set<string>(categoryIds),
-          tags: new Set<string>(tags),
-          productImageUrls: new Set<string>(productImageUrls),
-          variants: [],
-          rowNumbers: [],
-        };
-
-        productGroups.set(productKey, group);
-      } else {
-        categoryIds.forEach((id) => group.categoryIds.add(id));
-        tags.forEach((tag) => group.tags.add(tag));
-        productImageUrls.forEach((url) => group.productImageUrls.add(url));
-
-        if (!group.productData.description && description) {
-          group.productData.description = description;
-        }
-
-        if (!group.productData.brandId && brandId) {
-          group.productData.brandId = brandId;
-        }
-
-        if (!group.productData.sku && sku) {
-          group.productData.sku = sku;
-        }
-
-        if (isFeatured) {
-          group.productData.isFeatured = true;
-        }
-      }
-
-      group.rowNumbers.push(spreadsheetRowNumber);
-
-      const sortOrderValue = variantSortOrder !== undefined && Number.isFinite(variantSortOrder)
-        ? Math.round(variantSortOrder)
-        : group.variants.length;
-
-      group.variants.push({
-        rowNumber: spreadsheetRowNumber,
-        variant: {
-          name: variantName,
-          sku: variantSku || undefined,
-          barcode: variantBarcode || undefined,
-          price,
-          compareAtPrice,
-          costPrice,
-          stockQuantity,
-          lowStockThreshold: lowStockThresholdValue,
-          trackInventory,
-          allowBackorders,
-          weight: null,
-          dimensions: null,
-          image: null,
-          isActive: variantIsActive,
-          sortOrder: sortOrderValue,
-          variantItems: attributeItems.map((item, itemIndex) => ({
-            attributeId: item.attributeId,
-            attributeValueId: item.attributeValueId,
-            sortOrder: item.sortOrder ?? itemIndex,
-          })),
-        },
-        sourceImageUrl: variantImageUrl,
-        sortOrderProvided: variantSortOrder !== undefined,
-      });
-    }
-
-    for (const group of productGroups.values()) {
-      if (!group.variants.length) {
-        summary.skipped += group.rowNumbers.length;
-        summary.errors.push({
-          row: group.rowNumbers[0],
-          message: 'No valid variants found for this product.',
-        });
-        continue;
-      }
-
-      const categoryIds = Array.from(group.categoryIds);
-      const tags = Array.from(group.tags);
-      const productImageUrls = Array.from(group.productImageUrls);
-
-      const variantRecords = group.variants.map((entry, index) => {
-        const clone = {
-          ...entry.variant,
-          sortOrder: entry.sortOrderProvided && Number.isFinite(entry.variant.sortOrder)
-            ? Math.round(entry.variant.sortOrder)
-            : index,
-          variantItems: Array.isArray(entry.variant.variantItems)
-            ? entry.variant.variantItems.map((item, itemIndex) => ({
-              attributeId: item.attributeId,
-              attributeValueId: item.attributeValueId,
-              sortOrder: item.sortOrder !== undefined ? item.sortOrder : itemIndex,
-            }))
-            : [],
-        };
-
-        return {
-          clone,
-          sourceImageUrl: entry.sourceImageUrl,
-          rowNumber: entry.rowNumber,
-        };
-      });
-
-      const productPayload: any = {
-        ...group.productData,
-        ...(categoryIds.length > 0 ? { categoryIds } : {}),
-        ...(tags.length > 0 ? { tags } : {}),
-        variants: variantRecords.map((record) => record.clone),
+      const normalizeString = (value: any): string => {
+        if (value === null || value === undefined) return '';
+        return String(value).trim();
       };
 
-      const applyMediaUploads = async (payload: any) => {
-        if (dryRun) {
-          return;
+      const removeDiacritics = (value: string): string =>
+        value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+      const normalizeKey = (key: string): string => {
+        if (!key) {
+          return '';
+        }
+        const normalized = removeDiacritics(normalizeString(key));
+        return normalized.toLowerCase().replace(/[^a-z0-9]+/g, '');
+      };
+
+      const normalizedKeyToHeader = new Map<string, string>();
+      const normalizedRows = rawRows.map((row) => {
+        const normalizedEntry: Record<string, any> = {};
+        Object.entries(row).forEach(([header, value]) => {
+          const normalizedKey = normalizeKey(header);
+          if (normalizedKey) {
+            normalizedEntry[normalizedKey] = value;
+            if (!normalizedKeyToHeader.has(normalizedKey)) {
+              normalizedKeyToHeader.set(normalizedKey, header);
+            }
+          }
+        });
+        return normalizedEntry;
+      });
+
+      const columnMap: Record<string, string[]> = {
+        name: ['name', 'productname', 'tensanpham'],
+        sku: ['sku', 'productsku', 'masp', 'masanpham'],
+        description: ['description', 'productdescription', 'mota', 'motasanpham'],
+        status: ['status', 'trangthai'],
+        isActive: ['isactive', 'kichhoat', 'active'],
+        isFeatured: ['isfeatured', 'noibat', 'featured'],
+        brandId: ['brandid', 'brand', 'mathuonghieu', 'thuonghieu'],
+        categoryIds: ['categoryids', 'categories', 'category', 'danhmuc', 'danhsachdanhmuc', 'danhmucuuidsngancachboidauphay', 'categoryidscommaseparated'],
+        tags: ['tags', 'nhan', 'tukhoa'],
+        variantName: ['variantname', 'tenphienban', 'variationname'],
+        variantSku: ['variantsku', 'skuvariant', 'maphienban'],
+        variantBarcode: ['variantbarcode', 'barcode', 'mabarcode'],
+        price: ['price', 'gia', 'productprice', 'variantprice', 'giaban'],
+        compareAtPrice: ['compareatprice', 'compareprice', 'giacu', 'giathamchieu', 'giagocsosanh'],
+        costPrice: ['costprice', 'giavon', 'cost', 'gianiemyet'],
+        stockQuantity: ['stockquantity', 'tonkho', 'soluong', 'inventory', 'soluongton'],
+        lowStockThreshold: ['lowstockthreshold', 'canhbaoton', 'nguongcanhbao'],
+        trackInventory: ['trackinventory', 'theodoiton', 'quanlyton', 'batkhohang'],
+        allowBackorders: ['allowbackorders', 'chophephethang', 'chophepbackorder'],
+        productImageUrls: ['productimage', 'productimages', 'productimageurl', 'productimageurls', 'image', 'images', 'imageurl', 'imageurls', 'anh', 'hinhanh', 'hinhanhsanpham', 'hinhanhngancachboidauphay', 'imagescommaseparated'],
+        variantImageUrl: ['variantimage', 'variantimages', 'variantimageurl', 'variantimageurls', 'anhphienban', 'hinhanhphienban', 'variantthumbnail', 'variantthumbnailurl', 'thumbnailvariant', 'thumbnailvarianturl'],
+        variantSortOrder: ['variantsortorder', 'variantsort', 'variantorder', 'sapxepvariant'],
+        variantIsActive: ['variantisactive', 'variantactive', 'kichhoatvariant', 'activevariant'],
+      };
+
+      const knownColumnKeys = new Set<string>();
+      Object.values(columnMap).forEach((keys) => {
+        keys.forEach((key) => knownColumnKeys.add(key));
+      });
+
+      const getFromRow = (row: Record<string, any>, keys: string[]): any => {
+        for (const key of keys) {
+          if (Object.prototype.hasOwnProperty.call(row, key)) {
+            const value = row[key];
+            if (value !== undefined && value !== null && normalizeString(value) !== '') {
+              return value;
+            }
+          }
+        }
+        return undefined;
+      };
+
+      const parseBoolean = (value: any, fallback: boolean): boolean => {
+        if (value === undefined || value === null || normalizeString(value) === '') {
+          return fallback;
         }
 
-        let preparedMediaResult: { media: any[]; uploadMap: Map<string, ReuploadedImageResult> } | null = null;
-        if (productImageUrls.length > 0) {
-          preparedMediaResult = await this.prepareProductMediaUploads(productImageUrls, group.productData.name);
-          payload.media = preparedMediaResult.media;
+        const normalized = normalizeKey(String(value));
+        if (['1', 'true', 'yes', 'co', 'dang', 'kichhoat', 'active'].includes(normalized)) {
+          return true;
+        }
+        if (['0', 'false', 'no', 'khong', 'ngung', 'inactive', 'tamdung'].includes(normalized)) {
+          return false;
+        }
+        return fallback;
+      };
+
+      const parseNumber = (value: any, fallback = 0): number => {
+        if (value === undefined || value === null || normalizeString(value) === '') {
+          return fallback;
         }
 
-        const variantImageUploadCache = new Map<string, ReuploadedImageResult>();
-        for (const variantRecord of variantRecords) {
-          if (!variantRecord.sourceImageUrl) {
+        const raw = String(value).trim();
+        const noSpaces = raw.replace(/\s+/g, '');
+        const hasComma = noSpaces.includes(',');
+        const hasDot = noSpaces.includes('.');
+
+        let normalizedNumeric = noSpaces;
+        if (hasComma && hasDot) {
+          normalizedNumeric = normalizedNumeric.replace(/,/g, '');
+        } else if (hasComma && !hasDot) {
+          normalizedNumeric = normalizedNumeric.replace(/,/g, '.');
+        }
+
+        const num = Number(normalizedNumeric);
+        return Number.isFinite(num) ? num : fallback;
+      };
+
+      const parseStatus = (value: any): ProductStatus => {
+        if (value === undefined || value === null || normalizeString(value) === '') {
+          return defaultStatus;
+        }
+
+        const normalized = normalizeKey(String(value));
+        switch (normalized) {
+          case 'active':
+          case 'kichhoat':
+          case 'dangban':
+          case 'ban':
+            return ProductStatus.ACTIVE;
+          case 'inactive':
+          case 'ngunghoatdong':
+          case 'tamdung':
+            return ProductStatus.INACTIVE;
+          case 'discontinued':
+          case 'ngunghoanly':
+          case 'hetban':
+            return ProductStatus.DISCONTINUED;
+          case 'draft':
+          case 'nhap':
+          case 'banthao':
+            return ProductStatus.DRAFT;
+          default:
+            return defaultStatus;
+        }
+      };
+
+      const parseCategories = (value: any): string[] => {
+        const normalizedValue = normalizeString(value);
+        if (!normalizedValue) {
+          return [];
+        }
+        const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/;
+        return normalizedValue
+          .split(/[;,|]/)
+          .map((part) => normalizeString(removeDiacritics(part)).replace(/[^a-zA-Z0-9-]/g, ''))
+          .filter((part) => uuidRegex.test(part));
+      };
+
+      const parseImageUrls = (value: any): string[] => {
+        const normalizedValue = normalizeString(value);
+        if (!normalizedValue) {
+          return [];
+        }
+
+        const potentialUrls = normalizedValue
+          .split(/[\n\r;,|]+/)
+          .map((part) => part.trim())
+          .filter(Boolean);
+
+        const httpRegex = /^https?:\/\//i;
+        const cleanedUrls = potentialUrls
+          .map((candidate) => candidate.replace(/\s+/g, ''))
+          .filter((candidate) => httpRegex.test(candidate));
+
+        return Array.from(new Set(cleanedUrls));
+      };
+
+      const parseFirstImageUrl = (value: any): string | null => {
+        const urls = parseImageUrls(value);
+        return urls.length > 0 ? urls[0] : null;
+      };
+
+      const selectAttributes = await this.attributeRepository.getSelectAttributes();
+
+      const attributeLookupByKey = new Map<string, { attribute: any; valueLookup: Map<string, any> }>();
+      const attributeValueById = new Map<string, any>();
+
+      for (const attribute of selectAttributes) {
+        const rawValues = (attribute as any).values;
+        const values: any[] = Array.isArray(rawValues) ? rawValues : await rawValues;
+
+        const valueLookup = new Map<string, any>();
+        values.forEach((value) => {
+          if (value && value.id) {
+            attributeValueById.set(String(value.id).toLowerCase(), value);
+          }
+          const normalizedValue = normalizeKey(value?.value || '');
+          if (normalizedValue) {
+            valueLookup.set(normalizedValue, value);
+          }
+          const normalizedDisplayValue = normalizeKey(value?.displayValue || '');
+          if (normalizedDisplayValue) {
+            valueLookup.set(normalizedDisplayValue, value);
+          }
+        });
+
+        const info = { attribute, valueLookup };
+        const attributeKeys = [
+          normalizeKey(attribute?.name || ''),
+          normalizeKey(attribute?.displayName || ''),
+          normalizeKey(attribute?.code || ''),
+          normalizeKey(attribute?.id || ''),
+        ].filter((key) => key);
+
+        attributeKeys.forEach((key) => {
+          if (!attributeLookupByKey.has(key)) {
+            attributeLookupByKey.set(key, info);
+          }
+        });
+      }
+
+      const variantAttributePrefixes = ['variantattribute', 'variantattr', 'variantoption', 'thuoctinhphienban', 'thuoctinhbien'];
+      const extractVariantAttributeKey = (normalizedKey: string): string | null => {
+        for (const prefix of variantAttributePrefixes) {
+          if (normalizedKey.startsWith(prefix) && normalizedKey.length > prefix.length) {
+            return normalizedKey.slice(prefix.length);
+          }
+        }
+        return null;
+      };
+
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+      const productGroups = new Map<string, {
+        productData: any;
+        categoryIds: Set<string>;
+        tags: Set<string>;
+        productImageUrls: Set<string>;
+        variants: Array<{ rowNumber: number; variant: any; sourceImageUrl: string | null; sortOrderProvided: boolean }>;
+        rowNumbers: number[];
+      }>();
+
+      for (let index = 0; index < normalizedRows.length; index += 1) {
+        const row = normalizedRows[index];
+        const spreadsheetRowNumber = index + 1;
+
+        const rawName = getFromRow(row, columnMap.name);
+        const name = normalizeString(rawName);
+
+        if (!name) {
+          summary.skipped += 1;
+          summary.errors.push({
+            row: spreadsheetRowNumber,
+            message: 'Missing required field: product name',
+          });
+          summary.details.push({
+            row: spreadsheetRowNumber,
+            productName: 'Unknown',
+            status: 'ERROR',
+            message: 'Missing required field: product name',
+          });
+          continue;
+        }
+
+        const skuValue = getFromRow(row, columnMap.sku);
+        const sku = normalizeString(skuValue) || null;
+
+        const productKey = sku ? `sku:${normalizeKey(sku)}` : `name:${normalizeKey(name) || name.toLowerCase()}`;
+
+        const description = normalizeString(getFromRow(row, columnMap.description)) || null;
+        const status = parseStatus(getFromRow(row, columnMap.status));
+        const isActive = parseBoolean(getFromRow(row, columnMap.isActive), defaultIsActive);
+        const isFeatured = parseBoolean(getFromRow(row, columnMap.isFeatured), false);
+        const brandIdRaw = normalizeString(getFromRow(row, columnMap.brandId));
+        const brandId = brandIdRaw || null;
+        const categoryIds = parseCategories(getFromRow(row, columnMap.categoryIds));
+        const tagsRaw = normalizeString(getFromRow(row, columnMap.tags));
+        const tags = tagsRaw
+          ? tagsRaw
+            .split(/[;,|]/)
+            .map((tag) => normalizeString(tag))
+            .filter(Boolean)
+          : [];
+
+        const productImageUrls = parseImageUrls(getFromRow(row, columnMap.productImageUrls));
+
+        const variantName = normalizeString(getFromRow(row, columnMap.variantName)) || `${name} Variant`;
+        const variantSku = normalizeString(getFromRow(row, columnMap.variantSku)) || (sku || null);
+        const variantBarcode = normalizeString(getFromRow(row, columnMap.variantBarcode)) || null;
+        const price = parseNumber(getFromRow(row, columnMap.price));
+
+        const compareAtPriceRaw = getFromRow(row, columnMap.compareAtPrice);
+        const compareAtPrice = compareAtPriceRaw !== undefined && compareAtPriceRaw !== null && normalizeString(compareAtPriceRaw) !== ''
+          ? parseNumber(compareAtPriceRaw, 0)
+          : null;
+
+        const costPriceRaw = getFromRow(row, columnMap.costPrice);
+        const costPrice = costPriceRaw !== undefined && costPriceRaw !== null && normalizeString(costPriceRaw) !== ''
+          ? parseNumber(costPriceRaw, 0)
+          : null;
+        const stockQuantity = parseNumber(getFromRow(row, columnMap.stockQuantity), 0);
+        const lowStockThresholdRaw = getFromRow(row, columnMap.lowStockThreshold);
+        const lowStockThresholdValue = lowStockThresholdRaw !== undefined && lowStockThresholdRaw !== null && normalizeString(lowStockThresholdRaw) !== ''
+          ? parseNumber(lowStockThresholdRaw, 0)
+          : null;
+        const trackInventory = parseBoolean(getFromRow(row, columnMap.trackInventory), true);
+        const allowBackorders = parseBoolean(getFromRow(row, columnMap.allowBackorders), false);
+        const variantImageUrl = parseFirstImageUrl(getFromRow(row, columnMap.variantImageUrl));
+        const variantIsActive = parseBoolean(getFromRow(row, columnMap.variantIsActive), true);
+        const variantSortOrderRaw = getFromRow(row, columnMap.variantSortOrder);
+        const variantSortOrder = variantSortOrderRaw !== undefined && variantSortOrderRaw !== null && normalizeString(variantSortOrderRaw) !== ''
+          ? parseNumber(variantSortOrderRaw, 0)
+          : undefined;
+
+        const attributeItems: Array<{ attributeId: string; attributeValueId: string; sortOrder: number }> = [];
+        const seenAttributeIds = new Set<string>();
+        let attributeError = false;
+
+        for (const [normalizedKey, cellValue] of Object.entries(row)) {
+          if (knownColumnKeys.has(normalizedKey)) {
+            continue;
+          }
+          const attributeKey = extractVariantAttributeKey(normalizedKey);
+          if (!attributeKey) {
             continue;
           }
 
-          let upload = preparedMediaResult?.uploadMap.get(variantRecord.sourceImageUrl) ?? null;
-          if (!upload) {
-            if (variantImageUploadCache.has(variantRecord.sourceImageUrl)) {
-              upload = variantImageUploadCache.get(variantRecord.sourceImageUrl)!;
-            } else {
-              upload = await this.reuploadRemoteImage(variantRecord.sourceImageUrl);
-              variantImageUploadCache.set(variantRecord.sourceImageUrl, upload);
+          const attributeInfo = attributeLookupByKey.get(attributeKey);
+          if (!attributeInfo) {
+            const header = normalizedKeyToHeader.get(normalizedKey) || attributeKey;
+            summary.errors.push({
+              row: spreadsheetRowNumber,
+              message: `Unknown variant attribute '${header}'.`,
+            });
+            attributeError = true;
+            continue;
+          }
+
+          if (seenAttributeIds.has(attributeInfo.attribute.id)) {
+            summary.errors.push({
+              row: spreadsheetRowNumber,
+              message: `Attribute '${attributeInfo.attribute.displayName || attributeInfo.attribute.name}' is provided more than once for the same variant.`,
+            });
+            attributeError = true;
+            continue;
+          }
+
+          const rawAttributeValue = normalizeString(cellValue);
+          if (!rawAttributeValue) {
+            continue;
+          }
+
+          let resolvedValue = null;
+          if (uuidRegex.test(rawAttributeValue)) {
+            const directValue = attributeValueById.get(rawAttributeValue.toLowerCase());
+            if (directValue && directValue.attributeId === attributeInfo.attribute.id) {
+              resolvedValue = directValue;
             }
           }
 
-          variantRecord.clone.image = upload.uploadedUrl;
-        }
-      };
+          if (!resolvedValue) {
+            const normalizedValueKey = normalizeKey(rawAttributeValue);
+            if (normalizedValueKey) {
+              resolvedValue = attributeInfo.valueLookup.get(normalizedValueKey) || null;
+            }
+          }
 
-      try {
-        let existingProduct: Product | null = null;
-        if (group.productData.sku) {
-          existingProduct = await this.productRepository.findBySku(group.productData.sku);
-        }
-
-        if (existingProduct) {
-          if (!overrideExisting) {
-            summary.duplicates += 1;
-            summary.skipped += group.rowNumbers.length;
+          if (!resolvedValue) {
             summary.errors.push({
+              row: spreadsheetRowNumber,
+              message: `Invalid value '${rawAttributeValue}' for attribute '${attributeInfo.attribute.displayName || attributeInfo.attribute.name}'.`,
+            });
+            attributeError = true;
+            continue;
+          }
+
+          seenAttributeIds.add(attributeInfo.attribute.id);
+          attributeItems.push({
+            attributeId: attributeInfo.attribute.id,
+            attributeValueId: resolvedValue.id,
+            sortOrder: attributeItems.length,
+          });
+        }
+
+        if (attributeError) {
+          summary.skipped += 1;
+          continue;
+        }
+
+        let group = productGroups.get(productKey);
+        if (!group) {
+          const baseData: any = {
+            name,
+            description,
+            sku,
+            status,
+            isActive,
+            isFeatured,
+          };
+          if (brandId) {
+            baseData.brandId = brandId;
+          }
+
+          group = {
+            productData: baseData,
+            categoryIds: new Set<string>(categoryIds),
+            tags: new Set<string>(tags),
+            productImageUrls: new Set<string>(productImageUrls),
+            variants: [],
+            rowNumbers: [],
+          };
+
+          productGroups.set(productKey, group);
+        } else {
+          categoryIds.forEach((id) => group.categoryIds.add(id));
+          tags.forEach((tag) => group.tags.add(tag));
+          productImageUrls.forEach((url) => group.productImageUrls.add(url));
+
+          if (!group.productData.description && description) {
+            group.productData.description = description;
+          }
+
+          if (!group.productData.brandId && brandId) {
+            group.productData.brandId = brandId;
+          }
+
+          if (!group.productData.sku && sku) {
+            group.productData.sku = sku;
+          }
+
+          if (isFeatured) {
+            group.productData.isFeatured = true;
+          }
+        }
+
+        group.rowNumbers.push(spreadsheetRowNumber);
+
+        const sortOrderValue = variantSortOrder !== undefined && Number.isFinite(variantSortOrder)
+          ? Math.round(variantSortOrder)
+          : group.variants.length;
+
+        group.variants.push({
+          rowNumber: spreadsheetRowNumber,
+          variant: {
+            name: variantName,
+            sku: variantSku || undefined,
+            barcode: variantBarcode || undefined,
+            price,
+            compareAtPrice,
+            costPrice,
+            stockQuantity,
+            lowStockThreshold: lowStockThresholdValue,
+            trackInventory,
+            allowBackorders,
+            weight: null,
+            dimensions: null,
+            image: null,
+            isActive: variantIsActive,
+            sortOrder: sortOrderValue,
+            variantItems: attributeItems.map((item, itemIndex) => ({
+              attributeId: item.attributeId,
+              attributeValueId: item.attributeValueId,
+              sortOrder: item.sortOrder ?? itemIndex,
+            })),
+          },
+          sourceImageUrl: variantImageUrl,
+          sortOrderProvided: variantSortOrder !== undefined,
+        });
+      }
+
+      let processedGroups = 0;
+      const totalGroups = productGroups.size;
+
+      for (const group of productGroups.values()) {
+        processedGroups++;
+        if (processedGroups % 5 === 0 || processedGroups === totalGroups) {
+          const progress = Math.round((processedGroups / totalGroups) * 100);
+          const processedItems = summary.imported + summary.updated + summary.duplicates + summary.skipped;
+          const failedItems = summary.errors.length;
+          // We don't await here to not block too much, or we can await. Awaiting is safer.
+          await this.importJobService.updateProgress(job.id, progress, processedItems, failedItems, summary.totalRows);
+        }
+        if (!group.variants.length) {
+          summary.skipped += group.rowNumbers.length;
+          summary.errors.push({
+            row: group.rowNumbers[0],
+            message: 'No valid variants found for this product.',
+          });
+          continue;
+        }
+
+        const categoryIds = Array.from(group.categoryIds);
+        const tags = Array.from(group.tags);
+        const productImageUrls = Array.from(group.productImageUrls);
+
+        const variantRecords = group.variants.map((entry, index) => {
+          const clone = {
+            ...entry.variant,
+            sortOrder: entry.sortOrderProvided && Number.isFinite(entry.variant.sortOrder)
+              ? Math.round(entry.variant.sortOrder)
+              : index,
+            variantItems: Array.isArray(entry.variant.variantItems)
+              ? entry.variant.variantItems.map((item, itemIndex) => ({
+                attributeId: item.attributeId,
+                attributeValueId: item.attributeValueId,
+                sortOrder: item.sortOrder !== undefined ? item.sortOrder : itemIndex,
+              }))
+              : [],
+          };
+
+          return {
+            clone,
+            sourceImageUrl: entry.sourceImageUrl,
+            rowNumber: entry.rowNumber,
+          };
+        });
+
+        const productPayload: any = {
+          ...group.productData,
+          ...(categoryIds.length > 0 ? { categoryIds } : {}),
+          ...(tags.length > 0 ? { tags } : {}),
+          variants: variantRecords.map((record) => record.clone),
+        };
+
+        const applyMediaUploads = async (payload: any) => {
+          if (dryRun) {
+            return;
+          }
+
+          let preparedMediaResult: { media: any[]; uploadMap: Map<string, ReuploadedImageResult> } | null = null;
+          if (productImageUrls.length > 0) {
+            preparedMediaResult = await this.prepareProductMediaUploads(productImageUrls, group.productData.name, params.actorId ?? null);
+            payload.media = preparedMediaResult.media;
+          }
+
+          const variantImageUploadCache = new Map<string, ReuploadedImageResult>();
+          for (const variantRecord of variantRecords) {
+            if (!variantRecord.sourceImageUrl) {
+              continue;
+            }
+
+            let upload = preparedMediaResult?.uploadMap.get(variantRecord.sourceImageUrl) ?? null;
+            if (!upload) {
+              if (variantImageUploadCache.has(variantRecord.sourceImageUrl)) {
+                upload = variantImageUploadCache.get(variantRecord.sourceImageUrl)!;
+              } else {
+                upload = await this.reuploadRemoteImage(variantRecord.sourceImageUrl, {
+                  userId: params.actorId ?? null,
+                  folder: 'products',
+                });
+                variantImageUploadCache.set(variantRecord.sourceImageUrl, upload);
+              }
+            }
+
+            variantRecord.clone.image = upload.uploadedUrl;
+          }
+        };
+
+        try {
+          let existingProduct: Product | null = null;
+          if (group.productData.sku) {
+            existingProduct = await this.productRepository.findBySku(group.productData.sku);
+          }
+
+          if (existingProduct) {
+            if (!overrideExisting) {
+              summary.duplicates += 1;
+              summary.skipped += group.rowNumbers.length;
+              summary.errors.push({
+                row: group.rowNumbers[0],
+                message: `Product with SKU ${group.productData.sku} already exists. Enable override to update existing records.`,
+              });
+              summary.details.push({
+                row: group.rowNumbers[0],
+                productName: group.productData.name,
+                status: 'SKIPPED',
+                message: `Product with SKU ${group.productData.sku} already exists. Enable override to update existing records.`,
+              });
+              continue;
+            }
+
+            if (dryRun) {
+              summary.updated += group.rowNumbers.length;
+              summary.updatedProductIds.push(existingProduct.id);
+              summary.details.push({
+                row: group.rowNumbers[0],
+                productName: group.productData.name,
+                status: 'UPDATED',
+              });
+              continue;
+            }
+
+            await applyMediaUploads(productPayload);
+
+            const updatedProduct = await this.updateProduct(existingProduct.id, productPayload);
+            summary.updated += group.rowNumbers.length;
+            summary.updatedProductIds.push(updatedProduct.id);
+            summary.details.push({
               row: group.rowNumbers[0],
-              message: `Product with SKU ${group.productData.sku} already exists. Enable override to update existing records.`,
+              productName: group.productData.name,
+              status: 'UPDATED',
             });
             continue;
           }
 
           if (dryRun) {
-            summary.updated += 1;
-            summary.updatedProductIds.push(existingProduct.id);
+            summary.imported += group.rowNumbers.length;
+            summary.details.push({
+              row: group.rowNumbers[0],
+              productName: group.productData.name,
+              status: 'IMPORTED',
+            });
             continue;
           }
 
           await applyMediaUploads(productPayload);
 
-          const updatedProduct = await this.updateProduct(existingProduct.id, productPayload);
-          summary.updated += 1;
-          summary.updatedProductIds.push(updatedProduct.id);
-          continue;
+          const createdProduct = await this.createProduct(productPayload);
+          summary.imported += group.rowNumbers.length;
+          summary.createdProductIds.push(createdProduct.id);
+          summary.details.push({
+            row: group.rowNumbers[0],
+            productName: group.productData.name,
+            status: 'IMPORTED',
+          });
+        } catch (error: any) {
+          const errorMessage = error?.error?.message || error?.message || 'Failed to process grouped rows';
+          summary.skipped += group.rowNumbers.length;
+          summary.errors.push({
+            row: group.rowNumbers[0],
+            message: errorMessage,
+          });
+          summary.details.push({
+            row: group.rowNumbers[0],
+            productName: group.productData.name,
+            status: 'ERROR',
+            message: errorMessage,
+          });
         }
-
-        if (dryRun) {
-          summary.imported += 1;
-          continue;
-        }
-
-        await applyMediaUploads(productPayload);
-
-        const createdProduct = await this.createProduct(productPayload);
-        summary.imported += 1;
-        summary.createdProductIds.push(createdProduct.id);
-      } catch (error: any) {
-        summary.skipped += group.rowNumbers.length;
-        summary.errors.push({
-          row: group.rowNumbers[0],
-          message: error?.message || 'Failed to process grouped rows',
-        });
       }
-    }
 
-    return summary;
+      // 4. Process Translations Sheet
+      const translationSheetName = workbook.SheetNames.find(
+        (name) => name.trim().toLowerCase() === 'translations'
+      );
+
+      if (translationSheetName) {
+        const translationsSheet = workbook.Sheets[translationSheetName];
+        if (translationsSheet) {
+          const rawTranslationRows = XLSX.utils.sheet_to_json<Record<string, any>>(translationsSheet, {
+            defval: '',
+            raw: false,
+            blankrows: false,
+          });
+
+          const translationColumnMap: Record<string, string[]> = {
+            productId: ['productid', 'product_id', 'masanpham', 'idsanpham', 'sku', 'id'],
+            locale: ['locale', 'ngonngu', 'lang'],
+            name: ['name', 'tensanpham', 'sanpham'],
+            description: ['description', 'mota'],
+            shortDescription: ['shortdescription', 'motangan'],
+            slug: ['slug', 'duongdan'],
+            metaTitle: ['metatitle', 'seotitle', 'tieudeseo'],
+            metaDescription: ['metadescription', 'seodescription', 'motaseo'],
+            metaKeywords: ['metakeywords', 'tukhoaseo', 'tukhoa'],
+          };
+
+          const normalizedTranslationRows = rawTranslationRows.map((row) => {
+            const normalizedEntry: Record<string, any> = {};
+            Object.entries(row).forEach(([header, value]) => {
+              const normalizedKey = normalizeKey(header);
+              if (normalizedKey) {
+                normalizedEntry[normalizedKey] = value;
+              }
+            });
+            return normalizedEntry;
+          });
+
+          const parseLocale = (value: any): string | null => {
+            const localeCode = normalizeString(value).toLowerCase();
+            if (!localeCode) return null;
+            if (localeCode.length < 2 || localeCode.length > 5) return null;
+            return localeCode;
+          };
+
+          for (let index = 0; index < normalizedTranslationRows.length; index += 1) {
+            const row = normalizedTranslationRows[index];
+            const rowNumber = index + 1; // Start from 1 for consistency
+
+            try {
+              const productIdValue = normalizeString(getFromRow(row, translationColumnMap.productId));
+              const localeValue = getFromRow(row, translationColumnMap.locale);
+              const locale = parseLocale(localeValue);
+
+              if (!productIdValue) {
+                summary.translationSkipped = (summary.translationSkipped ?? 0) + 1;
+                summary.errors.push({
+                  row: rowNumber,
+                  message: `Translations sheet: Missing Product Identifier (ID/SKU) at row ${rowNumber}.`,
+                });
+                continue;
+              }
+
+              if (!locale) {
+                summary.translationSkipped = (summary.translationSkipped ?? 0) + 1;
+                summary.errors.push({
+                  row: rowNumber,
+                  message: `Translations sheet: invalid Locale at row ${rowNumber}`,
+                });
+                continue;
+              }
+
+              // Robust lookup: ID/Variant ID -> SKU -> Name
+              let product: Product | null = null;
+
+              if (AdminProductService.UUID_REGEX.test(productIdValue)) {
+                // Try as Product ID
+                product = await this.productRepository.findById(productIdValue);
+
+                // Fallback: Try as Variant ID
+                if (!product) {
+                  const variant = await this.productVariantRepository.findById(productIdValue);
+                  if (variant && variant.productId) {
+                    product = await this.productRepository.findById(variant.productId);
+                  }
+                }
+              }
+
+              if (!product) {
+                // Try as SKU
+                product = await this.productRepository.findBySku(productIdValue);
+              }
+
+              if (!product) {
+                // Try as Name (as a last resort)
+                const paginated = await this.productRepository.findAll({
+                  filters: { search: productIdValue },
+                  limit: 1,
+                });
+                if (paginated.items.length > 0 && paginated.items[0].name.toLowerCase() === productIdValue.toLowerCase()) {
+                  product = paginated.items[0];
+                }
+              }
+
+              if (!product) {
+                summary.translationSkipped = (summary.translationSkipped ?? 0) + 1;
+                summary.errors.push({
+                  row: rowNumber,
+                  message: `Translations sheet: product not found for identifier '${productIdValue}'. Please use a valid Product ID, Variant ID, SKU, or Name.`,
+                });
+                continue;
+              }
+
+              const productId = product.id;
+
+              const translationPayload: any = {
+                name: normalizeString(getFromRow(row, translationColumnMap.name)) || undefined,
+                description: normalizeString(getFromRow(row, translationColumnMap.description)) || undefined,
+                shortDescription: normalizeString(getFromRow(row, translationColumnMap.shortDescription)) || undefined,
+                slug: normalizeString(getFromRow(row, translationColumnMap.slug)) || undefined,
+                metaTitle: normalizeString(getFromRow(row, translationColumnMap.metaTitle)) || undefined,
+                metaDescription: normalizeString(getFromRow(row, translationColumnMap.metaDescription)) || undefined,
+                metaKeywords: normalizeString(getFromRow(row, translationColumnMap.metaKeywords)) || undefined,
+              };
+
+              const hasTranslationValues = Object.values(translationPayload).some(
+                (value) => value !== undefined && value !== ''
+              );
+              if (!hasTranslationValues) {
+                summary.translationSkipped = (summary.translationSkipped ?? 0) + 1;
+                summary.errors.push({
+                  row: rowNumber,
+                  message: `Translations sheet: no translatable fields provided at row ${rowNumber}`,
+                });
+                continue;
+              }
+
+              const existingTranslation = await this.productRepository.findProductTranslation(
+                productId,
+                locale
+              );
+
+              if (existingTranslation) {
+                if (!overrideExisting) {
+                  summary.translationDuplicates = (summary.translationDuplicates ?? 0) + 1;
+                  summary.translationSkipped = (summary.translationSkipped ?? 0) + 1;
+                  summary.errors.push({
+                    row: rowNumber,
+                    message: `Translations sheet: translation already exists for ${productId} (${locale}). Enable override to update.`,
+                  });
+                  continue;
+                }
+
+                if (dryRun) {
+                  summary.translationUpdated = (summary.translationUpdated ?? 0) + 1;
+                  continue;
+                }
+
+                await this.productRepository.updateProductTranslation(productId, locale, translationPayload);
+                summary.translationUpdated = (summary.translationUpdated ?? 0) + 1;
+              } else {
+                if (dryRun) {
+                  summary.translationImported = (summary.translationImported ?? 0) + 1;
+                  continue;
+                }
+
+                await this.productRepository.createProductTranslation({
+                  product_id: productId,
+                  locale,
+                  ...translationPayload,
+                });
+                summary.translationImported = (summary.translationImported ?? 0) + 1;
+              }
+            } catch (error: any) {
+              summary.translationSkipped = (summary.translationSkipped ?? 0) + 1;
+              summary.errors.push({
+                row: rowNumber,
+                message: `Translations sheet: ${error?.message || 'Failed to process row'}`,
+              });
+            }
+          }
+        }
+      }
+
+      await this.importJobService.completeJob(job.id, summary);
+    })().catch(async (error) => {
+      await this.importJobService.failJob(job.id, error instanceof Error ? error.message : String(error));
+    });
+
+    return { jobId: job.id };
   }
 
   private async handleProductMedia(productId: string, mediaData: any[]): Promise<void> {
@@ -1363,13 +1837,18 @@ export class AdminProductService {
   private async prepareProductMediaUploads(
     imageUrls: string[],
     productName: string,
+    userId: string | null,
   ): Promise<{ media: any[]; uploadMap: Map<string, ReuploadedImageResult> }> {
     const uploadMap = new Map<string, ReuploadedImageResult>();
     const media: any[] = [];
 
     for (let index = 0; index < imageUrls.length; index += 1) {
       const sourceUrl = imageUrls[index];
-      const upload = await this.reuploadRemoteImage(sourceUrl);
+      const upload = await this.reuploadRemoteImage(sourceUrl, {
+        userId,
+        folder: 'products',
+        alt: productName ? `${productName} image ${index + 1}` : undefined,
+      });
       uploadMap.set(sourceUrl, upload);
 
       media.push({
@@ -1391,7 +1870,10 @@ export class AdminProductService {
     return { media, uploadMap };
   }
 
-  private async reuploadRemoteImage(imageUrl: string): Promise<ReuploadedImageResult> {
+  private async reuploadRemoteImage(
+    imageUrl: string,
+    options: { userId?: string | null; folder?: string; alt?: string; caption?: string; description?: string } = {},
+  ): Promise<ReuploadedImageResult> {
     if (!imageUrl) {
       throw new BadRequestException('Image URL is empty');
     }
@@ -1433,8 +1915,21 @@ export class AdminProductService {
     };
 
     const uploadResult = await this.fileUploadService.uploadFile(uploadedFile as any, {
-      folder: 'products',
+      folder: options.folder || 'products',
     });
+
+    await this.mediaService.createMedia({
+      originalName: uploadResult.originalName,
+      filename: uploadResult.filename,
+      url: uploadResult.url,
+      mimeType,
+      size,
+      folder: options.folder || 'products',
+      provider: uploadResult.provider,
+      alt: options.alt,
+      caption: options.caption,
+      description: options.description,
+    }, options.userId ?? null);
 
     return {
       sourceUrl: imageUrl,
@@ -1623,163 +2118,7 @@ export class AdminProductService {
     }
   }
 
-  async generateExcelTemplate(): Promise<Buffer> {
-    // Get all select attributes with their values
-    const selectAttributes = await this.attributeRepository.getSelectAttributes();
 
-    // Create workbook
-    const workbook = XLSX.utils.book_new();
-
-    // Sheet 1: Template (sample data)
-    const templateData = [
-      {
-        'Name': 'Sample T-Shirt',
-        'SKU': 'TSHIRT001',
-        'Description': 'Comfortable cotton t-shirt',
-        'Status': 'active',
-        'Is Active': 'true',
-        'Is Featured': 'false',
-        'Brand ID': '',
-        'Category IDs': '',
-        'Tags': 'clothing,summer',
-        'Product Images': 'https://example.com/image1.jpg,https://example.com/image2.jpg',
-        'Variant Name': 'Red Medium',
-        'Variant SKU': 'TSHIRT001-RED-M',
-        'Variant Barcode': '123456789',
-        'Price': 25.99,
-        'Compare At Price': 29.99,
-        'Cost Price': 15.00,
-        'Stock Quantity': 100,
-        'Low Stock Threshold': 10,
-        'Track Inventory': 'true',
-        'Allow Backorders': 'false',
-        'Variant Image': 'https://example.com/variant-image.jpg',
-        'Variant Is Active': 'true',
-        'Variant Sort Order': 1,
-        'Variant Attribute: color': 'Red',
-        'Variant Attribute: size': 'M',
-      },
-      {
-        'Name': 'Sample T-Shirt',
-        'SKU': 'TSHIRT002',
-        'Description': 'Comfortable cotton t-shirt',
-        'Status': 'active',
-        'Is Active': 'true',
-        'Is Featured': 'false',
-        'Brand ID': '',
-        'Category IDs': '',
-        'Tags': 'clothing,summer',
-        'Product Images': '',
-        'Variant Name': 'Blue Large',
-        'Variant SKU': 'TSHIRT002-BLUE-L',
-        'Variant Barcode': '987654321',
-        'Price': 25.99,
-        'Compare At Price': '',
-        'Cost Price': 15.00,
-        'Stock Quantity': 50,
-        'Low Stock Threshold': 10,
-        'Track Inventory': 'true',
-        'Allow Backorders': 'false',
-        'Variant Image': '',
-        'Variant Is Active': 'true',
-        'Variant Sort Order': 2,
-        'Variant Attribute: color': 'Blue',
-        'Variant Attribute: size': 'L',
-      },
-    ];
-
-    const templateSheet = XLSX.utils.json_to_sheet(templateData);
-    XLSX.utils.book_append_sheet(workbook, templateSheet, 'Template');
-
-    // Sheet 2: Attribute Codes
-    const attributeCodesData = [
-      ['Attribute Code', 'Attribute Name', 'Value Code', 'Value Name', 'Display Value'],
-    ];
-
-    for (const attribute of selectAttributes) {
-      const values = attribute.values ? await attribute.values : [];
-      if (values.length > 0) {
-        for (const value of values) {
-          attributeCodesData.push([
-            attribute.code || '',
-            attribute.name || '',
-            value.value || '',
-            value.value || '',
-            value.displayValue || '',
-          ]);
-        }
-      } else {
-        // Add attribute even if no values
-        attributeCodesData.push([
-          attribute.code || '',
-          attribute.name || '',
-          '',
-          '',
-          '',
-        ]);
-      }
-    }
-
-    const attributeCodesSheet = XLSX.utils.aoa_to_sheet(attributeCodesData);
-    XLSX.utils.book_append_sheet(workbook, attributeCodesSheet, 'Attribute Codes');
-
-    // Sheet 3: Instructions
-    const instructionsData = [
-      ['Product Import Template Instructions'],
-      [''],
-      ['1. BASIC INFORMATION'],
-      ['- Name: Required. Product name'],
-      ['- SKU: Optional but recommended. Unique identifier'],
-      ['- Description: Optional. Product description'],
-      ['- Status: active/inactive/discontinued/draft (default: draft)'],
-      ['- Is Active: true/false (default: true)'],
-      ['- Is Featured: true/false (default: false)'],
-      ['- Brand ID: Optional. Brand identifier'],
-      ['- Category IDs: Optional. Comma-separated category UUIDs'],
-      ['- Tags: Optional. Comma-separated tag names'],
-      [''],
-      ['2. PRODUCT IMAGES'],
-      ['- Product Images: Optional. Comma-separated image URLs'],
-      ['- Images will be automatically downloaded and reuploaded'],
-      [''],
-      ['3. VARIANT INFORMATION (required for each product)'],
-      ['- Variant Name: Optional. Defaults to product name'],
-      ['- Variant SKU: Optional. Variant-specific SKU'],
-      ['- Variant Barcode: Optional. Product barcode'],
-      ['- Price: Required. Selling price'],
-      ['- Compare At Price: Optional. Original price'],
-      ['- Cost Price: Optional. Purchase cost'],
-      ['- Stock Quantity: Optional. Available stock (default: 0)'],
-      ['- Low Stock Threshold: Optional. Alert threshold'],
-      ['- Track Inventory: true/false (default: true)'],
-      ['- Allow Backorders: true/false (default: false)'],
-      ['- Variant Image: Optional. Variant image URL'],
-      ['- Variant Is Active: true/false (default: true)'],
-      ['- Variant Sort Order: Optional. Display order'],
-      [''],
-      ['4. VARIANT ATTRIBUTES'],
-      ['- Use format: "Variant Attribute: {attribute_code}"'],
-      ['- Example: "Variant Attribute: color", "Variant Attribute: size"'],
-      ['- Values must match those in the "Attribute Codes" sheet'],
-      [''],
-      ['5. GROUPING'],
-      ['- Products with same SKU/Name are grouped as variants'],
-      ['- Each row represents one variant'],
-      [''],
-      ['6. IMPORTANT NOTES'],
-      ['- Image URLs will be reuploaded to active storage'],
-      ['- Use the "Attribute Codes" sheet to find valid values'],
-      ['- Required fields: Name, Price'],
-      ['- Use dry-run first to validate data'],
-    ];
-
-    const instructionsSheet = XLSX.utils.aoa_to_sheet(instructionsData);
-    XLSX.utils.book_append_sheet(workbook, instructionsSheet, 'Instructions');
-
-    // Generate buffer
-    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-    return buffer;
-  }
 
   async exportProducts(format: string, filters?: string | Record<string, any>, requestedBy?: string) {
     const parsedFilters = this.parseFilters(filters);

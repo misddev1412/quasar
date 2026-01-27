@@ -41,7 +41,7 @@ export class ProductVariant extends BaseEntity {
   @Expose()
   @Column({
     type: 'decimal',
-    precision: 10,
+    precision: 15,
     scale: 2,
   })
   price: number;
@@ -50,7 +50,7 @@ export class ProductVariant extends BaseEntity {
   @Column({
     name: 'compare_at_price',
     type: 'decimal',
-    precision: 10,
+    precision: 15,
     scale: 2,
     nullable: true,
   })
@@ -60,7 +60,7 @@ export class ProductVariant extends BaseEntity {
   @Column({
     name: 'cost_price',
     type: 'decimal',
-    precision: 10,
+    precision: 15,
     scale: 2,
     nullable: true,
   })

@@ -20,7 +20,7 @@ const exportFormatSchema = z.enum(['csv', 'json']);
 
 export const getProductsQuerySchema = z.object({
   page: z.number().min(1).default(1),
-  limit: z.number().min(1).max(100).default(20),
+  limit: z.number().min(1).max(500).default(20),
   search: z.string().optional(),
   brandId: z.string().optional(),
   categoryId: z.string().optional(),
@@ -69,6 +69,8 @@ export const createProductSchema = z.object({
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
+  ogImage: z.string().optional(),
+
   stockQuantity: z.number().optional(),
   enableWarehouseQuantity: z.boolean().optional(),
   warehouseQuantities: z.array(z.object({
@@ -139,6 +141,8 @@ export const updateProductSchema = z.object({
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
+  ogImage: z.string().optional(),
+
   stockQuantity: z.number().optional(),
   enableWarehouseQuantity: z.boolean().optional(),
   warehouseQuantities: z.array(z.object({
@@ -214,6 +218,8 @@ export const createProductTranslationSchema = z.object({
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
+  ogImage: z.string().optional(),
+
 });
 
 export const updateProductTranslationSchema = z.object({
@@ -224,6 +230,8 @@ export const updateProductTranslationSchema = z.object({
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
+  ogImage: z.string().optional(),
+
 });
 
 const normalizeCategoryIdsInput = (
@@ -358,7 +366,7 @@ export class AdminProductsRouter {
   @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
     input: z.object({
-      limit: z.number().min(1).max(50).default(10),
+      limit: z.number().min(1).max(500).default(10),
       page: z.number().min(1).default(1),
     }),
     output: apiResponseSchema,
@@ -420,6 +428,7 @@ export class AdminProductsRouter {
         metaTitle: input.metaTitle,
         metaDescription: input.metaDescription,
         metaKeywords: input.metaKeywords,
+        ogImage: input.ogImage,
       });
       return this.responseHandler.createTrpcSuccess(translation);
     } catch (error) {
@@ -567,7 +576,7 @@ export class AdminProductsRouter {
     input: z.object({
       productId: z.string(),
       page: z.number().min(1).default(1),
-      limit: z.number().min(1).max(100).default(20),
+      limit: z.number().min(1).max(500).default(20),
     }),
     output: paginatedResponseSchema,
   })
@@ -700,7 +709,7 @@ export class AdminProductsRouter {
     @Ctx() ctx: AuthenticatedContext,
   ): Promise<{ data: string; filename: string; mimeType: string }> {
     try {
-      const buffer = await this.productService.generateExcelTemplate();
+      const buffer = await this.productService.generateExcelTemplate(ctx.locale);
       const base64Data = buffer.toString('base64');
       const filename = `product-import-template-${new Date().toISOString().split('T')[0]}.xlsx`;
 

@@ -54,7 +54,7 @@ export class ProductRepository {
     private readonly productCategoryRepository: Repository<ProductCategory>,
     @InjectRepository(ProductTranslation)
     private readonly productTranslationRepository: Repository<ProductTranslation>,
-  ) {}
+  ) { }
 
   async findAll(options: ProductQueryOptions = {}): Promise<PaginatedProducts> {
 
@@ -353,14 +353,14 @@ export class ProductRepository {
       .leftJoinAndSelect('productCategories.category', 'categories');
 
     const products = await queryBuilder.getMany();
-    
+
     const totalProducts = products.length;
     const activeProducts = products.filter(p => p.status === ProductStatus.ACTIVE).length;
     const draftProducts = products.filter(p => p.status === ProductStatus.DRAFT).length;
     const inactiveProducts = products.filter(p => p.status === ProductStatus.INACTIVE).length;
     const discontinuedProducts = products.filter(p => p.status === ProductStatus.DISCONTINUED).length;
     const featuredProducts = products.filter(p => p.isFeatured).length;
-    
+
     // Calculate total stock value using eagerly loaded variants
     const totalStockValue = products.reduce((sum, product) => {
       const variants = (product as any).variants || [];
@@ -372,7 +372,7 @@ export class ProductRepository {
         vSum + (variant.price * variant.stockQuantity), 0);
       return sum + variantValue;
     }, 0);
-    
+
     const totals = products.reduce(
       (acc, product) => {
         const reviewCount = Number(product.reviewCount || 0);
@@ -394,7 +394,7 @@ export class ProductRepository {
     const averageRating = totals.totalReviews > 0
       ? totals.totalRatingSum / totals.totalReviews
       : 0;
-    
+
     // Categories breakdown using ProductCategory junction
     const categoryStats = products.reduce((acc, product) => {
       const productCategories = (product as any).productCategories || [];
@@ -409,7 +409,7 @@ export class ProductRepository {
       }
       return acc;
     }, {} as Record<string, number>);
-    
+
     // Brand breakdown using eagerly loaded brand
     const brandStats = products.reduce((acc, product) => {
       const brand = (product as any).brand?.name || 'No Brand';
@@ -748,7 +748,7 @@ export class ProductRepository {
     }
 
     const sanitized: Partial<ProductTranslation> = { ...translationData };
-    const optionalFields: Array<keyof Pick<ProductTranslation, 'name' | 'description' | 'shortDescription' | 'slug' | 'metaTitle' | 'metaDescription' | 'metaKeywords'>> = [
+    const optionalFields: Array<keyof Pick<ProductTranslation, 'name' | 'description' | 'shortDescription' | 'slug' | 'metaTitle' | 'metaDescription' | 'metaKeywords' | 'ogImage'>> = [
       'name',
       'description',
       'shortDescription',
@@ -756,6 +756,7 @@ export class ProductRepository {
       'metaTitle',
       'metaDescription',
       'metaKeywords',
+      'ogImage',
     ];
 
     optionalFields.forEach((field) => {

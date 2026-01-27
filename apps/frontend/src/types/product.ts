@@ -20,6 +20,7 @@ export interface Product {
   metaTitle?: string;
   metaDescription?: string;
   metaKeywords?: string;
+  ogImage?: string;
   isActive?: boolean;
   isContactPrice?: boolean;
   isFeatured?: boolean;
@@ -111,6 +112,7 @@ export interface ProductTranslation {
   metaTitle?: string;
   metaDescription?: string;
   metaKeywords?: string;
+  ogImage?: string;
 }
 
 export interface ProductMedia {

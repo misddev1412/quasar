@@ -310,7 +310,7 @@ const DesktopNavigation: React.FC<{
       className="hidden lg:flex items-center gap-2 rounded-2xl py-1 transition-colors"
       style={style}
     >
-      {items.map((item) => {
+      {items.map((item, index) => {
         const isActive = pathname === item.href;
         const hasChildren = item.children && item.children.length > 0;
         const isMega = item.isMegaMenu && hasChildren;
@@ -338,7 +338,7 @@ const DesktopNavigation: React.FC<{
               target={item.target}
               rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
               className={`
-                flex items-center ${itemSizeStyle.desktopGap} ${itemSizeStyle.desktopText} ${itemWeightClass} ${itemTransformClass} transition-all duration-200 relative ${itemSizeStyle.desktopPadding} rounded-lg ${hasCustomBorder ? 'border' : 'border-0'}
+                flex items-center ${itemSizeStyle.desktopGap} ${itemSizeStyle.desktopText} ${itemWeightClass} ${itemTransformClass} transition-all duration-200 relative ${itemSizeStyle.desktopPadding} ${index === 0 ? '!pl-0' : ''} ${index === items.length - 1 ? '!pr-0' : ''} rounded-lg ${hasCustomBorder ? 'border' : 'border-0'}
                 ${isActive
                   ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
                   : `${textColor ? '' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'} hover:underline hover:font-semibold underline-offset-4`

@@ -169,6 +169,7 @@ export interface Product {
   metaTitle?: string;
   metaDescription?: string;
   metaKeywords?: string;
+  ogImage?: string;
   price?: number;
   compareAtPrice?: number | null;
   currencyCode?: string;
@@ -201,6 +202,7 @@ export interface ProductTranslation {
   metaTitle?: string;
   metaDescription?: string;
   metaKeywords?: string;
+  ogImage?: string;
 }
 
 export interface ProductVariantItem {
@@ -402,7 +404,7 @@ export interface CreateProductFormData {
   metaTitle?: string;
   metaDescription?: string;
   metaKeywords?: string;
-
+  ogImage?: string;
   isContactPrice: boolean;
   isFeatured: boolean;
 }

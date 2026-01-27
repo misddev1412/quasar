@@ -17,6 +17,7 @@
     "quick_actions": "Quick Actions",
     "back_to_top": "Back to Top",
     "firebase_configs": "Firebase Configurations",
+    "openai_configs": "OpenAI Configurations",
     "storage": "Storage Configuration",
     "general_settings": "General Settings",
     "order_settings": "Order Settings",

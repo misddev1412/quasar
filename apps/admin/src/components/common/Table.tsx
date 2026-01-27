@@ -12,28 +12,28 @@ import { TABLE_CONFIG, getPageSizeOptions, type PageSizeOption } from '../../con
  * Supports multiple languages including Vietnamese
  */
 const formatDateTime = (
-  value: any, 
-  locale: string = 'en', 
+  value: any,
+  locale: string = 'en',
   t?: (key: string, options?: any) => string
 ): { formatted: string; raw: string } | null => {
   if (!value) return null;
-  
+
   try {
     const date = new Date(value);
     if (isNaN(date.getTime())) return null;
-    
+
     const now = new Date();
     const diffInMs = now.getTime() - date.getTime();
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-    
+
     let formatted: string;
     const isVietnamese = locale === 'vi';
-    
+
     if (diffInDays === 0) {
       // Today - show relative time
       const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
       const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-      
+
       if (diffInHours === 0) {
         if (diffInMinutes <= 0) {
           formatted = isVietnamese ? 'Vừa xong' : 'Just now';
@@ -69,7 +69,7 @@ const formatDateTime = (
         });
       }
     }
-    
+
     const raw = date.toISOString();
     return { formatted, raw };
   } catch {
@@ -85,11 +85,11 @@ const DateTimeDisplay = memo(({ value }: { value: any }) => {
   const { i18n, t } = useTranslationWithBackend();
   const currentLocale = i18n.resolvedLanguage || 'en';
   const dateInfo = formatDateTime(value, currentLocale, t);
-  
+
   if (!dateInfo) {
     return <span className="text-gray-400 dark:text-gray-500">—</span>;
   }
-  
+
   return (
     <div className="flex flex-col">
       <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">
@@ -515,7 +515,7 @@ const TableToolbar = memo(({
           <input
             type="checkbox"
             checked={visibleColumns?.has(col.id) ?? true}
-            onChange={() => {}} // Handled by onClick
+            onChange={() => { }} // Handled by onClick
             className="w-4 h-4 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 transition-colors duration-200"
             onClick={(e) => e.stopPropagation()}
           />
@@ -523,6 +523,39 @@ const TableToolbar = memo(({
         className: 'hover:bg-gray-50 dark:hover:bg-gray-700',
       }));
   }, [columns, visibleColumns, onColumnVisibilityChange]);
+
+  const columnVisibilityButton = useMemo(() => (
+    <Button
+      variant="outline"
+      size="sm"
+      startIcon={<ColumnVisibilityIcon className="w-4 h-4" />}
+      className="whitespace-nowrap flex-shrink-0 w-auto sm:w-auto"
+      aria-label={t('table.toolbar.toggle_column_visibility')}
+    >
+      {t('table.toolbar.columns')}
+    </Button>
+  ), [t]);
+
+  const bulkActionButton = useMemo(() => (
+    <Button
+      variant="outline"
+      size="sm"
+      disabled={bulkActions.every(action => action.disabled)}
+    >
+      {t('table.toolbar.bulk_actions', 'Bulk actions')}
+    </Button>
+  ), [bulkActions, t]);
+
+  const bulkActionItems = useMemo(() => bulkActions.map(action => ({
+    label: action.label,
+    onClick: () => handleBulkActionClick(action.value),
+    icon: action.icon,
+    disabled: action.disabled,
+    className: clsx(
+      action.variant === 'danger' ? 'text-red-600 dark:text-red-400' : undefined,
+      action.variant === 'primary' ? 'text-blue-600 dark:text-blue-300' : undefined
+    ),
+  })), [bulkActions, handleBulkActionClick]);
 
   return (
     <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 p-6 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
@@ -553,11 +586,10 @@ const TableToolbar = memo(({
             size="sm"
             onClick={onFilterClick}
             startIcon={<FilterIcon className={`w-4 h-4 ${isFilterActive ? 'text-white' : ''}`} />}
-            className={`whitespace-nowrap flex-shrink-0 w-auto sm:w-auto transition-all duration-200 ${
-              isFilterActive
-                ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-md'
-                : ''
-            }`}
+            className={`whitespace-nowrap flex-shrink-0 w-auto sm:w-auto transition-all duration-200 ${isFilterActive
+              ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-md'
+              : ''
+              }`}
             aria-label={isFilterActive ? t('table.toolbar.close_filters') : t('table.toolbar.open_filters')}
           >
             {t('table.toolbar.filter')}
@@ -567,17 +599,7 @@ const TableToolbar = memo(({
         {/* Column Visibility Selector */}
         {showColumnVisibility && onColumnVisibilityChange && columnVisibilityItems.length > 0 && (
           <Dropdown
-            button={
-              <Button
-                variant="outline"
-                size="sm"
-                startIcon={<ColumnVisibilityIcon className="w-4 h-4" />}
-                className="whitespace-nowrap flex-shrink-0 w-auto sm:w-auto"
-                aria-label={t('table.toolbar.toggle_column_visibility')}
-              >
-                {t('table.toolbar.columns')}
-              </Button>
-            }
+            button={columnVisibilityButton}
             items={columnVisibilityItems}
             menuClassName="w-56"
           />
@@ -590,25 +612,8 @@ const TableToolbar = memo(({
             {t('table.toolbar.selected_count', '{{count}} selected').replace('{{count}}', String(selectedCount))}
           </div>
           <Dropdown
-            button={
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={bulkActions.every(action => action.disabled)}
-              >
-                {t('table.toolbar.bulk_actions', 'Bulk actions')}
-              </Button>
-            }
-            items={bulkActions.map(action => ({
-              label: action.label,
-              onClick: () => handleBulkActionClick(action.value),
-              icon: action.icon,
-              disabled: action.disabled,
-              className: clsx(
-                action.variant === 'danger' ? 'text-red-600 dark:text-red-400' : undefined,
-                action.variant === 'primary' ? 'text-blue-600 dark:text-blue-300' : undefined
-              ),
-            }))}
+            button={bulkActionButton}
+            items={bulkActionItems}
             menuClassName="w-56"
           />
         </div>
@@ -633,44 +638,44 @@ const TableSkeleton = memo(({ columns, rows = 5, hasSelection = false }: TableSk
   const { t } = useTranslationWithBackend();
 
   return (
-  <div className="animate-pulse" role="status" aria-label={t('table.accessibility.loading_table')}>
-    {/* Header skeleton */}
-    <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
-      <div className="flex gap-4">
-        {hasSelection && (
-          <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
-        )}
-        {Array.from({ length: columns }).map((_, i) => (
-          <div key={i} className="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1" />
-        ))}
-      </div>
-    </div>
-
-    {/* Body skeleton */}
-    {Array.from({ length: rows }).map((_, rowIndex) => (
-      <div key={rowIndex} className="border-t border-gray-200 dark:border-gray-700 px-6 py-4">
-        <div className="flex gap-4 items-center">
+    <div className="animate-pulse" role="status" aria-label={t('table.accessibility.loading_table')}>
+      {/* Header skeleton */}
+      <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+        <div className="flex gap-4">
           {hasSelection && (
             <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
           )}
-          {Array.from({ length: columns }).map((_, colIndex) => (
-            <div
-              key={colIndex}
-              className={clsx(
-                "bg-gray-200 dark:bg-gray-700 rounded flex-1",
-                colIndex === 0 ? "h-5" : "h-4" // First column slightly taller
-              )}
-              style={{
-                width: `${Math.random() * 40 + 60}%` // Varied widths for realism
-              }}
-            />
+          {Array.from({ length: columns }).map((_, i) => (
+            <div key={i} className="h-4 bg-gray-200 dark:bg-gray-700 rounded flex-1" />
           ))}
         </div>
       </div>
-    ))}
 
-    <span className="sr-only">{t('table.loading')}</span>
-  </div>
+      {/* Body skeleton */}
+      {Array.from({ length: rows }).map((_, rowIndex) => (
+        <div key={rowIndex} className="border-t border-gray-200 dark:border-gray-700 px-6 py-4">
+          <div className="flex gap-4 items-center">
+            {hasSelection && (
+              <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
+            )}
+            {Array.from({ length: columns }).map((_, colIndex) => (
+              <div
+                key={colIndex}
+                className={clsx(
+                  "bg-gray-200 dark:bg-gray-700 rounded flex-1",
+                  colIndex === 0 ? "h-5" : "h-4" // First column slightly taller
+                )}
+                style={{
+                  width: `${Math.random() * 40 + 60}%` // Varied widths for realism
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
+
+      <span className="sr-only">{t('table.loading')}</span>
+    </div>
   );
 });
 
@@ -959,7 +964,7 @@ export function Table<T extends { id: string | number }>({
 
     const newDirection: SortDirection =
       sortDescriptor?.columnAccessor === columnAccessor &&
-      sortDescriptor.direction === 'asc'
+        sortDescriptor.direction === 'asc'
         ? 'desc'
         : 'asc';
 
@@ -1209,8 +1214,8 @@ export function Table<T extends { id: string | number }>({
                       {selectedIdsOnPage.size === allItemIdsOnPage.size
                         ? t('table.selection.all_rows_selected')
                         : selectedIdsOnPage.size > 0
-                        ? t('table.selection.some_rows_selected')
-                        : t('table.selection.no_rows_selected')}
+                          ? t('table.selection.some_rows_selected')
+                          : t('table.selection.no_rows_selected')}
                     </span>
                   </div>
                 </th>
@@ -1329,49 +1334,49 @@ export function Table<T extends { id: string | number }>({
                     aria-selected={selectedIds?.has(item.id)}
                     aria-rowindex={index + 2} // +2 because header is row 1
                   >
-                  {isSelectable && (
-                    <td className={clsx("relative w-12", densityClasses.cell)}>
-                      <div className="flex items-center justify-center">
-                        <input
-                          id={`checkbox-${item.id}`}
-                          type="checkbox"
-                          className="w-4 h-4 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 transition-colors duration-200"
-                          checked={selectedIds?.has(item.id) ?? false}
-                          onChange={(e) => handleRowSelect(item, e.target.checked)}
-                          onClick={(e) => e.stopPropagation()}
-                          aria-label={t('table.selection.select_row', {
-                            index: index + 1,
-                            name: typeof item.id === 'string' ? item.id : `Item ${item.id}`
-                          })}
-                        />
-                      </div>
-                    </td>
-                  )}
-                  {visibleColumnsFiltered.map((col, colIndex) => (
-                    <td
-                      key={`${item.id}-${col.id}-${colIndex}`}
-                      className={clsx(
-                        densityClasses.cell,
-                        'text-sm text-gray-900 dark:text-gray-100',
-                        colIndex === 0 && 'font-medium', // First column emphasis
-                        col.align === 'center' && 'text-center',
-                        col.align === 'right' && 'text-right',
-                        col.className
-                      )}
-                      style={{
-                        width: col.width,
-                        minWidth: col.minWidth,
-                      }}
-                    >
-                      <div className={clsx(
-                        "flex items-center",
-                        col.align === 'center' && 'justify-center',
-                        col.align === 'right' && 'justify-end'
-                      )}>
-                        {renderCell(item, col, index)}
-                      </div>
-                    </td>
-                  ))}
+                    {isSelectable && (
+                      <td className={clsx("relative w-12", densityClasses.cell)}>
+                        <div className="flex items-center justify-center">
+                          <input
+                            id={`checkbox-${item.id}`}
+                            type="checkbox"
+                            className="w-4 h-4 text-blue-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-500 rounded focus:ring-blue-500 dark:focus:ring-blue-600 focus:ring-2 transition-colors duration-200"
+                            checked={selectedIds?.has(item.id) ?? false}
+                            onChange={(e) => handleRowSelect(item, e.target.checked)}
+                            onClick={(e) => e.stopPropagation()}
+                            aria-label={t('table.selection.select_row', {
+                              index: index + 1,
+                              name: typeof item.id === 'string' ? item.id : `Item ${item.id}`
+                            })}
+                          />
+                        </div>
+                      </td>
+                    )}
+                    {visibleColumnsFiltered.map((col, colIndex) => (
+                      <td
+                        key={`${item.id}-${col.id}-${colIndex}`}
+                        className={clsx(
+                          densityClasses.cell,
+                          'text-sm text-gray-900 dark:text-gray-100',
+                          colIndex === 0 && 'font-medium', // First column emphasis
+                          col.align === 'center' && 'text-center',
+                          col.align === 'right' && 'text-right',
+                          col.className
+                        )}
+                        style={{
+                          width: col.width,
+                          minWidth: col.minWidth,
+                        }}
+                      >
+                        <div className={clsx(
+                          "flex items-center",
+                          col.align === 'center' && 'justify-center',
+                          col.align === 'right' && 'justify-end'
+                        )}>
+                          {renderCell(item, col, index)}
+                        </div>
+                      </td>
+                    ))}
                   </tr>
                   {renderExpandedRow && expandedRowIds?.has(item.id) && (
                     <tr

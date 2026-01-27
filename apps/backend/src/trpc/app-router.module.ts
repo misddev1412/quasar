@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ProductsModule } from '../modules/products/products.module';
 import { ProductBundlesModule } from '../modules/product-bundles/product-bundles.module';
 import { FirebaseModule } from '../modules/firebase/firebase.module';
+import { OpenAiModule } from '../modules/openai/openai.module';
 import { AuthModule } from '../auth/auth.module';
 import { UserModule } from '../modules/user/user.module';
 import { PostsModule } from '../modules/posts/posts.module';
@@ -59,11 +60,15 @@ import { ClientServicesRouter } from './routers/client/services.router';
 import { AdminThemesRouter } from '../modules/themes/routers/admin-themes.router';
 import { PublicThemesRouter } from '../modules/themes/routers/public-themes.router';
 import { AdminProductBundlesRouter } from '../modules/product-bundles/routers/admin-product-bundles.router';
+import { AdminOpenAiConfigRouter } from '../modules/openai/routers/admin-openai-config.router';
+import { ImportModule } from '../modules/import/import.module';
+import { AdminImportRouter } from '../modules/import/routers/admin-import.router';
 
 @Module({
   imports: [
     ProductsModule,
     FirebaseModule,
+    OpenAiModule,
     AuthModule,
     UserModule,
     PostsModule,
@@ -89,7 +94,9 @@ import { AdminProductBundlesRouter } from '../modules/product-bundles/routers/ad
     ServicesModule,
     ThemesModule,
     TranslationModule,
+    TranslationModule,
     ProductBundlesModule,
+    ImportModule,
   ],
   providers: [
     ClientNewsRouter,
@@ -125,6 +132,9 @@ import { AdminProductBundlesRouter } from '../modules/product-bundles/routers/ad
     TranslationRouter,
     ResponseService,
     AdminProductBundlesRouter,
+    AdminProductBundlesRouter,
+    AdminOpenAiConfigRouter,
+    AdminImportRouter,
   ],
 })
 export class AppRouterModule { }

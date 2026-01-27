@@ -31,32 +31,6 @@ interface ProductFiltersProps {
   activeFilterCount: number;
 }
 
-const PRODUCT_STATUS_OPTIONS: SelectOption[] = [
-  { value: '', label: 'All Statuses' },
-  { value: 'ACTIVE', label: 'Active' },
-  { value: 'INACTIVE', label: 'Inactive' },
-  { value: 'DRAFT', label: 'Draft' },
-  { value: 'DISCONTINUED', label: 'Discontinued' },
-];
-
-const FEATURED_OPTIONS: SelectOption[] = [
-  { value: '', label: 'All Products' },
-  { value: 'true', label: 'Featured Only' },
-  { value: 'false', label: 'Non-Featured Only' },
-];
-
-const STOCK_OPTIONS: SelectOption[] = [
-  { value: '', label: 'All Products' },
-  { value: 'true', label: 'In Stock' },
-  { value: 'false', label: 'Out of Stock' },
-];
-
-const ACTIVE_OPTIONS: SelectOption[] = [
-  { value: '', label: 'All Products' },
-  { value: 'true', label: 'Active' },
-  { value: 'false', label: 'Inactive' },
-];
-
 export const ProductFilters: React.FC<ProductFiltersProps> = ({
   filters,
   onFiltersChange,
@@ -64,6 +38,32 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   activeFilterCount,
 }) => {
   const { t } = useTranslationWithBackend();
+
+  const PRODUCT_STATUS_OPTIONS: SelectOption[] = [
+    { value: '', label: t('products.status.all', 'All Statuses') },
+    { value: 'ACTIVE', label: t('products.status.active', 'Active') },
+    { value: 'INACTIVE', label: t('products.status.inactive', 'Inactive') },
+    { value: 'DRAFT', label: t('products.status.draft', 'Draft') },
+    { value: 'DISCONTINUED', label: t('products.status.discontinued', 'Discontinued') },
+  ];
+
+  const FEATURED_OPTIONS: SelectOption[] = [
+    { value: '', label: t('products.featured.all', 'All Products') },
+    { value: 'true', label: t('products.featured.featured_only', 'Featured Only') },
+    { value: 'false', label: t('products.featured.non_featured_only', 'Non-Featured Only') },
+  ];
+
+  const STOCK_OPTIONS: SelectOption[] = [
+    { value: '', label: t('products.featured.all', 'All Products') },
+    { value: 'true', label: t('inventory.hasStock', 'In Stock') },
+    { value: 'false', label: t('inventory.noStock', 'Out of Stock') },
+  ];
+
+  const ACTIVE_OPTIONS: SelectOption[] = [
+    { value: '', label: t('products.featured.all', 'All Products') },
+    { value: 'true', label: t('products.status.active', 'Active') },
+    { value: 'false', label: t('products.status.inactive', 'Inactive') },
+  ];
 
   // Fetch brands for the dropdown
   const { data: brandsData } = trpc.adminProductBrands.getAll.useQuery({
@@ -87,7 +87,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
 
   // Build brand options
   const brandOptions: SelectOption[] = [
-    { value: '', label: t('form.placeholders.all_brands', 'All Brands') },
+    { value: '', label: t('products.no_brand', 'All Brands') },
     ...brands.map((brand: any) => ({
       value: brand.id,
       label: brand.name,
@@ -111,13 +111,13 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   };
 
   const categoryOptions: SelectOption[] = [
-    { value: '', label: t('form.placeholders.all_categories', 'All Categories') },
+    { value: '', label: t('products.no_category', 'All Categories') },
     ...buildCategoryOptions(categories),
   ];
 
   const handleFilterChange = (key: keyof ProductFiltersType, value: string | number | string[]) => {
     const newFilters = { ...filters };
-    
+
     if (key === 'isFeatured' || key === 'isActive' || key === 'hasStock') {
       // Handle boolean conversion
       if (value === '' || value === null || value === undefined) {
@@ -147,7 +147,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
         (newFilters as any)[key] = value;
       }
     }
-    
+
     onFiltersChange(newFilters);
   };
 

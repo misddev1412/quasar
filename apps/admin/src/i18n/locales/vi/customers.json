@@ -1,5 +1,7 @@
 {
-  "customers": null,
+  "customers": {
+    "title": "Khách hàng"
+  },
   "addresses": "Địa Chỉ",
   "address_book": {
     "add_address": "Thêm Địa Chỉ",

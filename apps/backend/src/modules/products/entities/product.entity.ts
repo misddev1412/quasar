@@ -134,8 +134,17 @@ export class Product extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'og_image',
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+  })
+  ogImage?: string;
+
+  @Expose()
+  @Column({
     type: 'decimal',
-    precision: 10,
+    precision: 15,
     scale: 2,
     default: 0,
   })
@@ -144,7 +153,7 @@ export class Product extends BaseEntity {
   @Expose()
   @Column({
     type: 'decimal',
-    precision: 10,
+    precision: 15,
     scale: 2,
     nullable: true,
   })

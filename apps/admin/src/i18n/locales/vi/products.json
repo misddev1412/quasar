@@ -511,6 +511,14 @@
       "tiers": "Bậc",
       "rewards": "Phần thưởng",
       "transactions": "Giao dịch",
+      "navigation": {
+        "title": "Chương trình khách hàng thân thiết",
+        "overview": "Tổng quan",
+        "dashboard": "Bảng điều khiển",
+        "tiers": "Hạng thành viên",
+        "rewards": "Phần thưởng",
+        "transactions": "Giao dịch"
+      },
       "create_tier": "Tạo bậc",
       "create_reward": "Tạo phần thưởng",
       "basic_information": "Thông tin cơ bản",
@@ -639,6 +647,7 @@
     "create": "Tạo sản phẩm",
     "edit": "Chỉnh sửa sản phẩm",
     "view": "Xem sản phẩm",
+    "view_details": "Xem chi tiết",
     "delete": "Xóa sản phẩm",
     "name": "Tên sản phẩm",
     "slug": "Đường dẫn",
@@ -653,7 +662,13 @@
       "active": "Hoạt động",
       "inactive": "Không hoạt động",
       "draft": "Nháp",
-      "discontinued": "Ngừng kinh doanh"
+      "discontinued": "Ngừng kinh doanh",
+      "all": "Tất cả trạng thái"
+    },
+    "featured": {
+      "all": "Tất cả sản phẩm",
+      "featured_only": "Chỉ sản phẩm nổi bật",
+      "non_featured_only": "Chỉ sản phẩm không nổi bật"
     },
     "variants": "Biến thể",
     "specifications": "Thông số kỹ thuật",

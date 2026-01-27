@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTableState } from '../../hooks/useTableState';
 import { FiPlus, FiMoreVertical, FiUsers, FiUserCheck, FiUserPlus, FiUser, FiActivity, FiClock, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiUserX, FiTrash2, FiEye, FiHome, FiLogIn } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '../../components/common/Card';
@@ -62,165 +63,65 @@ const UserListPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Table preferences with persistence
-  const { preferences, updatePageSize, updateVisibleColumns } = useTablePreferences('users-table', {
-    pageSize: (() => {
-      const limitParam = searchParams.get('limit');
-      const parsedLimit = limitParam ? parseInt(limitParam, 10) : 10;
-      return [10, 25, 50, 100].includes(parsedLimit) ? parsedLimit : 10;
-    })(),
-    visibleColumns: new Set(['user', 'username', 'role', 'status', 'createdAt']),
+  // Initial filters from URL
+  const initialFilters = useMemo(() => ({
+    role: validateUserRole(searchParams.get('role')),
+    isActive: validateBoolean(searchParams.get('isActive')),
+    dateFrom: validateDateString(searchParams.get('dateFrom')) || validateDateString(searchParams.get('createdFrom')),
+    dateTo: validateDateString(searchParams.get('dateTo')) || validateDateString(searchParams.get('createdTo')),
+    isVerified: validateBoolean(searchParams.get('isVerified')),
+    email: validateString(searchParams.get('email')),
+    username: validateString(searchParams.get('username')),
+    hasProfile: validateBoolean(searchParams.get('hasProfile')),
+    country: validateString(searchParams.get('country')),
+    city: validateString(searchParams.get('city')),
+    lastLoginFrom: validateDateString(searchParams.get('lastLoginFrom')),
+    lastLoginTo: validateDateString(searchParams.get('lastLoginTo')),
+    createdFrom: validateDateString(searchParams.get('createdFrom')),
+    createdTo: validateDateString(searchParams.get('createdTo')),
+  }), []);
+
+  const userTableState = useTableState<UserFiltersType>({
+    tableId: 'users-table',
+    defaultPreferences: {
+      visibleColumns: ['user', 'username', 'role', 'status', 'createdAt', 'actions']
+    },
+    initialFilters,
   });
 
-  // Initialize state from URL parameters
-  const [page, setPage] = useState(() => validatePage(searchParams.get('page')));
-  const [limit, setLimit] = useState(preferences.pageSize);
-  const [searchValue, setSearchValue] = useState(() => searchParams.get('search') || '');
-  const [debouncedSearchValue, setDebouncedSearchValue] = useState(() => searchParams.get('search') || '');
-  // Initialize filters from URL parameters first
-  const [filters, setFilters] = useState<UserFiltersType>(() => {
-    const initialFilters = {
-      role: validateUserRole(searchParams.get('role')),
-      isActive: validateBoolean(searchParams.get('isActive')),
-      dateFrom: validateDateString(searchParams.get('dateFrom')) || validateDateString(searchParams.get('createdFrom')),
-      dateTo: validateDateString(searchParams.get('dateTo')) || validateDateString(searchParams.get('createdTo')),
-      isVerified: validateBoolean(searchParams.get('isVerified')),
-      // Additional expanded filters
-      email: validateString(searchParams.get('email')),
-      username: validateString(searchParams.get('username')),
-      hasProfile: validateBoolean(searchParams.get('hasProfile')),
-      country: validateString(searchParams.get('country')),
-      city: validateString(searchParams.get('city')),
-      lastLoginFrom: validateDateString(searchParams.get('lastLoginFrom')),
-      lastLoginTo: validateDateString(searchParams.get('lastLoginTo')),
-      createdFrom: validateDateString(searchParams.get('createdFrom')),
-      createdTo: validateDateString(searchParams.get('createdTo')),
-    };
-
-
-
-    return initialFilters;
-  });
-
-  // Initialize showFilters based on whether there are active filters from URL
-  const [showFilters, setShowFilters] = useState(() => {
-    const initialFilters = {
-      role: validateUserRole(searchParams.get('role')),
-      isActive: validateBoolean(searchParams.get('isActive')),
-      dateFrom: validateDateString(searchParams.get('dateFrom')) || validateDateString(searchParams.get('createdFrom')),
-      dateTo: validateDateString(searchParams.get('dateTo')) || validateDateString(searchParams.get('createdTo')),
-      isVerified: validateBoolean(searchParams.get('isVerified')),
-      email: validateString(searchParams.get('email')),
-      username: validateString(searchParams.get('username')),
-      hasProfile: validateBoolean(searchParams.get('hasProfile')),
-      country: validateString(searchParams.get('country')),
-      city: validateString(searchParams.get('city')),
-      lastLoginFrom: validateDateString(searchParams.get('lastLoginFrom')),
-      lastLoginTo: validateDateString(searchParams.get('lastLoginTo')),
-      createdFrom: validateDateString(searchParams.get('createdFrom')),
-      createdTo: validateDateString(searchParams.get('createdTo')),
-    };
-
-    // Show filters if there are any active filters from URL parameters
-    const hasActiveFilters = Object.values(initialFilters).some(value =>
-      value !== undefined && value !== null && value !== ''
-    );
-
-
-
-    return hasActiveFilters;
-  });
-  const [sortBy, setSortBy] = useState(() => searchParams.get('sortBy') || 'createdAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(() =>
-    searchParams.get('sortOrder') === 'asc' ? 'asc' : 'desc'
-  );
-
-  // Column visibility state - ensure non-hideable columns like 'actions' are always included
-  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(() => {
-    const initial = preferences.visibleColumns ? new Set(preferences.visibleColumns) : new Set(['user', 'username', 'role', 'status', 'createdAt', 'actions']);
-    if (!initial.has('actions')) initial.add('actions');
-    return initial;
-  });
+  const {
+    page,
+    limit,
+    searchValue,
+    debouncedSearchValue,
+    filters,
+    setFilters,
+    showFilters,
+    setShowFilters,
+    sortBy,
+    sortOrder,
+    visibleColumns,
+    handleSortChange,
+    handlePageChange,
+    handlePageSizeChange,
+    handleColumnVisibilityChange,
+    setSearchValue
+  } = userTableState;
 
   // Selected users for bulk actions
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string | number>>(new Set());
 
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const urlUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Function to update URL parameters
-  const updateUrlParams = useCallback((params: Record<string, string | undefined>) => {
-    if (urlUpdateTimeoutRef.current) {
-      clearTimeout(urlUpdateTimeoutRef.current);
-    }
-
-    urlUpdateTimeoutRef.current = setTimeout(() => {
-      const newSearchParams = new URLSearchParams();
-
-      // Add non-empty parameters to URL
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== '' && value !== null) {
-          newSearchParams.set(key, value);
-        }
-      });
-
-      // Update URL without causing navigation
-      setSearchParams(newSearchParams, { replace: true });
-    }, 100); // Short debounce for URL updates
-  }, [setSearchParams]);
-
-  // Debounce search value for API calls and URL updates
+  // Automatically show filter panel when there are active filters
   useEffect(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
+    const hasActiveFilters = Object.values(filters).some(value =>
+      value !== undefined && value !== null && value !== ''
+    );
+    if (hasActiveFilters && !showFilters) {
+      setShowFilters(true);
     }
+  }, [filters, showFilters, setShowFilters]);
 
-    searchTimeoutRef.current = setTimeout(() => {
-      setDebouncedSearchValue(searchValue);
-      setPage(1); // Reset to first page when search changes
 
-      // Update URL with search parameter and all filters
-      updateUrlParams({
-        search: searchValue || undefined,
-        role: filters.role || undefined,
-        isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
-        dateFrom: filters.dateFrom || undefined,
-        dateTo: filters.dateTo || undefined,
-        isVerified: filters.isVerified !== undefined ? String(filters.isVerified) : undefined,
-        email: filters.email || undefined,
-        username: filters.username || undefined,
-        hasProfile: filters.hasProfile !== undefined ? String(filters.hasProfile) : undefined,
-        country: filters.country || undefined,
-        city: filters.city || undefined,
-        lastLoginFrom: filters.lastLoginFrom || undefined,
-        lastLoginTo: filters.lastLoginTo || undefined,
-        createdFrom: filters.createdFrom || undefined,
-        createdTo: filters.createdTo || undefined,
-        page: searchValue ? '1' : String(page), // Reset to page 1 if searching
-        limit: limit !== 10 ? String(limit) : undefined,
-        sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
-        sortOrder: sortOrder !== 'desc' ? sortOrder : undefined,
-      });
-    }, 400); // 400ms debounce delay
-
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, [searchValue, filters, page, sortBy, sortOrder, updateUrlParams]);
-
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-      if (urlUpdateTimeoutRef.current) {
-        clearTimeout(urlUpdateTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Automatically show filter panel when there are active filters
   useEffect(() => {
@@ -278,32 +179,9 @@ const UserListPage = () => {
     navigate('/users/dashboard');
   }, [navigate]);
 
+  /* Hook handles filter changes, but keeping this signature to match usage */
   const handleFilterChange = (newFilters: UserFiltersType) => {
     setFilters(newFilters);
-    setPage(1); // Reset to first page when filters change
-
-    // Update URL with new filters
-    updateUrlParams({
-      search: searchValue || undefined,
-      role: newFilters.role || undefined,
-      isActive: newFilters.isActive !== undefined ? String(newFilters.isActive) : undefined,
-      dateFrom: newFilters.dateFrom || undefined,
-      dateTo: newFilters.dateTo || undefined,
-      isVerified: newFilters.isVerified !== undefined ? String(newFilters.isVerified) : undefined,
-      email: newFilters.email || undefined,
-      username: newFilters.username || undefined,
-      hasProfile: newFilters.hasProfile !== undefined ? String(newFilters.hasProfile) : undefined,
-      country: newFilters.country || undefined,
-      city: newFilters.city || undefined,
-      lastLoginFrom: newFilters.lastLoginFrom || undefined,
-      lastLoginTo: newFilters.lastLoginTo || undefined,
-      createdFrom: newFilters.createdFrom || undefined,
-      createdTo: newFilters.createdTo || undefined,
-      page: '1', // Reset to page 1 when filters change
-      limit: limit !== 10 ? String(limit) : undefined,
-      sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
-      sortOrder: sortOrder !== 'desc' ? sortOrder : undefined,
-    });
   };
 
   const handleFilterToggle = () => {
@@ -312,139 +190,6 @@ const UserListPage = () => {
 
   const handleClearFilters = () => {
     setFilters({});
-    setPage(1);
-
-    // Update URL to remove all filters but keep search
-    updateUrlParams({
-      search: searchValue || undefined,
-      role: undefined,
-      isActive: undefined,
-      dateFrom: undefined,
-      dateTo: undefined,
-      isVerified: undefined,
-      email: undefined,
-      username: undefined,
-      hasProfile: undefined,
-      country: undefined,
-      city: undefined,
-      lastLoginFrom: undefined,
-      lastLoginTo: undefined,
-      createdFrom: undefined,
-      createdTo: undefined,
-      page: '1',
-      limit: limit !== 10 ? String(limit) : undefined,
-      sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
-      sortOrder: sortOrder !== 'desc' ? sortOrder : undefined,
-    });
-  };
-
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-
-    // Update URL with new page
-    updateUrlParams({
-      search: searchValue || undefined,
-      role: filters.role || undefined,
-      isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
-      dateFrom: filters.dateFrom || undefined,
-      dateTo: filters.dateTo || undefined,
-      isVerified: filters.isVerified !== undefined ? String(filters.isVerified) : undefined,
-      email: filters.email || undefined,
-      username: filters.username || undefined,
-      hasProfile: filters.hasProfile !== undefined ? String(filters.hasProfile) : undefined,
-      country: filters.country || undefined,
-      city: filters.city || undefined,
-      lastLoginFrom: filters.lastLoginFrom || undefined,
-      lastLoginTo: filters.lastLoginTo || undefined,
-      createdFrom: filters.createdFrom || undefined,
-      createdTo: filters.createdTo || undefined,
-      page: newPage > 1 ? String(newPage) : undefined,
-      limit: limit !== 10 ? String(limit) : undefined,
-      sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
-      sortOrder: sortOrder !== 'desc' ? sortOrder : undefined,
-    });
-  };
-
-  // Handle page size change (server-side)
-  const handlePageSizeChange = (newLimit: number) => {
-    setLimit(newLimit);
-    setPage(1); // Reset to first page when changing page size
-
-    // Update preferences for persistence
-    updatePageSize(newLimit);
-
-    // Update URL with new limit
-    updateUrlParams({
-      search: searchValue || undefined,
-      role: filters.role || undefined,
-      isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
-      dateFrom: filters.dateFrom || undefined,
-      dateTo: filters.dateTo || undefined,
-      isVerified: filters.isVerified !== undefined ? String(filters.isVerified) : undefined,
-      email: filters.email || undefined,
-      username: filters.username || undefined,
-      hasProfile: filters.hasProfile !== undefined ? String(filters.hasProfile) : undefined,
-      country: filters.country || undefined,
-      city: filters.city || undefined,
-      lastLoginFrom: filters.lastLoginFrom || undefined,
-      lastLoginTo: filters.lastLoginTo || undefined,
-      createdFrom: filters.createdFrom || undefined,
-      createdTo: filters.createdTo || undefined,
-      page: undefined, // Reset to page 1
-      limit: newLimit !== 10 ? String(newLimit) : undefined,
-      sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
-      sortOrder: sortOrder !== 'desc' ? sortOrder : undefined,
-    });
-  };
-
-  // Handle column visibility change (client-side)
-  const handleColumnVisibilityChange = (columnId: string, visible: boolean) => {
-    setVisibleColumns(prev => {
-      const newSet = new Set(prev);
-      if (visible) {
-        newSet.add(columnId);
-      } else {
-        newSet.delete(columnId);
-      }
-
-      // Update preferences for persistence
-      updateVisibleColumns(newSet);
-
-      return newSet;
-    });
-  };
-
-  // Handle sorting change
-  const handleSortChange = (sortDescriptor: SortDescriptor<User>) => {
-    const newSortBy = String(sortDescriptor.columnAccessor);
-    const newSortOrder = sortDescriptor.direction;
-
-    setSortBy(newSortBy);
-    setSortOrder(newSortOrder);
-    setPage(1); // Reset to first page when sorting changes
-
-    // Update URL with new sorting
-    updateUrlParams({
-      search: searchValue || undefined,
-      role: filters.role || undefined,
-      isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
-      dateFrom: filters.dateFrom || undefined,
-      dateTo: filters.dateTo || undefined,
-      isVerified: filters.isVerified !== undefined ? String(filters.isVerified) : undefined,
-      email: filters.email || undefined,
-      username: filters.username || undefined,
-      hasProfile: filters.hasProfile !== undefined ? String(filters.hasProfile) : undefined,
-      country: filters.country || undefined,
-      city: filters.city || undefined,
-      lastLoginFrom: filters.lastLoginFrom || undefined,
-      lastLoginTo: filters.lastLoginTo || undefined,
-      createdFrom: filters.createdFrom || undefined,
-      createdTo: filters.createdTo || undefined,
-      page: undefined, // Reset to page 1
-      limit: limit !== 10 ? String(limit) : undefined,
-      sortBy: newSortBy !== 'createdAt' ? newSortBy : undefined,
-      sortOrder: newSortOrder !== 'desc' ? newSortOrder : undefined,
-    });
   };
 
   // Handle login as user
@@ -880,7 +625,7 @@ const UserListPage = () => {
           onBulkAction={handleBulkAction}
           // Sorting
           sortDescriptor={sortDescriptor}
-          onSortChange={handleSortChange}
+          onSortChange={(descriptor) => handleSortChange(String(descriptor.columnAccessor), descriptor.direction)}
           // Enhanced pagination with page size selection
           pagination={{
             currentPage: page,

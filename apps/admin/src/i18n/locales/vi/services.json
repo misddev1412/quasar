@@ -1,6 +1,7 @@
 {
     "services": {
         "entity_name": "Dịch vụ",
+        "title": "Dịch vụ",
         "entity_name_plural": "Dịch vụ",
         "edit_title": "Chỉnh sửa Dịch vụ",
         "edit_desc": "Cập nhật chi tiết dịch vụ",
