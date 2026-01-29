@@ -1,11 +1,11 @@
 import React, { useMemo, useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiPlus, FiMenu, FiRefreshCw, FiHome, FiFilter } from 'react-icons/fi';
+import { FiPlus, FiMenu, FiRefreshCw, FiHome, FiFilter, FiUpload } from 'react-icons/fi';
 import { Select, StatisticsGrid, StandardListPage, Loading, Alert, AlertDescription, AlertTitle, Toggle } from '@admin/components/common';
 import type { StatisticData } from '@admin/components/common';
 import { useMenuPage, useMenuDragHandlers, flattenMenuTree, SUB_MENU_GROUP } from '@admin/hooks/useMenuPage';
 import { AdminMenu, MenuTreeNode } from '@admin/hooks/useMenusManager';
-import { MenuTable, MenuFormModal, menuStyles } from '@admin/components/menus';
+import { MenuTable, MenuFormModal, MenuImportModal, menuStyles } from '@admin/components/menus';
 import { cn } from '@admin/lib/utils';
 import { useSettings } from '@admin/hooks/useSettings';
 import { useTranslation } from 'react-i18next';
@@ -81,6 +81,7 @@ const MenusPage: React.FC = () => {
   } = useSettings({ group: 'storefront-ui' });
   const [isUpdatingSubMenuVisibility, setIsUpdatingSubMenuVisibility] = useState(false);
   const [pendingSubMenuVisibility, setPendingSubMenuVisibility] = useState<boolean | null>(null);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [togglingMenuIds, setTogglingMenuIds] = useState<Set<string>>(new Set());
   const pageTitle = t('menus.page.title', 'Menu Management');
   const pageDescription = t('menus.page.description', 'Manage all navigation menus');
@@ -289,6 +290,11 @@ const MenusPage: React.FC = () => {
       icon: <FiRefreshCw />,
     },
     {
+      label: t('menus.import.title', 'Import Menus'),
+      onClick: () => setIsImportModalOpen(true),
+      icon: <FiUpload />,
+    },
+    {
       label: showFilters ? t('menus.actions.hideFilters', 'Hide Filters') : t('menus.actions.showFilters', 'Show Filters'),
       onClick: () => setShowFilters(!showFilters),
       icon: <FiFilter />,
@@ -421,6 +427,12 @@ const MenusPage: React.FC = () => {
           currentMenuGroup={selectedMenuGroup}
           onSubmit={handleFormSubmit}
           isSubmitting={createMenu.isPending || updateMenu.isPending}
+        />
+        {/* Menu Import Modal */}
+        <MenuImportModal
+          open={isImportModalOpen}
+          onOpenChange={setIsImportModalOpen}
+          onSuccess={handleRefresh}
         />
       </div>
     </StandardListPage>

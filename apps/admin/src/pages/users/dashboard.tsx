@@ -454,7 +454,7 @@ const UserDashboardPage: React.FC = () => {
                       <button
                         key={user.id}
                         type="button"
-                        onClick={() => navigate(`/users/${user.id}`)}
+                        onClick={() => navigate(`/users/${user.id}/edit`)}
                         className="group flex w-full items-start justify-start gap-4 rounded-xl border border-gray-100 px-4 py-3 text-left transition hover:border-transparent hover:bg-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:border-gray-800 dark:hover:bg-primary-500/80 sm:px-6"
                       >
                         <div className="flex-1">

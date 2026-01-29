@@ -1,6 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
+import { AdminProductService } from '../../products/services/admin-product.service';
 import { OpenAiConfigService } from './openai-config.service';
+import { MediaService } from '../../storage/services/media.service';
 
 export interface GenerateSeoArticleInput {
   topic: string;
@@ -25,7 +27,12 @@ export interface GeneratedSeoArticle {
 
 @Injectable()
 export class OpenAiContentService {
-  constructor(private readonly openAiConfigService: OpenAiConfigService) { }
+  private readonly logger = new Logger(OpenAiContentService.name);
+  constructor(
+    private readonly openAiConfigService: OpenAiConfigService,
+    private readonly adminProductService: AdminProductService,
+    private readonly mediaService: MediaService,
+  ) { }
 
   async generateSeoArticle(input: GenerateSeoArticleInput): Promise<GeneratedSeoArticle> {
     const config = input.configId
@@ -120,6 +127,9 @@ export class OpenAiContentService {
     language?: string;
     tone?: string;
     style?: string;
+    includeProductLinks?: boolean;
+    includeImages?: boolean;
+    length?: 'short' | 'medium' | 'long' | 'very_long';
   }): Promise<{ content: string; usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number } }> {
     const config = await this.openAiConfigService.getActiveConfig();
 
@@ -127,7 +137,16 @@ export class OpenAiContentService {
       throw new BadRequestException('OpenAI configuration not found. Please configure an active OpenAI config.');
     }
 
-    const language = (input.language || 'vi').trim();
+    const languageMap: Record<string, string> = {
+      vi: 'Vietnamese',
+      en: 'English',
+      fr: 'French',
+      de: 'German',
+      ja: 'Japanese',
+      ko: 'Korean',
+      zh: 'Chinese',
+    };
+    const languageName = languageMap[input.language?.toLowerCase()] || input.language || 'Vietnamese';
     const tone = input.tone?.trim() || 'professional';
     const context = input.context?.trim() || '';
     const keywords = (input.keywords || []).filter((k) => k.trim());
@@ -150,14 +169,13 @@ export class OpenAiContentService {
     }
 
     if (input.contentType === 'title') {
-      prompt = `Act as an ${role}. ${taskDescription} in ${language}.
+      prompt = `Act as an ${role}. ${taskDescription} in ${languageName}.
       Context/Description: "${context}"
       Keywords: ${keywords.join(', ')}
       Tone: ${tone}
       Constraints: Keep it under 60 characters if possible. Short, concise, and catchy.
       Return ONLY the title text, no quotes, no explanations.`;
     } else {
-
       let requirements = '';
       if (style === 'blog-post') {
         role = 'professional blog writer';
@@ -196,16 +214,74 @@ export class OpenAiContentService {
           - Include a catchy opening.
           - Highlight key features/benefits using bullet points if appropriate.
           - Naturally incorporate the keywords.
-          - Length: Comprehensive and detailed (2-3 paragraphs).
         `;
       }
 
-      prompt = `Act as an ${role}. ${taskDescription} in ${language}.
+      if (input.length) {
+        const lengthMap = {
+          short: 'around 100-200 words, concise but informative.',
+          medium: 'around 300-500 words, detailed and balanced.',
+          long: 'around 600-800 words, comprehensive with multiple sections.',
+          very_long: 'at least 1000 words, very in-depth and thorough exploration of the topic.',
+        };
+        requirements += `\n- Length: ${lengthMap[input.length]}`;
+      } else {
+        requirements += `\n- Length: Comprehensive and detailed (2-3 paragraphs).`;
+      }
+
+      requirements += `\n- Hashtags: Include 5-10 relevant hashtags at the very end of the content (e.g., #product #seo #marketing).`;
+
+      let productContext = '';
+      if (input.includeProductLinks && input.entityType === 'post' && input.contentType === 'description') {
+        // Search for relevant products based on context
+        // If context is too long, it might break search, so we try to get some products anyway
+        let productsResult = await this.adminProductService.getAllProducts({
+          page: 1,
+          limit: 10,
+          search: input.context?.substring(0, 100), // Limit search string length
+          isActive: true,
+        });
+
+        // Fallback: if no products found with search, just get latest products to give AI some options
+        if (!productsResult.items || productsResult.items.length === 0) {
+          productsResult = await this.adminProductService.getAllProducts({
+            page: 1,
+            limit: 10,
+            isActive: true,
+          });
+        }
+
+        if (productsResult.items && productsResult.items.length > 0) {
+          const productList = productsResult.items.map(p => `- ${p.name}: /products/${p.slug}`).join('\n');
+          productContext = `
+      IMPORTANT: You MUST naturally mention and link to at least 2-3 of these relevant products.
+      Use exactly this HTML format: <a href="LINK">PRODUCT_NAME</a>
+      Available products to link:
+      ${productList}
+          `;
+        }
+      }
+
+      let imageRequirements = '';
+      if (input.includeImages) {
+        let imageCount = '1';
+        if (input.length === 'medium') imageCount = '1-2';
+        else if (input.length === 'long') imageCount = '2-3';
+        else if (input.length === 'very_long') imageCount = '3-4';
+
+        imageRequirements = `- IMPORTANT: Include ${imageCount} highly relevant image placeholders.
+      - PLACEMENT: Do NOT put all images at the end. Instead, place them naturally between major sections or paragraphs.
+      - Format exactly like this: [[IMAGE_PROMPT: a detailed description of the image to be generated (this will also be used as the image alt text for SEO)]]`;
+      }
+
+      prompt = `Act as an ${role}. ${taskDescription} in ${languageName}.
       Product/Post Title: "${context}"
       Keywords: ${keywords.join(', ')}
       Tone: ${tone}
 
       Requirements:${requirements}
+      ${productContext}
+      ${imageRequirements}
       - valid HTML only, no markdown code blocks.`;
     }
 
@@ -234,11 +310,96 @@ export class OpenAiContentService {
         },
       );
 
-      const content = response.data?.choices?.[0]?.message?.content;
+      let content = response.data?.choices?.[0]?.message?.content || '';
       const usage = response.data?.usage;
 
+      // Image generation step
+      if (input.includeImages && content.includes('[[IMAGE_PROMPT:')) {
+        const imageRegex = /\[\[IMAGE_PROMPT:\s*(.+?)\s*\]\]/g;
+        let match;
+        const imagePromises: Promise<{ placeholder: string; url: string; alt: string }>[] = [];
+
+        while ((match = imageRegex.exec(content)) !== null) {
+          const placeholder = match[0];
+          const prompt = match[1];
+
+          imagePromises.push((async () => {
+            try {
+              const imgResponse = await axios.post(
+                `${baseUrl}/v1/images/generations`,
+                {
+                  model: "dall-e-3",
+                  prompt: `${prompt}, realistic, high resolution, 8k, highly detailed, professional cinematic photography, commercial product style, stunning lighting`,
+                  n: 1,
+                  size: "1024x1024",
+                  quality: "standard",
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${config.apiKey}`,
+                    'Content-Type': 'application/json',
+                  },
+                }
+              );
+              const url = imgResponse.data?.data?.[0]?.url || '';
+
+              if (url) {
+                try {
+                  // Download image from OpenAI
+                  const imageResponse = await axios.get(url, { responseType: 'arraybuffer' });
+                  const buffer = Buffer.from(imageResponse.data);
+
+                  // Mock file object for MediaService
+                  const mockFile = {
+                    buffer: buffer,
+                    originalname: `ai-gen-${Date.now()}.png`,
+                    mimetype: 'image/png',
+                    size: buffer.length,
+                  };
+
+                  // Upload to permanent storage
+                  // We don't have user ID here easily, passing null since it's system generated
+                  const uploadedMedia = await this.mediaService.uploadMedia(mockFile, null as any, {
+                    folder: 'ai-generated',
+                    alt: prompt,
+                  });
+
+                  return {
+                    placeholder,
+                    url: uploadedMedia.url,
+                    alt: prompt
+                  };
+                } catch (uploadError) {
+                  this.logger.error('Failed to upload AI image to storage:', uploadError);
+                  return { placeholder, url, alt: prompt }; // Fallback to OpenAI URL
+                }
+              }
+
+              return {
+                placeholder,
+                url: '',
+                alt: prompt
+              };
+            } catch (err) {
+              console.error('DALL-E Error:', err.response?.data || err.message);
+              return { placeholder, url: '', alt: '' };
+            }
+          })());
+        }
+
+        const generatedImages = await Promise.all(imagePromises);
+        for (const img of generatedImages) {
+          if (img.url) {
+            const imgHtml = `<img src="${img.url}" alt="${img.alt.replace(/"/g, '&quot;')}" class="rounded-lg my-6 shadow-md w-full" />`;
+            content = content.replace(img.placeholder, imgHtml);
+          } else {
+            content = content.replace(img.placeholder, ''); // Remove failed placeholders
+          }
+        }
+      }
+
       return {
-        content: content?.trim() || '',
+        content: content.trim(),
         usage: usage ? {
           prompt_tokens: usage.prompt_tokens,
           completion_tokens: usage.completion_tokens,

@@ -24,6 +24,8 @@ interface AIGenerationOptionsModalProps {
     onApply?: (content: string) => void;
     onRegenerate?: () => void;
     contextLabel?: string;
+    entityType?: 'product' | 'post';
+    contentType?: 'title' | 'description';
 }
 
 export interface AIGenerationOptions {
@@ -31,6 +33,9 @@ export interface AIGenerationOptions {
     tone: string;
     style: string;
     context: string;
+    includeProductLinks?: boolean;
+    includeImages?: boolean;
+    length?: 'short' | 'medium' | 'long' | 'very_long';
 }
 
 const getToneOptions = (t: (key: string, defaultVal: string) => string) => [
@@ -49,6 +54,13 @@ const getStyleOptions = (t: (key: string, defaultVal: string) => string) => [
     { value: 'technical', label: t('ai.style_technical', 'Technical Description') },
 ];
 
+const getLengthOptions = (t: (key: string, defaultVal: string) => string) => [
+    { value: 'short', label: t('ai.length_short', 'Short (~100-200 words)') },
+    { value: 'medium', label: t('ai.length_medium', 'Medium (~300-500 words)') },
+    { value: 'long', label: t('ai.length_long', 'Long (~600-800 words)') },
+    { value: 'very_long', label: t('ai.length_very_long', 'Very Long (>1000 words)') },
+];
+
 
 export const AIGenerationOptionsModal: React.FC<AIGenerationOptionsModalProps> = ({
     isOpen,
@@ -63,18 +75,24 @@ export const AIGenerationOptionsModal: React.FC<AIGenerationOptionsModalProps> =
     onApply,
     onRegenerate,
     contextLabel,
+    entityType,
+    contentType,
 }) => {
     const { t } = useTranslationWithBackend();
 
 
     const toneOptions = useMemo(() => getToneOptions(t), [t]);
     const styleOptions = useMemo(() => getStyleOptions(t), [t]);
+    const lengthOptions = useMemo(() => getLengthOptions(t), [t]);
 
     const [options, setOptions] = useState<AIGenerationOptions>({
         language: defaultLanguage,
         tone: 'professional',
         style: 'seo-standard',
         context: initialContext,
+        includeProductLinks: true,
+        includeImages: false,
+        length: 'medium',
     });
 
     // Local state to track if we are in preview mode
@@ -112,78 +130,129 @@ export const AIGenerationOptionsModal: React.FC<AIGenerationOptionsModalProps> =
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
+            <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto flex flex-col p-0">
+                <DialogHeader className="p-6 pb-0">
                     <DialogTitle className="flex items-center gap-2">
                         <Wand2 className="w-5 h-5 text-purple-600" />
                         {t('ai.generation_options', 'AI Generation Options')}
                     </DialogTitle>
                 </DialogHeader>
 
-
-                <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                        <TextareaInput
-                            id="ai-context"
-                            label={contextLabel || t('ai.context', 'Context / Topic')}
-                            value={options.context}
-                            onChange={(e) => setOptions({ ...options, context: e.target.value })}
-                            placeholder={t('ai.context_placeholder', 'Enter topic or product name...')}
-                            rows={3}
-                        />
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Select
-                            id="ai-language"
-                            label={t('ai.language', 'Language')}
-                            value={options.language}
-                            onChange={(value) => setOptions({ ...options, language: value })}
-                            options={languageOptions}
-                        />
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Select
-                            id="ai-tone"
-                            label={t('ai.tone', 'Tone')}
-                            value={options.tone}
-                            onChange={(value) => setOptions({ ...options, tone: value })}
-                            options={toneOptions}
-                        />
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Select
-                            id="ai-style"
-                            label={t('ai.style', 'Content Style')}
-                            value={options.style}
-                            onChange={(value) => setOptions({ ...options, style: value })}
-                            options={styleOptions}
-                        />
-                    </div>
-                </div>
-
-                {showPreview && (
-                    <div className="mt-4 p-4 bg-neutral-50 dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700">
-                        <h4 className="text-sm font-medium mb-2 text-neutral-700 dark:text-neutral-300">
-                            {t('ai.preview_result', 'Preview Result')}
-                        </h4>
-                        <div className="prose prose-sm dark:prose-invert max-w-none mb-3 max-h-60 overflow-y-auto bg-white dark:bg-neutral-900 p-3 rounded border border-neutral-200 dark:border-neutral-700">
-                            <div dangerouslySetInnerHTML={{ __html: generatedContent || '' }} />
+                <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-neutral-200 dark:scrollbar-thumb-neutral-700">
+                    <div className="grid gap-4">
+                        <div className="grid gap-2">
+                            <TextareaInput
+                                id="ai-context"
+                                label={contextLabel || t('ai.context', 'Context / Topic')}
+                                value={options.context}
+                                onChange={(e) => setOptions({ ...options, context: e.target.value })}
+                                placeholder={t('ai.context_placeholder', 'Enter topic or product name...')}
+                                rows={3}
+                            />
                         </div>
 
-                        {tokenUsage && (
-                            <div className="flex gap-4 text-xs text-neutral-500 dark:text-neutral-400 border-t border-neutral-200 dark:border-neutral-700 pt-2">
-                                <span>{t('ai.usage_prompt', 'Prompt')}: <span className="font-medium text-neutral-700 dark:text-neutral-300">{tokenUsage.prompt_tokens}</span></span>
-                                <span>{t('ai.usage_completion', 'Completion')}: <span className="font-medium text-neutral-700 dark:text-neutral-300">{tokenUsage.completion_tokens}</span></span>
-                                <span><span className="font-medium text-purple-600 dark:text-purple-400">{t('ai.usage_total', 'Total: {{count}} Tokens', { count: tokenUsage.total_tokens })}</span></span>
+                        <div className="grid gap-2">
+                            <Select
+                                id="ai-language"
+                                label={t('ai.language', 'Language')}
+                                value={options.language}
+                                onChange={(value) => setOptions({ ...options, language: value })}
+                                options={languageOptions}
+                            />
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Select
+                                id="ai-tone"
+                                label={t('ai.tone', 'Tone')}
+                                value={options.tone}
+                                onChange={(value) => setOptions({ ...options, tone: value })}
+                                options={toneOptions}
+                            />
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Select
+                                id="ai-style"
+                                label={t('ai.style', 'Content Style')}
+                                value={options.style}
+                                onChange={(value) => setOptions({ ...options, style: value })}
+                                options={styleOptions}
+                            />
+                        </div>
+
+                        {contentType === 'description' && (
+                            <div className="grid gap-2">
+                                <Select
+                                    id="ai-length"
+                                    label={t('ai.length', 'Content Length')}
+                                    value={options.length}
+                                    onChange={(value: any) => setOptions({ ...options, length: value })}
+                                    options={lengthOptions}
+                                />
                             </div>
                         )}
-                    </div>
-                )}
 
-                <DialogFooter className="mt-6">
+                        <div className="flex flex-wrap gap-4 px-1">
+                            {entityType === 'post' && contentType === 'description' && (
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        id="ai-include-products"
+                                        checked={options.includeProductLinks}
+                                        onChange={(e) => setOptions({ ...options, includeProductLinks: e.target.checked })}
+                                        className="w-4 h-4 rounded border-neutral-300 text-purple-600 focus:ring-purple-500"
+                                    />
+                                    <label
+                                        htmlFor="ai-include-products"
+                                        className="text-sm font-medium text-neutral-700 dark:text-neutral-300 cursor-pointer"
+                                    >
+                                        {t('ai.include_product_links', 'Include Product Links')}
+                                    </label>
+                                </div>
+                            )}
+
+                            {contentType === 'description' && (
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        id="ai-include-images"
+                                        checked={options.includeImages}
+                                        onChange={(e) => setOptions({ ...options, includeImages: e.target.checked })}
+                                        className="w-4 h-4 rounded border-neutral-300 text-purple-600 focus:ring-purple-500"
+                                    />
+                                    <label
+                                        htmlFor="ai-include-images"
+                                        className="text-sm font-medium text-neutral-700 dark:text-neutral-300 cursor-pointer"
+                                    >
+                                        {t('ai.include_images', 'Include AI Images')}
+                                    </label>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {showPreview && (
+                        <div className="mt-4 p-4 bg-neutral-50 dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700">
+                            <h4 className="text-sm font-medium mb-2 text-neutral-700 dark:text-neutral-300">
+                                {t('ai.preview_result', 'Preview Result')}
+                            </h4>
+                            <div className="prose prose-sm dark:prose-invert max-w-none mb-3 max-h-60 overflow-y-auto bg-white dark:bg-neutral-900 p-3 rounded border border-neutral-200 dark:border-neutral-700">
+                                <div dangerouslySetInnerHTML={{ __html: generatedContent || '' }} />
+                            </div>
+
+                            {tokenUsage && (
+                                <div className="flex gap-4 text-xs text-neutral-500 dark:text-neutral-400 border-t border-neutral-200 dark:border-neutral-700 pt-2">
+                                    <span>{t('ai.usage_prompt', 'Prompt')}: <span className="font-medium text-neutral-700 dark:text-neutral-300">{tokenUsage.prompt_tokens}</span></span>
+                                    <span>{t('ai.usage_completion', 'Completion')}: <span className="font-medium text-neutral-700 dark:text-neutral-300">{tokenUsage.completion_tokens}</span></span>
+                                    <span><span className="font-medium text-purple-600 dark:text-purple-400">{t('ai.usage_total', 'Total: {{count}} Tokens', { count: tokenUsage.total_tokens })}</span></span>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                <DialogFooter className="p-6 pt-0 border-t border-neutral-100 dark:border-neutral-800">
                     <Button
                         type="button"
                         variant="outline"
@@ -228,6 +297,6 @@ export const AIGenerationOptionsModal: React.FC<AIGenerationOptionsModalProps> =
                     )}
                 </DialogFooter>
             </DialogContent>
-        </Dialog>
+        </Dialog >
     );
 };

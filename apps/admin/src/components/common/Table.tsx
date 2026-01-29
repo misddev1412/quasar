@@ -766,6 +766,12 @@ export interface TableProps<T> {
   renderExpandedRow?: (item: T) => React.ReactNode;
   /** Additional className for expanded row wrapper */
   expandedRowClassName?: string;
+  /** Enable virtualized rows for large datasets */
+  virtualized?: boolean;
+  /** Fixed row height for virtualization (px) */
+  rowHeight?: number;
+  /** Overscan row count for virtualization */
+  overscan?: number;
 }
 
 /**
@@ -830,11 +836,17 @@ export function Table<T extends { id: string | number }>({
   expandedRowIds,
   renderExpandedRow,
   expandedRowClassName,
+  virtualized,
+  rowHeight,
+  overscan = 6,
 }: TableProps<T>) {
   const { t } = useTranslationWithBackend();
   // Refs and state
   const selectAllCheckboxRef = useRef<HTMLInputElement>(null);
   const [hoveredRow, setHoveredRow] = useState<string | number | null>(null);
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [scrollTop, setScrollTop] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
 
   // Memoized values
   const isSelectable = useMemo(() => !!onSelectionChange, [onSelectionChange]);
@@ -876,9 +888,95 @@ export function Table<T extends { id: string | number }>({
     }
   }, [density]);
 
+  const resolvedRowHeight = useMemo(() => {
+    if (rowHeight) {
+      return rowHeight;
+    }
+    switch (density) {
+      case 'compact':
+        return 44;
+      case 'comfortable':
+        return 72;
+      default:
+        return 56;
+    }
+  }, [rowHeight, density]);
+
   const expandedRowColSpan = useMemo(() => {
     return visibleColumnsFiltered.length + (isSelectable ? 1 : 0);
   }, [visibleColumnsFiltered, isSelectable]);
+
+  const hasExpandedRows = useMemo(() => {
+    return !!renderExpandedRow || !!(expandedRowIds && expandedRowIds.size > 0);
+  }, [renderExpandedRow, expandedRowIds]);
+
+  const enableVirtualization = useMemo(() => {
+    const shouldVirtualize = virtualized ?? data.length >= 200;
+    return shouldVirtualize && !hasExpandedRows;
+  }, [virtualized, data.length, hasExpandedRows]);
+
+  useEffect(() => {
+    const container = tableContainerRef.current;
+    if (!container) return;
+
+    const updateHeight = () => {
+      setContainerHeight(container.clientHeight);
+    };
+
+    updateHeight();
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(updateHeight);
+      observer.observe(container);
+      return () => observer.disconnect();
+    }
+
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, [maxHeight]);
+
+  useEffect(() => {
+    if (!enableVirtualization || !tableContainerRef.current) return;
+    tableContainerRef.current.scrollTop = 0;
+    setScrollTop(0);
+  }, [enableVirtualization, data.length]);
+
+  const handleScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
+    setScrollTop(event.currentTarget.scrollTop);
+  }, []);
+
+  const virtualWindow = useMemo(() => {
+    if (!enableVirtualization || containerHeight === 0) {
+      return {
+        startIndex: 0,
+        endIndex: data.length,
+        topSpacerHeight: 0,
+        bottomSpacerHeight: 0,
+      };
+    }
+
+    const totalRows = data.length;
+    const visibleCount = Math.ceil(containerHeight / resolvedRowHeight);
+    const startIndex = Math.max(0, Math.floor(scrollTop / resolvedRowHeight) - overscan);
+    const endIndex = Math.min(
+      totalRows,
+      startIndex + visibleCount + overscan * 2
+    );
+
+    return {
+      startIndex,
+      endIndex,
+      topSpacerHeight: startIndex * resolvedRowHeight,
+      bottomSpacerHeight: (totalRows - endIndex) * resolvedRowHeight,
+    };
+  }, [enableVirtualization, containerHeight, data.length, resolvedRowHeight, scrollTop, overscan]);
+
+  const rowsToRender = useMemo(() => {
+    if (!enableVirtualization) {
+      return data;
+    }
+    return data.slice(virtualWindow.startIndex, virtualWindow.endIndex);
+  }, [data, enableVirtualization, virtualWindow.startIndex, virtualWindow.endIndex]);
 
   // Enhanced cell renderer with proper typing
   const renderCell = useCallback((item: T, column: Column<T>, index: number): React.ReactNode => {
@@ -1186,6 +1284,8 @@ export function Table<T extends { id: string | number }>({
         style={{ maxHeight: maxHeight }}
         role="region"
         aria-label={t('table.accessibility.table_region')}
+        ref={tableContainerRef}
+        onScroll={enableVirtualization ? handleScroll : undefined}
       >
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700" role="table">
           {/* Professional Header */}
@@ -1279,8 +1379,20 @@ export function Table<T extends { id: string | number }>({
 
           {/* Professional Table Body */}
           <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-            {data.map((item, index) => {
-              const additionalRowProps = rowProps?.(item, index) ?? {};
+            {enableVirtualization && virtualWindow.topSpacerHeight > 0 && (
+              <tr aria-hidden="true" className="bg-transparent">
+                <td
+                  colSpan={expandedRowColSpan}
+                  style={{ height: virtualWindow.topSpacerHeight }}
+                  className="p-0"
+                />
+              </tr>
+            )}
+            {rowsToRender.map((item, index) => {
+              const actualIndex = enableVirtualization
+                ? virtualWindow.startIndex + index
+                : index;
+              const additionalRowProps = rowProps?.(item, actualIndex) ?? {};
               const {
                 className: additionalRowClassName,
                 onClick: additionalOnClick,
@@ -1332,7 +1444,7 @@ export function Table<T extends { id: string | number }>({
                     className={clsx(getRowClassName(item), additionalRowClassName)}
                     role={additionalRole ?? (onRowClick ? 'row button' : 'row')}
                     aria-selected={selectedIds?.has(item.id)}
-                    aria-rowindex={index + 2} // +2 because header is row 1
+                    aria-rowindex={actualIndex + 2} // +2 because header is row 1
                   >
                     {isSelectable && (
                       <td className={clsx("relative w-12", densityClasses.cell)}>
@@ -1345,7 +1457,7 @@ export function Table<T extends { id: string | number }>({
                             onChange={(e) => handleRowSelect(item, e.target.checked)}
                             onClick={(e) => e.stopPropagation()}
                             aria-label={t('table.selection.select_row', {
-                              index: index + 1,
+                              index: actualIndex + 1,
                               name: typeof item.id === 'string' ? item.id : `Item ${item.id}`
                             })}
                           />
@@ -1373,7 +1485,7 @@ export function Table<T extends { id: string | number }>({
                           col.align === 'center' && 'justify-center',
                           col.align === 'right' && 'justify-end'
                         )}>
-                          {renderCell(item, col, index)}
+                          {renderCell(item, col, actualIndex)}
                         </div>
                       </td>
                     ))}
@@ -1394,6 +1506,15 @@ export function Table<T extends { id: string | number }>({
                 </React.Fragment>
               );
             })}
+            {enableVirtualization && virtualWindow.bottomSpacerHeight > 0 && (
+              <tr aria-hidden="true" className="bg-transparent">
+                <td
+                  colSpan={expandedRowColSpan}
+                  style={{ height: virtualWindow.bottomSpacerHeight }}
+                  className="p-0"
+                />
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

@@ -205,7 +205,7 @@ const BrandsPage: React.FC = () => {
     setEditDialogOpen(true);
   };
 
-  const goToBrand = (id: string) => navigate(`/products/brands/${id}`);
+  const goToBrand = (brand: Brand) => handleEditBrand(brand);
 
   const handleDelete = async (id: string) => {
     if (window.confirm(t('brands.deleteConfirm', 'Are you sure you want to delete this brand? This action cannot be undone.'))) {
@@ -426,7 +426,7 @@ const BrandsPage: React.FC = () => {
             {
               label: t('common.view', 'View'),
               icon: <FiEye className="w-4 h-4" aria-hidden="true" />,
-              onClick: () => goToBrand(brand.id)
+              onClick: () => goToBrand(brand)
             },
             {
               label: t('common.edit', 'Edit'),
@@ -639,7 +639,7 @@ const BrandsPage: React.FC = () => {
           // Additional features
           enableRowHover={true}
           density="normal"
-          onRowClick={(brand) => goToBrand(brand.id)}
+          onRowClick={(brand) => goToBrand(brand)}
           // Empty state
           emptyMessage={t('brands.no_brands_found', 'No brands found')}
           emptyAction={{

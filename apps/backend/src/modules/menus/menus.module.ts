@@ -8,10 +8,11 @@ import { MenuService } from './services/menu.service';
 import { AdminMenuRouter } from './routers/admin-menu.router';
 import { ClientMenuRouter } from './routers/client-menu.router';
 import { SharedModule } from '../shared/shared.module';
+import { ImportModule } from '../import/import.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([MenuEntity, MenuTranslationEntity]), SharedModule],
+  imports: [TypeOrmModule.forFeature([MenuEntity, MenuTranslationEntity]), SharedModule, ImportModule],
   providers: [MenuService, MenuRepository, MenuTranslationRepository, AdminMenuRouter, ClientMenuRouter],
   exports: [MenuService, MenuRepository, MenuTranslationRepository],
 })
-export class MenuModule {}
+export class MenuModule { }

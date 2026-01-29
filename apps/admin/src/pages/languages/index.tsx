@@ -294,7 +294,7 @@ const LanguagesIndexPage: React.FC = () => {
               {
                 label: t('common.view'),
                 icon: <FiEye className="w-4 h-4" aria-hidden="true" />,
-                onClick: () => navigate(`/languages/${language.id}`)
+                onClick: () => navigate(`/languages/${language.id}/edit`)
               },
               {
                 label: t('common.edit'),

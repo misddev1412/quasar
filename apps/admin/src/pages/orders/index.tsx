@@ -674,7 +674,7 @@ const OrdersPage: React.FC = () => {
           // Additional features
           enableRowHover={true}
           density="normal"
-          onRowClick={(order) => navigate(`/orders/${order.id}`)}
+          onRowClick={(order) => navigate(`/orders/${order.id}/edit`)}
           // Empty state
           emptyMessage={t('orders.no_orders_found')}
           emptyAction={{

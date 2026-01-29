@@ -54,3 +54,4 @@ export { Textarea } from '@admin/components/common/Textarea';
 export { TextareaInput } from '@admin/components/common/TextareaInput';
 export { Toggle } from '@admin/components/common/Toggle';
 export { UnifiedIcon } from '@admin/components/common/UnifiedIcon';
+export { SEOChecklist } from '@admin/components/common/SEOChecklist';

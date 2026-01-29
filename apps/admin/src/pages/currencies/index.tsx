@@ -340,7 +340,7 @@ const CurrenciesIndexPage: React.FC = () => {
               {
                 label: t('common.view'),
                 icon: <FiEye className="w-4 h-4" aria-hidden="true" />,
-                onClick: () => navigate(`/currencies/${currency.id}`)
+                onClick: () => navigate(`/currencies/${currency.id}/edit`)
               },
               {
                 label: t('common.edit'),

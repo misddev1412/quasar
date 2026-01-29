@@ -110,7 +110,7 @@ const EditShippingProviderPage: React.FC = () => {
 
     return [
       ...baseBreadcrumbs,
-      { label: provider.name, href: `/shipping-providers/${provider.id}`, icon: <FiTruck className="w-4 h-4" /> },
+      { label: provider.name, href: `/shipping-providers/${provider.id}/edit`, icon: <FiTruck className="w-4 h-4" /> },
       { label: t('common.edit', 'Edit') },
     ];
   }, [baseBreadcrumbs, provider?.id, provider?.name, t]);

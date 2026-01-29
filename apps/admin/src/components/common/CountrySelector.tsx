@@ -10,7 +10,6 @@ import Select, {
 } from 'react-select';
 import { getCountries, getCountryCallingCode } from 'react-phone-number-input';
 import clsx from 'clsx';
-import '@admin/components/common/CountrySelector.css';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 // Country data interface

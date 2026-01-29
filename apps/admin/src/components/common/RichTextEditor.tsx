@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Editor } from '@tinymce/tinymce-react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { Code2, Eye } from 'lucide-react';
 
 // Declare global tinymce
@@ -13,6 +12,12 @@ declare global {
 if (typeof window !== 'undefined') {
   (window as any).tinymce_license_key = 'gpl';
 }
+
+const TinyMCEEditor = lazy(() =>
+  import('@tinymce/tinymce-react').then((module) => ({
+    default: module.Editor
+  }))
+);
 
 interface RichTextEditorProps {
   value?: string;
@@ -359,18 +364,26 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           </div>
         ) : (
           <div className="tinymce-container">
-            <Editor
-              // KEY: Load TinyMCE from local self-hosted files
-              tinymceScriptSrc="/tinymce/tinymce.min.js"
-              licenseKey="gpl"
-              onInit={(evt, editor) => {
-                editorRef.current = editor;
-              }}
-              value={content}
-              init={editorConfig}
-              onEditorChange={handleEditorChange}
-              disabled={disabled}
-            />
+            <Suspense
+              fallback={(
+                <div className="flex items-center justify-center py-16 text-gray-500 dark:text-gray-400">
+                  Loading editor...
+                </div>
+              )}
+            >
+              <TinyMCEEditor
+                // KEY: Load TinyMCE from local self-hosted files
+                tinymceScriptSrc="/tinymce/tinymce.min.js"
+                licenseKey="gpl"
+                onInit={(evt, editor) => {
+                  editorRef.current = editor;
+                }}
+                value={content}
+                init={editorConfig}
+                onEditorChange={handleEditorChange}
+                disabled={disabled}
+              />
+            </Suspense>
           </div>
         )}
       </div>

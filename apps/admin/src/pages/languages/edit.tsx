@@ -53,7 +53,7 @@ const EditLanguagePage: React.FC = () => {
     if (!language) return baseBreadcrumbs;
     return [
       ...baseBreadcrumbs,
-      { label: language.name, href: `/languages/${language.id}`, icon: <FiGlobe className="w-4 h-4" /> },
+      { label: language.name, href: `/languages/${language.id}/edit`, icon: <FiGlobe className="w-4 h-4" /> },
       { label: t('common.edit', 'Edit') },
     ];
   }, [baseBreadcrumbs, language, t]);

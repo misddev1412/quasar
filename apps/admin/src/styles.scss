@@ -5,6 +5,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import './components/common/CountrySelector.css';
+
 /* Import shared CSS from Design System */
 /* This is separately imported in main.tsx */
 

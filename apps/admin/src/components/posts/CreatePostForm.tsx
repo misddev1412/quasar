@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { AIGenerateButton } from '@admin/components/common/AIGenerateButton';
 import { FormAIGenerator } from '@admin/components/common/FormAIGenerator';
+import { SEOChecklist } from '@admin/components/common/SEOChecklist';
 import { FileText, Settings, Globe, Image, Calendar, Tag, RefreshCw } from 'lucide-react';
 import { EntityForm } from '@admin/components/common/EntityForm';
 import { FormTabConfig, FormSubmitOptions } from '@admin/types/forms';
@@ -296,6 +297,11 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
           title: t('posts.seoMeta'),
           description: t('form.sections.seo_description'),
           icon: <Settings className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
+          customContent: (
+            <div className="mb-8">
+              <SEOChecklist />
+            </div>
+          ),
           fields: [
             {
               name: 'metaTitle',

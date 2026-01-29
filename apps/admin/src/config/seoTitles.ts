@@ -117,7 +117,7 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     }
   },
   {
-    path: '/users/:id',
+    path: '/users/:id/edit',
     titles: {
       en: 'Edit User | {{platformTitle}}',
       vi: 'Chỉnh Sửa Người Dùng | {{platformTitle}}'
@@ -930,17 +930,6 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     }
   },
   {
-    path: '/warehouses/:id',
-    titles: {
-      en: 'Warehouse Details | {{platformTitle}}',
-      vi: 'Chi Tiết Kho Hàng | {{platformTitle}}'
-    },
-    description: {
-      en: 'Review inventory, stock movements, and contact info for a warehouse',
-      vi: 'Xem tồn kho, điều chuyển và thông tin liên hệ của từng kho'
-    }
-  },
-  {
     path: '/warehouses/:id/edit',
     titles: {
       en: 'Edit Warehouse | {{platformTitle}}',
@@ -971,17 +960,6 @@ export const adminPageSeoTitles: AdminPageSeoConfig[] = [
     description: {
       en: 'Add a new storage location',
       vi: 'Thêm địa điểm lưu trữ mới'
-    }
-  },
-  {
-    path: '/warehouses/locations/:id',
-    titles: {
-      en: 'Warehouse Location Details | {{platformTitle}}',
-      vi: 'Chi Tiết Vị Trí Kho | {{platformTitle}}'
-    },
-    description: {
-      en: 'View slot capacity, assignments, and audit data',
-      vi: 'Xem sức chứa, phân bổ và dữ liệu kiểm kê của vị trí kho'
     }
   },
   {

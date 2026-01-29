@@ -401,12 +401,12 @@ const WarehouseLocationsPage: React.FC = () => {
             {
               label: t('common.view', 'View'),
               icon: React.createElement(FiEye),
-              onClick: () => navigate(`/warehouses/locations/${location.id}`),
+              onClick: () => navigate(`/warehouses/locations/${location.id}/edit`),
             },
             {
               label: t('common.edit', 'Edit'),
               icon: React.createElement(FiEdit2),
-              onClick: () => navigate(`/warehouses/locations/${location.id}`),
+              onClick: () => navigate(`/warehouses/locations/${location.id}/edit`),
             },
             {
               label: t('common.delete', 'Delete'),
@@ -526,7 +526,7 @@ const WarehouseLocationsPage: React.FC = () => {
             showColumnVisibility
             enableRowHover
             density="normal"
-            onRowClick={(location) => navigate(`/warehouses/locations/${location.id}`)}
+          onRowClick={(location) => navigate(`/warehouses/locations/${location.id}/edit`)}
             emptyMessage={t('warehouse_locations.empty', 'No locations available yet')}
             emptyAction={{
               label: t('warehouse_locations.create', 'Create Location'),

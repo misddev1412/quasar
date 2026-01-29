@@ -189,6 +189,51 @@
     "disable": "Disable",
     "translations": "Translations",
     "translations_desc": "Manage content in other languages",
-    "no_languages_available": "No languages available"
+    "no_languages_available": "No languages available",
+    "seo": {
+      "score_title": "SEO Health Score",
+      "score_description": "Real-time evaluation of your content based on SEO best practices.",
+      "pro_tip_title": "Pro Content Tip",
+      "pro_tip_desc": "Use the AI Content Generator to create optimized titles and descriptions automatically.",
+      "importance": {
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      },
+      "requirements": {
+        "title_presence": "Meta Title Presence",
+        "title_length": "Meta Title Length",
+        "title_ok": "Meta Title Optimization",
+        "desc_presence": "Meta Description Presence",
+        "desc_length": "Meta Description Length",
+        "desc_ok": "Meta Description Optimization",
+        "slug_presence": "URL Slug Presence",
+        "slug_format": "URL Slug Format",
+        "slug_ok": "URL Slug Optimization",
+        "content_length": "Content Length",
+        "content_ok": "Content Depth",
+        "image_presence": "Visual Content",
+        "image_ok": "Visual Content",
+        "keywords_presence": "Keywords Presence",
+        "keywords_ok": "Keywords Optimization"
+      },
+      "tips": {
+        "title_missing": "Add a meta title to improve visibility.",
+        "title_length": "Recommended length is 50-60 characters. Current: {{length}}",
+        "title_ok": "Your meta title is well-optimized.",
+        "desc_missing": "Add a meta description to encourage clicks.",
+        "desc_length": "Recommended length is 150-160 characters. Current: {{length}}",
+        "desc_ok": "Your meta description is well-optimized.",
+        "slug_missing": "A search-friendly URL is essential.",
+        "slug_format": "Use lowercase and hyphens for a clean URL.",
+        "slug_ok": "Your URL is search-friendly.",
+        "content_short": "Content seems a bit short. Aim for at least {{min}} words.",
+        "content_ok": "Your content has a good depth for SEO.",
+        "image_missing": "Add at least one image to improve engagement.",
+        "image_ok": "Image present.",
+        "keywords_missing": "Define keywords to help search engines understand your topic.",
+        "keywords_ok": "Keywords are defined."
+      }
+    }
   }
 }

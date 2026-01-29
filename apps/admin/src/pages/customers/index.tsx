@@ -739,7 +739,7 @@ const CustomersPage: React.FC = () => {
           // Additional features
           enableRowHover={true}
           density="normal"
-          onRowClick={(customer) => goToCustomer(customer.id)}
+          onRowClick={(customer) => navigate(`/customers/${customer.id}/edit`)}
           // Empty state
           emptyMessage={t('admin.no_customers_found')}
           emptyAction={{

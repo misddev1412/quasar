@@ -665,7 +665,7 @@ const PostListPage = () => {
           // Additional features
           enableRowHover={true}
           density="normal"
-          onRowClick={(post) => navigate(`/posts/${post.id}`)}
+          onRowClick={(post) => navigate(`/posts/${post.id}/edit`)}
           // Empty state
           emptyMessage={t('posts.no_posts_found', 'No posts found')}
           emptyAction={{

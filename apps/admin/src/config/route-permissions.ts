@@ -19,7 +19,7 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   '/users/dashboard': { resource: 'user', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/users/exports': { resource: 'user', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/users/create': { resource: 'user', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
-  '/users/:id': { resource: 'user', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
+  '/users/:id/edit': { resource: 'user', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
   
   // Role Management
   '/roles': { resource: 'role', action: PermissionAction.READ, scope: PermissionScope.ANY },
@@ -142,10 +142,10 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   // Warehouses
   '/warehouses': { resource: 'warehouse', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/warehouses/create': { resource: 'warehouse', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
-  '/warehouses/:id': { resource: 'warehouse', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
+  '/warehouses/:id/edit': { resource: 'warehouse', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
   '/warehouses/locations': { resource: 'warehouse_location', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/warehouses/locations/create': { resource: 'warehouse_location', action: PermissionAction.CREATE, scope: PermissionScope.ANY },
-  '/warehouses/locations/:id': { resource: 'warehouse_location', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
+  '/warehouses/locations/:id/edit': { resource: 'warehouse_location', action: PermissionAction.UPDATE, scope: PermissionScope.ANY },
   
   // Payment Methods
   '/payment-methods': { resource: 'payment_method', action: PermissionAction.READ, scope: PermissionScope.ANY },

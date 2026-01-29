@@ -384,7 +384,7 @@ const ShippingProvidersIndexPage: React.FC = () => {
               {
                 label: t('common.view'),
                 icon: <FiEye className="w-4 h-4" aria-hidden="true" />,
-                onClick: () => navigate(`/shipping-providers/${shippingProvider.id}`)
+                onClick: () => navigate(`/shipping-providers/${shippingProvider.id}/edit`)
               },
               {
                 label: t('common.edit'),

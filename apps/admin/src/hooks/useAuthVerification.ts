@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuth } from '@admin/hooks/useAuth';
 
 /**
@@ -8,11 +8,24 @@ import { useAuth } from '@admin/hooks/useAuth';
  */
 export function useAuthVerification() {
   const { verifyAuth, isAuthenticated, isLoading } = useAuth();
+  const lastVerificationRef = useRef(0);
+  const isVerifyingRef = useRef(false);
+  const verifyStaleMs = 2 * 60 * 1000;
 
   useEffect(() => {
     // Only verify if user is authenticated and not loading
     if (isAuthenticated && !isLoading) {
-      verifyAuth();
+      const now = Date.now();
+      const isStale = now - lastVerificationRef.current > verifyStaleMs;
+
+      if (isStale && !isVerifyingRef.current) {
+        isVerifyingRef.current = true;
+        verifyAuth()
+          .finally(() => {
+            lastVerificationRef.current = Date.now();
+            isVerifyingRef.current = false;
+          });
+      }
     }
   }, [verifyAuth, isAuthenticated, isLoading]);
 

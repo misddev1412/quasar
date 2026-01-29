@@ -187,6 +187,9 @@ export class AdminOpenAiConfigRouter {
       language: z.string().optional(),
       tone: z.string().optional(),
       style: z.string().optional(),
+      includeProductLinks: z.boolean().optional(),
+      includeImages: z.boolean().optional(),
+      length: z.enum(['short', 'medium', 'long', 'very_long']).optional(),
     }),
     output: apiResponseSchema,
   })

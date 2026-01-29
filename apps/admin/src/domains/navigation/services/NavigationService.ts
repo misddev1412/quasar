@@ -505,7 +505,7 @@ export class NavigationService implements INavigationService {
 
       return currentPath === '/orders' ||
         currentPath.startsWith('/orders/create') ||
-        !!currentPath.match(/^\/orders\/[^\/]+$/);
+        !!currentPath.match(/^\/orders\/[^\/]+(\/edit)?$/);
     }
 
     if (path === '/orders/fulfillments') {
@@ -514,7 +514,7 @@ export class NavigationService implements INavigationService {
         !!currentPath.match(/^\/orders\/fulfillments\/[^\/]+/);
     }
 
-    // Special handling for warehouses - main /warehouses should match detail/edit/create
+    // Special handling for warehouses - main /warehouses should match edit/create
     if (path === '/warehouses') {
       if (currentPath.startsWith('/warehouses/locations')) {
         return false;
@@ -522,7 +522,7 @@ export class NavigationService implements INavigationService {
 
       return currentPath === '/warehouses' ||
         currentPath.startsWith('/warehouses/create') ||
-        !!currentPath.match(/^\/warehouses\/[^\/]+$/);
+        !!currentPath.match(/^\/warehouses\/[^\/]+\/edit$/);
     }
 
     if (path === '/warehouses/locations') {
@@ -535,14 +535,35 @@ export class NavigationService implements INavigationService {
     if (path === '/customers') {
       return currentPath === '/customers' ||
         currentPath.startsWith('/customers/create') ||
-        !!currentPath.match(/^\/customers\/[^\/]+$/);
+        !!currentPath.match(/^\/customers\/[^\/]+(\/edit)?$/);
     }
 
     // Special handling for shipping providers - main /shipping-providers should match detail/edit/create
     if (path === '/shipping-providers') {
       return currentPath === '/shipping-providers' ||
         currentPath.startsWith('/shipping-providers/create') ||
-        !!currentPath.match(/^\/shipping-providers\/[^\/]+$/);
+        !!currentPath.match(/^\/shipping-providers\/[^\/]+\/edit$/);
+    }
+
+    // Special handling for languages - main /languages should match edit/create
+    if (path === '/languages') {
+      return currentPath === '/languages' ||
+        currentPath.startsWith('/languages/create') ||
+        !!currentPath.match(/^\/languages\/[^\/]+\/edit$/);
+    }
+
+    // Special handling for currencies - main /currencies should match edit/create
+    if (path === '/currencies') {
+      return currentPath === '/currencies' ||
+        currentPath.startsWith('/currencies/create') ||
+        !!currentPath.match(/^\/currencies\/[^\/]+\/edit$/);
+    }
+
+    // Special handling for services - main /services should match edit/create
+    if (path === '/services') {
+      return currentPath === '/services' ||
+        currentPath.startsWith('/services/create') ||
+        !!currentPath.match(/^\/services\/[^\/]+\/edit$/);
     }
 
     // Products sub-pages should only match exactly or their own sub-paths
@@ -585,7 +606,7 @@ export class NavigationService implements INavigationService {
         currentPath.startsWith('/notifications/event-flows/');
     }
 
-    // Special handling for users - main /users should match detail/edit/create but not dashboard or exports
+    // Special handling for users - main /users should match edit/create but not dashboard or exports
     if (path === '/users') {
       if (currentPath.startsWith('/users/dashboard') || currentPath.startsWith('/users/exports')) {
         return false;
@@ -593,21 +614,21 @@ export class NavigationService implements INavigationService {
 
       return currentPath === '/users' ||
         currentPath.startsWith('/users/create') ||
-        !!currentPath.match(/^\/users\/[^\/]+$/);
+        !!currentPath.match(/^\/users\/[^\/]+\/edit$/);
     }
 
-    // Special handling for roles - main /roles should match detail/edit/create
+    // Special handling for roles - main /roles should match edit/create
     if (path === '/roles') {
       return currentPath === '/roles' ||
         currentPath.startsWith('/roles/create') ||
-        !!currentPath.match(/^\/roles\/[^\/]+$/);
+        !!currentPath.match(/^\/roles\/[^\/]+\/edit$/);
     }
 
-    // Special handling for permissions - main /permissions should match detail/edit/create
+    // Special handling for permissions - main /permissions should match edit/create
     if (path === '/permissions') {
       return currentPath === '/permissions' ||
         currentPath.startsWith('/permissions/create') ||
-        !!currentPath.match(/^\/permissions\/[^\/]+$/);
+        !!currentPath.match(/^\/permissions\/[^\/]+\/edit$/);
     }
 
     const exactMatchPaths = ['/posts', '/services', '/settings', '/settings/maintenance', '/settings/orders', '/settings/theme', '/settings/floating-icons', '/settings/visibility', '/seo', '/languages', '/currencies', '/shipping-providers', '/orders', '/orders/fulfillments', '/customers', '/payment-methods', '/transactions', '/delivery-methods', '/support-clients', '/brand-assets', '/analytics', '/visitor-analytics', '/warehouses', '/warehouses/locations', '/loyalty', '/loyalty/tiers', '/loyalty/rewards', '/loyalty/transactions', '/loyalty/stats', '/themes'];

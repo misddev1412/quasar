@@ -494,7 +494,7 @@ const UserListPage = () => {
             {
               label: t('users.actions.view_profile', 'View Profile'),
               icon: <FiEye className="w-4 h-4" aria-hidden="true" />,
-              onClick: () => navigate(`/users/${item.id}`)
+              onClick: () => navigate(`/users/${item.id}/edit`)
             },
             {
               label: t('users.actions.login_as_user', 'Login as User'),

@@ -273,8 +273,8 @@ describe('Comprehensive SEO Titles Configuration', () => {
   // Dynamic Routes
   describe('Dynamic Routes', () => {
     it('should handle parameterized routes correctly', () => {
-      const userEditConfig = getSeoConfigForPath('/users/123');
-      expect(userEditConfig?.path).toBe('/users/:id');
+      const userEditConfig = getSeoConfigForPath('/users/123/edit');
+      expect(userEditConfig?.path).toBe('/users/:id/edit');
       expect(userEditConfig?.titles.en).toBe('Edit User | {{platformTitle}}');
 
       const productEditConfig = getSeoConfigForPath('/products/456/edit');

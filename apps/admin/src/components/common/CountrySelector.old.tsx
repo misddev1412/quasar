@@ -3,7 +3,6 @@ import { Combobox } from '@headlessui/react';
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { getCountries, getCountryCallingCode } from 'react-phone-number-input';
 import clsx from 'clsx';
-import '@admin/components/common/CountrySelector.css';
 
 // Get country names in English (you can extend this for i18n later)
 const getCountryName = (countryCode: string): string => {

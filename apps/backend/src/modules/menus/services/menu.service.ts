@@ -4,6 +4,10 @@ import { MenuTranslationRepository } from '../repositories/menu-translation.repo
 import { CreateMenuDto, UpdateMenuDto, ReorderMenuDto } from '../dto/menu.dto';
 import { MenuEntity } from '../entities/menu.entity';
 import { MenuTranslationEntity } from '../entities/menu-translation.entity';
+import * as XLSX from 'xlsx';
+import { ApiStatusCodes } from '@shared';
+import { ResponseService } from '../../shared/services/response.service';
+import { ImportJobService } from '../../import/services/import-job.service';
 
 type MenuTreeTranslation = Omit<MenuTranslationEntity, 'menu'> & {
   config?: Record<string, unknown> | null;
@@ -52,6 +56,8 @@ export class MenuService {
   constructor(
     private readonly menuRepository: MenuRepository,
     private readonly menuTranslationRepository: MenuTranslationRepository,
+    private readonly responseHandler: ResponseService,
+    private readonly importJobService: ImportJobService,
   ) { }
 
   async findAll(menuGroup?: string): Promise<MenuEntity[]> {
@@ -443,5 +449,345 @@ export class MenuService {
       menusByType,
       menusByTarget,
     };
+  }
+
+  async generateExcelTemplate(locale: string = 'en'): Promise<Buffer> {
+    const workbook = XLSX.utils.book_new();
+    const isVi = locale === 'vi';
+
+    // 1. Template Sheet
+    const templateHeaders = isVi ? [
+      'Nhóm Menu',
+      'Loại',
+      'URL',
+      'Mã tham chiếu',
+      'Đích (Target)',
+      'Vị trí',
+      'Đã bật',
+      'Biểu tượng',
+      'Màu chữ',
+      'Màu nền',
+      'Màu viền',
+      'Độ rộng viền',
+      'Cấu hình (JSON)',
+      'Mega Menu',
+      'Số cột Mega Menu',
+      'Mã Menu cha (UUID)',
+    ] : [
+      'Menu Group',
+      'Type',
+      'URL',
+      'Reference ID',
+      'Target',
+      'Position',
+      'Is Enabled',
+      'Icon',
+      'Text Color',
+      'Background Color',
+      'Border Color',
+      'Border Width',
+      'Config (JSON)',
+      'Is Mega Menu',
+      'Mega Menu Columns',
+      'Parent ID (UUID)',
+    ];
+
+    const templateSample = isVi ? {
+      'Nhóm Menu': 'main',
+      'Loại': 'link',
+      'URL': '/',
+      'Mã tham chiếu': '',
+      'Đích (Target)': '_self',
+      'Vị trí': 0,
+      'Đã bật': 'true',
+      'Biểu tượng': 'home',
+      'Màu chữ': '',
+      'Màu nền': '',
+      'Màu viền': '',
+      'Độ rộng viền': '',
+      'Cấu hình (JSON)': '{}',
+      'Mega Menu': 'false',
+      'Số cột Mega Menu': '',
+      'Mã Menu cha (UUID)': '',
+    } : {
+      'Menu Group': 'main',
+      'Type': 'link',
+      'URL': '/',
+      'Reference ID': '',
+      'Target': '_self',
+      'Position': 0,
+      'Is Enabled': 'true',
+      'Icon': 'home',
+      'Text Color': '',
+      'Background Color': '',
+      'Border Color': '',
+      'Border Width': '',
+      'Config (JSON)': '{}',
+      'Is Mega Menu': 'false',
+      'Mega Menu Columns': '',
+      'Parent ID (UUID)': '',
+    };
+
+    const templateSheet = XLSX.utils.json_to_sheet([templateSample], { header: templateHeaders });
+    XLSX.utils.book_append_sheet(workbook, templateSheet, 'Template');
+
+    // 2. Instructions Sheet
+    const instructionsData = isVi ? [
+      ['Hướng dẫn nhập Menu'],
+      [''],
+      ['1. THÔNG TIN CƠ BẢN'],
+      ['- Nhóm Menu: main, footer, top, mobile, v.v.'],
+      ['- Loại: link, product, category, brand, v.v.'],
+      ['- Đích (Target): _self (Trang hiện tại), _blank (Tab mới)'],
+      ['- Vị trí: Số thứ tự (0, 1, 2...)'],
+      ['- Đã bật: true/false'],
+      [''],
+      ['2. PHÂN CẤP'],
+      ['- Mã Menu cha: UUID của menu cha nếu muốn tạo menu con'],
+      [''],
+      ['3. SHEET BẢN DỊCH (Translations)'],
+      ['- Nhãn (Label): Tên hiển thị của menu'],
+      ['- Ngôn ngữ: vi, en, v.v.'],
+    ] : [
+      ['Menu Import Instructions'],
+      [''],
+      ['1. BASIC INFO'],
+      ['- Menu Group: main, footer, top, mobile, etc.'],
+      ['- Type: link, product, category, brand, etc.'],
+      ['- Target: _self, _blank'],
+      ['- Position: Number (0, 1, 2...)'],
+      ['- Is Enabled: true/false'],
+      [''],
+      ['2. HIERARCHY'],
+      ['- Parent ID: UUID of parent menu for submenus'],
+      [''],
+      ['3. TRANSLATIONS SHEET'],
+      ['- Label: Display name of the menu'],
+      ['- Locale: en, vi, etc.'],
+    ];
+
+    const instructionsSheet = XLSX.utils.aoa_to_sheet(instructionsData);
+    XLSX.utils.book_append_sheet(workbook, instructionsSheet, 'Instructions');
+
+    // 3. Translations Sheet
+    const translationHeaders = isVi ? [
+      'Nhóm Menu',
+      'Vị trí',
+      'Ngôn ngữ',
+      'Nhãn',
+      'Mô tả',
+      'HTML Tùy chỉnh',
+    ] : [
+      'Menu Group',
+      'Position',
+      'Locale',
+      'Label',
+      'Description',
+      'Custom HTML',
+    ];
+
+    const translationSample = isVi ? {
+      'Nhóm Menu': 'main',
+      'Vị trí': 0,
+      'Ngôn ngữ': 'vi',
+      'Nhãn': 'Trang chủ',
+      'Mô tả': 'Về trang chủ',
+      'HTML Tùy chỉnh': '',
+    } : {
+      'Menu Group': 'main',
+      'Position': 0,
+      'Locale': 'en',
+      'Label': 'Home',
+      'Description': 'Back to home',
+      'Custom HTML': '',
+    };
+
+    const translationsSheet = XLSX.utils.json_to_sheet([translationSample], { header: translationHeaders });
+    XLSX.utils.book_append_sheet(workbook, translationsSheet, 'Translations');
+
+    return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+  }
+
+  async importMenusFromExcel(params: {
+    fileName: string;
+    fileData: string;
+    overrideExisting?: boolean;
+    dryRun?: boolean;
+    actorId?: string | null;
+  }): Promise<{ jobId: string }> {
+    const {
+      fileData,
+      fileName,
+      overrideExisting = false,
+      dryRun = false,
+      actorId,
+    } = params;
+
+    if (!fileData || fileData.trim().length === 0) {
+      throw this.responseHandler.createError(
+        ApiStatusCodes.BAD_REQUEST,
+        'File data is required for import',
+        'BAD_REQUEST',
+      );
+    }
+
+    const job = await this.importJobService.createJob('menus', fileName, actorId ?? undefined);
+
+    // Run processing in background
+    (async () => {
+      try {
+        const summary = {
+          totalRows: 0,
+          imported: 0,
+          skipped: 0,
+          duplicates: 0,
+          updated: 0,
+          errors: [] as Array<{ row: number; message: string }>,
+          details: [] as Array<{
+            row: number;
+            label: string;
+            status: 'IMPORTED' | 'UPDATED' | 'SKIPPED' | 'ERROR';
+            message?: string;
+          }>,
+        };
+
+        const sanitizeBase64 = (input: string): string => {
+          const trimmed = input.trim();
+          const commaIndex = trimmed.indexOf(',');
+          if (commaIndex !== -1) {
+            return trimmed.slice(commaIndex + 1);
+          }
+          return trimmed;
+        };
+
+        const buffer = Buffer.from(sanitizeBase64(fileData), 'base64');
+        const workbook = XLSX.read(buffer, { type: 'buffer' });
+
+        if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+          throw new Error('The uploaded workbook does not contain any sheets.');
+        }
+
+        const worksheet = workbook.Sheets['Template'] || workbook.Sheets[workbook.SheetNames[0]];
+        const rawRows = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet, {
+          defval: '',
+          raw: false,
+          blankrows: false,
+        });
+
+        const translationSheet = workbook.Sheets['Translations'];
+        const translationRows = translationSheet ? XLSX.utils.sheet_to_json<Record<string, any>>(translationSheet, {
+          defval: '',
+          raw: false,
+          blankrows: false,
+        }) : [];
+
+        summary.totalRows = rawRows.length;
+
+        for (let i = 0; i < rawRows.length; i++) {
+          const row = rawRows[i];
+          const rowNumber = i + 2;
+
+          try {
+            // Find translations for this row
+            const menuGroup = row['Nhóm Menu'] || row['Menu Group'];
+            const position = parseInt(row['Vị trí'] || row['Position']);
+
+            const rowTranslations: Record<string, any> = {};
+            translationRows
+              .filter(t => (t['Nhóm Menu'] || t['Menu Group']) === menuGroup && parseInt(t['Vị trí'] || t['Position']) === position)
+              .forEach(t => {
+                const locale = t['Ngôn ngữ'] || t['Locale'];
+                rowTranslations[locale] = {
+                  label: t['Nhãn'] || t['Label'],
+                  description: t['Mô tả'] || t['Description'],
+                  customHtml: t['HTML Tùy chỉnh'] || t['Custom HTML'],
+                };
+              });
+
+            const menuData: any = {
+              menuGroup,
+              type: row['Loại'] || row['Type'],
+              url: row['URL'],
+              referenceId: row['Mã tham chiếu'] || row['Reference ID'],
+              target: row['Đích (Target)'] || row['Target'],
+              position,
+              isEnabled: String(row['Đã bật'] || row['Is Enabled']).toLowerCase() === 'true',
+              icon: row['Biểu tượng'] || row['Icon'],
+              textColor: row['Màu chữ'] || row['Text Color'],
+              backgroundColor: row['Màu nền'] || row['Background Color'],
+              borderColor: row['Màu viền'] || row['Border Color'],
+              borderWidth: row['Độ rộng viền'] || row['Border Width'],
+              config: JSON.parse(row['Cấu hình (JSON)'] || row['Config (JSON)'] || '{}'),
+              isMegaMenu: String(row['Mega Menu'] || row['Is Mega Menu']).toLowerCase() === 'true',
+              megaMenuColumns: row['Số cột Mega Menu'] || row['Mega Menu Columns'] ? parseInt(row['Số cột Mega Menu'] || row['Mega Menu Columns']) : undefined,
+              parentId: row['Mã Menu cha (UUID)'] || row['Parent ID (UUID)'] || undefined,
+              translations: rowTranslations,
+            };
+
+            if (dryRun) {
+              summary.imported++;
+              summary.details.push({
+                row: rowNumber,
+                label: rowTranslations['vi']?.label || rowTranslations['en']?.label || 'Unknown',
+                status: 'IMPORTED',
+                message: 'Dry-run: Validated successfully',
+              });
+              continue;
+            }
+
+            // Check if exists
+            const existing = await this.findMenuByPosition(menuGroup, position, menuData.parentId);
+            if (existing) {
+              if (overrideExisting) {
+                await this.update(existing.id, menuData);
+                summary.updated++;
+                summary.details.push({
+                  row: rowNumber,
+                  label: rowTranslations['vi']?.label || rowTranslations['en']?.label || 'Updated',
+                  status: 'UPDATED',
+                });
+              } else {
+                summary.skipped++;
+                summary.details.push({
+                  row: rowNumber,
+                  label: rowTranslations['vi']?.label || rowTranslations['en']?.label || 'Skipped',
+                  status: 'SKIPPED',
+                  message: 'Position already taken. Use override to update.',
+                });
+              }
+            } else {
+              await this.create(menuData);
+              summary.imported++;
+              summary.details.push({
+                row: rowNumber,
+                label: rowTranslations['vi']?.label || rowTranslations['en']?.label || 'Imported',
+                status: 'IMPORTED',
+              });
+            }
+
+            // Update job progress
+            const progress = Math.round(((i + 1) / rawRows.length) * 100);
+            const processedItems = summary.imported + summary.updated + summary.skipped;
+            const failedItems = summary.errors.length;
+            await this.importJobService.updateProgress(job.id, progress, processedItems, failedItems, summary.totalRows);
+
+          } catch (err: any) {
+            summary.errors.push({ row: rowNumber, message: err.message });
+            summary.details.push({
+              row: rowNumber,
+              label: 'Error',
+              status: 'ERROR',
+              message: err.message,
+            });
+          }
+        }
+
+        await this.importJobService.completeJob(job.id, summary);
+      } catch (error) {
+        await this.importJobService.failJob(job.id, error.message);
+      }
+    })();
+
+    return { jobId: job.id };
   }
 }

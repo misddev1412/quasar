@@ -31,9 +31,9 @@ describe('SEO Titles Configuration', () => {
     });
 
     it('should handle parameterized routes', () => {
-      const config = getSeoConfigForPath('/users/123');
+      const config = getSeoConfigForPath('/users/123/edit');
       expect(config).toBeTruthy();
-      expect(config?.path).toBe('/users/:id');
+      expect(config?.path).toBe('/users/:id/edit');
       expect(config?.titles.en).toBe('Edit User | {{platformTitle}}');
     });
 

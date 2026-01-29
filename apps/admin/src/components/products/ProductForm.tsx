@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { AIGenerateButton } from '@admin/components/common/AIGenerateButton';
 import { FormAIGenerator } from '@admin/components/common/FormAIGenerator';
+import { SEOChecklist } from '@admin/components/common/SEOChecklist';
 import { FolderPlus, Package, Image, Settings, Globe, Tag, Layers, Zap, Warehouse } from 'lucide-react';
 import { EntityForm } from '@admin/components/common/EntityForm';
 import { TranslationTabs } from '@admin/components/common/TranslationTabs';
@@ -1109,6 +1110,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           title: t('products.seo_settings', 'SEO Settings'),
           description: t('products.seo_description', 'Optimize your product for search engines.'),
           icon: <Globe className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
+          customContent: (
+            <div className="mb-8">
+              <SEOChecklist />
+            </div>
+          ),
           fields: [
             {
               name: 'metaTitle',

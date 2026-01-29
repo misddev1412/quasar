@@ -227,7 +227,7 @@ const SuppliersPage: React.FC = () => {
     setEditDialogOpen(true);
   };
 
-  const goToSupplier = (id: string) => navigate(`/products/suppliers/${id}`);
+  const goToSupplier = (supplier: Supplier) => handleEditSupplier(supplier);
 
   const handleDelete = async (id: string) => {
     if (window.confirm(t('suppliers.deleteConfirm', 'Are you sure you want to delete this supplier? This action cannot be undone.'))) {
@@ -425,7 +425,7 @@ const SuppliersPage: React.FC = () => {
             {
               label: t('common.view', 'View'),
               icon: <FiEye className="w-4 h-4" aria-hidden="true" />,
-              onClick: () => goToSupplier(supplier.id)
+              onClick: () => goToSupplier(supplier)
             },
             {
               label: t('common.edit', 'Edit'),
@@ -638,7 +638,7 @@ const SuppliersPage: React.FC = () => {
           // Additional features
           enableRowHover={true}
           density="normal"
-          onRowClick={(supplier) => goToSupplier(supplier.id)}
+          onRowClick={(supplier) => goToSupplier(supplier)}
           // Empty state
           emptyMessage={t('suppliers.no_suppliers_found', 'No suppliers found')}
           emptyAction={{

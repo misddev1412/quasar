@@ -64,6 +64,9 @@ export const AIGenerateButton: React.FC<AIGenerateButtonProps> = ({
                 language: options.language,
                 tone: options.tone,
                 style: options.style,
+                includeProductLinks: options.includeProductLinks,
+                includeImages: options.includeImages,
+                length: options.length,
             });
 
             if (result.data) {
@@ -140,6 +143,8 @@ export const AIGenerateButton: React.FC<AIGenerateButtonProps> = ({
                     onApply={handleApply}
                     onRegenerate={handleRegenerate}
                     contextLabel={contextLabel}
+                    entityType={entityType}
+                    contentType={contentType}
                 />
             </>
         );
@@ -177,6 +182,8 @@ export const AIGenerateButton: React.FC<AIGenerateButtonProps> = ({
                 onApply={handleApply}
                 onRegenerate={handleRegenerate}
                 contextLabel={contextLabel}
+                entityType={entityType}
+                contentType={contentType}
             />
         </>
     );

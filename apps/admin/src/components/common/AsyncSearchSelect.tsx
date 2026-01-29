@@ -8,7 +8,6 @@ import {
   StylesConfig,
 } from 'react-select';
 import type { AsyncProps } from 'react-select/async';
-import '@admin/components/common/CountrySelector.css';
 import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
 import { useSelectMenuPortalTarget } from '@admin/hooks/useSelectMenuPortalTarget';
 

@@ -189,6 +189,51 @@
     "disable": "Tắt",
     "translations": "Bản dịch",
     "translations_desc": "Quản lý nội dung bằng các ngôn ngữ khác",
-    "no_languages_available": "Không có ngôn ngữ nào"
+    "no_languages_available": "Không có ngôn ngữ nào",
+    "seo": {
+      "score_title": "Điểm Sức khỏe SEO",
+      "score_description": "Đánh giá nội dung của bạn dựa trên các tiêu chuẩn SEO tốt nhất theo thời gian thực.",
+      "pro_tip_title": "Mẹo Nội dung Chuyên nghiệp",
+      "pro_tip_desc": "Sử dụng AI Content Generator để tự động tạo tiêu đề và mô tả tối ưu hóa.",
+      "importance": {
+        "high": "Cao",
+        "medium": "Vừa",
+        "low": "Thấp"
+      },
+      "requirements": {
+        "title_presence": "Sự hiện diện của Tiêu đề Meta",
+        "title_length": "Độ dài Tiêu đề Meta",
+        "title_ok": "Tối ưu hóa Tiêu đề Meta",
+        "desc_presence": "Sự hiện diện của Mô tả Meta",
+        "desc_length": "Độ dài Mô tả Meta",
+        "desc_ok": "Tối ưu hóa Mô tả Meta",
+        "slug_presence": "Sự hiện diện của URL Slug",
+        "slug_format": "Định dạng URL Slug",
+        "slug_ok": "Tối ưu hóa URL Slug",
+        "content_length": "Độ dài Nội dung",
+        "content_ok": "Độ sâu Nội dung",
+        "image_presence": "Nội dung hình ảnh",
+        "image_ok": "Nội dung hình ảnh",
+        "keywords_presence": "Sự hiện diện của Từ khóa",
+        "keywords_ok": "Tối ưu hóa Từ khóa"
+      },
+      "tips": {
+        "title_missing": "Thêm tiêu đề meta để tăng khả năng hiển thị.",
+        "title_length": "Độ dài đề xuất là 50-60 ký tự. Hiện tại: {{length}}",
+        "title_ok": "Tiêu đề meta của bạn đã được tối ưu hóa tốt.",
+        "desc_missing": "Thêm mô tả meta để khuyến khích người dùng nhấp vào.",
+        "desc_length": "Độ dài đề xuất là 150-160 ký tự. Hiện tại: {{length}}",
+        "desc_ok": "Mô tả meta của bạn đã được tối ưu hóa tốt.",
+        "slug_missing": "Một URL thân thiện với tìm kiếm là rất quan trọng.",
+        "slug_format": "Sử dụng chữ thường và dấu gạch ngang cho URL sạch.",
+        "slug_ok": "URL của bạn rất thân thiện với công cụ tìm kiếm.",
+        "content_short": "Nội dung hơi ngắn. Hãy cố gắng đạt ít nhất {{min}} từ.",
+        "content_ok": "Nội dung của bạn có độ sâu tốt cho SEO.",
+        "image_missing": "Thêm ít nhất một hình ảnh để tăng sự tương tác.",
+        "image_ok": "Đã có hình ảnh minh họa.",
+        "keywords_missing": "Xác định từ khóa để giúp công cụ tìm kiếm hiểu chủ đề của bạn.",
+        "keywords_ok": "Từ khóa đã được thiết lập."
+      }
+    }
   }
 }

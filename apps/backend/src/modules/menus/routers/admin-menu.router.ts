@@ -331,4 +331,78 @@ export class AdminMenuRouter {
       );
     }
   }
+  @Mutation({
+    input: z.object({
+      fileName: z.string().optional(),
+      fileData: z.string().min(1, 'File data is required'),
+      overrideExisting: z.boolean().optional(),
+      dryRun: z.boolean().optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  async importFromExcel(
+    @Input()
+    input: {
+      fileName?: string;
+      fileData: string;
+      overrideExisting?: boolean;
+      dryRun?: boolean;
+    },
+    @Ctx() ctx: AuthenticatedContext,
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const result = await this.menuService.importMenusFromExcel({
+        fileName: input.fileName || 'menus-import.xlsx',
+        fileData: input.fileData,
+        overrideExisting: input.overrideExisting,
+        dryRun: input.dryRun,
+        actorId: ctx?.user?.id || null,
+      });
+
+      return this.responseService.createTrpcSuccess(result);
+    } catch (error) {
+      throw this.responseService.createTRPCError(
+        ModuleCode.MENU,
+        OperationCode.CREATE,
+        ErrorLevelCode.SERVER_ERROR,
+        'Failed to import menus from Excel',
+        error,
+      );
+    }
+  }
+
+  @Query({
+    input: z.object({}),
+    output: z.object({
+      data: z.string(), // base64 encoded file
+      filename: z.string(),
+      mimeType: z.string(),
+    }),
+  })
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  async downloadExcelTemplate(
+    @Input() input: {},
+    @Ctx() ctx: AuthenticatedContext,
+  ): Promise<{ data: string; filename: string; mimeType: string }> {
+    try {
+      const buffer = await this.menuService.generateExcelTemplate(ctx.locale);
+      const base64Data = buffer.toString('base64');
+      const filename = `menu-import-template-${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      return {
+        data: base64Data,
+        filename,
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      };
+    } catch (error) {
+      throw this.responseService.createTRPCError(
+        ModuleCode.MENU,
+        OperationCode.READ,
+        ErrorLevelCode.SERVER_ERROR,
+        'Failed to generate Excel template',
+        error,
+      );
+    }
+  }
 }
