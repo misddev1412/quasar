@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiFileText } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { CreateTranslationForm } from '../../components/translations/CreateTranslationForm';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -43,8 +43,10 @@ const CreateTranslationPage: React.FC = () => {
     navigate('/translations');
   };
 
+  const formId = 'translation-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('translations.create', 'Create Translation')}
       description={t('translations.createDescription', 'Add a new translation to the system')}
       icon={<FiFileText className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -53,14 +55,16 @@ const CreateTranslationPage: React.FC = () => {
       backUrl="/translations"
       onBack={handleCancel}
       isSubmitting={createTranslationMutation.isPending}
-      maxWidth="full"
+      formId={formId}
     >
       <CreateTranslationForm
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isSubmitting={createTranslationMutation.isPending}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

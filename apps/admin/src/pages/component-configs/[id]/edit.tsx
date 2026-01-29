@@ -14,7 +14,7 @@ import {
 } from '../../../components/component-configs/componentConfigTree';
 import { Button } from '../../../components/common/Button';
 import { useUrlTabs } from '../../../hooks/useUrlTabs';
-import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../../components/common/StandardFormPage';
 
 const TAB_KEYS = ['structure', 'defaults', 'advanced', 'sidebar'];
 
@@ -126,6 +126,8 @@ const ComponentConfigEditPage: React.FC = () => {
   const isSubmitting = updateMutation.isPending;
   const isLoading = componentQuery.isLoading || listQuery.isLoading;
 
+  const formId = 'component-config-edit-form';
+
   const templateProps = {
     title: t('componentConfigs.editTitle'),
     description: t('componentConfigs.editDescription'),
@@ -134,23 +136,22 @@ const ComponentConfigEditPage: React.FC = () => {
     entityNamePlural: t('componentConfigs.title'),
     backUrl: '/component-configs',
     onBack: handleCancel,
-    maxWidth: 'full' as const,
   };
 
   if (isLoading) {
     return (
-      <CreatePageTemplate {...templateProps} isSubmitting={false}>
+      <StandardFormPage {...templateProps} isSubmitting={false} showActions={false}>
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
   if (componentQuery.error || listQuery.error) {
     const errorMessage = componentQuery.error?.message || listQuery.error?.message || t('common.genericError');
     return (
-      <CreatePageTemplate {...templateProps} isSubmitting={false}>
+      <StandardFormPage {...templateProps} isSubmitting={false} showActions={false}>
         <div className="text-center text-red-600 dark:text-red-400">
           <p className="text-lg font-medium mb-2">
             {t('componentConfigs.fetchFailed')}
@@ -168,13 +169,13 @@ const ComponentConfigEditPage: React.FC = () => {
             {t('common.retry')}
           </Button>
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
   if (!component) {
     return (
-      <CreatePageTemplate {...templateProps} isSubmitting={false}>
+      <StandardFormPage {...templateProps} isSubmitting={false} showActions={false}>
         <div className="text-center text-gray-600 dark:text-gray-400">
           <p className="text-lg font-medium mb-2">
             {t('componentConfigs.componentNotFound')}
@@ -186,14 +187,15 @@ const ComponentConfigEditPage: React.FC = () => {
             {t('componentConfigs.backToList')}
           </Button>
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       {...templateProps}
       isSubmitting={isSubmitting}
+      formId={formId}
     >
       <ComponentConfigForm
         key={componentId}
@@ -208,8 +210,10 @@ const ComponentConfigEditPage: React.FC = () => {
         isSubmitting={isSubmitting}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

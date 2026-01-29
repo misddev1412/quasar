@@ -96,6 +96,7 @@ import { ThemeEntity } from '../modules/themes/entities/theme.entity';
 import { ProductBundlesModule } from '../modules/product-bundles/product-bundles.module';
 import { ImportModule } from '../modules/import/import.module';
 import { DataImportJob } from '../modules/import/entities/data-import-job.entity';
+import { WorkerServicesModule } from '../modules/worker-services/worker-services.module';
 
 
 @Module({
@@ -207,6 +208,7 @@ import { DataImportJob } from '../modules/import/entities/data-import-job.entity
     ThemesModule,
     ProductBundlesModule,
     ImportModule,
+    WorkerServicesModule,
     AppRouterModule,
   ],
   controllers: [AppController],

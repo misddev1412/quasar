@@ -19,6 +19,7 @@ interface CreatePageTemplateProps {
   isSubmitting?: boolean;
   children: React.ReactNode;
   showActions?: boolean;
+  formId?: string;
   customActions?: Array<{
     label: string;
     onClick: () => void;
@@ -48,6 +49,7 @@ export const CreatePageTemplate: React.FC<CreatePageTemplateProps> = ({
   isSubmitting = false,
   children,
   showActions = false,
+  formId,
   customActions = [],
   maxWidth = '4xl',
   breadcrumbs = [],
@@ -266,8 +268,9 @@ export const CreatePageTemplate: React.FC<CreatePageTemplateProps> = ({
                       {t('common.cancel')}
                     </Button>
                     <Button
-                      type="submit"
-                      onClick={onSubmit}
+                      type={formId ? 'submit' : 'button'}
+                      form={formId}
+                      onClick={formId ? undefined : onSubmit}
                       isLoading={isSubmitting}
                       disabled={isSubmitting}
                       className="min-w-[120px]"

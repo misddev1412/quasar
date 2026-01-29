@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiStar } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../../../components/common/StandardFormPage';
 import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
 import { useToast } from '../../../../contexts/ToastContext';
 import { trpc } from '../../../../utils/trpc';
@@ -44,8 +44,10 @@ const CreateLoyaltyTierPage: React.FC = () => {
     }
   };
 
+  const formId = 'loyalty-tier-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('loyalty.create_tier')}
       description={t('loyalty.create_tier_description')}
       icon={<FiStar className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -54,7 +56,7 @@ const CreateLoyaltyTierPage: React.FC = () => {
       backUrl="/loyalty/tiers"
       onBack={() => navigate('/loyalty/tiers')}
       isSubmitting={createTierMutation.isPending}
-      maxWidth="full"
+      formId={formId}
       breadcrumbs={[
         {
           label: t('navigation.home', 'Home'),
@@ -75,8 +77,10 @@ const CreateLoyaltyTierPage: React.FC = () => {
         isSubmitting={createTierMutation.isPending}
         onCancel={() => navigate('/loyalty/tiers')}
         submitLabel={t('loyalty.create_tier', 'Create Tier')}
+        showActionBar={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

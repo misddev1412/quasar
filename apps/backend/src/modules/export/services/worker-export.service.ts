@@ -22,7 +22,7 @@ export class WorkerExportService {
     private readonly fileUploadService: FileUploadService,
     private readonly storageService: StorageService,
     private readonly notificationService: NotificationService,
-  ) {}
+  ) { }
 
   async processExport(payload: ExportJobPayload): Promise<void> {
     const job = await this.dataExportService.getJob(payload.jobId);
@@ -44,7 +44,14 @@ export class WorkerExportService {
     try {
       const storageConfig = await this.storageService.getStorageConfig();
       const cdnRewrite = this.buildCdnRewrite(storageConfig);
-      const exportResult = await this.generateFile(handler, payload, cdnRewrite || undefined);
+
+      let exportResult: { buffer: Buffer; fileName: string; mimeType: string; totalRecords: number };
+
+      if (typeof (handler as any).generateCustomFile === 'function') {
+        exportResult = await (handler as any).generateCustomFile(payload, cdnRewrite);
+      } else {
+        exportResult = await this.generateFile(handler, payload, cdnRewrite || undefined);
+      }
       const uploadResult = await this.fileUploadService.uploadFile(
         {
           originalname: exportResult.fileName,

@@ -93,11 +93,15 @@ import { WorkerOrderService } from './services/worker-order.service';
 import { WorkerReportService } from './services/worker-report.service';
 import { UserExportHandler } from './handlers/user-export.handler';
 import { ProductExportHandler } from './handlers/product-export.handler';
+import { ProductTemplateExportHandler } from './handlers/product-template-export.handler';
 import { DataExportModule } from '../export/data-export.module';
 import { StorageModule } from '../storage/storage.module';
 import { OrderExportHandler } from './handlers/order-export.handler';
 import { ExportProcessingModule } from '../export/export-processing.module';
 import { WorkerExportService } from '../export/services/worker-export.service';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { SettingsModule } from '../settings/settings.module';
+import { FirebaseModule } from '../firebase/firebase.module';
 
 @Global()
 @Module({
@@ -165,11 +169,14 @@ import { WorkerExportService } from '../export/services/worker-export.service';
       CustomerTransaction,
       CustomerTransactionEntry,
     ]),
+    SettingsModule,
+    NotificationsModule,
+    FirebaseModule,
   ],
   providers: [
     // Shared Services
     ResponseService,
-    
+
     // Repositories
     MailProviderRepository,
     MailTemplateRepository,
@@ -182,7 +189,7 @@ import { WorkerExportService } from '../export/services/worker-export.service';
     EmailFlowRepository,
     ProductRepository,
     OrderRepository,
-    
+
     // Backend Services
     MailProviderService,
     MailTemplateService,
@@ -194,7 +201,7 @@ import { WorkerExportService } from '../export/services/worker-export.service';
     NotificationChannelConfigService,
     NotificationService,
     EmailFlowService,
-    
+
     // Worker Services
     WorkerEmailService,
     WorkerNotificationService,
@@ -202,6 +209,7 @@ import { WorkerExportService } from '../export/services/worker-export.service';
     WorkerReportService,
     UserExportHandler,
     ProductExportHandler,
+    ProductTemplateExportHandler,
     OrderExportHandler,
   ],
   exports: [
@@ -210,8 +218,6 @@ import { WorkerExportService } from '../export/services/worker-export.service';
     WorkerNotificationService,
     WorkerOrderService,
     WorkerReportService,
-    WorkerExportService,
-
     // Also export base services for direct usage if needed
     MailProviderService,
     NotificationService,
@@ -220,4 +226,4 @@ import { WorkerExportService } from '../export/services/worker-export.service';
     ExportProcessingModule,
   ],
 })
-export class WorkerServicesModule {}
+export class WorkerServicesModule { }

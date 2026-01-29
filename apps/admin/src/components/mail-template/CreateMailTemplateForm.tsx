@@ -11,6 +11,8 @@ interface CreateMailTemplateFormProps {
   onSubmit: (data: MailTemplateFormData) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
+  showActions?: boolean;
+  formId?: string;
 }
 
 // Validation schema - make required fields required to match MailTemplateFormData
@@ -33,6 +35,8 @@ export const CreateMailTemplateForm: React.FC<CreateMailTemplateFormProps> = ({
   onSubmit,
   onCancel,
   isSubmitting = false,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
   const { channels, defaultChannel, isLoading: isLoadingChannels } = useEmailChannels();
@@ -224,6 +228,8 @@ export const CreateMailTemplateForm: React.FC<CreateMailTemplateFormProps> = ({
       validationSchema={createMailTemplateSchema}
       submitButtonText={t('mail_templates.create_template', 'Create Template')}
       cancelButtonText={t('common.cancel', 'Cancel')}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

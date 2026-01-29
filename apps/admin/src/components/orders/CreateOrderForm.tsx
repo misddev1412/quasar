@@ -67,6 +67,8 @@ interface CreateOrderFormProps {
   isSubmitting?: boolean;
   activeTab?: number;
   onTabChange?: (index: number) => void;
+  showActions?: boolean;
+  formId?: string;
 }
 
 const getInitialFormData = (): CreateOrderFormData => ({
@@ -93,6 +95,8 @@ export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({
   isSubmitting = false,
   activeTab = 0,
   onTabChange,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
   const [formData, setFormData] = useState<CreateOrderFormData>(getInitialFormData());
@@ -579,6 +583,8 @@ export const CreateOrderForm: React.FC<CreateOrderFormProps> = ({
         onCancel={onCancel}
         activeTab={activeTab}
         onTabChange={onTabChange}
+        showActions={showActions}
+        formId={formId}
       />
 
       <CustomerSearchModal

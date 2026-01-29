@@ -3,8 +3,9 @@ import { Controller, FieldPath, FieldValues, UseFormReturn } from 'react-hook-fo
 import clsx from 'clsx';
 import { FormFieldConfig, FormTabConfig } from '../types/forms';
 import { FormInput } from '../components/common/FormInput';
+import { PasswordVisibilityToggle } from '../components/common/PasswordVisibilityToggle';
 import PasswordStrengthMeter from '../components/user/PasswordStrengthMeter';
-import { Eye, EyeOff, CheckCircle2, XCircle, Shield, RefreshCw, ChevronDown, Check } from 'lucide-react';
+import { CheckCircle2, XCircle, Shield, RefreshCw, ChevronDown, Check } from 'lucide-react';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 import { usePasswordGeneration } from './usePasswordGeneration';
 import { PasswordRule, getPasswordRules } from '../utils/password';
@@ -72,6 +73,8 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                 min={field.min}
                 max={field.max}
                 step={field.step}
+                rightElement={field.rightElementPosition !== 'inside-input' ? field.rightElement : undefined}
+                rightIcon={field.rightElementPosition === 'inside-input' ? field.rightElement : undefined}
               />
             )}
           />
@@ -127,16 +130,11 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
                       <RefreshCw size={18} />
                     </button>
                   )}
-                  <button
-                    type="button"
-                    onClick={toggleVisibility}
-                    className="p-0.5 rounded text-neutral-500 hover:text-white dark:text-neutral-400 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    title={isVisible ? t('common.hide') : t('common.show')}
-                    aria-pressed={isVisible}
-                    aria-label={isVisible ? t('common.hide') : t('common.show')}
-                  >
-                    {isVisible ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
+                  <PasswordVisibilityToggle
+                    isVisible={isVisible}
+                    onToggle={toggleVisibility}
+                    className="p-0.5"
+                  />
                 </div>
               );
 
@@ -197,14 +195,10 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
               };
 
               const rightIcon = (
-                <button
-                  type="button"
-                  onClick={toggleVisibility}
-                  className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
-                  tabIndex={-1}
-                >
-                  {isVisible ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+                <PasswordVisibilityToggle
+                  isVisible={isVisible}
+                  onToggle={toggleVisibility}
+                />
               );
 
               return (
@@ -395,12 +389,15 @@ export function useFormFieldRenderer<T extends FieldValues = FieldValues>(
             control={control}
             render={({ field: formField }) => (
               <div className="space-y-2">
-                {field.label && (
-                  <label className={BASE_LABEL_CLASS}>
-                    {field.label}
-                    {field.required && <span className="text-red-500 ml-1">*</span>}
-                  </label>
-                )}
+                <div className="flex justify-between items-end">
+                  {field.label && (
+                    <label className={BASE_LABEL_CLASS}>
+                      {field.label}
+                      {field.required && <span className="text-red-500 ml-1">*</span>}
+                    </label>
+                  )}
+                  {field.rightElement}
+                </div>
                 <RichTextEditor
                   value={formField.value || ''}
                   onChange={formField.onChange}

@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FolderPlus } from 'lucide-react';
 import { FiHome, FiPackage, FiFolderPlus } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../../components/common/StandardFormPage';
 import { CreateCategoryForm } from '../../../components/products/CreateCategoryForm';
 import { useToast } from '../../../contexts/ToastContext';
 import { trpc } from '../../../utils/trpc';
@@ -113,8 +113,10 @@ const CategoryCreatePage: React.FC = () => {
     navigate('/products/categories');
   };
 
+  const formId = 'product-category-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('admin.create_new_category', 'Create New Category')}
       description={t('admin.create_category_description', 'Add a new category to organize your products')}
       icon={<FolderPlus className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -123,7 +125,7 @@ const CategoryCreatePage: React.FC = () => {
       backUrl="/products/categories"
       onBack={handleCancel}
       isSubmitting={createCategoryMutation.isPending}
-      maxWidth="full"
+      formId={formId}
       breadcrumbs={[
         {
           label: 'Home',
@@ -149,8 +151,10 @@ const CategoryCreatePage: React.FC = () => {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         defaultParentId={parentId}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

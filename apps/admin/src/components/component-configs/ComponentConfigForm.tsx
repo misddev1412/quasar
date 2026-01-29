@@ -1033,6 +1033,8 @@ interface ComponentConfigFormProps {
   onCancel: () => void;
   activeTab?: number;
   onTabChange?: (index: number) => void;
+  showActions?: boolean;
+  formId?: string;
 }
 
 const categoryOptions = Object.values(ComponentCategory).map((value) => ({
@@ -1059,6 +1061,8 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
   onCancel,
   activeTab: controlledActiveTab,
   onTabChange,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
 
@@ -2246,16 +2250,18 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form id={formId} onSubmit={handleSubmit} className="space-y-6">
       <Tabs tabs={tabs} activeTab={resolvedActiveTab} onTabChange={handleTabChange} />
-      <div className="flex flex-col gap-3 sm:flex-row sm:justify-end border-t border-neutral-200 pt-4">
-        <Button type="button" variant="ghost" onClick={onCancel}>
-          {t('common.cancel')}
-        </Button>
-        <Button type="submit" variant="primary" isLoading={isSubmitting}>
-          {mode === 'create' ? t('componentConfigs.createComponent') : t('componentConfigs.saveChanges')}
-        </Button>
-      </div>
+      {showActions && (
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-end border-t border-neutral-200 pt-4">
+          <Button type="button" variant="ghost" onClick={onCancel}>
+            {t('common.cancel')}
+          </Button>
+          <Button type="submit" variant="primary" isLoading={isSubmitting}>
+            {mode === 'create' ? t('componentConfigs.createComponent') : t('componentConfigs.saveChanges')}
+          </Button>
+        </div>
+      )}
     </form>
   );
 

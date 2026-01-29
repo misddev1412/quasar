@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiSave, FiX, FiUpload, FiEye, FiEyeOff, FiActivity, FiTrash2 } from 'react-icons/fi';
+import { FiUpload, FiEye, FiEyeOff, FiActivity, FiTrash2 } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { FormInput } from '../../components/common/FormInput';
 import { TextareaInput } from '../../components/common/TextareaInput';
 import { Toggle } from '../../components/common/Toggle';
-import BaseLayout from '../../components/layout/BaseLayout';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -285,54 +285,50 @@ const EditFirebaseConfigPage: React.FC = () => {
     input.click();
   };
 
+  const formId = 'firebase-config-edit-form';
   const pageActions = [
     {
       label: 'Test Connection',
       onClick: handleTestConnection,
       icon: <FiActivity className="w-4 h-4" />,
+      variant: 'outline' as const,
     },
     {
       label: 'Delete',
       onClick: handleDelete,
       icon: <FiTrash2 className="w-4 h-4" />,
-      variant: 'danger' as const,
-    },
-    {
-      label: 'Save Changes',
-      onClick: () => {
-        if (formData) {
-          updateConfigMutation.mutate(formData);
-        }
-      },
-      primary: true,
-      icon: <FiSave className="w-4 h-4" />,
-      disabled: updateConfigMutation.isPending,
-    },
-    {
-      label: 'Cancel',
-      onClick: handleCancel,
-      icon: <FiX className="w-4 h-4" />,
+      variant: 'outline' as const,
     },
   ];
 
   if (isLoading) {
     return (
-      <BaseLayout
+      <StandardFormPage
         title="Edit Firebase Configuration"
         description="Modify Firebase project configuration"
-        fullWidth={false}
+        icon={<FiUpload className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+        entityName="Configuration"
+        entityNamePlural="Firebase Configurations"
+        backUrl="/firebase-configs"
+        onBack={handleCancel}
+        showActions={false}
       >
         <Loading />
-      </BaseLayout>
+      </StandardFormPage>
     );
   }
 
   if (error || !formData) {
     return (
-      <BaseLayout
+      <StandardFormPage
         title="Edit Firebase Configuration"
         description="Modify Firebase project configuration"
-        fullWidth={false}
+        icon={<FiUpload className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+        entityName="Configuration"
+        entityNamePlural="Firebase Configurations"
+        backUrl="/firebase-configs"
+        onBack={handleCancel}
+        showActions={false}
       >
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
@@ -340,18 +336,26 @@ const EditFirebaseConfigPage: React.FC = () => {
             {(error as any)?.message || 'Firebase configuration not found'}
           </AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardFormPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardFormPage
       title={`Edit Firebase Configuration: ${formData.name}`}
       description="Modify Firebase project configuration"
-      actions={pageActions}
-      fullWidth={false}
+      icon={<FiUpload className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      entityName="Configuration"
+      entityNamePlural="Firebase Configurations"
+      backUrl="/firebase-configs"
+      onBack={handleCancel}
+      onCancel={handleCancel}
+      isSubmitting={updateConfigMutation.isPending}
+      mode="update"
+      formId={formId}
+      customActions={pageActions}
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form id={formId} onSubmit={handleSubmit} className="space-y-6">
         {/* Status Indicator */}
         <Card>
           <div className="p-6">
@@ -564,25 +568,6 @@ const EditFirebaseConfigPage: React.FC = () => {
           </div>
         </Card>
 
-        {/* Submit Buttons */}
-        <div className="flex justify-end space-x-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleCancel}
-            disabled={updateConfigMutation.isPending}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={updateConfigMutation.isPending}
-            startIcon={<FiSave className="w-4 h-4" />}
-          >
-            {updateConfigMutation.isPending ? 'Saving...' : 'Save Changes'}
-          </Button>
-        </div>
       </form>
 
       {/* Delete Confirmation Modal */}
@@ -597,7 +582,7 @@ const EditFirebaseConfigPage: React.FC = () => {
         icon={<FiTrash2 className="w-6 h-6" />}
         isLoading={deleteConfigMutation.isPending}
       />
-    </BaseLayout>
+    </StandardFormPage>
   );
 };
 

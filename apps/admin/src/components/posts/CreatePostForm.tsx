@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useFormContext } from 'react-hook-form';
+import { AIGenerateButton } from '../common/AIGenerateButton';
 import { FileText, Settings, Globe, Image, Calendar, Tag, RefreshCw } from 'lucide-react';
 import { EntityForm } from '../common/EntityForm';
 import { FormTabConfig, FormSubmitOptions } from '../../types/forms';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useLanguageOptions } from '../../hooks/useLanguages';
+import { useLanguageOptions, useActiveLanguages } from '../../hooks/useLanguages';
 import { z } from 'zod';
 import { TranslationsSection } from './TranslationsSection';
 import { generateSlug } from '../../utils/slugUtils';
@@ -74,15 +76,80 @@ interface CreatePostFormProps {
   onSubmit: (data: CreatePostFormData, options?: FormSubmitOptions) => Promise<void | unknown>;
   onCancel: () => void;
   isSubmitting?: boolean;
+  showActions?: boolean;
+  formId?: string;
 }
+
+const PostTitleGenerator = ({ availableLanguages }: { availableLanguages: { code: string; name: string }[] }) => {
+  const { setValue, watch } = useFormContext();
+  const content = watch('content');
+  const title = watch('title');
+  const type = watch('type');
+
+  // Logic: Use existing title for rewrite/improve, otherwise use content to summarize
+  const hasTitle = title && typeof title === 'string' && title.trim().length > 0;
+  const contentText = typeof content === 'string' ? content.replace(/<[^>]*>?/gm, '') : '';
+  const context = hasTitle ? title : contentText;
+
+  const contextLabel = hasTitle
+    ? 'Current Title (to improve/rewrite)'
+    : 'Post Content (to summarize into title)';
+
+  return (
+    <AIGenerateButton
+      entityType="post"
+      contentType="title"
+      context={context}
+      tone={type === 'news' ? 'journalistic' : 'engaging'}
+      onGenerate={(text) => setValue('title', text, { shouldDirty: true, shouldValidate: true })}
+      variant="icon"
+      availableLanguages={availableLanguages}
+      contextLabel={contextLabel}
+    />
+  );
+};
+
+const PostContentGenerator = ({ availableLanguages }: { availableLanguages: { code: string; name: string }[] }) => {
+  const { setValue, watch } = useFormContext();
+  const title = watch('title');
+  const content = watch('content');
+  const type = watch('type');
+
+  // Logic: Use existing content for rewrite/improve, otherwise use title to expand
+  const hasContent = content && typeof content === 'string' && content.replace(/<[^>]*>?/gm, '').trim().length > 0;
+  // NOTE: For description generation, we typically want title as context for new content. 
+  // If we pass content, we assume the user wants to rewrite it.
+  // Backend prompt structure expects "Product/Post Title: <context>".
+  // If we pass long content, it might be weird, but often works as "Subject". 
+  const context = hasContent ? content.replace(/<[^>]*>?/gm, '') : title;
+
+  const contextLabel = hasContent
+    ? 'Current Content (to improve/rewrite)'
+    : 'Post Title (to expand into content)';
+
+  return (
+    <AIGenerateButton
+      entityType="post"
+      contentType="description"
+      context={context}
+      tone={type === 'news' ? 'journalistic' : 'engaging'}
+      onGenerate={(text) => setValue('content', text, { shouldDirty: true, shouldValidate: true })}
+      availableLanguages={availableLanguages}
+      contextLabel={contextLabel}
+    />
+  );
+};
 
 export const CreatePostForm: React.FC<CreatePostFormProps> = ({
   onSubmit,
   onCancel,
   isSubmitting = false,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
   const { languageOptions, isLoading: languagesLoading } = useLanguageOptions();
+  const { activeLanguages } = useActiveLanguages(); // Get active languages
 
   // State for managing translations
   const [additionalTranslations, setAdditionalTranslations] = useState<{
@@ -141,6 +208,8 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
                 minLength: 1,
                 maxLength: 200,
               },
+              rightElement: <PostTitleGenerator availableLanguages={activeLanguages.map(l => ({ code: l.code, name: l.name }))} />,
+              rightElementPosition: 'inside-input',
             },
             {
               name: 'slug',
@@ -172,6 +241,7 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
               validation: {
                 minLength: 10,
               },
+              rightElement: <PostContentGenerator availableLanguages={activeLanguages.map(l => ({ code: l.code, name: l.name }))} />,
             },
           ],
         },
@@ -351,6 +421,7 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
 
   return (
     <EntityForm<CreatePostFormData>
+      formId={formId}
       tabs={tabs}
       initialValues={defaultValues}
       onSubmit={handleFormSubmit}
@@ -362,6 +433,7 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
       showCancelButton={true}
       mode="create"
       showSaveAndStay={true}
+      showActions={showActions}
     />
   );
 };

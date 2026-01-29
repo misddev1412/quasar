@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Layout } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { CreatePageTemplate } from '../../../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../../../components/common/StandardFormPage';
 import { SectionForm, SectionFormState, buildSectionPayload, sectionToFormState } from '../../../../components/sections/SectionsManager';
 import { useSectionsManager, SectionComponentSummary } from '../../../../hooks/useSectionsManager';
 import { useToast } from '../../../../contexts/ToastContext';
@@ -103,8 +103,10 @@ const EditSectionPage: React.FC = () => {
     }
   };
 
+  const formId = 'section-edit-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('sections.manager.modal.editTitle')}
       description={t('sections.manager.modal.description')}
       icon={<Layout className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -115,8 +117,8 @@ const EditSectionPage: React.FC = () => {
       isSubmitting={updateSection.isPending}
       isLoading={isLoading}
       error={errorState}
-      maxWidth="full"
       mode="update"
+      formId={formId}
       breadcrumbs={[
         { label: t('navigation.home', 'Home'), href: '/' },
         { label: t('sections.manager.entityNamePlural', 'Sections'), onClick: handleCancel },
@@ -150,10 +152,12 @@ const EditSectionPage: React.FC = () => {
             onCancel={handleCancel}
             submitLabel={t('sections.manager.form.saveChanges')}
             isSubmitting={updateSection.isPending}
+            showActions={false}
+            formId={formId}
           />
         </>
       )}
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

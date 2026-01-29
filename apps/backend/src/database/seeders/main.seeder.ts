@@ -24,6 +24,7 @@ import { ComponentConfigsSeeder } from './component-configs.seeder';
 import { AttributesSeeder } from './attributes.seeder';
 import { NotificationEventFlowSeeder } from './notification-event-flow.seeder';
 import { ServicesSeeder } from './services.seeder';
+import { LanguagesSeeder } from './languages.seeder';
 import databaseConfig from '../../config/database.config';
 
 @Module({
@@ -63,8 +64,10 @@ export async function bootstrap() {
     const attributesSeeder = app.get(AttributesSeeder);
     const notificationEventFlowSeeder = app.get(NotificationEventFlowSeeder);
     const servicesSeeder = app.get(ServicesSeeder);
+    const languagesSeeder = app.get(LanguagesSeeder);
 
     // Run seeders in order (countries first, then currencies, then administrative divisions, then permissions and admin, then warehouses, then user activities)
+    await languagesSeeder.seed();
     await countriesSeeder.seed();
     await currencySeeder.seed();
     await administrativeDivisionsSeeder.seed();

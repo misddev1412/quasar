@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { User as UserIcon, ArrowLeft, Lock, Mail, Phone, Settings as SettingsIcon, Home, Shield } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../../components/common/Card';
 import { Breadcrumb } from '../../components/common/Breadcrumb';
-import BaseLayout from '../../components/layout/BaseLayout';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -349,6 +349,8 @@ const UserUpdatePage: React.FC = () => {
     },
   ];
 
+  const formId = 'user-update-form';
+
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -368,6 +370,7 @@ const UserUpdatePage: React.FC = () => {
 
     return (
       <EntityForm<UpdateUserFormData>
+        formId={formId}
         tabs={tabs}
         initialValues={initialValues}
         onSubmit={handleSubmit}
@@ -379,15 +382,24 @@ const UserUpdatePage: React.FC = () => {
         showCancelButton={true}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        showActions={false}
       />
     );
   };
 
   return (
-    <BaseLayout
+    <StandardFormPage
       title={t('admin.update_user', 'Update User')}
       description={t('admin.user_information_description')}
-      actions={actions}
+      icon={<UserIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      entityName={t('common.user', 'User')}
+      entityNamePlural={t('common.users', 'Users')}
+      backUrl="/users"
+      onBack={handleCancel}
+      isSubmitting={updateUserMutation.isPending}
+      mode="update"
+      formId={formId}
+      customActions={actions.filter((action) => action.label !== t('admin.back_to_users', 'Back to users'))}
     >
       <div className="space-y-6">
         {/* Breadcrumb Navigation */}
@@ -429,7 +441,7 @@ const UserUpdatePage: React.FC = () => {
           <CardContent className="pt-0">{renderContent()}</CardContent>
         </Card>
       </div>
-    </BaseLayout>
+    </StandardFormPage>
   );
 };
 

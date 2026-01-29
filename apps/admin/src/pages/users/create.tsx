@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserPlus } from 'lucide-react';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { CreateUserForm } from '../../components/user/CreateUserForm';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -65,8 +65,10 @@ const UserCreatePage: React.FC = () => {
     navigate('/users');
   };
 
+  const formId = 'user-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('admin.create_new_user', 'Create New User')}
       description={t('admin.create_user_description', 'Add a new user to the system')}
       icon={<UserPlus className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -75,7 +77,7 @@ const UserCreatePage: React.FC = () => {
       backUrl="/users"
       onBack={handleCancel}
       isSubmitting={createUserMutation.isPending}
-      maxWidth="full"
+      formId={formId}
     >
       <CreateUserForm
         onSubmit={handleSubmit}
@@ -83,8 +85,10 @@ const UserCreatePage: React.FC = () => {
         isSubmitting={createUserMutation.isPending}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

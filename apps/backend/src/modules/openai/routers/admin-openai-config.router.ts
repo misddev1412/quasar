@@ -176,4 +176,41 @@ export class AdminOpenAiConfigRouter {
       );
     }
   }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      entityType: z.enum(['product', 'post']),
+      contentType: z.enum(['title', 'description']),
+      context: z.string().optional(),
+      keywords: z.array(z.string()).optional(),
+      language: z.string().optional(),
+      tone: z.string().optional(),
+      style: z.string().optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  async generateContent(
+    @Input() input: {
+      entityType: 'product' | 'post';
+      contentType: 'title' | 'description';
+      context?: string;
+      keywords?: string[];
+      language?: string;
+      tone?: string;
+      style?: string;
+    }
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const result = await this.openAiContentService.generateContent(input);
+      return this.responseHandler.createTrpcSuccess(result);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        91,
+        27,
+        30,
+        error.message || 'Failed to generate content'
+      );
+    }
+  }
 }

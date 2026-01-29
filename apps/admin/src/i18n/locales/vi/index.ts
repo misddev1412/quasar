@@ -22,6 +22,7 @@ import componentConfigs from './component_configs.json';
 import permissions from './permissions.json';
 import services from './services.json';
 import product_bundles from './product_bundles.json';
+import ai from './ai.json';
 import admin from './admin.json';
 import mail_logs from './mail_logs.json';
 import delivery_methods from './delivery_methods.json';
@@ -50,7 +51,8 @@ export default {
   ...componentConfigs,
   ...permissions,
   ...services,
-  product_bundles,
+  ...product_bundles,
+  ...ai,
   ...admin,
   ...mail_logs,
   ...delivery_methods,

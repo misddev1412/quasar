@@ -36,12 +36,16 @@ interface CreatePermissionFormProps {
   onSubmit: (data: CreatePermissionFormData) => void;
   onCancel: () => void;
   isSubmitting: boolean;
+  showActions?: boolean;
+  formId?: string;
 }
 
 export const CreatePermissionForm: React.FC<CreatePermissionFormProps> = ({
   onSubmit,
   onCancel,
   isSubmitting,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
   
@@ -87,7 +91,7 @@ export const CreatePermissionForm: React.FC<CreatePermissionFormProps> = ({
   }));
 
   return (
-    <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-8">
+    <form id={formId} onSubmit={handleSubmit(onSubmit as any)} className="space-y-8">
       {/* Basic Information */}
       <div className="space-y-4">
         <SectionHeader
@@ -193,24 +197,25 @@ export const CreatePermissionForm: React.FC<CreatePermissionFormProps> = ({
         </div>
       </div>
 
-      {/* Form Actions */}
-      <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
-          {t('common.cancel', 'Cancel')}
-        </Button>
-        <Button
-          type="submit"
-          isLoading={isSubmitting}
-          disabled={isSubmitting}
-        >
-          {t('permissions.create_permission', 'Create Permission')}
-        </Button>
-      </div>
+      {showActions && (
+        <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
+            {t('common.cancel', 'Cancel')}
+          </Button>
+          <Button
+            type="submit"
+            isLoading={isSubmitting}
+            disabled={isSubmitting}
+          >
+            {t('permissions.create_permission', 'Create Permission')}
+          </Button>
+        </div>
+      )}
     </form>
   );
 };

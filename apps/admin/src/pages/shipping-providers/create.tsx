@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiTruck } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import CreateShippingProviderForm, { CreateShippingProviderFormData } from '../../components/shipping-providers/CreateShippingProviderForm';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -80,8 +80,10 @@ const CreateShippingProviderPage: React.FC = () => {
 
   const isSubmitting = manualSubmitting || createShippingProviderMutation.isPending;
 
+  const formId = 'shipping-provider-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('shippingProviders.createShippingProvider')}
       description={t('shippingProviders.createShippingProviderDescription')}
       icon={<FiTruck className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -90,7 +92,7 @@ const CreateShippingProviderPage: React.FC = () => {
       backUrl="/shipping-providers"
       onBack={handleCancel}
       isSubmitting={isSubmitting}
-      maxWidth="full"
+      formId={formId}
       breadcrumbs={[
         { label: t('navigation.home', 'Home'), href: '/' },
         { label: t('shippingProviders.shippingProviders', 'Shipping Providers'), onClick: handleCancel },
@@ -103,8 +105,10 @@ const CreateShippingProviderPage: React.FC = () => {
         isSubmitting={isSubmitting}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

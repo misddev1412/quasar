@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiFileText, FiHome } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { EditTranslationForm } from '../../components/translations/EditTranslationForm';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -69,9 +69,11 @@ const EditTranslationPage: React.FC = () => {
     navigate('/translations');
   };
 
+  const formId = 'translation-edit-form';
+
   if (translationQuery.isLoading) {
     return (
-      <CreatePageTemplate
+      <StandardFormPage
         title={t('translations.edit', 'Edit Translation')}
         description={t('translations.editDescription', 'Update translation information')}
         icon={<FiFileText className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -80,7 +82,7 @@ const EditTranslationPage: React.FC = () => {
         backUrl="/translations"
         onBack={handleCancel}
         isSubmitting={false}
-        maxWidth="full"
+        showActions={false}
         breadcrumbs={[
           ...baseBreadcrumbs,
           { label: t('translations.edit', 'Edit Translation') }
@@ -91,13 +93,13 @@ const EditTranslationPage: React.FC = () => {
             {t('common.loading')}...
           </div>
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
   if (translationQuery.error) {
     return (
-      <CreatePageTemplate
+      <StandardFormPage
         title={t('translations.edit', 'Edit Translation')}
         description={t('translations.editDescription', 'Update translation information')}
         icon={<FiFileText className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -106,7 +108,7 @@ const EditTranslationPage: React.FC = () => {
         backUrl="/translations"
         onBack={handleCancel}
         isSubmitting={false}
-        maxWidth="full"
+        showActions={false}
         breadcrumbs={[
           ...baseBreadcrumbs,
           { label: t('translations.edit', 'Edit Translation') }
@@ -117,13 +119,13 @@ const EditTranslationPage: React.FC = () => {
             {t('translations.loadError')}: {translationQuery.error.message}
           </div>
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
   if (!(translationQuery.data as any)?.data) {
     return (
-      <CreatePageTemplate
+      <StandardFormPage
         title={t('translations.edit', 'Edit Translation')}
         description={t('translations.editDescription', 'Update translation information')}
         icon={<FiFileText className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -132,21 +134,21 @@ const EditTranslationPage: React.FC = () => {
         backUrl="/translations"
         onBack={handleCancel}
         isSubmitting={false}
-        maxWidth="full"
+        showActions={false}
       >
         <div className="flex items-center justify-center py-12">
           <div className="text-neutral-600 dark:text-neutral-400">
             {t('translations.notFound')}
           </div>
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
   const translation = (translationQuery.data as any).data;
 
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('translations.edit', 'Edit Translation')}
       description={t('translations.editDescription', 'Update translation information')}
       icon={<FiFileText className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -155,7 +157,7 @@ const EditTranslationPage: React.FC = () => {
       backUrl="/translations"
       onBack={handleCancel}
       isSubmitting={updateTranslationMutation.isPending}
-      maxWidth="full"
+      formId={formId}
       breadcrumbs={[
         ...baseBreadcrumbs,
         { label: t('translations.edit', 'Edit Translation') }
@@ -166,8 +168,10 @@ const EditTranslationPage: React.FC = () => {
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isSubmitting={updateTranslationMutation.isPending}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

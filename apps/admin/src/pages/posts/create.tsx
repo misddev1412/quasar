@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, FolderOpen } from 'lucide-react';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { CreatePostForm } from '../../components/posts/CreatePostForm';
 import { MediaManager } from '../../components/common/MediaManager';
 import { useToast } from '../../contexts/ToastContext';
@@ -144,9 +144,11 @@ const CreatePostPage: React.FC = () => {
     setShowMediaManager(false);
   };
 
+  const formId = 'post-create-form';
+
   return (
     <>
-      <CreatePageTemplate
+      <StandardFormPage
         title={t('posts.create')}
         description={t('posts.createDescription')}
         icon={<FileText className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -155,7 +157,7 @@ const CreatePostPage: React.FC = () => {
         backUrl="/posts"
         onBack={handleCancel}
         isSubmitting={createPostMutation.isPending}
-        maxWidth="full"
+        formId={formId}
         breadcrumbs={[
           {
             label: t('navigation.home', 'Home'),
@@ -182,8 +184,10 @@ const CreatePostPage: React.FC = () => {
           onSubmit={handleSubmit}
           onCancel={handleCancel}
           isSubmitting={createPostMutation.isPending}
+          showActions={false}
+          formId={formId}
         />
-      </CreatePageTemplate>
+      </StandardFormPage>
 
       <MediaManager
         isOpen={showMediaManager}

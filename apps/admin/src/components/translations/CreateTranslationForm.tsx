@@ -10,6 +10,8 @@ interface CreateTranslationFormProps {
   onSubmit: (data: CreateTranslationData) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
+  showActions?: boolean;
+  formId?: string;
 }
 
 const createTranslationSchema: z.ZodType<CreateTranslationData> = z.object({
@@ -24,6 +26,8 @@ export const CreateTranslationForm: React.FC<CreateTranslationFormProps> = ({
   onSubmit,
   onCancel,
   isSubmitting = false,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
 
@@ -127,6 +131,8 @@ export const CreateTranslationForm: React.FC<CreateTranslationFormProps> = ({
       submitButtonText={t('translations.create')}
       cancelButtonText={t('common.cancel')}
       showCancelButton={true}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

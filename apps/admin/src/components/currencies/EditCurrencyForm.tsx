@@ -11,6 +11,8 @@ interface EditCurrencyFormProps {
   onSubmit: (data: UpdateCurrencyFormData) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
+  showActions?: boolean;
+  formId?: string;
 }
 
 export const EditCurrencyForm: React.FC<EditCurrencyFormProps> = ({
@@ -18,6 +20,8 @@ export const EditCurrencyForm: React.FC<EditCurrencyFormProps> = ({
   onSubmit,
   onCancel,
   isSubmitting = false,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
 
@@ -169,6 +173,8 @@ export const EditCurrencyForm: React.FC<EditCurrencyFormProps> = ({
       submitButtonText={t('common.update')}
       cancelButtonText={t('common.cancel')}
       showCancelButton={true}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useFormContext } from 'react-hook-form';
+import { AIGenerateButton } from '../common/AIGenerateButton';
 import { FolderPlus, Package, Image, Settings, Globe, Tag, Layers, Zap, Warehouse } from 'lucide-react';
 import { EntityForm } from '../common/EntityForm';
 import { TranslationTabs } from '../common/TranslationTabs';
@@ -174,7 +176,7 @@ export interface ProductFormData {
   ogImage?: string;
 }
 
-import { useActiveLanguages } from '../../hooks/useLanguages';
+import { useActiveLanguages, useLanguages } from '../../hooks/useLanguages';
 
 const isSupportedTranslationLocale = (value: string, supportedLocales: string[]): boolean =>
   supportedLocales.includes(value);
@@ -211,6 +213,8 @@ export interface ProductFormProps {
   onTabChange?: (index: number) => void;
   actionsAlignment?: FormActionsAlignment;
   readonly?: boolean;
+  showActions?: boolean;
+  formId?: string;
 }
 
 export type ProductFormSubmitAction = 'save' | 'save_and_continue';
@@ -218,6 +222,52 @@ export type ProductFormSubmitAction = 'save' | 'save_and_continue';
 export interface ProductFormSubmitOptions {
   submitAction?: ProductFormSubmitAction;
 }
+
+const ProductTitleGenerator = () => {
+  const { setValue, watch } = useFormContext();
+  const { activeLanguages } = useActiveLanguages();
+  const description = watch('description');
+  const name = watch('name');
+  const tags = watch('tags');
+
+  // Use current title as context if available (to rewrite/enhance), otherwise use description
+  const context = name && typeof name === 'string' && name.trim().length > 0
+    ? name
+    : (typeof description === 'string' ? description.replace(/<[^>]*>?/gm, '') : '');
+
+  return (
+    <AIGenerateButton
+      entityType="product"
+      contentType="title"
+      context={context}
+      keywords={Array.isArray(tags) ? tags : []}
+      language={activeLanguages[0]?.code}
+      availableLanguages={activeLanguages.map(l => ({ code: l.code, name: l.name }))}
+      onGenerate={(text) => setValue('name', text, { shouldDirty: true, shouldValidate: true })}
+      variant="icon"
+    />
+  );
+};
+
+const ProductDescriptionGenerator = () => {
+  const { setValue, watch } = useFormContext();
+  const { activeLanguages } = useActiveLanguages();
+  const name = watch('name');
+  const tags = watch('tags');
+  const context = typeof name === 'string' ? name : '';
+
+  return (
+    <AIGenerateButton
+      entityType="product"
+      contentType="description"
+      context={context}
+      keywords={Array.isArray(tags) ? tags : []}
+      language={activeLanguages[0]?.code}
+      availableLanguages={activeLanguages.map(l => ({ code: l.code, name: l.name }))}
+      onGenerate={(text) => setValue('description', text, { shouldDirty: true, shouldValidate: true })}
+    />
+  );
+};
 
 export const ProductForm: React.FC<ProductFormProps> = ({
   product,
@@ -228,6 +278,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   onTabChange,
   actionsAlignment,
   readonly = false,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
   const { activeLanguages, isLoading: languagesLoading } = useActiveLanguages();
@@ -548,6 +600,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 minLength: 1,
                 maxLength: 255,
               },
+              rightElement: <ProductTitleGenerator />,
+              rightElementPosition: 'inside-input',
             },
             {
               name: 'slug',
@@ -565,6 +619,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               placeholder: t('products.description_placeholder', 'Enter product description'),
               required: false,
               minHeight: '200px',
+              rightElement: <ProductDescriptionGenerator />,
             },
             {
               name: 'shortDescription',
@@ -1309,6 +1364,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       onTabChange={onTabChange}
       actionsAlignment={actionsAlignment}
       customActions={customActions}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

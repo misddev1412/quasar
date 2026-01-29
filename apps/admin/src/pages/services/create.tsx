@@ -4,7 +4,7 @@ import { trpc } from '../../utils/trpc';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { ServiceForm } from '../../components/services/ServiceForm';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate'; // Assuming exists
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { FileText } from 'lucide-react';
 
 const CreateServicePage = () => {
@@ -48,8 +48,10 @@ const CreateServicePage = () => {
         });
     };
 
+    const formId = 'service-create-form';
+
     return (
-        <CreatePageTemplate
+        <StandardFormPage
             title={t('services.create_title', 'Create Service')}
             description={t('services.create_desc', 'Add a new service to your catalog')}
             icon={<FileText className="w-5 h-5" />}
@@ -57,14 +59,19 @@ const CreateServicePage = () => {
             entityNamePlural={t('services.entity_name_plural', 'Services')}
             backUrl="/services"
             onBack={() => navigate('/services')}
+            onCancel={() => navigate('/services')}
+            isSubmitting={createMutation.isPending}
+            formId={formId}
         >
             <ServiceForm
                 onSubmit={handleSubmit}
                 onCancel={() => navigate('/services')}
                 isSubmitting={createMutation.isPending}
                 mode="create"
+                showActions={false}
+                formId={formId}
             />
-        </CreatePageTemplate>
+        </StandardFormPage>
     );
 };
 

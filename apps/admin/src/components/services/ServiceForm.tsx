@@ -45,6 +45,8 @@ interface ServiceFormProps {
     mode?: 'create' | 'edit';
     activeTab?: number;
     onTabChange?: (index: number) => void;
+    showActions?: boolean;
+    formId?: string;
 }
 
 export const ServiceForm: React.FC<ServiceFormProps> = ({
@@ -55,6 +57,8 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
     mode = 'create',
     activeTab,
     onTabChange,
+    showActions = true,
+    formId,
 }) => {
     const { t } = useTranslationWithBackend();
     const { languageOptions } = useLanguageOptions();
@@ -237,6 +241,8 @@ export const ServiceForm: React.FC<ServiceFormProps> = ({
             activeTab={activeTab}
             onTabChange={onTabChange}
             showSaveAndStay={true}
+            showActions={showActions}
+            formId={formId}
         />
     );
 };

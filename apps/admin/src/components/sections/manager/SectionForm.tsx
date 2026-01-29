@@ -22,9 +22,20 @@ interface SectionFormProps {
     onCancel: () => void;
     submitLabel: string;
     isSubmitting: boolean;
+    showActions?: boolean;
+    formId?: string;
 }
 
-export const SectionForm: React.FC<SectionFormProps> = ({ languages, initialState, onSubmit, onCancel, submitLabel, isSubmitting }) => {
+export const SectionForm: React.FC<SectionFormProps> = ({
+    languages,
+    initialState,
+    onSubmit,
+    onCancel,
+    submitLabel,
+    isSubmitting,
+    showActions = true,
+    formId,
+}) => {
     const { t } = useTranslationWithBackend();
     const navigate = useNavigate();
 
@@ -270,7 +281,7 @@ export const SectionForm: React.FC<SectionFormProps> = ({ languages, initialStat
     );
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form id={formId} onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Select
                     label={t('sections.manager.form.page')}
@@ -385,10 +396,12 @@ export const SectionForm: React.FC<SectionFormProps> = ({ languages, initialStat
                 )}
             </div>
 
-            <div className="flex justify-end gap-3">
-                <Button variant="secondary" onClick={onCancel} type="button">{t('sections.manager.form.cancel')}</Button>
-                <Button type="submit" isLoading={isSubmitting}>{submitLabel}</Button>
-            </div>
+            {showActions && (
+                <div className="flex justify-end gap-3">
+                    <Button variant="secondary" onClick={onCancel} type="button">{t('sections.manager.form.cancel')}</Button>
+                    <Button type="submit" isLoading={isSubmitting}>{submitLabel}</Button>
+                </div>
+            )}
         </form>
     );
 };

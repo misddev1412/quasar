@@ -62,6 +62,8 @@ interface CreateCustomerFormProps {
   isSubmitting?: boolean;
   activeTab?: number;
   onTabChange?: (index: number) => void;
+  showActions?: boolean;
+  formId?: string;
 }
 
 const getInitialFormData = (): CreateCustomerFormData => ({
@@ -90,6 +92,8 @@ export const CreateCustomerForm: React.FC<CreateCustomerFormProps> = ({
   isSubmitting = false,
   activeTab,
   onTabChange,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
   const [formData, setFormData] = useState<CreateCustomerFormData>(getInitialFormData());
@@ -441,6 +445,8 @@ export const CreateCustomerForm: React.FC<CreateCustomerFormProps> = ({
       onCancel={onCancel}
       activeTab={activeTab}
       onTabChange={onTabChange}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

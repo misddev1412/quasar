@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
 import { Server, HardDrive, Settings, Database, CheckCircle, XCircle, AlertCircle, Home } from 'lucide-react';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { EntityForm } from '../../components/common/EntityForm';
 import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { FormTabConfig } from '../../types/forms';
@@ -690,8 +690,10 @@ const StorageConfigPage: React.FC = () => {
     s3SecretKey: '',
   } : {};
 
+  const formId = 'storage-config-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title="Storage Configuration"
       description="Configure file storage settings for local or S3 storage"
       icon={<Database className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -700,7 +702,7 @@ const StorageConfigPage: React.FC = () => {
       backUrl="/settings"
       onBack={handleCancel}
       isSubmitting={updateConfigMutation.isPending}
-      maxWidth="full"
+      formId={formId}
     >
       <div className="space-y-6">
         {/* Breadcrumb Navigation */}
@@ -724,6 +726,7 @@ const StorageConfigPage: React.FC = () => {
         />
 
         <EntityForm<StorageConfigFormData>
+          formId={formId}
           tabs={tabs}
           initialValues={initialValues}
           onSubmit={handleSubmit}
@@ -736,9 +739,10 @@ const StorageConfigPage: React.FC = () => {
           activeTab={activeTab}
           onTabChange={handleTabChange}
           formRef={formRef}
+          showActions={false}
         />
       </div>
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

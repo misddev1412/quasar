@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Package } from 'lucide-react';
 import { FiHome, FiPackage } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../../components/common/StandardFormPage';
 import { ProductForm, ProductFormData, ProductFormSubmitOptions, ProductFormSubmitAction } from '../../../components/products/ProductForm';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { useToast } from '../../../contexts/ToastContext';
@@ -108,8 +108,10 @@ const EditProductPage: React.FC = () => {
     navigate('/products');
   };
 
+  const formId = 'product-edit-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={product ? `${t('products.edit_product', 'Edit Product')}: ${product.name}` : t('products.edit_product', 'Edit Product')}
       description={t('products.edit_product_description', 'Update product information, variants, pricing, and inventory details.')}
       icon={<Package className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -118,11 +120,11 @@ const EditProductPage: React.FC = () => {
       backUrl="/products"
       onBack={handleCancel}
       isSubmitting={updateProductMutation.isPending}
-      maxWidth="full"
       mode="update"
       isLoading={isLoading}
       error={error}
       entityData={product}
+      formId={formId}
       breadcrumbs={[
         {
           label: t('navigation.home', 'Home'),
@@ -158,9 +160,11 @@ const EditProductPage: React.FC = () => {
           onTabChange={handleTabChange}
           actionsAlignment="end"
           readonly={isEditRestricted}
+          showActions={false}
+          formId={formId}
         />
       )}
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

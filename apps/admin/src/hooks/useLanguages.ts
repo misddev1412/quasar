@@ -15,13 +15,16 @@ export interface UseLanguagesResult {
  * Hook to fetch and manage languages from the database
  */
 export const useLanguages = (): UseLanguagesResult => {
-  // Fetch active languages for dropdowns and selectors
+  // Fetch active languages using the robust getLanguages endpoint
   const {
     data: activeLanguagesData,
     isLoading: activeLoading,
     error: activeError,
     refetch: refetchActive,
-  } = trpc.adminLanguage.getActiveLanguages.useQuery();
+  } = trpc.adminLanguage.getLanguages.useQuery({
+    limit: 100,
+    isActive: true,
+  });
 
   // Fetch all languages for comprehensive management
   const {
@@ -36,9 +39,9 @@ export const useLanguages = (): UseLanguagesResult => {
 
   // Parse the active languages response
   const activeLanguages = useMemo(() => {
-    if (!activeLanguagesData || !(activeLanguagesData as any)?.data) return [];
-    const data = (activeLanguagesData as any).data;
-    return Array.isArray(data) ? data as Language[] : [];
+    if (!activeLanguagesData || !(activeLanguagesData as any)?.data?.items) return [];
+    const items = (activeLanguagesData as any).data.items;
+    return Array.isArray(items) ? items as Language[] : [];
   }, [activeLanguagesData]);
 
   // Parse the all languages response  
@@ -80,12 +83,33 @@ export const useActiveLanguages = () => {
     isLoading,
     error,
     refetch,
-  } = trpc.adminLanguage.getActiveLanguages.useQuery();
+  } = trpc.adminLanguage.getLanguages.useQuery({
+    limit: 100,
+    isActive: true,
+  });
 
   const activeLanguages = useMemo(() => {
-    if (!activeLanguagesData || !(activeLanguagesData as any)?.data) return [];
-    const data = (activeLanguagesData as any).data;
-    return Array.isArray(data) ? data as Language[] : [];
+    // Case 1: Standard TRPC response envelope { code, status, data: { items: ... } }
+    if ((activeLanguagesData as any)?.data?.items) {
+      return (activeLanguagesData as any).data.items as Language[];
+    }
+
+    // Case 2: Maybe unwrapped to { items: ... }
+    if ((activeLanguagesData as any)?.items && Array.isArray((activeLanguagesData as any)?.items)) {
+      return (activeLanguagesData as any).items as Language[];
+    }
+
+    // Case 3: Direct array in data { code, status, data: [...] } (Unlikely for paginated but possible)
+    if (Array.isArray((activeLanguagesData as any)?.data)) {
+      return (activeLanguagesData as any).data as Language[];
+    }
+
+    // Case 4: Wrapper in wrapper? { data: { data: { items: ... } } }
+    if ((activeLanguagesData as any)?.data?.data?.items) {
+      return (activeLanguagesData as any).data.data.items as Language[];
+    }
+
+    return [];
   }, [activeLanguagesData]);
 
   const defaultLanguage = useMemo(() => {

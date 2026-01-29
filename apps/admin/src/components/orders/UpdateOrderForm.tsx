@@ -72,6 +72,8 @@ interface UpdateOrderFormProps {
   isSubmitting?: boolean;
   activeTab?: number;
   onTabChange?: (index: number) => void;
+  showActions?: boolean;
+  formId?: string;
 }
 
 export const UpdateOrderForm: React.FC<UpdateOrderFormProps> = ({
@@ -81,6 +83,8 @@ export const UpdateOrderForm: React.FC<UpdateOrderFormProps> = ({
   isSubmitting = false,
   activeTab = 0,
   onTabChange,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
 
@@ -317,6 +321,8 @@ export const UpdateOrderForm: React.FC<UpdateOrderFormProps> = ({
       onCancel={onCancel}
       activeTab={activeTab}
       onTabChange={onTabChange}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

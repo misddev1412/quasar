@@ -45,6 +45,8 @@ interface CreateCategoryFormProps {
   activeTab?: number;
   onTabChange?: (index: number) => void;
   defaultParentId?: string | null;
+  showActions?: boolean;
+  formId?: string;
 }
 
 export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
@@ -54,6 +56,8 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
   activeTab,
   onTabChange,
   defaultParentId,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
   const { languageOptions, isLoading: languagesLoading } = useLanguageOptions();
@@ -388,6 +392,8 @@ export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
       showCancelButton={true}
       activeTab={activeTab}
       onTabChange={onTabChange}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

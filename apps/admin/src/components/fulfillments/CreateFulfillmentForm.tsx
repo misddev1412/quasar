@@ -144,6 +144,8 @@ interface CreateFulfillmentFormProps {
   isSubmitting?: boolean;
   initialOrderId?: string | null;
   onOrderSelect?: (orderId: string) => void;
+  showActions?: boolean;
+  formId?: string;
 }
 
 const PRIORITY_LEVELS: Array<{ value: CreateFulfillmentFormValues['priorityLevel']; label: string }> = [
@@ -242,6 +244,8 @@ export const CreateFulfillmentForm: React.FC<CreateFulfillmentFormProps> = ({
   isSubmitting = false,
   initialOrderId = null,
   onOrderSelect,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
@@ -1275,7 +1279,7 @@ const pickupWardOptions = useMemo<AdministrativeOption[]>(() => {
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmitInternal)} className="space-y-10">
+      <form id={formId} onSubmit={handleSubmit(onSubmitInternal)} className="space-y-10">
         <section className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-visible">
           <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 text-primary-600">
@@ -2392,14 +2396,16 @@ const pickupWardOptions = useMemo<AdministrativeOption[]>(() => {
           </section>
         )}
 
-        <div className="flex items-center justify-end gap-3 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            {t('common.cancel', 'Cancel')}
-          </Button>
-          <Button type="submit" variant="primary" isLoading={isSubmitting} disabled={isSubmitting}>
-            {t('fulfillments.create_fulfillment', 'Create fulfillment')}
-          </Button>
-        </div>
+        {showActions && (
+          <div className="flex items-center justify-end gap-3 pt-4">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              {t('common.cancel', 'Cancel')}
+            </Button>
+            <Button type="submit" variant="primary" isLoading={isSubmitting} disabled={isSubmitting}>
+              {t('fulfillments.create_fulfillment', 'Create fulfillment')}
+            </Button>
+          </div>
+        )}
       </form>
     </FormProvider>
   );

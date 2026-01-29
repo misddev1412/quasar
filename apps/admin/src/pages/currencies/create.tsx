@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiDollarSign } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { CreateCurrencyForm } from '../../components/currencies/CreateCurrencyForm';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -45,8 +45,10 @@ const CreateCurrencyPage: React.FC = () => {
     navigate('/currencies');
   };
 
+  const formId = 'currency-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('currencies.create', 'Create Currency')}
       description={t('currencies.createDescription', 'Add a new currency to the system')}
       icon={<FiDollarSign className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -55,14 +57,16 @@ const CreateCurrencyPage: React.FC = () => {
       backUrl="/currencies"
       onBack={handleCancel}
       isSubmitting={createCurrencyMutation.isPending}
-      maxWidth="full"
+      formId={formId}
     >
       <CreateCurrencyForm
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isSubmitting={createCurrencyMutation.isPending}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

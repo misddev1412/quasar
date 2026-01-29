@@ -9,12 +9,16 @@ interface CreateCurrencyFormProps {
   onSubmit: (data: CreateCurrencyFormData) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
+  showActions?: boolean;
+  formId?: string;
 }
 
 export const CreateCurrencyForm: React.FC<CreateCurrencyFormProps> = ({
   onSubmit,
   onCancel,
   isSubmitting = false,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
 
@@ -163,6 +167,8 @@ export const CreateCurrencyForm: React.FC<CreateCurrencyFormProps> = ({
       submitButtonText={t('currencies.create')}
       cancelButtonText={t('common.cancel')}
       showCancelButton={true}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

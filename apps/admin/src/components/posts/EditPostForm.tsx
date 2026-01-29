@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useFormContext } from 'react-hook-form';
+import { AIGenerateButton } from '../common/AIGenerateButton';
 import { FileText, Settings, Globe, Image, Tag } from 'lucide-react';
 import { EntityForm } from '../common/EntityForm';
 import { FormTabConfig, FormSubmitOptions } from '../../types/forms';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useLanguageOptions } from '../../hooks/useLanguages';
+import { useLanguageOptions, useActiveLanguages } from '../../hooks/useLanguages';
 import { z } from 'zod';
 import { TranslationsSection } from './TranslationsSection';
 
@@ -78,7 +80,47 @@ interface EditPostFormProps {
   activeTab?: number;
   onTabChange?: (tabIndex: number) => void;
   readonly?: boolean;
+  showActions?: boolean;
+  formId?: string;
 }
+
+const PostTitleGenerator = ({ availableLanguages }: { availableLanguages: { code: string; name: string }[] }) => {
+  const { setValue, watch } = useFormContext();
+  const content = watch('content');
+  const type = watch('type');
+
+  // Clean content from HTML tags
+  const context = typeof content === 'string' ? content.replace(/<[^>]*>?/gm, '') : '';
+
+  return (
+    <AIGenerateButton
+      entityType="post"
+      contentType="title"
+      context={context}
+      tone={type === 'news' ? 'journalistic' : 'engaging'}
+      onGenerate={(text) => setValue('title', text, { shouldDirty: true, shouldValidate: true })}
+      variant="icon"
+      availableLanguages={availableLanguages}
+    />
+  );
+};
+
+const PostContentGenerator = ({ availableLanguages }: { availableLanguages: { code: string; name: string }[] }) => {
+  const { setValue, watch } = useFormContext();
+  const title = watch('title');
+  const type = watch('type');
+
+  return (
+    <AIGenerateButton
+      entityType="post"
+      contentType="description"
+      context={title}
+      tone={type === 'news' ? 'journalistic' : 'engaging'}
+      onGenerate={(text) => setValue('content', text, { shouldDirty: true, shouldValidate: true })}
+      availableLanguages={availableLanguages}
+    />
+  );
+};
 
 export const EditPostForm: React.FC<EditPostFormProps> = ({
   initialData,
@@ -88,9 +130,12 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
   activeTab,
   onTabChange,
   readonly = false,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
   const { languageOptions, isLoading: languagesLoading } = useLanguageOptions();
+  const { activeLanguages } = useActiveLanguages(); // Get active languages
 
   // State for managing translations
   const [additionalTranslations, setAdditionalTranslations] = useState<{
@@ -167,6 +212,8 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
                 minLength: 1,
                 maxLength: 200,
               },
+              rightElement: <PostTitleGenerator availableLanguages={activeLanguages.map(l => ({ code: l.code, name: l.name }))} />,
+              rightElementPosition: 'inside-input',
             },
             {
               name: 'slug',
@@ -201,6 +248,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               validation: {
                 minLength: 10,
               },
+              rightElement: <PostContentGenerator availableLanguages={activeLanguages.map(l => ({ code: l.code, name: l.name }))} />,
             },
           ],
         },
@@ -424,6 +472,8 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
       onTabChange={onTabChange}
       mode="edit"
       customActions={readonly ? <></> : undefined}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

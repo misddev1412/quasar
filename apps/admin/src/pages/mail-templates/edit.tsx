@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Mail, ArrowLeft, Settings as SettingsIcon, FileText, Users, Send, Home } from 'lucide-react';
+import { Mail, Settings as SettingsIcon, FileText, Users, Send, Home } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../../components/common/Card';
-import BaseLayout from '../../components/layout/BaseLayout';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -341,13 +341,7 @@ const MailTemplateEditPage: React.FC = () => {
     },
   ];
 
-  const actions = [
-    {
-      label: t('mail_templates.back_to_templates', 'Back to Templates'),
-      onClick: handleCancel,
-      icon: <ArrowLeft className="w-4 h-4" />,
-    },
-  ];
+  const formId = 'mail-template-edit-form';
 
   const breadcrumbs = useMemo(() => ([
     {
@@ -385,6 +379,7 @@ const MailTemplateEditPage: React.FC = () => {
 
     return (
       <EntityForm<UpdateMailTemplateFormData>
+        formId={formId}
         tabs={tabs}
         initialValues={initialValues}
         onSubmit={handleSubmit}
@@ -396,15 +391,23 @@ const MailTemplateEditPage: React.FC = () => {
         showCancelButton={true}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        showActions={false}
       />
     );
   };
 
   return (
-    <BaseLayout
+    <StandardFormPage
       title={t('mail_templates.edit_template', 'Edit Mail Template')}
       description={t('mail_templates.template_information_description', 'Update mail template information and settings')}
-      actions={actions}
+      icon={<Mail className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      entityName={t('mail_templates.template', 'Template')}
+      entityNamePlural={t('mail_templates.templates', 'Mail Templates')}
+      backUrl="/mail-templates"
+      onBack={handleCancel}
+      isSubmitting={updateTemplateMutation.isPending}
+      mode="update"
+      formId={formId}
       breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
@@ -427,7 +430,7 @@ const MailTemplateEditPage: React.FC = () => {
         <CardContent className="pt-0">{renderContent()}</CardContent>
         </Card>
       </div>
-    </BaseLayout>
+    </StandardFormPage>
   );
 };
 

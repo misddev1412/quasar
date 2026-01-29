@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Mail, Settings, Server, Key, Mail as MailIcon, Gauge, Activity } from 'lucide-react';
-import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../../components/common/StandardFormPage';
 import { EntityForm } from '../../../components/common/EntityForm';
 import { FormTabConfig } from '../../../types/forms';
 import { useToast } from '../../../contexts/ToastContext';
@@ -376,8 +376,23 @@ const EditMailProviderPage: React.FC = () => {
     },
   ];
 
+  const formId = 'mail-provider-edit-form';
+
   if (isLoading) {
-    return <Loading />;
+    return (
+      <StandardFormPage
+        title={t('mail_providers.edit_mail_provider', 'Edit Mail Provider')}
+        description={t('mail_providers.edit_description', 'Update mail provider configuration')}
+        icon={<Mail className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+        entityName={t('mail_providers.entity_name', 'Mail Provider')}
+        entityNamePlural={t('mail_providers.entity_name_plural', 'Mail Providers')}
+        backUrl="/mail-providers"
+        onBack={() => navigate('/mail-providers')}
+        showActions={false}
+      >
+        <Loading />
+      </StandardFormPage>
+    );
   }
 
   const provider = (data as any)?.data;
@@ -387,7 +402,7 @@ const EditMailProviderPage: React.FC = () => {
   };
 
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('mail_providers.edit_mail_provider', 'Edit Mail Provider')}
       description={t('mail_providers.edit_description', 'Update mail provider configuration')}
       icon={<Mail className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -396,7 +411,7 @@ const EditMailProviderPage: React.FC = () => {
       backUrl="/mail-providers"
       onBack={handleCancel}
       isSubmitting={updateMutation.isPending}
-      maxWidth="full"
+      formId={formId}
       customActions={[
         {
           label: t('mail_providers.test_connection', 'Test Connection'),
@@ -414,6 +429,7 @@ const EditMailProviderPage: React.FC = () => {
     >
       <EntityForm<MailProviderFormData>
         formRef={formRef}
+        formId={formId}
         tabs={tabs}
         initialValues={provider as any}
         onSubmit={async (formData) => {
@@ -427,10 +443,10 @@ const EditMailProviderPage: React.FC = () => {
         showCancelButton={true}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        showActions={false}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 
 export default EditMailProviderPage;
-

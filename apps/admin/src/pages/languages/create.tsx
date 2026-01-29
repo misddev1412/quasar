@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiGlobe } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { CreateLanguageForm } from '../../components/languages/CreateLanguageForm';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -45,8 +45,10 @@ const CreateLanguagePage: React.FC = () => {
     navigate('/languages');
   };
 
+  const formId = 'language-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('languages.create', 'Create Language')}
       description={t('languages.createDescription', 'Add a new language to the system')}
       icon={<FiGlobe className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -55,14 +57,16 @@ const CreateLanguagePage: React.FC = () => {
       backUrl="/languages"
       onBack={handleCancel}
       isSubmitting={createLanguageMutation.isPending}
-      maxWidth="full"
+      formId={formId}
     >
       <CreateLanguageForm
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isSubmitting={createLanguageMutation.isPending}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

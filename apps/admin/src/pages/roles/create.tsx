@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield } from 'lucide-react';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { CreateRoleForm } from '../../components/role/CreateRoleForm';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -65,8 +65,10 @@ const RoleCreatePage: React.FC = () => {
     navigate('/roles');
   };
 
+  const formId = 'role-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('admin.create_new_role', 'Create New Role')}
       description={t('admin.create_role_description', 'Define a new user role with specific permissions')}
       icon={<Shield className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -75,7 +77,7 @@ const RoleCreatePage: React.FC = () => {
       backUrl="/roles"
       onBack={handleCancel}
       isSubmitting={createRoleMutation.isPending}
-      maxWidth="full"
+      formId={formId}
     >
       <CreateRoleForm
         onSubmit={handleSubmit}
@@ -83,8 +85,10 @@ const RoleCreatePage: React.FC = () => {
         isSubmitting={createRoleMutation.isPending}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

@@ -1,7 +1,7 @@
 import React, { useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiStar } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../../../components/common/StandardFormPage';
 import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
 import { useToast } from '../../../../contexts/ToastContext';
 import { trpc } from '../../../../utils/trpc';
@@ -76,8 +76,10 @@ const EditLoyaltyTierPage: React.FC = () => {
 
   const isTierLoading = (isLoading || isFetching) && !tier && !error;
 
+  const formId = 'loyalty-tier-edit-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('loyalty.edit_tier', 'Edit Tier')}
       description={t(
         'loyalty.edit_tier_description',
@@ -93,7 +95,7 @@ const EditLoyaltyTierPage: React.FC = () => {
       isLoading={isTierLoading}
       error={error}
       entityData={tier}
-      maxWidth="full"
+      formId={formId}
       breadcrumbs={[
         {
           label: t('navigation.home', 'Home'),
@@ -116,6 +118,8 @@ const EditLoyaltyTierPage: React.FC = () => {
           isSubmitting={updateTierMutation.isPending}
           onCancel={handleBack}
           submitLabel={t('common.save_changes', 'Save Changes')}
+          showActionBar={false}
+          formId={formId}
         />
       ) : !isTierLoading && !error ? (
         <Alert variant="destructive">
@@ -128,7 +132,7 @@ const EditLoyaltyTierPage: React.FC = () => {
           </AlertDescription>
         </Alert>
       ) : null}
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

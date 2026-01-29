@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiUpload, FiEye, FiEyeOff } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { FormInput } from '../../components/common/FormInput';
 import { TextareaInput } from '../../components/common/TextareaInput';
 import { Toggle } from '../../components/common/Toggle';
@@ -228,8 +228,10 @@ const CreateFirebaseConfigPage: React.FC = () => {
     input.click();
   };
 
+  const formId = 'firebase-config-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('firebase_configs.create_config', 'Create Firebase Configuration')}
       description={t('firebase_configs.create_config_description', 'Add a new Firebase project configuration')}
       icon={<FiUpload className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -238,7 +240,7 @@ const CreateFirebaseConfigPage: React.FC = () => {
       backUrl="/firebase-configs"
       onBack={handleCancel}
       isSubmitting={createConfigMutation.isPending}
-      maxWidth="4xl"
+      formId={formId}
       customActions={[
         {
           label: t('firebase_configs.import_from_json', 'Import from JSON'),
@@ -248,7 +250,7 @@ const CreateFirebaseConfigPage: React.FC = () => {
         },
       ]}
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form id={formId} onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <FormInput
@@ -405,7 +407,7 @@ const CreateFirebaseConfigPage: React.FC = () => {
           </div>
         </div>
       </form>
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

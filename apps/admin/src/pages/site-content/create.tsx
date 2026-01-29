@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText } from 'lucide-react';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
@@ -69,8 +69,10 @@ const SiteContentCreatePage: React.FC = () => {
     navigate('/site-content');
   };
 
+  const formId = 'site-content-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('siteContent.create.title', 'Create Site Content')}
       description={t(
         'siteContent.create.description',
@@ -82,7 +84,7 @@ const SiteContentCreatePage: React.FC = () => {
       backUrl="/site-content"
       onBack={handleCancel}
       isSubmitting={createMutation.isPending}
-      maxWidth="full"
+      formId={formId}
       breadcrumbs={[
         { label: t('navigation.home', 'Home'), href: '/' },
         { label: t('siteContent.title', 'Site Content'), onClick: handleCancel },
@@ -97,8 +99,10 @@ const SiteContentCreatePage: React.FC = () => {
         mode="create"
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

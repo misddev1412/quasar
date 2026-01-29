@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Mail, Settings } from 'lucide-react';
-import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../../components/common/StandardFormPage';
 import { EntityForm } from '../../../components/common/EntityForm';
 import { FormTabConfig } from '../../../types/forms';
 import { useToast } from '../../../contexts/ToastContext';
@@ -129,14 +129,29 @@ const EditMailChannelPriorityPage: React.FC = () => {
     },
   ];
 
+  const formId = 'email-flow-edit-form';
+
   if (isLoading) {
-    return <Loading />;
+    return (
+      <StandardFormPage
+        title="Edit Mail Channel Priority"
+        description="Update how this mail channel participates in your priority strategy."
+        icon={<Mail className="w-5 h-5" />}
+        entityName="Mail Channel Priority"
+        entityNamePlural="Mail Channel Priorities"
+        backUrl="/email-flows"
+        onBack={() => navigate('/email-flows')}
+        showActions={false}
+      >
+        <Loading />
+      </StandardFormPage>
+    );
   }
 
   const flow = (flowData as any)?.data;
 
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title="Edit Mail Channel Priority"
       description="Update how this mail channel participates in your priority strategy."
       icon={<Mail className="w-5 h-5" />}
@@ -145,8 +160,10 @@ const EditMailChannelPriorityPage: React.FC = () => {
       backUrl="/email-flows"
       onBack={() => navigate('/email-flows')}
       isSubmitting={updateMutation.isPending}
+      formId={formId}
     >
       <EntityForm<MailChannelPriorityFormData>
+        formId={formId}
         tabs={tabs}
         initialValues={flow as any}
         onSubmit={async (formData) => {
@@ -160,8 +177,9 @@ const EditMailChannelPriorityPage: React.FC = () => {
         isSubmitting={updateMutation.isPending}
         validationSchema={mailChannelPrioritySchema}
         submitButtonText="Update Priority"
+        showActions={false}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

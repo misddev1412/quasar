@@ -9,12 +9,16 @@ interface CreateLanguageFormProps {
   onSubmit: (data: CreateLanguageFormData) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
+  showActions?: boolean;
+  formId?: string;
 }
 
 export const CreateLanguageForm: React.FC<CreateLanguageFormProps> = ({
   onSubmit,
   onCancel,
   isSubmitting = false,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
 
@@ -147,6 +151,8 @@ export const CreateLanguageForm: React.FC<CreateLanguageFormProps> = ({
       submitButtonText={t('languages.create')}
       cancelButtonText={t('common.cancel')}
       showCancelButton={true}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

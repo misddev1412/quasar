@@ -25,6 +25,8 @@ interface CreateUserFormProps {
   // Optional external tab control (for URL persistence)
   activeTab?: number;
   onTabChange?: (index: number) => void;
+  showActions?: boolean;
+  formId?: string;
 }
 
 export const CreateUserForm: React.FC<CreateUserFormProps> = ({
@@ -33,6 +35,8 @@ export const CreateUserForm: React.FC<CreateUserFormProps> = ({
   isSubmitting = false,
   activeTab,
   onTabChange,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
 
@@ -230,6 +234,8 @@ export const CreateUserForm: React.FC<CreateUserFormProps> = ({
       showCancelButton={true}
       activeTab={activeTab}
       onTabChange={onTabChange}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

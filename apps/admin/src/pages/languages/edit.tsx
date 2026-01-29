@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiGlobe, FiHome } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { EditLanguageForm } from '../../components/languages/EditLanguageForm';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -83,10 +83,12 @@ const EditLanguagePage: React.FC = () => {
     navigate('/languages');
   };
 
+  const formId = 'language-edit-form';
+
   // Loading state
   if (languageQuery.isLoading) {
     return (
-      <CreatePageTemplate
+      <StandardFormPage
         title={t('languages.edit', 'Edit Language')}
         description={t('languages.editDescription', 'Update language information')}
         icon={<FiGlobe className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -95,7 +97,7 @@ const EditLanguagePage: React.FC = () => {
         backUrl="/languages"
         onBack={handleCancel}
         isSubmitting={false}
-        maxWidth="full"
+        showActions={false}
         breadcrumbs={[
           ...baseBreadcrumbs,
           { label: t('languages.edit', 'Edit Language') }
@@ -106,14 +108,14 @@ const EditLanguagePage: React.FC = () => {
             {t('common.loading')}...
           </div>
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
   // Error state
   if (languageQuery.error) {
     return (
-      <CreatePageTemplate
+      <StandardFormPage
         title={t('languages.edit', 'Edit Language')}
         description={t('languages.editDescription', 'Update language information')}
         icon={<FiGlobe className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -122,7 +124,7 @@ const EditLanguagePage: React.FC = () => {
         backUrl="/languages"
         onBack={handleCancel}
         isSubmitting={false}
-        maxWidth="full"
+        showActions={false}
         breadcrumbs={[
           ...baseBreadcrumbs,
           { label: t('languages.edit', 'Edit Language') }
@@ -133,14 +135,14 @@ const EditLanguagePage: React.FC = () => {
             {t('languages.loadError')}: {languageQuery.error.message}
           </div>
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
   // Language not found
   if (!language) {
     return (
-      <CreatePageTemplate
+      <StandardFormPage
         title={t('languages.edit', 'Edit Language')}
         description={t('languages.editDescription', 'Update language information')}
         icon={<FiGlobe className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -149,19 +151,19 @@ const EditLanguagePage: React.FC = () => {
         backUrl="/languages"
         onBack={handleCancel}
         isSubmitting={false}
-        maxWidth="full"
+        showActions={false}
       >
         <div className="flex items-center justify-center py-12">
           <div className="text-neutral-600 dark:text-neutral-400">
             {t('languages.notFound')}
           </div>
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('languages.editTitle', { name: language.name })}
       description={t('languages.editDescription', 'Update language information')}
       icon={<FiGlobe className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -170,7 +172,7 @@ const EditLanguagePage: React.FC = () => {
       backUrl="/languages"
       onBack={handleCancel}
       isSubmitting={updateLanguageMutation.isPending}
-      maxWidth="full"
+      formId={formId}
       breadcrumbs={detailBreadcrumbs}
     >
       <div className="space-y-6">
@@ -179,9 +181,11 @@ const EditLanguagePage: React.FC = () => {
           onSubmit={handleSubmit}
           onCancel={handleCancel}
           isSubmitting={updateLanguageMutation.isPending}
+          showActions={false}
+          formId={formId}
         />
       </div>
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

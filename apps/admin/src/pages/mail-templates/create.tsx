@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Home, Settings, Send, FileText, Users } from 'lucide-react';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -316,8 +316,10 @@ const CreateMailTemplatePage: React.FC = () => {
     },
   ];
 
+  const formId = 'mail-template-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('mail_templates.create_template', 'Create Mail Template')}
       description={t('mail_templates.create_template_description', 'Create a new email template for your application')}
       icon={<Mail className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -326,7 +328,7 @@ const CreateMailTemplatePage: React.FC = () => {
       backUrl="/mail-templates"
       onBack={handleCancel}
       isSubmitting={createTemplateMutation.isPending}
-      maxWidth="full"
+      formId={formId}
       breadcrumbs={[
         {
           label: 'Home',
@@ -342,6 +344,7 @@ const CreateMailTemplatePage: React.FC = () => {
       ]}
     >
       <EntityForm<CreateMailTemplateFormData>
+        formId={formId}
         tabs={tabs}
         initialValues={initialValues}
         onSubmit={handleSubmit}
@@ -353,8 +356,9 @@ const CreateMailTemplatePage: React.FC = () => {
         showCancelButton={true}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        showActions={false}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

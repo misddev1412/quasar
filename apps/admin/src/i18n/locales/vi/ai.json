@@ -1,0 +1,32 @@
+{
+    "ai": {
+        "context": "Bối cảnh / Chủ đề",
+        "context_placeholder": "Nhập chủ đề hoặc tên sản phẩm (ví dụ: iPhone 15 Pro Max)...",
+        "language": "Ngôn ngữ đích",
+        "tone": "Giọng văn",
+        "style": "Phong cách nội dung",
+        "preview_result": "Xem trước kết quả",
+        "regenerate": "Tạo lại",
+        "generating": "Đang tạo...",
+        "generate": "Tạo nội dung",
+        "generate_btn": "Tạo bằng AI",
+        "generated_success": "Đã tạo nội dung thành công",
+        "config_error": "Chưa cấu hình AI",
+        "config_missing_message": "Vui lòng cấu hình OpenAI trong cài đặt hệ thống.",
+        "generation_failed": "Tạo nội dung thất bại. Vui lòng thử lại.",
+        "tone_professional": "Chuyên nghiệp",
+        "tone_casual": "Thân mật / Đời thường",
+        "tone_friendly": "Thân thiện",
+        "tone_exciting": "Hào hứng / Sôi nổi",
+        "tone_witty": "Hóm hỉnh",
+        "tone_persuasive": "Thuyết phục",
+        "style_seo_standard": "Chuẩn SEO",
+        "style_blog_post": "Đoạn bài viết Blog",
+        "style_social_media": "Bài đăng Mạng xã hội",
+        "style_technical": "Mô tả Kỹ thuật",
+        "generation_options": "Tùy chọn AI",
+        "usage_prompt": "Lời nhắc (Prompt)",
+        "usage_completion": "Kết quả (Details)",
+        "usage_total": "Tổng: {{count}} Token"
+    }
+}

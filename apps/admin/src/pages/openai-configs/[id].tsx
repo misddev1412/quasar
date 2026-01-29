@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiEye, FiEyeOff, FiTrash2 } from 'react-icons/fi';
+import { FiTrash2 } from 'react-icons/fi';
 import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
+import { PasswordVisibilityToggle } from '../../components/common/PasswordVisibilityToggle';
 import { FormInput } from '../../components/common/FormInput';
+import { Select } from '../../components/common/Select';
 import { TextareaInput } from '../../components/common/TextareaInput';
 import { Toggle } from '../../components/common/Toggle';
-import BaseLayout from '../../components/layout/BaseLayout';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -181,144 +182,151 @@ const EditOpenAiConfigPage: React.FC = () => {
     }
   };
 
+  const formId = 'openai-config-edit-form';
+
   if (isLoading || !formData) {
     return (
-      <BaseLayout
+      <StandardFormPage
         title={t('openai_configs.edit_title', 'Edit OpenAI Configuration')}
         description={t('openai_configs.edit_description', 'Update OpenAI configuration details')}
+        icon={<div className="w-5 h-5 bg-primary-500 rounded" />}
+        entityName={t('openai_configs.config', 'Configuration')}
+        entityNamePlural={t('openai_configs.configs', 'OpenAI configurations')}
+        backUrl="/openai-configs"
+        onBack={handleCancel}
+        showActions={false}
       >
         <Loading />
-      </BaseLayout>
+      </StandardFormPage>
     );
   }
 
   if (error) {
     return (
-      <BaseLayout
+      <StandardFormPage
         title={t('openai_configs.edit_title', 'Edit OpenAI Configuration')}
         description={t('openai_configs.edit_description', 'Update OpenAI configuration details')}
+        icon={<div className="w-5 h-5 bg-primary-500 rounded" />}
+        entityName={t('openai_configs.config', 'Configuration')}
+        entityNamePlural={t('openai_configs.configs', 'OpenAI configurations')}
+        backUrl="/openai-configs"
+        onBack={handleCancel}
+        showActions={false}
       >
         <Alert variant="destructive">
           <AlertTitle>{t('admin.error', 'Error')}</AlertTitle>
           <AlertDescription>{(error as { message?: string })?.message || 'Failed to load OpenAI configuration'}</AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardFormPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardFormPage
       title={t('openai_configs.edit_title', 'Edit OpenAI Configuration')}
       description={t('openai_configs.edit_description', 'Update OpenAI configuration details')}
-      actions={[
+      icon={<div className="w-5 h-5 bg-primary-500 rounded" />}
+      entityName={t('openai_configs.config', 'Configuration')}
+      entityNamePlural={t('openai_configs.configs', 'OpenAI configurations')}
+      backUrl="/openai-configs"
+      onBack={handleCancel}
+      onCancel={handleCancel}
+      isSubmitting={updateConfigMutation.isPending}
+      mode="update"
+      formId={formId}
+      customActions={[
         {
           label: t('common.delete', 'Delete'),
           onClick: handleDelete,
           icon: <FiTrash2 className="w-4 h-4" />,
+          variant: 'outline',
         },
       ]}
     >
-      <Card className="max-w-4xl">
-        <form onSubmit={handleSubmit} className="space-y-6 p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <FormInput
-                id="name"
-                type="text"
-                label={t('openai_configs.name', 'Configuration Name *')}
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                placeholder={t('openai_configs.name_placeholder', 'Production OpenAI')}
-                error={errors.name}
-              />
-            </div>
-
-            <div>
-              <FormInput
-                id="model"
-                type="text"
-                label={t('openai_configs.model', 'Model *')}
-                value={formData.model}
-                onChange={(e) => handleInputChange('model', e.target.value)}
-                placeholder="gpt-4o-mini"
-                list="openai-models"
-                error={errors.model}
-              />
-              <datalist id="openai-models">
-                {MODEL_SUGGESTIONS.map((model) => (
-                  <option key={model} value={model} />
-                ))}
-              </datalist>
-            </div>
-
-            <div>
-              <FormInput
-                id="baseUrl"
-                type="text"
-                label={t('openai_configs.base_url', 'Base URL')}
-                value={formData.baseUrl || ''}
-                onChange={(e) => handleInputChange('baseUrl', e.target.value)}
-                placeholder="https://api.openai.com"
-              />
-            </div>
-
-            <div className="flex items-center space-x-3">
-              <Toggle
-                checked={formData.active}
-                onChange={(checked) => handleInputChange('active', checked)}
-              />
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('openai_configs.active_config', 'Active Configuration')}
-              </label>
-            </div>
-          </div>
-
+      <form id={formId} onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <TextareaInput
-              id="description"
-              label={t('openai_configs.description', 'Description')}
-              value={formData.description || ''}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder={t('openai_configs.description_placeholder', 'Description of this OpenAI configuration...')}
-              rows={3}
+            <FormInput
+              id="name"
+              type="text"
+              label={t('openai_configs.name', 'Configuration Name *')}
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              placeholder={t('openai_configs.name_placeholder', 'Production OpenAI')}
+              error={errors.name}
             />
           </div>
 
           <div>
-            <div className="relative">
-              <FormInput
-                id="apiKey"
-                type={showApiKey ? 'text' : 'password'}
-                label={t('openai_configs.api_key', 'API Key *')}
-                value={formData.apiKey}
-                onChange={(e) => handleInputChange('apiKey', e.target.value)}
-                placeholder="sk-..."
-                error={errors.apiKey}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowApiKey(!showApiKey)}
-                className="absolute right-2 top-8"
-                startIcon={showApiKey ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
-              />
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              {t('openai_configs.api_key_help', 'Store your OpenAI API key securely.')}
-            </p>
+            <Select
+              id="model"
+              label={t('openai_configs.model', 'Model *')}
+              value={formData.model}
+              onChange={(value) => handleInputChange('model', value)}
+              options={MODEL_SUGGESTIONS.map(model => ({ value: model, label: model }))}
+              placeholder=""
+              error={errors.model}
+              required
+            />
+          </div>
+
+          <div>
+            <FormInput
+              id="baseUrl"
+              type="text"
+              label={t('openai_configs.base_url', 'Base URL')}
+              value={formData.baseUrl || ''}
+              onChange={(e) => handleInputChange('baseUrl', e.target.value)}
+              placeholder="https://api.openai.com"
+            />
           </div>
 
           <div className="flex items-center space-x-3">
-            <Button type="submit" variant="primary" isLoading={updateConfigMutation.isPending}>
-              {t('common.save', 'Save')}
-            </Button>
-            <Button type="button" variant="outline" onClick={handleCancel}>
-              {t('common.cancel', 'Cancel')}
-            </Button>
+            <Toggle
+              checked={formData.active}
+              onChange={(checked) => handleInputChange('active', checked)}
+            />
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t('openai_configs.active_config', 'Active Configuration')}
+            </label>
           </div>
-        </form>
-      </Card>
+        </div>
+
+        <div>
+          <TextareaInput
+            id="description"
+            label={t('openai_configs.description', 'Description')}
+            value={formData.description || ''}
+            onChange={(e) => handleInputChange('description', e.target.value)}
+            placeholder={t('openai_configs.description_placeholder', 'Description of this OpenAI configuration...')}
+            rows={3}
+          />
+        </div>
+
+        <div>
+          <div>
+            <FormInput
+              id="apiKey"
+              type={showApiKey ? 'text' : 'password'}
+              label={t('openai_configs.api_key', 'API Key *')}
+              value={formData.apiKey}
+              onChange={(e) => handleInputChange('apiKey', e.target.value)}
+              placeholder="sk-..."
+              error={errors.apiKey}
+              rightIcon={
+                <PasswordVisibilityToggle
+                  isVisible={showApiKey}
+                  onToggle={() => setShowApiKey(!showApiKey)}
+                />
+              }
+            />
+          </div>
+          <p className="text-xs text-gray-500 mt-1">
+            {t('openai_configs.api_key_help', 'Store your OpenAI API key securely.')}
+          </p>
+        </div>
+
+      </form>
 
       <ConfirmationModal
         isOpen={deleteModal}
@@ -329,7 +337,7 @@ const EditOpenAiConfigPage: React.FC = () => {
         confirmText="Delete"
         confirmVariant="danger"
       />
-    </BaseLayout>
+    </StandardFormPage>
   );
 };
 

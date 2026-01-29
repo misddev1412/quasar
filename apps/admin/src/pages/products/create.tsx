@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package } from 'lucide-react';
 import { FiHome, FiPackage } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { ProductForm, ProductFormData, ProductFormSubmitOptions } from '../../components/products/ProductForm';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
@@ -52,8 +52,10 @@ const CreateProductPage: React.FC = () => {
     navigate('/products');
   };
 
+  const formId = 'product-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('products.create_product', 'Create Product')}
       description={t('products.create_product_description', 'Add a new product to your catalog with variants, pricing, and inventory details.')}
       icon={<Package className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -62,7 +64,7 @@ const CreateProductPage: React.FC = () => {
       backUrl="/products"
       onBack={handleCancel}
       isSubmitting={createProductMutation.isPending}
-      maxWidth="full"
+      formId={formId}
       breadcrumbs={[
         {
           label: t('navigation.home', 'Home'),
@@ -83,8 +85,10 @@ const CreateProductPage: React.FC = () => {
         isSubmitting={createProductMutation.isPending}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

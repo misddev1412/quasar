@@ -1,0 +1,32 @@
+{
+    "ai": {
+        "context": "Context / Topic",
+        "context_placeholder": "Enter topic or product name (e.g., iPhone 15 Pro Max)...",
+        "language": "Target Language",
+        "tone": "Tone of Voice",
+        "style": "Content Style",
+        "preview_result": "Preview Result",
+        "regenerate": "Regenerate",
+        "generating": "Generating...",
+        "generate": "Generate Content",
+        "generate_btn": "Generate with AI",
+        "generated_success": "Content generated successfully",
+        "config_error": "AI Config Missing",
+        "config_missing_message": "Please configure OpenAI settings in the system settings.",
+        "generation_failed": "Failed to generate content. Please try again.",
+        "tone_professional": "Professional",
+        "tone_casual": "Casual",
+        "tone_friendly": "Friendly",
+        "tone_exciting": "Exciting",
+        "tone_witty": "Witty",
+        "tone_persuasive": "Persuasive",
+        "style_seo_standard": "SEO Standard",
+        "style_blog_post": "Blog Post Section",
+        "style_social_media": "Social Media Teaser",
+        "style_technical": "Technical Description",
+        "generation_options": "AI Generation Options",
+        "usage_prompt": "Prompt",
+        "usage_completion": "Completion",
+        "usage_total": "Total: {{count}} Tokens"
+    }
+}

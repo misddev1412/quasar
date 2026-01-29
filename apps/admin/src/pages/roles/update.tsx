@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Shield, Trash2, Home } from 'lucide-react';
-import { UpdatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -172,8 +172,10 @@ const RoleUpdatePage: React.FC = () => {
     return actions;
   }, [roleResponse, t, handleDelete]);
 
+  const formId = 'role-update-form';
+
   return (
-    <UpdatePageTemplate
+    <StandardFormPage
       title={t('roles.edit_role', 'Edit Role')}
       description={t('roles.edit_role_description', 'Update role information and permissions')}
       icon={<Shield className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -182,26 +184,28 @@ const RoleUpdatePage: React.FC = () => {
       backUrl="/roles"
       onBack={handleCancel}
       isSubmitting={updateRoleMutation.isPending}
-      maxWidth="full"
       mode="update"
       isLoading={isLoading}
       error={error}
       entityData={(roleResponse as any)?.data}
       customActions={customActions}
+      formId={formId}
       breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
         <UpdateRoleForm
           initialValues={initialValues}
           onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        isSubmitting={updateRoleMutation.isPending}
-        isDefaultRole={(roleResponse as any)?.data?.isDefault}
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-      />
+          onCancel={handleCancel}
+          isSubmitting={updateRoleMutation.isPending}
+          isDefaultRole={(roleResponse as any)?.data?.isDefault}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          showActions={false}
+          formId={formId}
+        />
       </div>
-    </UpdatePageTemplate>
+    </StandardFormPage>
   );
 };
 

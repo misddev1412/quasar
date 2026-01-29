@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiTruck, FiHome } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../../components/common/StandardFormPage';
 import CreateShippingProviderForm, { CreateShippingProviderFormData } from '../../../components/shipping-providers/CreateShippingProviderForm';
 import { useToast } from '../../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
@@ -115,9 +115,11 @@ const EditShippingProviderPage: React.FC = () => {
     ];
   }, [baseBreadcrumbs, provider?.id, provider?.name, t]);
 
+  const formId = 'shipping-provider-edit-form';
+
   if (shippingProviderQuery.isLoading) {
     return (
-      <CreatePageTemplate
+      <StandardFormPage
         title={t('shippingProviders.edit', 'Edit Shipping Provider')}
         description={t('shippingProviders.updateShippingProviderDescription', 'Update shipping provider configuration and status.')}
         icon={<FiTruck className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -126,7 +128,7 @@ const EditShippingProviderPage: React.FC = () => {
         backUrl="/shipping-providers"
         onBack={handleCancel}
         isSubmitting={false}
-        maxWidth="full"
+        showActions={false}
         breadcrumbs={detailBreadcrumbs}
       >
         <div className="flex items-center justify-center py-12">
@@ -134,13 +136,13 @@ const EditShippingProviderPage: React.FC = () => {
             {t('common.loading', 'Loading...')}
           </div>
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
   if (shippingProviderQuery.error) {
     return (
-      <CreatePageTemplate
+      <StandardFormPage
         title={t('shippingProviders.edit', 'Edit Shipping Provider')}
         description={t('shippingProviders.updateShippingProviderDescription', 'Update shipping provider configuration and status.')}
         icon={<FiTruck className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -149,7 +151,7 @@ const EditShippingProviderPage: React.FC = () => {
         backUrl="/shipping-providers"
         onBack={handleCancel}
         isSubmitting={false}
-        maxWidth="full"
+        showActions={false}
         breadcrumbs={detailBreadcrumbs}
       >
         <div className="flex items-center justify-center py-12">
@@ -157,13 +159,13 @@ const EditShippingProviderPage: React.FC = () => {
             {t('shippingProviders.updateError', 'Error updating shipping provider')}: {shippingProviderQuery.error?.message}
           </div>
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
   if (!provider) {
     return (
-      <CreatePageTemplate
+      <StandardFormPage
         title={t('shippingProviders.edit', 'Edit Shipping Provider')}
         description={t('shippingProviders.updateShippingProviderDescription', 'Update shipping provider configuration and status.')}
         icon={<FiTruck className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -172,7 +174,7 @@ const EditShippingProviderPage: React.FC = () => {
         backUrl="/shipping-providers"
         onBack={handleCancel}
         isSubmitting={false}
-        maxWidth="full"
+        showActions={false}
         breadcrumbs={detailBreadcrumbs}
       >
         <div className="flex items-center justify-center py-12">
@@ -180,7 +182,7 @@ const EditShippingProviderPage: React.FC = () => {
             {t('shippingProviders.notFound', 'Shipping provider not found')}
           </div>
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
@@ -195,7 +197,7 @@ const EditShippingProviderPage: React.FC = () => {
   };
 
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('shippingProviders.updateShippingProvider', `Update ${provider.name}`, { name: provider.name })}
       description={t('shippingProviders.updateShippingProviderDescription', 'Update shipping provider configuration and status.')}
       icon={<FiTruck className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -204,7 +206,7 @@ const EditShippingProviderPage: React.FC = () => {
       backUrl="/shipping-providers"
       onBack={handleCancel}
       isSubmitting={updateShippingProviderMutation.isPending}
-      maxWidth="full"
+      formId={formId}
       breadcrumbs={detailBreadcrumbs}
     >
       <CreateShippingProviderForm
@@ -216,8 +218,10 @@ const EditShippingProviderPage: React.FC = () => {
         initialValues={initialValues}
         submitButtonText={t('common.save_changes', 'Save Changes')}
         mode="edit"
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

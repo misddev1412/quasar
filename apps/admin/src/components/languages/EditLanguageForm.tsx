@@ -11,6 +11,8 @@ interface EditLanguageFormProps {
   onSubmit: (data: UpdateLanguageFormData) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
+  showActions?: boolean;
+  formId?: string;
 }
 
 export const EditLanguageForm: React.FC<EditLanguageFormProps> = ({
@@ -18,6 +20,8 @@ export const EditLanguageForm: React.FC<EditLanguageFormProps> = ({
   onSubmit,
   onCancel,
   isSubmitting = false,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
 
@@ -156,6 +160,8 @@ export const EditLanguageForm: React.FC<EditLanguageFormProps> = ({
       submitButtonText={t('languages.update')}
       cancelButtonText={t('common.cancel')}
       showCancelButton={true}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

@@ -8,7 +8,7 @@ import { trpc } from '../../utils/trpc';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { flattenComponents, type ComponentConfigNode } from '../../components/component-configs/componentConfigTree';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
 
 const TAB_KEYS = ['structure', 'defaults', 'advanced', 'sidebar'];
@@ -87,8 +87,10 @@ const ComponentConfigCreatePage: React.FC = () => {
     [parentIdFromQuery],
   );
 
+  const formId = 'component-config-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('componentConfigs.createTitle', 'Create component configuration')}
       description={t(
         'componentConfigs.createDescription',
@@ -100,7 +102,7 @@ const ComponentConfigCreatePage: React.FC = () => {
       backUrl="/component-configs"
       onBack={handleCancel}
       isSubmitting={createMutation.isPending}
-      maxWidth="full"
+      formId={formId}
     >
       <ComponentConfigForm
         key={initialValues.parentId ?? 'root'}
@@ -113,8 +115,10 @@ const ComponentConfigCreatePage: React.FC = () => {
         isSubmitting={createMutation.isPending}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

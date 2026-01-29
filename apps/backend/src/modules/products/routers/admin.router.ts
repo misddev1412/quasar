@@ -320,15 +320,16 @@ export class AdminProductsRouter {
     input: z.object({
       format: exportFormatSchema.default('csv'),
       filters: z.record(z.any()).optional(),
+      exportMode: z.enum(['standard', 'template']).default('standard').optional(),
     }),
     output: apiResponseSchema,
   })
   async exportProducts(
     @Ctx() ctx: AuthenticatedContext,
-    @Input() input: { format: z.infer<typeof exportFormatSchema>; filters?: Record<string, any> }
+    @Input() input: { format: z.infer<typeof exportFormatSchema>; filters?: Record<string, any>; exportMode?: 'standard' | 'template' }
   ): Promise<z.infer<typeof apiResponseSchema>> {
     try {
-      const job = await this.productService.exportProducts(input.format, input.filters, ctx.user.id);
+      const job = await this.productService.exportProducts(input.format, input.filters, ctx.user.id, input.exportMode || 'standard');
       return this.responseHandler.createTrpcSuccess(job);
     } catch (error) {
       throw this.responseHandler.createTRPCError(

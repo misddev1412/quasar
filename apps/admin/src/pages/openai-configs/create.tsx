@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import { FiCpu } from 'react-icons/fi';
+import { PasswordVisibilityToggle } from '../../components/common/PasswordVisibilityToggle';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { FormInput } from '../../components/common/FormInput';
+import { Select } from '../../components/common/Select';
 import { TextareaInput } from '../../components/common/TextareaInput';
 import { Toggle } from '../../components/common/Toggle';
 import { Button } from '../../components/common/Button';
@@ -130,19 +132,22 @@ const CreateOpenAiConfigPage: React.FC = () => {
     navigate('/openai-configs');
   };
 
+  const formId = 'openai-config-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('openai_configs.create_title', 'Create OpenAI Configuration')}
       description={t('openai_configs.create_description', 'Add a new OpenAI model configuration for content generation')}
-      icon={<div className="w-5 h-5 bg-primary-500 rounded" />}
-      entityName="OpenAI configuration"
-      entityNamePlural="OpenAI configurations"
+      icon={<FiCpu className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      entityName={t('openai_configs.config', 'Configuration')}
+      entityNamePlural={t('openai_configs.configs', 'OpenAI configurations')}
       backUrl="/openai-configs"
       onBack={handleCancel}
       onCancel={handleCancel}
-      showActions={false}
+      isSubmitting={createConfigMutation.isPending}
+      formId={formId}
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form id={formId} onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <FormInput
@@ -157,21 +162,16 @@ const CreateOpenAiConfigPage: React.FC = () => {
           </div>
 
           <div>
-            <FormInput
+            <Select
               id="model"
-              type="text"
               label={t('openai_configs.model', 'Model *')}
               value={formData.model}
-              onChange={(e) => handleInputChange('model', e.target.value)}
-              placeholder="gpt-4o-mini"
-              list="openai-models"
+              onChange={(value) => handleInputChange('model', value)}
+              options={MODEL_SUGGESTIONS.map(model => ({ value: model, label: model }))}
+              placeholder=""
               error={errors.model}
+              required
             />
-            <datalist id="openai-models">
-              {MODEL_SUGGESTIONS.map((model) => (
-                <option key={model} value={model} />
-              ))}
-            </datalist>
           </div>
 
           <div>
@@ -208,40 +208,28 @@ const CreateOpenAiConfigPage: React.FC = () => {
         </div>
 
         <div>
-          <div className="relative">
-            <FormInput
-              id="apiKey"
-              type={showApiKey ? 'text' : 'password'}
-              label={t('openai_configs.api_key', 'API Key *')}
-              value={formData.apiKey}
-              onChange={(e) => handleInputChange('apiKey', e.target.value)}
-              placeholder="sk-..."
-              error={errors.apiKey}
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowApiKey(!showApiKey)}
-              className="absolute right-2 top-8"
-              startIcon={showApiKey ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
-            />
-          </div>
+          <FormInput
+            id="apiKey"
+            type={showApiKey ? 'text' : 'password'}
+            label={t('openai_configs.api_key', 'API Key *')}
+            value={formData.apiKey}
+            onChange={(e) => handleInputChange('apiKey', e.target.value)}
+            placeholder="sk-..."
+            error={errors.apiKey}
+            rightIcon={
+              <PasswordVisibilityToggle
+                isVisible={showApiKey}
+                onToggle={() => setShowApiKey(!showApiKey)}
+              />
+            }
+          />
           <p className="text-xs text-gray-500 mt-1">
             {t('openai_configs.api_key_help', 'Store your OpenAI API key securely.')}
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
-          <Button type="submit" variant="primary" isLoading={createConfigMutation.isPending}>
-            {t('common.save', 'Save')}
-          </Button>
-          <Button type="button" variant="outline" onClick={handleCancel}>
-            {t('common.cancel', 'Cancel')}
-          </Button>
-        </div>
       </form>
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

@@ -4,7 +4,7 @@ import { trpc } from '../../utils/trpc';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { ServiceForm, ServiceFormSubmitOptions } from '../../components/services/ServiceForm';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { FileText } from 'lucide-react';
 import { Loading } from '../../components/common/Loading';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
@@ -120,8 +120,10 @@ const EditServicePage = () => {
 
     const handleCancel = () => navigate('/services');
 
+    const formId = 'service-edit-form';
+
     return (
-        <CreatePageTemplate
+        <StandardFormPage
             title={service.name ? `${t('services.edit_title', 'Edit Service')}: ${service.name}` : t('services.edit_title', 'Edit Service')}
             description={t('services.edit_desc', 'Update service details')}
             icon={<FileText className="w-5 h-5" />}
@@ -131,7 +133,7 @@ const EditServicePage = () => {
             onBack={handleCancel}
             isSubmitting={updateMutation.isPending}
             mode="update"
-            maxWidth="full"
+            formId={formId}
             breadcrumbs={[
                 {
                     label: t('navigation.home', 'Home'),
@@ -154,8 +156,10 @@ const EditServicePage = () => {
                 mode="edit"
                 activeTab={activeTab}
                 onTabChange={handleTabChange}
+                showActions={false}
+                formId={formId}
             />
-        </CreatePageTemplate>
+        </StandardFormPage>
     );
 };
 

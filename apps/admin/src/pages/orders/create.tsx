@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { CreateOrderForm, CreateOrderFormData } from '../../components/orders/CreateOrderForm';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
@@ -50,8 +50,10 @@ const CreateOrderPage: React.FC = () => {
     navigate('/orders');
   };
 
+  const formId = 'order-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('admin.create_new_order')}
       description={t('admin.create_order_description')}
       icon={<ShoppingCart className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -60,7 +62,7 @@ const CreateOrderPage: React.FC = () => {
       backUrl="/orders"
       onBack={handleCancel}
       isSubmitting={createOrderMutation.isPending}
-      maxWidth="full"
+      formId={formId}
       breadcrumbs={[
         {
           label: t('navigation.home'),
@@ -81,8 +83,10 @@ const CreateOrderPage: React.FC = () => {
         isSubmitting={createOrderMutation.isPending}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

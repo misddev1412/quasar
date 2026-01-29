@@ -19,6 +19,8 @@ interface CreateRoleFormProps {
   // Optional external tab control (for URL persistence)
   activeTab?: number;
   onTabChange?: (index: number) => void;
+  showActions?: boolean;
+  formId?: string;
 }
 
 export const CreateRoleForm: React.FC<CreateRoleFormProps> = ({
@@ -27,6 +29,8 @@ export const CreateRoleForm: React.FC<CreateRoleFormProps> = ({
   isSubmitting = false,
   activeTab: externalActiveTab,
   onTabChange: externalOnTabChange,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
   const [internalActiveTab, setInternalActiveTab] = useState(0);
@@ -233,7 +237,7 @@ export const CreateRoleForm: React.FC<CreateRoleFormProps> = ({
   ];
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+    <form id={formId} onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       {/* Use the standardized Tabs component with URL persistence */}
       <Tabs
         tabs={tabs}
@@ -241,24 +245,25 @@ export const CreateRoleForm: React.FC<CreateRoleFormProps> = ({
         onTabChange={handleTabChange}
       />
 
-      {/* Form Actions */}
-      <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
-          {t('common.cancel')}
-        </Button>
-        <Button
-          type="submit"
-          isLoading={isSubmitting}
-          disabled={isSubmitting}
-        >
-          {t('roles.create_role')}
-        </Button>
-      </div>
+      {showActions && (
+        <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
+            {t('common.cancel')}
+          </Button>
+          <Button
+            type="submit"
+            isLoading={isSubmitting}
+            disabled={isSubmitting}
+          >
+            {t('roles.create_role')}
+          </Button>
+        </div>
+      )}
     </form>
   );
 };

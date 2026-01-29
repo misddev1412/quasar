@@ -7,6 +7,10 @@ type ToastMessage = {
   title: string;
   description?: string;
   type: 'success' | 'error' | 'info' | 'warning';
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
 };
 
 type ToastContextType = {
@@ -60,7 +64,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         {children}
       </ToastContext.Provider>
 
-      {toasts.map(({ id, title, description, type }) => (
+      {toasts.map(({ id, title, description, type, action }) => (
         <Toast.Root
           key={id}
           className={`fixed bottom-4 right-4 z-50 p-3 rounded-lg shadow-lg backdrop-blur-sm text-white ${typeClasses[type]} radix-state-open:animate-slide-in radix-state-closed:animate-hide radix-swipe-end:animate-swipe-out hover:scale-[1.02]`}
@@ -71,6 +75,17 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
             <div className="flex-1 min-w-0">
               <Toast.Title className="font-bold text-sm leading-tight block">{title}</Toast.Title>
               {description && <Toast.Description className="text-xs opacity-90 mt-1 leading-tight block">{description}</Toast.Description>}
+              {action && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    action.onClick();
+                  }}
+                  className="mt-2 text-xs font-bold underline decoration-white/50 hover:decoration-white transition-all text-white"
+                >
+                  {action.label}
+                </button>
+              )}
             </div>
             <button
               onClick={() => removeToast(id)}

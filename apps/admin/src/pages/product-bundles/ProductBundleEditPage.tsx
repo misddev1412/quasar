@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Package } from 'lucide-react';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../services/api';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import ProductBundleForm from './ProductBundleForm';
 import toast from 'react-hot-toast';
 
@@ -47,8 +47,10 @@ const ProductBundleEditPage: React.FC = () => {
         }))
     } : undefined;
 
+    const formId = 'product-bundle-edit-form';
+
     return (
-        <CreatePageTemplate
+        <StandardFormPage
             title={t('product_bundles.edit_title', 'Edit Product Bundle')}
             description={t('product_bundles.edit_description', 'Update product bundle details and configuration.')}
             icon={<Package className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -61,18 +63,21 @@ const ProductBundleEditPage: React.FC = () => {
             error={error}
             isSubmitting={updateMutation.isLoading}
             entityData={bundle}
+            formId={formId}
             breadcrumbs={[
                 { label: t('product_bundles.title', 'Product Bundles'), onClick: handleCancel },
                 { label: bundle?.name || t('common.edit', 'Edit') }
             ]}
-            maxWidth="full"
         >
             <ProductBundleForm
                 initialValues={initialValues}
                 onSubmit={handleSubmit}
                 isLoading={updateMutation.isLoading}
+                onCancel={handleCancel}
+                showActions={false}
+                formId={formId}
             />
-        </CreatePageTemplate>
+        </StandardFormPage>
     );
 };
 

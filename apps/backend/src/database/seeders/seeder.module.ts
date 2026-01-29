@@ -49,6 +49,8 @@ import { NotificationEventFlow } from '../../modules/notifications/entities/noti
 
 import { NotificationEventFlowSeeder } from './notification-event-flow.seeder';
 import { ServicesSeeder } from './services.seeder';
+import { LanguagesSeeder } from './languages.seeder';
+import { Language } from '../../modules/language/entities/language.entity';
 
 @Module({
   imports: [
@@ -82,6 +84,7 @@ import { ServicesSeeder } from './services.seeder';
       ServiceTranslation,
       ServiceItem,
       ServiceItemTranslation,
+      Language,
     ]),
   ],
   providers: [
@@ -104,6 +107,7 @@ import { ServicesSeeder } from './services.seeder';
     AttributesSeeder,
     NotificationEventFlowSeeder,
     ServicesSeeder,
+    LanguagesSeeder,
   ],
   exports: [
     PermissionSeeder,
@@ -122,6 +126,7 @@ import { ServicesSeeder } from './services.seeder';
     AttributesSeeder,
     NotificationEventFlowSeeder,
     ServicesSeeder,
+    LanguagesSeeder,
   ],
 })
 export class SeederModule { }

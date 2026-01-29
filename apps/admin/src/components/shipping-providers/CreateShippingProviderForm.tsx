@@ -48,6 +48,8 @@ interface CreateShippingProviderFormProps {
   initialValues?: Partial<CreateShippingProviderFormData>;
   submitButtonText?: string;
   mode?: 'create' | 'edit';
+  showActions?: boolean;
+  formId?: string;
 }
 
 export const CreateShippingProviderForm: React.FC<CreateShippingProviderFormProps> = ({
@@ -59,6 +61,8 @@ export const CreateShippingProviderForm: React.FC<CreateShippingProviderFormProp
   initialValues,
   submitButtonText,
   mode = 'create',
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
 
@@ -214,6 +218,8 @@ export const CreateShippingProviderForm: React.FC<CreateShippingProviderFormProp
       showCancelButton={true}
       activeTab={activeTab}
       onTabChange={onTabChange}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiArrowLeft } from 'react-icons/fi';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { FiFileText } from 'react-icons/fi';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { Loading } from '../../components/common/Loading';
 import { useToast } from '../../contexts/ToastContext';
@@ -94,17 +94,20 @@ const SiteContentEditPage: React.FC = () => {
     });
   };
 
+  const formId = 'site-content-edit-form';
+
   return (
-    <BaseLayout
+    <StandardFormPage
       title={t('siteContent.edit.title', 'Edit Site Content')}
       description={t('siteContent.edit.description', 'Update the content and configuration for this page.')}
-      actions={[
-        {
-          label: t('siteContent.actions.back', 'Back to list'),
-          onClick: handleCancel,
-          icon: <FiArrowLeft className="w-4 h-4" />,
-        },
-      ]}
+      icon={<FiFileText className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      entityName={t('siteContent.pageLabel', 'Page')}
+      entityNamePlural={t('siteContent.title', 'Site Content')}
+      backUrl="/site-content"
+      onBack={handleCancel}
+      isSubmitting={updateMutation.isPending}
+      mode="update"
+      formId={formId}
       breadcrumbs={[
         { label: t('navigation.home', 'Home'), href: '/' },
         { label: t('siteContent.title', 'Site Content'), onClick: handleCancel },
@@ -147,10 +150,12 @@ const SiteContentEditPage: React.FC = () => {
             onCancel={handleCancel}
             isSubmitting={updateMutation.isPending}
             mode="edit"
+            showActions={false}
+            formId={formId}
           />
         </div>
       )}
-    </BaseLayout>
+    </StandardFormPage>
   );
 };
 

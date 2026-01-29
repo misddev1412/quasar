@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPackage } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../../components/common/StandardFormPage';
 import {
   CreateFulfillmentForm,
   CreateFulfillmentPayload,
@@ -93,8 +93,10 @@ const OrderFulfillmentCreatePage: React.FC = () => {
     setSearchParams(nextParams, { replace: true });
   };
 
+  const formId = 'fulfillment-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('fulfillments.create_title', 'Create Fulfillment')}
       description={t(
         'fulfillments.create_description',
@@ -106,7 +108,7 @@ const OrderFulfillmentCreatePage: React.FC = () => {
       backUrl="/orders/fulfillments"
       onBack={handleCancel}
       isSubmitting={createFulfillmentMutation.isPending}
-      maxWidth="full"
+      formId={formId}
       breadcrumbs={[
         { label: t('navigation.home', 'Home'), href: '/' },
         { label: t('orders.title', 'Orders'), href: '/orders' },
@@ -120,8 +122,10 @@ const OrderFulfillmentCreatePage: React.FC = () => {
         isSubmitting={createFulfillmentMutation.isPending}
         initialOrderId={initialOrderId}
         onOrderSelect={handleOrderSelect}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

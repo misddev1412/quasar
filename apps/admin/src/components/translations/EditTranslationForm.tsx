@@ -11,6 +11,8 @@ interface EditTranslationFormProps {
   onSubmit: (data: UpdateTranslationData) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
+  showActions?: boolean;
+  formId?: string;
 }
 
 const updateTranslationSchema: z.ZodType<UpdateTranslationData> = z.object({
@@ -26,6 +28,8 @@ export const EditTranslationForm: React.FC<EditTranslationFormProps> = ({
   onSubmit,
   onCancel,
   isSubmitting = false,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
 
@@ -132,6 +136,8 @@ export const EditTranslationForm: React.FC<EditTranslationFormProps> = ({
       submitButtonText={t('translations.update')}
       cancelButtonText={t('common.cancel')}
       showCancelButton={true}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

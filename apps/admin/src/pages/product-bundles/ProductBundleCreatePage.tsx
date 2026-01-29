@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Package } from 'lucide-react';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../services/api';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import ProductBundleForm from './ProductBundleForm';
 import { useToast } from '../../contexts/ToastContext';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
@@ -49,8 +49,10 @@ const ProductBundleCreatePage: React.FC = () => {
 
     const isSubmitting = createMutation.isPending ?? createMutation.isLoading ?? false;
 
+    const formId = 'product-bundle-create-form';
+
     return (
-        <CreatePageTemplate
+        <StandardFormPage
             title={t('product_bundles.create_title', 'Create Product Bundle')}
             description={t('product_bundles.create_description', 'Create a new bundle of products and categories.')}
             icon={<Package className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -60,12 +62,12 @@ const ProductBundleCreatePage: React.FC = () => {
             onBack={handleCancel}
             mode="create"
             isSubmitting={isSubmitting}
+            formId={formId}
             breadcrumbs={[
                 { label: t('navigation.home', 'Home'), href: '/' },
                 { label: t('product_bundles.title', 'Product Bundles'), onClick: handleCancel },
                 { label: t('product_bundles.create_title', 'Create Product Bundle') }
             ]}
-            maxWidth="full"
         >
             <ProductBundleForm
                 onSubmit={handleSubmit}
@@ -73,8 +75,10 @@ const ProductBundleCreatePage: React.FC = () => {
                 isLoading={isSubmitting}
                 activeTab={activeTab}
                 onTabChange={handleTabChange}
+                showActions={false}
+                formId={formId}
             />
-        </CreatePageTemplate>
+        </StandardFormPage>
     );
 };
 

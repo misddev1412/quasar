@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Settings, Server, Key, Mail as MailIcon, Gauge, Activity } from 'lucide-react';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { EntityForm } from '../../components/common/EntityForm';
 import { FormTabConfig } from '../../types/forms';
 import { useToast } from '../../contexts/ToastContext';
@@ -386,8 +386,10 @@ const CreateMailProviderPage: React.FC = () => {
     navigate('/mail-providers');
   };
 
+  const formId = 'mail-provider-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('mail_providers.create_mail_provider', 'Create Mail Provider')}
       description={t('mail_providers.create_description', 'Configure a new mail provider for sending emails')}
       icon={<Mail className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -396,7 +398,7 @@ const CreateMailProviderPage: React.FC = () => {
       backUrl="/mail-providers"
       onBack={handleCancel}
       isSubmitting={createMutation.isPending}
-      maxWidth="full"
+      formId={formId}
       customActions={[
         {
           label: t('mail_providers.test_connection', 'Test Connection'),
@@ -414,6 +416,7 @@ const CreateMailProviderPage: React.FC = () => {
     >
       <EntityForm<MailProviderFormData>
         formRef={formRef}
+        formId={formId}
         tabs={tabs}
         initialValues={initialValues}
         onSubmit={async (data) => {
@@ -427,10 +430,10 @@ const CreateMailProviderPage: React.FC = () => {
         showCancelButton={true}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        showActions={false}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 
 export default CreateMailProviderPage;
-

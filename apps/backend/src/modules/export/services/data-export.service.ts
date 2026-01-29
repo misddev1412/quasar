@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere } from 'typeorm';
+import { Repository, FindOptionsWhere, In } from 'typeorm';
 import { DataExportJob, DataExportJobStatus } from '../entities/data-export-job.entity';
 import { RequestExportJobDto, ExportJobSummary } from '../dto/request-export-job.dto';
 
@@ -11,7 +11,7 @@ export class DataExportService {
   constructor(
     @InjectRepository(DataExportJob)
     private readonly exportRepository: Repository<DataExportJob>,
-  ) {}
+  ) { }
 
   /**
    * Create a new export job and enqueue it for processing
@@ -37,7 +37,7 @@ export class DataExportService {
   }
 
   async listJobs(
-    resource: string,
+    resource: string | string[],
     options: { limit?: number; page?: number; requestedBy?: string } = {}
   ): Promise<{
     items: ExportJobSummary[];
@@ -50,7 +50,9 @@ export class DataExportService {
     const page = Math.max(options.page ?? 1, 1);
     const skip = (page - 1) * limit;
 
-    const where: FindOptionsWhere<DataExportJob> = { resource };
+    const resourceCriteria = Array.isArray(resource) ? In(resource) : resource;
+
+    const where: FindOptionsWhere<DataExportJob> = { resource: resourceCriteria as any };
     if (options.requestedBy) {
       where.requestedBy = options.requestedBy;
     }

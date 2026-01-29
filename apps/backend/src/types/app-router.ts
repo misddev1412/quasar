@@ -2811,6 +2811,7 @@ export const appRouter = router({
       .input(z.object({
         format: exportFormatSchema.default('csv'),
         filters: z.record(z.unknown()).optional(),
+        exportMode: z.enum(['standard', 'template']).default('standard').optional(),
       }))
       .output(exportJobResponseSchema)
       .mutation(() => {
@@ -3411,6 +3412,20 @@ export const appRouter = router({
         audience: z.string().optional(),
         includeFaq: z.boolean().optional(),
         configId: z.string().uuid().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    generateContent: procedure
+      .input(z.object({
+        entityType: z.enum(['product', 'post']),
+        contentType: z.enum(['title', 'description']),
+        context: z.string().optional(),
+        keywords: z.array(z.string()).optional(),
+        language: z.string().optional(),
+        tone: z.string().optional(),
       }))
       .output(apiResponseSchema)
       .mutation(() => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Settings, FileText, Server, Hash } from 'lucide-react';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { EntityForm } from '../../components/common/EntityForm';
 import { FormTabConfig } from '../../types/forms';
 import { useToast } from '../../contexts/ToastContext';
@@ -172,8 +172,10 @@ const CreateMailChannelPriorityPage: React.FC = () => {
     priority: 5,
   };
 
+  const formId = 'email-flow-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('email_flows.create.title', 'Create Mail Channel Priority')}
       description={t('email_flows.create.description', 'Define how your mail channels should be prioritized during delivery.')}
       icon={<Mail className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -182,7 +184,7 @@ const CreateMailChannelPriorityPage: React.FC = () => {
       backUrl="/email-flows"
       onBack={() => navigate('/email-flows')}
       isSubmitting={createMutation.isPending}
-      maxWidth="full"
+      formId={formId}
       breadcrumbs={[
         { label: t('navigation.home', 'Home'), href: '/' },
         { label: t('email_flows.entity_name_plural', 'Mail Channel Priorities'), onClick: () => navigate('/email-flows') },
@@ -190,6 +192,7 @@ const CreateMailChannelPriorityPage: React.FC = () => {
       ]}
     >
       <EntityForm<MailChannelPriorityFormData>
+        formId={formId}
         tabs={tabs}
         initialValues={initialValues}
         onSubmit={async (data) => {
@@ -205,8 +208,9 @@ const CreateMailChannelPriorityPage: React.FC = () => {
         submitButtonText={t('email_flows.actions.create', 'Create Priority Config')}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        showActions={false}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

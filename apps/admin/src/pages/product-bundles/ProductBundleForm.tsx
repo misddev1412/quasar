@@ -29,6 +29,8 @@ interface ProductBundleFormProps {
     onCancel?: () => void;
     activeTab?: number;
     onTabChange?: (tabIndex: number) => void;
+    showActions?: boolean;
+    formId?: string;
 }
 
 const ProductBundleForm: React.FC<ProductBundleFormProps> = ({
@@ -38,6 +40,8 @@ const ProductBundleForm: React.FC<ProductBundleFormProps> = ({
     onCancel,
     activeTab,
     onTabChange,
+    showActions = true,
+    formId,
 }) => {
     const { t } = useTranslationWithBackend();
 
@@ -115,6 +119,7 @@ const ProductBundleForm: React.FC<ProductBundleFormProps> = ({
 
     return (
         <EntityForm
+            formId={formId}
             tabs={tabs}
             initialValues={initialValues}
             onSubmit={onSubmit}
@@ -124,6 +129,7 @@ const ProductBundleForm: React.FC<ProductBundleFormProps> = ({
             mode={initialValues ? 'edit' : 'create'}
             activeTab={activeTab}
             onTabChange={onTabChange}
+            showActions={showActions}
         />
     );
 };

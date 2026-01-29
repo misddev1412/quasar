@@ -30,6 +30,8 @@ interface SiteContentFormProps {
   mode?: 'create' | 'edit';
   activeTab?: number;
   onTabChange?: (index: number) => void;
+  showActions?: boolean;
+  formId?: string;
 }
 
 const toDateTimeLocalString = (value?: string) => {
@@ -51,6 +53,8 @@ export const SiteContentForm: React.FC<SiteContentFormProps> = ({
   mode = 'create',
   activeTab,
   onTabChange,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
   const [formValues, setFormValues] = useState<SiteContentFormValues>({
@@ -468,30 +472,32 @@ export const SiteContentForm: React.FC<SiteContentFormProps> = ({
   ];
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form id={formId} onSubmit={handleSubmit} className="space-y-6">
       <Tabs
         tabs={tabItems}
         activeTab={currentTab}
         onTabChange={handleInternalTabChange}
       />
 
-      <div className="flex justify-end gap-3">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
-          {t('common.cancel', 'Cancel')}
-        </Button>
-        <Button type="submit" variant="primary" disabled={isSubmitting}>
-          {isSubmitting
-            ? t('siteContent.actions.saving', 'Saving...')
-            : mode === 'edit'
-              ? t('siteContent.actions.update', 'Update Page')
-              : t('siteContent.actions.create', 'Create Page')}
-        </Button>
-      </div>
+      {showActions && (
+        <div className="flex justify-end gap-3">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
+            {t('common.cancel', 'Cancel')}
+          </Button>
+          <Button type="submit" variant="primary" disabled={isSubmitting}>
+            {isSubmitting
+              ? t('siteContent.actions.saving', 'Saving...')
+              : mode === 'edit'
+                ? t('siteContent.actions.update', 'Update Page')
+                : t('siteContent.actions.create', 'Create Page')}
+          </Button>
+        </div>
+      )}
     </form>
   );
 };

@@ -12,6 +12,8 @@ interface EditMailTemplateFormProps {
   onSubmit: (data: MailTemplateFormData) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
+  showActions?: boolean;
+  formId?: string;
 }
 
 // Validation schema - make required fields required to match MailTemplateFormData
@@ -35,6 +37,8 @@ export const EditMailTemplateForm: React.FC<EditMailTemplateFormProps> = ({
   onSubmit,
   onCancel,
   isSubmitting = false,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
   const { channels, defaultChannel, isLoading: isLoadingChannels } = useEmailChannels();
@@ -251,6 +255,8 @@ export const EditMailTemplateForm: React.FC<EditMailTemplateFormProps> = ({
       validationSchema={editMailTemplateSchema}
       submitButtonText={t('mail_templates.update_template', 'Update Template')}
       cancelButtonText={t('common.cancel', 'Cancel')}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

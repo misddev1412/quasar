@@ -25,7 +25,7 @@ import {
   ExportJobRunnerService,
   ExportJobPayload,
 } from '@backend/modules/export';
-import { PRODUCT_EXPORT_COLUMNS } from '../export/product-export.columns';
+import { PRODUCT_EXPORT_COLUMNS, PRODUCT_TEMPLATE_EXPORT_COLUMNS } from '../export/product-export.columns';
 import { ImportJobService } from '../../import/services/import-job.service';
 import slugify from 'slugify';
 
@@ -2120,18 +2120,22 @@ export class AdminProductService {
 
 
 
-  async exportProducts(format: string, filters?: string | Record<string, any>, requestedBy?: string) {
+  async exportProducts(format: string, filters?: string | Record<string, any>, requestedBy?: string, exportMode: 'standard' | 'template' = 'standard') {
     const parsedFilters = this.parseFilters(filters);
     const sanitizedFilters = this.sanitizeExportFilters(parsedFilters);
     const resolvedFormat: ExportFormat = format === 'json' ? 'json' : 'csv';
 
+    const resource = exportMode === 'template' ? 'product_import_template' : 'products';
+    const columns = exportMode === 'template' ? PRODUCT_TEMPLATE_EXPORT_COLUMNS : PRODUCT_EXPORT_COLUMNS;
+
     const job = await this.dataExportService.requestExportJob({
-      resource: 'products',
+      resource,
       format: resolvedFormat,
       filters: sanitizedFilters,
-      columns: PRODUCT_EXPORT_COLUMNS,
+      columns,
       options: {
         pageSize: 500,
+        fileName: exportMode === 'template' ? `product-import-template-${new Date().toISOString().split('T')[0]}` : undefined
       },
       requestedBy,
     });
@@ -2165,7 +2169,7 @@ export class AdminProductService {
   }
 
   async listProductExportJobs(limit = 10, requestedBy?: string, page = 1) {
-    return this.dataExportService.listJobs('products', {
+    return this.dataExportService.listJobs(['products', 'product_import_template'], {
       limit,
       page,
       requestedBy,

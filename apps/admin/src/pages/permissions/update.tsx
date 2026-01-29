@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Lock, ArrowLeft, Shield, Settings, Trash2, Home } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../../components/common/Card';
-import BaseLayout from '../../components/layout/BaseLayout';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -304,6 +304,8 @@ const PermissionUpdatePage: React.FC = () => {
     return actions;
   }, [t, handleCancel, handleDelete]);
 
+  const formId = 'permission-update-form';
+
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -323,6 +325,7 @@ const PermissionUpdatePage: React.FC = () => {
 
     return (
       <EntityForm<UpdatePermissionFormData>
+        formId={formId}
         tabs={tabs}
         initialValues={initialValues}
         onSubmit={handleSubmit}
@@ -334,6 +337,7 @@ const PermissionUpdatePage: React.FC = () => {
         showCancelButton={true}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        showActions={false}
       />
     );
   };
@@ -356,10 +360,18 @@ const PermissionUpdatePage: React.FC = () => {
   ]), [t]);
 
   return (
-    <BaseLayout
+    <StandardFormPage
       title={t('permissions.edit_permission', 'Edit Permission')}
       description={t('permissions.edit_permission_description', 'Update permission information and settings')}
-      actions={pageActions}
+      icon={<Lock className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      entityName={t('common.permission', 'Permission')}
+      entityNamePlural={t('common.permissions', 'Permissions')}
+      backUrl="/permissions"
+      onBack={handleCancel}
+      isSubmitting={updatePermissionMutation.isPending}
+      mode="update"
+      formId={formId}
+      customActions={pageActions.filter((action) => action.label !== t('permissions.back_to_permissions', 'Back to Permissions'))}
       breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
@@ -386,7 +398,7 @@ const PermissionUpdatePage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </BaseLayout>
+    </StandardFormPage>
   );
 };
 

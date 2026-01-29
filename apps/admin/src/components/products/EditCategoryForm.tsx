@@ -39,6 +39,8 @@ interface EditCategoryFormProps {
   isSubmitting?: boolean;
   activeTab?: number;
   onTabChange?: (index: number) => void;
+  showActions?: boolean;
+  formId?: string;
 }
 
 export const EditCategoryForm: React.FC<EditCategoryFormProps> = ({
@@ -48,6 +50,8 @@ export const EditCategoryForm: React.FC<EditCategoryFormProps> = ({
   isSubmitting = false,
   activeTab,
   onTabChange,
+  showActions = true,
+  formId,
 }) => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
@@ -487,6 +491,8 @@ export const EditCategoryForm: React.FC<EditCategoryFormProps> = ({
       showCancelButton={true}
       activeTab={activeTab}
       onTabChange={onTabChange}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

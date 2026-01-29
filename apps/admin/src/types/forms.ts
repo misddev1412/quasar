@@ -44,6 +44,9 @@ export interface FormFieldConfig {
   sourceField?: string; // field name to generate slug from
   // Category multiselect specific options
   categorySource?: 'product' | 'post';
+  // Custom right element (e.g. for AI generation button)
+  rightElement?: ReactNode;
+  rightElementPosition?: 'label' | 'inside-input';
 }
 
 // Form section configuration

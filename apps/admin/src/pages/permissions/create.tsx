@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { CreatePermissionForm } from '../../components/permission/CreatePermissionForm';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -58,8 +58,10 @@ const PermissionCreatePage: React.FC = () => {
     navigate('/permissions');
   };
 
+  const formId = 'permission-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('permissions.create_new_permission', 'Create New Permission')}
       description={t('permissions.create_permission_description', 'Define a new system permission for access control')}
       icon={<Lock className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -68,14 +70,16 @@ const PermissionCreatePage: React.FC = () => {
       backUrl="/permissions"
       onBack={handleCancel}
       isSubmitting={createPermissionMutation.isPending}
-      maxWidth="full"
+      formId={formId}
     >
       <CreatePermissionForm
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isSubmitting={createPermissionMutation.isPending}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

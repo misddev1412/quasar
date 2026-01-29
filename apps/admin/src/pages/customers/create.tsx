@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserPlus } from 'lucide-react';
-import { CreatePageTemplate } from '../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../components/common/StandardFormPage';
 import { CreateCustomerForm, CreateCustomerFormData } from '../../components/customers/CreateCustomerForm';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
@@ -51,8 +51,10 @@ const CreateCustomerPage: React.FC = () => {
     navigate('/customers');
   };
 
+  const formId = 'customer-create-form';
+
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('admin.create_new_customer')}
       description={t('admin.create_customer_description')}
       icon={<UserPlus className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -61,7 +63,7 @@ const CreateCustomerPage: React.FC = () => {
       backUrl="/customers"
       onBack={handleCancel}
       isSubmitting={createCustomerMutation.isPending}
-      maxWidth="full"
+      formId={formId}
       breadcrumbs={[
         {
           label: t('navigation.home', 'Home'),
@@ -82,8 +84,10 @@ const CreateCustomerPage: React.FC = () => {
         isSubmitting={createCustomerMutation.isPending}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

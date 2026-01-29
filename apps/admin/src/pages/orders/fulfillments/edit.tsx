@@ -4,8 +4,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FiPackage } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
-import { Button } from '../../../components/common/Button';
+import StandardFormPage from '../../../components/common/StandardFormPage';
 import { Loading } from '../../../components/common/Loading';
 import { FormSection } from '../../../components/common/FormSection';
 import { Badge } from '../../../components/common/Badge';
@@ -310,9 +309,11 @@ const OrderFulfillmentEditPage: React.FC = () => {
     }
   };
 
+  const formId = 'fulfillment-edit-form';
+
   if (fulfillmentQuery.isLoading) {
     return (
-      <CreatePageTemplate
+      <StandardFormPage
         title={t('fulfillments.edit_fulfillment', 'Edit Fulfillment')}
         description={t('fulfillments.edit_description', 'Adjust shipping details, tracking, and notes for this fulfillment.')}
         icon={fulfillmentIcon}
@@ -320,19 +321,19 @@ const OrderFulfillmentEditPage: React.FC = () => {
         entityNamePlural={t('fulfillments.title', 'Order Fulfillments')}
         backUrl={`/orders/fulfillments/${id}`}
         onBack={() => navigate(`/orders/fulfillments/${id ?? ''}`)}
-        maxWidth="full"
         mode="update"
+        showActions={false}
       >
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
   if (fulfillmentQuery.error || !fulfillment) {
     return (
-      <CreatePageTemplate
+      <StandardFormPage
         title={t('fulfillments.edit_fulfillment', 'Edit Fulfillment')}
         description={t('fulfillments.edit_description', 'Adjust shipping details, tracking, and notes for this fulfillment.')}
         icon={fulfillmentIcon}
@@ -340,13 +341,13 @@ const OrderFulfillmentEditPage: React.FC = () => {
         entityNamePlural={t('fulfillments.title', 'Order Fulfillments')}
         backUrl="/orders/fulfillments"
         onBack={() => navigate('/orders/fulfillments')}
-        maxWidth="full"
         mode="update"
+        showActions={false}
       >
         <div className="bg-red-50 text-red-700 border border-red-200 rounded-md p-4">
           {fulfillmentQuery.error?.message || t('fulfillments.not_found', 'Fulfillment not found')}
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
@@ -359,7 +360,7 @@ const OrderFulfillmentEditPage: React.FC = () => {
   ];
 
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('fulfillments.edit_fulfillment', 'Edit Fulfillment')}
       description={t('fulfillments.edit_description', 'Adjust shipping details, tracking, and notes for this fulfillment.')}
       icon={fulfillmentIcon}
@@ -368,8 +369,8 @@ const OrderFulfillmentEditPage: React.FC = () => {
       backUrl={`/orders/fulfillments/${id}`}
       onBack={() => navigate(`/orders/fulfillments/${id}`)}
       isSubmitting={updateFulfillmentMutation.isPending || isSubmitting}
-      maxWidth="full"
       mode="update"
+      formId={formId}
       breadcrumbs={breadcrumbItems}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
@@ -410,7 +411,7 @@ const OrderFulfillmentEditPage: React.FC = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form id={formId} onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
           <div>
             <h3 className="text-lg font-semibold">{t('fulfillments.basic_information', 'Basic Information')}</h3>
@@ -675,12 +676,8 @@ const OrderFulfillmentEditPage: React.FC = () => {
           </div>
         </section>
 
-        <div className="flex justify-end gap-3">
-          <Button type="button" variant="outline" onClick={() => navigate(`/orders/fulfillments/${id}`)}>{t('common.cancel')}</Button>
-          <Button type="submit" isLoading={updateFulfillmentMutation.isPending || isSubmitting} disabled={updateFulfillmentMutation.isPending || isSubmitting}>{t('common.save_changes', 'Save changes')}</Button>
-        </div>
       </form>
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 

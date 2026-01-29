@@ -4,7 +4,7 @@ import { WorkerExportService } from './worker-export.service';
 import { ExportJobPayload } from '../interfaces/export-payload.interface';
 import { ExportQueueService } from './export-queue.service';
 
-export type ExportExecutionMode = 'direct' | 'queue';
+export type ExportExecutionMode = 'direct' | 'queue' | 'local-async';
 
 @Injectable()
 export class ExportJobRunnerService {
@@ -14,7 +14,7 @@ export class ExportJobRunnerService {
     private readonly configService: ConfigService,
     private readonly workerExportService: WorkerExportService,
     private readonly exportQueueService: ExportQueueService
-  ) {}
+  ) { }
 
   async run(
     payload: ExportJobPayload,
@@ -28,6 +28,15 @@ export class ExportJobRunnerService {
       return 'queued';
     }
 
+    if (mode === 'local-async') {
+      // Fire and forget - processing happens in background
+      this.workerExportService.processExport(payload).catch((error) => {
+        this.logger.error(`Background local-async export ${payload.jobId} failed`, error instanceof Error ? error.stack : error);
+      });
+      return 'queued'; // Return 'queued' so the frontend polls for status
+    }
+
+    // mode === 'direct'
     await this.workerExportService.processExport(payload);
     return 'processed';
   }
@@ -38,6 +47,15 @@ export class ExportJobRunnerService {
     }
 
     const configured = (this.configService.get<string>('EXPORT_PROCESSING_MODE') || '').toLowerCase();
-    return configured === 'queue' ? 'queue' : 'direct';
+
+    if (configured === 'queue') {
+      return 'queue';
+    }
+
+    if (configured === 'local-async' || configured === 'async') {
+      return 'local-async';
+    }
+
+    return 'direct';
   }
 }

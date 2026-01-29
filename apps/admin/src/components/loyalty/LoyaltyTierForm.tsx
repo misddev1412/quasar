@@ -45,6 +45,7 @@ interface LoyaltyTierFormProps {
   submitLabel?: string;
   cancelLabel?: string;
   showActionBar?: boolean;
+  formId?: string;
 }
 
 const getNormalizedValues = (
@@ -76,6 +77,7 @@ export const LoyaltyTierForm = forwardRef<
       submitLabel,
       cancelLabel,
       showActionBar = true,
+      formId,
     },
     ref,
   ) => {
@@ -183,7 +185,7 @@ export const LoyaltyTierForm = forwardRef<
   }));
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+    <form id={formId} onSubmit={handleSubmit} className="space-y-6" noValidate>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader className="pb-0">

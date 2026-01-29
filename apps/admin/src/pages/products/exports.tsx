@@ -29,6 +29,20 @@ type LocationState = {
   format?: 'csv' | 'json';
 } | null;
 
+type ExportJobListResponse = {
+  items: ExportJobItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+type TrpcResponse<T> = {
+  data: T;
+  code: number;
+  status: string;
+};
+
 const statusVariantMap: Record<ExportJobItem['status'], 'info' | 'success' | 'warning' | 'destructive'> = {
   pending: 'warning',
   processing: 'info',
@@ -51,6 +65,7 @@ const ProductExportsPage: React.FC = () => {
   const locationState = (location.state as LocationState) || null;
 
   const [format, setFormat] = useState<'csv' | 'json'>(locationState?.format ?? 'csv');
+  const [exportMode, setExportMode] = useState<'standard' | 'template'>('standard');
   const [productFilters, setProductFilters] = useState<ProductFiltersType>(() => (locationState?.filters as ProductFiltersType) || {});
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -111,20 +126,62 @@ const ProductExportsPage: React.FC = () => {
     isLoading: exportJobsLoading,
     refetch: refetchExportJobs,
   } = trpc.adminProducts.listExportJobs.useQuery(
-    { limit, page } as any,
+    { limit, page },
     {
       placeholderData: (previousData) => previousData,
-      refetchInterval: (response) => {
-        const jobs = (response as any)?.data?.items as ExportJobItem[] | undefined;
+      refetchInterval: (queryData) => {
+        // Safe check for the response structure without aggressive casting
+        const responseData = queryData as unknown as TrpcResponse<ExportJobListResponse> | undefined;
+        const jobs = responseData?.data?.items;
+
         if (!Array.isArray(jobs)) {
           return false;
         }
-        return jobs.some((job) => job.status === 'pending' || job.status === 'processing') ? 5000 : false;
+
+        // Poll every 2 seconds if there are active jobs in the current view
+        const hasActiveJobs = jobs.some((job) => job.status === 'pending' || job.status === 'processing');
+        return hasActiveJobs ? 2000 : false;
       },
     }
   );
 
-  const rawExportData = (exportJobsResponse as any)?.data;
+  const rawExportData = (exportJobsResponse as unknown as TrpcResponse<ExportJobListResponse>)?.data;
+  const previousJobsRef = React.useRef<Record<string, ExportJobItem['status']>>({});
+
+  // Effect to detect job completion and show notification
+  useEffect(() => {
+    const jobs = (rawExportData?.items || []) as ExportJobItem[];
+    if (!jobs.length) return;
+
+    jobs.forEach(job => {
+      const prevStatus = previousJobsRef.current[job.id];
+
+      // If job transitioned to completed
+      if (prevStatus && prevStatus !== 'completed' && job.status === 'completed') {
+        addToast({
+          type: 'success',
+          title: t('products.exports.notifications.complete_title', 'Export Ready'),
+          description: t('products.exports.notifications.complete_description', 'Your export "{{file}}" is ready to download.', { file: job.fileName || job.resource }),
+          action: {
+            label: t('common.download', 'Download'),
+            onClick: () => {
+              if (job.fileUrl) {
+                const link = document.createElement('a');
+                link.href = job.fileUrl;
+                link.download = job.fileName || 'export';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }
+            }
+          }
+        });
+      }
+
+      // Update ref
+      previousJobsRef.current[job.id] = job.status;
+    });
+  }, [rawExportData, addToast, t]);
 
   const normalizedExportData = useMemo(() => {
     if (!rawExportData) {
@@ -255,7 +312,8 @@ const ProductExportsPage: React.FC = () => {
       await exportProductsMutation.mutateAsync({
         format,
         filters: hasActiveFilters ? filterPayload : undefined,
-      });
+        exportMode,
+      } as any);
       addToast({
         type: 'success',
         title: t('products.exports.notifications.queue_success_title', 'Export queued'),
@@ -319,13 +377,13 @@ const ProductExportsPage: React.FC = () => {
   const tablePagination = isFiltering
     ? undefined
     : {
-        currentPage: paginationMeta.totalPages === 0 ? 1 : paginationMeta.page,
-        totalPages: paginationMeta.totalPages || 1,
-        totalItems: paginationMeta.total,
-        itemsPerPage: paginationMeta.limit,
-        onPageChange: handlePageChange,
-        onItemsPerPageChange: handleTablePageSizeChange,
-      };
+      currentPage: paginationMeta.totalPages === 0 ? 1 : paginationMeta.page,
+      totalPages: paginationMeta.totalPages || 1,
+      totalItems: paginationMeta.total,
+      itemsPerPage: paginationMeta.limit,
+      onPageChange: handlePageChange,
+      onItemsPerPageChange: handleTablePageSizeChange,
+    };
 
   const startIndex = isFiltering
     ? filteredJobs.length === 0
@@ -548,6 +606,15 @@ const ProductExportsPage: React.FC = () => {
                 options={formatOptions}
                 size="sm"
               />
+              <Select
+                value={exportMode}
+                onChange={(value) => setExportMode((value as 'standard' | 'template') || 'standard')}
+                options={[
+                  { value: 'standard', label: 'Standard Export' },
+                  { value: 'template', label: 'Import Template Format' },
+                ]}
+                size="sm"
+              />
               <div className="flex items-center gap-3">
                 <Button
                   onClick={handleRequestExport}
@@ -636,17 +703,17 @@ const ProductExportsPage: React.FC = () => {
             <div className="mt-4 text-sm text-neutral-600">
               {isFiltering
                 ? t('products.exports.summary.filtered', 'Showing {{count}} filtered {{label}}', {
-                    count: endIndex,
-                    label:
-                      endIndex === 1
-                        ? t('products.exports.summary.job_singular', 'job')
-                        : t('products.exports.summary.job_plural', 'jobs'),
-                  })
+                  count: endIndex,
+                  label:
+                    endIndex === 1
+                      ? t('products.exports.summary.job_singular', 'job')
+                      : t('products.exports.summary.job_plural', 'jobs'),
+                })
                 : t('products.exports.summary.range', 'Showing {{start}}-{{end}} of {{total}} jobs', {
-                    start: startIndex,
-                    end: endIndex,
-                    total: paginationMeta.total,
-                  })}
+                  start: startIndex,
+                  end: endIndex,
+                  total: paginationMeta.total,
+                })}
             </div>
           </CardContent>
         </Card>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiDollarSign } from 'react-icons/fi';
-import { CreatePageTemplate } from '../../../components/common/CreatePageTemplate';
+import StandardFormPage from '../../../components/common/StandardFormPage';
 import { EditCurrencyForm } from '../../../components/currencies/EditCurrencyForm';
 import { useToast } from '../../../contexts/ToastContext';
 import { trpc } from '../../../utils/trpc';
@@ -71,10 +71,12 @@ const EditCurrencyPage: React.FC = () => {
     navigate('/currencies');
   };
 
+  const formId = 'currency-edit-form';
+
   // Loading state
   if (currencyQuery.isLoading) {
     return (
-      <CreatePageTemplate
+      <StandardFormPage
         title={t('currencies.edit', 'Edit Currency')}
         description={t('currencies.editDescription', 'Update currency information')}
         icon={<FiDollarSign className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -83,19 +85,19 @@ const EditCurrencyPage: React.FC = () => {
         backUrl="/currencies"
         onBack={handleCancel}
         isSubmitting={false}
-        maxWidth="full"
+        showActions={false}
       >
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
   // Error state
   if (currencyQuery.error) {
     return (
-      <CreatePageTemplate
+      <StandardFormPage
         title={t('currencies.edit', 'Edit Currency')}
         description={t('currencies.editDescription', 'Update currency information')}
         icon={<FiDollarSign className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -104,7 +106,7 @@ const EditCurrencyPage: React.FC = () => {
         backUrl="/currencies"
         onBack={handleCancel}
         isSubmitting={false}
-        maxWidth="full"
+        showActions={false}
       >
         <div className="text-center text-red-600 dark:text-red-400">
           <p className="text-lg font-medium mb-2">
@@ -120,14 +122,14 @@ const EditCurrencyPage: React.FC = () => {
             {t('common.retry', 'Retry')}
           </button>
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
   // No data found
   if (!currencyQuery.data?.data) {
     return (
-      <CreatePageTemplate
+      <StandardFormPage
         title={t('currencies.edit', 'Edit Currency')}
         description={t('currencies.editDescription', 'Update currency information')}
         icon={<FiDollarSign className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -136,7 +138,7 @@ const EditCurrencyPage: React.FC = () => {
         backUrl="/currencies"
         onBack={handleCancel}
         isSubmitting={false}
-        maxWidth="full"
+        showActions={false}
       >
         <div className="text-center text-gray-600 dark:text-gray-400">
           <p className="text-lg font-medium mb-2">
@@ -152,14 +154,14 @@ const EditCurrencyPage: React.FC = () => {
             {t('currencies.backToList', 'Back to Currencies')}
           </button>
         </div>
-      </CreatePageTemplate>
+      </StandardFormPage>
     );
   }
 
   const currency = currencyQuery.data.data as Currency;
 
   return (
-    <CreatePageTemplate
+    <StandardFormPage
       title={t('currencies.edit', 'Edit Currency')}
       description={t('currencies.editDescription', 'Update currency information')}
       icon={<FiDollarSign className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
@@ -168,15 +170,17 @@ const EditCurrencyPage: React.FC = () => {
       backUrl="/currencies"
       onBack={handleCancel}
       isSubmitting={updateCurrencyMutation.isPending}
-      maxWidth="full"
+      formId={formId}
     >
       <EditCurrencyForm
         currency={currency}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         isSubmitting={updateCurrencyMutation.isPending}
+        showActions={false}
+        formId={formId}
       />
-    </CreatePageTemplate>
+    </StandardFormPage>
   );
 };
 
