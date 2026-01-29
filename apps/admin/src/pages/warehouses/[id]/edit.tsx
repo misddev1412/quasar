@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiArrowLeft, FiSave, FiHome, FiMapPin, FiPhone, FiMail, FiUser } from 'react-icons/fi';
-import { Button, Card, Loading, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
-import { BaseLayout } from '@admin/components/layout';
+import { FiHome, FiMapPin, FiPhone, FiMail, FiUser, FiSave } from 'react-icons/fi';
+import { StandardFormPage } from '@admin/components/common';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
@@ -64,7 +63,6 @@ const WarehouseEditPage: React.FC = () => {
   const [warehouse, setWarehouse] = useState<Warehouse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const submitBehaviorRef = useRef<'redirect' | 'stay'>('redirect');
   const lastSubmitBehaviorRef = useRef<'redirect' | 'stay'>('redirect');
 
@@ -93,7 +91,6 @@ const WarehouseEditPage: React.FC = () => {
   // Get warehouse by ID
   const {
     data: warehouseResponse,
-    isLoading: isLoadingWarehouse,
     error: warehouseError,
   } = trpc.adminWarehouses.getById.useQuery(
     { id: id! },
@@ -126,10 +123,8 @@ const WarehouseEditPage: React.FC = () => {
         description: t('warehouses.updateSuccessDescription', 'The warehouse has been updated.'),
       });
       if (lastSubmitBehaviorRef.current === 'stay') {
-        setIsSubmitting(false);
         return;
       }
-      setIsSubmitting(false);
       navigate('/warehouses');
     },
     onError: (error) => {
@@ -138,7 +133,6 @@ const WarehouseEditPage: React.FC = () => {
         title: t('warehouses.updateError', 'Failed to update warehouse'),
         description: error.message,
       });
-      setIsSubmitting(false);
     },
   });
 
@@ -146,48 +140,65 @@ const WarehouseEditPage: React.FC = () => {
   const handleSubmit = async (values: WarehouseFormValues) => {
     if (!id) return;
 
-    setIsSubmitting(true);
     lastSubmitBehaviorRef.current = submitBehaviorRef.current;
     try {
       await updateWarehouseMutation.mutateAsync({ id, ...values });
     } catch (error) {
-      setIsSubmitting(false);
+      // Error handled by mutation callbacks
     } finally {
       submitBehaviorRef.current = 'redirect';
     }
   };
 
-  // Breadcrumb items
-  const breadcrumbItems = [
-    { label: t('navigation.dashboard', 'Dashboard'), href: '/' },
-    { label: t('warehouses.title', 'Warehouses'), href: '/warehouses' },
-    { label: t('warehouses.edit', 'Edit Warehouse') },
-  ];
-
   if (loading) {
     return (
-      <BaseLayout
+      <StandardFormPage
         title={t('warehouses.editWarehouse', 'Edit Warehouse')}
         description={t('warehouses.editWarehouseDescription', 'Update warehouse information')}
+        icon={<FiHome className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+        entityName={t('warehouses.warehouse', 'Warehouse')}
+        entityNamePlural={t('warehouses.title', 'Warehouses')}
+        backUrl="/warehouses"
+        onBack={() => navigate('/warehouses')}
+        onCancel={() => navigate('/warehouses')}
+        isSubmitting={updateWarehouseMutation.isPending}
+        mode="update"
+        isLoading={true}
+        formId="warehouse-edit-form"
+        breadcrumbs={[
+          { label: t('navigation.dashboard', 'Dashboard'), href: '/' },
+          { label: t('warehouses.title', 'Warehouses'), href: '/warehouses' },
+          { label: t('warehouses.edit', 'Edit Warehouse') },
+        ]}
       >
-        <div className="flex justify-center items-center h-64">
-          <Loading size="large" />
-        </div>
-      </BaseLayout>
+        <></>
+      </StandardFormPage>
     );
   }
 
   if (error || !warehouse) {
     return (
-      <BaseLayout
+      <StandardFormPage
         title={t('warehouses.editWarehouse', 'Edit Warehouse')}
         description={t('warehouses.editWarehouseDescription', 'Update warehouse information')}
+        icon={<FiHome className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+        entityName={t('warehouses.warehouse', 'Warehouse')}
+        entityNamePlural={t('warehouses.title', 'Warehouses')}
+        backUrl="/warehouses"
+        onBack={() => navigate('/warehouses')}
+        onCancel={() => navigate('/warehouses')}
+        isSubmitting={updateWarehouseMutation.isPending}
+        mode="update"
+        error={new Error(error || t('warehouses.notFound', 'Warehouse not found'))}
+        formId="warehouse-edit-form"
+        breadcrumbs={[
+          { label: t('navigation.dashboard', 'Dashboard'), href: '/' },
+          { label: t('warehouses.title', 'Warehouses'), href: '/warehouses' },
+          { label: t('warehouses.edit', 'Edit Warehouse') },
+        ]}
       >
-        <Alert variant="destructive">
-          <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
-          <AlertDescription>{error || t('warehouses.notFound', 'Warehouse not found')}</AlertDescription>
-        </Alert>
-      </BaseLayout>
+        <></>
+      </StandardFormPage>
     );
   }
 
@@ -208,46 +219,48 @@ const WarehouseEditPage: React.FC = () => {
     sortOrder: warehouse.sortOrder,
   };
 
+  const formId = 'warehouse-edit-form';
+
   return (
-    <BaseLayout
+    <StandardFormPage
       title={t('warehouses.editWarehouse', 'Edit Warehouse')}
       description={t('warehouses.editWarehouseDescription', 'Update warehouse information')}
-      breadcrumbs={breadcrumbItems}
+      icon={<FiHome className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      entityName={t('warehouses.warehouse', 'Warehouse')}
+      entityNamePlural={t('warehouses.title', 'Warehouses')}
+      backUrl="/warehouses"
+      onBack={() => navigate('/warehouses')}
+      onCancel={() => navigate('/warehouses')}
+      isSubmitting={updateWarehouseMutation.isPending}
+      mode="update"
+      entityData={warehouse}
+      formId={formId}
+      customActions={[
+        {
+          label: t('common.save_and_continue', 'Save and Continue'),
+          onClick: () => {
+            submitBehaviorRef.current = 'stay';
+            const form = document.getElementById(formId) as HTMLFormElement | null;
+            form?.requestSubmit();
+          },
+          icon: <FiSave className="w-4 h-4" />,
+          variant: 'outline',
+        },
+      ]}
+      breadcrumbs={[
+        { label: t('navigation.dashboard', 'Dashboard'), href: '/' },
+        { label: t('warehouses.title', 'Warehouses'), href: '/warehouses' },
+        { label: warehouse.name },
+      ]}
     >
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {t('warehouses.edit', 'Edit Warehouse')}: {warehouse.name}
-              </h1>
-              <p className="text-gray-600 mt-1">
-                {t('warehouses.editDescription', 'Update warehouse information and settings')}
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/warehouses')}
-              className="flex items-center space-x-2"
-            >
-              <FiArrowLeft className="w-4 h-4" />
-              <span>{t('common.back', 'Back')}</span>
-            </Button>
-          </div>
-        </div>
-
-        {/* Form */}
-        <Card>
-          <div className="p-6">
-            <Formik
-              initialValues={initialValues}
-              validationSchema={WarehouseSchema}
-              onSubmit={handleSubmit}
-              enableReinitialize
-            >
-              {({ errors, touched, values, handleChange, handleBlur }) => (
-                <Form className="space-y-6">
+      <Formik
+        initialValues={initialValues}
+        validationSchema={WarehouseSchema}
+        onSubmit={handleSubmit}
+        enableReinitialize
+      >
+        {({ errors, touched, values, handleChange, handleBlur }) => (
+          <Form id={formId} className="space-y-6">
                   {/* Basic Information */}
                   <div>
                     <h3 className="text-lg font-medium text-gray-900 mb-4">
@@ -538,64 +551,10 @@ const WarehouseEditPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex justify-end space-x-3 pt-6 border-t">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() => navigate('/warehouses')}
-                      disabled={isSubmitting}
-                    >
-                      {t('common.cancel', 'Cancel')}
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="flex items-center space-x-2"
-                      onClick={() => {
-                        submitBehaviorRef.current = 'stay';
-                      }}
-                    >
-                      {isSubmitting && lastSubmitBehaviorRef.current === 'stay' ? (
-                        <>
-                          <Loading size="small" />
-                          <span>{t('common.saving', 'Saving...')}</span>
-                        </>
-                      ) : (
-                        <>
-                          <FiSave className="w-4 h-4" />
-                          <span>{t('common.save_and_continue', 'Save and Continue')}</span>
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="flex items-center space-x-2"
-                      onClick={() => {
-                        submitBehaviorRef.current = 'redirect';
-                      }}
-                    >
-                      {isSubmitting && lastSubmitBehaviorRef.current !== 'stay' ? (
-                        <>
-                          <Loading size="small" />
-                          <span>{t('common.saving', 'Saving...')}</span>
-                        </>
-                      ) : (
-                        <>
-                          <FiSave className="w-4 h-4" />
-                          <span>{t('common.save', 'Save')}</span>
-                        </>
-                      )}
-                    </Button>
-                  </div>
                 </Form>
               )}
             </Formik>
-          </div>
-        </Card>
-      </div>
-    </BaseLayout>
+    </StandardFormPage>
   );
 };
 

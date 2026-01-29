@@ -48,8 +48,8 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 
   const tabs: FormTabConfig[] = [
     {
-      id: 'general',
-      label: t('profile.general_info', 'General Info'),
+      id: 'details',
+      label: t('profile.details', 'Profile Details'),
       icon: <User className="w-4 h-4" />,
       sections: [
         {
@@ -93,12 +93,6 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
               placeholder: t('profile.bio_placeholder'),
               icon: <FileText className="w-5 h-5 text-gray-400" />,
             },
-          ],
-        },
-        {
-          title: t('profile.avatar', 'Avatar'),
-          icon: <User className="w-5 h-5 text-primary-600 dark:text-primary-400" />,
-          fields: [
             {
               name: 'avatar',
               label: t('profile.avatar_url'),
@@ -109,13 +103,6 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             },
           ],
         },
-      ],
-    },
-    {
-      id: 'address',
-      label: t('profile.address_information', 'Address Info'),
-      icon: <MapPin className="w-4 h-4" />,
-      sections: [
         {
           title: t('profile.address_details', 'Address Details'),
           icon: <Home className="w-5 h-5 text-primary-600 dark:text-primary-400" />,

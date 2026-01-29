@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiArrowLeft, FiSave, FiUpload, FiCalendar, FiGift } from 'react-icons/fi';
-import { Button, Card, Input, Textarea, Switch, Select, DatePicker, Loading, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
-import { BaseLayout } from '@admin/components/layout';
+import { FiGift } from 'react-icons/fi';
+import { Card, Input, Textarea, Switch, Select, DatePicker, StandardFormPage } from '@admin/components/common';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
@@ -125,7 +124,6 @@ const CreateLoyaltyRewardPage: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data: tiersData } = trpc.adminLoyaltyTiers.list.useQuery({
     page: 1,
@@ -140,7 +138,6 @@ const CreateLoyaltyRewardPage: React.FC = () => {
     },
     onError: (error: any) => {
       addToast({ type: 'error', title: t('loyalty.reward_create_error'), description: error?.message });
-      setIsSubmitting(false);
     },
   });
 
@@ -204,8 +201,6 @@ const CreateLoyaltyRewardPage: React.FC = () => {
       return;
     }
 
-    setIsSubmitting(true);
-
     try {
       // Convert string dates to Date objects for the API
       const submissionData = {
@@ -234,27 +229,21 @@ const CreateLoyaltyRewardPage: React.FC = () => {
     handleInputChange('imageUrl', undefined);
   };
 
-  const actions = [
-    {
-      label: t('common.cancel'),
-      onClick: () => navigate('/loyalty?tab=rewards'),
-      icon: <FiArrowLeft />,
-    },
-    {
-      label: t('common.save'),
-      onClick: () => handleSubmit(new Event('submit') as any),
-      primary: true,
-      icon: <FiSave />,
-    },
-  ];
-
   const tiers = (tiersData as any)?.data?.items || [];
+  const formId = 'loyalty-reward-create-form';
 
   return (
-    <BaseLayout 
-      title={t('loyalty.create_reward')} 
+    <StandardFormPage
+      title={t('loyalty.create_reward')}
       description={t('loyalty.create_reward_description')}
-      actions={actions}
+      icon={<FiGift className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      entityName={t('loyalty.reward', 'Reward')}
+      entityNamePlural={t('loyalty.rewards.title', 'Loyalty Rewards')}
+      backUrl="/loyalty?tab=rewards"
+      onBack={() => navigate('/loyalty?tab=rewards')}
+      onCancel={() => navigate('/loyalty?tab=rewards')}
+      isSubmitting={createRewardMutation.isPending}
+      formId={formId}
       breadcrumbs={[
         {
           label: t('navigation.home', 'Home'),
@@ -269,10 +258,7 @@ const CreateLoyaltyRewardPage: React.FC = () => {
         }
       ]}
     >
-      <div className="max-w-4xl mx-auto space-y-6">
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <form id={formId} onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Basic Information */}
             <Card>
@@ -337,16 +323,16 @@ const CreateLoyaltyRewardPage: React.FC = () => {
                 </div>
 
                 <div className="flex items-center space-x-3">
-                  <Switch
-                    checked={formData.isActive}
-                    onChange={(checked) => handleInputChange('isActive', checked)}
-                  />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {t('loyalty.is_active')}
-                  </span>
-                </div>
-              </div>
-            </Card>
+              <Switch
+                checked={formData.isActive}
+                onChange={(checked) => handleInputChange('isActive', checked)}
+              />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('loyalty.is_active')}
+              </span>
+            </div>
+          </div>
+        </Card>
 
             {/* Reward Value */}
             <Card>
@@ -595,8 +581,7 @@ const CreateLoyaltyRewardPage: React.FC = () => {
             </div>
           </Card>
         </form>
-      </div>
-    </BaseLayout>
+    </StandardFormPage>
   );
 };
 

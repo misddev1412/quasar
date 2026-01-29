@@ -1,8 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiArrowLeft, FiInfo } from 'react-icons/fi';
-import { BaseLayout } from '@admin/components/layout';
-import { Button, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
+import { FiInfo, FiGrid } from 'react-icons/fi';
+import { Alert, AlertDescription, AlertTitle, StandardFormPage } from '@admin/components/common';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 const WarehouseLocationEditPage: React.FC = () => {
@@ -17,33 +16,32 @@ const WarehouseLocationEditPage: React.FC = () => {
   ];
 
   return (
-    <BaseLayout
+    <StandardFormPage
       title={t('warehouse_locations.edit', 'Edit Location')}
       description={t('warehouse_locations.edit_description', 'Update metadata for a warehouse location once the backend endpoints are available.')}
-      fullWidth
+      icon={<FiGrid className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      entityName={t('warehouse_locations.location', 'Location')}
+      entityNamePlural={t('warehouse_locations.title', 'Warehouse Locations')}
+      backUrl="/warehouses/locations"
+      onBack={() => navigate('/warehouses/locations')}
+      onCancel={() => navigate('/warehouses/locations')}
+      isSubmitting={false}
+      mode="update"
+      showActions={false}
       breadcrumbs={breadcrumbItems}
     >
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate('/warehouses/locations')} className="flex items-center space-x-2">
-            <FiArrowLeft className="w-4 h-4" />
-            <span>{t('common.back', 'Back')}</span>
-          </Button>
-        </div>
-
-        <Alert>
-          <FiInfo className="w-5 h-5 text-blue-500" />
-          <AlertTitle>{t('warehouse_locations.pending', 'Feature under construction')}</AlertTitle>
-          <AlertDescription>
-            {t(
-              'warehouse_locations.edit_placeholder',
-              'Editing warehouse locations is not yet available. The page will surface full editing capabilities once the backend location endpoints are integrated. Location id: {id}',
-              { id: id || '—' },
-            )}
-          </AlertDescription>
-        </Alert>
-      </div>
-    </BaseLayout>
+      <Alert>
+        <FiInfo className="w-5 h-5 text-blue-500" />
+        <AlertTitle>{t('warehouse_locations.pending', 'Feature under construction')}</AlertTitle>
+        <AlertDescription>
+          {t(
+            'warehouse_locations.edit_placeholder',
+            'Editing warehouse locations is not yet available. The page will surface full editing capabilities once the backend location endpoints are integrated. Location id: {id}',
+            { id: id || '—' },
+          )}
+        </AlertDescription>
+      </Alert>
+    </StandardFormPage>
   );
 };
 

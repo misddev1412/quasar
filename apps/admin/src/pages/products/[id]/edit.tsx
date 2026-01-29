@@ -111,7 +111,7 @@ const EditProductPage: React.FC = () => {
 
   return (
     <StandardFormPage
-      title={product ? `${t('products.edit_product', 'Edit Product')}: ${product.name}` : t('products.edit_product', 'Edit Product')}
+      title={product ? product.name : t('products.edit_product', 'Edit Product')}
       description={t('products.edit_product_description', 'Update product information, variants, pricing, and inventory details.')}
       icon={<Package className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
       entityName={t('products.product', 'Product')}

@@ -10,7 +10,7 @@ import { useTablePreferences } from '@admin/hooks/useTablePreferences';
 import { Permission, PermissionFiltersType, PermissionStatistics } from '@admin/types/permission';
 import { FiHome } from 'react-icons/fi';
 
-interface PermissionIndexPageProps {}
+interface PermissionIndexPageProps { }
 
 const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
   const navigate = useNavigate();
@@ -207,7 +207,7 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
     navigate('/permissions/create');
   };
 
-  const goToPermission = (id: string) => navigate(`/permissions/${id}`);
+  const goToPermission = (id: string) => navigate(`/permissions/${id}/edit`);
 
   // Permission mutations
   const updatePermissionMutation = trpc.adminPermission.updatePermission.useMutation();
@@ -215,9 +215,9 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
 
   const handleTogglePermissionStatus = useCallback(async (permission: Permission) => {
     try {
-      await updatePermissionMutation.mutateAsync({ 
-        id: permission.id, 
-        isActive: !permission.isActive 
+      await updatePermissionMutation.mutateAsync({
+        id: permission.id,
+        isActive: !permission.isActive
       });
 
       // Show success toast with descriptive message
@@ -248,18 +248,18 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
       if (!ok) return;
 
       await deletePermissionMutation.mutateAsync({ id: permission.id });
-      
-      addToast({ 
-        type: 'success', 
+
+      addToast({
+        type: 'success',
         title: 'Permission deleted successfully',
         description: `The permission "${permission.name}" has been permanently deleted.`
       });
-      
+
       refetch();
     } catch (e: any) {
-      addToast({ 
-        type: 'error', 
-        title: 'Delete failed', 
+      addToast({
+        type: 'error',
+        title: 'Delete failed',
         description: e?.message || 'Failed to delete permission. Please try again.'
       });
     }
@@ -267,8 +267,8 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
 
   const handleDuplicatePermission = useCallback((permission: Permission) => {
     // Navigate to create page with pre-filled data
-    navigate('/permissions/create', { 
-      state: { 
+    navigate('/permissions/create', {
+      state: {
         template: {
           name: `${permission.name} (Copy)`,
           resource: permission.resource,
@@ -403,9 +403,8 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
       accessor: (permission: Permission) => (
         <div className="flex items-center space-x-3">
           <div className="flex-shrink-0">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              permission.isActive !== false ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
-            }`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${permission.isActive !== false ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
+              }`}>
               <FiLock className="w-4 h-4" />
             </div>
           </div>
@@ -468,11 +467,10 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
     {
       id: 'isActive',
       accessor: (permission: Permission) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          permission.isActive !== false
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${permission.isActive !== false
             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
             : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-        }`}>
+          }`}>
           {permission.isActive !== false ? t('common.active', 'Active') : t('common.inactive', 'Inactive')}
         </span>
       ),

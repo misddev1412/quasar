@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiArrowLeft, FiTrash2, FiHome, FiPackage, FiEdit3, FiFolder } from 'react-icons/fi';
-import { BaseLayout } from '@admin/components/layout';
+import { FiFolder, FiTrash2 } from 'react-icons/fi';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
-import { Loading, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
+import { StandardFormPage } from '@admin/components/common';
 import { EditCategoryForm, EditCategoryFormData } from '@admin/components/products';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
 
 const EditCategoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -95,91 +95,73 @@ const EditCategoryPage: React.FC = () => {
     updateMutation.mutate(payload);
   };
 
-  const actions = [
-    {
-      label: t('common.back', 'Back'),
-      onClick: () => navigate('/products/categories'),
-      icon: <FiArrowLeft />,
-    },
-    {
-      label: t('common.delete', 'Delete'),
-      onClick: handleDelete,
-      variant: 'danger' as const,
-      icon: <FiTrash2 />,
-    },
-  ];
+  // Use URL tabs hook with tab keys for clean URLs
+  const { activeTab, handleTabChange } = useUrlTabs({
+    defaultTab: 0,
+    tabParam: 'tab',
+    tabKeys: ['general', 'translations', 'seo'] // Maps to EditCategoryForm tab IDs
+  });
 
-  const breadcrumbs = [
-    {
-      label: 'Home',
-      href: '/',
-      icon: <FiHome className="w-4 h-4" />
-    },
-    {
-      label: 'Products',
-      href: '/products',
-      icon: <FiPackage className="w-4 h-4" />
-    },
-    {
-      label: t('common.categories', 'Categories'),
-      href: '/products/categories',
-      icon: <FiFolder className="w-4 h-4" />
-    },
-    {
-      label: t('categories.editCategory', 'Edit Category'),
-      icon: <FiEdit3 className="w-4 h-4" />
-    }
-  ];
-
-  if (isLoading) {
-    return (
-      <BaseLayout
-        title={t('categories.editCategory', 'Edit Category')}
-        description={t('categories.editDescription', 'Update category information')}
-        actions={actions}
-        breadcrumbs={breadcrumbs}
-      >
-        <div className="flex items-center justify-center h-64">
-          <Loading />
-        </div>
-      </BaseLayout>
-    );
-  }
-
-  if (error || !category) {
-    return (
-      <BaseLayout
-        title={t('categories.editCategory', 'Edit Category')}
-        description={t('categories.editDescription', 'Update category information')}
-        actions={actions}
-        breadcrumbs={breadcrumbs}
-      >
-        <Alert variant="destructive">
-          <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
-          <AlertDescription>
-            {error ? (error as any).message : t('categories.notFound', 'Category not found')}
-          </AlertDescription>
-        </Alert>
-      </BaseLayout>
-    );
-  }
+  const formId = 'product-category-edit-form';
+  const resolvedError = error || (!isLoading && !category
+    ? new Error(t('categories.notFound', 'Category not found'))
+    : null);
 
   return (
-    <BaseLayout
+    <StandardFormPage
       title={t('categories.editCategory', 'Edit Category')}
-      description={`${t('categories.editing', 'Editing')}: ${category.name}`}
-      actions={actions}
-      breadcrumbs={breadcrumbs}
+      description={category ? `${t('categories.editing', 'Editing')}: ${category.name}` : t('categories.editDescription', 'Update category information')}
+      icon={<FiFolder className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      entityName={t('common.category', 'Category')}
+      entityNamePlural={t('common.categories', 'Categories')}
+      backUrl="/products/categories"
+      onBack={() => navigate('/products/categories')}
+      onCancel={() => navigate('/products/categories')}
+      isSubmitting={updateMutation.isPending}
+      mode="update"
+      isLoading={isLoading}
+      error={resolvedError}
+      entityData={category}
+      formId={formId}
+      customActions={[
+        {
+          label: t('common.delete', 'Delete'),
+          onClick: handleDelete,
+          icon: <FiTrash2 className="w-4 h-4" />,
+          variant: 'outline',
+        },
+      ]}
+      breadcrumbs={[
+        {
+          label: t('navigation.home', 'Home'),
+          href: '/',
+        },
+        {
+          label: t('products.title', 'Products'),
+          href: '/products',
+        },
+        {
+          label: t('common.categories', 'Categories'),
+          href: '/products/categories',
+        },
+        {
+          label: category ? category.name : t('categories.editCategory', 'Edit Category'),
+        }
+      ]}
     >
-      <div className="space-y-6">
+      {category && (
         <EditCategoryForm
           category={category}
           onSubmit={onSubmit}
           onCancel={() => navigate('/products/categories')}
           isSubmitting={updateMutation.isPending}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          showActions={false}
+          formId={formId}
         />
-      </div>
-    </BaseLayout>
+      )}
+    </StandardFormPage>
   );
 };
 

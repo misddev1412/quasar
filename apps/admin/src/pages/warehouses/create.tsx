@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiArrowLeft, FiSave, FiHome, FiMapPin, FiPhone, FiMail, FiUser } from 'react-icons/fi';
+import { FiHome, FiMapPin, FiPhone, FiMail, FiUser } from 'react-icons/fi';
 import clsx from 'clsx';
-import { Button, Card, Loading, CountrySelector, InputWithIcon } from '@admin/components/common';
-import { BaseLayout } from '@admin/components/layout';
+import { CountrySelector, InputWithIcon, Loading, StandardFormPage } from '@admin/components/common';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
@@ -59,9 +58,6 @@ const WarehouseCreatePage: React.FC = () => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
 
-  // State
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const getErrorMessage = (error: unknown) => {
     if (!error) {
       return '';
@@ -100,7 +96,6 @@ const WarehouseCreatePage: React.FC = () => {
         title: t('warehouses.createError', 'Failed to create warehouse'),
         description: error.message,
       });
-      setIsSubmitting(false);
     },
   });
 
@@ -175,60 +170,40 @@ const WarehouseCreatePage: React.FC = () => {
 
   // Handle form submission
   const handleSubmit = async (values: WarehouseFormValues) => {
-    setIsSubmitting(true);
     try {
       await createWarehouseMutation.mutateAsync(values);
     } catch (error) {
-      setIsSubmitting(false);
+      // Error handled by mutation callbacks
     }
   };
 
-  // Breadcrumb items
-  const breadcrumbItems = [
-    { label: t('navigation.dashboard', 'Dashboard'), href: '/' },
-    { label: t('warehouses.title', 'Warehouses'), href: '/warehouses' },
-    { label: t('warehouses.create', 'Create Warehouse') },
-  ];
+  const formId = 'warehouse-create-form';
 
   return (
-    <BaseLayout
+    <StandardFormPage
       title={t('warehouses.createWarehouse', 'Create Warehouse')}
       description={t('warehouses.createWarehouseDescription', 'Add a new warehouse to your system')}
-      breadcrumbs={breadcrumbItems}
+      icon={<FiHome className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      entityName={t('warehouses.warehouse', 'Warehouse')}
+      entityNamePlural={t('warehouses.title', 'Warehouses')}
+      backUrl="/warehouses"
+      onBack={() => navigate('/warehouses')}
+      onCancel={() => navigate('/warehouses')}
+      isSubmitting={createWarehouseMutation.isPending}
+      formId={formId}
+      breadcrumbs={[
+        { label: t('navigation.dashboard', 'Dashboard'), href: '/' },
+        { label: t('warehouses.title', 'Warehouses'), href: '/warehouses' },
+        { label: t('warehouses.create', 'Create Warehouse') },
+      ]}
     >
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {t('warehouses.create', 'Create Warehouse')}
-              </h1>
-              <p className="text-gray-600 mt-1">
-                {t('warehouses.createDescription', 'Add a new warehouse to your system')}
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/warehouses')}
-              className="flex items-center space-x-2"
-            >
-              <FiArrowLeft className="w-4 h-4" />
-              <span>{t('common.back', 'Back')}</span>
-            </Button>
-          </div>
-        </div>
-
-        {/* Form */}
-        <Card>
-          <div className="p-6">
-            <Formik
-              initialValues={initialValues}
-              validationSchema={WarehouseSchema}
-              onSubmit={handleSubmit}
-            >
-              {({ errors, touched, values, handleChange, handleBlur, setFieldValue, setFieldTouched }) => (
-                <Form className="space-y-6">
+      <Formik
+        initialValues={initialValues}
+        validationSchema={WarehouseSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ errors, touched, values, handleChange, handleBlur, setFieldValue, setFieldTouched }) => (
+          <Form id={formId} className="space-y-6">
                   {/* Basic Information */}
                   <div>
                     <h3 className="text-lg font-medium text-gray-900 mb-4">
@@ -536,41 +511,10 @@ const WarehouseCreatePage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex justify-end space-x-3 pt-6 border-t">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() => navigate('/warehouses')}
-                      disabled={isSubmitting}
-                    >
-                      {t('common.cancel', 'Cancel')}
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="flex items-center space-x-2"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loading size="small" />
-                          <span>{t('common.saving', 'Saving...')}</span>
-                        </>
-                      ) : (
-                        <>
-                          <FiSave className="w-4 h-4" />
-                          <span>{t('common.save', 'Save')}</span>
-                        </>
-                      )}
-                    </Button>
-                  </div>
                 </Form>
               )}
             </Formik>
-          </div>
-        </Card>
-      </div>
-    </BaseLayout>
+    </StandardFormPage>
   );
 };
 

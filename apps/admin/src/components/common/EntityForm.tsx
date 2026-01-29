@@ -112,11 +112,17 @@ export function EntityForm<T extends FieldValues = FieldValues>({
     <FormProvider {...form}>
       <form id={formId} onSubmit={handleFormSubmit} className={clsx('space-y-4', className)}>
         <fieldset className="m-0 min-w-0 border-0 p-0" disabled={isDisabled}>
-          <Tabs
-            tabs={tabsConfig}
-            activeTab={activeTab}
-            onTabChange={handleTabChange} // Handle tab changes with URL persistence
-          />
+          {tabsConfig.length === 1 ? (
+            <div className="space-y-6">
+              {tabsConfig[0].content}
+            </div>
+          ) : (
+            <Tabs
+              tabs={tabsConfig}
+              activeTab={activeTab}
+              onTabChange={handleTabChange} // Handle tab changes with URL persistence
+            />
+          )}
         </fieldset>
 
         {/* Form Actions */}

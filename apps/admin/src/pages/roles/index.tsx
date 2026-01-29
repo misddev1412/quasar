@@ -22,7 +22,7 @@ import { useTablePreferences } from '@admin/hooks/useTablePreferences';
 import { Role, RoleFiltersType, RoleStatistics } from '@admin/types/role';
 import { QuickAddPermissionModal, QuickAddUserModal } from '@admin/components/role';
 
-interface RoleIndexPageProps {}
+interface RoleIndexPageProps { }
 
 const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
   // Actions column fix applied
@@ -51,16 +51,16 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
     isOpen: false,
     role: null
   });
-  const [quickAddPermissionModal, setQuickAddPermissionModal] = useState<{ 
-    isOpen: boolean; 
-    role: Role | null 
+  const [quickAddPermissionModal, setQuickAddPermissionModal] = useState<{
+    isOpen: boolean;
+    role: Role | null
   }>({
     isOpen: false,
     role: null
   });
-  const [quickAddUserModal, setQuickAddUserModal] = useState<{ 
-    isOpen: boolean; 
-    role: Role | null 
+  const [quickAddUserModal, setQuickAddUserModal] = useState<{
+    isOpen: boolean;
+    role: Role | null
   }>({
     isOpen: false,
     role: null
@@ -71,7 +71,7 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
     visibleColumns: new Set([
       'name',
       'code',
-      'description', 
+      'description',
       'permissionCount',
       'userCount',
       'isActive',
@@ -85,7 +85,7 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
     'name',
     'code',
     'description',
-    'permissionCount', 
+    'permissionCount',
     'userCount',
     'isActive',
     'isDefault',
@@ -185,7 +185,7 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
     navigate('/roles/create');
   };
 
-  const goToRole = (id: string) => navigate(`/roles/${id}`);
+  const goToRole = (id: string) => navigate(`/roles/${id}/edit`);
 
   // Handle role actions
   const handleRoleAction = useCallback((action: string, role: Role) => {
@@ -241,7 +241,7 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
   };
 
   // Handle bulk actions
-  const handleBulkAction = (_action: string) => {};
+  const handleBulkAction = (_action: string) => { };
 
   // Handle search
   const handleSearch = useCallback((searchTerm: string) => {
@@ -316,9 +316,8 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
       accessor: (role: Role) => (
         <div className="flex items-center space-x-3">
           <div className="flex-shrink-0">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              role.isActive ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
-            }`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${role.isActive ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
+              }`}>
               <FiShield className="w-4 h-4" />
             </div>
           </div>
@@ -346,11 +345,11 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
       id: 'description',
       accessor: (role: Role) => (
         <div className="max-w-xs">
-          <p 
+          <p
             className="text-sm text-gray-600 dark:text-gray-300 truncate"
             title={role.description || t('common.no_description', 'No description')}
           >
-            {role.description || 
+            {role.description ||
               <span className="italic text-gray-400">{t('common.no_description', 'No description')}</span>
             }
           </p>
@@ -386,11 +385,10 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
     {
       id: 'isActive',
       accessor: (role: Role) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          role.isActive
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${role.isActive
             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
             : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-        }`}>
+          }`}>
           {role.isActive ? t('common.active', 'Active') : t('common.inactive', 'Inactive')}
         </span>
       ),
@@ -400,11 +398,10 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
     {
       id: 'isDefault',
       accessor: (role: Role) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          role.isDefault
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${role.isDefault
             ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
             : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
-        }`}>
+          }`}>
           {role.isDefault ? t('common.yes', 'Yes') : t('common.no', 'No')}
         </span>
       ),
@@ -464,11 +461,11 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
               icon: <FiTrash2 className="w-4 h-4" />,
               onClick: () => handleRoleAction('delete', role),
               disabled: (role.userCount || 0) > 0,
-              tooltip: (role.userCount || 0) > 0 
+              tooltip: (role.userCount || 0) > 0
                 ? t('roles.cannot_delete_role_with_users', {
-                    count: role.userCount,
-                    defaultValue: `Cannot delete role. It is assigned to ${role.userCount} user(s). Remove all users first.`
-                  })
+                  count: role.userCount,
+                  defaultValue: `Cannot delete role. It is assigned to ${role.userCount} user(s). Remove all users first.`
+                })
                 : undefined,
             }] : []),
           ]}
@@ -641,8 +638,8 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
         onClose={() => setDeleteModal({ isOpen: false, role: null })}
         onConfirm={handleConfirmDelete}
         title={t('roles.delete_role', 'Delete Role')}
-        message={deleteModal.role ? 
-          t('roles.delete_role_confirmation', { 
+        message={deleteModal.role ?
+          t('roles.delete_role_confirmation', {
             roleName: deleteModal.role.name,
             defaultValue: `Are you sure you want to delete the role "${deleteModal.role.name}"? This action cannot be undone.`
           }) : ''
@@ -679,7 +676,7 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
           refetch();
           addToast({
             title: t('common.success', 'Success'),
-            description: t('roles.users_added_successfully', { 
+            description: t('roles.users_added_successfully', {
               added: result.addedCount,
               skipped: result.skippedCount,
               defaultValue: `Successfully added ${result.addedCount} user(s) to role. ${result.skippedCount} user(s) were skipped.`

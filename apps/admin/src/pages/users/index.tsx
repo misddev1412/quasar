@@ -165,7 +165,7 @@ const UserListPage = () => {
     navigate('/users/create');
   };
 
-  const goToUser = (id: string) => navigate(`/users/${id}`);
+  const goToUser = (id: string) => navigate(`/users/${id}/edit`);
 
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();

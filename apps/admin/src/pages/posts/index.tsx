@@ -338,20 +338,20 @@ const PostListPage = () => {
             {
               label: t('common.view', 'View'),
               icon: <FiEye className="w-4 h-4" />,
-              onClick: () => navigate(`/posts/${item.id}/detail`),
+              onClick: () => navigate(`/posts/${item.id}`),
             },
             ...(item.status !== PostStatus.PUBLISHED
               ? [{
-                  label: t('posts.actions.publishNow', 'Publish now'),
-                  icon: <FiEye className="w-4 h-4" />,
-                  onClick: () => handlePublishSingle(item.id),
-                  disabled: bulkUpdateStatusMutation.isPending,
-                }]
+                label: t('posts.actions.publishNow', 'Publish now'),
+                icon: <FiEye className="w-4 h-4" />,
+                onClick: () => handlePublishSingle(item.id),
+                disabled: bulkUpdateStatusMutation.isPending,
+              }]
               : []),
             {
               label: t('common.edit', 'Edit'),
               icon: <FiEdit2 className="w-4 h-4" />,
-              onClick: () => navigate(`/posts/${item.id}`),
+              onClick: () => navigate(`/posts/${item.id}/edit`),
             },
             {
               label: '-',

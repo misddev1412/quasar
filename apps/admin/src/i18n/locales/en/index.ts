@@ -24,6 +24,7 @@ import services from '@admin/i18n/locales/en/services.json';
 import product_bundles from '@admin/i18n/locales/en/product_bundles.json';
 import ai from '@admin/i18n/locales/en/ai.json';
 import openai_configs from '@admin/i18n/locales/en/openai_configs.json';
+import profile from '@admin/i18n/locales/en/profile.json';
 
 export default {
   ...common,
@@ -52,4 +53,5 @@ export default {
   product_bundles,
   ...ai,
   ...openai_configs,
+  ...profile,
 };

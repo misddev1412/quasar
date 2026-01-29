@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  FiPlus, 
-  FiMoreVertical, 
-  FiMail, 
-  FiEdit2, 
-  FiDownload, 
-  FiFilter, 
-  FiRefreshCw, 
-  FiTrash2, 
-  FiEye, 
-  FiToggleLeft, 
-  FiToggleRight, 
+  FiPlus,
+  FiMoreVertical,
+  FiMail,
+  FiEdit2,
+  FiDownload,
+  FiFilter,
+  FiRefreshCw,
+  FiTrash2,
+  FiEye,
+  FiToggleLeft,
+  FiToggleRight,
   FiCopy,
   FiActivity,
   FiFileText
@@ -35,14 +35,14 @@ import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
 import { useTablePreferences } from '@admin/hooks/useTablePreferences';
 import {
-  MailTemplateListItem, 
-  MailTemplateFilters, 
+  MailTemplateListItem,
+  MailTemplateFilters,
   MailTemplateStatistics,
   MailTemplateBulkAction,
   MAIL_TEMPLATE_TYPE_OPTIONS
 } from '@admin/types/mail-template';
 
-interface MailTemplateIndexPageProps {}
+interface MailTemplateIndexPageProps { }
 
 const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
   const navigate = useNavigate();
@@ -79,7 +79,7 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
 
   // API queries
   const { data, isLoading, error, refetch, isFetching } = trpc.adminMailTemplate.getTemplates.useQuery(filters);
-  
+
   const {
     data: statisticsData,
     isLoading: statisticsLoading,
@@ -133,10 +133,10 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
     navigate('/mail-templates/create');
   };
 
-  const goToTemplate = (id: string) => navigate(`/mail-templates/${id}`);
+  const goToTemplate = (id: string) => navigate(`/mail-templates/${id}/edit`);
 
   const handleEditTemplate = (template: MailTemplateListItem) => {
-    navigate(`/mail-templates/${template.id}`);
+    navigate(`/mail-templates/${template.id}/edit`);
   };
 
   const handleDeleteTemplate = (template: MailTemplateListItem) => {
@@ -160,7 +160,7 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
 
   const handleBulkAction = (action: MailTemplateBulkAction) => {
     const selectedIds = Array.from(selectedTemplates);
-    
+
     switch (action) {
       case 'activate':
         bulkUpdateStatusMutation.mutate({ ids: selectedIds, isActive: true });
@@ -278,11 +278,10 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
       isSortable: true,
       hideable: true,
       accessor: (template) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          template.isActive
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${template.isActive
             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
             : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-        }`}>
+          }`}>
           {template.isActive ? t('common.active', 'Active') : t('common.inactive', 'Inactive')}
         </span>
       ),
@@ -338,9 +337,9 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
             {
               label: template.isActive ? t('common.deactivate', 'Deactivate') : t('common.activate', 'Activate'),
               icon: template.isActive ? <FiToggleLeft className="w-4 h-4" /> : <FiToggleRight className="w-4 h-4" />,
-              onClick: () => bulkUpdateStatusMutation.mutate({ 
-                ids: [template.id], 
-                isActive: !template.isActive 
+              onClick: () => bulkUpdateStatusMutation.mutate({
+                ids: [template.id],
+                isActive: !template.isActive
               }),
             },
             {

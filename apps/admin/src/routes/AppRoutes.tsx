@@ -22,17 +22,17 @@ import UserProfilePage from '@admin/pages/profile';
 import UserListPage from '@admin/pages/users';
 import UserDashboardPage from '@admin/pages/users/dashboard';
 import UserCreatePage from '@admin/pages/users/create';
-import UserUpdatePage from '@admin/pages/users/update';
+import UserUpdatePage from '@admin/pages/users/[id]/edit';
 import UserExportsPage from '@admin/pages/users/exports';
 import RoleIndexPage from '@admin/pages/roles';
 import RoleCreatePage from '@admin/pages/roles/create';
-import RoleUpdatePage from '@admin/pages/roles/update';
+import RoleUpdatePage from '@admin/pages/roles/[id]/edit';
 import PermissionIndexPage from '@admin/pages/permissions';
 import PermissionCreatePage from '@admin/pages/permissions/create';
-import PermissionUpdatePage from '@admin/pages/permissions/update';
+import PermissionUpdatePage from '@admin/pages/permissions/[id]/edit';
 import MailTemplateIndexPage from '@admin/pages/mail-templates';
 import MailTemplateCreatePage from '@admin/pages/mail-templates/create';
-import MailTemplateEditPage from '@admin/pages/mail-templates/edit';
+import MailTemplateEditPage from '@admin/pages/mail-templates/[id]/edit';
 import MailLogsPage from '@admin/pages/mail-logs';
 import MailLogDetailPage from '@admin/pages/mail-logs/[id]';
 // Mail Providers
@@ -45,8 +45,8 @@ import CreateEmailFlowPage from '@admin/pages/email-flows/create';
 import EditEmailFlowPage from '@admin/pages/email-flows/[id]/edit';
 import PostsIndexPage from '@admin/pages/posts';
 import PostsCreatePage from '@admin/pages/posts/create';
-import PostsEditPage from '@admin/pages/posts/edit';
-import PostDetailPage from '@admin/pages/posts/detail';
+import PostsEditPage from '@admin/pages/posts/[id]/edit';
+import PostDetailPage from '@admin/pages/posts/[id]';
 import PostCategoriesPage from '@admin/pages/posts/categories';
 import PostTagsPage from '@admin/pages/posts/tags';
 import SiteContentIndexPage from '@admin/pages/site-content';
@@ -69,10 +69,10 @@ import EditCurrencyPage from '@admin/pages/currencies/[id]/edit';
 import StorageConfigPage from '@admin/pages/storage';
 import FirebaseConfigsPage from '@admin/pages/firebase-configs';
 import CreateFirebaseConfigPage from '@admin/pages/firebase-configs/create';
-import EditFirebaseConfigPage from '@admin/pages/firebase-configs/[id]';
+import EditFirebaseConfigPage from '@admin/pages/firebase-configs/[id]/edit';
 import OpenAiConfigsPage from '@admin/pages/openai-configs';
 import CreateOpenAiConfigPage from '@admin/pages/openai-configs/create';
-import EditOpenAiConfigPage from '@admin/pages/openai-configs/[id]';
+import EditOpenAiConfigPage from '@admin/pages/openai-configs/[id]/edit';
 import NotificationsPage from '@admin/pages/notifications';
 import NotificationPreferencesPage from '@admin/pages/notifications/preferences';
 import NotificationEventFlowsPage from '@admin/pages/notifications/event-flows';
@@ -92,7 +92,7 @@ import ProductBundleEditPage from '@admin/pages/product-bundles/ProductBundleEdi
 // Warehouse Management
 import WarehousesIndexPage from '@admin/pages/warehouses';
 import WarehouseCreatePage from '@admin/pages/warehouses/create';
-import WarehouseEditPage from '@admin/pages/warehouses/edit';
+import WarehouseEditPage from '@admin/pages/warehouses/[id]/edit';
 import WarehouseLocationsPage from '@admin/pages/warehouses/locations';
 import WarehouseLocationCreatePage from '@admin/pages/warehouses/locations/create';
 import WarehouseLocationEditPage from '@admin/pages/warehouses/locations/edit';
@@ -118,8 +118,8 @@ import ComponentConfigEditPage from '@admin/pages/component-configs/[id]/edit';
 import OrdersIndexPage from '@admin/pages/orders';
 import OrdersExportsPage from '@admin/pages/orders/exports';
 import OrderCreatePage from '@admin/pages/orders/create';
-import OrderEditPage from '@admin/pages/orders/edit';
-import OrderDetailPage from '@admin/pages/orders/detail';
+import OrderEditPage from '@admin/pages/orders/[id]/edit';
+import OrderDetailPage from '@admin/pages/orders/[id]';
 import OrderFulfillmentsPage from '@admin/pages/orders/fulfillments';
 import OrderFulfillmentCreatePage from '@admin/pages/orders/fulfillments/new';
 import OrderFulfillmentDetailPage from '@admin/pages/orders/fulfillments/[id]';
@@ -127,8 +127,8 @@ import OrderFulfillmentEditPage from '@admin/pages/orders/fulfillments/edit';
 // Customer Management
 import CustomersIndexPage from '@admin/pages/customers';
 import CustomerCreatePage from '@admin/pages/customers/create';
-import CustomerEditPage from '@admin/pages/customers/edit';
-import CustomerDetailPage from '@admin/pages/customers/detail';
+import CustomerEditPage from '@admin/pages/customers/[id]/edit';
+import CustomerDetailPage from '@admin/pages/customers/[id]';
 // Loyalty Management
 import LoyaltyManagementPage from '@admin/pages/loyalty';
 import LoyaltyStatsPage from '@admin/pages/loyalty/stats';
@@ -225,17 +225,17 @@ const AppRoutes: React.FC = () => {
       <Route path="/users/exports" element={<ProtectedRoute><UserExportsPage /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute><UserListPage /></ProtectedRoute>} />
       <Route path="/users/create" element={<ProtectedRoute><UserCreatePage /></ProtectedRoute>} />
-      <Route path="/users/:id" element={<ProtectedRoute><UserUpdatePage /></ProtectedRoute>} />
+      <Route path="/users/:id/edit" element={<ProtectedRoute><UserUpdatePage /></ProtectedRoute>} />
       <Route path="/roles" element={<ProtectedRoute><RoleIndexPage /></ProtectedRoute>} />
       <Route path="/roles/create" element={<ProtectedRoute><RoleCreatePage /></ProtectedRoute>} />
-      <Route path="/roles/:id" element={<ProtectedRoute><RoleUpdatePage /></ProtectedRoute>} />
+      <Route path="/roles/:id/edit" element={<ProtectedRoute><RoleUpdatePage /></ProtectedRoute>} />
       <Route path="/permissions" element={<ProtectedRoute><PermissionIndexPage /></ProtectedRoute>} />
       <Route path="/permissions/create" element={<ProtectedRoute><PermissionCreatePage /></ProtectedRoute>} />
-      <Route path="/permissions/:id" element={<ProtectedRoute><PermissionUpdatePage /></ProtectedRoute>} />
+      <Route path="/permissions/:id/edit" element={<ProtectedRoute><PermissionUpdatePage /></ProtectedRoute>} />
       {/* Mail Templates */}
       <Route path="/mail-templates" element={<ProtectedRoute><MailTemplateIndexPage /></ProtectedRoute>} />
       <Route path="/mail-templates/create" element={<ProtectedRoute><MailTemplateCreatePage /></ProtectedRoute>} />
-      <Route path="/mail-templates/:id" element={<ProtectedRoute><MailTemplateEditPage /></ProtectedRoute>} />
+      <Route path="/mail-templates/:id/edit" element={<ProtectedRoute><MailTemplateEditPage /></ProtectedRoute>} />
       <Route path="/mail-logs" element={<ProtectedRoute><MailLogsPage /></ProtectedRoute>} />
       <Route path="/mail-logs/:id" element={<ProtectedRoute><MailLogDetailPage /></ProtectedRoute>} />
       {/* Mail Providers */}
@@ -249,8 +249,8 @@ const AppRoutes: React.FC = () => {
       {/* Posts */}
       <Route path="/posts" element={<ProtectedRoute><PostsIndexPage /></ProtectedRoute>} />
       <Route path="/posts/create" element={<ProtectedRoute><PostsCreatePage /></ProtectedRoute>} />
-      <Route path="/posts/:id" element={<ProtectedRoute><PostsEditPage /></ProtectedRoute>} />
-      <Route path="/posts/:id/detail" element={<ProtectedRoute><PostDetailPage /></ProtectedRoute>} />
+      <Route path="/posts/:id/edit" element={<ProtectedRoute><PostsEditPage /></ProtectedRoute>} />
+      <Route path="/posts/:id" element={<ProtectedRoute><PostDetailPage /></ProtectedRoute>} />
       <Route path="/posts/categories" element={<ProtectedRoute><PostCategoriesPage /></ProtectedRoute>} />
       <Route path="/posts/tags" element={<ProtectedRoute><PostTagsPage /></ProtectedRoute>} />
       <Route path="/site-content" element={<ProtectedRoute><SiteContentIndexPage /></ProtectedRoute>} />
@@ -279,10 +279,10 @@ const AppRoutes: React.FC = () => {
       {/* Firebase Configurations */}
       <Route path="/firebase-configs" element={<ProtectedRoute><FirebaseConfigsPage /></ProtectedRoute>} />
       <Route path="/firebase-configs/create" element={<ProtectedRoute><CreateFirebaseConfigPage /></ProtectedRoute>} />
-      <Route path="/firebase-configs/:id" element={<ProtectedRoute><EditFirebaseConfigPage /></ProtectedRoute>} />
+      <Route path="/firebase-configs/:id/edit" element={<ProtectedRoute><EditFirebaseConfigPage /></ProtectedRoute>} />
       <Route path="/openai-configs" element={<ProtectedRoute><OpenAiConfigsPage /></ProtectedRoute>} />
       <Route path="/openai-configs/create" element={<ProtectedRoute><CreateOpenAiConfigPage /></ProtectedRoute>} />
-      <Route path="/openai-configs/:id" element={<ProtectedRoute><EditOpenAiConfigPage /></ProtectedRoute>} />
+      <Route path="/openai-configs/:id/edit" element={<ProtectedRoute><EditOpenAiConfigPage /></ProtectedRoute>} />
       {/* Notifications */}
       <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
       <Route path="/notifications/preferences" element={<ProtectedRoute><NotificationPreferencesPage /></ProtectedRoute>} />
@@ -305,7 +305,7 @@ const AppRoutes: React.FC = () => {
       {/* Warehouse Management */}
       <Route path="/warehouses" element={<ProtectedRoute><WarehousesIndexPage /></ProtectedRoute>} />
       <Route path="/warehouses/create" element={<ProtectedRoute><WarehouseCreatePage /></ProtectedRoute>} />
-      <Route path="/warehouses/:id" element={<ProtectedRoute><WarehouseEditPage /></ProtectedRoute>} />
+      <Route path="/warehouses/:id/edit" element={<ProtectedRoute><WarehouseEditPage /></ProtectedRoute>} />
       <Route path="/warehouses/locations" element={<ProtectedRoute><WarehouseLocationsPage /></ProtectedRoute>} />
       <Route path="/warehouses/locations/create" element={<ProtectedRoute><WarehouseLocationCreatePage /></ProtectedRoute>} />
       <Route path="/warehouses/locations/:id" element={<ProtectedRoute><WarehouseLocationEditPage /></ProtectedRoute>} />

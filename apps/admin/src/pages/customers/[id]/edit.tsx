@@ -1,12 +1,11 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiEdit2, FiArrowLeft, FiHome } from 'react-icons/fi';
-import { BaseLayout } from '@admin/components/layout';
+import { FiEdit2, FiHome } from 'react-icons/fi';
 import { EditCustomerForm, EditCustomerFormData } from '@admin/components/customers';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
-import { Button, Card } from '@admin/components/common';
+import { StandardFormPage } from '@admin/components/common';
 
 const EditCustomerPage: React.FC = () => {
   const navigate = useNavigate();
@@ -19,7 +18,7 @@ const EditCustomerPage: React.FC = () => {
     return null;
   }
 
-  const { data: customerData, isLoading } = trpc.adminCustomers.detail.useQuery({ id }, {
+  const { data: customerData, isLoading, error } = trpc.adminCustomers.detail.useQuery({ id }, {
     enabled: !!id,
     retry: false,
     refetchOnWindowFocus: false,
@@ -108,50 +107,35 @@ const EditCustomerPage: React.FC = () => {
     { label: t('admin.edit') },
   ]), [customer.firstName, customer.lastName, id, t]);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-      </div>
-    );
-  }
+  const formId = 'customer-edit-form';
 
   return (
-    <BaseLayout title={t('admin.edit_customer')} breadcrumbs={breadcrumbs}>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Button
-              onClick={handleBack}
-              variant="ghost"
-              size="sm"
-            >
-              <FiArrowLeft className="w-4 h-4" />
-            </Button>
-            <FiEdit2 className="w-6 h-6 text-primary-600 dark:text-primary-400" />
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {t('admin.edit_customer')}
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                {`${customer.firstName} ${customer.lastName}`}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Form */}
-        <Card className="p-6">
-          <EditCustomerForm
-            initialData={customer}
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            isSubmitting={updateCustomerMutation.isPending}
-          />
-        </Card>
-      </div>
-    </BaseLayout>
+    <StandardFormPage
+      title={t('admin.edit_customer')}
+      description={t('admin.edit_customer_description', 'Update customer information')}
+      icon={<FiEdit2 className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      entityName={t('admin.customer')}
+      entityNamePlural={t('admin.customers')}
+      backUrl="/customers"
+      onBack={handleBack}
+      onCancel={handleCancel}
+      isSubmitting={updateCustomerMutation.isPending}
+      mode="update"
+      isLoading={isLoading}
+      error={error}
+      entityData={customer}
+      formId={formId}
+      breadcrumbs={breadcrumbs}
+    >
+      <EditCustomerForm
+        initialData={customer}
+        onSubmit={handleSubmit}
+        onCancel={handleCancel}
+        isSubmitting={updateCustomerMutation.isPending}
+        showActions={false}
+        formId={formId}
+      />
+    </StandardFormPage>
   );
 };
 

@@ -27,6 +27,8 @@ import admin from '@admin/i18n/locales/vi/admin.json';
 import mail_logs from '@admin/i18n/locales/vi/mail_logs.json';
 import delivery_methods from '@admin/i18n/locales/vi/delivery_methods.json';
 import openai_configs from '@admin/i18n/locales/vi/openai_configs.json';
+import profile from '@admin/i18n/locales/vi/profile.json';
+
 
 export default {
   ...common,
@@ -58,4 +60,5 @@ export default {
   ...mail_logs,
   ...delivery_methods,
   ...openai_configs,
+  ...profile,
 };

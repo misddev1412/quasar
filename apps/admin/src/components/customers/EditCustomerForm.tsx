@@ -10,6 +10,8 @@ interface EditCustomerFormProps {
   onSubmit: (data: EditCustomerFormData) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
+  showActions?: boolean;
+  formId?: string;
 }
 
 export const EditCustomerForm: React.FC<EditCustomerFormProps> = ({
@@ -17,6 +19,8 @@ export const EditCustomerForm: React.FC<EditCustomerFormProps> = ({
   onSubmit,
   onCancel,
   isSubmitting = false,
+  showActions,
+  formId,
 }) => {
   const handleSubmit = async (formData: CreateCustomerFormData) => {
     await onSubmit({ ...formData, id: initialData.id });
@@ -27,6 +31,8 @@ export const EditCustomerForm: React.FC<EditCustomerFormProps> = ({
       onSubmit={handleSubmit}
       onCancel={onCancel}
       isSubmitting={isSubmitting}
+      showActions={showActions}
+      formId={formId}
     />
   );
 };

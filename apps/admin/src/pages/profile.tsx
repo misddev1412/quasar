@@ -179,7 +179,7 @@ const UserProfilePage = () => {
         <Breadcrumb
           items={[
             {
-              label: 'Home',
+              label: t('navigation.home'),
               href: '/',
               icon: <FiHome className="w-4 h-4" />
             },

@@ -1,8 +1,7 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiArrowLeft, FiSave, FiMapPin, FiGrid } from 'react-icons/fi';
-import { Button, Card, Loading, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
-import { BaseLayout } from '@admin/components/layout';
+import { FiMapPin, FiGrid } from 'react-icons/fi';
+import { StandardFormPage } from '@admin/components/common';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
@@ -67,43 +66,6 @@ const WarehouseLocationCreatePage: React.FC = () => {
     }));
   }, [warehousesResponse]);
 
-  const breadcrumbItems = useMemo(() => ([
-    { label: t('navigation.dashboard', 'Dashboard'), href: '/' },
-    { label: t('warehouse_locations.title', 'Warehouse Locations'), href: '/warehouses/locations' },
-    { label: t('warehouse_locations.create', 'Create Location') },
-  ]), [t]);
-
-  if (isLoadingWarehouses) {
-    return (
-      <BaseLayout
-        title={t('warehouse_locations.create', 'Create Location')}
-        description={t('warehouse_locations.createDescription', 'Define a new logical location within a warehouse')}
-        fullWidth
-        breadcrumbs={breadcrumbItems}
-      >
-        <div className="flex justify-center items-center h-64">
-          <Loading size="large" />
-        </div>
-      </BaseLayout>
-    );
-  }
-
-  if (warehousesError) {
-    return (
-      <BaseLayout
-        title={t('warehouse_locations.create', 'Create Location')}
-        description={t('warehouse_locations.createDescription', 'Define a new logical location within a warehouse')}
-        fullWidth
-        breadcrumbs={breadcrumbItems}
-      >
-        <Alert variant="destructive">
-          <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
-          <AlertDescription>{warehousesError.message}</AlertDescription>
-        </Alert>
-      </BaseLayout>
-    );
-  }
-
   const handleSubmit = (values: FormValues) => {
     addToast({
       type: 'info',
@@ -113,30 +75,35 @@ const WarehouseLocationCreatePage: React.FC = () => {
     navigate('/warehouses/locations');
   };
 
+  const formId = 'warehouse-location-create-form';
+
   return (
-    <BaseLayout
+    <StandardFormPage
       title={t('warehouse_locations.create', 'Create Location')}
       description={t('warehouse_locations.createDescription', 'Define a new logical location within a warehouse')}
-      fullWidth
-      breadcrumbs={breadcrumbItems}
+      icon={<FiGrid className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+      entityName={t('warehouse_locations.location', 'Location')}
+      entityNamePlural={t('warehouse_locations.title', 'Warehouse Locations')}
+      backUrl="/warehouses/locations"
+      onBack={() => navigate('/warehouses/locations')}
+      onCancel={() => navigate('/warehouses/locations')}
+      isSubmitting={false}
+      isLoading={isLoadingWarehouses}
+      error={warehousesError}
+      formId={formId}
+      breadcrumbs={[
+        { label: t('navigation.dashboard', 'Dashboard'), href: '/' },
+        { label: t('warehouse_locations.title', 'Warehouse Locations'), href: '/warehouses/locations' },
+        { label: t('warehouse_locations.create', 'Create Location') },
+      ]}
     >
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate('/warehouses/locations')} className="flex items-center space-x-2">
-            <FiArrowLeft className="w-4 h-4" />
-            <span>{t('common.back', 'Back')}</span>
-          </Button>
-        </div>
-
-        <Card>
-          <div className="p-6">
-            <Formik<FormValues>
-              initialValues={initialValues}
-              validationSchema={WarehouseLocationSchema}
-              onSubmit={handleSubmit}
-            >
-              {({ errors, touched, isSubmitting }) => (
-                <Form className="space-y-6">
+      <Formik<FormValues>
+        initialValues={initialValues}
+        validationSchema={WarehouseLocationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ errors, touched }) => (
+          <Form id={formId} className="space-y-6">
                   <div>
                     <h3 className="text-lg font-medium text-gray-900 mb-4">
                       {t('common.basic_information', 'Basic Information')}
@@ -308,25 +275,10 @@ const WarehouseLocationCreatePage: React.FC = () => {
                     </Field>
                   </div>
 
-                  <div className="flex justify-end space-x-3">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() => navigate('/warehouses/locations')}
-                    >
-                      {t('common.cancel', 'Cancel')}
-                    </Button>
-                    <Button type="submit" startIcon={<FiSave className="w-4 h-4" />} disabled={isSubmitting}>
-                      {t('common.save', 'Save')}
-                    </Button>
-                  </div>
                 </Form>
               )}
             </Formik>
-          </div>
-        </Card>
-      </div>
-    </BaseLayout>
+    </StandardFormPage>
   );
 };
 

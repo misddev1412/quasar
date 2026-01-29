@@ -72,7 +72,7 @@ const FirebaseConfigsPage: React.FC = () => {
 
   const visibleColumns = preferences.visibleColumns || new Set([
     'name',
-    'projectId', 
+    'projectId',
     'authDomain',
     'description',
     'active',
@@ -102,7 +102,7 @@ const FirebaseConfigsPage: React.FC = () => {
     },
     onError: (error) => {
       setDeleteModal({ isOpen: false, config: null });
-      
+
       if (error.message?.includes('not found')) {
         addToast({
           title: 'Configuration Not Found',
@@ -129,7 +129,7 @@ const FirebaseConfigsPage: React.FC = () => {
   const toggleConfigStatusMutation = trpc.adminFirebaseConfig.updateConfig.useMutation({
     onSuccess: () => {
       addToast({
-        title: 'Success', 
+        title: 'Success',
         description: 'Firebase configuration status updated successfully',
         type: 'success',
       });
@@ -163,7 +163,7 @@ const FirebaseConfigsPage: React.FC = () => {
     navigate('/firebase-configs/create');
   };
 
-  const goToConfig = (id: string) => navigate(`/firebase-configs/${id}`);
+  const goToConfig = (id: string) => navigate(`/firebase-configs/${id}/edit`);
 
   // Handle config actions
   const handleConfigAction = useCallback((action: string, config: FirebaseConfig) => {
@@ -200,16 +200,16 @@ const FirebaseConfigsPage: React.FC = () => {
   };
 
   const handleToggleConfigStatus = (config: FirebaseConfig) => {
-    toggleConfigStatusMutation.mutate({ 
-      id: config.id, 
-      active: !config.active 
+    toggleConfigStatusMutation.mutate({
+      id: config.id,
+      active: !config.active
     });
   };
 
   const handleDuplicateConfig = (config: FirebaseConfig) => {
     // For now, navigate to create page with pre-filled data
-    navigate('/firebase-configs/create', { 
-      state: { 
+    navigate('/firebase-configs/create', {
+      state: {
         duplicateFrom: {
           ...config,
           name: `${config.name} (Copy)`,
@@ -252,7 +252,7 @@ const FirebaseConfigsPage: React.FC = () => {
     const configsData = (responseData?.data as FirebaseConfig[]) || [];
     const activeCount = configsData.filter(config => config.active).length;
     const inactiveCount = configsData.length - activeCount;
-    
+
     return [
       {
         id: 'total-configs',
@@ -296,9 +296,8 @@ const FirebaseConfigsPage: React.FC = () => {
       accessor: (config: FirebaseConfig) => (
         <div className="flex items-center space-x-3">
           <div className="flex-shrink-0">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              config.active ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
-            }`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${config.active ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
+              }`}>
               <FiServer className="w-4 h-4" />
             </div>
           </div>
@@ -339,11 +338,11 @@ const FirebaseConfigsPage: React.FC = () => {
       id: 'description',
       accessor: (config: FirebaseConfig) => (
         <div className="max-w-xs">
-          <p 
+          <p
             className="text-sm text-gray-600 dark:text-gray-300 truncate"
             title={config.description || 'No description'}
           >
-            {config.description || 
+            {config.description ||
               <span className="italic text-gray-400">No description</span>
             }
           </p>
@@ -354,11 +353,10 @@ const FirebaseConfigsPage: React.FC = () => {
     {
       id: 'active',
       accessor: (config: FirebaseConfig) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          config.active
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.active
             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
             : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-        }`}>
+          }`}>
           {config.active ? 'Active' : 'Inactive'}
         </span>
       ),
@@ -437,7 +435,7 @@ const FirebaseConfigsPage: React.FC = () => {
     },
     {
       label: 'Export',
-      onClick: () => {},
+      onClick: () => { },
       icon: <FiDownload className="w-4 h-4" />,
     },
   ], [handleCreateConfig, refetch]);
@@ -493,63 +491,63 @@ const FirebaseConfigsPage: React.FC = () => {
           <StatisticsGrid statistics={statistics} />
         </div>
 
-      {/* Main Content */}
-      <Card>
-        <Table<FirebaseConfig>
-          data={configs}
-          columns={columns}
-          isLoading={isFetching}
-          selectedIds={selectedConfigs}
-          onSelectionChange={(selectedIds: Set<string | number>) => {
-            const stringIds = new Set(Array.from(selectedIds).map(id => String(id)));
-            setSelectedConfigs(stringIds);
-          }}
-          sortDescriptor={sortDescriptor}
-          onSortChange={handleSortChange}
-          pagination={{
-            currentPage: currentPage,
-            totalPages: totalPages,
-            totalItems: totalConfigs,
-            itemsPerPage: pageSize,
-            onPageChange: handlePageChange,
-            onItemsPerPageChange: handlePageSizeChange,
-          }}
-          searchValue={filters.search || ''}
-          onSearchChange={handleSearch}
-          searchPlaceholder="Search Firebase configurations..."
-          emptyMessage="No Firebase configurations found"
-          emptyAction={{
-            label: 'Create Configuration',
-            onClick: handleCreateConfig,
-            icon: <FiPlus />,
-          }}
-          visibleColumns={visibleColumns}
-          onColumnVisibilityChange={(columnId: string, visible: boolean) => {
-            const newVisibleColumns = new Set(visibleColumns);
-            if (visible) {
-              newVisibleColumns.add(columnId);
-            } else {
-              newVisibleColumns.delete(columnId);
-            }
-            updateVisibleColumns(newVisibleColumns);
-          }}
-        />
-      </Card>
+        {/* Main Content */}
+        <Card>
+          <Table<FirebaseConfig>
+            data={configs}
+            columns={columns}
+            isLoading={isFetching}
+            selectedIds={selectedConfigs}
+            onSelectionChange={(selectedIds: Set<string | number>) => {
+              const stringIds = new Set(Array.from(selectedIds).map(id => String(id)));
+              setSelectedConfigs(stringIds);
+            }}
+            sortDescriptor={sortDescriptor}
+            onSortChange={handleSortChange}
+            pagination={{
+              currentPage: currentPage,
+              totalPages: totalPages,
+              totalItems: totalConfigs,
+              itemsPerPage: pageSize,
+              onPageChange: handlePageChange,
+              onItemsPerPageChange: handlePageSizeChange,
+            }}
+            searchValue={filters.search || ''}
+            onSearchChange={handleSearch}
+            searchPlaceholder="Search Firebase configurations..."
+            emptyMessage="No Firebase configurations found"
+            emptyAction={{
+              label: 'Create Configuration',
+              onClick: handleCreateConfig,
+              icon: <FiPlus />,
+            }}
+            visibleColumns={visibleColumns}
+            onColumnVisibilityChange={(columnId: string, visible: boolean) => {
+              const newVisibleColumns = new Set(visibleColumns);
+              if (visible) {
+                newVisibleColumns.add(columnId);
+              } else {
+                newVisibleColumns.delete(columnId);
+              }
+              updateVisibleColumns(newVisibleColumns);
+            }}
+          />
+        </Card>
 
-      {/* Delete Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={deleteModal.isOpen}
-        onClose={() => setDeleteModal({ isOpen: false, config: null })}
-        onConfirm={handleConfirmDelete}
-        title="Delete Firebase Configuration"
-        message={deleteModal.config ? 
-          `Are you sure you want to delete the Firebase configuration "${deleteModal.config.name}"? This action cannot be undone.` : ''
-        }
-        confirmText="Delete"
-        confirmVariant="danger"
-        icon={<FiTrash2 className="w-6 h-6" />}
-        isLoading={deleteConfigMutation.isPending}
-      />
+        {/* Delete Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={deleteModal.isOpen}
+          onClose={() => setDeleteModal({ isOpen: false, config: null })}
+          onConfirm={handleConfirmDelete}
+          title="Delete Firebase Configuration"
+          message={deleteModal.config ?
+            `Are you sure you want to delete the Firebase configuration "${deleteModal.config.name}"? This action cannot be undone.` : ''
+          }
+          confirmText="Delete"
+          confirmVariant="danger"
+          icon={<FiTrash2 className="w-6 h-6" />}
+          isLoading={deleteConfigMutation.isPending}
+        />
       </div>
     </StandardListPage>
   );

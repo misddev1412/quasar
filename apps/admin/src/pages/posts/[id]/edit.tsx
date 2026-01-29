@@ -1,9 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { FileText, ArrowLeft, FolderOpen } from 'lucide-react';
-import { FiHome, FiEdit3 } from 'react-icons/fi';
-import { Card, CardHeader, CardContent, MediaManager, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
-import { BaseLayout } from '@admin/components/layout';
+import { FileText } from 'lucide-react';
+import { MediaManager, Alert, AlertDescription, AlertTitle, StandardFormPage } from '@admin/components/common';
 import { EditPostForm } from '@admin/components/posts';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useUrlTabs } from '@admin/hooks/useUrlTabs';
@@ -221,50 +219,40 @@ const EditPostPage: React.FC = () => {
   };
 
 
-  const pageActions = [
-    {
-      label: t('posts.back_to_posts', 'Back to Posts'),
-      onClick: handleCancel,
-      icon: <ArrowLeft className="w-4 h-4" />,
-    },
-  ];
-
   const breadcrumbs = useMemo(() => ([
     {
       label: t('navigation.home', 'Home'),
       href: '/',
-      icon: <FiHome className="w-4 h-4" />,
     },
     {
       label: t('posts.title', 'Posts'),
-      href: '/posts',
-      icon: <FileText className="w-4 h-4" />,
+      onClick: handleCancel,
     },
     {
-      label: t('posts.edit', 'Edit Post'),
-      icon: <FiEdit3 className="w-4 h-4" />,
+      label: post?.translations?.[0]?.title || t('posts.edit', 'Edit Post'),
     },
-  ]), [t]);
+  ]), [handleCancel, post, t]);
 
-  const renderContent = () => {
-    if (isLoading) {
-      return (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary-500"></div>
-        </div>
-      );
-    }
+  const formId = 'post-edit-form';
 
-    if (error || !postData) {
-      return (
-        <div className="p-4 md:p-8 text-red-500">
-          {t('common.error')}: {(error as any)?.message || 'Failed to load post'}
-        </div>
-      );
-    }
-
-    return (
-      <>
+  return (
+    <>
+      <StandardFormPage
+        title={t('posts.edit', 'Edit Post')}
+        description={t('posts.editDescription') || 'Update post content and metadata'}
+        icon={<FileText className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
+        entityName={t('common.post', 'Post')}
+        entityNamePlural={t('common.posts', 'Posts')}
+        backUrl="/posts"
+        onBack={handleCancel}
+        onCancel={handleCancel}
+        isSubmitting={updatePostMutation.isPending}
+        mode="update"
+        isLoading={isLoading}
+        error={error}
+        formId={formId}
+        breadcrumbs={breadcrumbs}
+      >
         {isEditRestricted && (
           <Alert variant="warning">
             <AlertTitle>{t('common.permission_denied', 'Permission denied')}</AlertTitle>
@@ -284,40 +272,10 @@ const EditPostPage: React.FC = () => {
           activeTab={activeTab}
           onTabChange={handleTabChange}
           readonly={isEditRestricted}
+          showActions={false}
+          formId={formId}
         />
-      </>
-    );
-  };
-
-  return (
-    <>
-      <BaseLayout
-        title={t('posts.edit', 'Edit Post')}
-        description={t('posts.editDescription') || 'Update post content and metadata'}
-        actions={pageActions}
-        breadcrumbs={breadcrumbs}
-      >
-        <div className="space-y-6">
-          <Card>
-            <CardHeader className="pb-4">
-              <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                    {t('posts.edit_post_information', 'Edit Post Information')}
-                  </h2>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {t('posts.editDescription') || 'Update post content and metadata'}
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">{renderContent()}</CardContent>
-          </Card>
-        </div>
-      </BaseLayout>
+      </StandardFormPage>
 
       <MediaManager
         isOpen={showMediaManager}

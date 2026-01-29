@@ -277,7 +277,7 @@ const WarehousesPage: React.FC = () => {
     );
     const averageLocations = totalWarehouses
       ? rawWarehouses.reduce((sum, warehouse) => sum + (warehouse.locationCount || 0), 0) /
-        totalWarehouses
+      totalWarehouses
       : 0;
 
     return [
@@ -404,7 +404,7 @@ const WarehousesPage: React.FC = () => {
   }, [navigate]);
 
   const handleEditWarehouse = useCallback((warehouse: Warehouse) => {
-    navigate(`/warehouses/${warehouse.id}`);
+    navigate(`/warehouses/${warehouse.id}/edit`);
   }, [navigate]);
 
   const deleteWarehouseMutation = trpc.adminWarehouses.delete.useMutation({
@@ -520,9 +520,8 @@ const WarehousesPage: React.FC = () => {
         return (
           <div className="flex items-center space-x-2">
             <span
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-              }`}
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }`}
             >
               {active ? t('common.active', 'Active') : t('common.inactive', 'Inactive')}
             </span>
@@ -562,7 +561,7 @@ const WarehousesPage: React.FC = () => {
             {
               label: t('common.view', 'View'),
               icon: React.createElement(FiEye),
-              onClick: () => navigate(`/warehouses/${warehouse.id}`),
+              onClick: () => navigate(`/warehouses/${warehouse.id}/edit`),
             },
             {
               label: t('common.edit', 'Edit'),
@@ -698,7 +697,7 @@ const WarehousesPage: React.FC = () => {
             showColumnVisibility
             enableRowHover
             density="normal"
-            onRowClick={(warehouse) => navigate(`/warehouses/${warehouse.id}`)}
+            onRowClick={(warehouse) => navigate(`/warehouses/${warehouse.id}/edit`)}
             emptyMessage={t('warehouses.empty', 'No warehouses found')}
             emptyAction={{
               label: t('warehouses.create', 'Create Warehouse'),
