@@ -1,4 +1,4 @@
-import { BannerLinkType } from './types';
+import { BannerLinkType } from '@admin/components/sections/manager/types';
 
 export const currencyFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 

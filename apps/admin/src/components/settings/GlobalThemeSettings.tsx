@@ -1,11 +1,11 @@
 import React from 'react';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import LocaleSwitcher from '../LocaleSwitcher';
-import { useTheme } from '../../contexts/ThemeContext';
-import { Button } from '../common/Button';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import LocaleSwitcher from '@admin/components/LocaleSwitcher';
+import { useTheme } from '@admin/contexts/ThemeContext';
+import { Button } from '@admin/components/common/Button';
 import { Sun, Moon } from 'lucide-react';
 
-import { ThemeConfig } from '../../config/theme.config';
+import { ThemeConfig } from '@admin/config/theme.config';
 
 interface GlobalThemeSettingsProps {
   theme?: ThemeConfig;

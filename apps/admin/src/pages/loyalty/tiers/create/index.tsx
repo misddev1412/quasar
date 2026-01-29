@@ -1,15 +1,15 @@
 import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiStar } from 'react-icons/fi';
-import { StandardFormPage } from '../../../../components/common';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { useToast } from '../../../../contexts/ToastContext';
-import { trpc } from '../../../../utils/trpc';
+import { StandardFormPage } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
 import {
   LoyaltyTierForm,
   LoyaltyTierFormHandle,
   LoyaltyTierFormValues,
-} from '../../../../components/loyalty';
+} from '@admin/components/loyalty';
 
 const CreateLoyaltyTierPage: React.FC = () => {
   const navigate = useNavigate();

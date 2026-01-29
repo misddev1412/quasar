@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Checkbox } from './common/Checkbox';
+import { Checkbox } from '@admin/components/common/Checkbox';
 
 const DesignSystemDemo: React.FC = () => {
   const [activeTab, setActiveTab] = useState('colors');

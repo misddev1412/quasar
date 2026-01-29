@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Package } from 'lucide-react';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../services/api';
-import { StandardFormPage } from '../../components/common';
-import ProductBundleForm from './ProductBundleForm';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/services/api';
+import { StandardFormPage } from '@admin/components/common';
+import ProductBundleForm from '@admin/pages/product-bundles/ProductBundleForm';
 import toast from 'react-hot-toast';
 
 const ProductBundleEditPage: React.FC = () => {

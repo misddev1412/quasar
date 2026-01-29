@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { Select } from '../../../common/Select';
-import { MeasurementPresetInput } from '../../../common/MeasurementPresetInput';
-import { Input } from '../../../common/Input';
-import { MediaManager } from '../../../common/MediaManager';
-import { ImageActionButtons } from '../../../common/ImageActionButtons';
-import { ConfigChangeHandler } from '../types';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Select } from '@admin/components/common/Select';
+import { MeasurementPresetInput } from '@admin/components/common/MeasurementPresetInput';
+import { Input } from '@admin/components/common/Input';
+import { MediaManager } from '@admin/components/common/MediaManager';
+import { ImageActionButtons } from '@admin/components/common/ImageActionButtons';
+import { ConfigChangeHandler } from '@admin/components/sections/manager/types';
 
 interface CtaEditorProps {
     value: Record<string, unknown>;

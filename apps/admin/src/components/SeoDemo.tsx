@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useSeo, SeoData } from '../hooks/useSeo';
-import { trpc } from '../utils/trpc';
+import { useSeo, SeoData } from '@admin/hooks/useSeo';
+import { trpc } from '@admin/utils/trpc';
 import { BaseApiResponse } from '@shared/types/api.types';
 
 interface SeoFormData {

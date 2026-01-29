@@ -1,9 +1,9 @@
 import React from 'react';
 import { FiFileText, FiSettings, FiGlobe } from 'react-icons/fi';
-import { EntityForm } from '../common/EntityForm';
-import { FormTabConfig } from '../../types/forms';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { CreateTranslationData } from '../../types/translation';
+import { EntityForm } from '@admin/components/common/EntityForm';
+import { FormTabConfig } from '@admin/types/forms';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { CreateTranslationData } from '@admin/types/translation';
 import { z } from 'zod';
 
 interface CreateTranslationFormProps {

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { GripVertical } from 'lucide-react';
 import { cn } from '@admin/lib/utils';
-import { Table, type Column, type TableProps } from './Table';
+import { Table, type Column, type TableProps } from '@admin/components/common/Table';
 
 export interface DragState {
   draggedId?: string | number | null;

@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import { useBrandingSetting } from '../../hooks/useBrandingSetting';
+import { useBrandingSetting } from '@admin/hooks/useBrandingSetting';
 import {
   ADMIN_LOGIN_BRANDING_KEY,
   DEFAULT_ADMIN_LOGIN_BRANDING
-} from '../../constants/adminBranding';
+} from '@admin/constants/adminBranding';
 
 interface DynamicFaviconProps {
   defaultFavicon?: string;

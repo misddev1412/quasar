@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { SectionType, SECTION_TYPE_LABELS } from '@shared/enums/section.enums';
-import { Input } from '../../common/Input';
-import { Select } from '../../common/Select';
-import { Toggle } from '../../common/Toggle';
-import { Button } from '../../common/Button';
-import { TextArea } from './common';
-import { JsonEditor } from '../../common/JsonEditor';
-import { SectionConfigEditor } from './SectionConfigEditor';
-import { SectionFormState, SectionTranslationForm } from './types';
-import { ActiveLanguage, AdminSection } from '../../../hooks/useSectionsManager';
+import { Input } from '@admin/components/common/Input';
+import { Select } from '@admin/components/common/Select';
+import { Toggle } from '@admin/components/common/Toggle';
+import { Button } from '@admin/components/common/Button';
+import { TextArea } from '@admin/components/sections/manager/common';
+import { JsonEditor } from '@admin/components/common/JsonEditor';
+import { SectionConfigEditor } from '@admin/components/sections/manager/SectionConfigEditor';
+import { SectionFormState, SectionTranslationForm } from '@admin/components/sections/manager/types';
+import { ActiveLanguage, AdminSection } from '@admin/hooks/useSectionsManager';
 import { cn } from '@admin/lib/utils';
-import { HeroSliderLocaleEditor } from './editors/HeroSliderLocaleEditor';
-import { RichTextEditor } from '../../common/RichTextEditor';
+import { HeroSliderLocaleEditor } from '@admin/components/sections/manager/editors/HeroSliderLocaleEditor';
+import { RichTextEditor } from '@admin/components/common/RichTextEditor';
 
 interface SectionFormProps {
     languages: ActiveLanguage[];

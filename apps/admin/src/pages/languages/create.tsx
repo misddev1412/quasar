@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiGlobe } from 'react-icons/fi';
-import { StandardFormPage } from '../../components/common';
-import { CreateLanguageForm } from '../../components/languages';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { CreateLanguageData } from '../../types/language';
+import { StandardFormPage } from '@admin/components/common';
+import { CreateLanguageForm } from '@admin/components/languages';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { CreateLanguageData } from '@admin/types/language';
 
 const CreateLanguagePage: React.FC = () => {
   const navigate = useNavigate();

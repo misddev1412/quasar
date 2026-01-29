@@ -1,9 +1,9 @@
 import React from 'react';
-import { ColorSelector } from '../common/ColorSelector';
-import { Select } from '../common/Select';
-import { Input } from '../common/Input';
-import { IconSelector } from '../menus/IconSelector';
-import { UnifiedIcon } from '../common/UnifiedIcon';
+import { ColorSelector } from '@admin/components/common/ColorSelector';
+import { Select } from '@admin/components/common/Select';
+import { Input } from '@admin/components/common/Input';
+import { IconSelector } from '@admin/components/menus/IconSelector';
+import { UnifiedIcon } from '@admin/components/common/UnifiedIcon';
 
 export type AddToCartButtonTextTransform = 'normal' | 'uppercase' | 'capitalize';
 

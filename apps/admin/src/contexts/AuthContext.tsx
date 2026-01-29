@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode } from 'react';
-import { UseAuthReturn, useAuth as useAuthHook } from '../hooks/useAuth';
+import { UseAuthReturn, useAuth as useAuthHook } from '@admin/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 export type { UseAuthReturn };

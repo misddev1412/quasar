@@ -18,9 +18,9 @@ import {
   Edit,
   Download,
 } from 'lucide-react';
-import { trpc } from '../../utils/trpc';
-import { useToast } from '../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface MediaFile {
   id: string;

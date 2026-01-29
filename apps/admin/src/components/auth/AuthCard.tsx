@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
-import { FeatureItem } from '../common/FeatureItem';
-import { ShieldIcon, BoltIcon, ChartIcon } from '../common/Icons';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useTheme } from '../../contexts/ThemeContext';
-import LocaleSwitcher from '../LocaleSwitcher';
-import { useBrandingSetting } from '../../hooks/useBrandingSetting';
+import { FeatureItem } from '@admin/components/common/FeatureItem';
+import { ShieldIcon, BoltIcon, ChartIcon } from '@admin/components/common/Icons';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useTheme } from '@admin/contexts/ThemeContext';
+import LocaleSwitcher from '@admin/components/LocaleSwitcher';
+import { useBrandingSetting } from '@admin/hooks/useBrandingSetting';
 import {
   ADMIN_LOGIN_BRANDING_KEY,
   DEFAULT_ADMIN_LOGIN_BRANDING,
-} from '../../constants/adminBranding';
+} from '@admin/constants/adminBranding';
 
 interface AuthCardProps {
   title?: string;

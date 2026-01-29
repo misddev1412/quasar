@@ -3,14 +3,14 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FiSave, FiX, FiImage, FiGlobe } from 'react-icons/fi';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { Brand } from '../../types/product';
-import { Button } from '../common/Button';
-import { Toggle } from '../common/Toggle';
-import { InputWithIcon } from '../common/InputWithIcon';
-import { MediaManager } from '../common/MediaManager';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { Brand } from '@admin/types/product';
+import { Button } from '@admin/components/common/Button';
+import { Toggle } from '@admin/components/common/Toggle';
+import { InputWithIcon } from '@admin/components/common/InputWithIcon';
+import { MediaManager } from '@admin/components/common/MediaManager';
 
 const updateBrandSchema = z.object({
   name: z.string().min(1, 'Brand name is required'),

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Plus, Trash2, Globe } from 'lucide-react';
-import { Button } from '../common/Button';
-import { Select } from '../common/Select';
-import { FormInput } from '../common/FormInput';
-import { TextareaInput } from '../common/TextareaInput';
-import { Card } from '../common/Card';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useLanguageOptions } from '../../hooks/useLanguages';
-import { generateSlug } from '../../utils/slugUtils';
+import { Button } from '@admin/components/common/Button';
+import { Select } from '@admin/components/common/Select';
+import { FormInput } from '@admin/components/common/FormInput';
+import { TextareaInput } from '@admin/components/common/TextareaInput';
+import { Card } from '@admin/components/common/Card';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useLanguageOptions } from '@admin/hooks/useLanguages';
+import { generateSlug } from '@admin/utils/slugUtils';
 
 export interface CategoryTranslationData {
   locale: string;

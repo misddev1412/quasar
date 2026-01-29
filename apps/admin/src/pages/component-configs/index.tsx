@@ -1,8 +1,8 @@
 import React from 'react';
 import { FiBox, FiHome } from 'react-icons/fi';
-import { StandardListPage } from '../../components/common';
-import { ComponentConfigsManager } from '../../components/component-configs';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { StandardListPage } from '@admin/components/common';
+import { ComponentConfigsManager } from '@admin/components/component-configs';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 const ComponentConfigsPage: React.FC = () => {
   const { t } = useTranslationWithBackend();

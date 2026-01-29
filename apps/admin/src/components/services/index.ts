@@ -1,1 +1,1 @@
-export * from './ServiceForm';
+export * from '@admin/components/services/ServiceForm';

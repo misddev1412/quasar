@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiDollarSign } from 'react-icons/fi';
-import { StandardFormPage } from '../../components/common';
-import { CreateCurrencyForm } from '../../components/currencies';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { CreateCurrencyData } from '../../types/currency';
+import { StandardFormPage } from '@admin/components/common';
+import { CreateCurrencyForm } from '@admin/components/currencies';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { CreateCurrencyData } from '@admin/types/currency';
 
 const CreateCurrencyPage: React.FC = () => {
   const navigate = useNavigate();

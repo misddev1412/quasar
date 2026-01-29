@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
-import { Card } from '../common/Card';
-import { Button } from '../common/Button';
-import { Toggle } from '../common/Toggle';
-import { Loading } from '../common/Loading';
-import { Alert, AlertDescription } from '../common/Alert';
-import { useNotificationChannelConfigs, NotificationEventKey } from '../../hooks/useNotificationChannelConfigs';
-import { NotificationChannel } from '../../hooks/useNotificationPreferences';
+import { Card } from '@admin/components/common/Card';
+import { Button } from '@admin/components/common/Button';
+import { Toggle } from '@admin/components/common/Toggle';
+import { Loading } from '@admin/components/common/Loading';
+import { Alert, AlertDescription } from '@admin/components/common/Alert';
+import { useNotificationChannelConfigs, NotificationEventKey } from '@admin/hooks/useNotificationChannelConfigs';
+import { NotificationChannel } from '@admin/hooks/useNotificationPreferences';
 import { FiSliders, FiCheckCircle } from 'react-icons/fi';
 import clsx from 'clsx';
 

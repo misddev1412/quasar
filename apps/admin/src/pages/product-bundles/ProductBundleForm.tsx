@@ -1,10 +1,10 @@
 import React from 'react';
 import { z } from 'zod';
 import { Package, Layers, Settings } from 'lucide-react';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { EntityForm } from '../../components/common';
-import { FormTabConfig } from '../../types/forms';
-import { ProductBundleItemsEditor } from './ProductBundleItemsEditor';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { EntityForm } from '@admin/components/common';
+import { FormTabConfig } from '@admin/types/forms';
+import { ProductBundleItemsEditor } from '@admin/pages/product-bundles/ProductBundleItemsEditor';
 
 // Define Validation Schema
 const productBundleSchema = z.object({

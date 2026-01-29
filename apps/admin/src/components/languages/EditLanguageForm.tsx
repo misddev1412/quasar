@@ -1,10 +1,10 @@
 import React from 'react';
 import { FiGlobe, FiSettings, FiHash } from 'react-icons/fi';
-import { EntityForm } from '../common/EntityForm';
-import { FormTabConfig } from '../../types/forms';
-import { UpdateLanguageFormData, updateLanguageSchema } from '../../utils/validation';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { Language } from '../../types/language';
+import { EntityForm } from '@admin/components/common/EntityForm';
+import { FormTabConfig } from '@admin/types/forms';
+import { UpdateLanguageFormData, updateLanguageSchema } from '@admin/utils/validation';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Language } from '@admin/types/language';
 
 interface EditLanguageFormProps {
   language: Language;

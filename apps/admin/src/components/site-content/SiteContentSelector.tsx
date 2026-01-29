@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Search, ChevronDown } from 'lucide-react';
-import { useSiteContentOptions, SiteContentOption } from '../../hooks/useSiteContentOptions';
-import { Select, SelectOption } from '../common/Select';
-import { Input } from '../common/Input';
+import { useSiteContentOptions, SiteContentOption } from '@admin/hooks/useSiteContentOptions';
+import { Select, SelectOption } from '@admin/components/common/Select';
+import { Input } from '@admin/components/common/Input';
 
 interface SiteContentSelectorProps {
   value?: string;

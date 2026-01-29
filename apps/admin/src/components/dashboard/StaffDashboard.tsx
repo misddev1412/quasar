@@ -4,9 +4,9 @@ import StorefrontIcon from '@mui/icons-material/Storefront';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import { FiHome } from 'react-icons/fi';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
-import BaseLayout from '../layout/BaseLayout';
-import { trpc } from '../../utils/trpc';
-import { useDefaultCurrency } from '../../hooks/useDefaultCurrency';
+import BaseLayout from '@admin/components/layout/BaseLayout';
+import { trpc } from '@admin/utils/trpc';
+import { useDefaultCurrency } from '@admin/hooks/useDefaultCurrency';
 
 export const StaffDashboard: React.FC = () => {
     const { t } = useTranslationWithBackend();

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Plus, X, ChevronDown, ChevronUp } from 'lucide-react';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { Select } from '../../../common/Select';
-import { Input } from '../../../common/Input';
-import { Button } from '../../../common/Button';
-import { MediaUpload } from '../../../common/MediaUpload';
-import { ColorSelector } from '../../../common/ColorSelector';
-import { ConfigChangeHandler } from '../types';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Select } from '@admin/components/common/Select';
+import { Input } from '@admin/components/common/Input';
+import { Button } from '@admin/components/common/Button';
+import { MediaUpload } from '@admin/components/common/MediaUpload';
+import { ColorSelector } from '@admin/components/common/ColorSelector';
+import { ConfigChangeHandler } from '@admin/components/sections/manager/types';
 
 interface VideoItem {
     id: string;

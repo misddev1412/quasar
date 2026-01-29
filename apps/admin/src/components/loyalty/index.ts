@@ -1,1 +1,1 @@
-export * from './LoyaltyTierForm';
+export * from '@admin/components/loyalty/LoyaltyTierForm';

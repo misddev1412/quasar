@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { Button } from '../../../common/Button';
-import { Input } from '../../../common/Input';
-import { MediaManager } from '../../../common/MediaManager';
-import { ImageActionButtons } from '../../../common/ImageActionButtons';
-import { RevealableUrlInput } from '../../../common/RevealableUrlInput';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Button } from '@admin/components/common/Button';
+import { Input } from '@admin/components/common/Input';
+import { MediaManager } from '@admin/components/common/MediaManager';
+import { ImageActionButtons } from '@admin/components/common/ImageActionButtons';
+import { RevealableUrlInput } from '@admin/components/common/RevealableUrlInput';
 import { Image as ImageIcon } from 'lucide-react';
 import { FiPlus, FiTrash2 } from 'react-icons/fi';
-import { HeroSlideConfig, HeroSliderLocaleEditorProps } from '../types';
-import { TextArea } from '../common';
+import { HeroSlideConfig, HeroSliderLocaleEditorProps } from '@admin/components/sections/manager/types';
+import { TextArea } from '@admin/components/sections/manager/common';
 
 export const HeroSliderLocaleEditor: React.FC<HeroSliderLocaleEditorProps> = ({ locale, config, onConfigChange, hasParseError }) => {
     const { t } = useTranslationWithBackend();

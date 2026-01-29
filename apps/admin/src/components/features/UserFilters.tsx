@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiX, FiFilter } from 'react-icons/fi';
-import { Card } from '../common/Card';
-import { Button } from '../common/Button';
-import { Select, SelectOption } from '../common/Select';
-import { DateInput } from '../common/DateInput';
-import { FormInput } from '../common/FormInput';
-import { UserFiltersType, UserRole } from '../../types/user';
-import { QuickDateFilters } from './QuickDateFilters';
-import { QuickDateFiltersDropdown } from './QuickDateFiltersDropdown';
-import { QuickDateFiltersButtonGroup } from './QuickDateFiltersButtonGroup';
-import { ComprehensiveQuickFilters } from './ComprehensiveQuickFilters';
-import { getQuickFilterDateRange, QuickFilterKey, QUICK_FILTER_OPTIONS } from '../../utils/dateUtils';
-import { QUICK_DATE_FILTER_CATEGORIES } from '../../utils/filterUtils';
+import { Card } from '@admin/components/common/Card';
+import { Button } from '@admin/components/common/Button';
+import { Select, SelectOption } from '@admin/components/common/Select';
+import { DateInput } from '@admin/components/common/DateInput';
+import { FormInput } from '@admin/components/common/FormInput';
+import { UserFiltersType, UserRole } from '@admin/types/user';
+import { QuickDateFilters } from '@admin/components/features/QuickDateFilters';
+import { QuickDateFiltersDropdown } from '@admin/components/features/QuickDateFiltersDropdown';
+import { QuickDateFiltersButtonGroup } from '@admin/components/features/QuickDateFiltersButtonGroup';
+import { ComprehensiveQuickFilters } from '@admin/components/features/ComprehensiveQuickFilters';
+import { getQuickFilterDateRange, QuickFilterKey, QUICK_FILTER_OPTIONS } from '@admin/utils/dateUtils';
+import { QUICK_DATE_FILTER_CATEGORIES } from '@admin/utils/filterUtils';
 
 interface UserFiltersProps {
   filters: UserFiltersType;

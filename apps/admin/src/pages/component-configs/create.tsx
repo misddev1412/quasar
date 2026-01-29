@@ -3,13 +3,13 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiBox } from 'react-icons/fi';
 import { ComponentStructureType } from '@shared/enums/component.enums';
 import type { ApiResponse } from '@backend/trpc/schemas/response.schemas';
-import { ComponentConfigForm, flattenComponents } from '../../components/component-configs';
-import type { ComponentConfigFormValues, ComponentConfigNode } from '../../components/component-configs';
-import { trpc } from '../../utils/trpc';
-import { useToast } from '../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { StandardFormPage } from '../../components/common';
-import { useUrlTabs } from '../../hooks/useUrlTabs';
+import { ComponentConfigForm, flattenComponents } from '@admin/components/component-configs';
+import type { ComponentConfigFormValues, ComponentConfigNode } from '@admin/components/component-configs';
+import { trpc } from '@admin/utils/trpc';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { StandardFormPage } from '@admin/components/common';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
 
 const TAB_KEYS = ['structure', 'defaults', 'advanced', 'sidebar'];
 

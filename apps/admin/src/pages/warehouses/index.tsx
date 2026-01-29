@@ -27,14 +27,14 @@ import {
   StandardListPage,
   StatisticsGrid,
   Table,
-} from '../../components/common';
-import type { Column, SortDescriptor, StatisticData } from '../../components/common';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { WarehouseFilters } from '../../components/features';
-import { useTablePreferences } from '../../hooks/useTablePreferences';
-import type { Warehouse, WarehouseFiltersType } from '../../types/warehouse';
+} from '@admin/components/common';
+import type { Column, SortDescriptor, StatisticData } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { WarehouseFilters } from '@admin/components/features';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import type { Warehouse, WarehouseFiltersType } from '@admin/types/warehouse';
 
 const DEFAULT_VISIBLE_COLUMNS = [
   'name',

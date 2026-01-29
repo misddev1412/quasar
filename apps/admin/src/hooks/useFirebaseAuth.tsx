@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User as FirebaseUser } from 'firebase/auth';
-import { firebaseService } from '../services/firebase.service';
-import { trpc } from '../utils/trpc';
+import { firebaseService } from '@admin/services/firebase.service';
+import { trpc } from '@admin/utils/trpc';
 
 interface FirebaseAuthContextType {
   firebaseUser: FirebaseUser | null;

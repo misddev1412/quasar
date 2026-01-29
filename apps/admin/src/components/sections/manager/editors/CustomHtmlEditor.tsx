@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { ConfigChangeHandler } from '../types';
-import { RichTextEditor } from '../../../common/RichTextEditor';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { ConfigChangeHandler } from '@admin/components/sections/manager/types';
+import { RichTextEditor } from '@admin/components/common/RichTextEditor';
 
 interface CustomHtmlEditorProps {
     value: Record<string, unknown>;

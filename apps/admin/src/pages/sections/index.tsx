@@ -2,8 +2,8 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FiHome, FiLayout } from 'react-icons/fi';
-import { StandardListPage } from '../../components/common';
-import { SectionsManager } from '../../components/sections';
+import { StandardListPage } from '@admin/components/common';
+import { SectionsManager } from '@admin/components/sections';
 
 const SectionsPage: React.FC = () => {
   const { t } = useTranslation();

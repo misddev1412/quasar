@@ -2,10 +2,10 @@ import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Layout } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { StandardFormPage } from '../../../components/common';
-import { SectionForm, SectionFormState, buildSectionPayload } from '../../../components/sections';
-import { useSectionsManager } from '../../../hooks/useSectionsManager';
-import { useToast } from '../../../contexts/ToastContext';
+import { StandardFormPage } from '@admin/components/common';
+import { SectionForm, SectionFormState, buildSectionPayload } from '@admin/components/sections';
+import { useSectionsManager } from '@admin/hooks/useSectionsManager';
+import { useToast } from '@admin/contexts/ToastContext';
 import { SectionType } from '@shared/enums/section.enums';
 
 const CreateSectionPage: React.FC = () => {

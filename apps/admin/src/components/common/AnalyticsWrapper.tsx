@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAnalyticsProvider } from './AnalyticsProvider';
+import { useAnalyticsProvider } from '@admin/components/common/AnalyticsProvider';
 
 interface AnalyticsWrapperProps {
   children: React.ReactNode;

@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { BASE_LABEL_CLASS } from './styles';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
 
 interface DateInputProps {
   id?: string;

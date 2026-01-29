@@ -1,32 +1,32 @@
 import React, { useState } from 'react';
-import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
-import { Button } from '../../common/Button';
-import { JsonEditor } from '../../common/JsonEditor';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Button } from '@admin/components/common/Button';
+import { JsonEditor } from '@admin/components/common/JsonEditor';
 import { SectionType } from '@shared/enums/section.enums';
-import { SectionConfigEditorProps } from './types';
+import { SectionConfigEditorProps } from '@admin/components/sections/manager/types';
 
 // Editors
-import { HeroSliderConfigEditor } from './editors/HeroSliderConfigEditor';
-import { ProductListEditor } from './editors/ProductListEditor';
-import { FeaturedProductsConfigEditor } from './editors/FeaturedProductsEditor';
-import { ProductsByCategoryConfigEditor } from './editors/ProductsByCategoryEditor';
-import { NewsByCategoryEditor } from './editors/NewsByCategoryEditor';
-import { CustomHtmlEditor } from './editors/CustomHtmlEditor';
-import { BannerEditor } from './editors/BannerEditor';
-import { SideBannersEditor } from './editors/SideBannersEditor';
-import { TestimonialsEditor } from './editors/TestimonialsEditor';
-import { CtaEditor } from './editors/CtaEditor';
-import { FeaturesEditor } from './editors/FeaturesEditor';
-import { GalleryEditor } from './editors/GalleryEditor';
-import { TeamEditor } from './editors/TeamEditor';
-import { ContactFormEditor } from './editors/ContactFormEditor';
-import { VideoEditor } from './editors/VideoEditor';
-import { StatsEditor } from './editors/StatsEditor';
-import { BrandShowcaseEditor } from './editors/BrandShowcaseEditor';
-import { WhyChooseUsEditor } from './editors/WhyChooseUsEditor';
-import { ProductDetailsEditor } from './editors/ProductDetailsEditor';
-import { ServiceListEditor } from './editors/ServiceListEditor';
-import { IntroductionEditor } from './editors/IntroductionEditor';
+import { HeroSliderConfigEditor } from '@admin/components/sections/manager/editors/HeroSliderConfigEditor';
+import { ProductListEditor } from '@admin/components/sections/manager/editors/ProductListEditor';
+import { FeaturedProductsConfigEditor } from '@admin/components/sections/manager/editors/FeaturedProductsEditor';
+import { ProductsByCategoryConfigEditor } from '@admin/components/sections/manager/editors/ProductsByCategoryEditor';
+import { NewsByCategoryEditor } from '@admin/components/sections/manager/editors/NewsByCategoryEditor';
+import { CustomHtmlEditor } from '@admin/components/sections/manager/editors/CustomHtmlEditor';
+import { BannerEditor } from '@admin/components/sections/manager/editors/BannerEditor';
+import { SideBannersEditor } from '@admin/components/sections/manager/editors/SideBannersEditor';
+import { TestimonialsEditor } from '@admin/components/sections/manager/editors/TestimonialsEditor';
+import { CtaEditor } from '@admin/components/sections/manager/editors/CtaEditor';
+import { FeaturesEditor } from '@admin/components/sections/manager/editors/FeaturesEditor';
+import { GalleryEditor } from '@admin/components/sections/manager/editors/GalleryEditor';
+import { TeamEditor } from '@admin/components/sections/manager/editors/TeamEditor';
+import { ContactFormEditor } from '@admin/components/sections/manager/editors/ContactFormEditor';
+import { VideoEditor } from '@admin/components/sections/manager/editors/VideoEditor';
+import { StatsEditor } from '@admin/components/sections/manager/editors/StatsEditor';
+import { BrandShowcaseEditor } from '@admin/components/sections/manager/editors/BrandShowcaseEditor';
+import { WhyChooseUsEditor } from '@admin/components/sections/manager/editors/WhyChooseUsEditor';
+import { ProductDetailsEditor } from '@admin/components/sections/manager/editors/ProductDetailsEditor';
+import { ServiceListEditor } from '@admin/components/sections/manager/editors/ServiceListEditor';
+import { IntroductionEditor } from '@admin/components/sections/manager/editors/IntroductionEditor';
 
 export const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, value, onChange }) => {
     const { t } = useTranslationWithBackend();

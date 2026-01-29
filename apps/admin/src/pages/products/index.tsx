@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useTableState } from '../../hooks/useTableState';
+import { useTableState } from '@admin/hooks/useTableState';
 import {
   FiPlus,
   FiMoreVertical,
@@ -21,15 +21,15 @@ import {
   FiInfo,
   FiChevronRight,
 } from 'react-icons/fi';
-import { Button, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle, Toggle } from '../../components/common';
-import type { StatisticData, Column, SortDescriptor } from '../../components/common';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { Product, ProductVariant } from '../../types/product';
-import { ProductFilters, ProductFiltersType } from '../../components/features';
-import { ProductVariantsQuickViewModal, ProductVariantQuickEditModal, ProductImportModal } from '../../components/products';
+import { Button, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle, Toggle } from '@admin/components/common';
+import type { StatisticData, Column, SortDescriptor } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import { Product, ProductVariant } from '@admin/types/product';
+import { ProductFilters, ProductFiltersType } from '@admin/components/features';
+import { ProductVariantsQuickViewModal, ProductVariantQuickEditModal, ProductImportModal } from '@admin/components/products';
 
 interface ProductVariantInlineListProps {
   product: Product;

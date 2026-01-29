@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUrlTabs } from '../../hooks/useUrlTabs';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
 import { Server, HardDrive, Settings, Database, CheckCircle, XCircle, AlertCircle, Home } from 'lucide-react';
-import { StandardFormPage, EntityForm, Breadcrumb } from '../../components/common';
-import { FormTabConfig } from '../../types/forms';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
+import { StandardFormPage, EntityForm, Breadcrumb } from '@admin/components/common';
+import { FormTabConfig } from '@admin/types/forms';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
 import { z } from 'zod';
 
 // S3 Provider configurations

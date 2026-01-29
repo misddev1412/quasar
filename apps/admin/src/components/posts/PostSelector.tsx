@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
-import { Select, SelectOption } from '../common/Select';
-import { Input } from '../common/Input';
-import { trpc } from '../../utils/trpc';
-import { Post, PostStatus } from '../../types/post';
+import { Select, SelectOption } from '@admin/components/common/Select';
+import { Input } from '@admin/components/common/Input';
+import { trpc } from '@admin/utils/trpc';
+import { Post, PostStatus } from '@admin/types/post';
 
 interface PostSelectorProps {
   value?: string;

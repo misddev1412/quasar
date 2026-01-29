@@ -30,9 +30,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SettingsIcon from '@mui/icons-material/Settings';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
-import { useNotifications, NotificationData } from '../../hooks/useNotifications';
+import { useNotifications, NotificationData } from '@admin/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
-import NotificationSettings from './NotificationSettings';
+import NotificationSettings from '@admin/components/notifications/NotificationSettings';
 import { useNavigate } from 'react-router-dom';
 
 const StyledMenu = styled(Menu)(({ theme }) => ({

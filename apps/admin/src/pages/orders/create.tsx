@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
-import { StandardFormPage } from '../../components/common';
-import { CreateOrderForm, CreateOrderFormData } from '../../components/orders';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { useUrlTabs } from '../../hooks/useUrlTabs';
-import { trpc } from '../../utils/trpc';
+import { StandardFormPage } from '@admin/components/common';
+import { CreateOrderForm, CreateOrderFormData } from '@admin/components/orders';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
+import { trpc } from '@admin/utils/trpc';
 
 const CreateOrderPage: React.FC = () => {
   const navigate = useNavigate();

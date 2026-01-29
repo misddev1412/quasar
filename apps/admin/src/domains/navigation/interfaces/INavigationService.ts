@@ -1,4 +1,4 @@
-import { MenuGroup, MenuItem } from '../types/MenuItem';
+import { MenuGroup, MenuItem } from '@admin/domains/navigation/types/MenuItem';
 
 export interface INavigationService {
   getMenuGroups(): MenuGroup[];

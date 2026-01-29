@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useLayout } from '../../contexts/LayoutContext';
-import { useTheme } from '../../contexts/ThemeContext';
-import { useAuth } from '../../contexts/AuthContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import Logo from './Logo';
-import UserInfo from './UserInfo';
+import { useLayout } from '@admin/contexts/LayoutContext';
+import { useTheme } from '@admin/contexts/ThemeContext';
+import { useAuth } from '@admin/contexts/AuthContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import Logo from '@admin/components/layout/Logo';
+import UserInfo from '@admin/components/layout/UserInfo';
 import {
   List,
   Divider,
@@ -23,15 +23,15 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 
 // Domain services
-import { NavigationService } from '../../domains/navigation/services/NavigationService';
-import { INavigationService } from '../../domains/navigation/interfaces/INavigationService';
+import { NavigationService } from '@admin/domains/navigation/services/NavigationService';
+import { INavigationService } from '@admin/domains/navigation/interfaces/INavigationService';
 
 // Hooks
-import { useFilteredMenus } from '../../hooks/useFilteredMenus';
+import { useFilteredMenus } from '@admin/hooks/useFilteredMenus';
 
 // Presentation components
-import SidebarSearch from './sidebar/components/SidebarSearch';
-import SidebarMenuItem from './sidebar/components/SidebarMenuItem';
+import SidebarSearch from '@admin/components/layout/sidebar/components/SidebarSearch';
+import SidebarMenuItem from '@admin/components/layout/sidebar/components/SidebarMenuItem';
 
 // Styles
 import {
@@ -39,7 +39,7 @@ import {
   StyledMiniDrawer,
   StyledListItemButton,
   GroupTitle,
-} from './sidebar/styles/SidebarStyles';
+} from '@admin/components/layout/sidebar/styles/SidebarStyles';
 
 
 const Sidebar: React.FC = () => {

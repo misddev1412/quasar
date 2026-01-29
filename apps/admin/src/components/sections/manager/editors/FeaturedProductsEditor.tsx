@@ -1,14 +1,14 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { Input } from '../../../common/Input';
-import { Toggle } from '../../../common/Toggle';
-import Tabs from '../../../common/Tabs';
-import { trpc } from '../../../../utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Input } from '@admin/components/common/Input';
+import { Toggle } from '@admin/components/common/Toggle';
+import Tabs from '@admin/components/common/Tabs';
+import { trpc } from '@admin/utils/trpc';
 import SelectComponent, { components as selectComponents, type MenuListProps } from 'react-select';
-import { ConfigChangeHandler, ProductOption } from '../types';
-import { ensureNumber, mapProductToOption } from '../utils';
+import { ConfigChangeHandler, ProductOption } from '@admin/components/sections/manager/types';
+import { ensureNumber, mapProductToOption } from '@admin/components/sections/manager/utils';
 import { Image as ImageIcon } from 'lucide-react';
-import { SectionHeadingConfig, SectionHeadingConfigData, SectionHeadingTextTransform, SectionHeadingTitleSize } from '../common/SectionHeadingConfig';
+import { SectionHeadingConfig, SectionHeadingConfigData, SectionHeadingTextTransform, SectionHeadingTitleSize } from '@admin/components/sections/manager/common/SectionHeadingConfig';
 
 interface FeaturedProductsConfigEditorProps {
     value: Record<string, unknown>;

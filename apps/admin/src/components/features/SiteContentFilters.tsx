@@ -5,9 +5,9 @@ import clsx from 'clsx';
 import { FiFilter, FiX } from 'react-icons/fi';
 import { SiteContentCategory, SiteContentStatus } from '@shared/enums/site-content.enums';
 
-import { Button } from '../common/Button';
-import { Card } from '../common/Card';
-import { Select, SelectOption } from '../common/Select';
+import { Button } from '@admin/components/common/Button';
+import { Card } from '@admin/components/common/Card';
+import { Select, SelectOption } from '@admin/components/common/Select';
 
 export type SiteContentFilterKey = 'category' | 'status' | 'languageCode';
 export type SiteContentFiltersState = Record<SiteContentFilterKey, string>;

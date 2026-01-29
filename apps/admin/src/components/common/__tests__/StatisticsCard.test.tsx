@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { StatisticsCard, StatisticsSkeleton } from '../StatisticsCard';
+import { StatisticsCard, StatisticsSkeleton } from '@admin/components/common/StatisticsCard';
 import { FiUsers } from 'react-icons/fi';
 
 // Mock the ChartModal component

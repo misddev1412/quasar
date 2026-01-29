@@ -1,11 +1,11 @@
 import React from 'react';
 import { FiFilter, FiX } from 'react-icons/fi';
-import { Card } from '../common/Card';
-import { FormInput } from '../common/FormInput';
-import { Select, SelectOption } from '../common/Select';
-import { Button } from '../common/Button';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { LanguageFiltersType } from '../../types/language';
+import { Card } from '@admin/components/common/Card';
+import { FormInput } from '@admin/components/common/FormInput';
+import { Select, SelectOption } from '@admin/components/common/Select';
+import { Button } from '@admin/components/common/Button';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { LanguageFiltersType } from '@admin/types/language';
 
 interface LanguageFiltersProps {
   filters: LanguageFiltersType;

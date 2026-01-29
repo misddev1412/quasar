@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiGlobe, FiHome } from 'react-icons/fi';
-import { StandardFormPage } from '../../components/common';
-import { EditLanguageForm } from '../../components/languages';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { UpdateLanguageFormData } from '../../utils/validation';
+import { StandardFormPage } from '@admin/components/common';
+import { EditLanguageForm } from '@admin/components/languages';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { UpdateLanguageFormData } from '@admin/utils/validation';
 
 const EditLanguagePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

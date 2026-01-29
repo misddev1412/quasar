@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Package } from 'lucide-react';
-import { Button } from '../common/Button';
-import { Input } from '../common/Input';
-import { Select } from '../common/Select';
-import { ProductWarehouseQuantity } from '../../types/product';
-import { Warehouse } from '../../types/warehouse';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../utils/trpc';
-import { stripNumberLeadingZeros } from '../../utils/inputUtils';
+import { Button } from '@admin/components/common/Button';
+import { Input } from '@admin/components/common/Input';
+import { Select } from '@admin/components/common/Select';
+import { ProductWarehouseQuantity } from '@admin/types/product';
+import { Warehouse } from '@admin/types/warehouse';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
+import { stripNumberLeadingZeros } from '@admin/utils/inputUtils';
 
 interface ProductWarehouseQuantityManagerProps {
   warehouseQuantities: ProductWarehouseQuantity[];

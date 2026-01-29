@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { FormInput } from '@admin/components/common/FormInput';
 import { Button } from '@admin/components/common/Button';
 import { MailIcon, LockIcon, AlertIcon } from '@admin/components/common/Icons';
-import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useTheme } from '@admin/contexts/ThemeContext';
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => Promise<void>;

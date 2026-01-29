@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { trpc } from '../../utils/trpc';
-import { useToast } from '../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { ServiceForm } from '../../components/services';
-import { StandardFormPage } from '../../components/common';
+import { trpc } from '@admin/utils/trpc';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { ServiceForm } from '@admin/components/services';
+import { StandardFormPage } from '@admin/components/common';
 import { FileText } from 'lucide-react';
 
 const CreateServicePage = () => {

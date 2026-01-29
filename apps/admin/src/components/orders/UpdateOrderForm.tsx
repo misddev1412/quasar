@@ -1,8 +1,8 @@
 import React from 'react';
 import { FiUser, FiActivity, FiCreditCard, FiFileText, FiCheckCircle, FiGift } from 'react-icons/fi';
-import { EntityForm } from '../common/EntityForm';
-import { FormTabConfig } from '../../types/forms';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { EntityForm } from '@admin/components/common/EntityForm';
+import { FormTabConfig } from '@admin/types/forms';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { z } from 'zod';
 
 export interface UpdateOrderFormData {

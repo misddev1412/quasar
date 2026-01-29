@@ -1,6 +1,6 @@
-import { ISearchService } from '../interfaces/ISearchService';
-import { SearchResult, GroupedSearchResults } from '../types/SearchResult';
-import { MenuGroup } from '../../navigation/types/MenuItem';
+import { ISearchService } from '@admin/domains/search/interfaces/ISearchService';
+import { SearchResult, GroupedSearchResults } from '@admin/domains/search/types/SearchResult';
+import { MenuGroup } from '@admin/domains/navigation/types/MenuItem';
 
 export class SearchService implements ISearchService {
   getAllSearchableItems(menuGroups: MenuGroup[]): SearchResult[] {

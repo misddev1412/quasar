@@ -6,13 +6,13 @@ import React, {
   useState,
 } from 'react';
 import { FiPlus, FiTrash2, FiStar } from 'react-icons/fi';
-import { Card, CardContent, CardHeader } from '../common/Card';
-import { Input } from '../common/Input';
-import { Textarea } from '../common/Textarea';
-import { Button } from '../common/Button';
-import { ColorSelector } from '../common/ColorSelector';
-import { Toggle } from '../common/Toggle';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { Card, CardContent, CardHeader } from '@admin/components/common/Card';
+import { Input } from '@admin/components/common/Input';
+import { Textarea } from '@admin/components/common/Textarea';
+import { Button } from '@admin/components/common/Button';
+import { ColorSelector } from '@admin/components/common/ColorSelector';
+import { Toggle } from '@admin/components/common/Toggle';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 export interface LoyaltyTierFormValues {
   name: string;

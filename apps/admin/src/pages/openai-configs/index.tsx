@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiMoreVertical, FiTrash2, FiEdit2, FiToggleLeft, FiToggleRight, FiCpu } from 'react-icons/fi';
-import { Button, Table, Dropdown, StandardListPage, Loading, Alert, AlertDescription, AlertTitle, ConfirmationModal } from '../../components/common';
-import type { Column, SortDescriptor } from '../../components/common';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
+import { Button, Table, Dropdown, StandardListPage, Loading, Alert, AlertDescription, AlertTitle, ConfirmationModal } from '@admin/components/common';
+import type { Column, SortDescriptor } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
 
 interface OpenAiConfig {
   id: string;

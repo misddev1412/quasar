@@ -1,11 +1,11 @@
 import React from 'react';
 import { FiMoreVertical, FiEdit2, FiTrash2, FiTag, FiFilter, FiSettings } from 'react-icons/fi';
-import { Card } from '../common/Card';
-import { Button } from '../common/Button';
-import { Badge } from '../common/Badge';
-import { Dropdown } from '../common/Dropdown';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { Attribute } from '../../types/product';
+import { Card } from '@admin/components/common/Card';
+import { Button } from '@admin/components/common/Button';
+import { Badge } from '@admin/components/common/Badge';
+import { Dropdown } from '@admin/components/common/Dropdown';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Attribute } from '@admin/types/product';
 
 interface AttributeListViewProps {
   attributes: (Attribute & { valueCount?: number })[];

@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useSettings, SettingData } from '../../hooks/useSettings';
-import { CreateSettingForm } from './CreateSettingForm';
-import { CreateSettingModal } from './CreateSettingModal';
+import { useSettings, SettingData } from '@admin/hooks/useSettings';
+import { CreateSettingForm } from '@admin/components/settings/CreateSettingForm';
+import { CreateSettingModal } from '@admin/components/settings/CreateSettingModal';
 import cn from 'classnames';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { Toggle } from '../common/Toggle';
-import { useToast } from '../../contexts/ToastContext';
-import { Button } from '../common/Button';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Toggle } from '@admin/components/common/Toggle';
+import { useToast } from '@admin/contexts/ToastContext';
+import { Button } from '@admin/components/common/Button';
 
 interface SettingItemProps {
   setting: SettingData;

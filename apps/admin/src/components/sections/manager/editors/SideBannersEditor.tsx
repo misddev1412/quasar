@@ -1,12 +1,12 @@
 import React from 'react';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { Input } from '../../../common/Input';
-import Textarea from '../../../common/Textarea';
-import { Select } from '../../../common/Select';
-import { ImageActionButtons } from '../../../common/ImageActionButtons';
-import { MediaManager } from '../../../common/MediaManager';
-import { Switch } from '../../../common/Switch';
-import { ConfigChangeHandler } from '../types';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Input } from '@admin/components/common/Input';
+import Textarea from '@admin/components/common/Textarea';
+import { Select } from '@admin/components/common/Select';
+import { ImageActionButtons } from '@admin/components/common/ImageActionButtons';
+import { MediaManager } from '@admin/components/common/MediaManager';
+import { Switch } from '@admin/components/common/Switch';
+import { ConfigChangeHandler } from '@admin/components/sections/manager/types';
 
 type SideBannerBreakpoint = 'lg' | 'xl' | '2xl';
 

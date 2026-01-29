@@ -3,8 +3,8 @@
  */
 
 import { FiCalendar, FiUser, FiShield, FiMail, FiCheckCircle } from 'react-icons/fi';
-import { getQuickFilterDateRange, QuickFilterKey } from './dateUtils';
-import { UserRole } from '../types/user';
+import { getQuickFilterDateRange, QuickFilterKey } from '@admin/utils/dateUtils';
+import { UserRole } from '@admin/types/user';
 
 // Filter types
 export type FilterType = 'date' | 'status' | 'role' | 'verification' | 'custom';

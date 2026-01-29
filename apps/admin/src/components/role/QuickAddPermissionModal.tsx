@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { FiPlus, FiX, FiSearch } from 'react-icons/fi';
-import { Button } from '../common/Button';
-import { Loading } from '../common/Loading';
-import { trpc } from '../../utils/trpc';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { Permission } from '../../types/permission';
+import { Button } from '@admin/components/common/Button';
+import { Loading } from '@admin/components/common/Loading';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Permission } from '@admin/types/permission';
 
 interface QuickAddPermissionModalProps {
   isOpen: boolean;

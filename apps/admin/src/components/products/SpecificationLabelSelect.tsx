@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { components as selectComponents, GroupBase, MenuListProps, InputActionMeta, StylesConfig } from 'react-select';
-import ModalReactSelect from '../common/ModalReactSelect';
-import '../common/CountrySelector.css';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import ModalReactSelect from '@admin/components/common/ModalReactSelect';
+import '@admin/components/common/CountrySelector.css';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 export interface SpecificationLabelOption {
   value: string;

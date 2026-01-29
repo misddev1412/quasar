@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useBrandingSetting } from '../../hooks/useBrandingSetting';
+import { useTheme } from '@admin/contexts/ThemeContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useBrandingSetting } from '@admin/hooks/useBrandingSetting';
 import {
   ADMIN_SIDEBAR_BRANDING_KEY,
   DEFAULT_ADMIN_SIDEBAR_BRANDING,
-} from '../../constants/adminBranding';
+} from '@admin/constants/adminBranding';
 
 interface LogoProps {
   collapsed?: boolean;

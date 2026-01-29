@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useTableState } from '../../hooks/useTableState';
+import { useTableState } from '@admin/hooks/useTableState';
 import { FiPlus, FiMoreVertical, FiUsers, FiUserCheck, FiUserPlus, FiUser, FiActivity, FiClock, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiUserX, FiTrash2, FiEye, FiLogIn } from 'react-icons/fi';
-import { Button, Card, CardHeader, CardContent, CardTitle, CardDescription, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '../../components/common';
-import type { StatisticData, Column, SortDescriptor } from '../../components/common';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { UserFilters } from '../../components/features';
-import { User, UserRole, UserFiltersType } from '../../types/user';
+import { Button, Card, CardHeader, CardContent, CardTitle, CardDescription, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
+import type { StatisticData, Column, SortDescriptor } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import { UserFilters } from '@admin/components/features';
+import { User, UserRole, UserFiltersType } from '@admin/types/user';
 
 
 // Helper functions for URL parameter validation

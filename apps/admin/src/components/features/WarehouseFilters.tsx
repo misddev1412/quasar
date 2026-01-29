@@ -1,10 +1,10 @@
 import React from 'react';
 import { FiFilter, FiX } from 'react-icons/fi';
-import { Card } from '../common/Card';
-import { Button } from '../common/Button';
-import { Select, type SelectOption } from '../common/Select';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import type { WarehouseFiltersType } from '../../types/warehouse';
+import { Card } from '@admin/components/common/Card';
+import { Button } from '@admin/components/common/Button';
+import { Select, type SelectOption } from '@admin/components/common/Select';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import type { WarehouseFiltersType } from '@admin/types/warehouse';
 
 interface WarehouseFiltersProps {
   filters: WarehouseFiltersType;

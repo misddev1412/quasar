@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { useAuth } from './useAuth';
+import { useAuth } from '@admin/hooks/useAuth';
 import { PermissionAction, PermissionScope } from '@shared';
-import { trpc } from '../utils/trpc';
+import { trpc } from '@admin/utils/trpc';
 
 export interface RequiredPermission {
   resource: string;

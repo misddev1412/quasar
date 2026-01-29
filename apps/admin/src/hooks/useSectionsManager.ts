@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { trpc } from '../utils/trpc';
+import { trpc } from '@admin/utils/trpc';
 import { SECTION_TYPE_LABELS, SectionType } from '@shared/enums/section.enums';
 import { ApiResponse } from '@backend/trpc/schemas/response.schemas';
 

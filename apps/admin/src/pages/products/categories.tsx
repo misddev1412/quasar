@@ -1,13 +1,13 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPlus, FiMoreVertical, FiFolder, FiFolderPlus, FiEdit2, FiTrash2, FiRefreshCw, FiActivity, FiEye, FiTag, FiFilter, FiHome, FiPackage, FiUpload, FiDownload } from 'react-icons/fi';
-import { Button, Card, Dropdown, StatisticsGrid, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '../../components/common';
-import type { StatisticData } from '../../components/common';
-import { LazyLoadingCategoryTreeView, CategoryFilter, CategoryFilterOptions, CategoryImportModal } from '../../components/products';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { Category } from '../../types/product';
+import { Button, Card, Dropdown, StatisticsGrid, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
+import type { StatisticData } from '@admin/components/common';
+import { LazyLoadingCategoryTreeView, CategoryFilter, CategoryFilterOptions, CategoryImportModal } from '@admin/components/products';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { Category } from '@admin/types/product';
 
 const CategoriesPage: React.FC = () => {
   const navigate = useNavigate();

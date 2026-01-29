@@ -12,13 +12,13 @@ import {
   StandardListPage,
   StatisticsGrid,
   Table,
-} from '../../components/common';
-import type { Column, SortDescriptor, StatisticData } from '../../components/common';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { CreateDeliveryMethodModal, EditDeliveryMethodModal } from '../../components/delivery-methods';
+} from '@admin/components/common';
+import type { Column, SortDescriptor, StatisticData } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import { CreateDeliveryMethodModal, EditDeliveryMethodModal } from '@admin/components/delivery-methods';
 
 interface DeliveryMethod {
   id: string;

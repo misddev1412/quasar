@@ -3,7 +3,7 @@ import {
   getMetaTitleForPath,
   getMetaDescriptionForPath,
   DEFAULT_PLATFORM_TITLE,
-} from '../../config/seoTitles';
+} from '@admin/config/seoTitles';
 
 describe('SEO Titles Configuration', () => {
   describe('getSeoConfigForPath', () => {

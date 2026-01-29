@@ -23,12 +23,12 @@ import {
   FiChevronRight,
   FiExternalLink,
 } from 'react-icons/fi';
-import { BaseLayout } from '../../../components/layout';
-import { Loading, Alert, AlertDescription, AlertTitle, Badge, Button } from '../../../components/common';
-import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
-import { trpc } from '../../../utils/trpc';
-import { Product, ProductMedia, ProductVariant, ProductSpecification } from '../../../types/product';
-import { useDefaultCurrency } from '../../../hooks/useDefaultCurrency';
+import { BaseLayout } from '@admin/components/layout';
+import { Loading, Alert, AlertDescription, AlertTitle, Badge, Button } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
+import { Product, ProductMedia, ProductVariant, ProductSpecification } from '@admin/types/product';
+import { useDefaultCurrency } from '@admin/hooks/useDefaultCurrency';
 
 const formatDate = (date: Date | string | null | undefined) => {
   if (!date) return '-';

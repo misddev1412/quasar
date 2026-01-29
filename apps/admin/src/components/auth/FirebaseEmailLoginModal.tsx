@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Button } from '../common/Button';
-import { FormInput } from '../common/FormInput';
-import { MailIcon } from '../common/Icons';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
+import { Button } from '@admin/components/common/Button';
+import { FormInput } from '@admin/components/common/FormInput';
+import { MailIcon } from '@admin/components/common/Icons';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
 
 interface FirebaseEmailLoginModalProps {
   isOpen: boolean;

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Wand2, Loader2 } from 'lucide-react';
-import { Button } from './Button';
-import { trpc } from '../../utils/trpc';
-import { useToast } from '../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { AIGenerationOptionsModal, AIGenerationOptions } from './AIGenerationOptionsModal';
+import { Button } from '@admin/components/common/Button';
+import { trpc } from '@admin/utils/trpc';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { AIGenerationOptionsModal, AIGenerationOptions } from '@admin/components/common/AIGenerationOptionsModal';
 
 interface AIGenerateButtonProps {
     onGenerate: (content: string) => void;

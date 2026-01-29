@@ -1,4 +1,4 @@
-import { MailLogListItem } from '../types/mail-log';
+import { MailLogListItem } from '@admin/types/mail-log';
 
 export interface MailLogSenderInfo {
   primary?: string;

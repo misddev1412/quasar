@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FiSearch, FiUser, FiMail, FiLock, FiPhone, FiMapPin } from 'react-icons/fi';
-import { InputWithIcon } from '../common/InputWithIcon';
-import { FormInput } from '../common/FormInput';
+import { InputWithIcon } from '@admin/components/common/InputWithIcon';
+import { FormInput } from '@admin/components/common/FormInput';
 
 /**
  * IconInputExamples - Demonstrates the different ways to implement input fields with icons

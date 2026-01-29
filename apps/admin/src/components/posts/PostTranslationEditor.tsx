@@ -1,12 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { Control, useFieldArray, UseFormRegister, FieldErrors, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { FiPlus, FiTrash2, FiFileText, FiGlobe } from 'react-icons/fi';
-import { Card } from '../common/Card';
-import { FormInput } from '../common/FormInput';
-import { TextareaInput } from '../common/TextareaInput';
-import { Button } from '../common/Button';
-import Tabs from '../common/Tabs';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { Card } from '@admin/components/common/Card';
+import { FormInput } from '@admin/components/common/FormInput';
+import { TextareaInput } from '@admin/components/common/TextareaInput';
+import { Button } from '@admin/components/common/Button';
+import Tabs from '@admin/components/common/Tabs';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface Translation {
   locale: string;

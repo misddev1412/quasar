@@ -1,8 +1,8 @@
 import React from 'react';
 import { FiSearch, FiHome } from 'react-icons/fi';
-import { SeoManager, withAdminSeo } from '../components/SEO';
-import { BaseLayout } from '../components/layout';
-import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
+import { SeoManager, withAdminSeo } from '@admin/components/SEO';
+import { BaseLayout } from '@admin/components/layout';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 const SeoPage: React.FC = () => {
   const { t } = useTranslationWithBackend();

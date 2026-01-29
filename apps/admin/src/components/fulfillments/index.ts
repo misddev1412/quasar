@@ -1,1 +1,1 @@
-export * from './CreateFulfillmentForm';
+export * from '@admin/components/fulfillments/CreateFulfillmentForm';

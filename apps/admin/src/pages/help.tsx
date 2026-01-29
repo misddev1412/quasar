@@ -1,9 +1,9 @@
 import React from 'react';
 import { FiHelpCircle, FiBookOpen, FiMessageCircle, FiClipboard, FiLifeBuoy, FiMail, FiHome } from 'react-icons/fi';
 import { Link as RouterLink } from 'react-router-dom';
-import { BaseLayout } from '../components/layout';
-import { withAdminSeo } from '../components/SEO';
-import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
+import { BaseLayout } from '@admin/components/layout';
+import { withAdminSeo } from '@admin/components/SEO';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface HelpResource {
   icon: React.ReactNode;

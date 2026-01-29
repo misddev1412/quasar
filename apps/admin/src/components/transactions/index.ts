@@ -1,1 +1,1 @@
-export * from './TransactionFilters';
+export * from '@admin/components/transactions/TransactionFilters';

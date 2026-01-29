@@ -1,9 +1,9 @@
 import { useMemo, useCallback } from 'react';
-import { trpc } from '../utils/trpc';
-import { trpcClient } from '../utils/trpc';
+import { trpc } from '@admin/utils/trpc';
+import { trpcClient } from '@admin/utils/trpc';
 import { MENU_TYPE_LABELS, MENU_TARGET_LABELS, MenuType, MenuTarget } from '@shared/enums/menu.enums';
 import { ApiResponse } from '@backend/trpc/schemas/response.schemas';
-import { AdminMenu, MenuFormData, MenuTreeNode, ActiveLanguage } from '../types/menu';
+import { AdminMenu, MenuFormData, MenuTreeNode, ActiveLanguage } from '@admin/types/menu';
 
 // Re-export types for convenience
 export type { AdminMenu, MenuFormData, MenuTreeNode, ActiveLanguage };

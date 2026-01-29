@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiArrowLeft, FiTrash2, FiHome, FiPackage, FiEdit3, FiFolder } from 'react-icons/fi';
-import { BaseLayout } from '../../../components/layout';
-import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
-import { useToast } from '../../../contexts/ToastContext';
-import { trpc } from '../../../utils/trpc';
-import { Loading, Alert, AlertDescription, AlertTitle } from '../../../components/common';
-import { EditCategoryForm, EditCategoryFormData } from '../../../components/products';
+import { BaseLayout } from '@admin/components/layout';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { Loading, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
+import { EditCategoryForm, EditCategoryFormData } from '@admin/components/products';
 
 const EditCategoryPage: React.FC = () => {
   const navigate = useNavigate();

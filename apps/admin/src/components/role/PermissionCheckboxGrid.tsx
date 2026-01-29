@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Shield, Lock, Eye, Edit, Trash, Plus, Settings, Users, Activity } from 'lucide-react';
-import { trpc } from '../../utils/trpc';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { Loading } from '../common/Loading';
-import { Alert, AlertDescription } from '../common/Alert';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Loading } from '@admin/components/common/Loading';
+import { Alert, AlertDescription } from '@admin/components/common/Alert';
 
 interface Permission {
   id: string;

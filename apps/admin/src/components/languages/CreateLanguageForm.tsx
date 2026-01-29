@@ -1,9 +1,9 @@
 import React from 'react';
 import { FiGlobe, FiSettings, FiHash } from 'react-icons/fi';
-import { EntityForm } from '../common/EntityForm';
-import { FormTabConfig } from '../../types/forms';
-import { CreateLanguageFormData, createLanguageSchema } from '../../utils/validation';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { EntityForm } from '@admin/components/common/EntityForm';
+import { FormTabConfig } from '@admin/types/forms';
+import { CreateLanguageFormData, createLanguageSchema } from '@admin/utils/validation';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface CreateLanguageFormProps {
   onSubmit: (data: CreateLanguageFormData) => Promise<void>;

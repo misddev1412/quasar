@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useLayout } from '../../contexts/LayoutContext';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useLayout } from '@admin/contexts/LayoutContext';
+import { useTheme } from '@admin/contexts/ThemeContext';
 
 interface ContentProps {
   children: React.ReactNode;

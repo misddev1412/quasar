@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BaseLayout } from '../../components/layout';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { BaseLayout } from '@admin/components/layout';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 const LoyaltyIndexPage: React.FC = () => {
   const navigate = useNavigate();

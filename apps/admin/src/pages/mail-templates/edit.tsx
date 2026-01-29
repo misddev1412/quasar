@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Mail, Settings as SettingsIcon, FileText, Users, Send, Home } from 'lucide-react';
-import { Card, CardHeader, CardContent, StandardFormPage, EntityForm } from '../../components/common';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useEmailChannels } from '../../hooks/useEmailChannels';
-import { useUrlTabs } from '../../hooks/useUrlTabs';
-import { FormTabConfig } from '../../types/forms';
+import { Card, CardHeader, CardContent, StandardFormPage, EntityForm } from '@admin/components/common';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useEmailChannels } from '@admin/hooks/useEmailChannels';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
+import { FormTabConfig } from '@admin/types/forms';
 import { z } from 'zod';
 
 // Form data type for update

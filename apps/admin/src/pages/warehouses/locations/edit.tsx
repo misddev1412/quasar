@@ -1,9 +1,9 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiArrowLeft, FiInfo } from 'react-icons/fi';
-import { BaseLayout } from '../../../components/layout';
-import { Button, Alert, AlertDescription, AlertTitle } from '../../../components/common';
-import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
+import { BaseLayout } from '@admin/components/layout';
+import { Button, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 const WarehouseLocationEditPage: React.FC = () => {
   const navigate = useNavigate();

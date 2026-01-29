@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { Button } from '../common/Button';
-import { Select } from '../common/Select';
-import { Card } from '../common/Card';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { Button } from '@admin/components/common/Button';
+import { Select } from '@admin/components/common/Select';
+import { Card } from '@admin/components/common/Card';
 import { FiPlus, FiX, FiMove } from 'react-icons/fi';
-import { Attribute, AttributeValue } from '../../types/product';
+import { Attribute, AttributeValue } from '@admin/types/product';
 
 export interface VariantItem {
   id?: string;

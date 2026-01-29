@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { trpc } from '../utils/trpc';
-import { ThemeConfig, ThemeContextType, defaultThemeConfig, availableFonts } from '../config/theme.config';
+import { trpc } from '@admin/utils/trpc';
+import { ThemeConfig, ThemeContextType, defaultThemeConfig, availableFonts } from '@admin/config/theme.config';
 
 interface ExtendedThemeContextType extends ThemeContextType {
   isDarkMode: boolean;

@@ -2,16 +2,16 @@ import React, { useState, useMemo, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { FileText, ArrowLeft, FolderOpen } from 'lucide-react';
 import { FiHome, FiEdit3 } from 'react-icons/fi';
-import { Card, CardHeader, CardContent, MediaManager, Alert, AlertDescription, AlertTitle } from '../../components/common';
-import { BaseLayout } from '../../components/layout';
-import { EditPostForm } from '../../components/posts';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useUrlTabs } from '../../hooks/useUrlTabs';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { FormSubmitOptions, FormSubmitAction } from '../../types/forms';
-import { useAuth } from '../../hooks/useAuth';
-import { canEditRouteResource } from '../../utils/permission-access';
+import { Card, CardHeader, CardContent, MediaManager, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
+import { BaseLayout } from '@admin/components/layout';
+import { EditPostForm } from '@admin/components/posts';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { FormSubmitOptions, FormSubmitAction } from '@admin/types/forms';
+import { useAuth } from '@admin/hooks/useAuth';
+import { canEditRouteResource } from '@admin/utils/permission-access';
 
 interface UpdatePostPayload {
   status: 'draft' | 'published' | 'archived' | 'scheduled';

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from '../common/Button';
-import { FormInput } from '../common/FormInput';
-import { Select, SelectOption } from '../common/Select';
-import { DateInput } from '../common/DateInput';
-import { Card } from '../common/Card';
+import { Button } from '@admin/components/common/Button';
+import { FormInput } from '@admin/components/common/FormInput';
+import { Select, SelectOption } from '@admin/components/common/Select';
+import { DateInput } from '@admin/components/common/DateInput';
+import { Card } from '@admin/components/common/Card';
 import { FiX, FiFilter } from 'react-icons/fi';
-import { PostStatus, PostType, PostFiltersType } from '../../types/post';
+import { PostStatus, PostType, PostFiltersType } from '@admin/types/post';
 
 interface PostFiltersProps {
   filters: PostFiltersType;

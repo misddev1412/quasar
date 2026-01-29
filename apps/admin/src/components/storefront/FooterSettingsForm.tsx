@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { FiArrowDown, FiArrowUp, FiImage, FiPlus, FiRefreshCw, FiTrash2 } from 'react-icons/fi';
-import { useSettings } from '../../hooks/useSettings';
-import { useToast } from '../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { Button } from '../common/Button';
-import { Select, SelectOption } from '../common/Select';
-import { Input } from '../common/Input';
-import TextareaInput from '../common/TextareaInput';
-import { Toggle } from '../common/Toggle';
+import { useSettings } from '@admin/hooks/useSettings';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Button } from '@admin/components/common/Button';
+import { Select, SelectOption } from '@admin/components/common/Select';
+import { Input } from '@admin/components/common/Input';
+import TextareaInput from '@admin/components/common/TextareaInput';
+import { Toggle } from '@admin/components/common/Toggle';
 import {
   FooterConfig,
   FooterExtraLink,
@@ -24,14 +24,14 @@ import {
   DEFAULT_VISITOR_ANALYTICS_CONFIG,
   createFooterConfig,
 } from '@shared/types/footer.types';
-import { MediaManager } from '../common/MediaManager';
-import { ColorSelector } from '../common/ColorSelector';
-import { SimpleRichTextEditor } from '../common/SimpleRichTextEditor';
-import { cn } from '../../utils/cn';
-import { ProductSelector } from '../menus/ProductSelector';
-import { CategorySelector } from '../menus/CategorySelector';
-import { SiteContentSelector } from '../site-content/SiteContentSelector';
-import { PostSelector } from '../posts/PostSelector';
+import { MediaManager } from '@admin/components/common/MediaManager';
+import { ColorSelector } from '@admin/components/common/ColorSelector';
+import { SimpleRichTextEditor } from '@admin/components/common/SimpleRichTextEditor';
+import { cn } from '@admin/utils/cn';
+import { ProductSelector } from '@admin/components/menus/ProductSelector';
+import { CategorySelector } from '@admin/components/menus/CategorySelector';
+import { SiteContentSelector } from '@admin/components/site-content/SiteContentSelector';
+import { PostSelector } from '@admin/components/posts/PostSelector';
 
 const FOOTER_SETTING_KEY = 'storefront.footer_config';
 

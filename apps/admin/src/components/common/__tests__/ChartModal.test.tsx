@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ChartModal } from '../ChartModal';
+import { ChartModal } from '@admin/components/common/ChartModal';
 import { trpc } from '@admin/utils/trpc';
 
 // Mock the tRPC client

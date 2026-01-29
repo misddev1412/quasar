@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { MenuGroup, MenuItem } from '../domains/navigation/types/MenuItem';
-import { useAuth } from '../contexts/AuthContext';
-import { hasPermissionForRoute, isSuperAdminUser } from '../utils/permission-access';
+import { MenuGroup, MenuItem } from '@admin/domains/navigation/types/MenuItem';
+import { useAuth } from '@admin/contexts/AuthContext';
+import { hasPermissionForRoute, isSuperAdminUser } from '@admin/utils/permission-access';
 
 /**
  * Hook to filter menu items based on user permissions

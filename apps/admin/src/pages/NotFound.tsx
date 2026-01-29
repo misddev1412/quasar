@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { SeoHead } from '../components/SEO';
-import { SeoData } from '../hooks/useSeo';
-import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
+import { SeoHead } from '@admin/components/SEO';
+import { SeoData } from '@admin/hooks/useSeo';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 export const NotFound: React.FC = () => {
   const { t } = useTranslationWithBackend();

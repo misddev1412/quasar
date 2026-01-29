@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Shield, Trash2, Home } from 'lucide-react';
-import { StandardFormPage } from '../../components/common';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useUrlTabs } from '../../hooks/useUrlTabs';
-import { UpdateRoleForm } from '../../components/role';
-import { UpdateRoleFormData } from '../../utils/validation';
+import { StandardFormPage } from '@admin/components/common';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
+import { UpdateRoleForm } from '@admin/components/role';
+import { UpdateRoleFormData } from '@admin/utils/validation';
 
 const RoleUpdatePage: React.FC = () => {
   const navigate = useNavigate();

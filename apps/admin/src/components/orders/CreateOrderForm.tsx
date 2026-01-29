@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { FiUser, FiCreditCard, FiFileText, FiMapPin, FiShoppingCart, FiHome, FiTruck, FiGift, FiSearch } from 'react-icons/fi';
-import { EntityForm } from '../common/EntityForm';
-import { FormInput } from '../common/FormInput';
-import { FormTabConfig } from '../../types/forms';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { ProductSelectionSection, OrderItem } from './ProductSelectionSection';
-import { CustomerSearchModal, Customer } from '../customers/CustomerSearchModal';
+import { EntityForm } from '@admin/components/common/EntityForm';
+import { FormInput } from '@admin/components/common/FormInput';
+import { FormTabConfig } from '@admin/types/forms';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { ProductSelectionSection, OrderItem } from '@admin/components/orders/ProductSelectionSection';
+import { CustomerSearchModal, Customer } from '@admin/components/customers/CustomerSearchModal';
 import { z } from 'zod';
 
 export interface CreateOrderFormData {

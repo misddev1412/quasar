@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { trpc } from '../utils/trpc';
+import { trpc } from '@admin/utils/trpc';
 
 export interface TelegramNotificationConfig {
   id: string;

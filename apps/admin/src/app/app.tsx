@@ -1,20 +1,20 @@
 import React, { useMemo } from 'react';
-import { LayoutProvider } from '../contexts/LayoutContext';
-import { ThemeProvider as CustomThemeProvider, useTheme } from '../contexts/ThemeContext';
-import { ToastProvider } from '../contexts/ToastContext';
+import { LayoutProvider } from '@admin/contexts/LayoutContext';
+import { ThemeProvider as CustomThemeProvider, useTheme } from '@admin/contexts/ThemeContext';
+import { ToastProvider } from '@admin/contexts/ToastContext';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
-import AppRoutes from '../routes/AppRoutes';
+import AppRoutes from '@admin/routes/AppRoutes';
 import { ThemeProvider as MUIThemeProvider, CssBaseline } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
-import { AuthProvider } from '../contexts/AuthContext';
-import { FirebaseAuthProvider } from '../hooks/useFirebaseAuth';
-import { ModalProvider } from '../contexts/ModalContext';
-import { RouteLoadingProvider } from '../contexts/RouteLoadingContext';
-import RouteLoadingIndicator from '../components/common/RouteLoadingIndicator';
-import { DynamicFavicon } from '../components/common/DynamicFavicon';
+import { AuthProvider } from '@admin/contexts/AuthContext';
+import { FirebaseAuthProvider } from '@admin/hooks/useFirebaseAuth';
+import { ModalProvider } from '@admin/contexts/ModalContext';
+import { RouteLoadingProvider } from '@admin/contexts/RouteLoadingContext';
+import RouteLoadingIndicator from '@admin/components/common/RouteLoadingIndicator';
+import { DynamicFavicon } from '@admin/components/common/DynamicFavicon';
 import { Toaster } from 'react-hot-toast';
-import { I18nProvider } from '../contexts/I18nContext';
+import { I18nProvider } from '@admin/contexts/I18nContext';
 
 // Inner component that consumes CustomTheme to generate MUI Theme
 const ThemedApp = () => {

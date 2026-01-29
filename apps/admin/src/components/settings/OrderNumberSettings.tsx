@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useSettings } from '../../hooks/useSettings';
-import { useToast } from '../../contexts/ToastContext';
-import { Button } from '../common/Button';
-import { Toggle } from '../common/Toggle';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useSettings } from '@admin/hooks/useSettings';
+import { useToast } from '@admin/contexts/ToastContext';
+import { Button } from '@admin/components/common/Button';
+import { Toggle } from '@admin/components/common/Toggle';
 import { FiHash, FiCheck, FiRefreshCw, FiAlertCircle } from 'react-icons/fi';
 
 const randomSample = (length: number): string => {

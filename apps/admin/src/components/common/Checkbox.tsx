@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Toggle } from './Toggle';
+import { Toggle } from '@admin/components/common/Toggle';
 
 interface CheckboxProps {
   checked?: boolean;

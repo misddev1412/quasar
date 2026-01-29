@@ -2,14 +2,14 @@ import React, { useState, useCallback, useImperativeHandle, useRef } from 'react
 import { FieldValues, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
 import clsx from 'clsx';
-import { Button } from './Button';
-import Tabs from './Tabs';
-import { FormSection } from './FormSection';
-import { useDefaultCountry } from '../../hooks/useDefaultCountry';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useEntityForm } from '../../hooks/useEntityForm';
-import { useFormFieldRenderer } from '../../hooks/useFormFieldRenderer';
-import { EntityFormProps, FormActionsAlignment, FormSubmitAction } from '../../types/forms';
+import { Button } from '@admin/components/common/Button';
+import Tabs from '@admin/components/common/Tabs';
+import { FormSection } from '@admin/components/common/FormSection';
+import { useDefaultCountry } from '@admin/hooks/useDefaultCountry';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useEntityForm } from '@admin/hooks/useEntityForm';
+import { useFormFieldRenderer } from '@admin/hooks/useFormFieldRenderer';
+import { EntityFormProps, FormActionsAlignment, FormSubmitAction } from '@admin/types/forms';
 
 const alignmentClassMap: Record<FormActionsAlignment, string> = {
   start: 'justify-start',

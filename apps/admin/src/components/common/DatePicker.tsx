@@ -1,5 +1,5 @@
 import React from 'react';
-import { DateInput } from './DateInput';
+import { DateInput } from '@admin/components/common/DateInput';
 
 interface DatePickerProps {
   id?: string;

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Card, CardContent } from './Card';
+import { Card, CardContent } from '@admin/components/common/Card';
 import { cn } from '@admin/lib/utils';
 import { BarChart3 } from 'lucide-react';
-import { ChartModal } from './ChartModal';
+import { ChartModal } from '@admin/components/common/ChartModal';
 
 interface StatisticsCardProps {
   title: string;

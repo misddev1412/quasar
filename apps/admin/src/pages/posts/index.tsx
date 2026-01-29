@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPlus, FiMoreVertical, FiFileText, FiEye, FiEdit2, FiTrash2, FiFilter, FiRefreshCw, FiStar, FiCalendar, FiTag, FiFolder } from 'react-icons/fi';
-import { Button, Card, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '../../components/common';
-import type { StatisticData, Column, SortDescriptor } from '../../components/common';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { PostFilters } from '../../components/features';
-import { Post, PostStatus, PostType, PostFiltersType } from '../../types/post';
+import { Button, Card, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
+import type { StatisticData, Column, SortDescriptor } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import { PostFilters } from '@admin/components/features';
+import { Post, PostStatus, PostType, PostFiltersType } from '@admin/types/post';
 import { FiHome } from 'react-icons/fi';
 
 // Helper functions for URL parameter validation

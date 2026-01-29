@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { Button } from '../common/Button';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Button } from '@admin/components/common/Button';
 import { FiPlus, FiTrash, FiEdit2 } from 'react-icons/fi';
 import {
     Dialog,
@@ -8,9 +8,9 @@ import {
     DialogHeader,
     DialogTitle,
     DialogFooter,
-} from '../common/Dialog';
-import { Input } from '../common/Input'; // Assuming exist
-import { Label } from '../common/Label'; // Assuming exist
+} from '@admin/components/common/Dialog';
+import { Input } from '@admin/components/common/Input'; // Assuming exist
+import { Label } from '@admin/components/common/Label'; // Assuming exist
 
 // Simplified Item Editor for now
 interface ServiceItem {

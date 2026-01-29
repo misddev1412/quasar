@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FiDollarSign, FiUser } from 'react-icons/fi';
-import { Modal } from '../common/Modal';
-import { Button } from '../common/Button';
-import { Alert, AlertDescription, AlertTitle } from '../common/Alert';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import type { CustomerTransactionStatus } from '../../types/transactions';
+import { Modal } from '@admin/components/common/Modal';
+import { Button } from '@admin/components/common/Button';
+import { Alert, AlertDescription, AlertTitle } from '@admin/components/common/Alert';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import type { CustomerTransactionStatus } from '@admin/types/transactions';
 
 type OrderTransactionContext = {
   id: string;

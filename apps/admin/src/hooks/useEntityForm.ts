@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormSubmitAction, FormSubmitOptions } from '../types/forms';
+import { FormSubmitAction, FormSubmitOptions } from '@admin/types/forms';
 
 interface UseEntityFormProps<T extends FieldValues> {
   initialValues?: Partial<T>;

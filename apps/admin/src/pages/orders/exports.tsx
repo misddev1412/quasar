@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiDownload, FiFilter, FiRefreshCw } from 'react-icons/fi';
-import { StandardListPage, Card, CardContent, CardDescription, CardHeader, CardTitle, Select, Button, Badge, Table } from '../../components/common';
-import type { Column } from '../../components/common';
-import { trpc } from '../../utils/trpc';
-import { useToast } from '../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { StandardListPage, Card, CardContent, CardDescription, CardHeader, CardTitle, Select, Button, Badge, Table } from '@admin/components/common';
+import type { Column } from '@admin/components/common';
+import { trpc } from '@admin/utils/trpc';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 type ExportJobItem = {
   id: string;

@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { FiPlus, FiX, FiImage, FiTrash2 } from 'react-icons/fi';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { Button } from '../common/Button';
-import { Card } from '../common/Card';
-import { Select } from '../common/Select';
-import { FormInput } from '../common/FormInput';
-import { Badge } from '../common/Badge';
-import { MediaManager } from '../common/MediaManager';
-import { AttributeValuesSelector } from './AttributeValuesSelector';
-import { stripNumberLeadingZeros } from '../../utils/inputUtils';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { Button } from '@admin/components/common/Button';
+import { Card } from '@admin/components/common/Card';
+import { Select } from '@admin/components/common/Select';
+import { FormInput } from '@admin/components/common/FormInput';
+import { Badge } from '@admin/components/common/Badge';
+import { MediaManager } from '@admin/components/common/MediaManager';
+import { AttributeValuesSelector } from '@admin/components/products/AttributeValuesSelector';
+import { stripNumberLeadingZeros } from '@admin/utils/inputUtils';
 
 const serializeCombination = (combo: Record<string, string>) =>
   JSON.stringify(Object.entries(combo).sort(([a], [b]) => a.localeCompare(b)));

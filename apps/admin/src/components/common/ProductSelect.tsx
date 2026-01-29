@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import AsyncSelect from 'react-select/async';
 import { components as selectComponents, MenuListProps } from 'react-select';
-import '../common/CountrySelector.css';
+import '@admin/components/common/CountrySelector.css';
 import { Image as ImageIcon } from 'lucide-react';
 
 export interface ProductOption {

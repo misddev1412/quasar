@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import UserProfilePage from '../profile';
+import UserProfilePage from '@admin/pages/profile';
 
 // Mock all the dependencies
 jest.mock('../../hooks/useTranslationWithBackend', () => ({

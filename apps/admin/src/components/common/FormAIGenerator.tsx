@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { AIGenerateButton } from './AIGenerateButton';
-import { useActiveLanguages } from '../../hooks/useLanguages';
+import { AIGenerateButton } from '@admin/components/common/AIGenerateButton';
+import { useActiveLanguages } from '@admin/hooks/useLanguages';
 
 export interface FormAIGeneratorProps {
     /** The field name to update (and use as primary context) */

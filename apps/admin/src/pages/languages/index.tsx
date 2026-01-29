@@ -1,15 +1,15 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiEdit3, FiTrash2, FiSettings, FiGlobe, FiStar, FiCheck, FiX, FiMoreVertical, FiEye, FiHome } from 'react-icons/fi';
-import { StandardListPage, StatisticsGrid, Table, Button, Dropdown, ConfirmationModal } from '../../components/common';
-import type { Column } from '../../components/common';
-import { LanguageFilters } from '../../components/features';
-import { useToast } from '../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../utils/trpc';
-import { Language, LanguageFiltersType } from '../../types/language';
-import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { useUrlParams, urlParamValidators } from '../../hooks/useUrlParams';
+import { StandardListPage, StatisticsGrid, Table, Button, Dropdown, ConfirmationModal } from '@admin/components/common';
+import type { Column } from '@admin/components/common';
+import { LanguageFilters } from '@admin/components/features';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
+import { Language, LanguageFiltersType } from '@admin/types/language';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import { useUrlParams, urlParamValidators } from '@admin/hooks/useUrlParams';
 
 const LanguagesIndexPage: React.FC = () => {
   const navigate = useNavigate();

@@ -1,2 +1,2 @@
-export * from './CreateDeliveryMethodModal';
-export * from './EditDeliveryMethodModal';
+export * from '@admin/components/delivery-methods/CreateDeliveryMethodModal';
+export * from '@admin/components/delivery-methods/EditDeliveryMethodModal';

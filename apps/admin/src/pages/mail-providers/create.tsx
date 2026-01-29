@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Settings, Server, Key, Mail as MailIcon, Gauge, Activity } from 'lucide-react';
-import { StandardFormPage, EntityForm } from '../../components/common';
-import { FormTabConfig } from '../../types/forms';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useUrlTabs } from '../../hooks/useUrlTabs';
+import { StandardFormPage, EntityForm } from '@admin/components/common';
+import { FormTabConfig } from '@admin/types/forms';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
 import { z } from 'zod';
 
 type MailProviderFormData = {

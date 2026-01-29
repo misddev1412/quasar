@@ -1,6 +1,6 @@
 import React from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface PasswordVisibilityToggleProps {
     isVisible: boolean;

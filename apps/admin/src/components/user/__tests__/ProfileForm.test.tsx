@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { ProfileForm } from '../ProfileForm';
-import { AdminUpdateUserProfileDto } from '../../../../../backend/src/modules/user/dto/admin/admin-user.dto';
+import { ProfileForm } from '@admin/components/user/ProfileForm';
+import { AdminUpdateUserProfileDto } from '@backend/modules/user/dto/admin/admin-user.dto';
 
 // Mock the translation hook
 jest.mock('../../hooks/useTranslationWithBackend', () => ({

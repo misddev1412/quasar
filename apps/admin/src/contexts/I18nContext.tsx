@@ -2,9 +2,9 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { trpc } from '../utils/trpc';
+import { trpc } from '@admin/utils/trpc';
 import { SupportedLocale } from '@shared';
-import i18nInstance, { getCurrentLocale } from '../i18n';
+import i18nInstance, { getCurrentLocale } from '@admin/i18n';
 
 // Use same types as frontend/schema or define locally if needed
 // Assuming SupportedLocale is 'vi' | 'en' from @shared

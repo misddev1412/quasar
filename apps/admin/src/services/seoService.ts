@@ -3,7 +3,7 @@
  */
 import { trpcClient } from '@admin/utils/trpc';
 import { SeoData } from '@admin/hooks/useSeo';
-import apiService from './api';
+import apiService from '@admin/services/api';
 
 export const seoService = {
   /**

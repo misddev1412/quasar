@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { FolderPlus, Globe, Search, Image, Settings } from 'lucide-react';
-import { EntityForm } from '../common/EntityForm';
-import { CategoryTranslationsSection, CategoryTranslationData } from './CategoryTranslationsSection';
-import { FormTabConfig } from '../../types/forms';
-import { CreateCategoryFormData } from '../../types/product';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useLanguageOptions } from '../../hooks/useLanguages';
-import { trpc } from '../../utils/trpc';
+import { EntityForm } from '@admin/components/common/EntityForm';
+import { CategoryTranslationsSection, CategoryTranslationData } from '@admin/components/products/CategoryTranslationsSection';
+import { FormTabConfig } from '@admin/types/forms';
+import { CreateCategoryFormData } from '@admin/types/product';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useLanguageOptions } from '@admin/hooks/useLanguages';
+import { trpc } from '@admin/utils/trpc';
 import { z } from 'zod';
 
 const createCategorySchema = z.object({

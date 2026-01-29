@@ -1,10 +1,10 @@
-import '../styles/globals.css';
+import '@admin/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { trpc, createTrpcClient } from '../utils/trpc';
+import { trpc, createTrpcClient } from '@admin/utils/trpc';
 import { Toaster } from 'react-hot-toast';
-import { I18nProvider } from '../contexts/I18nContext';
+import { I18nProvider } from '@admin/contexts/I18nContext';
 
 function QuasarApp({ Component, pageProps }: AppProps) {
   const [queryClient] = useState(

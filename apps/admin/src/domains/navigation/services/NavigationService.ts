@@ -1,6 +1,6 @@
 import React from 'react';
-import { INavigationService } from '../interfaces/INavigationService';
-import { MenuGroup, MenuItem } from '../types/MenuItem';
+import { INavigationService } from '@admin/domains/navigation/interfaces/INavigationService';
+import { MenuGroup, MenuItem } from '@admin/domains/navigation/types/MenuItem';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import DescriptionIcon from '@mui/icons-material/Description';

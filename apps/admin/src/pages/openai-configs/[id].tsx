@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiTrash2, FiCpu } from 'react-icons/fi';
-import { Button, PasswordVisibilityToggle, FormInput, Select, TextareaInput, Toggle, StandardFormPage, Loading, Alert, AlertDescription, AlertTitle, ConfirmationModal } from '../../components/common';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { parseValidationErrors, getErrorMessage, isValidationError } from '../../utils/errorUtils';
+import { Button, PasswordVisibilityToggle, FormInput, Select, TextareaInput, Toggle, StandardFormPage, Loading, Alert, AlertDescription, AlertTitle, ConfirmationModal } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { parseValidationErrors, getErrorMessage, isValidationError } from '@admin/utils/errorUtils';
 
 interface OpenAiConfigFormData {
   id: string;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StatisticsCard, StatisticsSkeleton } from './StatisticsCard';
+import { StatisticsCard, StatisticsSkeleton } from '@admin/components/common/StatisticsCard';
 import { cn } from '@admin/lib/utils';
 
 export interface StatisticData {

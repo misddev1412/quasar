@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, User, Crown, Phone, Mail, X, Plus, UserPlus } from 'lucide-react';
-import { Modal } from '../common/Modal';
-import { InputWithIcon } from '../common/InputWithIcon';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../utils/trpc';
+import { Modal } from '@admin/components/common/Modal';
+import { InputWithIcon } from '@admin/components/common/InputWithIcon';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
 import { debounce } from 'lodash';
-import { CreateCustomerForm, CreateCustomerFormData } from './CreateCustomerForm';
-import { useToast } from '../../contexts/ToastContext';
+import { CreateCustomerForm, CreateCustomerFormData } from '@admin/components/customers/CreateCustomerForm';
+import { useToast } from '@admin/contexts/ToastContext';
 
 export interface Customer {
   id: string;

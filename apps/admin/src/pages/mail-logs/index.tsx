@@ -1,15 +1,15 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { StandardListPage, Card, Table, StatisticsGrid } from '../../components/common';
-import type { Column, StatisticData, SelectOption } from '../../components/common';
-import { trpc } from '../../utils/trpc';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { StandardListPage, Card, Table, StatisticsGrid } from '@admin/components/common';
+import type { Column, StatisticData, SelectOption } from '@admin/components/common';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import type { PaginatedResponse, ApiResponse } from '@backend/trpc/schemas/response.schemas';
-import { MailLogListItem, MailLogStatistics, MailLogStatus } from '../../types/mail-log';
-import { MailLogFilters as MailLogFiltersPanel } from '../../components/features';
-import type { MailLogFilterFormState } from '../../components/features';
+import { MailLogListItem, MailLogStatistics, MailLogStatus } from '@admin/types/mail-log';
+import { MailLogFilters as MailLogFiltersPanel } from '@admin/components/features';
+import type { MailLogFilterFormState } from '@admin/components/features';
 import { FiRefreshCw, FiMail, FiAlertTriangle, FiCheckCircle, FiFilter } from 'react-icons/fi';
-import { getMailLogSenderInfo } from '../../utils/mail-log';
+import { getMailLogSenderInfo } from '@admin/utils/mail-log';
 
 const STATUS_COLORS: Record<MailLogStatus, string> = {
   sent: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',

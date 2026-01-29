@@ -14,11 +14,11 @@ import {
   FiEdit,
   FiMoreVertical,
 } from 'react-icons/fi';
-import { Button, Dropdown, Table, Badge, StandardListPage, Loading, Breadcrumb } from '../../../components/common';
-import type { Column } from '../../../components/common';
-import { useToast } from '../../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
-import { trpc } from '../../../utils/trpc';
+import { Button, Dropdown, Table, Badge, StandardListPage, Loading, Breadcrumb } from '@admin/components/common';
+import type { Column } from '@admin/components/common';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
 
 interface Fulfillment {
   id: string;

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { trpc } from '../utils/trpc';
-import type { Currency } from '../types/currency';
+import { trpc } from '@admin/utils/trpc';
+import type { Currency } from '@admin/types/currency';
 
 interface DefaultCurrencyInfo {
   code: string;

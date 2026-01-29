@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Select } from './Select';
-import { Input } from './Input';
+import { Select } from '@admin/components/common/Select';
+import { Input } from '@admin/components/common/Input';
 import clsx from 'clsx';
 
 type PresetKey = 'default' | 'small' | 'medium' | 'large' | 'custom';

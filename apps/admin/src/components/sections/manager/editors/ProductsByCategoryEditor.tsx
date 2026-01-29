@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { FiChevronDown, FiPlus, FiTrash2 } from 'react-icons/fi';
-import { Toggle } from '../../../common/Toggle';
-import { Input } from '../../../common/Input';
-import { SearchSelect } from '../../../common/SearchSelect';
-import { Button } from '../../../common/Button';
-import Tabs from '../../../common/Tabs';
-import { trpc } from '../../../../utils/trpc';
+import { Toggle } from '@admin/components/common/Toggle';
+import { Input } from '@admin/components/common/Input';
+import { SearchSelect } from '@admin/components/common/SearchSelect';
+import { Button } from '@admin/components/common/Button';
+import Tabs from '@admin/components/common/Tabs';
+import { trpc } from '@admin/utils/trpc';
 import { useToast } from '@admin/contexts/ToastContext';
 import SelectComponent, { components as selectComponents, type MenuListProps, type FilterOptionOption } from 'react-select';
-import { ConfigChangeHandler, ProductOption, SelectOption } from '../types';
-import { SectionHeadingConfig, SectionHeadingConfigData, SectionHeadingTextTransform, SectionHeadingTitleSize } from '../common/SectionHeadingConfig';
-import { ensureNumber, mapProductToOption } from '../utils';
+import { ConfigChangeHandler, ProductOption, SelectOption } from '@admin/components/sections/manager/types';
+import { SectionHeadingConfig, SectionHeadingConfigData, SectionHeadingTextTransform, SectionHeadingTitleSize } from '@admin/components/sections/manager/common/SectionHeadingConfig';
+import { ensureNumber, mapProductToOption } from '@admin/components/sections/manager/utils';
 import { Image as ImageIcon } from 'lucide-react';
 
 interface ProductsByCategoryConfigEditorProps {

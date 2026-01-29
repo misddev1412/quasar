@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { FolderPlus, Globe, Search, Image, Settings } from 'lucide-react';
-import { EntityForm } from '../common/EntityForm';
-import { TranslationTabs } from '../common/TranslationTabs';
-import { FormTabConfig } from '../../types/forms';
-import { CreateCategoryFormData } from '../../types/product';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
+import { EntityForm } from '@admin/components/common/EntityForm';
+import { TranslationTabs } from '@admin/components/common/TranslationTabs';
+import { FormTabConfig } from '@admin/types/forms';
+import { CreateCategoryFormData } from '@admin/types/product';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
 import { z } from 'zod';
 
 const editCategorySchema = z.object({

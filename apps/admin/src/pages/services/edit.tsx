@@ -1,13 +1,13 @@
 import React, { useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { trpc } from '../../utils/trpc';
-import { useToast } from '../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { ServiceForm, ServiceFormSubmitOptions } from '../../components/services';
-import { StandardFormPage, Loading } from '../../components/common';
+import { trpc } from '@admin/utils/trpc';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { ServiceForm, ServiceFormSubmitOptions } from '@admin/components/services';
+import { StandardFormPage, Loading } from '@admin/components/common';
 import { FileText } from 'lucide-react';
-import { useUrlTabs } from '../../hooks/useUrlTabs';
-import { FormSubmitAction } from '../../types/forms';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
+import { FormSubmitAction } from '@admin/types/forms';
 
 type ServiceTranslation = {
     id?: string;

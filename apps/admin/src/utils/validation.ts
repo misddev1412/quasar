@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { isPossiblePhoneNumber, isValidPhoneNumber } from 'react-phone-number-input';
-import { UserRole } from '../types/user';
-import i18n from '../i18n';
+import { UserRole } from '@admin/types/user';
+import i18n from '@admin/i18n';
 
 // Common validation schemas
 export const commonValidation = {

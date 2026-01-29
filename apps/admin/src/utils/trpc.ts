@@ -7,10 +7,10 @@ import {
   splitLink,
   TRPCLink,
 } from '@trpc/client';
-import type { AppRouter } from '../../../backend/src/types/app-router';
-import { errorLink } from './trpc-error-link';
-import { getCurrentLocale } from '../i18n';
-import { getTrpcUrl } from './apiConfig';
+import type { AppRouter } from '@backend/types/app-router';
+import { errorLink } from '@admin/utils/trpc-error-link';
+import { getCurrentLocale } from '@admin/i18n';
+import { getTrpcUrl } from '@admin/utils/apiConfig';
 
 // Simple auth token management (you might want to use a state management library)
 function getAuthToken(): string | null {

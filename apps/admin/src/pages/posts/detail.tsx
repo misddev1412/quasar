@@ -3,11 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Pencil, Calendar, User, Tag, Globe, Clock, Eye } from 'lucide-react';
 import { FiHome, FiFileText } from 'react-icons/fi';
 import { format } from 'date-fns';
-import { Button, Card, CardContent } from '../../components/common';
-import { BaseLayout } from '../../components/layout';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../utils/trpc';
-import { PostStatus } from '../../types/post';
+import { Button, Card, CardContent } from '@admin/components/common';
+import { BaseLayout } from '@admin/components/layout';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
+import { PostStatus } from '@admin/types/post';
 
 const PostDetailPage: React.FC = () => {
     const navigate = useNavigate();

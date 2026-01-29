@@ -1,6 +1,6 @@
 import React from 'react';
 import { FiAlertTriangle, FiX } from 'react-icons/fi';
-import { Button } from './Button';
+import { Button } from '@admin/components/common/Button';
 
 interface ConfirmationModalProps {
   isOpen: boolean;

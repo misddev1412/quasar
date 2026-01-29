@@ -1,1 +1,1 @@
-export * from './CreatePermissionForm';
+export * from '@admin/components/permission/CreatePermissionForm';

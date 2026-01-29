@@ -1,6 +1,6 @@
 import React from 'react';
-import CreatePageTemplate from './CreatePageTemplate';
-import type { BreadcrumbItem } from './Breadcrumb';
+import CreatePageTemplate from '@admin/components/common/CreatePageTemplate';
+import type { BreadcrumbItem } from '@admin/components/common/Breadcrumb';
 
 type CreatePageTemplateProps = React.ComponentProps<typeof CreatePageTemplate>;
 

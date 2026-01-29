@@ -1,2 +1,2 @@
-export * from './CreateLanguageForm';
-export * from './EditLanguageForm';
+export * from '@admin/components/languages/CreateLanguageForm';
+export * from '@admin/components/languages/EditLanguageForm';

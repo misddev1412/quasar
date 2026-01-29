@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { trpc } from '../utils/trpc';
-import type { SettingData } from './useSettings';
+import { trpc } from '@admin/utils/trpc';
+import type { SettingData } from '@admin/hooks/useSettings';
 
 type JsonRecord = Record<string, any>;
 

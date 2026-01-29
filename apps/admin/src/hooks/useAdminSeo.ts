@@ -5,10 +5,10 @@ import {
   getMetaTitleForPath,
   getMetaDescriptionForPath,
   DEFAULT_PLATFORM_TITLE,
-} from '../config/seoTitles';
+} from '@admin/config/seoTitles';
 import { useTranslation } from 'react-i18next';
-import { useBrandingSetting } from './useBrandingSetting';
-import { ADMIN_LOGIN_BRANDING_KEY, DEFAULT_ADMIN_LOGIN_BRANDING } from '../constants/adminBranding';
+import { useBrandingSetting } from '@admin/hooks/useBrandingSetting';
+import { ADMIN_LOGIN_BRANDING_KEY, DEFAULT_ADMIN_LOGIN_BRANDING } from '@admin/constants/adminBranding';
 
 export interface AdminSeoData {
   path: string;

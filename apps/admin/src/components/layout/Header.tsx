@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useLayout } from '../../contexts/LayoutContext';
-import { useTheme } from '../../contexts/ThemeContext';
-import { useAuth } from '../../contexts/AuthContext';
+import { useLayout } from '@admin/contexts/LayoutContext';
+import { useTheme } from '@admin/contexts/ThemeContext';
+import { useAuth } from '@admin/contexts/AuthContext';
 import {
   AppBar,
   Toolbar,
@@ -22,7 +22,7 @@ import {
 import { styled, alpha } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import NotificationBell from '../notifications/NotificationBell';
+import NotificationBell from '@admin/components/notifications/NotificationBell';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import ViewComfyIcon from '@mui/icons-material/ViewComfy';
@@ -33,7 +33,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import LocaleSwitcher from '../LocaleSwitcher';
+import LocaleSwitcher from '@admin/components/LocaleSwitcher';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 

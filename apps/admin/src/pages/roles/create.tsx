@@ -1,13 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield } from 'lucide-react';
-import { StandardFormPage } from '../../components/common';
-import { CreateRoleForm } from '../../components/role';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { CreateRoleFormData } from '../../utils/validation';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useUrlTabs } from '../../hooks/useUrlTabs';
+import { StandardFormPage } from '@admin/components/common';
+import { CreateRoleForm } from '@admin/components/role';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { CreateRoleFormData } from '@admin/utils/validation';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
 
 const RoleCreatePage: React.FC = () => {
   const navigate = useNavigate();

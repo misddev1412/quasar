@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { ZoomIn, ZoomOut, RotateCw, Download } from 'lucide-react';
-import { Modal } from './Modal';
-import { Button } from './Button';
+import { Modal } from '@admin/components/common/Modal';
+import { Button } from '@admin/components/common/Button';
 
 interface ImageModalProps {
   isOpen: boolean;

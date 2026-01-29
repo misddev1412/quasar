@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { trpc } from '../utils/trpc';
+import { trpc } from '@admin/utils/trpc';
 import { BaseApiResponse } from '@shared/types/api.types';
 import { TRPCClientErrorLike } from '@trpc/client';
 

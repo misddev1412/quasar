@@ -1,3 +1,3 @@
-export * from './ComponentConfigForm';
-export * from './ComponentConfigsManager';
-export * from './componentConfigTree';
+export * from '@admin/components/component-configs/ComponentConfigForm';
+export * from '@admin/components/component-configs/ComponentConfigsManager';
+export * from '@admin/components/component-configs/componentConfigTree';

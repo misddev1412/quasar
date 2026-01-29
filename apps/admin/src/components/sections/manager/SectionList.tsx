@@ -1,13 +1,13 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
-import { useSectionsManager, AdminSection } from '../../../hooks/useSectionsManager';
-import { useToast } from '../../../contexts/ToastContext';
-import { Select } from '../../common/Select';
-import { Button } from '../../common/Button';
-import { ReorderableTable, DragHandle, type ReorderableColumn } from '../../common/ReorderableTable';
-import { Toggle } from '../../common/Toggle';
-import { Dropdown } from '../../common/Dropdown';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useSectionsManager, AdminSection } from '@admin/hooks/useSectionsManager';
+import { useToast } from '@admin/contexts/ToastContext';
+import { Select } from '@admin/components/common/Select';
+import { Button } from '@admin/components/common/Button';
+import { ReorderableTable, DragHandle, type ReorderableColumn } from '@admin/components/common/ReorderableTable';
+import { Toggle } from '@admin/components/common/Toggle';
+import { Dropdown } from '@admin/components/common/Dropdown';
 import { FiRefreshCw, FiPlus, FiMoreVertical, FiEdit, FiTrash2, FiCopy } from 'react-icons/fi';
 import { SectionType } from '@shared/enums/section.enums';
 

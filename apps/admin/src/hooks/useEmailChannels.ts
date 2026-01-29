@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { trpc } from '../utils/trpc';
+import { trpc } from '@admin/utils/trpc';
 
 interface EmailChannelData {
   id: string;

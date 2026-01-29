@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { StatisticsGrid, StatisticData } from '../StatisticsGrid';
+import { StatisticsGrid, StatisticData } from '@admin/components/common/StatisticsGrid';
 import { FiUsers, FiUserCheck } from 'react-icons/fi';
 
 const mockStatistics: StatisticData[] = [

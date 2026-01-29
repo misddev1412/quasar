@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { BaseLayout } from '../../components/layout';
-import { Card, Button, Loading, Alert, AlertDescription, AlertTitle } from '../../components/common';
-import { trpc } from '../../utils/trpc';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { BaseLayout } from '@admin/components/layout';
+import { Card, Button, Loading, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import type { ApiResponse } from '@backend/trpc/schemas/response.schemas';
-import { MailLogListItem, MailLogStatus } from '../../types/mail-log';
+import { MailLogListItem, MailLogStatus } from '@admin/types/mail-log';
 import { FiArrowLeft, FiRefreshCw, FiExternalLink } from 'react-icons/fi';
 import { cn } from '@admin/lib/utils';
-import { getMailLogSenderInfo } from '../../utils/mail-log';
+import { getMailLogSenderInfo } from '@admin/utils/mail-log';
 
 const MailLogDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

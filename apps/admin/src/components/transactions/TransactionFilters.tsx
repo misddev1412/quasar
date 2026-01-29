@@ -1,9 +1,9 @@
 import React from 'react';
 import { FiX } from 'react-icons/fi';
-import { Card } from '../common/Card';
-import { Button } from '../common/Button';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { TransactionFilterState } from '../../types/transactions';
+import { Card } from '@admin/components/common/Card';
+import { Button } from '@admin/components/common/Button';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { TransactionFilterState } from '@admin/types/transactions';
 
 interface CurrencyOption {
   code: string;

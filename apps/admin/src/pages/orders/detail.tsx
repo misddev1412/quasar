@@ -23,16 +23,16 @@ import {
   FiChevronLeft,
   FiChevronRight
 } from 'react-icons/fi';
-import { BaseLayout } from '../../components/layout';
-import { Loading, Alert, AlertDescription, AlertTitle, Badge, Button, Dropdown } from '../../components/common';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
+import { BaseLayout } from '@admin/components/layout';
+import { Loading, Alert, AlertDescription, AlertTitle, Badge, Button, Dropdown } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
 import { Link } from 'react-router-dom';
-import type { CustomerTransaction, CustomerTransactionStatus } from '../../types/transactions';
+import type { CustomerTransaction, CustomerTransactionStatus } from '@admin/types/transactions';
 import type { PaginatedResponse } from '@backend/trpc/schemas/response.schemas';
-import type { AdministrativeDivisionType } from '../../../../backend/src/modules/products/entities/administrative-division.entity';
-import { OrderTransactionModal } from '../../components/orders';
+import type { AdministrativeDivisionType } from '@backend/modules/products/entities/administrative-division.entity';
+import { OrderTransactionModal } from '@admin/components/orders';
 
 const formatAmount = (value: unknown) => {
   const numericValue = typeof value === 'number'

@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { useSettings, SettingData } from '../hooks/useSettings';
-import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
-import { useToast } from '../contexts/ToastContext';
-import { Toggle, Button } from '../components/common';
+import { useSettings, SettingData } from '@admin/hooks/useSettings';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { Toggle, Button } from '@admin/components/common';
 import { FiSettings, FiGlobe, FiBarChart2, FiInfo, FiCheck, FiX, FiHome } from 'react-icons/fi';
-import { BaseLayout } from '../components/layout';
+import { BaseLayout } from '@admin/components/layout';
 
 interface AnalyticsConfig {
   googleAnalyticsEnabled: boolean;

@@ -1,9 +1,9 @@
 import React from 'react';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { Input } from '../../../common/Input';
-import { Select } from '../../../common/Select';
-import { ConfigChangeHandler } from '../types';
-import { ensureNumber } from '../utils';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Input } from '@admin/components/common/Input';
+import { Select } from '@admin/components/common/Select';
+import { ConfigChangeHandler } from '@admin/components/sections/manager/types';
+import { ensureNumber } from '@admin/components/sections/manager/utils';
 
 interface TeamEditorProps {
     value: Record<string, unknown>;

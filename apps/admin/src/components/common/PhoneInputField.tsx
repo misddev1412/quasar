@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { parsePhoneNumber, getCountryCallingCode } from 'react-phone-number-input';
-import { CountrySelector } from './CountrySelector';
+import { CountrySelector } from '@admin/components/common/CountrySelector';
 import clsx from 'clsx';
-import { useDefaultCountry } from '../../hooks/useDefaultCountry';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { BASE_LABEL_CLASS } from './styles';
+import { useDefaultCountry } from '@admin/hooks/useDefaultCountry';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
 
 interface PhoneInputFieldProps {
   id: string;

@@ -1,6 +1,6 @@
 import React from 'react';
 import cn from 'classnames';
-import { BASE_LABEL_CLASS } from './styles';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
 
 interface ToggleProps {
   checked: boolean;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNotificationPreferences, NotificationPreference, NotificationChannel } from '../../hooks/useNotificationPreferences';
+import { useNotificationPreferences, NotificationPreference, NotificationChannel } from '@admin/hooks/useNotificationPreferences';
 import {
   FiMail,
   FiSmartphone,
@@ -15,12 +15,12 @@ import {
   FiMessageSquare,
   FiSend,
 } from 'react-icons/fi';
-import { Button } from '../common/Button';
-import { Card } from '../common/Card';
-import { FormInput } from '../common/FormInput';
-import { Loading } from '../common/Loading';
-import { Alert, AlertDescription } from '../common/Alert';
-import { Toggle } from '../common/Toggle';
+import { Button } from '@admin/components/common/Button';
+import { Card } from '@admin/components/common/Card';
+import { FormInput } from '@admin/components/common/FormInput';
+import { Loading } from '@admin/components/common/Loading';
+import { Alert, AlertDescription } from '@admin/components/common/Alert';
+import { Toggle } from '@admin/components/common/Toggle';
 import clsx from 'clsx';
 
 interface AccordionProps {

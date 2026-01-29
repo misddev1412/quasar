@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiChevronDown, FiCheck, FiX, FiFilter } from 'react-icons/fi';
-import { Button } from '../common/Button';
+import { Button } from '@admin/components/common/Button';
 import {
   QUICK_DATE_FILTER_CATEGORIES,
   FilterCategory
-} from '../../utils/filterUtils';
-import { QuickFilterKey, getQuickFilterDateRange } from '../../utils/dateUtils';
+} from '@admin/utils/filterUtils';
+import { QuickFilterKey, getQuickFilterDateRange } from '@admin/utils/dateUtils';
 
 interface ComprehensiveQuickFiltersProps {
   activeFilter?: QuickFilterKey | null;

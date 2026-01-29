@@ -1,9 +1,9 @@
 import React from 'react';
 import { FiImage, FiHome } from 'react-icons/fi';
-import { SiteAssetsManager } from '../components/site-assets';
-import { withAdminSeo } from '../components/SEO';
-import { BaseLayout } from '../components/layout';
-import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
+import { SiteAssetsManager } from '@admin/components/site-assets';
+import { withAdminSeo } from '@admin/components/SEO';
+import { BaseLayout } from '@admin/components/layout';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 const BrandAssetsPage: React.FC = () => {
   const { t } = useTranslationWithBackend();

@@ -1,8 +1,8 @@
 import React from 'react';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { ConfigChangeHandler } from '../types';
-import { ColorSelector } from '../../../common/ColorSelector';
-import { Input } from '../../../common/Input';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { ConfigChangeHandler } from '@admin/components/sections/manager/types';
+import { ColorSelector } from '@admin/components/common/ColorSelector';
+import { Input } from '@admin/components/common/Input';
 import { IntroductionStatItem } from '@frontend/components/sections/IntroductionSection';
 
 interface IntroductionEditorProps {

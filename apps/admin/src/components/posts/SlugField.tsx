@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { RefreshCw } from 'lucide-react';
-import { FormInput } from '../common/FormInput';
-import { generateSlug, isValidSlug } from '../../utils/slugUtils';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { FormInput } from '@admin/components/common/FormInput';
+import { generateSlug, isValidSlug } from '@admin/utils/slugUtils';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface SlugFieldProps {
   id?: string;

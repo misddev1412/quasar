@@ -2,19 +2,19 @@ import React, { useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiBox } from 'react-icons/fi';
 import type { ApiResponse } from '@backend/trpc/schemas/response.schemas';
-import { ComponentConfigForm } from '../../../components/component-configs';
-import type { ComponentConfigFormValues } from '../../../components/component-configs';
-import { trpc } from '../../../utils/trpc';
-import { useToast } from '../../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
+import { ComponentConfigForm } from '@admin/components/component-configs';
+import type { ComponentConfigFormValues } from '@admin/components/component-configs';
+import { trpc } from '@admin/utils/trpc';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import {
   collectDescendantIds,
   findComponentById,
   flattenComponents,
   type ComponentConfigNode,
-} from '../../../components/component-configs';
-import { Button, StandardFormPage } from '../../../components/common';
-import { useUrlTabs } from '../../../hooks/useUrlTabs';
+} from '@admin/components/component-configs';
+import { Button, StandardFormPage } from '@admin/components/common';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
 
 const TAB_KEYS = ['structure', 'defaults', 'advanced', 'sidebar'];
 

@@ -1,4 +1,4 @@
-import { getConfiguredApiUrl } from '../utils/apiConfig';
+import { getConfiguredApiUrl } from '@admin/utils/apiConfig';
 
 export const environment = {
   production: true,

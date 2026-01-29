@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '@admin/contexts/AuthContext';
 import {
   Box,
   IconButton,
@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface UserInfoProps {
   collapsed?: boolean;

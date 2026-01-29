@@ -1,5 +1,5 @@
 import React from 'react';
-import { CreateCustomerForm, CreateCustomerFormData } from './CreateCustomerForm';
+import { CreateCustomerForm, CreateCustomerFormData } from '@admin/components/customers/CreateCustomerForm';
 
 export interface EditCustomerFormData extends CreateCustomerFormData {
   id: string;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertBox } from '../common/AlertBox';
+import { AlertBox } from '@admin/components/common/AlertBox';
 
 export const AlertDemo: React.FC = () => {
   return (

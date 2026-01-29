@@ -1,6 +1,6 @@
 import React from 'react';
-import { useTheme } from '../contexts/ThemeContext';
-import { cn } from '../lib/utils';
+import { useTheme } from '@admin/contexts/ThemeContext';
+import { cn } from '@admin/lib/utils';
 
 const LayoutDemo: React.FC = () => {
   const { theme } = useTheme();

@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import clsx from 'clsx';
 import { GroupBase, Props as ReactSelectProps, StylesConfig } from 'react-select';
-import './CountrySelector.css';
-import ModalReactSelect from './ModalReactSelect';
-import { BASE_LABEL_CLASS } from './styles';
+import '@admin/components/common/CountrySelector.css';
+import ModalReactSelect from '@admin/components/common/ModalReactSelect';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
 
 type SearchSelectSize = 'sm' | 'md' | 'lg';
 

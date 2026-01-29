@@ -2,10 +2,10 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import Sidebar from '../Sidebar';
-import { LayoutProvider } from '../../../contexts/LayoutContext';
-import { ThemeProvider as CustomThemeProvider } from '../../../contexts/ThemeContext';
-import { AuthProvider } from '../../../contexts/AuthContext';
+import Sidebar from '@admin/components/layout/Sidebar';
+import { LayoutProvider } from '@admin/contexts/LayoutContext';
+import { ThemeProvider as CustomThemeProvider } from '@admin/contexts/ThemeContext';
+import { AuthProvider } from '@admin/contexts/AuthContext';
 
 // Mock the translation hook
 jest.mock('../../../hooks/useTranslationWithBackend', () => ({

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { trpc } from '../utils/trpc';
+import { trpc } from '@admin/utils/trpc';
 import { SeoDto } from '@backend/modules/seo/dto/seo.dto';
 import { ApiResponse } from '@backend/trpc/schemas/response.schemas';
 

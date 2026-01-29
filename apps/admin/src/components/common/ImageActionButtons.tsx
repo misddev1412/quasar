@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { Button } from './Button';
+import { Button } from '@admin/components/common/Button';
 import { Image as ImageIcon } from 'lucide-react';
 import { FiTrash2 } from 'react-icons/fi';
 

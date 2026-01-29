@@ -13,12 +13,12 @@ import {
   FiTrendingDown,
 } from 'react-icons/fi';
 import type { ApiResponse } from '@backend/trpc/schemas/response.schemas';
-import { Button, Badge, Loading, Breadcrumb } from '../../components/common';
-import { BaseLayout } from '../../components/layout';
-import { useToast } from '../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../utils/trpc';
-import { CustomerTransaction, CustomerTransactionStatus } from '../../types/transactions';
+import { Button, Badge, Loading, Breadcrumb } from '@admin/components/common';
+import { BaseLayout } from '@admin/components/layout';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
+import { CustomerTransaction, CustomerTransactionStatus } from '@admin/types/transactions';
 
 const statusVariantMap: Record<CustomerTransactionStatus, 'success' | 'warning' | 'info' | 'destructive'> = {
   pending: 'warning',

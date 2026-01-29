@@ -1,6 +1,6 @@
 import React from 'react';
-import SeoHead from './SeoHead';
-import { SeoData } from '../../hooks/useSeo';
+import SeoHead from '@admin/components/SEO/SeoHead';
+import { SeoData } from '@admin/hooks/useSeo';
 
 interface WithSeoProps {
   seoData?: SeoData;

@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import { FiBell, FiGitMerge, FiHome } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
-import { BaseLayout } from '../../components/layout';
-import { withAdminSeo } from '../../components/SEO';
-import { NotificationEventFlowManager } from '../../components/notifications';
+import { BaseLayout } from '@admin/components/layout';
+import { withAdminSeo } from '@admin/components/SEO';
+import { NotificationEventFlowManager } from '@admin/components/notifications';
 
 const NotificationEventFlowsPage: React.FC = () => {
   const { t } = useTranslation();

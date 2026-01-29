@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPlus, FiMoreVertical, FiPackage, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiShoppingBag, FiDollarSign, FiTruck, FiCheck, FiX, FiClock, FiUser, FiHome } from 'react-icons/fi';
-import { Button, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle, Badge } from '../../components/common';
-import type { StatisticData, Column, SortDescriptor } from '../../components/common';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { OrderTransactionModal } from '../../components/orders';
-import type { OrderTransactionContext } from '../../components/orders';
+import { Button, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle, Badge } from '@admin/components/common';
+import type { StatisticData, Column, SortDescriptor } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import { OrderTransactionModal } from '@admin/components/orders';
+import type { OrderTransactionContext } from '@admin/components/orders';
 
 interface Order {
   id: string;

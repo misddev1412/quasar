@@ -1,9 +1,9 @@
 import React from 'react';
 import { ChartContainerProps, ChartDataPoint, PieChartDataPoint } from '@admin/types/chart.types';
-import { LineChartComponent } from './LineChart';
-import { BarChartComponent } from './BarChart';
-import { PieChartComponent } from './PieChart';
-import { AreaChartComponent } from './AreaChart';
+import { LineChartComponent } from '@admin/components/common/charts/LineChart';
+import { BarChartComponent } from '@admin/components/common/charts/BarChart';
+import { PieChartComponent } from '@admin/components/common/charts/PieChart';
+import { AreaChartComponent } from '@admin/components/common/charts/AreaChart';
 
 export const ChartContainer: React.FC<ChartContainerProps> = ({
   data,

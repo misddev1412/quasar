@@ -1,10 +1,10 @@
 import React from 'react';
 import { Mail, FileText, Tag, Settings, Eye, Code, Send } from 'lucide-react';
-import { EntityForm } from '../common/EntityForm';
-import { FormTabConfig } from '../../types/forms';
-import { MailTemplate, MailTemplateFormData, MAIL_TEMPLATE_TYPE_OPTIONS } from '../../types/mail-template';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useEmailChannels } from '../../hooks/useEmailChannels';
+import { EntityForm } from '@admin/components/common/EntityForm';
+import { FormTabConfig } from '@admin/types/forms';
+import { MailTemplate, MailTemplateFormData, MAIL_TEMPLATE_TYPE_OPTIONS } from '@admin/types/mail-template';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useEmailChannels } from '@admin/hooks/useEmailChannels';
 import { z } from 'zod';
 
 interface EditMailTemplateFormProps {

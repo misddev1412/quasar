@@ -1,9 +1,9 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useAdminSeo, AdminSeoData } from '../../hooks/useAdminSeo';
-import { useBrandingSetting } from '../../hooks/useBrandingSetting';
-import { ADMIN_LOGIN_BRANDING_KEY, DEFAULT_ADMIN_LOGIN_BRANDING } from '../../constants/adminBranding';
-import { DEFAULT_PLATFORM_TITLE } from '../../config/seoTitles';
+import { useAdminSeo, AdminSeoData } from '@admin/hooks/useAdminSeo';
+import { useBrandingSetting } from '@admin/hooks/useBrandingSetting';
+import { ADMIN_LOGIN_BRANDING_KEY, DEFAULT_ADMIN_LOGIN_BRANDING } from '@admin/constants/adminBranding';
+import { DEFAULT_PLATFORM_TITLE } from '@admin/config/seoTitles';
 
 interface WithAdminSeoProps {
   path?: string;

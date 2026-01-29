@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { SettingsManager } from '../components/settings';
-import { withAdminSeo } from '../components/SEO';
-import { BaseLayout } from '../components/layout';
-import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
+import { SettingsManager } from '@admin/components/settings';
+import { withAdminSeo } from '@admin/components/SEO';
+import { BaseLayout } from '@admin/components/layout';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { FiSettings, FiHome } from 'react-icons/fi';
 
 const SettingsPage: React.FC = () => {

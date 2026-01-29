@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { cn } from '../../utils/cn';
-import { InputWithIcon } from './InputWithIcon';
-import { BASE_LABEL_CLASS } from './styles';
+import { cn } from '@admin/utils/cn';
+import { InputWithIcon } from '@admin/components/common/InputWithIcon';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
 
 const TRANSPARENT_COLOR = 'transparent';
 

@@ -13,11 +13,11 @@ import {
   FiSearch,
   FiFilter
 } from 'react-icons/fi';
-import { Button } from '../common/Button';
-import { Dropdown } from '../common/Dropdown';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { Category } from '../../types/product';
-import { CategoryFilter, CategoryFilterOptions } from './CategoryFilter';
+import { Button } from '@admin/components/common/Button';
+import { Dropdown } from '@admin/components/common/Dropdown';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Category } from '@admin/types/product';
+import { CategoryFilter, CategoryFilterOptions } from '@admin/components/products/CategoryFilter';
 
 interface CategoryNode extends Category {
   children?: CategoryNode[];

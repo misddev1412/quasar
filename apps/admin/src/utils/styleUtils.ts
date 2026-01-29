@@ -1,4 +1,4 @@
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '@admin/contexts/ThemeContext';
 
 
 export const getTextColorClass = (

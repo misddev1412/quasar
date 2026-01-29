@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Button } from '../../components/common/Button';
-import { InputWithIcon } from '../../components/common/InputWithIcon';
-import { UnifiedIcon } from '../../components/common/UnifiedIcon';
+import { Button } from '@admin/components/common/Button';
+import { InputWithIcon } from '@admin/components/common/InputWithIcon';
+import { UnifiedIcon } from '@admin/components/common/UnifiedIcon';
 import { cn } from '@admin/lib/utils';
 
 // Import react-icons

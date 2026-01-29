@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useModalContext } from '../../contexts/ModalContext';
+import { useModalContext } from '@admin/contexts/ModalContext';
 import {
   X,
   Upload,
@@ -23,10 +23,10 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { trpc } from '../../utils/trpc';
-import { useToast } from '../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { InputWithIcon } from './InputWithIcon';
+import { trpc } from '@admin/utils/trpc';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { InputWithIcon } from '@admin/components/common/InputWithIcon';
 import clsx from 'clsx';
 import { buildApiUrl } from '@admin/utils/apiConfig';
 

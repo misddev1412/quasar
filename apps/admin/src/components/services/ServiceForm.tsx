@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { z } from 'zod';
 import { FileText, Globe, DollarSign, List, Image } from 'lucide-react';
-import { EntityForm } from '../common/EntityForm';
-import { FormTabConfig, FormSubmitAction } from '../../types/forms';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useLanguageOptions } from '../../hooks/useLanguages';
-import { ServiceTranslationsSection } from './ServiceTranslationsSection';
-import { ServiceItemsEditor } from './ServiceItemsEditor';
+import { EntityForm } from '@admin/components/common/EntityForm';
+import { FormTabConfig, FormSubmitAction } from '@admin/types/forms';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useLanguageOptions } from '@admin/hooks/useLanguages';
+import { ServiceTranslationsSection } from '@admin/components/services/ServiceTranslationsSection';
+import { ServiceItemsEditor } from '@admin/components/services/ServiceItemsEditor';
 
 const serviceSchema = z.object({
     // General (EN default)

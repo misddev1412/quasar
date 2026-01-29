@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { withAdminSeo } from '../../components/SEO';
-import { BaseLayout } from '../../components/layout';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { withAdminSeo } from '@admin/components/SEO';
+import { BaseLayout } from '@admin/components/layout';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { FiSettings, FiHome, FiLayout, FiSave } from 'react-icons/fi';
-import { GlobalThemeSettings } from '../../components/settings';
-import { Button } from '../../components/common';
-import { defaultThemeConfig, ThemeConfig } from '../../config/theme.config';
-import { trpc } from '../../utils/trpc';
-import { useToast } from '../../contexts/ToastContext';
+import { GlobalThemeSettings } from '@admin/components/settings';
+import { Button } from '@admin/components/common';
+import { defaultThemeConfig, ThemeConfig } from '@admin/config/theme.config';
+import { trpc } from '@admin/utils/trpc';
+import { useToast } from '@admin/contexts/ToastContext';
 
 const ThemeSettingsPage: React.FC = () => {
     const { t } = useTranslationWithBackend();

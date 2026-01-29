@@ -2,15 +2,15 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { Shield, Lock } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { UpdateRoleFormData, updateRoleSchema } from '../../utils/validation';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { FormInput } from '../common/FormInput';
-import { Button } from '../common/Button';
-import { PermissionCheckboxGrid } from './PermissionCheckboxGrid';
-import { SectionHeader } from '../common/SectionHeader';
-import Tabs from '../common/Tabs';
-import { Select } from '../common/Select';
-import { UserRole } from '../../types/user';
+import { UpdateRoleFormData, updateRoleSchema } from '@admin/utils/validation';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { FormInput } from '@admin/components/common/FormInput';
+import { Button } from '@admin/components/common/Button';
+import { PermissionCheckboxGrid } from '@admin/components/role/PermissionCheckboxGrid';
+import { SectionHeader } from '@admin/components/common/SectionHeader';
+import Tabs from '@admin/components/common/Tabs';
+import { Select } from '@admin/components/common/Select';
+import { UserRole } from '@admin/types/user';
 
 interface UpdateRoleFormProps {
   onSubmit: (data: UpdateRoleFormData) => Promise<void>;

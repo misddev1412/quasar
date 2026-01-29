@@ -3,18 +3,18 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiBookOpen, FiEdit2, FiFileText, FiFilter, FiGlobe, FiMoreVertical, FiPlus, FiRefreshCw, FiTrash2 } from 'react-icons/fi';
-import SiteContentFilters, { SiteContentFilterKey, SiteContentFiltersState } from '../features/SiteContentFilters';
-import { Button } from '../common/Button';
-import { Dropdown } from '../common/Dropdown';
-import { StatisticsGrid, StatisticData } from '../common/StatisticsGrid';
-import { Table, Column, SortDescriptor } from '../common/Table';
-import { Loading } from '../common/Loading';
-import { useToast } from '../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../utils/trpc';
+import SiteContentFilters, { SiteContentFilterKey, SiteContentFiltersState } from '@admin/components/features/SiteContentFilters';
+import { Button } from '@admin/components/common/Button';
+import { Dropdown } from '@admin/components/common/Dropdown';
+import { StatisticsGrid, StatisticData } from '@admin/components/common/StatisticsGrid';
+import { Table, Column, SortDescriptor } from '@admin/components/common/Table';
+import { Loading } from '@admin/components/common/Loading';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
 import { SiteContentCategory, SiteContentStatus } from '@shared/enums/site-content.enums';
-import { SiteContent } from '../../types/site-content';
-import { useTablePreferences } from '../../hooks/useTablePreferences';
+import { SiteContent } from '@admin/types/site-content';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
 
 type LayoutAction = {
   label: string;

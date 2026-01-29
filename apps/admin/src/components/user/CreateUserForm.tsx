@@ -1,12 +1,12 @@
 import React from 'react';
 import { User, Settings, Mail, Phone, Lock, Shield } from 'lucide-react';
-import { EntityForm } from '../common/EntityForm';
-import { FormTabConfig } from '../../types/forms';
-import { CreateUserFormData, createUserSchema } from '../../utils/validation';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { UserRole } from '../../types/user';
-import type { Role as AdminRole } from '../../types/role';
-import { trpc } from '../../utils/trpc';
+import { EntityForm } from '@admin/components/common/EntityForm';
+import { FormTabConfig } from '@admin/types/forms';
+import { CreateUserFormData, createUserSchema } from '@admin/utils/validation';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { UserRole } from '@admin/types/user';
+import type { Role as AdminRole } from '@admin/types/role';
+import { trpc } from '@admin/utils/trpc';
 
 type RolesListResponse = {
   data?: {

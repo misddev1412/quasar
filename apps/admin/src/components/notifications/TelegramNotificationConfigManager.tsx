@@ -1,15 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { FiSend, FiPlus, FiEdit3, FiTrash2 } from 'react-icons/fi';
-import { Card } from '../common/Card';
-import { Button } from '../common/Button';
-import { FormInput } from '../common/FormInput';
-import { Textarea } from '../common/Textarea';
-import { Toggle } from '../common/Toggle';
-import { Loading } from '../common/Loading';
-import { Alert, AlertDescription } from '../common/Alert';
-import { useTelegramNotificationConfigs } from '../../hooks/useTelegramNotificationConfigs';
-import { useToast } from '../../contexts/ToastContext';
+import { Card } from '@admin/components/common/Card';
+import { Button } from '@admin/components/common/Button';
+import { FormInput } from '@admin/components/common/FormInput';
+import { Textarea } from '@admin/components/common/Textarea';
+import { Toggle } from '@admin/components/common/Toggle';
+import { Loading } from '@admin/components/common/Loading';
+import { Alert, AlertDescription } from '@admin/components/common/Alert';
+import { useTelegramNotificationConfigs } from '@admin/hooks/useTelegramNotificationConfigs';
+import { useToast } from '@admin/contexts/ToastContext';
 
 type FormState = {
   name: string;

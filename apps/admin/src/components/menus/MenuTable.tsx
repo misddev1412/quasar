@@ -24,14 +24,14 @@ import {
   MdChevronLeft, MdChevronRight, MdKeyboardArrowUp, MdKeyboardArrowDown,
   MdAdd, MdRemove, MdClose, MdCheck
 } from 'react-icons/md';
-import { Button } from '../../components/common/Button';
-import { Dropdown } from '../../components/common/Dropdown';
-import { ReorderableTable, DragHandle, type ReorderableColumn } from '../../components/common/ReorderableTable';
-import { UnifiedIcon } from '../../components/common/UnifiedIcon';
-import { Toggle } from '../../components/common/Toggle';
-import { AdminMenu, MenuTreeNode } from '../../hooks/useMenusManager';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { ALL_MENU_TYPE_OPTIONS } from '../../hooks/useMenuPage';
+import { Button } from '@admin/components/common/Button';
+import { Dropdown } from '@admin/components/common/Dropdown';
+import { ReorderableTable, DragHandle, type ReorderableColumn } from '@admin/components/common/ReorderableTable';
+import { UnifiedIcon } from '@admin/components/common/UnifiedIcon';
+import { Toggle } from '@admin/components/common/Toggle';
+import { AdminMenu, MenuTreeNode } from '@admin/hooks/useMenusManager';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { ALL_MENU_TYPE_OPTIONS } from '@admin/hooks/useMenuPage';
 
 interface MenuTableProps {
   flatMenuList: (AdminMenu & { level: number; children: MenuTreeNode[] })[];

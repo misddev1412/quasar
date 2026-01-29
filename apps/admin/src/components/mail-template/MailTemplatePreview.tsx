@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, Code, Settings, AlertTriangle, CheckCircle, X } from 'lucide-react';
-import { Button } from '../common/Button';
-import { Card } from '../common/Card';
-import { FormInput } from '../common/FormInput';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { MailTemplate, ProcessedTemplate } from '../../types/mail-template';
-import { trpc } from '../../utils/trpc';
-import { useToast } from '../../contexts/ToastContext';
-import { Loading } from '../common/Loading';
-import { Alert, AlertDescription } from '../common/Alert';
+import { Button } from '@admin/components/common/Button';
+import { Card } from '@admin/components/common/Card';
+import { FormInput } from '@admin/components/common/FormInput';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { MailTemplate, ProcessedTemplate } from '@admin/types/mail-template';
+import { trpc } from '@admin/utils/trpc';
+import { useToast } from '@admin/contexts/ToastContext';
+import { Loading } from '@admin/components/common/Loading';
+import { Alert, AlertDescription } from '@admin/components/common/Alert';
 
 interface MailTemplatePreviewProps {
   template: MailTemplate;

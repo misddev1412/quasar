@@ -1,13 +1,13 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiDollarSign } from 'react-icons/fi';
-import { StandardFormPage } from '../../../components/common';
-import { EditCurrencyForm } from '../../../components/currencies';
-import { useToast } from '../../../contexts/ToastContext';
-import { trpc } from '../../../utils/trpc';
-import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
-import { UpdateCurrencyFormData } from '../../../utils/validation';
-import { Currency } from '../../../types/currency';
+import { StandardFormPage } from '@admin/components/common';
+import { EditCurrencyForm } from '@admin/components/currencies';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { UpdateCurrencyFormData } from '@admin/utils/validation';
+import { Currency } from '@admin/types/currency';
 
 const EditCurrencyPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

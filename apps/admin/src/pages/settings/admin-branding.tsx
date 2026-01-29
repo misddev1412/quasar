@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { BaseLayout } from '../../components/layout';
-import { withAdminSeo } from '../../components/SEO';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { Button, Input, Toggle, MediaManager } from '../../components/common';
+import { BaseLayout } from '@admin/components/layout';
+import { withAdminSeo } from '@admin/components/SEO';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { Button, Input, Toggle, MediaManager } from '@admin/components/common';
 import toast from 'react-hot-toast';
-import { useBrandingSetting } from '../../hooks/useBrandingSetting';
+import { useBrandingSetting } from '@admin/hooks/useBrandingSetting';
 import {
   ADMIN_LOGIN_BRANDING_KEY,
   ADMIN_SIDEBAR_BRANDING_KEY,
@@ -13,11 +13,11 @@ import {
   DEFAULT_ADMIN_SIDEBAR_BRANDING,
   AdminLoginBrandingConfig,
   AdminSidebarBrandingConfig,
-} from '../../constants/adminBranding';
-import { trpc } from '../../utils/trpc';
+} from '@admin/constants/adminBranding';
+import { trpc } from '@admin/utils/trpc';
 import { FiHome, FiSettings, FiImage, FiBookOpen, FiLayout } from 'react-icons/fi';
-import { GlobalThemeSettings } from '../../components/settings';
-import { useTheme } from '../../contexts/ThemeContext';
+import { GlobalThemeSettings } from '@admin/components/settings';
+import { useTheme } from '@admin/contexts/ThemeContext';
 
 const numberOrUndefined = (value: string): number | undefined => {
   const parsed = Number(value);

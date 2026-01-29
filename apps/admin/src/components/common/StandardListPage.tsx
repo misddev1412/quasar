@@ -1,7 +1,7 @@
 import React from 'react';
-import type { BreadcrumbItem } from './Breadcrumb';
-import BaseLayout from '../layout/BaseLayout';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import type { BreadcrumbItem } from '@admin/components/common/Breadcrumb';
+import BaseLayout from '@admin/components/layout/BaseLayout';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 type BaseLayoutProps = React.ComponentProps<typeof BaseLayout>;
 

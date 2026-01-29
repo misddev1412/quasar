@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Button } from './Button';
-import { Input } from './Input';
-import { Card } from './Card';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { BASE_LABEL_CLASS } from './styles';
-import { RichTextEditor } from './RichTextEditor';
-import { MediaUpload } from './MediaUpload';
-import { AIGenerateButton } from './AIGenerateButton';
+import { Button } from '@admin/components/common/Button';
+import { Input } from '@admin/components/common/Input';
+import { Card } from '@admin/components/common/Card';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
+import { RichTextEditor } from '@admin/components/common/RichTextEditor';
+import { MediaUpload } from '@admin/components/common/MediaUpload';
+import { AIGenerateButton } from '@admin/components/common/AIGenerateButton';
 
 interface TranslationField {
   name: string;

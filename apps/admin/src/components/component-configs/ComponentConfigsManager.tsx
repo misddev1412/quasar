@@ -2,19 +2,19 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ComponentCategory, ComponentStructureType } from '@shared/enums/component.enums';
 import type { ApiResponse } from '@backend/trpc/schemas/response.schemas';
-import { trpc } from '../../utils/trpc';
-import { Button } from '../common/Button';
-import { Select } from '../common/Select';
-import { Toggle } from '../common/Toggle';
-import { Dropdown } from '../common/Dropdown';
-import { useToast } from '../../contexts/ToastContext';
-import { Input } from '../common/Input';
-import { Badge } from '../common/Badge';
-import { Table, type Column, type SortDescriptor } from '../common/Table';
-import { StatisticsGrid, type StatisticData } from '../common/StatisticsGrid';
-import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { flattenComponents, type ComponentConfigNode } from './componentConfigTree';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
+import { Button } from '@admin/components/common/Button';
+import { Select } from '@admin/components/common/Select';
+import { Toggle } from '@admin/components/common/Toggle';
+import { Dropdown } from '@admin/components/common/Dropdown';
+import { useToast } from '@admin/contexts/ToastContext';
+import { Input } from '@admin/components/common/Input';
+import { Badge } from '@admin/components/common/Badge';
+import { Table, type Column, type SortDescriptor } from '@admin/components/common/Table';
+import { StatisticsGrid, type StatisticData } from '@admin/components/common/StatisticsGrid';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import { flattenComponents, type ComponentConfigNode } from '@admin/components/component-configs/componentConfigTree';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import {
   FiBox,
   FiEdit2,

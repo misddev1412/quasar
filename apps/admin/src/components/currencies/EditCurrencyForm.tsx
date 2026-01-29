@@ -1,10 +1,10 @@
 import React from 'react';
 import { FiDollarSign, FiSettings, FiPercent } from 'react-icons/fi';
-import { EntityForm } from '../common/EntityForm';
-import { FormTabConfig } from '../../types/forms';
-import { UpdateCurrencyFormData, updateCurrencySchema } from '../../utils/validation';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { Currency } from '../../types/currency';
+import { EntityForm } from '@admin/components/common/EntityForm';
+import { FormTabConfig } from '@admin/types/forms';
+import { UpdateCurrencyFormData, updateCurrencySchema } from '@admin/utils/validation';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Currency } from '@admin/types/currency';
 
 interface EditCurrencyFormProps {
   currency: Currency;

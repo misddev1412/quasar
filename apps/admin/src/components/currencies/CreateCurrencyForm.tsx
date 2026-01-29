@@ -1,9 +1,9 @@
 import React from 'react';
 import { FiDollarSign, FiSettings, FiPercent } from 'react-icons/fi';
-import { EntityForm } from '../common/EntityForm';
-import { FormTabConfig } from '../../types/forms';
-import { CreateCurrencyFormData, createCurrencySchema } from '../../utils/validation';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { EntityForm } from '@admin/components/common/EntityForm';
+import { FormTabConfig } from '@admin/types/forms';
+import { CreateCurrencyFormData, createCurrencySchema } from '@admin/utils/validation';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface CreateCurrencyFormProps {
   onSubmit: (data: CreateCurrencyFormData) => Promise<void>;

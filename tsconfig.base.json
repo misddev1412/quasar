@@ -18,6 +18,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@admin/*": [
+        "apps/admin/src/*"
+      ],
       "@admin/assets/*": [
         "apps/admin/src/assets/*"
       ],
@@ -56,6 +59,9 @@
       ],
       "@admin/utils/*": [
         "apps/admin/src/utils/*"
+      ],
+      "@backend/*": [
+        "apps/backend/src/*"
       ],
       "@frontend/components/*": [
         "apps/frontend/src/components/*"

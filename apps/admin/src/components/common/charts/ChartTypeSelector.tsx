@@ -2,7 +2,7 @@ import React from 'react';
 import { ChartTypeSelectorProps, ChartType } from '@admin/types/chart.types';
 import { BarChart3, LineChart, PieChart, AreaChart } from 'lucide-react';
 import { cn } from '@admin/lib/utils';
-import { BASE_LABEL_CLASS } from '../styles';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
 
 const chartTypeConfig = {
   line: {

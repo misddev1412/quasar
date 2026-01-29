@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../common/Card';
-import { StatisticData, StatisticsGrid } from '../common/StatisticsGrid';
-import { DateRangePicker } from '../common/charts/DateRangePicker';
-import { LineChartComponent } from '../common/charts/LineChart';
-import { PieChartComponent } from '../common/charts/PieChart';
+import { Card, CardContent, CardHeader, CardTitle } from '@admin/components/common/Card';
+import { StatisticData, StatisticsGrid } from '@admin/components/common/StatisticsGrid';
+import { DateRangePicker } from '@admin/components/common/charts/DateRangePicker';
+import { LineChartComponent } from '@admin/components/common/charts/LineChart';
+import { PieChartComponent } from '@admin/components/common/charts/PieChart';
 import {
   Users,
   Eye,

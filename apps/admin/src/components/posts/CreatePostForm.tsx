@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { AIGenerateButton } from '../common/AIGenerateButton';
-import { FormAIGenerator } from '../common/FormAIGenerator';
+import { AIGenerateButton } from '@admin/components/common/AIGenerateButton';
+import { FormAIGenerator } from '@admin/components/common/FormAIGenerator';
 import { FileText, Settings, Globe, Image, Calendar, Tag, RefreshCw } from 'lucide-react';
-import { EntityForm } from '../common/EntityForm';
-import { FormTabConfig, FormSubmitOptions } from '../../types/forms';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useLanguageOptions } from '../../hooks/useLanguages';
+import { EntityForm } from '@admin/components/common/EntityForm';
+import { FormTabConfig, FormSubmitOptions } from '@admin/types/forms';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useLanguageOptions } from '@admin/hooks/useLanguages';
 import { z } from 'zod';
-import { TranslationsSection } from './TranslationsSection';
-import { generateSlug } from '../../utils/slugUtils';
+import { TranslationsSection } from '@admin/components/posts/TranslationsSection';
+import { generateSlug } from '@admin/utils/slugUtils';
 
 // Form validation schema
 const createPostSchema = z.object({

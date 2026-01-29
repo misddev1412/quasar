@@ -10,12 +10,12 @@ import {
   Select,
   StandardListPage,
   Table,
-} from '../../components/common';
-import type { Column, SelectOption } from '../../components/common';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { CreateSupportClientModal, EditSupportClientModal } from '../../components/support-clients';
+} from '@admin/components/common';
+import type { Column, SelectOption } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { CreateSupportClientModal, EditSupportClientModal } from '@admin/components/support-clients';
 import { SupportClientType, SupportClient } from '@shared/types/support-client';
 import type { PaginatedResponse, ApiResponse } from '@backend/trpc/schemas/response.schemas';
 

@@ -3,18 +3,18 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Lock, Settings } from 'lucide-react';
-import { Button } from '../common/Button';
-import { FormInput } from '../common/FormInput';
-import { Select } from '../common/Select';
-import { Checkbox } from '../common/Checkbox';
-import { SectionHeader } from '../common/SectionHeader';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { Button } from '@admin/components/common/Button';
+import { FormInput } from '@admin/components/common/FormInput';
+import { Select } from '@admin/components/common/Select';
+import { Checkbox } from '@admin/components/common/Checkbox';
+import { SectionHeader } from '@admin/components/common/SectionHeader';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { 
   PERMISSION_RESOURCES, 
   PERMISSION_ACTIONS, 
   PERMISSION_SCOPES,
   CreatePermissionFormData
-} from '../../types/permission';
+} from '@admin/types/permission';
 
 const createPermissionSchema = z.object({
   name: z.string()

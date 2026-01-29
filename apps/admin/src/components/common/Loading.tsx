@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface LoadingProps {
   message?: string;

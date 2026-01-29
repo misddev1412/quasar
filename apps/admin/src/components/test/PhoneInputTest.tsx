@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { PhoneInputField } from '../common/PhoneInputField';
-import { CountrySelector } from '../common/CountrySelector';
+import { PhoneInputField } from '@admin/components/common/PhoneInputField';
+import { CountrySelector } from '@admin/components/common/CountrySelector';
 import { Phone, Globe } from 'lucide-react';
 
 export const PhoneInputTest: React.FC = () => {

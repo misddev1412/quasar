@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import type { MutableRefObject } from 'react';
 import { FiMenu } from 'react-icons/fi';
-import { trpc } from '../../utils/trpc';
+import { trpc } from '@admin/utils/trpc';
 import SelectComponent, { components as selectComponents, MenuListProps } from 'react-select';
-import { useSelectMenuPortalTarget } from '../../hooks/useSelectMenuPortalTarget';
+import { useSelectMenuPortalTarget } from '@admin/hooks/useSelectMenuPortalTarget';
 
 interface CategoryOption {
   value: string;

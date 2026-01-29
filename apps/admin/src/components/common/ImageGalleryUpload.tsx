@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Upload, X, Image as ImageIcon, Move, Eye, Trash2, Plus, Grid, Edit, Camera, CheckCircle } from 'lucide-react';
 import clsx from 'clsx';
-import { MediaManager } from './MediaManager';
-import { UploadService } from '../../utils/upload';
-import { BASE_LABEL_CLASS } from './styles';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { MediaManager } from '@admin/components/common/MediaManager';
+import { UploadService } from '@admin/utils/upload';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface GalleryImage {
   id: string;

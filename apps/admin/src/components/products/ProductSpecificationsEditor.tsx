@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { Button } from '../common/Button';
-import { FormInput } from '../common/FormInput';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { stripNumberLeadingZeros } from '../../utils/inputUtils';
-import { SpecificationLabelSelect, SpecificationLabelOption } from './SpecificationLabelSelect';
-import { Modal } from '../common/Modal';
-import { trpc } from '../../utils/trpc';
-import { useToast } from '../../contexts/ToastContext';
-import { BASE_LABEL_CLASS } from '../common/styles';
+import { Button } from '@admin/components/common/Button';
+import { FormInput } from '@admin/components/common/FormInput';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { stripNumberLeadingZeros } from '@admin/utils/inputUtils';
+import { SpecificationLabelSelect, SpecificationLabelOption } from '@admin/components/products/SpecificationLabelSelect';
+import { Modal } from '@admin/components/common/Modal';
+import { trpc } from '@admin/utils/trpc';
+import { useToast } from '@admin/contexts/ToastContext';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
 
 export interface ProductSpecificationFormItem {
   id?: string;

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Table, Column } from './Table';
+import { Table, Column } from '@admin/components/common/Table';
 
 // Sample data interface
 interface User {

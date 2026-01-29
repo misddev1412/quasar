@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Modal } from '../common/Modal';
-import { FormInput } from '../common/FormInput';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../utils/trpc';
-import { AddressBook, CreateAddressBookFormData, Country, AdministrativeDivision } from '../../types/address-book';
+import { Modal } from '@admin/components/common/Modal';
+import { FormInput } from '@admin/components/common/FormInput';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
+import { AddressBook, CreateAddressBookFormData, Country, AdministrativeDivision } from '@admin/types/address-book';
 
 const addressBookSchema = z.object({
   customerId: z.string().min(1),

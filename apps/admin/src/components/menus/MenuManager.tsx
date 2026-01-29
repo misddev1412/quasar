@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, Edit3, Trash2, GripVertical, ChevronDown, ChevronRight, RefreshCcw, Menu, Settings, Copy } from 'lucide-react';
-import { useMenusManager, AdminMenu, MenuTreeNode, ActiveLanguage, MenuFormData } from '../../hooks/useMenusManager';
+import { useMenusManager, AdminMenu, MenuTreeNode, ActiveLanguage, MenuFormData } from '@admin/hooks/useMenusManager';
 import {
   MenuType,
   MenuTarget,
@@ -15,15 +15,15 @@ import {
   MENU_TYPE_OPTIONS,
   TOP_MENU_ALLOWED_TYPES,
   ALL_MENU_TYPE_OPTIONS,
-} from '../../hooks/useMenuPage';
-import { Button } from '../common/Button';
-import { Select, SelectOption } from '../common/Select';
-import { Toggle } from '../common/Toggle';
-import { Modal } from '../common/Modal';
-import { Input } from '../common/Input';
-import { useToast } from '../../contexts/ToastContext';
+} from '@admin/hooks/useMenuPage';
+import { Button } from '@admin/components/common/Button';
+import { Select, SelectOption } from '@admin/components/common/Select';
+import { Toggle } from '@admin/components/common/Toggle';
+import { Modal } from '@admin/components/common/Modal';
+import { Input } from '@admin/components/common/Input';
+import { useToast } from '@admin/contexts/ToastContext';
 import { cn } from '@admin/lib/utils';
-import { SiteContentSelector } from '../site-content/SiteContentSelector';
+import { SiteContentSelector } from '@admin/components/site-content/SiteContentSelector';
 
 interface MenuManagerProps {
   initialMenuGroup?: string;

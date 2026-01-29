@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
-import { StandardFormPage } from '../../components/common';
-import { CreatePermissionForm } from '../../components/permission';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { CreatePermissionFormData } from '../../types/permission';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { StandardFormPage } from '@admin/components/common';
+import { CreatePermissionForm } from '@admin/components/permission';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { CreatePermissionFormData } from '@admin/types/permission';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 const PermissionCreatePage: React.FC = () => {
   const navigate = useNavigate();

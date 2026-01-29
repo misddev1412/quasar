@@ -14,13 +14,13 @@ import {
   FiSearch,
   FiFilter
 } from 'react-icons/fi';
-import { Button } from '../common/Button';
-import { Dropdown } from '../common/Dropdown';
-import { FormInput } from '../common/FormInput';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { Category } from '../../types/product';
-import { trpc } from '../../utils/trpc';
-import { CategoryFilter, CategoryFilterOptions } from './CategoryFilter';
+import { Button } from '@admin/components/common/Button';
+import { Dropdown } from '@admin/components/common/Dropdown';
+import { FormInput } from '@admin/components/common/FormInput';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Category } from '@admin/types/product';
+import { trpc } from '@admin/utils/trpc';
+import { CategoryFilter, CategoryFilterOptions } from '@admin/components/products/CategoryFilter';
 
 interface CategoryTreeNode {
   id: string;

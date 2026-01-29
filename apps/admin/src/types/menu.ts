@@ -1,5 +1,5 @@
 import { MenuType, MenuTarget } from '@shared/enums/menu.enums';
-import { Language } from './language';
+import { Language } from '@admin/types/language';
 
 export interface AdminMenuTranslation {
   id: string;

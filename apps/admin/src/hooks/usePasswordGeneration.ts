@@ -1,5 +1,5 @@
 import { FieldPath, FieldValues, UseFormSetValue, UseFormTrigger } from 'react-hook-form';
-import { generateSecurePassword } from '../utils/password';
+import { generateSecurePassword } from '@admin/utils/password';
 
 export interface UsePasswordGenerationOptions<T extends FieldValues> {
   newPasswordFieldName?: FieldPath<T> | 'newPassword';

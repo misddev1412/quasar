@@ -2,7 +2,7 @@ import React from 'react';
 import { DateRangePickerProps, TimePeriod } from '@admin/types/chart.types';
 import { cn } from '@admin/lib/utils';
 import { Calendar } from 'lucide-react';
-import { BASE_LABEL_CLASS } from '../styles';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
 
 const periodOptions: { value: TimePeriod; label: string; description: string }[] = [
   { value: '7d', label: '7 Days', description: 'Last 7 days' },

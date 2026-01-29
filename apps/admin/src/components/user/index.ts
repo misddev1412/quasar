@@ -1,4 +1,4 @@
-export * from './CreateUserForm';
-export * from './ProfileForm';
-export * from './UpdatePasswordForm';
-export { default as UpdatePasswordForm } from './UpdatePasswordForm';
+export * from '@admin/components/user/CreateUserForm';
+export * from '@admin/components/user/ProfileForm';
+export * from '@admin/components/user/UpdatePasswordForm';
+export { default as UpdatePasswordForm } from '@admin/components/user/UpdatePasswordForm';

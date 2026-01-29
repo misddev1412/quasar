@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
-import Breadcrumb, { BreadcrumbItem } from '../common/Breadcrumb';
-import { Button } from '../common/Button';
+import Breadcrumb, { BreadcrumbItem } from '@admin/components/common/Breadcrumb';
+import { Button } from '@admin/components/common/Button';
 
 interface ActionButton {
   label: string;

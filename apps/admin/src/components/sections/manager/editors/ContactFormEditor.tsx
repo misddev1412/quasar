@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { ConfigChangeHandler } from '../types';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { ConfigChangeHandler } from '@admin/components/sections/manager/types';
 
 interface ContactFormEditorProps {
     value: Record<string, unknown>;

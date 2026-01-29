@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { FiX, FiFilter } from 'react-icons/fi';
-import { Card } from '../common/Card';
-import { Button } from '../common/Button';
-import { Select, SelectOption } from '../common/Select';
-import { DateInput } from '../common/DateInput';
-import { FormInput } from '../common/FormInput';
-import { trpc } from '../../utils/trpc';
+import { Card } from '@admin/components/common/Card';
+import { Button } from '@admin/components/common/Button';
+import { Select, SelectOption } from '@admin/components/common/Select';
+import { DateInput } from '@admin/components/common/DateInput';
+import { FormInput } from '@admin/components/common/FormInput';
+import { trpc } from '@admin/utils/trpc';
 
 export interface ProductFiltersType {
   search?: string;

@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiHome, FiLayout, FiFileText } from 'react-icons/fi';
-import { StandardListPage } from '../../../components/common';
-import { SectionsManager } from '../../../components/sections';
+import { StandardListPage } from '@admin/components/common';
+import { SectionsManager } from '@admin/components/sections';
 
 const NewsDetailSectionsPage: React.FC = () => {
     const { t } = useTranslation();

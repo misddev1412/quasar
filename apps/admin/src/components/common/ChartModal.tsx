@@ -4,10 +4,10 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from './Dialog';
-import { ChartContainer } from './charts/ChartContainer';
-import { ChartTypeSelector } from './charts/ChartTypeSelector';
-import { DateRangePicker } from './charts/DateRangePicker';
+} from '@admin/components/common/Dialog';
+import { ChartContainer } from '@admin/components/common/charts/ChartContainer';
+import { ChartTypeSelector } from '@admin/components/common/charts/ChartTypeSelector';
+import { DateRangePicker } from '@admin/components/common/charts/DateRangePicker';
 import { useChartData } from '@admin/hooks/useChartData';
 import { ChartType, TimePeriod, ChartModalProps } from '@admin/types/chart.types';
 import { Loader2 } from 'lucide-react';

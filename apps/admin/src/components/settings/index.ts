@@ -1,4 +1,4 @@
-export * from './GlobalThemeSettings';
-export { default as GlobalThemeSettings } from './GlobalThemeSettings';
-export * from './OrderNumberSettings';
-export * from './SettingsManager';
+export * from '@admin/components/settings/GlobalThemeSettings';
+export { default as GlobalThemeSettings } from '@admin/components/settings/GlobalThemeSettings';
+export * from '@admin/components/settings/OrderNumberSettings';
+export * from '@admin/components/settings/SettingsManager';

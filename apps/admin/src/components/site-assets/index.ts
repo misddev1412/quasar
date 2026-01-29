@@ -1,1 +1,1 @@
-export * from './SiteAssetsManager';
+export * from '@admin/components/site-assets/SiteAssetsManager';

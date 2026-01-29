@@ -1,9 +1,9 @@
 import React from 'react';
 import { FiGlobe, FiHome, FiSettings } from 'react-icons/fi';
-import { BaseLayout } from '../../components/layout';
-import { withAdminSeo } from '../../components/SEO';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { CheckoutSettingsForm } from '../../components/storefront';
+import { BaseLayout } from '@admin/components/layout';
+import { withAdminSeo } from '@admin/components/SEO';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { CheckoutSettingsForm } from '@admin/components/storefront';
 
 const StorefrontCheckoutSettingsPage: React.FC = () => {
   const { t } = useTranslationWithBackend();

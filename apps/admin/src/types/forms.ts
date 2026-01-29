@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { MediaType } from '../components/common/ProductMediaUpload';
+import { MediaType } from '@admin/components/common/ProductMediaUpload';
 import { FieldValues } from 'react-hook-form';
 
 // Generic form field configuration

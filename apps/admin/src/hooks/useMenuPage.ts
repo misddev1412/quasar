@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useToast } from '../contexts/ToastContext';
-import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
-import { useTablePreferences } from '../hooks/useTablePreferences';
-import { useMenusManager, AdminMenu, MenuTreeNode } from '../hooks/useMenusManager';
-import type { BreadcrumbItem } from '../components/common/Breadcrumb';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import { useMenusManager, AdminMenu, MenuTreeNode } from '@admin/hooks/useMenusManager';
+import type { BreadcrumbItem } from '@admin/components/common/Breadcrumb';
 import { MenuType, MenuTarget } from '@shared/enums/menu.enums';
 
 type MenuSelectOption = { value: MenuType; label: string; disabled?: boolean };

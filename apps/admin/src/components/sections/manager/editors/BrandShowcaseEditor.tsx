@@ -1,15 +1,15 @@
 import React, { useMemo, useState } from 'react';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { Input } from '../../../common/Input';
-import { Toggle } from '../../../common/Toggle';
-import { MediaManager } from '../../../common/MediaManager';
-import { ImageActionButtons } from '../../../common/ImageActionButtons';
-import Tabs from '../../../common/Tabs';
-import { ConfigChangeHandler } from '../types';
-import { ensureNumber } from '../utils';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Input } from '@admin/components/common/Input';
+import { Toggle } from '@admin/components/common/Toggle';
+import { MediaManager } from '@admin/components/common/MediaManager';
+import { ImageActionButtons } from '@admin/components/common/ImageActionButtons';
+import Tabs from '@admin/components/common/Tabs';
+import { ConfigChangeHandler } from '@admin/components/sections/manager/types';
+import { ensureNumber } from '@admin/components/sections/manager/utils';
 import { FiPlus, FiTrash2 } from 'react-icons/fi';
 import { Image as ImageIcon } from 'lucide-react';
-import { SectionHeadingConfig, SectionHeadingConfigData, SectionHeadingTextTransform, SectionHeadingTitleSize } from '../common/SectionHeadingConfig';
+import { SectionHeadingConfig, SectionHeadingConfigData, SectionHeadingTextTransform, SectionHeadingTitleSize } from '@admin/components/sections/manager/common/SectionHeadingConfig';
 
 interface BrandShowcaseEditorProps {
     value: Record<string, unknown>;

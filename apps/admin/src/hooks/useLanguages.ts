@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { trpc } from '../utils/trpc';
-import { Language } from '../types/language';
+import { trpc } from '@admin/utils/trpc';
+import { Language } from '@admin/types/language';
 
 export interface UseLanguagesResult {
   languages: Language[];

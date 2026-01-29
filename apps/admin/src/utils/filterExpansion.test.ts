@@ -3,7 +3,7 @@
  * This shows how URL parameters are now expanded and handled
  */
 
-import { UserFiltersType, UserRole } from '../types/user';
+import { UserFiltersType, UserRole } from '@admin/types/user';
 
 // Mock URL search params for testing
 const createMockSearchParams = (params: Record<string, string>) => {

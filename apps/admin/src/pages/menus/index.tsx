@@ -1,13 +1,13 @@
 import React, { useMemo, useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiPlus, FiMenu, FiRefreshCw, FiHome, FiFilter } from 'react-icons/fi';
-import { Select, StatisticsGrid, StandardListPage, Loading, Alert, AlertDescription, AlertTitle, Toggle } from '../../components/common';
-import type { StatisticData } from '../../components/common';
-import { useMenuPage, useMenuDragHandlers, flattenMenuTree, SUB_MENU_GROUP } from '../../hooks/useMenuPage';
-import { AdminMenu, MenuTreeNode } from '../../hooks/useMenusManager';
-import { MenuTable, MenuFormModal, menuStyles } from '../../components/menus';
+import { Select, StatisticsGrid, StandardListPage, Loading, Alert, AlertDescription, AlertTitle, Toggle } from '@admin/components/common';
+import type { StatisticData } from '@admin/components/common';
+import { useMenuPage, useMenuDragHandlers, flattenMenuTree, SUB_MENU_GROUP } from '@admin/hooks/useMenuPage';
+import { AdminMenu, MenuTreeNode } from '@admin/hooks/useMenusManager';
+import { MenuTable, MenuFormModal, menuStyles } from '@admin/components/menus';
 import { cn } from '@admin/lib/utils';
-import { useSettings } from '../../hooks/useSettings';
+import { useSettings } from '@admin/hooks/useSettings';
 import { useTranslation } from 'react-i18next';
 const SUB_MENU_VISIBILITY_SETTING_KEY = 'storefront.sub_menu_enabled';
 

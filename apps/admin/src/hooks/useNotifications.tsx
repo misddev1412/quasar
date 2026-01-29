@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { MessagePayload } from 'firebase/messaging';
-import { firebaseService } from '../services/firebase.service';
-import { trpcClient } from '../utils/trpc';
+import { firebaseService } from '@admin/services/firebase.service';
+import { trpcClient } from '@admin/utils/trpc';
 import { TrpcApiResponse } from '@shared/types/api-response.types';
-import { useFirebaseAuth } from './useFirebaseAuth';
+import { useFirebaseAuth } from '@admin/hooks/useFirebaseAuth';
 
 export interface NotificationData {
   id: string;

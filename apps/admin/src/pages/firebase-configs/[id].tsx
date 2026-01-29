@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiUpload, FiEye, FiEyeOff, FiActivity, FiTrash2 } from 'react-icons/fi';
-import { Button, Card, FormInput, TextareaInput, Toggle, StandardFormPage, Loading, Alert, AlertDescription, AlertTitle, ConfirmationModal } from '../../components/common';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { parseValidationErrors, getErrorMessage, isValidationError } from '../../utils/errorUtils';
+import { Button, Card, FormInput, TextareaInput, Toggle, StandardFormPage, Loading, Alert, AlertDescription, AlertTitle, ConfirmationModal } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { parseValidationErrors, getErrorMessage, isValidationError } from '@admin/utils/errorUtils';
 
 interface FirebaseConfigFormData {
   id: string;

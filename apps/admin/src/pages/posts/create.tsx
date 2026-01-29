@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, FolderOpen } from 'lucide-react';
-import { StandardFormPage, MediaManager } from '../../components/common';
-import { CreatePostForm } from '../../components/posts';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { FormSubmitOptions, FormSubmitAction } from '../../types/forms';
+import { StandardFormPage, MediaManager } from '@admin/components/common';
+import { CreatePostForm } from '@admin/components/posts';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { FormSubmitOptions, FormSubmitAction } from '@admin/types/forms';
 
 // Transform the form data to match API expectations
 interface CreatePostAPIData {

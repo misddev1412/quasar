@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { PaginatedResponse } from '@backend/trpc/schemas/response.schemas';
 import type { SiteContent } from '@admin/types/site-content';
-import { trpc } from '../utils/trpc';
+import { trpc } from '@admin/utils/trpc';
 
 export interface SiteContentOption {
   id: string;

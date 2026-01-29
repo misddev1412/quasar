@@ -17,12 +17,12 @@ import {
   FiBox,
   FiActivity,
 } from 'react-icons/fi';
-import { Button, Badge, Loading, Breadcrumb } from '../../../components/common';
-import { BaseLayout } from '../../../components/layout';
-import { useToast } from '../../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
-import { useUrlTabs } from '../../../hooks/useUrlTabs';
-import { trpc } from '../../../utils/trpc';
+import { Button, Badge, Loading, Breadcrumb } from '@admin/components/common';
+import { BaseLayout } from '@admin/components/layout';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
+import { trpc } from '@admin/utils/trpc';
 
 interface FulfillmentDetails {
   id: string;

@@ -2,11 +2,11 @@ import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiTrash2, FiActivity } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
-import { StandardListPage, Table, Button, Card, Select, Badge, ConfirmationModal, Alert, AlertDescription, AlertTitle, Input, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/common';
-import type { Column } from '../../components/common';
-import { useToast } from '../../contexts/ToastContext';
-import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { trpc } from '../../utils/trpc';
+import { StandardListPage, Table, Button, Card, Select, Badge, ConfirmationModal, Alert, AlertDescription, AlertTitle, Input, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@admin/components/common';
+import type { Column } from '@admin/components/common';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import { trpc } from '@admin/utils/trpc';
 
 type MailProviderListItem = {
   id: string;

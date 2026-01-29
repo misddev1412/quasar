@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
-import { trpc } from '../utils/trpc';
-import { NotificationChannel } from './useNotificationPreferences';
-import { NotificationEventKey } from '../types/notification-events';
-export type { NotificationEventKey } from '../types/notification-events';
+import { trpc } from '@admin/utils/trpc';
+import { NotificationChannel } from '@admin/hooks/useNotificationPreferences';
+import { NotificationEventKey } from '@admin/types/notification-events';
+export type { NotificationEventKey } from '@admin/types/notification-events';
 
 export interface NotificationChannelConfig {
   id: string;

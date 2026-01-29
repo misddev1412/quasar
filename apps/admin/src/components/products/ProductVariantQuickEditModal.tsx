@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ProductVariant } from '../../types/product';
-import { Modal } from '../common/Modal';
-import { FormInput } from '../common/FormInput';
-import { Toggle } from '../common/Toggle';
-import { Button } from '../common/Button';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { ProductVariant } from '@admin/types/product';
+import { Modal } from '@admin/components/common/Modal';
+import { FormInput } from '@admin/components/common/FormInput';
+import { Toggle } from '@admin/components/common/Toggle';
+import { Button } from '@admin/components/common/Button';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface ProductVariantQuickEditModalProps {
   variant: ProductVariant | null;

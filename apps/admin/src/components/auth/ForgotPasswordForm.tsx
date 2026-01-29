@@ -1,9 +1,9 @@
 import React, { useState, FormEvent } from 'react';
-import { FormInput } from '../common/FormInput';
-import { Button } from '../common/Button';
-import { MailIcon, AlertIcon } from '../common/Icons';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useTheme } from '../../contexts/ThemeContext';
+import { FormInput } from '@admin/components/common/FormInput';
+import { Button } from '@admin/components/common/Button';
+import { MailIcon, AlertIcon } from '@admin/components/common/Icons';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useTheme } from '@admin/contexts/ThemeContext';
 
 interface ForgotPasswordFormProps {
   onSubmit: (email: string) => Promise<void>;

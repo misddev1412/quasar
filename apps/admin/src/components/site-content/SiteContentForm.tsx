@@ -1,20 +1,20 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { LayoutDashboard, FileText, Settings, CalendarClock } from 'lucide-react';
-import Tabs from '../../components/common/Tabs';
-import { FormSection } from '../../components/common/FormSection';
-import { Input } from '../../components/common/Input';
-import { TextareaInput } from '../../components/common/TextareaInput';
-import { Select, SelectOption } from '../../components/common/Select';
-import { Toggle } from '../../components/common/Toggle';
-import { Button } from '../../components/common/Button';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useLanguageOptions } from '../../hooks/useLanguages';
-import { RichTextEditor } from '../../components/common/RichTextEditor';
+import Tabs from '@admin/components/common/Tabs';
+import { FormSection } from '@admin/components/common/FormSection';
+import { Input } from '@admin/components/common/Input';
+import { TextareaInput } from '@admin/components/common/TextareaInput';
+import { Select, SelectOption } from '@admin/components/common/Select';
+import { Toggle } from '@admin/components/common/Toggle';
+import { Button } from '@admin/components/common/Button';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useLanguageOptions } from '@admin/hooks/useLanguages';
+import { RichTextEditor } from '@admin/components/common/RichTextEditor';
 import { SiteContentCategory, SiteContentStatus } from '@shared/enums/site-content.enums';
 import {
   SiteContentFormValues,
   defaultSiteContentFormValues,
-} from '../../types/site-content';
+} from '@admin/types/site-content';
 
 export interface SiteContentFormSubmitPayload {
   formValues: SiteContentFormValues;

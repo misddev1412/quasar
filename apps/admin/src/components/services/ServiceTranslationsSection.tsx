@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useLanguageOptions } from '../../hooks/useLanguages';
-import { TranslationTabs } from '../common/TranslationTabs';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useLanguageOptions } from '@admin/hooks/useLanguages';
+import { TranslationTabs } from '@admin/components/common/TranslationTabs';
 
 export interface ServiceTranslationData {
     locale: string;

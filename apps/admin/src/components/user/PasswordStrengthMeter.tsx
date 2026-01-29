@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface PasswordStrengthMeterProps {
   password?: string;

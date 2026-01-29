@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { FiFilter } from 'react-icons/fi';
-import { Button } from '../common/Button';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import type { ShippingProviderFiltersType } from '../../types/shipping-provider';
+import { Button } from '@admin/components/common/Button';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import type { ShippingProviderFiltersType } from '@admin/types/shipping-provider';
 
 type ToggleableFilterKey = 'isActive' | 'hasTracking' | 'supportsDomestic' | 'supportsInternational' | 'supportsExpress';
 

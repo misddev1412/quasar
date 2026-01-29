@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BaseLayout } from '../../components/layout';
-import { Button, Toggle, Input, Select, PhoneInputField, TextareaInput, Modal, ColorSelector, Badge, UnifiedIcon } from '../../components/common';
-import { useToast } from '../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../utils/trpc';
+import { BaseLayout } from '@admin/components/layout';
+import { Button, Toggle, Input, Select, PhoneInputField, TextareaInput, Modal, ColorSelector, Badge, UnifiedIcon } from '@admin/components/common';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
 import {
   FloatingWidgetActionConfig,
   FloatingWidgetActionConfigList,
@@ -23,7 +23,7 @@ import {
   FiZap,
   FiCheckCircle,
 } from 'react-icons/fi';
-import { SettingData } from '../../hooks/useSettings';
+import { SettingData } from '@admin/hooks/useSettings';
 
 type ApiSettingResponse = {
   code: number;

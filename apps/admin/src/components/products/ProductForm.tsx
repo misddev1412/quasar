@@ -1,26 +1,26 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { AIGenerateButton } from '../common/AIGenerateButton';
-import { FormAIGenerator } from '../common/FormAIGenerator';
+import { AIGenerateButton } from '@admin/components/common/AIGenerateButton';
+import { FormAIGenerator } from '@admin/components/common/FormAIGenerator';
 import { FolderPlus, Package, Image, Settings, Globe, Tag, Layers, Zap, Warehouse } from 'lucide-react';
-import { EntityForm } from '../common/EntityForm';
-import { TranslationTabs } from '../common/TranslationTabs';
-import { FormTabConfig, FormActionsAlignment } from '../../types/forms';
-import { CreateProductFormData, Product, ProductVariant, ProductMedia, ProductWarehouseQuantity } from '../../types/product';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
+import { EntityForm } from '@admin/components/common/EntityForm';
+import { TranslationTabs } from '@admin/components/common/TranslationTabs';
+import { FormTabConfig, FormActionsAlignment } from '@admin/types/forms';
+import { CreateProductFormData, Product, ProductVariant, ProductMedia, ProductWarehouseQuantity } from '@admin/types/product';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
 import { z } from 'zod';
-import { ProductVariantsSection, VariantMatrixItem } from './ProductVariantsSection';
-import { MediaType } from '../common/ProductMediaUpload';
-import { ProductSpecificationsEditor, ProductSpecificationFormItem } from './ProductSpecificationsEditor';
-import { ProductWarehouseQuantityManager } from './ProductWarehouseQuantityManager';
-import { Input } from '../common/Input';
-import { FormInput } from '../common/FormInput';
-import { BASE_LABEL_CLASS } from '../common/styles';
-import { stripNumberLeadingZeros } from '../../utils/inputUtils';
-import { Button } from '../common/Button';
-import { Switch } from '../common/Switch';
+import { ProductVariantsSection, VariantMatrixItem } from '@admin/components/products/ProductVariantsSection';
+import { MediaType } from '@admin/components/common/ProductMediaUpload';
+import { ProductSpecificationsEditor, ProductSpecificationFormItem } from '@admin/components/products/ProductSpecificationsEditor';
+import { ProductWarehouseQuantityManager } from '@admin/components/products/ProductWarehouseQuantityManager';
+import { Input } from '@admin/components/common/Input';
+import { FormInput } from '@admin/components/common/FormInput';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
+import { stripNumberLeadingZeros } from '@admin/utils/inputUtils';
+import { Button } from '@admin/components/common/Button';
+import { Switch } from '@admin/components/common/Switch';
 
 // MediaItem interface for frontend form - compatible with ProductMediaUpload component
 interface MediaItem {
@@ -177,7 +177,7 @@ export interface ProductFormData {
   ogImage?: string;
 }
 
-import { useActiveLanguages, useLanguages } from '../../hooks/useLanguages';
+import { useActiveLanguages, useLanguages } from '@admin/hooks/useLanguages';
 
 const isSupportedTranslationLocale = (value: string, supportedLocales: string[]): boolean =>
   supportedLocales.includes(value);

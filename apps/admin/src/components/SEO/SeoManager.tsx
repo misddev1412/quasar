@@ -1,18 +1,18 @@
 import React, { useMemo, useState } from 'react';
-import { useSeoManager, SeoData } from '../../hooks/useSeoManager';
-import { CreateSeoForm } from './CreateSeoForm';
+import { useSeoManager, SeoData } from '@admin/hooks/useSeoManager';
+import { CreateSeoForm } from '@admin/components/SEO/CreateSeoForm';
 import cn from 'classnames';
-import { MediaManager } from '../common/MediaManager';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { Toggle } from '../common/Toggle';
-import { useToast } from '../../contexts/ToastContext';
+import { MediaManager } from '@admin/components/common/MediaManager';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Toggle } from '@admin/components/common/Toggle';
+import { useToast } from '@admin/contexts/ToastContext';
 import type { UpdateSeoDto } from '@backend/modules/seo/dto/seo.dto';
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import type { TRPCClientErrorLike } from '@trpc/client';
-import { Button } from '../common/Button';
-import { OG_META_FIELDS } from './ogMetaFields';
+import { Button } from '@admin/components/common/Button';
+import { OG_META_FIELDS } from '@admin/components/SEO/ogMetaFields';
 import { FiImage } from 'react-icons/fi';
-import { ImageActionButtons } from '../common/ImageActionButtons';
+import { ImageActionButtons } from '@admin/components/common/ImageActionButtons';
 
 interface SeoItemProps {
   seo: SeoData;

@@ -1,10 +1,10 @@
 import React from 'react';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { Input } from '../../../common/Input';
-import { Select } from '../../../common/Select';
-import { Toggle } from '../../../common/Toggle';
-import { ConfigChangeHandler } from '../types';
-import { ensureNumber } from '../utils';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Input } from '@admin/components/common/Input';
+import { Select } from '@admin/components/common/Select';
+import { Toggle } from '@admin/components/common/Toggle';
+import { ConfigChangeHandler } from '@admin/components/sections/manager/types';
+import { ensureNumber } from '@admin/components/sections/manager/utils';
 
 interface HeroSliderConfigEditorProps {
     value: Record<string, unknown>;

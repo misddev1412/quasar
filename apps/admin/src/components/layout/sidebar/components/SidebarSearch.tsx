@@ -11,18 +11,18 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import { SearchService } from '../../../../domains/search/services/SearchService';
-import { ISearchService } from '../../../../domains/search/interfaces/ISearchService';
-import { MenuGroup } from '../../../../domains/navigation/types/MenuItem';
-import { SearchResult } from '../../../../domains/search/types/SearchResult';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
+import { SearchService } from '@admin/domains/search/services/SearchService';
+import { ISearchService } from '@admin/domains/search/interfaces/ISearchService';
+import { MenuGroup } from '@admin/domains/navigation/types/MenuItem';
+import { SearchResult } from '@admin/domains/search/types/SearchResult';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import {
   Search,
   SearchIconWrapper,
   StyledInputBase,
   SearchResultItem,
   SearchResultGroup,
-} from '../styles/SidebarStyles';
+} from '@admin/components/layout/sidebar/styles/SidebarStyles';
 
 interface SidebarSearchProps {
   menuGroups: MenuGroup[];

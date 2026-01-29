@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiX } from 'react-icons/fi';
-import { Button } from '../common/Button';
-import { QUICK_FILTER_OPTIONS, QuickFilterKey } from '../../utils/dateUtils';
+import { Button } from '@admin/components/common/Button';
+import { QUICK_FILTER_OPTIONS, QuickFilterKey } from '@admin/utils/dateUtils';
 
 interface QuickDateFiltersButtonGroupProps {
   activeFilter?: QuickFilterKey | null;

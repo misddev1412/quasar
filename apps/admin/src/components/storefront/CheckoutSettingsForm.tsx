@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FiGlobe, FiRefreshCw, FiSave, FiInfo } from 'react-icons/fi';
-import { useSettings } from '../../hooks/useSettings';
-import { useToast } from '../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../utils/trpc';
-import { Button } from '../common/Button';
-import SearchSelect from '../common/SearchSelect';
-import { Badge } from '../common/Badge';
+import { useSettings } from '@admin/hooks/useSettings';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
+import { Button } from '@admin/components/common/Button';
+import SearchSelect from '@admin/components/common/SearchSelect';
+import { Badge } from '@admin/components/common/Badge';
 
 const SETTING_KEY = 'storefront.checkout_default_country_id';
 const SETTING_GROUP = 'storefront';

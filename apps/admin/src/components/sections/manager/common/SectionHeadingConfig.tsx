@@ -1,7 +1,7 @@
 import React from 'react';
 import { ColorSelector } from '@admin/components/common/ColorSelector';
 import { Select } from '@admin/components/common/Select';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 export type SectionHeadingStyle = 'default' | 'banner' | 'curved';
 export type SectionHeadingTextTransform = 'none' | 'uppercase' | 'capitalize' | 'lowercase';

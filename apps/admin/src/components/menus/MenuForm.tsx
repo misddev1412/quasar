@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Button } from '../../components/common/Button';
-import { Select, SelectOption } from '../../components/common/Select';
-import { Toggle } from '../../components/common/Toggle';
-import { Input } from '../../components/common/Input';
-import { ProductSelector } from './ProductSelector';
-import { CategorySelector } from './CategorySelector';
-import { BrandSelector } from './BrandSelector';
-import ParentMenuSelector from './ParentMenuSelector';
-import { IconSelector } from './IconSelector';
-import { ColorSelector } from '../common/ColorSelector';
-import { MeasurementPresetInput } from '../common/MeasurementPresetInput';
-import { RichTextEditor } from '../common/RichTextEditor';
-import { AdminMenu, MenuTreeNode } from '../../hooks/useMenusManager';
+import { Button } from '@admin/components/common/Button';
+import { Select, SelectOption } from '@admin/components/common/Select';
+import { Toggle } from '@admin/components/common/Toggle';
+import { Input } from '@admin/components/common/Input';
+import { ProductSelector } from '@admin/components/menus/ProductSelector';
+import { CategorySelector } from '@admin/components/menus/CategorySelector';
+import { BrandSelector } from '@admin/components/menus/BrandSelector';
+import ParentMenuSelector from '@admin/components/menus/ParentMenuSelector';
+import { IconSelector } from '@admin/components/menus/IconSelector';
+import { ColorSelector } from '@admin/components/common/ColorSelector';
+import { MeasurementPresetInput } from '@admin/components/common/MeasurementPresetInput';
+import { RichTextEditor } from '@admin/components/common/RichTextEditor';
+import { AdminMenu, MenuTreeNode } from '@admin/hooks/useMenusManager';
 import {
   MenuType,
   MenuTarget,
@@ -27,9 +27,9 @@ import {
   SUB_MENU_GROUP,
   TOP_MENU_ALLOWED_TYPES,
   ALL_MENU_TYPE_OPTIONS,
-} from '../../hooks/useMenuPage';
+} from '@admin/hooks/useMenuPage';
 import { cn } from '@admin/lib/utils';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 const asStringOrUndefined = (value: unknown): string | undefined =>
   typeof value === 'string' ? value : undefined;

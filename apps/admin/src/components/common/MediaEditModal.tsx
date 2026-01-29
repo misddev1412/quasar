@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { ImageModal } from './ImageModal';
-import { Modal } from './Modal';
-import { Button } from './Button';
-import { MediaType } from './ProductMediaUpload';
-import { Z_INDEX } from '../../utils/zIndex';
-import { BASE_LABEL_CLASS } from './styles';
+import { ImageModal } from '@admin/components/common/ImageModal';
+import { Modal } from '@admin/components/common/Modal';
+import { Button } from '@admin/components/common/Button';
+import { MediaType } from '@admin/components/common/ProductMediaUpload';
+import { Z_INDEX } from '@admin/utils/zIndex';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
 
 interface MediaItem {
   id: string;

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import clsx from 'clsx';
-import { Input } from './Input';
-import { Button } from './Button';
+import { Input } from '@admin/components/common/Input';
+import { Button } from '@admin/components/common/Button';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface RevealableUrlInputProps {
     value?: string;

@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { FiPlus, FiX, FiSearch, FiUser, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import { Button } from '../common/Button';
-import { Loading } from '../common/Loading';
-import { trpc } from '../../utils/trpc';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { Button } from '@admin/components/common/Button';
+import { Loading } from '@admin/components/common/Loading';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface User {
   id: string;

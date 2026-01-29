@@ -2,14 +2,14 @@ import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FolderPlus } from 'lucide-react';
 import { FiHome, FiPackage, FiFolderPlus } from 'react-icons/fi';
-import { StandardFormPage } from '../../../components/common';
-import { CreateCategoryForm } from '../../../components/products';
-import { useToast } from '../../../contexts/ToastContext';
-import { trpc } from '../../../utils/trpc';
-import { CreateCategoryFormData } from '../../../types/product';
-import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
-import { useUrlTabs } from '../../../hooks/useUrlTabs';
-import { cleanSlug, generateSlug } from '../../../utils/slugUtils';
+import { StandardFormPage } from '@admin/components/common';
+import { CreateCategoryForm } from '@admin/components/products';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { CreateCategoryFormData } from '@admin/types/product';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
+import { cleanSlug, generateSlug } from '@admin/utils/slugUtils';
 
 const CategoryCreatePage: React.FC = () => {
   const navigate = useNavigate();

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { trpc } from '../utils/trpc';
+import { trpc } from '@admin/utils/trpc';
 import { useLocation } from 'react-router-dom';
 import { BaseApiResponse } from '@shared/types/api.types';
 

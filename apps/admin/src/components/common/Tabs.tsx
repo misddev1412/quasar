@@ -1,5 +1,5 @@
 import React, { useState, ReactNode } from 'react';
-import { cn } from '../../utils/cn';
+import { cn } from '@admin/utils/cn';
 
 interface Tab {
   label: string;

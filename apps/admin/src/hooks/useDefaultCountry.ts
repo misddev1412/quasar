@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { trpc } from '../utils/trpc';
+import { trpc } from '@admin/utils/trpc';
 
 /**
  * Returns the default country code to use for phone inputs.

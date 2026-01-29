@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { FiEdit2, FiFeather, FiHome, FiMoon, FiPlus, FiRefreshCw, FiSearch, FiStar, FiSun, FiTrash2 } from 'react-icons/fi';
-import { StandardListPage, Button, Input, Toggle, TextareaInput, Modal, ConfirmationModal } from '../../components/common';
-import { withAdminSeo } from '../../components/SEO';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { ThemeRecord, ThemeColorConfig, ThemeColorModes } from '../../types/theme';
-import { defaultThemeConfig } from '../../config/theme.config';
-import { trpc } from '../../utils/trpc';
+import { StandardListPage, Button, Input, Toggle, TextareaInput, Modal, ConfirmationModal } from '@admin/components/common';
+import { withAdminSeo } from '@admin/components/SEO';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { ThemeRecord, ThemeColorConfig, ThemeColorModes } from '@admin/types/theme';
+import { defaultThemeConfig } from '@admin/config/theme.config';
+import { trpc } from '@admin/utils/trpc';
 import clsx from 'clsx';
 
 interface ThemeFiltersState {

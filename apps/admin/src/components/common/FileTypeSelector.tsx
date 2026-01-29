@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Check, ChevronDown, File, Image, FileText, Music, Video, Archive, Code, FileType } from 'lucide-react';
 import clsx from 'clsx';
-import { BASE_LABEL_CLASS } from './styles';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
 
 // Common file types with user-friendly names and MIME types
 export const FILE_TYPE_CATEGORIES = {

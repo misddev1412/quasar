@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useTablePreferences } from './useTablePreferences';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
 
 interface UseTableStateOptions<TFilters> {
     tableId: string;

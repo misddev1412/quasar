@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiUser, FiEdit2, FiMail, FiPhone, FiMapPin, FiCalendar, FiAward, FiCreditCard, FiPackage, FiTag, FiFileText, FiArrowLeft, FiHome, FiPlus, FiCopy } from 'react-icons/fi';
-import { BaseLayout } from '../../components/layout';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../utils/trpc';
-import { Button, Card } from '../../components/common';
-import { AddressBookModal, AddressBookList } from '../../components/customers';
-import { AddressBook } from '../../types/address-book';
-import { useToast } from '../../contexts/ToastContext';
+import { BaseLayout } from '@admin/components/layout';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
+import { Button, Card } from '@admin/components/common';
+import { AddressBookModal, AddressBookList } from '@admin/components/customers';
+import { AddressBook } from '@admin/types/address-book';
+import { useToast } from '@admin/contexts/ToastContext';
 
 const CustomerDetailPage: React.FC = () => {
   const navigate = useNavigate();

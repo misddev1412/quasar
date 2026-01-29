@@ -2,7 +2,7 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `project.json`.
 
-import { getConfiguredApiUrl } from '../utils/apiConfig';
+import { getConfiguredApiUrl } from '@admin/utils/apiConfig';
 
 export const environment = {
   production: false,

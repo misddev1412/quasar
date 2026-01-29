@@ -1,25 +1,25 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../common/Card';
-import { Button } from '../common/Button';
-import { Badge } from '../common/Badge';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { Loading } from '../common/Loading';
-import { Alert, AlertDescription } from '../common/Alert';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../common/Dialog';
-import { FormInput } from '../common/FormInput';
-import Textarea from '../common/Textarea';
-import { Toggle } from '../common/Toggle';
-import SearchSelect from '../common/SearchSelect';
-import { Select } from '../common/Select';
-import type { NotificationChannel } from '../../hooks/useNotificationPreferences';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@admin/components/common/Card';
+import { Button } from '@admin/components/common/Button';
+import { Badge } from '@admin/components/common/Badge';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { Loading } from '@admin/components/common/Loading';
+import { Alert, AlertDescription } from '@admin/components/common/Alert';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@admin/components/common/Dialog';
+import { FormInput } from '@admin/components/common/FormInput';
+import Textarea from '@admin/components/common/Textarea';
+import { Toggle } from '@admin/components/common/Toggle';
+import SearchSelect from '@admin/components/common/SearchSelect';
+import { Select } from '@admin/components/common/Select';
+import type { NotificationChannel } from '@admin/hooks/useNotificationPreferences';
 import {
   NOTIFICATION_EVENT_LABELS,
   NOTIFICATION_EVENT_OPTIONS,
   NotificationEventFlow,
   NotificationEventFlowRecipient,
   NotificationEventKey,
-} from '../../types/notification-events';
+} from '@admin/types/notification-events';
 
 type TemplateOption = {
   value: string;

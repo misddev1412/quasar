@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { trpc } from '../utils/trpc';
+import { trpc } from '@admin/utils/trpc';
 import { SupportedLocale } from '@shared';
-import { getCurrentLocale } from '../i18n';
+import { getCurrentLocale } from '@admin/i18n';
 
 type TranslationOptions = Record<string, unknown>;
 

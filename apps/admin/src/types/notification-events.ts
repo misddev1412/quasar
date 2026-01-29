@@ -1,4 +1,4 @@
-import type { NotificationChannel } from '../hooks/useNotificationPreferences';
+import type { NotificationChannel } from '@admin/hooks/useNotificationPreferences';
 
 export type NotificationEventKey =
   | 'custom.manual'

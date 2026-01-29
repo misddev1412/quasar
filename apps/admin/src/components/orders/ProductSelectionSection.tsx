@@ -1,12 +1,12 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { FiSearch, FiPlus, FiMinus, FiTrash2, FiPackage } from 'react-icons/fi';
-import { Button } from '../common/Button';
-import { Card } from '../common/Card';
-import { FormInput } from '../common/FormInput';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../utils/trpc';
-import { Product } from '../../types/product';
-import { Loading } from '../common/Loading';
+import { Button } from '@admin/components/common/Button';
+import { Card } from '@admin/components/common/Card';
+import { FormInput } from '@admin/components/common/FormInput';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
+import { Product } from '@admin/types/product';
+import { Loading } from '@admin/components/common/Loading';
 
 export interface OrderItem {
   productId: string;

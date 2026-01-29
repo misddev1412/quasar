@@ -1,5 +1,5 @@
 import { PermissionAction, PermissionScope } from '@shared';
-import { getRoutePermission } from '../config/route-permissions';
+import { getRoutePermission } from '@admin/config/route-permissions';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type UserRecord = Record<string, any> | null;

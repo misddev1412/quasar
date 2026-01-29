@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { FiUpload, FiX, FiImage, FiInfo } from 'react-icons/fi';
-import { Button } from '../common/Button';
-import { Input } from '../common/Input';
-import { Switch } from '../common/Switch';
-import { MediaManager } from '../common/MediaManager';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { useSettings } from '../../hooks/useSettings';
+import { Button } from '@admin/components/common/Button';
+import { Input } from '@admin/components/common/Input';
+import { Switch } from '@admin/components/common/Switch';
+import { MediaManager } from '@admin/components/common/MediaManager';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useSettings } from '@admin/hooks/useSettings';
 
 interface AssetConfig {
   key: string;

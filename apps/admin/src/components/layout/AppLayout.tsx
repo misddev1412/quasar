@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useLayout } from '../../contexts/LayoutContext';
-import { useTheme } from '../../contexts/ThemeContext';
-import { AnalyticsProvider } from '../common/AnalyticsProvider';
-import Sidebar from './Sidebar';
-import Header from './Header';
-import Footer from './Footer';
-import Content from './Content';
-import HorizontalNav from './HorizontalNav';
+import { useLayout } from '@admin/contexts/LayoutContext';
+import { useTheme } from '@admin/contexts/ThemeContext';
+import { AnalyticsProvider } from '@admin/components/common/AnalyticsProvider';
+import Sidebar from '@admin/components/layout/Sidebar';
+import Header from '@admin/components/layout/Header';
+import Footer from '@admin/components/layout/Footer';
+import Content from '@admin/components/layout/Content';
+import HorizontalNav from '@admin/components/layout/HorizontalNav';
 import { Box, SpeedDial, SpeedDialAction, SpeedDialIcon, Fab, Zoom, useScrollTrigger } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -15,9 +15,9 @@ import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useNavigate } from 'react-router-dom';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useAdminSeo } from '../../hooks/useAdminSeo';
-import { Z_INDEX } from '../../utils/zIndex';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useAdminSeo } from '@admin/hooks/useAdminSeo';
+import { Z_INDEX } from '@admin/utils/zIndex';
 
 const QuickActionsFab = styled('div')({
   position: 'fixed',

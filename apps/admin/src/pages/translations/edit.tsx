@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiFileText, FiHome } from 'react-icons/fi';
-import { StandardFormPage } from '../../components/common';
-import { EditTranslationForm } from '../../components/translations';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { UpdateTranslationData } from '../../types/translation';
+import { StandardFormPage } from '@admin/components/common';
+import { EditTranslationForm } from '@admin/components/translations';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { UpdateTranslationData } from '@admin/types/translation';
 
 const EditTranslationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

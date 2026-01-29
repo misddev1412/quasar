@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiTruck } from 'react-icons/fi';
-import { StandardFormPage } from '../../components/common';
-import { CreateShippingProviderForm, CreateShippingProviderFormData } from '../../components/shipping-providers';
-import { useToast } from '../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useUrlTabs } from '../../hooks/useUrlTabs';
-import { trpc } from '../../utils/trpc';
+import { StandardFormPage } from '@admin/components/common';
+import { CreateShippingProviderForm, CreateShippingProviderFormData } from '@admin/components/shipping-providers';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
+import { trpc } from '@admin/utils/trpc';
 
 const CreateShippingProviderPage: React.FC = () => {
   const navigate = useNavigate();

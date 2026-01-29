@@ -1,5 +1,5 @@
 // Role-related types and interfaces for the admin application
-import { UserRole } from './user';
+import { UserRole } from '@admin/types/user';
 
 export interface Permission {
   id: string;

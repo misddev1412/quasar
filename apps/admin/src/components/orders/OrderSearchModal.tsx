@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import { FiSearch, FiRefreshCw, FiDollarSign, FiClock, FiUser, FiPackage } from 'react-icons/fi';
-import { Modal } from '../common/Modal';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { InputWithIcon } from '../common/InputWithIcon';
-import { trpc } from '../../utils/trpc';
-import { Button } from '../common/Button';
-import { Badge } from '../common/Badge';
+import { Modal } from '@admin/components/common/Modal';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { InputWithIcon } from '@admin/components/common/InputWithIcon';
+import { trpc } from '@admin/utils/trpc';
+import { Button } from '@admin/components/common/Button';
+import { Badge } from '@admin/components/common/Badge';
 
 export interface OrderSummary {
   id: string;

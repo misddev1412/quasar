@@ -1,10 +1,10 @@
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useAuth } from '../../contexts/AuthContext';
-import { AuthCard, LoginForm, LoginSkeleton } from '../../components/auth';
-import { useLoginForm } from '../../hooks/useLoginForm';
-import { useAdminSeo } from '../../hooks/useAdminSeo';
-import { useBrandingSetting } from '../../hooks/useBrandingSetting';
-import { ADMIN_LOGIN_BRANDING_KEY, DEFAULT_ADMIN_LOGIN_BRANDING } from '../../constants/adminBranding';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useAuth } from '@admin/contexts/AuthContext';
+import { AuthCard, LoginForm, LoginSkeleton } from '@admin/components/auth';
+import { useLoginForm } from '@admin/hooks/useLoginForm';
+import { useAdminSeo } from '@admin/hooks/useAdminSeo';
+import { useBrandingSetting } from '@admin/hooks/useBrandingSetting';
+import { ADMIN_LOGIN_BRANDING_KEY, DEFAULT_ADMIN_LOGIN_BRANDING } from '@admin/constants/adminBranding';
 
 export function LoginPage() {
   const auth = useAuth();

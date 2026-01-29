@@ -1,1 +1,1 @@
-export * from './CreateShippingProviderForm';
+export * from '@admin/components/shipping-providers/CreateShippingProviderForm';

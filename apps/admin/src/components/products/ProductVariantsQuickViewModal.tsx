@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import { Product, ProductVariant } from '../../types/product';
-import { Modal } from '../common/Modal';
-import { Button } from '../common/Button';
-import { Badge } from '../common/Badge';
-import { Toggle } from '../common/Toggle';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { Product, ProductVariant } from '@admin/types/product';
+import { Modal } from '@admin/components/common/Modal';
+import { Button } from '@admin/components/common/Button';
+import { Badge } from '@admin/components/common/Badge';
+import { Toggle } from '@admin/components/common/Toggle';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface ProductVariantsQuickViewModalProps {
   product: Product | null;

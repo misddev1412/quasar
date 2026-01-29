@@ -2,12 +2,12 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package } from 'lucide-react';
 import { FiHome, FiPackage } from 'react-icons/fi';
-import { StandardFormPage } from '../../components/common';
-import { ProductForm, ProductFormData, ProductFormSubmitOptions } from '../../components/products';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { useUrlTabs } from '../../hooks/useUrlTabs';
-import { trpc } from '../../utils/trpc';
+import { StandardFormPage } from '@admin/components/common';
+import { ProductForm, ProductFormData, ProductFormSubmitOptions } from '@admin/components/products';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
+import { trpc } from '@admin/utils/trpc';
 
 const CreateProductPage: React.FC = () => {
   const { t } = useTranslationWithBackend();

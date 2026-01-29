@@ -6,7 +6,7 @@ import ReactSelect, {
   Props as ReactSelectProps,
   components as selectComponents,
 } from 'react-select';
-import { useSelectMenuPortalTarget } from '../../hooks/useSelectMenuPortalTarget';
+import { useSelectMenuPortalTarget } from '@admin/hooks/useSelectMenuPortalTarget';
 
 export interface ModalReactSelectProps<
   Option,

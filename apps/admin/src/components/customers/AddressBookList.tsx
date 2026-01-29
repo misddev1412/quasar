@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { PencilIcon, TrashIcon, StarIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../utils/trpc';
-import { AddressBook } from '../../types/address-book';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
+import { AddressBook } from '@admin/types/address-book';
 
 interface AddressBookListProps {
   customerId: string;

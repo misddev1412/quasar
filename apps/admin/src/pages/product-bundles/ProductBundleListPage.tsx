@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../services/api';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/services/api';
 import { Box, Button, Card, CardContent, Chip, IconButton, Tooltip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { StandardListPage, Table } from '../../components/common';
-import type { Column } from '../../components/common';
+import { StandardListPage, Table } from '@admin/components/common';
+import type { Column } from '@admin/components/common';
 import { format } from 'date-fns';
 
 const ProductBundleListPage: React.FC = () => {

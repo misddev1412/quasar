@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiEdit2, FiArrowLeft, FiHome } from 'react-icons/fi';
-import { BaseLayout } from '../../components/layout';
-import { EditCustomerForm, EditCustomerFormData } from '../../components/customers';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { Button, Card } from '../../components/common';
+import { BaseLayout } from '@admin/components/layout';
+import { EditCustomerForm, EditCustomerFormData } from '@admin/components/customers';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { Button, Card } from '@admin/components/common';
 
 const EditCustomerPage: React.FC = () => {
   const navigate = useNavigate();

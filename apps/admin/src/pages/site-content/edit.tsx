@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiFileText } from 'react-icons/fi';
-import { StandardFormPage, Alert, AlertDescription, AlertTitle, Loading } from '../../components/common';
-import { useToast } from '../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../utils/trpc';
-import { SiteContentForm, SiteContentFormSubmitPayload } from '../../components/site-content';
-import { defaultSiteContentFormValues, SiteContent } from '../../types/site-content';
+import { StandardFormPage, Alert, AlertDescription, AlertTitle, Loading } from '@admin/components/common';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
+import { SiteContentForm, SiteContentFormSubmitPayload } from '@admin/components/site-content';
+import { defaultSiteContentFormValues, SiteContent } from '@admin/types/site-content';
 
 const SiteContentEditPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

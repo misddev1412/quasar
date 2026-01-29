@@ -8,9 +8,9 @@ import {
   StylesConfig,
 } from 'react-select';
 import type { AsyncProps } from 'react-select/async';
-import './CountrySelector.css';
-import { BASE_LABEL_CLASS } from './styles';
-import { useSelectMenuPortalTarget } from '../../hooks/useSelectMenuPortalTarget';
+import '@admin/components/common/CountrySelector.css';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
+import { useSelectMenuPortalTarget } from '@admin/hooks/useSelectMenuPortalTarget';
 
 type SearchSelectSize = 'sm' | 'md' | 'lg';
 

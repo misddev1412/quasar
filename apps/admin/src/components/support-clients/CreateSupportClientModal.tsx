@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { FiMessageSquare, FiInfo } from 'react-icons/fi';
-import { Modal } from '../common/Modal';
-import { Button } from '../common/Button';
-import { FormInput } from '../common/FormInput';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
+import { Modal } from '@admin/components/common/Modal';
+import { Button } from '@admin/components/common/Button';
+import { FormInput } from '@admin/components/common/FormInput';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
 import { SupportClientType, WidgetPosition, WidgetTheme, SupportClient } from '@shared/types/support-client';
 
 interface CreateSupportClientModalProps {

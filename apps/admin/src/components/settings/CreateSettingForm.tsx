@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useSettings, SettingData } from '../../hooks/useSettings';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { Toggle } from '../common/Toggle';
+import { useSettings, SettingData } from '@admin/hooks/useSettings';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Toggle } from '@admin/components/common/Toggle';
 
 interface CreateSettingFormProps {
   onClose: () => void;

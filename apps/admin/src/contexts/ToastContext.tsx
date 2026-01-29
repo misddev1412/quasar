@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import * as Toast from '@radix-ui/react-toast';
-import { appEvents } from '../lib/event-emitter';
+import { appEvents } from '@admin/lib/event-emitter';
 
 type ToastMessage = {
   id: string;

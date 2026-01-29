@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { StandardListPage } from '../../components/common';
-import { SiteContentContainer } from '../../components/site-content';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { StandardListPage } from '@admin/components/common';
+import { SiteContentContainer } from '@admin/components/site-content';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import type { ReactNode } from 'react';
 
 const SiteContentListPage: React.FC = () => {

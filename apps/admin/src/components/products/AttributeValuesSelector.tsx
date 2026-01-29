@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { FiX, FiPlus } from 'react-icons/fi';
-import { trpc } from '../../utils/trpc';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { Badge } from '../common/Badge';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Badge } from '@admin/components/common/Badge';
 
 interface AttributeValuesSelectorProps {
   attributeId: string;

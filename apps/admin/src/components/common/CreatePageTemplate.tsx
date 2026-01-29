@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FiArrowLeft, FiSave, FiX, FiCheckCircle, FiAlertCircle, FiClock } from 'react-icons/fi';
-import { Card, CardHeader, CardContent } from './Card';
-import BaseLayout from '../layout/BaseLayout';
-import { Button } from './Button';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import type { BreadcrumbItem } from './Breadcrumb';
+import { Card, CardHeader, CardContent } from '@admin/components/common/Card';
+import BaseLayout from '@admin/components/layout/BaseLayout';
+import { Button } from '@admin/components/common/Button';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import type { BreadcrumbItem } from '@admin/components/common/Breadcrumb';
 
 interface CreatePageTemplateProps {
   title: string;

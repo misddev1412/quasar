@@ -1,15 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FormInput } from '../common/FormInput';
-import { Button } from '../common/Button';
-import { MailIcon, LockIcon } from '../common/Icons';
-import { AlertBox } from '../common/AlertBox';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useStyleUtils } from '../../utils/styleUtils';
-import { useFirebaseAuth } from '../../hooks/useFirebaseAuth';
-import { useToast } from '../../contexts/ToastContext';
-import { firebaseService } from '../../services/firebase.service';
-import FirebaseEmailLoginModal from './FirebaseEmailLoginModal';
+import { FormInput } from '@admin/components/common/FormInput';
+import { Button } from '@admin/components/common/Button';
+import { MailIcon, LockIcon } from '@admin/components/common/Icons';
+import { AlertBox } from '@admin/components/common/AlertBox';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useStyleUtils } from '@admin/utils/styleUtils';
+import { useFirebaseAuth } from '@admin/hooks/useFirebaseAuth';
+import { useToast } from '@admin/contexts/ToastContext';
+import { firebaseService } from '@admin/services/firebase.service';
+import FirebaseEmailLoginModal from '@admin/components/auth/FirebaseEmailLoginModal';
 
 interface LoginFormUIProps {
   email: string;

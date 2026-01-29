@@ -1,19 +1,20 @@
 import React, { useMemo } from 'react';
 import { FiHome, FiUser } from 'react-icons/fi';
-import { ProfileForm, UpdatePasswordForm } from '../components/user';
-import { AdminUpdatePasswordDto, AdminUpdateUserProfileDto, AdminUserResponseDto } from '../../../backend/src/modules/user/dto/admin/admin-user.dto';
-import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
-import { useUrlTabs } from '../hooks/useUrlTabs';
-import { trpc } from '../utils/trpc';
-import { useToast } from '../contexts/ToastContext';
-import { BaseLayout } from '../components/layout';
-import { Breadcrumb, Tabs } from '../components/common';
+import { ProfileForm, UpdatePasswordForm } from '@admin/components/user';
+import { AdminUpdatePasswordDto, AdminUpdateUserProfileDto, AdminUserResponseDto } from '@backend/modules/user/dto/admin/admin-user.dto';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
+import { trpc } from '@admin/utils/trpc';
+import { useToast } from '@admin/contexts/ToastContext';
+import { BaseLayout } from '@admin/components/layout';
+import { Breadcrumb, Tabs } from '@admin/components/common';
 import { User, Lock, Settings } from 'lucide-react';
-import { useAdminSeo } from '../hooks/useAdminSeo';
+import { useAdminSeo } from '@admin/hooks/useAdminSeo';
 
 const UserProfilePage = () => {
   const { t } = useTranslationWithBackend();
   const { addToast } = useToast();
+  const utils = trpc.useUtils();
 
   // Set SEO for profile page
   useAdminSeo({
@@ -24,7 +25,7 @@ const UserProfilePage = () => {
       keywords: 'profile, user settings, account, admin'
     }
   });
-  const trpcContext = trpc.useContext();
+
 
   // Use URL tabs hook with tab keys for clean URLs
   const { activeTab, handleTabChange } = useUrlTabs({
@@ -44,7 +45,7 @@ const UserProfilePage = () => {
         title: t('profile.profile_updated_successfully'),
         description: t('profile.your_profile_has_been_updated'),
       });
-      trpcContext.adminUser.getProfile.invalidate();
+      utils.adminUser.getProfile.invalidate();
     },
     onError: (error) => {
       addToast({
@@ -80,26 +81,7 @@ const UserProfilePage = () => {
     await updatePasswordMutation.mutateAsync(data);
   }
 
-  const handleAvatarSelect = (file: any) => {
-    // Update the initialData with the selected avatar URL
-    // This will trigger a re-render of the ProfileForm with the new avatar
-    if (file && file.url) {
-      trpcContext.adminUser.getProfile.setData(undefined, (oldData: any) => {
-        if (!oldData || !oldData.data || !oldData.data.profile) return oldData;
 
-        return {
-          ...oldData,
-          data: {
-            ...oldData.data,
-            profile: {
-              ...oldData.data.profile,
-              avatar: file.url
-            }
-          }
-        };
-      });
-    }
-  };
 
   // Memoize initialData to prevent unnecessary re-renders
   const initialData = useMemo(() => {
@@ -140,7 +122,7 @@ const UserProfilePage = () => {
           isSubmitting={updateProfileMutation.isPending}
           error={updateProfileMutation.error?.message}
           isLoading={isLoading}
-          onAvatarSelect={handleAvatarSelect}
+
         />
       ),
     },
@@ -165,7 +147,6 @@ const UserProfilePage = () => {
     updatePasswordMutation.isPending,
     updatePasswordMutation.error?.message,
     isLoading,
-    handleAvatarSelect
   ]);
 
   const renderContent = () => {

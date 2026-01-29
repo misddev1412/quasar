@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { FiPackage, FiToggleLeft, FiToggleRight, FiEdit, FiTrash2, FiPlus, FiCheck, FiX, FiTag, FiHelpCircle } from 'react-icons/fi';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { Button } from '../common/Button';
-import { Card } from '../common/Card';
-import { Badge } from '../common/Badge';
-import { Select } from '../common/Select';
-import { ProductVariantMatrixGenerator, VariantMatrixItem } from './ProductVariantMatrixGenerator';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { Button } from '@admin/components/common/Button';
+import { Card } from '@admin/components/common/Card';
+import { Badge } from '@admin/components/common/Badge';
+import { Select } from '@admin/components/common/Select';
+import { ProductVariantMatrixGenerator, VariantMatrixItem } from '@admin/components/products/ProductVariantMatrixGenerator';
 
 export type { VariantMatrixItem };
 

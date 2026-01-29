@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
-import ModalReactSelect from '../common/ModalReactSelect';
-import { MenuTreeNode } from '../../hooks/useMenusManager';
+import ModalReactSelect from '@admin/components/common/ModalReactSelect';
+import { MenuTreeNode } from '@admin/hooks/useMenusManager';
 
 interface ParentMenuSelectorProps {
   value?: string;

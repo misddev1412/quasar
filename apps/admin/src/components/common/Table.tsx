@@ -1,11 +1,11 @@
 import clsx from 'clsx';
 import React, { useEffect, useMemo, useRef, useState, useCallback, memo } from 'react';
-import { Button } from './Button';
-import { Card } from './Card';
-import { Dropdown } from './Dropdown';
-import { Select } from './Select';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { TABLE_CONFIG, getPageSizeOptions, type PageSizeOption } from '../../config/table.config';
+import { Button } from '@admin/components/common/Button';
+import { Card } from '@admin/components/common/Card';
+import { Dropdown } from '@admin/components/common/Dropdown';
+import { Select } from '@admin/components/common/Select';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { TABLE_CONFIG, getPageSizeOptions, type PageSizeOption } from '@admin/config/table.config';
 
 /**
  * Utility function to format datetime values for table display

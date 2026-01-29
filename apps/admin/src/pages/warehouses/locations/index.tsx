@@ -23,12 +23,12 @@ import {
   StandardListPage,
   StatisticsGrid,
   Table,
-} from '../../../components/common';
-import type { Column, SortDescriptor, StatisticData } from '../../../components/common';
-import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
-import { useToast } from '../../../contexts/ToastContext';
-import { useTablePreferences } from '../../../hooks/useTablePreferences';
-import type { WarehouseLocation } from '../../../types/warehouse';
+} from '@admin/components/common';
+import type { Column, SortDescriptor, StatisticData } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import type { WarehouseLocation } from '@admin/types/warehouse';
 
 const DEFAULT_VISIBLE_COLUMNS = [
   'name',

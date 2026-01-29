@@ -2,15 +2,15 @@ import React, { useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Package } from 'lucide-react';
 import { FiHome, FiPackage } from 'react-icons/fi';
-import { StandardFormPage, Alert, AlertDescription, AlertTitle } from '../../../components/common';
-import { ProductForm, ProductFormData, ProductFormSubmitOptions, ProductFormSubmitAction } from '../../../components/products';
-import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
-import { useToast } from '../../../contexts/ToastContext';
-import { useUrlTabs } from '../../../hooks/useUrlTabs';
-import { trpc } from '../../../utils/trpc';
-import { Product } from '../../../types/product';
-import { useAuth } from '../../../hooks/useAuth';
-import { canEditRouteResource } from '../../../utils/permission-access';
+import { StandardFormPage, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
+import { ProductForm, ProductFormData, ProductFormSubmitOptions, ProductFormSubmitAction } from '@admin/components/products';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
+import { trpc } from '@admin/utils/trpc';
+import { Product } from '@admin/types/product';
+import { useAuth } from '@admin/hooks/useAuth';
+import { canEditRouteResource } from '@admin/utils/permission-access';
 
 const EditProductPage: React.FC = () => {
   const { t } = useTranslationWithBackend();

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useFieldArray, useFormContext, Controller } from 'react-hook-form';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
@@ -8,10 +8,10 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { trpc, trpcClient } from '../../utils/trpc'; // Ensure correct import path for trpc
+import { trpc, trpcClient } from '@admin/utils/trpc'; // Ensure correct import path for trpc
 
 // Common Components
-import { FormInput, Select, AsyncSearchSelect, Button } from '../../components/common';
+import { FormInput, Select, AsyncSearchSelect, Button } from '@admin/components/common';
 
 // Sortable Item Component
 // Fix for TS2786: 'SortableContext' cannot be used as a JSX component

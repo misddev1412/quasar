@@ -1,5 +1,5 @@
 import React from 'react';
-import { BASE_LABEL_CLASS } from './styles';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
 
 interface TextareaInputProps {
   id: string;

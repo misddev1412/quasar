@@ -1,9 +1,9 @@
 import React from 'react';
 import { FiX, FiSearch } from 'react-icons/fi';
-import { Button } from '../common/Button';
-import { Input } from '../common/Input';
-import { Select } from '../common/Select';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { Button } from '@admin/components/common/Button';
+import { Input } from '@admin/components/common/Input';
+import { Select } from '@admin/components/common/Select';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 export interface AttributeFilterOptions {
   search?: string;

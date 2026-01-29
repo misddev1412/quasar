@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { AuthCard, ForgotPasswordForm } from '../../components/auth';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../utils/trpc';
-import { useAdminSeo } from '../../hooks/useAdminSeo';
+import { AuthCard, ForgotPasswordForm } from '@admin/components/auth';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
+import { useAdminSeo } from '@admin/hooks/useAdminSeo';
 
 export function ForgotPasswordPage() {
   const [error, setError] = useState('');

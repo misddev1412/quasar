@@ -1,4 +1,4 @@
-import { buildApiUrl } from './apiConfig';
+import { buildApiUrl } from '@admin/utils/apiConfig';
 
 interface UploadResponse {
   success: boolean;

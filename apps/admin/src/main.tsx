@@ -7,16 +7,16 @@ import { httpBatchLink } from '@trpc/client';
 import '@shared/styles/css/index.css';
 
 // Import admin-specific styles, including Tailwind
-import './styles.scss';
+import '@admin/styles.scss';
 
 // Legacy locale bootstrap (does not force a default)
-import './setDefaultLocale';
+import '@admin/setDefaultLocale';
 
 // Initialize i18n
-import './i18n';
+import '@admin/i18n';
 
-import App from './app/app';
-import { trpc, createTrpcClient } from './utils/trpc';
+import App from '@admin/app/app';
+import { trpc, createTrpcClient } from '@admin/utils/trpc';
 
 // Create a query client
 const queryClient = new QueryClient({

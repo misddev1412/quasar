@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPackage } from 'react-icons/fi';
-import { StandardFormPage } from '../../../components/common';
-import { CreateFulfillmentForm, CreateFulfillmentPayload } from '../../../components/fulfillments';
-import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
-import { useToast } from '../../../contexts/ToastContext';
-import { trpc } from '../../../utils/trpc';
+import { StandardFormPage } from '@admin/components/common';
+import { CreateFulfillmentForm, CreateFulfillmentPayload } from '@admin/components/fulfillments';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
 
 const OrderFulfillmentCreatePage: React.FC = () => {
   const navigate = useNavigate();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertIcon } from './Icons';
+import { AlertIcon } from '@admin/components/common/Icons';
 
 export interface AlertBoxProps {
   type?: 'error' | 'warning' | 'success' | 'info';

@@ -1,11 +1,11 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPlus, FiMoreVertical, FiEdit2, FiTrash2, FiRefreshCw, FiActivity, FiXCircle, FiList, FiTag } from 'react-icons/fi';
-import { Button, Card, Dropdown, Select, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '../../components/common';
-import type { StatisticData, Column } from '../../components/common';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
+import { Button, Card, Dropdown, Select, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
+import type { StatisticData, Column } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
 
 // Temporary interface until backend types are synced
 interface Service {

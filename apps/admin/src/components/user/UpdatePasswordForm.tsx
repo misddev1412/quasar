@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { useForm, SubmitHandler, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import FormInput from '../common/FormInput';
-import { Button } from '../common/Button';
-import { AdminUpdatePasswordDto } from '../../../../backend/src/modules/user/dto/admin/admin-user.dto';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import FormInput from '@admin/components/common/FormInput';
+import { Button } from '@admin/components/common/Button';
+import { AdminUpdatePasswordDto } from '@backend/modules/user/dto/admin/admin-user.dto';
 import { Eye, EyeOff, CheckCircle2, XCircle } from 'lucide-react';
-import PasswordStrengthMeter from './PasswordStrengthMeter';
+import PasswordStrengthMeter from '@admin/components/user/PasswordStrengthMeter';
 
 const passwordRules = (t: (key: string, options?: any) => string) => [
   { id: 'length', text: t('validation.password_min_length', { min: 8 }), regex: /.{8,}/ },

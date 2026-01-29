@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useFormState } from './useFormState';
-import { useTranslationWithBackend } from './useTranslationWithBackend';
-import { useToast } from '../contexts/ToastContext';
-import { UseAuthReturn } from './useAuth';
+import { useFormState } from '@admin/hooks/useFormState';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { UseAuthReturn } from '@admin/hooks/useAuth';
 
 interface LoginFormValues {
   email: string;

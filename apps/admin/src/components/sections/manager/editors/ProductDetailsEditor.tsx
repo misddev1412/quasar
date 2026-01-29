@@ -1,13 +1,13 @@
 import React from 'react';
 import { FiPlus, FiTrash2, FiChevronUp, FiChevronDown } from 'react-icons/fi';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { Input } from '../../../common/Input';
-import { TextArea } from '../common';
-import { Button } from '../../../common/Button';
-import { Switch } from '../../../common/Switch';
-import { IconSelector } from '../../../menus/IconSelector';
-import { UnifiedIcon } from '../../../common/UnifiedIcon';
-import { ConfigChangeHandler } from '../types';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Input } from '@admin/components/common/Input';
+import { TextArea } from '@admin/components/sections/manager/common';
+import { Button } from '@admin/components/common/Button';
+import { Switch } from '@admin/components/common/Switch';
+import { IconSelector } from '@admin/components/menus/IconSelector';
+import { UnifiedIcon } from '@admin/components/common/UnifiedIcon';
+import { ConfigChangeHandler } from '@admin/components/sections/manager/types';
 
 interface PolicyBoxConfig {
     id?: string;

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import { Button } from '../common/Button';
-import { QUICK_FILTER_OPTIONS, getQuickFilterDateRange, QuickFilterKey } from '../../utils/dateUtils';
+import { Button } from '@admin/components/common/Button';
+import { QUICK_FILTER_OPTIONS, getQuickFilterDateRange, QuickFilterKey } from '@admin/utils/dateUtils';
 
 interface QuickDateFiltersProps {
   activeFilter?: QuickFilterKey | null;

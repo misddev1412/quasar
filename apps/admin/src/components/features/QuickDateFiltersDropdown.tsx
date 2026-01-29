@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiChevronDown, FiCheck, FiX, FiCalendar } from 'react-icons/fi';
-import { Button } from '../common/Button';
-import { QUICK_FILTER_OPTIONS, QuickFilterKey } from '../../utils/dateUtils';
+import { Button } from '@admin/components/common/Button';
+import { QUICK_FILTER_OPTIONS, QuickFilterKey } from '@admin/utils/dateUtils';
 
 // Define filter categories for better organization and extensibility
 export interface FilterCategory {

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useAuth } from './useAuth';
+import { useAuth } from '@admin/hooks/useAuth';
 
 /**
  * Hook to automatically verify authentication on protected pages

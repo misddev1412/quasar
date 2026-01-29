@@ -8,7 +8,7 @@ import {
   InputBase,
   MenuItem
 } from '@mui/material';
-import { Z_INDEX } from '../../../../utils/zIndex';
+import { Z_INDEX } from '@admin/utils/zIndex';
 
 export const StyledDrawer = styled(Drawer)(({ theme }) => ({
   width: 250,

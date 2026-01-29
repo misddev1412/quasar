@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiRefreshCw, FiFilter, FiDownload, FiEye, FiHome, FiTrendingUp, FiTrendingDown, FiAward, FiUser, FiCalendar } from 'react-icons/fi';
-import { Button, Card, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '../../../components/common';
-import type { StatisticData, Column, SortDescriptor } from '../../../components/common';
-import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
-import { useToast } from '../../../contexts/ToastContext';
-import { trpc } from '../../../utils/trpc';
-import { useTablePreferences } from '../../../hooks/useTablePreferences';
-import { LoyaltyTransaction } from '../../../types/loyalty';
+import { Button, Card, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
+import type { StatisticData, Column, SortDescriptor } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import { LoyaltyTransaction } from '@admin/types/loyalty';
 
 interface LoyaltyTransactionFiltersType {
   type?: "expired" | "earned" | "redeemed" | "adjusted" | "referral_bonus";

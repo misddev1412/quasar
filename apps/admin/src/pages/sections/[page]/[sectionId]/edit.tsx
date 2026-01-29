@@ -2,10 +2,10 @@ import React, { useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Layout } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { StandardFormPage } from '../../../../components/common';
-import { SectionForm, SectionFormState, buildSectionPayload, sectionToFormState } from '../../../../components/sections';
-import { useSectionsManager, SectionComponentSummary } from '../../../../hooks/useSectionsManager';
-import { useToast } from '../../../../contexts/ToastContext';
+import { StandardFormPage } from '@admin/components/common';
+import { SectionForm, SectionFormState, buildSectionPayload, sectionToFormState } from '@admin/components/sections';
+import { useSectionsManager, SectionComponentSummary } from '@admin/hooks/useSectionsManager';
+import { useToast } from '@admin/contexts/ToastContext';
 
 interface LinkedComponentNode extends SectionComponentSummary {
   children: LinkedComponentNode[];

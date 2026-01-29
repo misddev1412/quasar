@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { DateInput } from '../DateInput';
+import { DateInput } from '@admin/components/common/DateInput';
 
 describe('DateInput', () => {
   it('renders with label and input', () => {

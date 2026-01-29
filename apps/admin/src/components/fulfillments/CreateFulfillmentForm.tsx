@@ -15,12 +15,12 @@ import {
   FiChevronDown,
   FiChevronUp,
 } from 'react-icons/fi';
-import { trpc } from '../../utils/trpc';
-import { Button } from '../common/Button';
-import { Loading } from '../common/Loading';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import type { AdministrativeDivisionType } from '../../../../backend/src/modules/products/entities/administrative-division.entity';
+import { trpc } from '@admin/utils/trpc';
+import { Button } from '@admin/components/common/Button';
+import { Loading } from '@admin/components/common/Loading';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import type { AdministrativeDivisionType } from '@backend/modules/products/entities/administrative-division.entity';
 
 interface AddressFormValue {
   firstName?: string;

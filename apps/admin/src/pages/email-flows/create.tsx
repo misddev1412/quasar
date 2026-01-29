@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Settings, FileText, Server, Hash } from 'lucide-react';
-import { StandardFormPage, EntityForm } from '../../components/common';
-import { FormTabConfig } from '../../types/forms';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
+import { StandardFormPage, EntityForm } from '@admin/components/common';
+import { FormTabConfig } from '@admin/types/forms';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
 import { z } from 'zod';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useUrlTabs } from '../../hooks/useUrlTabs';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
 
 type MailChannelPriorityFormData = {
   name: string;

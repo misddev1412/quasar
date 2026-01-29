@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { trpc } from '../utils/trpc';
+import { trpc } from '@admin/utils/trpc';
 import { TrpcApiResponse } from '@shared/types/api-response.types';
 
 interface LoginInput {

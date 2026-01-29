@@ -1,14 +1,14 @@
 import React, { useCallback, useId, useMemo, useState } from 'react';
 import { FiUpload, FiDownload, FiFileText, FiAlertTriangle, FiCheckCircle, FiX } from 'react-icons/fi';
-import { Modal } from '../common/Modal';
-import { Button } from '../common/Button';
-import { Card, CardContent } from '../common/Card';
-import { Select } from '../common/Select';
-import { Checkbox } from '../common/Checkbox';
-import { DialogClose } from '../common/Dialog';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
+import { Modal } from '@admin/components/common/Modal';
+import { Button } from '@admin/components/common/Button';
+import { Card, CardContent } from '@admin/components/common/Card';
+import { Select } from '@admin/components/common/Select';
+import { Checkbox } from '@admin/components/common/Checkbox';
+import { DialogClose } from '@admin/components/common/Dialog';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
 
 type ProductStatusOption = 'ACTIVE' | 'DRAFT' | 'INACTIVE' | 'DISCONTINUED';
 

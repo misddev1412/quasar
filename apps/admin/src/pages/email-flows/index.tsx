@@ -1,11 +1,11 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiTrash2, FiMail, FiHome } from 'react-icons/fi';
-import { StandardListPage, Table, Button, Card, Select, Badge, ConfirmationModal, Alert, AlertDescription, AlertTitle } from '../../components/common';
-import type { Column } from '../../components/common';
-import { useToast } from '../../contexts/ToastContext';
-import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { trpc } from '../../utils/trpc';
+import { StandardListPage, Table, Button, Card, Select, Badge, ConfirmationModal, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
+import type { Column } from '@admin/components/common';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import { trpc } from '@admin/utils/trpc';
 
 type MailChannelPriorityItem = {
   id: string;

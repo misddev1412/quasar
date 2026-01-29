@@ -2,16 +2,16 @@ import React from 'react';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CreateSeoDto } from '@backend/modules/seo/dto/seo.dto';
-import { useSeoManager } from '../../hooks/useSeoManager';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { Toggle } from '../common/Toggle';
-import { MediaManager } from '../common/MediaManager';
+import { useSeoManager } from '@admin/hooks/useSeoManager';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { Toggle } from '@admin/components/common/Toggle';
+import { MediaManager } from '@admin/components/common/MediaManager';
 import { useState } from 'react';
-import { OG_META_FIELDS } from './ogMetaFields';
-import { Button } from '../common/Button';
+import { OG_META_FIELDS } from '@admin/components/SEO/ogMetaFields';
+import { Button } from '@admin/components/common/Button';
 import { FiImage } from 'react-icons/fi';
-import { ImageActionButtons } from '../common/ImageActionButtons';
+import { ImageActionButtons } from '@admin/components/common/ImageActionButtons';
 
 interface CreateSeoFormProps {
   onClose: () => void;

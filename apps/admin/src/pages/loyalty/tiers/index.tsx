@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPlus, FiMoreVertical, FiAward, FiActivity, FiEdit2, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiUsers, FiHome, FiStar } from 'react-icons/fi';
-import { Button, Card, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '../../../components/common';
-import type { StatisticData, Column, SortDescriptor } from '../../../components/common';
-import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
-import { useToast } from '../../../contexts/ToastContext';
-import { trpc } from '../../../utils/trpc';
-import { useTablePreferences } from '../../../hooks/useTablePreferences';
-import { LoyaltyTier } from '../../../types/loyalty';
+import { Button, Card, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
+import type { StatisticData, Column, SortDescriptor } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import { LoyaltyTier } from '@admin/types/loyalty';
 
 interface LoyaltyTierFiltersType {
   isActive?: boolean;

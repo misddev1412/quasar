@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { FiX, FiSave, FiImage, FiGlobe } from 'react-icons/fi';
-import { Modal } from '../common/Modal';
-import { Button } from '../common/Button';
-import { Input } from '../common/Input';
-import { Checkbox } from '../common/Checkbox';
-import { Card } from '../common/Card';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { TranslationTabs } from '../common/TranslationTabs';
-import { MediaManager } from '../common/MediaManager';
-import { trpc } from '../../utils/trpc';
+import { Modal } from '@admin/components/common/Modal';
+import { Button } from '@admin/components/common/Button';
+import { Input } from '@admin/components/common/Input';
+import { Checkbox } from '@admin/components/common/Checkbox';
+import { Card } from '@admin/components/common/Card';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { TranslationTabs } from '@admin/components/common/TranslationTabs';
+import { MediaManager } from '@admin/components/common/MediaManager';
+import { trpc } from '@admin/utils/trpc';
 
 interface EditBrandModalProps {
   isOpen: boolean;

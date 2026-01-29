@@ -11,9 +11,9 @@ import {
   type MainMenuItemWeight,
   type MainMenuItemTransform,
 } from '@shared/types/navigation.types';
-import { ColorSelector } from '../common/ColorSelector';
-import { Select } from '../common/Select';
-import { Input } from '../common/Input';
+import { ColorSelector } from '@admin/components/common/ColorSelector';
+import { Select } from '@admin/components/common/Select';
+import { Input } from '@admin/components/common/Input';
 
 const PREVIEW_ITEMS = ['Shop', 'Collections', 'Brands', 'Contact'];
 

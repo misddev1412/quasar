@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { Button } from '../common/Button';
-import { FormInput } from '../common/FormInput';
-import { TextareaInput } from '../common/TextareaInput';
-import { Toggle } from '../common/Toggle';
-import { MediaManager } from '../common/MediaManager';
-import { ProductVariantItemsForm, VariantItem } from './ProductVariantItemsForm';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Button } from '@admin/components/common/Button';
+import { FormInput } from '@admin/components/common/FormInput';
+import { TextareaInput } from '@admin/components/common/TextareaInput';
+import { Toggle } from '@admin/components/common/Toggle';
+import { MediaManager } from '@admin/components/common/MediaManager';
+import { ProductVariantItemsForm, VariantItem } from '@admin/components/products/ProductVariantItemsForm';
 import { Image, X } from 'lucide-react';
 
 const variantSchema = z.object({

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { trpc } from '../utils/trpc';
+import { trpc } from '@admin/utils/trpc';
 
 export interface NotificationPreference {
   id?: string;

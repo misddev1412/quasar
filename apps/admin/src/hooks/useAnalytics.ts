@@ -1,8 +1,8 @@
 import { useEffect, createElement } from 'react';
 import { useLocation } from 'react-router-dom';
-import { analyticsService } from '../services/analytics';
-import { useAnalytics as useAnalyticsService } from '../services/analytics';
-import { useAuth } from './useAuth';
+import { analyticsService } from '@admin/services/analytics';
+import { useAnalytics as useAnalyticsService } from '@admin/services/analytics';
+import { useAuth } from '@admin/hooks/useAuth';
 
 interface UseAnalyticsOptions {
   trackPageViews?: boolean;

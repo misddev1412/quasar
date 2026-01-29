@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import VisitorStatisticsDashboard from './VisitorStatisticsDashboard';
-import { useToast } from '../../contexts/ToastContext';
+import VisitorStatisticsDashboard from '@admin/components/visitor-analytics/VisitorStatisticsDashboard';
+import { useToast } from '@admin/contexts/ToastContext';
 // import { visitorAnalyticsService, VisitorAnalyticsResponse } from '../../services/visitor-analytics.service'; // Temporarily disabled
 
 interface VisitorAnalyticsResponse {

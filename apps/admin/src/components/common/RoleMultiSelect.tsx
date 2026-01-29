@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, ChevronDown, X, Users, Search, Shield, UserCheck } from 'lucide-react';
-import { trpc } from '../../utils/trpc';
-import { BASE_LABEL_CLASS } from './styles';
+import { trpc } from '@admin/utils/trpc';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
 
 interface Role {
   id: string;

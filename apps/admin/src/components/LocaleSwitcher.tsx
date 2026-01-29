@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo } from 'react';
 import { SupportedLocale } from '@shared';
 import { useTranslation } from 'react-i18next';
-import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
-import { getSupportedLocales } from '../i18n';
-import { useTheme } from '../contexts/ThemeContext';
-import { useActiveLanguages } from '../hooks/useLanguages';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { getSupportedLocales } from '@admin/i18n';
+import { useTheme } from '@admin/contexts/ThemeContext';
+import { useActiveLanguages } from '@admin/hooks/useLanguages';
 
 interface LocaleSwitcherProps {
   className?: string;

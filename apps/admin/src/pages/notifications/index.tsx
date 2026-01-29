@@ -23,13 +23,13 @@ import {
   FiHome,
 } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
-import { Button, Card, StatisticsGrid, Table, StandardListPage } from '../../components/common';
-import type { StatisticData, Column } from '../../components/common';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import type { NotificationEventKey } from '../../types/notification-events';
-import { NOTIFICATION_EVENT_OPTIONS } from '../../types/notification-events';
+import { Button, Card, StatisticsGrid, Table, StandardListPage } from '@admin/components/common';
+import type { StatisticData, Column } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import type { NotificationEventKey } from '@admin/types/notification-events';
+import { NOTIFICATION_EVENT_OPTIONS } from '@admin/types/notification-events';
 
 type SendFormState = {
   type: 'single' | 'bulk' | 'topic';

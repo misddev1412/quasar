@@ -1,2 +1,2 @@
-export * from './CreatePostForm';
-export * from './EditPostForm';
+export * from '@admin/components/posts/CreatePostForm';
+export * from '@admin/components/posts/EditPostForm';

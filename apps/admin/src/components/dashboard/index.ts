@@ -1,2 +1,2 @@
-export * from './AdminDashboard';
-export * from './StaffDashboard';
+export * from '@admin/components/dashboard/AdminDashboard';
+export * from '@admin/components/dashboard/StaffDashboard';

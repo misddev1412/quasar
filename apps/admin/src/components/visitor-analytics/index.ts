@@ -1,2 +1,2 @@
-export { default as VisitorAnalyticsPage } from './VisitorAnalyticsPage';
-export { default as VisitorStatisticsDashboard } from './VisitorStatisticsDashboard';
+export { default as VisitorAnalyticsPage } from '@admin/components/visitor-analytics/VisitorAnalyticsPage';
+export { default as VisitorStatisticsDashboard } from '@admin/components/visitor-analytics/VisitorStatisticsDashboard';

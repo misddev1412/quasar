@@ -1,14 +1,14 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiEdit3, FiTrash2, FiSettings, FiFileText, FiCheck, FiX, FiMoreVertical, FiGlobe, FiHome } from 'react-icons/fi';
-import { StandardListPage, StatisticsGrid, Table, Button, Dropdown, ConfirmationModal } from '../../components/common';
-import type { Column } from '../../components/common';
-import { useToast } from '../../contexts/ToastContext';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../utils/trpc';
-import { Translation, TranslationFiltersType } from '../../types/translation';
-import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { useUrlParams, urlParamValidators } from '../../hooks/useUrlParams';
+import { StandardListPage, StatisticsGrid, Table, Button, Dropdown, ConfirmationModal } from '@admin/components/common';
+import type { Column } from '@admin/components/common';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
+import { Translation, TranslationFiltersType } from '@admin/types/translation';
+import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import { useUrlParams, urlParamValidators } from '@admin/hooks/useUrlParams';
 
 const TranslationsIndexPage: React.FC = () => {
   const navigate = useNavigate();

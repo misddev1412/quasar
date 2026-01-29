@@ -1,19 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiChevronDown, FiPlus, FiTrash2 } from 'react-icons/fi';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { Input } from '../../../common/Input';
-import { Toggle } from '../../../common/Toggle';
-import { SearchSelect } from '../../../common/SearchSelect';
-import { Button } from '../../../common/Button';
-import { trpc } from '../../../../utils/trpc';
-import { ConfigChangeHandler } from '../types';
-import { ensureNumber } from '../utils';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { Input } from '@admin/components/common/Input';
+import { Toggle } from '@admin/components/common/Toggle';
+import { SearchSelect } from '@admin/components/common/SearchSelect';
+import { Button } from '@admin/components/common/Button';
+import { trpc } from '@admin/utils/trpc';
+import { ConfigChangeHandler } from '@admin/components/sections/manager/types';
+import { ensureNumber } from '@admin/components/sections/manager/utils';
 import {
     SectionHeadingConfig,
     SectionHeadingConfigData,
     SectionHeadingTextTransform,
     SectionHeadingTitleSize,
-} from '../common/SectionHeadingConfig';
+} from '@admin/components/sections/manager/common/SectionHeadingConfig';
 
 interface NewsByCategoryConfigEditorProps {
     value: Record<string, unknown>;

@@ -1,17 +1,17 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { User as UserIcon, ArrowLeft, Lock, Mail, Phone, Settings as SettingsIcon, Home, Shield } from 'lucide-react';
-import { Card, CardHeader, CardContent, Breadcrumb, StandardFormPage, EntityForm } from '../../components/common';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { FormTabConfig } from '../../types/forms';
+import { Card, CardHeader, CardContent, Breadcrumb, StandardFormPage, EntityForm } from '@admin/components/common';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { FormTabConfig } from '@admin/types/forms';
 import { z } from 'zod';
-import { commonValidation } from '../../utils/validation';
-import { UserRole } from '../../types/user';
-import type { Role as AdminRole } from '../../types/role';
-import { useAuth } from '../../contexts/AuthContext';
-import { useUrlTabs } from '../../hooks/useUrlTabs';
+import { commonValidation } from '@admin/utils/validation';
+import { UserRole } from '@admin/types/user';
+import type { Role as AdminRole } from '@admin/types/role';
+import { useAuth } from '@admin/contexts/AuthContext';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
 
 type RolesListResponse = {
   data?: {

@@ -1,10 +1,10 @@
 import React from 'react';
-import { Modal } from '../../components/common/Modal';
-import { Loading } from '../../components/common/Loading';
-import { AdminMenu, MenuTreeNode } from '../../hooks/useMenusManager';
-import { MenuFormState } from '../../hooks/useMenuPage';
-import { MenuForm } from './MenuForm';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { Modal } from '@admin/components/common/Modal';
+import { Loading } from '@admin/components/common/Loading';
+import { AdminMenu, MenuTreeNode } from '@admin/hooks/useMenusManager';
+import { MenuFormState } from '@admin/hooks/useMenuPage';
+import { MenuForm } from '@admin/components/menus/MenuForm';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface MenuFormModalProps {
   isOpen: boolean;

@@ -4,9 +4,9 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import { SupportedLocale } from '@shared';
 
 // Import aggregated translation files
-import vi from './locales/vi';
-import en from './locales/en';
-import zh from './locales/zh';
+import vi from '@admin/i18n/locales/vi';
+import en from '@admin/i18n/locales/en';
+import zh from '@admin/i18n/locales/zh';
 
 const resources = {
   vi: {

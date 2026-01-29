@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from './Dialog';
-import { Button } from './Button';
-import { FormInput } from './FormInput';
-import { TextareaInput } from './TextareaInput';
-import { Select } from './Select';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@admin/components/common/Dialog';
+import { Button } from '@admin/components/common/Button';
+import { FormInput } from '@admin/components/common/FormInput';
+import { TextareaInput } from '@admin/components/common/TextareaInput';
+import { Select } from '@admin/components/common/Select';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { Wand2, Loader2 } from 'lucide-react';
 
 interface AIGenerationOptionsModalProps {

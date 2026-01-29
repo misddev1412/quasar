@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useTheme } from '../../contexts/ThemeContext';
-import { cn } from '../../lib/utils';
+import { useTheme } from '@admin/contexts/ThemeContext';
+import { cn } from '@admin/lib/utils';
 import { Link, useLocation } from 'react-router-dom';
 import { Tooltip } from '@mui/material';
 import {
@@ -18,8 +18,8 @@ import {
   BarChart3,
   Activity,
 } from 'lucide-react';
-import Logo from './Logo';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import Logo from '@admin/components/layout/Logo';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 
 interface MenuItem {
   icon: React.ReactNode;

@@ -1,12 +1,12 @@
 import React, { useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiStar } from 'react-icons/fi';
-import { StandardFormPage, Alert, AlertDescription, AlertTitle } from '../../../../components/common';
-import { useTranslationWithBackend } from '../../../../hooks/useTranslationWithBackend';
-import { useToast } from '../../../../contexts/ToastContext';
-import { trpc } from '../../../../utils/trpc';
-import { LoyaltyTierForm, LoyaltyTierFormHandle, LoyaltyTierFormValues } from '../../../../components/loyalty';
-import { LoyaltyTier } from '../../../../types/loyalty';
+import { StandardFormPage, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { LoyaltyTierForm, LoyaltyTierFormHandle, LoyaltyTierFormValues } from '@admin/components/loyalty';
+import { LoyaltyTier } from '@admin/types/loyalty';
 
 const EditLoyaltyTierPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

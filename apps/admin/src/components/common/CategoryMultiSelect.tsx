@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, X, Search, Check, Folder } from 'lucide-react';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { trpc } from '../../utils/trpc';
-import { InputWithIcon } from './InputWithIcon';
-import { BASE_LABEL_CLASS } from './styles';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { trpc } from '@admin/utils/trpc';
+import { InputWithIcon } from '@admin/components/common/InputWithIcon';
+import { BASE_LABEL_CLASS } from '@admin/components/common/styles';
 
 interface Category {
   id: string;

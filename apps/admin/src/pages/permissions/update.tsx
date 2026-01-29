@@ -1,19 +1,19 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Lock, ArrowLeft, Shield, Settings, Trash2, Home } from 'lucide-react';
-import { Card, CardHeader, CardContent, StandardFormPage, EntityForm } from '../../components/common';
-import { useToast } from '../../contexts/ToastContext';
-import { trpc } from '../../utils/trpc';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useUrlTabs } from '../../hooks/useUrlTabs';
-import { FormTabConfig } from '../../types/forms';
+import { Card, CardHeader, CardContent, StandardFormPage, EntityForm } from '@admin/components/common';
+import { useToast } from '@admin/contexts/ToastContext';
+import { trpc } from '@admin/utils/trpc';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
+import { FormTabConfig } from '@admin/types/forms';
 import { z } from 'zod';
 import {
   PERMISSION_RESOURCES, 
   PERMISSION_ACTIONS, 
   PERMISSION_SCOPES,
   type UpdatePermissionFormData,
-} from '../../types/permission';
+} from '@admin/types/permission';
 
 const updatePermissionSchema = z.object({
   name: z.string()

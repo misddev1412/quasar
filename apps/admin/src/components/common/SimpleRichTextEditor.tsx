@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { cn } from '../../utils/cn';
+import { cn } from '@admin/utils/cn';
 
 interface SimpleRichTextEditorProps {
   value?: string;

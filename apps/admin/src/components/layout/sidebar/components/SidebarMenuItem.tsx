@@ -12,9 +12,9 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { MenuItem } from '../../../../domains/navigation/types/MenuItem';
-import { StyledListItemButton, MenuBadge } from '../styles/SidebarStyles';
-import SidebarSubMenuItem from './SidebarSubMenuItem';
+import { MenuItem } from '@admin/domains/navigation/types/MenuItem';
+import { StyledListItemButton, MenuBadge } from '@admin/components/layout/sidebar/styles/SidebarStyles';
+import SidebarSubMenuItem from '@admin/components/layout/sidebar/components/SidebarSubMenuItem';
 
 interface SidebarMenuItemProps {
   item: MenuItem;

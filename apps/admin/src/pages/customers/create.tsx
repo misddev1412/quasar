@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserPlus } from 'lucide-react';
-import { StandardFormPage } from '../../components/common';
-import { CreateCustomerForm, CreateCustomerFormData } from '../../components/customers';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useToast } from '../../contexts/ToastContext';
-import { useUrlTabs } from '../../hooks/useUrlTabs';
-import { trpc } from '../../utils/trpc';
+import { StandardFormPage } from '@admin/components/common';
+import { CreateCustomerForm, CreateCustomerFormData } from '@admin/components/customers';
+import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
+import { useToast } from '@admin/contexts/ToastContext';
+import { useUrlTabs } from '@admin/hooks/useUrlTabs';
+import { trpc } from '@admin/utils/trpc';
 
 const CreateCustomerPage: React.FC = () => {
   const navigate = useNavigate();
