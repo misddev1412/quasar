@@ -38,6 +38,8 @@ export interface WhyChooseUsConfig {
   headingTextTransform?: SectionHeadingTextTransform;
   headingTitleSize?: SectionHeadingTitleSize;
   headingBarHeight?: number;
+  headingBorderRadius?: number;
+  headingPaddingY?: number;
   items?: WhyChooseUsItemConfig[];
 }
 
@@ -266,6 +268,8 @@ export const WhyChooseUsSection: React.FC<WhyChooseUsSectionProps> = ({ config, 
             headingTextTransform={config.headingTextTransform}
             headingTitleSize={config.headingTitleSize}
             headingBarHeight={config.headingBarHeight}
+            headingBorderRadius={config.headingBorderRadius}
+            headingPaddingY={config.headingPaddingY}
             className="mb-12"
           />
         )}

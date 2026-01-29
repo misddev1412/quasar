@@ -697,15 +697,16 @@ const SubMenuBar: React.FC = () => {
     setMounted(true);
   }, []);
 
-  if (!isSubMenuEnabled) {
-    return null;
-  }
-
   const rootItems = useMemo(() => (
     (treeData || [])
       .filter(item => item.isEnabled && (!item.parentId || item.parentId === null))
       .sort((a, b) => a.position - b.position)
   ), [treeData]);
+
+  // Check visibility AFTER all hooks have been called
+  if (!isSubMenuEnabled) {
+    return null;
+  }
 
   if (!isLoading && rootItems.length === 0) {
     return null;

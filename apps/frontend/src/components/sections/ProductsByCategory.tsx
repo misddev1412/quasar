@@ -34,6 +34,8 @@ export interface ProductsByCategoryRowConfig {
   headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   headingBarHeight?: number;
+  headingBorderRadius?: number;
+  headingPaddingY?: number;
 }
 
 export interface ProductsByCategoryConfig {
@@ -120,6 +122,8 @@ interface NormalizedRowConfig {
   headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   headingBarHeight?: number;
+  headingBorderRadius?: number;
+  headingPaddingY?: number;
 }
 
 interface RowRenderState {
@@ -208,6 +212,11 @@ const normalizeHeadingTitleSize = (value?: string | null) => {
 const normalizeHeadingBarHeight = (value?: unknown): number | undefined => {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : undefined;
+};
+
+const normalizeHeadingNumber = (value?: unknown): number | undefined => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.floor(parsed) : undefined;
 };
 
 const normalizeDisplayStyle = (value?: string | null): 'grid' | 'carousel' => {
@@ -448,6 +457,8 @@ const normalizeRows = (config: ProductsByCategoryConfig): NormalizedRowConfig[] 
         headingTextTransform: normalizeHeadingTextTransform(row.headingTextTransform),
         headingTitleSize: normalizeHeadingTitleSize(row.headingTitleSize),
         headingBarHeight: normalizeHeadingBarHeight(row.headingBarHeight),
+        headingBorderRadius: normalizeHeadingNumber(row.headingBorderRadius),
+        headingPaddingY: normalizeHeadingNumber(row.headingPaddingY),
       });
     });
 
@@ -478,6 +489,8 @@ const normalizeRows = (config: ProductsByCategoryConfig): NormalizedRowConfig[] 
     headingTextTransform: undefined,
     headingTitleSize: undefined,
     headingBarHeight: undefined,
+    headingBorderRadius: undefined,
+    headingPaddingY: undefined,
   });
 
   return rows;
@@ -598,6 +611,8 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
       headingStyle: row.headingStyle,
       headingBackgroundColor: row.headingBackgroundColor,
       headingTextColor: row.headingTextColor,
+      headingBorderRadius: row.headingBorderRadius,
+      headingPaddingY: row.headingPaddingY,
     }))),
     [rows],
   );
@@ -1061,14 +1076,18 @@ export const ProductsByCategory: React.FC<ProductsByCategoryProps> = ({
                     title={showDisplayTitle ? (categoryLabel || undefined) : undefined}
                     subtitle={showStrategyLabel ? (strategyLabel || undefined) : undefined}
                     description={showNormalizedCategoryLabel ? (normalizedCategoryName || undefined) : undefined}
-                    ctaLabel={hasCategoryNavigation ? t('sections.products_by_category.view_category') : undefined}
-                    ctaLink={hasCategoryNavigation ? ctaHref : undefined}
                     headingStyle={row.headingStyle}
                     headingBackgroundColor={row.headingBackgroundColor}
                     headingTextColor={row.headingTextColor}
                     headingTextTransform={row.headingTextTransform}
                     headingTitleSize={row.headingTitleSize}
                     headingBarHeight={row.headingBarHeight}
+                    headingBorderRadius={row.headingBorderRadius}
+                    headingPaddingY={row.headingPaddingY}
+                    ctaLabel={hasCategoryNavigation
+                      ? t('sections.products_by_category.view_category', { category: categoryLabel })
+                      : t('sections.products_by_category.view_more')}
+                    ctaLink={hasCategoryNavigation ? ctaHref : '/products'}
                     className="mb-8"
                   />
 

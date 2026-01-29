@@ -66,6 +66,7 @@ const getSectionTypeBadgeColor = (sectionType: SectionType): string => {
         [SectionType.NEWS_DETAILS]: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
         [SectionType.SERVICE_LIST]: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
         [SectionType.INTRODUCTION]: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
+        [SectionType.VIDEO_GRID]: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
     };
 
     return colorMap[sectionType] || 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';
@@ -459,6 +460,25 @@ const getSectionDetails = (
                             {t('sections.manager.details.columns')}
                         </span>
                         <span>{config.columns}</span>
+                    </span>
+                );
+            }
+
+            return details;
+        }
+
+        case SectionType.VIDEO_GRID: {
+            const details: React.ReactNode[] = [];
+
+            // Total videos
+            const videos = Array.isArray(config.videos) ? config.videos : [];
+            if (videos.length > 0) {
+                details.push(
+                    <span key="videos" className="inline-flex items-center gap-1">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('totalItems')}`}>
+                            {t('sections.manager.details.totalItems')}
+                        </span>
+                        <span>{videos.length}</span>
                     </span>
                 );
             }

@@ -725,7 +725,13 @@
             "stats": "Thống kê",
             "brand_showcase": "Thương hiệu nổi bật",
             "product_list": "Danh sách sản phẩm",
-            "news_details": "Chi tiết tin tức"
+            "news_details": "Chi tiết tin tức",
+            "side_banners": "Banner hai bên",
+            "video_grid": "Video Grid",
+            "why_choose_us": "Tại sao chọn chúng tôi",
+            "product_details": "Chi tiết sản phẩm (Section)",
+            "service_list": "Danh sách dịch vụ",
+            "introduction": "Giới thiệu"
         },
         "pages": {
             "home": "Trang chủ",

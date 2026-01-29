@@ -30,6 +30,8 @@ interface FeaturedProductsConfig {
     headingTextTransform?: SectionHeadingTextTransform;
     headingTitleSize?: SectionHeadingTitleSize;
     headingBarHeight?: number;
+    headingBorderRadius?: number;
+    headingPaddingY?: number;
     displayStyle?: string;
     itemsPerRow?: number;
 }
@@ -54,6 +56,8 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
         headingTextTransform: typeof value?.headingTextTransform === 'string' ? (value.headingTextTransform as SectionHeadingTextTransform) : undefined,
         headingTitleSize: typeof value?.headingTitleSize === 'string' ? (value.headingTitleSize as SectionHeadingTitleSize) : undefined,
         headingBarHeight: typeof value?.headingBarHeight === 'number' ? value.headingBarHeight : undefined,
+        headingBorderRadius: typeof value?.headingBorderRadius === 'number' ? value.headingBorderRadius : undefined,
+        headingPaddingY: typeof value?.headingPaddingY === 'number' ? value.headingPaddingY : undefined,
         displayStyle: typeof value?.displayStyle === 'string' ? value.displayStyle : 'grid',
         itemsPerRow: ensureNumber(value?.itemsPerRow, 4),
     }), [value]);
@@ -373,6 +377,8 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
                                     headingTextTransform: config.headingTextTransform,
                                     headingTitleSize: config.headingTitleSize,
                                     headingBarHeight: config.headingBarHeight,
+                                    headingBorderRadius: config.headingBorderRadius,
+                                    headingPaddingY: config.headingPaddingY,
                                 }}
                                 onChange={(data: SectionHeadingConfigData) => handleConfigChange(data)}
                             />

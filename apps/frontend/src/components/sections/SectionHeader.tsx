@@ -19,6 +19,8 @@ export interface SectionHeaderProps {
     headingTextTransform?: SectionHeadingTextTransform;
     headingTitleSize?: SectionHeadingTitleSize;
     headingBarHeight?: number;
+    headingBorderRadius?: number;
+    headingPaddingY?: number;
     className?: string;
     theme?: 'light' | 'dark';
 }
@@ -35,6 +37,8 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
     headingTextTransform,
     headingTitleSize,
     headingBarHeight,
+    headingBorderRadius,
+    headingPaddingY,
     className,
     theme,
 }) => {
@@ -77,6 +81,79 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
         return "text-blue-600 dark:text-blue-400";
     };
 
+    if (headingStyle === 'banner') {
+        const titleStyle = mergeStyles(headingTextStyle, headingTransformStyle);
+        const resolvedBarHeight = headingBarHeight || 56; // Default to standard size
+        const paddingY = typeof headingPaddingY === 'number' ? headingPaddingY : Math.max(8, Math.floor(resolvedBarHeight * 0.15)); // Dynamic padding based on bar height
+        const paddingX = Math.max(16, Math.floor(resolvedBarHeight * 0.3));
+
+        return (
+            <div className={cn("mb-8 md:mb-10", className)}>
+                {subtitle && (
+                    <p className={cn(
+                        "mb-2 text-sm font-bold uppercase tracking-widest",
+                        getSubtitleColor()
+                    )}>
+                        {subtitle}
+                    </p>
+                )}
+
+                {/* Full-width color bar with heading and CTA */}
+                <div
+                    className="flex items-center justify-between gap-4"
+                    style={{
+                        backgroundColor: headingBackgroundColor || '#2563eb',
+                        paddingTop: `${paddingY}px`,
+                        paddingBottom: `${paddingY}px`,
+                        paddingLeft: `${paddingX}px`,
+                        paddingRight: `${paddingX}px`,
+                        borderRadius: headingBorderRadius !== undefined ? `${headingBorderRadius}px` : undefined,
+                    }}
+                >
+                    {title && (
+                        <h2
+                            className={cn(
+                                "mb-0 font-bold",
+                                titleSizeClass
+                            )}
+                            style={{
+                                ...titleStyle,
+                                color: headingTextColor || '#ffffff',
+                            }}
+                        >
+                            {title}
+                        </h2>
+                    )}
+
+                    {ctaLink && ctaLabel && (
+                        <Link
+                            href={ctaLink}
+                            className={cn(
+                                "group inline-flex items-center gap-2 text-sm font-bold transition-colors flex-shrink-0",
+                                "text-white hover:text-white/80"
+                            )}
+                            style={{
+                                color: headingTextColor || '#ffffff',
+                            }}
+                        >
+                            {ctaLabel}
+                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        </Link>
+                    )}
+                </div>
+
+                {description && (
+                    <p className={cn(
+                        "mt-3 text-lg",
+                        getDescriptionColor()
+                    )}>
+                        {description}
+                    </p>
+                )}
+            </div>
+        );
+    }
+
     if (headingStyle === 'curved') {
         const titleStyle = mergeStyles(headingTextStyle, headingTransformStyle);
         const resolvedBarHeight = 4; // Height of the bottom border in px
@@ -91,6 +168,9 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
                             style={{
                                 backgroundColor: headingBackgroundColor || '#f97316', // Default to orange if not set
                                 color: headingTextColor || '#ffffff',
+                                borderRadius: headingBorderRadius !== undefined ? `${headingBorderRadius}px` : undefined,
+                                paddingTop: headingPaddingY !== undefined ? `${headingPaddingY}px` : undefined,
+                                paddingBottom: headingPaddingY !== undefined ? `${headingPaddingY}px` : undefined,
                             }}
                         >
                             {title && (

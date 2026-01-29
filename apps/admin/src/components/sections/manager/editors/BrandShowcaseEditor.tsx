@@ -37,6 +37,8 @@ interface BrandShowcaseConfig {
     headingTextTransform?: SectionHeadingTextTransform;
     headingTitleSize?: SectionHeadingTitleSize;
     headingBarHeight?: number;
+    headingBorderRadius?: number;
+    headingPaddingY?: number;
 }
 
 const DEFAULT_COLUMNS = 6;
@@ -64,6 +66,8 @@ export const BrandShowcaseEditor: React.FC<BrandShowcaseEditorProps> = ({ value,
         headingTextTransform: typeof value?.headingTextTransform === 'string' ? (value.headingTextTransform as SectionHeadingTextTransform) : undefined,
         headingTitleSize: typeof value?.headingTitleSize === 'string' ? (value.headingTitleSize as SectionHeadingTitleSize) : undefined,
         headingBarHeight: typeof value?.headingBarHeight === 'number' ? value.headingBarHeight : undefined,
+        headingBorderRadius: typeof value?.headingBorderRadius === 'number' ? value.headingBorderRadius : undefined,
+        headingPaddingY: typeof value?.headingPaddingY === 'number' ? value.headingPaddingY : undefined,
     }), [value]);
 
     const handleChange = (updates: Partial<BrandShowcaseConfig>) => {
@@ -164,6 +168,8 @@ export const BrandShowcaseEditor: React.FC<BrandShowcaseEditorProps> = ({ value,
                                     headingTextTransform: config.headingTextTransform,
                                     headingTitleSize: config.headingTitleSize,
                                     headingBarHeight: config.headingBarHeight,
+                                    headingBorderRadius: config.headingBorderRadius,
+                                    headingPaddingY: config.headingPaddingY,
                                 }}
                                 onChange={handleHeadingConfigChange}
                             />

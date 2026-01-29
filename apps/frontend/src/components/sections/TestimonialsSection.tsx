@@ -29,6 +29,8 @@ export interface TestimonialsSectionConfig {
   headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   headingBarHeight?: number;
+  headingBorderRadius?: number;
+  headingPaddingY?: number;
 }
 
 interface TestimonialsSectionProps {
@@ -134,6 +136,8 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ config
           headingTextTransform={config.headingTextTransform}
           headingTitleSize={config.headingTitleSize}
           headingBarHeight={config.headingBarHeight}
+          headingBorderRadius={config.headingBorderRadius}
+          headingPaddingY={config.headingPaddingY}
           theme="dark"
           className="mb-12"
         />

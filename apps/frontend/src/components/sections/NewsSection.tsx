@@ -26,6 +26,8 @@ export interface NewsSectionRowConfig {
   headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   headingBarHeight?: number;
+  headingBorderRadius?: number;
+  headingPaddingY?: number;
 }
 
 export interface NewsSectionConfig {
@@ -40,6 +42,9 @@ export interface NewsSectionConfig {
   headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   headingBarHeight?: number;
+  headingBorderRadius?: number;
+  headingPaddingY?: number;
+  backgroundStyle?: 'surface' | 'muted' | 'contrast';
 }
 
 const DEFAULT_NEWS_LIMIT = 3;
@@ -101,6 +106,11 @@ const parseHeadingTitleSize = (
 const parseHeadingBarHeight = (value: unknown): number | undefined => {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : undefined;
+};
+
+const parseHeadingNumber = (value: unknown): number | undefined => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.floor(parsed) : undefined;
 };
 
 const parseCardLayout = (value: unknown, fallback: NewsCardLayout): NewsCardLayout => {
@@ -183,6 +193,8 @@ const parseNewsRows = (config: NewsSectionConfig): NewsSectionRowConfig[] => {
   const baseHeadingTransform = parseHeadingTransform(config?.headingTextTransform);
   const baseHeadingTitleSize = parseHeadingTitleSize(config?.headingTitleSize);
   const baseHeadingBarHeight = parseHeadingBarHeight(config?.headingBarHeight);
+  const baseHeadingBorderRadius = parseHeadingNumber(config?.headingBorderRadius);
+  const baseHeadingPaddingY = parseHeadingNumber(config?.headingPaddingY);
 
   if (rows.length > 0) {
     return rows.map((row, index) => ({
@@ -199,6 +211,8 @@ const parseNewsRows = (config: NewsSectionConfig): NewsSectionRowConfig[] => {
       headingTextTransform: parseHeadingTransform(row?.headingTextTransform) ?? baseHeadingTransform,
       headingTitleSize: parseHeadingTitleSize(row?.headingTitleSize) ?? baseHeadingTitleSize,
       headingBarHeight: parseHeadingBarHeight(row?.headingBarHeight) ?? baseHeadingBarHeight,
+      headingBorderRadius: parseHeadingNumber(row?.headingBorderRadius) ?? baseHeadingBorderRadius,
+      headingPaddingY: parseHeadingNumber(row?.headingPaddingY) ?? baseHeadingPaddingY,
     }));
   }
 
@@ -294,6 +308,8 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
         headingTextTransform: parseHeadingTransform(config?.headingTextTransform),
         headingTitleSize: parseHeadingTitleSize(config?.headingTitleSize),
         headingBarHeight: parseHeadingBarHeight(config?.headingBarHeight),
+        headingBorderRadius: parseHeadingNumber(config?.headingBorderRadius),
+        headingPaddingY: parseHeadingNumber(config?.headingPaddingY),
       } as NewsSectionRowConfig,
     ];
   }, [rows, fallbackCategories, translation?.title, strategy, limit]);
@@ -313,6 +329,8 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
         headingTextTransform: row.headingTextTransform,
         headingTitleSize: row.headingTitleSize,
         headingBarHeight: row.headingBarHeight,
+        headingBorderRadius: row.headingBorderRadius,
+        headingPaddingY: row.headingPaddingY,
       })),
     [baseRows, limit],
   );
@@ -397,8 +415,25 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
   const hasHeaderContent = sectionTitle || sectionDescription;
   const showSectionHeader = normalizedRowConfigs.length === 0 && hasHeaderContent;
 
+  const backgroundStyle = config.backgroundStyle || 'surface';
+
+  const getSectionStyle = (): React.CSSProperties => {
+    switch (backgroundStyle) {
+      case 'muted':
+        return { backgroundColor: 'var(--storefront-surface)' };
+      case 'contrast':
+        return {
+          backgroundColor: 'var(--storefront-text)',
+          color: 'var(--storefront-body)',
+        };
+      case 'surface':
+      default:
+        return { backgroundColor: 'var(--storefront-body)' };
+    }
+  };
+
   return (
-    <section className="py-4 lg:py-16 bg-white dark:bg-gray-950">
+    <section className="py-4 lg:py-16" style={getSectionStyle()}>
       <SectionContainer paddingClassName="px-6 lg:px-8">
         {showSectionHeader && (
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
@@ -451,6 +486,8 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ config, translation, v
                   headingTextTransform={row.headingTextTransform}
                   headingTitleSize={row.headingTitleSize}
                   headingBarHeight={row.headingBarHeight}
+                  headingBorderRadius={row.headingBorderRadius}
+                  headingPaddingY={row.headingPaddingY}
                 />
                 <div className="space-y-6">
                   {state.error && (

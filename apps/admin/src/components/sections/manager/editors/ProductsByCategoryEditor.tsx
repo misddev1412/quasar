@@ -40,6 +40,8 @@ interface ProductsByCategoryAdminRow {
     headingTextTransform?: SectionHeadingTextTransform;
     headingTitleSize?: SectionHeadingTitleSize;
     headingBarHeight?: number;
+    headingBorderRadius?: number;
+    headingPaddingY?: number;
 }
 
 const DEFAULT_ROW_LIMIT = 6;
@@ -77,6 +79,8 @@ const buildHeadingConfigFromRow = (row?: ProductsByCategoryAdminRow): SectionHea
     headingTextTransform: row?.headingTextTransform,
     headingTitleSize: row?.headingTitleSize,
     headingBarHeight: row?.headingBarHeight,
+    headingBorderRadius: row?.headingBorderRadius,
+    headingPaddingY: row?.headingPaddingY,
 });
 
 const flattenCategoryOptions = (categories: any[], prefix = ''): CategorySelectOption[] => {
@@ -134,6 +138,8 @@ const parseRowsFromValue = (value: any): ProductsByCategoryAdminRow[] => {
                 headingTextTransform: typeof row?.headingTextTransform === 'string' ? (row.headingTextTransform as SectionHeadingTextTransform) : undefined,
                 headingTitleSize: typeof row?.headingTitleSize === 'string' ? (row.headingTitleSize as SectionHeadingTitleSize) : undefined,
                 headingBarHeight: typeof row?.headingBarHeight === 'number' ? row.headingBarHeight : undefined,
+                headingBorderRadius: typeof row?.headingBorderRadius === 'number' ? row.headingBorderRadius : undefined,
+                headingPaddingY: typeof row?.headingPaddingY === 'number' ? row.headingPaddingY : undefined,
             };
         });
     }
@@ -165,6 +171,8 @@ const parseRowsFromValue = (value: any): ProductsByCategoryAdminRow[] => {
             headingTextTransform: typeof value?.headingTextTransform === 'string' ? (value.headingTextTransform as SectionHeadingTextTransform) : undefined,
             headingTitleSize: typeof value?.headingTitleSize === 'string' ? (value.headingTitleSize as SectionHeadingTitleSize) : undefined,
             headingBarHeight: typeof value?.headingBarHeight === 'number' ? value.headingBarHeight : undefined,
+            headingBorderRadius: typeof value?.headingBorderRadius === 'number' ? value.headingBorderRadius : undefined,
+            headingPaddingY: typeof value?.headingPaddingY === 'number' ? value.headingPaddingY : undefined,
         }];
     }
 
@@ -190,6 +198,8 @@ const sanitizeConfigValue = (originalValue: any, rows: ProductsByCategoryAdminRo
             headingTextTransform: row.headingTextTransform,
             headingTitleSize: row.headingTitleSize,
             headingBarHeight: row.headingBarHeight,
+            headingBorderRadius: row.headingBorderRadius,
+            headingPaddingY: row.headingPaddingY,
         };
     });
 
@@ -219,6 +229,8 @@ const rowsAreEqual = (rows: ProductsByCategoryAdminRow[], otherRows: ProductsByC
         if (row.headingTextTransform !== other.headingTextTransform) return false;
         if (row.headingTitleSize !== other.headingTitleSize) return false;
         if (row.headingBarHeight !== other.headingBarHeight) return false;
+        if (row.headingBorderRadius !== other.headingBorderRadius) return false;
+        if (row.headingPaddingY !== other.headingPaddingY) return false;
         return row.productIds.every((id, idx) => id === other.productIds[idx]);
     });
 };
@@ -863,6 +875,8 @@ const CategoryRowEditor: React.FC<CategoryRowEditorProps> = ({
                         headingTextTransform: row.headingTextTransform,
                         headingTitleSize: row.headingTitleSize,
                         headingBarHeight: row.headingBarHeight,
+                        headingBorderRadius: row.headingBorderRadius,
+                        headingPaddingY: row.headingPaddingY,
                     }}
                     onChange={handleHeadingConfigChange}
                 />
@@ -954,6 +968,8 @@ export const ProductsByCategoryConfigEditor: React.FC<ProductsByCategoryConfigEd
             headingTextTransform: commonHeadingConfig.headingTextTransform,
             headingTitleSize: commonHeadingConfig.headingTitleSize,
             headingBarHeight: commonHeadingConfig.headingBarHeight,
+            headingBorderRadius: commonHeadingConfig.headingBorderRadius,
+            headingPaddingY: commonHeadingConfig.headingPaddingY,
         }));
         applyUpdate(nextRows);
     }, [applyUpdate, commonHeadingConfig, rows]);

@@ -1936,6 +1936,7 @@
       "title": "Spotlight products",
       "description": "Discover curated picks and new arrivals from this category.",
       "view_category": "View category",
+      "view_more": "View more",
       "category_label": "{{category}} spotlight",
       "curated_category": "Curated collection",
       "loading": "Loading products...",
@@ -2016,6 +2017,11 @@
       "subtitle": "Behind the scenes",
       "description": "Blend editorial storytelling with direct commerce moments.",
       "pagination_label": "Go to video {{index}}"
+    },
+    "video_grid": {
+      "title": "Featured Videos",
+      "subtitle": "Discover our stories",
+      "description": "Watch our latest product showcases and behind-the-scenes stories."
     },
     "stats": {
       "title": "Proof in numbers",

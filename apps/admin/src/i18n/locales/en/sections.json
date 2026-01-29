@@ -722,7 +722,13 @@
             "stats": "Statistics",
             "brand_showcase": "Brand showcase",
             "product_list": "Product list",
-            "news_details": "News Details"
+            "news_details": "News Details",
+            "side_banners": "Side Banners",
+            "video_grid": "Video Grid",
+            "why_choose_us": "Why Choose Us",
+            "product_details": "Product Details (Section)",
+            "service_list": "Service List",
+            "introduction": "Introduction"
         },
         "pages": {
             "home": "Home",

@@ -27,6 +27,7 @@ import { WhyChooseUsEditor } from '@admin/components/sections/manager/editors/Wh
 import { ProductDetailsEditor } from '@admin/components/sections/manager/editors/ProductDetailsEditor';
 import { ServiceListEditor } from '@admin/components/sections/manager/editors/ServiceListEditor';
 import { IntroductionEditor } from '@admin/components/sections/manager/editors/IntroductionEditor';
+import { VideoGridEditor } from '@admin/components/sections/manager/editors/VideoGridEditor';
 
 export const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, value, onChange }) => {
     const { t } = useTranslationWithBackend();
@@ -83,6 +84,7 @@ export const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, 
             {type === SectionType.TEAM && <TeamEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.CONTACT_FORM && <ContactFormEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.VIDEO && <VideoEditor value={value || {}} onChange={onChange} />}
+            {type === SectionType.VIDEO_GRID && <VideoGridEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.STATS && <StatsEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.BRAND_SHOWCASE && <BrandShowcaseEditor value={value || {}} onChange={onChange} />}
             {type === SectionType.WHY_CHOOSE_US && <WhyChooseUsEditor value={value || {}} onChange={onChange} />}
@@ -113,6 +115,7 @@ export const SectionConfigEditor: React.FC<SectionConfigEditorProps> = ({ type, 
                 SectionType.PRODUCT_DETAILS,
                 SectionType.SERVICE_LIST,
                 SectionType.INTRODUCTION,
+                SectionType.VIDEO_GRID,
             ].includes(type) && (
                     <div className="space-y-2">
                         <p className="text-xs text-gray-500">{t('sections.manager.configEditor.noDedicatedEditor')}</p>

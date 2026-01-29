@@ -28,7 +28,7 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
     onOpenChange,
     onSuccess,
 }) => {
-    const { t } = useTranslationWithBackend(['menus', 'common']);
+    const { t } = useTranslationWithBackend();
     const { addToast } = useToast();
     const [file, setFile] = useState<File | null>(null);
     const [overrideExisting, setOverrideExisting] = useState(false);
@@ -45,12 +45,13 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
         { enabled: false }
     );
 
-    const { data: jobData } = trpc.adminImportJobs.getJob.useQuery(
+    const { data: jobResp } = trpc.adminImport.getJobStatus.useQuery(
         { id: jobId as string },
         {
             enabled: !!jobId && (status === 'PROCESSING'),
-            refetchInterval: (data) => {
-                if (data?.status === 'COMPLETED' || data?.status === 'FAILED') {
+            refetchInterval: (data: any) => {
+                const job = data?.data;
+                if (job?.status === 'COMPLETED' || job?.status === 'FAILED') {
                     return false;
                 }
                 return 2000;
@@ -59,20 +60,22 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
     );
 
     useEffect(() => {
-        if (jobData) {
-            setProgress(jobData.progress);
-            if (jobData.status === 'COMPLETED') {
+        const data = jobResp as any;
+        if (data?.data) {
+            const job = data.data;
+            setProgress(job.progress);
+            if (job.status === 'COMPLETED') {
                 setStatus('COMPLETED');
-                setSummary(jobData.result);
+                setSummary(job.result);
                 if (!dryRun) {
                     onSuccess?.();
                 }
-            } else if (jobData.status === 'FAILED') {
+            } else if (job.status === 'FAILED') {
                 setStatus('FAILED');
-                setSummary(jobData.result);
+                setSummary(job.result);
             }
         }
-    }, [jobData, dryRun, onSuccess]);
+    }, [jobResp, dryRun, onSuccess]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -83,8 +86,9 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
     const handleDownloadTemplate = async () => {
         try {
             const result = await downloadTemplateQuery.refetch();
-            if (result.data) {
-                const { data, filename, mimeType } = result.data;
+            const resultData = result.data as any;
+            if (resultData) {
+                const { data, filename, mimeType } = resultData;
                 const blob = new Blob([Uint8Array.from(atob(data), c => c.charCodeAt(0))], { type: mimeType });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -97,8 +101,8 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
             }
         } catch (error) {
             addToast({
-                title: t('menus:import.failed'),
-                description: t('common:errors.somethingWentWrong'),
+                title: t('menus.import.failed', 'Import failed'),
+                description: t('common.errors.somethingWentWrong', 'Something went wrong'),
                 type: 'error',
             });
         }
@@ -116,20 +120,20 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
             const reader = new FileReader();
             reader.onload = async (e) => {
                 const base64Data = e.target?.result as string;
-                const result = await importMutation.mutateAsync({
+                const response = await importMutation.mutateAsync({
                     fileName: file.name,
                     fileData: base64Data,
                     overrideExisting,
                     dryRun,
-                });
+                }) as any;
 
-                if (result.success && result.data?.jobId) {
-                    setJobId(result.data.jobId);
+                if (response.success && response.data?.jobId) {
+                    setJobId(response.data.jobId);
                 } else {
                     setStatus('FAILED');
                     setIsImporting(false);
                     addToast({
-                        title: t('menus:import.failed'),
+                        title: t('menus.import.failed', 'Import failed'),
                         type: 'error',
                     });
                 }
@@ -139,7 +143,7 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
             setStatus('FAILED');
             setIsImporting(false);
             addToast({
-                title: t('menus:import.failed'),
+                title: t('menus.import.failed', 'Import failed'),
                 description: error.message,
                 type: 'error',
             });
@@ -168,10 +172,10 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                 <div className="p-6 pb-2">
                     <h2 className="text-2xl font-bold flex items-center gap-2">
                         <FiUpload className="w-6 h-6 text-blue-600" />
-                        {t('menus:import.title')}
+                        {t('menus.import.title', 'Import menus from Excel')}
                     </h2>
                     <p className="text-base text-gray-500 mt-1">
-                        {t('menus:import.subtitle')}
+                        {t('menus.import.subtitle', 'Upload an Excel file (.xlsx) to create or update menu items in bulk.')}
                     </p>
                 </div>
 
@@ -199,13 +203,13 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                                     </div>
                                     <div>
                                         <p className="text-lg font-semibold text-gray-900">
-                                            {file ? file.name : t('menus:import.drop_zone')}
+                                            {file ? file.name : t('menus.import.drop_zone', 'Drop your Excel file here or click to upload')}
                                         </p>
                                         <p className="text-sm text-gray-500 mt-1">
-                                            {file ? t('menus:import.replace_hint') : t('menus:import.drop_zone_hint')}
+                                            {file ? t('menus.import.replace_hint', 'Click to replace file') : t('menus.import.drop_zone_hint', 'Standard Excel (.xlsx) files are supported')}
                                         </p>
                                         <p className="text-xs text-gray-400 mt-2">
-                                            {t('menus:import.supported_formats')}
+                                            {t('menus.import.supported_formats', 'Make sure the columns match our template')}
                                         </p>
                                     </div>
                                 </div>
@@ -222,10 +226,10 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                                             />
                                             <div className="grid gap-1 leading-none">
                                                 <Label htmlFor="overrideExisting" className="text-sm font-semibold m-0">
-                                                    {t('menus:import.override_existing')}
+                                                    {t('menus.import.override_existing', 'Override existing items')}
                                                 </Label>
                                                 <p className="text-xs text-gray-500">
-                                                    {t('menus:import.override_hint')}
+                                                    {t('menus.import.override_hint', 'Update existing menus if the same ID is found')}
                                                 </p>
                                             </div>
                                         </div>
@@ -241,10 +245,10 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                                             />
                                             <div className="grid gap-1 leading-none">
                                                 <Label htmlFor="dryRun" className="text-sm font-semibold m-0">
-                                                    {t('menus:import.dry_run')}
+                                                    {t('menus.import.dry_run', 'Dry run')}
                                                 </Label>
                                                 <p className="text-xs text-gray-500">
-                                                    {t('menus:import.dry_run_hint')}
+                                                    {t('menus.import.dry_run_hint', 'Check for errors without making any changes')}
                                                 </p>
                                             </div>
                                         </div>
@@ -255,12 +259,12 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                                 <div className="bg-blue-50/50 rounded-xl p-5 border border-blue-100 space-y-3">
                                     <h4 className="text-sm font-bold flex items-center gap-2 text-blue-700">
                                         <FiAlertCircle className="w-4 h-4" />
-                                        {t('menus:import.instructions_title')}
+                                        {t('menus.import.instructions_title', 'Formatting guidelines')}
                                     </h4>
                                     <ul className="text-sm space-y-2 text-gray-600 list-disc pl-4">
-                                        <li>{t('menus:import.instructions_row1')}</li>
-                                        <li>{t('menus:import.instructions_row2')}</li>
-                                        <li>{t('menus:import.instructions_row3')}</li>
+                                        <li>{t('menus.import.instructions_row1', 'Each row represents a single menu item.')}</li>
+                                        <li>{t('menus.import.instructions_row2', 'Parent ID should be a UUID if the menu item is a sub-menu.')}</li>
+                                        <li>{t('menus.import.instructions_row3', 'Ensure your column headers match exactly.')}</li>
                                     </ul>
                                 </div>
 
@@ -275,7 +279,7 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                                         ) : (
                                             <FiDownload className="mr-2 h-4 w-4" />
                                         )}
-                                        {t('menus:import.download_template')}
+                                        {t('menus.import.download_template', 'Download Template')}
                                     </Button>
                                 </div>
                             </>
@@ -292,7 +296,7 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                                     </div>
                                 </div>
                                 <div className="text-center space-y-4 w-full max-w-sm">
-                                    <h3 className="text-xl font-bold text-gray-900">{t('common:status.processing')}</h3>
+                                    <h3 className="text-xl font-bold text-gray-900">{t('common.status.processing', 'Processing')}</h3>
                                     <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                                         <div
                                             className="bg-blue-600 h-full transition-all duration-300"
@@ -300,7 +304,7 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                                         />
                                     </div>
                                     <p className="text-sm text-gray-500">
-                                        {t('common:status.pleaseWaitImport')}
+                                        {t('common.status.pleaseWaitImport', 'Please wait while we process your file')}
                                     </p>
                                 </div>
                             </div>
@@ -322,32 +326,32 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                                             "text-xl font-bold",
                                             status === 'COMPLETED' ? "text-green-900" : "text-red-900"
                                         )}>
-                                            {dryRun ? t('menus:import.dry_run_complete') : (status === 'COMPLETED' ? t('menus:import.success') : t('menus:import.failed'))}
+                                            {dryRun ? t('menus.import.dry_run_complete', 'Dry Run Complete') : (status === 'COMPLETED' ? t('menus.import.success', 'Import Successful') : t('menus.import.failed', 'Import Failed'))}
                                         </h3>
                                         <p className={cn(
                                             "text-sm",
                                             status === 'COMPLETED' ? "text-green-700" : "text-red-700"
                                         )}>
-                                            {summary.errors?.length > 0 ? t('menus:import.summary_with_errors') : t('menus:import.summary_success')}
+                                            {summary.errors?.length > 0 ? t('menus.import.summary_with_errors', 'Completed with errors') : t('menus.import.summary_success', 'Import completed successfully')}
                                         </p>
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 text-center">
-                                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">{t('menus:import.total_rows')}</p>
+                                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">{t('menus.import.total_rows', 'Total Rows')}</p>
                                         <p className="text-2xl font-black text-gray-900 mt-1">{summary.totalRows || 0}</p>
                                     </div>
                                     <div className="bg-green-50 p-4 rounded-xl border border-green-100 text-center">
-                                        <p className="text-xs text-green-600 font-medium uppercase tracking-wider">{t('menus:import.imported')}</p>
+                                        <p className="text-xs text-green-600 font-medium uppercase tracking-wider">{t('menus.import.imported', 'Imported')}</p>
                                         <p className="text-2xl font-black text-green-600 mt-1">{summary.imported || 0}</p>
                                     </div>
                                     <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 text-center">
-                                        <p className="text-xs text-blue-600 font-medium uppercase tracking-wider">{t('menus:import.updated')}</p>
+                                        <p className="text-xs text-blue-600 font-medium uppercase tracking-wider">{t('menus.import.updated', 'Updated')}</p>
                                         <p className="text-2xl font-black text-blue-600 mt-1">{summary.updated || 0}</p>
                                     </div>
                                     <div className="bg-amber-50 p-4 rounded-xl border border-amber-100 text-center">
-                                        <p className="text-xs text-amber-600 font-medium uppercase tracking-wider">{t('menus:import.skipped')}</p>
+                                        <p className="text-xs text-amber-600 font-medium uppercase tracking-wider">{t('menus.import.skipped', 'Skipped')}</p>
                                         <p className="text-2xl font-black text-amber-600 mt-1">{summary.skipped || 0}</p>
                                     </div>
                                 </div>
@@ -356,12 +360,12 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                                     <div className="space-y-3">
                                         <h4 className="font-bold flex items-center gap-2 text-red-600">
                                             <FiAlertCircle className="w-4 h-4" />
-                                            {t('menus:import.error_details')}
+                                            {t('menus.import.error_details', 'Error Details')}
                                         </h4>
                                         <div className="space-y-2">
                                             {summary.errors.slice(0, 5).map((err: any, idx: number) => (
                                                 <div key={idx} className="bg-red-50 p-3 rounded-lg border border-red-100 text-sm font-medium text-red-700">
-                                                    {t('menus:import.error_row', { row: err.row, message: err.message })}
+                                                    {t('menus.import.error_row', 'Row {{row}}: {{message}}', { row: err.row, message: err.message })}
                                                 </div>
                                             ))}
                                             {summary.errors.length > 5 && (
@@ -379,21 +383,21 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
 
                 <div className="p-6 pt-2 border-t mt-auto flex justify-end gap-3">
                     <Button variant="ghost" onClick={handleClose} disabled={status === 'PROCESSING'}>
-                        {t('common:actions.cancel')}
+                        {t('common.actions.cancel', 'Cancel')}
                     </Button>
 
                     {status === 'IDLE' && (
                         <Button
                             className="px-8"
                             onClick={handleImport}
-                            disabled={!file || importMutation.isLoading}
+                            disabled={!file || importMutation.isPending}
                         >
-                            {importMutation.isLoading ? (
+                            {importMutation.isPending ? (
                                 <FiLoader className="mr-2 h-4 w-4 animate-spin" />
                             ) : (
                                 <FiCheckCircle className="mr-2 h-4 w-4" />
                             )}
-                            {dryRun ? t('menus:import.run_validation') : t('menus:import.start_import')}
+                            {dryRun ? t('menus.import.run_validation', 'Run Validation') : t('menus.import.start_import', 'Start Import')}
                         </Button>
                     )}
 
@@ -402,7 +406,7 @@ export const MenuImportModal: React.FC<MenuImportModalProps> = ({
                             className="px-8"
                             onClick={status === 'COMPLETED' ? handleClose : reset}
                         >
-                            {status === 'COMPLETED' ? t('common:actions.close') : t('common:actions.retry')}
+                            {status === 'COMPLETED' ? t('common.actions.close', 'Close') : t('common.actions.retry', 'Retry')}
                         </Button>
                     )}
                 </div>

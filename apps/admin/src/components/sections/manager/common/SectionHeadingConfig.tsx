@@ -15,6 +15,8 @@ export interface SectionHeadingConfigData {
     headingTextTransform?: SectionHeadingTextTransform;
     headingTitleSize?: SectionHeadingTitleSize;
     headingBarHeight?: number;
+    headingBorderRadius?: number;
+    headingPaddingY?: number;
 }
 
 interface SectionHeadingConfigProps {
@@ -143,27 +145,54 @@ export const SectionHeadingConfig: React.FC<SectionHeadingConfigProps> = ({ data
                 </div>
             )}
 
-            {data.headingStyle === 'curved' && (
+            {(data.headingStyle === 'banner' || data.headingStyle === 'curved') && (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="flex flex-col gap-1">
-                        <ColorSelector
-                            value={data.headingBackgroundColor || ''}
-                            onChange={handleBackgroundColorChange}
-                            placeholder="#f97316"
-                            label={t('sections.manager.headingConfig.headingBackground', 'Heading Background (Orange)')}
-                            className="w-full"
+                    <label className="flex flex-col gap-1 text-sm text-gray-600">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            {t('sections.manager.headingConfig.borderRadius', 'Border Radius')}
+                        </span>
+                        <Select
+                            value={String(data.headingBorderRadius ?? '')}
+                            onChange={(val) => onChange({ ...data, headingBorderRadius: val ? Number(val) : undefined })}
+                            options={[
+                                { value: '', label: t('sections.manager.headingConfig.default', 'Default') },
+                                { value: '0', label: '0px' },
+                                { value: '4', label: '4px' },
+                                { value: '8', label: '8px' },
+                                { value: '12', label: '12px' },
+                                { value: '16', label: '16px' },
+                                { value: '20', label: '20px' },
+                                { value: '24', label: '24px' },
+                                { value: '32', label: '32px' },
+                                { value: '9999', label: 'Full' },
+                            ]}
+                            className="text-sm"
                         />
-                        <p className={'text-xs text-gray-400'}>{t('sections.manager.headingConfig.curvedBackgroundHelp', 'Sets the background tab color & bottom border')}</p>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <ColorSelector
-                            value={data.headingTextColor || ''}
-                            onChange={handleTextColorChange}
-                            placeholder="#ffffff"
-                            label={t('sections.manager.headingConfig.headingText', 'Heading Text')}
-                            className="w-full"
+                    </label>
+                    <label className="flex flex-col gap-1 text-sm text-gray-600">
+                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            {t('sections.manager.headingConfig.paddingY', 'Padding Y (px)')}
+                        </span>
+                        <Select
+                            value={String(data.headingPaddingY ?? '')}
+                            onChange={(val) => onChange({ ...data, headingPaddingY: val ? Number(val) : undefined })}
+                            options={[
+                                { value: '', label: t('sections.manager.headingConfig.default', 'Default') },
+                                { value: '0', label: '0px' },
+                                { value: '4', label: '4px' },
+                                { value: '8', label: '8px' },
+                                { value: '12', label: '12px' },
+                                { value: '16', label: '16px' },
+                                { value: '20', label: '20px' },
+                                { value: '24', label: '24px' },
+                                { value: '28', label: '28px' },
+                                { value: '32', label: '32px' },
+                                { value: '40', label: '40px' },
+                                { value: '48', label: '48px' },
+                            ]}
+                            className="text-sm"
                         />
-                    </div>
+                    </label>
                 </div>
             )}
         </div>

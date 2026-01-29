@@ -49,6 +49,8 @@ interface NewsByCategoryAdminRow {
     headingTextTransform?: SectionHeadingTextTransform;
     headingTitleSize?: SectionHeadingTitleSize;
     headingBarHeight?: number;
+    headingBorderRadius?: number;
+    headingPaddingY?: number;
 }
 
 interface CategoryOption {
@@ -106,6 +108,8 @@ const getHeadingConfigFromRow = (row?: NewsByCategoryAdminRow): SectionHeadingCo
     headingTextTransform: row?.headingTextTransform,
     headingTitleSize: row?.headingTitleSize,
     headingBarHeight: row?.headingBarHeight,
+    headingBorderRadius: row?.headingBorderRadius,
+    headingPaddingY: row?.headingPaddingY,
 });
 
 const createDefaultRow = (): NewsByCategoryAdminRow => ({
@@ -135,6 +139,8 @@ const parseRowsFromValue = (value: Record<string, unknown>): NewsByCategoryAdmin
             ? (value.headingTitleSize as SectionHeadingTitleSize)
             : undefined,
         headingBarHeight: typeof value?.headingBarHeight === 'number' ? value.headingBarHeight : undefined,
+        headingBorderRadius: typeof value?.headingBorderRadius === 'number' ? value.headingBorderRadius : undefined,
+        headingPaddingY: typeof value?.headingPaddingY === 'number' ? value.headingPaddingY : undefined,
     };
 
     if (Array.isArray(value?.rows) && value.rows.length > 0) {
@@ -158,6 +164,12 @@ const parseRowsFromValue = (value: Record<string, unknown>): NewsByCategoryAdmin
             headingBarHeight: typeof row?.headingBarHeight === 'number'
                 ? row.headingBarHeight
                 : baseHeadingConfig.headingBarHeight,
+            headingBorderRadius: typeof row?.headingBorderRadius === 'number'
+                ? row.headingBorderRadius
+                : baseHeadingConfig.headingBorderRadius,
+            headingPaddingY: typeof row?.headingPaddingY === 'number'
+                ? row.headingPaddingY
+                : baseHeadingConfig.headingPaddingY,
         }));
     }
 
@@ -176,6 +188,8 @@ const parseRowsFromValue = (value: Record<string, unknown>): NewsByCategoryAdmin
             headingTextTransform: baseHeadingConfig.headingTextTransform,
             headingTitleSize: baseHeadingConfig.headingTitleSize,
             headingBarHeight: baseHeadingConfig.headingBarHeight,
+            headingBorderRadius: baseHeadingConfig.headingBorderRadius,
+            headingPaddingY: baseHeadingConfig.headingPaddingY,
         }));
     }
 
@@ -194,6 +208,8 @@ const parseRowsFromValue = (value: Record<string, unknown>): NewsByCategoryAdmin
             headingTextTransform: baseHeadingConfig.headingTextTransform,
             headingTitleSize: baseHeadingConfig.headingTitleSize,
             headingBarHeight: baseHeadingConfig.headingBarHeight,
+            headingBorderRadius: baseHeadingConfig.headingBorderRadius,
+            headingPaddingY: baseHeadingConfig.headingPaddingY,
         }];
     }
 
@@ -223,6 +239,8 @@ const sanitizeConfigValue = (originalValue: Record<string, unknown>, rows: NewsB
         headingTextTransform: row.headingTextTransform,
         headingTitleSize: row.headingTitleSize,
         headingBarHeight: row.headingBarHeight,
+        headingBorderRadius: row.headingBorderRadius,
+        headingPaddingY: row.headingPaddingY,
     }));
 
     return {
@@ -248,6 +266,8 @@ const rowsAreEqual = (rows: NewsByCategoryAdminRow[], otherRows: NewsByCategoryA
             && row.headingTextTransform === other.headingTextTransform
             && row.headingTitleSize === other.headingTitleSize
             && row.headingBarHeight === other.headingBarHeight
+            && row.headingBorderRadius === other.headingBorderRadius
+            && row.headingPaddingY === other.headingPaddingY
             && row.card.layout === other.card.layout
             && row.card.badgeTone === other.card.badgeTone
             && row.card.ctaText === other.card.ctaText
@@ -490,6 +510,8 @@ const NewsRowEditor: React.FC<NewsRowEditorProps> = ({
                         headingTextTransform: row.headingTextTransform,
                         headingTitleSize: row.headingTitleSize,
                         headingBarHeight: row.headingBarHeight,
+                        headingBorderRadius: row.headingBorderRadius,
+                        headingPaddingY: row.headingPaddingY,
                     }}
                     onChange={handleHeadingConfigChange}
                 />
@@ -578,6 +600,8 @@ export const NewsByCategoryEditor: React.FC<NewsByCategoryConfigEditorProps> = (
             headingTextTransform: commonHeadingConfig.headingTextTransform,
             headingTitleSize: commonHeadingConfig.headingTitleSize,
             headingBarHeight: commonHeadingConfig.headingBarHeight,
+            headingBorderRadius: commonHeadingConfig.headingBorderRadius,
+            headingPaddingY: commonHeadingConfig.headingPaddingY,
         }));
         applyUpdate(nextRows);
     }, [applyUpdate, commonHeadingConfig, rows]);
@@ -587,6 +611,21 @@ export const NewsByCategoryEditor: React.FC<NewsByCategoryConfigEditorProps> = (
             <div className="space-y-1">
                 <h4 className="text-sm font-semibold text-gray-700">{t('sections.manager.newsByCategory.title')}</h4>
                 <p className="text-xs text-gray-500">{t('sections.manager.newsByCategory.description')}</p>
+            </div>
+
+            <div className="rounded-xl border border-gray-200/80 bg-white p-4 shadow-sm space-y-3">
+                <div className="space-y-1">
+                    <h4 className="text-sm font-semibold text-gray-700">{t('sections.manager.config.brandShowcase.background')}</h4>
+                </div>
+                <select
+                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                    value={(value.backgroundStyle as string) || 'surface'}
+                    onChange={(e) => onChange({ ...value, backgroundStyle: e.target.value })}
+                >
+                    <option value="surface">{t('sections.manager.config.brandShowcase.backgroundSurface')}</option>
+                    <option value="muted">{t('sections.manager.config.brandShowcase.backgroundMuted')}</option>
+                    <option value="contrast">{t('sections.manager.config.brandShowcase.backgroundContrast')}</option>
+                </select>
             </div>
 
             <div className="rounded-xl border border-gray-200/80 bg-white p-4 shadow-sm space-y-3">

@@ -26,6 +26,7 @@ import {
   ProductDetailsSection,
   NewsDetailsSection,
   IntroductionSection,
+  VideoGridSection,
 } from '.';
 import type { SectionListItem } from '../../types/sections';
 import type { ProductsByCategorySidebarConfig } from './ProductsByCategory';
@@ -53,6 +54,7 @@ const sectionComponentMap: Record<SectionType, React.ComponentType<any>> = {
   [SectionType.PRODUCT_DETAILS]: ProductDetailsSection,
   [SectionType.NEWS_DETAILS]: NewsDetailsSection,
   [SectionType.INTRODUCTION]: IntroductionSection,
+  [SectionType.VIDEO_GRID]: VideoGridSection,
 };
 
 const buildTranslationPayload = (section: SectionListItem) => {

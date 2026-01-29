@@ -24,6 +24,8 @@ export interface BrandShowcaseConfig {
   headingTextTransform?: 'none' | 'uppercase' | 'capitalize' | 'lowercase';
   headingTitleSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   headingBarHeight?: number;
+  headingBorderRadius?: number;
+  headingPaddingY?: number;
 }
 
 interface BrandShowcaseSectionProps {
@@ -313,6 +315,8 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
             headingTextTransform={config.headingTextTransform}
             headingTitleSize={config.headingTitleSize}
             headingBarHeight={config.headingBarHeight}
+            headingBorderRadius={config.headingBorderRadius}
+            headingPaddingY={config.headingPaddingY}
             className="mb-12"
           />
         )}

@@ -684,6 +684,15 @@ export const appRouter = router({
       }),
   }),
 
+  adminImport: router({
+    getJobStatus: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+  }),
+
   adminUser: router({
     createUser: procedure
       .input(z.object({
@@ -1279,6 +1288,29 @@ export const appRouter = router({
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;
+      }),
+
+    importFromExcel: procedure
+      .input(z.object({
+        fileName: z.string().optional(),
+        fileData: z.string().min(1),
+        overrideExisting: z.boolean().optional(),
+        dryRun: z.boolean().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    downloadExcelTemplate: procedure
+      .input(z.object({}))
+      .output(z.object({
+        data: z.string(),
+        filename: z.string(),
+        mimeType: z.string(),
+      }))
+      .query(() => {
+        return {} as any;
       }),
   }),
 
@@ -6503,15 +6535,6 @@ export const appRouter = router({
       }))
       .output(apiResponseSchema)
       .mutation(() => {
-        return {} as ApiResponse;
-      }),
-  }),
-
-  adminImport: router({
-    getJobStatus: procedure
-      .input(z.object({ id: z.string() }))
-      .output(apiResponseSchema)
-      .query(() => {
         return {} as ApiResponse;
       }),
   }),

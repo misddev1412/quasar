@@ -1908,6 +1908,7 @@
       "title": "Sản phẩm nổi bật",
       "description": "Khám phá các sản phẩm mới và được tuyển chọn trong danh mục này.",
       "view_category": "Xem tất cả",
+      "view_more": "Xem thêm",
       "category_label": "Danh mục {{category}}",
       "curated_category": "Bộ sưu tập tuyển chọn",
       "loading": "Đang tải sản phẩm...",
@@ -1989,6 +1990,11 @@
       "description": "Kết hợp nội dung truyền cảm hứng với hành động mua hàng trực tiếp.",
       "pagination_label": "Chuyển đến video {{index}}",
       "watchOnYoutube": "Xem trên YouTube"
+    },
+    "video_grid": {
+      "title": "Video nổi bật",
+      "subtitle": "Khám phá video của chúng tôi",
+      "description": "Xem những video mới nhất về sản phẩm và dịch vụ của chúng tôi."
     },
     "stats": {
       "title": "Chứng minh bằng con số",

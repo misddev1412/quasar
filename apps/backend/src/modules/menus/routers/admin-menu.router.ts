@@ -331,6 +331,7 @@ export class AdminMenuRouter {
       );
     }
   }
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Mutation({
     input: z.object({
       fileName: z.string().optional(),
@@ -340,7 +341,6 @@ export class AdminMenuRouter {
     }),
     output: apiResponseSchema,
   })
-  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   async importFromExcel(
     @Input()
     input: {
@@ -372,6 +372,7 @@ export class AdminMenuRouter {
     }
   }
 
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   @Query({
     input: z.object({}),
     output: z.object({
@@ -380,7 +381,6 @@ export class AdminMenuRouter {
       mimeType: z.string(),
     }),
   })
-  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
   async downloadExcelTemplate(
     @Input() input: {},
     @Ctx() ctx: AuthenticatedContext,

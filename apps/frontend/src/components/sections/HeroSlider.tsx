@@ -182,6 +182,8 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   const slides = Array.isArray(config?.slides) && config.slides.length > 0 ? config.slides : defaultSlides;
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [previousIndex, setPreviousIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const interval = config.interval ?? 6000;
   const autoplay = config.autoplay ?? true;
   const layout = config.layout === 'full-width' ? 'full-width' : 'container';
@@ -232,50 +234,70 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
     return () => clearInterval(timer);
   }, [autoplay, interval, slides.length]);
 
-  const activeSlide = slides[activeIndex] ?? slides[0];
-  // null means field is hidden by admin, undefined/empty means visible but no value
-  const slideHeading = activeSlide?.title?.trim();
-  const translationHeading = translation?.title === null ? '' : translation?.title?.trim() || '';
-  const heading = showTitle ? (translationHeading || slideHeading || defaultSlides[0].title) : '';
+  // Handle transition state for crossfade
+  useEffect(() => {
+    if (activeIndex === previousIndex) return; // Skip on initial render
 
-  const slideSubtitle = activeSlide?.subtitle?.trim();
-  const translationSubtitle = translation?.subtitle === null ? '' : (translation?.subtitle || t('sections.hero.curated_sections'));
-  const subheading = showSubtitle ? (slideSubtitle || translationSubtitle) : '';
+    setIsTransitioning(true);
+    const timer = setTimeout(() => {
+      setIsTransitioning(false);
+      setPreviousIndex(activeIndex); // Update previous index after transition completes
+    }, 800); // 800ms crossfade duration
+    return () => clearTimeout(timer);
+  }, [activeIndex]);
 
-  const rawHeroDescription = translation?.heroDescription === null ? '' : translation?.heroDescription?.trim() || '';
-  const rawSectionDescription = translation?.description === null ? '' : translation?.description?.trim() || '';
-  const rawSlideDescription = activeSlide?.description?.trim() || '';
 
-  const heroDescription = showHeroDescription ? rawHeroDescription : '';
-  const fallbackDescription = showDescription
-    ? (translation?.description === null && translation?.heroDescription === null ? '' : t('sections.hero.latest_stories'))
-    : '';
-  const description = heroDescription
-    || (showDescription ? (rawSectionDescription || rawSlideDescription || fallbackDescription) : '');
-  const secondaryDescription = heroDescription
-    && showDescription
-    && rawSlideDescription
-    && heroDescription !== rawSlideDescription
-    ? rawSlideDescription
-    : undefined;
+  // Helper function to get slide content data
+  const getSlideContent = (slideIndex: number) => {
+    const slide = slides[slideIndex] ?? slides[0];
+    const slideHeading = slide?.title?.trim();
+    const translationHeading = translation?.title === null ? '' : translation?.title?.trim() || '';
+    const heading = showTitle ? (translationHeading || slideHeading || defaultSlides[0].title) : '';
+
+    const slideSubtitle = slide?.subtitle?.trim();
+    const translationSubtitle = translation?.subtitle === null ? '' : (translation?.subtitle || t('sections.hero.curated_sections'));
+    const subheading = showSubtitle ? (slideSubtitle || translationSubtitle) : '';
+
+    const rawHeroDescription = translation?.heroDescription === null ? '' : translation?.heroDescription?.trim() || '';
+    const rawSectionDescription = translation?.description === null ? '' : translation?.description?.trim() || '';
+    const rawSlideDescription = slide?.description?.trim() || '';
+
+    const heroDescription = showHeroDescription ? rawHeroDescription : '';
+    const fallbackDescription = showDescription
+      ? (translation?.description === null && translation?.heroDescription === null ? '' : t('sections.hero.latest_stories'))
+      : '';
+    const description = heroDescription
+      || (showDescription ? (rawSectionDescription || rawSlideDescription || fallbackDescription) : '');
+    const secondaryDescription = heroDescription
+      && showDescription
+      && rawSlideDescription
+      && heroDescription !== rawSlideDescription
+      ? rawSlideDescription
+      : undefined;
+
+    const backgroundImage = slide?.imageUrl?.trim();
+    const backgroundImageValue = backgroundImage
+      ? `url('${backgroundImage.replace(/'/g, "\\'")}')`
+      : undefined;
+
+    return {
+      slide,
+      heading,
+      subheading,
+      description,
+      secondaryDescription,
+      backgroundImageValue,
+    };
+  };
+
+  const currentSlideContent = getSlideContent(activeIndex);
+  const previousSlideContent = getSlideContent(previousIndex);
+
   const contentPaddingClass = isFullWidth
     ? 'px-4 sm:px-8 lg:px-12 xl:px-16'
     : 'px-6 sm:px-10 lg:px-16';
   const contentWrapperClass = 'py-12 sm:py-16 lg:py-20 xl:py-24 flex h-full flex-col justify-center';
-  const backgroundImage = activeSlide?.imageUrl?.trim();
-  const backgroundImageValue = backgroundImage
-    ? `url('${backgroundImage.replace(/'/g, "\\'")}')`
-    : undefined;
-  const backgroundLayerStyle: CSSProperties | undefined = backgroundImageValue
-    ? {
-      backgroundImage: backgroundImageValue,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      opacity: overlayEnabled ? 0.7 : 1,
-      filter: overlayEnabled ? 'grayscale(15%)' : 'none',
-      transition: 'opacity 300ms ease',
-    }
-    : undefined;
+
   const outerWrapperClass = isFullWidth
     ? 'w-full py-0'
     : 'w-full px-0 lg:max-w-7xl lg:mx-auto lg:px-8 py-0 lg:py-[var(--hero-padding-y)]';
@@ -292,65 +314,96 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ config, translation }) =
   const heroShellStyle: CSSProperties = {
     ...containerStyle,
     width: '100%',
-    // Pass radius as CSS variable for responsive usage
     '--hero-radius': containerBorderRadius || '1.5rem',
   } as CSSProperties;
+
+  // Render a single slide layer
+  const renderSlideLayer = (slideContent: ReturnType<typeof getSlideContent>, opacity: number, zIndex: number) => {
+    const backgroundLayerStyle: CSSProperties | undefined = slideContent.backgroundImageValue
+      ? {
+        backgroundImage: slideContent.backgroundImageValue,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        opacity: overlayEnabled ? 0.7 : 1,
+        filter: overlayEnabled ? 'grayscale(15%)' : 'none',
+      }
+      : undefined;
+
+    return (
+      <div
+        className="absolute inset-0"
+        style={{
+          opacity,
+          transition: 'opacity 800ms ease-in-out',
+          zIndex,
+        }}
+      >
+        {backgroundLayerStyle && (
+          <div className="absolute inset-0" style={backgroundLayerStyle} />
+        )}
+        {overlayEnabled && <div className="absolute inset-0" style={overlayStyle} />}
+
+        <SectionContainer
+          fullWidth
+          paddingClassName={contentPaddingClass}
+          className={`relative ${contentWrapperClass}`}
+        >
+          <div className="max-w-2xl space-y-4">
+            {slideContent.subheading && (
+              <p className="text-sm uppercase tracking-widest text-blue-100 mb-3">
+                {slideContent.subheading}
+              </p>
+            )}
+            {slideContent.heading && (
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
+                {slideContent.heading}
+              </h1>
+            )}
+            {slideContent.description && (
+              <p className="mt-4 sm:mt-6 text-base sm:text-lg text-blue-100 leading-relaxed">
+                {slideContent.description}
+              </p>
+            )}
+            {slideContent.secondaryDescription && (
+              <p className="mt-3 text-sm sm:text-base text-blue-100/90 leading-relaxed">
+                {slideContent.secondaryDescription}
+              </p>
+            )}
+            {(showPrimaryButton || showSecondaryButton) && (
+              <div className="mt-6 sm:mt-8 flex flex-wrap gap-3 sm:gap-4">
+                {showPrimaryButton && (slideContent.slide?.ctaLabel || slideContent.slide?.ctaUrl) && (
+                  <a
+                    href={slideContent.slide?.ctaUrl || '#'}
+                    className="inline-flex items-center justify-center rounded-lg bg-white/95 px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-blue-700 shadow-lg shadow-blue-900/30 backdrop-blur transition hover:bg-white"
+                  >
+                    {slideContent.slide?.ctaLabel || t('sections.hero.explore_collections')}
+                  </a>
+                )}
+                {showSecondaryButton && (
+                  <a
+                    href="#sections"
+                    className="inline-flex items-center justify-center rounded-lg border border-white/40 px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white transition hover:bg-white/10"
+                  >
+                    {t('sections.hero.view_sections')}
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+        </SectionContainer>
+      </div>
+    );
+  };
+
   const heroContent = (
     <div className={heroShellClass} style={heroShellStyle}>
-      {backgroundLayerStyle && (
-        <div className="absolute inset-0" style={backgroundLayerStyle} />
-      )}
-      {overlayEnabled && <div className="absolute inset-0" style={overlayStyle} />}
+      {/* Render previous slide (fading out) */}
+      {isTransitioning && previousIndex !== activeIndex && renderSlideLayer(previousSlideContent, 0, 1)}
 
-      <SectionContainer
-        fullWidth
-        paddingClassName={contentPaddingClass}
-        className={`relative ${contentWrapperClass}`}
-      >
-        <div className="max-w-2xl space-y-4">
-          {subheading && (
-            <p className="text-sm uppercase tracking-widest text-blue-100 mb-3">
-              {subheading}
-            </p>
-          )}
-          {heading && (
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
-              {heading}
-            </h1>
-          )}
-          {description && (
-            <p className="mt-4 sm:mt-6 text-base sm:text-lg text-blue-100 leading-relaxed">
-              {description}
-            </p>
-          )}
-          {secondaryDescription && (
-            <p className="mt-3 text-sm sm:text-base text-blue-100/90 leading-relaxed">
-              {secondaryDescription}
-            </p>
-          )}
-          {(showPrimaryButton || showSecondaryButton) && (
-            <div className="mt-6 sm:mt-8 flex flex-wrap gap-3 sm:gap-4">
-              {showPrimaryButton && (activeSlide?.ctaLabel || activeSlide?.ctaUrl) && (
-                <a
-                  href={activeSlide?.ctaUrl || '#'}
-                  className="inline-flex items-center justify-center rounded-lg bg-white/95 px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-blue-700 shadow-lg shadow-blue-900/30 backdrop-blur transition hover:bg-white"
-                >
-                  {activeSlide?.ctaLabel || t('sections.hero.explore_collections')}
-                </a>
-              )}
-              {showSecondaryButton && (
-                <a
-                  href="#sections"
-                  className="inline-flex items-center justify-center rounded-lg border border-white/40 px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  {t('sections.hero.view_sections')}
-                </a>
-              )}
-            </div>
-          )}
-        </div>
-      </SectionContainer>
-      <div className="absolute inset-x-0 bottom-6 flex justify-center px-4">
+      {/* Render current slide (fading in) */}
+      {renderSlideLayer(currentSlideContent, 1, 2)}
+
+      <div className="absolute inset-x-0 bottom-6 flex justify-center px-4" style={{ zIndex: 10 }}>
         <div className="flex items-center gap-3">
           {slides.map((slide, index) => (
             <button

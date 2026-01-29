@@ -65,6 +65,8 @@ export const WhyChooseUsEditor: React.FC<WhyChooseUsEditorProps> = ({ value, onC
             ? (value.headingTitleSize as SectionHeadingTitleSize)
             : undefined,
         headingBarHeight: typeof value?.headingBarHeight === 'number' ? value.headingBarHeight : undefined,
+        headingBorderRadius: typeof value?.headingBorderRadius === 'number' ? value.headingBorderRadius : undefined,
+        headingPaddingY: typeof value?.headingPaddingY === 'number' ? value.headingPaddingY : undefined,
     };
 
     const updateConfig = (partial: Record<string, unknown>) => {
