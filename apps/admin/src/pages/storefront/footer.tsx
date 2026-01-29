@@ -1,9 +1,9 @@
 import React from 'react';
 import { FiHome, FiLayout } from 'react-icons/fi';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { withAdminSeo } from '../../components/SEO/withAdminSeo';
+import { BaseLayout } from '../../components/layout';
+import { withAdminSeo } from '../../components/SEO';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import FooterSettingsForm from '../../components/storefront/FooterSettingsForm';
+import { FooterSettingsForm } from '../../components/storefront';
 
 const StorefrontFooterPage: React.FC = () => {
   const { t } = useTranslationWithBackend();

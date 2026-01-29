@@ -114,6 +114,11 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
             placeholder: t('form.placeholders.enter_title'),
             required: true,
             disabled: readonly,
+            aiGenerator: {
+              entityType: 'post',
+              contentType: 'title',
+              sourceFieldName: 'content',
+            },
           },
           {
             name: 'slug',
@@ -137,6 +142,12 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
             rows: 3,
             validation: { maxLength: 500 },
             disabled: readonly,
+            aiGenerator: {
+              entityType: 'post',
+              contentType: 'description',
+              sourceFieldName: 'content',
+              tone: 'summarize',
+            },
           },
           {
             name: 'content',
@@ -148,6 +159,11 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
             required: true,
             minHeight: '500px',
             disabled: readonly,
+            aiGenerator: {
+              entityType: 'post',
+              contentType: 'description',
+              sourceFieldName: 'title',
+            },
           },
           {
             name: 'metaTitle',
@@ -159,6 +175,12 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
             required: false,
             validation: { maxLength: 60 },
             disabled: readonly,
+            aiGenerator: {
+              entityType: 'post',
+              contentType: 'title',
+              sourceFieldName: 'title',
+              tone: 'seo',
+            },
           },
           {
             name: 'metaDescription',
@@ -171,6 +193,12 @@ export const TranslationsSection: React.FC<TranslationsSectionProps> = ({
             rows: 3,
             validation: { maxLength: 160 },
             disabled: readonly,
+            aiGenerator: {
+              entityType: 'post',
+              contentType: 'description',
+              sourceFieldName: 'excerpt', // Use excerpt or content as source
+              tone: 'seo',
+            },
           },
           {
             name: 'metaKeywords',

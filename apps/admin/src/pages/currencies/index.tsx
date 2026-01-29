@@ -1,13 +1,9 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiEdit3, FiTrash2, FiSettings, FiDollarSign, FiCheck, FiX, FiMoreVertical, FiEye, FiHome } from 'react-icons/fi';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { StatisticsGrid } from '../../components/common/StatisticsGrid';
-import { Table, Column } from '../../components/common/Table';
-import { Button } from '../../components/common/Button';
-import { Dropdown } from '../../components/common/Dropdown';
-import { ConfirmationModal } from '../../components/common/ConfirmationModal';
-import { CurrencyFilters } from '../../components/features/CurrencyFilters';
+import { StandardListPage, StatisticsGrid, Table, Button, Dropdown, ConfirmationModal } from '../../components/common';
+import type { Column } from '../../components/common';
+import { CurrencyFilters } from '../../components/features';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
@@ -382,7 +378,7 @@ const CurrenciesIndexPage: React.FC = () => {
     ];
   }, [t, navigate, handleToggleStatus, handleSetDefault, handleDelete]);
 
-  // Actions for BaseLayout
+  // Actions for StandardListPage
   const actions = useMemo(() => [
     {
       label: t('currencies.create'),
@@ -424,7 +420,7 @@ const CurrenciesIndexPage: React.FC = () => {
 
   if (error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title="Currency Management"
         description="Manage system currencies"
         actions={actions}
@@ -434,12 +430,12 @@ const CurrenciesIndexPage: React.FC = () => {
         <div className="text-red-600 dark:text-red-400">
           Error loading currencies: {error.message}
         </div>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title="Currency Management"
       description="Manage system currencies and exchange rates"
       actions={actions}
@@ -530,7 +526,7 @@ const CurrenciesIndexPage: React.FC = () => {
           isLoading={deleteCurrencyMutation.isPending}
         />
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

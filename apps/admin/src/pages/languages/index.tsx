@@ -1,13 +1,9 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiEdit3, FiTrash2, FiSettings, FiGlobe, FiStar, FiCheck, FiX, FiMoreVertical, FiEye, FiHome } from 'react-icons/fi';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { StatisticsGrid } from '../../components/common/StatisticsGrid';
-import { Table, Column } from '../../components/common/Table';
-import { Button } from '../../components/common/Button';
-import { Dropdown } from '../../components/common/Dropdown';
-import { ConfirmationModal } from '../../components/common/ConfirmationModal';
-import { LanguageFilters } from '../../components/features/LanguageFilters';
+import { StandardListPage, StatisticsGrid, Table, Button, Dropdown, ConfirmationModal } from '../../components/common';
+import type { Column } from '../../components/common';
+import { LanguageFilters } from '../../components/features';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
@@ -337,7 +333,7 @@ const LanguagesIndexPage: React.FC = () => {
     [t, navigate, handleToggleStatus, handleSetDefault, handleDelete]
   );
 
-  // Actions for BaseLayout
+  // Actions for StandardListPage
   const actions = useMemo(() => [
     {
       label: t('languages.create'),
@@ -379,7 +375,7 @@ const LanguagesIndexPage: React.FC = () => {
 
   if (error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title="Language Management"
         description="Manage system languages"
         actions={actions}
@@ -389,12 +385,12 @@ const LanguagesIndexPage: React.FC = () => {
         <div className="text-red-600 dark:text-red-400">
           Error loading languages: {error.message}
         </div>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title="Language Management"
       description="Manage system languages and translations"
       actions={actions}
@@ -485,7 +481,7 @@ const LanguagesIndexPage: React.FC = () => {
           isLoading={deleteLanguageMutation.isPending}
         />
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

@@ -1,14 +1,14 @@
 import React from 'react';
 import { FiBox, FiHome } from 'react-icons/fi';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { ComponentConfigsManager } from '../../components/component-configs/ComponentConfigsManager';
+import { StandardListPage } from '../../components/common';
+import { ComponentConfigsManager } from '../../components/component-configs';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 const ComponentConfigsPage: React.FC = () => {
   const { t } = useTranslationWithBackend();
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('componentConfigs.title', 'Component Library')}
       description={t('componentConfigs.manageDescription', 'Manage storefront building blocks')}
       breadcrumbs={[
@@ -17,7 +17,7 @@ const ComponentConfigsPage: React.FC = () => {
       ]}
     >
       <ComponentConfigsManager />
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

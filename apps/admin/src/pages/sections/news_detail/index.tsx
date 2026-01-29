@@ -1,15 +1,15 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiHome, FiLayout, FiFileText } from 'react-icons/fi';
-import BaseLayout from '../../../components/layout/BaseLayout';
-import { SectionsManager } from '../../../components/sections/SectionsManager';
+import { StandardListPage } from '../../../components/common';
+import { SectionsManager } from '../../../components/sections';
 
 const NewsDetailSectionsPage: React.FC = () => {
     const { t } = useTranslation();
     const page = 'news_detail';
 
     return (
-        <BaseLayout
+        <StandardListPage
             title={t('sections.pages.news_detail')}
             description={t('sections.pages.news_detail_description', 'Configure content and display order for news detail page sections.')}
             breadcrumbs={[
@@ -32,7 +32,7 @@ const NewsDetailSectionsPage: React.FC = () => {
             <div className="space-y-6">
                 <SectionsManager page={page} onPageChange={() => { }} />
             </div>
-        </BaseLayout>
+        </StandardListPage>
     );
 };
 

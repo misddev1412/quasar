@@ -1,18 +1,13 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { FiBell, FiHome, FiUser, FiSave, FiRotateCcw } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import BaseLayout from '../../components/layout/BaseLayout';
-import NotificationSettings from '../../components/notifications/NotificationSettings';
-import NotificationChannelManager from '../../components/notifications/NotificationChannelManager';
-import TelegramNotificationConfigManager from '../../components/notifications/TelegramNotificationConfigManager';
+import { BaseLayout } from '../../components/layout';
+import { NotificationSettings, NotificationChannelManager, TelegramNotificationConfigManager } from '../../components/notifications';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../../contexts/ToastContext';
-import { withAdminSeo } from '../../components/SEO/withAdminSeo';
-import { Card } from '../../components/common/Card';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription } from '../../components/common/Alert';
-
+import { withAdminSeo } from '../../components/SEO';
+import { Card, Loading, Alert, AlertDescription } from '../../components/common';
 const NotificationPreferencesPage: React.FC = () => {
   const { user } = useAuth();
   const { t } = useTranslation();

@@ -4,14 +4,10 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FiPackage } from 'react-icons/fi';
-import StandardFormPage from '../../../components/common/StandardFormPage';
-import { Loading } from '../../../components/common/Loading';
-import { FormSection } from '../../../components/common/FormSection';
-import { Badge } from '../../../components/common/Badge';
+import { StandardFormPage, Loading, FormSection, Badge, Input } from '../../../components/common';
 import { useToast } from '../../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { trpc } from '../../../utils/trpc';
-import { Input } from '../../../components/common/Input';
 
 const FULFILLMENT_STATUS_OPTIONS = [
   'PENDING',

@@ -1,10 +1,9 @@
 import React from 'react';
-import { SettingsManager } from '../../components/settings/SettingsManager';
-import { OrderNumberSettings } from '../../components/settings/OrderNumberSettings';
-import { withAdminSeo } from '../../components/SEO/withAdminSeo';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
+import { SettingsManager, OrderNumberSettings } from '../../components/settings';
+import { withAdminSeo } from '../../components/SEO';
+import { BaseLayout } from '../../components/layout';
 import { FiHome, FiSettings, FiShoppingCart } from 'react-icons/fi';
+import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 
 const EcommerceSettingsPage: React.FC = () => {
     const { t } = useTranslationWithBackend();

@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiGlobe } from 'react-icons/fi';
-import StandardFormPage from '../../components/common/StandardFormPage';
-import { CreateLanguageForm } from '../../components/languages/CreateLanguageForm';
+import { StandardFormPage } from '../../components/common';
+import { CreateLanguageForm } from '../../components/languages';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';

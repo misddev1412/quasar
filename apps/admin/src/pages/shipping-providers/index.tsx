@@ -1,13 +1,9 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiEdit3, FiTrash2, FiSettings, FiTruck, FiCheck, FiX, FiMoreVertical, FiEye, FiHome, FiGlobe, FiKey } from 'react-icons/fi';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { StatisticsGrid } from '../../components/common/StatisticsGrid';
-import { Table, Column } from '../../components/common/Table';
-import { Button } from '../../components/common/Button';
-import { Dropdown } from '../../components/common/Dropdown';
-import { ConfirmationModal } from '../../components/common/ConfirmationModal';
-import { ShippingProviderFilters } from '../../components/features/ShippingProviderFilters';
+import { StandardListPage, StatisticsGrid, Table, Button, Dropdown, ConfirmationModal } from '../../components/common';
+import type { Column } from '../../components/common';
+import { ShippingProviderFilters } from '../../components/features';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
@@ -419,7 +415,7 @@ const ShippingProvidersIndexPage: React.FC = () => {
     [t, navigate, handleToggleStatus, handleDelete]
   );
 
-  // Actions for BaseLayout
+  // Actions for StandardListPage
   const actions = useMemo(() => [
     {
       label: t('shippingProviders.create'),
@@ -472,7 +468,7 @@ const ShippingProvidersIndexPage: React.FC = () => {
 
   if (error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title="Shipping Provider Management"
         description="Manage system shipping providers"
         actions={actions}
@@ -482,12 +478,12 @@ const ShippingProvidersIndexPage: React.FC = () => {
         <div className="text-red-600 dark:text-red-400">
           Error loading shipping providers: {error.message}
         </div>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title="Shipping Provider Management"
       description="Manage system shipping providers and tracking configurations"
       actions={actions}
@@ -578,7 +574,7 @@ const ShippingProvidersIndexPage: React.FC = () => {
           isLoading={deleteShippingProviderMutation.isPending}
         />
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { AIGenerateButton } from '../common/AIGenerateButton';
+import { FormAIGenerator } from '../common/FormAIGenerator';
 import { FileText, Settings, Globe, Image, Calendar, Tag, RefreshCw } from 'lucide-react';
 import { EntityForm } from '../common/EntityForm';
 import { FormTabConfig, FormSubmitOptions } from '../../types/forms';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { useLanguageOptions, useActiveLanguages } from '../../hooks/useLanguages';
+import { useLanguageOptions } from '../../hooks/useLanguages';
 import { z } from 'zod';
 import { TranslationsSection } from './TranslationsSection';
 import { generateSlug } from '../../utils/slugUtils';
@@ -80,65 +81,8 @@ interface CreatePostFormProps {
   formId?: string;
 }
 
-const PostTitleGenerator = ({ availableLanguages }: { availableLanguages: { code: string; name: string }[] }) => {
-  const { setValue, watch } = useFormContext();
-  const content = watch('content');
-  const title = watch('title');
-  const type = watch('type');
+// Local generators replaced by FormAIGenerator
 
-  // Logic: Use existing title for rewrite/improve, otherwise use content to summarize
-  const hasTitle = title && typeof title === 'string' && title.trim().length > 0;
-  const contentText = typeof content === 'string' ? content.replace(/<[^>]*>?/gm, '') : '';
-  const context = hasTitle ? title : contentText;
-
-  const contextLabel = hasTitle
-    ? 'Current Title (to improve/rewrite)'
-    : 'Post Content (to summarize into title)';
-
-  return (
-    <AIGenerateButton
-      entityType="post"
-      contentType="title"
-      context={context}
-      tone={type === 'news' ? 'journalistic' : 'engaging'}
-      onGenerate={(text) => setValue('title', text, { shouldDirty: true, shouldValidate: true })}
-      variant="icon"
-      availableLanguages={availableLanguages}
-      contextLabel={contextLabel}
-    />
-  );
-};
-
-const PostContentGenerator = ({ availableLanguages }: { availableLanguages: { code: string; name: string }[] }) => {
-  const { setValue, watch } = useFormContext();
-  const title = watch('title');
-  const content = watch('content');
-  const type = watch('type');
-
-  // Logic: Use existing content for rewrite/improve, otherwise use title to expand
-  const hasContent = content && typeof content === 'string' && content.replace(/<[^>]*>?/gm, '').trim().length > 0;
-  // NOTE: For description generation, we typically want title as context for new content. 
-  // If we pass content, we assume the user wants to rewrite it.
-  // Backend prompt structure expects "Product/Post Title: <context>".
-  // If we pass long content, it might be weird, but often works as "Subject". 
-  const context = hasContent ? content.replace(/<[^>]*>?/gm, '') : title;
-
-  const contextLabel = hasContent
-    ? 'Current Content (to improve/rewrite)'
-    : 'Post Title (to expand into content)';
-
-  return (
-    <AIGenerateButton
-      entityType="post"
-      contentType="description"
-      context={context}
-      tone={type === 'news' ? 'journalistic' : 'engaging'}
-      onGenerate={(text) => setValue('content', text, { shouldDirty: true, shouldValidate: true })}
-      availableLanguages={availableLanguages}
-      contextLabel={contextLabel}
-    />
-  );
-};
 
 export const CreatePostForm: React.FC<CreatePostFormProps> = ({
   onSubmit,
@@ -149,7 +93,7 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
 }) => {
   const { t } = useTranslationWithBackend();
   const { languageOptions, isLoading: languagesLoading } = useLanguageOptions();
-  const { activeLanguages } = useActiveLanguages(); // Get active languages
+  // useActiveLanguages moved to FormAIGenerator
 
   // State for managing translations
   const [additionalTranslations, setAdditionalTranslations] = useState<{
@@ -186,7 +130,7 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
                 ? t('common.loading')
                 : languageOptions.length > 0
                   ? t('form.placeholders.select_language')
-                  : 'No languages available',
+                  : t('common.no_languages_available', 'No languages available'),
               required: true,
               disabled: languagesLoading || languageOptions.length === 0,
               options: languageOptions.map(option => ({
@@ -208,7 +152,16 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
                 minLength: 1,
                 maxLength: 200,
               },
-              rightElement: <PostTitleGenerator availableLanguages={activeLanguages.map(l => ({ code: l.code, name: l.name }))} />,
+              rightElement: (
+                <FormAIGenerator
+                  targetFieldName="title"
+                  sourceFieldName="content"
+                  targetLabel={t('posts.title')}
+                  sourceLabel={t('posts.content')}
+                  entityType="post"
+                  contentType="title"
+                />
+              ),
               rightElementPosition: 'inside-input',
             },
             {
@@ -241,7 +194,16 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
               validation: {
                 minLength: 10,
               },
-              rightElement: <PostContentGenerator availableLanguages={activeLanguages.map(l => ({ code: l.code, name: l.name }))} />,
+              rightElement: (
+                <FormAIGenerator
+                  targetFieldName="content"
+                  sourceFieldName="title"
+                  targetLabel={t('posts.content')}
+                  sourceLabel={t('posts.title')}
+                  entityType="post"
+                  contentType="description"
+                />
+              ),
             },
           ],
         },
@@ -341,6 +303,7 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
               type: 'text',
               placeholder: t('posts.metaTitlePlaceholder'),
               required: false,
+              fullWidth: true,
               validation: {
                 maxLength: 60,
               },
@@ -364,6 +327,7 @@ export const CreatePostForm: React.FC<CreatePostFormProps> = ({
               type: 'tags',
               placeholder: t('posts.metaKeywordsPlaceholder'),
               required: false,
+              fullWidth: true,
               description: t('form.descriptions.meta_keywords_description'),
             },
           ],

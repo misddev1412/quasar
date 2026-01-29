@@ -1,15 +1,12 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { Card } from '../../components/common/Card';
+import { BaseLayout } from '../../components/layout';
+import { Card, Button, Loading, Alert, AlertDescription, AlertTitle } from '../../components/common';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import type { ApiResponse } from '@backend/trpc/schemas/response.schemas';
 import { MailLogListItem, MailLogStatus } from '../../types/mail-log';
-import { Button } from '../../components/common/Button';
 import { FiArrowLeft, FiRefreshCw, FiExternalLink } from 'react-icons/fi';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { cn } from '@admin/lib/utils';
 import { getMailLogSenderInfo } from '../../utils/mail-log';
 

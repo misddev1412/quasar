@@ -1,20 +1,24 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPlus, FiMoreVertical, FiCreditCard, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiExternalLink, FiStar, FiTrendingUp, FiToggleLeft, FiToggleRight, FiHome } from 'react-icons/fi';
-import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
-import { Dropdown } from '../../components/common/Dropdown';
-import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
-import { Table, Column, SortDescriptor } from '../../components/common/Table';
-import BaseLayout from '../../components/layout/BaseLayout';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Button,
+  Card,
+  Dropdown,
+  Loading,
+  StandardListPage,
+  StatisticsGrid,
+  Table,
+} from '../../components/common';
+import type { Column, SortDescriptor, StatisticData } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { CreatePaymentMethodModal } from '../../components/payment-methods/CreatePaymentMethodModal';
-import { EditPaymentMethodModal } from '../../components/payment-methods/EditPaymentMethodModal';
+import { CreatePaymentMethodModal, EditPaymentMethodModal } from '../../components/payment-methods';
 
 interface PaymentMethod {
   id: string;
@@ -48,7 +52,7 @@ const PaymentMethodsPage: React.FC = () => {
   const { t } = useTranslationWithBackend();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Actions for BaseLayout header
+  // Actions for StandardListPage header
   const actions = useMemo(() => [
     {
       label: t('admin.create_payment_method'),
@@ -413,20 +417,20 @@ const PaymentMethodsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('admin.payment_methods')}
         description={t('admin.payment_methods_description')}
         actions={actions}
         breadcrumbs={breadcrumbs}
       >
         <Loading />
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   if (error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('admin.payment_methods')}
         description={t('admin.payment_methods_description')}
         actions={actions}
@@ -436,12 +440,12 @@ const PaymentMethodsPage: React.FC = () => {
           <AlertTitle>{t('admin.error')}</AlertTitle>
           <AlertDescription>{error.message}</AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('admin.payment_methods')}
       description={t('admin.payment_methods_description')}
       actions={actions}
@@ -563,7 +567,7 @@ const PaymentMethodsPage: React.FC = () => {
           }}
         />
       )}
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

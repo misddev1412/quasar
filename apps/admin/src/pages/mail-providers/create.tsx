@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Settings, Server, Key, Mail as MailIcon, Gauge, Activity } from 'lucide-react';
-import StandardFormPage from '../../components/common/StandardFormPage';
-import { EntityForm } from '../../components/common/EntityForm';
+import { StandardFormPage, EntityForm } from '../../components/common';
 import { FormTabConfig } from '../../types/forms';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';

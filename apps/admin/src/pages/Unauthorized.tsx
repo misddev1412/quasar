@@ -1,6 +1,6 @@
 import React from 'react';
 import { FiLock, FiMail } from 'react-icons/fi';
-import SeoHead from '../components/SEO/SeoHead';
+import { SeoHead } from '../components/SEO';
 import { SeoData } from '../hooks/useSeo';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 

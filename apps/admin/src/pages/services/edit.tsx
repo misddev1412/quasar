@@ -3,10 +3,9 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { trpc } from '../../utils/trpc';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { ServiceForm, ServiceFormSubmitOptions } from '../../components/services/ServiceForm';
-import StandardFormPage from '../../components/common/StandardFormPage';
+import { ServiceForm, ServiceFormSubmitOptions } from '../../components/services';
+import { StandardFormPage, Loading } from '../../components/common';
 import { FileText } from 'lucide-react';
-import { Loading } from '../../components/common/Loading';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
 import { FormSubmitAction } from '../../types/forms';
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import { FiImage, FiHome } from 'react-icons/fi';
-import { SiteAssetsManager } from '../components/site-assets/SiteAssetsManager';
-import { withAdminSeo } from '../components/SEO/withAdminSeo';
-import BaseLayout from '../components/layout/BaseLayout';
+import { SiteAssetsManager } from '../components/site-assets';
+import { withAdminSeo } from '../components/SEO';
+import { BaseLayout } from '../components/layout';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 
 const BrandAssetsPage: React.FC = () => {

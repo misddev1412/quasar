@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import SeoHead from '../components/SEO/SeoHead';
+import { SeoHead } from '../components/SEO';
 import { SeoData } from '../hooks/useSeo';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 

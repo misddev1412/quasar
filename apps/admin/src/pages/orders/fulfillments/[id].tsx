@@ -17,14 +17,11 @@ import {
   FiBox,
   FiActivity,
 } from 'react-icons/fi';
-import { Button } from '../../../components/common/Button';
-import { Badge } from '../../../components/common/Badge';
-import BaseLayout from '../../../components/layout/BaseLayout';
+import { Button, Badge, Loading, Breadcrumb } from '../../../components/common';
+import { BaseLayout } from '../../../components/layout';
 import { useToast } from '../../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { useUrlTabs } from '../../../hooks/useUrlTabs';
-import { Loading } from '../../../components/common/Loading';
-import { Breadcrumb } from '../../../components/common/Breadcrumb';
 import { trpc } from '../../../utils/trpc';
 
 interface FulfillmentDetails {

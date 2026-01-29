@@ -2,8 +2,11 @@
     "posts": {
         "create": "Tạo bài viết",
         "update": "Cập nhật",
+        "editDescription": "Cập nhật thông tin bài viết",
+        "edit_post_information": "Chỉnh sửa thông tin bài viết",
         "updateDescription": "Cập nhật thông tin bài viết",
         "createDescription": "Tạo bài viết mới với nội dung và siêu dữ liệu",
+        "back_to_posts": "Quay lại danh sách bài viết",
         "createSuccess": "Đã tạo bài viết",
         "createSuccessDescription": "Bài viết đã được tạo thành công.",
         "createError": "Tạo thất bại",

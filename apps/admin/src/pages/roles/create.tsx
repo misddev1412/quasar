@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield } from 'lucide-react';
-import StandardFormPage from '../../components/common/StandardFormPage';
-import { CreateRoleForm } from '../../components/role/CreateRoleForm';
+import { StandardFormPage } from '../../components/common';
+import { CreateRoleForm } from '../../components/role';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { CreateRoleFormData } from '../../utils/validation';

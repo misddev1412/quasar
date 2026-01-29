@@ -1,13 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { withAdminSeo } from '../../components/SEO/withAdminSeo';
+import { BaseLayout } from '../../components/layout';
+import { withAdminSeo } from '../../components/SEO';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
-import { Button } from '../../components/common/Button';
+import { Button, Input, Toggle, MediaManager } from '../../components/common';
 import toast from 'react-hot-toast';
-import { Input } from '../../components/common/Input';
-import { Toggle } from '../../components/common/Toggle';
-import { MediaManager } from '../../components/common/MediaManager';
 import { useBrandingSetting } from '../../hooks/useBrandingSetting';
 import {
   ADMIN_LOGIN_BRANDING_KEY,
@@ -19,7 +16,7 @@ import {
 } from '../../constants/adminBranding';
 import { trpc } from '../../utils/trpc';
 import { FiHome, FiSettings, FiImage, FiBookOpen, FiLayout } from 'react-icons/fi';
-import GlobalThemeSettings from '../../components/settings/GlobalThemeSettings';
+import { GlobalThemeSettings } from '../../components/settings';
 import { useTheme } from '../../contexts/ThemeContext';
 
 const numberOrUndefined = (value: string): number | undefined => {

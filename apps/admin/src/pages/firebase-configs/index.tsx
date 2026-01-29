@@ -1,20 +1,12 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiPlus, FiMoreVertical, FiServer, FiActivity, FiSettings, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiToggleLeft, FiToggleRight, FiCopy, FiGlobe, FiHome } from 'react-icons/fi';
-import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
-import { Dropdown } from '../../components/common/Dropdown';
-import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
-import { Table, Column, SortDescriptor } from '../../components/common/Table';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { FiPlus, FiMoreVertical, FiServer, FiActivity, FiSettings, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiToggleLeft, FiToggleRight, FiCopy, FiGlobe } from 'react-icons/fi';
+import { Button, Card, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle, ConfirmationModal } from '../../components/common';
+import type { StatisticData, Column, SortDescriptor } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { ConfirmationModal } from '../../components/common/ConfirmationModal';
 
 interface FirebaseConfig {
   id: string;
@@ -453,20 +445,20 @@ const FirebaseConfigsPage: React.FC = () => {
   // Render loading state
   if (isLoading) {
     return (
-      <BaseLayout
+      <StandardListPage
         title="Firebase Configurations"
         description="Manage Firebase project configurations"
         fullWidth={true}
       >
         <Loading />
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   // Render error state
   if (error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title="Firebase Configurations"
         description="Manage Firebase project configurations"
         fullWidth={true}
@@ -477,7 +469,7 @@ const FirebaseConfigsPage: React.FC = () => {
             {(error as any)?.message || 'Failed to load Firebase configurations'}
           </AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
@@ -489,28 +481,13 @@ const FirebaseConfigsPage: React.FC = () => {
   const totalPages = 1;
 
   return (
-    <BaseLayout
+    <StandardListPage
       title="Firebase Configurations"
       description="Manage Firebase project configurations"
       actions={pageActions}
       fullWidth={true}
     >
       <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb
-          items={[
-            {
-              label: 'Home',
-              href: '/',
-              icon: <FiHome className="w-4 h-4" />
-            },
-            {
-              label: 'Firebase Configurations',
-              icon: <FiServer className="w-4 h-4" />
-            }
-          ]}
-        />
-
         {/* Statistics */}
         <div className="mb-6">
           <StatisticsGrid statistics={statistics} />
@@ -574,7 +551,7 @@ const FirebaseConfigsPage: React.FC = () => {
         isLoading={deleteConfigMutation.isPending}
       />
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

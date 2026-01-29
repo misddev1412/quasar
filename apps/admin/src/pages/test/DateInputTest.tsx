@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { DateInput } from '../../components/common/DateInput';
-import { Card } from '../../components/common/Card';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { DateInput, Card } from '../../components/common';
+import { BaseLayout } from '../../components/layout';
 
 const DateInputTest: React.FC = () => {
   const [dateValue1, setDateValue1] = useState('');

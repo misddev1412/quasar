@@ -1,13 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { withAdminSeo } from '../../components/SEO/withAdminSeo';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { withAdminSeo } from '../../components/SEO';
+import { BaseLayout } from '../../components/layout';
 import { FiHome, FiSettings } from 'react-icons/fi';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useSettings, SettingData } from '../../hooks/useSettings';
-import { Toggle } from '../../components/common/Toggle';
+import { Toggle, Button, Badge } from '../../components/common';
 import { useToast } from '../../contexts/ToastContext';
-import { Button } from '../../components/common/Button';
-import { Badge } from '../../components/common/Badge';
 
 interface SettingsVisibilityPageProps {}
 

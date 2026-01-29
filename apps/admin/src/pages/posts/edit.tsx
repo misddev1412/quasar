@@ -2,10 +2,9 @@ import React, { useState, useMemo, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { FileText, ArrowLeft, FolderOpen } from 'lucide-react';
 import { FiHome, FiEdit3 } from 'react-icons/fi';
-import { Card, CardHeader, CardContent } from '../../components/common/Card';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { EditPostForm } from '../../components/posts/EditPostForm';
-import { MediaManager } from '../../components/common/MediaManager';
+import { Card, CardHeader, CardContent, MediaManager, Alert, AlertDescription, AlertTitle } from '../../components/common';
+import { BaseLayout } from '../../components/layout';
+import { EditPostForm } from '../../components/posts';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
 import { useToast } from '../../contexts/ToastContext';
@@ -13,7 +12,6 @@ import { trpc } from '../../utils/trpc';
 import { FormSubmitOptions, FormSubmitAction } from '../../types/forms';
 import { useAuth } from '../../hooks/useAuth';
 import { canEditRouteResource } from '../../utils/permission-access';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 
 interface UpdatePostPayload {
   status: 'draft' | 'published' | 'archived' | 'scheduled';
@@ -114,7 +112,7 @@ const EditPostPage: React.FC = () => {
   // Transform post data for the form
   const initialFormData = useMemo(() => {
     if (!post) return {};
-    
+
     return {
       id: post?.id,
       title: post?.translations?.[0]?.title || '',
@@ -209,14 +207,14 @@ const EditPostPage: React.FC = () => {
     if (Array.isArray(selectedMedia)) {
       addToast({
         type: 'success',
-        title: 'Media Selected',
-        description: `${selectedMedia.length} files selected`,
+        title: t('common.media.mediaSelected', 'Media Selected'),
+        description: t('common.media.filesSelected', { count: selectedMedia.length, defaultValue: '{{count}} files selected' }),
       });
     } else {
       addToast({
         type: 'success',
-        title: 'Media Selected',
-        description: `${selectedMedia.originalName} selected`,
+        title: t('common.media.mediaSelected', 'Media Selected'),
+        description: t('common.media.fileSelected', { name: selectedMedia.originalName, defaultValue: '{{name}} selected' }),
       });
     }
     setShowMediaManager(false);
@@ -229,23 +227,16 @@ const EditPostPage: React.FC = () => {
       onClick: handleCancel,
       icon: <ArrowLeft className="w-4 h-4" />,
     },
-    {
-      label: 'Media Manager',
-      onClick: () => setShowMediaManager(true),
-      icon: <FolderOpen className="w-4 h-4" />,
-      variant: 'primary' as const,
-      disabled: isEditRestricted,
-    },
   ];
 
   const breadcrumbs = useMemo(() => ([
     {
-      label: 'Home',
+      label: t('navigation.home', 'Home'),
       href: '/',
       icon: <FiHome className="w-4 h-4" />,
     },
     {
-      label: 'Posts',
+      label: t('posts.title', 'Posts'),
       href: '/posts',
       icon: <FileText className="w-4 h-4" />,
     },
@@ -308,23 +299,23 @@ const EditPostPage: React.FC = () => {
       >
         <div className="space-y-6">
           <Card>
-          <CardHeader className="pb-4">
-            <div className="flex items-center gap-3">
-              <div className="flex-shrink-0 w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
-                <FileText className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    {t('posts.edit_post_information', 'Edit Post Information')}
+                  </h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {t('posts.editDescription') || 'Update post content and metadata'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                  {t('posts.edit_post_information', 'Edit Post Information')}
-                </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {t('posts.editDescription') || 'Update post content and metadata'}
-                </p>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">{renderContent()}</CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent className="pt-0">{renderContent()}</CardContent>
+          </Card>
         </div>
       </BaseLayout>
 
@@ -335,7 +326,7 @@ const EditPostPage: React.FC = () => {
         multiple={true}
         accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
         maxSize={50}
-        title="Select Media for Post"
+        title={t('posts.select_media_title', 'Select Media for Post')}
       />
     </>
   );

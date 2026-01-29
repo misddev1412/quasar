@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
-import StandardFormPage from '../../components/common/StandardFormPage';
-import { CreatePermissionForm } from '../../components/permission/CreatePermissionForm';
+import { StandardFormPage } from '../../components/common';
+import { CreatePermissionForm } from '../../components/permission';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { CreatePermissionFormData } from '../../types/permission';

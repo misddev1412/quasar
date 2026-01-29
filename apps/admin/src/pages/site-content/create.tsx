@@ -1,14 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText } from 'lucide-react';
-import StandardFormPage from '../../components/common/StandardFormPage';
+import { StandardFormPage } from '../../components/common';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
 import { trpc } from '../../utils/trpc';
-import SiteContentForm, {
-  SiteContentFormSubmitPayload,
-} from '../../components/site-content/SiteContentForm';
+import { SiteContentForm, SiteContentFormSubmitPayload } from '../../components/site-content';
 import { defaultSiteContentFormValues } from '../../types/site-content';
 
 const SiteContentCreatePage: React.FC = () => {

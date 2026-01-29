@@ -2,7 +2,7 @@ import React from 'react';
 import { z } from 'zod';
 import { Package, Layers, Settings } from 'lucide-react';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { EntityForm } from '../../components/common/EntityForm';
+import { EntityForm } from '../../components/common';
 import { FormTabConfig } from '../../types/forms';
 import { ProductBundleItemsEditor } from './ProductBundleItemsEditor';
 

@@ -13,13 +13,10 @@ import {
   FiTrendingDown,
 } from 'react-icons/fi';
 import type { ApiResponse } from '@backend/trpc/schemas/response.schemas';
-import { Button } from '../../components/common/Button';
-import { Badge } from '../../components/common/Badge';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { Button, Badge, Loading, Breadcrumb } from '../../components/common';
+import { BaseLayout } from '../../components/layout';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { Loading } from '../../components/common/Loading';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
 import { trpc } from '../../utils/trpc';
 import { CustomerTransaction, CustomerTransactionStatus } from '../../types/transactions';
 

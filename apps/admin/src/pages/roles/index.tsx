@@ -1,23 +1,26 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiPlus, FiMoreVertical, FiShield, FiUsers, FiSettings, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiToggleLeft, FiToggleRight, FiCopy, FiUser } from 'react-icons/fi';
-import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
-import { Dropdown } from '../../components/common/Dropdown';
-import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
-import { Table, Column, SortDescriptor } from '../../components/common/Table';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { FiPlus, FiMoreVertical, FiShield, FiUsers, FiSettings, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiToggleLeft, FiToggleRight, FiCopy, FiUser, FiHome } from 'react-icons/fi';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Button,
+  Card,
+  ConfirmationModal,
+  Dropdown,
+  Loading,
+  StandardListPage,
+  StatisticsGrid,
+  Table,
+} from '../../components/common';
+import type { Column, SortDescriptor, StatisticData } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { Role, RoleFiltersType, RoleStatistics } from '../../types/role';
-import { ConfirmationModal } from '../../components/common/ConfirmationModal';
-import { QuickAddPermissionModal } from '../../components/role/QuickAddPermissionModal';
-import { QuickAddUserModal } from '../../components/role/QuickAddUserModal';
-import { FiHome } from 'react-icons/fi';
+import { QuickAddPermissionModal, QuickAddUserModal } from '../../components/role';
 
 interface RoleIndexPageProps {}
 
@@ -537,20 +540,20 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
   // Render loading state
   if (isLoading) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('roles.role_management', 'Role Management')}
         description={t('roles.manage_roles_description', 'Manage user roles and permissions')}
         fullWidth={true}
       >
         <Loading />
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   // Render error state
   if (error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('roles.role_management', 'Role Management')}
         description={t('roles.manage_roles_description', 'Manage user roles and permissions')}
         fullWidth={true}
@@ -562,7 +565,7 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
             {(error as any)?.message || t('messages.failed_to_load_roles', 'Failed to load roles')}
           </AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
@@ -573,7 +576,7 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
   const totalPages = (data as any)?.data?.totalPages || 1;
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('roles.role_management', 'Role Management')}
       description={t('roles.manage_roles_description', 'Manage user roles and permissions')}
       actions={pageActions}
@@ -685,7 +688,7 @@ const RoleIndexPage: React.FC<RoleIndexPageProps> = () => {
           });
         }}
       />
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

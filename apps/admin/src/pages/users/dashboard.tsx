@@ -15,15 +15,12 @@ import {
   Cell
 } from 'recharts';
 import { formatDistanceToNow } from 'date-fns';
-import withAdminSeo from '@admin/components/SEO/withAdminSeo';
-import BaseLayout from '@admin/components/layout/BaseLayout';
+import { withAdminSeo } from '@admin/components/SEO';
+import { BaseLayout } from '@admin/components/layout';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { AdminSeoData } from '@admin/hooks/useAdminSeo';
-import { StatisticsGrid, StatisticData } from '@admin/components/common/StatisticsGrid';
-import { Alert, AlertDescription, AlertTitle } from '@admin/components/common/Alert';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@admin/components/common/Card';
-import { Loading } from '@admin/components/common/Loading';
-import { Button } from '@admin/components/common/Button';
+import { StatisticsGrid, Alert, AlertDescription, AlertTitle, Card, CardContent, CardHeader, CardTitle, CardDescription, Loading, Button } from '@admin/components/common';
+import type { StatisticData } from '@admin/components/common';
 import { trpc } from '@admin/utils/trpc';
 import { useChartData } from '@admin/hooks/useChartData';
 import { ChartDataPoint, PieChartDataPoint } from '@admin/types/chart.types';

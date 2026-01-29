@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserPlus } from 'lucide-react';
-import StandardFormPage from '../../components/common/StandardFormPage';
-import { CreateUserForm } from '../../components/user/CreateUserForm';
+import { StandardFormPage } from '../../components/common';
+import { CreateUserForm } from '../../components/user';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { CreateUserFormData } from '../../utils/validation';

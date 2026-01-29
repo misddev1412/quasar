@@ -1,20 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiTrash2 } from 'react-icons/fi';
-import { Button } from '../../components/common/Button';
-import { PasswordVisibilityToggle } from '../../components/common/PasswordVisibilityToggle';
-import { FormInput } from '../../components/common/FormInput';
-import { Select } from '../../components/common/Select';
-import { TextareaInput } from '../../components/common/TextareaInput';
-import { Toggle } from '../../components/common/Toggle';
-import StandardFormPage from '../../components/common/StandardFormPage';
+import { FiTrash2, FiCpu } from 'react-icons/fi';
+import { Button, PasswordVisibilityToggle, FormInput, Select, TextareaInput, Toggle, StandardFormPage, Loading, Alert, AlertDescription, AlertTitle, ConfirmationModal } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { parseValidationErrors, getErrorMessage, isValidationError } from '../../utils/errorUtils';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
-import { ConfirmationModal } from '../../components/common/ConfirmationModal';
 
 interface OpenAiConfigFormData {
   id: string;
@@ -53,8 +44,8 @@ const EditOpenAiConfigPage: React.FC = () => {
   const updateConfigMutation = trpc.adminOpenAiConfig.updateConfig.useMutation({
     onSuccess: () => {
       addToast({
-        title: 'Success',
-        description: 'OpenAI configuration updated successfully',
+        title: t('openai_configs.create_success_title', 'Success'),
+        description: t('openai_configs.update_success_desc', 'OpenAI configuration updated successfully'),
         type: 'success',
       });
       navigate('/openai-configs');
@@ -68,35 +59,35 @@ const EditOpenAiConfigPage: React.FC = () => {
         if (Object.keys(fieldErrors).length > 0) {
           setErrors(fieldErrors);
           addToast({
-            title: 'Validation Error',
-            description: 'Please check the highlighted fields and correct the errors',
+            title: t('common.validation_error', 'Validation Error'),
+            description: t('common.validation_description', 'Please check the highlighted fields and correct the errors'),
             type: 'error',
           });
         } else {
           addToast({
-            title: 'Validation Error',
-            description: errorMessage || 'Please check your input and try again',
+            title: t('common.validation_error', 'Validation Error'),
+            description: errorMessage || t('common.check_input_try_again', 'Please check your input and try again'),
             type: 'error',
           });
         }
       } else if (errorMessage?.includes('not found')) {
         addToast({
-          title: 'Configuration Not Found',
-          description: 'The OpenAI configuration you are trying to update no longer exists.',
+          title: t('openai_configs.config_not_found_title', 'Configuration Not Found'),
+          description: t('openai_configs.config_not_found_desc', 'The OpenAI configuration you are trying to update no longer exists.'),
           type: 'error',
         });
         navigate('/openai-configs');
       } else if (errorMessage?.includes('already exists')) {
-        setErrors({ name: 'A configuration with this name already exists' });
+        setErrors({ name: t('openai_configs.config_exists_desc', 'A configuration with this name already exists') });
         addToast({
-          title: 'Configuration Exists',
-          description: 'An OpenAI configuration with this name already exists. Please choose a different name.',
+          title: t('openai_configs.config_exists_title', 'Configuration Exists'),
+          description: t('openai_configs.config_exists_desc', 'An OpenAI configuration with this name already exists. Please choose a different name.'),
           type: 'error',
         });
       } else {
         addToast({
-          title: 'Error',
-          description: errorMessage || 'Failed to update OpenAI configuration',
+          title: t('common.error', 'Error'),
+          description: errorMessage || t('openai_configs.update_error', 'Failed to update OpenAI configuration'),
           type: 'error',
         });
       }
@@ -106,16 +97,16 @@ const EditOpenAiConfigPage: React.FC = () => {
   const deleteConfigMutation = trpc.adminOpenAiConfig.deleteConfig.useMutation({
     onSuccess: () => {
       addToast({
-        title: 'Success',
-        description: 'OpenAI configuration deleted successfully',
+        title: t('openai_configs.create_success_title', 'Success'),
+        description: t('openai_configs.delete_success_desc', 'OpenAI configuration deleted successfully'),
         type: 'success',
       });
       navigate('/openai-configs');
     },
     onError: (error) => {
       addToast({
-        title: 'Error',
-        description: error.message || 'Failed to delete OpenAI configuration',
+        title: t('common.error', 'Error'),
+        description: error.message || t('openai_configs.delete_error', 'Failed to delete OpenAI configuration'),
         type: 'error',
       });
     }
@@ -142,9 +133,9 @@ const EditOpenAiConfigPage: React.FC = () => {
 
     const validationErrors: Partial<Record<keyof OpenAiConfigFormData, string>> = {};
 
-    if (!formData.name.trim()) validationErrors.name = 'Configuration name is required';
-    if (!formData.model.trim()) validationErrors.model = 'Model is required';
-    if (!formData.apiKey.trim()) validationErrors.apiKey = 'API key is required';
+    if (!formData.name.trim()) validationErrors.name = t('openai_configs.validation.name_required', 'Configuration name is required');
+    if (!formData.model.trim()) validationErrors.model = t('openai_configs.validation.model_required', 'Model is required');
+    if (!formData.apiKey.trim()) validationErrors.apiKey = t('openai_configs.validation.apikey_required', 'API key is required');
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -225,7 +216,7 @@ const EditOpenAiConfigPage: React.FC = () => {
     <StandardFormPage
       title={t('openai_configs.edit_title', 'Edit OpenAI Configuration')}
       description={t('openai_configs.edit_description', 'Update OpenAI configuration details')}
-      icon={<div className="w-5 h-5 bg-primary-500 rounded" />}
+      icon={<FiCpu className="w-5 h-5 text-primary-600 dark:text-primary-400" />}
       entityName={t('openai_configs.config', 'Configuration')}
       entityNamePlural={t('openai_configs.configs', 'OpenAI configurations')}
       backUrl="/openai-configs"
@@ -304,23 +295,21 @@ const EditOpenAiConfigPage: React.FC = () => {
         </div>
 
         <div>
-          <div>
-            <FormInput
-              id="apiKey"
-              type={showApiKey ? 'text' : 'password'}
-              label={t('openai_configs.api_key', 'API Key *')}
-              value={formData.apiKey}
-              onChange={(e) => handleInputChange('apiKey', e.target.value)}
-              placeholder="sk-..."
-              error={errors.apiKey}
-              rightIcon={
-                <PasswordVisibilityToggle
-                  isVisible={showApiKey}
-                  onToggle={() => setShowApiKey(!showApiKey)}
-                />
-              }
-            />
-          </div>
+          <FormInput
+            id="apiKey"
+            type={showApiKey ? 'text' : 'password'}
+            label={t('openai_configs.api_key', 'API Key *')}
+            value={formData.apiKey}
+            onChange={(e) => handleInputChange('apiKey', e.target.value)}
+            placeholder="sk-..."
+            error={errors.apiKey}
+            rightIcon={
+              <PasswordVisibilityToggle
+                isVisible={showApiKey}
+                onToggle={() => setShowApiKey(!showApiKey)}
+              />
+            }
+          />
           <p className="text-xs text-gray-500 mt-1">
             {t('openai_configs.api_key_help', 'Store your OpenAI API key securely.')}
           </p>
@@ -332,9 +321,9 @@ const EditOpenAiConfigPage: React.FC = () => {
         isOpen={deleteModal}
         onClose={() => setDeleteModal(false)}
         onConfirm={handleConfirmDelete}
-        title="Delete OpenAI Configuration"
-        message={`Are you sure you want to delete "${formData.name}"? This action cannot be undone.`}
-        confirmText="Delete"
+        title={t('openai_configs.delete_modal_title', 'Delete OpenAI Configuration')}
+        message={t('openai_configs.delete_modal_message', { name: formData.name, defaultValue: `Are you sure you want to delete "${formData.name}"? This action cannot be undone.` })}
+        confirmText={t('common.delete', 'Delete')}
         confirmVariant="danger"
       />
     </StandardFormPage>

@@ -1,0 +1,37 @@
+{
+    "openai_configs": {
+        "create_title": "Tạo cấu hình OpenAI",
+        "create_description": "Thêm cấu hình mô hình OpenAI mới để tạo nội dung",
+        "edit_title": "Chỉnh sửa cấu hình OpenAI",
+        "edit_description": "Cập nhật chi tiết cấu hình OpenAI",
+        "config": "Cấu hình",
+        "configs": "Cấu hình OpenAI",
+        "name": "Tên cấu hình *",
+        "name_placeholder": "Production OpenAI",
+        "model": "Mô hình *",
+        "base_url": "Base URL",
+        "active_config": "Cấu hình đang hoạt động",
+        "description": "Mô tả",
+        "description_placeholder": "Mô tả cấu hình OpenAI này...",
+        "api_key": "API Key *",
+        "api_key_help": "Lưu trữ khóa API OpenAI của bạn một cách an toàn.",
+        "create_success_title": "Thành công",
+        "create_success_desc": "Đã tạo cấu hình OpenAI thành công",
+        "update_success_desc": "Đã cập nhật cấu hình OpenAI thành công",
+        "delete_success_desc": "Đã xóa cấu hình OpenAI thành công",
+        "create_error": "Không thể tạo cấu hình OpenAI",
+        "update_error": "Không thể cập nhật cấu hình OpenAI",
+        "delete_error": "Không thể xóa cấu hình OpenAI",
+        "config_exists_title": "Cấu hình đã tồn tại",
+        "config_exists_desc": "Một cấu hình OpenAI với tên này đã tồn tại. Vui lòng chọn tên khác.",
+        "config_not_found_title": "Không tìm thấy cấu hình",
+        "config_not_found_desc": "Cấu hình OpenAI bạn đang cố cập nhật không còn tồn tại.",
+        "delete_modal_title": "Xóa cấu hình OpenAI",
+        "delete_modal_message": "Bạn có chắc chắn muốn xóa \"{{name}}\"? Hành động này không thể hoàn tác.",
+        "validation": {
+            "name_required": "Yêu cầu nhập tên cấu hình",
+            "model_required": "Yêu cầu nhập mô hình",
+            "apikey_required": "Yêu cầu nhập API key"
+        }
+    }
+}

@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiGlobe, FiHome } from 'react-icons/fi';
-import StandardFormPage from '../../components/common/StandardFormPage';
-import { EditLanguageForm } from '../../components/languages/EditLanguageForm';
+import { StandardFormPage } from '../../components/common';
+import { EditLanguageForm } from '../../components/languages';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';

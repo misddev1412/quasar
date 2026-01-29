@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Shield, Trash2, Home } from 'lucide-react';
-import StandardFormPage from '../../components/common/StandardFormPage';
+import { StandardFormPage } from '../../components/common';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
-import { UpdateRoleForm } from '../../components/role/UpdateRoleForm';
+import { UpdateRoleForm } from '../../components/role';
 import { UpdateRoleFormData } from '../../utils/validation';
 
 const RoleUpdatePage: React.FC = () => {

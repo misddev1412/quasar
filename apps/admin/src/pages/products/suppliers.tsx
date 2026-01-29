@@ -2,17 +2,11 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTableState } from '../../hooks/useTableState';
 import { FiPlus, FiMoreVertical, FiUser, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiExternalLink, FiShoppingBag, FiGlobe, FiTrendingUp, FiMail, FiPhone, FiHome, FiPackage } from 'react-icons/fi';
-import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
-import { Dropdown } from '../../components/common/Dropdown';
-import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
-import { Table, Column, SortDescriptor } from '../../components/common/Table';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { Button, Card, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '../../components/common';
+import type { StatisticData, Column, SortDescriptor } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { Supplier } from '../../types/product';
 
@@ -76,8 +70,7 @@ interface SupplierStats {
     updatedAt: string;
   }>;
 }
-import { CreateSupplierModal } from '../../components/products/CreateSupplierModal';
-import { EditSupplierModal } from '../../components/products/EditSupplierModal';
+import { CreateSupplierModal, EditSupplierModal } from '../../components/products';
 
 interface SupplierFiltersType {
   search?: string;
@@ -564,7 +557,7 @@ const SuppliersPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('suppliers.title', 'Supplier Management')}
         description={t('suppliers.description', 'Manage all suppliers in the system')}
         actions={actions}
@@ -574,13 +567,13 @@ const SuppliersPage: React.FC = () => {
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   if (error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('suppliers.title', 'Supplier Management')}
         description={t('suppliers.description', 'Manage all suppliers in the system')}
         actions={actions}
@@ -591,12 +584,12 @@ const SuppliersPage: React.FC = () => {
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
           <AlertDescription>{(error as any).message}</AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('suppliers.title', 'Supplier Management')}
       description={t('suppliers.description', 'Manage all suppliers in the system')}
       actions={actions}
@@ -680,7 +673,7 @@ const SuppliersPage: React.FC = () => {
           refetch();
         }}
       />
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

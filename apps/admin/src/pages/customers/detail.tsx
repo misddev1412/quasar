@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiUser, FiEdit2, FiMail, FiPhone, FiMapPin, FiCalendar, FiAward, FiCreditCard, FiPackage, FiTag, FiFileText, FiArrowLeft, FiHome, FiPlus, FiCopy } from 'react-icons/fi';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { BaseLayout } from '../../components/layout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
-import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
-import { AddressBookModal } from '../../components/customers/AddressBookModal';
-import { AddressBookList } from '../../components/customers/AddressBookList';
+import { Button, Card } from '../../components/common';
+import { AddressBookModal, AddressBookList } from '../../components/customers';
 import { AddressBook } from '../../types/address-book';
 import { useToast } from '../../contexts/ToastContext';
 

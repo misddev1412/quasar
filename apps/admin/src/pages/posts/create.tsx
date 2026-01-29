@@ -1,9 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, FolderOpen } from 'lucide-react';
-import StandardFormPage from '../../components/common/StandardFormPage';
-import { CreatePostForm } from '../../components/posts/CreatePostForm';
-import { MediaManager } from '../../components/common/MediaManager';
+import { StandardFormPage, MediaManager } from '../../components/common';
+import { CreatePostForm } from '../../components/posts';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -131,14 +130,14 @@ const CreatePostPage: React.FC = () => {
     if (Array.isArray(selectedMedia)) {
       addToast({
         type: 'success',
-        title: 'Media Selected',
-        description: `${selectedMedia.length} files selected`,
+        title: t('common.media.mediaSelected', 'Media Selected'),
+        description: t('common.media.filesSelected', { count: selectedMedia.length, defaultValue: '{{count}} files selected' }),
       });
     } else {
       addToast({
         type: 'success',
-        title: 'Media Selected',
-        description: `${selectedMedia.originalName} selected`,
+        title: t('common.media.mediaSelected', 'Media Selected'),
+        description: t('common.media.fileSelected', { name: selectedMedia.originalName, defaultValue: '{{name}} selected' }),
       });
     }
     setShowMediaManager(false);
@@ -171,14 +170,7 @@ const CreatePostPage: React.FC = () => {
             label: t('posts.create'),
           }
         ]}
-        customActions={[
-          {
-            label: t('posts.media_manager'),
-            onClick: () => setShowMediaManager(true),
-            icon: <FolderOpen className="w-4 h-4" />,
-            variant: 'primary' as const,
-          },
-        ]}
+
       >
         <CreatePostForm
           onSubmit={handleSubmit}
@@ -187,7 +179,7 @@ const CreatePostPage: React.FC = () => {
           showActions={false}
           formId={formId}
         />
-      </StandardFormPage>
+      </StandardFormPage >
 
       <MediaManager
         isOpen={showMediaManager}

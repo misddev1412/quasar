@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { SettingsManager } from '../components/settings/SettingsManager';
-import { withAdminSeo } from '../components/SEO/withAdminSeo';
-import BaseLayout from '../components/layout/BaseLayout';
+import { SettingsManager } from '../components/settings';
+import { withAdminSeo } from '../components/SEO';
+import { BaseLayout } from '../components/layout';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 import { FiSettings, FiHome } from 'react-icons/fi';
 

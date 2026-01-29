@@ -1,17 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPlus, FiMoreVertical, FiLock, FiUsers, FiSettings, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiToggleLeft, FiToggleRight, FiShield } from 'react-icons/fi';
-import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
-import { Dropdown } from '../../components/common/Dropdown';
-import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
-import { Table, Column, SortDescriptor } from '../../components/common/Table';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { Button, Card, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '../../components/common';
+import type { StatisticData, Column, SortDescriptor } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { Permission, PermissionFiltersType, PermissionStatistics } from '../../types/permission';
 import { FiHome } from 'react-icons/fi';
@@ -598,21 +592,21 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
   // Render loading state
   if (isLoading) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('permissions.permission_management', 'Permission Management')}
         description={t('permissions.manage_permissions_description', 'Manage system permissions and access controls')}
         fullWidth={true}
         breadcrumbs={breadcrumbs}
       >
         <Loading />
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   // Render error state
   if (error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('permissions.permission_management', 'Permission Management')}
         description={t('permissions.manage_permissions_description', 'Manage system permissions and access controls')}
         fullWidth={true}
@@ -624,12 +618,12 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
             {(error as any)?.message || t('messages.failed_to_load_permissions', 'Failed to load permissions')}
           </AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('permissions.permission_management', 'Permission Management')}
       description={t('permissions.manage_permissions_description', 'Manage system permissions and access controls')}
       actions={pageActions}
@@ -689,7 +683,7 @@ const PermissionIndexPage: React.FC<PermissionIndexPageProps> = () => {
           density="normal"
         />
       </Card>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

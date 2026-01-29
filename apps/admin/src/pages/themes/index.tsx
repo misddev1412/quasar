@@ -1,15 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { FiEdit2, FiFeather, FiHome, FiMoon, FiPlus, FiRefreshCw, FiSearch, FiStar, FiSun, FiTrash2 } from 'react-icons/fi';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { withAdminSeo } from '../../components/SEO/withAdminSeo';
+import { StandardListPage, Button, Input, Toggle, TextareaInput, Modal, ConfirmationModal } from '../../components/common';
+import { withAdminSeo } from '../../components/SEO';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
-import { Button } from '../../components/common/Button';
-import { Input } from '../../components/common/Input';
-import { Toggle } from '../../components/common/Toggle';
-import { TextareaInput } from '../../components/common/TextareaInput';
-import { Modal } from '../../components/common/Modal';
-import { ConfirmationModal } from '../../components/common/ConfirmationModal';
 import { ThemeRecord, ThemeColorConfig, ThemeColorModes } from '../../types/theme';
 import { defaultThemeConfig } from '../../config/theme.config';
 import { trpc } from '../../utils/trpc';
@@ -298,7 +292,7 @@ const ThemeManagementPage: React.FC = () => {
   );
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('themes.title', 'Thư viện theme')}
       description={t('themes.subtitle', 'Tạo và quản lý các bộ màu sử dụng cho giao diện storefront hoặc admin.')}
       breadcrumbs={[
@@ -642,7 +636,7 @@ const ThemeManagementPage: React.FC = () => {
         confirmVariant="danger"
         isLoading={deleteThemeMutation.isPending}
       />
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

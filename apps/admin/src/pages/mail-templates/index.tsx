@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { 
+import {
   FiPlus, 
   FiMoreVertical, 
   FiMail, 
@@ -16,27 +16,31 @@ import {
   FiActivity,
   FiFileText
 } from 'react-icons/fi';
-import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
-import { Dropdown } from '../../components/common/Dropdown';
-import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
-import { Table, Column, SortDescriptor } from '../../components/common/Table';
-import BaseLayout from '../../components/layout/BaseLayout';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Button,
+  Card,
+  ConfirmationModal,
+  Dropdown,
+  Loading,
+  StandardListPage,
+  StatisticsGrid,
+  Table,
+} from '../../components/common';
+import type { Column, SortDescriptor, StatisticData } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { 
+import {
   MailTemplateListItem, 
   MailTemplateFilters, 
   MailTemplateStatistics,
   MailTemplateBulkAction,
   MAIL_TEMPLATE_TYPE_OPTIONS
 } from '../../types/mail-template';
-import { ConfirmationModal } from '../../components/common/ConfirmationModal';
-import { FiHome } from 'react-icons/fi';
 
 interface MailTemplateIndexPageProps {}
 
@@ -441,40 +445,26 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
     },
   ], [t, handleCreateTemplate, refetch, handleBulkAction]);
 
-  const breadcrumbs = useMemo(() => ([
-    {
-      label: t('navigation.home', 'Home'),
-      href: '/',
-      icon: <FiHome className="w-4 h-4" />,
-    },
-    {
-      label: t('mail_templates.title', 'Mail Templates'),
-      icon: <FiMail className="w-4 h-4" />,
-    },
-  ]), [t]);
-
   // Render loading state
   if (isLoading) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('mail_templates.mail_template_management', 'Mail Template Management')}
         description={t('mail_templates.manage_templates_description', 'Manage email templates for your application')}
         fullWidth={true}
-        breadcrumbs={breadcrumbs}
       >
         <Loading />
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   // Render error state
   if (error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('mail_templates.mail_template_management', 'Mail Template Management')}
         description={t('mail_templates.manage_templates_description', 'Manage email templates for your application')}
         fullWidth={true}
-        breadcrumbs={breadcrumbs}
       >
         <Alert variant="destructive">
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
@@ -482,7 +472,7 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
             {error.message || t('mail_templates.load_error', 'Failed to load mail templates')}
           </AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
@@ -490,12 +480,11 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
   const total = (data as any)?.data?.total || 0;
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('mail_templates.mail_template_management', 'Mail Template Management')}
       description={t('mail_templates.manage_templates_description', 'Manage email templates for your application')}
       actions={pageActions}
       fullWidth={true}
-      breadcrumbs={breadcrumbs}
     >
       {/* Statistics */}
       {!statisticsLoading && statisticsCards.length > 0 && (
@@ -581,7 +570,7 @@ const MailTemplateIndexPage: React.FC<MailTemplateIndexPageProps> = () => {
         confirmText={t('common.delete', 'Delete')}
         cancelText={t('common.cancel', 'Cancel')}
       />
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

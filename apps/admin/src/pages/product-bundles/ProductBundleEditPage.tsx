@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Package } from 'lucide-react';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../services/api';
-import StandardFormPage from '../../components/common/StandardFormPage';
+import { StandardFormPage } from '../../components/common';
 import ProductBundleForm from './ProductBundleForm';
 import toast from 'react-hot-toast';
 

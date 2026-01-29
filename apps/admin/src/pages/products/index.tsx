@@ -21,23 +21,15 @@ import {
   FiInfo,
   FiChevronRight,
 } from 'react-icons/fi';
-import { Button } from '../../components/common/Button';
-import { Dropdown } from '../../components/common/Dropdown';
-import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
-import { Table, Column, SortDescriptor } from '../../components/common/Table';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { Button, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle, Toggle } from '../../components/common';
+import type { StatisticData, Column, SortDescriptor } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { Product, ProductVariant } from '../../types/product';
-import { ProductFilters, ProductFiltersType } from '../../components/features/ProductFilters';
-import { ProductVariantsQuickViewModal } from '../../components/products/ProductVariantsQuickViewModal';
-import { ProductVariantQuickEditModal } from '../../components/products/ProductVariantQuickEditModal';
-import { ProductImportModal } from '../../components/products/ProductImportModal';
-import { Toggle } from '../../components/common/Toggle';
+import { ProductFilters, ProductFiltersType } from '../../components/features';
+import { ProductVariantsQuickViewModal, ProductVariantQuickEditModal, ProductImportModal } from '../../components/products';
 
 interface ProductVariantInlineListProps {
   product: Product;
@@ -1043,7 +1035,7 @@ export const ProductsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('products.title', 'Product Management')}
         description={t('products.description', 'Manage all products in the system')}
         actions={actions}
@@ -1053,13 +1045,13 @@ export const ProductsPage: React.FC = () => {
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   if (error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('products.title', 'Product Management')}
         description={t('products.description', 'Manage all products in the system')}
         actions={actions}
@@ -1070,12 +1062,12 @@ export const ProductsPage: React.FC = () => {
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
           <AlertDescription>{(error as any).message}</AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('products.title', 'Product Management')}
       description={t('products.description', 'Manage all products in the system')}
       actions={actions}
@@ -1170,7 +1162,7 @@ export const ProductsPage: React.FC = () => {
           isSubmitting={updateVariantMutation.isPending}
         />
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

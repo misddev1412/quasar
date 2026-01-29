@@ -23,11 +23,8 @@ import {
   FiChevronRight,
   FiExternalLink,
 } from 'react-icons/fi';
-import BaseLayout from '../../../components/layout/BaseLayout';
-import { Loading } from '../../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../../components/common/Alert';
-import { Badge } from '../../../components/common/Badge';
-import { Button } from '../../../components/common/Button';
+import { BaseLayout } from '../../../components/layout';
+import { Loading, Alert, AlertDescription, AlertTitle, Badge, Button } from '../../../components/common';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { trpc } from '../../../utils/trpc';
 import { Product, ProductMedia, ProductVariant, ProductSpecification } from '../../../types/product';

@@ -1,14 +1,8 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPlus, FiEdit2, FiTrash2, FiMail, FiHome } from 'react-icons/fi';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { Table, Column } from '../../components/common/Table';
-import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
-import { Select } from '../../components/common/Select';
-import { Badge } from '../../components/common/Badge';
-import { ConfirmationModal } from '../../components/common/ConfirmationModal';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
+import { StandardListPage, Table, Button, Card, Select, Badge, ConfirmationModal, Alert, AlertDescription, AlertTitle } from '../../components/common';
+import type { Column } from '../../components/common';
 import { useToast } from '../../contexts/ToastContext';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { trpc } from '../../utils/trpc';
@@ -330,7 +324,7 @@ const MailChannelPriorityIndexPage: React.FC = () => {
   ]), []);
 
   return (
-    <BaseLayout
+    <StandardListPage
       title="Mail Channel Priority"
       description="Configure and prioritize the channels that deliver transactional email."
       actions={actions}
@@ -414,7 +408,7 @@ const MailChannelPriorityIndexPage: React.FC = () => {
           isLoading={deleteMutation.isPending}
         />
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

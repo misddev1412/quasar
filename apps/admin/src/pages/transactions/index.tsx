@@ -1,22 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { FiFilter, FiPlus, FiRefreshCw, FiTrendingUp, FiUsers, FiArrowUpRight, FiArrowDownRight, FiSearch, FiUser, FiX, FiPackage, FiHelpCircle } from 'react-icons/fi';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
-import { Table, Column, SortDescriptor } from '../../components/common/Table';
-import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
-import { Badge } from '../../components/common/Badge';
-import { TransactionFilters } from '../../components/transactions/TransactionFilters';
-import { CustomerSearchModal, Customer } from '../../components/customers/CustomerSearchModal';
-import { OrderSearchModal, OrderSummary } from '../../components/orders/OrderSearchModal';
+import { StandardListPage, Button, Card, Table, StatisticsGrid, Badge, Modal, Alert, AlertDescription, AlertTitle } from '../../components/common';
+import type { Column, SortDescriptor, StatisticData } from '../../components/common';
+import { TransactionFilters } from '../../components/transactions';
+import { CustomerSearchModal, Customer } from '../../components/customers';
+import { OrderSearchModal, OrderSummary } from '../../components/orders';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { TransactionFilterState, TransactionStatsSummary, CustomerTransaction, CustomerTransactionStatus } from '../../types/transactions';
 import type { Currency } from '../../types/currency';
 import type { PaginatedResponse, ApiResponse } from '@backend/trpc/schemas/response.schemas';
-import { Modal } from '../../components/common/Modal';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { Tooltip } from '@mui/material';
 import { Link } from 'react-router-dom';
 
@@ -598,7 +592,7 @@ const TransactionsPage: React.FC = () => {
   };
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('transactions.title', 'Transactions')}
       description={t('transactions.page_subtitle', 'Comprehensive view of user debits and credits.')}
       actions={layoutActions}
@@ -994,7 +988,7 @@ const TransactionsPage: React.FC = () => {
         onSelectOrder={handleSelectOrder}
         selectedOrderId={selectedOrder?.id}
       />
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

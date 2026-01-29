@@ -1,21 +1,11 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiMoreVertical, FiEdit2, FiTrash2, FiTag, FiRefreshCw, FiEye, FiXCircle, FiHome, FiFileText } from 'react-icons/fi';
-import { StatisticsGrid, type StatisticData } from '../../components/common/StatisticsGrid';
-import { Button } from '../../components/common/Button';
-import { Dropdown } from '../../components/common/Dropdown';
-import { Table, Column, type SortDescriptor } from '../../components/common/Table';
-import { ConfirmationModal } from '../../components/common/ConfirmationModal';
-import { FormInput } from '../../components/common/FormInput';
-import { TextareaInput } from '../../components/common/TextareaInput';
-import { Toggle } from '../../components/common/Toggle';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../components/common/Dialog';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { StatisticsGrid, Button, Dropdown, Table, ConfirmationModal, FormInput, TextareaInput, Toggle, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '../../components/common';
+import type { StatisticData, SortDescriptor, Column } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -560,7 +550,7 @@ const PostTagsPage: React.FC = () => {
 
   if (isLoading && !rawTags.length) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('tags.title', 'Post Tags')}
         description={t('tags.description', 'Manage post tags and categorization')}
         actions={actions}
@@ -570,13 +560,13 @@ const PostTagsPage: React.FC = () => {
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   if (error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('tags.title', 'Post Tags')}
         description={t('tags.description', 'Manage post tags and categorization')}
         actions={actions}
@@ -587,12 +577,12 @@ const PostTagsPage: React.FC = () => {
           <AlertTitle>{t('common.error')}</AlertTitle>
           <AlertDescription>{error.message}</AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('tags.title', 'Post Tags')}
       description={t('tags.description', 'Manage post tags and categorization')}
       actions={actions}
@@ -758,7 +748,7 @@ const PostTagsPage: React.FC = () => {
         confirmVariant="danger"
         isLoading={deleteTagMutation.isPending}
       />
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

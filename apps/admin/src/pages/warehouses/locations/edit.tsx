@@ -1,9 +1,8 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiArrowLeft, FiInfo } from 'react-icons/fi';
-import BaseLayout from '../../../components/layout/BaseLayout';
-import { Button } from '../../../components/common/Button';
-import { Alert, AlertDescription, AlertTitle } from '../../../components/common/Alert';
+import { BaseLayout } from '../../../components/layout';
+import { Button, Alert, AlertDescription, AlertTitle } from '../../../components/common';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 
 const WarehouseLocationEditPage: React.FC = () => {

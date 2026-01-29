@@ -26,6 +26,7 @@ import ai from './ai.json';
 import admin from './admin.json';
 import mail_logs from './mail_logs.json';
 import delivery_methods from './delivery_methods.json';
+import openai_configs from './openai_configs.json';
 
 export default {
   ...common,
@@ -56,4 +57,5 @@ export default {
   ...admin,
   ...mail_logs,
   ...delivery_methods,
+  ...openai_configs,
 };

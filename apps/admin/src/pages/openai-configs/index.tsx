@@ -1,16 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiMoreVertical, FiTrash2, FiEdit2, FiToggleLeft, FiToggleRight, FiCpu } from 'react-icons/fi';
-import { Button } from '../../components/common/Button';
-import { Table, Column, SortDescriptor } from '../../components/common/Table';
-import { Dropdown } from '../../components/common/Dropdown';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { Button, Table, Dropdown, StandardListPage, Loading, Alert, AlertDescription, AlertTitle, ConfirmationModal } from '../../components/common';
+import type { Column, SortDescriptor } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
-import { ConfirmationModal } from '../../components/common/ConfirmationModal';
 
 interface OpenAiConfig {
   id: string;
@@ -242,18 +237,18 @@ const OpenAiConfigsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('navigation.openai_configs', 'OpenAI Configurations')}
         description={t('openai_configs.description', 'Manage OpenAI model configurations')}
       >
         <Loading />
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   if (error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('navigation.openai_configs', 'OpenAI Configurations')}
         description={t('openai_configs.description', 'Manage OpenAI model configurations')}
       >
@@ -261,12 +256,12 @@ const OpenAiConfigsPage: React.FC = () => {
           <AlertTitle>{t('admin.error', 'Error')}</AlertTitle>
           <AlertDescription>{(error as { message?: string })?.message || 'Failed to load OpenAI configurations'}</AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('navigation.openai_configs', 'OpenAI Configurations')}
       description={t('openai_configs.description', 'Manage OpenAI model configurations')}
       actions={[
@@ -306,7 +301,7 @@ const OpenAiConfigsPage: React.FC = () => {
         confirmText="Delete"
         confirmVariant="danger"
       />
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

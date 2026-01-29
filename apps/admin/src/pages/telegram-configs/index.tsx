@@ -1,7 +1,7 @@
 import React from 'react';
 import { FiSend, FiHome } from 'react-icons/fi';
-import BaseLayout from '../../components/layout/BaseLayout';
-import TelegramNotificationConfigManager from '../../components/notifications/TelegramNotificationConfigManager';
+import { StandardListPage } from '../../components/common';
+import { TelegramNotificationConfigManager } from '../../components/notifications';
 
 const TelegramConfigsPage: React.FC = () => {
   const breadcrumbs = [
@@ -17,13 +17,13 @@ const TelegramConfigsPage: React.FC = () => {
   ];
 
   return (
-    <BaseLayout
+    <StandardListPage
       title="Telegram Configuration"
       description="Manage Telegram bot configurations for notifications"
       breadcrumbs={breadcrumbs}
     >
       <TelegramNotificationConfigManager />
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

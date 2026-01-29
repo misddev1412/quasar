@@ -2,8 +2,11 @@
     "posts": {
         "create": "Create Post",
         "update": "Update Post",
+        "editDescription": "Update post content and metadata",
+        "edit_post_information": "Edit Post Information",
         "updateDescription": "Update post content and metadata",
         "createDescription": "Create a new post with content and metadata",
+        "back_to_posts": "Back to Posts",
         "createSuccess": "Post Created",
         "createSuccessDescription": "The post has been successfully created.",
         "createError": "Creation Failed",

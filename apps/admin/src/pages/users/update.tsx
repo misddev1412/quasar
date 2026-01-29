@@ -1,13 +1,10 @@
 import React, { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { User as UserIcon, ArrowLeft, Lock, Mail, Phone, Settings as SettingsIcon, Home, Shield } from 'lucide-react';
-import { Card, CardHeader, CardContent } from '../../components/common/Card';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
-import StandardFormPage from '../../components/common/StandardFormPage';
+import { Card, CardHeader, CardContent, Breadcrumb, StandardFormPage, EntityForm } from '../../components/common';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { EntityForm } from '../../components/common/EntityForm';
 import { FormTabConfig } from '../../types/forms';
 import { z } from 'zod';
 import { commonValidation } from '../../utils/validation';

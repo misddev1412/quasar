@@ -23,11 +23,8 @@ import {
   FiHome,
 } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
-import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
-import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
-import { Table, Column } from '../../components/common/Table';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { Button, Card, StatisticsGrid, Table, StandardListPage } from '../../components/common';
+import type { StatisticData, Column } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -368,7 +365,7 @@ const NotificationsPage: React.FC = () => {
   ];
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('notifications_page.title')}
       breadcrumbs={[
         {
@@ -557,7 +554,7 @@ const NotificationsPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

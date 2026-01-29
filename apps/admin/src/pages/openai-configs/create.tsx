@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiCpu } from 'react-icons/fi';
-import { PasswordVisibilityToggle } from '../../components/common/PasswordVisibilityToggle';
-import StandardFormPage from '../../components/common/StandardFormPage';
-import { FormInput } from '../../components/common/FormInput';
-import { Select } from '../../components/common/Select';
-import { TextareaInput } from '../../components/common/TextareaInput';
-import { Toggle } from '../../components/common/Toggle';
-import { Button } from '../../components/common/Button';
+import { PasswordVisibilityToggle, StandardFormPage, FormInput, Select, TextareaInput, Toggle, Button } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
@@ -50,8 +44,8 @@ const CreateOpenAiConfigPage: React.FC = () => {
   const createConfigMutation = trpc.adminOpenAiConfig.createConfig.useMutation({
     onSuccess: () => {
       addToast({
-        title: 'Success',
-        description: 'OpenAI configuration created successfully',
+        title: t('openai_configs.create_success_title', 'Success'),
+        description: t('openai_configs.create_success_desc', 'OpenAI configuration created successfully'),
         type: 'success',
       });
       navigate('/openai-configs');
@@ -65,28 +59,28 @@ const CreateOpenAiConfigPage: React.FC = () => {
         if (Object.keys(fieldErrors).length > 0) {
           setErrors(fieldErrors);
           addToast({
-            title: 'Validation Error',
-            description: 'Please check the highlighted fields and correct the errors',
+            title: t('common.validation_error', 'Validation Error'),
+            description: t('common.validation_description', 'Please check the highlighted fields and correct the errors'),
             type: 'error',
           });
         } else {
           addToast({
-            title: 'Validation Error',
-            description: errorMessage || 'Please check your input and try again',
+            title: t('common.validation_error', 'Validation Error'),
+            description: errorMessage || t('common.check_input_try_again', 'Please check your input and try again'),
             type: 'error',
           });
         }
       } else if (errorMessage?.includes('already exists')) {
-        setErrors({ name: 'A configuration with this name already exists' });
+        setErrors({ name: t('openai_configs.config_exists_desc', 'A configuration with this name already exists') });
         addToast({
-          title: 'Configuration Exists',
-          description: 'An OpenAI configuration with this name already exists. Please choose a different name.',
+          title: t('openai_configs.config_exists_title', 'Configuration Exists'),
+          description: t('openai_configs.config_exists_desc', 'An OpenAI configuration with this name already exists. Please choose a different name.'),
           type: 'error',
         });
       } else {
         addToast({
-          title: 'Error',
-          description: errorMessage || 'Failed to create OpenAI configuration',
+          title: t('common.error', 'Error'),
+          description: errorMessage || t('openai_configs.create_error', 'Failed to create OpenAI configuration'),
           type: 'error',
         });
       }
@@ -103,9 +97,9 @@ const CreateOpenAiConfigPage: React.FC = () => {
   const validateForm = (): boolean => {
     const validationErrors: Partial<Record<keyof OpenAiConfigFormData, string>> = {};
 
-    if (!formData.name.trim()) validationErrors.name = 'Configuration name is required';
-    if (!formData.model.trim()) validationErrors.model = 'Model is required';
-    if (!formData.apiKey.trim()) validationErrors.apiKey = 'API key is required';
+    if (!formData.name.trim()) validationErrors.name = t('openai_configs.validation.name_required', 'Configuration name is required');
+    if (!formData.model.trim()) validationErrors.model = t('openai_configs.validation.model_required', 'Model is required');
+    if (!formData.apiKey.trim()) validationErrors.apiKey = t('openai_configs.validation.apikey_required', 'API key is required');
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);

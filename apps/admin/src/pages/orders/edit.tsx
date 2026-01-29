@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
-import StandardFormPage from '../../components/common/StandardFormPage';
-import { UpdateOrderForm, UpdateOrderFormData } from '../../components/orders/UpdateOrderForm';
+import { StandardFormPage } from '../../components/common';
+import { UpdateOrderForm, UpdateOrderFormData } from '../../components/orders';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { useUrlTabs } from '../../hooks/useUrlTabs';

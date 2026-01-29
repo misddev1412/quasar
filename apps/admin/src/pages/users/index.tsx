@@ -1,20 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTableState } from '../../hooks/useTableState';
-import { FiPlus, FiMoreVertical, FiUsers, FiUserCheck, FiUserPlus, FiUser, FiActivity, FiClock, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiUserX, FiTrash2, FiEye, FiHome, FiLogIn } from 'react-icons/fi';
-import { Button } from '../../components/common/Button';
-import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '../../components/common/Card';
-import { Dropdown } from '../../components/common/Dropdown';
-import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
-import { Table, Column, SortDescriptor } from '../../components/common/Table';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { FiPlus, FiMoreVertical, FiUsers, FiUserCheck, FiUserPlus, FiUser, FiActivity, FiClock, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiUserX, FiTrash2, FiEye, FiLogIn } from 'react-icons/fi';
+import { Button, Card, CardHeader, CardContent, CardTitle, CardDescription, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '../../components/common';
+import type { StatisticData, Column, SortDescriptor } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { UserFilters } from '../../components/features/UserFilters';
+import { UserFilters } from '../../components/features';
 import { User, UserRole, UserFiltersType } from '../../types/user';
 
 
@@ -546,36 +540,24 @@ const UserListPage = () => {
     },
   ], [t]);
 
-  const breadcrumbs = useMemo(() => ([
-    {
-      label: t('navigation.home', 'Home'),
-      href: '/',
-      icon: <FiHome className="w-4 h-4" />
-    },
-    {
-      label: t('navigation.users', 'Users'),
-      icon: <FiUsers className="w-4 h-4" />
-    }
-  ]), [t]);
-
   if (isLoading) {
     return (
-      <BaseLayout title={t('users.page_title', 'User Management')} description={t('users.page_description', 'Manage all users in the system')} fullWidth={true} breadcrumbs={breadcrumbs}>
+      <StandardListPage title={t('users.page_title', 'User Management')} description={t('users.page_description', 'Manage all users in the system')} fullWidth={true}>
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   if (error) {
     return (
-      <BaseLayout title={t('users.page_title', 'User Management')} description={t('users.page_description', 'Manage all users in the system')} fullWidth={true}>
+      <StandardListPage title={t('users.page_title', 'User Management')} description={t('users.page_description', 'Manage all users in the system')} fullWidth={true}>
         <Alert variant="destructive">
           <AlertTitle>{t('users.errors.error_title', 'Error')}</AlertTitle>
           <AlertDescription>{(error as any).message}</AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
@@ -584,7 +566,7 @@ const UserListPage = () => {
   const totalPages = Math.ceil(totalUsers / limit);
 
   return (
-    <BaseLayout title={t('users.page_title', 'User Management')} description={t('users.page_description', 'Manage all users in the system')} fullWidth={true} breadcrumbs={breadcrumbs} actions={pageActions}>
+    <StandardListPage title={t('users.page_title', 'User Management')} description={t('users.page_description', 'Manage all users in the system')} fullWidth={true} actions={pageActions}>
       <div className="space-y-6">
 
         {/* Statistics Cards */}
@@ -650,7 +632,7 @@ const UserListPage = () => {
 
 
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

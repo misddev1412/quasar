@@ -1,13 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Home, Settings, Send, FileText, Users } from 'lucide-react';
-import StandardFormPage from '../../components/common/StandardFormPage';
+import { StandardFormPage, EntityForm } from '../../components/common';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useEmailChannels } from '../../hooks/useEmailChannels';
 import { useUrlTabs } from '../../hooks/useUrlTabs';
-import { EntityForm } from '../../components/common/EntityForm';
 import { FormTabConfig } from '../../types/forms';
 import { z } from 'zod';
 

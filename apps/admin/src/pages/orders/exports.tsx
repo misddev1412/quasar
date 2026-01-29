@@ -1,12 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiDownload, FiFilter, FiRefreshCw } from 'react-icons/fi';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/common/Card';
-import { Select } from '../../components/common/Select';
-import { Button } from '../../components/common/Button';
-import { Badge } from '../../components/common/Badge';
-import { Table, type Column } from '../../components/common/Table';
+import { StandardListPage, Card, CardContent, CardDescription, CardHeader, CardTitle, Select, Button, Badge, Table } from '../../components/common';
+import type { Column } from '../../components/common';
 import { trpc } from '../../utils/trpc';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
@@ -343,7 +339,7 @@ const OrdersExportsPage: React.FC = () => {
   ];
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('orders.exports.page_title', 'Order export center')}
       description={t('orders.exports.page_description', 'Request order exports and monitor their progress.')}
       breadcrumbs={breadcrumbs}
@@ -518,7 +514,7 @@ const OrdersExportsPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

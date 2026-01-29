@@ -12,17 +12,21 @@ import {
   FiGrid,
   FiActivity,
 } from 'react-icons/fi';
-import { Button } from '../../../components/common/Button';
-import { Card } from '../../../components/common/Card';
-import { Dropdown } from '../../../components/common/Dropdown';
-import { StatisticsGrid, type StatisticData } from '../../../components/common/StatisticsGrid';
-import { Table, type Column, type SortDescriptor } from '../../../components/common/Table';
-import BaseLayout from '../../../components/layout/BaseLayout';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Button,
+  Card,
+  Dropdown,
+  Loading,
+  StandardListPage,
+  StatisticsGrid,
+  Table,
+} from '../../../components/common';
+import type { Column, SortDescriptor, StatisticData } from '../../../components/common';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { useToast } from '../../../contexts/ToastContext';
-import { Loading } from '../../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../../components/common/Alert';
-import { Breadcrumb } from '../../../components/common/Breadcrumb';
 import { useTablePreferences } from '../../../hooks/useTablePreferences';
 import type { WarehouseLocation } from '../../../types/warehouse';
 
@@ -421,11 +425,6 @@ const WarehouseLocationsPage: React.FC = () => {
     return columns.filter((column) => visibleColumns.has(getColumnId(column)));
   }, [columns, visibleColumns]);
 
-  const breadcrumbItems = useMemo(() => ([
-    { label: t('navigation.dashboard', 'Dashboard'), href: '/' },
-    { label: t('warehouse_locations.title', 'Warehouse Locations') },
-  ]), [t]);
-
   const actions = useMemo(() => ([
     {
       label: t('warehouse_locations.create', 'Create Location'),
@@ -437,7 +436,7 @@ const WarehouseLocationsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('warehouse_locations.title', 'Warehouse Locations')}
         description={t('warehouse_locations.description', 'Manage logical locations inside your warehouses')}
         actions={actions}
@@ -446,13 +445,13 @@ const WarehouseLocationsPage: React.FC = () => {
         <div className="flex justify-center items-center h-64">
           <Loading size="large" />
         </div>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   if (error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('warehouse_locations.title', 'Warehouse Locations')}
         description={t('warehouse_locations.description', 'Manage logical locations inside your warehouses')}
         actions={actions}
@@ -462,20 +461,18 @@ const WarehouseLocationsPage: React.FC = () => {
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('warehouse_locations.title', 'Warehouse Locations')}
       description={t('warehouse_locations.description', 'Manage logical locations inside your warehouses')}
       actions={actions}
       fullWidth
     >
       <div className="space-y-6">
-        <Breadcrumb items={breadcrumbItems} />
-
         <StatisticsGrid statistics={statistics} isLoading={loading} />
 
         <Card>
@@ -539,7 +536,7 @@ const WarehouseLocationsPage: React.FC = () => {
           />
         </Card>
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

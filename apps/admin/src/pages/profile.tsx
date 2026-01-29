@@ -1,15 +1,13 @@
 import React, { useMemo } from 'react';
 import { FiHome, FiUser } from 'react-icons/fi';
-import ProfileForm from '../components/user/ProfileForm';
+import { ProfileForm, UpdatePasswordForm } from '../components/user';
 import { AdminUpdatePasswordDto, AdminUpdateUserProfileDto, AdminUserResponseDto } from '../../../backend/src/modules/user/dto/admin/admin-user.dto';
 import { useTranslationWithBackend } from '../hooks/useTranslationWithBackend';
 import { useUrlTabs } from '../hooks/useUrlTabs';
 import { trpc } from '../utils/trpc';
 import { useToast } from '../contexts/ToastContext';
-import BaseLayout from '../components/layout/BaseLayout';
-import { Breadcrumb } from '../components/common/Breadcrumb';
-import Tabs from '../components/common/Tabs';
-import UpdatePasswordForm from '../components/user/UpdatePasswordForm';
+import { BaseLayout } from '../components/layout';
+import { Breadcrumb, Tabs } from '../components/common';
 import { User, Lock, Settings } from 'lucide-react';
 import { useAdminSeo } from '../hooks/useAdminSeo';
 

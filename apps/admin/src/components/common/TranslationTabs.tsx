@@ -6,6 +6,7 @@ import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend
 import { BASE_LABEL_CLASS } from './styles';
 import { RichTextEditor } from './RichTextEditor';
 import { MediaUpload } from './MediaUpload';
+import { AIGenerateButton } from './AIGenerateButton';
 
 interface TranslationField {
   name: string;
@@ -23,6 +24,13 @@ interface TranslationField {
   };
   description?: string;
   disabled?: boolean;
+  aiGenerator?: {
+    entityType: 'post' | 'product';
+    contentType: 'title' | 'description';
+    sourceFieldName?: string;
+    tone?: string;
+    keywords?: string[];
+  };
 }
 
 type TranslationValue = string | undefined;
@@ -104,59 +112,104 @@ export const TranslationTabs: React.FC<TranslationTabsProps> = ({
 
           {fields.map((field) => (
             <div key={field.name} className="space-y-2">
-              <label className={BASE_LABEL_CLASS}>
-                {field.label}
-                {field.required && <span className="text-red-500 ml-1">*</span>}
-              </label>
+              <div className="flex justify-between items-end">
+                <label className={BASE_LABEL_CLASS}>
+                  {field.label}
+                  {field.required && <span className="text-red-500 ml-1">*</span>}
+                </label>
+                {field.aiGenerator && !field.disabled && (
+                  <AIGenerateButton
+                    variant="icon"
+                    entityType={field.aiGenerator.entityType}
+                    contentType={field.aiGenerator.contentType}
+                    tone={field.aiGenerator.tone}
+                    keywords={field.aiGenerator.keywords}
+                    language={activeLocale}
+                    context={(() => {
+                      const targetValue = getFieldValue(activeLocale, field.name);
+                      const sourceFieldName = field.aiGenerator.sourceFieldName;
 
-              {field.type === 'richtext' ? (
-                <RichTextEditor
-                  value={getFieldValue(activeLocale, field.name)}
-                  onChange={(value) => handleTranslationChange(activeLocale, field.name, value)}
-                  placeholder={field.placeholder}
-                  minHeight={field.minHeight || '240px'}
-                  disabled={field.disabled}
-                />
-              ) : field.type === 'textarea' ? (
-                <textarea
-                  value={getFieldValue(activeLocale, field.name)}
-                  onChange={(e) => handleTranslationChange(activeLocale, field.name, e.target.value)}
-                  placeholder={field.placeholder}
-                  required={field.required}
-                  rows={field.rows || 3}
-                  maxLength={field.validation?.maxLength}
-                  disabled={field.disabled}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:text-gray-500"
-                />
-              ) : field.type === 'media-upload' ? (
-                <MediaUpload
-                  value={getFieldValue(activeLocale, field.name)}
-                  onChange={(value) => handleTranslationChange(activeLocale, field.name, Array.isArray(value) ? value[0] : value)}
-                  placeholder={field.placeholder}
-                  disabled={field.disabled}
-                />
-              ) : (
-                <Input
-                  value={getFieldValue(activeLocale, field.name)}
-                  onChange={(e) => handleTranslationChange(activeLocale, field.name, e.target.value)}
-                  placeholder={field.placeholder}
-                  required={field.required}
-                  maxLength={field.validation?.maxLength}
-                  disabled={field.disabled}
-                />
-              )}
+                      if (!sourceFieldName) return targetValue;
 
-              {field.description && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {field.description}
-                </p>
-              )}
+                      // Priority: 
+                      // 1. Current value (Improve mode)
+                      // 2. Source field in current language
+                      // 3. Source field in default language (fallback)
 
-              {field.validation?.maxLength && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {getFieldValue(activeLocale, field.name).length}/{field.validation.maxLength} characters
-                </p>
-              )}
+                      if (targetValue && targetValue.trim().length > 0) {
+                        return targetValue;
+                      }
+
+                      const sourceInCurrent = getFieldValue(activeLocale, sourceFieldName);
+                      if (sourceInCurrent && sourceInCurrent.trim().length > 0) {
+                        return sourceInCurrent;
+                      }
+
+                      const defaultLocale = supportedLocales[0]?.code;
+                      const sourceInDefault = translations[defaultLocale]?.[sourceFieldName];
+
+                      return sourceInDefault || '';
+                    })()}
+                    onGenerate={(content) => handleTranslationChange(activeLocale, field.name, content)}
+                    availableLanguages={supportedLocales}
+                  />
+                )}
+              </div>
+
+              {
+                field.type === 'richtext' ? (
+                  <RichTextEditor
+                    value={getFieldValue(activeLocale, field.name)}
+                    onChange={(value) => handleTranslationChange(activeLocale, field.name, value)}
+                    placeholder={field.placeholder}
+                    minHeight={field.minHeight || '240px'}
+                    disabled={field.disabled}
+                  />
+                ) : field.type === 'textarea' ? (
+                  <textarea
+                    value={getFieldValue(activeLocale, field.name)}
+                    onChange={(e) => handleTranslationChange(activeLocale, field.name, e.target.value)}
+                    placeholder={field.placeholder}
+                    required={field.required}
+                    rows={field.rows || 3}
+                    maxLength={field.validation?.maxLength}
+                    disabled={field.disabled}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:text-gray-500"
+                  />
+                ) : field.type === 'media-upload' ? (
+                  <MediaUpload
+                    value={getFieldValue(activeLocale, field.name)}
+                    onChange={(value) => handleTranslationChange(activeLocale, field.name, Array.isArray(value) ? value[0] : value)}
+                    placeholder={field.placeholder}
+                    disabled={field.disabled}
+                  />
+                ) : (
+                  <Input
+                    value={getFieldValue(activeLocale, field.name)}
+                    onChange={(e) => handleTranslationChange(activeLocale, field.name, e.target.value)}
+                    placeholder={field.placeholder}
+                    required={field.required}
+                    maxLength={field.validation?.maxLength}
+                    disabled={field.disabled}
+                  />
+                )
+              }
+
+              {
+                field.description && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {field.description}
+                  </p>
+                )
+              }
+
+              {
+                field.validation?.maxLength && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {getFieldValue(activeLocale, field.name).length}/{field.validation.maxLength} characters
+                  </p>
+                )
+              }
             </div>
           ))}
 

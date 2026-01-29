@@ -164,7 +164,10 @@
       "selectOrUpload": "Chọn hoặc tải lên Media",
       "dropFiles": "Kéo và thả {{count}} tệp vào đây, hoặc nhấn để chọn",
       "dropImages": "Thả ảnh vào đây để tải lên",
-      "dropToUpload": "Thả ảnh để tải lên"
+      "dropToUpload": "Thả ảnh để tải lên",
+      "mediaSelected": "Đã chọn Media",
+      "filesSelected": "Đã chọn {{count}} tập tin",
+      "fileSelected": "Đã chọn {{name}}"
     },
     "gallery": {
       "addMore": "Thêm tối đa {{count}} ảnh nữa",
@@ -185,6 +188,7 @@
     "enable": "Bật",
     "disable": "Tắt",
     "translations": "Bản dịch",
-    "translations_desc": "Quản lý nội dung bằng các ngôn ngữ khác"
+    "translations_desc": "Quản lý nội dung bằng các ngôn ngữ khác",
+    "no_languages_available": "Không có ngôn ngữ nào"
   }
 }

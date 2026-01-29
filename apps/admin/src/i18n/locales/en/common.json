@@ -164,7 +164,10 @@
       "selectOrUpload": "Select or Upload Media",
       "dropFiles": "Drag and drop {{count}} file{{s}} here, or click to select",
       "dropImages": "Drop images here to upload",
-      "dropToUpload": "Drop images to upload"
+      "dropToUpload": "Drop images to upload",
+      "mediaSelected": "Media Selected",
+      "filesSelected": "{{count}} files selected",
+      "fileSelected": "{{name}} selected"
     },
     "gallery": {
       "addMore": "Add up to {{count}} more image{{s}}",
@@ -185,6 +188,7 @@
     "enable": "Enable",
     "disable": "Disable",
     "translations": "Translations",
-    "translations_desc": "Manage content in other languages"
+    "translations_desc": "Manage content in other languages",
+    "no_languages_available": "No languages available"
   }
 }

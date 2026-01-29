@@ -15,19 +15,24 @@ import {
   FiActivity,
   FiTrendingUp,
 } from 'react-icons/fi';
-import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
-import { Dropdown } from '../../components/common/Dropdown';
-import { StatisticsGrid, type StatisticData } from '../../components/common/StatisticsGrid';
-import { Table, type Column, type SortDescriptor } from '../../components/common/Table';
-import BaseLayout from '../../components/layout/BaseLayout';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Breadcrumb,
+  Button,
+  Card,
+  Dropdown,
+  Loading,
+  StandardListPage,
+  StatisticsGrid,
+  Table,
+} from '../../components/common';
+import type { Column, SortDescriptor, StatisticData } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
-import { WarehouseFilters } from '../../components/features/WarehouseFilters';
+import { WarehouseFilters } from '../../components/features';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import type { Warehouse, WarehouseFiltersType } from '../../types/warehouse';
 
@@ -615,7 +620,7 @@ const WarehousesPage: React.FC = () => {
 
   if (isLoadingWarehouses) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('warehouses.title', 'Warehouses')}
         description={t('warehouses.description', 'Manage warehouse locations and inventory')}
         actions={actions}
@@ -625,13 +630,13 @@ const WarehousesPage: React.FC = () => {
         <div className="flex justify-center items-center h-64">
           <Loading size="large" />
         </div>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   if (warehousesError) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('warehouses.title', 'Warehouses')}
         description={t('warehouses.description', 'Manage warehouse locations and inventory')}
         actions={actions}
@@ -642,12 +647,12 @@ const WarehousesPage: React.FC = () => {
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
           <AlertDescription>{warehousesError.message}</AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('warehouses.title', 'Warehouses')}
       description={t('warehouses.description', 'Manage warehouse locations and inventory')}
       actions={actions}
@@ -703,7 +708,7 @@ const WarehousesPage: React.FC = () => {
           />
         </Card>
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

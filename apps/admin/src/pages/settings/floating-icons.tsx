@@ -1,14 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { Button } from '../../components/common/Button';
-import { Toggle } from '../../components/common/Toggle';
-import { Input } from '../../components/common/Input';
-import { Select } from '../../components/common/Select';
-import { PhoneInputField } from '../../components/common/PhoneInputField';
-import TextareaInput from '../../components/common/TextareaInput';
-import { Modal } from '../../components/common/Modal';
-import { ColorSelector } from '../../components/common/ColorSelector';
-import { Badge } from '../../components/common/Badge';
+import { BaseLayout } from '../../components/layout';
+import { Button, Toggle, Input, Select, PhoneInputField, TextareaInput, Modal, ColorSelector, Badge, UnifiedIcon } from '../../components/common';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
@@ -31,7 +23,6 @@ import {
   FiZap,
   FiCheckCircle,
 } from 'react-icons/fi';
-import UnifiedIcon from '../../components/common/UnifiedIcon';
 import { SettingData } from '../../hooks/useSettings';
 
 type ApiSettingResponse = {

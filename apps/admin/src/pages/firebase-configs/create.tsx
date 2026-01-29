@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiUpload, FiEye, FiEyeOff } from 'react-icons/fi';
-import StandardFormPage from '../../components/common/StandardFormPage';
-import { FormInput } from '../../components/common/FormInput';
-import { TextareaInput } from '../../components/common/TextareaInput';
-import { Toggle } from '../../components/common/Toggle';
-import { Button } from '../../components/common/Button';
+import { StandardFormPage, FormInput, TextareaInput, Toggle, Button } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';

@@ -1,0 +1,37 @@
+{
+    "openai_configs": {
+        "create_title": "Create OpenAI Configuration",
+        "create_description": "Add a new OpenAI model configuration for content generation",
+        "edit_title": "Edit OpenAI Configuration",
+        "edit_description": "Update OpenAI configuration details",
+        "config": "Configuration",
+        "configs": "OpenAI configurations",
+        "name": "Configuration Name *",
+        "name_placeholder": "Production OpenAI",
+        "model": "Model *",
+        "base_url": "Base URL",
+        "active_config": "Active Configuration",
+        "description": "Description",
+        "description_placeholder": "Description of this OpenAI configuration...",
+        "api_key": "API Key *",
+        "api_key_help": "Store your OpenAI API key securely.",
+        "create_success_title": "Success",
+        "create_success_desc": "OpenAI configuration created successfully",
+        "update_success_desc": "OpenAI configuration updated successfully",
+        "delete_success_desc": "OpenAI configuration deleted successfully",
+        "create_error": "Failed to create OpenAI configuration",
+        "update_error": "Failed to update OpenAI configuration",
+        "delete_error": "Failed to delete OpenAI configuration",
+        "config_exists_title": "Configuration Exists",
+        "config_exists_desc": "An OpenAI configuration with this name already exists. Please choose a different name.",
+        "config_not_found_title": "Configuration Not Found",
+        "config_not_found_desc": "The OpenAI configuration you are trying to update no longer exists.",
+        "delete_modal_title": "Delete OpenAI Configuration",
+        "delete_modal_message": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+        "validation": {
+            "name_required": "Configuration name is required",
+            "model_required": "Model is required",
+            "apikey_required": "API key is required"
+        }
+    }
+}

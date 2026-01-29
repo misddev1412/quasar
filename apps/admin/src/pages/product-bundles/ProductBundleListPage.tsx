@@ -2,21 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../services/api';
-import {
-    Box,
-    Button,
-    Card,
-    CardContent,
-    Chip,
-    IconButton,
-    Tooltip,
-} from '@mui/material';
+import { Box, Button, Card, CardContent, Chip, IconButton, Tooltip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { StandardListPage, Table } from '../../components/common';
+import type { Column } from '../../components/common';
 import { format } from 'date-fns';
-import { Table, Column } from '../../components/common/Table';
 
 const ProductBundleListPage: React.FC = () => {
     const { t } = useTranslationWithBackend();
@@ -95,7 +87,7 @@ const ProductBundleListPage: React.FC = () => {
     ];
 
     return (
-        <BaseLayout title={t('product_bundles.title', 'Product Bundles')}>
+        <StandardListPage title={t('product_bundles.title', 'Product Bundles')}>
             <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
                 <Button
                     variant="contained"
@@ -123,7 +115,7 @@ const ProductBundleListPage: React.FC = () => {
                     />
                 </CardContent>
             </Card>
-        </BaseLayout>
+        </StandardListPage>
     );
 };
 

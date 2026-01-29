@@ -1,15 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiRefreshCw, FiTrendingUp, FiUsers, FiAward, FiGift, FiActivity, FiHome, FiCalendar, FiDownload, FiBarChart2, FiPieChart } from 'react-icons/fi';
-import { Button } from '../../../components/common/Button';
-import { Card } from '../../../components/common/Card';
-import { StatisticsGrid, StatisticData } from '../../../components/common/StatisticsGrid';
-import BaseLayout from '../../../components/layout/BaseLayout';
+import { Button, Card, StatisticsGrid, Loading, Alert, AlertDescription, AlertTitle } from '../../../components/common';
+import type { StatisticData } from '../../../components/common';
+import { BaseLayout } from '../../../components/layout';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { useToast } from '../../../contexts/ToastContext';
 import { trpc } from '../../../utils/trpc';
-import { Loading } from '../../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../../components/common/Alert';
 
 interface TimeRange {
   label: string;

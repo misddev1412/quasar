@@ -8,7 +8,7 @@ export class OpenAiConfigRepository {
   constructor(
     @InjectRepository(OpenAiConfigEntity)
     private readonly repository: Repository<OpenAiConfigEntity>,
-  ) {}
+  ) { }
 
   async findActiveConfig(): Promise<OpenAiConfigEntity | null> {
     return this.repository.findOne({
@@ -36,7 +36,7 @@ export class OpenAiConfigRepository {
   }
 
   async setActiveConfig(id: string): Promise<void> {
-    await this.repository.update({}, { active: false });
+    await this.repository.update({ active: true }, { active: false });
     await this.repository.update(id, { active: true });
   }
 

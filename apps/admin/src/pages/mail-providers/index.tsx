@@ -1,17 +1,9 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiPlus, FiEdit2, FiTrash2, FiMail, FiHome, FiActivity } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiTrash2, FiActivity } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { Table, Column } from '../../components/common/Table';
-import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
-import { Select } from '../../components/common/Select';
-import { Badge } from '../../components/common/Badge';
-import { ConfirmationModal } from '../../components/common/ConfirmationModal';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
-import { Input } from '../../components/common/Input';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/common/Dialog';
+import { StandardListPage, Table, Button, Card, Select, Badge, ConfirmationModal, Alert, AlertDescription, AlertTitle, Input, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/common';
+import type { Column } from '../../components/common';
 import { useToast } from '../../contexts/ToastContext';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
 import { trpc } from '../../utils/trpc';
@@ -387,24 +379,11 @@ const MailProviderIndexPage: React.FC = () => {
     },
   ], [navigate, t]);
 
-  const breadcrumbs = useMemo(() => ([
-    {
-      label: 'Home',
-      href: '/',
-      icon: <FiHome className="h-4 w-4" />,
-    },
-    {
-      label: t('mail_providers.list_title'),
-      icon: <FiMail className="h-4 w-4" />,
-    },
-  ]), [t]);
-
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('mail_providers.title')}
       description={t('mail_providers.description')}
       actions={actions}
-      breadcrumbs={breadcrumbs}
     >
       <div className="space-y-6">
         {error && (
@@ -550,7 +529,7 @@ const MailProviderIndexPage: React.FC = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

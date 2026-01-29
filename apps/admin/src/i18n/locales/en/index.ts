@@ -23,6 +23,7 @@ import permissions from './permissions.json';
 import services from './services.json';
 import product_bundles from './product_bundles.json';
 import ai from './ai.json';
+import openai_configs from './openai_configs.json';
 
 export default {
   ...common,
@@ -50,4 +51,5 @@ export default {
   ...services,
   product_bundles,
   ...ai,
+  ...openai_configs,
 };

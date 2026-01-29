@@ -1,16 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiDownload, FiFilter, FiRefreshCw } from 'react-icons/fi';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/common/Card';
-import { Select } from '../../components/common/Select';
-import { Button } from '../../components/common/Button';
-import { Badge } from '../../components/common/Badge';
-import { Table, Column } from '../../components/common/Table';
+import { StandardListPage, Card, CardContent, CardDescription, CardHeader, CardTitle, Select, Button, Badge, Table } from '../../components/common';
+import type { Column } from '../../components/common';
 import { trpc } from '../../utils/trpc';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
-import { ProductFilters, ProductFiltersType } from '../../components/features/ProductFilters';
+import { ProductFilters, ProductFiltersType } from '../../components/features';
 
 type ExportJobItem = {
   id: string;
@@ -491,7 +487,7 @@ const ProductExportsPage: React.FC = () => {
   );
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('products.exports.page_title', 'Product exports')}
       description={t('products.exports.page_description', 'Track your export jobs and download completed files.')}
       breadcrumbs={breadcrumbs}
@@ -718,7 +714,7 @@ const ProductExportsPage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

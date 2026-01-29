@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiDollarSign } from 'react-icons/fi';
-import StandardFormPage from '../../components/common/StandardFormPage';
-import { CreateCurrencyForm } from '../../components/currencies/CreateCurrencyForm';
+import { StandardFormPage } from '../../components/common';
+import { CreateCurrencyForm } from '../../components/currencies';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';

@@ -1,16 +1,13 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { Card } from '../../components/common/Card';
-import { Table, Column } from '../../components/common/Table';
-import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
+import { StandardListPage, Card, Table, StatisticsGrid } from '../../components/common';
+import type { Column, StatisticData, SelectOption } from '../../components/common';
 import { trpc } from '../../utils/trpc';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import type { PaginatedResponse, ApiResponse } from '@backend/trpc/schemas/response.schemas';
-import type { SelectOption } from '../../components/common/Select';
 import { MailLogListItem, MailLogStatistics, MailLogStatus } from '../../types/mail-log';
-import { MailLogFilters as MailLogFiltersPanel } from '../../components/features/MailLogFilters';
-import type { MailLogFilterFormState } from '../../components/features/MailLogFilters';
+import { MailLogFilters as MailLogFiltersPanel } from '../../components/features';
+import type { MailLogFilterFormState } from '../../components/features';
 import { FiRefreshCw, FiMail, FiAlertTriangle, FiCheckCircle, FiFilter } from 'react-icons/fi';
 import { getMailLogSenderInfo } from '../../utils/mail-log';
 
@@ -335,14 +332,10 @@ const MailLogsPage: React.FC = () => {
   ], [formatBodyPreview, formatSender, t]);
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('mail_logs.title', 'Mail delivery logs')}
       description={t('mail_logs.description', 'Monitor every outbound email and debug issues quickly.')}
       actions={actions}
-      breadcrumbs={[
-        { label: t('navigation.mail_management', 'Email Management'), href: '/mail-templates' },
-        { label: t('mail_logs.title', 'Mail delivery logs'), current: true },
-      ]}
     >
       <div className="space-y-6">
         {statisticsCards.length > 0 && (
@@ -384,7 +377,7 @@ const MailLogsPage: React.FC = () => {
           />
         </Card>
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

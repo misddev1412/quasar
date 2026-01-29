@@ -2,16 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiSave, FiHome, FiMapPin, FiPhone, FiMail, FiUser } from 'react-icons/fi';
 import clsx from 'clsx';
-import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { Button, Card, Loading, CountrySelector, InputWithIcon } from '../../components/common';
+import { BaseLayout } from '../../components/layout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Loading } from '../../components/common/Loading';
 import { Formik, Form } from 'formik';
-import { CountrySelector } from '../../components/common/CountrySelector';
-import { InputWithIcon } from '../../components/common/InputWithIcon';
 import * as Yup from 'yup';
 
 // Form validation schema

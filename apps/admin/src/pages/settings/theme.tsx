@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { withAdminSeo } from '../../components/SEO/withAdminSeo';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { withAdminSeo } from '../../components/SEO';
+import { BaseLayout } from '../../components/layout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { FiSettings, FiHome, FiLayout, FiSave } from 'react-icons/fi';
-import GlobalThemeSettings from '../../components/settings/GlobalThemeSettings';
-import { Button } from '../../components/common/Button';
+import { GlobalThemeSettings } from '../../components/settings';
+import { Button } from '../../components/common';
 import { defaultThemeConfig, ThemeConfig } from '../../config/theme.config';
 import { trpc } from '../../utils/trpc';
 import { useToast } from '../../contexts/ToastContext';

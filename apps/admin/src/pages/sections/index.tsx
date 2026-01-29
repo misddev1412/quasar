@@ -2,8 +2,8 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FiHome, FiLayout } from 'react-icons/fi';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { SectionsManager } from '../../components/sections/SectionsManager';
+import { StandardListPage } from '../../components/common';
+import { SectionsManager } from '../../components/sections';
 
 const SectionsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -17,7 +17,7 @@ const SectionsPage: React.FC = () => {
   };
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('sections.page.title')}
       description={t('sections.page.description')}
       breadcrumbs={[
@@ -35,7 +35,7 @@ const SectionsPage: React.FC = () => {
       <div className="space-y-6">
         <SectionsManager page={page} onPageChange={handlePageChange} />
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

@@ -1,22 +1,23 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiMessageSquare, FiPlus, FiEdit2, FiTrash2, FiStar, FiCopy, FiEye, FiHome, FiFilter } from 'react-icons/fi';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { Card } from '../../components/common/Card';
-import { Table, Column } from '../../components/common/Table';
-import { Button } from '../../components/common/Button';
-import { Badge } from '../../components/common/Badge';
-import { ConfirmationModal } from '../../components/common/ConfirmationModal';
-import { Select } from '../../components/common/Select';
-import { Modal } from '../../components/common/Modal';
+import {
+  Badge,
+  Button,
+  Card,
+  ConfirmationModal,
+  Modal,
+  Select,
+  StandardListPage,
+  Table,
+} from '../../components/common';
+import type { Column, SelectOption } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { CreateSupportClientModal } from '../../components/support-clients/CreateSupportClientModal';
-import { EditSupportClientModal } from '../../components/support-clients/EditSupportClientModal';
+import { CreateSupportClientModal, EditSupportClientModal } from '../../components/support-clients';
 import { SupportClientType, SupportClient } from '@shared/types/support-client';
 import type { PaginatedResponse, ApiResponse } from '@backend/trpc/schemas/response.schemas';
-import type { SelectOption } from '../../components/common/Select';
 
 type SupportClientListItem = SupportClient;
 
@@ -435,7 +436,7 @@ const SupportClientsPage: React.FC = () => {
   ]), [t]);
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('support_clients.title', 'Support Clients')}
       description={t('support_clients.description', 'Manage support client configurations and widgets')}
       actions={actions}
@@ -597,7 +598,7 @@ const SupportClientsPage: React.FC = () => {
           isLoading={deleteMutation.isPending}
         />
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

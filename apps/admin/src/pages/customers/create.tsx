@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserPlus } from 'lucide-react';
-import StandardFormPage from '../../components/common/StandardFormPage';
-import { CreateCustomerForm, CreateCustomerFormData } from '../../components/customers/CreateCustomerForm';
+import { StandardFormPage } from '../../components/common';
+import { CreateCustomerForm, CreateCustomerFormData } from '../../components/customers';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { useUrlTabs } from '../../hooks/useUrlTabs';

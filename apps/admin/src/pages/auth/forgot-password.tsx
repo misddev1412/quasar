@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import AuthCard from '../../components/auth/AuthCard';
-import ForgotPasswordForm from '../../components/auth/ForgotPasswordForm';
+import { AuthCard, ForgotPasswordForm } from '../../components/auth';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { trpc } from '../../utils/trpc';
 import { useAdminSeo } from '../../hooks/useAdminSeo';

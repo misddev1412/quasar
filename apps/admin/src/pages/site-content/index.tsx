@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import BaseLayout from '../../components/layout/BaseLayout';
-import SiteContentContainer from '../../components/site-content/SiteContentContainer';
+import { StandardListPage } from '../../components/common';
+import { SiteContentContainer } from '../../components/site-content';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import type { ReactNode } from 'react';
 
@@ -15,7 +15,7 @@ const SiteContentListPage: React.FC = () => {
   }>>([]);
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('siteContent.title', 'Site Content')}
       description={t('siteContent.description', 'Manage storefront policies, guides, and informational pages.')}
       breadcrumbs={[
@@ -25,7 +25,7 @@ const SiteContentListPage: React.FC = () => {
       actions={actions}
     >
       <SiteContentContainer onActionsChange={setActions} />
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

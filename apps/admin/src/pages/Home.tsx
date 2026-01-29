@@ -1,10 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
-import withAdminSeo from '@admin/components/SEO/withAdminSeo';
+import { withAdminSeo } from '@admin/components/SEO';
 import { AdminSeoData } from '@admin/hooks/useAdminSeo';
 import { useAuth } from '../hooks/useAuth';
 import { isSuperAdminUser, isAdminUser } from '../utils/permission-access';
-import { AdminDashboard } from '../components/dashboard/AdminDashboard';
-import { StaffDashboard } from '../components/dashboard/StaffDashboard';
+import { AdminDashboard, StaffDashboard } from '../components/dashboard';
 
 // Define the static SEO data for the home page
 const homeSeoData: AdminSeoData = {

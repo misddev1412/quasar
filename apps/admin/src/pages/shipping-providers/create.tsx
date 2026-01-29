@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiTruck } from 'react-icons/fi';
-import StandardFormPage from '../../components/common/StandardFormPage';
-import CreateShippingProviderForm, { CreateShippingProviderFormData } from '../../components/shipping-providers/CreateShippingProviderForm';
+import { StandardFormPage } from '../../components/common';
+import { CreateShippingProviderForm, CreateShippingProviderFormData } from '../../components/shipping-providers';
 import { useToast } from '../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useUrlTabs } from '../../hooks/useUrlTabs';

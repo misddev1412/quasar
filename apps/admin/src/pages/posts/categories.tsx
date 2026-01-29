@@ -13,22 +13,11 @@ import {
   FiHome,
   FiFileText,
 } from 'react-icons/fi';
-import { StatisticsGrid, type StatisticData } from '../../components/common/StatisticsGrid';
-import { Button } from '../../components/common/Button';
-import { Dropdown } from '../../components/common/Dropdown';
-import { Table, type Column, type SortDescriptor } from '../../components/common/Table';
-import { ConfirmationModal } from '../../components/common/ConfirmationModal';
-import { FormInput } from '../../components/common/FormInput';
-import { TextareaInput } from '../../components/common/TextareaInput';
-import { Select } from '../../components/common/Select';
-import { Toggle } from '../../components/common/Toggle';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../components/common/Dialog';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { StatisticsGrid, Button, Dropdown, Table, ConfirmationModal, FormInput, TextareaInput, Select, Toggle, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '../../components/common';
+import type { StatisticData, Column, SortDescriptor } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -581,7 +570,7 @@ const PostCategoriesPage: React.FC = () => {
 
   if (isLoading && !rawCategories.length) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('categories.title', 'Post Categories')}
         description={t('categories.description', 'Organize post categories and hierarchy')}
         actions={actions}
@@ -591,13 +580,13 @@ const PostCategoriesPage: React.FC = () => {
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   if (error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('categories.title', 'Post Categories')}
         description={t('categories.description', 'Organize post categories and hierarchy')}
         actions={actions}
@@ -608,12 +597,12 @@ const PostCategoriesPage: React.FC = () => {
           <AlertTitle>{t('common.error')}</AlertTitle>
           <AlertDescription>{error.message}</AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('categories.title', 'Post Categories')}
       description={t('categories.description', 'Organize post categories and hierarchy')}
       actions={actions}
@@ -786,7 +775,7 @@ const PostCategoriesPage: React.FC = () => {
         confirmVariant="danger"
         isLoading={deleteCategoryMutation.isPending}
       />
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

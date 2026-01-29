@@ -1,20 +1,13 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPlus, FiMoreVertical, FiFolder, FiFolderPlus, FiEdit2, FiTrash2, FiRefreshCw, FiActivity, FiEye, FiTag, FiFilter, FiHome, FiPackage, FiUpload, FiDownload } from 'react-icons/fi';
-import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
-import { Dropdown } from '../../components/common/Dropdown';
-import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
-import { LazyLoadingCategoryTreeView } from '../../components/products/LazyLoadingCategoryTreeView';
-import { CategoryFilter, CategoryFilterOptions } from '../../components/products/CategoryFilter';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { Button, Card, Dropdown, StatisticsGrid, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '../../components/common';
+import type { StatisticData } from '../../components/common';
+import { LazyLoadingCategoryTreeView, CategoryFilter, CategoryFilterOptions, CategoryImportModal } from '../../components/products';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { Category } from '../../types/product';
-import { CategoryImportModal } from '../../components/products/CategoryImportModal';
 
 const CategoriesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -345,7 +338,7 @@ const CategoriesPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('categories.title', 'Categories')}
         description={t('categories.description', 'Manage product categories')}
         actions={actions}
@@ -355,13 +348,13 @@ const CategoriesPage: React.FC = () => {
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   if (error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('categories.title', 'Categories')}
         description={t('categories.description', 'Manage product categories')}
         actions={actions}
@@ -372,12 +365,12 @@ const CategoriesPage: React.FC = () => {
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
           <AlertDescription>{(error as any).message}</AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('categories.title', 'Categories')}
       description={t('categories.description', 'Manage product categories')}
       actions={actions}
@@ -438,7 +431,7 @@ const CategoriesPage: React.FC = () => {
         />
 
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

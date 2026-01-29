@@ -1,12 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { withAdminSeo } from '../../components/SEO/withAdminSeo';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { withAdminSeo } from '../../components/SEO';
+import { BaseLayout } from '../../components/layout';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { FiHome, FiSettings, FiTool, FiShield } from 'react-icons/fi';
 import { useSettings, SettingData } from '../../hooks/useSettings';
-import { Toggle } from '../../components/common/Toggle';
-import { Button } from '../../components/common/Button';
-import { Badge } from '../../components/common/Badge';
+import { Toggle, Button, Badge } from '../../components/common';
 import { useToast } from '../../contexts/ToastContext';
 
 const MAINTENANCE_ENABLED_KEY = 'storefront.maintenance_enabled';

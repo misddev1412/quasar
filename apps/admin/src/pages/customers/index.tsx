@@ -1,20 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPlus, FiMoreVertical, FiUsers, FiUserCheck, FiUserX, FiAward, FiCalendar, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiHome, FiEdit2, FiMail, FiPhone } from 'react-icons/fi';
-import { Button } from '../../components/common/Button';
-import { Card } from '../../components/common/Card';
-import { Dropdown } from '../../components/common/Dropdown';
-import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
-import { Table, Column, SortDescriptor } from '../../components/common/Table';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { Button, Card, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle, Breadcrumb } from '../../components/common';
+import type { StatisticData, Column, SortDescriptor } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { Breadcrumb } from '../../components/common/Breadcrumb';
-import { CustomerFilters, CustomerFiltersType } from '../../components/features/CustomerFilters';
+import { CustomerFilters, CustomerFiltersType } from '../../components/features';
 
 interface Customer {
   id: string;
@@ -655,7 +648,7 @@ const CustomersPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('customers.title', 'Customer Management')}
         description={t('customers.description', 'Manage all customers in the system')}
         actions={actions}
@@ -665,13 +658,13 @@ const CustomersPage: React.FC = () => {
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   if (error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('customers.title', 'Customer Management')}
         description={t('customers.description', 'Manage all customers in the system')}
         actions={actions}
@@ -682,12 +675,12 @@ const CustomersPage: React.FC = () => {
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
           <AlertDescription>{(error as any).message}</AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('customers.title', 'Customer Management')}
       description={t('customers.description', 'Manage all customers in the system')}
       actions={actions}
@@ -756,7 +749,7 @@ const CustomersPage: React.FC = () => {
           }}
         />
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

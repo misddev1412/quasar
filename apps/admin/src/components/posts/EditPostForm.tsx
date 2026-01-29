@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { AIGenerateButton } from '../common/AIGenerateButton';
+import { FormAIGenerator } from '../common/FormAIGenerator';
 import { FileText, Settings, Globe, Image, Tag } from 'lucide-react';
 import { EntityForm } from '../common/EntityForm';
 import { FormTabConfig, FormSubmitOptions } from '../../types/forms';
@@ -84,43 +85,7 @@ interface EditPostFormProps {
   formId?: string;
 }
 
-const PostTitleGenerator = ({ availableLanguages }: { availableLanguages: { code: string; name: string }[] }) => {
-  const { setValue, watch } = useFormContext();
-  const content = watch('content');
-  const type = watch('type');
 
-  // Clean content from HTML tags
-  const context = typeof content === 'string' ? content.replace(/<[^>]*>?/gm, '') : '';
-
-  return (
-    <AIGenerateButton
-      entityType="post"
-      contentType="title"
-      context={context}
-      tone={type === 'news' ? 'journalistic' : 'engaging'}
-      onGenerate={(text) => setValue('title', text, { shouldDirty: true, shouldValidate: true })}
-      variant="icon"
-      availableLanguages={availableLanguages}
-    />
-  );
-};
-
-const PostContentGenerator = ({ availableLanguages }: { availableLanguages: { code: string; name: string }[] }) => {
-  const { setValue, watch } = useFormContext();
-  const title = watch('title');
-  const type = watch('type');
-
-  return (
-    <AIGenerateButton
-      entityType="post"
-      contentType="description"
-      context={title}
-      tone={type === 'news' ? 'journalistic' : 'engaging'}
-      onGenerate={(text) => setValue('content', text, { shouldDirty: true, shouldValidate: true })}
-      availableLanguages={availableLanguages}
-    />
-  );
-};
 
 export const EditPostForm: React.FC<EditPostFormProps> = ({
   initialData,
@@ -135,7 +100,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
 }) => {
   const { t } = useTranslationWithBackend();
   const { languageOptions, isLoading: languagesLoading } = useLanguageOptions();
-  const { activeLanguages } = useActiveLanguages(); // Get active languages
+  // useActiveLanguages moved to FormAIGenerator
 
   // State for managing translations
   const [additionalTranslations, setAdditionalTranslations] = useState<{
@@ -189,7 +154,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
                 ? t('common.loading')
                 : languageOptions.length > 0
                   ? t('form.placeholders.select_language')
-                  : 'No languages available',
+                  : t('common.no_languages_available', 'No languages available'),
               required: true,
               disabled: readonly || languagesLoading || languageOptions.length === 0,
               options: languageOptions.map(option => ({
@@ -212,14 +177,26 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
                 minLength: 1,
                 maxLength: 200,
               },
-              rightElement: <PostTitleGenerator availableLanguages={activeLanguages.map(l => ({ code: l.code, name: l.name }))} />,
+              rightElement: (
+                <FormAIGenerator
+                  targetFieldName="title"
+                  sourceFieldName="content"
+                  targetLabel={t('posts.title')}
+                  sourceLabel={t('posts.content')}
+                  entityType="post"
+                  contentType="title"
+                // Calculate tone dynamically? We can't access watch here easily inside JSX without a wrapper or using FormAIGenerator's internal watch.
+                // For now, let's keep it simple or we might need to update FormAIGenerator to watch 'type' passed as prop name.
+                // Since 'type' is a sibling field, we can't easily pass the value unless we watch it here.
+                />
+              ),
               rightElementPosition: 'inside-input',
             },
             {
               name: 'slug',
               label: t('posts.slug'),
               type: 'slug',
-              placeholder: 'post-slug',
+              placeholder: t('posts.slugPlaceholder', 'post-slug'),
               required: true,
               sourceField: 'title',
               disabled: readonly,
@@ -248,7 +225,16 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               validation: {
                 minLength: 10,
               },
-              rightElement: <PostContentGenerator availableLanguages={activeLanguages.map(l => ({ code: l.code, name: l.name }))} />,
+              rightElement: (
+                <FormAIGenerator
+                  targetFieldName="content"
+                  sourceFieldName="title"
+                  targetLabel={t('posts.content')}
+                  sourceLabel={t('posts.title')}
+                  entityType="post"
+                  contentType="description"
+                />
+              ),
             },
           ],
         },
@@ -334,7 +320,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               name: 'featuredImage',
               label: t('posts.featuredImage'),
               type: 'media-upload',
-              placeholder: 'Upload or drag and drop your featured image',
+              placeholder: t('posts.featuredImagePlaceholder', 'Upload or drag and drop your featured image'),
               required: false,
               disabled: readonly,
               accept: 'image/*',
@@ -344,13 +330,13 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
             },
             {
               name: 'imageGallery',
-              label: 'Image Gallery',
+              label: t('posts.imageGallery', 'Image Gallery'),
               type: 'image-gallery',
               required: false,
               disabled: readonly,
               maxImages: 15,
               maxSize: 10,
-              description: 'Add up to 15 images to create a gallery for this post. Images can be reordered by dragging.',
+              description: t('posts.imageGalleryDescription', 'Add up to 15 images to create a gallery for this post. Images can be reordered by dragging.'),
             },
           ],
         },
@@ -373,6 +359,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               placeholder: t('posts.metaTitlePlaceholder'),
               required: false,
               disabled: readonly,
+              fullWidth: true,
               validation: {
                 maxLength: 60,
               },
@@ -398,6 +385,7 @@ export const EditPostForm: React.FC<EditPostFormProps> = ({
               placeholder: t('posts.metaKeywordsPlaceholder'),
               required: false,
               disabled: readonly,
+              fullWidth: true,
               description: t('form.descriptions.meta_keywords_description'),
             },
           ],

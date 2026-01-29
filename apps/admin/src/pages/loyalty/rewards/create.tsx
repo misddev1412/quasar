@@ -1,19 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiSave, FiUpload, FiCalendar, FiGift } from 'react-icons/fi';
-import { Button } from '../../../components/common/Button';
-import { Card } from '../../../components/common/Card';
-import { Input } from '../../../components/common/Input';
-import { Textarea } from '../../../components/common/Textarea';
-import { Switch } from '../../../components/common/Switch';
-import { Select } from '../../../components/common/Select';
-import { DatePicker } from '../../../components/common/DatePicker';
-import BaseLayout from '../../../components/layout/BaseLayout';
+import { Button, Card, Input, Textarea, Switch, Select, DatePicker, Loading, Alert, AlertDescription, AlertTitle } from '../../../components/common';
+import { BaseLayout } from '../../../components/layout';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
 import { useToast } from '../../../contexts/ToastContext';
 import { trpc } from '../../../utils/trpc';
-import { Loading } from '../../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../../components/common/Alert';
 // import { FileUpload } from '../../../components/common/FileUpload';
 
 // Simple image upload component for URL-based image handling

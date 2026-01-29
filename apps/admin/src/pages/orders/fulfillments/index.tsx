@@ -14,15 +14,10 @@ import {
   FiEdit,
   FiMoreVertical,
 } from 'react-icons/fi';
-import { Button } from '../../../components/common/Button';
-import { Dropdown } from '../../../components/common/Dropdown';
-import { Table, Column } from '../../../components/common/Table';
-import { Badge } from '../../../components/common/Badge';
-import BaseLayout from '../../../components/layout/BaseLayout';
+import { Button, Dropdown, Table, Badge, StandardListPage, Loading, Breadcrumb } from '../../../components/common';
+import type { Column } from '../../../components/common';
 import { useToast } from '../../../contexts/ToastContext';
 import { useTranslationWithBackend } from '../../../hooks/useTranslationWithBackend';
-import { Loading } from '../../../components/common/Loading';
-import { Breadcrumb } from '../../../components/common/Breadcrumb';
 import { trpc } from '../../../utils/trpc';
 
 interface Fulfillment {
@@ -396,7 +391,7 @@ const OrderFulfillmentsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('fulfillments.title')}
         description={t('fulfillments.manage_order_fulfillments')}
         actions={actions}
@@ -405,14 +400,14 @@ const OrderFulfillmentsPage: React.FC = () => {
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   if (fulfillmentsError) {
     const errorMessage = fulfillmentsError.message || t('common.error', 'Error');
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('fulfillments.title')}
         description={t('fulfillments.manage_order_fulfillments')}
         actions={actions}
@@ -421,12 +416,12 @@ const OrderFulfillmentsPage: React.FC = () => {
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <p className="text-red-800">{errorMessage}</p>
         </div>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('fulfillments.title')}
       description={t('fulfillments.manage_order_fulfillments')}
       actions={actions}
@@ -546,7 +541,7 @@ const OrderFulfillmentsPage: React.FC = () => {
           }}
         />
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

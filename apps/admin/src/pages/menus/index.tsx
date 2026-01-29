@@ -1,18 +1,12 @@
 import React, { useMemo, useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FiPlus, FiMenu, FiRefreshCw, FiHome, FiFilter } from 'react-icons/fi';
-import { Select } from '../../components/common/Select';
-import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
-import BaseLayout from '../../components/layout/BaseLayout';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
+import { Select, StatisticsGrid, StandardListPage, Loading, Alert, AlertDescription, AlertTitle, Toggle } from '../../components/common';
+import type { StatisticData } from '../../components/common';
 import { useMenuPage, useMenuDragHandlers, flattenMenuTree, SUB_MENU_GROUP } from '../../hooks/useMenuPage';
 import { AdminMenu, MenuTreeNode } from '../../hooks/useMenusManager';
-import { MenuTable } from '../../components/menus/MenuTable';
-import { MenuFormModal } from '../../components/menus/MenuFormModal';
-import { menuStyles } from '../../components/menus/MenuStyles';
+import { MenuTable, MenuFormModal, menuStyles } from '../../components/menus';
 import { cn } from '@admin/lib/utils';
-import { Toggle } from '../../components/common/Toggle';
 import { useSettings } from '../../hooks/useSettings';
 import { useTranslation } from 'react-i18next';
 const SUB_MENU_VISIBILITY_SETTING_KEY = 'storefront.sub_menu_enabled';
@@ -304,7 +298,7 @@ const MenusPage: React.FC = () => {
 
   if (treeQuery.isLoading) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={pageTitle}
         description={pageDescription}
         actions={actionsWithIcons}
@@ -314,13 +308,13 @@ const MenusPage: React.FC = () => {
         <div className={cn(menuStyles.itemsCenter, menuStyles.justifyCenter, menuStyles.minH64)}>
           <Loading />
         </div>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   if (treeQuery.error) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={pageTitle}
         description={pageDescription}
         actions={actionsWithIcons}
@@ -331,12 +325,12 @@ const MenusPage: React.FC = () => {
           <AlertTitle>{t('common.error', 'Error')}</AlertTitle>
           <AlertDescription>{treeQuery.error.message}</AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={pageTitle}
       description={pageDescription}
       actions={actionsWithIcons}
@@ -429,7 +423,7 @@ const MenusPage: React.FC = () => {
           isSubmitting={createMenu.isPending || updateMenu.isPending}
         />
       </div>
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 

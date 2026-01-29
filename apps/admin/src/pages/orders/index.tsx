@@ -1,20 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FiPlus, FiMoreVertical, FiPackage, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiShoppingBag, FiDollarSign, FiTruck, FiCheck, FiX, FiClock, FiUser, FiHome } from 'react-icons/fi';
-import { Button } from '../../components/common/Button';
-import { Dropdown } from '../../components/common/Dropdown';
-import { StatisticsGrid, StatisticData } from '../../components/common/StatisticsGrid';
-import { Table, Column, SortDescriptor } from '../../components/common/Table';
-import BaseLayout from '../../components/layout/BaseLayout';
+import { Button, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle, Badge } from '../../components/common';
+import type { StatisticData, Column, SortDescriptor } from '../../components/common';
 import { useTranslationWithBackend } from '../../hooks/useTranslationWithBackend';
 import { useToast } from '../../contexts/ToastContext';
 import { trpc } from '../../utils/trpc';
-import { Loading } from '../../components/common/Loading';
-import { Alert, AlertDescription, AlertTitle } from '../../components/common/Alert';
 import { useTablePreferences } from '../../hooks/useTablePreferences';
-import { Badge } from '../../components/common/Badge';
-import { OrderTransactionModal } from '../../components/orders/OrderTransactionModal';
-import type { OrderTransactionContext } from '../../components/orders/OrderTransactionModal';
+import { OrderTransactionModal } from '../../components/orders';
+import type { OrderTransactionContext } from '../../components/orders';
 
 interface Order {
   id: string;
@@ -494,7 +488,7 @@ const OrdersPage: React.FC = () => {
     return columns.filter(column => visibleColumns.has(column.id));
   }, [columns, visibleColumns]);
 
-  // Actions for BaseLayout
+  // Actions for StandardListPage
   const actions = useMemo(() => [
     {
       label: t('orders.new_order'),
@@ -534,7 +528,7 @@ const OrdersPage: React.FC = () => {
 
   if (ordersLoading) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('orders.title')}
         description={t('orders.manage_and_track_customer_orders')}
         actions={actions}
@@ -544,13 +538,13 @@ const OrdersPage: React.FC = () => {
         <div className="flex items-center justify-center h-64">
           <Loading />
         </div>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   if (ordersError) {
     return (
-      <BaseLayout
+      <StandardListPage
         title={t('orders.title')}
         description={t('orders.manage_and_track_customer_orders')}
         actions={actions}
@@ -563,12 +557,12 @@ const OrdersPage: React.FC = () => {
             {ordersError.message || t('orders.something_went_wrong_loading_orders')}
           </AlertDescription>
         </Alert>
-      </BaseLayout>
+      </StandardListPage>
     );
   }
 
   return (
-    <BaseLayout
+    <StandardListPage
       title={t('orders.title')}
       description={t('orders.manage_and_track_customer_orders')}
       actions={actions}
@@ -702,7 +696,7 @@ const OrdersPage: React.FC = () => {
           }}
         />
       )}
-    </BaseLayout>
+    </StandardListPage>
   );
 };
 
