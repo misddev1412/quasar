@@ -1,7 +1,26 @@
 import React, { useMemo, useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiPlus, FiMenu, FiRefreshCw, FiHome, FiFilter, FiUpload } from 'react-icons/fi';
-import { Select, StatisticsGrid, StandardListPage, Loading, Alert, AlertDescription, AlertTitle, Toggle } from '@admin/components/common';
+import {
+  FiPlus,
+  FiMenu,
+  FiRefreshCw,
+  FiHome,
+  FiFilter,
+  FiUpload,
+  FiCheckCircle,
+  FiXCircle,
+  FiTrash2,
+} from 'react-icons/fi';
+import {
+  Select,
+  StatisticsGrid,
+  StandardListPage,
+  Loading,
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Toggle,
+} from '@admin/components/common';
 import type { StatisticData } from '@admin/components/common';
 import { useMenuPage, useMenuDragHandlers, flattenMenuTree, SUB_MENU_GROUP } from '@admin/hooks/useMenuPage';
 import { AdminMenu, MenuTreeNode } from '@admin/hooks/useMenusManager';
@@ -83,6 +102,8 @@ const MenusPage: React.FC = () => {
   const [pendingSubMenuVisibility, setPendingSubMenuVisibility] = useState<boolean | null>(null);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [togglingMenuIds, setTogglingMenuIds] = useState<Set<string>>(new Set());
+  const [selectedMenuIds, setSelectedMenuIds] = useState<Set<string | number>>(new Set());
+  const [isBulkActionRunning, setIsBulkActionRunning] = useState(false);
   const pageTitle = t('menus.page.title', 'Menu Management');
   const pageDescription = t('menus.page.description', 'Manage all navigation menus');
   const layoutBreadcrumbs = useMemo(() => (
@@ -183,8 +204,101 @@ const MenusPage: React.FC = () => {
 
   const handleMenuGroupChange = useCallback((value: string) => {
     setSelectedMenuGroup(value);
+    setSelectedMenuIds(new Set());
     navigate(`/menus/${value}`);
-  }, [navigate, setSelectedMenuGroup]);
+  }, [navigate, setSelectedMenuGroup, setSelectedMenuIds]);
+
+  const bulkActions = useMemo(() => [
+    {
+      label: t('menus.bulk.activate', 'Activate selected'),
+      value: 'activate',
+      variant: 'primary' as const,
+      disabled: isBulkActionRunning || updateMenu.isPending || deleteMenu.isPending,
+      icon: <FiCheckCircle className="w-4 h-4" />,
+    },
+    {
+      label: t('menus.bulk.deactivate', 'Deactivate selected'),
+      value: 'deactivate',
+      variant: 'outline' as const,
+      disabled: isBulkActionRunning || updateMenu.isPending || deleteMenu.isPending,
+      icon: <FiXCircle className="w-4 h-4" />,
+    },
+    {
+      label: t('menus.bulk.delete', 'Delete selected'),
+      value: 'delete',
+      variant: 'danger' as const,
+      disabled: isBulkActionRunning || updateMenu.isPending || deleteMenu.isPending,
+      icon: <FiTrash2 className="w-4 h-4" />,
+    },
+  ], [t, isBulkActionRunning, updateMenu.isPending, deleteMenu.isPending]);
+
+  const handleBulkAction = useCallback(async (action: 'activate' | 'deactivate' | 'delete') => {
+    if (!selectedMenuIds || selectedMenuIds.size === 0) {
+      addToast({
+        type: 'info',
+        title: t('menus.bulk.no_selection_title', 'Select menus'),
+        description: t('menus.bulk.no_selection_description', 'Choose at least one menu item to use bulk actions.'),
+      });
+      return;
+    }
+
+    if (action === 'delete') {
+      const confirmDelete = window.confirm(
+        t(
+          'menus.bulk.delete_confirm',
+          `Are you sure you want to delete ${selectedMenuIds.size} menu items? This action cannot be undone.`,
+        ),
+      );
+      if (!confirmDelete) {
+        return;
+      }
+    }
+
+    setIsBulkActionRunning(true);
+    const ids = Array.from(selectedMenuIds).map(String);
+    let successCount = 0;
+    const errors: string[] = [];
+
+    for (const id of ids) {
+      try {
+        if (action === 'delete') {
+          await deleteMenu.mutateAsync({ id });
+        } else {
+          await updateMenu.mutateAsync({ id, data: { isEnabled: action === 'activate' } });
+        }
+        successCount += 1;
+      } catch (error: any) {
+        errors.push(error?.message || 'Unknown error');
+      }
+    }
+
+    if (successCount > 0) {
+      const successMessages = {
+        activate: t('menus.bulk.activate_success', 'Activated {{count}} menus').replace('{{count}}', String(successCount)),
+        deactivate: t('menus.bulk.deactivate_success', 'Deactivated {{count}} menus').replace('{{count}}', String(successCount)),
+        delete: t('menus.bulk.delete_success', 'Deleted {{count}} menus').replace('{{count}}', String(successCount)),
+      };
+
+      addToast({
+        type: 'success',
+        title: t('common.success', 'Success'),
+        description: successMessages[action],
+      });
+    }
+
+    if (errors.length > 0) {
+      addToast({
+        type: 'error',
+        title: t('common.error', 'Error'),
+        description: t('menus.bulk.partial_error', '{{count}} items failed. Please try again.', {
+          count: errors.length,
+        }),
+      });
+    }
+
+    setSelectedMenuIds(new Set());
+    setIsBulkActionRunning(false);
+  }, [selectedMenuIds, addToast, t, deleteMenu, updateMenu]);
 
   // Drag handlers
   const dragHandlers = useMenuDragHandlers(
@@ -388,6 +502,10 @@ const MenusPage: React.FC = () => {
           updateVisibleColumns={updateVisibleColumns}
           searchValue={searchValue}
           setSearchValue={setSearchValue}
+          selectedIds={selectedMenuIds}
+          onSelectionChange={setSelectedMenuIds}
+          bulkActions={selectedMenuIds.size > 0 ? bulkActions : undefined}
+          onBulkAction={handleBulkAction}
           expandedNodes={expandedNodes}
           toggleNodeExpansion={toggleNodeExpansion}
           draggedMenuId={draggedMenuId}

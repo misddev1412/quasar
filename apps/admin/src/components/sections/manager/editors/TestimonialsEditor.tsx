@@ -41,6 +41,7 @@ interface TestimonialsConfig {
     headingBarHeight?: number;
     headingBorderRadius?: number;
     headingPaddingY?: number;
+    backgroundStyle?: 'surface' | 'muted' | 'contrast';
 }
 
 const DEFAULT_COLUMNS = 3;
@@ -138,6 +139,19 @@ export const TestimonialsEditor: React.FC<TestimonialsEditorProps> = ({ value, o
                                             value={config.description}
                                             onChange={(e) => handleChange({ description: e.target.value })}
                                         />
+                                    </label>
+
+                                    <label className="flex flex-col gap-2 text-sm text-gray-700">
+                                        <span className="font-medium">{t('sections.manager.config.brandShowcase.background', 'Background')}</span>
+                                        <select
+                                            className="border rounded-md px-3.5 py-2.5 text-sm !h-11 bg-white"
+                                            value={(value?.backgroundStyle as string) || 'surface'}
+                                            onChange={(e) => handleChange({ backgroundStyle: e.target.value as any })}
+                                        >
+                                            <option value="surface">{t('sections.manager.config.brandShowcase.backgroundSurface', 'Surface')}</option>
+                                            <option value="muted">{t('sections.manager.config.brandShowcase.backgroundMuted', 'Muted')}</option>
+                                            <option value="contrast">{t('sections.manager.config.brandShowcase.backgroundContrast', 'Contrast')}</option>
+                                        </select>
                                     </label>
                                 </div>
 

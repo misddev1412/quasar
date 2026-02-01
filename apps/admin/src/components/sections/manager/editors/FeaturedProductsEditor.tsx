@@ -34,6 +34,7 @@ interface FeaturedProductsConfig {
     headingPaddingY?: number;
     displayStyle?: string;
     itemsPerRow?: number;
+    backgroundStyle?: 'surface' | 'muted' | 'contrast';
 }
 
 const DEFAULT_LIMIT = 4;
@@ -326,6 +327,20 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
 
     return (
         <div className="space-y-6">
+            <label className="flex flex-col gap-1 text-sm text-gray-600">
+                {t('sections.manager.config.brandShowcase.background')}
+                <SelectComponent
+                    value={{ value: (value?.backgroundStyle as string) || 'surface', label: t(`sections.manager.config.brandShowcase.background${((value?.backgroundStyle as string) || 'surface').charAt(0).toUpperCase() + ((value?.backgroundStyle as string) || 'surface').slice(1)}`) }}
+                    onChange={(option) => handleConfigChange({ backgroundStyle: option?.value as 'surface' | 'muted' | 'contrast' })}
+                    options={[
+                        { value: 'surface', label: t('sections.manager.config.brandShowcase.backgroundSurface') },
+                        { value: 'muted', label: t('sections.manager.config.brandShowcase.backgroundMuted') },
+                        { value: 'contrast', label: t('sections.manager.config.brandShowcase.backgroundContrast') },
+                    ]}
+                    className="text-sm"
+                    styles={productSelectStyles}
+                />
+            </label>
             <Tabs
                 tabs={[
                     {

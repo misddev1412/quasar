@@ -16,6 +16,7 @@ export interface FeaturedProductsConfig {
   productIds?: string[];
   displayStyle?: 'grid' | 'carousel';
   itemsPerRow?: number;
+  backgroundStyle?: 'surface' | 'muted' | 'contrast';
   headingStyle?: 'default' | 'banner';
   headingBackgroundColor?: string;
   headingTextColor?: string;
@@ -326,8 +327,25 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
     );
   };
 
+  const backgroundStyle = config.backgroundStyle || 'surface';
+
+  const getSectionStyle = (): React.CSSProperties => {
+    switch (backgroundStyle) {
+      case 'muted':
+        return { backgroundColor: 'var(--storefront-surface)' };
+      case 'contrast':
+        return {
+          backgroundColor: 'var(--storefront-text)',
+          color: 'var(--storefront-body)',
+        };
+      case 'surface':
+      default:
+        return { backgroundColor: 'var(--storefront-body)' };
+    }
+  };
+
   return (
-    <section className="py-4 lg:py-16" style={{ backgroundColor: 'var(--storefront-surface)' }}>
+    <section className="py-4 lg:py-16" style={getSectionStyle()}>
       <SectionContainer paddingClassName="px-6 lg:px-8">
         {hasContent && (
           <SectionHeader

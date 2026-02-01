@@ -39,6 +39,16 @@ interface MenuTableProps {
   updateVisibleColumns: (columns: Set<string>) => void;
   searchValue: string;
   setSearchValue: (value: string) => void;
+  selectedIds?: Set<string | number>;
+  onSelectionChange?: (selectedIds: Set<string | number>) => void;
+  bulkActions?: Array<{
+    label: string;
+    value: string;
+    variant?: 'primary' | 'secondary' | 'danger' | 'outline';
+    icon?: React.ReactNode;
+    disabled?: boolean;
+  }>;
+  onBulkAction?: (action: string) => void;
   expandedNodes: Set<string>;
   toggleNodeExpansion: (nodeId: string) => void;
   draggedMenuId: string | null;
@@ -65,6 +75,10 @@ export const MenuTable: React.FC<MenuTableProps> = ({
   updateVisibleColumns,
   searchValue,
   setSearchValue,
+  selectedIds,
+  onSelectionChange,
+  bulkActions,
+  onBulkAction,
   expandedNodes,
   toggleNodeExpansion,
   draggedMenuId,
@@ -316,6 +330,10 @@ export const MenuTable: React.FC<MenuTableProps> = ({
       data={flatMenuList}
       searchValue={searchValue}
       onSearchChange={setSearchValue}
+      selectedIds={selectedIds}
+      onSelectionChange={onSelectionChange}
+      bulkActions={bulkActions}
+      onBulkAction={onBulkAction}
       searchPlaceholder="Search menu items..."
       visibleColumns={preferences.visibleColumns}
       onColumnVisibilityChange={(columnId, visible) => {

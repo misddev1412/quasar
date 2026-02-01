@@ -135,6 +135,19 @@ export const WhyChooseUsEditor: React.FC<WhyChooseUsEditorProps> = ({ value, onC
         <div className="space-y-6">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('sections.manager.config.brandShowcase.background', 'Background')}
+                    <select
+                        className="border rounded-md px-3.5 py-2.5 text-sm !h-11 bg-white"
+                        value={(value?.backgroundStyle as string) || 'surface'}
+                        onChange={(e) => updateConfig({ backgroundStyle: e.target.value })}
+                    >
+                        <option value="surface">{t('sections.manager.config.brandShowcase.backgroundSurface', 'Surface')}</option>
+                        <option value="muted">{t('sections.manager.config.brandShowcase.backgroundMuted', 'Muted')}</option>
+                        <option value="contrast">{t('sections.manager.config.brandShowcase.backgroundContrast', 'Contrast')}</option>
+                    </select>
+                </label>
+
+                <label className="flex flex-col gap-1 text-sm text-gray-600">
                     {t('sections.manager.config.whyChooseUs.numberOfColumns')}
                     <Input
                         type="number"

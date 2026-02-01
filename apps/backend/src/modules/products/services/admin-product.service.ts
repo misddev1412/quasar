@@ -1034,6 +1034,7 @@ export class AdminProductService {
         variantImageUrl: ['variantimage', 'variantimages', 'variantimageurl', 'variantimageurls', 'anhphienban', 'hinhanhphienban', 'variantthumbnail', 'variantthumbnailurl', 'thumbnailvariant', 'thumbnailvarianturl'],
         variantSortOrder: ['variantsortorder', 'variantsort', 'variantorder', 'sapxepvariant'],
         variantIsActive: ['variantisactive', 'variantactive', 'kichhoatvariant', 'activevariant'],
+        variantAttributes: ['variantattributes', 'thuoctinhphienban', 'variantattributesformatnamevaluenamevalue'],
       };
 
       const knownColumnKeys = new Set<string>();
@@ -1289,6 +1290,67 @@ export class AdminProductService {
         const attributeItems: Array<{ attributeId: string; attributeValueId: string; sortOrder: number }> = [];
         const seenAttributeIds = new Set<string>();
         let attributeError = false;
+
+        // Process variant attributes column first
+        const variantAttributesRaw = normalizeString(getFromRow(row, columnMap.variantAttributes));
+        if (variantAttributesRaw) {
+          const pairs = variantAttributesRaw.split('|');
+          for (const pair of pairs) {
+            const [attrName, attrValue] = pair.split(':').map(s => s.trim());
+            if (!attrName || !attrValue) continue;
+
+            const attributeKey = normalizeKey(attrName);
+            const attributeInfo = attributeLookupByKey.get(attributeKey);
+
+            if (attributeInfo) {
+              if (seenAttributeIds.has(attributeInfo.attribute.id)) {
+                // If already seen (e.g. from individual column), skip or overwrite? 
+                // Let's skip to respect individual column precedence if any, or just warn.
+                // For now, accept it if not seen.
+                continue;
+              }
+
+              let resolvedValue = null;
+              // Try direct UUID match
+              if (uuidRegex.test(attrValue)) {
+                const directValue = attributeValueById.get(attrValue.toLowerCase());
+                if (directValue && directValue.attributeId === attributeInfo.attribute.id) {
+                  resolvedValue = directValue;
+                }
+              }
+
+              // Try value lookup
+              if (!resolvedValue) {
+                const normalizedValueKey = normalizeKey(attrValue);
+                if (normalizedValueKey) {
+                  resolvedValue = attributeInfo.valueLookup.get(normalizedValueKey);
+                }
+              }
+
+              if (resolvedValue) {
+                seenAttributeIds.add(attributeInfo.attribute.id);
+                attributeItems.push({
+                  attributeId: attributeInfo.attribute.id,
+                  attributeValueId: resolvedValue.id,
+                  sortOrder: attributeItems.length
+                });
+              } else {
+                summary.errors.push({
+                  row: spreadsheetRowNumber,
+                  message: `Invalid value '${attrValue}' for attribute '${attrName}'.`
+                });
+                attributeError = true;
+              }
+            } else {
+              summary.errors.push({
+                row: spreadsheetRowNumber,
+                message: `Unknown attribute '${attrName}' in Variant Attributes column.`
+              });
+              attributeError = true;
+            }
+          }
+        }
+
 
         for (const [normalizedKey, cellValue] of Object.entries(row)) {
           if (knownColumnKeys.has(normalizedKey)) {

@@ -185,6 +185,20 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({ value, onChange }) =
                 <span className="text-xs text-gray-500">{t('sections.manager.config.banner.cardCountDescription')}</span>
             </label>
 
+            <label className="flex flex-col gap-1 text-sm text-gray-600">
+                {t('sections.manager.config.brandShowcase.background', 'Background')}
+                <Select
+                    value={(value?.backgroundStyle as string) || 'surface'}
+                    onChange={(val) => updateConfig({ backgroundStyle: val })}
+                    options={[
+                        { value: 'surface', label: t('sections.manager.config.brandShowcase.backgroundSurface', 'Surface') },
+                        { value: 'muted', label: t('sections.manager.config.brandShowcase.backgroundMuted', 'Muted') },
+                        { value: 'contrast', label: t('sections.manager.config.brandShowcase.backgroundContrast', 'Contrast') },
+                    ]}
+                    className="text-sm"
+                />
+            </label>
+
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <label className="flex flex-col gap-1 text-sm text-gray-600">
                     {t('sections.manager.config.banner.cardBorderRadius')}

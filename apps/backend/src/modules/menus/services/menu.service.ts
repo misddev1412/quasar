@@ -113,11 +113,17 @@ export class MenuService {
     const existingMenu = await this.findById(id);
 
     // Check if new position conflicts with another menu
-    if (updateMenuDto.position !== undefined && updateMenuDto.position !== existingMenu.position) {
+    const resolvedParentId =
+      updateMenuDto.parentId !== undefined ? updateMenuDto.parentId : (existingMenu.parentId ?? null);
+    const isSameParent = (existingMenu.parentId ?? null) === (resolvedParentId ?? null);
+    const isSamePosition =
+      updateMenuDto.position !== undefined && updateMenuDto.position === existingMenu.position;
+
+    if (updateMenuDto.position !== undefined && !(isSamePosition && isSameParent)) {
       const conflictingMenu = await this.findMenuByPosition(
         existingMenu.menuGroup,
         updateMenuDto.position,
-        updateMenuDto.parentId,
+        resolvedParentId,
         id, // Exclude current menu from conflict check
       );
       if (conflictingMenu) {
@@ -145,9 +151,11 @@ export class MenuService {
   async delete(id: string): Promise<void> {
     const menu = await this.findById(id);
 
-    // Check if menu has children
+    // Recursively delete children
     if (menu.children && menu.children.length > 0) {
-      throw new ConflictException('Cannot delete menu item with children. Delete children first.');
+      for (const child of menu.children) {
+        await this.delete(child.id);
+      }
     }
 
     await this.menuRepository.delete(id);
@@ -286,11 +294,12 @@ export class MenuService {
     excludeId?: string,
   ): Promise<MenuEntity | null> {
     const allMenus = await this.menuRepository.findAll();
+    const normalizedParentId = parentId ?? null;
 
     const conflictingMenu = allMenus.find(menu =>
       menu.menuGroup === menuGroup &&
       menu.position === position &&
-      (menu.parent?.id === parentId || (menu.parent === null && parentId === undefined)) &&
+      ((menu.parentId ?? null) === normalizedParentId) &&
       menu.id !== excludeId
     );
 
@@ -457,6 +466,7 @@ export class MenuService {
 
     // 1. Template Sheet
     const templateHeaders = isVi ? [
+      'Mã Menu (UUID)',
       'Nhóm Menu',
       'Loại',
       'URL',
@@ -474,6 +484,7 @@ export class MenuService {
       'Số cột Mega Menu',
       'Mã Menu cha (UUID)',
     ] : [
+      'Menu ID (UUID)',
       'Menu Group',
       'Type',
       'URL',
@@ -493,6 +504,7 @@ export class MenuService {
     ];
 
     const templateSample = isVi ? {
+      'Mã Menu (UUID)': '',
       'Nhóm Menu': 'main',
       'Loại': 'link',
       'URL': '/',
@@ -510,6 +522,7 @@ export class MenuService {
       'Số cột Mega Menu': '',
       'Mã Menu cha (UUID)': '',
     } : {
+      'Menu ID (UUID)': '',
       'Menu Group': 'main',
       'Type': 'link',
       'URL': '/',
@@ -536,6 +549,7 @@ export class MenuService {
       ['Hướng dẫn nhập Menu'],
       [''],
       ['1. THÔNG TIN CƠ BẢN'],
+      ['- Mã Menu: UUID của menu (nếu đã tồn tại sẽ update, nếu chưa có sẽ tạo mới với UUID đó)'],
       ['- Nhóm Menu: main, footer, top, mobile, v.v.'],
       ['- Loại: link, product, category, brand, v.v.'],
       ['- Đích (Target): _self (Trang hiện tại), _blank (Tab mới)'],
@@ -546,12 +560,14 @@ export class MenuService {
       ['- Mã Menu cha: UUID của menu cha nếu muốn tạo menu con'],
       [''],
       ['3. SHEET BẢN DỊCH (Translations)'],
+      ['- Mã Menu (UUID): Khuyến nghị dùng để map dịch chính xác'],
       ['- Nhãn (Label): Tên hiển thị của menu'],
       ['- Ngôn ngữ: vi, en, v.v.'],
     ] : [
       ['Menu Import Instructions'],
       [''],
       ['1. BASIC INFO'],
+      ['- Menu ID: UUID of the menu (updates if found, creates new with this ID if missing)'],
       ['- Menu Group: main, footer, top, mobile, etc.'],
       ['- Type: link, product, category, brand, etc.'],
       ['- Target: _self, _blank'],
@@ -562,6 +578,7 @@ export class MenuService {
       ['- Parent ID: UUID of parent menu for submenus'],
       [''],
       ['3. TRANSLATIONS SHEET'],
+      ['- Menu ID (UUID): Recommended for accurate mapping'],
       ['- Label: Display name of the menu'],
       ['- Locale: en, vi, etc.'],
     ];
@@ -571,6 +588,7 @@ export class MenuService {
 
     // 3. Translations Sheet
     const translationHeaders = isVi ? [
+      'Mã Menu (UUID)',
       'Nhóm Menu',
       'Vị trí',
       'Ngôn ngữ',
@@ -578,6 +596,7 @@ export class MenuService {
       'Mô tả',
       'HTML Tùy chỉnh',
     ] : [
+      'Menu ID (UUID)',
       'Menu Group',
       'Position',
       'Locale',
@@ -587,6 +606,7 @@ export class MenuService {
     ];
 
     const translationSample = isVi ? {
+      'Mã Menu (UUID)': '',
       'Nhóm Menu': 'main',
       'Vị trí': 0,
       'Ngôn ngữ': 'vi',
@@ -594,6 +614,7 @@ export class MenuService {
       'Mô tả': 'Về trang chủ',
       'HTML Tùy chỉnh': '',
     } : {
+      'Menu ID (UUID)': '',
       'Menu Group': 'main',
       'Position': 0,
       'Locale': 'en',
@@ -660,6 +681,8 @@ export class MenuService {
           return trimmed;
         };
 
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
         const buffer = Buffer.from(sanitizeBase64(fileData), 'base64');
         const workbook = XLSX.read(buffer, { type: 'buffer' });
 
@@ -683,73 +706,193 @@ export class MenuService {
 
         summary.totalRows = rawRows.length;
 
-        for (let i = 0; i < rawRows.length; i++) {
-          const row = rawRows[i];
-          const rowNumber = i + 2;
+        const normalizeTranslationKey = (input: string | null | undefined): string => {
+          if (!input) return '';
+          return String(input).trim().toLowerCase();
+        };
 
-          try {
-            // Find translations for this row
-            const menuGroup = row['Nhóm Menu'] || row['Menu Group'];
-            const position = parseInt(row['Vị trí'] || row['Position']);
+        const translationByMenuId = new Map<string, Record<string, any>>();
+        const translationByGroupPosition = new Map<string, Record<string, any>>();
 
-            const rowTranslations: Record<string, any> = {};
-            translationRows
-              .filter(t => (t['Nhóm Menu'] || t['Menu Group']) === menuGroup && parseInt(t['Vị trí'] || t['Position']) === position)
-              .forEach(t => {
-                const locale = t['Ngôn ngữ'] || t['Locale'];
-                rowTranslations[locale] = {
-                  label: t['Nhãn'] || t['Label'],
-                  description: t['Mô tả'] || t['Description'],
-                  customHtml: t['HTML Tùy chỉnh'] || t['Custom HTML'],
-                };
-              });
+        translationRows.forEach((t) => {
+          const locale = t['Ngôn ngữ'] || t['Locale'];
+          if (!locale) {
+            return;
+          }
+          const translationPayload = {
+            label: t['Nhãn'] || t['Label'],
+            description: t['Mô tả'] || t['Description'],
+            customHtml: t['HTML Tùy chỉnh'] || t['Custom HTML'],
+          };
 
-            const menuData: any = {
-              menuGroup,
-              type: row['Loại'] || row['Type'],
-              url: row['URL'],
-              referenceId: row['Mã tham chiếu'] || row['Reference ID'],
-              target: row['Đích (Target)'] || row['Target'],
-              position,
-              isEnabled: String(row['Đã bật'] || row['Is Enabled']).toLowerCase() === 'true',
-              icon: row['Biểu tượng'] || row['Icon'],
-              textColor: row['Màu chữ'] || row['Text Color'],
-              backgroundColor: row['Màu nền'] || row['Background Color'],
-              borderColor: row['Màu viền'] || row['Border Color'],
-              borderWidth: row['Độ rộng viền'] || row['Border Width'],
-              config: JSON.parse(row['Cấu hình (JSON)'] || row['Config (JSON)'] || '{}'),
-              isMegaMenu: String(row['Mega Menu'] || row['Is Mega Menu']).toLowerCase() === 'true',
-              megaMenuColumns: row['Số cột Mega Menu'] || row['Mega Menu Columns'] ? parseInt(row['Số cột Mega Menu'] || row['Mega Menu Columns']) : undefined,
-              parentId: row['Mã Menu cha (UUID)'] || row['Parent ID (UUID)'] || undefined,
-              translations: rowTranslations,
-            };
-
-            if (dryRun) {
-              summary.imported++;
-              summary.details.push({
-                row: rowNumber,
-                label: rowTranslations['vi']?.label || rowTranslations['en']?.label || 'Unknown',
-                status: 'IMPORTED',
-                message: 'Dry-run: Validated successfully',
-              });
-              continue;
+          const translationMenuIdRaw = t['Mã Menu (UUID)'] || t['Menu ID (UUID)'];
+          const translationMenuId = translationMenuIdRaw ? String(translationMenuIdRaw).trim() : '';
+          if (translationMenuId) {
+            const key = normalizeTranslationKey(translationMenuId);
+            if (!translationByMenuId.has(key)) {
+              translationByMenuId.set(key, {});
             }
+            translationByMenuId.get(key)![locale] = translationPayload;
+            return;
+          }
 
-            // Check if exists
+          const translationMenuGroup = t['Nhóm Menu'] || t['Menu Group'];
+          const translationPosition = parseInt(t['Vị trí'] || t['Position']);
+          if (!translationMenuGroup || Number.isNaN(translationPosition)) {
+            return;
+          }
+          const groupKey = normalizeTranslationKey(`${translationMenuGroup}|${translationPosition}`);
+          if (!translationByGroupPosition.has(groupKey)) {
+            translationByGroupPosition.set(groupKey, {});
+          }
+          translationByGroupPosition.get(groupKey)![locale] = translationPayload;
+        });
+
+        const buildMenuDataFromRow = (row: Record<string, any>) => {
+          const menuIdRaw = row['Mã Menu (UUID)'] || row['Menu ID (UUID)'];
+          const menuId = menuIdRaw ? String(menuIdRaw).trim() : undefined;
+          if (menuId && !uuidRegex.test(menuId)) {
+            throw new Error('Invalid Menu ID (UUID)');
+          }
+
+          const menuGroup = row['Nhóm Menu'] || row['Menu Group'];
+          const position = parseInt(row['Vị trí'] || row['Position']);
+
+          const rowTranslations: Record<string, any> = {};
+          if (menuId) {
+            const lookupKey = normalizeTranslationKey(menuId);
+            const mapped = translationByMenuId.get(lookupKey);
+            if (mapped) {
+              Object.assign(rowTranslations, mapped);
+            }
+          }
+          if (!menuId || Object.keys(rowTranslations).length === 0) {
+            const lookupKey = normalizeTranslationKey(`${menuGroup}|${position}`);
+            const mapped = translationByGroupPosition.get(lookupKey);
+            if (mapped) {
+              Object.assign(rowTranslations, mapped);
+            }
+          }
+
+          const menuData: any = {
+            ...(menuId ? { id: menuId } : {}),
+            menuGroup,
+            type: row['Loại'] || row['Type'],
+            url: row['URL'],
+            referenceId: row['Mã tham chiếu'] || row['Reference ID'],
+            target: row['Đích (Target)'] || row['Target'],
+            position,
+            isEnabled: String(row['Đã bật'] || row['Is Enabled']).toLowerCase() === 'true',
+            icon: row['Biểu tượng'] || row['Icon'],
+            textColor: row['Màu chữ'] || row['Text Color'],
+            backgroundColor: row['Màu nền'] || row['Background Color'],
+            borderColor: row['Màu viền'] || row['Border Color'],
+            borderWidth: row['Độ rộng viền'] || row['Border Width'],
+            config: JSON.parse(row['Cấu hình (JSON)'] || row['Config (JSON)'] || '{}'),
+            isMegaMenu: String(row['Mega Menu'] || row['Is Mega Menu']).toLowerCase() === 'true',
+            megaMenuColumns: row['Số cột Mega Menu'] || row['Mega Menu Columns'] ? parseInt(row['Số cột Mega Menu'] || row['Mega Menu Columns']) : undefined,
+            parentId: row['Mã Menu cha (UUID)'] || row['Parent ID (UUID)'] || undefined,
+            translations: rowTranslations,
+          };
+
+          return { menuId, menuGroup, position, menuData, rowTranslations };
+        };
+
+        const rowsWithMeta = rawRows.map((row, idx) => ({
+          row,
+          rowNumber: idx + 2,
+        }));
+
+        const rowsWithIds: Array<{
+          row: Record<string, any>;
+          rowNumber: number;
+        }> = [];
+        const rowsWithoutIds: Array<{
+          row: Record<string, any>;
+          rowNumber: number;
+        }> = [];
+
+        rowsWithMeta.forEach(entry => {
+          const menuIdRaw = entry.row['Mã Menu (UUID)'] || entry.row['Menu ID (UUID)'];
+          const menuId = menuIdRaw ? String(menuIdRaw).trim() : '';
+          if (menuId) {
+            rowsWithIds.push(entry);
+          } else {
+            rowsWithoutIds.push(entry);
+          }
+        });
+
+        const pendingById = new Map<string, { row: Record<string, any>; rowNumber: number }>();
+        rowsWithIds.forEach(entry => {
+          const menuIdRaw = entry.row['Mã Menu (UUID)'] || entry.row['Menu ID (UUID)'];
+          const menuId = menuIdRaw ? String(menuIdRaw).trim() : '';
+          if (menuId) {
+            pendingById.set(menuId, entry);
+          }
+        });
+
+        const processedIds = new Set<string>();
+        let processedRows = 0;
+
+        const updateProgress = async () => {
+          const progress = Math.round((processedRows / rawRows.length) * 100);
+          const processedItems = summary.imported + summary.updated + summary.skipped;
+          const failedItems = summary.errors.length;
+          await this.importJobService.updateProgress(job.id, progress, processedItems, failedItems, summary.totalRows);
+        };
+
+        const processEntry = async (entry: { row: Record<string, any>; rowNumber: number }) => {
+          const { menuId, menuGroup, position, menuData, rowTranslations } = buildMenuDataFromRow(entry.row);
+
+          if (dryRun) {
+            summary.imported++;
+            summary.details.push({
+              row: entry.rowNumber,
+              label: rowTranslations['vi']?.label || rowTranslations['en']?.label || 'Unknown',
+              status: 'IMPORTED',
+              message: 'Dry-run: Validated successfully',
+            });
+            processedRows += 1;
+            await updateProgress();
+            return;
+          }
+
+          let existingById: MenuEntity | null = null;
+          if (menuId) {
+            existingById = await this.menuRepository.findById(menuId);
+          }
+
+          if (existingById) {
+            await this.update(existingById.id, menuData);
+            summary.updated++;
+            summary.details.push({
+              row: entry.rowNumber,
+              label: rowTranslations['vi']?.label || rowTranslations['en']?.label || 'Updated',
+              status: 'UPDATED',
+            });
+          } else if (menuId) {
+            await this.create(menuData);
+            summary.imported++;
+            summary.details.push({
+              row: entry.rowNumber,
+              label: rowTranslations['vi']?.label || rowTranslations['en']?.label || 'Imported',
+              status: 'IMPORTED',
+            });
+          } else {
             const existing = await this.findMenuByPosition(menuGroup, position, menuData.parentId);
             if (existing) {
               if (overrideExisting) {
                 await this.update(existing.id, menuData);
                 summary.updated++;
                 summary.details.push({
-                  row: rowNumber,
+                  row: entry.rowNumber,
                   label: rowTranslations['vi']?.label || rowTranslations['en']?.label || 'Updated',
                   status: 'UPDATED',
                 });
               } else {
                 summary.skipped++;
                 summary.details.push({
-                  row: rowNumber,
+                  row: entry.rowNumber,
                   label: rowTranslations['vi']?.label || rowTranslations['en']?.label || 'Skipped',
                   status: 'SKIPPED',
                   message: 'Position already taken. Use override to update.',
@@ -759,26 +902,83 @@ export class MenuService {
               await this.create(menuData);
               summary.imported++;
               summary.details.push({
-                row: rowNumber,
+                row: entry.rowNumber,
                 label: rowTranslations['vi']?.label || rowTranslations['en']?.label || 'Imported',
                 status: 'IMPORTED',
               });
             }
+          }
 
-            // Update job progress
-            const progress = Math.round(((i + 1) / rawRows.length) * 100);
-            const processedItems = summary.imported + summary.updated + summary.skipped;
-            const failedItems = summary.errors.length;
-            await this.importJobService.updateProgress(job.id, progress, processedItems, failedItems, summary.totalRows);
+          processedRows += 1;
+          await updateProgress();
+        };
 
+        // Process rows with IDs in parent-before-child order
+        while (pendingById.size > 0) {
+          let progressed = false;
+          for (const [menuId, entry] of pendingById) {
+            const parentId = entry.row['Mã Menu cha (UUID)'] || entry.row['Parent ID (UUID)'] || undefined;
+            const parentIdStr = parentId ? String(parentId).trim() : '';
+
+            if (parentIdStr && pendingById.has(parentIdStr) && !processedIds.has(parentIdStr)) {
+              continue; // wait for parent
+            }
+
+            try {
+              await processEntry(entry);
+              processedIds.add(menuId);
+            } catch (err: any) {
+              summary.errors.push({ row: entry.rowNumber, message: err.message });
+              summary.details.push({
+                row: entry.rowNumber,
+                label: 'Error',
+                status: 'ERROR',
+                message: err.message,
+              });
+              processedRows += 1;
+              await updateProgress();
+            }
+
+            pendingById.delete(menuId);
+            progressed = true;
+          }
+
+          if (!progressed) {
+            // Cyclic or missing parents in the same file
+            for (const [menuId, entry] of pendingById) {
+              const parentId = entry.row['Mã Menu cha (UUID)'] || entry.row['Parent ID (UUID)'] || undefined;
+              const parentIdStr = parentId ? String(parentId).trim() : '';
+              const message = parentIdStr
+                ? `Parent menu ${parentIdStr} not found for menu ${menuId}`
+                : `Unable to resolve parent for menu ${menuId}`;
+              summary.errors.push({ row: entry.rowNumber, message });
+              summary.details.push({
+                row: entry.rowNumber,
+                label: 'Error',
+                status: 'ERROR',
+                message,
+              });
+              processedRows += 1;
+            }
+            await updateProgress();
+            break;
+          }
+        }
+
+        // Process rows without IDs in original order
+        for (const entry of rowsWithoutIds) {
+          try {
+            await processEntry(entry);
           } catch (err: any) {
-            summary.errors.push({ row: rowNumber, message: err.message });
+            summary.errors.push({ row: entry.rowNumber, message: err.message });
             summary.details.push({
-              row: rowNumber,
+              row: entry.rowNumber,
               label: 'Error',
               status: 'ERROR',
               message: err.message,
             });
+            processedRows += 1;
+            await updateProgress();
           }
         }
 

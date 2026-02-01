@@ -145,7 +145,7 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
   const sectionTitle = translation?.title === null ? '' : (translation?.title || t('sections.brands.title'));
   const sectionSubtitle = translation?.subtitle === null ? '' : (translation?.subtitle || t('sections.brands.subtitle'));
   const sectionDescription = translation?.description === null ? '' : (translation?.description || t('sections.brands.description'));
-  const backgroundClass = backgroundVariants[backgroundStyle] || backgroundVariants.surface;
+
   const isContrast = backgroundStyle === 'contrast';
   const subtleTextClass = isContrast ? 'text-gray-300' : 'text-gray-500';
   const mutedTextClass = isContrast ? 'text-white/70' : 'text-gray-500';
@@ -156,6 +156,22 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
   const logoTilePlaceholderClass = `${logoTileBaseClass} rounded-2xl ${isContrast ? 'bg-white/10' : 'bg-gray-100'
     } animate-pulse`;
   const logoFallbackBadgeClass = isContrast ? 'bg-white/15 text-white' : 'bg-slate-100 text-slate-600';
+
+  const getSectionStyle = (): React.CSSProperties => {
+    switch (backgroundStyle) {
+      case 'muted':
+        return { backgroundColor: 'var(--storefront-surface)', color: 'var(--storefront-text)' };
+      case 'contrast':
+        return {
+          backgroundColor: 'var(--storefront-text)',
+          color: 'var(--storefront-body)',
+        };
+      case 'surface':
+      default:
+        return { backgroundColor: 'var(--storefront-body)', color: 'var(--storefront-text)' };
+    }
+  };
+
   const wrapWithCard = (content: React.ReactNode, extraClass?: string) => (
     <div className={`${cardShellClass}${extraClass ? ` ${extraClass}` : ''}`}>
       {content}
@@ -282,7 +298,6 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
     }
 
     return wrapWithCard(
-
       <div className={`
         flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 snap-x snap-mandatory 
         scrollbar-hide scroll-smooth
@@ -296,13 +311,12 @@ export const BrandShowcaseSection: React.FC<BrandShowcaseSectionProps> = ({ conf
         ))}
       </div>
     );
-
   };
 
   const hasHeaderContent = sectionTitle || sectionSubtitle || sectionDescription;
 
   return (
-    <section className={`${backgroundClass} py-16`}>
+    <section style={getSectionStyle()} className="py-4 lg:py-16">
       <SectionContainer>
         {hasHeaderContent && (
           <SectionHeader

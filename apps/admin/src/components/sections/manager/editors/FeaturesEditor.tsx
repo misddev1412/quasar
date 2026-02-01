@@ -32,6 +32,19 @@ export const FeaturesEditor: React.FC<FeaturesEditorProps> = ({ value, onChange 
 
     return (
         <div className="space-y-4">
+            <label className="flex flex-col gap-1 text-sm text-gray-600">
+                {t('sections.manager.config.brandShowcase.background')}
+                <Select
+                    value={(value?.backgroundStyle as string) || 'surface'}
+                    onChange={(style) => onChange({ ...(value ?? {}), backgroundStyle: style })}
+                    options={[
+                        { value: 'surface', label: t('sections.manager.config.brandShowcase.backgroundSurface') },
+                        { value: 'muted', label: t('sections.manager.config.brandShowcase.backgroundMuted') },
+                        { value: 'contrast', label: t('sections.manager.config.brandShowcase.backgroundContrast') },
+                    ]}
+                    className="text-sm"
+                />
+            </label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <label className="flex flex-col gap-1 text-sm text-gray-600">
                     {t('sections.manager.config.features.layoutStyle')}

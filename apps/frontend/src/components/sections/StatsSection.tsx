@@ -19,7 +19,7 @@ export interface StatItemConfig {
 export interface StatsSectionConfig {
   layout?: 'grid' | 'counter';
   columns?: number;
-  background?: 'surface' | 'primary' | 'dark';
+  backgroundStyle?: 'surface' | 'muted' | 'contrast';
   stats?: StatItemConfig[];
 }
 
@@ -70,7 +70,22 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ config, translation 
   const stats = Array.isArray(config.stats) && config.stats.length > 0 ? config.stats : fallbackStats;
   const layout = config.layout === 'counter' ? 'counter' : 'grid';
   const columns = clampColumns(config.columns);
-  const backgroundClass = backgroundVariants[config.background || 'surface'] || backgroundVariants.surface;
+
+  const backgroundStyle = config.backgroundStyle || 'surface';
+  const getSectionStyle = (): React.CSSProperties => {
+    switch (backgroundStyle) {
+      case 'muted':
+        return { backgroundColor: 'var(--storefront-surface)' };
+      case 'contrast':
+        return {
+          backgroundColor: 'var(--storefront-text)',
+          color: 'var(--storefront-body)',
+        };
+      case 'surface':
+      default:
+        return { backgroundColor: 'var(--storefront-body)' };
+    }
+  };
 
   const title = translation?.title === null ? '' : (translation?.title || t('sections.stats.title'));
   const subtitle = translation?.subtitle === null ? '' : (translation?.subtitle || t('sections.stats.subtitle'));
@@ -79,7 +94,7 @@ export const StatsSection: React.FC<StatsSectionProps> = ({ config, translation 
   const gridClass = gridColumnClassMap[columns] || gridColumnClassMap[4];
 
   return (
-    <section className={`${backgroundClass} py-4 lg:py-16`}>
+    <section className="py-4 lg:py-16" style={getSectionStyle()}>
       <SectionContainer>
         <div className="mb-12 max-w-3xl">
           {subtitle && <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-500 dark:text-blue-300">{subtitle}</p>}

@@ -190,6 +190,20 @@ export const StatsEditor: React.FC<StatsEditorProps> = ({ value, onChange }) => 
                     />
                     <span className="text-xs text-gray-500">{t('sections.manager.config.stats.columnsDescription')}</span>
                 </label>
+
+                <label className="flex flex-col gap-1 text-sm text-gray-600">
+                    {t('sections.manager.config.brandShowcase.background', 'Background')}
+                    <Select
+                        value={(value?.backgroundStyle as string) || 'surface'}
+                        onChange={(val) => onChange({ ...value, backgroundStyle: val })}
+                        options={[
+                            { value: 'surface', label: t('sections.manager.config.brandShowcase.backgroundSurface', 'Surface') },
+                            { value: 'muted', label: t('sections.manager.config.brandShowcase.backgroundMuted', 'Muted') },
+                            { value: 'contrast', label: t('sections.manager.config.brandShowcase.backgroundContrast', 'Contrast') },
+                        ]}
+                        className="text-sm"
+                    />
+                </label>
             </div>
 
             <div className="rounded-lg border border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-800">

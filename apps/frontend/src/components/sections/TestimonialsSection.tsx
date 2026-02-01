@@ -31,6 +31,7 @@ export interface TestimonialsSectionConfig {
   headingBarHeight?: number;
   headingBorderRadius?: number;
   headingPaddingY?: number;
+  backgroundStyle?: 'surface' | 'muted' | 'contrast';
 }
 
 interface TestimonialsSectionProps {
@@ -123,8 +124,24 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ config
     }
   })();
 
+  const backgroundStyle = config.backgroundStyle || 'surface';
+  const getSectionStyle = (): React.CSSProperties => {
+    switch (backgroundStyle) {
+      case 'muted':
+        return { backgroundColor: 'var(--storefront-surface)' };
+      case 'contrast':
+        return {
+          backgroundColor: 'var(--storefront-text)',
+          color: 'var(--storefront-body)',
+        };
+      case 'surface':
+      default:
+        return { backgroundColor: 'var(--storefront-body)' };
+    }
+  };
+
   return (
-    <section className="bg-gray-950/90 py-4 lg:py-16 text-white">
+    <section className="py-4 lg:py-16" style={getSectionStyle()}>
       <SectionContainer>
         <SectionHeader
           title={sectionTitle}
@@ -138,7 +155,6 @@ export const TestimonialsSection: React.FC<TestimonialsSectionProps> = ({ config
           headingBarHeight={config.headingBarHeight}
           headingBorderRadius={config.headingBorderRadius}
           headingPaddingY={config.headingPaddingY}
-          theme="dark"
           className="mb-12"
         />
 

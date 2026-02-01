@@ -36,6 +36,7 @@ export interface BannerGridConfig {
   labelTextTransform?: BannerLabelTextTransform;
   hideOverlay?: boolean;
   hideLabel?: boolean;
+  backgroundStyle?: 'surface' | 'muted' | 'contrast';
 }
 
 interface BannerGridSectionProps {
@@ -139,6 +140,22 @@ export const BannerGridSection: React.FC<BannerGridSectionProps> = ({ config, tr
     labelBadgeStyleVars['--banner-label-text-dark'] = labelTextColorDark;
   }
 
+  const backgroundStyle = config.backgroundStyle || 'surface';
+  const getSectionStyle = (): React.CSSProperties => {
+    switch (backgroundStyle) {
+      case 'muted':
+        return { backgroundColor: 'var(--storefront-surface)' };
+      case 'contrast':
+        return {
+          backgroundColor: 'var(--storefront-text)',
+          color: 'var(--storefront-body)',
+        };
+      case 'surface':
+      default:
+        return { backgroundColor: 'var(--storefront-body)' };
+    }
+  };
+
   const labelBadgeInlineStyle: React.CSSProperties & { [key: `--${string}`]: string } = {
     ...labelBadgeStyleVars,
   };
@@ -167,22 +184,22 @@ export const BannerGridSection: React.FC<BannerGridSectionProps> = ({ config, tr
   const hasHeaderContent = sectionTitle || sectionSubtitle || sectionDescription;
 
   return (
-    <section className="py-4 lg:py-16" style={{ backgroundColor: 'var(--storefront-surface)' }}>
+    <section className="py-4 lg:py-16" style={getSectionStyle()}>
       <SectionContainer>
         {hasHeaderContent && (
           <div className="mb-10 max-w-3xl">
             {sectionSubtitle && (
-              <p className="text-sm font-semibold uppercase tracking-wide" style={{ color: 'var(--color-primary)' }}>
+              <p className="text-sm font-semibold uppercase tracking-wide opacity-80" style={{ color: 'var(--color-primary)' }}>
                 {sectionSubtitle}
               </p>
             )}
             {sectionTitle && (
-              <h2 className="mt-3 text-3xl font-semibold" style={{ color: 'var(--storefront-text)' }}>
+              <h2 className="mt-3 text-3xl font-semibold">
                 {sectionTitle}
               </h2>
             )}
             {sectionDescription && (
-              <p className="mt-3 text-base" style={{ color: 'var(--storefront-muted)' }}>
+              <p className="mt-3 text-base opacity-75">
                 {sectionDescription}
               </p>
             )}
@@ -194,8 +211,6 @@ export const BannerGridSection: React.FC<BannerGridSectionProps> = ({ config, tr
             className="rounded-xl border border-dashed px-6 py-10 text-center text-sm"
             style={{
               borderColor: 'var(--storefront-border)',
-              backgroundColor: 'var(--storefront-body)',
-              color: 'var(--storefront-muted)',
             }}
           >
             {t('sections.banner.empty')}

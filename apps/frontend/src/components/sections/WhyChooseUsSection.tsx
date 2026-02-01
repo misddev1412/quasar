@@ -40,7 +40,9 @@ export interface WhyChooseUsConfig {
   headingBarHeight?: number;
   headingBorderRadius?: number;
   headingPaddingY?: number;
+
   items?: WhyChooseUsItemConfig[];
+  backgroundStyle?: 'surface' | 'muted' | 'contrast';
 }
 
 interface WhyChooseUsSectionProps {
@@ -249,13 +251,29 @@ export const WhyChooseUsSection: React.FC<WhyChooseUsSectionProps> = ({ config, 
     gridStyle.gap = config.gap;
   }
 
+  const backgroundStyle = config.backgroundStyle || 'surface';
+  const getSectionStyle = (): React.CSSProperties => {
+    switch (backgroundStyle) {
+      case 'muted':
+        return { backgroundColor: 'var(--storefront-surface)' };
+      case 'contrast':
+        return {
+          backgroundColor: 'var(--storefront-text)',
+          color: 'var(--storefront-body)',
+        };
+      case 'surface':
+      default:
+        return { backgroundColor: 'var(--storefront-body)' };
+    }
+  };
+
   const sectionTitle = translation?.title === null ? '' : (translation?.title || t('sections.whyChooseUs.title'));
   const sectionSubtitle = translation?.subtitle === null ? '' : (translation?.subtitle || t('sections.whyChooseUs.subtitle'));
   const sectionDescription = translation?.description === null ? '' : (translation?.description || t('sections.whyChooseUs.description'));
   const hasHeaderContent = sectionTitle || sectionSubtitle || sectionDescription;
 
   return (
-    <section className="py-4 lg:py-16">
+    <section className="py-4 lg:py-16" style={getSectionStyle()}>
       <SectionContainer>
         {hasHeaderContent && (
           <SectionHeader

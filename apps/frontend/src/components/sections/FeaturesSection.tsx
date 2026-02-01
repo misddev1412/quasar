@@ -30,6 +30,7 @@ export interface FeaturesSectionConfig {
   columns?: number;
   highlight?: FeatureHighlightConfig;
   items?: FeatureItemConfig[];
+  backgroundStyle?: 'surface' | 'muted' | 'contrast';
   cardBackground?: string;
   cardBorderColor?: string;
 }
@@ -203,8 +204,8 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({ config, transl
               type="button"
               onClick={() => handleTabChange(idx)}
               className={`w-full rounded-xl px-4 py-3 text-left text-sm font-medium transition ${idx === activeIndex
-                  ? 'bg-blue-600/10 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200'
-                  : 'text-gray-600 hover:bg-gray-100/80 dark:text-gray-400 dark:hover:bg-gray-800/60'
+                ? 'bg-blue-600/10 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200'
+                : 'text-gray-600 hover:bg-gray-100/80 dark:text-gray-400 dark:hover:bg-gray-800/60'
                 }`}
             >
               {item.title || t('sections.features.untitledCard')}
@@ -235,8 +236,25 @@ export const FeaturesSection: React.FC<FeaturesSectionProps> = ({ config, transl
     </div>
   );
 
+  const backgroundStyle = config.backgroundStyle || 'surface';
+
+  const getSectionStyle = (): React.CSSProperties => {
+    switch (backgroundStyle) {
+      case 'muted':
+        return { backgroundColor: 'var(--storefront-surface)' };
+      case 'contrast':
+        return {
+          backgroundColor: 'var(--storefront-text)',
+          color: 'var(--storefront-body)',
+        };
+      case 'surface':
+      default:
+        return { backgroundColor: 'var(--storefront-body)' };
+    }
+  };
+
   return (
-    <section className="py-4 lg:py-16">
+    <section className="py-4 lg:py-16" style={getSectionStyle()}>
       <SectionContainer>
         <div className="mb-12 max-w-3xl">
           {eyebrow && <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-300">{eyebrow}</p>}
