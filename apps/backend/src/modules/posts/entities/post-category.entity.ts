@@ -13,7 +13,7 @@ import { Post } from './post.entity';
 
 @Entity('post_categories')
 @Index(['slug'])
-@Index(['parent_id'])
+@Index(['parentId'])
 export class PostCategory extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
