@@ -34,6 +34,14 @@
       "createDescription": "Tạo mục menu mới với các bản dịch."
     },
     "form": {
+      "sections": {
+        "general": "Thông tin chung",
+        "appearance": "Giao diện & Kiểu dáng",
+        "configuration": "Cấu hình chi tiết",
+        "topMenu": "Cài đặt Menu trên cùng",
+        "megaMenu": "Cài đặt Mega Menu",
+        "banner": "Cài đặt Banner"
+      },
       "labels": {
         "menuGroup": "Nhóm Menu",
         "type": "Loại",
@@ -86,7 +94,11 @@
         "backgroundImageUrl": "URL hình nền",
         "translations": "Dịch thuật",
         "label": "Nhãn",
-        "customHtml": "HTML Tùy chỉnh"
+        "customHtml": "HTML Tùy chỉnh",
+        "logoConfiguration": "Cấu hình Logo",
+        "selectBrandAsset": "Chọn tài sản thương hiệu",
+        "enableBanner": "Bật Banner",
+        "bannerPosition": "Vị trí"
       },
       "helpers": {
         "topPhone": "Hiển thị dưới dạng nút hotline trên thanh đầu trang storefront.",
@@ -103,7 +115,9 @@
         "buttonStyling": "Sử dụng các trường màu sắc, biểu tượng và liên kết ở trên để hoàn thiện kiểu dáng nút.",
         "loadingParents": "Đang tải menu cha khả dụng...",
         "errorLoadingParents": "Không thể tải menu cha cho nhóm này",
-        "measurementCustomHelper": "Nhập số và chọn đơn vị px, rem, hoặc em."
+        "measurementCustomHelper": "Nhập số và chọn đơn vị px, rem, hoặc em.",
+        "brandAssetSelect": "Chọn tài sản thương hiệu để hiển thị. Cập nhật các tài sản này trong phần Thương hiệu & Tài sản trang.",
+        "logoUrl": "Liên kết tùy chọn khi nhấp vào logo (mặc định là trang chủ)."
       },
       "placeholders": {
         "exampleUrl": "https://example.com",
@@ -111,6 +125,9 @@
         "emailExample": "hotro@example.com",
         "colorExample": "#000000",
         "pxExample": "1px",
+        "defaultAuto": "Mặc định (Tự động)",
+        "defaultZero": "0",
+        "widthExample": "vd: 200px hoặc 100%",
         "unlimited": "Không giới hạn",
         "customClassExample": "lop-tuy-chinh",
         "badgeTextNew": "Mới",
@@ -127,7 +144,8 @@
         "imageUrl": "https://example.com/hinh-anh.jpg",
         "menuLabel": "Nhãn menu",
         "menuDescription": "Mô tả menu",
-        "customHtmlContent": "Nội dung HTML tùy chỉnh"
+        "customHtmlContent": "Nội dung HTML tùy chỉnh",
+        "search": "Tìm kiếm..."
       },
       "options": {
         "menuItem": "Mục Menu",
@@ -148,7 +166,10 @@
         "slide": "Trượt",
         "fade": "Mờ dần",
         "top": "Trên",
-        "bottom": "Dưới"
+        "bottom": "Dưới",
+        "mainLogo": "Logo chính",
+        "footerLogo": "Logo chân trang",
+        "favicon": "Favicon"
       },
       "buttons": {
         "cancel": "Hủy",

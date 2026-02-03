@@ -27,14 +27,14 @@ export class PostCategory extends BaseEntity {
   @Column('text', { nullable: true })
   description: string;
 
-  @Column('uuid', { nullable: true })
-  parent_id: string;
+  @Column('uuid', { name: 'parent_id', nullable: true })
+  parentId: string;
 
-  @Column({ type: 'int', default: 0 })
-  sort_order: number;
+  @Column({ name: 'sort_order', type: 'int', default: 0 })
+  sortOrder: number;
 
-  @Column({ type: 'boolean', default: true })
-  is_active: boolean;
+  @Column({ name: 'is_active', type: 'boolean', default: true })
+  isActive: boolean;
 
   // Relations
   @ManyToOne(() => PostCategory, (category) => category.children, {

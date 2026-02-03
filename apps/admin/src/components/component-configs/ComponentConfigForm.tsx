@@ -128,6 +128,7 @@ interface ProductCardConfigState extends Record<string, unknown> {
   showWishlist: boolean;
   showQuickView: boolean;
   showRating: boolean;
+  showSku: boolean;
   showShortDescription: boolean;
   badgeStyle: ProductCardBadgeStyle;
   priceDisplay: ProductCardPriceDisplay;
@@ -408,6 +409,7 @@ const normalizeProductCardConfig = (raw?: Record<string, unknown>): ProductCardC
     showWishlist: normalizeBooleanValue(source.showWishlist, true),
     showQuickView: normalizeBooleanValue(source.showQuickView, false),
     showRating: normalizeBooleanValue(source.showRating, true),
+    showSku: normalizeBooleanValue(source.showSku, true),
     showShortDescription: normalizeBooleanValue(source.showShortDescription, false),
     badgeStyle: source.badgeStyle === 'square' ? 'square' : 'pill',
     priceDisplay: source.priceDisplay === 'inline' ? 'inline' : 'stacked',
@@ -614,28 +616,28 @@ interface ThemeColors {
 
 const normalizeAddToCartButtonConfig = (raw?: Record<string, unknown>): AddToCartButtonConfig => {
   const source = (raw ?? {}) as Partial<AddToCartButtonConfig>;
-  const backgroundColorSource = (source.backgroundColor && typeof source.backgroundColor === 'object' 
-    ? source.backgroundColor 
+  const backgroundColorSource = (source.backgroundColor && typeof source.backgroundColor === 'object'
+    ? source.backgroundColor
     : {}) as ThemeColors;
-  const textColorSource = (source.textColor && typeof source.textColor === 'object' 
-    ? source.textColor 
+  const textColorSource = (source.textColor && typeof source.textColor === 'object'
+    ? source.textColor
     : {}) as ThemeColors;
 
   return {
     backgroundColor: {
-      light: typeof backgroundColorSource.light === 'string' 
-        ? backgroundColorSource.light 
+      light: typeof backgroundColorSource.light === 'string'
+        ? backgroundColorSource.light
         : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.backgroundColor.light,
-      dark: typeof backgroundColorSource.dark === 'string' 
-        ? backgroundColorSource.dark 
+      dark: typeof backgroundColorSource.dark === 'string'
+        ? backgroundColorSource.dark
         : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.backgroundColor.dark,
     },
     textColor: {
-      light: typeof textColorSource.light === 'string' 
-        ? textColorSource.light 
+      light: typeof textColorSource.light === 'string'
+        ? textColorSource.light
         : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.textColor.light,
-      dark: typeof textColorSource.dark === 'string' 
-        ? textColorSource.dark 
+      dark: typeof textColorSource.dark === 'string'
+        ? textColorSource.dark
         : DEFAULT_ADD_TO_CART_BUTTON_CONFIG.textColor.dark,
     },
     textTransform: isAddToCartButtonTextTransform(source.textTransform)
@@ -1746,7 +1748,7 @@ export const ComponentConfigForm: React.FC<ComponentConfigFormProps> = ({
       };
 
       if (nextMode === 'json') {
-        const serializedConfig = isAddToCartButton 
+        const serializedConfig = isAddToCartButton
           ? serializeAddToCartButtonConfig(currentConfig as AddToCartButtonConfig)
           : currentConfig as Record<string, unknown>;
         syncDefaultConfigState(serializedConfig);
@@ -2831,6 +2833,7 @@ const ProductCardDefaultsEditor: React.FC<ProductCardDefaultsEditorProps> = ({ v
 
   const toggleItems: Array<{ key: keyof ProductCardConfigState; label: string; description: string }> = [
     { key: 'showShortDescription', label: t('componentConfigs.showShortDescription'), description: t('componentConfigs.showShortDescriptionDesc') },
+    { key: 'showSku', label: t('componentConfigs.showSku'), description: t('componentConfigs.showSkuDesc') },
     { key: 'showRating', label: t('componentConfigs.showRating'), description: t('componentConfigs.showRatingDesc') },
     { key: 'showAddToCart', label: t('componentConfigs.showAddToCart'), description: t('componentConfigs.showAddToCartDesc') },
     { key: 'showWishlist', label: t('componentConfigs.showWishlist'), description: t('componentConfigs.showWishlistDesc') },

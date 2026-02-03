@@ -236,6 +236,7 @@ export interface ProductVariant {
   image?: string;
   attributes?: Record<string, any>;
   isActive: boolean;
+  isContactPrice: boolean;
   sortOrder: number;
   variantItems?: ProductVariantItem[];
   inventoryTransactions?: InventoryTransaction[];

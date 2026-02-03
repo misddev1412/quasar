@@ -234,7 +234,7 @@ export const PhoneInputField: React.FC<PhoneInputFieldProps> = ({
       </label>
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <div className="sm:w-48">
+        <div className="sm:w-40">
           <SelectField
             placeholder="Country"
             value={selectedCountry}
@@ -245,12 +245,12 @@ export const PhoneInputField: React.FC<PhoneInputFieldProps> = ({
             styles={countrySelectStyles}
             aria-labelledby={labelId}
             aria-label="Country"
-            containerClassName="sm:min-w-[12rem]"
+            containerClassName="w-full"
             isDisabled={disabled || countrySelectOptions.length <= 1}
           />
         </div>
 
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <Input
             id={id}
             type="tel"

@@ -43,6 +43,7 @@ export const createProductSchema = z.object({
   status: productStatusSchema.optional(),
   isActive: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
+  isContactPrice: z.boolean().optional(),
   price: z.number().optional(),
   compareAtPrice: z.number().nullable().optional(),
   brandId: z.string().optional(),
@@ -99,6 +100,7 @@ export const createProductSchema = z.object({
     dimensions: z.string().optional(),
     image: z.string().nullable().optional(),
     isActive: z.boolean(),
+    isContactPrice: z.boolean().optional(),
     sortOrder: z.number(),
     variantItems: z.array(z.object({
       attributeId: z.string(),
@@ -116,6 +118,7 @@ export const updateProductSchema = z.object({
   status: productStatusSchema.optional(),
   isActive: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
+  isContactPrice: z.boolean().optional(),
   price: z.number().optional(),
   compareAtPrice: z.number().nullable().optional(),
   brandId: z.string().optional(),
@@ -172,6 +175,7 @@ export const updateProductSchema = z.object({
     dimensions: z.string().nullable().optional(),
     image: z.string().nullable().optional(),
     isActive: z.boolean(),
+    isContactPrice: z.boolean().optional(),
     sortOrder: z.number(),
     variantItems: z.array(z.object({
       attributeId: z.string(),
@@ -195,6 +199,7 @@ export const updateProductVariantSchema = z.object({
   dimensions: z.string().nullable().optional(),
   image: z.string().nullable().optional(),
   isActive: z.boolean().optional(),
+  isContactPrice: z.boolean().optional(),
   sortOrder: z.number().optional(),
   variantItems: z.array(z.object({
     attributeId: z.string(),

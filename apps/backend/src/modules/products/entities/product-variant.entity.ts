@@ -146,6 +146,14 @@ export class ProductVariant extends BaseEntity {
   })
   sortOrder: number;
 
+  @Expose()
+  @Column({
+    name: 'is_contact_price',
+    type: 'boolean',
+    default: false,
+  })
+  isContactPrice: boolean;
+
   // Relations
   @ManyToOne(() => Product, (product) => product.variants)
   @JoinColumn({ name: 'product_id' })

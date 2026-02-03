@@ -357,6 +357,7 @@ const ProductDetailPage: React.FC = () => {
                           <th className="px-4 py-3">{t('products.variant_name', 'Name')}</th>
                           <th className="px-4 py-3">{t('products.sku', 'SKU')}</th>
                           <th className="px-4 py-3">{t('products.price', 'Price')}</th>
+                          <th className="px-4 py-3">{t('products.contact_price', 'Contact Price')}</th>
                           <th className="px-4 py-3">{t('products.stock', 'Stock')}</th>
                           <th className="px-4 py-3">{t('common.status', 'Status')}</th>
                         </tr>
@@ -382,14 +383,23 @@ const ProductDetailPage: React.FC = () => {
                             <td className="px-4 py-3">
                               <div>
                                 <div className="font-medium text-gray-900">
-                                  {formatCurrencyValue(variant.price, product.currencyCode)}
+                                  {variant.isContactPrice
+                                    ? t('products.contact_price', 'Contact Price')
+                                    : formatCurrencyValue(variant.price, product.currencyCode)}
                                 </div>
-                                {variant.compareAtPrice && variant.compareAtPrice > variant.price && (
+                                {!variant.isContactPrice && variant.compareAtPrice && variant.compareAtPrice > variant.price && (
                                   <div className="text-xs text-gray-500 line-through">
                                     {formatCurrencyValue(variant.compareAtPrice, product.currencyCode)}
                                   </div>
                                 )}
                               </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              {variant.isContactPrice ? (
+                                <Badge variant="warning">{t('products.contact_price', 'Contact Price')}</Badge>
+                              ) : (
+                                <span className="text-gray-400">-</span>
+                              )}
                             </td>
                             <td className="px-4 py-3">
                               <span className={`font-medium ${variant.stockQuantity <= 0 ? 'text-red-600' : variant.stockQuantity <= (variant.lowStockThreshold || 10) ? 'text-yellow-600' : 'text-green-600'}`}>

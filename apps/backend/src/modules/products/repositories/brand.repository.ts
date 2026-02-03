@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere, FindManyOptions } from 'typeorm';
+import { Repository, FindOptionsWhere, FindManyOptions, In } from 'typeorm';
 import { Brand } from '../entities/brand.entity';
 import { BrandTranslation } from '../entities/brand-translation.entity';
 
@@ -200,6 +200,48 @@ export class BrandRepository {
   async delete(id: string): Promise<boolean> {
     const result = await this.brandRepository.delete(id);
     return result.affected > 0;
+  }
+
+  async upsertTranslations(
+    brandId: string,
+    entries: Array<{
+      locale: string;
+      name?: string | null;
+      description?: string | null;
+    }>,
+  ): Promise<void> {
+    if (!entries.length) {
+      return;
+    }
+
+    const locales = entries.map(entry => entry.locale);
+    const existing = await this.brandTranslationRepo.find({
+      where: {
+        brand_id: brandId,
+        locale: In(locales),
+      },
+    });
+
+    const existingByLocale = new Map(existing.map(row => [row.locale, row]));
+
+    for (const entry of entries) {
+      const current = existingByLocale.get(entry.locale);
+      if (current) {
+        await this.brandTranslationRepo.update(current.id, {
+          name: entry.name ?? current.name,
+          description: entry.description ?? current.description,
+        });
+      } else {
+        await this.brandTranslationRepo.save(
+          this.brandTranslationRepo.create({
+            brand_id: brandId,
+            locale: entry.locale,
+            name: entry.name ?? null,
+            description: entry.description ?? null,
+          }),
+        );
+      }
+    }
   }
 
   async findPublicBrands(options: PublicBrandQueryOptions = {}) {

@@ -93,6 +93,7 @@ export interface NavigationItem {
   config?: Record<string, unknown>;
   borderColor?: string | null;
   borderWidth?: string | null;
+  textColor?: string | null;
   children?: NavigationItem[];
 }
 
@@ -185,7 +186,10 @@ const DesktopNavigationItem: React.FC<{
                 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800
                 transition-colors
               "
-                style={getBorderStyles(child)}
+                style={{
+                  ...getBorderStyles(child),
+                  color: child.textColor || undefined,
+                }}
               >
                 <div className="flex items-center justify-between gap-3">
                   <span className="flex items-center gap-2">
@@ -244,17 +248,18 @@ const EnhancedMegaMenuDropdown: React.FC<{
 
   return (
     <div
-      className="absolute top-full left-0 right-0 mt-1 z-[60]"
+      className="absolute top-full left-0 w-full z-[60] flex justify-center"
       onMouseEnter={() => { }}
       onMouseLeave={onClose}
     >
-      <div className="w-full left-0 right-0">
+      <div className="w-full max-w-screen-2xl px-4">
         <MegaMenu
           sections={sections}
           featuredItems={featuredItems}
-          bannerTitle="Special Offers"
-          bannerLink="/offers"
           onClose={onClose}
+          layout={item.megaMenuColumns ? 'custom' : 'auto'}
+          customColumns={item.megaMenuColumns}
+          bannerConfig={item.config?.bannerConfig as any}
         />
       </div>
     </div>
@@ -329,7 +334,7 @@ const DesktopNavigation: React.FC<{
         return (
           <div
             key={item.id}
-            className="relative"
+            className={isMega ? "" : "relative"}
             onMouseEnter={() => isMega ? handleMegaMenuEnter(item.id) : handleMouseEnter(item.id)}
             onMouseLeave={handleMouseLeave}
           >
@@ -346,11 +351,11 @@ const DesktopNavigation: React.FC<{
               `}
               style={{
                 ...getBorderStyles(item),
-                color: !isActive && textColor ? textColor : undefined,
+                color: !isActive ? (item.textColor || textColor) : undefined,
               }}
             >
               <span className={`flex items-center ${itemSizeStyle.desktopGap}`}>
-                <UnifiedIcon icon={item.icon} variant={isActive ? 'nav-active' : 'nav'} color={iconColor} />
+                <UnifiedIcon icon={item.icon} variant={isActive ? 'nav-active' : 'nav'} color={!isActive ? (item.textColor || iconColor) : undefined} />
                 <span>{item.name}</span>
               </span>
               {hasChildren && <ChevronDownIcon />}
@@ -367,78 +372,82 @@ const DesktopNavigation: React.FC<{
             {/* Regular Dropdown */}
             {!isMega && hasChildren && activeDropdown === item.id && (
               <div
-                className="absolute top-full left-0 mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-[60] min-w-[200px]"
+                className="absolute top-full left-0 z-[60] min-w-[200px]"
+                style={{ paddingTop: '20px' }}
                 onMouseEnter={() => setActiveDropdown(item.id)}
                 onMouseLeave={handleMouseLeave}
               >
-                <div className="py-2 space-y-1">
-                  {item.children?.map((child) => (
-                    <div key={child.id} className="px-2 py-1 rounded-lg transition-colors">
-                      <Link
-                        href={child.href || '#'}
-                        target={child.target}
-                        rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
-                        className={`
-                          block px-2 py-2 text-sm
-                          ${textColor ? '' : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400'}
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+                  <div className="py-2">
+                    {item.children?.map((child) => (
+                      <div key={child.id} className="px-2 py-1 border-b border-gray-100 dark:border-gray-800 last:border-0 transition-colors">
+                        <Link
+                          href={child.href || '#'}
+                          target={child.target}
+                          rel={child.target === '_blank' ? 'noopener noreferrer' : undefined}
+                          className={`
+                          block px-2 py-2 text-sm rounded-md
+                          ${textColor ? '' : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'}
                           transition-colors
                         `}
-                        style={{
-                          ...getBorderStyles(child),
-                          color: textColor || undefined,
-                        }}
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="flex items-center gap-2">
-                            <UnifiedIcon icon={child.icon} variant="nav" color={textColor || undefined} />
-                            <span>{child.name}</span>
-                          </span>
-                          {child.children && child.children.length > 0 && <ChevronRightIcon />}
-                        </div>
-                        {child.description && (
-                          <p
-                            className={`text-xs mt-1 ${textColor ? '' : 'text-gray-500 dark:text-gray-400'}`}
-                            style={{ color: textColor || undefined }}
-                          >
-                            {child.description}
-                          </p>
-                        )}
-                      </Link>
-                      {child.children && child.children.length > 0 && (
-                        <div className="mt-2 ml-6 border-l border-gray-100 dark:border-gray-700 pl-3 space-y-1">
-                          {child.children.map((grandChild) => (
-                            <Link
-                              key={grandChild.id}
-                              href={grandChild.href || '#'}
-                              target={grandChild.target}
-                              rel={grandChild.target === '_blank' ? 'noopener noreferrer' : undefined}
-                              className={`
-                                block text-xs py-1
-                                ${textColor ? '' : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'}
-                              `}
-                              style={{
-                                ...getBorderStyles(grandChild),
-                                color: textColor || undefined,
-                              }}
+                          style={{
+                            ...getBorderStyles(child),
+                            color: child.textColor || textColor || undefined,
+                          }}
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="flex items-center gap-2">
+                              <UnifiedIcon icon={child.icon} variant="nav" color={child.textColor || textColor || undefined} />
+                              <span>{child.name}</span>
+                            </span>
+                            {child.children && child.children.length > 0 && <ChevronRightIcon />}
+                          </div>
+                          {child.description && (
+                            <p
+                              className={`text-xs mt-1 ${textColor ? '' : 'text-gray-500 dark:text-gray-400'}`}
+                              style={{ color: child.textColor || textColor || undefined }}
                             >
-                              <span className="flex items-center gap-2">
-                                <UnifiedIcon icon={grandChild.icon} variant="nav" color={textColor || undefined} />
-                                <span>{grandChild.name}</span>
-                              </span>
-                              {grandChild.description && (
-                                <span
-                                  className={`block text-[11px] ${textColor ? '' : 'text-gray-400 dark:text-gray-500'}`}
-                                  style={{ color: textColor || undefined }}
+                              {child.description}
+                            </p>
+                          )}
+                        </Link>
+                        {child.children && child.children.length > 0 && (
+                          <div className="mt-2 ml-6 border-l border-gray-100 dark:border-gray-700 pl-3">
+                            {child.children.map((grandChild) => (
+                              <div key={grandChild.id} className="relative border-b border-gray-100 dark:border-gray-800 last:border-0">
+                                <Link
+                                  href={grandChild.href || '#'}
+                                  target={grandChild.target}
+                                  rel={grandChild.target === '_blank' ? 'noopener noreferrer' : undefined}
+                                  className={`
+                                  block text-xs py-2 px-2 rounded-md
+                                  ${textColor ? '' : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'}
+                                `}
+                                  style={{
+                                    ...getBorderStyles(grandChild),
+                                    color: grandChild.textColor || textColor || undefined,
+                                  }}
                                 >
-                                  {grandChild.description}
-                                </span>
-                              )}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                                  <span className="flex items-center gap-2">
+                                    <UnifiedIcon icon={grandChild.icon} variant="nav" color={grandChild.textColor || textColor || undefined} />
+                                    <span>{grandChild.name}</span>
+                                  </span>
+                                  {grandChild.description && (
+                                    <span
+                                      className={`block text-[11px] ${textColor ? '' : 'text-gray-400 dark:text-gray-500'}`}
+                                      style={{ color: grandChild.textColor || textColor || undefined }}
+                                    >
+                                      {grandChild.description}
+                                    </span>
+                                  )}
+                                </Link>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
@@ -470,7 +479,9 @@ const MobileMenuItem: React.FC<{
     );
   }
 
-  const iconColor = !isActive && textColor ? textColor : undefined;
+
+  const itemTextColor = item.textColor || textColor;
+  const iconColor = !isActive && itemTextColor ? itemTextColor : undefined;
   return (
     <div className="border-b border-gray-200 dark:border-gray-700">
       <div className="flex items-center justify-between">
@@ -482,12 +493,12 @@ const MobileMenuItem: React.FC<{
                 flex-1 ${itemSizeStyle.mobileText} ${itemWeightClass} uppercase transition-colors ${itemSizeStyle.mobilePadding}
                 ${isActive
               ? 'text-blue-600 dark:text-blue-400'
-              : `${textColor ? '' : 'text-gray-700 dark:text-gray-300'}`
+              : `${itemTextColor ? '' : 'text-gray-700 dark:text-gray-300'}`
             }
               `}
           style={{
             ...getBorderStyles(item),
-            color: !isActive && textColor ? textColor : undefined,
+            color: !isActive && itemTextColor ? itemTextColor : undefined,
           }}
           onClick={() => {
             if (!hasChildren) {
@@ -503,8 +514,8 @@ const MobileMenuItem: React.FC<{
         {hasChildren && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className={`p-3 ${textColor ? '' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
-            style={textColor ? { color: textColor } : undefined}
+            className={`p-3 ${itemTextColor ? '' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+            style={itemTextColor ? { color: itemTextColor } : undefined}
           >
             <ChevronDownIcon
               className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
@@ -528,18 +539,18 @@ const MobileMenuItem: React.FC<{
                 `}
                 style={{
                   ...getBorderStyles(child),
-                  color: textColor || undefined,
+                  color: child.textColor || textColor || undefined,
                 }}
                 onClick={onClose}
               >
                 <span className="flex items-center gap-2">
-                  <UnifiedIcon icon={child.icon} variant="nav" color={textColor || undefined} />
+                  <UnifiedIcon icon={child.icon} variant="nav" color={child.textColor || textColor || undefined} />
                   <span>{child.name}</span>
                 </span>
                 {child.description && (
                   <p
                     className={`text-xs mt-1 normal-case ${textColor ? '' : 'text-gray-500 dark:text-gray-400'}`}
-                    style={{ color: textColor || undefined }}
+                    style={{ color: child.textColor || textColor || undefined }}
                   >
                     {child.description}
                   </p>
@@ -561,12 +572,12 @@ const MobileMenuItem: React.FC<{
                       `}
                       style={{
                         ...getBorderStyles(grandChild),
-                        color: textColor || undefined,
+                        color: grandChild.textColor || textColor || undefined,
                       }}
                       onClick={onClose}
                     >
                       <span className="flex items-center gap-2">
-                        <UnifiedIcon icon={grandChild.icon} variant="nav" color={textColor || undefined} />
+                        <UnifiedIcon icon={grandChild.icon} variant="nav" color={grandChild.textColor || textColor || undefined} />
                         <span>{grandChild.name}</span>
                       </span>
                     </Link>

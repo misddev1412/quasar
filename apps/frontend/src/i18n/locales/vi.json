@@ -1542,7 +1542,15 @@
         "quantity_increase": "Tăng số lượng {{name}}",
         "quantity_decrease": "Giảm số lượng {{name}}",
         "close_cart": "Đóng giỏ hàng"
-      }
+      },
+      "addToQuote": "Liên hệ báo giá"
+    },
+    "product": {
+      "contactPrice": "Liên hệ báo giá",
+      "contactPriceLabel": "Giá liên hệ",
+      "skuLabel": "SKU",
+      "variantsLabel": "Biến thể",
+      "categoryLabel": "Danh mục"
     },
     "productCard": {
       "stock": "Tồn kho",

@@ -58,7 +58,8 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
     if (window.innerWidth >= 1024) {
       setItemsPerRowState(configItemsPerRow);
     } else if (window.innerWidth >= 768) {
-      setItemsPerRowState(Math.min(configItemsPerRow, 3));
+      // Allow up to 4 items on tablet
+      setItemsPerRowState(Math.min(configItemsPerRow, 4));
     } else if (window.innerWidth >= 640) {
       setItemsPerRowState(Math.min(configItemsPerRow, 2));
     } else {
@@ -123,18 +124,40 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
     if (scrollRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
       setCanScrollLeft(scrollLeft > 1);
-      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 5);
+      // Small buffer for float inaccuracies
+      const isAtEnd = Math.abs(scrollLeft + clientWidth - scrollWidth) < 2;
+      setCanScrollRight(!isAtEnd);
 
       const items = scrollRef.current.querySelectorAll('.featured-product-item');
       if (items.length > 0) {
-        const itemWidth = items[0].clientWidth;
-        const pageIndex = Math.round(scrollLeft / ((itemWidth + 24) * itemsPerRowState));
-        if (pageIndex !== activeIndex) {
-          setActiveIndex(pageIndex);
+        if (isAtEnd) {
+          // If we are at the end, the last page is active
+          setActiveIndex(totalPages - 1);
+          return;
+        }
+
+        // Find which page start-item is closest to current scrollLeft
+        let minDiff = Infinity;
+        let closestPage = 0;
+
+        for (let i = 0; i < totalPages; i++) {
+          const itemIndex = i * itemsPerRowState;
+          if (items[itemIndex]) {
+            const itemOffset = (items[itemIndex] as HTMLElement).offsetLeft;
+            const diff = Math.abs(scrollLeft - itemOffset);
+            if (diff < minDiff) {
+              minDiff = diff;
+              closestPage = i;
+            }
+          }
+        }
+
+        if (closestPage !== activeIndex) {
+          setActiveIndex(closestPage);
         }
       }
     }
-  }, [activeIndex, itemsPerRowState]);
+  }, [activeIndex, itemsPerRowState, totalPages]);
 
   useEffect(() => {
     if (displayStyle === 'carousel') {
@@ -155,19 +178,40 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
-      const { clientWidth } = scrollRef.current;
-      const scrollAmount = direction === 'left' ? -clientWidth : clientWidth;
-      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      const items = scrollRef.current.querySelectorAll('.featured-product-item');
+      if (items.length > 0) {
+        const itemWidth = items[0].clientWidth;
+        const pageStride = (itemWidth + 24) * itemsPerRowState;
+
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+        const targetScroll = direction === 'left'
+          ? Math.max(0, scrollLeft - pageStride)
+          : Math.min(scrollWidth - clientWidth, scrollLeft + pageStride);
+
+        scrollRef.current.scrollTo({ left: targetScroll, behavior: 'smooth' });
+      }
     }
   };
 
   const scrollToPage = (pageIndex: number) => {
     if (scrollRef.current) {
+      const { scrollWidth, clientWidth } = scrollRef.current;
+      const maxScroll = scrollWidth - clientWidth;
+
+      // If it's the last page, try to scroll to the end
+      if (pageIndex === totalPages - 1) {
+        scrollRef.current.scrollTo({ left: maxScroll, behavior: 'smooth' });
+        return;
+      }
+
       const items = scrollRef.current.querySelectorAll('.featured-product-item');
       const targetItemIndex = pageIndex * itemsPerRowState;
+
       if (items[targetItemIndex]) {
-        const itemWidth = items[0].clientWidth;
-        scrollRef.current.scrollTo({ left: targetItemIndex * (itemWidth + 24), behavior: 'smooth' });
+        let targetScroll = (items[targetItemIndex] as HTMLElement).offsetLeft;
+        // Clamp to max scroll
+        targetScroll = Math.min(targetScroll, maxScroll);
+        scrollRef.current.scrollTo({ left: targetScroll, behavior: 'smooth' });
       }
     }
   };
@@ -181,7 +225,10 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
   const renderContent = () => {
     if (productIds.length === 0) {
       return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div
+          className="grid gap-6"
+          style={{ gridTemplateColumns: `repeat(${itemsPerRowState}, minmax(0, 1fr))` }}
+        >
           {Array.from({ length: itemsPerRowState }).map((_, index) => (
             <div
               key={`placeholder-${index}`}
@@ -196,7 +243,10 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
 
     if (isLoading) {
       return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div
+          className="grid gap-6"
+          style={{ gridTemplateColumns: `repeat(${itemsPerRowState}, minmax(0, 1fr))` }}
+        >
           {productIds.slice(0, itemsPerRowState).map((id) => (
             <div key={`loading-${id}`} className="animate-pulse rounded-xl border border-gray-100 dark:border-gray-800 p-6 space-y-4 bg-white dark:bg-gray-900/30">
               <div className="h-40 bg-gray-200 dark:bg-gray-700 rounded-lg" />
@@ -226,7 +276,12 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
 
     if (displayStyle === 'carousel') {
       const desktopWidth = `lg:w-[calc(${100 / itemsPerRowState}%-${((itemsPerRowState - 1) * 24) / itemsPerRowState}px)]`;
-      const tabletWidth = itemsPerRowState >= 3 ? "md:w-[calc(33.333%-16px)]" : itemsPerRowState === 2 ? "md:w-[calc(50%-12px)]" : "w-full";
+      // Allow 4 items on tablet if configured, otherwise fallback logic
+      const tabletWidth = itemsPerRowState >= 4
+        ? "md:w-[calc(25%-18px)]"
+        : itemsPerRowState === 3
+          ? "md:w-[calc(33.333%-16px)]"
+          : "md:w-[calc(50%-12px)]";
       const mobileWidth = "w-[calc(100%-40px)]";
 
       return (
@@ -304,15 +359,12 @@ export const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ config, tran
       );
     }
 
-    // Default Grid Layout
-    const gridClass = itemsPerRowState >= 4
-      ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
-      : itemsPerRowState === 3
-        ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-        : 'grid-cols-1 sm:grid-cols-2';
-
+    // Default Grid Layout using dynamic columns
     return (
-      <div className={cn("grid gap-6", gridClass)}>
+      <div
+        className="grid gap-6"
+        style={{ gridTemplateColumns: `repeat(${itemsPerRowState}, minmax(0, 1fr))` }}
+      >
         {products.map((product) => (
           <ProductCard
             key={product.id}

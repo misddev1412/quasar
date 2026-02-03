@@ -76,15 +76,30 @@ interface MegaMenuProps {
     textColor?: string;
     buttonText?: string;
     buttonLink?: string;
+    buttonBackgroundColor?: string;
+    buttonTextColor?: string;
     backgroundImage?: string;
     position?: 'top' | 'bottom';
   };
 }
 
+const getSafeGridColsClass = (cols: number) => {
+  const gridCols: Record<number, string> = {
+    1: 'grid-cols-1',
+    2: 'grid-cols-1 md:grid-cols-2',
+    3: 'grid-cols-1 md:grid-cols-3',
+    4: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
+    5: 'grid-cols-1 md:grid-cols-3 lg:grid-cols-5',
+    6: 'grid-cols-1 md:grid-cols-3 lg:grid-cols-6',
+  };
+  return gridCols[cols] || 'grid-cols-1 md:grid-cols-4';
+};
+
 const MegaMenuSectionContent: React.FC<{
   section: MegaMenuSection;
   onClose: () => void;
-}> = ({ section, onClose }) => {
+  overrideColumns?: number;
+}> = ({ section, onClose, overrideColumns }) => {
   // Apply custom styling
   const sectionStyle = {
     backgroundColor: section.backgroundColor || undefined,
@@ -105,7 +120,7 @@ const MegaMenuSectionContent: React.FC<{
     <div className="h-full" style={sectionStyle}>
       {/* Section Header */}
       {section.showTitle !== false && (
-        <div className="border-b border-gray-200 dark:border-gray-700 pb-3 mb-5" style={{ borderColor: section.borderColor || undefined }}>
+        <div className="border-b border-gray-200 dark:border-gray-700 pb-2 mb-3" style={{ borderColor: section.borderColor || undefined }}>
           <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-[0.2em]" style={titleStyle}>
             {section.title}
           </h3>
@@ -118,7 +133,7 @@ const MegaMenuSectionContent: React.FC<{
       )}
 
       {/* Section Items */}
-      <div className={section.layout === 'grid' ? 'grid grid-cols-2 gap-2' : section.layout === 'horizontal' ? 'flex gap-2 overflow-x-auto' : 'space-y-2'}>
+      <div className={overrideColumns ? `grid ${getSafeGridColsClass(overrideColumns)} gap-x-6 gap-y-1` : section.layout === 'grid' ? 'grid grid-cols-2 gap-x-2 gap-y-1' : section.layout === 'horizontal' ? 'flex gap-2 overflow-x-auto' : ''}>
         {filteredItems.map((item) => {
           // Get icon size based on item configuration
           const iconSize = item.imageSize === 'small' ? 16 : item.imageSize === 'large' ? 24 : 20;
@@ -136,12 +151,14 @@ const MegaMenuSectionContent: React.FC<{
               key={item.id}
               href={item.href}
               className={`
-                group flex items-center gap-4 px-3 py-2.5 rounded-lg
+                group flex items-center gap-3 px-3 py-1.5
+                ${(!overrideColumns && (!section.layout || section.layout === 'vertical')) ? '' : 'rounded-lg'}
                 hover:bg-gray-50 dark:hover:bg-gray-800/80
                 transition-all duration-200
                 ${hoverClasses}
                 ${item.customClass || ''}
                 ${section.layout === 'horizontal' ? 'flex-shrink-0' : ''}
+                ${(!overrideColumns && (!section.layout || section.layout === 'vertical')) ? 'border-b border-gray-100 dark:border-gray-800 last:border-0' : ''}
               `}
               onClick={onClose}
               target={item.target === '_blank' ? '_blank' : undefined}
@@ -220,12 +237,12 @@ const FeaturedProducts: React.FC<{
         {featuredProductsLabel}
       </h3>
 
-      <div className="space-y-3.5">
+      <div className="space-y-2">
         {items.filter(item => item.isEnabled !== false).sort((a, b) => (a.position || 0) - (b.position || 0)).slice(0, 3).map((item) => (
           <Link
             key={item.id}
             href={item.href}
-            className="group flex items-center gap-4 px-4 py-3 bg-white dark:bg-gray-900/40 rounded-lg border-0 transition-all duration-200"
+            className="group flex items-center gap-3 px-3 py-2 bg-white dark:bg-gray-900/40 rounded-lg border-0 transition-all duration-200"
             onClick={onClose}
             target={item.target === '_blank' ? '_blank' : undefined}
             rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
@@ -286,11 +303,16 @@ const BannerSection: React.FC<{
     textColor?: string;
     buttonText?: string;
     buttonLink?: string;
+    buttonBackgroundColor?: string;
+    buttonTextColor?: string;
     backgroundImage?: string;
+    isEnabled?: boolean;
     position?: 'top' | 'bottom';
   };
 }> = ({ link, title, onClose, bannerConfig }) => {
-  if (!title && !bannerConfig?.title) return null;
+  if (bannerConfig?.isEnabled === false) return null;
+  // If no content is configured, don't render
+  if (!title && !bannerConfig?.title && !bannerConfig?.backgroundImage) return null;
 
   const bannerTitle = bannerConfig?.title || title;
   const bannerSubtitle = bannerConfig?.subtitle;
@@ -308,9 +330,8 @@ const BannerSection: React.FC<{
 
   const content = (
     <div
-      className={`relative overflow-hidden rounded-lg p-6 ${
-        bannerConfig?.backgroundImage ? 'text-white' : 'bg-gradient-to-br from-purple-600 to-blue-600 text-white'
-      }`}
+      className={`relative overflow-hidden rounded-lg p-6 ${bannerConfig?.backgroundImage ? 'text-white' : 'bg-gradient-to-br from-purple-600 to-blue-600 text-white'
+        }`}
       style={bannerStyle}
     >
       {/* Overlay for background images */}
@@ -336,7 +357,11 @@ const BannerSection: React.FC<{
           <Link
             href={buttonLink}
             onClick={onClose}
-            className="inline-flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition-colors"
+            className="inline-flex items-center gap-2 bg-white text-gray-900 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition-all shadow-sm"
+            style={{
+              backgroundColor: bannerConfig?.buttonBackgroundColor || undefined,
+              color: bannerConfig?.buttonTextColor || undefined,
+            }}
           >
             {buttonText} →
           </Link>
@@ -370,26 +395,6 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
   bannerConfig
 }) => {
   const menuRef = React.useRef<HTMLDivElement>(null);
-  const [menuTop, setMenuTop] = React.useState<number | null>(null);
-
-  React.useLayoutEffect(() => {
-    const parentElement = menuRef.current?.parentElement;
-    if (!parentElement) return;
-
-    const updatePosition = () => {
-      const rect = parentElement.getBoundingClientRect();
-      setMenuTop(rect.bottom + 8); // 8px gap = mt-2
-    };
-
-    updatePosition();
-    window.addEventListener('resize', updatePosition);
-    window.addEventListener('scroll', updatePosition, { passive: true });
-
-    return () => {
-      window.removeEventListener('resize', updatePosition);
-      window.removeEventListener('scroll', updatePosition);
-    };
-  }, []);
 
   const hasBanner = bannerTitle || bannerConfig?.title;
   const hasFeatured = featuredItems.length > 0 && showFeaturedItems;
@@ -402,10 +407,14 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
     borderRadius: borderRadius || undefined,
   };
 
+  const shouldDistributeItems = sections.length === 1 && !hasFeatured && layout === 'custom' && (customColumns || 0) > 1;
+
   // Determine grid layout based on content and custom settings
   const getGridClasses = () => {
+    if (shouldDistributeItems) return 'grid-cols-1 gap-8';
+
     if (layout === 'custom' && customColumns) {
-      return `grid-cols-1 md:grid-cols-${customColumns} gap-8`;
+      return `${getSafeGridColsClass(customColumns)} gap-8`;
     }
 
     if (hasFeatured && sections.length > 0) {
@@ -432,73 +441,17 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
   return (
     <div
       ref={menuRef}
-      className="fixed left-1/2 -translate-x-1/2 w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl z-[60] min-w-[320px]"
+      className={`w-full bg-transparent min-w-[320px] ${layout === 'auto' ? '' : ''}`}
       style={{
-        top: menuTop ?? undefined,
-        visibility: menuTop === null ? 'hidden' : undefined,
+        paddingTop: '5px', // Hit area bridge
         ...menuStyle
       }}
     >
-      {/* Banner at top */}
-      {hasBanner && bannerConfig?.position === 'top' && (
-        <div className="border-b border-gray-200 dark:border-gray-700">
-          <div className="px-5 py-4">
-            <BannerSection
-              link={bannerLink}
-              title={bannerTitle}
-              onClose={onClose}
-              bannerConfig={bannerConfig}
-            />
-          </div>
-        </div>
-      )}
-
-      <div className="w-full px-5 py-6 lg:px-7 lg:py-8">
-        <div className={`grid ${getGridClasses()}`}>
-          {/* Menu Sections */}
-          {sections.map((section) => (
-            <div
-              key={section.id}
-              className={`space-y-5 ${
-                getSectionColumnSpan(section) > 1
-                  ? `col-span-${getSectionColumnSpan(section)}`
-                  : ''
-              }`}
-            >
-              <MegaMenuSectionContent
-                section={section}
-                onClose={onClose}
-              />
-            </div>
-          ))}
-
-          {/* Featured Products */}
-          {hasFeatured && featuredItemsPosition === 'right' && (
-            <div className="space-y-4">
-              <FeaturedProducts
-                items={featuredItems}
-                onClose={onClose}
-                customTitle={featuredItemsTitle}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Featured Products at bottom */}
-        {hasFeatured && featuredItemsPosition === 'bottom' && (
-          <div className="border-t border-gray-200 dark:border-gray-700 mt-8 pt-6">
-            <FeaturedProducts
-              items={featuredItems}
-              onClose={onClose}
-              customTitle={featuredItemsTitle}
-            />
-          </div>
-        )}
-
-        {/* Banner Section */}
-        {hasBanner && bannerConfig?.position !== 'top' && (
-          <div className="border-t border-gray-200 dark:border-gray-700 mt-8 pt-6">
-            <div className="max-w-md">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl overflow-y-auto max-h-[50vh]">
+        {/* Banner at top */}
+        {hasBanner && bannerConfig?.position === 'top' && (
+          <div className="border-b border-gray-200 dark:border-gray-700">
+            <div className="px-5 py-4">
               <BannerSection
                 link={bannerLink}
                 title={bannerTitle}
@@ -508,6 +461,63 @@ const MegaMenu: React.FC<MegaMenuProps> = ({
             </div>
           </div>
         )}
+
+        <div className="w-full px-5 py-6 lg:px-7 lg:py-8">
+          <div className={`grid ${getGridClasses()}`}>
+            {/* Menu Sections */}
+            {sections.map((section) => (
+              <div
+                key={section.id}
+                className={`space-y-5 ${getSectionColumnSpan(section) > 1
+                  ? `col-span-${getSectionColumnSpan(section)}`
+                  : ''
+                  }`}
+              >
+                <MegaMenuSectionContent
+                  section={section}
+                  onClose={onClose}
+                  overrideColumns={shouldDistributeItems ? customColumns : undefined}
+                />
+              </div>
+            ))}
+
+            {/* Featured Products */}
+            {hasFeatured && featuredItemsPosition === 'right' && (
+              <div className="space-y-4">
+                <FeaturedProducts
+                  items={featuredItems}
+                  onClose={onClose}
+                  customTitle={featuredItemsTitle}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Featured Products at bottom */}
+          {hasFeatured && featuredItemsPosition === 'bottom' && (
+            <div className="border-t border-gray-200 dark:border-gray-700 mt-8 pt-6">
+              <FeaturedProducts
+                items={featuredItems}
+                onClose={onClose}
+                customTitle={featuredItemsTitle}
+              />
+            </div>
+          )}
+
+          {/* Banner Section */}
+          {hasBanner && bannerConfig?.position !== 'top' && (
+            <div className="border-t border-gray-200 dark:border-gray-700 mt-8 pt-6">
+              <div className="max-w-md">
+                <BannerSection
+                  link={bannerLink}
+                  title={bannerTitle}
+                  onClose={onClose}
+                  bannerConfig={bannerConfig}
+                />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

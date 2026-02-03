@@ -27,8 +27,8 @@ export class PostTag extends BaseEntity {
   @Column({ length: 7, nullable: true })
   color: string;
 
-  @Column({ type: 'boolean', default: true })
-  is_active: boolean;
+  @Column({ name: 'is_active', type: 'boolean', default: true })
+  isActive: boolean;
 
   // Relations
   @ManyToMany(() => Post, (post) => post.tags)

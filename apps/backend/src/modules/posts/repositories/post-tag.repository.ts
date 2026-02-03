@@ -10,7 +10,6 @@ export interface CreatePostTagDto {
   description?: string;
   color?: string;
   isActive?: boolean;
-  is_active?: boolean;
 }
 
 export interface UpdatePostTagDto {
@@ -19,7 +18,6 @@ export interface UpdatePostTagDto {
   description?: string;
   color?: string;
   isActive?: boolean;
-  is_active?: boolean;
 }
 
 @Injectable()
@@ -44,32 +42,20 @@ export class PostTagRepository extends BaseRepository<PostTag> {
   }
 
   async createTag(createDto: CreatePostTagDto): Promise<PostTag> {
-    // Map frontend field names to backend entity field names
-    const mappedCreateDto = {
-      ...createDto,
-      is_active: createDto.is_active ?? createDto.isActive, // Use is_active if provided, otherwise map from isActive
-      isActive: undefined, // Remove isActive from the create object
-    };
-
-    const tag = this.repository.create(mappedCreateDto);
+    const tag = this.repository.create(createDto as any) as unknown as PostTag;
     return await this.repository.save(tag);
   }
 
   async updateTag(id: string, updateDto: UpdatePostTagDto): Promise<PostTag | null> {
-    // Map frontend field names to backend entity field names
-    const mappedUpdateDto = {
-      ...updateDto,
-      is_active: updateDto.is_active ?? updateDto.isActive, // Use is_active if provided, otherwise map from isActive
-      isActive: undefined, // Remove isActive from the update object
-    };
-
-    await this.repository.update(id, mappedUpdateDto);
+    if (Object.keys(updateDto).length > 0) {
+      await this.repository.update(id, updateDto as any);
+    }
     return await this.findById(id);
   }
 
   async findActiveTags(): Promise<PostTag[]> {
     return await this.repository.find({
-      where: { is_active: true },
+      where: { isActive: true },
       order: { name: 'ASC' },
     });
   }
@@ -79,7 +65,7 @@ export class PostTagRepository extends BaseRepository<PostTag> {
       .createQueryBuilder('tag')
       .leftJoin('tag.posts', 'posts')
       .addSelect('COUNT(posts.id)', 'postCount')
-      .where('tag.is_active = :isActive', { isActive: true })
+      .where('tag.isActive = :isActive', { isActive: true })
       .groupBy('tag.id')
       .orderBy('postCount', 'DESC')
       .limit(limit)
@@ -105,7 +91,7 @@ export class PostTagRepository extends BaseRepository<PostTag> {
     return await this.repository
       .createQueryBuilder('tag')
       .where('LOWER(tag.name) LIKE LOWER(:query)', { query: `%${query}%` })
-      .andWhere('tag.is_active = :isActive', { isActive: true })
+      .andWhere('tag.isActive = :isActive', { isActive: true })
       .orderBy('tag.name', 'ASC')
       .limit(limit)
       .getMany();

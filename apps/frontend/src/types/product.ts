@@ -23,6 +23,7 @@ export interface Product {
   ogImage?: string;
   isActive?: boolean;
   isContactPrice?: boolean;
+  contactPriceLabel?: string;
   isFeatured?: boolean;
   averageRating?: number | null;
   reviewCount?: number | null;
@@ -98,6 +99,7 @@ export interface ProductVariant {
   image?: string;
   attributes?: Record<string, unknown>;
   isActive: boolean;
+  isContactPrice?: boolean;
   sortOrder: number;
   variantItems?: ProductVariantItem[];
 }

@@ -63,7 +63,11 @@ export interface MenuFormState {
     textColor?: string;
     buttonText?: string;
     buttonLink?: string;
+    buttonBackgroundColor?: string;
+    buttonTextColor?: string;
     backgroundImage?: string;
+    image?: string;
+    isEnabled?: boolean;
     position?: 'top' | 'bottom';
   };
 }

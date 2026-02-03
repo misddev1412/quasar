@@ -152,6 +152,7 @@ export class Product extends BaseEntity {
 
   @Expose()
   @Column({
+    name: 'compare_at_price',
     type: 'decimal',
     precision: 15,
     scale: 2,

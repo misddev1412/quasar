@@ -198,6 +198,7 @@ export const useMenu = (menuGroup: string = 'main') => {
         description: getDescription(item),
         borderColor: item.borderColor || null,
         borderWidth: item.borderWidth || null,
+        textColor: item.textColor || null,
         children: item.children
           .filter(child => child.isEnabled)
           .map(child => ({
@@ -214,6 +215,7 @@ export const useMenu = (menuGroup: string = 'main') => {
             featured: (child.config?.featured as boolean) || false,
             borderColor: child.borderColor || null,
             borderWidth: child.borderWidth || null,
+            textColor: child.textColor || null,
             children: child.children
               .filter(grandChild => grandChild.isEnabled)
               .map(grandChild => ({
@@ -230,6 +232,7 @@ export const useMenu = (menuGroup: string = 'main') => {
                 featured: (grandChild.config?.featured as boolean) || false,
                 borderColor: grandChild.borderColor || null,
                 borderWidth: grandChild.borderWidth || null,
+                textColor: grandChild.textColor || null,
               }))
               .sort((a, b) => {
                 const grandChildA = child.children.find(gc => gc.id === a.id);

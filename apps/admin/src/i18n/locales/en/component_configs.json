@@ -173,6 +173,8 @@
         "showShortDescriptionDesc": "Enable to print description below title.",
         "showRating": "Show rating",
         "showRatingDesc": "Show/hide rating cluster and count.",
+        "showSku": "Show SKU",
+        "showSkuDesc": "Show/hide product SKU.",
         "showAddToCart": "Add to cart button",
         "showAddToCartDesc": "Hide to switch to variant selection flow.",
         "showWishlist": "Wishlist button",

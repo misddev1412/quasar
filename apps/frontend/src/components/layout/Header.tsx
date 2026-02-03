@@ -206,7 +206,7 @@ const getLocalizedContent = (item: MenuItem | null | undefined, key: keyof MenuT
   return (translation?.[key] as string) || '';
 };
 
-const Logo: React.FC<{ currentLocale: string; logoItem?: MenuItem }> = ({ currentLocale, logoItem }) => {
+const Logo: React.FC<{ currentLocale: string; logoItem?: any }> = ({ currentLocale, logoItem }) => {
   const t = useTranslations();
   const { getSiteLogo, getSetting, settings } = useSettings();
 
@@ -232,7 +232,7 @@ const Logo: React.FC<{ currentLocale: string; logoItem?: MenuItem }> = ({ curren
   const siteName = getSetting('site.name');
 
   // Get alt text from brand-assets config, fallback to site name
-  const logoAltText = (logoItem && getLocalizedContent(logoItem, 'label', currentLocale)) || getSetting('site.logo_alt') || siteName;
+  const logoAltText = (logoItem?.name) || getSetting('site.logo_alt') || siteName;
 
   // Check if logo image should be shown
   const logoShowLogoSetting = settings.find((s: any) => s.key === 'site.logo_show_logo');
@@ -253,7 +253,7 @@ const Logo: React.FC<{ currentLocale: string; logoItem?: MenuItem }> = ({ curren
   }
 
   // Get text content
-  const logoLabel = logoItem ? getLocalizedContent(logoItem, 'label', currentLocale) : undefined;
+  const logoLabel = logoItem?.name;
   const logoTextContent = logoLabel || getSetting('site.logo_text') || siteName;
 
 
@@ -368,6 +368,7 @@ const convertToNavigationItems = (items: any[]): NavigationItem[] => {
     badge: item.badge,
     featured: item.featured,
     config: item.config,
+    textColor: item.textColor,
     children: item.children ? convertToNavigationItems(item.children) : [],
   }));
 };
@@ -563,7 +564,7 @@ const Header: React.FC = () => {
   }, []);
 
   // Helper to check if item has an image
-  const hasImage = (item: MenuItem) => {
+  const hasImage = (item: any) => {
     const img = item.config?.image;
     return typeof img === 'string' && img.length > 0;
   };

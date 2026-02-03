@@ -1,11 +1,13 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Router, Query, Mutation, UseMiddlewares, Input } from 'nestjs-trpc';
+import { Router, Query, Mutation, UseMiddlewares, Input, Ctx } from 'nestjs-trpc';
 import { z } from 'zod';
 import { ResponseService } from '@backend/modules/shared/services/response.service';
 import { BrandRepository } from '../repositories/brand.repository';
+import { AdminBrandService } from '../services/admin-brand.service';
 import { AuthMiddleware } from '../../../trpc/middlewares/auth.middleware';
 import { AdminRoleMiddleware } from '../../../trpc/middlewares/admin-role.middleware';
 import { paginatedResponseSchema, apiResponseSchema } from '../../../trpc/schemas/response.schemas';
+import { AuthenticatedContext } from '../../../trpc/context';
 
 export const getBrandsQuerySchema = z.object({
   page: z.number().min(1).default(1),
@@ -52,6 +54,8 @@ export class AdminProductBrandsRouter {
   constructor(
     @Inject(BrandRepository)
     private readonly brandRepository: BrandRepository,
+    @Inject(AdminBrandService)
+    private readonly adminBrandService: AdminBrandService,
     @Inject(ResponseService)
     private readonly responseHandler: ResponseService,
   ) {}
@@ -194,6 +198,158 @@ export class AdminProductBrandsRouter {
         2,  // OperationCode.READ
         10, // ErrorLevelCode.SERVER_ERROR
         error.message || 'Failed to retrieve brand statistics'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      format: z.enum(['csv', 'json']).default('csv'),
+      filters: z.record(z.any()).optional(),
+      exportMode: z.enum(['standard', 'template']).default('standard').optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  async exportBrands(
+    @Ctx() ctx: AuthenticatedContext,
+    @Input() input: { format: 'csv' | 'json'; filters?: Record<string, any>; exportMode?: 'standard' | 'template' },
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const job = await this.adminBrandService.exportBrands(
+        input.format,
+        input.filters,
+        ctx.user?.id,
+        input.exportMode || 'standard',
+      );
+      return this.responseHandler.createTrpcSuccess(job);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50,
+        1,
+        30,
+        (error as any)?.message || 'Failed to start export job',
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({
+      limit: z.number().min(1).max(500).default(10),
+      page: z.number().min(1).default(1),
+    }),
+    output: apiResponseSchema,
+  })
+  async listExportJobs(
+    @Ctx() ctx: AuthenticatedContext,
+    @Input() input: { limit: number; page: number },
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const jobs = await this.adminBrandService.listBrandExportJobs(input.limit, ctx.user?.id, input.page);
+      return this.responseHandler.createTrpcSuccess(jobs);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50,
+        2,
+        30,
+        (error as any)?.message || 'Failed to load export jobs',
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({
+      filters: z.record(z.any()).optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  async estimateExportBrands(
+    @Input() input: { filters?: Record<string, any> },
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const estimate = await this.adminBrandService.estimateBrandExport(input.filters);
+      return this.responseHandler.createTrpcSuccess(estimate);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50,
+        2,
+        30,
+        (error as any)?.message || 'Failed to estimate export records',
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Mutation({
+    input: z.object({
+      fileName: z.string().optional(),
+      fileData: z.string().min(1, 'File data is required'),
+      overrideExisting: z.boolean().optional(),
+      dryRun: z.boolean().optional(),
+    }),
+    output: apiResponseSchema,
+  })
+  async importFromExcel(
+    @Input()
+    input: {
+      fileName?: string;
+      fileData: string;
+      overrideExisting?: boolean;
+      dryRun?: boolean;
+    },
+    @Ctx() ctx: AuthenticatedContext,
+  ): Promise<z.infer<typeof apiResponseSchema>> {
+    try {
+      const result = await this.adminBrandService.importBrandsFromExcel({
+        fileName: input.fileName || 'brands-import.xlsx',
+        fileData: input.fileData,
+        overrideExisting: input.overrideExisting,
+        dryRun: input.dryRun,
+        actorId: ctx?.user?.id || null,
+      });
+
+      return this.responseHandler.createTrpcSuccess(result);
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50,
+        1,
+        30,
+        (error as any)?.message || 'Failed to import brands from Excel'
+      );
+    }
+  }
+
+  @UseMiddlewares(AuthMiddleware, AdminRoleMiddleware)
+  @Query({
+    input: z.object({}),
+    output: z.object({
+      data: z.string(), // base64 encoded file
+      filename: z.string(),
+      mimeType: z.string(),
+    }),
+  })
+  async downloadExcelTemplate(
+    @Input() input: {},
+    @Ctx() ctx: AuthenticatedContext,
+  ): Promise<{ data: string; filename: string; mimeType: string }> {
+    try {
+      const buffer = await this.adminBrandService.generateExcelTemplate(ctx.locale);
+      const base64Data = buffer.toString('base64');
+      const filename = `brand-import-template-${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      return {
+        data: base64Data,
+        filename,
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      };
+    } catch (error) {
+      throw this.responseHandler.createTRPCError(
+        50,
+        4,
+        30,
+        (error as any)?.message || 'Failed to generate Excel template'
       );
     }
   }

@@ -196,6 +196,17 @@ const adminAddressCountrySchema = z.object({
   longitude: z.number().nullable(),
 });
 
+const clientAddressCountrySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  code: z.string(),
+  iso2: z.string().nullable(),
+  iso3: z.string().nullable(),
+  phoneCode: z.string().nullable(),
+  latitude: z.number().nullable(),
+  longitude: z.number().nullable(),
+});
+
 const adminAdministrativeDivisionSchema = z.object({
   id: z.string(),
   countryId: z.string(),
@@ -535,6 +546,70 @@ export const appRouter = router({
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;
+      }),
+  }),
+
+  // Client Address Book router
+  clientAddressBook: router({
+    getAddresses: procedure
+      .output(z.array(z.any()))
+      .query(() => {
+        return [];
+      }),
+    getAddressById: procedure
+      .input(z.object({ id: z.string() }))
+      .output(z.any())
+      .query(() => {
+        return {} as any;
+      }),
+    createAddress: procedure
+      .input(z.any())
+      .output(z.any())
+      .mutation(() => {
+        return {} as any;
+      }),
+    updateAddress: procedure
+      .input(z.object({ id: z.string(), data: z.any() }))
+      .output(z.any())
+      .mutation(() => {
+        return {} as any;
+      }),
+    deleteAddress: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    setDefaultAddress: procedure
+      .input(z.object({ id: z.string() }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+    getDefaultAddress: procedure
+      .output(z.any().nullable())
+      .query(() => {
+        return null;
+      }),
+    getCountries: procedure
+      .output(z.array(clientAddressCountrySchema))
+      .query(() => {
+        return [];
+      }),
+    getAdministrativeDivisions: procedure
+      .input(z.object({
+        countryId: z.string(),
+        type: z.string().optional(),
+      }))
+      .output(z.array(z.any()))
+      .query(() => {
+        return [];
+      }),
+    getAdministrativeDivisionsByParentId: procedure
+      .input(z.object({ parentId: z.string() }))
+      .output(z.array(z.any()))
+      .query(() => {
+        return [];
       }),
   }),
 
@@ -3528,6 +3603,59 @@ export const appRouter = router({
       .output(apiResponseSchema)
       .query(() => {
         return {} as ApiResponse;
+      }),
+
+    exportBrands: procedure
+      .input(z.object({
+        format: z.enum(['csv', 'json']).default('csv'),
+        filters: z.record(z.any()).optional(),
+        exportMode: z.enum(['standard', 'template']).default('standard').optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    listExportJobs: procedure
+      .input(z.object({
+        limit: z.number().min(1).max(500).default(10),
+        page: z.number().min(1).default(1),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    estimateExportBrands: procedure
+      .input(z.object({
+        filters: z.record(z.any()).optional(),
+      }))
+      .output(apiResponseSchema)
+      .query(() => {
+        return {} as ApiResponse;
+      }),
+
+    importFromExcel: procedure
+      .input(z.object({
+        fileName: z.string().optional(),
+        fileData: z.string().min(1),
+        overrideExisting: z.boolean().optional(),
+        dryRun: z.boolean().optional(),
+      }))
+      .output(apiResponseSchema)
+      .mutation(() => {
+        return {} as ApiResponse;
+      }),
+
+    downloadExcelTemplate: procedure
+      .input(z.object({}))
+      .output(z.object({
+        data: z.string(),
+        filename: z.string(),
+        mimeType: z.string(),
+      }))
+      .query(() => {
+        return {} as any;
       }),
 
     // Brand translation endpoints

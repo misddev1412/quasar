@@ -708,6 +708,7 @@ export class ClientProductsRouter {
           weight: variant.weight ?? null,
           dimensions: variant.dimensions ?? null,
           isActive: variant.isActive,
+          isContactPrice: Boolean(variant.isContactPrice),
           sortOrder: variant.sortOrder ?? 0,
           trackInventory: variant.trackInventory ?? false,
           allowBackorders: variant.allowBackorders ?? false,
@@ -716,6 +717,7 @@ export class ClientProductsRouter {
         };
       })
       : [];
+    const allVariantsContactPrice = variants.length > 0 && variants.every((variant) => Boolean(variant.isContactPrice));
 
     const media = Array.isArray(product.media)
       ? product.media.map((media: any) => ({
@@ -786,6 +788,8 @@ export class ClientProductsRouter {
       metaDescription: resolvedMetaDescription,
       metaKeywords: resolvedMetaKeywords,
       isActive: product.isActive,
+      isContactPrice: Boolean(product.isContactPrice || allVariantsContactPrice),
+      contactPriceLabel: product.contactPriceLabel ?? null,
       isFeatured: product.isFeatured,
       averageRating: product.averageRating != null ? Number(product.averageRating) : null,
       reviewCount: product.reviewCount != null ? Number(product.reviewCount) : null,

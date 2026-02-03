@@ -2,6 +2,7 @@ export * from '@admin/components/products/AttributeFilter';
 export * from '@admin/components/products/CategoryFilter';
 export * from '@admin/components/products/CategoryImportModal';
 export * from '@admin/components/products/CreateAttributeModal';
+export * from '@admin/components/products/BrandImportModal';
 export * from '@admin/components/products/CreateBrandModal';
 export * from '@admin/components/products/CreateCategoryForm';
 export * from '@admin/components/products/CreateSupplierModal';

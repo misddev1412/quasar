@@ -71,6 +71,7 @@ import { UserRepository } from '../user/repositories/user.repository';
 import { EmailFlowRepository } from '../email-flow/repositories/email-flow.repository';
 import { ProductRepository } from '../products/repositories/product.repository';
 import { OrderRepository } from '../products/repositories/order.repository';
+import { BrandRepository } from '../products/repositories/brand.repository';
 
 // Services
 import { MailProviderService } from '../mail-provider/services/mail-provider.service';
@@ -97,6 +98,8 @@ import { ProductTemplateExportHandler } from './handlers/product-template-export
 import { DataExportModule } from '../export/data-export.module';
 import { StorageModule } from '../storage/storage.module';
 import { OrderExportHandler } from './handlers/order-export.handler';
+import { BrandExportHandler } from './handlers/brand-export.handler';
+import { BrandTemplateExportHandler } from './handlers/brand-template-export.handler';
 import { ExportProcessingModule } from '../export/export-processing.module';
 import { WorkerExportService } from '../export/services/worker-export.service';
 import { NotificationsModule } from '../notifications/notifications.module';
@@ -189,6 +192,7 @@ import { FirebaseModule } from '../firebase/firebase.module';
     EmailFlowRepository,
     ProductRepository,
     OrderRepository,
+    BrandRepository,
 
     // Backend Services
     MailProviderService,
@@ -211,6 +215,8 @@ import { FirebaseModule } from '../firebase/firebase.module';
     ProductExportHandler,
     ProductTemplateExportHandler,
     OrderExportHandler,
+    BrandExportHandler,
+    BrandTemplateExportHandler,
   ],
   exports: [
     // Export worker services for use by processors

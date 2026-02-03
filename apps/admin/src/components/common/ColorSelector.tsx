@@ -86,9 +86,11 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
   return (
     <div className={cn('space-y-2', className)}>
       {label && (
-        <label className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
-          {label}
-        </label>
+        <div className="flex items-center justify-between">
+          <label className={BASE_LABEL_CLASS}>
+            {label}
+          </label>
+        </div>
       )}
       <div className="space-y-2">
         <div className="relative">

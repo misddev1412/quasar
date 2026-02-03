@@ -134,6 +134,7 @@ export const ROUTE_PERMISSIONS: Record<string, RoutePermission> = {
   '/products/:id/edit': { resource: 'product', action: PermissionAction.UPDATE, scope: PermissionScope.OWN },
   '/products/attributes': { resource: 'product_attribute', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/products/brands': { resource: 'product_brand', action: PermissionAction.READ, scope: PermissionScope.ANY },
+  '/products/brands/exports': { resource: 'product_brand', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/products/suppliers': { resource: 'product_supplier', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/products/categories': { resource: 'product_category', action: PermissionAction.READ, scope: PermissionScope.ANY },
   '/products/categories/create': { resource: 'product_category', action: PermissionAction.CREATE, scope: PermissionScope.ANY },

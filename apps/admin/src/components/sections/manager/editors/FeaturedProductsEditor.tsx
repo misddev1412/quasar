@@ -355,15 +355,7 @@ export const FeaturedProductsConfigEditor: React.FC<FeaturedProductsConfigEditor
                                             onChange={(e) => handleConfigChange({ title: e.target.value })}
                                         />
                                     </label>
-                                    <label className="flex flex-col gap-1 text-sm text-gray-600">
-                                        {t('sections.manager.featuredProducts.limit')}
-                                        <Input
-                                            type="number"
-                                            min={1}
-                                            value={config.limit}
-                                            onChange={(e) => handleConfigChange({ limit: Number(e.target.value) || 1 })}
-                                        />
-                                    </label>
+
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

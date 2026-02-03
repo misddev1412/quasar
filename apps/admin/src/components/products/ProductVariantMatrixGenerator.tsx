@@ -24,6 +24,7 @@ export interface VariantMatrixItem {
   sku?: string;
   image?: string | null;
   isEnabled: boolean;
+  isContactPrice: boolean;
 }
 
 export interface ProductVariantMatrixGeneratorProps {
@@ -138,9 +139,12 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
   );
 
   const hasExistingVariantsWithData = useMemo(
-    () => variants.some(v => v.price > 0 || v.quantity > 0 || v.sku),
+    () => variants.some(v => v.price > 0 || v.quantity > 0 || v.sku || v.isContactPrice),
     [variants]
   );
+
+  console.log('DEBUG: ProductVariantMatrixGenerator variants:', variants);
+  console.log('DEBUG: hasExistingVariantsWithData:', hasExistingVariantsWithData);
 
   const existingCombinationKey = useMemo(() => {
     const keys = variants
@@ -285,6 +289,7 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
           sku: '',
           image: null,
           isEnabled: true,
+          isContactPrice: false,
         });
       }
 
@@ -655,6 +660,9 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                       {t('products.image', 'Image')}
                     </th>
                     <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      {t('products.contact_price', 'Contact Price')}
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       {t('products.enabled', 'Enabled')}
                     </th>
                   </tr>
@@ -743,6 +751,27 @@ export const ProductVariantMatrixGenerator: React.FC<ProductVariantMatrixGenerat
                               <FiImage className="w-4 h-4" />
                             </button>
                           )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-5 whitespace-nowrap">
+                        <div className="flex flex-col space-y-2">
+                          <label className="inline-flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              checked={variant.isContactPrice}
+                              onChange={(e) => updateVariant(index, 'isContactPrice', e.target.checked)}
+                              className="rounded border-gray-300 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50"
+                              disabled={!variant.isEnabled}
+                            />
+                            <span className="text-sm text-gray-600 dark:text-gray-400">{t('products.enable', 'Enable')}</span>
+                          </label>
+                          {/*
+                          {variant.isContactPrice && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              Override the default "Contact Price" text with a custom label.
+                            </p>
+                          )}
+                          */}
                         </div>
                       </td>
                       <td className="px-6 py-5 whitespace-nowrap text-center">

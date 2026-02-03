@@ -34,7 +34,7 @@ export class PostCategoryRepository extends BaseRepository<PostCategory> {
   async findAllWithHierarchy(): Promise<PostCategory[]> {
     return await this.repository.find({
       relations: ['parent', 'children'],
-      order: { sort_order: 'ASC', name: 'ASC' },
+      order: { sortOrder: 'ASC', name: 'ASC' },
     });
   }
 
@@ -47,34 +47,36 @@ export class PostCategoryRepository extends BaseRepository<PostCategory> {
 
   async findRootCategories(): Promise<PostCategory[]> {
     return await this.repository.find({
-      where: { parent_id: null },
+      where: { parentId: null } as any,
       relations: ['children'],
-      order: { sort_order: 'ASC', name: 'ASC' },
+      order: { sortOrder: 'ASC', name: 'ASC' },
     });
   }
 
   async findByParentId(parentId: string): Promise<PostCategory[]> {
     return await this.repository.find({
-      where: { parent_id: parentId },
-      order: { sort_order: 'ASC', name: 'ASC' },
+      where: { parentId } as any,
+      order: { sortOrder: 'ASC', name: 'ASC' },
     });
   }
 
   async createCategory(createDto: CreatePostCategoryDto): Promise<PostCategory> {
-    const category = this.repository.create(createDto);
+    const category = this.repository.create(createDto as any) as unknown as PostCategory;
     return await this.repository.save(category);
   }
 
   async updateCategory(id: string, updateDto: UpdatePostCategoryDto): Promise<PostCategory | null> {
-    await this.repository.update(id, updateDto);
+    if (Object.keys(updateDto).length > 0) {
+      await this.repository.update(id, updateDto as any);
+    }
     return await this.findById(id);
   }
 
   async findActiveCategories(): Promise<PostCategory[]> {
     return await this.repository.find({
-      where: { is_active: true },
+      where: { isActive: true },
       relations: ['parent', 'children'],
-      order: { sort_order: 'ASC', name: 'ASC' },
+      order: { sortOrder: 'ASC', name: 'ASC' },
     });
   }
 

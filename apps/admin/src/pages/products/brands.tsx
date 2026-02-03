@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiPlus, FiMoreVertical, FiTag, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiExternalLink, FiShoppingBag, FiGlobe, FiTrendingUp, FiHome, FiPackage } from 'react-icons/fi';
-import { Button, Card, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
+import { FiPlus, FiMoreVertical, FiTag, FiActivity, FiEdit2, FiDownload, FiFilter, FiRefreshCw, FiTrash2, FiEye, FiExternalLink, FiShoppingBag, FiGlobe, FiTrendingUp, FiHome, FiPackage, FiUpload } from 'react-icons/fi';
+import { Button, Dropdown, StatisticsGrid, Table, StandardListPage, Loading, Alert, AlertDescription, AlertTitle } from '@admin/components/common';
 import type { StatisticData, Column, SortDescriptor } from '@admin/components/common';
 import { useTranslationWithBackend } from '@admin/hooks/useTranslationWithBackend';
 import { useToast } from '@admin/contexts/ToastContext';
 import { trpc } from '@admin/utils/trpc';
-import { useTablePreferences } from '@admin/hooks/useTablePreferences';
+import { useTableState } from '@admin/hooks/useTableState';
 import { Brand } from '@admin/types/product';
-import { CreateBrandModal, EditBrandModal } from '@admin/components/products';
+import { CreateBrandModal, EditBrandModal, BrandImportModal } from '@admin/components/products';
 
 interface BrandFiltersType {
   search?: string;
@@ -21,92 +21,45 @@ const BrandsPage: React.FC = () => {
   const navigate = useNavigate();
   const { addToast } = useToast();
   const { t } = useTranslationWithBackend();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
-  // Table preferences with persistence
-  const { preferences, updatePageSize, updateVisibleColumns } = useTablePreferences('brands-table', {
-    pageSize: parseInt(searchParams.get('limit') || '10'),
-    visibleColumns: new Set(['brand', 'description', 'website', 'status', 'productsCount', 'createdAt']),
-  });
-
-  // Initialize state from URL parameters
-  const [page, setPage] = useState(() => parseInt(searchParams.get('page') || '1'));
-  const [limit, setLimit] = useState(preferences.pageSize);
-  const [searchValue, setSearchValue] = useState(() => searchParams.get('search') || '');
-  const [debouncedSearchValue, setDebouncedSearchValue] = useState(() => searchParams.get('search') || '');
-  const [filters, setFilters] = useState<BrandFiltersType>({
+  // Initial filters from URL
+  const initialFilters = useMemo(() => ({
     isActive: searchParams.get('isActive') ? searchParams.get('isActive') === 'true' : undefined,
+  }), [searchParams]);
+
+  const brandTableState = useTableState<BrandFiltersType>({
+    tableId: 'brands-table',
+    defaultPreferences: {
+      visibleColumns: ['brand', 'description', 'website', 'status', 'productsCount', 'createdAt', 'actions'],
+    },
+    initialFilters,
   });
-  const [showFilters, setShowFilters] = useState(false);
-  const [sortBy, setSortBy] = useState(() => searchParams.get('sortBy') || 'createdAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(() =>
-    searchParams.get('sortOrder') === 'asc' ? 'asc' : 'desc'
-  );
+
+  const {
+    page,
+    limit,
+    searchValue,
+    debouncedSearchValue,
+    filters,
+    showFilters,
+    setShowFilters,
+    sortBy,
+    sortOrder,
+    visibleColumns,
+    handleSortChange,
+    handlePageChange,
+    handlePageSizeChange,
+    handleColumnVisibilityChange,
+    setSearchValue,
+  } = brandTableState;
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
-
-  // Column visibility state
-  const [visibleColumns, setVisibleColumns] = useState<Set<string>>(() => {
-    const initial = preferences.visibleColumns ? new Set(preferences.visibleColumns) : new Set(['brand', 'description', 'website', 'status', 'productsCount', 'createdAt', 'actions']);
-    if (!initial.has('actions')) initial.add('actions');
-    return initial;
-  });
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
 
   // Selected brands for bulk actions
   const [selectedBrandIds, setSelectedBrandIds] = useState<Set<string | number>>(new Set());
-
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const urlUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Function to update URL parameters
-  const updateUrlParams = useCallback((params: Record<string, string | undefined>) => {
-    if (urlUpdateTimeoutRef.current) {
-      clearTimeout(urlUpdateTimeoutRef.current);
-    }
-
-    urlUpdateTimeoutRef.current = setTimeout(() => {
-      const newSearchParams = new URLSearchParams();
-
-      // Add non-empty parameters to URL
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== '' && value !== null) {
-          newSearchParams.set(key, value);
-        }
-      });
-
-      // Update URL without causing navigation
-      setSearchParams(newSearchParams, { replace: true });
-    }, 100);
-  }, [setSearchParams]);
-
-  // Debounce search value for API calls and URL updates
-  useEffect(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    searchTimeoutRef.current = setTimeout(() => {
-      setDebouncedSearchValue(searchValue);
-      setPage(1); // Reset to first page when search changes
-
-      // Update URL with search parameter and all filters
-      updateUrlParams({
-        search: searchValue || undefined,
-        isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
-        page: searchValue ? '1' : String(page),
-        limit: limit !== 10 ? String(limit) : undefined,
-        sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
-        sortOrder: sortOrder !== 'desc' ? sortOrder : undefined,
-      });
-    }, 400);
-
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, [searchValue, filters, page, sortBy, sortOrder, updateUrlParams, limit]);
 
   // Build query parameters - match the API schema exactly
   const queryParams = {
@@ -130,6 +83,23 @@ const BrandsPage: React.FC = () => {
   const brands = (brandsData as any)?.data?.brands || (brandsData as any)?.data?.items || [];
   const totalBrands = (brandsData as any)?.data?.total || 0;
   const totalPages = Math.ceil(totalBrands / limit);
+
+  useEffect(() => {
+    if (isLoading || error) return;
+    if (page <= 1) return;
+
+    if (totalBrands === 0) {
+      handlePageChange(1);
+      return;
+    }
+
+    if (brands.length === 0) {
+      const lastPage = Math.max(1, totalPages);
+      if (page !== lastPage) {
+        handlePageChange(lastPage);
+      }
+    }
+  }, [brands.length, error, handlePageChange, isLoading, page, totalBrands, totalPages]);
 
   // Fetch brand statistics
   const {
@@ -223,62 +193,8 @@ const BrandsPage: React.FC = () => {
     }
   }, [deleteMutation, addToast, t]);
 
-  // Handle pagination
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-    updateUrlParams({
-      search: searchValue || undefined,
-      isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
-      page: newPage > 1 ? String(newPage) : undefined,
-      limit: limit !== 10 ? String(limit) : undefined,
-      sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
-      sortOrder: sortOrder !== 'desc' ? sortOrder : undefined,
-    });
-  };
-
-  const handlePageSizeChange = (newLimit: number) => {
-    setLimit(newLimit);
-    setPage(1);
-    updatePageSize(newLimit);
-    updateUrlParams({
-      search: searchValue || undefined,
-      isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
-      page: undefined,
-      limit: newLimit !== 10 ? String(newLimit) : undefined,
-      sortBy: sortBy !== 'createdAt' ? sortBy : undefined,
-      sortOrder: sortOrder !== 'desc' ? sortOrder : undefined,
-    });
-  };
-
-  // Handle sorting
-  const handleSortChange = (sortDescriptor: SortDescriptor<Brand>) => {
-    const newSortBy = String(sortDescriptor.columnAccessor);
-    const newSortOrder = sortDescriptor.direction;
-    setSortBy(newSortBy);
-    setSortOrder(newSortOrder);
-    setPage(1);
-    updateUrlParams({
-      search: searchValue || undefined,
-      isActive: filters.isActive !== undefined ? String(filters.isActive) : undefined,
-      page: undefined,
-      limit: limit !== 10 ? String(limit) : undefined,
-      sortBy: newSortBy !== 'createdAt' ? newSortBy : undefined,
-      sortOrder: newSortOrder !== 'desc' ? newSortOrder : undefined,
-    });
-  };
-
-  // Handle column visibility
-  const handleColumnVisibilityChange = (columnId: string, visible: boolean) => {
-    setVisibleColumns(prev => {
-      const newSet = new Set(prev);
-      if (visible) {
-        newSet.add(columnId);
-      } else {
-        newSet.delete(columnId);
-      }
-      updateVisibleColumns(newSet);
-      return newSet;
-    });
+  const handleSortDescriptorChange = (sortDescriptor: SortDescriptor<Brand>) => {
+    handleSortChange(String(sortDescriptor.columnAccessor), sortDescriptor.direction);
   };
 
   // Handle bulk actions
@@ -305,6 +221,24 @@ const BrandsPage: React.FC = () => {
     refetchBrands();
     refetchStats();
   }, [refetchBrands, refetchStats]);
+
+  const exportFiltersPayload = useMemo(() => {
+    const payload: Record<string, unknown> = {};
+    if (debouncedSearchValue) {
+      payload.search = debouncedSearchValue;
+    }
+    if (filters.isActive !== undefined) {
+      payload.isActive = filters.isActive;
+    }
+    return payload;
+  }, [debouncedSearchValue, filters.isActive]);
+
+  const handleOpenExportCenter = useCallback(() => {
+    const payload = exportFiltersPayload;
+    navigate('/products/brands/exports', {
+      state: Object.keys(payload).length ? { filters: payload } : undefined,
+    });
+  }, [navigate, exportFiltersPayload]);
 
   const handleFilterToggle = () => {
     setShowFilters(!showFilters);
@@ -418,7 +352,13 @@ const BrandsPage: React.FC = () => {
       accessor: (brand) => (
         <Dropdown
           button={
-            <Button variant="ghost" size="sm" aria-label={`Actions for ${brand.name}`}>
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label={`Actions for ${brand.name}`}
+              onClick={(event) => event.stopPropagation()}
+              onMouseDown={(event) => event.stopPropagation()}
+            >
               <FiMoreVertical />
             </Button>
           }
@@ -474,10 +414,20 @@ const BrandsPage: React.FC = () => {
 
   const actions = useMemo(() => [
     {
+      label: t('brands.import.title', 'Import Brands'),
+      onClick: () => setImportDialogOpen(true),
+      icon: <FiUpload />,
+    },
+    {
       label: t('brands.create', 'Create Brand'),
       onClick: handleCreateBrand,
       primary: true,
       icon: <FiPlus />,
+    },
+    {
+      label: t('brands.actions.export_brands', 'Export Brands'),
+      onClick: handleOpenExportCenter,
+      icon: <FiDownload />,
     },
     {
       label: t('common.refresh', 'Refresh'),
@@ -489,7 +439,7 @@ const BrandsPage: React.FC = () => {
       onClick: handleFilterToggle,
       icon: <FiFilter />,
     },
-  ], [handleCreateBrand, handleRefresh, handleFilterToggle, showFilters, t]);
+  ], [handleCreateBrand, handleRefresh, handleFilterToggle, showFilters, t, handleOpenExportCenter]);
 
   // Prepare statistics data
   const statisticsCards: StatisticData[] = useMemo(() => {
@@ -626,7 +576,7 @@ const BrandsPage: React.FC = () => {
           onBulkAction={handleBulkAction}
           // Sorting
           sortDescriptor={sortDescriptor}
-          onSortChange={handleSortChange}
+          onSortChange={handleSortDescriptorChange}
           // Enhanced pagination with page size selection
           pagination={{
             currentPage: page,
@@ -672,6 +622,16 @@ const BrandsPage: React.FC = () => {
         onSuccess={() => {
           setEditDialogOpen(false);
           setEditingBrand(null);
+          refetchBrands();
+          refetchStats();
+        }}
+      />
+
+      <BrandImportModal
+        isOpen={importDialogOpen}
+        onClose={() => setImportDialogOpen(false)}
+        onImportSuccess={() => {
+          setImportDialogOpen(false);
           refetchBrands();
           refetchStats();
         }}

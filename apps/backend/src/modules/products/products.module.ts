@@ -81,6 +81,7 @@ import { AdminOrderService } from './services/admin-order.service';
 import { AdminCustomerService } from './services/admin-customer.service';
 import { AdminCurrencyService } from './services/admin-currency.service';
 import { AdminShippingProviderService } from './services/admin-shipping-provider.service';
+import { AdminBrandService } from './services/admin-brand.service';
 import { PaymentMethodService } from './services/payment-method.service';
 import { DeliveryMethodService } from './services/delivery-method.service';
 import { ClientOrderService } from './services/client-order.service';
@@ -213,6 +214,7 @@ import { ImportModule } from '../import/import.module';
     AdminCustomerService,
     AdminCurrencyService,
     AdminShippingProviderService,
+    AdminBrandService,
     PaymentMethodService,
     PayosService,
     DeliveryMethodService,
@@ -302,6 +304,7 @@ import { ImportModule } from '../import/import.module';
     OrderFulfillmentService,
     ShippingProviderService,
     AdminShippingProviderService,
+    AdminBrandService,
   ],
 })
 export class ProductsModule { }

@@ -255,7 +255,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const [variants, setVariants] = useState<VariantMatrixItem[]>(() => {
     if (!product?.variants) return [];
 
-    return product.variants.map(v => {
+    const mapped = product.variants.map(v => {
       // Build attribute combination from variantItems
       const attributeCombination: Record<string, string> = {};
       let combinationDisplay = v.name;
@@ -281,9 +281,12 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         quantity: typeof v.stockQuantity === 'string' ? parseInt(v.stockQuantity) || 0 : (v.stockQuantity || 0),
         sku: v.sku,
         image: v.image,
-        isEnabled: v.isActive,
+        isEnabled: Boolean(v.isActive),
+        isContactPrice: Boolean((v as any).isContactPrice),
       };
     });
+    console.log('DEBUG: Frontend initialized variants:', mapped);
+    return mapped;
   });
 
   const [translations, setTranslations] = useState<TranslationState>({});
@@ -721,7 +724,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                     {t('products.sale_price_description', 'Set a promotional price to highlight discounts. Leave blank to use the regular price.')} ({currencyCode})
                   </p>
                 </div>
-              </div>
+              </div >
               {!enableWarehouseQuantity && (
                 <div className="space-y-2">
                   <label htmlFor="stockQuantity" className={BASE_LABEL_CLASS}>
@@ -744,22 +747,24 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   </p>
                 </div>
               )}
-              {enableWarehouseQuantity && (
-                <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800 p-4">
-                  <div className="flex items-start gap-3">
-                    <Warehouse className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-                    <div className="flex-1">
-                      <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                        {t('products.warehouse_quantity_notice', 'Warehouse tracking enabled')}
-                      </h4>
-                      <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                        {t('products.warehouse_quantity_description', 'Stock quantity is managed by warehouse. Please go to the Inventory tab to set quantities for each warehouse.')}
-                      </p>
+              {
+                enableWarehouseQuantity && (
+                  <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800 p-4">
+                    <div className="flex items-start gap-3">
+                      <Warehouse className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                      <div className="flex-1">
+                        <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                          {t('products.warehouse_quantity_notice', 'Warehouse tracking enabled')}
+                        </h4>
+                        <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                          {t('products.warehouse_quantity_description', 'Stock quantity is managed by warehouse. Please go to the Inventory tab to set quantities for each warehouse.')}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )
+              }
+            </div >
           ),
         },
         {
@@ -1238,6 +1243,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             isActive: boolean;
             sortOrder: number;
             variantItems: { attributeId: string; attributeValueId: string }[];
+            isContactPrice?: boolean;
           } = {
             name: variant.combinationDisplay || `Variant ${index + 1}`,
             price: Number(variant.price) || 0,
@@ -1250,6 +1256,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               attributeId,
               attributeValueId,
             })),
+            isContactPrice: Boolean(variant.isContactPrice),
           };
 
           if (variant.id) {
@@ -1296,6 +1303,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       const currentSubmitAction: ProductFormSubmitAction = showSaveAndContinueActions
         ? submitActionRef.current
         : 'save';
+
+      console.log('DEBUG: Frontend submitting data:', JSON.stringify(submitData, null, 2));
 
       const submitResult = await onSubmit(submitData, { submitAction: currentSubmitAction });
 

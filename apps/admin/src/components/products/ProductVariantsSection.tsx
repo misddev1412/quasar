@@ -193,6 +193,9 @@ export const ProductVariantsSection: React.FC<ProductVariantsSectionProps> = ({
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         {t('products.image', 'Image')}
                       </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        {t('products.contact_price', 'Contact Price')}
+                      </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         {t('common.status', 'Status')}
                       </th>
@@ -231,6 +234,13 @@ export const ProductVariantsSection: React.FC<ProductVariantsSectionProps> = ({
                             <span className="text-xs text-gray-400">
                               {t('common.no_image', 'No image')}
                             </span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          {variant.isContactPrice ? (
+                            <Badge variant="warning">{t('products.contact_price', 'Contact Price')}</Badge>
+                          ) : (
+                            <span className="text-gray-400">-</span>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">

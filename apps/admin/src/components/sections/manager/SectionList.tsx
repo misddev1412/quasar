@@ -402,14 +402,16 @@ const getSectionDetails = (
             const details: React.ReactNode[] = [];
 
             // Total brands
-            const brands = Array.isArray(config.brands) ? config.brands : [];
-            if (brands.length > 0) {
+            const brandIds = Array.isArray(config.brandIds) ? config.brandIds : [];
+            const legacyBrands = Array.isArray(config.brands) ? config.brands : [];
+            const totalBrands = brandIds.length || legacyBrands.length;
+            if (totalBrands > 0) {
                 details.push(
                     <span key="brands" className="inline-flex items-center gap-1">
                         <span className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor('totalBrands')}`}>
                             {t('sections.manager.details.totalBrands')}
                         </span>
-                        <span>{brands.length}</span>
+                        <span>{totalBrands}</span>
                     </span>
                 );
             }

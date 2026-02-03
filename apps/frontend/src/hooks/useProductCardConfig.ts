@@ -26,6 +26,7 @@ interface ProductCardBaseConfig {
   showWishlist: boolean;
   showQuickView: boolean;
   showRating: boolean;
+  showSku: boolean;
   showShortDescription: boolean;
   badgeStyle: ProductCardBadgeStyle;
   priceDisplay: ProductCardPriceDisplay;
@@ -73,6 +74,7 @@ const DEFAULT_CARD_CONFIG: ProductCardBaseConfig = {
   showWishlist: true,
   showQuickView: false,
   showRating: true,
+  showSku: true,
   showShortDescription: false,
   badgeStyle: 'pill',
   priceDisplay: 'stacked',
@@ -140,6 +142,7 @@ const normalizeCardConfig = (raw?: Record<string, unknown> | null): ProductCardB
     showWishlist: normalizeBoolean(raw.showWishlist, DEFAULT_CARD_CONFIG.showWishlist),
     showQuickView: normalizeBoolean(raw.showQuickView, DEFAULT_CARD_CONFIG.showQuickView),
     showRating: normalizeBoolean(raw.showRating, DEFAULT_CARD_CONFIG.showRating),
+    showSku: normalizeBoolean(raw.showSku, DEFAULT_CARD_CONFIG.showSku),
     showShortDescription: normalizeBoolean(raw.showShortDescription, DEFAULT_CARD_CONFIG.showShortDescription),
     badgeStyle: isBadgeStyle(raw.badgeStyle) ? raw.badgeStyle : DEFAULT_CARD_CONFIG.badgeStyle,
     priceDisplay: isPriceDisplay(raw.priceDisplay) ? raw.priceDisplay : DEFAULT_CARD_CONFIG.priceDisplay,
@@ -171,11 +174,11 @@ const normalizeTitleConfig = (raw?: Record<string, unknown> | null): ProductCard
   const clampLines = typeof raw.clampLines === 'number' ? raw.clampLines : DEFAULT_TITLE_CONFIG.clampLines;
   const htmlTag =
     raw.htmlTag === 'h2' ||
-    raw.htmlTag === 'h3' ||
-    raw.htmlTag === 'h4' ||
-    raw.htmlTag === 'h5' ||
-    raw.htmlTag === 'p' ||
-    raw.htmlTag === 'span'
+      raw.htmlTag === 'h3' ||
+      raw.htmlTag === 'h4' ||
+      raw.htmlTag === 'h5' ||
+      raw.htmlTag === 'p' ||
+      raw.htmlTag === 'span'
       ? raw.htmlTag
       : DEFAULT_TITLE_CONFIG.htmlTag;
 

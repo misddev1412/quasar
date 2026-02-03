@@ -92,6 +92,7 @@ const ProductsIndexPage = lazy(() => import(/* webpackChunkName: "admin-catalog"
 const ProductExportsPage = lazy(() => import(/* webpackChunkName: "admin-catalog" */ '@admin/pages/products/exports'));
 const AttributesPage = lazy(() => import(/* webpackChunkName: "admin-catalog" */ '@admin/pages/products/attributes'));
 const BrandsPage = lazy(() => import(/* webpackChunkName: "admin-catalog" */ '@admin/pages/products/brands'));
+const BrandExportsPage = lazy(() => import(/* webpackChunkName: "admin-catalog" */ '@admin/pages/products/brands/exports'));
 const SuppliersPage = lazy(() => import(/* webpackChunkName: "admin-catalog" */ '@admin/pages/products/suppliers'));
 const ProductBundleListPage = lazy(() => import(/* webpackChunkName: "admin-catalog" */ '@admin/pages/product-bundles/ProductBundleListPage'));
 const ProductBundleCreatePage = lazy(() => import(/* webpackChunkName: "admin-catalog" */ '@admin/pages/product-bundles/ProductBundleCreatePage'));
@@ -300,6 +301,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/products/:id/edit" element={<ProtectedRoute><EditProductPage /></ProtectedRoute>} />
         <Route path="/products/attributes" element={<ProtectedRoute><AttributesPage /></ProtectedRoute>} />
         <Route path="/products/brands" element={<ProtectedRoute><BrandsPage /></ProtectedRoute>} />
+        <Route path="/products/brands/exports" element={<ProtectedRoute><BrandExportsPage /></ProtectedRoute>} />
         <Route path="/products/suppliers" element={<ProtectedRoute><SuppliersPage /></ProtectedRoute>} />
         {/* Product Bundles */}
         <Route path="/product-bundles" element={<ProtectedRoute><ProductBundleListPage /></ProtectedRoute>} />

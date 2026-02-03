@@ -16,6 +16,7 @@ export interface TransformedProduct {
   status: string;
   isActive: boolean;
   isFeatured: boolean;
+  isContactPrice: boolean;
   price: number;
   compareAtPrice: number | null;
   sortOrder: number;
@@ -139,6 +140,7 @@ export interface TransformedVariant {
   dimensions: string | null;
   image: string | null;
   isActive: boolean;
+  isContactPrice: boolean;
   sortOrder: number;
   variantItems: TransformedVariantItem[];
 }
@@ -218,6 +220,7 @@ export class ProductTransformer {
       status: product.status,
       isActive: product.isActive,
       isFeatured: product.isFeatured,
+      isContactPrice: product.isContactPrice,
       price: Number(product.price) || 0,
       compareAtPrice: product.compareAtPrice !== undefined && product.compareAtPrice !== null
         ? Number(product.compareAtPrice)
@@ -511,6 +514,7 @@ export class ProductTransformer {
           dimensions: v.dimensions || null,
           image: v.image || null,
           isActive: v.isActive !== false,
+          isContactPrice: Boolean(v.isContactPrice),
           sortOrder: v.sortOrder || 0,
           variantItems,
         };
