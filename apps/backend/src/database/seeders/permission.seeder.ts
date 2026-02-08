@@ -12,7 +12,7 @@ export class PermissionSeeder {
     private readonly permissionService: AdminPermissionService,
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
-  ) {}
+  ) { }
 
   /**
    * Seed default roles first
@@ -37,6 +37,20 @@ export class PermissionSeeder {
         name: 'Super Admin',
         code: UserRole.SUPER_ADMIN,
         description: 'Super administrator with full system access',
+        isActive: true,
+        isDefault: false,
+      },
+      {
+        name: 'Manager',
+        code: UserRole.MANAGER,
+        description: 'Manager with operational access',
+        isActive: true,
+        isDefault: false,
+      },
+      {
+        name: 'Staff',
+        code: UserRole.STAFF,
+        description: 'Staff member with limited operational access',
         isActive: true,
         isDefault: false,
       },
@@ -2558,10 +2572,132 @@ export class PermissionSeeder {
         scope: PermissionScope.ANY,
         attributes: ['*'],
       },
+      // MANAGER ROLE PERMISSIONS
+      {
+        role: UserRole.MANAGER,
+        resource: 'dashboard',
+        action: PermissionAction.READ,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.MANAGER,
+        resource: 'product',
+        action: PermissionAction.READ,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.MANAGER,
+        resource: 'product',
+        action: PermissionAction.CREATE,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.MANAGER,
+        resource: 'product',
+        action: PermissionAction.UPDATE,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.MANAGER,
+        resource: 'product',
+        action: PermissionAction.DELETE,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.MANAGER,
+        resource: 'order',
+        action: PermissionAction.READ,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.MANAGER,
+        resource: 'order',
+        action: PermissionAction.CREATE,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.MANAGER,
+        resource: 'order',
+        action: PermissionAction.UPDATE,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.MANAGER,
+        resource: 'customer',
+        action: PermissionAction.READ,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.MANAGER,
+        resource: 'user',
+        action: PermissionAction.READ,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.MANAGER,
+        resource: 'analytics',
+        action: PermissionAction.READ,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+
+      // STAFF ROLE PERMISSIONS
+      {
+        role: UserRole.STAFF,
+        resource: 'dashboard',
+        action: PermissionAction.READ,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.STAFF,
+        resource: 'product',
+        action: PermissionAction.READ,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.STAFF,
+        resource: 'order',
+        action: PermissionAction.READ,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.STAFF,
+        resource: 'order',
+        action: PermissionAction.CREATE,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.STAFF,
+        resource: 'order',
+        action: PermissionAction.UPDATE,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
+      {
+        role: UserRole.STAFF,
+        resource: 'customer',
+        action: PermissionAction.READ,
+        scope: PermissionScope.ANY,
+        attributes: ['*'],
+      },
     ];
 
     try {
-      // Grant all default permissions
+      // Seed permissions
       await this.permissionService.grant(defaultPermissions);
     } catch (error) {
       console.error('❌ Permission seeding failed:', error);
@@ -2575,10 +2711,10 @@ export class PermissionSeeder {
   async seedIfEmpty(): Promise<void> {
     // Check if roles exist
     const existingRoles = await this.roleRepository.count();
-    
+
     // Check if permissions exist
     const existingPermissions = await this.permissionService.getAllPermissions();
-    
+
     if (existingRoles === 0 || existingPermissions.length === 0) {
       await this.seed();
     }

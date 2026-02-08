@@ -13,8 +13,8 @@ export function isSuperAdminUser(user: UserRecord): boolean {
   const roleValue = typeof role === 'string'
     ? role
     : typeof role === 'object' && role?.code
-    ? role.code
-    : '';
+      ? role.code
+      : '';
 
   const normalizedRole = String(roleValue || '').toLowerCase();
 
@@ -34,11 +34,31 @@ export function isAdminUser(user: UserRecord): boolean {
   const roleValue = typeof role === 'string'
     ? role
     : typeof role === 'object' && role?.code
-    ? role.code
-    : '';
+      ? role.code
+      : '';
   const normalizedRole = String(roleValue || '').toLowerCase();
 
   return normalizedRole === 'admin' || roleValue === 'ADMIN';
+}
+
+export function isManagerUser(user: UserRecord): boolean {
+  if (!user) {
+    return false;
+  }
+
+  if (isAdminUser(user)) {
+    return true;
+  }
+
+  const role = user.role;
+  const roleValue = typeof role === 'string'
+    ? role
+    : typeof role === 'object' && role?.code
+      ? role.code
+      : '';
+  const normalizedRole = String(roleValue || '').toLowerCase();
+
+  return normalizedRole === 'manager' || roleValue === 'MANAGER';
 }
 
 export function hasPermissionForRoute(path: string, user: UserRecord): boolean {

@@ -2,8 +2,8 @@ import React, { useCallback, useMemo } from 'react';
 import { withAdminSeo } from '@admin/components/SEO';
 import { AdminSeoData } from '@admin/hooks/useAdminSeo';
 import { useAuth } from '@admin/hooks/useAuth';
-import { isSuperAdminUser, isAdminUser } from '@admin/utils/permission-access';
-import { AdminDashboard, StaffDashboard } from '@admin/components/dashboard';
+import { isSuperAdminUser, isAdminUser, isManagerUser } from '@admin/utils/permission-access';
+import { AdminDashboard, StaffDashboard, ManagerDashboard } from '@admin/components/dashboard';
 
 // Define the static SEO data for the home page
 const homeSeoData: AdminSeoData = {
@@ -24,8 +24,16 @@ export const HomePage: React.FC = () => {
     return isSuperAdminUser(user) || isAdminUser(user);
   }, [user]);
 
+  const isManager = useMemo(() => {
+    return isManagerUser(user);
+  }, [user]);
+
   if (isAdmin) {
     return <AdminDashboard />;
+  }
+
+  if (isManager) {
+    return <ManagerDashboard />;
   }
 
   return <StaffDashboard />;
